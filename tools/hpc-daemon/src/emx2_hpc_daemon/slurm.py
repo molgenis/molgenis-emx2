@@ -208,29 +208,29 @@ def _format_env_exports(environment: dict[str, str] | None) -> str:
     return "\n".join(f'export {k}="{v}"' for k, v in environment.items())
 
 
-def _format_entrypoint_body(
+def _format_host_entrypoint_body(
     job_id: str,
     work_dir: str,
     input_dir: str,
     output_dir: str,
-    entrypoint: str,
+    host_entrypoint: str,
     environment: dict[str, str] | None = None,
     parameters: dict | None = None,
 ) -> str:
-    """Format the entrypoint/wrapper execution body."""
+    """Format the host-side entrypoint execution body."""
     params_json = _json.dumps(parameters) if parameters else "{}"
     env_exports = _format_env_exports(environment)
     env_block = f"\n{env_exports}" if env_exports else ""
 
     return textwrap.dedent(f"""\
-        # Entrypoint wrapper execution
+        # Host entrypoint execution
         export HPC_JOB_ID="{job_id}"
         export HPC_INPUT_DIR="{input_dir}"
         export HPC_OUTPUT_DIR="{output_dir}"
         export HPC_WORK_DIR="{work_dir}"
         export HPC_PARAMETERS='{params_json}'{env_block}
 
-        exec {entrypoint}""")
+        exec {host_entrypoint}""")
 
 
 def _format_apptainer_body(
@@ -244,6 +244,9 @@ def _format_apptainer_body(
     environment: dict[str, str] | None = None,
 ) -> str:
     """Format the Apptainer container execution body."""
+    if not container_command:
+        raise ValueError("Apptainer jobs require a container command")
+
     bind_parts = [
         f"{input_dir}:/input:ro",
         f"{output_dir}:/output",
@@ -255,11 +258,6 @@ def _format_apptainer_body(
     env_flags = f'--env "EMX2_JOB_ID={job_id}"'
     for k, v in (environment or {}).items():
         env_flags += f' --env "{k}={v}"'
-
-    if container_command is None:
-        container_command = (
-            '/bin/bash -c \'echo "Container started"; ls /input; echo "Done"\''
-        )
 
     return textwrap.dedent(f"""\
         # Run container via Apptainer
@@ -305,7 +303,7 @@ def generate_batch_script(
     account: str | None = None,
     container_command: str | None = None,
     environment: dict[str, str] | None = None,
-    entrypoint: str | None = None,
+    host_entrypoint: str | None = None,
     parameters: dict | None = None,
 ) -> str:
     """
@@ -315,8 +313,8 @@ def generate_batch_script(
 
     - **Apptainer mode** (``sif_image`` set): runs the workload inside an
       Apptainer container with bind-mounted directories.
-    - **Wrapper/entrypoint mode** (``entrypoint`` set): exports well-defined
-      env vars and ``exec``s the wrapper script directly on the host.
+    - **Host entrypoint mode** (``host_entrypoint`` set): exports well-defined
+      env vars and ``exec``s the host script directly.
     """
     sbatch = _format_sbatch_directives(
         job_id,
@@ -338,13 +336,13 @@ def generate_batch_script(
         echo "Start time: $(date -Iseconds)"
     """)
 
-    if entrypoint:
-        body = _format_entrypoint_body(
+    if host_entrypoint:
+        body = _format_host_entrypoint_body(
             job_id,
             work_dir,
             input_dir,
             output_dir,
-            entrypoint,
+            host_entrypoint,
             environment=environment,
             parameters=parameters,
         )

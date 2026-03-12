@@ -12,7 +12,7 @@ outside this test harness), start with:
 - [apps/hpc/README.md](../../../apps/hpc/README.md)
 
 This README is only for the real-Slurm VM e2e test system. It covers both the
-entrypoint execution path and the Apptainer execution path.
+host-entrypoint execution path and the Apptainer execution path.
 
 ## Architecture
 
@@ -136,11 +136,13 @@ This will:
    cron) processes the jobs independently.
 
 4. **Job scripts** in `scripts/` are simple bash scripts that run inside
-   Slurm via the entrypoint execution mode (no containers):
+   Slurm via the `host_entrypoint` execution mode (no containers):
    - `e2e_job.sh` -- writes `result.txt` and `result.json` (happy path)
    - `e2e_job_fail.sh` -- writes to stderr, exits with code 1 (failure path)
    - `e2e_job_slow.sh` -- writes a marker then sleeps 90s (cancellation path)
    - `e2e_job_posix.sh` -- writes `result.txt` + a 1MB `sample.bin` (posix artifact path)
+   - `e2e_job_apptainer.sh` -- runs inside the Apptainer sandbox image for the
+     real container execution path
 
 ## Configuration
 

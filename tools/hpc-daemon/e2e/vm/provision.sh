@@ -187,6 +187,8 @@ echo "=== Preparing local Apptainer test image ==="
 cp /bin/busybox /opt/e2e/apptainer-rootfs/bin/busybox
 chmod 755 /opt/e2e/apptainer-rootfs/bin/busybox
 ln -sf /bin/busybox /opt/e2e/apptainer-rootfs/bin/sh
+cp /opt/hpc-daemon/e2e/scripts/e2e_job_apptainer.sh /opt/e2e/apptainer-rootfs/bin/e2e_job_apptainer.sh
+chmod 755 /opt/e2e/apptainer-rootfs/bin/e2e_job_apptainer.sh
 cat > /opt/e2e/apptainer-rootfs/environment <<'ENVEOF'
 export PATH=/bin
 ENVEOF
@@ -253,7 +255,7 @@ fi
 rm -rf "$SMOKE_DIR"
 echo "PASS: job submitted, ran, completed, output verified"
 
-echo "=== Smoke test 5: entrypoint script runs correctly ==="
+echo "=== Smoke test 5: host entrypoint script runs correctly ==="
 SMOKE2_DIR=$(mktemp -d /tmp/slurm-smoke2.XXXXXX)
 chown vagrant:vagrant "$SMOKE2_DIR"
 mkdir -p "${SMOKE2_DIR}/output" "${SMOKE2_DIR}/input" "${SMOKE2_DIR}/work"
@@ -275,21 +277,21 @@ su - vagrant -c "sbatch --wait --output=${SMOKE2_DIR}/stdout.log --error=${SMOKE
 smoke2_exit=$?
 
 if [ "$smoke2_exit" -ne 0 ]; then
-    echo "FATAL: entrypoint smoke test exited with $smoke2_exit"
+    echo "FATAL: host entrypoint smoke test exited with $smoke2_exit"
     cat "${SMOKE2_DIR}/stdout.log" 2>/dev/null
     cat "${SMOKE2_DIR}/stderr.log" 2>/dev/null
     exit 1
 fi
 
 if [ ! -f "${SMOKE2_DIR}/output/result.txt" ] || ! grep -q "Hello from e2e job" "${SMOKE2_DIR}/output/result.txt"; then
-    echo "FATAL: entrypoint did not produce expected output"
+    echo "FATAL: host entrypoint did not produce expected output"
     ls -la "${SMOKE2_DIR}/output/"
     cat "${SMOKE2_DIR}/output/result.txt" 2>/dev/null
     exit 1
 fi
 
 rm -rf "$SMOKE2_DIR"
-echo "PASS: entrypoint script produces correct output"
+echo "PASS: host entrypoint script produces correct output"
 
 echo "=== Smoke test 6: apptainer sandbox executes ==="
 SMOKE3_DIR=$(mktemp -d /tmp/slurm-smoke3.XXXXXX)
@@ -344,7 +346,7 @@ slurm:
 
 profiles:
   "e2e-test:bash":
-    entrypoint: "/opt/e2e/scripts/e2e_job.sh"
+    host_entrypoint: "/opt/e2e/scripts/e2e_job.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
@@ -352,7 +354,7 @@ profiles:
     output_residence: "managed"
     log_residence: "managed"
   "e2e-test:fail":
-    entrypoint: "/opt/e2e/scripts/e2e_job_fail.sh"
+    host_entrypoint: "/opt/e2e/scripts/e2e_job_fail.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
@@ -360,7 +362,7 @@ profiles:
     output_residence: "managed"
     log_residence: "managed"
   "e2e-test:slow":
-    entrypoint: "/opt/e2e/scripts/e2e_job_slow.sh"
+    host_entrypoint: "/opt/e2e/scripts/e2e_job_slow.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
@@ -368,7 +370,7 @@ profiles:
     output_residence: "managed"
     log_residence: "managed"
   "e2e-test:posix":
-    entrypoint: "/opt/e2e/scripts/e2e_job_posix.sh"
+    host_entrypoint: "/opt/e2e/scripts/e2e_job_posix.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
@@ -376,7 +378,7 @@ profiles:
     output_residence: "posix"
     log_residence: "posix"
   "e2e-test:transform":
-    entrypoint: "/opt/e2e/scripts/e2e_job_transform.sh"
+    host_entrypoint: "/opt/e2e/scripts/e2e_job_transform.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"
@@ -385,6 +387,7 @@ profiles:
     log_residence: "managed"
   "e2e-test:apptainer":
     sif_image: "/opt/e2e/apptainer-rootfs"
+    container_entrypoint: "/bin/e2e_job_apptainer.sh"
     partition: "normal"
     cpus: 1
     memory: "256M"

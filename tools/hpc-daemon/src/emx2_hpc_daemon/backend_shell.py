@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class ShellBackend(ExecutionBackend):
     """Local shell execution via subprocess — no Slurm required.
 
-    Runs entrypoint scripts directly on the host with the same environment
+    Runs host-side scripts directly on the host with the same environment
     variable contract as SlurmBackend (HPC_JOB_ID, HPC_INPUT_DIR, etc.).
     Processes are tracked by a synthetic job ID and polled for completion.
     """
@@ -46,10 +46,10 @@ class ShellBackend(ExecutionBackend):
         if resolved is None:
             raise ValueError(f"No profile for {processor}:{profile}")
 
-        if not resolved.entrypoint:
+        if not resolved.host_entrypoint:
             raise ValueError(
-                f"Shell backend requires an entrypoint for {processor}:{profile}. "
-                "Set 'entrypoint' in the profile config."
+                f"Shell backend requires a host_entrypoint for {processor}:{profile}. "
+                "Set 'host_entrypoint' in the profile config."
             )
 
         # Create working directories
@@ -86,11 +86,11 @@ class ShellBackend(ExecutionBackend):
             if isinstance(extra_env, dict):
                 env.update({k: str(v) for k, v in extra_env.items()})
 
-        # Launch the entrypoint
+        # Launch the host-side entrypoint
         stdout_log = output_dir / "shell-stdout.log"
         stderr_log = output_dir / "shell-stderr.log"
         proc = subprocess.Popen(
-            [resolved.entrypoint],
+            [resolved.host_entrypoint],
             env=env,
             cwd=str(work_dir),
             stdout=stdout_log.open("w"),

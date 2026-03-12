@@ -20,22 +20,11 @@ def test_apptainer_job_completes_with_bound_input_and_outputs(hpc_client):
     )
     input_id = committed_input["id"]
 
-    command = (
-        "/bin/sh -c "
-        f"'IFS= read -r message < /input/{input_id}/message.txt; "
-        'printf "%s\\n" "$message" > /output/copied-message.txt; '
-        'printf "Hello from apptainer job %s\\n" "$EMX2_JOB_ID" > /output/result.txt; '
-        'printf "{\\"job_id\\":\\"%s\\",\\"mode\\":\\"apptainer\\",\\"input\\":\\"%s\\"}\\n" '
-        '"$EMX2_JOB_ID" "$message" > /output/result.json; '
-        'printf "container-stdout\\n"\''
-    )
-
     resp = create_job(
         hpc_client,
         processor="e2e-test",
         profile="apptainer",
         inputs=[{"artifact_id": input_id}],
-        parameters={"command": command},
     )
     job_id = resp["id"]
     assert resp["status"] == "PENDING"

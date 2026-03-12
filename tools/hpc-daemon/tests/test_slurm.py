@@ -19,6 +19,7 @@ def test_generate_batch_script_basic():
         work_dir="/scratch/work",
         input_dir="/scratch/input",
         output_dir="/scratch/output",
+        container_command="/bin/run-job.sh",
     )
     assert script.startswith("#!/bin/bash")
     assert "#SBATCH --partition=gpu" in script
@@ -43,6 +44,7 @@ def test_generate_batch_script_with_account_and_binds():
         output_dir="/output",
         account="emx2",
         bind_paths=["/nfs/data", "/scratch"],
+        container_command="/bin/run-job.sh",
     )
     assert "#SBATCH --account=emx2" in script
     # Bind paths are now integrated into the main --bind argument
@@ -62,15 +64,35 @@ def test_generate_batch_script_with_sbatch_args():
         input_dir="/input",
         output_dir="/output",
         sbatch_args=["--gres=gpu:1", "--constraint=v100"],
+        container_command="/bin/run-job.sh",
     )
     assert "#SBATCH --gres=gpu:1" in script
     assert "#SBATCH --constraint=v100" in script
 
 
-# --- Entrypoint/wrapper mode ---
+def test_generate_batch_script_apptainer_requires_container_command():
+    try:
+        generate_batch_script(
+            job_id="test-job",
+            sif_image="/test.sif",
+            partition="normal",
+            cpus=2,
+            memory="8G",
+            time_limit="00:30:00",
+            work_dir="/work",
+            input_dir="/input",
+            output_dir="/output",
+        )
+    except ValueError as exc:
+        assert "container command" in str(exc)
+    else:
+        raise AssertionError("Expected missing container command to fail")
 
 
-def test_generate_batch_script_with_entrypoint():
+# --- Host entrypoint mode ---
+
+
+def test_generate_batch_script_with_host_entrypoint():
     script = generate_batch_script(
         job_id="ep-job-1234",
         sif_image="",
@@ -81,7 +103,7 @@ def test_generate_batch_script_with_entrypoint():
         work_dir="/scratch/work",
         input_dir="/scratch/input",
         output_dir="/scratch/output",
-        entrypoint="/nfs/scripts/vtm-pipeline.sh",
+        host_entrypoint="/nfs/scripts/vtm-pipeline.sh",
     )
     assert script.startswith("#!/bin/bash")
     assert "#SBATCH --partition=gpu" in script
@@ -99,7 +121,7 @@ def test_generate_batch_script_with_entrypoint():
     assert "apptainer" not in script
 
 
-def test_generate_batch_script_with_entrypoint_and_environment():
+def test_generate_batch_script_with_host_entrypoint_and_environment():
     script = generate_batch_script(
         job_id="ep-env-job",
         sif_image="",
@@ -110,7 +132,7 @@ def test_generate_batch_script_with_entrypoint_and_environment():
         work_dir="/work",
         input_dir="/input",
         output_dir="/output",
-        entrypoint="/nfs/scripts/run.sh",
+        host_entrypoint="/nfs/scripts/run.sh",
         environment={"MODEL_NAME": "llama-3", "BATCH_SIZE": "256"},
     )
     assert 'export MODEL_NAME="llama-3"' in script
@@ -119,8 +141,8 @@ def test_generate_batch_script_with_entrypoint_and_environment():
     assert "apptainer" not in script
 
 
-def test_generate_batch_script_entrypoint_with_parameters():
-    params = {"command": "vtm evaluate config.toml", "environment": {"GPU": "0"}}
+def test_generate_batch_script_host_entrypoint_with_parameters():
+    params = {"task": "evaluate", "environment": {"GPU": "0"}}
     script = generate_batch_script(
         job_id="ep-param-job",
         sif_image="",
@@ -131,7 +153,7 @@ def test_generate_batch_script_entrypoint_with_parameters():
         work_dir="/work",
         input_dir="/input",
         output_dir="/output",
-        entrypoint="/nfs/scripts/run.sh",
+        host_entrypoint="/nfs/scripts/run.sh",
         parameters=params,
     )
     # HPC_PARAMETERS should contain the JSON-encoded parameters

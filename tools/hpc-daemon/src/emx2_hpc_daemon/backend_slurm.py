@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import shlex
 from pathlib import Path
 
 from .backend import (
@@ -41,6 +42,22 @@ NON_TERMINAL_SLURM_STATES = frozenset(
 )
 
 
+def _normalize_container_args(parameters: dict) -> list[str]:
+    args = parameters.get("args", [])
+    if args is None:
+        return []
+    if not isinstance(args, list):
+        raise ValueError("parameters.args must be a list")
+
+    normalized: list[str] = []
+    for arg in args:
+        if isinstance(arg, (str, int, float, bool)):
+            normalized.append(str(arg))
+            continue
+        raise ValueError("parameters.args must contain only scalar values")
+    return normalized
+
+
 class SlurmBackend(ExecutionBackend):
     """Real Slurm execution via sbatch/squeue/scancel."""
 
@@ -58,7 +75,7 @@ class SlurmBackend(ExecutionBackend):
 
         logger.debug(
             "Resolved profile for %s:%s → partition=%s, cpus=%d, mem=%s, "
-            "time=%s, sif=%s, entrypoint=%s, output_residence=%s, log_residence=%s",
+            "time=%s, sif=%s, container_entrypoint=%s, host_entrypoint=%s, output_residence=%s, log_residence=%s",
             processor,
             profile,
             resolved.partition,
@@ -66,7 +83,8 @@ class SlurmBackend(ExecutionBackend):
             resolved.memory,
             resolved.time,
             resolved.sif_image,
-            resolved.entrypoint,
+            resolved.container_entrypoint,
+            resolved.host_entrypoint,
             resolved.output_residence,
             resolved.log_residence,
         )
@@ -82,22 +100,34 @@ class SlurmBackend(ExecutionBackend):
         # Stage input artifacts
         _stage_input_artifacts(job, str(input_dir), client)
 
-        # Determine container command from job parameters
+        # Determine execution invocation from profile + structured job parameters
         container_command = None
         environment = None
         parameters = job.get("parameters")
-        if parameters:
-            if isinstance(parameters, str):
-                try:
-                    parameters = json.loads(parameters)
-                except (json.JSONDecodeError, TypeError):
-                    parameters = {}
-            if isinstance(parameters, dict):
-                container_command = parameters.get("command")
-                environment = parameters.get("environment")
+        if isinstance(parameters, str):
+            try:
+                parameters = json.loads(parameters)
+            except (json.JSONDecodeError, TypeError):
+                parameters = {}
+        if not isinstance(parameters, dict):
+            parameters = {}
+
+        environment = parameters.get("environment")
+        if environment is not None and not isinstance(environment, dict):
+            raise ValueError("parameters.environment must be an object")
+
+        if not resolved.host_entrypoint:
+            if not resolved.container_entrypoint:
+                raise ValueError(
+                    f"Apptainer profile {processor}:{profile} requires container_entrypoint"
+                )
+            container_args = _normalize_container_args(parameters)
+            container_command = shlex.join(
+                [resolved.container_entrypoint, *container_args]
+            )
 
         logger.debug(
-            "Job %s parameters: %s (command=%s, env=%s)",
+            "Job %s parameters: %s (container_command=%s, env=%s)",
             job_id,
             job.get("parameters"),
             container_command,
@@ -117,13 +147,13 @@ class SlurmBackend(ExecutionBackend):
             output_dir=str(output_dir),
             sbatch_args=resolved.sbatch_args,
             bind_paths=self._config.apptainer.bind_paths
-            if not resolved.entrypoint
+            if not resolved.host_entrypoint
             else None,
             account=self._config.slurm.default_account or None,
             container_command=container_command,
             environment=environment,
-            entrypoint=resolved.entrypoint or None,
-            parameters=parameters if isinstance(parameters, dict) else None,
+            host_entrypoint=resolved.host_entrypoint or None,
+            parameters=parameters,
         )
 
         script_path = base_dir / "job.sbatch"

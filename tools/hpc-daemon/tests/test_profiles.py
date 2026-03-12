@@ -52,11 +52,11 @@ def test_resolve_no_match(sample_config):
     assert resolved is None
 
 
-def test_resolve_entrypoint_profile(sample_config):
+def test_resolve_host_entrypoint_profile(sample_config):
     from emx2_hpc_daemon.config import ProfileEntry
 
     sample_config.profiles["vtm-pipeline:gpu-large"] = ProfileEntry(
-        entrypoint="/nfs/scripts/vtm-pipeline.sh",
+        host_entrypoint="/nfs/scripts/vtm-pipeline.sh",
         partition="gpu",
         cpus=16,
         memory="128G",
@@ -64,10 +64,23 @@ def test_resolve_entrypoint_profile(sample_config):
     )
     resolved = resolve_profile(sample_config, "vtm-pipeline", "gpu-large")
     assert resolved is not None
-    assert resolved.entrypoint == "/nfs/scripts/vtm-pipeline.sh"
+    assert resolved.host_entrypoint == "/nfs/scripts/vtm-pipeline.sh"
     assert resolved.sif_image == ""
     assert resolved.partition == "gpu"
     assert resolved.cpus == 16
+
+
+def test_resolve_container_entrypoint_profile(sample_config):
+    from emx2_hpc_daemon.config import ProfileEntry
+
+    sample_config.profiles["container-job:apptainer"] = ProfileEntry(
+        sif_image="/nfs/images/container-job.sif",
+        container_entrypoint="/bin/run-job.sh",
+    )
+    resolved = resolve_profile(sample_config, "container-job", "apptainer")
+    assert resolved is not None
+    assert resolved.sif_image == "/nfs/images/container-job.sif"
+    assert resolved.container_entrypoint == "/bin/run-job.sh"
 
 
 def test_derive_capabilities(sample_config):

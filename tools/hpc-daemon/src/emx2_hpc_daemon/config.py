@@ -69,9 +69,10 @@ class ProfileEntry:
 
     Execution mode is determined by which field is set:
     - ``sif_image``: run inside an Apptainer container
-    - ``entrypoint``: exec a wrapper script with well-defined env vars
+    - ``container_entrypoint``: executable/script inside the Apptainer image
+    - ``host_entrypoint``: exec a host-side script with well-defined env vars
 
-    At least one of ``sif_image`` or ``entrypoint`` must be set.
+    At least one of ``sif_image`` or ``host_entrypoint`` must be set.
 
     Slurm scheduling fields (become ``#SBATCH`` directives)::
 
@@ -83,7 +84,8 @@ class ProfileEntry:
     """
 
     sif_image: str = ""
-    entrypoint: str = ""
+    container_entrypoint: str = ""
+    host_entrypoint: str = ""
     partition: str = "normal"
     cpus: int = 4
     memory: str = "16G"

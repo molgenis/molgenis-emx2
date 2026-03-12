@@ -149,7 +149,7 @@ def test_submit_stages_all_supported_input_forms(
     entrypoint = _write_shell_entrypoint(tmp_path / "entrypoint.sh")
     daemon = daemon_factory(
         backend="shell",
-        profile=ProfileEntry(entrypoint=entrypoint),
+        profile=ProfileEntry(host_entrypoint=entrypoint),
     )
     _install_input_artifact_stubs(daemon.client, tmp_path)
 
@@ -184,7 +184,7 @@ def test_submit_fails_with_input_hash_mismatch_detail(daemon_factory, tmp_path: 
     entrypoint = _write_shell_entrypoint(tmp_path / "entrypoint.sh")
     daemon = daemon_factory(
         backend="shell",
-        profile=ProfileEntry(entrypoint=entrypoint),
+        profile=ProfileEntry(host_entrypoint=entrypoint),
     )
 
     daemon.client.get_artifact.return_value = {

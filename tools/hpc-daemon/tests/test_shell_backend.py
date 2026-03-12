@@ -19,15 +19,15 @@ from emx2_hpc_daemon.testkit import artifact_record
 
 @pytest.fixture
 def shell_config(sample_config, tmp_path):
-    """Config with entrypoint profiles for shell backend testing."""
-    entrypoint = tmp_path / "entrypoint.sh"
-    entrypoint.write_text(
+    """Config with host_entrypoint profiles for shell backend testing."""
+    host_entrypoint = tmp_path / "entrypoint.sh"
+    host_entrypoint.write_text(
         textwrap.dedent("""\
             #!/bin/bash
             echo "hello from $HPC_JOB_ID" > "$HPC_OUTPUT_DIR/result.txt"
         """)
     )
-    entrypoint.chmod(entrypoint.stat().st_mode | stat.S_IEXEC)
+    host_entrypoint.chmod(host_entrypoint.stat().st_mode | stat.S_IEXEC)
 
     failing_ep = tmp_path / "fail.sh"
     failing_ep.write_text(
@@ -40,10 +40,10 @@ def shell_config(sample_config, tmp_path):
     failing_ep.chmod(failing_ep.stat().st_mode | stat.S_IEXEC)
 
     sample_config.profiles["shell-test:default"] = ProfileEntry(
-        entrypoint=str(entrypoint),
+        host_entrypoint=str(host_entrypoint),
     )
     sample_config.profiles["shell-test:fail"] = ProfileEntry(
-        entrypoint=str(failing_ep),
+        host_entrypoint=str(failing_ep),
     )
     sample_config.apptainer.tmp_dir = str(tmp_path / "work")
     return sample_config
@@ -74,15 +74,15 @@ class TestShellBackendSubmit:
         assert Path(result.input_dir).is_dir()
         assert Path(result.output_dir).is_dir()
 
-    def test_submit_requires_entrypoint(self, shell_config, mock_client):
-        """Profile without entrypoint raises ValueError."""
+    def test_submit_requires_host_entrypoint(self, shell_config, mock_client):
+        """Profile without host_entrypoint raises ValueError."""
         job = {
             "id": "job-no-ep",
             "processor": "text-embedding",
             "profile": "gpu-medium",
         }
         backend = ShellBackend(shell_config)
-        with pytest.raises(ValueError, match="entrypoint"):
+        with pytest.raises(ValueError, match="host_entrypoint"):
             backend.submit(job, mock_client)
 
     def test_submit_no_matching_profile_raises(self, shell_config, mock_client):
@@ -107,9 +107,9 @@ class TestShellBackendSubmit:
                 break
             time.sleep(0.1)
 
-        # Verify the entrypoint could read HPC_JOB_ID
+        # Verify the host entrypoint could read HPC_JOB_ID
         output_file = Path(result.output_dir) / "result.txt"
-        assert output_file.exists(), "Entrypoint should write to HPC_OUTPUT_DIR"
+        assert output_file.exists(), "Host entrypoint should write to HPC_OUTPUT_DIR"
         content = output_file.read_text()
         assert "job-env-001" in content
 
@@ -124,7 +124,7 @@ class TestShellBackendSubmit:
         )
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
         shell_config.profiles["param-test:default"] = ProfileEntry(
-            entrypoint=str(ep),
+            host_entrypoint=str(ep),
         )
 
         backend = ShellBackend(shell_config)
@@ -158,7 +158,9 @@ class TestShellBackendQueryStatus:
         ep = tmp_path / "slow.sh"
         ep.write_text("#!/bin/bash\nsleep 30\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["slow:default"] = ProfileEntry(entrypoint=str(ep))
+        shell_config.profiles["slow:default"] = ProfileEntry(
+            host_entrypoint=str(ep)
+        )
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-slow", "processor": "slow", "profile": "default"}
@@ -176,7 +178,9 @@ class TestShellBackendQueryStatus:
         ep = tmp_path / "slow2.sh"
         ep.write_text("#!/bin/bash\nsleep 30\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["slow2:default"] = ProfileEntry(entrypoint=str(ep))
+        shell_config.profiles["slow2:default"] = ProfileEntry(
+            host_entrypoint=str(ep)
+        )
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-slow2", "processor": "slow2", "profile": "default"}
@@ -227,7 +231,9 @@ class TestShellBackendCancel:
         ep = tmp_path / "long.sh"
         ep.write_text("#!/bin/bash\nsleep 60\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["long:default"] = ProfileEntry(entrypoint=str(ep))
+        shell_config.profiles["long:default"] = ProfileEntry(
+            host_entrypoint=str(ep)
+        )
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-cancel", "processor": "long", "profile": "default"}
