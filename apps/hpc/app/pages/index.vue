@@ -4,14 +4,24 @@
       <div class="flex items-start justify-between">
         <div>
           <p class="text-lg font-semibold text-title">Jobs</p>
-          <p class="text-sm text-definition-list-term">
-            Filter, inspect, cancel, and clean up submitted HPC runs.
+          <p class="text-sm text-definition-list-term flex items-center gap-3">
+            <span>
+              Filter, inspect, cancel, and clean up submitted HPC runs.
+            </span>
+            <span class="text-[11px] tracking-wide opacity-70">
+              Auto-refresh every 10 seconds
+            </span>
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-definition-list-term">
-            Auto-refresh: 10s
-          </span>
+          <div class="w-56">
+            <InputSelect
+              id="jobs-status-filter"
+              v-model="statusFilter"
+              :options="statuses"
+              placeholder="All Statuses"
+            />
+          </div>
           <Button
             type="primary"
             size="tiny"
@@ -102,16 +112,6 @@
             Clear selection
           </Button>
           .
-        </div>
-        <div class="p-4 border-b border-color-theme">
-          <div class="w-56">
-            <InputSelect
-              id="jobs-status-filter"
-              v-model="statusFilter"
-              :options="statuses"
-              placeholder="All Statuses"
-            />
-          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-table-row">

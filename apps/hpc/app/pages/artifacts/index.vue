@@ -4,9 +4,14 @@
       <div class="flex items-start justify-between">
         <div>
           <p class="text-lg font-semibold text-title">Artifacts</p>
-          <p class="text-sm text-definition-list-term">
-            Browse uploaded outputs and inspect artifact metadata and file
-            contents.
+          <p class="text-sm text-definition-list-term flex items-center gap-3">
+            <span>
+              Browse uploaded outputs and inspect artifact metadata and file
+              contents.
+            </span>
+            <span class="text-[11px] tracking-wide opacity-70">
+              Auto-refresh every 10 seconds
+            </span>
           </p>
         </div>
         <div class="flex items-center gap-2">
