@@ -4,7 +4,7 @@ import App from "./App.vue";
 import ProjectPlanning from "./components/ProjectPlanning.vue";
 import PersonPlanning from "./components/PersonPlanning.vue";
 
-import "molgenis-components/dist/style.css";
+import "molgenis-components";
 
 const router = createRouter({
   history: createWebHashHistory(),

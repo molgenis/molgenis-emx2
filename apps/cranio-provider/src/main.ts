@@ -4,8 +4,8 @@ import App from "./App.vue";
 // @ts-ignore
 import router from "./router";
 
-import "molgenis-components/dist/style.css";
-import "molgenis-viz/dist/style.css";
+import "molgenis-components";
+import "molgenis-viz";
 import "./styles/index.scss";
 
 const app = createApp(App);
