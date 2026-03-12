@@ -91,14 +91,6 @@
             <Button type="primary" size="small" :disabled="bootstrapBusy"
               >Issue</Button
             >
-            <Button
-              type="outline"
-              size="small"
-              :disabled="bootstrapBusy"
-              @click="onBootstrapRotate"
-            >
-              Rotate
-            </Button>
           </div>
         </div>
       </form>
@@ -593,7 +585,6 @@ import {
   deleteWorker,
   fetchWorkerCredentials,
   issueWorkerCredential,
-  rotateWorkerCredential,
   revokeWorkerCredential,
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
@@ -621,7 +612,6 @@ const copyMessage = ref<string | null>(null);
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
-type CredentialAction = "issue" | "rotate";
 
 function toErrorMessage(e: any): string {
   const detail =
@@ -737,7 +727,6 @@ function normalizeOptional(value: string): string | undefined {
 
 async function runCredentialAction(
   workerId: string,
-  action: CredentialAction,
   opts: { label?: string } = {}
 ) {
   credentialActionFor.value = workerId;
@@ -745,21 +734,14 @@ async function runCredentialAction(
 
   try {
     const label = normalizeOptional(opts.label ?? "");
-
-    const result =
-      action === "issue"
-        ? await issueWorkerCredential(workerId, { label })
-        : await rotateWorkerCredential(workerId, { label });
+    const result = await issueWorkerCredential(workerId, { label });
 
     revealedSecret.value = { workerId, secret: result.secret };
     await loadCredentials(workerId, true);
   } catch (e: any) {
     const message = toErrorMessage(e);
-    if (
-      action === "issue" &&
-      message.includes("already has an active credential")
-    ) {
-      error.value = `Worker ${workerId} already has an active credential. Use Rotate to replace it.`;
+    if (message.includes("already has an active credential")) {
+      error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
     } else {
       error.value = message;
     }
@@ -770,22 +752,22 @@ async function runCredentialAction(
 
 async function onIssueCredential(workerId: string) {
   if (hasActiveCredential(workerId)) {
-    error.value = `Worker ${workerId} already has an active credential. Use Rotate to replace it.`;
+    error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
     return;
   }
-  await runCredentialAction(workerId, "issue");
+  await runCredentialAction(workerId);
 }
 
-async function runBootstrapAction(action: CredentialAction) {
+async function runBootstrapIssue() {
   const workerId = bootstrapWorkerId.value.trim();
   if (!workerId) {
-    error.value = "Worker ID is required to issue or rotate a credential.";
+    error.value = "Worker ID is required to issue a credential.";
     return;
   }
 
   bootstrapBusy.value = true;
   try {
-    await runCredentialAction(workerId, action, {
+    await runCredentialAction(workerId, {
       label: normalizeOptional(bootstrapLabel.value),
     });
     showBootstrap.value = false;
@@ -796,11 +778,7 @@ async function runBootstrapAction(action: CredentialAction) {
 }
 
 async function onBootstrapIssue() {
-  await runBootstrapAction("issue");
-}
-
-async function onBootstrapRotate() {
-  await runBootstrapAction("rotate");
+  await runBootstrapIssue();
 }
 
 async function onRevokeCredential(workerId: string, credentialId: string) {
