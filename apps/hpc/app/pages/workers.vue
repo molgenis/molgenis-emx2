@@ -236,11 +236,8 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
               >
-                Active Jobs
+                Actions
               </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
-              ></th>
             </tr>
           </thead>
 
@@ -296,25 +293,6 @@
                   </div>
                 </td>
 
-                <td class="px-4 py-3 align-top min-w-[210px]">
-                  <div v-if="worker.active_jobs?.length" class="space-y-1">
-                    <div
-                      v-for="activeJob in worker.active_jobs"
-                      :key="activeJob.id"
-                      class="flex items-center gap-2"
-                    >
-                      <NuxtLink
-                        :to="`/jobs/${activeJob.id}`"
-                        class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
-                      >
-                        {{ shortId(activeJob.id) }}
-                      </NuxtLink>
-                      <StatusBadge :status="activeJob.status" />
-                    </div>
-                  </div>
-                  <span v-else class="text-definition-list-term">-</span>
-                </td>
-
                 <td class="px-4 py-3 align-top whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <Button
@@ -345,7 +323,7 @@
                 v-if="expandedWorkerId === worker.worker_id"
                 class="border-b border-color-theme last:border-b-0 bg-content/40"
               >
-                <td class="px-4 py-4 lg:px-5" colspan="7">
+                <td class="px-4 py-4 lg:px-5" colspan="6">
                   <div
                     class="flex flex-wrap items-start justify-between gap-3 mb-4"
                   >
@@ -378,38 +356,32 @@
                       <p
                         class="text-xs font-semibold text-table-column-header uppercase tracking-wider mb-2"
                       >
-                        Worker Info
+                        Running Jobs
                       </p>
-                      <div class="space-y-2 text-sm">
-                        <div class="flex justify-between gap-3">
-                          <span class="text-definition-list-term"
-                            >Hostname</span
+                      <div
+                        v-if="worker.active_jobs?.length"
+                        class="space-y-2 text-sm"
+                      >
+                        <div
+                          v-for="activeJob in worker.active_jobs"
+                          :key="activeJob.id"
+                          class="flex items-center justify-between gap-3 rounded-md border border-color-theme bg-content px-2 py-1.5"
+                        >
+                          <NuxtLink
+                            :to="`/jobs/${activeJob.id}`"
+                            class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
                           >
-                          <span class="text-title">{{
-                            worker.hostname || "-"
-                          }}</span>
-                        </div>
-                        <div class="flex justify-between gap-3">
-                          <span class="text-definition-list-term"
-                            >Registered</span
-                          >
-                          <span class="text-title">{{
-                            formatDate(worker.registered_at)
-                          }}</span>
-                        </div>
-                        <div class="flex justify-between gap-3">
-                          <span class="text-definition-list-term"
-                            >Heartbeat</span
-                          >
-                          <span
-                            :class="
-                              heartbeatTextClass(worker.last_heartbeat_at)
-                            "
-                          >
-                            {{ formatDate(worker.last_heartbeat_at) }}
-                          </span>
+                            {{ shortId(activeJob.id) }}
+                          </NuxtLink>
+                          <StatusBadge :status="activeJob.status" />
                         </div>
                       </div>
+                      <p
+                        v-else
+                        class="rounded-md border border-color-theme bg-content p-2 text-xs text-definition-list-term"
+                      >
+                        No running jobs.
+                      </p>
                     </div>
 
                     <div
