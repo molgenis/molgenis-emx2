@@ -257,6 +257,7 @@ class HpcDaemon:
                 parameters_hash=self._compute_parameters_hash(
                     job.get("parameters")
                 ),
+                timeout_seconds=job.get("timeout_seconds"),
             )
             self.client.transition_job(
                 job_id,

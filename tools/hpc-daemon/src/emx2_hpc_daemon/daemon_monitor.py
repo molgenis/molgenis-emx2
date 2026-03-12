@@ -237,22 +237,83 @@ def check_server_cancellations(
             )
 
 
+def _fail_job_with_timeout(
+    client: HpcClient,
+    tracker: JobTracker,
+    backend: ExecutionBackend,
+    tracked: TrackedJob,
+    detail: str,
+    cancel_slurm: bool,
+) -> None:
+    """Cancel the Slurm job (if requested), transition to FAILED, and untrack."""
+    if cancel_slurm and tracked.slurm_job_id:
+        try:
+            backend.cancel(tracked.slurm_job_id)
+        except Exception:
+            logger.exception("Failed to scancel job %s", tracked.slurm_job_id)
+    try:
+        client.transition_job(tracked.emx2_job_id, "FAILED", detail=detail)
+    except Exception:
+        logger.exception(
+            "Failed to report timeout for job %s", tracked.emx2_job_id
+        )
+    tracker.remove(tracked.emx2_job_id)
+
+
+def _append_slurm_detail(
+    detail: str, backend: ExecutionBackend, slurm_job_id: str | None
+) -> str:
+    """Append Slurm state info to a timeout detail string."""
+    if not slurm_job_id:
+        return detail
+    slurm_info = backend.query_slurm_info(slurm_job_id)
+    if slurm_info:
+        detail += f"; slurm_state={slurm_info.state}"
+        if slurm_info.reason and slurm_info.reason != "None":
+            detail += f"; reason={slurm_info.reason}"
+    return detail
+
+
 def check_profile_timeouts(
     client: HpcClient,
     tracker: JobTracker,
     config: DaemonConfig,
     backend: ExecutionBackend,
 ) -> None:
-    """Check if any tracked jobs have exceeded their profile timeouts."""
+    """Check if any tracked jobs have exceeded their per-job or profile timeouts."""
     now = time.monotonic()
     for tracked in list(tracker.active_jobs()):
+        elapsed = now - tracked.claimed_at
+
+        # Per-job timeout (set by the submitter) takes priority.
+        # Applies to any non-terminal status once the job is tracked.
+        if (
+            tracked.timeout_seconds is not None
+            and tracked.timeout_seconds > 0
+            and elapsed > tracked.timeout_seconds
+        ):
+            detail = (
+                f"timeout: job timeout_seconds "
+                f"({tracked.timeout_seconds}s) exceeded after {int(elapsed)}s"
+            )
+            detail = _append_slurm_detail(detail, backend, tracked.slurm_job_id)
+            logger.warning(
+                "Job %s exceeded per-job timeout: %s",
+                tracked.emx2_job_id,
+                detail,
+            )
+            _fail_job_with_timeout(
+                client, tracker, backend, tracked, detail,
+                cancel_slurm=(tracked.status in ("SUBMITTED", "STARTED")),
+            )
+            continue
+
+        # Profile-level timeouts from daemon config
         resolved = resolve_profile(
             config, tracked.processor or "", tracked.profile or ""
         )
         if resolved is None:
             continue
-
-        elapsed = now - tracked.claimed_at
 
         if (
             tracked.status == "SUBMITTED"
@@ -264,27 +325,15 @@ def check_profile_timeouts(
                 f"({resolved.claim_timeout_seconds}s) exceeded "
                 f"for profile {tracked.profile_key}"
             )
-            if tracked.slurm_job_id:
-                slurm_info = backend.query_slurm_info(tracked.slurm_job_id)
-                if slurm_info:
-                    detail += f"; slurm_state={slurm_info.state}"
-                    if slurm_info.reason and slurm_info.reason != "None":
-                        detail += f"; reason={slurm_info.reason}"
+            detail = _append_slurm_detail(detail, backend, tracked.slurm_job_id)
             logger.warning(
                 "Job %s exceeded claim timeout: %s",
                 tracked.emx2_job_id,
                 detail,
             )
-            try:
-                client.transition_job(
-                    tracked.emx2_job_id, "FAILED", detail=detail
-                )
-            except Exception:
-                logger.exception(
-                    "Failed to report timeout for job %s",
-                    tracked.emx2_job_id,
-                )
-            tracker.remove(tracked.emx2_job_id)
+            _fail_job_with_timeout(
+                client, tracker, backend, tracked, detail, cancel_slurm=False
+            )
 
         elif (
             tracked.status == "STARTED"
@@ -296,35 +345,15 @@ def check_profile_timeouts(
                 f"({resolved.execution_timeout_seconds}s) exceeded "
                 f"for profile {tracked.profile_key}"
             )
-            if tracked.slurm_job_id:
-                slurm_info = backend.query_slurm_info(tracked.slurm_job_id)
-                if slurm_info:
-                    detail += f"; slurm_state={slurm_info.state}"
-                    if slurm_info.reason and slurm_info.reason != "None":
-                        detail += f"; reason={slurm_info.reason}"
+            detail = _append_slurm_detail(detail, backend, tracked.slurm_job_id)
             logger.warning(
                 "Job %s exceeded execution timeout: %s",
                 tracked.emx2_job_id,
                 detail,
             )
-            if tracked.slurm_job_id:
-                try:
-                    backend.cancel(tracked.slurm_job_id)
-                except Exception:
-                    logger.exception(
-                        "Failed to scancel job %s",
-                        tracked.slurm_job_id,
-                    )
-            try:
-                client.transition_job(
-                    tracked.emx2_job_id, "FAILED", detail=detail
-                )
-            except Exception:
-                logger.exception(
-                    "Failed to report timeout for job %s",
-                    tracked.emx2_job_id,
-                )
-            tracker.remove(tracked.emx2_job_id)
+            _fail_job_with_timeout(
+                client, tracker, backend, tracked, detail, cancel_slurm=True
+            )
 
 
 def recover_jobs(

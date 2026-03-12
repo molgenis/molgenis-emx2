@@ -46,6 +46,7 @@ class TrackedJob:
     submit_user: str | None = None
     input_artifact_ids: str | None = None  # JSON array string
     parameters_hash: str | None = None
+    timeout_seconds: int | None = None  # per-job timeout from EMX2
 
     @property
     def profile_key(self) -> str:
@@ -87,7 +88,8 @@ CREATE TABLE IF NOT EXISTS tracked_jobs (
     completion_phase TEXT,
     submit_user TEXT,
     input_artifact_ids TEXT,
-    parameters_hash TEXT
+    parameters_hash TEXT,
+    timeout_seconds INTEGER
 )"""
 
 _MIGRATE_SQLS = [
@@ -97,6 +99,7 @@ _MIGRATE_SQLS = [
     "ALTER TABLE tracked_jobs ADD COLUMN submit_user TEXT",
     "ALTER TABLE tracked_jobs ADD COLUMN input_artifact_ids TEXT",
     "ALTER TABLE tracked_jobs ADD COLUMN parameters_hash TEXT",
+    "ALTER TABLE tracked_jobs ADD COLUMN timeout_seconds INTEGER",
 ]
 
 _UPSERT_SQL = """\
@@ -104,8 +107,8 @@ INSERT OR REPLACE INTO tracked_jobs
     (emx2_job_id, slurm_job_id, status, work_dir, input_dir, output_dir,
      processor, profile, claimed_at, last_progress_hash, last_queue_report,
      log_artifact_id, output_artifact_id, completion_phase,
-     submit_user, input_artifact_ids, parameters_hash)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+     submit_user, input_artifact_ids, parameters_hash, timeout_seconds)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 _DELETE_SQL = "DELETE FROM tracked_jobs WHERE emx2_job_id = ?"
 
