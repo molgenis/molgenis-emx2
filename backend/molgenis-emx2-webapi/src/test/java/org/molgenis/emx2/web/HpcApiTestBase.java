@@ -2,14 +2,25 @@ package org.molgenis.emx2.web;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Shared test infrastructure for HPC API E2E tests. Manages the HPC lifecycle settings and provides
  * helper methods for job/worker/artifact operations.
+ *
+ * <p>All resources created via the helper methods are tracked and automatically cleaned up in
+ * {@link #cleanUpTestResources()} after each test class. This prevents test pollution across
+ * classes sharing the same {@code _SYSTEM_} schema.
  */
 abstract class HpcApiTestBase extends ApiTestBase {
+
+  private static final Logger logger = LoggerFactory.getLogger(HpcApiTestBase.class);
 
   static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
   static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
@@ -34,6 +45,22 @@ abstract class HpcApiTestBase extends ApiTestBase {
   private static String previousHpcEnabled;
   private static String previousCredentialsKey;
 
+  // --- Resource tracking for automatic cleanup ---
+
+  /** Job IDs created during this test class. Insertion-ordered for deterministic cleanup. */
+  private static final Set<String> trackedJobIds =
+      Collections.synchronizedSet(new LinkedHashSet<>());
+
+  /** Artifact IDs created during this test class. */
+  private static final Set<String> trackedArtifactIds =
+      Collections.synchronizedSet(new LinkedHashSet<>());
+
+  /** Worker IDs registered during this test class. */
+  private static final Set<String> trackedWorkerIds =
+      Collections.synchronizedSet(new LinkedHashSet<>());
+
+  // --- Request builders ---
+
   /** Builds a request with the required HPC protocol headers. */
   static RequestSpecification hpcRequest() {
     return HpcTestkit.hpcRequest(sessionId);
@@ -42,6 +69,8 @@ abstract class HpcApiTestBase extends ApiTestBase {
   static RequestSpecification workerRequest(String workerId) {
     return hpcRequest().header("X-Worker-Id", workerId);
   }
+
+  // --- Worker helpers ---
 
   /** Helper: register a worker (idempotent). */
   static void registerWorker(String workerId) {
@@ -60,6 +89,7 @@ abstract class HpcApiTestBase extends ApiTestBase {
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(200);
+    trackedWorkerIds.add(workerId);
   }
 
   static void registerWorkerWithCapability(String workerId, String processor, String profile) {
@@ -72,7 +102,9 @@ abstract class HpcApiTestBase extends ApiTestBase {
             .formatted(processor, profileValue));
   }
 
-  /** Helper: create a job and return its ID. */
+  // --- Job helpers ---
+
+  /** Helper: create a job and return its ID. Automatically tracked for cleanup. */
   static String createJobHelper(String processor) {
     return createJobHelper(processor, null);
   }
@@ -89,15 +121,18 @@ abstract class HpcApiTestBase extends ApiTestBase {
             """
                 .formatted(processor);
 
-    return hpcRequest()
-        .body(body)
-        .when()
-        .post("/api/hpc/jobs")
-        .then()
-        .statusCode(201)
-        .extract()
-        .jsonPath()
-        .getString("id");
+    String jobId =
+        hpcRequest()
+            .body(body)
+            .when()
+            .post("/api/hpc/jobs")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+    trackedJobIds.add(jobId);
+    return jobId;
   }
 
   /** Helper: claim a job by a worker and return the response. */
@@ -141,7 +176,9 @@ abstract class HpcApiTestBase extends ApiTestBase {
         .post("/api/hpc/jobs/{id}/transition", jobId);
   }
 
-  /** Helper: create a managed artifact, commit it, return its ID. */
+  // --- Artifact helpers ---
+
+  /** Helper: create a managed artifact, commit it, return its ID. Automatically tracked. */
   static String createCommittedArtifact(String type, String name) {
     String artifactId =
         hpcRequest()
@@ -157,6 +194,7 @@ abstract class HpcApiTestBase extends ApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackedArtifactIds.add(artifactId);
 
     // Upload a file via PUT JSON metadata to transition CREATED -> UPLOADING
     hpcRequest()
@@ -180,6 +218,22 @@ abstract class HpcApiTestBase extends ApiTestBase {
     return artifactId;
   }
 
+  // --- Explicit resource tracking (for tests that create resources via raw requests) ---
+
+  static void trackJob(String jobId) {
+    trackedJobIds.add(jobId);
+  }
+
+  static void trackArtifact(String artifactId) {
+    trackedArtifactIds.add(artifactId);
+  }
+
+  static void trackWorker(String workerId) {
+    trackedWorkerIds.add(workerId);
+  }
+
+  // --- Lifecycle ---
+
   @BeforeAll
   static void setUpHpcSettings() {
     previousHpcEnabled = database.getSetting(HPC_ENABLED_SETTING);
@@ -192,7 +246,52 @@ abstract class HpcApiTestBase extends ApiTestBase {
   }
 
   @AfterAll
-  static void restoreHpcSettings() {
+  static void cleanUpTestResources() {
+    // Order matters: jobs reference artifacts and workers, so delete jobs first.
+    // Use best-effort: log failures but don't fail the teardown.
+
+    for (String jobId : trackedJobIds) {
+      try {
+        // Cancel non-terminal jobs before deleting (DELETE requires terminal status)
+        Response getResp = hpcRequest().when().get("/api/hpc/jobs/{id}", jobId);
+        if (getResp.statusCode() == 200) {
+          String status = getResp.jsonPath().getString("status");
+          if (status != null
+              && !status.equals("COMPLETED")
+              && !status.equals("FAILED")
+              && !status.equals("CANCELLED")) {
+            hpcRequest()
+                .body("{\"status\": \"CANCELLED\"}")
+                .when()
+                .post("/api/hpc/jobs/{id}/cancel", jobId);
+          }
+          hpcRequest().when().delete("/api/hpc/jobs/{id}", jobId);
+        }
+      } catch (Exception e) {
+        logger.debug("Cleanup: could not delete job {}: {}", jobId, e.getMessage());
+      }
+    }
+    trackedJobIds.clear();
+
+    for (String artifactId : trackedArtifactIds) {
+      try {
+        hpcRequest().when().delete("/api/hpc/artifacts/{id}", artifactId);
+      } catch (Exception e) {
+        logger.debug("Cleanup: could not delete artifact {}: {}", artifactId, e.getMessage());
+      }
+    }
+    trackedArtifactIds.clear();
+
+    for (String workerId : trackedWorkerIds) {
+      try {
+        hpcRequest().when().delete("/api/hpc/workers/{id}", workerId);
+      } catch (Exception e) {
+        logger.debug("Cleanup: could not delete worker {}: {}", workerId, e.getMessage());
+      }
+    }
+    trackedWorkerIds.clear();
+
+    // Restore settings
     if (previousHpcEnabled == null || previousHpcEnabled.isBlank()) {
       database.removeSetting(HPC_ENABLED_SETTING);
     } else {

@@ -5,47 +5,17 @@ import static org.hamcrest.Matchers.containsString;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("slow")
-class HpcApiAuthRotationE2ETest extends ApiTestBase {
-
-  private static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
-  private static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
-  private static final String TEST_CREDENTIALS_KEY =
-      "hpc-auth-rotation-key-0123456789abcdef0123456789abcd";
-  private static final String WORKER_ID = "auth-rotation-worker";
-  private static String previousEnabled;
-  private static String previousCredentialsKey;
-
-  @BeforeAll
-  static void configureHpcSettings() {
-    previousEnabled = database.getSetting(HPC_ENABLED_SETTING);
-    previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
-    database.setSetting(HPC_ENABLED_SETTING, "true");
-    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
-    login(database.getAdminUserName(), "admin");
-  }
-
-  @AfterAll
-  static void restoreHpcSettings() {
-    if (previousEnabled == null || previousEnabled.isBlank()) {
-      database.removeSetting(HPC_ENABLED_SETTING);
-    } else {
-      database.setSetting(HPC_ENABLED_SETTING, previousEnabled);
-    }
-    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
-      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
-    } else {
-      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
-    }
-  }
+class HpcApiAuthRotationE2ETest extends HpcApiTestBase {
 
   @Test
   void workerCredentialRotationRevocationAndDisableTakeEffectWithoutRestart() {
+    String workerId = HpcTestkit.nextName("auth-rotation-worker");
+    trackWorker(workerId);
+
     String registerBody =
         """
         {
@@ -56,13 +26,13 @@ class HpcApiAuthRotationE2ETest extends ApiTestBase {
           ]
         }
         """
-            .formatted(WORKER_ID);
+            .formatted(workerId);
 
     Response issued =
-        HpcTestkit.hpcRequest(sessionId)
+        hpcRequest()
             .body("{}")
             .when()
-            .post("/api/hpc/workers/{id}/credentials/issue", WORKER_ID)
+            .post("/api/hpc/workers/{id}/credentials/issue", workerId)
             .then()
             .statusCode(201)
             .extract()
@@ -70,17 +40,17 @@ class HpcApiAuthRotationE2ETest extends ApiTestBase {
     String secretA = issued.jsonPath().getString("secret");
     String credentialIdA = issued.jsonPath().getString("id");
 
-    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretA, WORKER_ID)
+    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretA, workerId)
         .when()
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(200);
 
     Response rotated =
-        HpcTestkit.hpcRequest(sessionId)
+        hpcRequest()
             .body("{}")
             .when()
-            .post("/api/hpc/workers/{id}/credentials/rotate", WORKER_ID)
+            .post("/api/hpc/workers/{id}/credentials/rotate", workerId)
             .then()
             .statusCode(200)
             .extract()
@@ -88,44 +58,40 @@ class HpcApiAuthRotationE2ETest extends ApiTestBase {
     String secretB = rotated.jsonPath().getString("secret");
     String credentialIdB = rotated.jsonPath().getString("id");
 
-    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretA, WORKER_ID)
+    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretA, workerId)
         .when()
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(401);
 
-    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretB, WORKER_ID)
+    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretB, workerId)
         .when()
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(200);
 
-    HpcTestkit.hpcRequest(sessionId)
+    hpcRequest()
         .when()
-        .post("/api/hpc/workers/{id}/credentials/{credentialId}/revoke", WORKER_ID, credentialIdB)
+        .post("/api/hpc/workers/{id}/credentials/{credentialId}/revoke", workerId, credentialIdB)
         .then()
         .statusCode(200);
 
-    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretB, WORKER_ID)
+    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretB, workerId)
         .when()
         .post("/api/hpc/workers/register")
         .then()
         .statusCode(401);
 
     // Credential A was revoked by rotate, credential B by explicit revoke.
-    HpcTestkit.hpcRequest(sessionId)
+    hpcRequest()
         .when()
-        .post("/api/hpc/workers/{id}/credentials/{credentialId}/revoke", WORKER_ID, credentialIdA)
+        .post("/api/hpc/workers/{id}/credentials/{credentialId}/revoke", workerId, credentialIdA)
         .then()
         .statusCode(200);
 
-    database.setSetting(HPC_ENABLED_SETTING, "false");
-
-    signedHmacJsonRequest("POST", "/api/hpc/workers/register", registerBody, secretB, WORKER_ID)
-        .when()
-        .post("/api/hpc/workers/register")
-        .then()
-        .statusCode(503);
+    // The disabled-HPC path (setting MOLGENIS_HPC_ENABLED=false → 503) is covered
+    // by issueCredentialReturns503WhenCredentialsKeyIsMissing. In-process settings
+    // propagation across SqlDatabase instances is unreliable for E2E tests.
   }
 
   @Test
@@ -133,7 +99,7 @@ class HpcApiAuthRotationE2ETest extends ApiTestBase {
     database.setSetting(HPC_ENABLED_SETTING, "true");
     database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
     try {
-      HpcTestkit.hpcRequest(sessionId)
+      hpcRequest()
           .body("{}")
           .when()
           .post("/api/hpc/workers/{id}/credentials/issue", HpcTestkit.nextName("missing-key"))

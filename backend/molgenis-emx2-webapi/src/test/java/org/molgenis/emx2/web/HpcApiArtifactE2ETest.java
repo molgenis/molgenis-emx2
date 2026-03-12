@@ -30,6 +30,7 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
     createResp.then().statusCode(201).body("id", notNullValue()).body("type", equalTo("dataset"));
 
     String artifactId = createResp.jsonPath().getString("id");
+    trackArtifact(artifactId);
 
     // Upload file via PUT (JSON metadata-only mode)
     hpcRequest()
@@ -86,6 +87,7 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackArtifact(artifactId);
 
     hpcRequest()
         .body(
@@ -133,6 +135,7 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackArtifact(artifactId);
 
     for (String path : new String[] {"c/output.txt", "a/output.txt", "b/output.txt"}) {
       hpcRequest()
@@ -227,6 +230,8 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
             .jsonPath()
             .getString("id");
 
+    trackArtifact(artifactId);
+
     hpcRequest()
         .contentType("application/octet-stream")
         .body("hello".getBytes(StandardCharsets.UTF_8))
@@ -253,6 +258,8 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+
+    trackArtifact(artifactId);
 
     byte[] payload = "hello".getBytes(StandardCharsets.UTF_8);
     String sha256 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(payload));

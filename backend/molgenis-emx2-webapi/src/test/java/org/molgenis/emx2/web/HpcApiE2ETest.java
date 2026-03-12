@@ -56,6 +56,7 @@ class HpcApiE2ETest extends HpcApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackJob(jobId);
 
     // Claim
     claimJobHelper(jobId, WORKER_A)
@@ -102,6 +103,7 @@ class HpcApiE2ETest extends HpcApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackJob(jobId);
 
     hpcRequest()
         .when()

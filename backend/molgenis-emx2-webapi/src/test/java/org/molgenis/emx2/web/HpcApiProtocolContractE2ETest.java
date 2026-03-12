@@ -19,50 +19,17 @@ import org.junit.jupiter.api.*;
 /** End-to-end API contract checks backed by protocol/hpc-protocol.json. */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")
-class HpcApiProtocolContractE2ETest extends ApiTestBase {
+class HpcApiProtocolContractE2ETest extends HpcApiTestBase {
 
-  private static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
-  private static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
-  private static final String TEST_CREDENTIALS_KEY =
-      "hpc-contract-key-0123456789abcdef0123456789abcdef";
   private static final String CONTRACT_PROCESSOR = "contract-proc";
 
   private static JsonNode defs;
-  private static String previousEnabled;
-  private static String previousCredentialsKey;
   private static String workerId;
-
-  private static RequestSpecification hpcRequest() {
-    return HpcTestkit.hpcRequest(sessionId);
-  }
-
-  private static RequestSpecification workerRequest(String workerId) {
-    return hpcRequest().header("X-Worker-Id", workerId);
-  }
 
   @BeforeAll
   static void setupContractContext() throws Exception {
     loadSpec();
-    previousEnabled = database.getSetting(HPC_ENABLED_SETTING);
-    previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
-    database.setSetting(HPC_ENABLED_SETTING, "true");
-    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
-    login(database.getAdminUserName(), "admin");
     workerId = HpcTestkit.nextName("contract-worker");
-  }
-
-  @AfterAll
-  static void restoreSecret() {
-    if (previousEnabled == null || previousEnabled.isBlank()) {
-      database.removeSetting(HPC_ENABLED_SETTING);
-    } else {
-      database.setSetting(HPC_ENABLED_SETTING, previousEnabled);
-    }
-    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
-      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
-    } else {
-      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
-    }
   }
 
   @Test
@@ -155,6 +122,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .statusCode(200)
             .extract()
             .as(Map.class);
+    trackWorker(workerId);
 
     assertContainsRequiredKeys(worker, requiredFields("workerRegister"));
   }
@@ -176,6 +144,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackJob(jobId);
 
     Map<String, Object> job =
         hpcRequest()
@@ -256,6 +225,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackArtifact(artifactId);
 
     Map<String, Object> artifact =
         hpcRequest()
@@ -305,6 +275,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
   @Order(7)
   void workerCredentialResponsesMatchContract() {
     String credentialWorkerId = HpcTestkit.nextName("contract-cred-worker");
+    trackWorker(credentialWorkerId);
 
     Map<String, Object> issued =
         hpcRequest()
@@ -382,6 +353,7 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
             .extract()
             .jsonPath()
             .getString("id");
+    trackJob(jobId);
 
     Response response =
         workerRequest(workerId)

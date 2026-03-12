@@ -18,6 +18,7 @@ class HpcApiWorkerE2ETest extends HpcApiTestBase {
   @Test
   @Order(50)
   void workerRegistrationAndHeartbeat() {
+    trackWorker("e2e-worker-reg");
     workerRequest("e2e-worker-reg")
         .body(
             """
@@ -86,6 +87,7 @@ class HpcApiWorkerE2ETest extends HpcApiTestBase {
   @Order(53)
   void deletingWorkerRemovesCredentialsSoWorkerIdCanBeReissued() {
     String workerId = HpcTestkit.nextName("delete-worker-credentials");
+    trackWorker(workerId);
 
     hpcRequest()
         .body("{}")
