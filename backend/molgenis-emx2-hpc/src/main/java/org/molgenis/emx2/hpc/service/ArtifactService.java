@@ -1,5 +1,8 @@
 package org.molgenis.emx2.hpc.service;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.table;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
@@ -12,8 +15,12 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
@@ -278,21 +285,12 @@ public class ArtifactService {
   }
 
   /** Lists files belonging to an artifact with optional prefix filter and pagination. */
-  // TODO: Use DB-level LIMIT/OFFSET when EMX2 Query API supports it
   public List<Row> listFiles(String artifactId, String prefix, int limit, int offset) {
     return tx.txResult(
         db -> {
           Table table = db.getSchema(systemSchemaName).getTable("HpcArtifactFiles");
-          var query = table.where(f("artifact_id", EQUALS, artifactId));
-          if (prefix != null && !prefix.isBlank()) {
-            query = query.where(f("path", LIKE, prefix + "%"));
-          }
-          List<Row> allRows = query.retrieveRows();
-
-          // Apply offset and limit
-          int start = Math.min(offset, allRows.size());
-          int end = Math.min(start + limit, allRows.size());
-          return allRows.subList(start, end);
+          Query query = applyFileFilters(table.query(), artifactId, prefix);
+          return query.orderBy(fileListOrder()).limit(limit).offset(offset).retrieveRows();
         });
   }
 
@@ -300,13 +298,34 @@ public class ArtifactService {
   public int countFiles(String artifactId, String prefix) {
     return tx.txResult(
         db -> {
-          Table table = db.getSchema(systemSchemaName).getTable("HpcArtifactFiles");
-          var query = table.where(f("artifact_id", EQUALS, artifactId));
-          if (prefix != null && !prefix.isBlank()) {
-            query = query.where(f("path", LIKE, prefix + "%"));
-          }
-          return query.retrieveRows().size();
+          DSLContext jooq = ((SqlDatabase) db).getJooq();
+          return jooq.fetchCount(
+              jooq.selectFrom(table(name(systemSchemaName, "HpcArtifactFiles")))
+                  .where(fileListCondition(artifactId, prefix)));
         });
+  }
+
+  private Query applyFileFilters(Query query, String artifactId, String prefix) {
+    query.where(f("artifact_id", EQUALS, artifactId));
+    if (prefix != null && !prefix.isBlank()) {
+      query.where(f("path", LIKE, prefix + "%"));
+    }
+    return query;
+  }
+
+  private Condition fileListCondition(String artifactId, String prefix) {
+    Condition condition = field(name("artifact_id")).eq(artifactId);
+    if (prefix != null && !prefix.isBlank()) {
+      condition = condition.and(field(name("path")).like(prefix + "%"));
+    }
+    return condition;
+  }
+
+  private Map<String, Order> fileListOrder() {
+    Map<String, Order> order = new LinkedHashMap<>();
+    order.put("path", Order.ASC);
+    order.put("id", Order.ASC);
+    return order;
   }
 
   /**

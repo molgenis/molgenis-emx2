@@ -118,6 +118,53 @@ class HpcApiArtifactE2ETest extends HpcApiTestBase {
   }
 
   @Test
+  @Order(615)
+  void listFilesUsesDeterministicDatabasePaginationOrder() {
+    String artifactId =
+        hpcRequest()
+            .body(
+                """
+                {"type": "dataset", "residence": "managed"}
+                """)
+            .when()
+            .post("/api/hpc/artifacts")
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath()
+            .getString("id");
+
+    for (String path : new String[] {"c/output.txt", "a/output.txt", "b/output.txt"}) {
+      hpcRequest()
+          .body(
+              """
+              {
+                "sha256": "hash-%s",
+                "size_bytes": 10,
+                "content_type": "text/plain"
+              }
+              """
+                  .formatted(path.replace('/', '-')))
+          .when()
+          .put("/api/hpc/artifacts/{id}/files/{path}", artifactId, path)
+          .then()
+          .statusCode(201);
+    }
+
+    hpcRequest()
+        .queryParam("limit", "2")
+        .queryParam("offset", "1")
+        .when()
+        .get("/api/hpc/artifacts/{id}/files", artifactId)
+        .then()
+        .statusCode(200)
+        .body("total_count", equalTo(3))
+        .body("count", equalTo(2))
+        .body("items[0].path", equalTo("b/output.txt"))
+        .body("items[1].path", equalTo("c/output.txt"));
+  }
+
+  @Test
   @Order(62)
   void committedArtifactRejectsFurtherMutation() {
     String artifactId = createCommittedArtifact("dataset", "immutable-e2e");

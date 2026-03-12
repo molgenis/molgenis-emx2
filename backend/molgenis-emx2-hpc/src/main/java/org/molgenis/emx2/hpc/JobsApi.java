@@ -37,12 +37,10 @@ import org.molgenis.emx2.hpc.service.JobService;
 public class JobsApi {
 
   private final JobService jobService;
-  private final ArtifactService artifactService;
   private final JobResponseMapper mapper;
 
   public JobsApi(JobService jobService, ArtifactService artifactService) {
     this.jobService = jobService;
-    this.artifactService = artifactService;
     this.mapper = new JobResponseMapper(artifactService);
   }
 
@@ -89,10 +87,6 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
-    // Expire stale jobs and artifacts before listing
-    jobService.expireStaleJobs();
-    artifactService.expireStaleArtifacts();
-
     String status = ctx.queryParam("status");
     String processor = ctx.queryParam("processor");
     String profile = ctx.queryParam("profile");

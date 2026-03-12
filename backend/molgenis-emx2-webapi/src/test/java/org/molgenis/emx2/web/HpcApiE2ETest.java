@@ -171,6 +171,29 @@ class HpcApiE2ETest extends HpcApiTestBase {
         .body("items", hasSize(lessThanOrEqualTo(2)));
   }
 
+  @Test
+  @Order(41)
+  void listJobsUsesDeterministicDatabasePaginationOrder() {
+    String processor = "paged-proc";
+    createJobHelper(processor, "batch");
+    String secondJobId = createJobHelper(processor, "batch");
+    String thirdJobId = createJobHelper(processor, "batch");
+
+    hpcRequest()
+        .queryParam("processor", processor)
+        .queryParam("profile", "batch")
+        .queryParam("limit", "2")
+        .queryParam("offset", "1")
+        .when()
+        .get("/api/hpc/jobs")
+        .then()
+        .statusCode(200)
+        .body("total_count", equalTo(3))
+        .body("count", equalTo(2))
+        .body("items[0].id", equalTo(secondJobId))
+        .body("items[1].id", equalTo(thirdJobId));
+  }
+
   // ── 5. Job cancellation ────────────────────────────────────────────────
 
   @Test

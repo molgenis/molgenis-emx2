@@ -11,9 +11,12 @@ import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
@@ -450,30 +453,13 @@ public class JobService {
    * Lists jobs with optional filters, pagination, and sorting. When status is null, defaults to
    * PENDING (backwards compatible with worker polling).
    */
-  // TODO: Use DB-level LIMIT/OFFSET when EMX2 Query API supports it
   public List<Row> listJobs(
       String status, String processor, String profile, int limit, int offset) {
     return tx.txResult(
         db -> {
           Table jobsTable = db.getSchema(systemSchemaName).getTable("HpcJobs");
-
-          // Build filter chain
-          String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
-          var query = jobsTable.where(f("status", f("name", EQUALS, filterStatus)));
-
-          if (processor != null) {
-            query = query.where(f("processor", EQUALS, processor));
-          }
-          if (profile != null) {
-            query = query.where(f("profile", EQUALS, profile));
-          }
-
-          List<Row> allRows = query.retrieveRows();
-
-          // Apply offset and limit
-          int start = Math.min(offset, allRows.size());
-          int end = Math.min(start + limit, allRows.size());
-          return allRows.subList(start, end);
+          Query query = applyJobFilters(jobsTable.query(), status, processor, profile);
+          return query.orderBy(jobListOrder()).limit(limit).offset(offset).retrieveRows();
         });
   }
 
@@ -481,19 +467,10 @@ public class JobService {
   public int countJobs(String status, String processor, String profile) {
     return tx.txResult(
         db -> {
-          Table jobsTable = db.getSchema(systemSchemaName).getTable("HpcJobs");
-
-          String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
-          var query = jobsTable.where(f("status", f("name", EQUALS, filterStatus)));
-
-          if (processor != null) {
-            query = query.where(f("processor", EQUALS, processor));
-          }
-          if (profile != null) {
-            query = query.where(f("profile", EQUALS, profile));
-          }
-
-          return query.retrieveRows().size();
+          DSLContext jooq = ((SqlDatabase) db).getJooq();
+          return jooq.fetchCount(
+              jooq.selectFrom(table(name(systemSchemaName, "HpcJobs")))
+                  .where(jobListCondition(status, processor, profile)));
         });
   }
 
@@ -503,6 +480,37 @@ public class JobService {
    */
   public List<Row> listPendingJobs(String processor, String profile) {
     return listJobs(HpcJobStatus.PENDING.name(), processor, profile, 100, 0);
+  }
+
+  private Query applyJobFilters(Query query, String status, String processor, String profile) {
+    String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
+    query.where(f("status", f("name", EQUALS, filterStatus)));
+    if (processor != null) {
+      query.where(f("processor", EQUALS, processor));
+    }
+    if (profile != null) {
+      query.where(f("profile", EQUALS, profile));
+    }
+    return query;
+  }
+
+  private Condition jobListCondition(String status, String processor, String profile) {
+    String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
+    Condition condition = field(name("status")).eq(filterStatus);
+    if (processor != null) {
+      condition = condition.and(field(name("processor")).eq(processor));
+    }
+    if (profile != null) {
+      condition = condition.and(field(name("profile")).eq(profile));
+    }
+    return condition;
+  }
+
+  private Map<String, Order> jobListOrder() {
+    Map<String, Order> order = new LinkedHashMap<>();
+    order.put("created_at", Order.ASC);
+    order.put("id", Order.ASC);
+    return order;
   }
 
   /**
