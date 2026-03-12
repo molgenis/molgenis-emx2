@@ -11,7 +11,7 @@ export default defineConfig(({command}) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: "legacy",
+          api: 'legacy',
           additionalData: `
           @import "../molgenis-viz/src/styles/palettes.scss";
           @import "../molgenis-viz/src/styles/variables.scss";
