@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type IInputProps } from "../../../types/types";
 import type { columnValue } from "../../../../metadata-utils/src/types";
+import BaseIcon from "../BaseIcon.vue";
 
 type SelectPrimitive = string | number;
 type SelectOption = SelectPrimitive | { value: SelectPrimitive; label: string };
@@ -29,26 +30,44 @@ function optionLabel(option: SelectOption): string {
 </script>
 
 <template>
-  <select
-    :modelValue="modelValue"
-    @change="
-      $event.target &&
-        $emit('update:modelValue', ($event.target as HTMLSelectElement).value)
-    "
-    :id="id"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-transparent border-r-8 outline outline-1 outline-select"
-    :class="{ 'border-red-500 text-red-500': invalid }"
-  >
-    <option value="" :selected="modelValue === ''">
-      {{ placeholder }}
-    </option>
-    <option
-      v-for="option in options"
-      :key="optionValue(option)"
-      :value="optionValue(option)"
-      :selected="modelValue === optionValue(option)"
+  <div class="relative w-full">
+    <select
+      :modelValue="modelValue"
+      @change="
+        $event.target &&
+          $emit('update:modelValue', ($event.target as HTMLSelectElement).value)
+      "
+      :id="id"
+      class="w-full h-input pr-9 pl-3 border outline-none rounded-input appearance-none"
+      :class="{
+        'bg-input border-valid text-valid': valid && !disabled,
+        'bg-input border-invalid text-invalid': invalid && !disabled,
+        'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+        'bg-disabled border-valid text-valid cursor-not-allowed':
+          valid && disabled,
+        'bg-disabled border-invalid text-invalid cursor-not-allowed':
+          invalid && disabled,
+        'bg-input text-input hover:border-input-hover focus:border-input-focused':
+          !disabled && !invalid && !valid,
+      }"
     >
-      {{ optionLabel(option) }}
-    </option>
-  </select>
+      <option value="" :selected="modelValue === ''">
+        {{ placeholder }}
+      </option>
+      <option
+        v-for="option in options"
+        :key="optionValue(option)"
+        :value="optionValue(option)"
+        :selected="modelValue === optionValue(option)"
+      >
+        {{ optionLabel(option) }}
+      </option>
+    </select>
+    <span
+      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
+      :class="disabled ? 'text-disabled' : 'text-input-description'"
+    >
+      <BaseIcon name="caret-down" :width="18" />
+    </span>
+  </div>
 </template>

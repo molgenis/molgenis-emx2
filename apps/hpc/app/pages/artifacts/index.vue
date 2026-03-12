@@ -15,7 +15,7 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <div class="w-56">
+          <div class="w-44">
             <InputSelect
               id="artifacts-status-filter"
               v-model="statusFilter"
@@ -25,7 +25,7 @@
           </div>
           <Button
             type="primary"
-            size="tiny"
+            size="small"
             @click="showForm = !showForm"
           >
             {{ showForm ? "Hide Form" : "+ New Artifact" }}
