@@ -37,85 +37,77 @@
           </Button>
         </div>
       </div>
+    </section>
 
-      <div
-        v-if="showBootstrap"
-        class="mt-5 rounded-lg border border-color-theme bg-content/40 p-4"
-      >
-        <div class="mb-3">
-          <p class="text-sm font-semibold text-title">Add Worker Credential</p>
-          <p class="text-xs text-definition-list-term">
-            Issue or rotate a credential for a worker before the daemon first
-            registers.
-          </p>
-        </div>
-
-        <form
-          class="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-end"
-          @submit.prevent="onBootstrapIssue"
-        >
-          <label class="flex flex-col gap-1">
-            <span
-              class="text-xs text-table-column-header uppercase tracking-wider"
-              >Worker ID</span
-            >
-            <InputString
-              id="bootstrap-worker-id"
-              v-model="bootstrapWorkerId"
-              autocomplete="off"
-              placeholder="e.g. hpc-headnode-01"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span
-              class="text-xs text-table-column-header uppercase tracking-wider"
-              >Label (Optional)</span
-            >
-            <InputString
-              id="bootstrap-worker-label"
-              v-model="bootstrapLabel"
-              autocomplete="off"
-              placeholder="optional label"
-            />
-          </label>
-
-          <div class="flex gap-2">
-            <Button
-              type="primary"
-              size="tiny"
-              :disabled="bootstrapBusy"
-            >
-              Issue
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="bootstrapBusy"
-              @click="onBootstrapRotate"
-            >
-              Rotate
-            </Button>
-          </div>
-        </form>
-
-        <p class="mt-3 text-xs text-definition-list-term">
-          Requires <code>_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY</code>.
-          Capability and heartbeat fields appear after successful
-          <code>/workers/register</code>.
+    <section
+      v-if="showBootstrap"
+      class="bg-form rounded-lg border border-color-theme bg-content/40 p-4"
+    >
+      <div class="mb-3">
+        <p class="text-sm font-semibold text-title">Add Worker Credential</p>
+        <p class="text-xs text-definition-list-term">
+          Issue or rotate a credential for a worker before the daemon first
+          registers.
         </p>
       </div>
+
+      <form
+        class="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-end"
+        @submit.prevent="onBootstrapIssue"
+      >
+        <label class="flex flex-col gap-1">
+          <span
+            class="text-xs text-table-column-header uppercase tracking-wider"
+            >Worker ID</span
+          >
+          <InputString
+            id="bootstrap-worker-id"
+            v-model="bootstrapWorkerId"
+            autocomplete="off"
+            placeholder="e.g. hpc-headnode-01"
+          />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span
+            class="text-xs text-table-column-header uppercase tracking-wider"
+            >Label (Optional)</span
+          >
+          <InputString
+            id="bootstrap-worker-label"
+            v-model="bootstrapLabel"
+            autocomplete="off"
+            placeholder="optional label"
+          />
+        </label>
+
+        <div class="flex gap-2">
+          <Button type="primary" size="tiny" :disabled="bootstrapBusy">
+            Issue
+          </Button>
+          <Button
+            type="outline"
+            size="tiny"
+            :disabled="bootstrapBusy"
+            @click="onBootstrapRotate"
+          >
+            Rotate
+          </Button>
+        </div>
+      </form>
+
+      <p class="mt-3 text-xs text-definition-list-term">
+        Requires <code>_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY</code>. Capability
+        and heartbeat fields appear after successful
+        <code>/workers/register</code>.
+      </p>
     </section>
 
     <Message v-if="error" id="workers-page-error" invalid>
       {{ error }}
     </Message>
 
-    <Message
-      v-if="revealedSecret"
-      id="workers-page-secret"
-      valid
-    >
+    <Message v-if="revealedSecret" id="workers-page-secret" valid>
       <div class="space-y-4">
         <div
           class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
@@ -128,18 +120,10 @@
             </p>
           </div>
           <div class="flex items-center gap-2 md:shrink-0">
-            <Button
-              type="primary"
-              size="tiny"
-              @click="copyRevealedSecret"
-            >
+            <Button type="primary" size="tiny" @click="copyRevealedSecret">
               Copy Secret
             </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              @click="dismissRevealedSecret"
-            >
+            <Button type="outline" size="tiny" @click="dismissRevealedSecret">
               Dismiss
             </Button>
           </div>
@@ -242,330 +226,341 @@
           </thead>
 
           <tbody>
-            <tr
-              v-for="worker in workers"
-              :key="worker.worker_id"
-              :class="[
-                'border-b border-color-theme transition-colors',
-                expandedWorkerId === worker.worker_id
-                  ? 'bg-content/40'
-                  : 'hover:bg-hover',
-              ]"
-            >
-              <td class="px-4 py-3 align-top">
-                <code class="text-xs bg-content px-1.5 py-0.5 rounded">{{
-                  worker.worker_id
-                }}</code>
-              </td>
+            <template v-for="worker in workers" :key="worker.worker_id">
+              <tr
+                :class="[
+                  'border-b border-color-theme transition-colors',
+                  expandedWorkerId === worker.worker_id
+                    ? 'bg-content/40'
+                    : 'hover:bg-hover',
+                ]"
+              >
+                <td class="px-4 py-3 align-top">
+                  <code class="text-xs bg-content px-1.5 py-0.5 rounded">{{
+                    worker.worker_id
+                  }}</code>
+                </td>
 
-              <td class="px-4 py-3 align-top">
-                {{ worker.hostname || "-" }}
-              </td>
+                <td class="px-4 py-3 align-top">
+                  {{ worker.hostname || "-" }}
+                </td>
 
-              <td class="px-4 py-3 align-top">
-                <div
-                  v-if="worker.capabilities?.length"
-                  class="flex flex-wrap gap-1"
-                >
-                  <span
-                    v-for="(capability, index) in worker.capabilities"
-                    :key="`${worker.worker_id}-${index}`"
-                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-content text-record-label"
-                  >
-                    {{ capability.processor }}:{{ capability.profile }}
-                  </span>
-                </div>
-                <span v-else class="text-definition-list-term">-</span>
-              </td>
-
-              <td class="px-4 py-3 align-top">
-                {{ formatDate(worker.registered_at) }}
-              </td>
-
-              <td class="px-4 py-3 align-top">
-                <div class="flex items-center gap-2">
-                  <span
-                    class="h-2 w-2 rounded-full"
-                    :class="heartbeatDotClass(worker.last_heartbeat_at)"
-                  />
-                  <span :class="heartbeatTextClass(worker.last_heartbeat_at)">
-                    {{ formatDate(worker.last_heartbeat_at) }}
-                  </span>
-                </div>
-              </td>
-
-              <td class="px-4 py-3 align-top min-w-[210px]">
-                <div v-if="worker.active_jobs?.length" class="space-y-1">
+                <td class="px-4 py-3 align-top">
                   <div
-                    v-for="activeJob in worker.active_jobs"
-                    :key="activeJob.id"
-                    class="flex items-center gap-2"
+                    v-if="worker.capabilities?.length"
+                    class="flex flex-wrap gap-1"
                   >
-                    <NuxtLink
-                      :to="`/jobs/${activeJob.id}`"
-                      class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+                    <HpcPill
+                      v-for="(capability, index) in worker.capabilities"
+                      :key="`${worker.worker_id}-${index}`"
+                      compact
                     >
-                      {{ shortId(activeJob.id) }}
-                    </NuxtLink>
-                    <StatusBadge :status="activeJob.status" />
+                      {{ capability.processor }}:{{ capability.profile }}
+                    </HpcPill>
                   </div>
-                </div>
-                <span v-else class="text-definition-list-term">-</span>
-              </td>
+                  <span v-else class="text-definition-list-term">-</span>
+                </td>
 
-              <td class="px-4 py-3 align-top whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <Button
-                    type="outline"
-                    size="tiny"
-                    :disabled="credentialsLoadingFor === worker.worker_id"
-                    @click="toggleCredentials(worker.worker_id)"
+                <td class="px-4 py-3 align-top">
+                  {{ formatDate(worker.registered_at) }}
+                </td>
+
+                <td class="px-4 py-3 align-top">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="h-2 w-2 rounded-full"
+                      :class="heartbeatDotClass(worker.last_heartbeat_at)"
+                    />
+                    <span :class="heartbeatTextClass(worker.last_heartbeat_at)">
+                      {{ formatDate(worker.last_heartbeat_at) }}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 align-top min-w-[210px]">
+                  <div v-if="worker.active_jobs?.length" class="space-y-1">
+                    <div
+                      v-for="activeJob in worker.active_jobs"
+                      :key="activeJob.id"
+                      class="flex items-center gap-2"
+                    >
+                      <NuxtLink
+                        :to="`/jobs/${activeJob.id}`"
+                        class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
+                      >
+                        {{ shortId(activeJob.id) }}
+                      </NuxtLink>
+                      <StatusBadge :status="activeJob.status" />
+                    </div>
+                  </div>
+                  <span v-else class="text-definition-list-term">-</span>
+                </td>
+
+                <td class="px-4 py-3 align-top whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <Button
+                      type="outline"
+                      size="tiny"
+                      :disabled="credentialsLoadingFor === worker.worker_id"
+                      @click="toggleCredentials(worker.worker_id)"
+                    >
+                      {{
+                        expandedWorkerId === worker.worker_id
+                          ? "Close"
+                          : "Manage"
+                      }}
+                    </Button>
+                    <Button
+                      type="outline"
+                      size="tiny"
+                      :disabled="deletingWorker === worker.worker_id"
+                      @click="onDeleteWorker(worker.worker_id)"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr
+                v-if="expandedWorkerId === worker.worker_id"
+                class="border-b border-color-theme last:border-b-0 bg-content/40"
+              >
+                <td class="px-4 py-4 lg:px-5" colspan="7">
+                  <div
+                    class="flex flex-wrap items-start justify-between gap-3 mb-4"
                   >
-                    {{
-                      expandedWorkerId === worker.worker_id ? "Close" : "Manage"
-                    }}
-                  </Button>
-                  <Button
-                    type="outline"
-                    size="tiny"
-                    :disabled="deletingWorker === worker.worker_id"
-                    @click="onDeleteWorker(worker.worker_id)"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </td>
-            </tr>
+                    <div>
+                      <p class="text-sm font-semibold text-title">
+                        Manage Worker <code>{{ worker.worker_id }}</code>
+                      </p>
+                      <p class="text-xs text-definition-list-term mt-1">
+                        Issue creates the first credential when none exists.
+                        Revoke active credentials in the table below.
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <Button
+                        v-if="!hasActiveCredential(worker.worker_id)"
+                        type="outline"
+                        size="tiny"
+                        :disabled="credentialActionFor === worker.worker_id"
+                        @click="onIssueCredential(worker.worker_id)"
+                      >
+                        Issue
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div
+                      class="rounded-md border border-color-theme bg-form p-3"
+                    >
+                      <p
+                        class="text-xs font-semibold text-table-column-header uppercase tracking-wider mb-2"
+                      >
+                        Worker Info
+                      </p>
+                      <div class="space-y-2 text-sm">
+                        <div class="flex justify-between gap-3">
+                          <span class="text-definition-list-term"
+                            >Hostname</span
+                          >
+                          <span class="text-title">{{
+                            worker.hostname || "-"
+                          }}</span>
+                        </div>
+                        <div class="flex justify-between gap-3">
+                          <span class="text-definition-list-term"
+                            >Registered</span
+                          >
+                          <span class="text-title">{{
+                            formatDate(worker.registered_at)
+                          }}</span>
+                        </div>
+                        <div class="flex justify-between gap-3">
+                          <span class="text-definition-list-term"
+                            >Heartbeat</span
+                          >
+                          <span
+                            :class="
+                              heartbeatTextClass(worker.last_heartbeat_at)
+                            "
+                          >
+                            {{ formatDate(worker.last_heartbeat_at) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="rounded-md border border-color-theme bg-form p-3 lg:col-span-2"
+                    >
+                      <div class="flex items-center justify-between gap-3 mb-2">
+                        <p
+                          class="text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                        >
+                          Credentials
+                        </p>
+                        <span
+                          v-if="getActiveCredential(worker.worker_id)"
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs border border-green-500/40 bg-green-500/10 text-green-700"
+                        >
+                          Active:
+                          {{
+                            shortCredentialId(
+                              getActiveCredential(worker.worker_id)?.id
+                            )
+                          }}
+                        </span>
+                      </div>
+
+                      <div
+                        v-if="credentialsLoadingFor === worker.worker_id"
+                        class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
+                      >
+                        Loading credentials...
+                      </div>
+
+                      <div
+                        v-else-if="
+                          !getWorkerCredentials(worker.worker_id).length
+                        "
+                        class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
+                      >
+                        No credentials issued.
+                      </div>
+
+                      <div
+                        v-else
+                        class="rounded-md border border-color-theme bg-content"
+                      >
+                        <div class="overflow-x-auto">
+                          <table class="w-full text-xs text-table-row">
+                            <thead>
+                              <tr
+                                class="border-b border-color-theme text-table-column-header"
+                              >
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Status
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Credential
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Created
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Last Used
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Expires
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Label
+                                </th>
+                                <th
+                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
+                                >
+                                  Action
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                v-for="credential in getWorkerCredentials(
+                                  worker.worker_id
+                                )"
+                                :key="credential.id"
+                                :class="[
+                                  'border-b border-color-theme last:border-b-0',
+                                  credential.status === 'ACTIVE'
+                                    ? 'bg-green-500/5'
+                                    : '',
+                                ]"
+                              >
+                                <td class="px-3 py-2 align-top">
+                                  <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full border"
+                                    :class="
+                                      credentialStatusClass(credential.status)
+                                    "
+                                  >
+                                    {{ credential.status }}
+                                  </span>
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  <code
+                                    class="bg-form px-1.5 py-0.5 rounded"
+                                    :title="credential.id"
+                                  >
+                                    {{ shortCredentialId(credential.id) }}
+                                  </code>
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  {{ formatDate(credential.created_at) }}
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  {{ formatDate(credential.last_used_at) }}
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  {{ formatDate(credential.expires_at) }}
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  {{ credential.label || "-" }}
+                                </td>
+                                <td class="px-3 py-2 align-top">
+                                  <Button
+                                    v-if="credential.status === 'ACTIVE'"
+                                    type="outline"
+                                    size="tiny"
+                                    :disabled="
+                                      credentialActionFor === worker.worker_id
+                                    "
+                                    @click="
+                                      onRevokeCredential(
+                                        worker.worker_id,
+                                        credential.id
+                                      )
+                                    "
+                                  >
+                                    Revoke
+                                  </Button>
+                                  <span v-else class="text-definition-list-term"
+                                    >-</span
+                                  >
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
-      </div>
-
-      <div
-        v-if="activeWorker"
-        class="border-t border-color-theme p-4 lg:p-5 bg-content/40"
-      >
-        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div>
-            <p class="text-sm font-semibold text-title">
-              Manage Worker <code>{{ activeWorker.worker_id }}</code>
-            </p>
-            <p class="text-xs text-definition-list-term mt-1">
-              Issue creates the first credential. Rotate replaces the current
-              active credential immediately.
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <Button
-              v-if="!activeCredential"
-              type="outline"
-              size="tiny"
-              :disabled="credentialActionFor === activeWorker.worker_id"
-              @click="onIssueCredential(activeWorker.worker_id)"
-            >
-              Issue
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="credentialActionFor === activeWorker.worker_id"
-              @click="onRotateCredential(activeWorker.worker_id)"
-            >
-              Rotate
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              :disabled="credentialsLoadingFor === activeWorker.worker_id"
-              @click="loadCredentials(activeWorker.worker_id, true)"
-            >
-              Refresh
-            </Button>
-            <Button
-              type="outline"
-              size="tiny"
-              @click="expandedWorkerId = null"
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div class="rounded-md border border-color-theme bg-form p-3">
-            <p
-              class="text-xs font-semibold text-table-column-header uppercase tracking-wider mb-2"
-            >
-              Worker Info
-            </p>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between gap-3">
-                <span class="text-definition-list-term">Hostname</span>
-                <span class="text-title">{{
-                  activeWorker.hostname || "-"
-                }}</span>
-              </div>
-              <div class="flex justify-between gap-3">
-                <span class="text-definition-list-term">Registered</span>
-                <span class="text-title">{{
-                  formatDate(activeWorker.registered_at)
-                }}</span>
-              </div>
-              <div class="flex justify-between gap-3">
-                <span class="text-definition-list-term">Heartbeat</span>
-                <span
-                  :class="heartbeatTextClass(activeWorker.last_heartbeat_at)"
-                >
-                  {{ formatDate(activeWorker.last_heartbeat_at) }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="rounded-md border border-color-theme bg-form p-3 lg:col-span-2"
-          >
-            <div class="flex items-center justify-between gap-3 mb-2">
-              <p
-                class="text-xs font-semibold text-table-column-header uppercase tracking-wider"
-              >
-                Credentials
-              </p>
-              <span
-                v-if="activeCredential"
-                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs border border-green-500/40 bg-green-500/10 text-green-700"
-              >
-                Active: {{ shortCredentialId(activeCredential.id) }}
-              </span>
-            </div>
-
-            <div
-              v-if="credentialsLoadingFor === activeWorker.worker_id"
-              class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
-            >
-              Loading credentials...
-            </div>
-
-            <div
-              v-else-if="!activeWorkerCredentials.length"
-              class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
-            >
-              No credentials issued.
-            </div>
-
-            <div v-else class="rounded-md border border-color-theme bg-content">
-              <div class="overflow-x-auto">
-                <table class="w-full text-xs text-table-row">
-                  <thead>
-                    <tr
-                      class="border-b border-color-theme text-table-column-header"
-                    >
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Status
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Credential
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Created
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Last Used
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Expires
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Label
-                      </th>
-                      <th
-                        class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                      >
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="credential in activeWorkerCredentials"
-                      :key="credential.id"
-                      :class="[
-                        'border-b border-color-theme last:border-b-0',
-                        credential.status === 'ACTIVE' ? 'bg-green-500/5' : '',
-                      ]"
-                    >
-                      <td class="px-3 py-2 align-top">
-                        <span
-                          class="inline-flex items-center px-2 py-0.5 rounded-full border"
-                          :class="credentialStatusClass(credential.status)"
-                        >
-                          {{ credential.status }}
-                        </span>
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        <code
-                          class="bg-form px-1.5 py-0.5 rounded"
-                          :title="credential.id"
-                        >
-                          {{ shortCredentialId(credential.id) }}
-                        </code>
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        {{ formatDate(credential.created_at) }}
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        {{ formatDate(credential.last_used_at) }}
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        {{ formatDate(credential.expires_at) }}
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        {{ credential.label || "-" }}
-                      </td>
-                      <td class="px-3 py-2 align-top">
-                        <Button
-                          v-if="credential.status === 'ACTIVE'"
-                          type="outline"
-                          size="tiny"
-                          :disabled="
-                            credentialActionFor === activeWorker.worker_id
-                          "
-                          @click="
-                            onRevokeCredential(
-                              activeWorker.worker_id,
-                              credential.id
-                            )
-                          "
-                        >
-                          Revoke
-                        </Button>
-                        <span v-else class="text-definition-list-term">-</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import {
   fetchWorkers,
   deleteWorker,
@@ -579,6 +574,7 @@ import Button from "../../../tailwind-components/app/components/Button.vue";
 import Accordion from "../../../tailwind-components/app/components/Accordion.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import HpcPill from "../components/HpcPill.vue";
 
 const workers = ref<any[]>([]);
 const loading = ref(false);
@@ -598,25 +594,6 @@ const bootstrapBusy = ref(false);
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 type CredentialAction = "issue" | "rotate";
-
-const activeWorker = computed(
-  () =>
-    workers.value.find(
-      (worker: any) => worker.worker_id === expandedWorkerId.value
-    ) ?? null
-);
-
-const activeWorkerCredentials = computed(() => {
-  if (!activeWorker.value) return [];
-  return credentialsByWorker.value[activeWorker.value.worker_id] ?? [];
-});
-
-const activeCredential = computed(
-  () =>
-    activeWorkerCredentials.value.find(
-      (credential: any) => credential.status === "ACTIVE"
-    ) ?? null
-);
 
 function toErrorMessage(e: any): string {
   const detail =
@@ -670,6 +647,22 @@ function shortCredentialId(idVal: string): string {
   if (!idVal) return "-";
   if (idVal.length <= 12) return idVal;
   return `${idVal.slice(0, 8)}...${idVal.slice(-4)}`;
+}
+
+function getWorkerCredentials(workerId: string): any[] {
+  return credentialsByWorker.value[workerId] ?? [];
+}
+
+function getActiveCredential(workerId: string): any | null {
+  return (
+    getWorkerCredentials(workerId).find(
+      (credential: any) => credential.status === "ACTIVE"
+    ) ?? null
+  );
+}
+
+function hasActiveCredential(workerId: string): boolean {
+  return !!getActiveCredential(workerId);
 }
 
 function mergeWorkers(nextWorkers: any[]) {
@@ -748,15 +741,11 @@ async function runCredentialAction(
 }
 
 async function onIssueCredential(workerId: string) {
-  if (activeWorker.value?.worker_id === workerId && activeCredential.value) {
+  if (hasActiveCredential(workerId)) {
     error.value = `Worker ${workerId} already has an active credential. Use Rotate to replace it.`;
     return;
   }
   await runCredentialAction(workerId, "issue");
-}
-
-async function onRotateCredential(workerId: string) {
-  await runCredentialAction(workerId, "rotate");
 }
 
 async function runBootstrapAction(action: CredentialAction) {

@@ -106,19 +106,9 @@
               v-for="(input, idx) in normalizedInputs"
               :key="input.id || `${input.name || 'input'}-${idx}`"
             >
-              <NuxtLink
-                v-if="input.id"
-                :to="`/artifacts/${input.id}`"
-                class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title hover:bg-hover transition-colors"
-              >
+              <HpcPill :to="input.id ? `/artifacts/${input.id}` : undefined">
                 {{ inputArtifactChipLabel(input) }}
-              </NuxtLink>
-              <span
-                v-else
-                class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title"
-              >
-                {{ inputArtifactChipLabel(input) }}
-              </span>
+              </HpcPill>
             </li>
           </ul>
         </div>
@@ -360,6 +350,7 @@ import { isTerminal } from "../../utils/protocol";
 import { navigateTo } from "#app/composables/router";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
+import HpcPill from "../../components/HpcPill.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);
@@ -375,12 +366,29 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 const normalizedInputs = computed(() => {
   const inputs = job.value?.inputs;
-  if (!inputs || !Array.isArray(inputs)) return [];
-  return inputs.map((item: any) => {
-    if (typeof item === "string") return { id: item };
-    return item;
-  });
+  if (!inputs) return [];
+  if (Array.isArray(inputs)) {
+    return inputs.map((item: any) => normalizeInputArtifact(item));
+  }
+  if (typeof inputs === "object") {
+    return Object.entries(inputs)
+      .filter(([, value]) => typeof value === "string")
+      .map(([name, value]) => ({ id: value as string, name }));
+  }
+  return [];
 });
+
+function normalizeInputArtifact(input: any): { id?: string; name?: string } {
+  if (typeof input === "string") return { id: input };
+  if (!input || typeof input !== "object") return {};
+
+  const directId = input.artifact_id || input.id;
+
+  if (typeof directId === "string") {
+    return { id: directId, name: input.name };
+  }
+  return {};
+}
 
 async function onDelete() {
   if (!confirm(`Delete job ${id.value}?`)) return;
