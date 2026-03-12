@@ -1,12 +1,12 @@
 import textwrap
 
-from molgenis_emx2.directory_client.errors import (
+from src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     DirectoryWarning,
     ErrorReport,
 )
-from molgenis_emx2.directory_client.model import Node
-from molgenis_emx2.directory_client.printer import Printer
+from src.molgenis_emx2.directory_client.model import Node
+from src.molgenis_emx2.directory_client.printer import Printer
 
 
 def test_indentation(capsys):

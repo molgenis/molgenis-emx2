@@ -8,11 +8,11 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from tools.directory.src.molgenis_emx2.directory_client.directory import Directory
-from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
+from directory.src.molgenis_emx2.directory_client.directory import Directory
+from directory.src.molgenis_emx2.directory_client.directory_client import (
     DirectorySession,
 )
-from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
+from directory.src.molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
     NoOpPidService,
     PidService,
@@ -20,10 +20,11 @@ from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
 
 # Get credentials from .env
 load_dotenv('./tools/directory/dev/.env')
+load_dotenv()
 
 target = os.getenv("TARGET")
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
+username = os.getenv("DIR_USERNAME")
+password = os.getenv("DIR_PASSWORD")
 directory_schema = os.getenv("DIRECTORY")
 pid_service_type = os.getenv(
     "PID_SERVICE"
