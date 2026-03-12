@@ -39,7 +39,9 @@ def _base_client_mock() -> MagicMock:
 def daemon_factory(sample_config, tmp_path):
     daemons: list[HpcDaemon] = []
 
-    def _create(*, backend: str = "simulate", profile: ProfileEntry | None = None) -> HpcDaemon:
+    def _create(
+        *, backend: str = "simulate", profile: ProfileEntry | None = None
+    ) -> HpcDaemon:
         sample_config.apptainer.tmp_dir = str(tmp_path / "work")
         sample_config.worker.state_db = str(tmp_path / f"state-{len(daemons)}.db")
 
@@ -118,7 +120,9 @@ def _install_input_artifact_stubs(client: MagicMock, tmp_path: Path) -> None:
 
     client.get_artifact.side_effect = lambda artifact_id: artifacts[artifact_id]
     client.list_artifact_files.side_effect = (
-        lambda artifact_id: [{"path": "managed/input.txt"}] if artifact_id == "art-managed" else []
+        lambda artifact_id: [{"path": "managed/input.txt"}]
+        if artifact_id == "art-managed"
+        else []
     )
 
     def _download(artifact_id: str, dest_dir: str) -> list[str]:
@@ -139,7 +143,9 @@ def _install_input_artifact_stubs(client: MagicMock, tmp_path: Path) -> None:
         {"dataset": "art-managed", "reference": "art-posix"},
     ],
 )
-def test_submit_stages_all_supported_input_forms(daemon_factory, tmp_path: Path, inputs):
+def test_submit_stages_all_supported_input_forms(
+    daemon_factory, tmp_path: Path, inputs
+):
     entrypoint = _write_shell_entrypoint(tmp_path / "entrypoint.sh")
     daemon = daemon_factory(
         backend="shell",
@@ -252,7 +258,8 @@ def test_completion_uploads_nested_paths_for_managed_and_posix(
         assert daemon.client.register_artifact_file.call_count == 0
     else:
         registered_paths = sorted(
-            c.kwargs["path"] for c in daemon.client.register_artifact_file.call_args_list
+            c.kwargs["path"]
+            for c in daemon.client.register_artifact_file.call_args_list
         )
         assert registered_paths == ["logs/pipeline.log", "nested/results/output.txt"]
         assert daemon.client.upload_artifact_file.call_count == 0
@@ -363,7 +370,9 @@ def test_submission_timeout_marks_job_failed_and_untracks(daemon_factory):
     "slurm_state",
     ["PREEMPTED", "BOOT_FAIL", "DEADLINE", "REVOKED", "SPECIAL_EXIT"],
 )
-def test_unmapped_terminal_slurm_states_now_fail(daemon_factory, tmp_path: Path, slurm_state: str):
+def test_unmapped_terminal_slurm_states_now_fail(
+    daemon_factory, tmp_path: Path, slurm_state: str
+):
     daemon = daemon_factory(
         backend="simulate",
         profile=ProfileEntry(sif_image="/tmp/fake.sif"),
@@ -415,7 +424,9 @@ def test_unknown_state_grace_window_then_fail(daemon_factory, tmp_path: Path):
         profile="default",
     )
     daemon._backend.query_status = MagicMock(return_value=None)
-    daemon._backend.query_slurm_info = MagicMock(return_value=SlurmJobInfo(state="UNKNOWN"))
+    daemon._backend.query_slurm_info = MagicMock(
+        return_value=SlurmJobInfo(state="UNKNOWN")
+    )
 
     daemon._monitor_running_jobs()
     tracked = daemon.tracker.get("job-unknown")
@@ -499,7 +510,9 @@ def test_recovery_preserves_claimed_at_and_timeout_seconds(daemon_factory):
     assert tracked.claimed_at < after
 
 
-def test_per_job_monitor_exception_does_not_abort_other_jobs(daemon_factory, tmp_path: Path):
+def test_per_job_monitor_exception_does_not_abort_other_jobs(
+    daemon_factory, tmp_path: Path
+):
     daemon = daemon_factory(
         backend="simulate",
         profile=ProfileEntry(sif_image="/tmp/fake.sif"),
@@ -552,7 +565,9 @@ def test_per_job_monitor_exception_does_not_abort_other_jobs(daemon_factory, tmp
     assert daemon.tracker.get("job-good") is None
 
 
-def test_submit_failure_reporting_does_not_escape_and_keeps_claimed_tracking(daemon_factory):
+def test_submit_failure_reporting_does_not_escape_and_keeps_claimed_tracking(
+    daemon_factory,
+):
     daemon = daemon_factory(
         backend="simulate",
         profile=ProfileEntry(sif_image="/tmp/fake.sif"),
@@ -683,7 +698,9 @@ def test_progress_file_relay_posts_structured_fields(daemon_factory, tmp_path: P
     assert daemon.client.transition_job.call_count == 1
 
 
-def test_fast_job_path_relays_progress_before_completion(daemon_factory, tmp_path: Path):
+def test_fast_job_path_relays_progress_before_completion(
+    daemon_factory, tmp_path: Path
+):
     daemon = daemon_factory(
         backend="simulate",
         profile=ProfileEntry(sif_image="/tmp/fake.sif"),

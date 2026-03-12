@@ -50,7 +50,9 @@ def _build_slurm_detail(info: SlurmJobInfo) -> str:
 def monitor_running_jobs(daemon: HpcDaemon) -> None:
     """Check status of all tracked jobs and report transitions."""
     check_server_cancellations(daemon.client, daemon.tracker, daemon._backend)
-    check_profile_timeouts(daemon.client, daemon.tracker, daemon.config, daemon._backend)
+    check_profile_timeouts(
+        daemon.client, daemon.tracker, daemon.config, daemon._backend
+    )
     report_queue_status(daemon.client, daemon.tracker, daemon.config, daemon._backend)
 
     for tracked in daemon.tracker.active_jobs():
@@ -60,9 +62,7 @@ def monitor_running_jobs(daemon: HpcDaemon) -> None:
             check_progress_file(daemon.client, tracked)
             process_job_status_change(daemon, tracked)
         except Exception:
-            logger.exception(
-                "Failed monitoring job %s", tracked.emx2_job_id
-            )
+            logger.exception("Failed monitoring job %s", tracked.emx2_job_id)
 
 
 def _parse_server_timestamp_to_monotonic(raw: str | None) -> float | None:
@@ -143,13 +143,9 @@ def _report_notable_slurm_state(
 
     detail = _build_slurm_detail(info)
     try:
-        daemon.client.transition_job(
-            tracked.emx2_job_id, tracked.status, detail=detail
-        )
+        daemon.client.transition_job(tracked.emx2_job_id, tracked.status, detail=detail)
         tracked.last_queue_report = now
-        logger.info(
-            "Notable Slurm state for job %s: %s", tracked.emx2_job_id, detail
-        )
+        logger.info("Notable Slurm state for job %s: %s", tracked.emx2_job_id, detail)
     except Exception:
         logger.exception(
             "Failed to report notable Slurm state for job %s",
@@ -239,9 +235,7 @@ def process_job_status_change(daemon: HpcDaemon, tracked: TrackedJob) -> None:
             )
 
     except Exception:
-        logger.exception(
-            "Failed to report transition for job %s", tracked.emx2_job_id
-        )
+        logger.exception("Failed to report transition for job %s", tracked.emx2_job_id)
 
 
 def complete_job(
@@ -369,9 +363,7 @@ def _fail_job_with_timeout(
         client.transition_job(tracked.emx2_job_id, "FAILED", detail=detail)
         tracker.remove(tracked.emx2_job_id)
     except Exception:
-        logger.exception(
-            "Failed to report timeout for job %s", tracked.emx2_job_id
-        )
+        logger.exception("Failed to report timeout for job %s", tracked.emx2_job_id)
 
 
 def _append_slurm_detail(
@@ -417,7 +409,11 @@ def check_profile_timeouts(
                 detail,
             )
             _fail_job_with_timeout(
-                client, tracker, backend, tracked, detail,
+                client,
+                tracker,
+                backend,
+                tracked,
+                detail,
                 cancel_slurm=(tracked.status in ("SUBMITTED", "STARTED")),
             )
             continue
@@ -508,9 +504,7 @@ def recover_jobs(
                 claimed_at = _parse_server_timestamp_to_monotonic(
                     job_details.get("claimed_at")
                 )
-                output_dir = str(
-                    Path(config.apptainer.tmp_dir) / emx2_id / "output"
-                )
+                output_dir = str(Path(config.apptainer.tmp_dir) / emx2_id / "output")
                 track_kwargs = dict(
                     emx2_job_id=emx2_id,
                     slurm_job_id=job_details.get("slurm_job_id"),
@@ -605,9 +599,7 @@ def report_queue_status(
         elapsed_s = int(now - tracked.claimed_at)
         detail = _build_slurm_detail(slurm_info) + f"; queued={elapsed_s}s"
         try:
-            client.transition_job(
-                tracked.emx2_job_id, "SUBMITTED", detail=detail
-            )
+            client.transition_job(tracked.emx2_job_id, "SUBMITTED", detail=detail)
             tracked.last_queue_report = now
             logger.info("Queue status for job %s: %s", tracked.emx2_job_id, detail)
         except Exception:

@@ -601,9 +601,7 @@ class HpcClient:
         attempts = self.max_retries if replayable else 1
 
         for attempt in range(attempts):
-            headers = self._headers(
-                "PUT", url_path, "", body_hash=content_sha256
-            )
+            headers = self._headers("PUT", url_path, "", body_hash=content_sha256)
             headers["Content-Type"] = content_type
             headers["Content-SHA256"] = content_sha256
             if size_bytes is not None:

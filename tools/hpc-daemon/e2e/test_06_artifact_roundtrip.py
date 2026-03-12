@@ -45,6 +45,7 @@ S010,26.7,1014.0,control
 
 # Pre-compute expected values so the test is self-contained.
 
+
 def _expected_sorted_rows():
     """Return data rows sorted by temperature descending."""
     reader = csv.DictReader(io.StringIO(INPUT_CSV))
@@ -143,8 +144,12 @@ def test_artifact_roundtrip_transform(hpc_client):
     assert progress_transitions, "Expected at least one STARTED progress transition"
 
     latest = hpc_client.get_job(job_id)
-    assert latest.get("phase"), "Expected job.phase to be populated from progress updates"
-    assert latest.get("message"), "Expected job.message to be populated from progress updates"
+    assert latest.get("phase"), (
+        "Expected job.phase to be populated from progress updates"
+    )
+    assert latest.get("message"), (
+        "Expected job.message to be populated from progress updates"
+    )
     progress_value = latest.get("progress")
     assert progress_value is not None, "Expected job.progress to be populated"
     progress_float = float(progress_value)
@@ -166,9 +171,7 @@ def test_artifact_roundtrip_transform(hpc_client):
     with deterministic_temp_dir(f"e2e-roundtrip-{job_id}") as tmpdir:
         tmpdir = Path(tmpdir)
         for fname in ("sorted.csv", "summary.json", "manifest.txt"):
-            hpc_client.download_artifact_file(
-                output_id, fname, str(tmpdir / fname)
-            )
+            hpc_client.download_artifact_file(output_id, fname, str(tmpdir / fname))
 
         # -- Verify sorted.csv --
         sorted_text = (tmpdir / "sorted.csv").read_text()
@@ -201,9 +204,13 @@ def test_artifact_roundtrip_transform(hpc_client):
             assert actual["count"] == expected["count"], (
                 f"{label}: count {actual['count']} != {expected['count']}"
             )
-            assert abs(actual["mean_temperature"] - expected["sum_temp"] / expected["count"]) < 0.1, (
-                f"{label}: mean_temperature mismatch"
-            )
+            assert (
+                abs(
+                    actual["mean_temperature"]
+                    - expected["sum_temp"] / expected["count"]
+                )
+                < 0.1
+            ), f"{label}: mean_temperature mismatch"
             assert abs(actual["min_pressure"] - expected["min_pres"]) < 0.1
             assert abs(actual["max_pressure"] - expected["max_pres"]) < 0.1
 

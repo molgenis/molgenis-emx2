@@ -20,7 +20,9 @@ def test_cancel_at_claimed_state(hpc_client, worker_client):
 def test_cancel_at_submitted_state(hpc_client, vm_run):
     """Cancel after sbatch accepted the job but before execution starts."""
     # Drain node to keep the job pending after submit (SUBMITTED state).
-    vm_run("sudo -n scontrol update NodeName=localhost State=DRAIN Reason=e2e-submitted-cancel")
+    vm_run(
+        "sudo -n scontrol update NodeName=localhost State=DRAIN Reason=e2e-submitted-cancel"
+    )
     try:
         resp = create_job(hpc_client, processor="e2e-test", profile="slow")
         job_id = resp["id"]

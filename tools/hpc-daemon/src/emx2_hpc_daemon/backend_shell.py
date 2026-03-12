@@ -77,7 +77,9 @@ class ShellBackend(ExecutionBackend):
         env["HPC_INPUT_DIR"] = str(input_dir)
         env["HPC_OUTPUT_DIR"] = str(output_dir)
         env["HPC_WORK_DIR"] = str(work_dir)
-        env["HPC_PARAMETERS"] = json.dumps(parameters) if isinstance(parameters, dict) else "{}"
+        env["HPC_PARAMETERS"] = (
+            json.dumps(parameters) if isinstance(parameters, dict) else "{}"
+        )
 
         if isinstance(parameters, dict):
             extra_env = parameters.get("environment")
@@ -99,7 +101,9 @@ class ShellBackend(ExecutionBackend):
         self._processes[synthetic_id] = (proc, str(output_dir))
         logger.info(
             "Shell backend launched job %s as PID %d (id=%s)",
-            job_id, proc.pid, synthetic_id,
+            job_id,
+            proc.pid,
+            synthetic_id,
         )
 
         return SubmitResult(

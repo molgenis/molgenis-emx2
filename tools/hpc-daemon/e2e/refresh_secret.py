@@ -58,23 +58,29 @@ def _rotate_worker_secret() -> str:
         health.raise_for_status()
         health_body = health.json()
         if not health_body.get("hpc_enabled"):
-            raise RuntimeError("HPC is disabled. Set _SYSTEM_.MOLGENIS_HPC_ENABLED=true.")
+            raise RuntimeError(
+                "HPC is disabled. Set _SYSTEM_.MOLGENIS_HPC_ENABLED=true."
+            )
         if not health_body.get("credentials_key_configured", False):
             raise RuntimeError(
                 "Worker credentials key is missing. "
                 "Set _SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY first."
             )
 
-        signin_query = (
-            'mutation{signin(email:"%s",password:"%s"){status,message}}'
-            % (EMX2_ADMIN_EMAIL, EMX2_ADMIN_PASSWORD)
+        signin_query = 'mutation{signin(email:"%s",password:"%s"){status,message}}' % (
+            EMX2_ADMIN_EMAIL,
+            EMX2_ADMIN_PASSWORD,
         )
         signin = client.post("/api/graphql", json={"query": signin_query})
         signin.raise_for_status()
         payload = signin.json()
         status = payload.get("data", {}).get("signin", {}).get("status")
         if status != "SUCCESS":
-            message = payload.get("data", {}).get("signin", {}).get("message", "unknown error")
+            message = (
+                payload.get("data", {})
+                .get("signin", {})
+                .get("message", "unknown error")
+            )
             raise RuntimeError(f"Admin signin failed: {message}")
 
         rotate = client.post(
@@ -96,13 +102,10 @@ def _write_secret(secret: str) -> None:
 
 def _sync_secret_to_vm(secret: str) -> None:
     escaped = shlex.quote(secret)
-    cmd = (
-        "sudo sh -lc "
-        + shlex.quote(
-            f"printf '%s' {escaped} > /etc/hpc-daemon/secret && "
-            "chown vagrant:vagrant /etc/hpc-daemon/secret && "
-            "chmod 600 /etc/hpc-daemon/secret"
-        )
+    cmd = "sudo sh -lc " + shlex.quote(
+        f"printf '%s' {escaped} > /etc/hpc-daemon/secret && "
+        "chown vagrant:vagrant /etc/hpc-daemon/secret && "
+        "chmod 600 /etc/hpc-daemon/secret"
     )
     _vagrant_ssh_checked(cmd)
 

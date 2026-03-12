@@ -40,4 +40,6 @@ def test_timed_out_job_transitions_to_failed(hpc_client):
         if item.get("to_status") == "FAILED"
     ]
     assert failure_details, "Expected at least one FAILED transition detail"
-    assert any("timeout" in detail.lower() for detail in failure_details), failure_details
+    assert any("timeout" in detail.lower() for detail in failure_details), (
+        failure_details
+    )

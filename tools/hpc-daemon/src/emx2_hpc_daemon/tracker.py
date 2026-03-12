@@ -41,7 +41,9 @@ class TrackedJob:
     # Completion intent fields for crash-recovery (Part 2 reconciliation)
     log_artifact_id: str | None = None
     output_artifact_id: str | None = None
-    completion_phase: str | None = None  # null | 'log_uploaded' | 'output_uploaded' | 'transitioning'
+    completion_phase: str | None = (
+        None  # null | 'log_uploaded' | 'output_uploaded' | 'transitioning'
+    )
     # Provenance fields captured at submit time for artifact metadata
     submit_user: str | None = None
     input_artifact_ids: str | None = None  # JSON array string

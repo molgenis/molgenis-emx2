@@ -23,7 +23,11 @@ from emx2_hpc_daemon._generated import (
 from emx2_hpc_daemon.auth import sign_request
 from emx2_hpc_daemon.client import HpcClient
 
-SPEC_PATH = Path(__file__).resolve().parent.parent.parent.parent / "protocol" / "hpc-protocol.json"
+SPEC_PATH = (
+    Path(__file__).resolve().parent.parent.parent.parent
+    / "protocol"
+    / "hpc-protocol.json"
+)
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +65,9 @@ def test_transitions(defs):
     for status, targets_spec in spec_transitions.items():
         expected = set(targets_spec["const"])
         actual = TRANSITIONS.get(status, frozenset())
-        assert actual == expected, f"Transitions for {status}: expected {expected}, got {actual}"
+        assert actual == expected, (
+            f"Transitions for {status}: expected {expected}, got {actual}"
+        )
 
 
 def test_is_terminal():
@@ -164,4 +170,6 @@ def test_protocol_response_field_contracts_are_nonempty(defs):
         "artifactFileUpload",
         "artifactFileList",
     ):
-        assert _required(defs, section), f"Missing required response field contract: {section}"
+        assert _required(defs, section), (
+            f"Missing required response field contract: {section}"
+        )

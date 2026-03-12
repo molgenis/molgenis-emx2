@@ -135,7 +135,9 @@ def test_stage_input_artifacts_rejects_managed_hash_mismatch(tmp_path: Path):
     client.download_artifact_files.side_effect = _download
 
     with pytest.raises(ValueError, match="input_hash_mismatch"):
-        _stage_input_artifacts({"id": "job-2", "inputs": ["art-1"]}, str(input_dir), client)
+        _stage_input_artifacts(
+            {"id": "job-2", "inputs": ["art-1"]}, str(input_dir), client
+        )
 
 
 def test_stage_input_artifacts_rejects_missing_managed_content(tmp_path: Path):

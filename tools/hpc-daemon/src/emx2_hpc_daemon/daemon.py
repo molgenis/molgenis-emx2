@@ -266,12 +266,8 @@ class HpcDaemon:
                 processor=job.get("processor"),
                 profile=job.get("profile"),
                 submit_user=job.get("submit_user"),
-                input_artifact_ids=self._extract_input_artifact_ids(
-                    job.get("inputs")
-                ),
-                parameters_hash=self._compute_parameters_hash(
-                    job.get("parameters")
-                ),
+                input_artifact_ids=self._extract_input_artifact_ids(job.get("inputs")),
+                parameters_hash=self._compute_parameters_hash(job.get("parameters")),
                 timeout_seconds=job.get("timeout_seconds"),
             )
             self.client.transition_job(
@@ -298,9 +294,7 @@ class HpcDaemon:
                 self.client.transition_job(job_id, "FAILED", detail=str(e))
                 self.tracker.remove(job_id)
             except Exception:
-                logger.exception(
-                    "Failed to report submit failure for job %s", job_id
-                )
+                logger.exception("Failed to report submit failure for job %s", job_id)
 
     def _monitor_running_jobs(self) -> None:
         """Check status of all tracked jobs and report transitions."""

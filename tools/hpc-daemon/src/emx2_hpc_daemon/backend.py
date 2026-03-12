@@ -192,7 +192,11 @@ def _stage_input_artifacts(job: dict, input_dir: str, client: HpcClient) -> None
                     format_links(links),
                 )
 
-            if residence == "posix" and content_url and content_url.startswith("file://"):
+            if (
+                residence == "posix"
+                and content_url
+                and content_url.startswith("file://")
+            ):
                 # Symlink posix artifact directory
                 posix_path = content_url[len("file://") :]
                 link_path = Path(input_dir) / artifact_id
@@ -204,9 +208,7 @@ def _stage_input_artifacts(job: dict, input_dir: str, client: HpcClient) -> None
                     posix_path,
                 )
                 # Verify hash for posix artifacts
-                _verify_artifact_hash(
-                    artifact, Path(posix_path), artifact_id
-                )
+                _verify_artifact_hash(artifact, Path(posix_path), artifact_id)
             else:
                 # Download managed artifact files
                 artifact_dir = Path(input_dir) / artifact_id

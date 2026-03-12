@@ -91,8 +91,6 @@ def test_apptainer_job_completes_with_bound_input_and_outputs(hpc_client):
         # Apptainer may emit warnings about missing passwd/group/tmp in
         # minimal containers — filter those before asserting no real errors.
         meaningful_stderr = "\n".join(
-            line
-            for line in stderr_text.splitlines()
-            if not line.startswith("WARNING:")
+            line for line in stderr_text.splitlines() if not line.startswith("WARNING:")
         )
         assert meaningful_stderr == ""

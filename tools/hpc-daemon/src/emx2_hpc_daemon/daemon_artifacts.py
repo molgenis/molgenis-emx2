@@ -268,9 +268,7 @@ def register_posix_artifact(
     file_hashes: list[tuple[str, str]] = []
     total_size = 0
     output_root = Path(output_dir)
-    for f in sorted(
-        output_files, key=lambda p: p.relative_to(output_root).as_posix()
-    ):
+    for f in sorted(output_files, key=lambda p: p.relative_to(output_root).as_posix()):
         relative_path = f.relative_to(output_root).as_posix()
         fhash = _sha256_file(f)
         fsize = f.stat().st_size
@@ -354,9 +352,7 @@ def upload_managed_artifact(
     file_hashes: list[tuple[str, str]] = []
     total_size = 0
     output_root = Path(output_dir)
-    for f in sorted(
-        output_files, key=lambda p: p.relative_to(output_root).as_posix()
-    ):
+    for f in sorted(output_files, key=lambda p: p.relative_to(output_root).as_posix()):
         relative_path = f.relative_to(output_root).as_posix()
         file_hash = _sha256_file(f)
         file_size = f.stat().st_size

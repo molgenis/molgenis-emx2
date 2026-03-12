@@ -56,7 +56,9 @@ def _wait_for_emx2(base_url: str, timeout: int) -> None:
     raise TimeoutError(f"EMX2 not healthy at {base_url} after {timeout}s")
 
 
-def _vagrant_ssh(cmd: str, *, timeout: int = VM_COMMAND_TIMEOUT) -> subprocess.CompletedProcess:
+def _vagrant_ssh(
+    cmd: str, *, timeout: int = VM_COMMAND_TIMEOUT
+) -> subprocess.CompletedProcess:
     result = subprocess.run(
         ["vagrant", "ssh", "-c", cmd],
         capture_output=True,
@@ -143,18 +145,14 @@ def _protocol_headers() -> dict[str, str]:
 
 def _rotate_worker_credential(base_url: str, worker_id: str) -> str:
     with httpx.Client(base_url=base_url, timeout=10) as client:
-        signin_query = (
-            'mutation{signin(email:"%s",password:"%s"){status,message}}'
-            % (EMX2_ADMIN_EMAIL, EMX2_ADMIN_PASSWORD)
+        signin_query = 'mutation{signin(email:"%s",password:"%s"){status,message}}' % (
+            EMX2_ADMIN_EMAIL,
+            EMX2_ADMIN_PASSWORD,
         )
         signin = client.post("/api/graphql", json={"query": signin_query})
         signin.raise_for_status()
         payload = signin.json()
-        status = (
-            payload.get("data", {})
-            .get("signin", {})
-            .get("status")
-        )
+        status = payload.get("data", {}).get("signin", {}).get("status")
         if status != "SUCCESS":
             message = (
                 payload.get("data", {})
@@ -210,7 +208,9 @@ def _verify_worker_secret(base_url: str, secret: str) -> None:
         client.close()
 
 
-def _cleanup_jobs_for_test(nodeid: str, base_url: str, secret: str, *, policy: str) -> None:
+def _cleanup_jobs_for_test(
+    nodeid: str, base_url: str, secret: str, *, policy: str
+) -> None:
     job_ids = list(dict.fromkeys(_CREATED_JOBS.pop(nodeid, [])))
     if not job_ids or policy == "none":
         return
@@ -267,7 +267,10 @@ def _collect_diagnostics(nodeid: str, base_url: str, secret: str) -> str:
         ("chrony_sources", "chronyc sources -v"),
         ("sinfo", "sinfo"),
         ("squeue", "squeue -o '%.18i %.9P %.30j %.8u %.2t %.10M %.6D %R'"),
-        ("sacct_recent", "sacct -S now-2hours --format=JobID,State,ExitCode,Elapsed,NodeList"),
+        (
+            "sacct_recent",
+            "sacct -S now-2hours --format=JobID,State,ExitCode,Elapsed,NodeList",
+        ),
         ("daemon_log_tail", "tail -120 /var/log/hpc-daemon.log"),
         ("slurmctld_log_tail", "sudo tail -120 /var/log/slurm/slurmctld.log"),
         ("slurmd_log_tail", "sudo tail -120 /var/log/slurm/slurmd.log"),
@@ -301,7 +304,9 @@ def _collect_diagnostics(nodeid: str, base_url: str, secret: str) -> str:
                     lines.append(f"job_fetch_error={exc}")
                     continue
                 try:
-                    transitions = support._request("GET", f"/api/hpc/jobs/{job_id}/transitions")
+                    transitions = support._request(
+                        "GET", f"/api/hpc/jobs/{job_id}/transitions"
+                    )
                     items = transitions.get("items", [])
                     for item in items:
                         lines.append(
@@ -335,7 +340,10 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     diag_text = _collect_diagnostics(item.nodeid, base_url, secret)
     DIAG_DIR.mkdir(parents=True, exist_ok=True)
     safe_name = (
-        item.nodeid.replace("/", "__").replace("::", "__").replace("[", "_").replace("]", "_")
+        item.nodeid.replace("/", "__")
+        .replace("::", "__")
+        .replace("[", "_")
+        .replace("]", "_")
     )
     diag_path = DIAG_DIR / f"{safe_name}.log"
     diag_path.write_text(diag_text)
@@ -382,9 +390,7 @@ def bootstrap_hpc(wait_for_services, emx2_base_url):
     health = httpx.get(f"{emx2_base_url}/api/hpc/health", timeout=5).json()
     logger.info("HPC health: %s", health)
     if not health.get("hpc_enabled"):
-        raise RuntimeError(
-            "HPC is not enabled in EMX2. Set MOLGENIS_HPC_ENABLED=true."
-        )
+        raise RuntimeError("HPC is not enabled in EMX2. Set MOLGENIS_HPC_ENABLED=true.")
 
     if SECRET_FILE.exists():
         existing = SECRET_FILE.read_text().strip()
@@ -396,7 +402,9 @@ def bootstrap_hpc(wait_for_services, emx2_base_url):
                 logger.info("HPC auth verified and tables initialized")
                 return existing
             except Exception as exc:  # noqa: BLE001
-                logger.warning("Existing .secret failed verification, rotating: %s", exc)
+                logger.warning(
+                    "Existing .secret failed verification, rotating: %s", exc
+                )
 
     worker_secret = _rotate_worker_credential(emx2_base_url, WORKER_ID)
     SECRET_FILE.write_text(worker_secret)
@@ -465,7 +473,9 @@ def vm_run():
         if check and result.returncode != 0:
             out = (result.stdout or "").strip()
             err = (result.stderr or "").strip()
-            raise RuntimeError(f"VM command failed: {cmd}\nstdout:\n{out}\nstderr:\n{err}")
+            raise RuntimeError(
+                f"VM command failed: {cmd}\nstdout:\n{out}\nstderr:\n{err}"
+            )
         return result
 
     return _run
@@ -526,7 +536,11 @@ def wait_for_job_status(
             last_status = status
         if status in target:
             return job
-        if status in terminal and status not in target and not allow_unexpected_terminal:
+        if (
+            status in terminal
+            and status not in target
+            and not allow_unexpected_terminal
+        ):
             transitions = client._request("GET", f"/api/hpc/jobs/{job_id}/transitions")
             raise AssertionError(
                 f"Job {job_id} reached unexpected terminal status {status}, expected {target}. "
