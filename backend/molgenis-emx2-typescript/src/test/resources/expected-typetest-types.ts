@@ -1,3 +1,7 @@
+export interface IMgTableClass {
+    mg_tableclass: string;
+}
+
 export interface IFile {
     id?: string;
     size?: number;
@@ -20,7 +24,7 @@ export interface IOntologyNode extends ITreeNode {
     order?: number;
 }
 
-export interface IComponent {
+export interface IComponent extends IMgTableClass {
     name: string;
     parts?: IPart[];
 }
@@ -29,7 +33,7 @@ export interface IComponent_agg {
     count: number
 }
 
-export interface IPart {
+export interface IPart extends IMgTableClass {
     name: string;
     weight?: number;
 }
@@ -38,7 +42,7 @@ export interface IPart_agg {
     count: number
 }
 
-export interface IProduct {
+export interface IProduct extends IMgTableClass {
     name: string;
     components?: IComponent[];
 }
@@ -47,7 +51,7 @@ export interface IProduct_agg {
     count: number
 }
 
-export interface ITypeTest {
+export interface ITypeTest extends IMgTableClass {
     id: string;
     testUuid: string;
     testUuidNillable?: string;
