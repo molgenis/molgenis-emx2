@@ -160,7 +160,7 @@
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">ID</span>
-              <code class="text-xs">{{
+              <code class="text-xs text-title">{{
                 shortId(job.output_artifact_id.id)
               }}</code>
             </div>
@@ -206,7 +206,9 @@
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">ID</span>
-              <code class="text-xs">{{ shortId(job.log_artifact_id.id) }}</code>
+              <code class="text-xs text-title">{{
+                shortId(job.log_artifact_id.id)
+              }}</code>
             </div>
             <div class="flex justify-between py-2">
               <span class="text-definition-list-term">Type</span>
