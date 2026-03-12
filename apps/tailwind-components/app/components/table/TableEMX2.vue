@@ -50,7 +50,10 @@
             </TableHeadCell>
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
-              :style="{ width: columnWidths[column.id] + 'px' }"
+              :style="{
+                width: columnWidths[column.id] + 'px',
+                userSelect: isResizing ? 'none' : 'all',
+              }"
               class="relative group"
             >
               <div
@@ -269,7 +272,7 @@ const columns = ref<IColumn[]>([]);
 
 const tableContainer = ref<HTMLElement | null>(null);
 
-const { columnWidths, guideX, startResize, setInitialWidths } =
+const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
   useColumnResize(tableContainer);
 
 const settings = defineModel<ITableSettings>("settings", {
