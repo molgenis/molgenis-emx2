@@ -332,6 +332,11 @@ import {
   downloadArtifactFile,
   deleteArtifact,
 } from "../../composables/useHpcApi";
+import type {
+  ArtifactFileRow,
+  ArtifactSummary,
+  NormalizedArtifact,
+} from "../../composables/useArtifactsApi";
 import { formatDate } from "../../utils/jobs";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
@@ -340,9 +345,9 @@ import HpcPill from "../../components/HpcPill.vue";
 const route = useRoute();
 const id = computed(() => route.params.id as string);
 
-const artifact = ref<any>(null);
-const files = ref<any[]>([]);
-const provenanceInputArtifacts = ref<any[]>([]);
+const artifact = ref<NormalizedArtifact | null>(null);
+const files = ref<ArtifactFileRow[]>([]);
+const provenanceInputArtifacts = ref<ArtifactSummary[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const deleting = ref(false);
@@ -358,6 +363,10 @@ const PROVENANCE_KEYS = new Set([
   "parameters_hash",
 ]);
 
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
 const provenance = computed(() => {
   const meta = artifact.value?.metadata;
   if (!meta || typeof meta !== "object" || !meta.job_id) return null;
@@ -367,7 +376,7 @@ const provenance = computed(() => {
 const extraMetadata = computed(() => {
   const meta = artifact.value?.metadata;
   if (!meta || typeof meta !== "object") return meta;
-  const extra: Record<string, any> = {};
+  const extra: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(meta)) {
     if (!PROVENANCE_KEYS.has(k)) extra[k] = v;
   }
@@ -385,12 +394,11 @@ function shortId(idVal: string): string {
   return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
-function inputArtifactChipLabel(input: any): string {
+function inputArtifactChipLabel(input: ArtifactSummary | null): string {
   if (!input) return "-";
   if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
   if (input.name) return input.name;
   if (input.id) return shortId(input.id);
-  if (typeof input === "string") return shortId(input);
   return "-";
 }
 
@@ -402,7 +410,7 @@ function formatSize(bytes: number | null | undefined): string {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatJson(val: any): string {
+function formatJson(val: unknown): string {
   if (!val) return "";
   if (typeof val === "string") {
     try {
@@ -417,8 +425,8 @@ function formatJson(val: any): string {
 async function onDownload(filePath: string) {
   try {
     await downloadArtifactFile(id.value, filePath);
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   }
 }
 
@@ -428,8 +436,8 @@ async function onDelete() {
   try {
     await deleteArtifact(id.value);
     navigateTo("/artifacts");
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     deleting.value = false;
   }
@@ -450,8 +458,8 @@ onMounted(async () => {
     provenanceInputArtifacts.value = await Promise.all(
       inputIds.map(async (inputId) => (await fetchArtifactSummary(inputId)) ?? { id: inputId })
     );
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     loading.value = false;
   }

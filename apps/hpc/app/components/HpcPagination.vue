@@ -49,9 +49,7 @@ const props = defineProps<{
   totalPages: number;
 }>();
 
-const emit = defineEmits<{
-  (e: "update", page: number): void;
-}>();
+const emit = defineEmits<(e: "update", page: number) => void>();
 
 const safeTotalPages = computed(() => {
   const parsed = Number(props.totalPages);

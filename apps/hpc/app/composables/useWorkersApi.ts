@@ -5,12 +5,44 @@ import {
   REST_BASE,
   ACTIVE_JOB_STATUSES,
 } from "./useHpcApi";
-import { normalizeJob } from "./useJobsApi";
+import { normalizeJob, type NormalizedJob } from "./useJobsApi";
+
+type WorkerGraphqlRow = {
+  worker_id: string;
+  hostname?: string | null;
+  registered_at?: string | null;
+  last_heartbeat_at?: string | null;
+};
+
+type WorkerCapabilityGraphqlRow = {
+  worker_id: { worker_id?: string | null } | string | null;
+  processor: string;
+  profile: string;
+  max_concurrent_jobs: number;
+};
+
+export type WorkerSummary = WorkerGraphqlRow & {
+  capabilities: {
+    processor: string;
+    profile: string;
+    max_concurrent_jobs: number;
+  }[];
+  active_jobs: NormalizedJob[];
+};
+
+type WorkerCredentialListResponse = {
+  items?: WorkerCredential[];
+};
+
+type IssueCredentialResponse = {
+  id: string;
+  secret: string;
+};
 
 /**
  * Fetch registered workers with their capabilities via GraphQL.
  */
-export async function fetchWorkers(): Promise<any[]> {
+export async function fetchWorkers(): Promise<WorkerSummary[]> {
   const query = `{
     HpcWorkers(orderby: { last_heartbeat_at: DESC }) {
       worker_id hostname registered_at last_heartbeat_at
@@ -30,10 +62,10 @@ export async function fetchWorkers(): Promise<any[]> {
 
   try {
     const data = await gqlQuery(query);
-    const workers = data.HpcWorkers || [];
-    const caps = data.HpcWorkerCapabilities || [];
-    const normalizedJobs = (data.HpcJobs || []).map(normalizeJob);
-    const activeJobsByWorker = new Map<string, any[]>();
+    const workers = (data.HpcWorkers || []) as WorkerGraphqlRow[];
+    const caps = (data.HpcWorkerCapabilities || []) as WorkerCapabilityGraphqlRow[];
+    const normalizedJobs = ((data.HpcJobs || []) as unknown[]).map(normalizeJob);
+    const activeJobsByWorker = new Map<string, NormalizedJob[]>();
 
     for (const job of normalizedJobs) {
       if (!ACTIVE_JOB_STATUSES.has(job.status) || !job.worker_id) continue;
@@ -42,11 +74,13 @@ export async function fetchWorkers(): Promise<any[]> {
       activeJobsByWorker.set(job.worker_id, existing);
     }
 
-    return workers.map((w: any) => ({
+    return workers.map((w) => ({
       ...w,
       capabilities: caps
         .filter(
-          (c: any) => (c.worker_id?.worker_id ?? c.worker_id) === w.worker_id
+          (c) => (c.worker_id && typeof c.worker_id === "object"
+            ? c.worker_id.worker_id
+            : c.worker_id) === w.worker_id
         )
         .map(
           ({
@@ -64,11 +98,11 @@ export async function fetchWorkers(): Promise<any[]> {
           })
         ),
       active_jobs: (activeJobsByWorker.get(w.worker_id) || []).sort(
-        (a: any, b: any) =>
+        (a, b) =>
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       ),
     }));
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) return [];
     throw err;
   }
@@ -88,15 +122,18 @@ export async function fetchCapabilities(): Promise<
 
   try {
     const data = await gqlQuery(query);
-    const caps = data.HpcWorkerCapabilities || [];
+    const caps = (data.HpcWorkerCapabilities || []) as Array<{
+      processor: string;
+      profile: string;
+    }>;
     const seen = new Set<string>();
-    return caps.filter((c: any) => {
+    return caps.filter((c) => {
       const key = `${c.processor}\0${c.profile}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) return [];
     throw err;
   }
@@ -127,18 +164,21 @@ export type WorkerCredential = {
 export async function fetchWorkerCredentials(
   workerId: string
 ): Promise<WorkerCredential[]> {
-  const result = await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials`, {
-    method: "GET",
-    headers: hpcHeaders(),
-  });
+  const result = await $fetch<WorkerCredentialListResponse>(
+    `${REST_BASE}/workers/${workerId}/credentials`,
+    {
+      method: "GET",
+      headers: hpcHeaders(),
+    }
+  );
   return (result?.items || []) as WorkerCredential[];
 }
 
 export async function issueWorkerCredential(
   workerId: string,
   payload: { label?: string; expires_at?: string } = {}
-): Promise<{ id: string; secret: string }> {
-  return await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials/issue`, {
+): Promise<IssueCredentialResponse> {
+  return await $fetch<IssueCredentialResponse>(`${REST_BASE}/workers/${workerId}/credentials/issue`, {
     method: "POST",
     headers: hpcHeaders(),
     body: payload,
@@ -148,8 +188,8 @@ export async function issueWorkerCredential(
 export async function rotateWorkerCredential(
   workerId: string,
   payload: { label?: string; expires_at?: string } = {}
-): Promise<{ id: string; secret: string }> {
-  return await $fetch<any>(`${REST_BASE}/workers/${workerId}/credentials/rotate`, {
+): Promise<IssueCredentialResponse> {
+  return await $fetch<IssueCredentialResponse>(`${REST_BASE}/workers/${workerId}/credentials/rotate`, {
     method: "POST",
     headers: hpcHeaders(),
     body: payload,
@@ -160,7 +200,7 @@ export async function revokeWorkerCredential(
   workerId: string,
   credentialId: string
 ): Promise<void> {
-  await $fetch<any>(
+  await $fetch(
     `${REST_BASE}/workers/${workerId}/credentials/${credentialId}/revoke`,
     {
       method: "POST",

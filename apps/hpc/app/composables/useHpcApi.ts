@@ -5,6 +5,20 @@ export const GRAPHQL_URL = "/_SYSTEM_/graphql";
 export const REST_BASE = "/api/hpc";
 export const ACTIVE_JOB_STATUSES = new Set(["CLAIMED", "SUBMITTED", "STARTED"]);
 
+type GraphqlErrorEntry = { message?: string };
+type GraphqlFetchError = {
+  message?: string;
+  status?: number;
+  statusCode?: number;
+  data?: { errors?: GraphqlErrorEntry[] };
+  response?: { errors?: GraphqlErrorEntry[] };
+};
+
+type GraphqlResponse<T> = {
+  data?: T;
+  errors?: GraphqlErrorEntry[];
+};
+
 /** Safely encode a JS string as a GraphQL string literal. */
 export function gqlString(value: string): string {
   return JSON.stringify(String(value));
@@ -14,8 +28,10 @@ export function gqlString(value: string): string {
  * Returns true if the error indicates HPC tables don't exist yet
  * (e.g. FieldUndefined for HpcJobs, HpcWorkers, etc.).
  */
-export function isSchemaNotReady(err: any): boolean {
-  const msg = err?.response?.errors?.[0]?.message ?? err?.message ?? "";
+export function isSchemaNotReady(err: unknown): boolean {
+  const errorLike = (err ?? {}) as GraphqlFetchError;
+  const msg =
+    errorLike.response?.errors?.[0]?.message ?? errorLike.message ?? "";
   return msg.includes("FieldUndefined") || msg.includes("is undefined");
 }
 
@@ -23,27 +39,32 @@ export function isSchemaNotReady(err: any): boolean {
  * Returns true if the error indicates the user's session has expired or they
  * lack permission to access the _SYSTEM_ schema.
  */
-function isAuthError(err: any): boolean {
+function isAuthError(err: unknown): boolean {
+  const errorLike = (err ?? {}) as GraphqlFetchError;
   const msg =
-    err?.data?.errors?.[0]?.message ?? err?.message ?? String(err ?? "");
+    errorLike.data?.errors?.[0]?.message ??
+    errorLike.message ??
+    String(err ?? "");
   return (
     msg.includes("sign in") ||
     msg.includes("unknown") ||
-    err?.status === 403 ||
-    err?.statusCode === 403
+    errorLike.status === 403 ||
+    errorLike.statusCode === 403
   );
 }
 
 /** Execute a GraphQL query against the _SYSTEM_ schema. */
-export async function gqlQuery(query: string): Promise<any> {
-  let resp: any;
+export async function gqlQuery<T = Record<string, unknown>>(
+  query: string
+): Promise<T> {
+  let resp: GraphqlResponse<T>;
   try {
-    resp = await $fetch<any>(GRAPHQL_URL, {
+    resp = await $fetch<GraphqlResponse<T>>(GRAPHQL_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: { query },
     });
-  } catch (fetchErr: any) {
+  } catch (fetchErr: unknown) {
     if (isAuthError(fetchErr)) {
       await navigateTo("/login");
       throw fetchErr;
@@ -58,7 +79,7 @@ export async function gqlQuery(query: string): Promise<any> {
     }
     throw err;
   }
-  return resp.data ?? resp;
+  return resp.data ?? (resp as T);
 }
 
 /**

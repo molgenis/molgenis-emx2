@@ -548,20 +548,17 @@ import {
   fetchWorkerCredentials,
   issueWorkerCredential,
   revokeWorkerCredential,
+  type WorkerCredential,
+  type WorkerSummary,
 } from "../composables/useHpcApi";
-import { formatDate } from "../utils/jobs";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import Message from "../../../tailwind-components/app/components/Message.vue";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
-import HpcPill from "../components/HpcPill.vue";
 
-const workers = ref<any[]>([]);
+const workers = ref<WorkerSummary[]>([]);
 const loading = ref(false);
 const refreshing = ref(false);
 const error = ref<string | null>(null);
 const deletingWorker = ref<string | null>(null);
 const expandedWorkerId = ref<string | null>(null);
-const credentialsByWorker = ref<Record<string, any[]>>({});
+const credentialsByWorker = ref<Record<string, WorkerCredential[]>>({});
 const credentialsLoadingFor = ref<string | null>(null);
 const credentialActionFor = ref<string | null>(null);
 const revealedSecret = ref<{ workerId: string; secret: string } | null>(null);
@@ -575,21 +572,36 @@ const copyMessage = ref<string | null>(null);
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
-function toErrorMessage(e: any): string {
+function toErrorMessage(e: unknown): string {
+  const errorLike = e as {
+    data?: { detail?: string; title?: string };
+    response?: {
+      _data?: { detail?: string; title?: string; status?: number };
+      data?: { detail?: string; title?: string };
+      status?: number;
+    };
+    statusCode?: number;
+    status?: number;
+    message?: string;
+  };
   const detail =
-    e?.data?.detail || e?.response?._data?.detail || e?.response?.data?.detail;
+    errorLike?.data?.detail ||
+    errorLike?.response?._data?.detail ||
+    errorLike?.response?.data?.detail;
   const title =
-    e?.data?.title || e?.response?._data?.title || e?.response?.data?.title;
+    errorLike?.data?.title ||
+    errorLike?.response?._data?.title ||
+    errorLike?.response?.data?.title;
   const status =
-    e?.statusCode ??
-    e?.status ??
-    e?.response?.status ??
-    e?.response?._data?.status;
+    errorLike?.statusCode ??
+    errorLike?.status ??
+    errorLike?.response?.status ??
+    errorLike?.response?._data?.status;
 
   if (detail) {
     return status ? `${status}${title ? ` ${title}` : ""}: ${detail}` : detail;
   }
-  if (e?.message) return e.message;
+  if (errorLike?.message) return errorLike.message;
   return "Request failed";
 }
 
@@ -629,14 +641,14 @@ function shortCredentialId(idVal: string): string {
   return `${idVal.slice(0, 8)}...${idVal.slice(-4)}`;
 }
 
-function getWorkerCredentials(workerId: string): any[] {
+function getWorkerCredentials(workerId: string): WorkerCredential[] {
   return credentialsByWorker.value[workerId] ?? [];
 }
 
-function getActiveCredential(workerId: string): any | null {
+function getActiveCredential(workerId: string): WorkerCredential | null {
   return (
     getWorkerCredentials(workerId).find(
-      (credential: any) => credential.status === "ACTIVE"
+      (credential) => credential.status === "ACTIVE"
     ) ?? null
   );
 }
@@ -645,11 +657,11 @@ function hasActiveCredential(workerId: string): boolean {
   return !!getActiveCredential(workerId);
 }
 
-function mergeWorkers(nextWorkers: any[]) {
+function mergeWorkers(nextWorkers: WorkerSummary[]) {
   const previousById = new Map(
-    workers.value.map((worker: any) => [worker.worker_id, worker])
+    workers.value.map((worker) => [worker.worker_id, worker])
   );
-  workers.value = nextWorkers.map((nextWorker: any) => {
+  workers.value = nextWorkers.map((nextWorker) => {
     const previous = previousById.get(nextWorker.worker_id);
     if (!previous) return nextWorker;
     return { ...previous, ...nextWorker };
@@ -663,7 +675,7 @@ async function loadCredentials(workerId: string, force = false) {
     credentialsByWorker.value[workerId] = await fetchWorkerCredentials(
       workerId
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
     error.value = toErrorMessage(e);
   } finally {
     if (credentialsLoadingFor.value === workerId) {
@@ -699,7 +711,7 @@ async function runCredentialAction(
 
     revealedSecret.value = { workerId, secret: result.secret };
     await loadCredentials(workerId, true);
-  } catch (e: any) {
+  } catch (e: unknown) {
     const message = toErrorMessage(e);
     if (message.includes("already has an active credential")) {
       error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
@@ -749,7 +761,7 @@ async function onRevokeCredential(workerId: string, credentialId: string) {
   try {
     await revokeWorkerCredential(workerId, credentialId);
     await loadCredentials(workerId, true);
-  } catch (e: any) {
+  } catch (e: unknown) {
     error.value = toErrorMessage(e);
   } finally {
     credentialActionFor.value = null;
@@ -850,7 +862,7 @@ async function onDeleteWorker(workerId: string) {
   try {
     await deleteWorker(workerId);
     await loadWorkers();
-  } catch (e: any) {
+  } catch (e: unknown) {
     error.value = toErrorMessage(e);
   } finally {
     deletingWorker.value = null;
@@ -867,7 +879,7 @@ async function loadWorkers({
   try {
     const fetched = await fetchWorkers();
     mergeWorkers(fetched);
-  } catch (e: any) {
+  } catch (e: unknown) {
     error.value = toErrorMessage(e);
   } finally {
     if (!initialLoadDone) {

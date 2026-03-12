@@ -23,58 +23,137 @@ export interface NormalizedJob {
   phase: string | null;
   message: string | null;
   progress: number | null;
-  output_artifact_id: any;
-  log_artifact_id: any;
+  output_artifact_id: NormalizedArtifactRef | null;
+  log_artifact_id: NormalizedArtifactRef | null;
   slurm_job_id: string | null;
   submit_user: string | null;
   created_at: string;
   updated_at: string;
-  parameters: any;
-  inputs: any[];
-  [key: string]: any;
+  parameters: unknown;
+  inputs: NormalizedJobInput[];
+  [key: string]: unknown;
 }
 
-const inputArtifactCache = new Map<
-  string,
-  {
-    id: string;
-    name?: string | null;
-    type?: string | null;
-    status?: string | null;
-    residence?: string | null;
-  } | null
->();
+type ArtifactRefRelation = { name?: string | null };
 
-function parseInputsValue(rawInputs: unknown): any[] {
+type NormalizedArtifactRef = {
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  status?: string | null;
+  residence?: string | null;
+};
+
+type NormalizedJobInput = {
+  id?: string;
+  artifact_id?: string;
+  name?: string | null;
+  type?: string | null;
+  status?: string | null;
+  residence?: string | null;
+  [key: string]: unknown;
+};
+
+type JobGraphqlRow = {
+  id: string;
+  processor: string;
+  profile: string;
+  status: string | { name?: string | null };
+  worker_id: string | { worker_id?: string | null } | null;
+  phase?: string | null;
+  message?: string | null;
+  progress?: number | null;
+  output_artifact_id?: (NormalizedArtifactRef & {
+    residence?: string | ArtifactRefRelation | null;
+    status?: string | ArtifactRefRelation | null;
+  }) | null;
+  log_artifact_id?: (NormalizedArtifactRef & {
+    residence?: string | ArtifactRefRelation | null;
+    status?: string | ArtifactRefRelation | null;
+  }) | null;
+  slurm_job_id?: string | null;
+  submit_user?: string | null;
+  created_at: string;
+  claimed_at?: string | null;
+  submitted_at?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  parameters?: unknown;
+  inputs?: unknown;
+};
+
+type TransitionGraphqlRow = {
+  id: string;
+  from_status?: string | { name?: string | null } | null;
+  to_status?: string | { name?: string | null } | null;
+  timestamp: string;
+  worker_id?: string | { worker_id?: string | null } | null;
+  detail?: string | null;
+  phase?: string | null;
+  message?: string | null;
+  progress?: number | null;
+};
+
+export type NormalizedTransition = TransitionGraphqlRow & {
+  from_status?: string | null;
+  to_status?: string | null;
+  worker_id?: string | null;
+};
+
+type JobsQueryResponse = {
+  HpcJobs?: JobGraphqlRow[];
+  HpcJobs_agg?: { count?: number };
+};
+
+type JobDetailResponse = {
+  HpcJobs?: JobGraphqlRow[];
+  HpcJobTransitions?: TransitionGraphqlRow[];
+};
+
+type SubmitJobPayload = {
+  processor: string;
+  profile?: string;
+  parameters?: unknown;
+  inputs?: string[];
+  timeout_seconds?: number;
+};
+
+const inputArtifactCache = new Map<string, NormalizedArtifactRef | null>();
+
+function parseInputsValue(rawInputs: unknown): NormalizedJobInput[] {
   if (rawInputs == null) return [];
-  if (Array.isArray(rawInputs)) return rawInputs;
+  if (Array.isArray(rawInputs)) return rawInputs.map((item) => normalizeInputRef(item));
   if (typeof rawInputs === "string") {
     const trimmed = rawInputs.trim();
     if (!trimmed) return [];
     try {
       const parsed = JSON.parse(trimmed);
-      return Array.isArray(parsed) ? parsed : [parsed];
+      return Array.isArray(parsed)
+        ? parsed.map((item) => normalizeInputRef(item))
+        : [normalizeInputRef(parsed)];
     } catch {
       return [];
     }
   }
-  return [rawInputs];
+  return [normalizeInputRef(rawInputs)];
 }
 
-function normalizeInputRef(item: any): any {
+function normalizeInputRef(item: unknown): NormalizedJobInput {
   if (typeof item === "string") {
     const trimmed = item.trim();
-    return trimmed ? { id: trimmed } : item;
+    return trimmed ? { id: trimmed } : {};
   }
 
   if (item && typeof item === "object") {
-    if (typeof item.id === "string" && item.id) return item;
-    if (typeof item.artifact_id === "string" && item.artifact_id) {
-      return { ...item, id: item.artifact_id };
+    const input = item as NormalizedJobInput;
+    if (typeof input.id === "string" && input.id) return input;
+    if (typeof input.artifact_id === "string" && input.artifact_id) {
+      return { ...input, id: input.artifact_id };
     }
+    return input;
   }
 
-  return item;
+  return {};
 }
 
 function collectInputArtifactIds(jobs: NormalizedJob[]): string[] {
@@ -100,10 +179,13 @@ async function fetchArtifactSummary(id: string): Promise<{
   residence?: string | null;
 } | null> {
   try {
-    const artifact = await $fetch<any>(`${REST_BASE}/artifacts/${id}`, {
+    const artifact = await $fetch<NormalizedArtifactRef>(
+      `${REST_BASE}/artifacts/${id}`,
+      {
       method: "GET",
       headers: hpcHeaders(),
-    });
+      }
+    );
     return {
       id,
       name: artifact?.name ?? null,
@@ -128,7 +210,7 @@ async function enrichInputArtifactCache(ids: string[]): Promise<void> {
   }
 }
 
-function enrichInputsWithNames(inputs: any[]): any[] {
+function enrichInputsWithNames(inputs: NormalizedJobInput[]): NormalizedJobInput[] {
   return inputs.map((input) => {
     const id =
       typeof input === "string" ? input : input?.id || input?.artifact_id || null;
@@ -151,7 +233,9 @@ function enrichInputsWithNames(inputs: any[]): any[] {
   });
 }
 
-async function enrichJobsInputs(jobs: NormalizedJob[]): Promise<NormalizedJob[]> {
+async function enrichJobsInputs(
+  jobs: NormalizedJob[]
+): Promise<NormalizedJob[]> {
   const ids = collectInputArtifactIds(jobs);
   await enrichInputArtifactCache(ids);
   return jobs.map((job) => ({
@@ -189,7 +273,7 @@ export async function fetchJobs({
 
   const query = `{
     HpcJobs(
-      ${filterClause ? filterClause + "," : ""}
+      ${filterClause ? `${filterClause},` : ""}
       limit: ${limit},
       offset: ${offset},
       orderby: { created_at: DESC }
@@ -208,14 +292,14 @@ export async function fetchJobs({
   }`;
 
   try {
-    const data = await gqlQuery(query);
+    const data = await gqlQuery<JobsQueryResponse>(query);
     const normalized = (data.HpcJobs || []).map(normalizeJob);
     const enriched = await enrichJobsInputs(normalized);
     return {
       items: enriched,
       totalCount: data.HpcJobs_agg?.count ?? 0,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) {
       return { items: [], totalCount: 0, schemaNotReady: true };
     }
@@ -228,7 +312,7 @@ export async function fetchJobs({
  */
 export async function fetchJobDetail(jobId: string): Promise<{
   job: NormalizedJob | null;
-  transitions: any[];
+  transitions: NormalizedTransition[];
   schemaNotReady?: boolean;
 }> {
   const query = `{
@@ -252,7 +336,7 @@ export async function fetchJobDetail(jobId: string): Promise<{
   }`;
 
   try {
-    const data = await gqlQuery(query);
+    const data = await gqlQuery<JobDetailResponse>(query);
     const job = data.HpcJobs?.[0];
     const normalized = job ? normalizeJob(job) : null;
     const enrichedJobs = normalized ? await enrichJobsInputs([normalized]) : [];
@@ -260,7 +344,7 @@ export async function fetchJobDetail(jobId: string): Promise<{
       job: enrichedJobs[0] ?? null,
       transitions: (data.HpcJobTransitions || []).map(normalizeTransition),
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) {
       return { job: null, transitions: [], schemaNotReady: true };
     }
@@ -271,14 +355,10 @@ export async function fetchJobDetail(jobId: string): Promise<{
 /**
  * Submit a new job via the REST API.
  */
-export async function submitJob(payload: {
-  processor: string;
-  profile?: string;
-  parameters?: any;
-  inputs?: string[];
-  timeout_seconds?: number;
-}): Promise<any> {
-  return await $fetch(`${REST_BASE}/jobs`, {
+export async function submitJob(
+  payload: SubmitJobPayload
+): Promise<NormalizedJob> {
+  return await $fetch<NormalizedJob>(`${REST_BASE}/jobs`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -313,7 +393,7 @@ export async function deleteJob(jobId: string): Promise<void> {
 }
 
 /** Flatten REF/ONTOLOGY objects to plain strings. */
-export function normalizeJob(job: any): NormalizedJob {
+export function normalizeJob(job: JobGraphqlRow): NormalizedJob {
   const output = job.output_artifact_id;
   const log = job.log_artifact_id;
   const progressSnapshot = resolveProgressSnapshot(job);
@@ -362,7 +442,9 @@ export function normalizeJob(job: any): NormalizedJob {
   };
 }
 
-export function normalizeTransition(transition: any): any {
+export function normalizeTransition(
+  transition: TransitionGraphqlRow
+): NormalizedTransition {
   const progressSnapshot = resolveProgressSnapshot(transition);
   return {
     ...transition,

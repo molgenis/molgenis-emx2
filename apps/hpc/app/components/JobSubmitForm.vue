@@ -198,6 +198,7 @@ import {
   fetchArtifacts,
   fetchCapabilities,
 } from "../composables/useHpcApi";
+import type { NormalizedArtifact } from "../composables/useArtifactsApi";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
@@ -216,7 +217,15 @@ const form = reactive({
 const error = ref<string | null>(null);
 const submitting = ref(false);
 const selectedArtifact = ref("");
-const availableArtifacts = ref<any[]>([]);
+type SubmitJobPayload = {
+  processor: string;
+  profile?: string;
+  parameters: unknown;
+  inputs?: string[];
+  timeout_seconds?: number;
+};
+
+const availableArtifacts = ref<NormalizedArtifact[]>([]);
 const capabilities = ref<{ processor: string; profile: string }[]>([]);
 
 const processors = computed(() => [
@@ -313,7 +322,7 @@ async function handleSubmit() {
   }
   submitting.value = true;
   try {
-    const payload: any = {
+    const payload: SubmitJobPayload = {
       processor: form.processor,
       profile: form.profile || undefined,
       parameters,
@@ -331,8 +340,8 @@ async function handleSubmit() {
     form.timeoutSeconds = null;
     form.inputs = [];
     emit("submitted");
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : "Job submission failed.";
   } finally {
     submitting.value = false;
   }

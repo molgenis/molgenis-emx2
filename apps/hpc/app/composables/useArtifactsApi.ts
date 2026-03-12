@@ -13,6 +13,74 @@ interface FetchArtifactsOpts {
   offset?: number;
 }
 
+type ArtifactRelation = { name?: string | null };
+
+type ArtifactGraphqlRow = {
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  residence?: string | ArtifactRelation | null;
+  status?: string | ArtifactRelation | null;
+  sha256?: string | null;
+  size_bytes?: number | string | null;
+  content_url?: string | null;
+  metadata?: unknown;
+  created_at?: string | null;
+  committed_at?: string | null;
+};
+
+export type ArtifactFileRow = {
+  id: string;
+  path: string;
+  sha256?: string | null;
+  size_bytes?: number | string | null;
+  content_type?: string | null;
+};
+
+export type ArtifactSummary = {
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  status?: string | null;
+  residence?: string | null;
+};
+
+type FetchArtifactsResponse = {
+  HpcArtifacts?: ArtifactGraphqlRow[];
+  HpcArtifacts_agg?: { count?: number };
+};
+
+type FetchArtifactDetailResponse = {
+  HpcArtifacts?: ArtifactGraphqlRow[];
+  HpcArtifactFiles?: ArtifactFileRow[];
+};
+
+type RestArtifactResponse = ArtifactSummary & {
+  _links?: Record<string, string>;
+};
+
+type ArtifactCommitResponse = RestArtifactResponse & {
+  sha256?: string | null;
+  size_bytes?: number | string | null;
+};
+
+type UploadResponse = { sha256: string };
+
+export type NormalizedArtifact = {
+  id: string;
+  name?: string | null;
+  type?: string | null;
+  residence?: string | null;
+  status?: string | null;
+  sha256?: string | null;
+  size_bytes?: number | string | null;
+  content_url?: string | null;
+  metadata?: unknown;
+  created_at?: string | null;
+  committed_at?: string | null;
+  [key: string]: unknown;
+};
+
 /** Progress info emitted during a file upload. */
 export interface UploadProgress {
   loaded: number;
@@ -29,16 +97,7 @@ export interface UploadHandle {
 
 const SHA256_CHUNK_SIZE = 1024 * 1024; // 1 MB
 
-const artifactSummaryCache = new Map<
-  string,
-  {
-    id: string;
-    name?: string | null;
-    type?: string | null;
-    status?: string | null;
-    residence?: string | null;
-  } | null
->();
+const artifactSummaryCache = new Map<string, ArtifactSummary | null>();
 
 /**
  * Fetch artifacts via GraphQL.
@@ -48,7 +107,7 @@ export async function fetchArtifacts({
   limit = 50,
   offset = 0,
 }: FetchArtifactsOpts = {}): Promise<{
-  items: any[];
+  items: NormalizedArtifact[];
   totalCount: number;
   schemaNotReady?: boolean;
 }> {
@@ -65,7 +124,7 @@ export async function fetchArtifacts({
 
   const query = `{
     HpcArtifacts(
-      ${filterClause ? filterClause + "," : ""}
+      ${filterClause ? `${filterClause},` : ""}
       limit: ${limit},
       offset: ${offset},
       orderby: { created_at: DESC }
@@ -80,12 +139,12 @@ export async function fetchArtifacts({
   }`;
 
   try {
-    const data = await gqlQuery(query);
+    const data = await gqlQuery<FetchArtifactsResponse>(query);
     return {
       items: (data.HpcArtifacts || []).map(normalizeArtifact),
       totalCount: data.HpcArtifacts_agg?.count ?? 0,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) {
       return { items: [], totalCount: 0, schemaNotReady: true };
     }
@@ -97,8 +156,8 @@ export async function fetchArtifacts({
  * Fetch a single artifact with its files via GraphQL.
  */
 export async function fetchArtifactDetail(artifactId: string): Promise<{
-  artifact: any;
-  files: any[];
+  artifact: NormalizedArtifact | null;
+  files: ArtifactFileRow[];
   schemaNotReady?: boolean;
 }> {
   const idFilter = gqlString(artifactId);
@@ -118,13 +177,13 @@ export async function fetchArtifactDetail(artifactId: string): Promise<{
   }`;
 
   try {
-    const data = await gqlQuery(query);
+    const data = await gqlQuery<FetchArtifactDetailResponse>(query);
     const artifact = data.HpcArtifacts?.[0];
     return {
       artifact: artifact ? normalizeArtifact(artifact) : null,
       files: data.HpcArtifactFiles || [],
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (isSchemaNotReady(err)) {
       return { artifact: null, files: [], schemaNotReady: true };
     }
@@ -132,22 +191,21 @@ export async function fetchArtifactDetail(artifactId: string): Promise<{
   }
 }
 
-export async function fetchArtifactSummary(id: string): Promise<{
-  id: string;
-  name?: string | null;
-  type?: string | null;
-  status?: string | null;
-  residence?: string | null;
-} | null> {
+export async function fetchArtifactSummary(
+  id: string
+): Promise<ArtifactSummary | null> {
   if (artifactSummaryCache.has(id)) {
     return artifactSummaryCache.get(id) ?? null;
   }
 
   try {
-    const artifact = await $fetch<any>(`${REST_BASE}/artifacts/${id}`, {
+    const artifact = await $fetch<RestArtifactResponse>(
+      `${REST_BASE}/artifacts/${id}`,
+      {
       method: "GET",
       headers: hpcHeaders(),
-    });
+      }
+    );
     const summary = {
       id,
       name: artifact?.name ?? null,
@@ -176,11 +234,11 @@ export async function createArtifact({
   type?: string;
   residence?: string;
   content_url?: string;
-} = {}): Promise<any> {
-  const body: any = { type, residence };
+} = {}): Promise<RestArtifactResponse> {
+  const body: Record<string, string> = { type, residence };
   if (name) body.name = name;
   if (content_url) body.content_url = content_url;
-  return await $fetch(`${REST_BASE}/artifacts`, {
+  return await $fetch<RestArtifactResponse>(`${REST_BASE}/artifacts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -198,10 +256,10 @@ export async function uploadArtifactFile(
   artifactId: string,
   file: File,
   path?: string
-): Promise<any> {
+): Promise<UploadResponse> {
   const filePath = path || file.name;
   const sha256 = await streamingSha256(file);
-  return await $fetch(
+  return await $fetch<UploadResponse>(
     `${REST_BASE}/artifacts/${artifactId}/files/${filePath}`,
     {
       method: "PUT",
@@ -289,16 +347,24 @@ export function uploadArtifactFileXhr(
       };
 
       xhr.onload = () => {
-        if (xhr!.status >= 200 && xhr!.status < 300) {
+        if (!xhr) {
+          reject(new Error("Upload failed: request missing"));
+          return;
+        }
+
+        if (xhr.status >= 200 && xhr.status < 300) {
           resolve({ sha256 });
         } else {
-          let msg = `Upload failed: ${xhr!.status}`;
+          let msg = `Upload failed: ${xhr.status}`;
           try {
-            const body = JSON.parse(xhr!.responseText);
+            const body = JSON.parse(xhr.responseText) as {
+              errors?: Array<{ message?: string }>;
+              message?: string;
+            };
             if (body?.errors?.[0]?.message) msg = body.errors[0].message;
             else if (body?.message) msg = body.message;
           } catch {
-            if (xhr!.responseText) msg += ` ${xhr!.responseText}`;
+            if (xhr.responseText) msg += ` ${xhr.responseText}`;
           }
           reject(new Error(msg));
         }
@@ -348,19 +414,22 @@ export function uploadArtifactFileWithRetry(
 
       try {
         return await currentHandle.promise;
-      } catch (err: any) {
-        lastError = err;
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
         // Don't retry on abort
-        if (err?.name === "AbortError") throw err;
+        if (err instanceof DOMException && err.name === "AbortError") throw err;
         // Don't retry on 4xx client errors (except 408/429)
-        if (err?.message?.match(/Upload failed: 4\d\d/) &&
-            !err.message.includes("408") &&
-            !err.message.includes("429")) {
+        const message = err instanceof Error ? err.message : "";
+        if (
+          message.match(/Upload failed: 4\d\d/) &&
+          !message.includes("408") &&
+          !message.includes("429")
+        ) {
           throw err;
         }
         if (attempt < maxAttempts) {
           // Exponential backoff: 1s, 2s, 4s ...
-          const delay = Math.pow(2, attempt - 1) * 1000;
+          const delay = 2 ** (attempt - 1) * 1000;
           await new Promise((r) => setTimeout(r, delay));
         }
       }
@@ -410,18 +479,21 @@ export async function computeTreeHash(
 export async function commitArtifact(
   artifactId: string,
   { sha256, size_bytes }: { sha256?: string; size_bytes?: number } = {}
-): Promise<any> {
-  const body: any = {};
+): Promise<ArtifactCommitResponse> {
+  const body: { sha256?: string; size_bytes?: number } = {};
   if (sha256) body.sha256 = sha256;
   if (size_bytes != null) body.size_bytes = size_bytes;
-  return await $fetch(`${REST_BASE}/artifacts/${artifactId}/commit`, {
+  return await $fetch<ArtifactCommitResponse>(
+    `${REST_BASE}/artifacts/${artifactId}/commit`,
+    {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...hpcHeaders(),
     },
     body,
-  });
+    }
+  );
 }
 
 /**
@@ -467,7 +539,9 @@ export async function downloadArtifactFile(
 }
 
 /** Flatten REF/ONTOLOGY objects for artifacts and parse metadata JSON. */
-export function normalizeArtifact(artifact: any): any {
+export function normalizeArtifact(
+  artifact: ArtifactGraphqlRow
+): NormalizedArtifact {
   let metadata = artifact.metadata;
   if (typeof metadata === "string") {
     try {

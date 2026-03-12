@@ -302,7 +302,7 @@ function formatSpeed(bytesPerSec: number): string {
 }
 
 function formatEta(seconds: number): string {
-  if (!isFinite(seconds) || seconds < 0) return "--";
+  if (!Number.isFinite(seconds) || seconds < 0) return "--";
   if (seconds < 60) return `${Math.ceil(seconds)}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${Math.ceil(seconds % 60)}s`;
   const h = Math.floor(seconds / 3600);
@@ -362,6 +362,7 @@ async function startUpload() {
       type: form.type.trim() || undefined,
     });
     artifactId.value = result.id;
+    const createdArtifactId = artifactId.value;
     if (cancelled) return;
 
     // Upload files sequentially with XHR progress + retry.
@@ -381,7 +382,7 @@ async function startUpload() {
       fs.attempt = 1;
 
       const handle = uploadArtifactFileWithRetry(
-        artifactId.value!,
+        createdArtifactId,
         file,
         filePath,
         (progress) => {
@@ -404,13 +405,14 @@ async function startUpload() {
         fs.sha256 = sha256;
         fileHashes.push({ path: filePath, sha256 });
         cumulativeBytesCompleted += file.size;
-      } catch (err: any) {
-        if (err?.name === "AbortError") {
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
           // Cancelled — don't set error per file, cancelUpload() handles it
           return;
         }
+        const message = err instanceof Error ? err.message : "Upload failed";
         fs.status = "failed";
-        fs.error = err.message || "Upload failed";
+        fs.error = message;
         throw new Error(`Failed to upload ${file.name}: ${fs.error}`);
       }
     }
@@ -422,15 +424,15 @@ async function startUpload() {
     const treeHash = await computeTreeHash(fileHashes);
     const totalSize = files.reduce((sum, f) => sum + f.size, 0);
 
-    await commitArtifact(artifactId.value!, {
+    await commitArtifact(createdArtifactId, {
       sha256: treeHash,
       size_bytes: totalSize,
     });
 
     step.value = "done";
-  } catch (e: any) {
+  } catch (e: unknown) {
     if (!cancelled) {
-      error.value = e.message;
+      error.value = e instanceof Error ? e.message : "Upload failed.";
       step.value = "metadata";
     }
   }

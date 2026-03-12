@@ -94,6 +94,7 @@ import { useState } from "#app";
 import { computed, ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
+import type { ISession } from "../../../tailwind-components/types/types";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -104,7 +105,7 @@ import FooterComponent from "../../../tailwind-components/app/components/FooterC
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { fetchHpcHealth } from "../composables/useHpcApi";
 
-const session = useState<any>("session", () => null);
+const session = useState<ISession | null>("session", () => null);
 const sessionClient = ref<Awaited<ReturnType<typeof useSession>> | null>(null);
 const route = useRoute();
 const isLoginPage = computed(() => {

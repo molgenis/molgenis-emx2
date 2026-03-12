@@ -353,6 +353,10 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute } from "#app/composables/router";
 import { fetchJobDetail, deleteJob } from "../../composables/useHpcApi";
+import type {
+  NormalizedJob,
+  NormalizedTransition,
+} from "../../composables/useJobsApi";
 import { formatDate, formatProgressPercent } from "../../utils/jobs";
 import { isTerminal } from "../../utils/protocol";
 import { navigateTo } from "#app/composables/router";
@@ -363,8 +367,10 @@ import HpcPill from "../../components/HpcPill.vue";
 const route = useRoute();
 const id = computed(() => route.params.id as string);
 
-const job = ref<any>(null);
-const transitions = ref<any[]>([]);
+type JobInputRef = { id?: string; name?: string };
+
+const job = ref<NormalizedJob | null>(null);
+const transitions = ref<NormalizedTransition[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const deleting = ref(false);
@@ -372,11 +378,15 @@ const expandedTransitionDetails = ref<Record<string, boolean>>({});
 const DETAIL_PREVIEW_LIMIT = 180;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
 const normalizedInputs = computed(() => {
   const inputs = job.value?.inputs;
   if (!inputs) return [];
   if (Array.isArray(inputs)) {
-    return inputs.map((item: any) => normalizeInputArtifact(item));
+    return inputs.map((item) => normalizeInputArtifact(item));
   }
   if (typeof inputs === "object") {
     return Object.entries(inputs)
@@ -386,14 +396,18 @@ const normalizedInputs = computed(() => {
   return [];
 });
 
-function normalizeInputArtifact(input: any): { id?: string; name?: string } {
+function normalizeInputArtifact(input: unknown): JobInputRef {
   if (typeof input === "string") return { id: input };
   if (!input || typeof input !== "object") return {};
 
-  const directId = input.artifact_id || input.id;
+  const artifactInput = input as { artifact_id?: unknown; id?: unknown; name?: unknown };
+  const directId = artifactInput.artifact_id || artifactInput.id;
 
   if (typeof directId === "string") {
-    return { id: directId, name: input.name };
+    return {
+      id: directId,
+      name: typeof artifactInput.name === "string" ? artifactInput.name : undefined,
+    };
   }
   return {};
 }
@@ -404,8 +418,8 @@ async function onDelete() {
   try {
     await deleteJob(id.value);
     navigateTo("/");
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     deleting.value = false;
   }
@@ -415,16 +429,15 @@ function shortId(idVal: string): string {
   return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
-function inputArtifactChipLabel(input: any): string {
+function inputArtifactChipLabel(input: JobInputRef): string {
   if (!input) return "-";
   if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
   if (input.name) return input.name;
   if (input.id) return shortId(input.id);
-  if (typeof input === "string") return shortId(input);
   return "-";
 }
 
-function formatJson(val: any): string {
+function formatJson(val: unknown): string {
   if (!val) return "";
   if (typeof val === "string") {
     try {
@@ -449,14 +462,14 @@ function toggleDetail(transitionId: string): void {
     !expandedTransitionDetails.value[transitionId];
 }
 
-function displayDetail(transition: any): string {
+function displayDetail(transition: NormalizedTransition): string {
   const detail = transition?.detail || "-";
   if (!canExpandDetail(detail) || isDetailExpanded(transition.id))
     return detail;
   return `${detail.slice(0, DETAIL_PREVIEW_LIMIT)}...`;
 }
 
-function hasTransitionProgress(transition: any): boolean {
+function hasTransitionProgress(transition: NormalizedTransition): boolean {
   return (
     typeof transition?.progress === "number" ||
     typeof transition?.phase === "string" ||
@@ -464,7 +477,7 @@ function hasTransitionProgress(transition: any): boolean {
   );
 }
 
-function transitionProgressSummary(transition: any): string {
+function transitionProgressSummary(transition: NormalizedTransition): string {
   return transition.phase || transition.message || "In progress";
 }
 
@@ -473,8 +486,8 @@ async function loadJobDetail() {
     const result = await fetchJobDetail(id.value);
     job.value = result.job;
     transitions.value = result.transitions;
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   }
 }
 

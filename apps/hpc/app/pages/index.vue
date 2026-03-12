@@ -274,6 +274,7 @@
 import { ref, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 import { navigateTo } from "#app/composables/router";
 import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi";
+import type { NormalizedJob } from "../composables/useJobsApi";
 import { JOB_STATUSES, isTerminal } from "../utils/protocol";
 import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -284,7 +285,7 @@ import InputCheckboxIcon from "../../../tailwind-components/app/components/input
 
 const statuses = JOB_STATUSES;
 
-const items = ref<any[]>([]);
+const items = ref<NormalizedJob[]>([]);
 const totalCount = ref(0);
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -311,7 +312,11 @@ const totalPages = computed(() =>
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
-function mergeJobs(nextJobs: any[]) {
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
+function mergeJobs(nextJobs: NormalizedJob[]) {
   const previousById = new Map(items.value.map((job) => [job.id, job]));
   items.value = nextJobs.map((nextJob) => {
     const previous = previousById.get(nextJob.id);
@@ -475,8 +480,8 @@ async function loadJobs({ background = false }: { background?: boolean } = {}) {
     if (!background) {
       await refreshSelectableCount();
     }
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     if (!initialLoadDone) {
       loading.value = false;
@@ -521,8 +526,8 @@ async function onDeleteSelected() {
     }
     clearSelection();
     await loadJobs();
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     bulkDeleting.value = false;
     bulkDeletedCount.value = 0;
@@ -530,7 +535,7 @@ async function onDeleteSelected() {
   }
 }
 
-async function onDelete(job: any) {
+async function onDelete(job: NormalizedJob) {
   if (!confirm(`Delete job ${job.id?.substring(0, 8)}...?`)) return;
   deleting.value = true;
   notice.value = null;
@@ -538,22 +543,22 @@ async function onDelete(job: any) {
     await deleteJob(job.id);
     clearSelection();
     await loadJobs();
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     deleting.value = false;
   }
 }
 
-async function onCancel(job: any) {
+async function onCancel(job: NormalizedJob) {
   if (!confirm(`Cancel job ${job.id?.substring(0, 8)}...?`)) return;
   cancelling.value = true;
   notice.value = null;
   try {
     await cancelJob(job.id);
     await loadJobs();
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     cancelling.value = false;
   }

@@ -270,6 +270,7 @@
 import { ref, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 import { navigateTo } from "#app/composables/router";
 import { fetchArtifacts, deleteArtifact } from "../../composables/useHpcApi";
+import type { NormalizedArtifact } from "../../composables/useArtifactsApi";
 import { formatDate } from "../../utils/jobs";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import HpcPagination from "../../components/HpcPagination.vue";
@@ -279,7 +280,7 @@ import InputCheckboxIcon from "../../../../tailwind-components/app/components/in
 
 const statuses = ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"];
 
-const items = ref<any[]>([]);
+const items = ref<NormalizedArtifact[]>([]);
 const totalCount = ref(0);
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -304,7 +305,11 @@ const totalPages = computed(() =>
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
-function mergeArtifacts(nextItems: any[]) {
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+}
+
+function mergeArtifacts(nextItems: NormalizedArtifact[]) {
   const previousById = new Map(items.value.map((a) => [a.id, a]));
   items.value = nextItems.map((next) => {
     const previous = previousById.get(next.id);
@@ -471,8 +476,8 @@ async function loadArtifacts({
       items.value = result.items;
     }
     totalCount.value = result.totalCount;
-  } catch (e: any) {
-    if (!background) error.value = e.message;
+  } catch (e: unknown) {
+    if (!background) error.value = toErrorMessage(e);
   } finally {
     if (!initialLoadDone) {
       loading.value = false;
@@ -519,8 +524,8 @@ async function onDeleteSelected() {
     }
     clearSelection();
     await loadArtifacts();
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     bulkDeleting.value = false;
     bulkDeletedCount.value = 0;
@@ -528,7 +533,7 @@ async function onDeleteSelected() {
   }
 }
 
-async function onDelete(artifact: any) {
+async function onDelete(artifact: NormalizedArtifact) {
   if (!confirm(`Delete artifact ${artifact.id?.substring(0, 8)}...?`)) return;
   deleting.value = true;
   notice.value = null;
@@ -536,8 +541,8 @@ async function onDelete(artifact: any) {
     await deleteArtifact(artifact.id);
     clearSelection();
     await loadArtifacts();
-  } catch (e: any) {
-    error.value = e.message;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
   } finally {
     deleting.value = false;
   }

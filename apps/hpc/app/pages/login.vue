@@ -41,7 +41,7 @@ async function signin() {
       query: `mutation{signin(email:${gqlString(username.value)},password:${gqlString(password.value)}){status,message}}`,
     }),
   }).catch((err) => {
-    error.value = "Sign in failed: " + err;
+    error.value = `Sign in failed: ${err}`;
     loading.value = false;
   });
 
