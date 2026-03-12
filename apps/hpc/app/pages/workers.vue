@@ -1,39 +1,29 @@
 <template>
   <div class="space-y-4">
     <section class="bg-form rounded-lg border border-color-theme p-6">
-      <div
-        class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-      >
+      <div class="flex items-start justify-between">
         <div>
           <p class="text-lg font-semibold text-title">Workers</p>
-          <p class="text-sm text-definition-list-term">
-            Monitor worker availability and manage worker credentials.
+          <p class="text-sm text-definition-list-term flex items-center gap-3">
+            <span>
+              Monitor worker availability and manage worker credentials.
+            </span>
+            <span class="text-[11px] tracking-wide opacity-70">
+              {{ refreshing ? "Refreshing now" : "Auto-refresh every 15 seconds" }}
+            </span>
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <span
-            class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title"
-          >
-            <strong>Registered</strong>
-            {{ workers.length }}
-          </span>
-          <span
-            class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs"
-            :class="
-              refreshing
-                ? 'bg-blue-500/10 text-blue-700 border border-blue-500/30'
-                : 'bg-content text-definition-list-term'
-            "
-          >
-            {{ refreshing ? "Refreshing..." : "Auto-refresh: 15s" }}
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-medium text-title">
+            Registered {{ workers.length }}
           </span>
           <Button
             type="primary"
-            size="tiny"
+            size="small"
             @click="showBootstrap = !showBootstrap"
           >
-            {{ showBootstrap ? "Close Add Worker" : "+ Add Worker" }}
+            {{ showBootstrap ? "Hide Form" : "+ Add Worker" }}
           </Button>
         </div>
       </div>

@@ -6,7 +6,8 @@ All communication is outbound from HPC to EMX2 — no inbound connections into t
 
 ## Read First
 
-For the full setup flow (EMX2 settings -> worker credential -> daemon -> first job),
+For the full setup flow (EMX2 settings -> worker credential -> daemon -> first
+simulated job -> real Slurm/Apptainer run),
 use the canonical quick start:
 
 - [apps/hpc/README.md](../../apps/hpc/README.md)
@@ -81,7 +82,13 @@ emx2-hpc-daemon -c config.yaml once
 emx2-hpc-daemon -c config.yaml register
 ```
 
-Use `--backend=simulate` with `run` or `once` to walk jobs through all lifecycle states without invoking Slurm. Add `-v` for debug logging or `--json-logs` for structured output.
+Use `--backend=simulate` with `run` or `once` to walk jobs through all
+lifecycle states without invoking Slurm. Add `-v` for debug logging or
+`--json-logs` for structured output.
+
+For an end-to-end copy/paste example, including the first simulated job
+submission and the real Slurm/Apptainer VM harness, use
+[apps/hpc/README.md](../../apps/hpc/README.md).
 
 ## Tests
 

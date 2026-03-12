@@ -4,9 +4,12 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "=== Installing Slurm + Munge + Chrony + MariaDB ==="
+echo "=== Installing Slurm + Munge + Chrony + MariaDB + Apptainer ==="
 apt-get update -qq
-apt-get install -y -qq slurm-wlm slurmdbd munge curl chrony mariadb-server
+apt-get install -y -qq software-properties-common
+add-apt-repository -y ppa:apptainer/ppa
+apt-get update -qq
+apt-get install -y -qq slurm-wlm slurmdbd munge curl chrony mariadb-server apptainer busybox-static
 
 echo "=== Configuring time sync ==="
 systemctl enable chrony
@@ -175,10 +178,19 @@ done
 sinfo
 
 echo "=== Installing e2e job scripts ==="
-mkdir -p /opt/e2e/scripts /data/jobs/tmp
+mkdir -p /opt/e2e/scripts /opt/e2e/apptainer-rootfs/bin /data/jobs/tmp
 chown -R vagrant:vagrant /data/jobs
 cp /opt/hpc-daemon/e2e/scripts/e2e_job*.sh /opt/e2e/scripts/
 chmod +x /opt/e2e/scripts/*.sh
+
+echo "=== Preparing local Apptainer test image ==="
+cp /bin/busybox /opt/e2e/apptainer-rootfs/bin/busybox
+chmod 755 /opt/e2e/apptainer-rootfs/bin/busybox
+ln -sf /bin/busybox /opt/e2e/apptainer-rootfs/bin/sh
+cat > /opt/e2e/apptainer-rootfs/environment <<'ENVEOF'
+export PATH=/bin
+ENVEOF
+chmod 644 /opt/e2e/apptainer-rootfs/environment
 
 # ---- Smoke tests: verify Slurm actually works before installing the daemon ----
 
@@ -279,6 +291,27 @@ fi
 rm -rf "$SMOKE2_DIR"
 echo "PASS: entrypoint script produces correct output"
 
+echo "=== Smoke test 6: apptainer sandbox executes ==="
+SMOKE3_DIR=$(mktemp -d /tmp/slurm-smoke3.XXXXXX)
+chown -R vagrant:vagrant "$SMOKE3_DIR"
+su - vagrant -c "apptainer exec --bind ${SMOKE3_DIR}:/output /opt/e2e/apptainer-rootfs /bin/sh -c 'printf APPTAINER_OK > /output/result.txt'"
+smoke3_exit=$?
+
+if [ "$smoke3_exit" -ne 0 ]; then
+    echo "FATAL: apptainer smoke test exited with $smoke3_exit"
+    exit 1
+fi
+
+if [ ! -f "${SMOKE3_DIR}/result.txt" ] || ! grep -q "APPTAINER_OK" "${SMOKE3_DIR}/result.txt"; then
+    echo "FATAL: apptainer smoke test did not produce expected output"
+    ls -la "$SMOKE3_DIR"
+    cat "${SMOKE3_DIR}/result.txt" 2>/dev/null
+    exit 1
+fi
+
+rm -rf "$SMOKE3_DIR"
+echo "PASS: apptainer sandbox produces correct output"
+
 echo "=== All smoke tests passed ==="
 
 echo "=== Installing HPC daemon ==="
@@ -344,6 +377,14 @@ profiles:
     log_residence: "posix"
   "e2e-test:transform":
     entrypoint: "/opt/e2e/scripts/e2e_job_transform.sh"
+    partition: "normal"
+    cpus: 1
+    memory: "256M"
+    time: "00:05:00"
+    output_residence: "managed"
+    log_residence: "managed"
+  "e2e-test:apptainer":
+    sif_image: "/opt/e2e/apptainer-rootfs"
     partition: "normal"
     cpus: 1
     memory: "256M"

@@ -11,7 +11,8 @@ outside this test harness), start with:
 
 - [apps/hpc/README.md](../../../apps/hpc/README.md)
 
-This README is only for the real-Slurm VM e2e test system.
+This README is only for the real-Slurm VM e2e test system. It covers both the
+entrypoint execution path and the Apptainer execution path.
 
 ## Architecture
 
@@ -63,6 +64,7 @@ The `provision.sh` script installs these inside the VM (no host action needed):
 - [MariaDB](https://mariadb.org/) for Slurm accounting (required by `select/cons_tres` in Slurm >= 23.11)
 - [Munge](https://dun.github.io/munge/) for Slurm authentication
 - [Chrony](https://chrony-project.org/) for time synchronisation (prevents MUNGE credential expiry in VMs)
+- [Apptainer](https://apptainer.org/) plus a tiny local sandbox image used for deterministic container e2e coverage
 - The `emx2-hpc-daemon` package (installed via uv from the synced source)
 
 ### Worker credential secret
@@ -151,9 +153,10 @@ The VM's Vagrantfile translates `EMX2_BASE_URL` to `http://10.0.2.2:8080`
 (QEMU user-mode networking gateway) by default.
 
 The daemon config inside the VM (`/etc/hpc-daemon/daemon-config.yaml`) defines
-profiles for happy-path, failure, slow/cancellation, posix, and transform.
-Nested-output behavior is exercised by the happy-path profile script.
-Managed and posix output residence paths are both covered.
+profiles for happy-path, failure, slow/cancellation, posix, transform, and a
+real Apptainer-backed execution path. Nested-output behavior is exercised by
+the happy-path profile script. Managed and posix output residence paths are
+both covered.
 
 ## Makefile targets
 
@@ -186,6 +189,7 @@ Managed and posix output residence paths are both covered.
 | `test_06_artifact_roundtrip.py` | Managed artifact roundtrip with input->transform->output verification |
 | `test_07_delete_requires_cancel.py` | DELETE behavior for non-terminal and terminal jobs |
 | `test_08_nested_output_paths.py` | Nested output path roundtrip for managed artifacts |
+| `test_09_apptainer.py` | Real Apptainer execution with bound input artifact and managed outputs |
 
 ## Troubleshooting
 

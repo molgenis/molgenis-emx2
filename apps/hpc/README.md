@@ -77,7 +77,7 @@ Open the app and sign in (usually `http://localhost:3000`).
 In **Workers**:
 1. Click **+ Add Worker**.
 2. Enter your daemon `worker_id`.
-3. Click **Issue** (first credential) or **Rotate** (replace existing active credential).
+3. Click **Issue** to create the first credential.
 4. Copy the returned secret (shown once).
 
 Write it to a local file next to daemon config:
@@ -88,7 +88,7 @@ printf '%s' '<paste-secret>' > .secret && chmod 600 .secret
 
 Behavior summary:
 - **Issue**: creates the first active credential; returns `409` if one is already active.
-- **Rotate**: revokes existing active credential immediately and creates a new one.
+- **Rotate**: use **Manage** on an existing worker; revokes the active credential immediately and creates a new one.
 - **Revoke**: invalidates that credential immediately.
 - **Delete worker**: removes worker row, capabilities, and credentials.
 
@@ -124,7 +124,91 @@ uv run emx2-hpc-daemon -c demo-config.yaml run --backend simulate -v
 
 For real Slurm execution, use `--backend slurm` and valid `profiles` mappings.
 
-## 5) Submit and Verify a Job
+## 5) First Simulated Job (Copy/Paste Path)
+
+This is the fastest full proof that the bridge is wired correctly.
+
+### 5.1 Submit a job
+
+The demo config advertises one capability:
+- `processor=test`
+- `profile=test`
+
+You can submit it from the UI, or directly through the API using the same
+admin cookie from step 1:
+
+```bash
+curl -sS -b /tmp/emx2.cookies \
+  -H "Content-Type: application/json" \
+  -H "X-EMX2-API-Version: 2025-01" \
+  -d '{"processor":"test","profile":"test"}' \
+  "${EMX2_BASE_URL}/api/hpc/jobs"
+```
+
+Expected response shape:
+
+```json
+{
+  "id": "<job-id>",
+  "status": "PENDING",
+  "processor": "test",
+  "profile": "test"
+}
+```
+
+### 5.2 Watch the lifecycle
+
+With the simulated daemon loop running, the job should move through:
+
+`PENDING -> CLAIMED -> SUBMITTED -> STARTED -> COMPLETED`
+
+From the shell:
+
+```bash
+JOB_ID="<paste-job-id>"
+
+watch -n 2 "curl -sS -b /tmp/emx2.cookies \
+  \"${EMX2_BASE_URL}/api/hpc/jobs/${JOB_ID}\""
+```
+
+### 5.3 Verify outputs
+
+Once the job is `COMPLETED`, verify:
+1. `slurm_job_id` is present
+2. output artifact is linked
+3. log artifact is linked
+4. transition history shows the full lifecycle
+
+This simulated path proves:
+- EMX2 settings are correct
+- worker auth works
+- daemon polling/claim/report works
+- the HPC app renders jobs, workers, and artifacts correctly
+
+## 6) First Real Slurm / Apptainer Run
+
+The repo includes a real-Slurm VM harness that provisions:
+- Slurm controller + node
+- accounting database
+- daemon
+- real Apptainer execution
+
+Run it with:
+
+```bash
+cd tools/hpc-daemon/e2e
+make e2e
+```
+
+That suite is the system-truth layer for:
+- entrypoint-based Slurm execution
+- Apptainer-backed execution
+- managed and posix artifacts
+- transform roundtrips
+- nested outputs
+- cancellation and failure handling
+
+## 7) Submit and Verify a Job in the UI
 
 In **Jobs**:
 1. Submit a job with a processor/profile your worker advertises.
@@ -167,7 +251,7 @@ Recommended drift checks:
 ```bash
 ./gradlew :backend:molgenis-emx2-hpc:test --tests org.molgenis.emx2.hpc.protocol.HpcApiContractTest
 uv run pytest tools/hpc-daemon/tests/test_contract.py -q
-./gradlew :backend:molgenis-emx2-webapi:test --tests org.molgenis.emx2.web.HpcApiProtocolContractE2ETest
+./gradlew :backend:molgenis-emx2-webapi:test --tests org.molgenis.emx2.web.hpc.HpcApiProtocolContractE2ETest
 ```
 
 ## Troubleshooting
