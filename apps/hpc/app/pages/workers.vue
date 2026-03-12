@@ -552,6 +552,10 @@ import {
   type WorkerCredential,
   type WorkerSummary,
 } from "../composables/useHpcApi";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import HpcPill from "../components/HpcPill.vue";
 
 const workers = ref<WorkerSummary[]>([]);
 const loading = ref(false);
