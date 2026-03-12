@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.web.hpc;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.molgenis.emx2.web.ApiTestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
