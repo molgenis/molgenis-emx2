@@ -8,7 +8,7 @@
           artifacts.
         </p>
       </div>
-      <Button type="outline" size="tiny" @click="$emit('close')">
+      <Button type="outline" size="small" @click="$emit('close')">
         Cancel
       </Button>
     </div>
@@ -139,7 +139,7 @@
             />
             <Button
               type="outline"
-              size="tiny"
+              size="small"
               :disabled="!selectedArtifact"
               @click="addArtifact"
             >
@@ -181,7 +181,7 @@
     <div class="flex justify-end mt-4">
       <Button
         type="primary"
-        size="tiny"
+        size="small"
         @click="handleSubmit"
         :disabled="submitting"
       >

@@ -7,7 +7,7 @@
           Create metadata, upload one or more files, then commit the artifact.
         </p>
       </div>
-      <Button type="outline" size="tiny" @click="$emit('close')">
+      <Button type="outline" size="small" @click="$emit('close')">
         Cancel
       </Button>
     </div>
@@ -80,7 +80,7 @@
       <div class="flex justify-end">
         <Button
           type="primary"
-          size="tiny"
+          size="small"
           :disabled="!canSubmit"
           @click="startUpload"
         >
@@ -127,7 +127,7 @@
         </Message>
       </section>
       <div class="flex justify-end">
-        <Button type="outline" size="tiny" @click="$emit('created')">
+        <Button type="outline" size="small" @click="$emit('created')">
           Close
         </Button>
       </div>
