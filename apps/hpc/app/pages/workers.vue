@@ -542,6 +542,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
+import { formatDate } from "../utils/jobs";
 import {
   fetchWorkers,
   deleteWorker,
