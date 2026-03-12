@@ -58,7 +58,7 @@ async def test_publish_node_prepare_fails(eric, report_init):
 
     eric.printer.print_node_title.assert_called_once_with(nl)
     eric.preparator.prepare.assert_called_with(nl, state)
-    assert await eric.publisher.publish.called_with(state)
+    eric.publisher.publish.assert_called_with(state)
     assert report.node_errors[nl] == error
     eric.printer.print_summary.assert_called_once_with(report)
 
