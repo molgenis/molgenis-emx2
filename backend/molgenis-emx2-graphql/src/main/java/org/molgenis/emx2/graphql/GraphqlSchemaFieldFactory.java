@@ -697,7 +697,7 @@ public class GraphqlSchemaFieldFactory {
     for (Map<String, Object> roleMap : roles) {
       String roleName = (String) roleMap.get(GraphqlConstants.NAME);
       String description = (String) roleMap.get(GraphqlConstants.DESCRIPTION);
-      if (!schema.getRoleInfos().stream().anyMatch(r -> r.name().equals(roleName))) {
+      if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
         schema.createRole(roleName, description);
       }
       List<Map<String, Object>> perms =

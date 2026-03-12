@@ -5,7 +5,6 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -39,17 +38,6 @@ class TestTableLevelSecurity {
     schema.getTable(TABLE_B).insert(new Row().setString("id", "r1").setString("value", "world"));
   }
 
-  @AfterAll
-  static void tearDown() {
-    database.becomeAdmin();
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
-      if (database.hasUser(user)) database.removeUser(user);
-    }
-    database.dropSchema(SCHEMA);
-  }
-
-  // --- Role lifecycle ---
-
   @Test
   void createAndDeleteRole() {
     database.becomeAdmin();
@@ -63,7 +51,6 @@ class TestTableLevelSecurity {
     assertFalse(info.isSystemRole());
 
     schema.deleteRole("ReaderA");
-    // After deletion the role must no longer appear in the role list
     assertFalse(schema.getRoleInfos().stream().anyMatch(r -> r.name().equals("ReaderA")));
   }
 
@@ -85,20 +72,16 @@ class TestTableLevelSecurity {
   void cannotGrantToSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    // SqlRoleManager rejects grants to system roles directly
-    assertThrows(
-        MolgenisException.class,
-        () -> schema.grant("Viewer", new TablePermission(TABLE_A, true, null, null, null)));
+    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null);
+    assertThrows(MolgenisException.class, () -> schema.grant("Viewer", selectPermission));
   }
 
   @Test
   void cannotGrantToNonExistentRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    assertThrows(
-        MolgenisException.class,
-        () ->
-            schema.grant("NonExistentRole", new TablePermission(TABLE_A, true, null, null, null)));
+    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null);
+    assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
   }
 
   @Test
@@ -106,17 +89,13 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("TempRole", null);
+    TablePermission permission = new TablePermission("NoSuchTable", true, null, null, null);
     try {
-      assertThrows(
-          MolgenisException.class,
-          () ->
-              schema.grant("TempRole", new TablePermission("NoSuchTable", true, null, null, null)));
+      assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
     } finally {
       schema.deleteRole("TempRole");
     }
   }
-
-  // --- Permission metadata ---
 
   @Test
   void getRoleInfoReturnsGrantedPermissions() {
@@ -187,10 +166,9 @@ class TestTableLevelSecurity {
     try {
       database.setActiveUser(USER_NO_ACCESS);
       database.tx(
-          db -> {
-            assertThrows(
-                Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
-          });
+          db ->
+              assertThrows(
+                  Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
     } finally {
       database.becomeAdmin();
       schema.removeMember(USER_NO_ACCESS);
@@ -281,8 +259,6 @@ class TestTableLevelSecurity {
     }
   }
 
-  // --- Revoke ---
-
   @Test
   void revokeRemovesTableAccess() {
     database.becomeAdmin();
@@ -354,8 +330,6 @@ class TestTableLevelSecurity {
     schema.deleteRole("PartialRevokeRole");
   }
 
-  // --- getPermissionsForActiveUser ---
-
   @Test
   void getPermissionsForActiveUserReturnsCorrectPermissions() {
     database.becomeAdmin();
@@ -384,8 +358,6 @@ class TestTableLevelSecurity {
     }
   }
 
-  // --- System role permissions ---
-
   @Test
   void systemRoleReturnsWildcardPermissions() {
     database.becomeAdmin();
@@ -397,8 +369,6 @@ class TestTableLevelSecurity {
     assertEquals("*", p.table());
     assertEquals(Boolean.TRUE, p.select());
   }
-
-  // --- Require manager to manage roles ---
 
   @Test
   void nonManagerCannotCreateRole() {
