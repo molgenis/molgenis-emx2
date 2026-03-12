@@ -336,64 +336,27 @@ def test_server_cancel_wins_over_terminal_status_race(daemon_factory, tmp_path: 
     assert daemon.tracker.get("job-cancel-race") is None
 
 
-def test_claim_timeout_marks_job_failed_and_untracks(daemon_factory):
-    profile = ProfileEntry(sif_image="/tmp/fake.sif", claim_timeout_seconds=1)
+def test_submission_timeout_marks_job_failed_and_untracks(daemon_factory):
+    profile = ProfileEntry(sif_image="/tmp/fake.sif", submission_timeout_seconds=1)
     daemon = daemon_factory(backend="simulate", profile=profile)
 
     daemon.tracker.track(
-        emx2_job_id="job-claim-timeout",
-        slurm_job_id="sim-claim-timeout",
-        status="SUBMITTED",
+        emx2_job_id="job-submission-timeout",
+        slurm_job_id=None,
+        status="CLAIMED",
         processor="scenario",
         profile="default",
         claimed_at=time.monotonic() - 10,
     )
 
-    daemon._backend.query_slurm_info = MagicMock(
-        return_value=SlurmJobInfo(state="PENDING", reason="Resources")
-    )
-
     daemon._monitor_running_jobs()
 
-    assert daemon.tracker.get("job-claim-timeout") is None
+    assert daemon.tracker.get("job-submission-timeout") is None
     daemon.client.transition_job.assert_called_once()
     args, kwargs = daemon.client.transition_job.call_args
-    assert args[0] == "job-claim-timeout"
+    assert args[0] == "job-submission-timeout"
     assert args[1] == "FAILED"
-    assert "claim_timeout_seconds" in kwargs["detail"]
-
-
-def test_execution_timeout_cancels_slurm_and_marks_failed(daemon_factory):
-    profile = ProfileEntry(
-        sif_image="/tmp/fake.sif",
-        claim_timeout_seconds=999,
-        execution_timeout_seconds=1,
-    )
-    daemon = daemon_factory(backend="simulate", profile=profile)
-
-    daemon.tracker.track(
-        emx2_job_id="job-exec-timeout",
-        slurm_job_id="sim-exec-timeout",
-        status="STARTED",
-        processor="scenario",
-        profile="default",
-        claimed_at=time.monotonic() - 10,
-    )
-
-    daemon._backend.cancel = MagicMock()
-    daemon._backend.query_slurm_info = MagicMock(
-        return_value=SlurmJobInfo(state="RUNNING", reason="None")
-    )
-
-    daemon._monitor_running_jobs()
-
-    daemon._backend.cancel.assert_called_once_with("sim-exec-timeout")
-    assert daemon.tracker.get("job-exec-timeout") is None
-    daemon.client.transition_job.assert_called_once()
-    args, kwargs = daemon.client.transition_job.call_args
-    assert args[0] == "job-exec-timeout"
-    assert args[1] == "FAILED"
-    assert "execution_timeout_seconds" in kwargs["detail"]
+    assert "submission_timeout_seconds" in kwargs["detail"]
 
 
 def test_progress_file_relay_posts_structured_fields(daemon_factory, tmp_path: Path):

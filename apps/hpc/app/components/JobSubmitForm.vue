@@ -94,6 +94,31 @@
 
       <section>
         <div class="mb-3">
+          <p class="text-sm font-semibold text-title">Limits</p>
+          <p class="text-xs text-definition-list-term">
+            Optional resource limits for the job.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-record-label mb-1"
+              >Maximum duration (seconds)</label
+            >
+            <InputString
+              id="job-submit-timeout"
+              v-model="timeoutSecondsStr"
+              placeholder="e.g. 3600"
+            />
+            <p class="text-xs text-definition-list-term mt-1">
+              Total wall-clock limit including queue wait time. Leave empty for
+              no limit.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-3">
           <p class="text-sm font-semibold text-title">Inputs</p>
           <p class="text-xs text-definition-list-term">
             Attach committed artifacts as job inputs (optional).
@@ -185,6 +210,7 @@ const form = reactive({
   processor: "",
   profile: "",
   parametersJson: "",
+  timeoutSeconds: null as number | null,
   inputs: [] as string[],
 });
 const error = ref<string | null>(null);
@@ -205,6 +231,20 @@ const profiles = computed(() => {
         .map((c) => c.profile)
     ),
   ];
+});
+
+const timeoutSecondsStr = computed({
+  get: () =>
+    form.timeoutSeconds != null ? String(form.timeoutSeconds) : "",
+  set: (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) {
+      form.timeoutSeconds = null;
+    } else {
+      const n = parseInt(trimmed, 10);
+      form.timeoutSeconds = Number.isNaN(n) ? null : n;
+    }
+  },
 });
 
 const artifactOptions = computed(() =>
@@ -281,10 +321,14 @@ async function handleSubmit() {
     if (form.inputs.length) {
       payload.inputs = form.inputs;
     }
+    if (form.timeoutSeconds != null && form.timeoutSeconds > 0) {
+      payload.timeout_seconds = form.timeoutSeconds;
+    }
     await submitJob(payload);
     form.processor = "";
     form.profile = "";
     form.parametersJson = "";
+    form.timeoutSeconds = null;
     form.inputs = [];
     emit("submitted");
   } catch (e: any) {

@@ -26,8 +26,7 @@ class ResolvedProfile:
     sbatch_args: list[str]
     output_residence: str
     log_residence: str
-    claim_timeout_seconds: int = 300
-    execution_timeout_seconds: int = 0
+    submission_timeout_seconds: int = 300
 
 
 def resolve_profile(
@@ -59,8 +58,7 @@ def resolve_profile(
         sbatch_args=entry.sbatch_args or [],
         output_residence=entry.output_residence,
         log_residence=entry.log_residence,
-        claim_timeout_seconds=entry.claim_timeout_seconds,
-        execution_timeout_seconds=entry.execution_timeout_seconds,
+        submission_timeout_seconds=entry.submission_timeout_seconds,
     )
 
 

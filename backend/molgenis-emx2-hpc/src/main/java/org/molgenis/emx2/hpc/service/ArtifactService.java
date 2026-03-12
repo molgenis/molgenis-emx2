@@ -40,9 +40,6 @@ public class ArtifactService {
 
   private static final Logger logger = LoggerFactory.getLogger(ArtifactService.class);
 
-  /** Default stale timeout: 1 hour for artifacts stuck in CREATED or UPLOADING. */
-  private static final long DEFAULT_STALE_TIMEOUT_SECONDS = 3600;
-
   /** Explicit FILE column selection to load binary data. */
   private static final SelectColumn FILE_CONTENT_SELECT =
       s("content", s("contents"), s("mimetype"), s("filename"));
@@ -197,39 +194,6 @@ public class ArtifactService {
     } catch (NumberFormatException e) {
       return 0;
     }
-  }
-
-  /**
-   * Expires artifacts that have been stuck in CREATED or UPLOADING for longer than the stale
-   * timeout. Transitions them to FAILED so they become eligible for garbage collection.
-   */
-  public void expireStaleArtifacts() {
-    tx.tx(
-        db -> {
-          Schema schema = db.getSchema(systemSchemaName);
-          Table artifactsTable = schema.getTable("HpcArtifacts");
-          LocalDateTime cutoff = LocalDateTime.now().minusSeconds(DEFAULT_STALE_TIMEOUT_SECONDS);
-
-          for (String statusName :
-              List.of(ArtifactStatus.CREATED.name(), ArtifactStatus.UPLOADING.name())) {
-            List<Row> stale =
-                artifactsTable.where(f("status", f("name", EQUALS, statusName))).retrieveRows();
-            for (Row artifact : stale) {
-              LocalDateTime createdAt = DateTimeUtil.parse(artifact.getString("created_at"));
-              if (createdAt == null) continue;
-              if (createdAt.isBefore(cutoff)) {
-                String artifactId = artifact.getString("id");
-                logger.info(
-                    "Expiring stale artifact {} (status={}, created_at={})",
-                    artifactId,
-                    statusName,
-                    createdAt);
-                artifact.set("status", ArtifactStatus.FAILED.name());
-                artifactsTable.update(artifact);
-              }
-            }
-          }
-        });
   }
 
   /**

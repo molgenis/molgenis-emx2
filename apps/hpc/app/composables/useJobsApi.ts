@@ -276,6 +276,7 @@ export async function submitJob(payload: {
   profile?: string;
   parameters?: any;
   inputs?: string[];
+  timeout_seconds?: number;
 }): Promise<any> {
   return await $fetch(`${REST_BASE}/jobs`, {
     method: "POST",

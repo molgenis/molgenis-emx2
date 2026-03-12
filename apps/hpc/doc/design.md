@@ -276,9 +276,11 @@ The protocol is designed to converge to a consistent state after any single fail
 
 **Timeout-driven state progression.** Two enforcement tiers prevent jobs from stalling indefinitely:
 
-- **Per-job timeout (EMX2-enforced).** Jobs MAY carry an optional `timeout_seconds` field. EMX2 checks CLAIMED and STARTED jobs lazily (on each poll cycle). If `claimed_at + timeout_seconds < now` for a CLAIMED job, or `started_at + timeout_seconds < now` for a STARTED job, EMX2 transitions the job to FAILED with a timeout detail message. This provides fine-grained, per-job control when callers know the expected duration.
+- **Per-job timeout (daemon-enforced).** Jobs MAY carry an optional `timeout_seconds` field set at submission. The daemon measures total elapsed time from `claimed_at` and applies to any tracked (non-terminal) status. If exceeded, the daemon transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This provides fine-grained, per-job wall-clock control when callers know the expected duration.
 
-- **Per-profile timeout (daemon-enforced).** Each profile in the daemon config carries `claim_timeout_seconds` (default 300) and `execution_timeout_seconds` (default 0 = rely on Slurm wall time). The daemon checks tracked jobs against these limits on each monitor cycle. On timeout, it transitions the job to FAILED and issues `scancel` if a Slurm job ID is known. This acts as a safety net for jobs that lack a per-job timeout.
+- **Per-profile submission timeout (daemon-enforced).** Each profile in the daemon config carries `submission_timeout_seconds` (default 300). The daemon checks tracked jobs in CLAIMED status (i.e. claimed but not yet submitted to Slurm) against this limit on each monitor cycle. On timeout, it transitions the job to FAILED. This acts as a safety net for jobs where `sbatch` never ran.
+
+- **Slurm wall-time limit.** Execution timeouts for running jobs are delegated to Slurm's native `--time` directive (set via the profile `time` field). When Slurm kills a job for exceeding wall time, the daemon detects the TIMEOUT state via `sacct` and posts a FAILED transition. This avoids duplicating Slurm's scheduling logic in the daemon.
 
 **Infrastructure termination.** If Slurm kills a job unexpectedly (node failure, preemption, wall-time exceeded), the daemon detects this via `squeue`/`sacct` on the next monitor cycle and posts a FAILED transition. The workload (whether container or wrapper script) has no direct EMX2 access — its only output channel is the filesystem: exit code, output files in `HPC_OUTPUT_DIR`, and an optional `.hpc_progress.jsonl` progress file. The daemon is responsible for interpreting these signals and posting appropriate transitions.
 

@@ -16,6 +16,7 @@ profiles:
     cpus: 1
     memory: "1G"
     time: "00:10:00"
+    # submission_timeout_seconds: 300  # fail CLAIMED jobs not submitted within this time
 
 apptainer:
   tmp_dir: "/tmp/emx2-hpc-demo"

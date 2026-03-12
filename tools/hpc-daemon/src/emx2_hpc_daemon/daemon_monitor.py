@@ -316,43 +316,23 @@ def check_profile_timeouts(
             continue
 
         if (
-            tracked.status == "SUBMITTED"
-            and resolved.claim_timeout_seconds > 0
-            and elapsed > resolved.claim_timeout_seconds
+            tracked.status == "CLAIMED"
+            and resolved.submission_timeout_seconds > 0
+            and elapsed > resolved.submission_timeout_seconds
         ):
             detail = (
-                f"timeout: claim_timeout_seconds "
-                f"({resolved.claim_timeout_seconds}s) exceeded "
+                f"timeout: submission_timeout_seconds "
+                f"({resolved.submission_timeout_seconds}s) exceeded "
                 f"for profile {tracked.profile_key}"
             )
             detail = _append_slurm_detail(detail, backend, tracked.slurm_job_id)
             logger.warning(
-                "Job %s exceeded claim timeout: %s",
+                "Job %s exceeded submission timeout: %s",
                 tracked.emx2_job_id,
                 detail,
             )
             _fail_job_with_timeout(
                 client, tracker, backend, tracked, detail, cancel_slurm=False
-            )
-
-        elif (
-            tracked.status == "STARTED"
-            and resolved.execution_timeout_seconds > 0
-            and elapsed > resolved.execution_timeout_seconds
-        ):
-            detail = (
-                f"timeout: execution_timeout_seconds "
-                f"({resolved.execution_timeout_seconds}s) exceeded "
-                f"for profile {tracked.profile_key}"
-            )
-            detail = _append_slurm_detail(detail, backend, tracked.slurm_job_id)
-            logger.warning(
-                "Job %s exceeded execution timeout: %s",
-                tracked.emx2_job_id,
-                detail,
-            )
-            _fail_job_with_timeout(
-                client, tracker, backend, tracked, detail, cancel_slurm=True
             )
 
 
