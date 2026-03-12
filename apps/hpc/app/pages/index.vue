@@ -438,6 +438,11 @@ async function collectAllMatchingJobIds(): Promise<string[]> {
   return ids;
 }
 
+async function refreshSelectableCount() {
+  if (selectAllMatching.value) return;
+  totalSelectableCount.value = (await collectAllMatchingJobIds()).length;
+}
+
 async function deleteInBatches(ids: string[], batchSize = 8): Promise<string[]> {
   const failedIds: string[] = [];
   bulkTotalCount.value = ids.length;
@@ -467,10 +472,8 @@ async function loadJobs({ background = false }: { background?: boolean } = {}) {
     });
     mergeJobs(result.items);
     totalCount.value = result.totalCount;
-    if (!selectAllMatching.value) {
-      totalSelectableCount.value = result.items.filter((j) =>
-        isTerminal(j.status)
-      ).length;
+    if (!background) {
+      await refreshSelectableCount();
     }
   } catch (e: any) {
     error.value = e.message;
