@@ -308,7 +308,13 @@ effective permissions.
 ### Create a custom role and grant permissions
 
 Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
-listed permissions are applied incrementally (omitting a field leaves the existing grant unchanged).
+listed permissions are applied per field:
+
+| Field value | Effect |
+|---|---|
+| `true` | Grant the privilege |
+| `false` | Revoke the privilege |
+| `null` / omitted | Leave the existing grant unchanged |
 
 ```graphql
 mutation {
@@ -346,6 +352,29 @@ mutation {
   }
 }
 ```
+
+### Revoke individual privileges
+
+Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: false, insert: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
 
 ### Delete a custom role
 

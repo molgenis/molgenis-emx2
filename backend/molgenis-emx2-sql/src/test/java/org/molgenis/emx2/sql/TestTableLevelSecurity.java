@@ -312,6 +312,48 @@ class TestTableLevelSecurity {
     schema.deleteRole("RevokeRole");
   }
 
+  @Test
+  void grantWithFalseRevokesIndividualPrivilege() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("PartialRevokeRole", null);
+    // Grant SELECT + INSERT
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, true, true, null, null));
+    schema.addMember(USER_EDITOR, "PartialRevokeRole");
+
+    // Verify INSERT works
+    database.setActiveUser(USER_EDITOR);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(TABLE_A)
+                .insert(new Row().setString("id", "r_partial").setString("value", "v")));
+
+    // Revoke INSERT by passing false, keep SELECT
+    database.becomeAdmin();
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, null, false, null, null));
+
+    // Verify INSERT is now denied
+    database.setActiveUser(USER_EDITOR);
+    database.tx(
+        db ->
+            assertThrows(
+                Exception.class,
+                () ->
+                    db.getSchema(SCHEMA)
+                        .getTable(TABLE_A)
+                        .insert(new Row().setString("id", "r_partial2").setString("value", "v"))));
+
+    // Verify SELECT still works
+    database.tx(
+        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).delete(new Row().setString("id", "r_partial"));
+    schema.removeMember(USER_EDITOR);
+    schema.deleteRole("PartialRevokeRole");
+  }
+
   // --- getPermissionsForActiveUser ---
 
   @Test
