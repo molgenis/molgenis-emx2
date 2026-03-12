@@ -106,15 +106,23 @@ public class SqlRoleManager {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     if (Boolean.TRUE.equals(p.select())) {
       jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
+    } else if (Boolean.FALSE.equals(p.select())) {
+      jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (Boolean.TRUE.equals(p.insert())) {
       jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
+    } else if (Boolean.FALSE.equals(p.insert())) {
+      jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (Boolean.TRUE.equals(p.update())) {
       jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
+    } else if (Boolean.FALSE.equals(p.update())) {
+      jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (Boolean.TRUE.equals(p.delete())) {
       jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
+    } else if (Boolean.FALSE.equals(p.delete())) {
+      jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
   }
 
