@@ -380,6 +380,19 @@ public class TestGraphqlSchemaFields {
             .at("/Pet/0/orders/0/status")
             .textValue());
 
+    // multi-field orderby should respect list order
+    JsonNode multiOrder =
+        execute(
+            "{Pet(filter:{status:{equals:\"available\"}},orderby:[{weight:DESC},{name:ASC}]){name,weight}}");
+    assertEquals("pooky", multiOrder.at("/Pet/0/name").textValue());
+    assertEquals("tom", multiOrder.at("/Pet/1/name").textValue());
+
+    // reversed field order: name first, then weight
+    JsonNode multiOrder2 =
+        execute(
+            "{Pet(filter:{status:{equals:\"available\"}},orderby:[{name:ASC},{weight:DESC}]){name,weight}}");
+    assertEquals("fire ant", multiOrder2.at("/Pet/0/name").textValue());
+
     // filter nested
     assertEquals(
         "red",

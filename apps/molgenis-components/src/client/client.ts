@@ -290,7 +290,7 @@ const fetchTableData = async (
 
   const schemaId = metadata.id;
   const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
-  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 
@@ -306,7 +306,7 @@ const fetchTableData = async (
         }`;
 
   const filter = properties.filter ? properties.filter : {};
-  const orderby = properties.orderby ? properties.orderby : {};
+  const orderby = properties.orderby ? [properties.orderby] : [];
   const resp = await axios
     .post(graphqlURL(schemaId), {
       query: tableDataQuery,

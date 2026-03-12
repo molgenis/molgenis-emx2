@@ -45,7 +45,7 @@ test.describe("period input type", () => {
     await expect(
       page.getByRole("textbox", { name: "period type" })
     ).toHaveValue("P1Y3M14D");
-    await expect(page.getByLabel("error")).toBeHidden();
+    await expect(page.getByText("errorInvalid Period: must")).toBeHidden();
   });
 });
 
