@@ -2,10 +2,9 @@
 import type { IConfigurablePages } from "../../../types/cms";
 
 import PageComponent from "./PageComponent.vue";
-
 import PageBanner from "../pages/Banner.vue";
 import PageSection from "../pages/Section.vue";
-import TextParagraph from "../text/Paragraph.vue";
+import TextParagraph from "./Paragraph.vue";
 
 const props = defineProps<{ content: IConfigurablePages }>();
 </script>

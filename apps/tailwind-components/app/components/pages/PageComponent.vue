@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import Heading from "../text/Heading.vue";
-import Paragraph from "../text/Paragraph.vue";
+import Heading from "./Heading.vue";
+import Paragraph from "./Paragraph.vue";
 import Image from "../pages/Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
 
-import { parsePageText } from "../../utils/Pages";
-
+import { parsePageText } from "../../utils/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 
 const props = withDefaults(
