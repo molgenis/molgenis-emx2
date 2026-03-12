@@ -52,7 +52,7 @@
               v-for="column in sortedVisibleColumns"
               :style="{
                 width: columnWidths[column.id] + 'px',
-                userSelect: isResizing ? 'none' : 'all',
+                userSelect: isResizing ? 'none' : 'auto',
               }"
               class="relative group"
             >
