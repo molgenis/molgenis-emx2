@@ -3,6 +3,7 @@ import { ref, onBeforeUnmount, type Ref } from "vue";
 export function useColumnResize(container: Ref<HTMLElement | null>) {
   const columnWidths = ref<Record<string, number>>({});
   const guideX = ref<number | null>(null);
+  const isResizing = ref(false);
 
   const resizingColumn = ref<string | null>(null);
 
@@ -26,6 +27,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
   }
 
   function startResize(event: MouseEvent, columnId: string) {
+    isResizing.value = true;
     resizingColumn.value = columnId;
 
     startX.value = event.clientX;
@@ -53,6 +55,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
   }
 
   function stopResize() {
+    isResizing.value = false;
     if (!resizingColumn.value) return;
 
     const diff = pendingX - startX.value;
@@ -85,5 +88,6 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
     guideX,
     startResize,
     setInitialWidths,
+    isResizing,
   };
 }
