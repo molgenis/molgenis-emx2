@@ -265,6 +265,70 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
 
   @Test
   @Order(6)
+  void workerCredentialResponsesMatchContract() {
+    String credentialWorkerId = HpcTestkit.nextName("contract-cred-worker");
+
+    Map<String, Object> issued =
+        hpcRequest()
+            .body("{}")
+            .when()
+            .post("/api/hpc/workers/{id}/credentials/issue", credentialWorkerId)
+            .then()
+            .statusCode(endpointStatusCode("workerCredentialIssue"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(issued, requiredFields("workerCredentialIssue"));
+    String firstCredentialId = String.valueOf(issued.get("id"));
+    assertNotNull(firstCredentialId, "Issued credential must include id");
+
+    Map<String, Object> rotated =
+        hpcRequest()
+            .body("{}")
+            .when()
+            .post("/api/hpc/workers/{id}/credentials/rotate", credentialWorkerId)
+            .then()
+            .statusCode(endpointStatusCode("workerCredentialRotate"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(rotated, requiredFields("workerCredentialRotate"));
+    String secondCredentialId = String.valueOf(rotated.get("id"));
+    assertNotNull(secondCredentialId, "Rotated credential must include id");
+    assertNotEquals(firstCredentialId, secondCredentialId, "Rotate must create a new credential");
+
+    Map<String, Object> list =
+        hpcRequest()
+            .when()
+            .get("/api/hpc/workers/{id}/credentials", credentialWorkerId)
+            .then()
+            .statusCode(endpointStatusCode("workerCredentialList"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(list, requiredFields("workerCredentialList"));
+    Object credentialItemsObj = list.get("items");
+    assertTrue(credentialItemsObj instanceof java.util.List<?>, "items must be a list");
+    java.util.List<?> credentialItems = (java.util.List<?>) credentialItemsObj;
+    assertFalse(credentialItems.isEmpty(), "expected at least one credential item");
+    assertTrue(credentialItems.get(0) instanceof Map<?, ?>, "credential item must be an object");
+    @SuppressWarnings("unchecked")
+    Map<String, Object> firstCredential = (Map<String, Object>) credentialItems.get(0);
+    assertContainsRequiredKeys(firstCredential, requiredItemFields("workerCredential"));
+
+    Map<String, Object> revoked =
+        hpcRequest()
+            .when()
+            .post(
+                "/api/hpc/workers/{id}/credentials/{credentialId}/revoke",
+                credentialWorkerId,
+                secondCredentialId)
+            .then()
+            .statusCode(endpointStatusCode("workerCredentialRevoke"))
+            .extract()
+            .as(Map.class);
+    assertContainsRequiredKeys(revoked, requiredFields("workerCredentialRevoke"));
+  }
+
+  @Test
+  @Order(7)
   void errorShapeMatchesProblemDetailContract() {
     String jobId =
         hpcRequest()
@@ -328,6 +392,10 @@ class HpcApiProtocolContractE2ETest extends ApiTestBase {
 
   private static Set<String> expectedLinks(String section, String status) {
     return asStringSet(defs.get(section).get("properties").get(status).get("const"));
+  }
+
+  private static int endpointStatusCode(String endpointKey) {
+    return defs.get("endpointStatusCodes").get("properties").get(endpointKey).get("const").asInt();
   }
 
   private static Set<String> asStringSet(JsonNode node) {

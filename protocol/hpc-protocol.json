@@ -20,6 +20,10 @@
       "enum": ["managed", "posix", "s3", "http", "reference"],
       "description": "Where artifact content is stored."
     },
+    "WorkerCredentialStatus": {
+      "enum": ["ACTIVE", "REVOKED", "EXPIRED"],
+      "description": "Worker credential lifecycle statuses."
+    },
     "transitions": {
       "description": "Allowed state transitions: status -> list of reachable statuses.",
       "type": "object",
@@ -87,6 +91,17 @@
       },
       "additionalProperties": false
     },
+    "endpointStatusCodes": {
+      "description": "Expected HTTP status codes for selected endpoint operations.",
+      "type": "object",
+      "properties": {
+        "workerCredentialIssue": { "const": 201 },
+        "workerCredentialRotate": { "const": 200 },
+        "workerCredentialRevoke": { "const": 200 },
+        "workerCredentialList": { "const": 200 }
+      },
+      "additionalProperties": false
+    },
     "progressFieldLimits": {
       "description": "Validation bounds for structured progress updates posted by the daemon.",
       "type": "object",
@@ -111,7 +126,17 @@
         "jobTransitions": { "const": ["items", "count"] },
         "artifact": { "const": ["id", "type", "residence", "status", "_links"] },
         "artifactFileUpload": { "const": ["id", "artifact_id", "path", "sha256", "size_bytes"] },
-        "artifactFileList": { "const": ["items", "count", "total_count", "limit", "offset"] }
+        "artifactFileList": { "const": ["items", "count", "total_count", "limit", "offset"] },
+        "workerCredentialIssue": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "expires_at", "secret", "_links"]
+        },
+        "workerCredentialRotate": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "expires_at", "secret", "_links"]
+        },
+        "workerCredentialRevoke": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "created_by", "last_used_at", "revoked_at", "expires_at"]
+        },
+        "workerCredentialList": { "const": ["items", "count", "_links"] }
       },
       "additionalProperties": false
     },
@@ -124,6 +149,9 @@
         },
         "artifactFile": {
           "const": ["id", "path", "sha256", "size_bytes", "content_type", "_links"]
+        },
+        "workerCredential": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "created_by", "last_used_at", "revoked_at", "expires_at"]
         }
       },
       "additionalProperties": false

@@ -742,12 +742,24 @@ If the `worker_id` does not yet exist in `HpcWorkers`, it is still considered re
 
 ```json
 {
-  "credential_id": "cred_001",
+  "id": "f7632056-1a2b-4727-b0c7-3bdf18aa75dd",
   "worker_id": "hpc-headnode-01",
   "status": "ACTIVE",
+  "label": "slurm-headnode-01",
   "secret": "emx2hpc_XXXXXXXXXXXXXXXX",
   "created_at": "2026-02-21T10:00:00",
-  "expires_at": "2026-12-31T23:59:59"
+  "expires_at": "2026-12-31T23:59:59",
+  "_links": {
+    "self": {
+      "href": "/api/hpc/workers/hpc-headnode-01/credentials/f7632056-1a2b-4727-b0c7-3bdf18aa75dd",
+      "method": "GET"
+    },
+    "list": { "href": "/api/hpc/workers/hpc-headnode-01/credentials", "method": "GET" },
+    "revoke": {
+      "href": "/api/hpc/workers/hpc-headnode-01/credentials/f7632056-1a2b-4727-b0c7-3bdf18aa75dd/revoke",
+      "method": "POST"
+    }
+  }
 }
 ```
 
@@ -757,15 +769,29 @@ If the `worker_id` does not yet exist in `HpcWorkers`, it is still considered re
 
 Issues a replacement credential for a worker identity. The old credential is revoked immediately. There is no grace period.
 
-**Response:** `201 Created` with the new credential secret shown once.
+**Response:** `200 OK` with the same response shape as `credentials/issue` and the new credential secret shown once.
 
 **Error responses:** `503 Service Unavailable` when `_SYSTEM_.MOLGENIS_HPC_CREDENTIALS_KEY` is not configured.
 
-### POST /api/hpc/workers/{id}/credentials/{credential_id}/revoke {.unnumbered}
+### POST /api/hpc/workers/{id}/credentials/{credentialId}/revoke {.unnumbered}
 
 Revokes a worker credential immediately.
 
-**Response:** `204 No Content`.
+**Response:** `200 OK` with credential metadata (no secret returned).
+
+```json
+{
+  "id": "f7632056-1a2b-4727-b0c7-3bdf18aa75dd",
+  "worker_id": "hpc-headnode-01",
+  "label": "slurm-headnode-01",
+  "status": "REVOKED",
+  "created_at": "2026-02-21T10:00:00",
+  "created_by": "admin",
+  "last_used_at": "2026-02-21T10:30:00",
+  "revoked_at": "2026-02-21T12:00:00",
+  "expires_at": "2026-12-31T23:59:59"
+}
+```
 
 Subsequent worker requests signed with that credential MUST fail with `401 Unauthorized`.
 
@@ -779,7 +805,7 @@ Lists credential metadata for a worker. Secrets are never returned.
 {
   "items": [
     {
-      "credential_id": "cred_001",
+      "id": "f7632056-1a2b-4727-b0c7-3bdf18aa75dd",
       "worker_id": "hpc-headnode-01",
       "label": "slurm-headnode-01",
       "status": "ACTIVE",
@@ -790,7 +816,10 @@ Lists credential metadata for a worker. Secrets are never returned.
       "expires_at": "2026-12-31T23:59:59"
     }
   ],
-  "count": 1
+  "count": 1,
+  "_links": {
+    "self": { "href": "/api/hpc/workers/hpc-headnode-01/credentials", "method": "GET" }
+  }
 }
 ```
 
