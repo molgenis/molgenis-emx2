@@ -7,6 +7,7 @@ import Container from "../../../tailwind-components/app/components/Container.vue
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
+import { gqlString } from "../composables/useHpcApi";
 
 const username = ref("");
 const password = ref("");
@@ -37,7 +38,7 @@ async function signin() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      query: `mutation{signin(email: "${username.value}", password: "${password.value}"){status,message}}`,
+      query: `mutation{signin(email:${gqlString(username.value)},password:${gqlString(password.value)}){status,message}}`,
     }),
   }).catch((err) => {
     error.value = "Sign in failed: " + err;

@@ -77,6 +77,7 @@ public class HpcApi {
             if (hpcContext.getAndSet(null) != null) {
               logger.info("HPC API: disabled — cleared cached context");
             }
+            invalidateSettingsCache();
             logger.info("HPC API: disabled — set {}=true to enable", HPC_ENABLED_SETTING);
             throw HpcException.serviceUnavailable(
                 "HPC is disabled — set "
@@ -93,6 +94,7 @@ public class HpcApi {
             HpcContext initialized = initContext(database);
             hpcContext.set(initialized);
             hpc = initialized;
+            invalidateSettingsCache();
             logger.info("HPC API: initialized — schema tables created in {}", SYSTEM_SCHEMA);
           }
           ctx.attribute("hpcContext", hpc);

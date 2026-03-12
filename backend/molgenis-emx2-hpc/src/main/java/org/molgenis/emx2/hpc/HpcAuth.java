@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
@@ -34,6 +35,9 @@ class HpcAuth {
 
   static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
   static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
+  private static final long SETTINGS_CACHE_TTL_MILLIS = 5000;
+  private static final SettingsProvider SETTINGS_PROVIDER =
+      new SettingsProvider(SETTINGS_CACHE_TTL_MILLIS);
 
   private HpcAuth() {}
 
@@ -48,19 +52,13 @@ class HpcAuth {
       JobsApi jobsApi,
       ArtifactsApi artifactsApi) {}
 
-  /** Reads the latest setting directly from the database setting table. */
+  /** Reads setting values via a short-lived TTL cache to avoid DB/cache churn on hot paths. */
   static String readSetting(SqlDatabase database, String key) {
-    // Read setting via tx + becomeAdmin so we get the current DB value,
-    // not the potentially stale in-memory cache of this SqlDatabase instance
-    String[] valueHolder = new String[1];
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          // clearCache reloads settings from the database; safe inside a tx copy
-          db.clearCache();
-          valueHolder[0] = db.getSetting(key);
-        });
-    return valueHolder[0];
+    return SETTINGS_PROVIDER.get(database, key);
+  }
+
+  static void invalidateSettingsCache() {
+    SETTINGS_PROVIDER.invalidateAll();
   }
 
   static boolean isHpcEnabled(SqlDatabase database) {
@@ -356,5 +354,36 @@ class HpcAuth {
       root = root.getCause();
     }
     return root.getMessage();
+  }
+
+  private record CachedSetting(String value, long expiresAtMillis) {}
+
+  private static final class SettingsProvider {
+    private final long ttlMillis;
+    private final ConcurrentHashMap<String, CachedSetting> cache = new ConcurrentHashMap<>();
+
+    private SettingsProvider(long ttlMillis) {
+      this.ttlMillis = ttlMillis;
+    }
+
+    String get(SqlDatabase database, String key) {
+      long now = System.currentTimeMillis();
+      CachedSetting cached = cache.get(key);
+      if (cached != null && cached.expiresAtMillis() > now) {
+        return cached.value();
+      }
+      String[] valueHolder = new String[1];
+      database.tx(
+          db -> {
+            db.becomeAdmin();
+            valueHolder[0] = db.getSetting(key);
+          });
+      cache.put(key, new CachedSetting(valueHolder[0], now + ttlMillis));
+      return valueHolder[0];
+    }
+
+    void invalidateAll() {
+      cache.clear();
+    }
   }
 }

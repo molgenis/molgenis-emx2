@@ -93,6 +93,7 @@ import { useHead } from "#app";
 import { useState } from "#app";
 import { computed, ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useSession } from "../../../tailwind-components/app/composables/useSession";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -103,9 +104,8 @@ import FooterComponent from "../../../tailwind-components/app/components/FooterC
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { fetchHpcHealth } from "../composables/useHpcApi";
 
-// Use useState directly (same key as useSession) — avoids the fragile
-// await useSession() that crashes when the GraphQL response lacks `.data`.
 const session = useState<any>("session", () => null);
+const sessionClient = ref<Awaited<ReturnType<typeof useSession>> | null>(null);
 const route = useRoute();
 const isLoginPage = computed(() => {
   const normalizedPath = route.path.replace(/\/+$/, "") || "/";
@@ -126,34 +126,24 @@ const hpcStatus = ref<"loading" | "ok" | "not_configured" | "unavailable">(
   "loading"
 );
 
-async function fetchSession() {
+async function ensureSessionClient() {
+  if (sessionClient.value) return sessionClient.value;
   try {
-    const resp: any = await $fetch("/api/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: `{_session { email, admin, token }}` }),
-    });
-    session.value = resp?.data?._session ?? null;
+    sessionClient.value = await useSession();
+    return sessionClient.value;
   } catch (e) {
-    console.error("Failed to fetch session:", e);
+    console.error("Failed to initialize session:", e);
     session.value = null;
+    return null;
   }
 }
 
 async function handleSignOut() {
-  try {
-    const resp: any = await $fetch("/api/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: `mutation { signout { status } }` }),
-    });
-    if (resp?.data?.signout?.status === "SUCCESS") {
-      session.value = null;
-      await fetchSession();
-    }
-  } catch (e) {
-    console.error("Error signing out:", e);
+  const client = await ensureSessionClient();
+  if (!client) {
+    return;
   }
+  await client.signOut();
 }
 
 async function checkHealth() {
@@ -185,9 +175,8 @@ const navigation = computed(() => [
   { label: "Artifacts", link: "/artifacts" },
 ]);
 
-// Load session on mount — no async setup, so the layout renders immediately
 onMounted(() => {
-  fetchSession();
+  void ensureSessionClient();
 });
 </script>
 

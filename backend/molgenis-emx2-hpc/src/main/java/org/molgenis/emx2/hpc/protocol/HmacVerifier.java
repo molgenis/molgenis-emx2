@@ -2,7 +2,9 @@ package org.molgenis.emx2.hpc.protocol;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
@@ -15,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * request, computing the HMAC-SHA256 signature, and comparing it to the signature in the
  * Authorization header.
  *
- * <p>Also provides nonce replay protection (time-based eviction, no size limit) and timestamp drift
+ * <p>Also provides nonce replay protection (time-based + bounded LRU eviction) and timestamp drift
  * validation.
  *
  * <p>For non-JSON request bodies (binary uploads), the client MUST send a {@code Content-SHA256}
@@ -28,22 +30,29 @@ public final class HmacVerifier {
   private static final Logger logger = LoggerFactory.getLogger(HmacVerifier.class);
   private static final String ALGORITHM = "HmacSHA256";
   private static final long MAX_TIMESTAMP_DRIFT_SECONDS = 300; // 5 minutes
+  private static final int DEFAULT_MAX_NONCE_CACHE_ENTRIES = 50_000;
 
   private final String sharedSecret;
+  private final int maxNonceCacheEntries;
+  private final Object nonceLock = new Object();
 
-  /**
-   * Time-based nonce cache. Entries are evicted when their timestamp falls outside the drift
-   * window. No size limit — within a 5-minute window the entry count is bounded by request rate,
-   * which is inherently bounded by worker count × poll frequency.
-   */
-  private final ConcurrentHashMap<String, Long> seenNonces = new ConcurrentHashMap<>();
+  /** Time-based nonce cache with LRU eviction to keep memory bounded. */
+  private final LinkedHashMap<String, Long> seenNonces = new LinkedHashMap<>(128, 0.75f, true);
 
   public HmacVerifier(String sharedSecret) {
+    this(sharedSecret, DEFAULT_MAX_NONCE_CACHE_ENTRIES);
+  }
+
+  HmacVerifier(String sharedSecret, int maxNonceCacheEntries) {
     if (sharedSecret == null || sharedSecret.length() < 32) {
       throw new IllegalArgumentException(
           "Shared secret must be at least 32 characters for adequate security");
     }
+    if (maxNonceCacheEntries < 1) {
+      throw new IllegalArgumentException("maxNonceCacheEntries must be >= 1");
+    }
     this.sharedSecret = sharedSecret;
+    this.maxNonceCacheEntries = maxNonceCacheEntries;
   }
 
   /**
@@ -91,15 +100,18 @@ public final class HmacVerifier {
           "Request timestamp too far from server time (drift: " + (now - requestTime) + "s)");
     }
 
-    // 3. Nonce replay check (atomic put-if-absent, no size limit)
+    // 3. Nonce replay check (bounded LRU + expiry)
     if (nonce == null || nonce.isBlank()) {
       throw new SecurityException("Missing X-Nonce header");
     }
-    Long previous = seenNonces.putIfAbsent(nonce, requestTime);
-    if (previous != null) {
-      throw new SecurityException("Duplicate nonce (possible replay attack)");
+    synchronized (nonceLock) {
+      evictExpiredNonces(now - MAX_TIMESTAMP_DRIFT_SECONDS);
+      if (seenNonces.containsKey(nonce)) {
+        throw new SecurityException("Duplicate nonce (possible replay attack)");
+      }
+      seenNonces.put(nonce, requestTime);
+      evictLruIfNeeded();
     }
-    evictExpiredNonces();
 
     // 4. Compute and verify signature
     String expectedSignature =
@@ -164,9 +176,24 @@ public final class HmacVerifier {
   }
 
   /** Evicts nonces whose timestamps have fallen outside the drift window. */
-  private void evictExpiredNonces() {
-    long cutoff = (System.currentTimeMillis() / 1000) - MAX_TIMESTAMP_DRIFT_SECONDS;
-    seenNonces.entrySet().removeIf(e -> e.getValue() < cutoff);
+  private void evictExpiredNonces(long cutoffEpochSeconds) {
+    Iterator<Map.Entry<String, Long>> it = seenNonces.entrySet().iterator();
+    while (it.hasNext()) {
+      if (it.next().getValue() < cutoffEpochSeconds) {
+        it.remove();
+      }
+    }
+  }
+
+  private void evictLruIfNeeded() {
+    while (seenNonces.size() > maxNonceCacheEntries) {
+      Iterator<Map.Entry<String, Long>> it = seenNonces.entrySet().iterator();
+      if (!it.hasNext()) {
+        break;
+      }
+      it.next();
+      it.remove();
+    }
   }
 
   private static String bytesToHex(byte[] bytes) {

@@ -146,6 +146,11 @@ class HmacVerifierTest {
     assertThrows(IllegalArgumentException.class, () -> new HmacVerifier(null));
   }
 
+  @Test
+  void invalidCacheCapacityThrows() {
+    assertThrows(IllegalArgumentException.class, () -> new HmacVerifier(SECRET, 0));
+  }
+
   // --- Content-SHA256 tests ---
 
   @Test
@@ -244,5 +249,38 @@ class HmacVerifierTest {
     assertThrows(
         SecurityException.class,
         () -> verifier.verify("GET", "/api/hpc/jobs", "", authHeader, now, nonce, null));
+  }
+
+  @Test
+  void lruNonceEvictionKeepsCacheBounded() {
+    HmacVerifier verifier = new HmacVerifier(SECRET, 2);
+    String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
+    String nonce1 = "lru-nonce-1";
+    String nonce2 = "lru-nonce-2";
+    String nonce3 = "lru-nonce-3";
+
+    String sig1 = verifier.computeSignature("GET", "/api/hpc/jobs", "", timestamp, nonce1);
+    String sig2 = verifier.computeSignature("GET", "/api/hpc/jobs", "", timestamp, nonce2);
+    String sig3 = verifier.computeSignature("GET", "/api/hpc/jobs", "", timestamp, nonce3);
+
+    assertDoesNotThrow(
+        () ->
+            verifier.verify(
+                "GET", "/api/hpc/jobs", "", "HMAC-SHA256 " + sig1, timestamp, nonce1, null));
+    assertDoesNotThrow(
+        () ->
+            verifier.verify(
+                "GET", "/api/hpc/jobs", "", "HMAC-SHA256 " + sig2, timestamp, nonce2, null));
+    assertDoesNotThrow(
+        () ->
+            verifier.verify(
+                "GET", "/api/hpc/jobs", "", "HMAC-SHA256 " + sig3, timestamp, nonce3, null));
+
+    // With capacity 2, one old nonce is evicted; reused nonce is accepted again.
+    assertDoesNotThrow(
+        () ->
+            verifier.verify(
+                "GET", "/api/hpc/jobs", "", "HMAC-SHA256 " + sig1, timestamp, nonce1, null));
   }
 }
