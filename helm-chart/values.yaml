@@ -74,7 +74,7 @@ ssrCatalogue:
 
 # Wake Proxy configuratie
 wakeProxy:
-  enabled: false # Set to false to disable wake-proxy and route directly to EMX2
+  enabled: true # Set to false to disable wake-proxy and route directly to EMX2
   
   image:
     repository: molgenis/emx2-proxy
