@@ -49,7 +49,7 @@ public abstract class RdfGenerator {
       final Table table, final TableColumnsSelector selector, final PrimaryKey primaryKey) {
     Query query = table.query();
 
-    if (selector.isDefined(table)) {
+    if (selector != null && selector.isDefined(table)) {
       query.select(selector.getSelectColumns(table));
     }
 

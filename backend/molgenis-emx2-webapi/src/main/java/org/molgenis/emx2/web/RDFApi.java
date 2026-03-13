@@ -322,7 +322,7 @@ public class RDFApi {
 
   /**
    * Expects {@code columns} parameter to contain a value of the format {@code
-   * tableId1.colId1|tableId1.colId2|tableId2.colId1}
+   * tableId1.colId1,tableId1.colId2,tableId2.colId1}
    */
   public static TableColumnsSelector generateSelector(Context ctx, Schema schema) {
     TableColumnsSelector selector = new TableColumnsSelector();
