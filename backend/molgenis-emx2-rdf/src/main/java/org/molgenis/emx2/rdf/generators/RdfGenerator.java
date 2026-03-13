@@ -23,10 +23,7 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.BasicIRI;
-import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
-import org.molgenis.emx2.rdf.PrimaryKey;
-import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.*;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 
@@ -48,8 +45,13 @@ public abstract class RdfGenerator {
     return baseURL;
   }
 
-  protected List<Row> getRows(final Table table, final PrimaryKey primaryKey) {
+  protected List<Row> getRows(
+      final Table table, final TableColumnsSelector selector, final PrimaryKey primaryKey) {
     Query query = table.query();
+
+    if (selector.isDefined(table)) {
+      query.select(selector.getSelectColumns(table));
+    }
 
     if (primaryKey != null) {
       query.where(primaryKey.getFilter());
