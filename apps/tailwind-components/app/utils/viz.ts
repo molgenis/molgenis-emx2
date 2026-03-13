@@ -175,6 +175,8 @@ export function newNumericAxisGenerator({
  * @param domains: an array of values to bin data
  * @param rangeStart the first number in the range (usually 0)
  * @param rangeEnd the final number in the range (usually width of the chart)
+ * @param paddingInner the amount of space inbetween bars (0-1)
+ * @param paddingOuter the amount of space before the first bar and after the last (0-1)
  *
  * @returns d3.scaleBand
  */
@@ -182,13 +184,15 @@ export function newCategoricalAxisGenerator({
   domains,
   rangeStart = 0,
   rangeEnd,
+  paddingInner = 0.25,
+  paddingOuter = 0.25,
 }: NewCategoricalAxisGeneratorProps) {
   return d3
     .scaleBand()
     .range([rangeStart, rangeEnd])
     .domain(domains)
-    .paddingInner(0.25)
-    .paddingOuter(0.25)
+    .paddingInner(paddingInner)
+    .paddingOuter(paddingOuter)
     .align(0.5)
     .round(true);
 }

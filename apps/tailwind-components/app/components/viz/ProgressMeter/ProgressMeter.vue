@@ -10,19 +10,26 @@ import ChartTitle from "../ChartTitle.vue";
 import {
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
+  generateAxisTickData,
 } from "../../../utils/viz";
 
-import type { ProgressMeter } from "../../../../types/viz";
+import type {
+  ProgressMeter,
+  DatasetRow,
+  ColorPalette,
+  CategoricalAxisTickData,
+} from "../../../../types/viz";
 
 const props = withDefaults(defineProps<ProgressMeter>(), {
   color: "#0173e4",
   width: 500,
-  height: 200,
+  height: 225,
   marginTop: 5,
   marginRight: 10,
   marginBottom: 5,
   marginLeft: 5,
   animationsAreEnabled: true,
+  showValuesAsPercentages: true,
 });
 
 const container = useTemplateRef("container");
@@ -35,10 +42,22 @@ const chartArea = ref(); // receives d3.select
 
 const width = ref<number>(0);
 
+const yAxisData = computed<CategoricalAxisTickData>(() => {
+  const data = { count: 0, domains: [] as string[] };
+  if (props.data) {
+    const values = props.data.map((row: DatasetRow) => row[props.labels]);
+    data.count = values.length;
+    data.domains = values;
+  }
+  return data;
+});
+
 const xScale = computed(() => {
   return newNumericAxisGenerator({
     domainMin: 0,
-    domainLimit: props.total,
+    domainLimit: Math.max(
+      ...props.data.map((row: DatasetRow) => row[props.totals])
+    ),
     rangeStart: 0,
     rangeEnd: width.value,
   });
@@ -46,14 +65,24 @@ const xScale = computed(() => {
 
 const yScale = computed(() => {
   return newCategoricalAxisGenerator({
-    domains: [props.label],
+    domains: yAxisData.value.domains,
     rangeStart: 0,
     rangeEnd: props.height,
+    paddingInner: 0.55,
   });
 });
 
+const colorPalette = computed<ColorPalette>(() => {
+  const mappings = yAxisData.value.domains.map((value: string) => {
+    const color = props.colorPalette ? props.colorPalette[value] : props.color;
+    console.log(props.colorPalette[value]);
+    return [value, color];
+  });
+  return Object.fromEntries(mappings);
+});
+
 function renderBar() {
-  const bar = chartArea.value.select("rect.bar");
+  const bar = chartArea.value.selectAll("rect.bar").data(props.data);
 
   if (props.animationsAreEnabled) {
     bar
@@ -61,9 +90,9 @@ function renderBar() {
       .transition()
       .delay(300)
       .duration(500)
-      .attr("width", xScale.value(props.value));
+      .attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
   } else {
-    bar.attr("width", xScale.value(props.value));
+    bar.attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
   }
 }
 
@@ -85,7 +114,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.value, props.total],
+  () => [props.data],
   () => renderChart(),
   { deep: true }
 );
@@ -103,42 +132,47 @@ watch(
         :id="id"
         width="100%"
         height="100%"
-        :viewBox="`0 0 ${width + marginRight} ${
-          height + marginTop + marginBottom
-        }`"
+        :viewBox="`0 0 ${width + marginRight} ${height}`"
       >
         <g
           class="chart-area"
           :transform="`translate(${marginLeft},${marginTop})`"
         >
-          <g>
+          <g v-for="row in data">
             <text
-              :y="(yScale(label) as number) - marginTop - 2"
+              :y="(yScale(row[labels]) as number) - marginTop - 2"
               class="fill-chart-text"
             >
-              <tspan :x="xScale(0)">{{ label }}</tspan>
-              <tspan :x="xScale(total) - marginRight - marginLeft - 2">
-                {{ value }}
+              <tspan :x="xScale(0)">{{ row[labels] }}</tspan>
+              <tspan
+                :x="
+                  xScale(row[totals]) -
+                  marginRight -
+                  marginLeft -
+                  (showValuesAsPercentages ? 18 : 2)
+                "
+              >
+                {{ showValuesAsPercentages ? `${row[values]}%` : row[values] }}
               </tspan>
             </text>
             <rect
               class="bar-outline"
               fill="none"
-              :stroke="color"
-              stroke-width="2"
+              :stroke="colorPalette[row[labels]]"
+              stroke-width="1"
               :x="xScale(0)"
-              :y="yScale(label)"
-              :width="xScale(total)"
-              height="25"
+              :y="yScale(row[labels])"
+              :width="xScale(row[totals])"
+              :height="yScale.bandwidth()"
             />
             <rect
               class="bar"
-              :fill="color"
-              :stroke="color"
-              stroke-width="2"
+              :fill="colorPalette[row[labels]]"
+              :stroke="colorPalette[row[labels]]"
+              stroke-width="1"
               :x="xScale(0)"
-              :y="yScale(label)"
-              height="25"
+              :y="yScale(row[labels])"
+              :height="yScale.bandwidth()"
             />
           </g>
         </g>

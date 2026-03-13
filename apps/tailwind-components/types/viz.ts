@@ -86,12 +86,17 @@ export interface NewCategoricalAxisGeneratorProps {
   domains: string[];
   rangeStart?: number;
   rangeEnd: number;
+  paddingInner?: number;
+  paddingOuter?: number;
 }
 
 export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
-  label: string;
-  value: number;
-  total: number;
+  data: DatasetRow[];
+  labels: string;
+  values: string;
+  totals: string;
   color?: string;
+  colorPalette?: ColorPalette;
   width?: number;
+  showValuesAsPercentages?: boolean;
 }
