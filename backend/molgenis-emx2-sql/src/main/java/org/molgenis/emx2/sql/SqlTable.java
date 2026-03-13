@@ -214,6 +214,7 @@ public class SqlTable implements Table {
 
     db.tx(
         db2 -> {
+          ((SqlDatabase) db2).setRlsContextForSchema(schemaName);
           for (Row row : rows) {
 
             // set table class if not set, and see for first time
@@ -389,19 +390,34 @@ public class SqlTable implements Table {
     if (columns.size() == 0) return count;
     List<Field> insertFields =
         columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
+    boolean hasMgRoles = !rows.isEmpty() && rows.get(0).getColumnNames().contains(MG_ROLES);
+    boolean hasMgRolesColumn = hasMgRolesColumn(table);
+    if (hasMgRoles || hasMgRolesColumn) {
+      insertFields.add(field(name(MG_ROLES)));
+    }
     InsertValuesStepN<org.jooq.Record> step =
         table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
 
-    // add all the rows as steps
+    String activeUser = getActiveUser(table);
+    String userRole = getUserRoleForAutoPopulate(table, activeUser);
+
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      // get values
       Map values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
+        values.put(MG_INSERTEDBY, activeUser);
         values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
+        values.put(MG_UPDATEDBY, activeUser);
         values.put(MG_UPDATEDON, now);
+      }
+      if (hasMgRoles) {
+        values.put(MG_ROLES, row.getStringArray(MG_ROLES));
+      } else if (hasMgRolesColumn) {
+        if (userRole != null) {
+          values.put(MG_ROLES, new String[] {userRole});
+        } else {
+          values.put(MG_ROLES, null);
+        }
       }
       step.values(values.values());
     }
@@ -438,6 +454,34 @@ public class SqlTable implements Table {
     return user;
   }
 
+  private static String getUserRoleForAutoPopulate(SqlTable table, String activeUser) {
+    if (activeUser == null || ADMIN_USER.equals(activeUser)) {
+      return null;
+    }
+    String schemaName = table.getSchema().getName();
+    String roleName = table.getSchema().getRoleForUser(activeUser);
+    if (roleName == null || roleName.isEmpty()) {
+      return null;
+    }
+    if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(roleName)) {
+      return null;
+    }
+    return SqlRoleManager.fullRoleName(schemaName, roleName);
+  }
+
+  private static boolean hasMgRolesColumn(SqlTable table) {
+    Integer hasColumn =
+        table
+            .getJooq()
+            .selectCount()
+            .from("information_schema.columns")
+            .where(field("table_schema").eq(inline(table.getSchema().getName())))
+            .and(field("table_name").eq(inline(table.getName())))
+            .and(field("column_name").eq(inline(MG_ROLES)))
+            .fetchOne(0, Integer.class);
+    return hasColumn != null && hasColumn > 0;
+  }
+
   private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
@@ -453,11 +497,15 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    boolean hasMgRoles = !rows.isEmpty() && rows.get(0).getColumnNames().contains(MG_ROLES);
     for (Row row : rows) {
       Map values = getSelectedRowValues(columns, row);
       if (!inherit) {
         values.put(MG_UPDATEDBY, getActiveUser(table));
         values.put(MG_UPDATEDON, now);
+      }
+      if (hasMgRoles) {
+        values.put(MG_ROLES, row.getStringArray(MG_ROLES));
       }
 
       list.add(
@@ -509,6 +557,7 @@ public class SqlTable implements Table {
     try {
       db.tx(
           db2 -> {
+            ((SqlDatabase) db2).setRlsContextForSchema(getSchema().getName());
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
 
             // delete in batches
