@@ -84,35 +84,41 @@
       <section class="bg-form rounded-lg border border-color-theme">
         <div
           v-if="showSelectMoreBanner"
-          class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
+          class="border-b border-color-theme bg-content/40 px-4 py-3"
         >
-          All {{ pageIds.length }} artifacts on this page are selected.
-          <Button
-            type="text"
-            size="tiny"
-            class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
-            :disabled="bulkDeleting || deleting"
-            @click="selectAllMatchingResults"
-          >
-            Select all {{ totalCount }} matching artifacts
-          </Button>
-          .
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span class="text-sm text-title">
+              All {{ pageIds.length }} artifacts on this page are selected.
+            </span>
+            <Button
+              type="text"
+              size="tiny"
+              class="px-0 py-0 text-button-outline hover:text-button-outline-hover underline underline-offset-2 whitespace-nowrap"
+              :disabled="bulkDeleting || deleting"
+              @click="selectAllMatchingResults"
+            >
+              Select all {{ totalCount }} matching artifacts
+            </Button>
+          </div>
         </div>
         <div
           v-else-if="selectAllMatching"
-          class="px-4 py-3 border-b border-color-theme text-sm text-definition-list-term"
+          class="border-b border-color-theme bg-content/40 px-4 py-3"
         >
-          All {{ selectedCount }} matching artifacts are selected.
-          <Button
-            type="text"
-            size="tiny"
-            class="ml-1 text-button-outline hover:text-button-outline-hover underline underline-offset-2"
-            :disabled="bulkDeleting || deleting"
-            @click="clearSelection"
-          >
-            Clear selection
-          </Button>
-          .
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span class="text-sm text-title">
+              All {{ selectedCount }} matching artifacts are selected.
+            </span>
+            <Button
+              type="text"
+              size="tiny"
+              class="px-0 py-0 text-button-outline hover:text-button-outline-hover underline underline-offset-2 whitespace-nowrap"
+              :disabled="bulkDeleting || deleting"
+              @click="clearSelection"
+            >
+              Clear selection
+            </Button>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-table-row">
