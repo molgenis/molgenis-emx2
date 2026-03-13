@@ -170,6 +170,27 @@ public class GraphqlTableFieldFactory {
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
     TableMetadata table = col.getTable();
+    if (col.getColumnType() == ColumnType.AUTO_ID) {
+      if (!table.getPrimaryKeyColumns().isEmpty()) {
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(id)
+                .type(Scalars.GraphQLString)
+                .dataFetcher(
+                    env -> {
+                      Map<String, Object> source = env.getSource();
+                      if (source == null) return null;
+                      try {
+                        Row row = new Row(source);
+                        String pkey = PrimaryKey.fromRow(table, row).getString();
+                        return table.getIdentifier() + "/" + pkey;
+                      } catch (Exception e) {
+                        return null;
+                      }
+                    }));
+      }
+      return;
+    }
     switch (col.getColumnType().getBaseType()) {
       case HEADING:
         // nothing to do

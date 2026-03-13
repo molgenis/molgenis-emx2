@@ -10,6 +10,7 @@ import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
 
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.PrimaryKey;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Table;

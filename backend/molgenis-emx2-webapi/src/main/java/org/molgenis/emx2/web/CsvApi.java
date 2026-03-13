@@ -4,7 +4,7 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
-import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,11 +14,10 @@ import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
@@ -30,7 +29,6 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
@@ -39,26 +37,30 @@ public class CsvApi {
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
 
-  private CsvApi() {
-    // hide constructor
-  }
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+  private CsvApi() {}
 
   public static void create(Javalin app) {
-    // schema level operations
-    final String schemaPath = "/{schema}/api/csv";
-    app.get(schemaPath, CsvApi::getMetadata);
-    app.post(schemaPath, CsvApi::mergeMetadata);
-    app.delete(schemaPath, CsvApi::discardMetadata);
+    final String apiPath = "/{schema}/api/csv/";
+    app.get(apiPath + "_schema", CsvApi::getMetadata);
+    app.post(apiPath + "_schema", CsvApi::mergeMetadata);
+    app.delete(apiPath + "_schema", CsvApi::discardMetadata);
+    app.get(apiPath + "_members", CsvApi::getMembers);
+    app.get(apiPath + "_settings", CsvApi::getSettings);
+    app.get(apiPath + "_changelog", CsvApi::getChangelog);
+    app.get(apiPath + "{table}", CsvApi::tableRetrieve);
+    app.post(apiPath + "{table}", CsvApi::tableUpdate);
+    app.delete(apiPath + "{table}", CsvApi::tableDelete);
 
-    app.get("/{schema}/api/csv/members", CsvApi::getMembers);
-    app.get("/{schema}/api/csv/settings", CsvApi::getSettings);
-    app.get("/{schema}/api/csv/changelog", CsvApi::getChangelog);
-
-    // table level operations
-    final String tablePath = "/{schema}/api/csv/{table}";
-    app.get(tablePath, CsvApi::tableRetrieve);
-    app.post(tablePath, CsvApi::tableUpdate);
-    app.delete(tablePath, CsvApi::tableDelete);
+    final String legacyPath = "/{schema}/api/csv";
+    app.get(legacyPath, CsvApi::getMetadata);
+    app.post(legacyPath, CsvApi::mergeMetadata);
+    app.delete(legacyPath, CsvApi::discardMetadata);
+    app.get(legacyPath + "/members", CsvApi::getMembers);
+    app.get(legacyPath + "/settings", CsvApi::getSettings);
+    app.get(legacyPath + "/changelog", CsvApi::getChangelog);
   }
 
   private static void getChangelog(Context ctx) throws IOException {
@@ -88,7 +90,7 @@ public class CsvApi {
         writer,
         separator);
 
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_changelog_" + date + ".csv\"");
@@ -97,33 +99,23 @@ public class CsvApi {
     ctx.result(writer.toString());
   }
 
-  private static Optional<Integer> parseIntParam(Context ctx, String param) {
-    return Optional.ofNullable(ctx.queryParam(param))
-        .map(
-            arg -> {
-              try {
-                return Integer.valueOf(arg);
-              } catch (NumberFormatException e) {
-                throw new MolgenisException(
-                    "Invalid " + param + " provided, should be a number", e);
-              }
-            });
+  private static void discardMetadata(Context ctx) throws Exception {
+    timedOperation(
+        ctx,
+        "remove metadata items success",
+        () -> {
+          SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
+          getSchema(ctx).discard(schema);
+        });
   }
 
-  private static void discardMetadata(Context ctx) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-    getSchema(ctx).discard(schema);
-    ctx.status(200);
-    ctx.result("remove metadata items success");
-  }
-
-  static void mergeMetadata(Context ctx) {
+  static void mergeMetadata(Context ctx) throws Exception {
     String fileName = ctx.header("fileName");
     boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
 
-    if (fileNameMatchesTable) { // so we assume it isn't meta data
+    if (fileNameMatchesTable) {
       Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
-      if (ctx.queryParam("async") != null) {
+      if (isAsync(ctx)) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
         tableStore.setCsvString(table.getName(), ctx.body());
         Task task = new ImportTableTask(tableStore, table, false);
@@ -131,16 +123,25 @@ public class CsvApi {
         String id = TaskApi.submit(task, parentTaskId);
         ctx.result(new TaskReference(id, table.getSchema()).toString());
       } else {
+        long start = System.currentTimeMillis();
         int count = table.save(getRowList(ctx));
         ctx.status(200);
         ctx.contentType(ACCEPT_CSV);
-        ctx.result("{ \"message\": \"imported number of rows: \" + " + count + " }");
+        ctx.result(
+            "imported number of rows: "
+                + count
+                + " in "
+                + (System.currentTimeMillis() - start)
+                + "ms");
       }
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-      getSchema(ctx).migrate(schema);
-      ctx.status(200);
-      ctx.result("{ \"message\": \"add/update metadata success\" }");
+      timedOperation(
+          ctx,
+          "{ \"message\": \"add/update metadata success\" }",
+          () -> {
+            SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
+            getSchema(ctx).migrate(schema);
+          });
     }
   }
 
@@ -153,7 +154,7 @@ public class CsvApi {
         writer,
         getSeparator(ctx));
     ctx.contentType(ACCEPT_CSV);
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
@@ -179,22 +180,13 @@ public class CsvApi {
         writer,
         separator);
 
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_members_" + date + ".csv\"");
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
-    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    SqlSchemaMetadata sqlSchemaMetadata =
-        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
   }
 
   private static void getSettings(Context ctx) throws IOException {
@@ -211,7 +203,7 @@ public class CsvApi {
         List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE),
         writer,
         separator);
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    String date = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
     ctx.header(
         "Content-Disposition",
         "attachment; filename=\"" + schema.getName() + "_settings_" + date + ".csv\"");
@@ -259,13 +251,15 @@ public class CsvApi {
 
   private static void tableUpdate(Context ctx) {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    long start = System.currentTimeMillis();
     TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
     tableStore.setCsvString(table.getName(), ctx.body());
     Task task = new ImportTableTask(tableStore, table, false);
     task.run();
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
-    ctx.result(String.valueOf(task.getProgress()));
+    ctx.result(
+        String.valueOf(task.getProgress()) + " in " + (System.currentTimeMillis() - start) + "ms");
   }
 
   private static Iterable<Row> getRowList(Context ctx) {

@@ -52,7 +52,7 @@ class Session:
     def download_zip(self, database_name):
         """Download molgenis zip for given Database."""
         response = requests.get(
-            self.url + database_name + '/api/zip',
+            self.url + database_name + '/api/zip/_all',
             auth=(self.email, self.password),
             allow_redirects=True,
             cookies=self.cookies
@@ -79,7 +79,7 @@ class Session:
 
         zip = {'file': open(data_to_upload + '_upload.zip', 'rb')}
         response = requests.post(
-            self.url + database_name + '/api/zip?async=true',
+            self.url + database_name + '/api/zip/_all?async=true',
             auth=(self.email, self.password),
             allow_redirects=True,
             cookies=self.cookies,
