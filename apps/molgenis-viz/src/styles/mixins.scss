@@ -1,3 +1,6 @@
+@use "./palettes.scss" as *;
+@use "./variables.scss" as *;
+
 // set chart title
 @mixin setChartTitle($font-size: 1.1rem) {
   font-size: $font-size;

@@ -1,7 +1,12 @@
+// @use "../../../molgenis-viz/src/styles/palettes.scss" as *;
+// @use "../../../molgenis-viz/src/styles/variables.scss" as *;
+// @use "../../../molgenis-viz/src/styles/mixins.scss" as *;
+// @use "./variables.scss" as *;
+
 .app-page,
 .app-footer {
   font-size: 13pt;
-  font-family: $font-family;
+  font-family: Helvetica, sans-serif;
 }
 
 .app-page {

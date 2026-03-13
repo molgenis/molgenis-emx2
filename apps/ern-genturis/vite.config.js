@@ -3,6 +3,12 @@ import vue from "@vitejs/plugin-vue";
 import devProxy from "../dev-proxy.config";
 import dotenv from "dotenv";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const parentDir = path.resolve(currentDir, "../");
+
 export default defineConfig((command) => {
   // Load environment variables
   dotenv.config({ path: "./.env" });
@@ -11,12 +17,12 @@ export default defineConfig((command) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'legacy',
+          api: "modern-compiler",
           additionalData: `
-          @import "../molgenis-viz/src/styles/palettes.scss";
-          @import "../molgenis-viz/src/styles/variables.scss";
-          @import "../molgenis-viz/src/styles/mixins.scss";
-          @import "src/styles/variables.scss";
+          @use "${path.join(parentDir,"./molgenis-viz/src/styles/palettes.scss")}" as *;
+          @use "${path.join(parentDir,"./molgenis-viz/src/styles/variables.scss")}" as *; 
+          @use "${path.join(parentDir,"./molgenis-viz/src/styles/mixins.scss")}" as *; 
+          @use "./src/styles/index.scss" as *;
         `,
         },
       },
