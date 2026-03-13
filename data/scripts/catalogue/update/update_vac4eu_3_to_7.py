@@ -41,9 +41,10 @@ class Transform:
         # transformations per table
         self.resources()
         self.organisations()
+        self.publications()
 
     # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
-
+    # TODO: renaming of tables, e.g. Linkages
 
     def resources(self):
         """Transform columns in Data sources, Databanks
@@ -112,6 +113,9 @@ class Transform:
         # merge all to Resources
         df_resources = pd.concat([df_networks, df_studies, df_databanks, df_data_sources, df_models])
 
+        # get rid off logos that prevent import
+        df_resources['logo'] = None
+
         # save to file
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
@@ -170,22 +174,22 @@ class Transform:
             df_design_paper = df_design_paper.dropna(axis=0)
             df_design_paper = df_design_paper.reset_index()
 
-            df_other_pubs = df_resources[['id', 'publications']]
-            if not len(df_other_pubs) == 0:
-                df_other_pubs.loc[:, 'is design publication'] = 'false'
-                df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
-                                                              'publications': 'doi'})
-                df_other_pubs = df_other_pubs.dropna(axis=0)
-                df_other_pubs = df_other_pubs.reset_index()
+        df_other_pubs = df_resources[['id', 'publications']]
+        if not len(df_other_pubs) == 0:
+            df_other_pubs.loc[:, 'is design publication'] = 'false'
+            df_other_pubs = df_other_pubs.rename(columns={'id': 'resource',
+                                                          'publications': 'doi'})
+            df_other_pubs = df_other_pubs.dropna(axis=0)
+            df_other_pubs = df_other_pubs.reset_index()
 
-            if len(df_other_pubs) == 0:
-                df_resource_pubs = get_publications(df_design_paper, df_publications)
-            else:
-                df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
-                df_merged_pubs = df_merged_pubs.reset_index()
-                df_resource_pubs = get_publications(df_merged_pubs, df_publications)
+        if len(df_other_pubs) == 0:
+            df_resource_pubs = get_publications(df_design_paper, df_publications)
+        else:
+            df_merged_pubs = pd.concat([df_design_paper, df_other_pubs])
+            df_merged_pubs = df_merged_pubs.reset_index()
+            df_resource_pubs = get_publications(df_merged_pubs, df_publications)
 
-
+        #TOD: fix publications, save to file
 
     def variable_values(self):
         # restructure variable values
@@ -204,6 +208,9 @@ def get_resource_type(r_type):
         if any(t in r_type for t in ['Clinical trial', 'Study']):
             resource_type.append('Clinical trial')
         if any(t in r_type for t in ['Registry', 'registry']):
+            resource_type.append('Registry')
+        if any(t in r_type for t in ['Registration with healthcare system', 'Exemptions from co-payment', 'Other',
+                                     'Diagnostic tests or procedures reimbursement']):
             resource_type.append('Registry')
         if 'Biobank' in r_type:
             resource_type.append('Biobank')
