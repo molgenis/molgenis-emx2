@@ -9,10 +9,13 @@ withDefaults(
   defineProps<{
     title?: string;
     subtitle?: string;
-    maxWidth?: string;
+    maxWidth?: string; // deprecated, use style instead
+    style: "default" | "left" | "right" | "small";
+    backgroundAccessible?: boolean;
   }>(),
   {
     maxWidth: "max-w-xl",
+    backgroundAccessible: false
   }
 );
 
