@@ -329,7 +329,7 @@ public class RDFApi {
     String colString = sanitize(ctx.queryParam("columns"));
 
     if (colString != null) {
-      for (String item : colString.trim().split("\\|")) {
+      for (String item : colString.trim().split(",")) {
         String[] tableColumnPair = item.split("\\.");
         selector.addColumn(schema.getTableById(tableColumnPair[0]), tableColumnPair[1]);
       }
