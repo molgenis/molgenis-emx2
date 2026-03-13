@@ -6,7 +6,7 @@ import VueGtag from "vue-gtag";
 import App from "./App.vue";
 import router from "./router";
 
-import "molgenis-components/dist/style.css";
+import "molgenis-components";
 import "./dev-assets/mg-bbmri-eric-4.css";
 
 /** Add font awesome icons */

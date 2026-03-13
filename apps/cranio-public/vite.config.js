@@ -1,14 +1,18 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
+import dotenv from "dotenv";
 
 
 export default defineConfig((command) => {
-  require("dotenv").config({ path: `./.env` });
-  
+  // Load environment variables
+  dotenv.config({ path: "./.env" });
+
   return {
     css: {
       preprocessorOptions: {
         scss: {
+          api: 'legacy',
           additionalData: `
           @import "../molgenis-viz/src/styles/palettes.scss";
           @import "../molgenis-viz/src/styles/variables.scss";
@@ -21,7 +25,7 @@ export default defineConfig((command) => {
     plugins: [vue()],
     base: command === "serve" ? "/" : "apps/cranio-public/",
     server: {
-      proxy: require("../dev-proxy.config"),
+      proxy: devProxy,
     },
   };
 });
