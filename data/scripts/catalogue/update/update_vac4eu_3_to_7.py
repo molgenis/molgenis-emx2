@@ -75,7 +75,7 @@ class Transform:
         # transform regions
         df_data_sources.loc[:, 'regions'] = df_data_sources['regions'].apply(remove_all_regions)
         # transform datasource types
-        df_data_sources.loc[:, 'RWD type'] = df_data_sources['RWD type'].apply(transform_datasource_types)
+        df_data_sources.loc[:, 'registry or health record type'] = df_data_sources['registry or health record type'].apply(transform_datasource_types)
 
         # Databanks to Resources
         df_databanks = pd.read_csv(self.path + 'Databanks.csv', dtype='object')
@@ -93,7 +93,7 @@ class Transform:
         # transform regions
         df_databanks.loc[:, 'regions'] = df_databanks['regions'].apply(remove_all_regions)
         # transform datasource types
-        df_databanks.loc[:, 'RWD type'] = df_databanks['RWD type'].apply(transform_datasource_types)
+        df_databanks.loc[:, 'registry or health record type'] = df_databanks['registry or health record type'].apply(transform_datasource_types)
 
         # Networks to Resources
         df_networks = pd.read_csv(self.path + 'Networks.csv', dtype='object')
@@ -210,9 +210,11 @@ def get_resource_type(r_type):
         if 'records' in r_type:
             resource_type.append('Health records')
 
-    resource_type = ','.join(resource_type)
+        resource_type = ','.join(resource_type)
 
-    return resource_type
+        return resource_type
+    else:
+        return 'Registry'
 
 
 def get_year_from_date(date):

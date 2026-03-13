@@ -4,7 +4,7 @@
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
-from update.update_7_3 import Transform
+from update.update_vac4eu_3_to_7 import Transform
 import os
 import asyncio
 
@@ -54,7 +54,6 @@ zip_handling.unzip_data()
 update = Transform(schema_name=CATALOGUE_SCHEMA_NAME)
 # update data model file
 update.delete_data_model_file()
-update.update_data_model_file()
 update.transform_data()
 zip_handling.zip_data()
 
