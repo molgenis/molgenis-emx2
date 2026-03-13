@@ -1,0 +1,21 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://localhost/catalog/1>
+    a dcat:Catalog ;
+    dcterms:title "Test Catalog" ;
+    dcterms:description "A test catalog for API testing" ;
+    dcterms:publisher <http://localhost/org/1> ;
+    dcat:dataset <http://localhost/dataset/1> .
+
+<http://localhost/org/1>
+    a foaf:Organization ;
+    foaf:name "Test Organization" .
+
+<http://localhost/dataset/1>
+    a dcat:Dataset ;
+    dcterms:title "Test Dataset" ;
+    dcterms:description "A test dataset" ;
+    dcterms:identifier "doi:10.1234/test1" ;
+    dcat:keyword "test", "integration" .
