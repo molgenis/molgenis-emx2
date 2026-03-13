@@ -26,6 +26,13 @@ export interface ChartOptions {
   animationsAreEnabled?: boolean;
 }
 
+export interface ChartMargins {
+  marginTop?: number;
+  marginRight?: number;
+  marginBottom?: number;
+  marginLeft?: number;
+}
+
 export type DatasetRow = Record<string, any>;
 export type PieChartData = Record<string, number>;
 export type ColorPalette = Record<string, string>;
@@ -41,7 +48,7 @@ export interface PieCharts extends Charts, ChartOptions, ChartLegendOptions {
   strokeColor?: string;
 }
 
-export interface ColumnCharts extends Charts, ChartOptions {
+export interface ColumnCharts extends Charts, ChartOptions, ChartMargins {
   data: DatasetRow[];
   xvar: string;
   yvar: string;
@@ -54,10 +61,6 @@ export interface ColumnCharts extends Charts, ChartOptions {
   columnColorOnHover?: string;
   columnBorderColor?: string;
   colorPalette?: ColorPalette;
-  marginTop?: number;
-  marginRight?: number;
-  marginBottom?: number;
-  marginLeft?: number;
 }
 
 export interface NumericAxisTickData {
@@ -83,4 +86,17 @@ export interface NewCategoricalAxisGeneratorProps {
   domains: string[];
   rangeStart?: number;
   rangeEnd: number;
+  paddingInner?: number;
+  paddingOuter?: number;
+}
+
+export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
+  data: DatasetRow[];
+  labels: string;
+  values: string;
+  totals: string;
+  color?: string;
+  colorPalette?: ColorPalette;
+  width?: number;
+  showValuesAsPercentages?: boolean;
 }
