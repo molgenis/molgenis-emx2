@@ -137,7 +137,7 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
-                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                        .type(GraphQLList.list(GraphqlSchemaFieldFactory.outputRolesType)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
@@ -157,7 +157,13 @@ public class GraphqlSessionFieldFactory {
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
-                result.put(ROLES, schema.getInheritedRolesForActiveUser());
+                result.put(
+                    ROLES,
+                    schema.getInheritedRolesForActiveUser().stream()
+                        .map(
+                            roleName ->
+                                GraphqlSchemaFieldFactory.roleToMap(schema.getRoleInfo(roleName)))
+                        .toList());
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());

@@ -49,6 +49,7 @@ public class SqlQuery extends QueryBean {
 
   private final SqlSchemaMetadata schema;
   private final List<String> tableAliasList = new LinkedList<>();
+  private Set<String> tablesWithSelectPermission = null;
 
   public SqlQuery(SqlSchemaMetadata schema, String field) {
     super(field);
@@ -185,9 +186,27 @@ public class SqlQuery extends QueryBean {
 
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
-      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
+        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
+        && !getTablesWithSelectPermission().contains("*")
+        && !getTablesWithSelectPermission().contains(table.getTableName())) {
+      throw new MolgenisException(
+          "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
+  }
+
+  private Set<String> getTablesWithSelectPermission() {
+    if (tablesWithSelectPermission == null) {
+      tablesWithSelectPermission =
+          schema
+              .getDatabase()
+              .getRoleManager()
+              .getPermissionsForActiveUser(schema.getName())
+              .stream()
+              .filter(p -> Boolean.TRUE.equals(p.select()))
+              .map(TablePermission::table)
+              .collect(Collectors.toUnmodifiableSet());
+    }
+    return tablesWithSelectPermission;
   }
 
   private List<Field<?>> rowSelectFields(
@@ -686,7 +705,7 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(getCountField().as(COUNT_FIELD));
+        fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
         if (schema.hasActiveUserRole(EXISTS.toString())) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
@@ -722,8 +741,11 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Integer> getCountField() {
+  private Field<Integer> getCountField(SqlTableMetadata table) {
     if (schema.hasActiveUserRole(COUNT.toString())) {
+      return count();
+    } else if (getTablesWithSelectPermission().contains("*")
+        || getTablesWithSelectPermission().contains(table.getTableName())) {
       return count();
     } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
       return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);

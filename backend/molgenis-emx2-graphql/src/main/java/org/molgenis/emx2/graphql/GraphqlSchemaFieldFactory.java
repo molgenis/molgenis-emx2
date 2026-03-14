@@ -19,15 +19,11 @@ import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
-  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -116,13 +112,88 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLType outputRolesType =
+  private static final GraphQLType outputPermissionType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisPermissionType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
+  static final GraphQLType outputRolesType =
       new GraphQLObjectType.Builder()
           .name("MolgenisRolesType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SYSTEM)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.PERMISSIONS)
+                  .type(GraphQLList.list(outputPermissionType)))
+          .build();
+
+  private static final GraphQLInputObjectType inputPermissionType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisPermissionInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
+  private static final GraphQLInputObjectType inputRoleType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisRoleInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.PERMISSIONS)
+                  .type(GraphQLList.list(inputPermissionType)))
           .build();
 
   static final GraphQLType userRolesType =
@@ -338,7 +409,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
-  private GraphQLInputObjectType inputColumnMetadataType =
+  private final GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
           .field(
@@ -478,6 +549,28 @@ public class GraphqlSchemaFieldFactory {
     // hide constructor
   }
 
+  static Map<String, Object> roleToMap(Role role) {
+    Map<String, Object> roleMap = new LinkedHashMap<>();
+    roleMap.put(GraphqlConstants.NAME, role.name());
+    roleMap.put(GraphqlConstants.DESCRIPTION, role.description());
+    roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
+    roleMap.put(
+        GraphqlConstants.PERMISSIONS,
+        role.permissions().stream()
+            .map(
+                p -> {
+                  Map<String, Object> permMap = new LinkedHashMap<>();
+                  permMap.put(TABLE, p.table());
+                  permMap.put(GraphqlConstants.SELECT, p.select());
+                  permMap.put(GraphqlConstants.INSERT, p.insert());
+                  permMap.put(GraphqlConstants.UPDATE, p.update());
+                  permMap.put(GraphqlConstants.DELETE, p.delete());
+                  return permMap;
+                })
+            .toList());
+    return roleMap;
+  }
+
   private static DataFetcher<?> queryFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
 
@@ -492,12 +585,9 @@ public class GraphqlSchemaFieldFactory {
       }
       result.put(MEMBERS, members);
 
-      // add roles
-      List<Map<String, String>> roles = new ArrayList<>();
-      for (String role : schema.getRoles()) {
-        roles.add(Map.of(GraphqlConstants.NAME, role));
-      }
-      result.put(ROLES, roles);
+      // add roles with permissions (visible to all; system roles show their effective permissions)
+      result.put(
+          ROLES, schema.getRoleInfos().stream().map(GraphqlSchemaFieldFactory::roleToMap).toList());
 
       // add settings for the schema
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
@@ -521,6 +611,7 @@ public class GraphqlSchemaFieldFactory {
                 Schema s = db.getSchema(schema.getName());
                 dropTables(s, dataFetchingEnvironment, message);
                 dropMembers(s, dataFetchingEnvironment, message);
+                dropRoles(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
                 // this sync is a bit sad.
@@ -597,6 +688,44 @@ public class GraphqlSchemaFieldFactory {
             .dropColumn((String) col.get(COLUMN));
         message.append("Dropped column '" + col.get(TABLE) + "." + col.get(COLUMN) + "'\n");
       }
+    }
+  }
+
+  private static void changeRoles(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
+    if (roles == null) return;
+    for (Map<String, Object> roleMap : roles) {
+      String roleName = (String) roleMap.get(GraphqlConstants.NAME);
+      String description = (String) roleMap.get(GraphqlConstants.DESCRIPTION);
+      if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
+        schema.createRole(roleName, description);
+      }
+      List<Map<String, Object>> perms =
+          (List<Map<String, Object>>) roleMap.get(GraphqlConstants.PERMISSIONS);
+      if (perms != null) {
+        for (Map<String, Object> permMap : perms) {
+          schema.grant(roleName, mapToTablePermission(permMap));
+        }
+      }
+    }
+  }
+
+  private static TablePermission mapToTablePermission(Map<String, Object> permMap) {
+    String table = (String) permMap.get(TABLE);
+    Boolean select = (Boolean) permMap.get(GraphqlConstants.SELECT);
+    Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
+    Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
+    Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
+    return new TablePermission(table, select, insert, update, delete);
+  }
+
+  private static void dropRoles(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<String> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
+    if (roles == null) return;
+    for (String roleName : roles) {
+      schema.deleteRole(roleName);
+      message.append("Dropped role '").append(roleName).append("'\n");
     }
   }
 
@@ -755,6 +884,10 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
                 .type(GraphQLList.list(inputColumnMetadataType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ROLES)
+                .type(GraphQLList.list(inputRoleType)))
         .build();
   }
 
@@ -768,6 +901,7 @@ public class GraphqlSchemaFieldFactory {
                   Schema s = db.getSchema(schema.getName());
                   changeTables(s, dataFetchingEnvironment);
                   changeMembers(s, dataFetchingEnvironment);
+                  changeRoles(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
@@ -878,6 +1012,10 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ROLES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
 

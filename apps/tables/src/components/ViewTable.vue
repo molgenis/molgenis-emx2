@@ -9,6 +9,7 @@
       :canEdit="canEdit"
       :canManage="canManage"
       :locale="session?.locale"
+      :session="session"
     />
   </div>
 </template>
@@ -28,17 +29,29 @@ export default {
   computed: {
     canView() {
       const isViewer =
-        this.session?.roles?.includes("Viewer") ||
-        this.activeTable.tableType === "ONTOLOGIES";
+        this.session?.roles?.some((r) =>
+          ["Viewer", "Editor", "Manager", "Owner"].includes(r.name)
+        ) ||
+        this.activeTable?.tableType === "ONTOLOGIES" ||
+        this.hasTablePermission("select");
       return isViewer || this.canEdit;
     },
     canEdit() {
-      const isEditor = this.session?.roles?.includes("Editor");
-      return isEditor || this.canManage;
+      const isEditor = this.session?.roles?.some((r) =>
+        ["Editor", "Manager", "Owner"].includes(r.name)
+      );
+      return (
+        isEditor ||
+        this.canManage ||
+        this.hasTablePermission("insert") ||
+        this.hasTablePermission("update")
+      );
     },
     canManage() {
       const isAdmin = this.session?.email === "admin";
-      const isManager = this.session?.roles?.includes("Manager");
+      const isManager = this.session?.roles?.some((r) =>
+        ["Manager", "Owner"].includes(r.name)
+      );
       return isManager || isAdmin;
     },
     activeTable() {
@@ -47,6 +60,19 @@ export default {
       } else {
         return null;
       }
+    },
+  },
+  methods: {
+    hasTablePermission(permission) {
+      return this.session?.roles?.some((role) =>
+        role.permissions?.some(
+          (p) =>
+            (p.table === "*" || p.table === this.table) &&
+            (permission === "select"
+              ? p.select === true
+              : p[permission] === true)
+        )
+      );
     },
   },
 };

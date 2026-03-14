@@ -270,6 +270,127 @@ mutation {
 > **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
 > schema.
 
+## Table-level permissions API
+
+Custom roles with per-table grants can be managed through GraphQL. This is distinct from the standard
+schema-wide roles (Viewer, Editor, Manager, etc.) — it allows a role to have access to only specific
+tables, with independent SELECT / INSERT / UPDATE / DELETE control.
+
+### Query roles and their permissions
+
+The `roles` field in `_schema` returns all roles — both system roles and custom roles — with their
+effective permissions.
+
+```graphql
+{
+  _schema {
+    roles {
+      name
+      description
+      system
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+      }
+    }
+  }
+}
+```
+
+- `system: true` — built-in role (Viewer, Editor, Manager, …). Its permissions apply to all tables (`table: "*"`).
+- `system: false` — custom role. Each entry in `permissions` targets a specific table.
+- `select` — `true` when SELECT is granted, `null` when not.
+- `insert` / `update` / `delete` — `true` when granted, `null` when not.
+
+### Create a custom role and grant permissions
+
+Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
+listed permissions are applied per field:
+
+| Field value | Effect |
+|---|---|
+| `true` | Grant the privilege |
+| `false` | Revoke the privilege |
+| `null` / omitted | Leave the existing grant unchanged |
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        description: "Read-only access to TableA"
+        permissions: [
+          { table: "TableA", select: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+Grant write access to a second table on an existing role:
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableB", select: true, insert: true, update: true, delete: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+### Revoke individual privileges
+
+Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: false, insert: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
+
+### Delete a custom role
+
+```graphql
+mutation {
+  drop(
+    roles: ["TableAViewer"]
+  ) {
+    message
+  }
+}
+```
+
+> **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
+> System roles cannot be created or deleted through this API.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
