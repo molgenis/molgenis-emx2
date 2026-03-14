@@ -1,0 +1,20 @@
+"""Exceptions that may occur while applying the Molgenis EMX2 Staging Migrator."""
+from molgenis_emx2_pyclient.exceptions import PyclientException
+
+
+class StagingMigratorException(PyclientException):
+    """Thrown when an ambiguous exception occurred."""
+
+    def __init__(self, msg: str = None) -> None:
+        super().__init__()
+        self.msg = msg
+
+    def __str__(self) -> str:
+        exception_msg = f"Message: {self.msg}\n"
+        return exception_msg
+
+class MissingContactException(StagingMigratorException):
+    """Thrown when a contact is referenced that is missing in the Contacts table."""
+
+class MissingHRICoreException(StagingMigratorException):
+    """Thrown when `hricore` is not set to `True` for any record in the Resources table."""

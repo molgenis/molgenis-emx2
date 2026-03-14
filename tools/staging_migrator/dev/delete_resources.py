@@ -28,17 +28,14 @@ def main(args):
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
 
-    if not server_url:
-        raise ValueError("Did not get value for server url.")
-
     staging_areas = args[-1].split(',')
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
 
         for sa in staging_areas:
-            log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
+            log.info(f"\nDeleting resources in staging area {sa!r} from {CATALOGUE!r}.")
             migrator.set_source(sa)
-            migrator.migrate(keep_zips=True)
+            migrator.delete_resource()
 
 
 if __name__ == '__main__':
