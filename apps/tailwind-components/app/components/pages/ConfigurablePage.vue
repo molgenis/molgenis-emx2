@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import type { IConfigurablePages } from "../../../types/cms";
 
+import PageComponent from "./PageComponent.vue";
 import PageBanner from "../pages/Banner.vue";
 import PageSection from "../pages/Section.vue";
-import TextHeading from "../text/Heading.vue";
-import TextParagraph from "../text/Paragraph.vue";
-import Image from "../pages/Image.vue";
-import NavigationGroups from "./Navigation/NavigationGroups.vue";
-
-import { parsePageText } from "../../utils/Pages";
+import TextParagraph from "./Paragraph.vue";
 
 const props = defineProps<{ content: IConfigurablePages }>();
 </script>
@@ -33,49 +29,10 @@ const props = defineProps<{ content: IConfigurablePages }>();
         v-for="orderedComponent in orderedBlock.block.componentOrder"
         :key="orderedComponent.id"
       >
-        <TextHeading
-          v-if="orderedComponent.component.mg_tableclass === 'cms.Headings'"
-          :id="orderedComponent.component.id"
-          :heading-is-centered="orderedComponent.component.headingIsCentered"
-          :level="orderedComponent.component.level"
-          class="mb-5"
-        >
-          {{ parsePageText(orderedComponent.component.text) }}
-        </TextHeading>
-        <TextParagraph
-          v-else-if="
-            orderedComponent.component.mg_tableclass === 'cms.Paragraphs'
-          "
-          :id="orderedComponent.component.id"
-          :paragraph-is-centered="
-            orderedComponent.component.paragraphIsCentered
-          "
-          class="mb-2.5 last:mb-0"
-        >
-          {{ parsePageText(orderedComponent.component.text) }}
-        </TextParagraph>
-        <Image
-          v-else-if="orderedComponent.component.mg_tableclass === 'cms.Images'"
-          :id="orderedComponent.component.id"
-          :image="orderedComponent.component.image"
-          :width="orderedComponent.component.width"
-          :height="orderedComponent.component.height"
-          :alt="orderedComponent.component.alt"
-          :image-is-centered="orderedComponent.component.imageIsCentered"
+        <PageComponent
+          :mg_tableclass="orderedComponent.component.mg_tableclass"
+          :component="orderedComponent.component"
         />
-        <NavigationGroups
-          v-else-if="
-            orderedComponent.component.mg_tableclass === 'cms.Navigation groups'
-          "
-          :id="orderedComponent.component.id"
-          :links="orderedComponent.component.links"
-        />
-        <div v-else>
-          <TextParagraph id="component-does-not-exist-message">
-            Component {{ orderedComponent.component.mg_tableclass }} is not yet
-            supported.
-          </TextParagraph>
-        </div>
       </template>
     </PageSection>
     <div v-else>
