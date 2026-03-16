@@ -167,10 +167,6 @@ class TestRowLevelSecurity {
     database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "a2"));
   }
 
-  // Fix 1: policy covers UPDATE and DELETE, not just SELECT.
-  // PostgreSQL RLS silently skips invisible rows (0 rows affected, no exception),
-  // so we verify the row is unchanged / still present after the attempt.
-
   @Test
   void teamAUserCannotUpdateTeamBRow() {
     database.setActiveUser(USER_TEAM_A);
