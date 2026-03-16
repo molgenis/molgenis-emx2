@@ -4,7 +4,7 @@
     v-else-if="
       !session ||
       !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
+      !session.roles.some((r) => r.name === 'Viewer')
     "
   >
     Schema doesn't exist or you don't have permission to view. Might you need to
@@ -92,10 +92,10 @@ export default {
   },
   computed: {
     canEdit() {
-      return this.session?.roles?.includes("Manager");
+      return this.session?.roles?.some((r) => r.name === "Manager");
     },
     canView() {
-      return this.session?.roles?.includes("Viewer");
+      return this.session?.roles?.some((r) => r.name === "Viewer");
     },
     reportsWithId() {
       if (this.reports) {

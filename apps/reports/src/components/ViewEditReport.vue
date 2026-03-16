@@ -4,7 +4,7 @@
     v-else-if="
       !session ||
       !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
+      !session.roles.some((r) => r.name === 'Viewer')
     "
   >
     Schema doesn't exist or you don't have permission to view. Might you need to
@@ -147,7 +147,7 @@ export default {
       }));
     },
     canEdit() {
-      return this.session?.roles?.includes("Manager");
+      return this.session?.roles?.some((r) => r.name === "Manager");
     },
     parameterInputs() {
       const regex = /\${([^}]+)}/g;
