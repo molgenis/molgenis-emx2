@@ -58,7 +58,7 @@ describe("useSession for schema path", () => {
     useAsyncData
       .mockResolvedValueOnce({
         data: ref({
-          data: { _session: { roles: ["Editor"] } },
+          data: { _session: { roles: [{ name: "Editor" }] } },
         }),
         error: ref(null),
         pending: ref(false),
