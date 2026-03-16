@@ -77,8 +77,8 @@ wakeProxy:
   enabled: true # Set to false to disable wake-proxy and route directly to EMX2
   
   image:
-    repository: molgenis/emx2-proxy:0.2
-    tag: latest
+    repository: molgenis/emx2-proxy
+    tag: 0.2 
     pullPolicy: IfNotPresent
   
   previewName: "EMX2 Preview"
