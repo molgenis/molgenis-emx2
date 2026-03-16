@@ -41,7 +41,7 @@ public class GraphqlApi {
     // hide constructor
   }
 
-  public static void createGraphqlService(Javalin app) {
+  public static void create(Javalin app) {
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -67,6 +67,10 @@ public class GraphqlApi {
     final String schemaAppPath = "/{schema}/{app}/graphql"; // NOSONAR
     app.get(schemaAppPath, GraphqlApi::handleSchemaRequests);
     app.post(schemaAppPath, GraphqlApi::handleSchemaRequests);
+
+    final String schemaGraphqlLdPath = "/{schema}/api/graphql-ld";
+    app.get(schemaGraphqlLdPath, GraphqlApi::handleGraphqlLdRequests);
+    app.post(schemaGraphqlLdPath, GraphqlApi::handleGraphqlLdRequests);
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
@@ -94,8 +98,31 @@ public class GraphqlApi {
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
+  public static void handleGraphqlLdRequests(Context ctx) throws IOException {
+    String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
+    if (getSchema(ctx) == null) {
+      throw new GraphqlException(
+          "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
+    }
+
+    GraphqlExecutor graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);
+    String query = getQueryFromRequest(ctx);
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
+
+    Map queryResult = graphqlForSchema.queryAsMap(query, variables);
+    String jsonLdContext = graphqlForSchema.getJsonLdSchema(ctx.url());
+
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode response = mapper.createObjectNode();
+    response.set("@context", mapper.readTree(jsonLdContext));
+    response.set("data", mapper.valueToTree(queryResult));
+
+    ctx.header(CONTENT_TYPE, "application/ld+json");
+    ctx.result(mapper.writeValueAsString(response));
+  }
+
+  private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());

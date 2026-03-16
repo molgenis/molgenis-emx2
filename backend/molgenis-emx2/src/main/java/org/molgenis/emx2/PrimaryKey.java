@@ -1,36 +1,23 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2;
 
 import static java.util.stream.Collectors.toCollection;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.rdf.IriGenerator.escaper;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 
+import com.google.common.net.PercentEscaper;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Filter;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
 
-/**
- * Does not support "{@code _ARRAY}" {@link org.molgenis.emx2.ColumnType}'s
- *
- * @see <a
- *     href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
- */
 public class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
-  // "column name", "column value" (non-escaped due to getFilter() functionality)
+  private static final PercentEscaper escaper = new PercentEscaper("-._~", false);
   private final SortedMap<String, String> keys;
 
-  PrimaryKey(SortedMap<String, String> keys) {
+  public PrimaryKey(SortedMap<String, String> keys) {
     if (keys.isEmpty()) {
       throw new IllegalArgumentException("There must be at least one key.");
     } else if (keys.containsValue(null)) {
@@ -39,42 +26,48 @@ public class PrimaryKey {
     this.keys = keys;
   }
 
-  PrimaryKey(Map<String, String> keys) {
+  public PrimaryKey(Map<String, String> keys) {
     this(new TreeMap<>(keys));
   }
 
-  /**
-   * A table should always have a key=1 column (and it must have a value), so validating on empty
-   * values should not be needed.
-   */
-  static PrimaryKey fromRow(TableMetadata table, Row row) {
+  public static PrimaryKey fromRow(TableMetadata table, Row row) {
     final SortedMap<String, String> keyParts = new TreeMap<>();
     for (final Column column : table.getPrimaryKeyColumns()) {
       if (column.isReference()) {
         for (final Reference reference : column.getReferences()) {
           final String[] values = row.getStringArray(reference.getName());
-          for (final String value : values) {
-            keyParts.put(reference.getName(), value);
+          if (values != null && values.length > 1) {
+            throw new MolgenisException(
+                "Primary key column '"
+                    + reference.getName()
+                    + "' cannot be an array reference. Found "
+                    + values.length
+                    + " values.");
           }
+          String value = values != null && values.length > 0 ? values[0] : null;
+          if (value == null) {
+            throw new MolgenisException(
+                "Primary key column '" + reference.getName() + "' cannot be null.");
+          }
+          keyParts.put(reference.getName(), value);
         }
       } else {
-        keyParts.put(column.getName(), row.getString(column.getName()));
+        String value = row.getString(column.getName());
+        if (value == null) {
+          throw new MolgenisException(
+              "Primary key column '" + column.getName() + "' cannot be null.");
+        }
+        keyParts.put(column.getName(), value);
       }
     }
     return new PrimaryKey(keyParts);
   }
 
-  static PrimaryKey fromRow(Table table, Row row) {
+  public static PrimaryKey fromRow(Table table, Row row) {
     return fromRow(table.getMetadata(), row);
   }
 
-  /**
-   * Uses map instead of {@code list<NameValuePair>} to prevent duplicate entries as some foreign
-   * key have overlapping relationships which resulted in a bug.
-   *
-   * @throws IllegalArgumentException if encodedString contains 0 pairs, encodedString is unsorted
-   */
-  static PrimaryKey fromEncodedString(TableMetadata table, String encodedString) {
+  public static PrimaryKey fromEncodedString(TableMetadata table, String encodedString) {
     String[] encodedPairs = encodedString.split(KEY_PARTS_SEPARATOR);
     if (encodedPairs.length == 0) {
       throw new IllegalArgumentException("There must be at least one key.");
@@ -125,7 +118,7 @@ public class PrimaryKey {
     return fromEncodedString(table.getMetadata(), encodedValue);
   }
 
-  String getEncodedString() {
+  public String getEncodedString() {
     try {
       List<String> encodedPairs = new ArrayList<>();
       for (Map.Entry<String, String> pair : keys.entrySet()) {
@@ -137,6 +130,16 @@ public class PrimaryKey {
     } catch (Exception e) {
       throw new MolgenisException("Error encoding" + e);
     }
+  }
+
+  public String getString() {
+    List<String> pairs = new ArrayList<>();
+    for (Map.Entry<String, String> pair : keys.entrySet()) {
+      String name = convertToCamelCase(pair.getKey());
+      String value = pair.getValue();
+      pairs.add(name + NAME_VALUE_SEPARATOR + value);
+    }
+    return String.join(KEY_PARTS_SEPARATOR, pairs);
   }
 
   public Filter getFilter() {

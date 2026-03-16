@@ -59,7 +59,6 @@ class TestGraphqlAdminFields {
 
   @Test
   void testUsers() {
-    // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
           tdb.becomeAdmin();
@@ -71,7 +70,6 @@ class TestGraphqlAdminFields {
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
-          // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
           graphql = new GraphqlExecutor(tdb);
 
@@ -89,11 +87,9 @@ class TestGraphqlAdminFields {
     database.becomeAdmin();
     graphql = new GraphqlExecutor(database);
 
-    // create and sign in user testAdmin
     executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
 
-    // give testAdmin user admin privileges
     executeDb(
         """
       mutation {
@@ -111,7 +107,6 @@ class TestGraphqlAdminFields {
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
     database.setActiveUser("testAdmin");
 
-    // Do an admin only query
     String lastUpdateResult =
         executeDb(
             """
@@ -140,13 +135,11 @@ class TestGraphqlAdminFields {
           graphql = new GraphqlExecutor(testDatabase);
 
           try {
-            // setup
             testDatabase.addUser(TEST_PERSOON);
             testDatabase.setEnabledUser(TEST_PERSOON, true);
             testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
             testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
-            // test
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
@@ -157,7 +150,6 @@ class TestGraphqlAdminFields {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
             }
 
-            // assert results
             User user = testDatabase.getUser(TEST_PERSOON);
             assertEquals("testPersoon", user.getUsername());
             assertFalse(user.getEnabled());
@@ -170,7 +162,6 @@ class TestGraphqlAdminFields {
             assertEquals("Owner", anotherSchemaMember.getRole());
             assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
 
-            // clean up
             testDatabase.removeUser(TEST_PERSOON);
           } catch (Exception e) {
             throw new RuntimeException(e);

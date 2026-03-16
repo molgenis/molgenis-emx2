@@ -20,6 +20,10 @@ public class Constants {
   // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
   public static final String ACCEPT_YAML = "text/yaml";
   public static final String ACCEPT_CSV = "text/csv";
+  public static final String ACCEPT_JSONLD = "application/ld+json";
+  public static final String ACCEPT_TTL = "text/turtle";
+  public static final String ACCEPT_PLAIN = "text/plain";
+  public static final String ACCEPT_N3 = "text/n3";
   public static final String ACCEPT_ZIP = "application/zip";
   public static final String ACCEPT_FORMDATA = "multipart/form-data";
   public static final String ACCEPT_EXCEL =
