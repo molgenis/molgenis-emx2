@@ -2,7 +2,11 @@ import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
 import dotenv from "dotenv";
+<<<<<<< HEAD
 import devProxy from "./dev-proxy.config";
+=======
+import devProxy from "../dev-proxy.config";
+>>>>>>> 5062ba0cc (chore: update vite to v6)
 import { fileURLToPath } from "url";
 
 // needed because __dirname is not available in ESM
@@ -19,13 +23,18 @@ const conf = {
   resolve: {
     alias: {
       vue: "vue/dist/vue.runtime.esm-bundler.js",
+<<<<<<< HEAD
       '@': fileURLToPath(new URL('./src', import.meta.url))
+=======
+>>>>>>> 5062ba0cc (chore: update vite to v6)
     },
   },
   css: {
     preprocessorOptions: {
       scss: {
+        api: 'legacy',
         additionalData: `
+<<<<<<< HEAD
           @import "@/styles/heightwidth.scss";
           @import "@/styles/mixins.scss";
           @import "@/styles/padding.scss";
@@ -33,6 +42,15 @@ const conf = {
           @import "@/styles/resets.scss";
           @import "@/styles/textPosition.scss";
           @import "@/styles/variables.scss";
+=======
+          @import "src/styles/heightwidth.scss";
+          @import "src/styles/mixins.scss";
+          @import "src/styles/padding.scss";
+          @import "src/styles/palettes.scss";
+          @import "src/styles/resets.scss";
+          @import "src/styles/textPosition.scss";
+          @import "src/styles/variables.scss";
+>>>>>>> 5062ba0cc (chore: update vite to v6)
         `,
       },
     },
