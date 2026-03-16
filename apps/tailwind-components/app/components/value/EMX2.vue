@@ -5,7 +5,6 @@ import ValueList from "./List.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
 import ValueDecimal from "./Decimal.vue";
-import ValueLong from "./Long.vue";
 import ValueInt from "./Int.vue";
 import ValueRef from "./Ref.vue";
 import ValueObject from "./Object.vue";
@@ -32,7 +31,7 @@ defineEmits<{
 </script>
 
 <template>
-  <template v-if="data == null || data === undefined"></template>
+  <template v-if="data === null || data === undefined"></template>
   <ValueList
     v-else-if="metadata.columnType.endsWith('ARRAY')"
     :metadata="metadata"
@@ -42,7 +41,9 @@ defineEmits<{
 
   <ValueString
     v-else-if="
-      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD'].includes(metadata.columnType)
+      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD', 'LONG'].includes(
+        metadata.columnType
+      )
     "
     :metadata="metadata"
     :data="data"
@@ -58,12 +59,6 @@ defineEmits<{
     v-else-if="metadata.columnType === 'DECIMAL'"
     :metadata="metadata"
     :data="data"
-  />
-
-  <ValueLong
-    v-else-if="metadata.columnType === 'LONG'"
-    :metadata="metadata"
-    :data="typeof data === 'number' ? data : Number(data)"
   />
 
   <ValueInt

@@ -4,102 +4,79 @@
     <slot>
       <template v-if="metadata && data !== undefined && data !== null">
         <ValueList
-          v-if="
-            metadata.columnType.endsWith('ARRAY') ||
-            metadata.columnType === 'MULTISELECT' ||
-            metadata.columnType === 'CHECKBOX'
-          "
+          v-if="isListElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueString
-          v-else-if="
-            metadata.columnType === 'STRING' ||
-            metadata.columnType === 'DATE' ||
-            metadata.columnType === 'DATETIME' ||
-            metadata.columnType === 'AUTO_ID' ||
-            metadata.columnType === 'UUID' ||
-            metadata.columnType === 'PERIOD'
-          "
+          v-else-if="isStringElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueText
-          v-else-if="metadata.columnType === 'TEXT'"
+          v-else-if="isTextElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueDecimal
-          v-else-if="metadata.columnType === 'DECIMAL'"
+          v-else-if="isDecimalElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
-        <ValueLong
-          v-else-if="metadata.columnType === 'LONG'"
-          :metadata="metadata"
-          :data="typeof data === 'number' ? data : Number(data)"
-        />
-
         <ValueInt
-          v-else-if="
-            metadata.columnType === 'INT' ||
-            metadata.columnType === 'NON_NEGATIVE_INT'
-          "
+          v-else-if="isIntElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="typeof data === 'number' ? data : Number(data)"
         />
 
         <ValueRef
-          v-else-if="
-            metadata.columnType === 'REF' ||
-            metadata.columnType === 'RADIO' ||
-            metadata.columnType === 'SELECT'
-          "
-          :metadata="metadata as IRefColumn"
+          v-else-if="isRefColumn(metadata)"
+          :metadata="metadata"
           :data="data"
           @refCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueObject
-          v-else-if="metadata.columnType === 'ONTOLOGY'"
+          v-else-if="isObjectElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueBool
-          v-else-if="metadata.columnType === 'BOOL'"
+          v-else-if="isBoolElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueEmail
-          v-else-if="metadata.columnType === 'EMAIL'"
+          v-else-if="isEmailElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueHyperlink
-          v-else-if="metadata.columnType === 'HYPERLINK'"
+          v-else-if="isHyperlinkElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
 
         <ValueRefBack
-          v-else-if="metadata.columnType === 'REFBACK'"
-          :metadata="metadata as IRefColumn"
+          v-else-if="isRefBackColumn(metadata)"
+          :metadata="metadata"
           :data="data"
           @refBackCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueFile
-          v-else-if="metadata.columnType === 'FILE'"
+          v-else-if="isFileElement(metadata.columnType, data)"
           :metadata="metadata"
           :data="data"
         />
+        <span v-else>{{ metadata.columnType }}</span>
       </template>
       <template v-else>
         <span></span>
@@ -109,21 +86,34 @@
 </template>
 
 <script setup lang="ts">
-import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { RefPayload } from "../../../types/types";
+import {
+  isBoolElement,
+  isDecimalElement,
+  isEmailElement,
+  isFileElement,
+  isHyperlinkElement,
+  isIntElement,
+  isListElement,
+  isObjectElement,
+  isRefBackColumn,
+  isRefColumn,
+  isStringElement,
+  isTextElement,
+} from "../../utils/typeChecks";
+import ValueBool from "../value/Bool.vue";
+import ValueDecimal from "../value/Decimal.vue";
+import ValueEmail from "../value/Email.vue";
+import ValueFile from "../value/File.vue";
+import ValueHyperlink from "../value/Hyperlink.vue";
+import ValueInt from "../value/Int.vue";
 import ValueList from "../value/List.vue";
+import ValueObject from "../value/Object.vue";
+import ValueRef from "../value/Ref.vue";
+import ValueRefBack from "../value/RefBack.vue";
 import ValueString from "../value/String.vue";
 import ValueText from "../value/Text.vue";
-import ValueDecimal from "../value/Decimal.vue";
-import ValueLong from "../value/Long.vue";
-import ValueInt from "../value/Int.vue";
-import ValueRef from "../value/Ref.vue";
-import ValueObject from "../value/Object.vue";
-import ValueBool from "../value/Bool.vue";
-import ValueEmail from "../value/Email.vue";
-import ValueHyperlink from "../value/Hyperlink.vue";
-import ValueRefBack from "../value/RefBack.vue";
-import ValueFile from "../value/File.vue";
 
 defineProps<{
   metadata?: IColumn;
