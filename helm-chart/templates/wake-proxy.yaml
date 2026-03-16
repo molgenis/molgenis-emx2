@@ -74,7 +74,7 @@ spec:
         - name: TARGET_SERVICE
           value: {{ include "emx2.fullname" . | quote }}
         - name: TARGET_PORT
-          value: "8080"
+          value: {{ .Values.wakeProxy.targetPort | default "80" | quote }}
         - name: PREVIEW_NAME
           value: {{ .Values.wakeProxy.previewName | default (printf "EMX2 Preview - %s" .Release.Name) | quote }}
         resources:

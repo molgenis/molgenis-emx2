@@ -82,6 +82,8 @@ wakeProxy:
     pullPolicy: IfNotPresent
   
   previewName: "EMX2 Preview"
+  targetPort: 80  # Service port, NOT container port!
+
   
   resources:
     requests:
