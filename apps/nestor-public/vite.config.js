@@ -8,11 +8,7 @@ export default defineConfig((command) => {
     css: {
       preprocessorOptions: {
         scss: {
-<<<<<<< HEAD
-          api: "legacy",
-=======
           api: 'legacy',
->>>>>>> 5062ba0cc (chore: update vite to v6)
           additionalData: `
           @import "../molgenis-viz/src/styles/palettes.scss";
           @import "../molgenis-viz/src/styles/variables.scss";

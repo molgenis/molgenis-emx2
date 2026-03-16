@@ -1,20 +1,15 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import devProxy from "../dev-proxy.config";
-<<<<<<< HEAD
+
 import path from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 
-// needed because __dirname is not available in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// load env
 dotenv.config({ path: "./.env" });
-=======
-import dotenv from "dotenv";
->>>>>>> 5062ba0cc (chore: update vite to v6)
 
 export default defineConfig((command) => {
   // Load environment variables
@@ -35,7 +30,6 @@ export default defineConfig((command) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: "legacy",
           additionalData: `
           @import "viz/palettes.scss";
           @import "viz/variables.scss";

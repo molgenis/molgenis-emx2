@@ -53,14 +53,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   catalogue:
     dependencies:
@@ -108,8 +108,8 @@ importers:
         specifier: 1.58.0
         version: 1.58.0
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))
       '@vue/test-utils':
         specifier: 2.4.6
         version: 2.4.6
@@ -184,8 +184,8 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       monaco-editor:
         specifier: 0.50.0
         version: 0.50.0
@@ -193,8 +193,8 @@ importers:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   cranio-provider:
     dependencies:
@@ -224,8 +224,8 @@ importers:
         specifier: 7.4.3
         version: 7.4.3
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
@@ -261,14 +261,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   directory:
     dependencies:
@@ -316,8 +316,8 @@ importers:
         specifier: 1.58.0
         version: 1.58.0
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@24.10.1)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@24.10.1)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       '@vue/test-utils':
         specifier: 2.4.6
         version: 2.4.6
@@ -347,8 +347,8 @@ importers:
         version: 3.5.22(typescript@5.6.2)
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
@@ -390,14 +390,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   ern-ithaca:
     dependencies:
@@ -424,14 +424,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   ern-reconnet:
     dependencies:
@@ -452,14 +452,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   ern-skin:
     dependencies:
@@ -481,6 +481,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      sass:
+        specifier: 1.70.0
+        version: 1.70.0
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.8.2)
@@ -489,14 +492,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   graphql-playground:
     dependencies:
@@ -569,14 +572,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   metadata-utils:
     devDependencies:
@@ -648,8 +651,8 @@ importers:
         version: 4.1.0(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       '@vue/test-utils':
         specifier: 2.4.6
         version: 2.4.6
@@ -703,8 +706,11 @@ importers:
         version: 3.5.22(typescript@5.8.2)
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+      dotenv:
+        specifier: 17.3.1
+        version: 17.3.1
       npm-run-all:
         specifier: 4.1.5
         version: 4.1.5
@@ -746,14 +752,14 @@ importers:
         version: 4.2.5(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   pages:
     dependencies:
@@ -777,8 +783,8 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
@@ -814,14 +820,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   reports:
     dependencies:
@@ -842,14 +848,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   schema:
     dependencies:
@@ -888,14 +894,14 @@ importers:
         version: 4.1.0(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   settings:
     dependencies:
@@ -922,14 +928,14 @@ importers:
         version: 4.1.0(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   tables:
     dependencies:
@@ -950,14 +956,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   tailwind-components:
     dependencies:
@@ -1090,14 +1096,14 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
   ui:
     dependencies:
@@ -1218,14 +1224,14 @@ importers:
         version: 3.5.22(typescript@5.8.2)
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 4.6.2
-        version: 4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))
+        specifier: 5.2.4
+        version: 5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))
       prettier:
         specifier: 2.8.8
         version: 2.8.8
       vite:
-        specifier: 5.4.21
-        version: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
+        specifier: 6.3.5
+        version: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
 
 packages:
 
@@ -3321,11 +3327,11 @@ packages:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
       vue: ^3.0.0
 
-  '@vitejs/plugin-vue@4.6.2':
-    resolution: {integrity: sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
+  '@vitejs/plugin-vue@5.2.4':
+    resolution: {integrity: sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==}
+    engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: ^4.0.0 || ^5.0.0
+      vite: ^5.0.0 || ^6.0.0
       vue: ^3.2.25
 
   '@vitejs/plugin-vue@6.0.2':
@@ -4709,8 +4715,8 @@ packages:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
-  dotenv@17.2.3:
-    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+  dotenv@17.3.1:
+    resolution: {integrity: sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -11152,22 +11158,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@4.6.2(vite@5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1))(vue@3.5.22(typescript@5.8.2))':
-    dependencies:
-      vite: 5.4.21(@types/node@25.2.2)(sass@1.70.0)(terser@5.44.1)
-      vue: 3.5.22(typescript@5.8.2)
-
-  '@vitejs/plugin-vue@4.6.2(vite@6.3.5(@types/node@24.10.1)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.5(@types/node@24.10.1)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))':
     dependencies:
       vite: 6.3.5(@types/node@24.10.1)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
       vue: 3.5.22(typescript@5.8.2)
 
-  '@vitejs/plugin-vue@4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.6.2))':
     dependencies:
       vite: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
       vue: 3.5.22(typescript@5.6.2)
 
-  '@vitejs/plugin-vue@4.6.2(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.22(typescript@5.8.2))':
     dependencies:
       vite: 6.3.5(@types/node@25.2.2)(jiti@2.6.1)(sass@1.70.0)(terser@5.44.1)(yaml@2.8.1)
       vue: 3.5.22(typescript@5.8.2)
@@ -12010,7 +12011,7 @@ snapshots:
       chokidar: 4.0.3
       confbox: 0.2.2
       defu: 6.1.4
-      dotenv: 17.2.3
+      dotenv: 17.3.1
       exsolve: 1.0.8
       giget: 2.0.0
       jiti: 2.6.1
@@ -12027,7 +12028,7 @@ snapshots:
       chokidar: 4.0.3
       confbox: 0.2.2
       defu: 6.1.4
-      dotenv: 17.2.3
+      dotenv: 17.3.1
       exsolve: 1.0.8
       giget: 2.0.0
       jiti: 2.6.1
@@ -12843,7 +12844,7 @@ snapshots:
 
   dotenv@16.6.1: {}
 
-  dotenv@17.2.3: {}
+  dotenv@17.3.1: {}
 
   dunder-proto@1.0.1:
     dependencies:
