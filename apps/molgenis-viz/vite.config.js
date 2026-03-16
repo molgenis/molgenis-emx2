@@ -24,7 +24,7 @@ const conf = {
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'legacy',
+        api: "legacy",
         additionalData: `
           @import "src/styles/heightwidth.scss";
           @import "src/styles/mixins.scss";
