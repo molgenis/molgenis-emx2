@@ -19,6 +19,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -484,8 +485,9 @@ public class SqlTable implements Table {
   private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
     for (Column column : selection) {
-      if (row.getValueMap().get(column.getName()) instanceof Field<?> value) {
-        selectedValues.put(column.getName(), value);
+      if (AUTO_ID.equals(column.getColumnType())
+          && row.isNull(column.getName(), column.getPrimitiveColumnType())) {
+        selectedValues.put(column.getName(), new IdGeneratorService().generateIdForColumn(column));
       } else {
         selectedValues.put(column.getName(), getTypedValue(column, row));
       }

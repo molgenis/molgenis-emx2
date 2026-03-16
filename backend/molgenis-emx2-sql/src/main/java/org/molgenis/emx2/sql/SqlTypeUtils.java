@@ -7,9 +7,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.jooq.Field;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class SqlTypeUtils extends TypeUtils {
@@ -33,7 +31,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
-        applyAutoId(c, row);
+        // auto-id is resolved at query-build time in SqlTable.getSelectedRowValues
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
@@ -92,13 +90,6 @@ public class SqlTypeUtils extends TypeUtils {
         Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
-    }
-  }
-
-  private static void applyAutoId(Column c, Row row) {
-    if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-      Field<String> id = new IdGeneratorService().generateIdForColumn(c);
-      row.set(c.getName(), id);
     }
   }
 
