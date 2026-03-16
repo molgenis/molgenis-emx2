@@ -40,7 +40,7 @@ const parentElem = computed<HTMLElement>(() => {
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
 
-const width = ref<number>(0);
+const width = ref<number>(props.width);
 
 const yAxisData = computed<CategoricalAxisTickData>(() => {
   const data = { count: 0, domains: [] as string[] };
@@ -122,7 +122,7 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-2.5 w-ful chart_layout_default">
+  <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
     <ChartTitle
       :title="title"
       :description="description"

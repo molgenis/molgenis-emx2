@@ -5,7 +5,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
+test.describe("ProgressMeter", { tag: "@tw-components @tw-viz" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${route}viz/ProgressMeter.story`);
     await page

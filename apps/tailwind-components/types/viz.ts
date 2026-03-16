@@ -97,6 +97,5 @@ export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
   totals: string;
   color?: string;
   colorPalette?: ColorPalette;
-  width?: number;
   showValuesAsPercentages?: boolean;
 }

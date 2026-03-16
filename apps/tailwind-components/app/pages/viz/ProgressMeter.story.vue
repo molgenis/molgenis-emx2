@@ -36,7 +36,7 @@ const total = data.reduce((acc, row) => acc + row.rateOfCompletion, 0);
   <ProgressMeter
     id="progress-meter"
     title="Participant recruitment targets for Year 1"
-    :description="`Current recruiment progress by participating institution (n=${total}; target: 400)`"
+    :description="`Current recruitment progress by participating institution (n=${total}; target: 400)`"
     :data="data"
     labels="group"
     values="rateOfCompletion"
