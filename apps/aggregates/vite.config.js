@@ -24,12 +24,12 @@ export default defineConfig(({command}) => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @import "molgenis/molgenis-components.css";
-            @import "vizdist/molgenis-viz.css";
             @import "viz/styles/palettes.scss";
             @import "viz/styles/variables.scss";
             @import "viz/styles/mixins.scss";
             @import "app/index.scss";
+            @import "molgenis/molgenis-components.css";
+            @import "vizdist/molgenis-viz.css";
         `,
         },
       },

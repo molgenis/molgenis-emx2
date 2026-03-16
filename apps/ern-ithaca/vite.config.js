@@ -28,6 +28,7 @@ export default defineConfig((command) => {
             @import "viz/styles/variables.scss";
             @import "viz/styles/mixins.scss";
             @import "ern/variables.scss";
+            @import "ern/index.scss";
             @import "molgenis/molgenis-components.css";
             @import "vizdist/molgenis-viz.css";
         `,

@@ -23,7 +23,6 @@ export default defineConfig((command) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'legacy',
           additionalData: `
             @import "viz/styles/palettes.scss";
             @import "viz/styles/variables.scss";
