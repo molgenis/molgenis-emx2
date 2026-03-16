@@ -107,27 +107,19 @@ public class SqlRoleManager {
     }
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
-    boolean hasPolicy =
-        jooq()
-            .fetchExists(
-                jooq()
-                    .select()
-                    .from("pg_policies")
-                    .where(
-                        field("schemaname")
-                            .eq(inline(schemaName))
-                            .and(field("tablename").eq(inline(tableName)))
-                            .and(field("policyname").eq(inline("mg_roles_policy")))));
-    if (!hasPolicy) {
+    if (!hasMgRolesPolicy(schemaName, tableName)) {
       jooq()
           .execute(
-              "CREATE POLICY mg_roles_policy ON {0} FOR SELECT USING ("
+              "CREATE POLICY mg_roles_policy ON {0} USING ("
                   + "mg_roles IS NULL "
+                  + "OR pg_has_role(current_user, {1}, 'member') "
                   + "OR EXISTS ("
                   + "  SELECT 1 FROM unnest(mg_roles) r"
-                  + "  WHERE pg_has_role(current_user, {1} || r, 'member')"
+                  + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                   + "))",
-              jooqTable, inline(MG_ROLE_PREFIX + schemaName + "/"));
+              jooqTable,
+              inline(fullRoleName(schemaName, Privileges.VIEWER.toString())),
+              inline(MG_ROLE_PREFIX + schemaName + "/"));
     }
   }
 
@@ -135,7 +127,35 @@ public class SqlRoleManager {
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    disableRowLevelSecurityIfUnused(schemaName, tableName);
     database.getListener().schemaChanged(schemaName);
+  }
+
+  private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
+    if (!hasMgRolesPolicy(schemaName, tableName)) return;
+    boolean anyCustomSelectRemains =
+        getRoles(schemaName).stream()
+            .filter(role -> !role.isSystemRole())
+            .flatMap(role -> getPermissions(schemaName, role.name()).stream())
+            .anyMatch(p -> tableName.equals(p.table()) && Boolean.TRUE.equals(p.select()));
+    if (!anyCustomSelectRemains) {
+      org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
+      jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+      jooq().execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
+    }
+  }
+
+  private boolean hasMgRolesPolicy(String schemaName, String tableName) {
+    return jooq()
+        .fetchExists(
+            jooq()
+                .select()
+                .from("pg_policies")
+                .where(
+                    field("schemaname")
+                        .eq(inline(schemaName))
+                        .and(field("tablename").eq(inline(tableName)))
+                        .and(field("policyname").eq(inline("mg_roles_policy")))));
   }
 
   private void applyPgGrants(

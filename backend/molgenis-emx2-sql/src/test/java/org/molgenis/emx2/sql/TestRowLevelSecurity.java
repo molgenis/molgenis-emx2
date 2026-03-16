@@ -18,6 +18,7 @@ class TestRowLevelSecurity {
 
   private static final String USER_TEAM_A = "rls_user_team_a";
   private static final String USER_TEAM_B = "rls_user_team_b";
+  private static final String USER_VIEWER = "rls_user_viewer";
   private static final String USER_NO_ACCESS = "rls_user_noaccess";
 
   @BeforeAll
@@ -25,7 +26,7 @@ class TestRowLevelSecurity {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_NO_ACCESS)) {
+    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -68,6 +69,7 @@ class TestRowLevelSecurity {
 
     schema.addMember(USER_TEAM_A, "TeamA");
     schema.addMember(USER_TEAM_B, "TeamB");
+    schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
   }
 
   @Test
@@ -163,5 +165,95 @@ class TestRowLevelSecurity {
     // Cleanup
     database.becomeAdmin();
     database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "a2"));
+  }
+
+  // Fix 1: policy covers UPDATE and DELETE, not just SELECT.
+  // PostgreSQL RLS silently skips invisible rows (0 rows affected, no exception),
+  // so we verify the row is unchanged / still present after the attempt.
+
+  @Test
+  void teamAUserCannotUpdateTeamBRow() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .update(new Row().setString("id", "b1").setString("title", "hacked")));
+
+    database.becomeAdmin();
+    Row b1 =
+        database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+            .filter(r -> "b1".equals(r.getString("id")))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("Team B only", b1.getString("title"), "TeamB row should be unchanged");
+  }
+
+  @Test
+  void teamAUserCannotDeleteTeamBRow() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db -> db.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "b1")));
+
+    database.becomeAdmin();
+    boolean b1StillExists =
+        database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+            .anyMatch(r -> "b1".equals(r.getString("id")));
+    assertTrue(b1StillExists, "TeamB row should still exist after TeamA delete attempt");
+  }
+
+  @Test
+  void revokingLastRowLevelGrantDisablesRls() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("TempRole", null);
+    schema.grant("TempRole", new TablePermission(ARTICLES, true, null, null, null, true));
+
+    assertTrue(
+        schema.getRoleInfo("TempRole").permissions().stream()
+            .anyMatch(p -> ARTICLES.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+
+    schema.revoke("TempRole", ARTICLES);
+    schema.deleteRole("TempRole");
+
+    assertTrue(
+        schema.getRoleInfo("TeamA").permissions().stream()
+            .anyMatch(p -> ARTICLES.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+  }
+
+  @Test
+  void rlsIsDisabledWhenAllRowLevelGrantsAreRevoked() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "Solo";
+    schema.create(table(table).add(column("id").setPkey()));
+    schema.createRole("SoloRole", null);
+    schema.grant("SoloRole", new TablePermission(table, true, null, null, null, true));
+
+    assertTrue(
+        schema.getRoleInfo("SoloRole").permissions().stream()
+            .anyMatch(p -> table.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+
+    schema.revoke("SoloRole", table);
+
+    assertTrue(
+        schema.getRoleInfo("SoloRole").permissions().stream()
+            .noneMatch(p -> table.equals(p.table())));
+
+    schema.deleteRole("SoloRole");
+  }
+
+  @Test
+  void viewerSeesAllRowsDespiteRls() {
+    database.setActiveUser(USER_VIEWER);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("a1"), "Viewer should see TeamA row");
+          assertTrue(ids.contains("b1"), "Viewer should see TeamB row");
+          assertTrue(ids.contains("ab1"), "Viewer should see shared row");
+          assertTrue(ids.contains("open"), "Viewer should see public row");
+        });
   }
 }
