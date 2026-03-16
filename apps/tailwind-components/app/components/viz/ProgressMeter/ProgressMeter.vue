@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<ProgressMeter>(), {
   marginTop: 5,
   marginRight: 10,
   marginBottom: 5,
-  marginLeft: 5,
+  marginLeft: 2,
   animationsAreEnabled: true,
   showValuesAsPercentages: true,
 });
@@ -75,28 +75,29 @@ const yScale = computed(() => {
 const colorPalette = computed<ColorPalette>(() => {
   const mappings = yAxisData.value.domains.map((value: string) => {
     const color = props.colorPalette ? props.colorPalette[value] : props.color;
-    console.log(props.colorPalette[value]);
     return [value, color];
   });
   return Object.fromEntries(mappings);
 });
 
-function renderBar() {
+function renderBar(isResized: boolean = false) {
   const bar = chartArea.value.selectAll("rect.bar").data(props.data);
 
   if (props.animationsAreEnabled) {
     bar
-      .attr("width", 0)
+      .attr(
+        "width",
+        isResized ? (row: DatasetRow) => xScale.value(row[props.values]) : 0
+      )
       .transition()
-      .delay(300)
-      .duration(500)
+      .duration(1250)
       .attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
   } else {
     bar.attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
   }
 }
 
-function renderChart() {
+function renderChart(isResized: boolean = false) {
   svg.value = d3.select(`#${props.id}`);
   chartArea.value = svg.value.select(".chart-area");
 
@@ -105,12 +106,12 @@ function renderChart() {
     props.marginLeft -
     props.marginRight;
 
-  renderBar();
+  renderBar(isResized);
 }
 
 onMounted(() => {
   renderChart();
-  useEventListener("resize", renderChart);
+  useEventListener("resize", () => renderChart(true));
 });
 
 watch(
