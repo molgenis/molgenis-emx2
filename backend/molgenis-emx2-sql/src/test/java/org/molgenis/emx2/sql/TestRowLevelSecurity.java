@@ -62,7 +62,7 @@ class TestRowLevelSecurity {
                 .setString("id", "ab1")
                 .setString("title", "Both teams")
                 .set(MG_ROLES, new String[] {"TeamA", "TeamB"}));
-    // Row with no mg_roles restriction (visible to anyone with table access)
+    // Row with no mg_roles assigned (visible only to VIEWER and above, not to custom role users)
     schema
         .getTable(ARTICLES)
         .insert(new Row().setString("id", "open").setString("title", "Public"));
@@ -95,7 +95,7 @@ class TestRowLevelSecurity {
   }
 
   @Test
-  void teamAUserSeesOnlyTeamAAndPublicRows() {
+  void teamAUserSeesOnlyTeamARows() {
     database.setActiveUser(USER_TEAM_A);
     database.tx(
         db -> {
@@ -103,13 +103,13 @@ class TestRowLevelSecurity {
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("a1"), "should see TeamA row");
           assertTrue(ids.contains("ab1"), "should see row shared with TeamB");
-          assertTrue(ids.contains("open"), "should see unrestricted row");
+          assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
         });
   }
 
   @Test
-  void teamBUserSeesOnlyTeamBAndPublicRows() {
+  void teamBUserSeesOnlyTeamBRows() {
     database.setActiveUser(USER_TEAM_B);
     database.tx(
         db -> {
@@ -117,7 +117,7 @@ class TestRowLevelSecurity {
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("b1"), "should see TeamB row");
           assertTrue(ids.contains("ab1"), "should see row shared with TeamA");
-          assertTrue(ids.contains("open"), "should see unrestricted row");
+          assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
         });
   }

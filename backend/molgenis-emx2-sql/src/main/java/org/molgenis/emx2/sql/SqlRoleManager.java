@@ -107,20 +107,18 @@ public class SqlRoleManager {
     }
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
-    if (!hasMgRolesPolicy(schemaName, tableName)) {
-      jooq()
-          .execute(
-              "CREATE POLICY mg_roles_policy ON {0} USING ("
-                  + "mg_roles IS NULL "
-                  + "OR pg_has_role(current_user, {1}, 'member') "
-                  + "OR EXISTS ("
-                  + "  SELECT 1 FROM unnest(mg_roles) r"
-                  + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
-                  + "))",
-              jooqTable,
-              inline(fullRoleName(schemaName, Privileges.VIEWER.toString())),
-              inline(MG_ROLE_PREFIX + schemaName + "/"));
-    }
+    jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+    jooq()
+        .execute(
+            "CREATE POLICY mg_roles_policy ON {0} USING ("
+                + "pg_has_role(current_user, {1}, 'member') "
+                + "OR EXISTS ("
+                + "  SELECT 1 FROM unnest(mg_roles) r"
+                + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
+                + "))",
+            jooqTable,
+            inline(fullRoleName(schemaName, Privileges.VIEWER.toString())),
+            inline(MG_ROLE_PREFIX + schemaName + "/"));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
