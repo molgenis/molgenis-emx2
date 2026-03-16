@@ -20,6 +20,7 @@ class IdGeneratorServiceTest {
   private static SqlDatabase database;
   private static IdGeneratorService service;
   private TableMetadata table;
+  private Schema schema;
 
   @BeforeAll
   static void setup() {
@@ -28,7 +29,7 @@ class IdGeneratorServiceTest {
 
   @BeforeEach
   void setupSchema() {
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     service = new IdGeneratorService();
     table = schema.create(TableMetadata.table("Person")).getMetadata();
   }
@@ -82,7 +83,7 @@ class IdGeneratorServiceTest {
         id.toString(),
         """
               (
-                select "MOLGENIS".mg_generate_autoid('IdGeneratorServiceTest', 'Person', 'column', '0123456789', 2)
+                select "MOLGENIS".mg_generate_autoid('IdGeneratorServiceTest', 'Person', 'column', '0123456789', 2, '', '')
               )""");
   }
 
@@ -108,5 +109,44 @@ class IdGeneratorServiceTest {
             + id
             + ", does not match expected pattern: "
             + matcher.pattern().toString());
+  }
+
+  @Test
+  void givenMultipleColumnsWithTheSameComputed_thenDontOverlapIdPool() {
+    TableMetadata t1 =
+        schema
+            .create(TableMetadata.table("auto_1"))
+            .getMetadata()
+            .add(
+                Column.column("id")
+                    .setType(ColumnType.AUTO_ID)
+                    .setComputed("${mg_autoid(format=numbers, length=1)}")
+                    .setPkey());
+
+    TableMetadata t2 =
+        schema
+            .create(TableMetadata.table("auto_2"))
+            .getMetadata()
+            .add(
+                Column.column("id")
+                    .setType(ColumnType.AUTO_ID)
+                    .setComputed("${mg_autoid(format=numbers, length=1)}")
+                    .setPkey());
+
+    Column c1 = t1.getColumn("id");
+    Column c2 = t2.getColumn("id");
+
+    // Exhaust id pool of c1
+    for (int i = 0; i < 10; i++) {
+      t1.getTable().insert(Row.row("id", i));
+      database.getJooq().insertInto(t1.getJooqTable(), service.generateIdForColumn(c1)).execute();
+    }
+
+    assertDoesNotThrow(
+        () ->
+            database
+                .getJooq()
+                .insertInto(t2.getJooqTable(), service.generateIdForColumn(c2))
+                .execute());
   }
 }
