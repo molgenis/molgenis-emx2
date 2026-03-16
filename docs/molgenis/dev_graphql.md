@@ -380,8 +380,7 @@ This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are
 
 ### Row-level security (RLS)
 
-When `isRowLevel: true` is set on a permission, MOLGENIS activates PostgreSQL Row Level Security on
-that table. Each row is then only visible to roles whose name is listed in the row's `mg_roles` column.
+When `isRowLevel: true` is set on a permission, each row is then only visible to roles whose name is listed in the row's `mg_roles` column.
 
 **How it works:**
 

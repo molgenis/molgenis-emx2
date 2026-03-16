@@ -17,6 +17,56 @@ In addition we have special roles to allow for specific permissions around aggre
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
 
+## Custom roles
+
+In addition to the standard schema-wide roles above, **Manager** and **Owner** users can create
+custom roles with fine-grained, per-table access control. A custom role can hold any combination of:
+
+| Privilege | What it allows |
+|-----------|----------------|
+| **select** | Read rows from the table |
+| **insert** | Insert new rows |
+| **update** | Update existing rows |
+| **delete** | Delete rows |
+
+Custom roles are independent of each other and of the standard roles. A user assigned a custom role
+does not automatically inherit Viewer, Editor, or any other standard role — they can only access the
+specific tables that have been explicitly granted to their role.
+
+Custom roles can be created, updated, and deleted through the [GraphQL API](dev_graphql.md#table-level-permissions-api).
+
+## Row-level security
+
+Custom roles support **row-level security (RLS)**, which restricts which rows a user can see within a
+table — not just whether they can access the table at all.
+
+When RLS is enabled for a role on a table:
+
+1. A `mg_roles` column (a list of role names) is added to the table.
+2. Each row can be tagged with the roles allowed to see it by setting `mg_roles: ["RoleA", "RoleB"]`.
+3. A user can only see, update, or delete rows where their role appears in `mg_roles`.
+4. Rows with no `mg_roles` value are unrestricted and visible to everyone with table access.
+
+**Who bypasses row-level security:**
+
+Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) always see all rows,
+regardless of the `mg_roles` column.
+
+**Example:**
+
+| id | title | mg_roles |
+|----|-------|----------|
+| a1 | Team A only | `["TeamA"]` |
+| b1 | Team B only | `["TeamB"]` |
+| ab1 | Shared | `["TeamA", "TeamB"]` |
+| open | Public | *(empty)* |
+
+A user with the `TeamA` role sees rows `a1`, `ab1`, and `open`. They do not see `b1`. A schema
+Viewer sees all four rows.
+
+RLS is automatically disabled on a table when the last role with row-level access is revoked. The
+`mg_roles` column and any data in it are kept; only the row filter is removed.
+
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
