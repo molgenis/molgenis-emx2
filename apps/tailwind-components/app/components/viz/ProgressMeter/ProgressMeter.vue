@@ -90,7 +90,7 @@ function renderBar(isResized: boolean = false) {
         isResized ? (row: DatasetRow) => xScale.value(row[props.values]) : 0
       )
       .transition()
-      .duration(1250)
+      .duration(1000)
       .attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
   } else {
     bar.attr("width", (row: DatasetRow) => xScale.value(row[props.values]));
@@ -139,7 +139,11 @@ watch(
           class="chart-area"
           :transform="`translate(${marginLeft},${marginTop})`"
         >
-          <g v-for="row in data">
+          <g
+            v-for="row in data"
+            :data-x="row[props.values]"
+            :data-y="row[props.labels]"
+          >
             <text
               :y="(yScale(row[labels]) as number) - marginTop - 2"
               class="fill-chart-text"
