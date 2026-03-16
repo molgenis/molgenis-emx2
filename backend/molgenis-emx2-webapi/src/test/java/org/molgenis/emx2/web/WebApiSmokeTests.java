@@ -1767,6 +1767,77 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testJsonLdRestApiContext() {
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld-rest/_context");
+  }
+
+  @Test
+  void testJsonLdRestApiAll() {
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld-rest/_all");
+  }
+
+  @Test
+  void testTtlRestApiAll() {
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("text/turtle")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl-rest/_all");
+  }
+
+  @Test
+  void testTtlRestApiFilterReducesOutput() {
+    String fullOutput =
+        given()
+            .sessionId(sessionId)
+            .expect()
+            .contentType("text/turtle")
+            .statusCode(200)
+            .when()
+            .get("/pet store/api/ttl-rest/_all")
+            .asString();
+
+    String limitedOutput =
+        given()
+            .sessionId(sessionId)
+            .expect()
+            .contentType("text/turtle")
+            .statusCode(200)
+            .when()
+            .get("/pet store/api/ttl-rest/Pet?limit=1")
+            .asString();
+
+    assertTrue(fullOutput.length() > limitedOutput.length());
+    assertTrue(limitedOutput.contains("@prefix"));
+
+    String searchOutput =
+        given()
+            .sessionId(sessionId)
+            .expect()
+            .contentType("text/turtle")
+            .statusCode(200)
+            .when()
+            .get("/pet store/api/ttl-rest/Pet?search=pooky")
+            .asString();
+
+    assertTrue(searchOutput.contains("pooky"));
+  }
+
+  @Test
   void testBeaconConfiguration() {
     getAndAssertContains("/api/beacon/configuration", "productionStatus");
   }
