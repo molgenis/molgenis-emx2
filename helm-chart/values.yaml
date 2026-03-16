@@ -87,10 +87,10 @@ wakeProxy:
   
   resources:
     requests:
-      memory: "32Mi"
+      memory: "64Mi"
       cpu: "10m"
     limits:
-      memory: "64Mi"
+      memory: "128Mi"
       cpu: "50m"
 
 autoscaling:
