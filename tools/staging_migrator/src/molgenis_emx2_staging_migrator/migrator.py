@@ -12,7 +12,7 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .exceptions import MissingContactException
+from .exceptions import MissingContactException, ReferenceDeleteError
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts
 
@@ -100,6 +100,9 @@ class StagingMigrator(Client):
 
         # Upload the zip to the target schema
         self.upload_zip_stream(zip_stream)
+
+        if self.target == "UMCG":
+            self.add_data_resource()
 
         if not keep_zips:
             # Remove any downloaded files from disk
@@ -200,7 +203,16 @@ class StagingMigrator(Client):
             upload_stream.flush()
             return
 
+        with open(BASE_DIR / "update.zip", 'w') as f:
+            f.write(str(upload_stream.getvalue()))
+
         self.upload_zip_stream(upload_stream)
+        if len(self.errors) != 0:
+            if "delete on table \"Resources\" violates foreign key constraint" in self.errors[0]:
+                error_msg = (f"{self.errors[0].split('Details: ')[1].split(' in ')[0]}. "
+                             f"First delete it manually from 'Resources.data resources' in the catalogue.")
+                self.cleanup()
+                raise ReferenceDeleteError(error_msg)
         self.cleanup()
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
@@ -305,6 +317,26 @@ class StagingMigrator(Client):
         if self.source == self.target:
             raise NoSuchSchemaException(f"Target schema must be different from source schema.")
 
+    def add_data_resource(self):
+        """Adds the source id to the target's data resources."""
+        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {self.target}", as_df=True)
+
+        update_filepath = BASE_DIR / "update.zip"
+        if not update_filepath.exists():
+            return
+        with zipfile.ZipFile(update_filepath, 'r') as update_zip:
+            u_resources = pd.read_csv(BytesIO(update_zip.read("Resources.csv")))
+
+        new_resources = [res for res in u_resources["id"] if res not in t_resources["data resources"].str.split(',')]
+
+        if len(new_resources) == 0:
+            return
+
+        t_resources.loc[0, "data resources"] = t_resources.loc[0, "data resources"] + ','  + ','.join(new_resources)
+
+        self.save_table(schema=self.target, table="Resources", data=t_resources)
+
+
 
     def upload_zip_stream(self, zip_stream: BytesIO):
         """Uploads the zip file containing the tables from the source schema
@@ -314,7 +346,7 @@ class StagingMigrator(Client):
 
         response = self.session.post(
             url=upload_url,
-            files={'file': (f"{BASE_DIR}/upload.zip", zip_stream.getvalue())}
+            files={'file': (f"{BASE_DIR}/update.zip", zip_stream.getvalue())}
         )
 
         response_status = response.status_code
@@ -356,7 +388,7 @@ class StagingMigrator(Client):
     @staticmethod
     def cleanup():
         """Deletes the downloaded files after successful migration."""
-        zip_files = ['target.zip', 'source.zip', 'upload.zip']
+        zip_files = ['target.zip', 'source.zip', 'update.zip']
         for zp in zip_files:
             filename = f"{BASE_DIR}/{zp}"
             if Path(filename).exists():

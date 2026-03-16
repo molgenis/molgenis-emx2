@@ -18,3 +18,6 @@ class MissingContactException(StagingMigratorException):
 
 class MissingHRICoreException(StagingMigratorException):
     """Thrown when `hricore` is not set to `True` for any record in the Resources table."""
+
+class ReferenceDeleteError(StagingMigratorException):
+    """Thrown when a record is to be deleted, but is still referenced by another record."""

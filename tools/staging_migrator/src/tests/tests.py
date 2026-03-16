@@ -14,8 +14,8 @@ from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException
 from staging_migrator.src.molgenis_emx2_staging_migrator.utils import check_hricore, process_contacts
 
-CATALOGUE = 'catalogue'
-STAGING_AREA = 'testCohort'
+CATALOGUE = 'UMCG'
+STAGING_AREA = 'testUMCGCohort'
 
 log = logging.getLogger('publisher')
 
@@ -115,3 +115,13 @@ def test_check_hricore():
     with pytest.raises(ValueError) as e:
         check_hricore(resources_df)
     assert str(e.value) == "Value 'hricore' not set to 'true' for resource B, C"
+
+def test_add_resource():
+    """Tests the `add_resource` method."""
+    server_url = os.environ.get('MG_URL')
+    token = os.environ.get('MG_TOKEN')
+
+    with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
+        migrator.set_source(STAGING_AREA)
+        migrator.add_data_resource()
+
