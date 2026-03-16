@@ -1,99 +1,167 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.Constants.MG_ROLES;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.sql.SQLException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
-public class TestRowLevelSecurity {
-  public static final String TEST_RLS_HAS_NO_PERMISSION = "test_rls_has_no_permission";
-  public static final String TESTRLS_HAS_RLS_VIEW = "testrls_has_rls_view";
-  public static final String TEST_RLS = "TestRLS";
+class TestRowLevelSecurity {
+
   private static Database database;
+  private static final String SCHEMA = "TestRowLevelSecurity";
+  private static final String ARTICLES = "Articles";
+
+  private static final String USER_TEAM_A = "rls_user_team_a";
+  private static final String USER_TEAM_B = "rls_user_team_b";
+  private static final String USER_NO_ACCESS = "rls_user_noaccess";
 
   @BeforeAll
-  public static void setUp() throws SQLException {
+  static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.becomeAdmin();
+
+    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_NO_ACCESS)) {
+      if (!database.hasUser(user)) database.addUser(user);
+    }
+
+    Schema schema = database.dropCreateSchema(SCHEMA);
+    schema.create(table(ARTICLES).add(column("id").setPkey()).add(column("title")));
+
+    schema.createRole("TeamA", "Team A members");
+    schema.createRole("TeamB", "Team B members");
+    schema.grant("TeamA", new TablePermission(ARTICLES, true, true, true, true, true));
+    schema.grant("TeamB", new TablePermission(ARTICLES, true, true, true, true, true));
+
+    // Row visible only to TeamA
+    schema
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "a1")
+                .setString("title", "Team A only")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+    // Row visible only to TeamB
+    schema
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "b1")
+                .setString("title", "Team B only")
+                .set(MG_ROLES, new String[] {"TeamB"}));
+    // Row visible to both teams
+    schema
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "ab1")
+                .setString("title", "Both teams")
+                .set(MG_ROLES, new String[] {"TeamA", "TeamB"}));
+    // Row with no mg_roles restriction (visible to anyone with table access)
+    schema
+        .getTable(ARTICLES)
+        .insert(new Row().setString("id", "open").setString("title", "Public"));
+
+    schema.addMember(USER_TEAM_A, "TeamA");
+    schema.addMember(USER_TEAM_B, "TeamB");
   }
 
-  @Disabled("because it tests unimplemented features")
   @Test
-  public void testRls() {
-    try {
-      // create schema
-      Schema s = database.dropCreateSchema(TEST_RLS);
+  void mgRolesColumnIsCreatedOnTable() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    assertNotNull(
+        schema.getMetadata().getTableMetadata(ARTICLES).getColumn(MG_ROLES),
+        "mg_roles column should exist after row-level grant");
+  }
 
-      // create two users
-      database.addUser(TEST_RLS_HAS_NO_PERMISSION);
-      assertEquals(true, database.hasUser(TEST_RLS_HAS_NO_PERMISSION));
+  @Test
+  void isRowLevelReportedInPermissions() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    Role teamA = schema.getRoleInfo("TeamA");
+    TablePermission perm =
+        teamA.permissions().stream()
+            .filter(p -> ARTICLES.equals(p.table()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(Boolean.TRUE, perm.isRowLevel());
+  }
 
-      database.addUser(TESTRLS_HAS_RLS_VIEW);
+  @Test
+  void teamAUserSeesOnlyTeamAAndPublicRows() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("a1"), "should see TeamA row");
+          assertTrue(ids.contains("ab1"), "should see row shared with TeamB");
+          assertTrue(ids.contains("open"), "should see unrestricted row");
+          assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
+        });
+  }
 
-      // grant both owner on TestRLS schema so can add row level security
-      s.addMember("testrls1", Privileges.OWNER.toString());
-      s.addMember("testrls2", Privileges.OWNER.toString());
+  @Test
+  void teamBUserSeesOnlyTeamBAndPublicRows() {
+    database.setActiveUser(USER_TEAM_B);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("b1"), "should see TeamB row");
+          assertTrue(ids.contains("ab1"), "should see row shared with TeamA");
+          assertTrue(ids.contains("open"), "should see unrestricted row");
+          assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
+        });
+  }
 
-      s.addMember(
-          TESTRLS_HAS_RLS_VIEW,
-          Privileges.VIEWER.toString()); // can view table but only rows with right RLS
+  @Test
+  void userWithNoGrantCannotSelectTable() {
+    database.setActiveUser(USER_NO_ACCESS);
+    database.tx(
+        db ->
+            assertThrows(
+                Exception.class, () -> db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows()));
+  }
 
-      // let one user create the table
-      database.setActiveUser("testrls1");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS).create(table(TEST_RLS).add(column("col1").setPkey()));
-          });
+  @Test
+  void adminSeesAllRows() {
+    database.becomeAdmin();
+    List<Row> rows = database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+    assertEquals(4, rows.size());
+  }
 
-      // let the other user add RLS
-      database.setActiveUser("testrls2");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS).getTable(TEST_RLS).getMetadata().enableRowLevelSecurity();
-          });
+  @Test
+  void grantingRowLevelTwiceIsIdempotent() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    assertDoesNotThrow(
+        () -> schema.grant("TeamA", new TablePermission(ARTICLES, true, null, null, null, true)));
+  }
 
-      // let the first add a row (checks if admin permissions are setup correctly)
-      database.setActiveUser("testrls1");
-      database.tx(
-          db -> {
-            db.getSchema(TEST_RLS)
-                .getTable(TEST_RLS)
-                .insert(
-                    new Row()
-                        .setString("col1", "Hello World")
-                        .set(MG_EDIT_ROLE, TESTRLS_HAS_RLS_VIEW),
-                    new Row()
-                        .setString("col1", "Hello World2")
-                        .set(MG_EDIT_ROLE, TEST_RLS_HAS_NO_PERMISSION));
-          });
+  @Test
+  void teamAUserCanInsertRowVisibleToOwnTeam() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db -> {
+          db.getSchema(SCHEMA)
+              .getTable(ARTICLES)
+              .insert(
+                  new Row()
+                      .setString("id", "a2")
+                      .setString("title", "Inserted by TeamA")
+                      .set(MG_ROLES, new String[] {"TeamA"}));
+          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+          assertTrue(rows.stream().anyMatch(r -> "a2".equals(r.getString("id"))));
+        });
 
-      // let the second admin see it
-      database.setActiveUser("testrls2");
-      database.tx(
-          db -> {
-            assertEquals(2, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
-          });
-
-      // have RLS user query and see one row
-      database.setActiveUser(TESTRLS_HAS_RLS_VIEW);
-      database.tx(
-          db -> {
-            assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
-          });
-
-      database.becomeAdmin();
-      database.removeUser(TESTRLS_HAS_RLS_VIEW);
-      assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
-    } finally {
-      database.becomeAdmin();
-    }
+    // Cleanup
+    database.becomeAdmin();
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "a2"));
   }
 }
