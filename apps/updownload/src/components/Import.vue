@@ -17,8 +17,8 @@
           v-if="
             !session ||
             !session.roles ||
-            !['Manager', 'Editor', 'Owner'].some((r) =>
-              session.roles.includes(r)
+            !session.roles.some((r) =>
+              ['Manager', 'Editor', 'Owner'].includes(r.name)
             )
           "
         >
@@ -48,8 +48,10 @@
           v-if="
             session &&
             session.roles &&
-            ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].some((r) =>
-              session.roles.includes(r)
+            session.roles.some((r) =>
+              ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].includes(
+                r.name
+              )
             )
           "
         ></div>
@@ -156,14 +158,16 @@ export default {
   },
   computed: {
     visibleTables() {
-      if (this.session?.roles.includes("Viewer")) {
+      if (this.session?.roles.some((r) => r.name === "Viewer")) {
         return this.tables;
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
     isManagerOrOwner() {
-      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
+      return this.session?.roles.some((r) =>
+        ["Manager", "Owner"].includes(r.name)
+      );
     },
     tablesHash() {
       if (this.tables) {
