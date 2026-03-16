@@ -78,7 +78,7 @@ wakeProxy:
   
   image:
     repository: molgenis/emx2-proxy
-    tag: 0.2 
+    tag: 0.3 
     pullPolicy: IfNotPresent
   
   previewName: "EMX2 Preview"
@@ -87,10 +87,10 @@ wakeProxy:
   
   resources:
     requests:
-      memory: "64Mi"
+      memory: "128i"
       cpu: "10m"
     limits:
-      memory: "128Mi"
+      memory: "256Mi"
       cpu: "50m"
 
 autoscaling:
