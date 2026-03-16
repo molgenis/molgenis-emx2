@@ -9,29 +9,32 @@ import org.molgenis.emx2.utils.generator.DSLIdGenerator;
 
 public class RetryingIdGenerator implements DSLIdGenerator {
 
-  private final Column column;
   private final AutoIdFormat autoIdFormat;
+  private final String schemaName;
+  private final String tableName;
+  private final String name;
 
   public RetryingIdGenerator(Column column) {
-    this.column = column;
     if (column.getComputed() == null) {
       throw new MolgenisException("Column with no computed value provided");
     }
-
     this.autoIdFormat =
         AutoIdFormat.fromComputedString(column.getComputed())
             .orElseThrow(
                 () ->
                     new MolgenisException(
                         "Invalid computed value provided to column: " + column.getComputed()));
+
+    this.schemaName = column.getSchemaName();
+    this.tableName = column.getTableName();
+    this.name = column.getName();
   }
 
   public Field<String> generateId() {
-    return generateAutoIdSubquery(
-        column.getSchemaName(), column.getTableName(), column.getName(), autoIdFormat);
+    return generateAutoIdSubquery(schemaName, tableName, name, autoIdFormat);
   }
 
-  public Field<String> generateAutoIdSubquery(
+  private Field<String> generateAutoIdSubquery(
       String schemaName, String tableName, String columnName, AutoIdFormat format) {
     return DSL.select(
             DSL.field(
