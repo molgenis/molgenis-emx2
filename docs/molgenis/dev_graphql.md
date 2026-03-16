@@ -294,6 +294,7 @@ effective permissions.
         insert
         update
         delete
+        isRowLevel
       }
     }
   }
@@ -304,6 +305,7 @@ effective permissions.
 - `system: false` — custom role. Each entry in `permissions` targets a specific table.
 - `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
+- `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
 ### Create a custom role and grant permissions
 
@@ -375,6 +377,65 @@ mutation {
 ```
 
 This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
+
+### Row-level security (RLS)
+
+When `isRowLevel: true` is set on a permission, MOLGENIS activates PostgreSQL Row Level Security on
+that table. Each row is then only visible to roles whose name is listed in the row's `mg_roles` column.
+
+**How it works:**
+
+- A `mg_roles` column (type `string[]`) is added to the table the first time any role is granted
+  `isRowLevel: true`.
+- A PostgreSQL policy is created that filters rows for SELECT, UPDATE, and DELETE:
+  - Rows where `mg_roles` is `null` (no restriction) are visible to everyone with table access.
+  - Rows where `mg_roles` lists one or more role names are visible only to users who hold one of
+    those roles.
+  - Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) bypass the filter
+    and always see all rows.
+
+**Enable RLS for a role:**
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TeamA"
+        permissions: [
+          { table: "Articles", select: true, insert: true, update: true, delete: true, isRowLevel: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+**Insert a row restricted to a specific role:**
+
+Set the `mg_roles` field when inserting rows to control which roles can see them.
+
+```graphql
+mutation {
+  Articles(
+    insert: [
+      { id: "a1", title: "Team A only", mg_roles: ["TeamA"] }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+A row with `mg_roles: ["TeamA", "TeamB"]` is visible to members of either role. A row with no
+`mg_roles` value is visible to all users who have access to the table.
+
+**Disabling RLS:**
+
+RLS is automatically disabled on a table when the last role with `isRowLevel` access is revoked. The
+`mg_roles` column and its data are retained; only the filtering policy is removed.
 
 ### Delete a custom role
 
