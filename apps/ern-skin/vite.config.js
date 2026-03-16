@@ -1,12 +1,11 @@
 import { defineConfig } from "vite";
-import path from "path";
 import vue from "@vitejs/plugin-vue";
 import dotenv from "dotenv";
 import devProxy from "./dev-proxy.config";
+import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const dir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig((command) => {
   // Load environment variables
@@ -15,13 +14,10 @@ export default defineConfig((command) => {
   return {
     resolve: {
       alias: {
-        viz: path.resolve(__dirname, "node_modules/molgenis-viz/src"),
-        vizdist: path.resolve(__dirname, "node_modules/molgenis-viz/dist"),
-        skin: path.resolve(__dirname, "src/styles"),
-        molgenis: path.resolve(
-          __dirname,
-          "node_modules/molgenis-components/dist"
-        ),
+        viz: path.resolve(dir, "node_modules/molgenis-viz/src"),
+        vizdist: path.resolve(dir, "node_modules/molgenis-viz/dist"),
+        molgenis: path.resolve(dir, "node_modules/molgenis-components/dist"),
+        ern: path.resolve(dir, "src/styles"),
       },
     },
     css: {
@@ -37,8 +33,8 @@ export default defineConfig((command) => {
            @import "viz/styles/variables.scss";
            @import "molgenis/molgenis-components.css";
            @import "vizdist/molgenis-viz.css";
-           @import "skin/variables.scss";
-           @import "skin/index.scss";
+           @import "ern/variables.scss";
+           @import "ern/index.scss";
         `,
         },
       },
