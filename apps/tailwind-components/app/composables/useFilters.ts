@@ -8,8 +8,9 @@ import {
 } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../types/filters";
+import type { ActiveFilter, IFilterValue } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
+import { formatFilterValue } from "../utils/formatFilterValue";
 
 export interface UseFiltersOptions {
   debounceMs?: number;
@@ -465,10 +466,24 @@ export function useFilters(
     setFilter(columnId, null);
   }
 
+  const activeFilters = computed<ActiveFilter[]>(() => {
+    const result: ActiveFilter[] = [];
+    for (const [columnId, filterValue] of actualFilterStates.value) {
+      const column = columns.value.find((c) => c.id === columnId);
+      const label = column ? column.label || column.id : columnId;
+      const { displayValue, values } = formatFilterValue(filterValue);
+      if (displayValue) {
+        result.push({ columnId, label, displayValue, values });
+      }
+    }
+    return result;
+  });
+
   return {
     filterStates: actualFilterStates,
     searchValue: actualSearchValue,
     gqlFilter,
+    activeFilters,
     setFilter,
     setSearch,
     clearFilters,

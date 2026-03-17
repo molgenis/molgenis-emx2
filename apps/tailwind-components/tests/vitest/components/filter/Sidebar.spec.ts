@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
 
 vi.stubGlobal(
@@ -448,6 +448,120 @@ describe("Sidebar", () => {
   });
 
   describe("nested filters", () => {
+    it("resolves nested dotted path from URL to correct FilterColumn", async () => {
+      mockRoute.query = { mg_filters: "hospital.name" };
+
+      mockFetchTableMetadata
+        .mockResolvedValueOnce({
+          id: "Patient",
+          columns: [
+            {
+              id: "hospital",
+              label: "Hospital",
+              columnType: "REF",
+              refTableId: "Hospital",
+              refSchemaId: "test",
+            },
+          ],
+        })
+        .mockResolvedValueOnce({
+          id: "Hospital",
+          columns: [{ id: "name", label: "Name", columnType: "STRING" }],
+        });
+
+      const wrapper = mountSidebar();
+      await flushPromises();
+      await nextTick();
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const nestedFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "name"
+      );
+      expect(nestedFilter).toBeDefined();
+      expect(nestedFilter?.props("label")).toBe("Hospital.Name");
+    });
+
+    it("resolves nested filter value from URL correctly", async () => {
+      mockRoute.query = { mg_filters: "hospital.name" };
+
+      mockFetchTableMetadata
+        .mockResolvedValueOnce({
+          id: "Patient",
+          columns: [
+            {
+              id: "hospital",
+              label: "Hospital",
+              columnType: "REF",
+              refTableId: "Hospital",
+              refSchemaId: "test",
+            },
+          ],
+        })
+        .mockResolvedValueOnce({
+          id: "Hospital",
+          columns: [{ id: "name", label: "Name", columnType: "STRING" }],
+        });
+
+      const initialFilterStates = new Map<string, IFilterValue>([
+        ["hospital.name", { operator: "like", value: "General" }],
+      ]);
+
+      const wrapper = mountSidebar({}, initialFilterStates);
+      await flushPromises();
+      await nextTick();
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const nestedFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "name"
+      );
+      expect(nestedFilter).toBeDefined();
+      expect(nestedFilter?.props("modelValue")).toEqual({
+        operator: "like",
+        value: "General",
+      });
+    });
+
+    it("gracefully skips nested path when ref metadata fetch fails", async () => {
+      mockRoute.query = { mg_filters: "disease,hospital.name" };
+
+      mockFetchTableMetadata
+        .mockResolvedValueOnce({
+          id: "Patient",
+          columns: [
+            {
+              id: "disease",
+              label: "Disease",
+              columnType: "ONTOLOGY",
+              refTableId: "Diseases",
+              refSchemaId: "Ontologies",
+            },
+            {
+              id: "hospital",
+              label: "Hospital",
+              columnType: "REF",
+              refTableId: "Hospital",
+              refSchemaId: "test",
+            },
+          ],
+        })
+        .mockRejectedValueOnce(new Error("Network error"));
+
+      const wrapper = mountSidebar();
+      await flushPromises();
+      await nextTick();
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const nestedFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "name"
+      );
+      expect(nestedFilter).toBeUndefined();
+
+      const diseaseFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "disease"
+      );
+      expect(diseaseFilter).toBeDefined();
+    });
+
     it("passes column label for top-level columns", async () => {
       const wrapper = mountSidebar();
       await nextTick();

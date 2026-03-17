@@ -165,23 +165,25 @@ const crossFilterMap = computed(() => {
   return map;
 });
 
-watch(
-  visibleFilterIds,
-  async (newIds) => {
-    for (const id of newIds) {
-      if (!id.includes(".")) continue;
-      const segments = id.split(".");
-      for (let depth = 0; depth < segments.length - 1; depth++) {
-        const pathSoFar = segments.slice(0, depth + 1).join(".");
-        if (!refColumnsCache.value.has(pathSoFar)) {
-          await loadRefColumnsForPath(id);
-          break;
-        }
+async function loadMissingRefColumns(ids: string[]) {
+  for (const id of ids) {
+    if (!id.includes(".")) continue;
+    const segments = id.split(".");
+    for (let depth = 0; depth < segments.length - 1; depth++) {
+      const pathSoFar = segments.slice(0, depth + 1).join(".");
+      if (!refColumnsCache.value.has(pathSoFar)) {
+        await loadRefColumnsForPath(id);
+        break;
       }
     }
-  },
-  { immediate: true }
-);
+  }
+}
+
+watch(visibleFilterIds, loadMissingRefColumns, { immediate: true });
+
+watch(filterableColumns, () => {
+  loadMissingRefColumns(visibleFilterIds.value);
+});
 
 interface IFilter {
   fullPath: string;

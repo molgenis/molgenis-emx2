@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, defineAsyncComponent } from "vue";
 import type { ITableSettings } from "../../../types/types";
-import type { ActiveFilter } from "../../../types/filters";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "vue-router";
 import { useFilters } from "../../composables/useFilters";
-import { formatFilterValue } from "../../utils/formatFilterValue";
 import DemoDataControls from "../../DemoDataControls.vue";
 
 const FilterSidebar = defineAsyncComponent(
@@ -45,25 +43,18 @@ const filterColumns = computed(
     ) ?? []
 );
 
-const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
-  useFilters(filterColumns, { urlSync: showFilters.value });
+const {
+  filterStates,
+  searchValue,
+  gqlFilter,
+  activeFilters,
+  removeFilter,
+  clearFilters,
+} = useFilters(filterColumns, { urlSync: showFilters.value });
 
 const activeFilter = computed(() =>
   showFilters.value ? gqlFilter.value : undefined
 );
-
-const activeFiltersList = computed<ActiveFilter[]>(() => {
-  const result: ActiveFilter[] = [];
-  for (const [columnId, filterValue] of filterStates.value) {
-    const column = filterColumns.value.find((c) => c.id === columnId);
-    const label = column?.label || columnId;
-    const { displayValue, values } = formatFilterValue(filterValue);
-    if (displayValue) {
-      result.push({ columnId, label, displayValue, values });
-    }
-  }
-  return result;
-});
 
 watch(searchValue, (val) => {
   if (showFilters.value) {
@@ -130,7 +121,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
           >
             <template v-if="showFilters" #below-toolbar>
               <ActiveFilters
-                :filters="activeFiltersList"
+                :filters="activeFilters"
                 @remove="removeFilter"
                 @clear-all="clearFilters"
               />

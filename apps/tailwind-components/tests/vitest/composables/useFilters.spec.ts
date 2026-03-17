@@ -511,6 +511,20 @@ describe("useFilters", () => {
     });
   });
 
+  it("computes activeFilters from filterStates", () => {
+    const { setFilter, activeFilters } = useFilters(ref(mockColumns));
+    setFilter("name", { operator: "like", value: "John" });
+    expect(activeFilters.value).toEqual([
+      { columnId: "name", label: "Name", displayValue: "John", values: [] },
+    ]);
+  });
+
+  it("activeFilters excludes empty filter values", () => {
+    const { setFilter, activeFilters } = useFilters(ref(mockColumns));
+    setFilter("name", { operator: "like", value: "" });
+    expect(activeFilters.value).toEqual([]);
+  });
+
   it("should reactively update when URL changes", async () => {
     const mockRoute = reactive({
       query: { name: "test" } as Record<string, string>,
