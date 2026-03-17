@@ -110,7 +110,6 @@ PetStoreNr1:Tag a owl:Class;
   rdfs:range xsd:string;
   rdfs:label "name";
   rdfs:domain PetStoreNr1:Pet;
-  rdfs:isDefinedBy <http://example.com/petstore#hasName>;
   dc:description "the name"@en .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> a owl:ObjectProperty;
@@ -132,7 +131,6 @@ PetStoreNr1:Tag a owl:Class;
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> a owl:DatatypeProperty;
   rdfs:range xsd:string;
   rdfs:label "status";
-  rdfs:isDefinedBy <http://example.com/petstore#hasStatus>;
   rdfs:domain PetStoreNr1:Pet .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> a owl:ObjectProperty;
@@ -144,7 +142,6 @@ PetStoreNr1:Tag a owl:Class;
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> a owl:DatatypeProperty;
   rdfs:range xsd:double;
   rdfs:label "weight";
-  rdfs:isDefinedBy <http://example.com/petstore#hasWeight>;
   rdfs:domain PetStoreNr1:Pet .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/heading2> a owl:DatatypeProperty;
@@ -344,12 +341,9 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "pooky";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "pooky";
-  <http://example.com/petstore#hasName> "pooky";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "9.4"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "9.4"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
@@ -360,15 +354,12 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "spike";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "spike";
-  <http://example.com/petstore#hasName> "spike";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "sold";
-  <http://example.com/petstore#hasStatus> "sold";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>,
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "15.7"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "15.7"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
@@ -379,14 +370,11 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "tom";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "tom";
-  <http://example.com/petstore#hasName> "tom";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "3.14"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "3.14"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -397,14 +385,11 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "sylvester";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "sylvester";
-  <http://example.com/petstore#hasName> "sylvester";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "1.337"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "1.337"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -414,14 +399,11 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "jerry";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "jerry";
-  <http://example.com/petstore#hasName> "jerry";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.18"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "0.18"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -431,14 +413,11 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "tweety";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "tweety";
-  <http://example.com/petstore#hasName> "tweety";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.1"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "0.1"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -449,14 +428,11 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "the very hungry caterpillar";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "the very hungry caterpillar";
-  <http://example.com/petstore#hasName> "the very hungry caterpillar";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.5"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "0.5"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -467,7 +443,6 @@ fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yak
 qb:dataSet PetStoreNr1:Pet;
 rdfs:label "yakul";
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "yakul";
-<http://example.com/petstore#hasName> "yakul";
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>;
 <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>;
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_draft> "true"^^xsd:boolean;
@@ -481,16 +456,13 @@ rdfs:label "yakul";
   qb:dataSet PetStoreNr1:Pet;
   rdfs:label "fire ant";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "fire ant";
-  <http://example.com/petstore#hasName> "fire ant";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://example.com/petstore#hasStatus> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>,
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.01"^^xsd:double;
-  <http://example.com/petstore#hasWeight> "0.01"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
