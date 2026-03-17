@@ -8,9 +8,8 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 test.describe("ProgressMeter", { tag: "@tw-components @tw-viz" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${route}viz/ProgressMeter.story`);
-    await page
-      .getByRole("heading", { name: "VizProgressMeter" })
-      .click({ delay: 500 });
+    const title = await page.getByRole("heading", { name: "VizProgressMeter" });
+    await title.waitFor();
   });
 
   test("rects are rendered", async ({ page }) => {
