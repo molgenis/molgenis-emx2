@@ -70,6 +70,25 @@ spec:
             - name: MOLGENIS_OIDC_CALLBACK_URL
               value: {{ .Values.oidc.callback_url }}
 {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
         - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           name: postgres
           imagePullPolicy: {{ .Values.image.pullPolicy }}
