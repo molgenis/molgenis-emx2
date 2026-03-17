@@ -162,7 +162,7 @@ export default {
         this.session.admin ||
         (this.session &&
           this.session.roles &&
-          this.session.roles.some((r) => r.name === "Manager"))
+          this.session.activeRoles?.some((r) => r.name === "Manager"))
       );
     },
     showChangeColumn() {

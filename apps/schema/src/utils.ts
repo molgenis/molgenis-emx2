@@ -6,7 +6,8 @@ export const schemaQuery = gql`
     _session {
       schemas
       admin
-      roles {
+      roles
+      activeRoles {
         name
         description
         permissions {

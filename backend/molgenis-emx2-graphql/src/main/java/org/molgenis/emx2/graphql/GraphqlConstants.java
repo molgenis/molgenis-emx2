@@ -65,6 +65,7 @@ public class GraphqlConstants {
   public static final String USER = "user";
   public static final String USERS = "users";
   public static final String ROLES = "roles";
+  public static final String ACTIVE_ROLES = "activeRoles";
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
   public static final String STATUS = "status";

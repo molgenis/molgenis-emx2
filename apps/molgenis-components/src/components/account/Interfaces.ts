@@ -18,7 +18,8 @@ export interface IRole {
 export interface ISession {
   email?: string;
   locale?: string;
-  roles?: IRole[];
+  roles?: string[];
+  activeRoles?: IRole[];
   schemas?: any;
   settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;

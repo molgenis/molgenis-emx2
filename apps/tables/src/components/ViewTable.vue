@@ -29,7 +29,7 @@ export default {
   computed: {
     canView() {
       const isViewer =
-        this.session?.roles?.some((r) =>
+        this.session?.activeRoles?.some((r) =>
           ["Viewer", "Editor", "Manager", "Owner"].includes(r.name)
         ) ||
         this.activeTable?.tableType === "ONTOLOGIES" ||
@@ -37,7 +37,7 @@ export default {
       return isViewer || this.canEdit;
     },
     canEdit() {
-      const isEditor = this.session?.roles?.some((r) =>
+      const isEditor = this.session?.activeRoles?.some((r) =>
         ["Editor", "Manager", "Owner"].includes(r.name)
       );
       return (
@@ -49,7 +49,7 @@ export default {
     },
     canManage() {
       const isAdmin = this.session?.email === "admin";
-      const isManager = this.session?.roles?.some((r) =>
+      const isManager = this.session?.activeRoles?.some((r) =>
         ["Manager", "Owner"].includes(r.name)
       );
       return isManager || isAdmin;
@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     hasTablePermission(permission) {
-      return this.session?.roles?.some((role) =>
+      return this.session?.activeRoles?.some((role) =>
         role.permissions?.some(
           (p) =>
             (p.table === "*" || p.table === this.table) &&

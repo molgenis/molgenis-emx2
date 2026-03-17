@@ -24,7 +24,7 @@ export const useSession = async (schemaId?: string) => {
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: JSON.stringify({
-        query: `{_session { roles { name } }}`,
+        query: `{_session { roles }}`,
       }),
     });
   }
@@ -55,9 +55,7 @@ export const useSession = async (schemaId?: string) => {
         session.value.roles = {};
       }
       session.value.roles[schemaId] =
-        schemaRolesResult?.data.value?.data?._session?.roles?.map(
-          (r: { name: string }) => r.name
-        );
+        schemaRolesResult?.data.value?.data?._session?.roles;
     }
   }
 
@@ -80,10 +78,7 @@ export const useSession = async (schemaId?: string) => {
       if (!session.value.roles) {
         session.value.roles = {};
       }
-      session.value.roles[schemaId] =
-        schemaRolesResult.data?._session?.roles?.map(
-          (r: { name: string }) => r.name
-        );
+      session.value.roles[schemaId] = schemaRolesResult.data?._session?.roles;
     }
   }
 

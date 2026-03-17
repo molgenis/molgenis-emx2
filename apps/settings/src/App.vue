@@ -4,7 +4,8 @@
       <div
         v-if="
           session.admin ||
-          (session.roles && session.roles.some((r) => r.name === 'Manager'))
+          (session.activeRoles &&
+            session.activeRoles.some((r) => r.name === 'Manager'))
         "
         class="card"
       >
