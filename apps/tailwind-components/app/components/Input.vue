@@ -164,7 +164,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
-    :facet-counts="facetCounts"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -183,7 +186,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
-    :facet-counts="facetCounts"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -202,6 +208,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
@@ -221,6 +231,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
@@ -252,7 +266,10 @@
     @blur="emit('blur')"
     :is-array="false"
     :limit="10"
-    :facet-counts="facetCounts"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
     :force-list="forceList"
   />
   <InputOntology
@@ -278,7 +295,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
-    :facet-counts="facetCounts"
+    :cross-filter="crossFilter"
+    :schema-id="schemaId"
+    :table-id="tableId"
+    :column-path="columnPath"
     :force-list="forceList"
   />
   <InputFile
@@ -329,6 +349,7 @@ import type {
   DateValue,
 } from "../../../metadata-utils/src/types";
 import type { IFile, IInputProps, IValueLabel } from "../../types/types";
+import type { IGraphQLFilter } from "../../types/filters";
 import { getOntologyArrayValues } from "../utils/typeUtils";
 import InputArray from "./input/Array.vue";
 import InputBoolean from "./input/Boolean.vue";
@@ -363,7 +384,10 @@ const props = withDefaults(
       align?: "horizontal" | "vertical";
       limit?: number;
       showClear?: boolean;
-      facetCounts?: Map<string, number>;
+      crossFilter?: IGraphQLFilter;
+      schemaId?: string;
+      tableId?: string;
+      columnPath?: string;
       forceList?: boolean;
       errorMessage?: string | null;
     }

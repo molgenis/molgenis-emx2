@@ -13,7 +13,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      order: { pet: { category: { equals: [{ name: "dogs" }] } } },
+      order: { pet: { category: { name: { equals: ["dogs"] } } } },
     });
   });
 
@@ -44,7 +44,7 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({
       user: {
         address: {
-          city: { country: { equals: [{ name: "Netherlands" }] } },
+          city: { country: { name: { equals: ["Netherlands"] } } },
         },
       },
     });
@@ -61,7 +61,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      order: { pet: { category: { equals: [{ name: "dogs" }] } } },
+      order: { pet: { category: { name: { equals: ["dogs"] } } } },
       user: { name: { like: "John" } },
     });
   });
@@ -95,7 +95,7 @@ describe("buildGraphQLFilter", () => {
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
       order: {
-        pet: { category: { equals: [{ name: "dogs" }, { name: "cats" }] } },
+        pet: { category: { name: { equals: ["dogs", "cats"] } } },
       },
     });
   });
@@ -298,5 +298,43 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ id: { equals: "550e8400" } });
+  });
+
+  it("unwraps ref objects for 'in' operator", () => {
+    const columns: IColumn[] = [
+      { id: "type", columnType: "REF", label: "Type", refTableId: "Type" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["type", { operator: "in", value: [{ name: "org1" }, { name: "org2" }] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ type: { name: { equals: ["org1", "org2"] } } });
+  });
+
+  it("keeps plain string values for 'in' operator", () => {
+    const columns: IColumn[] = [
+      { id: "type", columnType: "STRING", label: "Type" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["type", { operator: "in", value: ["a", "b"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ type: { equals: ["a", "b"] } });
+  });
+
+  it("unwraps ref object for 'equals' operator", () => {
+    const columns: IColumn[] = [
+      {
+        id: "category",
+        columnType: "REF",
+        label: "Category",
+        refTableId: "Category",
+      },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["category", { operator: "equals", value: [{ code: "A1" }] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ category: { code: { equals: ["A1"] } } });
   });
 });

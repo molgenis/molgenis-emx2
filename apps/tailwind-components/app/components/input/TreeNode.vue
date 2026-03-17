@@ -29,6 +29,7 @@ const props = withDefaults(
     scrollContainer?: HTMLElement | null;
     enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
     facetCounts?: Map<string, number>;
+    countsLoading?: boolean;
   }>(),
   {
     inverted: false,
@@ -37,6 +38,7 @@ const props = withDefaults(
     isSearching: false,
     scrollContainer: null,
     enableAutoLoad: true, // Default to enabled for backward compatibility
+    countsLoading: false,
   }
 );
 const emit = defineEmits([
@@ -406,7 +408,7 @@ onUnmounted(() => {
             :class="'text-title-contrast'"
           >
             {{ node.label || node.name
-            }}<span v-if="facetCounts" class="shrink-0 ml-0.5">
+            }}<span v-if="facetCounts" class="shrink-0 ml-0.5 transition-opacity duration-200" :class="countsLoading ? 'opacity-50' : 'opacity-100'">
               ({{ facetCounts.get(node.name) ?? 0 }})</span
             >
           </span>
@@ -439,6 +441,7 @@ onUnmounted(() => {
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
           :facetCounts="facetCounts"
+          :countsLoading="countsLoading"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"

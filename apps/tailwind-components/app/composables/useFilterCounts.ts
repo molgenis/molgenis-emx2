@@ -1,179 +1,111 @@
-import { ref, watch, type Ref } from "vue";
-import { useDebounceFn } from "@vueuse/core";
-import type { IColumn } from "../../../metadata-utils/src/types";
-import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
-import { buildGraphQLFilter } from "../utils/buildFilter";
+import { ref, toValue, type MaybeRefOrGetter } from "vue";
+import type { IGraphQLFilter } from "../../types/filters";
 import fetchGraphql from "./fetchGraphql";
 
-const COUNTABLE_TYPES = [
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "REF",
-  "REF_ARRAY",
-  "REFBACK",
-  "SELECT",
-  "MULTISELECT",
-  "RADIO",
-  "CHECKBOX",
-];
-
-function getRefKeyField(column: IColumn): string {
-  const template = column.refLabel || column.refLabelDefault || "";
-  const match = template.match(/\$\{(\w+)\}/);
-  return match?.[1] || "name";
-}
-
 interface UseFilterCountsOptions {
-  schemaId: Ref<string>;
-  tableId: Ref<string>;
-  filterStates: Ref<Map<string, IFilterValue>>;
-  columns: Ref<IColumn[]>;
-  visibleFilterIds: Ref<string[]>;
-  searchValue: Ref<string>;
+  crossFilter: MaybeRefOrGetter<IGraphQLFilter | undefined>;
+  schemaId: MaybeRefOrGetter<string | undefined>;
+  tableId: MaybeRefOrGetter<string | undefined>;
+  columnPath: MaybeRefOrGetter<string | undefined>;
+  keyField: MaybeRefOrGetter<string>;
 }
 
-function buildCrossFilter(
-  filterStates: Map<string, IFilterValue>,
-  excludeColumnId: string,
-  columns: IColumn[],
-  searchValue: string
-): IGraphQLFilter {
-  const crossFilterMap = new Map<string, IFilterValue>();
-  filterStates.forEach((value, key) => {
-    if (key !== excludeColumnId) {
-      crossFilterMap.set(key, value);
-    }
-  });
-  return buildGraphQLFilter(crossFilterMap, columns, searchValue);
+function buildNestedFieldSelector(columnPath: string, keyField: string): string {
+  const segments = columnPath.split(".");
+  let result = `${segments[segments.length - 1]} { ${keyField} }`;
+  for (let i = segments.length - 2; i >= 0; i--) {
+    result = `${segments[i]} { ${result} }`;
+  }
+  return result;
+}
+
+function buildNestedFilterValue(columnPath: string, value: any): any {
+  const segments = columnPath.split(".");
+  let result = value;
+  for (let i = segments.length - 1; i >= 0; i--) {
+    result = { [segments[i]]: result };
+  }
+  return result;
+}
+
+function extractNestedValue(obj: any, columnPath: string): any {
+  const segments = columnPath.split(".");
+  let current = obj;
+  for (const segment of segments) {
+    if (!current) return undefined;
+    current = current[segment];
+  }
+  return current;
 }
 
 function sanitizeAlias(name: string): string {
   return "c_" + name.replace(/[^a-zA-Z0-9]/g, "_");
 }
 
-interface ParentCountCache {
-  columnId: string;
-  crossFilterHash: string;
-  counts: Map<string, number>;
-}
-
 export function useFilterCounts(options: UseFilterCountsOptions) {
-  const facetCounts = ref<Map<string, Map<string, number>>>(new Map());
-  const isLoading = ref(false);
-  const parentCountCache = ref<ParentCountCache | null>(null);
+  const facetCounts = ref<Map<string, number>>(new Map());
+  const countsLoading = ref(false);
 
-  async function fetchLeafCounts() {
-    const visibleOntologyColumns = options.visibleFilterIds.value
-      .map((id) => options.columns.value.find((c) => c.id === id))
-      .filter(
-        (col): col is IColumn =>
-          col !== undefined && COUNTABLE_TYPES.includes(col.columnType)
-      );
+  async function fetchCounts(names: string[]) {
+    const crossFilter = toValue(options.crossFilter);
+    const schemaId = toValue(options.schemaId);
+    const tableId = toValue(options.tableId);
+    const columnPath = toValue(options.columnPath);
+    const keyField = toValue(options.keyField);
 
-    if (visibleOntologyColumns.length === 0) {
-      facetCounts.value.clear();
-      return;
-    }
+    if (!crossFilter || !schemaId || !tableId || !columnPath || names.length === 0) return;
+    if (columnPath.includes(".")) return;
 
-    isLoading.value = true;
-    const newFacetCounts = new Map<string, Map<string, number>>();
+    countsLoading.value = true;
 
-    for (const column of visibleOntologyColumns) {
-      const crossFilter = buildCrossFilter(
-        options.filterStates.value,
-        column.id,
-        options.columns.value,
-        options.searchValue.value
-      );
-
-      const keyField = getRefKeyField(column);
-      const query = `
-        query($filter: ${options.tableId.value}Filter) {
-          ${options.tableId.value}_groupBy(filter: $filter) {
-            count
-            ${column.id} {
-              ${keyField}
-            }
-          }
+    const fieldSelector = buildNestedFieldSelector(columnPath, keyField);
+    const query = `
+      query($filter: ${tableId}Filter) {
+        ${tableId}_groupBy(filter: $filter) {
+          count
+          ${fieldSelector}
         }
-      `;
-
-      try {
-        const result = await fetchGraphql(options.schemaId.value, query, {
-          filter: crossFilter,
-        });
-
-        const groupByResults = result[`${options.tableId.value}_groupBy`];
-        const columnCounts = new Map<string, number>();
-
-        if (Array.isArray(groupByResults)) {
-          for (const item of groupByResults) {
-            const termObj = item[column.id];
-            if (termObj?.[keyField]) {
-              columnCounts.set(termObj[keyField], item.count || 0);
-            }
-          }
-        }
-
-        newFacetCounts.set(column.id, columnCounts);
-      } catch (error) {
-        console.warn(`Failed to fetch counts for column ${column.id}:`, error);
-        newFacetCounts.set(column.id, new Map());
       }
-    }
+    `;
 
-    facetCounts.value = newFacetCounts;
-    isLoading.value = false;
-    parentCountCache.value = null;
+    try {
+      const filterValue = buildNestedFilterValue(columnPath, { [keyField]: { equals: names } });
+      const result = await fetchGraphql(schemaId, query, {
+        filter: { ...crossFilter, ...filterValue },
+      });
+
+      const groupByResults = result[`${tableId}_groupBy`];
+      if (Array.isArray(groupByResults)) {
+        for (const item of groupByResults) {
+          const termObj = extractNestedValue(item, columnPath);
+          if (termObj?.[keyField]) {
+            facetCounts.value.set(termObj[keyField], item.count || 0);
+          }
+        }
+      }
+
+      for (const name of names) {
+        if (!facetCounts.value.has(name)) {
+          facetCounts.value.set(name, 0);
+        }
+      }
+
+      facetCounts.value = new Map(facetCounts.value);
+    } catch (error) {
+      console.warn(`Failed to fetch counts for ${columnPath}:`, error);
+    } finally {
+      countsLoading.value = false;
+    }
   }
 
-  const debouncedFetchLeafCounts = useDebounceFn(fetchLeafCounts, 500);
+  async function fetchParentCounts(parentNames: string[]) {
+    const crossFilter = toValue(options.crossFilter);
+    const schemaId = toValue(options.schemaId);
+    const tableId = toValue(options.tableId);
+    const columnPath = toValue(options.columnPath);
 
-  watch(
-    [
-      options.filterStates,
-      options.visibleFilterIds,
-      options.searchValue,
-      options.tableId,
-      options.columns,
-    ],
-    () => {
-      debouncedFetchLeafCounts();
-    },
-    { deep: true, immediate: true }
-  );
-
-  async function fetchParentCounts(
-    columnId: string,
-    parentNames: string[]
-  ): Promise<Map<string, number>> {
-    if (parentNames.length === 0) {
-      return new Map();
-    }
-
-    const crossFilter = buildCrossFilter(
-      options.filterStates.value,
-      columnId,
-      options.columns.value,
-      options.searchValue.value
-    );
-
-    const crossFilterHash = JSON.stringify(crossFilter);
-
-    if (
-      parentCountCache.value?.columnId === columnId &&
-      parentCountCache.value.crossFilterHash === crossFilterHash
-    ) {
-      const cached = parentCountCache.value.counts;
-      const allCached = parentNames.every((name) => cached.has(name));
-      if (allCached) {
-        const result = new Map<string, number>();
-        for (const name of parentNames) {
-          result.set(name, cached.get(name) || 0);
-        }
-        return result;
-      }
-    }
+    if (!crossFilter || !schemaId || !tableId || !columnPath || parentNames.length === 0) return;
+    if (columnPath.includes(".")) return;
 
     const aliases = parentNames.map((name) => ({
       alias: sanitizeAlias(name),
@@ -181,65 +113,38 @@ export function useFilterCounts(options: UseFilterCountsOptions) {
     }));
 
     const queryParts = aliases.map(
-      ({ alias, name }) => `
-      ${alias}: ${options.tableId.value}_agg(filter: $filter_${alias}) {
+      ({ alias }) => `
+      ${alias}: ${tableId}_agg(filter: $filter_${alias}) {
         count
       }
     `
     );
 
     const variableDefinitions = aliases
-      .map(({ alias }) => `$filter_${alias}: ${options.tableId.value}Filter`)
+      .map(({ alias }) => `$filter_${alias}: ${tableId}Filter`)
       .join(", ");
 
-    const query = `
-      query(${variableDefinitions}) {
-        ${queryParts.join("\n")}
-      }
-    `;
+    const query = `query(${variableDefinitions}) { ${queryParts.join("\n")} }`;
 
     const variables: Record<string, any> = {};
     for (const { alias, name } of aliases) {
-      variables[`filter_${alias}`] = {
-        ...crossFilter,
-        [columnId]: {
-          _match_any_including_children: name,
-        },
-      };
+      const nestedFilter = buildNestedFilterValue(columnPath, {
+        _match_any_including_children: name,
+      });
+      variables[`filter_${alias}`] = { ...crossFilter, ...nestedFilter };
     }
 
     try {
-      const result = await fetchGraphql(
-        options.schemaId.value,
-        query,
-        variables
-      );
-
-      const counts = new Map<string, number>();
+      const result = await fetchGraphql(schemaId, query, variables);
       for (const { alias, name } of aliases) {
         const aggResult = result[alias];
-        counts.set(name, aggResult?.count || 0);
+        facetCounts.value.set(name, aggResult?.count || 0);
       }
-
-      parentCountCache.value = {
-        columnId,
-        crossFilterHash,
-        counts,
-      };
-
-      return counts;
+      facetCounts.value = new Map(facetCounts.value);
     } catch (error) {
-      console.warn(
-        `Failed to fetch parent counts for column ${columnId}:`,
-        error
-      );
-      return new Map();
+      console.warn(`Failed to fetch parent counts for ${columnPath}:`, error);
     }
   }
 
-  return {
-    facetCounts,
-    fetchParentCounts,
-    isLoading,
-  };
+  return { facetCounts, countsLoading, fetchCounts, fetchParentCounts };
 }

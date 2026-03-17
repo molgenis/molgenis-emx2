@@ -210,7 +210,7 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(gqlFilter.value).toEqual({
-      category: { equals: [{ name: "Cat1" }, { name: "Cat2" }] },
+      category: { name: { equals: ["Cat1", "Cat2"] } },
     });
   });
 
@@ -224,7 +224,7 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(gqlFilter.value).toEqual({
-      category: { equals: [{ name: "Cat1" }] },
+      category: { name: { equals: ["Cat1"] } },
     });
   });
 

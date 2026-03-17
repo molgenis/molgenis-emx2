@@ -10,7 +10,9 @@ import type { ITableDataResponse } from "../../composables/fetchTableData";
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
+import type { IGraphQLFilter } from "../../../types/filters";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { useFilterCounts } from "../../composables/useFilterCounts";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { useClickOutside } from "../../composables/useClickOutside";
@@ -32,7 +34,10 @@ const props = withDefaults(
       isArray?: boolean;
       limit?: number;
       showClear?: boolean;
-      facetCounts?: Map<string, number>;
+      crossFilter?: IGraphQLFilter;
+      schemaId?: string;
+      tableId?: string;
+      columnPath?: string;
     }
   >(),
   {
@@ -172,6 +177,9 @@ async function loadOptions(filter: IQueryMetaData) {
     hasNoResults.value = true;
   }
   logger.debug("loaded options for " + props.id);
+
+  const labels = Object.keys(optionMap.value);
+  fetchCounts(labels);
 }
 
 function toggleSearch() {
@@ -299,6 +307,29 @@ function loadMore() {
 const onBlur = useDebounceFn(() => {
   emit("blur");
 }, 100);
+
+const refKeyField = computed(() => {
+  const template = props.refLabel || "";
+  const match = template.match(/\$\{(\w+)\}/);
+  return match?.[1] || "name";
+});
+
+const { facetCounts: localFacetCounts, countsLoading, fetchCounts } = useFilterCounts({
+  crossFilter: () => props.crossFilter,
+  schemaId: () => props.schemaId,
+  tableId: () => props.tableId,
+  columnPath: () => props.columnPath,
+  keyField: refKeyField,
+});
+
+const debouncedRefetchCounts = useDebounceFn(() => {
+  const labels = Object.keys(optionMap.value);
+  if (labels.length > 0) {
+    fetchCounts(labels);
+  }
+}, 300);
+
+watch(() => props.crossFilter, debouncedRefetchCounts, { deep: true });
 </script>
 
 <template>
@@ -424,7 +455,8 @@ const onBlur = useDebounceFn(() => {
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
-            :facet-counts="facetCounts"
+            :facet-counts="localFacetCounts.size > 0 ? localFacetCounts : undefined"
+            :counts-loading="countsLoading"
           />
           <InputRadioGroup
             v-else

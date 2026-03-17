@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ref, nextTick } from "vue";
+import { ref } from "vue";
 import { useFilterCounts } from "../../../app/composables/useFilterCounts";
-import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../../types/filters";
 
 vi.mock("../../../app/composables/fetchGraphql", () => ({
   default: vi.fn(),
@@ -13,729 +11,188 @@ vi.mock("@vueuse/core", () => ({
 }));
 
 import fetchGraphql from "../../../app/composables/fetchGraphql";
-
 const mockFetchGraphql = fetchGraphql as ReturnType<typeof vi.fn>;
-
-const flushPromises = () =>
-  new Promise<void>((resolve) => setTimeout(resolve, 0));
-
-function createMockColumns(): IColumn[] {
-  return [
-    { id: "species", columnType: "ONTOLOGY", refTableId: "Species" } as IColumn,
-    {
-      id: "breed",
-      columnType: "ONTOLOGY_ARRAY",
-      refTableId: "Breed",
-    } as IColumn,
-    { id: "name", columnType: "STRING" } as IColumn,
-    { id: "category", columnType: "REF", refTableId: "Category" } as IColumn,
-    {
-      id: "orders",
-      columnType: "REF_ARRAY",
-      refTableId: "Orders",
-    } as IColumn,
-    { id: "status", columnType: "SELECT", refTableId: "Status" } as IColumn,
-    { id: "gender", columnType: "RADIO", refTableId: "Gender" } as IColumn,
-  ];
-}
 
 describe("useFilterCounts", () => {
   beforeEach(() => {
     mockFetchGraphql.mockReset();
-    vi.clearAllMocks();
   });
 
-  it("fetches leaf counts for visible ontology columns", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species", "breed"]);
-    const searchValue = ref("");
+  describe("fetchCounts", () => {
+    it("builds correct _groupBy query for simple column path", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 5, species: { name: "Dog" } },
+          { count: 3, species: { name: "Cat" } },
+        ],
+      });
 
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 5, species: { name: "Canine" } },
-        { count: 3, species: { name: "Feline" } },
-      ],
+      const { facetCounts, fetchCounts } = useFilterCounts({
+        crossFilter: ref({ _search: "test" }),
+        schemaId: ref("mySchema"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
+
+      await fetchCounts(["Dog", "Cat"]);
+
+      expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
+      const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(query).toContain("Patient_groupBy");
+      expect(query).toContain("species { name }");
+      expect(variables.filter.species.name.equals).toEqual(["Dog", "Cat"]);
+
+      expect(facetCounts.value.get("Dog")).toBe(5);
+      expect(facetCounts.value.get("Cat")).toBe(3);
     });
 
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 2, breed: { name: "Labrador" } },
-        { count: 1, breed: { name: "Poodle" } },
-      ],
+    it("skips fetch for nested dotted column paths", async () => {
+      const { facetCounts, fetchCounts } = useFilterCounts({
+        crossFilter: ref({}),
+        schemaId: ref("mySchema"),
+        tableId: ref("Patient"),
+        columnPath: ref("hospital.city"),
+        keyField: ref("name"),
+      });
+
+      await fetchCounts(["Amsterdam", "Rotterdam"]);
+
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(facetCounts.value.size).toBe(0);
     });
 
-    const { facetCounts, isLoading } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
+    it("sets count to 0 for names not in response", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 5, species: { name: "Dog" } },
+        ],
+      });
+
+      const { facetCounts, fetchCounts } = useFilterCounts({
+        crossFilter: ref({}),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
+
+      await fetchCounts(["Dog", "Cat"]);
+
+      expect(facetCounts.value.get("Dog")).toBe(5);
+      expect(facetCounts.value.get("Cat")).toBe(0);
     });
 
-    await nextTick();
-    await flushPromises();
+    it("does nothing when crossFilter is undefined", async () => {
+      const { fetchCounts } = useFilterCounts({
+        crossFilter: ref(undefined),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
 
-    expect(isLoading.value).toBe(false);
-    expect(facetCounts.value.size).toBe(2);
+      await fetchCounts(["Dog"]);
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+    });
 
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts?.get("Canine")).toBe(5);
-    expect(speciesCounts?.get("Feline")).toBe(3);
+    it("handles fetch errors gracefully", async () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
 
-    const breedCounts = facetCounts.value.get("breed");
-    expect(breedCounts?.get("Labrador")).toBe(2);
-    expect(breedCounts?.get("Poodle")).toBe(1);
+      const { facetCounts, fetchCounts } = useFilterCounts({
+        crossFilter: ref({}),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
+
+      await fetchCounts(["Dog"]);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("uses custom keyField from refLabel", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 3, category: { code: "A1" } },
+        ],
+      });
+
+      const { facetCounts, fetchCounts } = useFilterCounts({
+        crossFilter: ref({}),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("category"),
+        keyField: ref("code"),
+      });
+
+      await fetchCounts(["A1"]);
+
+      const [, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(query).toContain("category { code }");
+      expect(variables.filter.category.code.equals).toEqual(["A1"]);
+      expect(facetCounts.value.get("A1")).toBe(3);
+    });
   });
 
-  it("excludes current column from cross-filter", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(
-      new Map<string, IFilterValue>([
-        ["species", { operator: "equals", value: [{ name: "Canine" }] }],
-        ["breed", { operator: "equals", value: [{ name: "Labrador" }] }],
-      ])
-    );
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species", "breed"]);
-    const searchValue = ref("");
+  describe("fetchParentCounts", () => {
+    it("builds correct _agg queries with _match_any_including_children", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        c_Animal: { count: 10 },
+        c_Plant: { count: 5 },
+      });
 
-    mockFetchGraphql.mockResolvedValue({ Dog_groupBy: [] });
+      const { facetCounts, fetchParentCounts } = useFilterCounts({
+        crossFilter: ref({ _search: "test" }),
+        schemaId: ref("mySchema"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
 
-    useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
+      await fetchParentCounts(["Animal", "Plant"]);
+
+      const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(query).toContain("Patient_agg");
+      expect(query).toContain("c_Animal");
+      expect(query).toContain("c_Plant");
+      expect(variables.filter_c_Animal.species._match_any_including_children).toBe("Animal");
+      expect(variables.filter_c_Plant.species._match_any_including_children).toBe("Plant");
+
+      expect(facetCounts.value.get("Animal")).toBe(10);
+      expect(facetCounts.value.get("Plant")).toBe(5);
     });
 
-    await nextTick();
-    await flushPromises();
+    it("skips fetch for nested dotted column paths", async () => {
+      const { facetCounts, fetchParentCounts } = useFilterCounts({
+        crossFilter: ref({}),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("hospital.species"),
+        keyField: ref("name"),
+      });
 
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(2);
+      await fetchParentCounts(["Mammal"]);
 
-    const firstCall = mockFetchGraphql.mock.calls[0];
-    const firstVariables = firstCall[2];
-    expect(firstVariables.filter.species).toBeUndefined();
-    expect(firstVariables.filter.breed).toBeDefined();
-
-    const secondCall = mockFetchGraphql.mock.calls[1];
-    const secondVariables = secondCall[2];
-    expect(secondVariables.filter.breed).toBeUndefined();
-    expect(secondVariables.filter.species).toBeDefined();
-  });
-
-  it("does not fetch counts for non-ontology columns", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["name"]);
-    const searchValue = ref("");
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(facetCounts.value.size).toBe(0);
     });
 
-    await nextTick();
-    await flushPromises();
+    it("does nothing when crossFilter is undefined", async () => {
+      const { fetchParentCounts } = useFilterCounts({
+        crossFilter: ref(undefined),
+        schemaId: ref("s"),
+        tableId: ref("Patient"),
+        columnPath: ref("species"),
+        keyField: ref("name"),
+      });
 
-    expect(mockFetchGraphql).not.toHaveBeenCalled();
-    expect(facetCounts.value.size).toBe(0);
-  });
-
-  it("fetches leaf counts for visible REF columns", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["category", "orders"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 4, category: { name: "Mammal" } },
-        { count: 2, category: { name: "Bird" } },
-      ],
+      await fetchParentCounts(["Animal"]);
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
     });
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 3, orders: { name: "Carnivora" } },
-        { count: 1, orders: { name: "Rodentia" } },
-      ],
-    });
-
-    const { facetCounts, isLoading } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    expect(isLoading.value).toBe(false);
-    expect(facetCounts.value.size).toBe(2);
-
-    const categoryCounts = facetCounts.value.get("category");
-    expect(categoryCounts?.get("Mammal")).toBe(4);
-    expect(categoryCounts?.get("Bird")).toBe(2);
-
-    const ordersCounts = facetCounts.value.get("orders");
-    expect(ordersCounts?.get("Carnivora")).toBe(3);
-    expect(ordersCounts?.get("Rodentia")).toBe(1);
-  });
-
-  it("fetches leaf counts for visible SELECT and RADIO columns", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["status", "gender"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 3, status: { name: "Active" } },
-        { count: 1, status: { name: "Inactive" } },
-      ],
-    });
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 6, gender: { name: "Male" } },
-        { count: 4, gender: { name: "Female" } },
-      ],
-    });
-
-    const { facetCounts, isLoading } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    expect(isLoading.value).toBe(false);
-    expect(facetCounts.value.size).toBe(2);
-
-    const statusCounts = facetCounts.value.get("status");
-    expect(statusCounts?.get("Active")).toBe(3);
-    expect(statusCounts?.get("Inactive")).toBe(1);
-
-    const genderCounts = facetCounts.value.get("gender");
-    expect(genderCounts?.get("Male")).toBe(6);
-    expect(genderCounts?.get("Female")).toBe(4);
-  });
-
-  it("handles empty groupBy results", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({ Dog_groupBy: [] });
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts).toBeDefined();
-    expect(speciesCounts?.size).toBe(0);
-  });
-
-  it("handles fetch errors gracefully", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    const consoleWarnSpy = vi
-      .spyOn(console, "warn")
-      .mockImplementation(() => {});
-    mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
-
-    const { facetCounts, isLoading } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    expect(isLoading.value).toBe(false);
-    expect(consoleWarnSpy).toHaveBeenCalled();
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts).toBeDefined();
-    expect(speciesCounts?.size).toBe(0);
-
-    consoleWarnSpy.mockRestore();
-  });
-
-  it("fetches parent counts with _match_any_including_children", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      c_Mammal: { count: 10 },
-      c_Animal: { count: 15 },
-    });
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const result = await fetchParentCounts("species", ["Mammal", "Animal"]);
-
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
-    const call = mockFetchGraphql.mock.calls[0];
-    const query = call[1] as string;
-    const variables = call[2] as Record<string, any>;
-
-    expect(query).toContain("c_Mammal");
-    expect(query).toContain("c_Animal");
-    expect(query).toContain("Dog_agg");
-
-    expect(
-      variables.filter_c_Mammal.species._match_any_including_children
-    ).toBe("Mammal");
-    expect(
-      variables.filter_c_Animal.species._match_any_including_children
-    ).toBe("Animal");
-
-    expect(result.get("Mammal")).toBe(10);
-    expect(result.get("Animal")).toBe(15);
-  });
-
-  it("caches parent counts", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValue({
-      c_Mammal: { count: 10 },
-      c_Animal: { count: 15 },
-    });
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["Mammal", "Animal"]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
-
-    const cachedResult = await fetchParentCounts("species", [
-      "Mammal",
-      "Animal",
-    ]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
-
-    expect(cachedResult.get("Mammal")).toBe(10);
-    expect(cachedResult.get("Animal")).toBe(15);
-  });
-
-  it("invalidates parent count cache when cross-filter changes", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValue({
-      c_Mammal: { count: 10 },
-    });
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["Mammal"]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
-
-    filterStates.value = new Map([
-      ["breed", { operator: "equals", value: [{ name: "Labrador" }] }],
-    ]);
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["Mammal"]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(2);
-  });
-
-  it("returns empty map for empty parentNames", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const result = await fetchParentCounts("species", []);
-
-    expect(mockFetchGraphql).not.toHaveBeenCalled();
-    expect(result.size).toBe(0);
-  });
-
-  it("handles parent count fetch errors gracefully", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    const consoleWarnSpy = vi
-      .spyOn(console, "warn")
-      .mockImplementation(() => {});
-    mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const result = await fetchParentCounts("species", ["Mammal"]);
-
-    expect(consoleWarnSpy).toHaveBeenCalled();
-    expect(result.size).toBe(0);
-
-    consoleWarnSpy.mockRestore();
-  });
-
-  it("sanitizes parent names in query aliases", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref([]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      c_My_Special_Term: { count: 5 },
-    });
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["My-Special Term!"]);
-
-    const call = mockFetchGraphql.mock.calls[0];
-    const query = call[1] as string;
-
-    expect(query).toContain("c_My_Special_Term");
-    expect(query).not.toContain("My-Special Term!");
-  });
-
-  it("includes searchValue in cross-filter", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("labrador");
-
-    mockFetchGraphql.mockResolvedValueOnce({ Dog_groupBy: [] });
-
-    useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
-    const call = mockFetchGraphql.mock.calls[0];
-    const variables = call[2] as Record<string, any>;
-
-    expect(variables.filter._search).toBe("labrador");
-  });
-
-  it("clears parent count cache when fetchLeafCounts is called", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValue({
-      Dog_groupBy: [],
-      c_Mammal: { count: 10 },
-    });
-
-    const { fetchParentCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["Mammal"]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(2);
-
-    visibleFilterIds.value = ["species", "breed"];
-    await nextTick();
-    await flushPromises();
-
-    await fetchParentCounts("species", ["Mammal"]);
-    expect(mockFetchGraphql).toHaveBeenCalledTimes(5);
-  });
-
-  it("uses refLabel over refLabelDefault when fetching leaf counts", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref<IColumn[]>([
-      {
-        id: "species",
-        columnType: "ONTOLOGY",
-        refTableId: "Species",
-        refLabel: "${code}",
-        refLabelDefault: "${name}",
-      } as IColumn,
-    ]);
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [{ count: 5, species: { code: "CANINE" } }],
-    });
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const call = mockFetchGraphql.mock.calls[0];
-    const query = call[1] as string;
-    expect(query).toContain("code");
-    expect(query).not.toContain("name");
-
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts?.get("CANINE")).toBe(5);
-  });
-
-  it("uses refLabelDefault when refLabel is not set", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref<IColumn[]>([
-      {
-        id: "species",
-        columnType: "ONTOLOGY",
-        refTableId: "Species",
-        refLabelDefault: "${id}",
-      } as IColumn,
-    ]);
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [{ count: 3, species: { id: "42" } }],
-    });
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const call = mockFetchGraphql.mock.calls[0];
-    const query = call[1] as string;
-    expect(query).toContain("id");
-
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts?.get("42")).toBe(3);
-  });
-
-  it("falls back to name field when neither refLabel nor refLabelDefault is set", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref<IColumn[]>([
-      {
-        id: "species",
-        columnType: "ONTOLOGY",
-        refTableId: "Species",
-      } as IColumn,
-    ]);
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [{ count: 7, species: { name: "Canine" } }],
-    });
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const call = mockFetchGraphql.mock.calls[0];
-    const query = call[1] as string;
-    expect(query).toContain("name");
-
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts?.get("Canine")).toBe(7);
-  });
-
-  it("handles groupBy results with missing or null term names", async () => {
-    const schemaId = ref("test");
-    const tableId = ref("Dog");
-    const filterStates = ref(new Map<string, IFilterValue>());
-    const columns = ref(createMockColumns());
-    const visibleFilterIds = ref(["species"]);
-    const searchValue = ref("");
-
-    mockFetchGraphql.mockResolvedValueOnce({
-      Dog_groupBy: [
-        { count: 5, species: { name: "Canine" } },
-        { count: 3, species: null },
-        { count: 2, species: {} },
-        { count: 1 },
-      ],
-    });
-
-    const { facetCounts } = useFilterCounts({
-      schemaId,
-      tableId,
-      filterStates,
-      columns,
-      visibleFilterIds,
-      searchValue,
-    });
-
-    await nextTick();
-    await flushPromises();
-
-    const speciesCounts = facetCounts.value.get("species");
-    expect(speciesCounts?.size).toBe(1);
-    expect(speciesCounts?.get("Canine")).toBe(5);
   });
 });

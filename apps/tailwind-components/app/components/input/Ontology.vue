@@ -8,7 +8,9 @@ import {
   onMounted,
   nextTick,
 } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
+import type { IGraphQLFilter } from "../../../types/filters";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
@@ -17,6 +19,7 @@ import InputSearch from "../input/Search.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
+import { useFilterCounts } from "../../composables/useFilterCounts";
 
 const props = withDefaults(
   defineProps<
@@ -28,7 +31,10 @@ const props = withDefaults(
       selectCutOff?: number;
       forceList?: boolean;
       showClear?: boolean;
-      facetCounts?: Map<string, number>;
+      crossFilter?: IGraphQLFilter;
+      schemaId?: string;
+      tableId?: string;
+      columnPath?: string;
     }
   >(),
   {
@@ -153,6 +159,7 @@ async function reload() {
     const allData = await fetchGraphql(props.ontologySchemaId, query, {});
     rootNode.value.children = assembleTree(allData.allTerms || []);
     applySelectedStates();
+    fetchCountsForVisibleNodes();
   } else {
     await loadPage(rootNode.value, 0);
   }
@@ -280,6 +287,8 @@ async function loadPage(
     // For nested nodes, apply to this node (which recursively applies to its children)
     applyStateToNode(node);
   }
+
+  fetchCountsForVisibleNodes();
 }
 
 async function applyModelValue(data: any = undefined): Promise<void> {
@@ -594,6 +603,42 @@ const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
 onMounted(() => {
   reload();
 });
+
+const { facetCounts: localFacetCounts, countsLoading, fetchCounts: fetchLeafCounts, fetchParentCounts } = useFilterCounts({
+  crossFilter: () => props.crossFilter,
+  schemaId: () => props.schemaId,
+  tableId: () => props.tableId,
+  columnPath: () => props.columnPath,
+  keyField: () => "name",
+});
+
+function collectVisibleNodeNames(node: ITreeNodeState): { leaves: string[]; parents: string[] } {
+  const leaves: string[] = [];
+  const parents: string[] = [];
+  for (const child of node.children || []) {
+    if (child.children && child.children.length > 0) {
+      parents.push(child.name);
+      const sub = collectVisibleNodeNames(child);
+      leaves.push(...sub.leaves);
+      parents.push(...sub.parents);
+    } else {
+      leaves.push(child.name);
+    }
+  }
+  return { leaves, parents };
+}
+
+async function fetchCountsForVisibleNodes() {
+  const { leaves, parents } = collectVisibleNodeNames(rootNode.value);
+  if (leaves.length > 0) fetchLeafCounts(leaves);
+  if (parents.length > 0) fetchParentCounts(parents);
+}
+
+const debouncedRefetchCounts = useDebounceFn(() => {
+  fetchCountsForVisibleNodes();
+}, 300);
+
+watch(() => props.crossFilter, debouncedRefetchCounts, { deep: true });
 </script>
 
 <template>
@@ -764,7 +809,8 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
-            :facet-counts="facetCounts"
+            :facet-counts="localFacetCounts.size > 0 ? localFacetCounts : undefined"
+            :counts-loading="countsLoading"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"

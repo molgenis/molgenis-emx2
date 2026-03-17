@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRef, useId, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
@@ -10,8 +10,9 @@ import FilterPicker from "./FilterPicker.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
-import { useFilterCounts } from "../../composables/useFilterCounts";
+import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
+import type { IGraphQLFilter } from "../../../types/filters";
 
 const props = withDefaults(
   defineProps<{
@@ -147,13 +148,18 @@ const searchTerms = defineModel<string>("searchTerms", {
 
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 
-const { facetCounts } = useFilterCounts({
-  schemaId: toRef(props, "schemaId"),
-  tableId: toRef(props, "tableId"),
-  filterStates,
-  columns: filterableColumns,
-  visibleFilterIds,
-  searchValue: searchTerms,
+const crossFilterMap = computed(() => {
+  const map = new Map<string, IGraphQLFilter>();
+  for (const filterId of visibleFilterIds.value) {
+    const crossFilterStates = new Map<string, IFilterValue>();
+    filterStates.value.forEach((value, key) => {
+      if (key !== filterId) {
+        crossFilterStates.set(key, value);
+      }
+    });
+    map.set(filterId, buildGraphQLFilter(crossFilterStates, filterableColumns.value, searchTerms.value));
+  }
+  return map;
 });
 
 watch(
@@ -364,7 +370,10 @@ async function loadRefColumnsForPath(fullPath: string) {
       :depth="0"
       :removable="true"
       @remove="handleFilterToggle(filter.fullPath)"
-      :facet-counts="facetCounts.get(filter.column.id)"
+      :cross-filter="crossFilterMap.get(filter.fullPath)"
+      :schema-id="schemaId"
+      :table-id="tableId"
+      :column-path="filter.fullPath"
     />
   </div>
 </template>

@@ -987,6 +987,46 @@ describe("OntologyInput", () => {
     });
   });
 
+  describe("facet count fetching", () => {
+    it("fetches leaf counts via _groupBy after loading page", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      mockFetch.mockResolvedValue({ test_table_groupBy: [] });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          forceList: true,
+          crossFilter: { age: { between: [1, 10] } },
+          schemaId: "test-schema",
+          tableId: "test_table",
+          columnPath: "disease",
+        },
+      });
+      await flushPromises();
+
+      const groupByCall = mockFetch.mock.calls.find((call) =>
+        String(call[1]).includes("_groupBy")
+      );
+      expect(groupByCall).toBeDefined();
+      expect(groupByCall![0]).toBe("test-schema");
+      expect(groupByCall![2]).toEqual(
+        expect.objectContaining({
+          filter: expect.objectContaining({
+            age: { between: [1, 10] },
+          }),
+        })
+      );
+    });
+  });
+
   describe("Prevent Duplicate Loads", () => {
     it("should only fetch once for simultaneous load more calls", async () => {
       mockFetch.mockResolvedValueOnce({

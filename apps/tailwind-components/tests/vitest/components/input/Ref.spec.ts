@@ -1,5 +1,5 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { mount, flushPromises } from "@vue/test-utils";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import InputRef from "../../../../app/components/input/Ref.vue";
 
 vi.mock("../../../../app/composables/fetchTableMetadata", () => {
@@ -39,6 +39,12 @@ vi.mock("../../../../app/composables/fetchRowPrimaryKey", () => {
   };
 });
 
+vi.mock("../../../../app/composables/fetchGraphql", () => ({
+  default: vi.fn(),
+}));
+
+import fetchGraphql from "../../../../app/composables/fetchGraphql";
+
 const wrapper = mount(InputRef, {
   props: {
     id: "test-ref",
@@ -60,5 +66,82 @@ describe("input ref", () => {
       //timeout because of debounce
       expect(wrapper.emitted("blur")).toBeDefined();
     }, 100);
+  });
+});
+
+describe("facet count fetching", () => {
+  let mockFetchGraphql: ReturnType<typeof vi.mocked<typeof fetchGraphql>>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockFetchGraphql = vi.mocked(fetchGraphql);
+  });
+
+  it("fetches counts via _groupBy after loading options", async () => {
+    mockFetchGraphql.mockResolvedValue({
+      Pet_groupBy: [
+        { count: 3, bird: { name: "tweety" } },
+        { count: 5, bird: { name: "daffy" } },
+      ],
+    });
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-counts",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        crossFilter: { age: { between: [1, 10] } },
+        schemaId: "test-schema",
+        tableId: "Pet",
+        columnPath: "bird",
+      },
+    });
+
+    await flushPromises();
+
+    expect(mockFetchGraphql).toHaveBeenCalledWith(
+      "test-schema",
+      expect.stringContaining("Pet_groupBy"),
+      expect.objectContaining({
+        filter: expect.objectContaining({
+          age: { between: [1, 10] },
+        }),
+      })
+    );
+  });
+
+  it("re-fetches counts when crossFilter changes", async () => {
+    vi.useFakeTimers();
+    mockFetchGraphql.mockResolvedValue({
+      Pet_groupBy: [],
+    });
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-recount",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        crossFilter: { age: { between: [1, 10] } },
+        schemaId: "test-schema",
+        tableId: "Pet",
+        columnPath: "bird",
+      },
+    });
+
+    await flushPromises();
+    const callsBefore = mockFetchGraphql.mock.calls.length;
+
+    await wrapper.setProps({ crossFilter: { age: { between: [5, 20] } } });
+    vi.advanceTimersByTime(300);
+    await flushPromises();
+
+    vi.useRealTimers();
+    expect(mockFetchGraphql.mock.calls.length).toBeGreaterThan(callsBefore);
   });
 });

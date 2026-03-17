@@ -67,7 +67,14 @@ export function buildGraphQLFilter(
     switch (operator) {
       case "equals":
         if (typeof value === "object" && value !== null) {
-          filterValueObj = { equals: Array.isArray(value) ? value : [value] };
+          const arr = Array.isArray(value) ? value : [value];
+          if (arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null) {
+            const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
+            const refValues = arr.map((v: any) => (v as Record<string, unknown>)[refField]);
+            filterValueObj = { [refField]: { equals: refValues } };
+          } else {
+            filterValueObj = { equals: arr };
+          }
         } else {
           filterValueObj = { equals: value };
         }
@@ -128,9 +135,20 @@ export function buildGraphQLFilter(
 
       case "in":
         if (Array.isArray(value) && value.length > 0) {
-          filterValueObj = { equals: value };
+          if (typeof value[0] === "object" && value[0] !== null) {
+            const refField = Object.keys(value[0] as Record<string, unknown>)[0]!;
+            const refValues = value.map((v: any) => (v as Record<string, unknown>)[refField]);
+            filterValueObj = { [refField]: { equals: refValues } };
+          } else {
+            filterValueObj = { equals: value };
+          }
         } else if (value != null) {
-          filterValueObj = { equals: [value] };
+          if (typeof value === "object" && value !== null) {
+            const refField = Object.keys(value as Record<string, unknown>)[0]!;
+            filterValueObj = { [refField]: { equals: [(value as Record<string, unknown>)[refField]] } };
+          } else {
+            filterValueObj = { equals: [value] };
+          }
         }
         break;
 

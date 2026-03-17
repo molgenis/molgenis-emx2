@@ -4,7 +4,7 @@ import type {
   IColumn,
   CellValueType,
 } from "../../../../metadata-utils/src/types";
-import type { IFilterValue, FilterOperator } from "../../../types/filters";
+import type { IFilterValue, FilterOperator, IGraphQLFilter } from "../../../types/filters";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
 
@@ -14,7 +14,10 @@ const props = withDefaults(
     depth?: number;
     labelPrefix?: string;
     removable?: boolean;
-    facetCounts?: Map<string, number>;
+    crossFilter?: IGraphQLFilter;
+    schemaId?: string;
+    tableId?: string;
+    columnPath?: string;
   }>(),
   {
     depth: 0,
@@ -204,7 +207,10 @@ function handleClear() {
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="false"
-      :facet-counts="facetCounts"
+      :cross-filter="crossFilter"
+      :schema-id="schemaId"
+      :table-id="tableId"
+      :column-path="columnPath || column.id"
       :force-list="true"
     />
     <span
