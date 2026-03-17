@@ -1,5 +1,6 @@
 import type { ICranioSchemas } from ".";
-import type { IOrganisations } from "./schema";
+import type { IDashboardPages, ICharts } from "./schema";
+import type { IOrganisations } from "./ErnDashboard";
 
 export interface IAppPage {
   organisation: IOrganisations;
@@ -11,4 +12,16 @@ export interface IAppPage {
       providers: string;
     };
   };
+}
+
+export interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
+}
+
+export interface IDashboardPagesResponse {
+  DashboardPages: IDashboardPages[];
+}
+
+export interface IChartsResponse {
+  Charts: ICharts[];
 }

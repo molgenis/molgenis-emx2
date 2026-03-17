@@ -15,6 +15,13 @@ import org.molgenis.emx2.*;
 
 public class Generator {
 
+  private static final String MG_TABLECLASS_INTERFACE =
+      """
+                    export interface IMgTableClass {
+                        mg_tableclass: string;
+                    }
+                    """;
+
   private static final String FILE_TS_INTERFACE =
       """
                     export interface IFile {
@@ -64,6 +71,9 @@ public class Generator {
       writer.println("");
     }
 
+    writer.write(MG_TABLECLASS_INTERFACE);
+    writer.println("");
+
     writer.write(FILE_TS_INTERFACE);
     writer.println("");
 
@@ -82,7 +92,7 @@ public class Generator {
               schema.getName().equals(table.getSchemaName())
                   ? table.getTableName()
                   : table.getSchemaName() + '_' + table.getTableName());
-      writer.println(String.format("export interface I%s {", tableName));
+      writer.println(String.format("export interface I%s extends IMgTableClass {", tableName));
 
       Set<String> seenColumns = new LinkedHashSet<>();
       for (Column column : table.getColumnsIncludingSubclasses()) {

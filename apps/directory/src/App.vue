@@ -4,6 +4,10 @@
       <div v-html="banner" />
     </template>
     <Error />
+    <GTag
+      v-if="settingsStore.googleAnalyticsId"
+      :tagId="settingsStore.googleAnalyticsId"
+    />
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <div v-html="footer" />
@@ -15,7 +19,7 @@
 <script setup lang="ts">
 import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
-import { Molgenis } from "molgenis-components";
+import { Molgenis, GTag } from "molgenis-components";
 import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";

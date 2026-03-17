@@ -1,5 +1,5 @@
 <script setup>
-import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
+import SideModal from "../../../tailwind-components/app/components/SideModal.vue";
 
 defineProps({
   navigation: {
