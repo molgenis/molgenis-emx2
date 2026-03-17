@@ -1,8 +1,8 @@
 # Plan: feat/tw-filters — Port Filter System to tailwind-components + TableEMX2
 
-## Status: Phase 9 — Refactor facet counts: per-input, batched with option loading
+## Status: Phase 9 complete
 
-## Phase 9: Refactor facet counts
+## Phase 9: Refactor facet counts [x]
 
 ### Problem
 Current `useFilterCounts` fetches counts centrally in Sidebar for ALL visible filter columns on every filter change. This means:
@@ -55,16 +55,16 @@ Counts load async (separate `_groupBy` after options load). No spinners — too 
 
 ### Step-by-step plan
 
-#### 9.1 Add `crossFilter` computed map in Sidebar
+#### 9.1 Add `crossFilter` computed map in Sidebar [x]
 - Compute `Map<columnId, IGraphQLFilter>` from current filterStates (reuse `buildCrossFilter` logic from useFilterCounts)
 - Pass `crossFilter` prop to `FilterColumn` instead of `facetCounts`
 - Remove `useFilterCounts` import from Sidebar
 
-#### 9.2 Update Column.vue and Input.vue prop chain
+#### 9.2 Update Column.vue and Input.vue prop chain [x]
 - Replace `facetCounts: Map<string, number>` prop with `crossFilter: IGraphQLFilter`
 - Pass through Column → Input → InputRef / InputOntology
 
-#### 9.3 Add count fetching to InputRef
+#### 9.3 Add count fetching to InputRef [x]
 - After `loadOptions()` returns a batch of options, fire a `_groupBy` query:
   ```graphql
   query($filter: {Table}Filter) {
@@ -83,7 +83,7 @@ Counts load async (separate `_groupBy` after options load). No spinners — too 
   - Keep old counts visible (stale) until new ones arrive
 - Pass local counts to CheckboxGroup as `facetCounts`
 
-#### 9.4 Add count fetching to InputOntology
+#### 9.4 Add count fetching to InputOntology [x]
 - After `loadPage()` returns a batch of tree nodes, fire a `_groupBy` query for those nodes
 - For parent nodes: use `_agg` with `_match_any_including_children` (existing pattern)
   but only for the parents currently visible, not all
@@ -93,33 +93,33 @@ Counts load async (separate `_groupBy` after options load). No spinners — too 
 - Store in local `Map<string, number>` ref
 - Pass to TreeNode as `facetCounts`
 
-#### 9.5 Add opacity transition to count badges
+#### 9.5 Add opacity transition to count badges [x]
 - CheckboxGroup.vue and TreeNode.vue: wrap count `<span>` in a transition
 - `opacity-50` while counts are loading/stale, `opacity-100` when fresh
 - Use `transition-opacity duration-200` for smooth fade
 - No spinners, no layout shift
 
-#### 9.6 Remove useFilterCounts composable
+#### 9.6 Remove useFilterCounts composable [x]
 - Delete `app/composables/useFilterCounts.ts`
 - Delete `tests/vitest/composables/useFilterCounts.spec.ts`
 - Remove from Sidebar.vue imports
 
-#### 9.7 Update tests
+#### 9.7 Update tests [x]
 - Add vitest tests for InputRef count fetching (mock _groupBy responses)
 - Add vitest tests for InputOntology count fetching
 - Update Sidebar.spec.ts to pass crossFilter instead of facetCounts
 - Update Column.spec.ts prop expectations
 
 #### 9.8 Verify
-- [ ] Counts appear next to filter options (fade in after options load)
-- [ ] Counts update when other filters change (crossFilter reactivity)
-- [ ] Old counts stay visible while new counts load (no flicker)
-- [ ] "Load more" fetches counts only for the new batch
-- [ ] Ontology expand fetches counts only for visible children
-- [ ] No N+1 query explosion — one _groupBy per load action
-- [ ] Small ontologies (< 25 items) still work
-- [ ] All vitest tests pass
-- [ ] E2e test passes
+- [x] Counts appear next to filter options (fade in after options load)
+- [x] Counts update when other filters change (crossFilter reactivity)
+- [x] Old counts stay visible while new counts load (no flicker)
+- [x] "Load more" fetches counts only for the new batch
+- [x] Ontology expand fetches counts only for visible children
+- [x] No N+1 query explosion — one _groupBy per load action
+- [x] Small ontologies (< 25 items) still work
+- [x] All vitest tests pass
+- [x] E2e test passes
 
 ### Decisions
 1. **Cross-filter excludes current column** — standard faceted search. Users see "what would I get if I also select this?" for multi-select filters.
@@ -127,6 +127,143 @@ Counts load async (separate `_groupBy` after options load). No spinners — too 
 3. **Separate _groupBy from option query** — simpler code, optimize to single request later if needed.
 4. **Debounce count re-fetch** on crossFilter change (~300ms).
 5. **String/range filters** don't have option counts. No change needed for them.
+
+### Implementation notes
+- `useFilterCounts` composable is SHARED between InputRef and InputOntology (not deleted — repurposed as shared composable)
+- Nested dotted column paths (e.g., `hospital.city`) are guarded: counts are skipped since backend `_groupBy` doesn't support nested ref field grouping
+- `columnId` prop renamed to `columnPath` throughout the chain to carry the full dotted path
+- Ontology parent counts use `_agg` with `_match_any_including_children` (batched N aliases in one GQL request)
+- Step 9.6 was adjusted: composable was NOT deleted but refactored into shared composable with `fetchCounts` (leaves) and `fetchParentCounts` (ontology parents)
+
+---
+
+---
+
+## Phase 10: Simplify FilterColumn
+
+### Status: DRAFT
+
+### Problem
+Column.vue drills 6 props it doesn't use itself (`depth`, `labelPrefix`, `schemaId`, `tableId`, `columnPath`, `crossFilter`) through to Input → Ref/Ontology. The `:style` CSS var overrides are also unusual for our codebase.
+
+### Current prop flow (too much drilling)
+```
+Sidebar
+  → schemaId, tableId, columnPath, crossFilter, depth, labelPrefix
+    → Column.vue (uses only column + labelPrefix, passes rest through)
+      → Input.vue (routes by type, passes rest through)
+        → Ref.vue / Ontology.vue (calls useFilterCounts with all 4 count-related props)
+```
+
+### Key insight: countFetcher object
+Instead of drilling `schemaId`, `tableId`, `columnPath`, `crossFilter` separately, Sidebar creates a **countFetcher** object per column that bakes all of these in. Inputs receive one prop and just call a function.
+
+### Design: ICountFetcher
+
+```typescript
+interface ICountFetcher {
+  fetchRefCounts(options: Map<string, Record<string, unknown>>): Promise<Map<string, number>>;
+  fetchOntologyLeafCounts(names: string[]): Promise<Map<string, number>>;
+  fetchOntologyParentCounts(names: string[]): Promise<Map<string, number>>;
+}
+```
+
+**`fetchRefCounts(options: Map<string, Record<string, unknown>>)`**
+- Takes a map of `label → keyObject` (e.g. `Map{ "cat" → {name:"cat"}, "dog" → {name:"dog"} }`)
+- Internally: extracts key field from objects, builds `_groupBy` query using baked-in `schemaId`, `tableId`, `columnPath`
+- Applies current `crossFilter` at call time (reactive — always uses latest)
+- Returns `Map<label, count>` — same keys as input map
+
+**`fetchOntologyLeafCounts(names)`**
+- Takes leaf ontology term names
+- Internally: builds `_groupBy` query (same as fetchRefCounts but keyed on `name`)
+- Applies current `crossFilter` at call time
+- Returns `Map<name, count>`
+
+**`fetchOntologyParentCounts(names)`**
+- Takes parent ontology term names
+- Internally: builds `_agg` query with `_match_any_including_children` per name
+- Applies current `crossFilter` at call time
+- Returns `Map<name, count>`
+- Future: replace with `_groupByIncludingChildren` when backend supports it
+
+**No state in the fetcher** — no refs, no loading booleans, no cached maps. Pure async functions. The input component manages its own display state (show options immediately, update counts when promise resolves).
+
+### New prop flow
+```
+Sidebar
+  → creates ICountFetcher per column (bakes in schemaId, tableId, columnPath, crossFilter)
+  → passes countFetcher + label to Column
+    → Column.vue (uses column, label, removable — passes countFetcher to Input)
+      → Input.vue (passes countFetcher by type)
+        → Ref.vue: awaits countFetcher.fetchRefCounts(loadedOptions)
+        → Ontology.vue: awaits countFetcher.fetchOntologyLeafCounts(leaves)
+                       awaits countFetcher.fetchOntologyParentCounts(parents)
+```
+
+### Step-by-step plan
+
+#### 10.1 Create `createCountFetcher` factory
+- New file: `app/utils/createCountFetcher.ts`
+- Takes `{ schemaId, tableId, columnPath, crossFilter: () => IGraphQLFilter }`
+- Returns `ICountFetcher` with two async methods
+- `fetchRefCounts`: reuses `_groupBy` query logic from current `useFilterCounts.fetchCounts`
+- `fetchOntologyLeafCounts`: reuses `_groupBy` logic, keyed on `name`
+- `fetchOntologyParentCounts`: reuses `_agg` + `_match_any_including_children` logic from current `useFilterCounts.fetchParentCounts` (future: replace with `_groupByIncludingChildren`)
+- crossFilter is read at call time via getter, so always current
+
+#### 10.2 Remove `depth` from Column.vue
+Unused prop, just delete.
+
+#### 10.3 Replace `labelPrefix` with `label` prop
+Parent already knows the full label. Pass directly.
+
+#### 10.4 Replace 5 drilling props with `countFetcher`
+- Sidebar creates `ICountFetcher` per column in computed/function
+- Column.vue: remove `schemaId`, `tableId`, `columnPath`, `crossFilter` — add `countFetcher`
+- Input.vue: same replacement
+- Ref.vue: replace `useFilterCounts` call with `props.countFetcher.fetchRefCounts()`
+- Ontology.vue: replace `useFilterCounts` calls with `countFetcher.fetchOntologyLeafCounts()` + `countFetcher.fetchOntologyParentCounts()`
+
+#### 10.5 Replace `:style` hacks with CSS cascade
+Add `.filter-sidebar-context` class on Sidebar wrapper:
+```css
+.filter-sidebar-context {
+  --text-color-title-contrast: var(--text-color-search-filter-group-title);
+  --text-color-input-description: var(--text-color-search-filter-group-title);
+  --text-color-input: var(--text-color-search-filter-group-title);
+}
+```
+Remove per-Column `:style` bindings.
+
+#### 10.6 Delete `useFilterCounts` composable
+Logic moved into `createCountFetcher`. Delete:
+- `app/composables/useFilterCounts.ts`
+- `tests/vitest/composables/useFilterCounts.spec.ts`
+
+#### 10.7 Write tests for `createCountFetcher`
+- Test `fetchRefCounts` with mock GraphQL responses
+- Test `fetchOntologyLeafCounts` with mock GraphQL responses
+- Test `fetchOntologyParentCounts` with mock GraphQL responses
+- Test that crossFilter getter is called at invocation time (not creation time)
+
+#### 10.8 Resulting Column.vue props
+```typescript
+defineProps<{
+  column: IColumn;
+  label?: string;
+  removable?: boolean;
+  countFetcher?: ICountFetcher;
+}>()
+```
+
+### Risks
+- Ontology.vue currently debounces count refetch on crossFilter change — with pure async the caller must handle debouncing itself (already does via watch)
+
+### Not in scope
+- Changing IGraphQLFilter type (already handles nesting)
+- Changing how Sidebar computes crossFilter
+- Changing Ref/Ontology option loading logic
 
 ---
 
@@ -158,7 +295,7 @@ Counts load async (separate `_groupBy` after options load). No spinners — too 
 
 ### 7.2 Remove unnecessary mocks [x]
 - [x] `useFilterCounts.spec.ts` — removed dead `#imports` and `#app/composables/router` mocks
-- [x] `FilterPicker.spec.ts` — simplified `vDropdownStub` to click-toggle
+- [x] `FilterPicker.spec.ts` — simplified `vDropdownStub` to click-toggle1
 
 ### 7.3 Fix copy-pasted test function [x]
 - [x] Extracted `computeDefaultFilters` to `app/utils/computeDefaultFilters.ts`
