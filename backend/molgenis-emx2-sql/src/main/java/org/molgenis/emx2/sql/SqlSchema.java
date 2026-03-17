@@ -480,4 +480,9 @@ public class SqlSchema implements Schema {
   public List<TablePermission> getPermissionsForActiveUser() {
     return roleManager().getPermissionsForActiveUser(getName());
   }
+
+  @Override
+  public PermissionEvaluator getPermissionEvaluator() {
+    return new SqlPermissionEvaluator(getMetadata());
+  }
 }
