@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import TextHeading from "../../../../app/components/text/Heading.vue";
+import TextHeading from "../../../../app/components/pages/Heading.vue";
 
 const wrapper = mount(TextHeading, {
   props: {

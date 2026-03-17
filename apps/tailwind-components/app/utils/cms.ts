@@ -8,6 +8,7 @@ import type {
 
 export function newDeveloperPage(): IDeveloperPages {
   return {
+    mg_tableclass: "",
     name: "",
     description: "",
     html: "",
