@@ -15,7 +15,7 @@ Endpoint,,contact,ref,,,,Agents,,,,dcat:contactPoint,Relevant contact informatio
 Endpoint,,contact,ref,,,,Contacts,,,,dcat:contactPoint,Relevant contact information for the cataloged resource,DataCatalogueFlat
 Endpoint,,keyword,string_array,,,,,,,,dcat:keyword,A keyword or tag describing a resource.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,"FAIRDataPoint,DataCatalogueFlat"
-Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,"The root location or primary endpoint of the service (a web-resolvable IRI). For Beacon v2 only, in other cases we want to autogenerate this information.","Beacon v2,DataCatalogueFlat"
+Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,"The root location or primary endpoint of the service (a web-resolvable IRI). For Beacon v2 only, in other cases we want to autogenerate this information.",Beacon v2
 Endpoint,,endPointDescription,hyperlink_array,,,,,,,,dcat:endpointDescription,"A description of the service end-point, including its operations, parameters etc.","FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,metadataCatalog,ref_array,,TRUE,,Resources,,,,fdp-o:metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",DataCatalogueFlat
 Endpoint,,metadataCatalog,ref_array,,,,Catalog,,,,fdp-o:metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",FAIRDataPoint
