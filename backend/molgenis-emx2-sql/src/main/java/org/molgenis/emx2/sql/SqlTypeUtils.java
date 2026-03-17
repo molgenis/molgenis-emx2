@@ -28,12 +28,16 @@ public class SqlTypeUtils extends TypeUtils {
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
     addJavaScriptBindings(columns, graph);
-    for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
+    List<Column> toValidateAndCompute =
+        columns.stream()
+            .filter(c -> !c.isHeading())
+            .filter(c -> !AUTO_ID.equals(c.getColumnType()))
+            .toList();
+
+    for (Column c : toValidateAndCompute) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else if (AUTO_ID.equals(c.getColumnType())) {
-        applyAutoId(c, row);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {

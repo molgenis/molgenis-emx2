@@ -5,7 +5,6 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
-import org.molgenis.emx2.utils.generator.DSLIdGenerator;
 
 public class RetryingIdGenerator implements DSLIdGenerator {
 

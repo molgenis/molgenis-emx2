@@ -1,4 +1,4 @@
-package org.molgenis.emx2.utils.generator;
+package org.molgenis.emx2.sql.autoid;
 
 import org.jooq.Field;
 
