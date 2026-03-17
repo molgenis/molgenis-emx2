@@ -17,7 +17,7 @@
           v-if="
             !session ||
             !session.roles ||
-            !session.roles.some((r) =>
+            !session.activeRoles?.some((r) =>
               ['Manager', 'Editor', 'Owner'].includes(r.name)
             )
           "
@@ -48,7 +48,7 @@
           v-if="
             session &&
             session.roles &&
-            session.roles.some((r) =>
+            session.activeRoles?.some((r) =>
               ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].includes(
                 r.name
               )
@@ -158,14 +158,14 @@ export default {
   },
   computed: {
     visibleTables() {
-      if (this.session?.roles.some((r) => r.name === "Viewer")) {
+      if (this.session?.activeRoles?.some((r) => r.name === "Viewer")) {
         return this.tables;
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
     isManagerOrOwner() {
-      return this.session?.roles.some((r) =>
+      return this.session?.activeRoles?.some((r) =>
         ["Manager", "Owner"].includes(r.name)
       );
     },

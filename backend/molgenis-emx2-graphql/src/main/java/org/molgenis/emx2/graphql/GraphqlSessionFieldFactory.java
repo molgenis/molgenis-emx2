@@ -14,6 +14,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -137,6 +138,10 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
+                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(ACTIVE_ROLES)
                         .type(GraphQLList.list(GraphqlSchemaFieldFactory.outputRolesType)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
@@ -157,9 +162,11 @@ public class GraphqlSessionFieldFactory {
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
+                List<String> roleNames = schema.getInheritedRolesForActiveUser();
+                result.put(ROLES, roleNames);
                 result.put(
-                    ROLES,
-                    schema.getInheritedRolesForActiveUser().stream()
+                    ACTIVE_ROLES,
+                    roleNames.stream()
                         .map(
                             roleName ->
                                 GraphqlSchemaFieldFactory.roleToMap(schema.getRoleInfo(roleName)))
