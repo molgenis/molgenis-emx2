@@ -119,6 +119,38 @@ system.
 }
 ```
 
+The `roles` field returns the names of the roles assigned to the current user as a plain list of strings (e.g.
+`["Viewer", "Editor"]`). This format is stable and intended for backwards-compatible integrations.
+
+To retrieve the full role definitions including table-level permissions, use `activeRoles`:
+
+```graphql
+{
+  _session {
+    email
+    admin
+    roles
+    activeRoles {
+      name
+      description
+      system
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+      }
+    }
+    schemas
+  }
+}
+```
+
+- `roles` — list of role name strings assigned to the current user. Stable, backwards-compatible.
+- `activeRoles` — same roles as rich objects, including per-table permission details. See
+  [Table-level permissions API](#table-level-permissions-api) for field descriptions.
+
 ### settings
 
 MOLGENIS has a generic key/value settings query for storing settings on database level

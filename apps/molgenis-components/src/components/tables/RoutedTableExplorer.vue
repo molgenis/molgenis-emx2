@@ -5,6 +5,9 @@
       :schemaId="schemaId"
       :canView="canView"
       :canEdit="canEdit"
+      :canInsert="canInsert"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
       :canManage="canManage"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
@@ -66,6 +69,18 @@ export default {
       default: () => true,
     },
     canEdit: {
+      type: Boolean,
+      default: () => false,
+    },
+    canInsert: {
+      type: Boolean,
+      default: () => false,
+    },
+    canUpdate: {
+      type: Boolean,
+      default: () => false,
+    },
+    canDelete: {
       type: Boolean,
       default: () => false,
     },
