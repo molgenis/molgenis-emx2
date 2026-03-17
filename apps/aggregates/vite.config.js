@@ -17,7 +17,6 @@ export default defineConfig(({command}) => {
             viz: path.resolve(dir, "node_modules/molgenis-viz/src"),
             vizdist: path.resolve(dir, "node_modules/molgenis-viz/dist"),
             molgenis: path.resolve(dir, "node_modules/molgenis-components/dist"),
-            app: path.resolve(dir, "src/styles"),
         },
     },
     css: {
@@ -27,7 +26,6 @@ export default defineConfig(({command}) => {
             @import "viz/styles/palettes.scss";
             @import "viz/styles/variables.scss";
             @import "viz/styles/mixins.scss";
-            @import "app/index.scss";
             @import "molgenis/molgenis-components.css";
             @import "vizdist/molgenis-viz.css";
         `,
