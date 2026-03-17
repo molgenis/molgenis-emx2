@@ -155,17 +155,11 @@ export default {
       ) {
         return true;
       } else if (item.role === "Viewer") {
-        return this.session?.roles?.some((r) =>
-          ["Viewer", "Editor", "Manager", "Owner"].includes(r)
-        );
+        return this.session?.roles?.includes("Viewer");
       } else if (item.role === "Editor") {
-        return this.session?.roles?.some((r) =>
-          ["Editor", "Manager", "Owner"].includes(r)
-        );
+        return this.session?.roles?.includes("Editor");
       } else if (item.role === "Manager") {
-        return this.session?.roles?.some((r) =>
-          ["Manager", "Owner"].includes(r)
-        );
+        return this.session?.roles?.includes("Manager");
       } else {
         return false;
       }

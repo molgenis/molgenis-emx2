@@ -209,7 +209,8 @@
             :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
-            :canEdit="canEdit"
+            :canUpdate="canUpdate"
+            :canDelete="canDelete"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
@@ -266,7 +267,7 @@
             </template>
             <template v-slot:rowcolheader>
               <RowButton
-                v-if="canEdit"
+                v-if="canInsert"
                 type="add"
                 :tableId="tableId"
                 :schemaId="schemaId"
@@ -284,7 +285,7 @@
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButton
-                v-if="canEdit"
+                v-if="canUpdate"
                 type="edit"
                 @edit="
                   handleRowAction(
@@ -298,7 +299,7 @@
                 "
               />
               <RowButton
-                v-if="canEdit"
+                v-if="canInsert"
                 type="clone"
                 @clone="
                   handleRowAction(
@@ -312,7 +313,7 @@
                 "
               />
               <RowButton
-                v-if="canEdit"
+                v-if="canDelete"
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
@@ -586,6 +587,18 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    canInsert: {
+      type: Boolean,
+      default: () => false,
+    },
+    canUpdate: {
+      type: Boolean,
+      default: () => false,
+    },
+    canDelete: {
+      type: Boolean,
+      default: () => false,
+    },
     canManage: {
       type: Boolean,
       default: () => false,
@@ -739,7 +752,13 @@ export default {
     },
     handleError(error: any) {
       if (Array.isArray(error?.response?.data?.errors)) {
-        this.graphqlError = error.response.data.errors[0].message;
+        const message = error.response.data.errors[0].message;
+        if (message.includes("FieldUndefined")) {
+          this.graphqlError =
+            "This table contains a reference to data you don't have permission to view. Contact your administrator to request access.";
+        } else {
+          this.graphqlError = message;
+        }
       } else {
         this.graphqlError = error;
       }
@@ -782,6 +801,7 @@ export default {
       }
     },
     async reload() {
+      if (!this.canView) return;
       this.loading = true;
       this.graphqlError = "";
       const offset = this.limit * (this.page - 1);

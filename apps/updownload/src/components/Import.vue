@@ -17,9 +17,7 @@
           v-if="
             !session ||
             !session.roles ||
-            !session.activeRoles?.some((r) =>
-              ['Manager', 'Editor', 'Owner'].includes(r.name)
-            )
+            !session.activeRoles?.some((r) => r.name === 'Editor')
           "
         >
           You don't have permission to upload data. Might you need to login?
@@ -48,10 +46,8 @@
           v-if="
             session &&
             session.roles &&
-            session.activeRoles?.some((r) =>
-              ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].includes(
-                r.name
-              )
+            session.activeRoles?.some(
+              (r) => r.name === 'Viewer' || r.name === 'Aggregator'
             )
           "
         ></div>
@@ -165,9 +161,7 @@ export default {
       }
     },
     isManagerOrOwner() {
-      return this.session?.activeRoles?.some((r) =>
-        ["Manager", "Owner"].includes(r.name)
-      );
+      return this.session?.activeRoles?.some((r) => r.name === "Manager");
     },
     tablesHash() {
       if (this.tables) {
