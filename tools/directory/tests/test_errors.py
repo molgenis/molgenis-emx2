@@ -1,13 +1,13 @@
 import pytest
 import requests.exceptions
 
-from molgenis_emx2.directory_client.errors import (
+from src.molgenis_emx2.directory_client.errors import (
     DirectoryError,
     DirectoryWarning,
     ErrorReport,
     requests_error_handler,
 )
-from molgenis_emx2.directory_client.model import Node
+from src.molgenis_emx2.directory_client.model import Node
 
 
 def test_warning():

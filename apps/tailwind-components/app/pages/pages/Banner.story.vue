@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PageBanner from "../../components/pages/Banner.vue";
 import DemoImage from "../../assets/img/molgenis-banner.jpg";
-import TextHeading from "../../components/text/Heading.vue";
+import TextHeading from "../../components/pages/Heading.vue";
 </script>
 
 <template>

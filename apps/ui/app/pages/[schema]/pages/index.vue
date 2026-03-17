@@ -11,6 +11,10 @@ import Message from "../../../../../tailwind-components/app/components/Message.v
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../tailwind-components/types/cms";
 
+interface ICmsPage extends IContainers {
+  mg_tableclass: string;
+}
+
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
@@ -19,7 +23,7 @@ const schema = Array.isArray(route.params.schema)
 useHead({ title: `Pages - ${schema} - Molgenis` });
 
 interface PagesResponse {
-  data: { Containers: IContainers[] };
+  data: { Containers: ICmsPage[] };
   error: Record<string, any>[];
 }
 

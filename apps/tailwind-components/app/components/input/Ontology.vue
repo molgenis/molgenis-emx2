@@ -20,6 +20,7 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
 import { useFilterCounts } from "../../composables/useFilterCounts";
+import type { IOntologyNode } from "../../../types/cms";
 
 const props = withDefaults(
   defineProps<
@@ -151,7 +152,7 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:[{order:ASC},{name:ASC}]){
         name,parent{name},label,definition,code,codesystem,ontologyTermURI
       }
     }`;
@@ -168,12 +169,12 @@ async function reload() {
 }
 
 function assembleTree(
-  data: any[],
+  data: IOntologyNode[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
   return (
     data
-      .filter((row) => row.parent?.name == parentNode?.name)
+      .filter((row) => row.parent?.name === parentNode?.name)
       .map((row: any) => {
         const node: ITreeNodeState = {
           name: row.name,
@@ -238,7 +239,7 @@ async function loadPage(
     .replace(/false/g, "false");
 
   const query = `query myquery(${variableDeclaration}) {
-    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:[{order:ASC},{name:ASC}], limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
     count: ${props.ontologyTableId}_agg(filter:${countFilterInline}){count}
     totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
   }`;
