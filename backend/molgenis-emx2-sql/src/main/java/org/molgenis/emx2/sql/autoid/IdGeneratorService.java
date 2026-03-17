@@ -7,7 +7,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.utils.generator.DSLIdGenerator;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class IdGeneratorService {
