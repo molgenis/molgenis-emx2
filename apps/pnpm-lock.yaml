@@ -302,9 +302,6 @@ importers:
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.8.2)
-      vue-gtag:
-        specifier: 2.0.1
-        version: 2.0.1(vue@3.5.22(typescript@5.8.2))
       vue-router:
         specifier: 4.4.3
         version: 4.4.3(vue@3.5.22(typescript@5.8.2))
