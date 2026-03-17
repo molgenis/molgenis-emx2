@@ -11,7 +11,7 @@ import org.molgenis.emx2.rdf.writers.WriterFactory;
  * singleton containing the default values.
  */
 public class RdfConfig {
-  private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig(RdfApiGeneratorFactory.EMX2);
+  private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig(RdfApiGeneratorFactory.SEMANTIC);
   private static final RdfConfig SEMANTIC_INSTANCE = new RdfConfig(RdfApiGeneratorFactory.SEMANTIC);
 
   @JsonProperty("writer")
@@ -23,7 +23,7 @@ public class RdfConfig {
   @JsonCreator
   private RdfConfig(@JsonProperty("generator") RdfApiGeneratorFactory rdfApiGeneratorFactory) {
     this.rdfApiGeneratorFactory =
-        rdfApiGeneratorFactory != null ? rdfApiGeneratorFactory : RdfApiGeneratorFactory.EMX2;
+        rdfApiGeneratorFactory != null ? rdfApiGeneratorFactory : RdfApiGeneratorFactory.SEMANTIC;
   }
 
   public static RdfConfig getDefaults() {
