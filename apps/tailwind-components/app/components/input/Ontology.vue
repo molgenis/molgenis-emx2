@@ -10,7 +10,7 @@ import {
 } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
-import type { IGraphQLFilter } from "../../../types/filters";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
@@ -19,7 +19,6 @@ import InputSearch from "../input/Search.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import { useClickOutside } from "../../composables/useClickOutside";
 import fetchGraphql from "../../composables/fetchGraphql";
-import { useFilterCounts } from "../../composables/useFilterCounts";
 import type { IOntologyNode } from "../../../types/cms";
 
 const props = withDefaults(
@@ -32,10 +31,7 @@ const props = withDefaults(
       selectCutOff?: number;
       forceList?: boolean;
       showClear?: boolean;
-      crossFilter?: IGraphQLFilter;
-      schemaId?: string;
-      tableId?: string;
-      columnPath?: string;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
@@ -605,13 +601,8 @@ onMounted(() => {
   reload();
 });
 
-const { facetCounts: localFacetCounts, countsLoading, fetchCounts: fetchLeafCounts, fetchParentCounts } = useFilterCounts({
-  crossFilter: () => props.crossFilter,
-  schemaId: () => props.schemaId,
-  tableId: () => props.tableId,
-  columnPath: () => props.columnPath,
-  keyField: () => "name",
-});
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const countsLoading = ref(false);
 
 function collectVisibleNodeNames(node: ITreeNodeState): { leaves: string[]; parents: string[] } {
   const leaves: string[] = [];
@@ -630,16 +621,35 @@ function collectVisibleNodeNames(node: ITreeNodeState): { leaves: string[]; pare
 }
 
 async function fetchCountsForVisibleNodes() {
+  if (!props.countFetcher) return;
   const { leaves, parents } = collectVisibleNodeNames(rootNode.value);
-  if (leaves.length > 0) fetchLeafCounts(leaves);
-  if (parents.length > 0) fetchParentCounts(parents);
+  const newCounts = new Map<string, number>(localFacetCounts.value);
+  countsLoading.value = true;
+  if (leaves.length > 0) {
+    const leafCounts = await props.countFetcher.fetchOntologyLeafCounts(leaves);
+    for (const [name, count] of leafCounts) {
+      newCounts.set(name, count);
+    }
+  }
+  if (parents.length > 0) {
+    const parentCounts = await props.countFetcher.fetchOntologyParentCounts(parents);
+    for (const [name, count] of parentCounts) {
+      newCounts.set(name, count);
+    }
+  }
+  localFacetCounts.value = newCounts;
+  countsLoading.value = false;
 }
 
 const debouncedRefetchCounts = useDebounceFn(() => {
   fetchCountsForVisibleNodes();
 }, 300);
 
-watch(() => props.crossFilter, debouncedRefetchCounts, { deep: true });
+watch(
+  () => props.countFetcher?.getCrossFilter(),
+  debouncedRefetchCounts,
+  { deep: true }
+);
 </script>
 
 <template>

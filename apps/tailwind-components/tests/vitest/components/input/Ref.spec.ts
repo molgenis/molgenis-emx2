@@ -1,4 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import InputRef from "../../../../app/components/input/Ref.vue";
 
@@ -85,6 +86,16 @@ describe("facet count fetching", () => {
       ],
     });
 
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({ age: { between: [1, 10] } }),
+    });
+
     const wrapper = mount(InputRef, {
       props: {
         id: "test-ref-counts",
@@ -93,10 +104,7 @@ describe("facet count fetching", () => {
         refLabel: "${name}",
         isArray: true,
         limit: 20,
-        crossFilter: { age: { between: [1, 10] } },
-        schemaId: "test-schema",
-        tableId: "Pet",
-        columnPath: "bird",
+        countFetcher,
       },
     });
 
@@ -119,6 +127,18 @@ describe("facet count fetching", () => {
       Pet_groupBy: [],
     });
 
+    const { ref } = await import("vue");
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const crossFilterRef = ref<any>({ age: { between: [1, 10] } });
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => crossFilterRef.value,
+    });
+
     const wrapper = mount(InputRef, {
       props: {
         id: "test-ref-recount",
@@ -127,17 +147,15 @@ describe("facet count fetching", () => {
         refLabel: "${name}",
         isArray: true,
         limit: 20,
-        crossFilter: { age: { between: [1, 10] } },
-        schemaId: "test-schema",
-        tableId: "Pet",
-        columnPath: "bird",
+        countFetcher,
       },
     });
 
     await flushPromises();
     const callsBefore = mockFetchGraphql.mock.calls.length;
 
-    await wrapper.setProps({ crossFilter: { age: { between: [5, 20] } } });
+    crossFilterRef.value = { age: { between: [5, 20] } };
+    await nextTick();
     vi.advanceTimersByTime(300);
     await flushPromises();
 

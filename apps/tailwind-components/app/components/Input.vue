@@ -164,10 +164,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -186,10 +183,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -208,10 +202,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
@@ -231,10 +222,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
@@ -266,10 +254,7 @@
     @blur="emit('blur')"
     :is-array="false"
     :limit="10"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
     :force-list="forceList"
   />
   <InputOntology
@@ -295,10 +280,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
-    :cross-filter="crossFilter"
-    :schema-id="schemaId"
-    :table-id="tableId"
-    :column-path="columnPath"
+    :count-fetcher="countFetcher"
     :force-list="forceList"
   />
   <InputFile
@@ -349,7 +331,7 @@ import type {
   DateValue,
 } from "../../../metadata-utils/src/types";
 import type { IFile, IInputProps, IValueLabel } from "../../types/types";
-import type { IGraphQLFilter } from "../../types/filters";
+import type { ICountFetcher } from "../utils/createCountFetcher";
 import { getOntologyArrayValues } from "../utils/typeUtils";
 import InputArray from "./input/Array.vue";
 import InputBoolean from "./input/Boolean.vue";
@@ -384,10 +366,7 @@ const props = withDefaults(
       align?: "horizontal" | "vertical";
       limit?: number;
       showClear?: boolean;
-      crossFilter?: IGraphQLFilter;
-      schemaId?: string;
-      tableId?: string;
-      columnPath?: string;
+      countFetcher?: ICountFetcher;
       forceList?: boolean;
       errorMessage?: string | null;
     }

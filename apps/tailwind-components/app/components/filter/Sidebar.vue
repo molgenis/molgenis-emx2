@@ -15,6 +15,7 @@ import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 import { formatFilterValue } from "../../utils/formatFilterValue";
 import type { IGraphQLFilter } from "../../../types/filters";
+import { createCountFetcher, type ICountFetcher } from "../../utils/createCountFetcher";
 
 const props = withDefaults(
   defineProps<{
@@ -182,14 +183,14 @@ watch(
   { immediate: true }
 );
 
-interface ResolvedFilter {
+interface IFilter {
   fullPath: string;
   column: IColumn;
-  labelPrefix: string;
+  label: string;
 }
 
-const resolvedFilters = computed<ResolvedFilter[]>(() => {
-  const result: ResolvedFilter[] = [];
+const resolvedFilters = computed<IFilter[]>(() => {
+  const result: IFilter[] = [];
 
   for (const filterId of visibleFilterIds.value) {
     const segments = filterId.split(".");
@@ -200,7 +201,7 @@ const resolvedFilters = computed<ResolvedFilter[]>(() => {
         result.push({
           fullPath: filterId,
           column,
-          labelPrefix: "",
+          label: column.label || column.id,
         });
       }
     } else {
@@ -222,7 +223,7 @@ const resolvedFilters = computed<ResolvedFilter[]>(() => {
       result.push({
         fullPath: filterId,
         column,
-        labelPrefix: labels.length > 0 ? labels.join(".") + "." : "",
+        label: labels.join(".") + "." + (column.label || column.id),
       });
     }
   }
@@ -293,13 +294,8 @@ async function setFilterValue(
 const activeFiltersList = computed<ActiveFilter[]>(() => {
   const result: ActiveFilter[] = [];
   for (const [columnId, filterValue] of filterStates.value) {
-    const resolved = resolvedFilters.value.find((f) => f.fullPath === columnId);
-    const label = resolved
-      ? resolved.labelPrefix
-        ? resolved.labelPrefix +
-          (resolved.column.label || resolved.column.id)
-        : resolved.column.label || resolved.column.id
-      : columnId;
+    const filter = resolvedFilters.value.find((f) => f.fullPath === columnId);
+    const label = filter?.label || columnId;
     const { displayValue, values } = formatFilterValue(filterValue);
     if (displayValue) {
       result.push({ columnId, label, displayValue, values });
@@ -307,6 +303,15 @@ const activeFiltersList = computed<ActiveFilter[]>(() => {
   }
   return result;
 });
+
+function getCountFetcher(columnPath: string): ICountFetcher {
+  return createCountFetcher({
+    schemaId: props.schemaId,
+    tableId: props.tableId,
+    columnPath,
+    getCrossFilter: () => crossFilterMap.value.get(columnPath),
+  });
+}
 
 async function loadRefColumnsForPath(fullPath: string) {
   const segments = fullPath.split(".");
@@ -353,7 +358,7 @@ async function loadRefColumnsForPath(fullPath: string) {
 </script>
 
 <template>
-  <div class="rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient">
+  <div class="filter-sidebar-context rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient">
     <div class="p-5">
       <h2
         class="uppercase font-display text-heading-3xl text-search-filter-title"
@@ -384,16 +389,20 @@ async function loadRefColumnsForPath(fullPath: string) {
       v-for="filter in resolvedFilters"
       :key="filter.fullPath"
       :column="filter.column"
-      :label-prefix="filter.labelPrefix"
+      :label="filter.label"
       :model-value="getFilterValue(filter.fullPath)"
       @update:model-value="setFilterValue(filter.fullPath, $event)"
-      :depth="0"
       :removable="true"
       @remove="handleFilterToggle(filter.fullPath)"
-      :cross-filter="crossFilterMap.get(filter.fullPath)"
-      :schema-id="schemaId"
-      :table-id="tableId"
-      :column-path="filter.fullPath"
+      :count-fetcher="getCountFetcher(filter.fullPath)"
     />
   </div>
 </template>
+
+<style scoped>
+.filter-sidebar-context {
+  --text-color-title-contrast: var(--text-color-search-filter-group-title);
+  --text-color-input-description: var(--text-color-search-filter-group-title);
+  --text-color-input: var(--text-color-search-filter-group-title);
+}
+</style>

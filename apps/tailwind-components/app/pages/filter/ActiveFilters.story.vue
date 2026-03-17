@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ActiveFilters from "../../components/filter/ActiveFilters.vue";
-import type { ActiveFilter } from "../../../../types/filters";
+import type { ActiveFilter } from "../../../types/filters";
 import Story from "../../components/Story.vue";
 
 const emptyFilters: ActiveFilter[] = [];

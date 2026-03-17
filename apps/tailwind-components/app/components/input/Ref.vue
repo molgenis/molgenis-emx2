@@ -10,9 +10,8 @@ import type { ITableDataResponse } from "../../composables/fetchTableData";
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
-import type { IGraphQLFilter } from "../../../types/filters";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
-import { useFilterCounts } from "../../composables/useFilterCounts";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { useClickOutside } from "../../composables/useClickOutside";
@@ -34,10 +33,7 @@ const props = withDefaults(
       isArray?: boolean;
       limit?: number;
       showClear?: boolean;
-      crossFilter?: IGraphQLFilter;
-      schemaId?: string;
-      tableId?: string;
-      columnPath?: string;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
@@ -178,8 +174,18 @@ async function loadOptions(filter: IQueryMetaData) {
   }
   logger.debug("loaded options for " + props.id);
 
-  const labels = Object.keys(optionMap.value);
-  fetchCounts(labels);
+  if (props.countFetcher) {
+    const optMap = new Map<string, Record<string, unknown>>();
+    for (const [label, row] of Object.entries(optionMap.value)) {
+      if (row && typeof row === "object" && !Array.isArray(row)) {
+        optMap.set(label, row as Record<string, unknown>);
+      }
+    }
+    countsLoading.value = true;
+    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    localFacetCounts.value = counts;
+    countsLoading.value = false;
+  }
 }
 
 function toggleSearch() {
@@ -308,28 +314,30 @@ const onBlur = useDebounceFn(() => {
   emit("blur");
 }, 100);
 
-const refKeyField = computed(() => {
-  const template = props.refLabel || "";
-  const match = template.match(/\$\{(\w+)\}/);
-  return match?.[1] || "name";
-});
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const countsLoading = ref(false);
 
-const { facetCounts: localFacetCounts, countsLoading, fetchCounts } = useFilterCounts({
-  crossFilter: () => props.crossFilter,
-  schemaId: () => props.schemaId,
-  tableId: () => props.tableId,
-  columnPath: () => props.columnPath,
-  keyField: refKeyField,
-});
-
-const debouncedRefetchCounts = useDebounceFn(() => {
-  const labels = Object.keys(optionMap.value);
-  if (labels.length > 0) {
-    fetchCounts(labels);
+const debouncedRefetchCounts = useDebounceFn(async () => {
+  if (!props.countFetcher) return;
+  const optMap = new Map<string, Record<string, unknown>>();
+  for (const [label, row] of Object.entries(optionMap.value)) {
+    if (row && typeof row === "object" && !Array.isArray(row)) {
+      optMap.set(label, row as Record<string, unknown>);
+    }
+  }
+  if (optMap.size > 0) {
+    countsLoading.value = true;
+    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    localFacetCounts.value = counts;
+    countsLoading.value = false;
   }
 }, 300);
 
-watch(() => props.crossFilter, debouncedRefetchCounts, { deep: true });
+watch(
+  () => props.countFetcher?.getCrossFilter(),
+  debouncedRefetchCounts,
+  { deep: true }
+);
 </script>
 
 <template>

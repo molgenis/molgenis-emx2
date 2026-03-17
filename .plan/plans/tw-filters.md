@@ -1,6 +1,6 @@
 # Plan: feat/tw-filters — Port Filter System to tailwind-components + TableEMX2
 
-## Status: Phase 9 complete
+## Status: Phase 10 complete
 
 ## Phase 9: Refactor facet counts [x]
 

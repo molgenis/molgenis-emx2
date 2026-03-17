@@ -448,7 +448,7 @@ describe("Sidebar", () => {
   });
 
   describe("nested filters", () => {
-    it("passes empty labelPrefix for top-level columns", async () => {
+    it("passes column label for top-level columns", async () => {
       const wrapper = mountSidebar();
       await nextTick();
       await nextTick();
@@ -457,7 +457,8 @@ describe("Sidebar", () => {
         (f) => !f.props("column")?.id?.includes(".")
       );
       for (const filter of topLevelFilters) {
-        expect(filter.props("labelPrefix")).toBe("");
+        const column = filter.props("column");
+        expect(filter.props("label")).toBe(column?.label || column?.id);
       }
     });
 

@@ -1000,14 +1000,21 @@ describe("OntologyInput", () => {
 
       mockFetch.mockResolvedValue({ test_table_groupBy: [] });
 
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test_table",
+        columnPath: "disease",
+        getCrossFilter: () => ({ age: { between: [1, 10] } }),
+      });
+
       const wrapper = mount(OntologyInput, {
         props: {
           ...defaultProps,
           forceList: true,
-          crossFilter: { age: { between: [1, 10] } },
-          schemaId: "test-schema",
-          tableId: "test_table",
-          columnPath: "disease",
+          countFetcher,
         },
       });
       await flushPromises();

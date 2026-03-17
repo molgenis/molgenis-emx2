@@ -4,24 +4,19 @@ import type {
   IColumn,
   CellValueType,
 } from "../../../../metadata-utils/src/types";
-import type { IFilterValue, FilterOperator, IGraphQLFilter } from "../../../types/filters";
+import type { IFilterValue, FilterOperator } from "../../../types/filters";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
 
 const props = withDefaults(
   defineProps<{
     column: IColumn;
-    depth?: number;
-    labelPrefix?: string;
+    label?: string;
     removable?: boolean;
-    crossFilter?: IGraphQLFilter;
-    schemaId?: string;
-    tableId?: string;
-    columnPath?: string;
+    countFetcher?: ICountFetcher;
   }>(),
   {
-    depth: 0,
-    labelPrefix: "",
     removable: false,
   }
 );
@@ -98,7 +93,7 @@ const filterType = computed((): CellValueType => {
 
 const label = computed(
   () =>
-    props.labelPrefix +
+    props.label ??
     ((props.column as any).displayConfig?.label ||
       props.column.label ||
       props.column.id)
@@ -165,13 +160,6 @@ function handleClear() {
   </div>
   <div
     class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title"
-    :style="{
-      '--text-color-title-contrast':
-        'var(--text-color-search-filter-group-title)',
-      '--text-color-input-description':
-        'var(--text-color-search-filter-group-title)',
-      '--text-color-input': 'var(--text-color-search-filter-group-title)',
-    }"
   >
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">
       <template #min="{ value, update, id }">
@@ -207,10 +195,7 @@ function handleClear() {
       :ref-table-id="column.refTableId"
       :ref-label="column.refLabel || column.refLabelDefault"
       :show-clear="false"
-      :cross-filter="crossFilter"
-      :schema-id="schemaId"
-      :table-id="tableId"
-      :column-path="columnPath || column.id"
+      :count-fetcher="countFetcher"
       :force-list="true"
     />
     <span
