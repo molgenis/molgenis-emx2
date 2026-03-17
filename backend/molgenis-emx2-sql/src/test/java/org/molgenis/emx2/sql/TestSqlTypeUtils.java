@@ -11,7 +11,6 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
 import java.util.*;
-import org.jooq.Field;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -27,40 +26,12 @@ class TestSqlTypeUtils {
   }
 
   @Test
-  void autoIdGetsGenerated() {
+  void autoIdGetsSkipped() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
     applyValidationAndComputed(tableMetadata.getColumns(), row);
-    assertNotNull(row.getString("myCol"));
-
-    // and now it should change on update
-    final Row copy = new Row(row);
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
-    assertEquals(row.getString("myCol"), copy.getString("myCol"));
-  }
-
-  @Test
-  void autoIdGetsGeneratedWithPreFix() {
-    TableMetadata tableMetadata =
-        table(
-            "Test",
-            new Column("myCol")
-                .setType(ColumnType.AUTO_ID)
-                .setComputed("foo-" + Constants.COMPUTED_AUTOID_TOKEN + "-bar"));
-    final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
-
-    row.getValueMap().get("myCol");
-    assertInstanceOf(Field.class, row.getValueMap().get("myCol"));
-    assertTrue(row.getString("myCol").startsWith("'foo"));
-    assertTrue(row.getString("myCol").endsWith("bar'"));
-
-    // and now it should change on update
-    final Row copy = new Row(row);
-
-    applyValidationAndComputed(tableMetadata.getColumns(), copy);
-    assertEquals(row.getString("myCol"), row.getString("myCol"));
+    assertNull(row.getString("myCol"));
   }
 
   @Test

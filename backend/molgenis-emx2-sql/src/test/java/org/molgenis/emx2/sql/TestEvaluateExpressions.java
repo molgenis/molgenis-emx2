@@ -9,8 +9,6 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -131,42 +129,6 @@ class TestEvaluateExpressions {
              ^\\n,
         """;
     assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row), expected);
-  }
-
-  @Test
-  void givenInvalidArgumentForAutoIdComputed_thenThrowException() {
-    TableMetadata table =
-        schema
-            .create(
-                table(
-                    "test_invalid_autoid_argument",
-                    new Column("id")
-                        .setType(ColumnType.AUTO_ID)
-                        .setComputed("${mg_autoid(invalid)}")))
-            .getMetadata();
-
-    List<Column> columns = table.getColumns();
-    Row emptyRow = new Row();
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, emptyRow));
-  }
-
-  @Test
-  void givenArgumentForAutoIdComputed_thenGenerateAccordingly() {
-    TableMetadata tableMetadata =
-        schema
-            .getMetadata()
-            .create(
-                table(
-                    "test_autoid",
-                    new Column("id")
-                        .setType(ColumnType.AUTO_ID)
-                        .setComputed("${mg_autoid(length=1, format=NUMBERS)}")));
-    List<Column> columns = tableMetadata.getColumns();
-    Row row = new Row();
-    applyValidationAndComputed(columns, row);
-    String generatedId = row.get("id", String.class);
-    Matcher matcher = Pattern.compile("\\d").matcher(generatedId);
-    assertTrue(matcher.find());
   }
 
   @Test
