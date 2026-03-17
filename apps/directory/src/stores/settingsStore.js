@@ -81,8 +81,10 @@ export const useSettingsStore = defineStore("settingsStore", () => {
       (setting) => setting.key === "directory"
     );
 
-    if(response._settings.find((setting) => setting.key === "ANALYTICS_ID")) {
-      googleAnalyticsId.value = response._settings.find((setting) => setting.key === "ANALYTICS_ID").value;
+    if (response._settings.find((setting) => setting.key === "ANALYTICS_ID")) {
+      googleAnalyticsId.value = response._settings.find(
+        (setting) => setting.key === "ANALYTICS_ID"
+      ).value;
     }
 
     if (savedDirectoryConfig?.value) {

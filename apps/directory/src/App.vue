@@ -4,7 +4,10 @@
       <div v-html="banner" />
     </template>
     <Error />
-    <GTag v-if="settingsStore.googleAnalyticsId" :tagId="settingsStore.googleAnalyticsId" />
+    <GTag
+      v-if="settingsStore.googleAnalyticsId"
+      :tagId="settingsStore.googleAnalyticsId"
+    />
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
       <div v-html="footer" />
