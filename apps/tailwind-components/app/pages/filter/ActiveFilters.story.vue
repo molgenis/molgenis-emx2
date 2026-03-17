@@ -1,81 +1,42 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import ActiveFilters from "../../components/filter/ActiveFilters.vue";
+import type { ActiveFilter } from "../../../../types/filters";
 import Story from "../../components/Story.vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../../types/filters";
 
-const columns: IColumn[] = [
+const emptyFilters: ActiveFilter[] = [];
+
+const singleFilter: ActiveFilter[] = [
+  { columnId: "name", label: "Name", displayValue: "John", values: [] },
+];
+
+const multipleFilters: ActiveFilter[] = [
+  { columnId: "name", label: "Name", displayValue: "John", values: [] },
+  { columnId: "age", label: "Age", displayValue: "18 - 65", values: [] },
   {
-    id: "name",
-    label: "Name",
-    columnType: "STRING",
-    table: "Person",
-    key: 1,
-    required: false,
-  },
-  {
-    id: "age",
-    label: "Age",
-    columnType: "INT",
-    table: "Person",
-    key: 1,
-    required: false,
-  },
-  {
-    id: "category",
+    columnId: "category",
     label: "Category",
-    columnType: "REF_ARRAY",
-    table: "Person",
-    key: 1,
-    required: false,
-  },
-  {
-    id: "birthDate",
-    label: "Birth Date",
-    columnType: "DATE",
-    table: "Person",
-    key: 1,
-    required: false,
-  },
-  {
-    id: "email",
-    label: "Email",
-    columnType: "STRING",
-    table: "Person",
-    key: 1,
-    required: false,
+    displayValue: "2",
+    values: ["A", "B"],
   },
 ];
 
-const emptyFilters = ref<Map<string, IFilterValue>>(new Map());
+const rangeMinOnly: ActiveFilter[] = [
+  { columnId: "age", label: "Age", displayValue: "≥ 18", values: [] },
+];
 
-const singleFilter = ref<Map<string, IFilterValue>>(
-  new Map([["name", { operator: "like", value: "John" }]])
-);
+const rangeMaxOnly: ActiveFilter[] = [
+  { columnId: "age", label: "Age", displayValue: "≤ 65", values: [] },
+];
 
-const multipleFilters = ref<Map<string, IFilterValue>>(
-  new Map([
-    ["name", { operator: "like", value: "John" }],
-    ["age", { operator: "between", value: [18, 65] }],
-    ["category", { operator: "in", value: [{ name: "A" }, { name: "B" }] }],
-  ])
-);
-
-const rangeMinOnly = ref<Map<string, IFilterValue>>(
-  new Map([["age", { operator: "between", value: [18, null] }]])
-);
-
-const rangeMaxOnly = ref<Map<string, IFilterValue>>(
-  new Map([["age", { operator: "between", value: [null, 65] }]])
-);
-
-const nullFilters = ref<Map<string, IFilterValue>>(
-  new Map([
-    ["email", { operator: "isNull", value: true }],
-    ["birthDate", { operator: "notNull", value: true }],
-  ])
-);
+const nullFilters: ActiveFilter[] = [
+  { columnId: "email", label: "Email", displayValue: "is empty", values: [] },
+  {
+    columnId: "birthDate",
+    label: "Birth Date",
+    displayValue: "has value",
+    values: [],
+  },
+];
 
 function handleRemove(columnId: string) {
   console.log("Remove filter:", columnId);
@@ -93,7 +54,6 @@ function handleClearAll() {
         <h3 class="text-lg font-bold mb-2">Empty State</h3>
         <ActiveFilters
           :filters="emptyFilters"
-          :columns="columns"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
@@ -106,20 +66,15 @@ function handleClearAll() {
         <h3 class="text-lg font-bold mb-2">Single Filter (String/Like)</h3>
         <ActiveFilters
           :filters="singleFilter"
-          :columns="columns"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
-        <p class="text-sm text-gray-500 mt-2">
-          (No "Clear all" button with single filter)
-        </p>
       </div>
 
       <div>
         <h3 class="text-lg font-bold mb-2">Multiple Filters</h3>
         <ActiveFilters
           :filters="multipleFilters"
-          :columns="columns"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />
@@ -135,7 +90,6 @@ function handleClearAll() {
             <p class="text-sm mb-2">Min only:</p>
             <ActiveFilters
               :filters="rangeMinOnly"
-              :columns="columns"
               @remove="handleRemove"
               @clear-all="handleClearAll"
             />
@@ -144,7 +98,6 @@ function handleClearAll() {
             <p class="text-sm mb-2">Max only:</p>
             <ActiveFilters
               :filters="rangeMaxOnly"
-              :columns="columns"
               @remove="handleRemove"
               @clear-all="handleClearAll"
             />
@@ -156,7 +109,6 @@ function handleClearAll() {
         <h3 class="text-lg font-bold mb-2">Null Filters</h3>
         <ActiveFilters
           :filters="nullFilters"
-          :columns="columns"
           @remove="handleRemove"
           @clear-all="handleClearAll"
         />

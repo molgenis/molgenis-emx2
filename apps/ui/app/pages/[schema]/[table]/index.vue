@@ -20,6 +20,8 @@ import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getP
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import ActiveFilters from "../../../../../tailwind-components/app/components/filter/ActiveFilters.vue";
+import type { ActiveFilter } from "../../../../../tailwind-components/types/filters";
+import { formatFilterValue } from "../../../../../tailwind-components/app/utils/formatFilterValue";
 
 const route = useRoute();
 const router = useRouter();
@@ -67,6 +69,19 @@ const { filterStates, searchValue, gqlFilter, removeFilter, clearFilters } =
     route,
     router,
   });
+
+const activeFiltersList = computed<ActiveFilter[]>(() => {
+  const result: ActiveFilter[] = [];
+  for (const [columnId, filterValue] of filterStates.value) {
+    const column = filterColumns.value.find((c) => c.id === columnId);
+    const label = column ? column.label || column.id : columnId;
+    const { displayValue, values } = formatFilterValue(filterValue);
+    if (displayValue) {
+      result.push({ columnId, label, displayValue, values });
+    }
+  }
+  return result;
+});
 
 watch(searchValue, (val) => {
   tableSettings.value.search = val;
@@ -144,8 +159,7 @@ const { isAdmin, session } = await useSession(schemaId);
         >
           <template #below-toolbar>
             <ActiveFilters
-              :filters="filterStates"
-              :columns="filterColumns"
+              :filters="activeFiltersList"
               @remove="removeFilter"
               @clear-all="clearFilters"
             />

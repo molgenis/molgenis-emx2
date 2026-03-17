@@ -6,12 +6,14 @@ import type { IFilterValue } from "../../../types/filters";
 import FilterColumn from "./Column.vue";
 import InputSearch from "../input/Search.vue";
 import FilterPicker from "./FilterPicker.vue";
+import type { ActiveFilter } from "../../../types/filters";
 
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
 import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
+import { formatFilterValue } from "../../utils/formatFilterValue";
 import type { IGraphQLFilter } from "../../../types/filters";
 
 const props = withDefaults(
@@ -287,6 +289,24 @@ async function setFilterValue(
   }
   filterStates.value = newMap;
 }
+
+const activeFiltersList = computed<ActiveFilter[]>(() => {
+  const result: ActiveFilter[] = [];
+  for (const [columnId, filterValue] of filterStates.value) {
+    const resolved = resolvedFilters.value.find((f) => f.fullPath === columnId);
+    const label = resolved
+      ? resolved.labelPrefix
+        ? resolved.labelPrefix +
+          (resolved.column.label || resolved.column.id)
+        : resolved.column.label || resolved.column.id
+      : columnId;
+    const { displayValue, values } = formatFilterValue(filterValue);
+    if (displayValue) {
+      result.push({ columnId, label, displayValue, values });
+    }
+  }
+  return result;
+});
 
 async function loadRefColumnsForPath(fullPath: string) {
   const segments = fullPath.split(".");

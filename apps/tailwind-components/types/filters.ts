@@ -1,3 +1,10 @@
+export interface ActiveFilter {
+  columnId: string;
+  label: string;
+  displayValue: string;
+  values: string[];
+}
+
 export type FilterOperator =
   | "equals"
   | "like"
