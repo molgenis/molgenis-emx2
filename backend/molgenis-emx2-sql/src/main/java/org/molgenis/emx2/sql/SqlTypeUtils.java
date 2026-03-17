@@ -7,9 +7,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.jooq.Field;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class SqlTypeUtils extends TypeUtils {
@@ -96,13 +94,6 @@ public class SqlTypeUtils extends TypeUtils {
         Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
-    }
-  }
-
-  private static void applyAutoId(Column c, Row row) {
-    if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
-      Field<String> id = new IdGeneratorService().generateIdForColumn(c);
-      row.set(c.getName(), id);
     }
   }
 
