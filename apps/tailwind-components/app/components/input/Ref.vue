@@ -333,11 +333,9 @@ const debouncedRefetchCounts = useDebounceFn(async () => {
   }
 }, 300);
 
-watch(
-  () => props.countFetcher?.getCrossFilter(),
-  debouncedRefetchCounts,
-  { deep: true }
-);
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -463,7 +461,9 @@ watch(
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
-            :facet-counts="localFacetCounts.size > 0 ? localFacetCounts : undefined"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
             :counts-loading="countsLoading"
           />
           <InputRadioGroup

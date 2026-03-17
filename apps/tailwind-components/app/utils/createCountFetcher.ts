@@ -10,7 +10,10 @@ export interface ICountFetcher {
   getCrossFilter(): IGraphQLFilter | undefined;
 }
 
-function buildNestedFieldSelector(columnPath: string, keyField: string): string {
+function buildNestedFieldSelector(
+  columnPath: string,
+  keyField: string
+): string {
   const segments = columnPath.split(".");
   let result = `${segments[segments.length - 1]} { ${keyField} }`;
   for (let i = segments.length - 2; i >= 0; i--) {
@@ -97,7 +100,10 @@ export function createCountFetcher(config: {
       }
       return counts;
     } catch (error) {
-      console.warn(`Failed to fetch ref counts for ${config.columnPath}:`, error);
+      console.warn(
+        `Failed to fetch ref counts for ${config.columnPath}:`,
+        error
+      );
       return new Map();
     }
   }
@@ -146,7 +152,10 @@ export function createCountFetcher(config: {
       }
       return counts;
     } catch (error) {
-      console.warn(`Failed to fetch ontology leaf counts for ${config.columnPath}:`, error);
+      console.warn(
+        `Failed to fetch ontology leaf counts for ${config.columnPath}:`,
+        error
+      );
       return new Map();
     }
   }
@@ -195,7 +204,10 @@ export function createCountFetcher(config: {
       }
       return counts;
     } catch (error) {
-      console.warn(`Failed to fetch ontology parent counts for ${config.columnPath}:`, error);
+      console.warn(
+        `Failed to fetch ontology parent counts for ${config.columnPath}:`,
+        error
+      );
       return new Map();
     }
   }

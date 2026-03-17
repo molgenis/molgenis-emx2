@@ -109,7 +109,9 @@ describe("createCountFetcher", () => {
     });
 
     it("returns empty map on fetch error", async () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
 
       const fetcher = createCountFetcher({
@@ -216,15 +218,22 @@ describe("createCountFetcher", () => {
         getCrossFilter: () => ({ _search: "test" }),
       });
 
-      const counts = await fetcher.fetchOntologyParentCounts(["Animal", "Plant"]);
+      const counts = await fetcher.fetchOntologyParentCounts([
+        "Animal",
+        "Plant",
+      ]);
 
       const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
       expect(schema).toBe("mySchema");
       expect(query).toContain("Patient_agg");
       expect(query).toContain("c_Animal");
       expect(query).toContain("c_Plant");
-      expect(variables.filter_c_Animal.species._match_any_including_children).toBe("Animal");
-      expect(variables.filter_c_Plant.species._match_any_including_children).toBe("Plant");
+      expect(
+        variables.filter_c_Animal.species._match_any_including_children
+      ).toBe("Animal");
+      expect(
+        variables.filter_c_Plant.species._match_any_including_children
+      ).toBe("Plant");
 
       expect(counts.get("Animal")).toBe(10);
       expect(counts.get("Plant")).toBe(5);

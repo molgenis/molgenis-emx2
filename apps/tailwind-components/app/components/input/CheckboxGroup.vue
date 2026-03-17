@@ -89,7 +89,11 @@ function resetModelValue() {
           <span class="truncate min-w-0" v-tooltip.top="option.value" v-else>
             {{ option.value }}
           </span>
-          <span v-if="facetCounts" class="shrink-0 ml-0.5 transition-opacity duration-200" :class="countsLoading ? 'opacity-50' : 'opacity-100'">
+          <span
+            v-if="facetCounts"
+            class="shrink-0 ml-0.5 transition-opacity duration-200"
+            :class="countsLoading ? 'opacity-50' : 'opacity-100'"
+          >
             ({{ facetCounts.get(option.value as string) ?? 0 }})
           </span>
         </span>

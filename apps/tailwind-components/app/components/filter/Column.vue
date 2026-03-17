@@ -158,9 +158,7 @@ function handleClear() {
       </span>
     </div>
   </div>
-  <div
-    class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title"
-  >
+  <div class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title">
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">
       <template #min="{ value, update, id }">
         <Input

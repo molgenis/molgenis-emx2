@@ -15,7 +15,10 @@ import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 import { formatFilterValue } from "../../utils/formatFilterValue";
 import type { IGraphQLFilter } from "../../../types/filters";
-import { createCountFetcher, type ICountFetcher } from "../../utils/createCountFetcher";
+import {
+  createCountFetcher,
+  type ICountFetcher,
+} from "../../utils/createCountFetcher";
 
 const props = withDefaults(
   defineProps<{
@@ -160,7 +163,14 @@ const crossFilterMap = computed(() => {
         crossFilterStates.set(key, value);
       }
     });
-    map.set(filterId, buildGraphQLFilter(crossFilterStates, filterableColumns.value, searchTerms.value));
+    map.set(
+      filterId,
+      buildGraphQLFilter(
+        crossFilterStates,
+        filterableColumns.value,
+        searchTerms.value
+      )
+    );
   }
   return map;
 });
@@ -360,7 +370,9 @@ async function loadRefColumnsForPath(fullPath: string) {
 </script>
 
 <template>
-  <div class="filter-sidebar-context rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient">
+  <div
+    class="filter-sidebar-context rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient"
+  >
     <div class="p-5">
       <h2
         class="uppercase font-display text-heading-3xl text-search-filter-title"

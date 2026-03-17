@@ -604,7 +604,10 @@ onMounted(() => {
 const localFacetCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
 
-function collectVisibleNodeNames(node: ITreeNodeState): { leaves: string[]; parents: string[] } {
+function collectVisibleNodeNames(node: ITreeNodeState): {
+  leaves: string[];
+  parents: string[];
+} {
   const leaves: string[] = [];
   const parents: string[] = [];
   for (const child of node.children || []) {
@@ -632,7 +635,9 @@ async function fetchCountsForVisibleNodes() {
     }
   }
   if (parents.length > 0) {
-    const parentCounts = await props.countFetcher.fetchOntologyParentCounts(parents);
+    const parentCounts = await props.countFetcher.fetchOntologyParentCounts(
+      parents
+    );
     for (const [name, count] of parentCounts) {
       newCounts.set(name, count);
     }
@@ -645,11 +650,9 @@ const debouncedRefetchCounts = useDebounceFn(() => {
   fetchCountsForVisibleNodes();
 }, 300);
 
-watch(
-  () => props.countFetcher?.getCrossFilter(),
-  debouncedRefetchCounts,
-  { deep: true }
-);
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -820,7 +823,9 @@ watch(
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
-            :facet-counts="localFacetCounts.size > 0 ? localFacetCounts : undefined"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
             :counts-loading="countsLoading"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"

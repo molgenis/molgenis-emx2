@@ -408,7 +408,11 @@ onUnmounted(() => {
             :class="'text-title-contrast'"
           >
             {{ node.label || node.name
-            }}<span v-if="facetCounts" class="shrink-0 ml-0.5 transition-opacity duration-200" :class="countsLoading ? 'opacity-50' : 'opacity-100'">
+            }}<span
+              v-if="facetCounts"
+              class="shrink-0 ml-0.5 transition-opacity duration-200"
+              :class="countsLoading ? 'opacity-50' : 'opacity-100'"
+            >
               ({{ facetCounts.get(node.name) ?? 0 }})</span
             >
           </span>
