@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
 import dotenv from "dotenv";
-import devProxy from "./dev-proxy.config";
+import devProxy from "../dev-proxy.config";
 import { fileURLToPath } from "url";
 
 // needed because __dirname is not available in ESM

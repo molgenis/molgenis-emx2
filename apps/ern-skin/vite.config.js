@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import dotenv from "dotenv";
-import devProxy from "./dev-proxy.config";
+import devProxy from "../dev-proxy.config";
 import path from "path";
 import { fileURLToPath } from "url";
 
