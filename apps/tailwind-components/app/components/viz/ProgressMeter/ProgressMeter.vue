@@ -10,7 +10,6 @@ import ChartTitle from "../ChartTitle.vue";
 import {
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
-  generateAxisTickData,
 } from "../../../utils/viz";
 
 import type {
