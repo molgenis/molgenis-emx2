@@ -12,8 +12,14 @@ public interface PermissionEvaluator {
   /** What aggregate level does the active user have on this table? */
   AggregateLevel getAggregateLevel(TableMetadata table);
 
-  /** Can the active user insert, update, or delete rows in this table? */
-  boolean canEdit(TableMetadata table);
+  /** Can the active user insert rows into this table? */
+  boolean canInsert(TableMetadata table);
+
+  /** Can the active user update rows in this table? */
+  boolean canUpdate(TableMetadata table);
+
+  /** Can the active user delete rows from this table? */
+  boolean canDelete(TableMetadata table);
 
   /** Can the active user manage the schema (create/alter/drop tables, manage roles)? */
   boolean canManage();

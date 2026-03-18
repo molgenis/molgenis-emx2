@@ -178,47 +178,163 @@ class TestPermissionEvaluator {
   }
 
   @Nested
-  class CanEdit {
+  class CanInsert {
 
     @Test
-    void editorCanEdit() {
+    void editorCanInsert() {
       PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
       TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertTrue(eval.canEdit(tableA));
+      assertTrue(eval.canInsert(tableA));
     }
 
     @Test
-    void viewerCannotEdit() {
+    void viewerCannotInsert() {
       PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
       TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canEdit(tableA));
+      assertFalse(eval.canInsert(tableA));
     }
 
     @Test
-    void customReaderCannotEdit() {
+    void customReaderCannotInsert() {
       PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
       TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canEdit(tableA));
+      assertFalse(eval.canInsert(tableA));
     }
 
     @Test
-    void customWriterCanEdit() {
+    void customWriterCanInsertGrantedTableOnly() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("CustomWriter", null);
-      schema.grant("CustomWriter", new TablePermission(TABLE_A, true, true, true, null));
-      schema.addMember(USER_NO_ROLE, "CustomWriter");
+      schema.createRole("InsertWriter", null);
+      schema.grant("InsertWriter", new TablePermission(TABLE_A, true, true, null, null));
+      schema.addMember(USER_NO_ROLE, "InsertWriter");
 
       try {
         PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
         TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
         TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
-        assertTrue(eval.canEdit(tableA));
-        assertFalse(eval.canEdit(tableB));
+        assertTrue(eval.canInsert(tableA));
+        assertFalse(eval.canInsert(tableB));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
-        schema.deleteRole("CustomWriter");
+        schema.deleteRole("InsertWriter");
+      }
+    }
+  }
+
+  @Nested
+  class CanUpdate {
+
+    @Test
+    void editorCanUpdate() {
+      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
+      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(eval.canUpdate(tableA));
+    }
+
+    @Test
+    void viewerCannotUpdate() {
+      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
+      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(eval.canUpdate(tableA));
+    }
+
+    @Test
+    void customWriterCanUpdateGrantedTableOnly() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("UpdateWriter", null);
+      schema.grant("UpdateWriter", new TablePermission(TABLE_A, true, null, true, null));
+      schema.addMember(USER_NO_ROLE, "UpdateWriter");
+
+      try {
+        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
+        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
+        TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
+        assertTrue(eval.canUpdate(tableA));
+        assertFalse(eval.canUpdate(tableB));
+      } finally {
+        database.becomeAdmin();
+        schema.removeMember(USER_NO_ROLE);
+        schema.deleteRole("UpdateWriter");
+      }
+    }
+
+    @Test
+    void insertOnlyGrantCannotUpdate() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("InsertOnly", null);
+      schema.grant("InsertOnly", new TablePermission(TABLE_A, true, true, null, null));
+      schema.addMember(USER_NO_ROLE, "InsertOnly");
+
+      try {
+        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
+        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(eval.canUpdate(tableA));
+      } finally {
+        database.becomeAdmin();
+        schema.removeMember(USER_NO_ROLE);
+        schema.deleteRole("InsertOnly");
+      }
+    }
+  }
+
+  @Nested
+  class CanDelete {
+
+    @Test
+    void editorCanDelete() {
+      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
+      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(eval.canDelete(tableA));
+    }
+
+    @Test
+    void viewerCannotDelete() {
+      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
+      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(eval.canDelete(tableA));
+    }
+
+    @Test
+    void customWriterCanDeleteGrantedTableOnly() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("DeleteWriter", null);
+      schema.grant("DeleteWriter", new TablePermission(TABLE_A, true, null, null, true));
+      schema.addMember(USER_NO_ROLE, "DeleteWriter");
+
+      try {
+        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
+        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
+        TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
+        assertTrue(eval.canDelete(tableA));
+        assertFalse(eval.canDelete(tableB));
+      } finally {
+        database.becomeAdmin();
+        schema.removeMember(USER_NO_ROLE);
+        schema.deleteRole("DeleteWriter");
+      }
+    }
+
+    @Test
+    void insertUpdateGrantCannotDelete() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("NoDelete", null);
+      schema.grant("NoDelete", new TablePermission(TABLE_A, true, true, true, null));
+      schema.addMember(USER_NO_ROLE, "NoDelete");
+
+      try {
+        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
+        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(eval.canDelete(tableA));
+      } finally {
+        database.becomeAdmin();
+        schema.removeMember(USER_NO_ROLE);
+        schema.deleteRole("NoDelete");
       }
     }
   }
