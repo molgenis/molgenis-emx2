@@ -11,6 +11,7 @@ from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
+from pandas._libs.missing import NAType
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException
@@ -119,6 +120,9 @@ def set_all_delete(table: Table) -> pd.DataFrame:
 
 def check_hricore(resources: pd.DataFrame):
     """Verifies that the `hricore` column is set to `true` for the Resources listed."""
-    missing_hri = resources.loc[resources['hricore'] != True, 'id']
+    def is_missing(val) -> bool:
+        return (type(val) == NAType) or val != True
+    # missing_hri = resources.loc[resources['hricore'].isin() or resources['hricore'] != True, 'id']
+    missing_hri = resources.loc[resources['hricore'].apply(is_missing), 'id']
     if len(missing_hri.index) != 0:
         raise ValueError(f"Value 'hricore' not set to 'true' for resource {', '.join(missing_hri.values)}")
