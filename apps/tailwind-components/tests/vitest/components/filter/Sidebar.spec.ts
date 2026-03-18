@@ -326,7 +326,7 @@ describe("Sidebar", () => {
 
     it("removes filter value when toggling off a column that has a value", async () => {
       const initialFilterStates = new Map<string, IFilterValue>([
-        ["disease", { operator: "in", value: [{ name: "Flu" }] }],
+        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
       ]);
       const wrapper = mountSidebar({}, initialFilterStates);
       await nextTick();
@@ -577,7 +577,7 @@ describe("Sidebar", () => {
   describe("FilterColumn interaction", () => {
     it("passes filter value to FilterColumn", async () => {
       const initialFilterStates = new Map<string, IFilterValue>([
-        ["disease", { operator: "in", value: [{ name: "Flu" }] }],
+        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
       ]);
       const wrapper = mountSidebar({}, initialFilterStates);
       await nextTick();
@@ -588,7 +588,7 @@ describe("Sidebar", () => {
       );
       expect(diseaseFilter).toBeDefined();
       expect(diseaseFilter?.props("modelValue")).toEqual({
-        operator: "in",
+        operator: "equals",
         value: [{ name: "Flu" }],
       });
     });

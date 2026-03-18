@@ -24,25 +24,6 @@ export function formatFilterValue(filterValue: IFilterValue): {
       }
       return { displayValue: "", values: [] };
 
-    case "in":
-      if (Array.isArray(value)) {
-        if (value.length === 0) return { displayValue: "", values: [] };
-        const formatted = value.map((v) => {
-          if (typeof v === "object" && v !== null) {
-            return extractDisplayValue(v);
-          }
-          return String(v);
-        });
-        if (value.length > 1) {
-          return { displayValue: `${value.length}`, values: formatted };
-        }
-        return { displayValue: formatted[0] || "", values: [] };
-      }
-      if (typeof value === "object" && value !== null) {
-        return { displayValue: extractDisplayValue(value), values: [] };
-      }
-      return { displayValue: String(value), values: [] };
-
     case "notNull":
       return { displayValue: "has value", values: [] };
 

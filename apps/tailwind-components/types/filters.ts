@@ -8,10 +8,7 @@ export interface ActiveFilter {
 export type FilterOperator =
   | "equals"
   | "like"
-  | "like_or"
-  | "like_and"
   | "between"
-  | "in"
   | "notNull"
   | "isNull";
 

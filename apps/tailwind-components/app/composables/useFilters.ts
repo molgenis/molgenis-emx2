@@ -62,7 +62,6 @@ const RANGE_TYPES = [
   "DATETIME_ARRAY",
 ];
 const MULTI_VALUE_SEPARATOR = "|";
-const AND_VALUE_SEPARATOR = ",";
 const RESERVED_PREFIX = "mg_";
 const SEARCH_PARAM = "mg_search";
 
@@ -81,32 +80,11 @@ export function serializeFilterValue(value: IFilterValue): string | null {
       }
       return null;
 
-    case "in":
-      if (Array.isArray(val)) {
-        if (val.length && typeof val[0] === "object") {
-          const primaryKeys = val.map((v) => extractStringKey(v));
-          return primaryKeys.join(MULTI_VALUE_SEPARATOR);
-        }
-        return val.join(MULTI_VALUE_SEPARATOR);
-      }
-      if (typeof val === "object" && val !== null) {
-        return extractStringKey(val);
-      }
-      return String(val);
-
     case "notNull":
       return "!null";
 
     case "isNull":
       return "null";
-
-    case "like_or":
-      if (Array.isArray(val)) return val.join(MULTI_VALUE_SEPARATOR);
-      return String(val);
-
-    case "like_and":
-      if (Array.isArray(val)) return val.join(AND_VALUE_SEPARATOR);
-      return String(val);
 
     case "like":
       return String(val);
@@ -158,10 +136,10 @@ export function parseFilterValue(
     const field = refField ?? "name";
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
-      return { operator: "in", value: values.map((v) => ({ [field]: v })) };
+      return { operator: "equals", value: values.map((v) => ({ [field]: v })) };
     }
     const refValue = { [field]: urlValue };
-    return { operator: "in", value: [refValue] };
+    return { operator: "equals", value: [refValue] };
   }
 
   if (RANGE_TYPES.includes(columnType)) {
@@ -205,7 +183,7 @@ export function parseFilterValue(
   }
 
   if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
-    return { operator: "in", value: urlValue.split(MULTI_VALUE_SEPARATOR) };
+    return { operator: "equals", value: urlValue.split(MULTI_VALUE_SEPARATOR) };
   }
 
   return { operator: "like", value: urlValue };

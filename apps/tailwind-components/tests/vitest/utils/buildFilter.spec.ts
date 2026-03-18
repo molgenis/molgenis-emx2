@@ -79,7 +79,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("handles nested filters with in operator", () => {
+  it("handles nested filters with equals operator for ref arrays", () => {
     const columns: IColumn[] = [
       { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
     ];
@@ -87,7 +87,7 @@ describe("buildGraphQLFilter", () => {
       [
         "order.pet.category",
         {
-          operator: "in",
+          operator: "equals",
           value: [{ name: "dogs" }, { name: "cats" }],
         },
       ],
@@ -138,7 +138,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("parses space-separated string as OR terms", () => {
+  it("parses space-separated string as AND terms", () => {
     const columns: IColumn[] = [
       { id: "name", columnType: "STRING", label: "Name" },
     ];
@@ -147,7 +147,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      name: { like: ["dog", "cat"] },
+      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
     });
   });
 
@@ -219,7 +219,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("parses quoted phrase as single OR term", () => {
+  it("parses quoted phrase with unquoted term as AND terms", () => {
     const columns: IColumn[] = [
       { id: "name", columnType: "STRING", label: "Name" },
     ];
@@ -228,7 +228,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      name: { like: ["aap noot", "mies"] },
+      _and: [{ name: { like: "aap noot" } }, { name: { like: "mies" } }],
     });
   });
 
@@ -268,23 +268,26 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ id: { equals: "550e8400" } });
   });
 
-  it("unwraps ref objects for 'in' operator", () => {
+  it("unwraps ref objects for 'equals' operator with array of objects", () => {
     const columns: IColumn[] = [
       { id: "type", columnType: "REF", label: "Type", refTableId: "Type" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["type", { operator: "in", value: [{ name: "org1" }, { name: "org2" }] }],
+      [
+        "type",
+        { operator: "equals", value: [{ name: "org1" }, { name: "org2" }] },
+      ],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ type: { name: { equals: ["org1", "org2"] } } });
   });
 
-  it("keeps plain string values for 'in' operator", () => {
+  it("keeps plain string values for 'equals' operator with array of strings", () => {
     const columns: IColumn[] = [
       { id: "type", columnType: "STRING", label: "Type" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["type", { operator: "in", value: ["a", "b"] }],
+      ["type", { operator: "equals", value: ["a", "b"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ type: { equals: ["a", "b"] } });
@@ -306,30 +309,6 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ category: { code: { equals: ["A1"] } } });
   });
 
-  it("like_or operator passes value through as { like: value }", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like_or", value: "dog" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ name: { like: "dog" } });
-  });
-
-  it("like_and operator with array produces _and structure", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like_and", value: ["dog", "cat"] }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
-    });
-  });
-
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
@@ -337,17 +316,6 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({});
-  });
-
-  it("in with empty array falls through to non-array object path", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "in", value: [] }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result.name).toBeDefined();
   });
 
   it("equals with empty array produces { equals: [] }", () => {

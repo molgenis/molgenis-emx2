@@ -2,11 +2,65 @@
 
 ## Current status
 
-Phase 10 complete. Working on Phase 11 (UseFilters object pattern).
+Phase 12 complete. Suggested order: Phase 14 (bug fix, small), Phase 13 (test cleanup, medium), Phase 11 (UseFilters object, large).
+
+## Phase 14: Fix paging param loss on filter URL update
+
+### Status: TODO
+
+### Problem
+When user pages in table explorer, the `page` param gets dropped from the URL. The filter system's `useFilters.ts` and Sidebar only preserve `mg_*` prefixed params when calling `router.replace()`. The paging param (`page`) doesn't have that prefix, so it's wiped.
+
+Reproduction: page to page 2 → Sidebar's `visibleFilterIds` watcher fires `router.replace()` → `page` param lost → snaps back to page 1.
+
+### Root cause
+In `useFilters.ts`, `serializeFiltersToUrl` builds params from scratch (filters + search). The callers (`updateUrl`, `actualFilterStates.set`) only preserve `mg_*` params from existing query. Non-`mg_*` params like `page` are dropped.
+
+Same issue in `Sidebar.vue` — the `visibleFilterIds` watcher builds a new query with only `mg_filters` + existing `mg_*` params.
+
+### Fix options
+1. **Preserve all non-filter params**: Change the preserved-params logic to keep ALL existing query params except the ones being managed by the filter system (column filter keys + `mg_search` + `mg_filters`)
+2. **Alternative**: Rename `page` to `mg_page` in consuming apps — but this couples paging to the `mg_` convention
+
+Option 1 is better — the filter system shouldn't assume it owns all non-`mg_*` params.
+
+### Steps
+- [ ] 14.1 In `useFilters.ts`: change `updateUrl` and `actualFilterStates.set` to preserve all existing query params that aren't filter-managed keys
+- [ ] 14.2 In `Sidebar.vue`: same fix for the `visibleFilterIds` watcher's `router.replace` call
+- [ ] 14.3 Add test: setting a filter preserves unrelated query params (e.g., `page=2`)
+- [ ] 14.4 Verify in catalogue app (manual) that paging survives filter changes
+
+---
+
+## Phase 12: Simplify FilterOperator [x]
+
+### What was done
+- Removed `like_or`, `like_and`, `in` from `FilterOperator` — only 5 operators remain: `equals`, `like`, `between`, `notNull`, `isNull`
+- `like` now always uses AND semantics for multi-term strings (space-separated → `_and`)
+- `parseFilterTerms` simplified: removed `mode` field from `ParsedTerms` type (always AND)
+- `in` replaced with `equals` everywhere: `parseFilterValue`, `serializeFilterValue`, `formatFilterValue`
+- Removed dead `AND_VALUE_SEPARATOR` constant
+- Updated story file (`useFilters.story.vue`) to use `equals` instead of `in`
+- All 150 tests updated and passing
+
+## Phase 13: Test readability improvements
+
+### Status: TODO
+
+### Steps
+- [ ] 13.1 Standardize fake timers: use `beforeEach`/`afterEach` across all filter test files
+- [ ] 13.2 Remove raw `setTimeout(resolve, 600)` in FilterPicker.spec.ts → use fake timers
+- [ ] 13.3 Fix inline `vi.useFakeTimers()`/`vi.useRealTimers()` in Ref.spec.ts
+- [ ] 13.4 Fix test naming: remove `should` prefix inconsistency, fix misleading names
+- [ ] 13.5 Sidebar.spec.ts: extract `waitForMetadataLoad()` helper, fix `toBeLessThanOrEqual(5)` → `toBe(5)`
+- [ ] 13.6 Move `computeDefaultFilters` tests from FilterPicker.spec.ts to own spec file
+- [ ] 13.7 Extract shared column fixtures in buildFilter.spec.ts
+
+---
 
 ## Phase 11: UseFilters object pattern
 
-### Status: IN PROGRESS
+### Status: TODO
 
 ### Problem
 `useFilters` returns individual refs/functions that consumers destructure. Sidebar receives filter state via multiple v-models (`filterStates`, `searchTerms`). This differs from the `UseForm` pattern where a single rich object is passed as one prop.
@@ -83,6 +137,6 @@ See git history. Key milestones:
 - Phase 7: Review fixes, test improvements, dead code removal
 - Phase 8: Simplification — self-contained Sidebar, removed mobileDisplay, extracted utilities
 
-### Open questions from Phase 7 (need product owner input)
-1. `like_or`/`like_and` operators: string inputs should use this (except UUID) — not yet implemented
-2. `serializeFilterValue({operator:"in", value:{}})` returning `"undefined"` — confirmed bug, not yet fixed
+### Resolved from Phase 7
+1. `like_or`/`like_and` → dropped, `like` always uses AND semantics (Phase 12)
+2. `in` operator → dropped, use `equals` instead (Phase 12)

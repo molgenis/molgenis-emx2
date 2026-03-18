@@ -473,17 +473,17 @@ describe("serializeFilterValue", () => {
     expect(result).toBeNull();
   });
 
-  it("should serialize in operator with simple values using pipe", () => {
+  it("should serialize equals operator with simple values using pipe", () => {
     const result = serializeFilterValue({
-      operator: "in",
+      operator: "equals",
       value: ["a", "b", "c"],
     });
     expect(result).toBe("a|b|c");
   });
 
-  it("should serialize in operator with ref objects as pipe-separated keys", () => {
+  it("should serialize equals operator with ref objects as pipe-separated keys", () => {
     const result = serializeFilterValue({
-      operator: "in",
+      operator: "equals",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
     });
     expect(result).toBe("Cat1|Cat2");
@@ -507,37 +507,6 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("2024-01-01..2024-12-31");
   });
 
-  it("should serialize like_or operator with array as pipe-separated string", () => {
-    const result = serializeFilterValue({
-      operator: "like_or",
-      value: ["dog", "cat"],
-    });
-    expect(result).toBe("dog|cat");
-  });
-
-  it("should serialize like_or operator with scalar as string", () => {
-    const result = serializeFilterValue({
-      operator: "like_or",
-      value: "dog",
-    });
-    expect(result).toBe("dog");
-  });
-
-  it("should serialize like_and operator with array as comma-separated string", () => {
-    const result = serializeFilterValue({
-      operator: "like_and",
-      value: ["dog", "cat"],
-    });
-    expect(result).toBe("dog,cat");
-  });
-
-  it("should serialize like_and operator with scalar as string", () => {
-    const result = serializeFilterValue({
-      operator: "like_and",
-      value: "dog",
-    });
-    expect(result).toBe("dog");
-  });
 });
 
 describe("parseFilterValue", () => {
@@ -588,25 +557,25 @@ describe("parseFilterValue", () => {
   it("should parse pipe-separated ref values as objects", () => {
     const result = parseFilterValue("Cat1|Cat2", refColumn);
     expect(result).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
     });
   });
 
   it("should parse simple ref value as array", () => {
     const result = parseFilterValue("Cat1", refColumn);
-    expect(result).toEqual({ operator: "in", value: [{ name: "Cat1" }] });
+    expect(result).toEqual({ operator: "equals", value: [{ name: "Cat1" }] });
   });
 
   it("should parse ref value with custom field as array", () => {
     const result = parseFilterValue("123", refColumn, "id");
-    expect(result).toEqual({ operator: "in", value: [{ id: "123" }] });
+    expect(result).toEqual({ operator: "equals", value: [{ id: "123" }] });
   });
 
   it("should parse pipe-separated ref values with custom field", () => {
     const result = parseFilterValue("123|456", refColumn, "id");
     expect(result).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ id: "123" }, { id: "456" }],
     });
   });
@@ -684,7 +653,7 @@ describe("serializeFiltersToUrl", () => {
     const filters = new Map<string, IFilterValue>([
       [
         "category",
-        { operator: "in", value: [{ name: "Cat1" }, { name: "Cat2" }] },
+        { operator: "equals", value: [{ name: "Cat1" }, { name: "Cat2" }] },
       ],
     ]);
     const result = serializeFiltersToUrl(filters, "", columns);
@@ -768,7 +737,7 @@ describe("parseFiltersFromUrl", () => {
       columns
     );
     expect(result.filters.get("category")).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
     });
   });
@@ -776,7 +745,7 @@ describe("parseFiltersFromUrl", () => {
   it("should parse ref filters with non-name field", () => {
     const result = parseFiltersFromUrl({ "category.id": "123" }, columns);
     expect(result.filters.get("category")).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ id: "123" }],
     });
   });
@@ -784,7 +753,7 @@ describe("parseFiltersFromUrl", () => {
   it("should parse ref filters with backward compatibility (no dot)", () => {
     const result = parseFiltersFromUrl({ category: "Cat1|Cat2" }, columns);
     expect(result.filters.get("category")).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
     });
   });
@@ -798,7 +767,7 @@ describe("parseFiltersFromUrl", () => {
       columns
     );
     expect(result.filters.get("order.pet.category")).toEqual({
-      operator: "in",
+      operator: "equals",
       value: [{ name: "dogs" }],
     });
   });
@@ -807,7 +776,7 @@ describe("parseFiltersFromUrl", () => {
 describe("extractStringKey (via serializeFilterValue)", () => {
   it("should extract nested string value", () => {
     const result = serializeFilterValue({
-      operator: "in",
+      operator: "equals",
       value: { data: { name: "NestedValue" } },
     });
     expect(result).toBe("NestedValue");
@@ -815,7 +784,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
 
   it("should handle empty objects gracefully", () => {
     const result = serializeFilterValue({
-      operator: "in",
+      operator: "equals",
       value: {},
     });
     expect(result).toBe("");
@@ -834,7 +803,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
       },
     };
     const result = serializeFilterValue({
-      operator: "in",
+      operator: "equals",
       value: deepObj,
     });
     expect(result).toBe("[object Object]");
@@ -864,11 +833,13 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
     expect(gql).toEqual({ name: { like: "aap" } });
   });
 
-  it("OR terms: aap noot", () => {
+  it("AND terms: aap noot", () => {
     const { serialized, parsed, gql } = roundTrip("aap noot");
     expect(serialized).toBe("aap noot");
     expect(parsed).toEqual({ operator: "like", value: "aap noot" });
-    expect(gql).toEqual({ name: { like: ["aap", "noot"] } });
+    expect(gql).toEqual({
+      _and: [{ name: { like: "aap" } }, { name: { like: "noot" } }],
+    });
   });
 
   it("AND terms: aap and noot", () => {

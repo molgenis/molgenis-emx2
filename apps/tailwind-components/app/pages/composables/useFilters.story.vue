@@ -251,7 +251,7 @@ function toggleCategoryAction(cat: string) {
     removeFilter("category");
   } else {
     setFilter("category", {
-      operator: "in",
+      operator: "equals",
       value: selectedCategories.value.map((name) => ({ name })),
     });
   }

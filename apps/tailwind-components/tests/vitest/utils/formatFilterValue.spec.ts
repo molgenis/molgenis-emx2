@@ -57,15 +57,15 @@ describe("formatFilterValue", () => {
     });
   });
 
-  describe("in operator", () => {
+  describe("equals operator with ref values", () => {
     it("returns empty for empty array", () => {
-      const result = formatFilterValue({ operator: "in", value: [] });
+      const result = formatFilterValue({ operator: "equals", value: [] });
       expect(result).toEqual({ displayValue: "", values: [] });
     });
 
     it("displays name for single object with name", () => {
       const result = formatFilterValue({
-        operator: "in",
+        operator: "equals",
         value: [{ name: "Flu" }],
       });
       expect(result).toEqual({ displayValue: "Flu", values: [] });
@@ -73,7 +73,7 @@ describe("formatFilterValue", () => {
 
     it("displays label for single object with label but no name", () => {
       const result = formatFilterValue({
-        operator: "in",
+        operator: "equals",
         value: [{ label: "Influenza" }],
       });
       expect(result).toEqual({ displayValue: "Influenza", values: [] });
@@ -81,7 +81,7 @@ describe("formatFilterValue", () => {
 
     it("returns count and all values for multiple objects", () => {
       const result = formatFilterValue({
-        operator: "in",
+        operator: "equals",
         value: [{ name: "Flu" }, { name: "Cold" }, { name: "RSV" }],
       });
       expect(result).toEqual({
@@ -91,13 +91,16 @@ describe("formatFilterValue", () => {
     });
 
     it("displays string for single non-object value", () => {
-      const result = formatFilterValue({ operator: "in", value: ["active"] });
+      const result = formatFilterValue({
+        operator: "equals",
+        value: ["active"],
+      });
       expect(result).toEqual({ displayValue: "active", values: [] });
     });
 
     it("returns count and all values for multiple non-object values", () => {
       const result = formatFilterValue({
-        operator: "in",
+        operator: "equals",
         value: ["a", "b", "c"],
       });
       expect(result).toEqual({ displayValue: "3", values: ["a", "b", "c"] });
@@ -105,7 +108,7 @@ describe("formatFilterValue", () => {
 
     it("displays name for single object passed directly (not in array)", () => {
       const result = formatFilterValue({
-        operator: "in",
+        operator: "equals",
         value: { name: "Flu" } as any,
       });
       expect(result).toEqual({ displayValue: "Flu", values: [] });
