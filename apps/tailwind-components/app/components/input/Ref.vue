@@ -22,6 +22,7 @@ import InputGroupContainer from "../input/InputGroupContainer.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
+import InputSearch from "./Search.vue";
 
 const props = withDefaults(
   defineProps<
@@ -451,24 +452,24 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
       >
         <div
           v-if="!displayAsSelect && !disabled"
-          class="flex items-center gap-1 mb-1"
+          class="w-full flex items-center gap-2 px-2 py-2"
         >
-          <button
-            type="button"
-            class="p-1 rounded hover:bg-search-hover text-input"
-            :aria-label="showSearch ? 'Close search' : 'Search options'"
-            @click="toggleSearch"
-          >
-            <BaseIcon :name="showSearch ? 'cross' : 'search'" size="xs" />
-          </button>
-          <input
-            v-if="showSearch"
+          <Button
+            icon="Search"
             type="text"
+            size="tiny"
+            @click.stop="toggleSearch"
+          >
+            {{ showSearch ? "Hide" : "Show" }} search
+          </Button>
+          <InputSearch
+            :id="`${id}-search-list`"
+            v-if="showSearch"
+            size="tiny"
             v-model="searchTerms"
-            @input="updateSearch(searchTerms)"
-            class="flex-1 min-w-0 text-sm bg-transparent border-b border-input focus:outline-none focus:border-input-focused text-input"
-            placeholder="Search..."
-            autocomplete="off"
+            @update:model-value="updateSearch($event as string)"
+            placeholder="Type to search..."
+            class="flex-1"
           />
         </div>
         <fieldset class="min-w-0 overflow-hidden">
