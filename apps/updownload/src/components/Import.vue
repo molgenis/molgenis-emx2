@@ -15,9 +15,7 @@
         <h4>Upload</h4>
         <MessageWarning
           v-if="
-            !session ||
-            !session.roles ||
-            !session.activeRoles?.some((r) => r.name === 'Editor')
+            !session || !session.roles || !session.roles?.includes('Editor')
           "
         >
           You don't have permission to upload data. Might you need to login?
@@ -46,9 +44,7 @@
           v-if="
             session &&
             session.roles &&
-            session.activeRoles?.some(
-              (r) => r.name === 'Viewer' || r.name === 'Aggregator'
-            )
+            session.roles?.some((r) => r === 'Viewer' || r === 'Aggregator')
           "
         ></div>
         <h4>Download</h4>
@@ -154,14 +150,14 @@ export default {
   },
   computed: {
     visibleTables() {
-      if (this.session?.activeRoles?.some((r) => r.name === "Viewer")) {
+      if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
     isManagerOrOwner() {
-      return this.session?.activeRoles?.some((r) => r.name === "Manager");
+      return this.session?.roles?.includes("Manager");
     },
     tablesHash() {
       if (this.tables) {
