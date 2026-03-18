@@ -27,7 +27,6 @@ export interface ISession {
   email?: string;
   locale?: string;
   roles?: string[];
-  activeRoles?: IRole[];
   tablePermissions?: ITablePermission[];
   schemas?: any;
   settings?: Record<string, string | number | boolean>;
