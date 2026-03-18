@@ -92,7 +92,7 @@ async function loadRefColumns(parentPath: string, column: IColumn) {
   const schemaId = column.refSchemaId || props.schemaId;
   try {
     const meta = await fetchTableMetadata(schemaId, column.refTableId);
-    const unfilterable = ["HEADING", "SECTION", "REFBACK"];
+    const unfilterable = ["HEADING", "SECTION"];
     refColumnsCache.value.set(
       parentPath,
       meta.columns.filter(

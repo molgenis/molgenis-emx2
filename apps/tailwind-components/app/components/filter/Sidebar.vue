@@ -37,7 +37,7 @@ const searchInputId = useId();
 
 const filterableColumns = ref<IColumn[]>([]);
 
-const unfilterableTypes = ["HEADING", "SECTION", "FILE", "REFBACK"];
+const unfilterableTypes = ["HEADING", "SECTION", "FILE"];
 
 watch(
   () => [props.schemaId, props.tableId] as const,
@@ -348,7 +348,7 @@ async function loadRefColumnsForPath(fullPath: string) {
           refSchemaId,
           column.refTableId
         );
-        const unfilterable = ["HEADING", "SECTION", "REFBACK"];
+        const unfilterable = ["HEADING", "SECTION"];
         refColumnsCache.value.set(
           pathSoFar,
           tableMetadata.columns.filter(

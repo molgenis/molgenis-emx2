@@ -449,6 +449,28 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
       >
+        <div
+          v-if="!displayAsSelect && !disabled"
+          class="flex items-center gap-1 mb-1"
+        >
+          <button
+            type="button"
+            class="p-1 rounded hover:bg-search-hover text-input"
+            :aria-label="showSearch ? 'Close search' : 'Search options'"
+            @click="toggleSearch"
+          >
+            <BaseIcon :name="showSearch ? 'cross' : 'search'" size="xs" />
+          </button>
+          <input
+            v-if="showSearch"
+            type="text"
+            v-model="searchTerms"
+            @input="updateSearch(searchTerms)"
+            class="flex-1 min-w-0 text-sm bg-transparent border-b border-input focus:outline-none focus:border-input-focused text-input"
+            placeholder="Search..."
+            autocomplete="off"
+          />
+        </div>
         <fieldset class="min-w-0 overflow-hidden">
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
