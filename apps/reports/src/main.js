@@ -4,7 +4,7 @@ import App from "./App.vue";
 import ViewReport from "./components/ViewEditReport.vue";
 import ListReports from "./components/ListReports.vue";
 
-import "molgenis-components/dist/style.css";
+import "molgenis-components";
 
 const router = createRouter({
   history: createWebHashHistory(),
