@@ -28,6 +28,9 @@ def main(args):
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
 
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
+
     staging_areas = args[-1].split(',')
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:

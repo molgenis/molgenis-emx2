@@ -1,5 +1,4 @@
 import logging
-import time
 import zipfile
 from datetime import datetime
 from io import BytesIO
@@ -7,12 +6,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import time
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .exceptions import MissingContactException, ReferenceDeleteError
+from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts
 
@@ -188,6 +188,12 @@ class StagingMigrator(Client):
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
             for file_name in source_archive.namelist():
+
+                # Add files in '_files' folder
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
+
                 try:
                     table: Table = source_metadata.get_table('name', Path(file_name).stem)
                 except NoSuchTableException:
@@ -203,8 +209,7 @@ class StagingMigrator(Client):
             upload_stream.flush()
             return
 
-        with open(BASE_DIR / "update.zip", 'w') as f:
-            f.write(str(upload_stream.getvalue()))
+        (BASE_DIR / "update.zip").write_bytes(upload_stream.getbuffer())
 
         self.upload_zip_stream(upload_stream)
         if len(self.errors) != 0:
@@ -213,6 +218,9 @@ class StagingMigrator(Client):
                              f"First delete it manually from 'Resources.data resources' in the catalogue.")
                 self.cleanup()
                 raise ReferenceDeleteError(error_msg)
+            else:
+                self.cleanup()
+                raise StagingMigratorException(self.errors[0])
         self.cleanup()
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
@@ -319,13 +327,17 @@ class StagingMigrator(Client):
 
     def add_data_resource(self):
         """Adds the source id to the target's data resources."""
-        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {self.target}", as_df=True)
 
         update_filepath = BASE_DIR / "update.zip"
         if not update_filepath.exists():
             return
         with zipfile.ZipFile(update_filepath, 'r') as update_zip:
-            u_resources = pd.read_csv(BytesIO(update_zip.read("Resources.csv")))
+            try:
+                u_resources = pd.read_csv(BytesIO(update_zip.read("Resources.csv")))
+            except KeyError:
+                return
+
+        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {self.target}", as_df=True)
 
         new_resources = [res for res in u_resources["id"] if res not in t_resources["data resources"].str.split(',')]
 
