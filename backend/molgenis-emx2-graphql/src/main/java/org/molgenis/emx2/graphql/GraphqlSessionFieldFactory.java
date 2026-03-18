@@ -165,10 +165,6 @@ public class GraphqlSessionFieldFactory {
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
-                        .name(ACTIVE_ROLES)
-                        .type(GraphQLList.list(GraphqlSchemaFieldFactory.outputRolesType)))
-                .field(
-                    GraphQLFieldDefinition.newFieldDefinition()
                         .name(TABLE_PERMISSIONS)
                         .type(GraphQLList.list(outputTablePermissionsType)))
                 .field(
@@ -192,13 +188,6 @@ public class GraphqlSessionFieldFactory {
               if (schema != null) {
                 List<String> roleNames = schema.getInheritedRolesForActiveUser();
                 result.put(ROLES, roleNames);
-                result.put(
-                    ACTIVE_ROLES,
-                    roleNames.stream()
-                        .map(
-                            roleName ->
-                                GraphqlSchemaFieldFactory.roleToMap(schema.getRoleInfo(roleName)))
-                        .toList());
                 result.put(TABLE_PERMISSIONS, buildTablePermissions(schema, roleNames));
               }
               result.put(SCHEMAS, database.getSchemaNames());

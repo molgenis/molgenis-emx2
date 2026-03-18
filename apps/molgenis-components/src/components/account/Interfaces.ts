@@ -1,20 +1,5 @@
 import { ISetting } from "metadata-utils";
 
-export interface IRolePermission {
-  table: string;
-  select?: boolean;
-  insert?: boolean;
-  update?: boolean;
-  delete?: boolean;
-}
-
-export interface IRole {
-  name: string;
-  description?: string;
-  system: boolean;
-  permissions: IRolePermission[];
-}
-
 export interface ITablePermission {
   name: string;
   canView: boolean;
