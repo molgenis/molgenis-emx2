@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
-import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
@@ -176,7 +175,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
+    if (new SqlPermissionEvaluator(this).canManage()) {
       getDatabase()
           .tx(
               db -> {
