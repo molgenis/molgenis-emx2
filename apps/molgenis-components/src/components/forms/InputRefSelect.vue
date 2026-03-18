@@ -93,7 +93,7 @@ export default {
       required: false,
       default: () => false,
     },
-    activeRoles: {
+    tablePermissions: {
       type: Array,
       required: false,
       default: () => [],
@@ -104,15 +104,9 @@ export default {
       return "Select " + this.tableId; //todo need a label
     },
     effectiveCanEdit() {
-      if (this.activeRoles && this.activeRoles.length > 0) {
-        return this.activeRoles.some((role) => {
-          if (["Editor", "Manager", "Owner"].includes(role.name)) return true;
-          return role.permissions?.some(
-            (p) =>
-              (p.table === "*" || p.table === this.tableId) &&
-              (p.insert === true || p.update === true || p.delete === true)
-          );
-        });
+      if (this.tablePermissions && this.tablePermissions.length > 0) {
+        const perm = this.tablePermissions.find((p) => p.name === this.tableId);
+        return perm?.canInsert || perm?.canUpdate || perm?.canDelete || false;
       }
       return this.canEdit;
     },

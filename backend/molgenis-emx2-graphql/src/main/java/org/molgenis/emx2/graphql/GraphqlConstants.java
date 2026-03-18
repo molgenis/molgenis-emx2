@@ -95,6 +95,11 @@ public class GraphqlConstants {
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
   public static final String SYSTEM = "system";
+  public static final String TABLE_PERMISSIONS = "tablePermissions";
+  public static final String CAN_VIEW = "canView";
+  public static final String CAN_INSERT = "canInsert";
+  public static final String CAN_UPDATE = "canUpdate";
+  public static final String CAN_DELETE = "canDelete";
 
   private GraphqlConstants() {
     // hide constructor

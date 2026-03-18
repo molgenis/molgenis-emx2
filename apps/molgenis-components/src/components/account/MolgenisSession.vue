@@ -67,7 +67,7 @@ import { ISetting } from "metadata-utils";
 
 const { cookies } = useCookies();
 const query = `{
-  _session { email, admin, roles, activeRoles{name,description,system,permissions{table,select,insert,update,delete}}, schemas, token, settings{key,value} },
+  _session { email, admin, roles, activeRoles{name,description,system,permissions{table,select,insert,update,delete}}, tablePermissions{name,canView,canInsert,canUpdate,canDelete}, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss", "additionalFooterHtml", "additionalJs"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;

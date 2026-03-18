@@ -9,7 +9,7 @@
       :canUpdate="canUpdate"
       :canDelete="canDelete"
       :canManage="canManage"
-      :activeRoles="activeRoles"
+      :tablePermissions="tablePermissions"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
       @updateShowFilters="updateFilters"
@@ -89,7 +89,7 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    activeRoles: {
+    tablePermissions: {
       type: Array,
       default: () => [],
     },

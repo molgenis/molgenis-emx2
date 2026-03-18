@@ -13,6 +13,8 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,28 @@ import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
+
+  static final GraphQLObjectType outputTablePermissionsType =
+      GraphQLObjectType.newObject()
+          .name("MolgenisTablePermission")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_VIEW)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -145,6 +169,10 @@ public class GraphqlSessionFieldFactory {
                         .type(GraphQLList.list(GraphqlSchemaFieldFactory.outputRolesType)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
+                        .name(TABLE_PERMISSIONS)
+                        .type(GraphQLList.list(outputTablePermissionsType)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
@@ -171,6 +199,7 @@ public class GraphqlSessionFieldFactory {
                             roleName ->
                                 GraphqlSchemaFieldFactory.roleToMap(schema.getRoleInfo(roleName)))
                         .toList());
+                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema, roleNames));
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());
@@ -181,6 +210,37 @@ public class GraphqlSessionFieldFactory {
               return result;
             })
         .build();
+  }
+
+  private static List<Map<String, Object>> buildTablePermissions(
+      Schema schema, List<String> roleNames) {
+    Collection<String> tableNames = schema.getTableNames();
+    Map<String, Map<String, Object>> byTable = new LinkedHashMap<>();
+    for (String roleName : roleNames) {
+      List<TablePermission> rolePerms = schema.getRoleInfo(roleName).permissions();
+      for (TablePermission p : rolePerms) {
+        Collection<String> targets = "*".equals(p.table()) ? tableNames : List.of(p.table());
+        for (String tableName : targets) {
+          byTable.computeIfAbsent(
+              tableName,
+              k -> {
+                Map<String, Object> e = new LinkedHashMap<>();
+                e.put(NAME, k);
+                e.put(CAN_VIEW, false);
+                e.put(CAN_INSERT, false);
+                e.put(CAN_UPDATE, false);
+                e.put(CAN_DELETE, false);
+                return e;
+              });
+          Map<String, Object> entry = byTable.get(tableName);
+          if (Boolean.TRUE.equals(p.select())) entry.put(CAN_VIEW, true);
+          if (Boolean.TRUE.equals(p.insert())) entry.put(CAN_INSERT, true);
+          if (Boolean.TRUE.equals(p.update())) entry.put(CAN_UPDATE, true);
+          if (Boolean.TRUE.equals(p.delete())) entry.put(CAN_DELETE, true);
+        }
+      }
+    }
+    return new ArrayList<>(byTable.values());
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {

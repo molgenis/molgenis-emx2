@@ -15,11 +15,20 @@ export interface IRole {
   permissions: IRolePermission[];
 }
 
+export interface ITablePermission {
+  name: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
 export interface ISession {
   email?: string;
   locale?: string;
   roles?: string[];
   activeRoles?: IRole[];
+  tablePermissions?: ITablePermission[];
   schemas?: any;
   settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;

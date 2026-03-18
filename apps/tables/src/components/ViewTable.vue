@@ -17,7 +17,7 @@
       :canDelete="canDelete"
       :canManage="canManage"
       :locale="session?.locale"
-      :activeRoles="session?.activeRoles"
+      :tablePermissions="session?.tablePermissions"
     />
   </div>
 </template>
@@ -36,30 +36,24 @@ export default {
     MessageWarning,
   },
   computed: {
+    tablePermission() {
+      return this.session?.tablePermissions?.find((p) => p.name === this.table);
+    },
     canView() {
-      const isViewer =
-        this.session?.activeRoles?.some((r) => r.name === "Viewer") ||
+      return (
+        this.tablePermission?.canView ||
         this.activeTable?.tableType === "ONTOLOGIES" ||
-        this.hasTablePermission("select");
-      return isViewer || this.canEdit;
+        false
+      );
     },
     canInsert() {
-      const isEditor = this.session?.activeRoles?.some(
-        (r) => r.name === "Editor"
-      );
-      return !!(isEditor || this.hasTablePermission("insert"));
+      return this.tablePermission?.canInsert || false;
     },
     canUpdate() {
-      const isEditor = this.session?.activeRoles?.some(
-        (r) => r.name === "Editor"
-      );
-      return !!(isEditor || this.hasTablePermission("update"));
+      return this.tablePermission?.canUpdate || false;
     },
     canDelete() {
-      const isEditor = this.session?.activeRoles?.some(
-        (r) => r.name === "Editor"
-      );
-      return !!(isEditor || this.hasTablePermission("delete"));
+      return this.tablePermission?.canDelete || false;
     },
     canEdit() {
       return this.canInsert || this.canUpdate || this.canDelete;
@@ -79,18 +73,6 @@ export default {
       }
     },
   },
-  methods: {
-    hasTablePermission(permission) {
-      return this.session?.activeRoles?.some((role) =>
-        role.permissions?.some(
-          (p) =>
-            (p.table === "*" || p.table === this.table) &&
-            (permission === "select"
-              ? p.select === true
-              : p[permission] === true)
-        )
-      );
-    },
-  },
+  methods: {},
 };
 </script>

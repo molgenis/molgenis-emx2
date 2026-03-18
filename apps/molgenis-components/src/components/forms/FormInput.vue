@@ -140,7 +140,7 @@ export default {
       required: false,
       default: () => false,
     },
-    activeRoles: {
+    tablePermissions: {
       type: Array,
       required: false,
       default: () => [],
