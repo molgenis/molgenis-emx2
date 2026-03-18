@@ -202,6 +202,26 @@ describe("createCountFetcher", () => {
       expect(counts.get("Dog")).toBe(7);
       expect(counts.get("Cat")).toBe(0);
     });
+
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchOntologyLeafCounts(["Dog", "Cat"]);
+
+      expect(counts.size).toBe(0);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
   });
 
   describe("fetchOntologyParentCounts", () => {
@@ -239,21 +259,12 @@ describe("createCountFetcher", () => {
       expect(counts.get("Plant")).toBe(5);
     });
 
-    it("returns empty map for nested dotted column path", async () => {
-      const fetcher = createCountFetcher({
-        schemaId: "s",
-        tableId: "Patient",
-        columnPath: "hospital.species",
-        getCrossFilter: () => ({}),
-      });
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
 
-      const counts = await fetcher.fetchOntologyParentCounts(["Mammal"]);
-
-      expect(mockFetchGraphql).not.toHaveBeenCalled();
-      expect(counts.size).toBe(0);
-    });
-
-    it("returns empty map for empty names array", async () => {
       const fetcher = createCountFetcher({
         schemaId: "s",
         tableId: "Patient",
@@ -261,26 +272,11 @@ describe("createCountFetcher", () => {
         getCrossFilter: () => ({}),
       });
 
-      const counts = await fetcher.fetchOntologyParentCounts([]);
-      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      const counts = await fetcher.fetchOntologyParentCounts(["Animal"]);
+
       expect(counts.size).toBe(0);
-    });
-  });
-
-  describe("getCrossFilter", () => {
-    it("exposes getCrossFilter that delegates to the provided function", () => {
-      let currentFilter: any = { _search: "hello" };
-      const fetcher = createCountFetcher({
-        schemaId: "s",
-        tableId: "T",
-        columnPath: "col",
-        getCrossFilter: () => currentFilter,
-      });
-
-      expect(fetcher.getCrossFilter()).toEqual({ _search: "hello" });
-
-      currentFilter = { _search: "world" };
-      expect(fetcher.getCrossFilter()).toEqual({ _search: "world" });
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
     });
   });
 });

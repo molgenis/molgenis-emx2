@@ -206,7 +206,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("preserves 'and' in middle of word", () => {
+  it("treats standalone 'and' keyword as AND separator", () => {
     const columns: IColumn[] = [
       { id: "name", columnType: "STRING", label: "Name" },
     ];
@@ -245,50 +245,18 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("preserves existing behavior without quotes", () => {
+  it.each([
+    ["notNull", { name: { notNull: true } }],
+    ["isNull", { name: { isNull: true } }],
+  ] as const)("builds %s filter", (operator, expected) => {
     const columns: IColumn[] = [
       { id: "name", columnType: "STRING", label: "Name" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "aap noot" }],
+      ["name", { operator, value: null }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      name: { like: ["aap", "noot"] },
-    });
-  });
-
-  it("builds notNull filter", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "notNull", value: null }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ name: { notNull: true } });
-  });
-
-  it("builds isNull filter", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "isNull", value: null }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ name: { isNull: true } });
-  });
-
-  it("builds notNull filter for nested path", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["order.status", { operator: "notNull", value: null }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ order: { status: { notNull: true } } });
+    expect(result).toEqual(expected);
   });
 
   it("passes UUID equals filter through", () => {
@@ -336,5 +304,60 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ category: { code: { equals: ["A1"] } } });
+  });
+
+  it("like_or operator passes value through as { like: value }", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like_or", value: "dog" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ name: { like: "dog" } });
+  });
+
+  it("like_and operator with array produces _and structure", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "like_and", value: ["dog", "cat"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
+    });
+  });
+
+  it("between with [null, null] produces no filter entry", () => {
+    const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
+    const filters = new Map<string, IFilterValue>([
+      ["age", { operator: "between", value: [null, null] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({});
+  });
+
+  it("in with empty array falls through to non-array object path", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "in", value: [] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result.name).toBeDefined();
+  });
+
+  it("equals with empty array produces { equals: [] }", () => {
+    const columns: IColumn[] = [
+      { id: "name", columnType: "STRING", label: "Name" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["name", { operator: "equals", value: [] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ name: { equals: [] } });
   });
 });

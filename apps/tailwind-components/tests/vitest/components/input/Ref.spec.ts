@@ -59,14 +59,10 @@ const wrapper = mount(InputRef, {
 });
 
 describe("input ref", () => {
-  it("deselect on non-array version should yield empty array ", () => {
+  it("deselect on non-array version should emit null", () => {
     expect(wrapper.exists()).toBe(true);
     wrapper.find("button").trigger("click");
     expect(wrapper.emitted("update:modelValue")).toEqual([[null]]);
-    setTimeout(() => {
-      //timeout because of debounce
-      expect(wrapper.emitted("blur")).toBeDefined();
-    }, 100);
   });
 });
 
@@ -161,5 +157,14 @@ describe("facet count fetching", () => {
 
     vi.useRealTimers();
     expect(mockFetchGraphql.mock.calls.length).toBeGreaterThan(callsBefore);
+    const lastCall =
+      mockFetchGraphql.mock.calls[mockFetchGraphql.mock.calls.length - 1];
+    expect(lastCall[2]).toEqual(
+      expect.objectContaining({
+        filter: expect.objectContaining({
+          age: { between: [5, 20] },
+        }),
+      })
+    );
   });
 });

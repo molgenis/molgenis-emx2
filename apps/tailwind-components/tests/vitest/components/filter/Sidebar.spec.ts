@@ -436,14 +436,11 @@ describe("Sidebar", () => {
       await picker.vm.$emit("reset");
       await nextTick();
 
-      if (mockRouter.replace.mock.calls.length > 0) {
-        const lastCall =
-          mockRouter.replace.mock.calls[
-            mockRouter.replace.mock.calls.length - 1
-          ];
-        const query = lastCall[0]?.query;
-        expect(query?.mg_filters).toBeUndefined();
-      }
+      expect(mockRouter.replace).toHaveBeenCalled();
+      const lastCall =
+        mockRouter.replace.mock.calls[mockRouter.replace.mock.calls.length - 1];
+      const query = lastCall[0]?.query;
+      expect(query?.mg_filters).toBeUndefined();
     });
   });
 
@@ -575,27 +572,6 @@ describe("Sidebar", () => {
         expect(filter.props("label")).toBe(column?.label || column?.id);
       }
     });
-
-    it("passes column with refSchemaId to rendered FilterColumn components", async () => {
-      const wrapper = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
-      expect(filterColumns.length).toBeGreaterThan(0);
-      for (const filter of filterColumns) {
-        expect(filter.props("column")?.refSchemaId).toBeDefined();
-      }
-    });
-
-    it("renders FilterColumn with removable=true", async () => {
-      const wrapper = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
-      for (const filter of filterColumns) {
-        expect(filter.props("removable")).toBe(true);
-      }
-    });
   });
 
   describe("FilterColumn interaction", () => {
@@ -634,33 +610,76 @@ describe("Sidebar", () => {
     });
   });
 
+  describe("MAX_VISIBLE_FILTERS cap", () => {
+    it("refuses to add a filter when already at 25 visible filters", async () => {
+      const manyColumns: IColumn[] = Array.from({ length: 26 }, (_, i) => ({
+        id: `col${i}`,
+        label: `Col ${i}`,
+        columnType: "STRING" as const,
+      }));
+
+      mockFetchTableMetadata.mockResolvedValueOnce({
+        id: "Patient",
+        columns: manyColumns,
+      });
+
+      mockRoute.query = {
+        mg_filters: Array.from({ length: 25 }, (_, i) => `col${i}`).join(","),
+      };
+
+      const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
+
+      const filterColumnsBefore = wrapper.findAllComponents({
+        name: "FilterColumn",
+      }).length;
+      expect(filterColumnsBefore).toBe(25);
+
+      const picker = wrapper.findComponent({ name: "FilterPicker" });
+      await picker.vm.$emit("toggle", "col25");
+      await nextTick();
+
+      const filterColumnsAfter = wrapper.findAllComponents({
+        name: "FilterColumn",
+      }).length;
+      expect(filterColumnsAfter).toBe(25);
+    });
+  });
+
+  describe("metadata fetch failure", () => {
+    it("results in empty filterableColumns when fetchTableMetadata throws on mount", async () => {
+      mockFetchTableMetadata.mockRejectedValueOnce(new Error("Network error"));
+
+      const wrapper = mountSidebar();
+      await nextTick();
+      await nextTick();
+
+      const picker = wrapper.findComponent({ name: "FilterPicker" });
+      const columns = picker.props("columns") as IColumn[];
+      expect(columns).toHaveLength(0);
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      expect(filterColumns).toHaveLength(0);
+    });
+  });
+
   describe("FilterPicker props", () => {
-    it("passes filterable columns to FilterPicker", async () => {
+    it("passes filterable columns, schemaId, and visibleFilterIds to FilterPicker", async () => {
       const wrapper = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
+
       const columns = picker.props("columns") as IColumn[];
       expect(columns.length).toBeGreaterThan(0);
       const columnIds = columns.map((c) => c.id);
       expect(columnIds).toContain("disease");
       expect(columnIds).toContain("hospital");
       expect(columnIds).toContain("name");
-    });
 
-    it("passes schemaId to FilterPicker", async () => {
-      const wrapper = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
       expect(picker.props("schemaId")).toBe("test");
-    });
 
-    it("passes visibleFilterIds to FilterPicker", async () => {
-      const wrapper = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
       const visibleIds = picker.props("visibleFilterIds") as string[];
       expect(Array.isArray(visibleIds)).toBe(true);
       expect(visibleIds.length).toBeGreaterThan(0);

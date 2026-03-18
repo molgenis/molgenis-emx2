@@ -35,15 +35,6 @@ describe("ActiveFilters", () => {
     expect(chips).toHaveLength(2);
   });
 
-  it("shows single value display for non-multi filters", () => {
-    const filters: ActiveFilter[] = [
-      { columnId: "name", label: "Name", displayValue: "John", values: [] },
-    ];
-    const wrapper = mount(ActiveFilters, { props: { filters } });
-
-    expect(wrapper.text()).toContain("John");
-  });
-
   it("shows count display for multi-value filters", () => {
     const filters: ActiveFilter[] = [
       {

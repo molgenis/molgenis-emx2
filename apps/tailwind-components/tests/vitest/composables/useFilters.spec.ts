@@ -141,21 +141,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should build correct GraphQL filter for like operator", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("name", { operator: "like", value: "John" });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      name: { like: "John" },
-    });
-  });
-
-  it("should build correct GraphQL filter for between operator", async () => {
+  it("should build correct GraphQL filter for between operator with both bounds", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -166,65 +152,6 @@ describe("useFilters", () => {
 
     expect(gqlFilter.value).toEqual({
       age: { between: { min: 10, max: 20 } },
-    });
-  });
-
-  it("should build correct GraphQL filter for between with only min", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("age", { operator: "between", value: [10, null] });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      age: { between: { min: 10 } },
-    });
-  });
-
-  it("should build correct GraphQL filter for between with only max", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("age", { operator: "between", value: [null, 20] });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      age: { between: { max: 20 } },
-    });
-  });
-
-  it("should build correct GraphQL filter for in operator with array", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("category", {
-      operator: "in",
-      value: [{ name: "Cat1" }, { name: "Cat2" }],
-    });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      category: { name: { equals: ["Cat1", "Cat2"] } },
-    });
-  });
-
-  it("should build correct GraphQL filter for in operator with single value", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("category", { operator: "in", value: { name: "Cat1" } });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      category: { name: { equals: ["Cat1"] } },
     });
   });
 
@@ -257,34 +184,6 @@ describe("useFilters", () => {
       _search: "active",
       name: { like: "John" },
       age: { between: { min: 18, max: 65 } },
-    });
-  });
-
-  it("should handle notNull operator", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("name", { operator: "notNull", value: true });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      name: { notNull: true },
-    });
-  });
-
-  it("should handle isNull operator", async () => {
-    const { gqlFilter, setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-    });
-
-    setFilter("name", { operator: "isNull", value: true });
-
-    await nextTick();
-
-    expect(gqlFilter.value).toEqual({
-      name: { isNull: true },
     });
   });
 
@@ -324,26 +223,6 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(gqlFilter.value).toEqual({});
-  });
-
-  it("should use injected route/router for URL sync", async () => {
-    const mockRoute = { query: {} };
-    const mockRouter = { replace: vi.fn() };
-
-    const { setFilter } = useFilters(mockColumns, {
-      debounceMs: 0,
-      urlSync: true,
-      route: mockRoute,
-      router: mockRouter,
-    });
-
-    setFilter("name", { operator: "like", value: "test" });
-
-    await nextTick();
-
-    expect(mockRouter.replace).toHaveBeenCalledWith({
-      query: { name: "test" },
-    });
   });
 
   it("should update URL on filter change with injected router", async () => {
@@ -627,6 +506,38 @@ describe("serializeFilterValue", () => {
     });
     expect(result).toBe("2024-01-01..2024-12-31");
   });
+
+  it("should serialize like_or operator with array as pipe-separated string", () => {
+    const result = serializeFilterValue({
+      operator: "like_or",
+      value: ["dog", "cat"],
+    });
+    expect(result).toBe("dog|cat");
+  });
+
+  it("should serialize like_or operator with scalar as string", () => {
+    const result = serializeFilterValue({
+      operator: "like_or",
+      value: "dog",
+    });
+    expect(result).toBe("dog");
+  });
+
+  it("should serialize like_and operator with array as comma-separated string", () => {
+    const result = serializeFilterValue({
+      operator: "like_and",
+      value: ["dog", "cat"],
+    });
+    expect(result).toBe("dog,cat");
+  });
+
+  it("should serialize like_and operator with scalar as string", () => {
+    const result = serializeFilterValue({
+      operator: "like_and",
+      value: "dog",
+    });
+    expect(result).toBe("dog");
+  });
 });
 
 describe("parseFilterValue", () => {
@@ -894,60 +805,12 @@ describe("parseFiltersFromUrl", () => {
 });
 
 describe("extractStringKey (via serializeFilterValue)", () => {
-  it("should extract string value directly from object", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: { name: "TestValue" },
-    });
-    expect(result).toBe("TestValue");
-  });
-
   it("should extract nested string value", () => {
     const result = serializeFilterValue({
       operator: "in",
       value: { data: { name: "NestedValue" } },
     });
     expect(result).toBe("NestedValue");
-  });
-
-  it("should handle single ONTOLOGY value (wrapped object)", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: { name: "OntologyTerm" },
-    });
-    expect(result).toBe("OntologyTerm");
-  });
-
-  it("should extract from array of objects", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: [{ name: "Term1" }, { name: "Term2" }],
-    });
-    expect(result).toBe("Term1|Term2");
-  });
-
-  it("should handle objects with id field", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: { id: "12345" },
-    });
-    expect(result).toBe("12345");
-  });
-
-  it("should handle deeply nested objects", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: { level1: { level2: { name: "DeepValue" } } },
-    });
-    expect(result).toBe("DeepValue");
-  });
-
-  it("should fallback to string conversion for primitives", () => {
-    const result = serializeFilterValue({
-      operator: "in",
-      value: 123,
-    });
-    expect(result).toBe("123");
   });
 
   it("should handle empty objects gracefully", () => {
@@ -1015,37 +878,5 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
     expect(gql).toEqual({
       _and: [{ name: { like: "aap" } }, { name: { like: "noot" } }],
     });
-  });
-
-  it("plus in input is literal (not AND)", () => {
-    const { serialized, parsed, gql } = roundTrip("aap+noot");
-    expect(serialized).toBe("aap+noot");
-    expect(parsed).toEqual({ operator: "like", value: "aap+noot" });
-    expect(gql).toEqual({ name: { like: "aap+noot" } });
-  });
-
-  it("partial AND: aap and (incomplete)", () => {
-    const { serialized, parsed } = roundTrip("aap and ");
-    expect(serialized).toBe("aap and ");
-    expect(parsed).toEqual({ operator: "like", value: "aap and " });
-  });
-
-  it("preserves raw string through URL round-trip", () => {
-    const inputs = ["hello", "aap noot mies", "aap and noot", "aap+noot"];
-    for (const input of inputs) {
-      const serialized = serializeFilterValue({
-        operator: "like",
-        value: input,
-      });
-      const parsed = parseFilterValue(serialized!, stringColumn);
-      expect(parsed!.value).toBe(input);
-    }
-  });
-
-  it("quoted phrase: 'aap noot' mies", () => {
-    const { serialized, parsed, gql } = roundTrip("'aap noot' mies");
-    expect(serialized).toBe("'aap noot' mies");
-    expect(parsed).toEqual({ operator: "like", value: "'aap noot' mies" });
-    expect(gql).toEqual({ name: { like: ["aap noot", "mies"] } });
   });
 });

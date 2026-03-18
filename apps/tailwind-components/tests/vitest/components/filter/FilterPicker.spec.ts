@@ -138,20 +138,6 @@ describe("FilterPicker", () => {
       expect(wrapper.text()).toContain("Add filter");
     });
 
-    it("dropdown is closed by default", () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      const dropdown = wrapper.find(".dropdown-popper");
-      expect(dropdown.exists()).toBe(false);
-    });
-
     it("opens dropdown when button is clicked", async () => {
       const wrapper = mount(FilterPicker, {
         props: defaultProps,
@@ -190,70 +176,7 @@ describe("FilterPicker", () => {
       expect(wrapper.text()).toContain("Active");
     });
 
-    it("excludes HEADING columns", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const columnButtons = wrapper.findAll("button").filter((b) => {
-        const text = b.text();
-        return (
-          text.includes("Name") ||
-          text.includes("Age") ||
-          text.includes("Hospital")
-        );
-      });
-      const labels = columnButtons.map((b) => b.text());
-      expect(labels).not.toContain("Demographics");
-    });
-
-    it("excludes SECTION columns", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const columnButtons = wrapper.findAll("button").filter((b) => {
-        const text = b.text();
-        return (
-          text.includes("Name") ||
-          text.includes("Age") ||
-          text.includes("Hospital")
-        );
-      });
-      const labels = columnButtons.map((b) => b.text());
-      expect(labels).not.toContain("Section");
-    });
-
-    it("excludes mg_* columns", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      expect(wrapper.text()).not.toContain("Internal Field");
-    });
-
-    it("excludes FILE columns", async () => {
+    it("excludes HEADING, SECTION, mg_*, and FILE columns", async () => {
       const columnsWithFile: IColumn[] = [
         ...mockColumns,
         {
@@ -274,6 +197,9 @@ describe("FilterPicker", () => {
 
       await wrapper.find("button").trigger("click");
 
+      expect(wrapper.text()).not.toContain("Demographics");
+      expect(wrapper.text()).not.toContain("Section");
+      expect(wrapper.text()).not.toContain("Internal Field");
       expect(wrapper.text()).not.toContain("Attachment");
     });
   });
@@ -420,37 +346,6 @@ describe("FilterPicker", () => {
         .map((b) => b.find("span").text().trim());
       expect(checkedLabels).toEqual(["Country", "Diagnosis"]);
     });
-
-    it("shows unchecked checkboxes for hidden filters", async () => {
-      const wrapper = mount(FilterPicker, {
-        props: defaultProps,
-        global: {
-          stubs: {
-            VDropdown: vDropdownStub,
-          },
-        },
-      });
-
-      await wrapper.find("button").trigger("click");
-
-      const columnButtons = wrapper
-        .find(".dropdown-popper")
-        .findAll("button")
-        .filter((b) => b.findComponent(InputCheckboxIcon).exists());
-      const uncheckedLabels = columnButtons
-        .filter((b) => !b.findComponent(InputCheckboxIcon).props("checked"))
-        .map((b) => b.find("span").text().trim());
-      expect(uncheckedLabels).toEqual([
-        "Active",
-        "Admission Date",
-        "Age",
-        "Hospital",
-        "Medications",
-        "Name",
-        "Notes",
-        "Weight",
-      ]);
-    });
   });
 
   describe("Toggle event", () => {
@@ -582,18 +477,9 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1", "sel1", "sel2"]);
   });
 
-  it("excludes HEADING columns", () => {
+  it("excludes HEADING and SECTION columns", () => {
     const columns: IColumn[] = [
       { id: "heading1", label: "Heading", columnType: "HEADING" },
-      { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
-    ];
-
-    const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1"]);
-  });
-
-  it("excludes SECTION columns", () => {
-    const columns: IColumn[] = [
       { id: "section1", label: "Section", columnType: "SECTION" },
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
     ];

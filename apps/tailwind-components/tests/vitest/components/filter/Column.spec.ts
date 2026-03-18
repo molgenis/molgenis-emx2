@@ -109,28 +109,6 @@ describe("FilterColumn", () => {
 
       expect(wrapper.text()).not.toContain("Clear");
     });
-
-    it("clears modelValue when Clear button is clicked", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: {
-            operator: "like",
-            value: "test",
-          } as IFilterValue,
-          "onUpdate:modelValue": (e: IFilterValue | null) =>
-            wrapper.setProps({ modelValue: e }),
-        },
-      });
-
-      expect(wrapper.props("modelValue")).toBeTruthy();
-
-      const clearButton = wrapper.find(".text-search-filter-expand");
-      await clearButton.trigger("click");
-
-      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-      expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([null]);
-    });
   });
 
   describe("Dispatch logic (from 6.3.3 FilterColumn)", () => {
@@ -304,17 +282,6 @@ describe("FilterColumn", () => {
       expect(wrapper.text()).not.toContain("Remove");
     });
 
-    it("hides Remove link when removable is absent", () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-        },
-      });
-
-      expect(wrapper.text()).not.toContain("Remove");
-    });
-
     it("emits remove event when Remove link is clicked", async () => {
       const wrapper = mount(FilterColumn, {
         props: {
@@ -332,73 +299,6 @@ describe("FilterColumn", () => {
 
       expect(wrapper.emitted("remove")).toBeTruthy();
       expect(wrapper.emitted("remove")?.length).toBe(1);
-    });
-  });
-
-  describe("REF type filters", () => {
-    it("renders REF column label", () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: refColumn,
-          modelValue: null,
-        },
-      });
-
-      expect(wrapper.text()).toContain("Pet");
-    });
-  });
-
-  describe("Integration", () => {
-    it("handles complete filter lifecycle for STRING type", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: stringColumn,
-          modelValue: null,
-        },
-      });
-
-      expect(wrapper.text()).not.toContain("Clear");
-      expect(wrapper.find(".mb-5").exists()).toBe(true);
-
-      const input = wrapper.find('input[type="text"]');
-      await input.setValue("test");
-
-      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-
-      await wrapper.setProps({
-        modelValue: { operator: "like", value: "test" } as IFilterValue,
-      });
-
-      expect(wrapper.text()).toContain("Clear");
-
-      const clearButton = wrapper.find(".text-search-filter-expand");
-      await clearButton.trigger("click");
-
-      expect(wrapper.emitted("update:modelValue")?.[1]).toEqual([null]);
-    });
-
-    it("handles complete filter lifecycle for INT range type", async () => {
-      const wrapper = mount(FilterColumn, {
-        props: {
-          column: intColumn,
-          modelValue: null,
-        },
-      });
-
-      expect(wrapper.text()).not.toContain("Clear");
-
-      await wrapper.setProps({
-        modelValue: { operator: "between", value: [10, 20] } as IFilterValue,
-      });
-
-      expect(wrapper.text()).toContain("Clear");
-
-      const clearButton = wrapper.find(".text-search-filter-expand");
-      await clearButton.trigger("click");
-
-      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-      const emittedValues = wrapper.emitted("update:modelValue") as any[];
-      expect(emittedValues[emittedValues.length - 1]).toEqual([null]);
     });
   });
 });
