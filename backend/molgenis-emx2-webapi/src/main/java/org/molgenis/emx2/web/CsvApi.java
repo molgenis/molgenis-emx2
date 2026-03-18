@@ -30,7 +30,6 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
@@ -189,12 +188,7 @@ public class CsvApi {
   }
 
   private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
-    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    SqlSchemaMetadata sqlSchemaMetadata =
-        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
+    return schema.getPermissionEvaluator().canManage();
   }
 
   private static void getSettings(Context ctx) throws IOException {
