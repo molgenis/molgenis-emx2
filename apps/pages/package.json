@@ -20,7 +20,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "6.3.5",
+    "vite": "6.4.1",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-monaco-editor": "1.1.0"
   },
