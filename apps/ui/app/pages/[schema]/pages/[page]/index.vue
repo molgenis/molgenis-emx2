@@ -6,7 +6,7 @@ import Container from "../../../../../../tailwind-components/app/components/Cont
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import DeveloperPage from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
 import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
-import { getPage } from "../../../../../../tailwind-components/app/utils/Pages";
+import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
 import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type { IConfigurablePages } from "../../../../../../tailwind-components/types/cms";
 
