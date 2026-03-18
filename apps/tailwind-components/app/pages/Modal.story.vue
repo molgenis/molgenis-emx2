@@ -3,43 +3,83 @@ import { ref } from "vue";
 
 const visible = ref(false);
 let sectionCount = ref(0);
+let backgroundAccessibleSetting = ref(false);
+let typeSetting = ref<"center" | "left" | "right">("center");
 </script>
 
 <template>
-  <button
-    @click="visible = true"
-    class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-  >
-    Open modal 🙈
-  </button>
-  <Modal v-model:visible="visible" title="Title" subtitle="Subtitle">
-    <p class="p-8">
-      Good resolutions are useless attempts to interfere with scientific laws.
-      Their origin is pure vanity. Their result is absolutely nil. They give us,
-      now and then, some of those luxurious sterile emotions that have a certain
-      charm for the weak. That is all that can be said for them. They are simply
-      cheques that men draw on a bank where they have no account.
-    </p>
-    <div class="flex flex-wrap gap-5 px-8">
+  <div class="flex flex-row flex-grow">
+    <div class="w-2/3 p-4">
       <button
-        @click="sectionCount++"
-        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+        @click="visible = true"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
       >
-        add content
+        Open modal 🙈
       </button>
-      <button
-        @click="sectionCount--"
-        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+      <Modal
+        v-model:visible="visible"
+        title="Title"
+        subtitle="Subtitle"
+        :type="typeSetting"
+        :backgroundAccessible="backgroundAccessibleSetting"
       >
-        remove content
-      </button>
+        <div>
+          <p class="p-8">
+            Good resolutions are useless attempts to interfere with scientific
+            laws. Their origin is pure vanity. Their result is absolutely nil.
+            They give us, now and then, some of those luxurious sterile emotions
+            that have a certain charm for the weak. That is all that can be said
+            for them. They are simply cheques that men draw on a bank where they
+            have no account.
+          </p>
+          <div class="flex flex-wrap gap-5 px-8">
+            <button
+              @click="sectionCount++"
+              class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+            >
+              add content
+            </button>
+            <button
+              @click="sectionCount--"
+              class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover"
+            >
+              remove content
+            </button>
+          </div>
+          <p v-for="index in sectionCount" class="p-8">
+            Good resolutions are useless attempts to interfere with scientific
+            laws. Their origin is pure vanity. Their result is absolutely nil.
+            They give us, now and then, some of those luxurious sterile emotions
+            that have a certain charm for the weak. That is all that can be said
+            for them. They are simply cheques that men draw on a bank where they
+            have no account.
+          </p>
+        </div>
+      </Modal>
     </div>
-    <p v-for="index in sectionCount" class="p-8">
-      Good resolutions are useless attempts to interfere with scientific laws.
-      Their origin is pure vanity. Their result is absolutely nil. They give us,
-      now and then, some of those luxurious sterile emotions that have a certain
-      charm for the weak. That is all that can be said for them. They are simply
-      cheques that men draw on a bank where they have no account.
-    </p>
-  </Modal>
+    <div class="w-1/3 p-4 sticky top-0">
+      <Field
+        type="BOOL"
+        label="Background Accessible"
+        v-model="backgroundAccessibleSetting"
+        trueLabel="Yes"
+        falseLabel="No"
+        id="test-container-background-accessible"
+        align="horizontal"
+        class="mb-3"
+      />
+      <Field
+        type="RADIO"
+        id="test-state"
+        v-model="typeSetting"
+        label="Style"
+        :options="[
+          { value: 'center', label: 'Center' },
+          { value: 'left', label: 'Left' },
+          { value: 'right', label: 'Right' },
+        ]"
+        class="mb-3"
+      />
+    </div>
+  </div>
 </template>

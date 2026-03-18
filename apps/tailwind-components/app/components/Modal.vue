@@ -9,13 +9,14 @@ withDefaults(
   defineProps<{
     title?: string;
     subtitle?: string;
-    maxWidth?: string; // deprecated, use style instead
-    style: "default" | "left" | "right" | "small";
+    maxWidth?: string;
+    type?: "center" | "left" | "right";
     backgroundAccessible?: boolean;
   }>(),
   {
+    type: "center",
     maxWidth: "max-w-xl",
-    backgroundAccessible: false
+    backgroundAccessible: false,
   }
 );
 
@@ -64,17 +65,19 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <UseFocusTrap v-if="visible" target="modal-title">
-        <div>
+      <OptionalFocusTrap v-if="visible" :enabled="!backgroundAccessible">
+        <div target="modal-title">
           <div
             v-if="visible"
             role="dialog"
             aria-labelledby="modal-title"
             :aria-modal="true"
             ref="dialog"
-            class="fixed min-h-lvh w-full top-0 left-0 flex z-30 overscroll-contain"
+            class="fixed min-h-lvh w-full top-0 left-0 flex z-50 overscroll-contain"
+            :style="backgroundAccessible ? 'pointer-events: none' : ''"
           >
             <div
+              v-if="!backgroundAccessible"
               id="backdrop"
               @click="visible = false"
               class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
@@ -82,14 +85,29 @@ function hide() {
             />
 
             <div
-              class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
-              :class="maxWidth"
+              style="pointer-events: all"
+              class="bg-modal w-3/4 relative rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
+              :class="[
+                {
+                  'm-auto': type === 'center',
+                  'ml-auto': type === 'right',
+                  'mr-auto': type === 'left',
+                },
+                maxWidth,
+              ]"
+              :style="
+                backgroundAccessible &&
+                'filter: drop-shadow(gray 0.25rem 0.25rem 5px);'
+              "
             >
               <slot name="header">
                 <header
                   class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
                 >
-                  <div v-if="subtitle" class="text-title-contrast">
+                  <div
+                    v-if="subtitle"
+                    class="text-title-contrast overflow-y-auto"
+                  >
                     {{ subtitle }}
                   </div>
                   <h2
@@ -111,19 +129,22 @@ function hide() {
                 </header>
               </slot>
 
-              <div class="flex-1 flex flex-col min-h-0" id="modal-title">
+              <div
+                class="flex-1 flex flex-col min-h-0 overflow-y-auto"
+                id="modal-content"
+              >
                 <slot />
               </div>
 
               <footer
-                class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50"
+                class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
               >
                 <slot name="footer" :hide="hide" />
               </footer>
             </div>
           </div>
         </div>
-      </UseFocusTrap>
+      </OptionalFocusTrap>
     </Teleport>
   </ClientOnly>
 </template>
