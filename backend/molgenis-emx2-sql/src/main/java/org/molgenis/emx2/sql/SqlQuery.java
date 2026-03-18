@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -48,17 +47,19 @@ public class SqlQuery extends QueryBean {
   private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
   private final SqlSchemaMetadata schema;
+  private final PermissionEvaluator permissionEvaluator;
   private final List<String> tableAliasList = new LinkedList<>();
-  private Set<String> tablesWithSelectPermission = null;
 
   public SqlQuery(SqlSchemaMetadata schema, String field) {
     super(field);
     this.schema = schema;
+    this.permissionEvaluator = new SqlPermissionEvaluator(schema);
   }
 
   public SqlQuery(SqlSchemaMetadata schema, String field, SelectColumn[] selection) {
     super(field);
     this.schema = schema;
+    this.permissionEvaluator = new SqlPermissionEvaluator(schema);
     this.select(selection);
   }
 
@@ -185,28 +186,10 @@ public class SqlQuery extends QueryBean {
   }
 
   private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        && !getTablesWithSelectPermission().contains("*")
-        && !getTablesWithSelectPermission().contains(table.getTableName())) {
+    if (!permissionEvaluator.canView(table)) {
       throw new MolgenisException(
           "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
-  }
-
-  private Set<String> getTablesWithSelectPermission() {
-    if (tablesWithSelectPermission == null) {
-      tablesWithSelectPermission =
-          schema
-              .getDatabase()
-              .getRoleManager()
-              .getPermissionsForActiveUser(schema.getName())
-              .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
-              .map(TablePermission::table)
-              .collect(Collectors.toUnmodifiableSet());
-    }
-    return tablesWithSelectPermission;
   }
 
   private List<Field<?>> rowSelectFields(
@@ -707,7 +690,8 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
+        if (permissionEvaluator.getAggregateLevel(table).ordinal()
+            >= AggregateLevel.EXISTS.ordinal()) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
@@ -742,17 +726,12 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
-    if (schema.hasActiveUserRole(COUNT.toString())) {
-      return count();
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
-    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
-    }
-    throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    return switch (permissionEvaluator.getAggregateLevel(table)) {
+      case FULL, COUNT -> count();
+      case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
+      case RANGE -> field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+      default -> throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    };
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -784,12 +763,7 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          aggregationFields.add(field("COUNT(*)"));
-        } else {
-          aggregationFields.add(
-              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
-        }
+        aggregationFields.add(getCountField(table).as(COUNT_FIELD));
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
         // sum precision depends on count
