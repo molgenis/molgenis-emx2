@@ -286,7 +286,7 @@ function getNonFilterParams(
   const preserved: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(query)) {
     if (key === SEARCH_PARAM) continue;
-    const firstSegment = key.split(".")[0];
+    const firstSegment = key.split(".")[0] ?? key;
     if (columnIds.has(firstSegment)) continue;
     preserved[key] = value;
   }
