@@ -5,7 +5,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 import "./dev-assets/mg-bbmri-eric-4.css";
 
 /** Add font awesome icons */

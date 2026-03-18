@@ -7,7 +7,7 @@ import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
 import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
 import ManageTemplates from "./components/admin/ManageTemplates.vue";
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
