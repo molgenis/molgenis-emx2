@@ -231,6 +231,8 @@ module.exports = {
         "label-available": "var(--background-color-label-available)",
         "label-available-hover":
           "var(--background-color-label-available-hover)",
+        "toggle-active": "var(--background-color-toggle-active)",
+        "toggle-inactive": "var(--background-color-toggle-inactive)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -340,6 +342,9 @@ module.exports = {
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
         "chart-text": "var(--chart-text)",
+        "toggle-active": "var(--text-color-toggle-active)",
+        "toggle-inactive": "var(--text-color-toggle-inactive)",
+        "toggle-hover": "var(--text-color-toggle-hover)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
@@ -378,6 +383,9 @@ module.exports = {
         "button-switch": "var(--border-color-button-switch)",
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
+        "toggle-active": "var(--border-color-toggle-active)",
+        "toggle-inactive": "var(--border-color-toggle-inactive)",
+        "toggle-hover": "var(--border-color-toggle-hover)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",

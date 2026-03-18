@@ -10,6 +10,7 @@ import type { ITableDataResponse } from "../../composables/fetchTableData";
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
@@ -21,6 +22,7 @@ import InputGroupContainer from "../input/InputGroupContainer.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
+import InputSearch from "./Search.vue";
 
 const props = withDefaults(
   defineProps<
@@ -31,15 +33,19 @@ const props = withDefaults(
       //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
+      showClear?: boolean;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
     isArray: true,
     limit: 20,
+    showClear: true,
   }
 );
 
 const isInitLoading = ref(true);
+const isInitializing = ref(false);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
 >();
@@ -76,59 +82,68 @@ const selection = computed(() =>
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
-watch(
-  () => props.refSchemaId,
-  () => init
-);
-watch(
-  () => props.refTableId,
-  () => init
-);
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-watch(
-  () => modelValue.value,
-  () => init
-);
-
 onMounted(() => {
   init();
 });
 
 async function init() {
-  tableMetadata.value = await fetchTableMetadata(
-    props.refSchemaId,
-    props.refTableId
-  );
+  if (isInitializing.value) return;
+  isInitializing.value = true;
 
-  if (
-    modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
-  ) {
-    const keys = Array.isArray(modelValue.value)
-      ? await Promise.all(
-          (modelValue.value as []).map((row) => extractPrimaryKey(row))
-        )
-      : await extractPrimaryKey(modelValue.value as columnValueObject);
-    const data: ITableDataResponse = await fetchTableData(
+  try {
+    tableMetadata.value = await fetchTableMetadata(
       props.refSchemaId,
-      props.refTableId,
-      { filter: { equals: keys }, expandLevel: 1 }
+      props.refTableId
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
-  }
 
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
-  isInitLoading.value = false;
+    selectionMap.value = {};
+
+    if (
+      modelValue.value &&
+      (Array.isArray(modelValue.value)
+        ? modelValue.value.length > 0
+        : modelValue.value)
+    ) {
+      const keys = Array.isArray(modelValue.value)
+        ? await Promise.all(
+            (modelValue.value as []).map((row) => extractPrimaryKey(row))
+          )
+        : await extractPrimaryKey(modelValue.value as columnValueObject);
+      const data: ITableDataResponse = await fetchTableData(
+        props.refSchemaId,
+        props.refTableId,
+        { filter: { equals: keys }, expandLevel: 1 }
+      );
+      if (data.rows) {
+        hasNoResults.value = false;
+        data.rows.forEach(
+          (row) =>
+            (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+        );
+      }
+    }
+
+    await loadOptions({ limit: props.limit });
+    initialCount.value = count.value;
+    isInitLoading.value = false;
+  } finally {
+    isInitializing.value = false;
+  }
 }
+
+watch(
+  () => props.refSchemaId,
+  () => init()
+);
+watch(
+  () => props.refTableId,
+  () => init()
+);
+
+watch(
+  () => modelValue.value,
+  () => init()
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -159,6 +174,19 @@ async function loadOptions(filter: IQueryMetaData) {
     hasNoResults.value = true;
   }
   logger.debug("loaded options for " + props.id);
+
+  if (props.countFetcher) {
+    const optMap = new Map<string, Record<string, unknown>>();
+    for (const [label, row] of Object.entries(optionMap.value)) {
+      if (row && typeof row === "object" && !Array.isArray(row)) {
+        optMap.set(label, row as Record<string, unknown>);
+      }
+    }
+    countsLoading.value = true;
+    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    localFacetCounts.value = counts;
+    countsLoading.value = false;
+  }
 }
 
 function toggleSearch() {
@@ -286,6 +314,29 @@ function loadMore() {
 const onBlur = useDebounceFn(() => {
   emit("blur");
 }, 100);
+
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const countsLoading = ref(false);
+
+const debouncedRefetchCounts = useDebounceFn(async () => {
+  if (!props.countFetcher) return;
+  const optMap = new Map<string, Record<string, unknown>>();
+  for (const [label, row] of Object.entries(optionMap.value)) {
+    if (row && typeof row === "object" && !Array.isArray(row)) {
+      optMap.set(label, row as Record<string, unknown>);
+    }
+  }
+  if (optMap.size > 0) {
+    countsLoading.value = true;
+    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    localFacetCounts.value = counts;
+    countsLoading.value = false;
+  }
+}, 300);
+
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -399,7 +450,29 @@ const onBlur = useDebounceFn(() => {
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
       >
-        <fieldset>
+        <div
+          v-if="!displayAsSelect && !disabled"
+          class="w-full flex items-center gap-2 px-2 py-2"
+        >
+          <Button
+            icon="Search"
+            type="text"
+            size="tiny"
+            @click.stop="toggleSearch"
+          >
+            {{ showSearch ? "Hide" : "Show" }} search
+          </Button>
+          <InputSearch
+            :id="`${id}-search-list`"
+            v-if="showSearch"
+            size="tiny"
+            v-model="searchTerms"
+            @update:model-value="updateSearch($event as string)"
+            placeholder="Type to search..."
+            class="flex-1"
+          />
+        </div>
+        <fieldset class="min-w-0 overflow-hidden">
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
             v-if="isArray"
@@ -411,6 +484,10 @@ const onBlur = useDebounceFn(() => {
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
+            :counts-loading="countsLoading"
           />
           <InputRadioGroup
             v-else
@@ -436,7 +513,7 @@ const onBlur = useDebounceFn(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="showClear && (isArray ? selection.length : selection)"
     @click="clearSelection"
     type="text"
     size="tiny"

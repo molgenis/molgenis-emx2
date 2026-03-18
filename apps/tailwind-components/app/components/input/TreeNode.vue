@@ -28,6 +28,8 @@ const props = withDefaults(
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
     enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    facetCounts?: Map<string, number>;
+    countsLoading?: boolean;
   }>(),
   {
     inverted: false,
@@ -36,6 +38,7 @@ const props = withDefaults(
     isSearching: false,
     scrollContainer: null,
     enableAutoLoad: true, // Default to enabled for backward compatibility
+    countsLoading: false,
   }
 );
 const emit = defineEmits([
@@ -363,7 +366,7 @@ onUnmounted(() => {
           class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -402,9 +405,16 @@ onUnmounted(() => {
           />
           <span
             class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            :class="'text-title-contrast'"
           >
-            {{ node.label || node.name }}
+            {{ node.label || node.name
+            }}<span
+              v-if="facetCounts"
+              class="shrink-0 ml-0.5 transition-opacity duration-200"
+              :class="countsLoading ? 'opacity-50' : 'opacity-100'"
+            >
+              ({{ facetCounts.get(node.name) ?? 0 }})</span
+            >
           </span>
         </InputLabel>
         <div
@@ -434,6 +444,8 @@ onUnmounted(() => {
           :isSearching="isSearching"
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
+          :facetCounts="facetCounts"
+          :countsLoading="countsLoading"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"

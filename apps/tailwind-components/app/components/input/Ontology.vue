@@ -8,7 +8,9 @@ import {
   onMounted,
   nextTick,
 } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
@@ -27,13 +29,16 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
-      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
+      forceList?: boolean;
+      showClear?: boolean;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
     limit: 20,
     selectCutOff: 25,
     forceList: false,
+    showClear: true,
   }
 );
 
@@ -53,7 +58,6 @@ const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
 
-// Virtual root node to hold the ontology tree and its pagination state
 const rootNode = ref<ITreeNodeState>({
   name: "__root__",
   label: "Root",
@@ -152,6 +156,7 @@ async function reload() {
     const allData = await fetchGraphql(props.ontologySchemaId, query, {});
     rootNode.value.children = assembleTree(allData.allTerms || []);
     applySelectedStates();
+    fetchCountsForVisibleNodes();
   } else {
     await loadPage(rootNode.value, 0);
   }
@@ -279,6 +284,8 @@ async function loadPage(
     // For nested nodes, apply to this node (which recursively applies to its children)
     applyStateToNode(node);
   }
+
+  fetchCountsForVisibleNodes();
 }
 
 async function applyModelValue(data: any = undefined): Promise<void> {
@@ -418,9 +425,7 @@ async function toggleTermExpand(
 ) {
   if (!node.expanded) {
     node.showingAll = showAll;
-
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
-
     node.expanded = true;
   } else {
     node.expanded = false;
@@ -595,6 +600,59 @@ const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
 onMounted(() => {
   reload();
 });
+
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const countsLoading = ref(false);
+
+function collectVisibleNodeNames(node: ITreeNodeState): {
+  leaves: string[];
+  parents: string[];
+} {
+  const leaves: string[] = [];
+  const parents: string[] = [];
+  for (const child of node.children || []) {
+    if (child.children && child.children.length > 0) {
+      parents.push(child.name);
+      const sub = collectVisibleNodeNames(child);
+      leaves.push(...sub.leaves);
+      parents.push(...sub.parents);
+    } else {
+      leaves.push(child.name);
+    }
+  }
+  return { leaves, parents };
+}
+
+async function fetchCountsForVisibleNodes() {
+  if (!props.countFetcher) return;
+  const { leaves, parents } = collectVisibleNodeNames(rootNode.value);
+  const newCounts = new Map<string, number>(localFacetCounts.value);
+  countsLoading.value = true;
+  if (leaves.length > 0) {
+    const leafCounts = await props.countFetcher.fetchOntologyLeafCounts(leaves);
+    for (const [name, count] of leafCounts) {
+      newCounts.set(name, count);
+    }
+  }
+  if (parents.length > 0) {
+    const parentCounts = await props.countFetcher.fetchOntologyParentCounts(
+      parents
+    );
+    for (const [name, count] of parentCounts) {
+      newCounts.set(name, count);
+    }
+  }
+  localFacetCounts.value = newCounts;
+  countsLoading.value = false;
+}
+
+const debouncedRefetchCounts = useDebounceFn(() => {
+  fetchCountsForVisibleNodes();
+}, 300);
+
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -620,7 +678,10 @@ onMounted(() => {
     }"
   >
     <template v-if="forceList">
-      <div class="w-full flex items-center gap-2 px-2 py-2">
+      <div
+        v-if="totalCount >= selectCutOff"
+        class="w-full flex items-center gap-2 px-2 py-2"
+      >
         <Button
           icon="Search"
           type="text"
@@ -748,7 +809,7 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer" class="pl-4">
+        <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
           <TreeNode
             :id="id"
@@ -762,6 +823,10 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
+            :counts-loading="countsLoading"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"
@@ -785,7 +850,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="showClear && (isArray ? (modelValue || []).length > 0 : modelValue)"
     @click="clearSelection"
     type="text"
     size="tiny"
