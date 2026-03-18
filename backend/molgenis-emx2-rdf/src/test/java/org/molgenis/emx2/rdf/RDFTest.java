@@ -412,6 +412,19 @@ public class RDFTest {
     semanticTest
         .getMetadata()
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
+
+    String emx2Config = "{\"generator\": \"EMX2\"}";
+    petStore_nr1.getMetadata().setSetting("rdf_config", emx2Config);
+    petStore_nr2.getMetadata().setSetting("rdf_config", emx2Config);
+    compositeKeyTest.getMetadata().setSetting("rdf_config", emx2Config);
+    ontologyTest.getMetadata().setSetting("rdf_config", emx2Config);
+    ontologyCrossSchemaTest.getMetadata().setSetting("rdf_config", emx2Config);
+    tableInherTest.getMetadata().setSetting("rdf_config", emx2Config);
+    tableInherExtTest.getMetadata().setSetting("rdf_config", emx2Config);
+    fileTest.getMetadata().setSetting("rdf_config", emx2Config);
+    refBackTest.getMetadata().setSetting("rdf_config", emx2Config);
+    refLinkTest.getMetadata().setSetting("rdf_config", emx2Config);
+    semanticTest.getMetadata().setSetting("rdf_config", emx2Config);
   }
 
   private static String getApi(Schema schema, boolean trailingSlash) {
@@ -1147,6 +1160,7 @@ public class RDFTest {
   @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     Schema schema = database.dropCreateSchema("Website");
+    schema.getMetadata().setSetting("rdf_config", "{\"generator\": \"EMX2\"}");
     Table table =
         schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
     table.insert(row("website", "https://www.molgenis.org/"));
@@ -1199,6 +1213,7 @@ public class RDFTest {
   @Test
   void testSubClassesForInheritedTable() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
+    schema.getMetadata().setSetting("rdf_config", "{\"generator\": \"EMX2\"}");
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
@@ -1224,6 +1239,7 @@ public class RDFTest {
   @Test
   void testSubClassRootTables() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_RootTable");
+    schema.getMetadata().setSetting("rdf_config", "{\"generator\": \"EMX2\"}");
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());

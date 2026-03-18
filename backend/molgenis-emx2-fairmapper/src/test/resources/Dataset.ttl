@@ -1,0 +1,200 @@
+@prefix access:          <http://publications.europa.eu/resource/authority/access-right/> .
+@prefix adms:            <http://www.w3.org/ns/adms#> .
+@prefix availability:    <http://publications.europa.eu/resource/authority/planned-availability/> .
+@prefix corp:            <http://publications.europa.eu/resource/authority/corporate-body/> .
+@prefix country:         <http://publications.europa.eu/resource/authority/country/> .
+@prefix csvw:            <http://www.w3.org/ns/csvw#> .
+@prefix dataset-type:    <http://publications.europa.eu/resource/authority/dataset-type/> .
+@prefix dcat:            <http://www.w3.org/ns/dcat#> .
+@prefix dcatap:          <http://data.europa.eu/r5r/> .
+@prefix dct:             <http://purl.org/dc/terms/> .
+@prefix dpv:             <https://w3id.org/dpv#> .
+@prefix dpv-pd:          <https://w3id.org/dpv/dpv-pd#> .
+@prefix dqv:             <http://www.w3.org/ns/dqv#> .
+@prefix eli:             <http://data.europa.eu/eli/ontology#> .
+@prefix file:            <http://publications.europa.eu/resource/authority/file-type/> .
+@prefix foaf:            <http://xmlns.com/foaf/0.1/> .
+@prefix frequency:       <http://publications.europa.eu/resource/authority/frequency/> .
+@prefix health-activity: <http://13.81.34.152:1101/resource/authority/health-activity/> .
+@prefix health-cat:      <http://13.81.34.152:1101/resource/authority/healthcategories/> .
+@prefix health-theme:    <http://13.81.34.152:1101/resource/authority/health-theme/> .
+@prefix healthdcatap:    <http://healthdataportal.eu/ns/health#> .
+@prefix lang:            <http://publications.europa.eu/resource/authority/language/> .
+@prefix prov:            <http://www.w3.org/ns/prov#> .
+@prefix rdf:             <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:            <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:            <http://www.w3.org/2004/02/skos/core#> .
+@prefix theme:           <http://publications.europa.eu/resource/authority/data-theme/> .
+@prefix vcard:           <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd:             <http://www.w3.org/2001/XMLSchema#> .
+
+health-activity:OBSERVATIONAL_DATA
+        rdf:type  prov:Activity .
+
+health-activity:EHEALTH_APPLICATION
+        rdf:type  prov:Activity .
+
+health-cat:EHRS  rdf:type  skos:Concept;
+        skos:prefLabel  "LIFECOURSE_HEALTH" .
+
+<https://www.wikidata.org/entity/Q19597236>
+        rdf:type  dct:Standard .
+
+access:PUBLIC  rdf:type  dct:RightsStatement;
+        rdfs:label  "PUBLIC" .
+
+<urn:uuid:039f6abb-74c3-4d45-b147-19dcc513738b>
+        rdf:type        vcard:Kind;
+        vcard:hasEmail  "info@oulu.edu.fi";
+        vcard:hasURL    <https://oulu.fi> .
+
+<urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>
+        rdf:type        vcard:Kind;
+        vcard:hasEmail  "john.doe@oulu.fi";
+        vcard:hasURL    <https://example.com> .
+
+health-theme:LIFECOURSE_HEALTH
+        rdf:type        skos:Concept;
+        skos:prefLabel  "Life-course health: maternal, newborn, child, adolescent ageing" .
+
+<urn:uuid:781b3770-2938-4a38-acbb-48cc73338272>
+        rdf:type        dct:PeriodOfTime;
+        dcat:endDate    "2030-01-01"^^xsd:date;
+        dcat:startDate  "2015-01-01"^^xsd:date .
+
+<https://doi.org/10.1093/ije/dyab109>
+        rdf:type       adms:Identifier;
+        skos:notation  "https://doi.org/10.1093/ije/dyab109" .
+
+<urn:uuid:ab965fb2-4b49-4d10-88ae-28d72dc0f8dd>
+        rdf:type                        foaf:Agent;
+        healthdcatap:trustedDataHolder  true;
+        dct:description                 "The publisher provides this dataset metadata without warranties of any kind. The publisher shall not be liable for any use of the data beyond the conditions defined by the applicable access and reuse policies.";
+        dct:type                        corp:EUI;
+        dcat:contactPoint               <urn:uuid:039f6abb-74c3-4d45-b147-19dcc513738b>;
+        foaf:name                       "OULU" .
+
+<http://www.wikidata.org/entity/Q45127>
+        rdf:type  skos:ConceptScheme .
+
+lang:FIN  rdf:type  dct:LinguisticSystem .
+
+frequency:BIMONTHLY  rdf:type  dct:Frequency .
+
+dataset-type:RELEASE  rdf:type  skos:Concept;
+        skos:prefLabel  "Release" .
+
+<https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-aineistopyynto>
+        rdf:type  foaf:Document .
+
+theme:HEAL  rdf:type    skos:Concept;
+        skos:prefLabel  "Health" .
+
+<urn:uuid:a298f77e-14d2-4a98-b455-69c86d8acb7d>
+        rdf:type   foaf:Agent;
+        dct:type   <john.doe@oulu.fi>;
+        foaf:name  "John Doe" .
+
+health-activity:SURVEILLANCE
+        rdf:type  prov:Activity .
+
+<urn:uuid:10eafc64-b494-467b-8902-c69a9e1c2145>
+        rdf:type         dpv:Purpose;
+        dct:description  "The data are processed to support clinical research and population-level health analysis." .
+
+<urn:uuid:4cef389a-9ad5-4a5f-bec9-7efc29283d96>
+        rdf:type        skos:Concept;
+        skos:inScheme   <http://www.wikidata.org/entity/Q45127>;
+        skos:notation   "Y59.0";
+        skos:prefLabel  "Viral Vaccines" .
+
+<https://www.wikidata.org/wiki/Q502480>
+        rdf:type  skos:ConceptScheme .
+
+<https://eur-lex.europa.eu/eli/reg/2025/327/oj>
+        rdf:type  eli:LegalResource .
+
+<urn:uuid:ca29d3e5-24b1-4d30-a52e-b5c22312f286>
+        rdf:type        skos:Concept;
+        skos:inScheme   <https://www.wikidata.org/wiki/Q502480>;
+        skos:notation   "8480-6";
+        skos:prefLabel  "Systolic Blood Pressure" .
+
+<urn:uuid:536e3217-d8de-4eca-bb88-63fb8855f0b0>
+        rdf:type        vcard:Kind;
+        vcard:hasEmail  "info@oulu.edu.fi";
+        vcard:hasURL    <https://oulu.fi> .
+
+<urn:uuid:f949ecf4-5bdc-4127-b667-a13bc00eb295>
+        rdf:type                        dcat:Dataset;
+        dcatap:applicableLegislation    <https://eur-lex.europa.eu/eli/reg/2025/327/oj>;
+        healthdcatap:hasCodeValues      <urn:uuid:ca29d3e5-24b1-4d30-a52e-b5c22312f286> , <urn:uuid:0d3bbeeb-a459-4b72-bf21-95bd1f61dab9> , <urn:uuid:4cef389a-9ad5-4a5f-bec9-7efc29283d96>;
+        healthdcatap:hasCodingSystem    <http://www.wikidata.org/entity/Q45127> , <https://www.wikidata.org/wiki/Q502480>;
+        healthdcatap:hdab               <urn:uuid:18ae5098-af64-4b28-95ee-c5b77602a3ca>;
+        healthdcatap:healthCategory     health-cat:EHRS;
+        healthdcatap:healthTheme        health-theme:LIFECOURSE_HEALTH;
+        healthdcatap:maxTypicalAge      "20"^^xsd:nonNegativeInteger;
+        healthdcatap:minTypicalAge      "80"^^xsd:nonNegativeInteger;
+        healthdcatap:numberOfRecords    "2000"^^xsd:nonNegativeInteger;
+        healthdcatap:numberOfUniqueIndividuals
+                "200"^^xsd:nonNegativeInteger;
+        healthdcatap:populationCoverage
+                "Prenatal, Infant (0-23 months), Child (2-12 years), Adolescent (13-17 years), Young adult (18-24 years), Adult (25-44 years)";
+        healthdcatap:retentionPeriod    <urn:uuid:781b3770-2938-4a38-acbb-48cc73338272>;
+        dct:accessRights                access:PUBLIC;
+        dct:accrualPeriodicity          frequency:BIMONTHLY;
+        dct:alternative                 "Northern Finland Birth Cohorts and Arctic Biobank";
+        dct:conformsTo                  <https://www.wikidata.org/entity/Q19597236>;
+        dct:creator                     <urn:uuid:a298f77e-14d2-4a98-b455-69c86d8acb7d>;
+        dct:description                 "NFBC1986 is a longitudinal one-year birth cohort study from an unselected population. The cohort included all the mothers (N=9362) with children whose expected date of birth felt between July 1st 1985 - June 30th 1986 in the two northernmost provinces on Finland (Oulu and Lapland).";
+        dct:hasVersion                  "1.0.0";
+        dct:identifier                  "http://oulu.fi/NFBC1986/core"^^xsd:anyURI;
+        dct:issued                      "2016-01-01"^^xsd:date;
+        dct:language                    lang:FIN;
+        dct:modified                    "2025-10-01"^^xsd:date;
+        dct:provenance                  "The original data have been supplemented by data collected with postal questionnaires at the ages of 7, 8 and 16 years and various hospital records and statistical register data. The latest data collection with clinical examinations and questionnaires was at the age of 33 years.";
+        dct:publisher                   <urn:uuid:ab965fb2-4b49-4d10-88ae-28d72dc0f8dd>;
+        dct:spatial                     country:FIN;
+        dct:temporal                    <urn:uuid:a0ee8f75-3ed9-45ed-a109-84cceb966fb5>;
+        dct:title                       "Core";
+        dct:type                        dataset-type:RELEASE;
+        adms:identifier                 <https://doi.org/10.1093/ije/dyab109>;
+        dcat:contactPoint               <urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>;
+        dcat:keyword                    "lapland" , "adult" , "prenatal" , "child" , "young adult" , "birth cohort" , "infant" , "finland" , "adolescent";
+        dcat:landingPage                <https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-aineistopyynto>;
+        dcat:spatialResolutionInMeters  "20"^^xsd:decimal;
+        dcat:temporalResolution         "P1Y"^^xsd:duration;
+        dcat:theme                      theme:HEAL;
+        prov:qualifiedAttribution       <urn:uuid:ed6775f3-5cd2-42d4-83c1-813bd6ccf89c>;
+        prov:wasGeneratedBy             health-activity:SURVEILLANCE , health-activity:EHEALTH_APPLICATION , health-activity:OBSERVATIONAL_DATA;
+        foaf:page                       <https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-user-policies>;
+        dpv:hasPersonalData             <https://w3c.github.io/dpv/2.0/pd#Age> , <https://w3c.github.io/dpv/2.0/pd#Gender> , <https://w3c.github.io/dpv/2.0/pd#BirthDate>;
+        dpv:hasPurpose                  <urn:uuid:10eafc64-b494-467b-8902-c69a9e1c2145> .
+
+country:FIN  rdf:type  dct:Location .
+
+<urn:uuid:a0ee8f75-3ed9-45ed-a109-84cceb966fb5>
+        rdf:type        dct:PeriodOfTime;
+        dcat:endDate    "2025-01-01"^^xsd:date;
+        dcat:startDate  "1968-01-01"^^xsd:date .
+
+<urn:uuid:0d3bbeeb-a459-4b72-bf21-95bd1f61dab9>
+        rdf:type        skos:Concept;
+        skos:inScheme   <https://www.wikidata.org/wiki/Q502480>;
+        skos:notation   "8462-4";
+        skos:prefLabel  "Diastolic Blood Pressure" .
+
+<urn:uuid:18ae5098-af64-4b28-95ee-c5b77602a3ca>
+        rdf:type                        foaf:Agent;
+        healthdcatap:trustedDataHolder  false;
+        dct:type                        corp:EUI;
+        dcat:contactPoint               <urn:uuid:536e3217-d8de-4eca-bb88-63fb8855f0b0>;
+        foaf:name                       "OULU" .
+
+<https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-user-policies>
+        rdf:type  foaf:Document .
+
+<urn:uuid:ed6775f3-5cd2-42d4-83c1-813bd6ccf89c>
+        rdf:type      prov:Attribution;
+        dcat:hadRole  <https://standards.iso.org/iso/19115/resources/Codelists/gml/CI_RoleCode.xml#sponsor>;
+        foaf:name     "Jane Doe" .
