@@ -32,7 +32,9 @@
             :tableId="tableId"
             :filter="filter"
             :schemaId="schemaId"
-            :canEdit="effectiveCanEdit"
+            :canInsert="tablePermission?.canInsert"
+            :canUpdate="tablePermission?.canUpdate"
+            :canDelete="tablePermission?.canDelete"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
@@ -88,11 +90,6 @@ export default {
       type: String,
       required: true,
     },
-    canEdit: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
     tablePermissions: {
       type: Array,
       required: false,
@@ -103,12 +100,8 @@ export default {
     title() {
       return "Select " + this.tableId; //todo need a label
     },
-    effectiveCanEdit() {
-      if (this.tablePermissions && this.tablePermissions.length > 0) {
-        const perm = this.tablePermissions.find((p) => p.name === this.tableId);
-        return perm?.canInsert || perm?.canUpdate || perm?.canDelete || false;
-      }
-      return this.canEdit;
+    tablePermission() {
+      return this.tablePermissions?.find((p) => p.name === this.tableId);
     },
   },
   methods: {
