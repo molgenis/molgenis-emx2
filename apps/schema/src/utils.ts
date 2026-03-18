@@ -21,9 +21,14 @@ export const schemaQuery = gql`
     }
     _schema {
       name
+      canManage
       tables {
         name
         tableType
+        canView
+        canInsert
+        canUpdate
+        canDelete
         inheritName
         labels {
           locale

@@ -399,6 +399,22 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("canView")
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("canInsert")
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("canUpdate")
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("canDelete")
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -574,9 +590,26 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> queryFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
 
-      // add tables
+      // add tables with per-table permissions
       String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
+
+      PermissionEvaluator eval = schema.getPermissionEvaluator();
+      @SuppressWarnings("unchecked")
+      List<Map<String, Object>> tables = (List<Map<String, Object>>) result.get(TABLES);
+      if (tables != null) {
+        for (Map<String, Object> t : tables) {
+          TableMetadata tm =
+              schema.getMetadata().getTableMetadata((String) t.get(GraphqlConstants.NAME));
+          t.put("canView", eval.canView(tm));
+          t.put("canInsert", eval.canInsert(tm));
+          t.put("canUpdate", eval.canUpdate(tm));
+          t.put("canDelete", eval.canDelete(tm));
+        }
+      }
+
+      // add schema-level permissions
+      result.put("canManage", eval.canManage());
 
       // add members
       List<Map<String, String>> members = new ArrayList<>();
@@ -792,7 +825,11 @@ public class GraphqlSchemaFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(ROLES)
-                    .type(GraphQLList.list(outputRolesType)));
+                    .type(GraphQLList.list(outputRolesType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("canManage")
+                    .type(Scalars.GraphQLBoolean));
 
     if (schema.getPermissionEvaluator().canManage()) {
       builder.field(
