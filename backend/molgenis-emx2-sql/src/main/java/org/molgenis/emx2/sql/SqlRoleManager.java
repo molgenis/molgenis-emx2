@@ -1,6 +1,8 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
@@ -91,14 +93,67 @@ public class SqlRoleManager {
     }
     String fullRole = fullRoleName(schemaName, roleName);
     applyPgGrants(schemaName, fullRole, tableName, permission);
+    if (Boolean.TRUE.equals(permission.isRowLevel())) {
+      enableRowLevelSecurity(schemaName, tableName);
+    }
     database.getListener().schemaChanged(schemaName);
+  }
+
+  private void enableRowLevelSecurity(String schemaName, String tableName) {
+    TableMetadata tableMetadata =
+        database.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    if (tableMetadata.getColumn(MG_ROLES) == null) {
+      tableMetadata.add(column(MG_ROLES).setType(STRING_ARRAY));
+    }
+    org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
+    jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
+    jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+    jooq()
+        .execute(
+            "CREATE POLICY mg_roles_policy ON {0} USING ("
+                + "pg_has_role(current_user, {1}, 'member') "
+                + "OR EXISTS ("
+                + "  SELECT 1 FROM unnest(mg_roles) r"
+                + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
+                + "))",
+            jooqTable,
+            inline(fullRoleName(schemaName, Privileges.VIEWER.toString())),
+            inline(MG_ROLE_PREFIX + schemaName + "/"));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    disableRowLevelSecurityIfUnused(schemaName, tableName);
     database.getListener().schemaChanged(schemaName);
+  }
+
+  private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
+    if (!hasMgRolesPolicy(schemaName, tableName)) return;
+    boolean anyCustomSelectRemains =
+        getRoles(schemaName).stream()
+            .filter(role -> !role.isSystemRole())
+            .flatMap(role -> getPermissions(schemaName, role.name()).stream())
+            .anyMatch(p -> tableName.equals(p.table()) && Boolean.TRUE.equals(p.select()));
+    if (!anyCustomSelectRemains) {
+      org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
+      jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+      jooq().execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
+    }
+  }
+
+  private boolean hasMgRolesPolicy(String schemaName, String tableName) {
+    return jooq()
+        .fetchExists(
+            jooq()
+                .select()
+                .from("pg_policies")
+                .where(
+                    field("schemaname")
+                        .eq(inline(schemaName))
+                        .and(field("tablename").eq(inline(tableName)))
+                        .and(field("policyname").eq(inline("mg_roles_policy")))));
   }
 
   private void applyPgGrants(
@@ -137,23 +192,30 @@ public class SqlRoleManager {
           jooq()
               .fetch(
                   """
-                      SELECT table_name,
-                        bool_or(privilege_type = 'SELECT') AS can_select,
-                        bool_or(privilege_type = 'INSERT') AS can_insert,
-                        bool_or(privilege_type = 'UPDATE') AS can_update,
-                        bool_or(privilege_type = 'DELETE') AS can_delete
-                       FROM information_schema.role_table_grants
-                       WHERE grantee = {0} AND table_schema = {1}
-                       GROUP BY table_name""",
+                      SELECT g.table_name,
+                        bool_or(g.privilege_type = 'SELECT') AS can_select,
+                        bool_or(g.privilege_type = 'INSERT') AS can_insert,
+                        bool_or(g.privilege_type = 'UPDATE') AS can_update,
+                        bool_or(g.privilege_type = 'DELETE') AS can_delete,
+                        bool_or(p.policyname IS NOT NULL) AS is_row_level
+                       FROM information_schema.role_table_grants g
+                       LEFT JOIN pg_policies p
+                         ON p.schemaname = g.table_schema
+                         AND p.tablename = g.table_name
+                         AND p.policyname = 'mg_roles_policy'
+                       WHERE g.grantee = {0} AND g.table_schema = {1}
+                       GROUP BY g.table_name""",
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
         Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
         Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
         Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
         Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
+        Boolean isRowLevel =
+            Boolean.TRUE.equals(row.get("is_row_level", Boolean.class)) ? true : null;
         result.add(
             new TablePermission(
-                row.get("table_name", String.class), select, insert, update, delete));
+                row.get("table_name", String.class), select, insert, update, delete, isRowLevel));
       }
     } catch (Exception e) {
       logger.error("Failed to get permissions for {} in {}", roleName, schemaName, e);
@@ -226,13 +288,13 @@ public class SqlRoleManager {
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())
         || roleName.equals(Privileges.COUNT.toString())) {
-      return List.of(new TablePermission("*", null, null, null, null));
+      return List.of(new TablePermission("*", null, null, null, null, null));
     } else if (roleName.equals(Privileges.VIEWER.toString())) {
-      return List.of(new TablePermission("*", true, null, null, null));
+      return List.of(new TablePermission("*", true, null, null, null, null));
     } else if (roleName.equals(Privileges.EDITOR.toString())
         || roleName.equals(Privileges.MANAGER.toString())
         || roleName.equals(Privileges.OWNER.toString())) {
-      return List.of(new TablePermission("*", true, true, true, true));
+      return List.of(new TablePermission("*", true, true, true, true, null));
     }
     return List.of();
   }
