@@ -301,7 +301,7 @@ describe("useFilters", () => {
   });
 
   it("should preserve reserved query params when updating URL", async () => {
-    const mockRoute = { query: { mg_page: "2", mg_limit: "10" } };
+    const mockRoute = { query: { mg_page: "2", mg_limit: "10", page: "3" } };
     const mockRouter = { replace: vi.fn() };
 
     const { setFilter } = useFilters(mockColumns, {
@@ -316,7 +316,26 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(mockRouter.replace).toHaveBeenCalledWith({
-      query: { mg_page: "2", mg_limit: "10", name: "test" },
+      query: { mg_page: "2", mg_limit: "10", page: "3", name: "test" },
+    });
+  });
+
+  it("should preserve non-filter query params (e.g. page) when updating URL", async () => {
+    const mockRoute = { query: { page: "2", view: "cards" } };
+    const mockRouter = { replace: vi.fn() };
+
+    const { setFilter } = useFilters(mockColumns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    setFilter("name", { operator: "like", value: "test" });
+    await nextTick();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      query: expect.objectContaining({ page: "2", view: "cards", name: "test" }),
     });
   });
 

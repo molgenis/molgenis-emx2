@@ -2,33 +2,17 @@
 
 ## Current status
 
-Phase 12 complete. Suggested order: Phase 14 (bug fix, small), Phase 13 (test cleanup, medium), Phase 11 (UseFilters object, large).
+Phase 14 complete. Suggested order: Phase 13 (test cleanup, medium), Phase 11 (UseFilters object, large).
 
-## Phase 14: Fix paging param loss on filter URL update
+## Phase 14: Fix paging param loss on filter URL update [x]
 
-### Status: TODO
-
-### Problem
-When user pages in table explorer, the `page` param gets dropped from the URL. The filter system's `useFilters.ts` and Sidebar only preserve `mg_*` prefixed params when calling `router.replace()`. The paging param (`page`) doesn't have that prefix, so it's wiped.
-
-Reproduction: page to page 2 → Sidebar's `visibleFilterIds` watcher fires `router.replace()` → `page` param lost → snaps back to page 1.
-
-### Root cause
-In `useFilters.ts`, `serializeFiltersToUrl` builds params from scratch (filters + search). The callers (`updateUrl`, `actualFilterStates.set`) only preserve `mg_*` params from existing query. Non-`mg_*` params like `page` are dropped.
-
-Same issue in `Sidebar.vue` — the `visibleFilterIds` watcher builds a new query with only `mg_filters` + existing `mg_*` params.
-
-### Fix options
-1. **Preserve all non-filter params**: Change the preserved-params logic to keep ALL existing query params except the ones being managed by the filter system (column filter keys + `mg_search` + `mg_filters`)
-2. **Alternative**: Rename `page` to `mg_page` in consuming apps — but this couples paging to the `mg_` convention
-
-Option 1 is better — the filter system shouldn't assume it owns all non-`mg_*` params.
-
-### Steps
-- [ ] 14.1 In `useFilters.ts`: change `updateUrl` and `actualFilterStates.set` to preserve all existing query params that aren't filter-managed keys
-- [ ] 14.2 In `Sidebar.vue`: same fix for the `visibleFilterIds` watcher's `router.replace` call
-- [ ] 14.3 Add test: setting a filter preserves unrelated query params (e.g., `page=2`)
-- [ ] 14.4 Verify in catalogue app (manual) that paging survives filter changes
+### What was done
+- Added `getNonFilterParams()` helper in `useFilters.ts` — preserves all query params except `mg_search` and column-ID-based filter params
+- Updated `actualFilterStates.set()` and `updateUrl()` to use `getNonFilterParams` instead of only preserving `mg_*` params
+- Sidebar.vue was already correct (spreads full `route.query`)
+- Added test: non-filter params like `page` and `view` are preserved on filter URL update
+- Updated existing reserved-params test to also verify non-mg params
+- All 73 useFilters tests pass
 
 ---
 

@@ -278,6 +278,21 @@ export function parseFiltersFromUrl(
   return { filters, search };
 }
 
+function getNonFilterParams(
+  query: Record<string, unknown>,
+  cols: IColumn[]
+): Record<string, unknown> {
+  const columnIds = new Set(cols.map((c) => c.id));
+  const preserved: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(query)) {
+    if (key === SEARCH_PARAM) continue;
+    const firstSegment = key.split(".")[0];
+    if (columnIds.has(firstSegment)) continue;
+    preserved[key] = value;
+  }
+  return preserved;
+}
+
 export function useFilters(
   columns: Ref<IColumn[]>,
   options?: UseFiltersOptions
@@ -338,12 +353,7 @@ export function useFilters(
           actualSearchValue.value,
           columns.value
         );
-        const preservedParams: Record<string, unknown> = {};
-        for (const [key, value] of Object.entries(route.query)) {
-          if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
-            preservedParams[key] = value;
-          }
-        }
+        const preservedParams = getNonFilterParams(route.query, columns.value);
         router.replace({ query: { ...preservedParams, ...params } });
       } else {
         filterStatesRef.value = newFilters;
@@ -360,7 +370,10 @@ export function useFilters(
   );
   const gqlFilter = ref(_gqlFilter.value);
   const updateGqlFilter = useDebounceFn(() => {
-    gqlFilter.value = _gqlFilter.value;
+    const newFilter = _gqlFilter.value;
+    if (JSON.stringify(newFilter) !== JSON.stringify(gqlFilter.value)) {
+      gqlFilter.value = newFilter;
+    }
   }, options?.debounceMs ?? 300);
 
   watch(
@@ -404,12 +417,7 @@ export function useFilters(
   function updateUrl(filters: Map<string, IFilterValue>, search: string) {
     if (!router || !route) return;
     const params = serializeFiltersToUrl(filters, search, columns.value);
-    const preservedParams: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(route.query)) {
-      if (key.startsWith(RESERVED_PREFIX) && key !== SEARCH_PARAM) {
-        preservedParams[key] = value;
-      }
-    }
+    const preservedParams = getNonFilterParams(route.query, columns.value);
     router.replace({ query: { ...preservedParams, ...params } });
   }
 
