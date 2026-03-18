@@ -4,7 +4,7 @@ import App from "./App.vue";
 import HelloWorld from "./components/HelloWorld.vue";
 import SomeQuery from "./components/SomeQuery.vue";
 
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),

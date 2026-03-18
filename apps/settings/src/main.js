@@ -8,7 +8,7 @@ import PageManager from "./components/PageManager.vue";
 import ChangelogViewer from "./components/ChangelogViewer.vue";
 import SettingsManager from "./components/SettingsManager.vue";
 
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),

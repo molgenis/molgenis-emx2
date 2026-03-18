@@ -5,7 +5,7 @@ import ListPages from "./components/ListPages.vue";
 import ViewPage from "./components/ViewPage.vue";
 import EditPage from "./components/EditPage.vue";
 
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
