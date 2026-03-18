@@ -40,7 +40,7 @@ describe("useFilters", () => {
     },
   ]);
 
-  it("should initialize with empty filter state", () => {
+  it("initializes with empty filter state", () => {
     const { filterStates, searchValue, gqlFilter } = useFilters(mockColumns);
 
     expect(filterStates.value.size).toBe(0);
@@ -48,7 +48,7 @@ describe("useFilters", () => {
     expect(gqlFilter.value).toEqual({});
   });
 
-  it("should set a filter", async () => {
+  it("sets a filter", async () => {
     const { filterStates, setFilter } = useFilters(mockColumns);
 
     const filterValue: IFilterValue = { operator: "like", value: "test" };
@@ -58,7 +58,7 @@ describe("useFilters", () => {
     expect(filterStates.value.size).toBe(1);
   });
 
-  it("should remove a filter when value is null", async () => {
+  it("removes a filter when value is null", async () => {
     const { filterStates, setFilter } = useFilters(mockColumns);
 
     setFilter("name", { operator: "like", value: "test" });
@@ -69,7 +69,7 @@ describe("useFilters", () => {
     expect(filterStates.value.has("name")).toBe(false);
   });
 
-  it("should remove a specific filter", async () => {
+  it("removes a specific filter", async () => {
     const { filterStates, setFilter, removeFilter } = useFilters(mockColumns);
 
     setFilter("name", { operator: "like", value: "test" });
@@ -82,7 +82,7 @@ describe("useFilters", () => {
     expect(filterStates.value.has("age")).toBe(true);
   });
 
-  it("should clear all filters", async () => {
+  it("clears all filters", async () => {
     const { filterStates, searchValue, setFilter, setSearch, clearFilters } =
       useFilters(mockColumns);
 
@@ -98,14 +98,14 @@ describe("useFilters", () => {
     expect(searchValue.value).toBe("");
   });
 
-  it("should set search value", () => {
+  it("sets search value", () => {
     const { searchValue, setSearch } = useFilters(mockColumns);
 
     setSearch("hello");
     expect(searchValue.value).toBe("hello");
   });
 
-  it("should debounce gqlFilter updates", async () => {
+  it("debounces gqlFilter updates", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 300,
     });
@@ -127,7 +127,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should build correct GraphQL filter for equals operator", async () => {
+  it("builds correct GraphQL filter for equals operator", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -141,7 +141,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should build correct GraphQL filter for between operator with both bounds", async () => {
+  it("builds correct GraphQL filter for between operator with both bounds", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -155,7 +155,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should include search in GraphQL filter", async () => {
+  it("includes search in GraphQL filter", async () => {
     const { gqlFilter, setSearch } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -169,7 +169,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should combine multiple filters with search", async () => {
+  it("combines multiple filters with search", async () => {
     const { gqlFilter, setFilter, setSearch } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -187,7 +187,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should ignore filters for unknown columns", async () => {
+  it("ignores filters for unknown columns", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -199,7 +199,7 @@ describe("useFilters", () => {
     expect(gqlFilter.value).toEqual({});
   });
 
-  it("should trim search value", async () => {
+  it("trims search value", async () => {
     const { gqlFilter, setSearch } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -213,7 +213,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should not include empty search in filter", async () => {
+  it("does not include empty search in filter", async () => {
     const { gqlFilter, setSearch } = useFilters(mockColumns, {
       debounceMs: 0,
     });
@@ -225,7 +225,7 @@ describe("useFilters", () => {
     expect(gqlFilter.value).toEqual({});
   });
 
-  it("should update URL on filter change with injected router", async () => {
+  it("updates URL on filter change with injected router", async () => {
     const mockRoute = reactive({ query: {} as Record<string, string> });
     const mockRouter = {
       replace: vi.fn((opts) => {
@@ -256,7 +256,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should initialize from URL with injected route", () => {
+  it("initializes from URL with injected route", () => {
     const mockRoute = {
       query: {
         name: "John",
@@ -284,7 +284,7 @@ describe("useFilters", () => {
     expect(searchValue.value).toBe("test");
   });
 
-  it("should gracefully degrade when urlSync enabled but no router provided", async () => {
+  it("gracefully degrades when urlSync enabled but no router provided", async () => {
     const { gqlFilter, setFilter } = useFilters(mockColumns, {
       debounceMs: 0,
       urlSync: true,
@@ -300,7 +300,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should preserve reserved query params when updating URL", async () => {
+  it("preserves reserved query params when updating URL", async () => {
     const mockRoute = { query: { mg_page: "2", mg_limit: "10", page: "3" } };
     const mockRouter = { replace: vi.fn() };
 
@@ -320,7 +320,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should preserve non-filter query params (e.g. page) when updating URL", async () => {
+  it("preserves non-filter query params (e.g. page) when updating URL", async () => {
     const mockRoute = { query: { page: "2", view: "cards" } };
     const mockRouter = { replace: vi.fn() };
 
@@ -335,11 +335,15 @@ describe("useFilters", () => {
     await nextTick();
 
     expect(mockRouter.replace).toHaveBeenCalledWith({
-      query: expect.objectContaining({ page: "2", view: "cards", name: "test" }),
+      query: expect.objectContaining({
+        page: "2",
+        view: "cards",
+        name: "test",
+      }),
     });
   });
 
-  it("should update URL immediately without waiting for debounce", async () => {
+  it("updates URL immediately without waiting for debounce", async () => {
     const mockRoute = { query: {} };
     const mockRouter = { replace: vi.fn() };
 
@@ -361,7 +365,7 @@ describe("useFilters", () => {
     // But gqlFilter is still debounced (tested elsewhere)
   });
 
-  it("should handle rapid filter changes", async () => {
+  it("handles rapid filter changes", async () => {
     const mockRoute = { query: {} };
     const mockRouter = { replace: vi.fn() };
 
@@ -386,7 +390,7 @@ describe("useFilters", () => {
     });
   });
 
-  it("should update filters when URL changes (browser back/forward)", async () => {
+  it("updates filters when URL changes (browser back/forward)", async () => {
     const mockRoute = reactive({ query: {} as Record<string, string> });
     const mockRouter = { replace: vi.fn() };
 
@@ -423,7 +427,7 @@ describe("useFilters", () => {
     expect(activeFilters.value).toEqual([]);
   });
 
-  it("should reactively update when URL changes", async () => {
+  it("reactively updates when URL changes", async () => {
     const mockRoute = reactive({
       query: { name: "test" } as Record<string, string>,
     });
@@ -455,12 +459,12 @@ describe("useFilters", () => {
 });
 
 describe("serializeFilterValue", () => {
-  it("should serialize like operator for string", () => {
+  it("serializes like operator for string", () => {
     const result = serializeFilterValue({ operator: "like", value: "John" });
     expect(result).toBe("John");
   });
 
-  it("should serialize between operator for int", () => {
+  it("serializes between operator for int", () => {
     const result = serializeFilterValue({
       operator: "between",
       value: [10, 20],
@@ -468,7 +472,7 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("10..20");
   });
 
-  it("should serialize between with only min", () => {
+  it("serializes between with only min", () => {
     const result = serializeFilterValue({
       operator: "between",
       value: [10, null],
@@ -476,7 +480,7 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("10..");
   });
 
-  it("should serialize between with only max", () => {
+  it("serializes between with only max", () => {
     const result = serializeFilterValue({
       operator: "between",
       value: [null, 20],
@@ -484,7 +488,7 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("..20");
   });
 
-  it("should return null for empty between", () => {
+  it("returns null for empty between", () => {
     const result = serializeFilterValue({
       operator: "between",
       value: [null, null],
@@ -492,7 +496,7 @@ describe("serializeFilterValue", () => {
     expect(result).toBeNull();
   });
 
-  it("should serialize equals operator with simple values using pipe", () => {
+  it("serializes equals operator with simple values using pipe", () => {
     const result = serializeFilterValue({
       operator: "equals",
       value: ["a", "b", "c"],
@@ -500,7 +504,7 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("a|b|c");
   });
 
-  it("should serialize equals operator with ref objects as pipe-separated keys", () => {
+  it("serializes equals operator with ref objects as pipe-separated keys", () => {
     const result = serializeFilterValue({
       operator: "equals",
       value: [{ name: "Cat1" }, { name: "Cat2" }],
@@ -508,24 +512,23 @@ describe("serializeFilterValue", () => {
     expect(result).toBe("Cat1|Cat2");
   });
 
-  it("should serialize notNull operator", () => {
+  it("serializes notNull operator", () => {
     const result = serializeFilterValue({ operator: "notNull", value: true });
     expect(result).toBe("!null");
   });
 
-  it("should serialize isNull operator", () => {
+  it("serializes isNull operator", () => {
     const result = serializeFilterValue({ operator: "isNull", value: true });
     expect(result).toBe("null");
   });
 
-  it("should serialize date range", () => {
+  it("serializes date range", () => {
     const result = serializeFilterValue({
       operator: "between",
       value: ["2024-01-01", "2024-12-31"],
     });
     expect(result).toBe("2024-01-01..2024-12-31");
   });
-
 });
 
 describe("parseFilterValue", () => {
@@ -535,37 +538,37 @@ describe("parseFilterValue", () => {
   const refColumn: IColumn = { id: "category", columnType: "REF" };
   const uuidColumn: IColumn = { id: "id", columnType: "UUID" };
 
-  it("should parse simple string as like", () => {
+  it("parses simple string as like", () => {
     const result = parseFilterValue("John", stringColumn);
     expect(result).toEqual({ operator: "like", value: "John" });
   });
 
-  it("should pass through raw string value for string types", () => {
+  it("passes through raw string value for string types", () => {
     const result = parseFilterValue("a|b|c", stringColumn);
     expect(result).toEqual({ operator: "like", value: "a|b|c" });
   });
 
-  it("should parse range for int", () => {
+  it("parses range for int", () => {
     const result = parseFilterValue("10..20", intColumn);
     expect(result).toEqual({ operator: "between", value: [10, 20] });
   });
 
-  it("should parse range with only min for int", () => {
+  it("parses range with only min for int", () => {
     const result = parseFilterValue("10..", intColumn);
     expect(result).toEqual({ operator: "between", value: [10, null] });
   });
 
-  it("should parse range with only max for int", () => {
+  it("parses range with only max for int", () => {
     const result = parseFilterValue("..20", intColumn);
     expect(result).toEqual({ operator: "between", value: [null, 20] });
   });
 
-  it("should parse single int as equals", () => {
+  it("parses single int as equals", () => {
     const result = parseFilterValue("25", intColumn);
     expect(result).toEqual({ operator: "equals", value: 25 });
   });
 
-  it("should parse date range", () => {
+  it("parses date range", () => {
     const result = parseFilterValue("2024-01-01..2024-12-31", dateColumn);
     expect(result).toEqual({
       operator: "between",
@@ -573,7 +576,7 @@ describe("parseFilterValue", () => {
     });
   });
 
-  it("should parse pipe-separated ref values as objects", () => {
+  it("parses pipe-separated ref values as objects", () => {
     const result = parseFilterValue("Cat1|Cat2", refColumn);
     expect(result).toEqual({
       operator: "equals",
@@ -581,17 +584,17 @@ describe("parseFilterValue", () => {
     });
   });
 
-  it("should parse simple ref value as array", () => {
+  it("parses simple ref value as array", () => {
     const result = parseFilterValue("Cat1", refColumn);
     expect(result).toEqual({ operator: "equals", value: [{ name: "Cat1" }] });
   });
 
-  it("should parse ref value with custom field as array", () => {
+  it("parses ref value with custom field as array", () => {
     const result = parseFilterValue("123", refColumn, "id");
     expect(result).toEqual({ operator: "equals", value: [{ id: "123" }] });
   });
 
-  it("should parse pipe-separated ref values with custom field", () => {
+  it("parses pipe-separated ref values with custom field", () => {
     const result = parseFilterValue("123|456", refColumn, "id");
     expect(result).toEqual({
       operator: "equals",
@@ -599,22 +602,22 @@ describe("parseFilterValue", () => {
     });
   });
 
-  it("should parse null", () => {
+  it("parses null", () => {
     const result = parseFilterValue("null", stringColumn);
     expect(result).toEqual({ operator: "isNull", value: true });
   });
 
-  it("should parse !null", () => {
+  it("parses !null", () => {
     const result = parseFilterValue("!null", stringColumn);
     expect(result).toEqual({ operator: "notNull", value: true });
   });
 
-  it("should return null for empty value", () => {
+  it("returns null for empty value", () => {
     const result = parseFilterValue("", stringColumn);
     expect(result).toBeNull();
   });
 
-  it("should parse UUID filter as equals", () => {
+  it("parses UUID filter as equals", () => {
     const result = parseFilterValue(
       "550e8400-e29b-41d4-a716-446655440000",
       uuidColumn
@@ -633,17 +636,17 @@ describe("serializeFiltersToUrl", () => {
     { id: "category", columnType: "REF" },
   ];
 
-  it("should return empty object for empty state", () => {
+  it("returns empty object for empty state", () => {
     const result = serializeFiltersToUrl(new Map(), "", columns);
     expect(result).toEqual({});
   });
 
-  it("should serialize search with mg_search key", () => {
+  it("serializes search with mg_search key", () => {
     const result = serializeFiltersToUrl(new Map(), "test search", columns);
     expect(result).toEqual({ mg_search: "test search" });
   });
 
-  it("should serialize filters", () => {
+  it("serializes filters", () => {
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
       ["age", { operator: "between", value: [18, 65] }],
@@ -652,7 +655,7 @@ describe("serializeFiltersToUrl", () => {
     expect(result).toEqual({ name: "John", age: "18..65" });
   });
 
-  it("should serialize both search and filters", () => {
+  it("serializes both search and filters", () => {
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
     ]);
@@ -660,7 +663,7 @@ describe("serializeFiltersToUrl", () => {
     expect(result).toEqual({ mg_search: "test", name: "John" });
   });
 
-  it("should skip unknown columns", () => {
+  it("skips unknown columns", () => {
     const filters = new Map<string, IFilterValue>([
       ["unknown", { operator: "like", value: "test" }],
     ]);
@@ -668,7 +671,7 @@ describe("serializeFiltersToUrl", () => {
     expect(result).toEqual({});
   });
 
-  it("should serialize ref filters with dotted key syntax", () => {
+  it("serializes ref filters with dotted key syntax", () => {
     const filters = new Map<string, IFilterValue>([
       [
         "category",
@@ -679,7 +682,7 @@ describe("serializeFiltersToUrl", () => {
     expect(result).toEqual({ "category.name": "Cat1|Cat2" });
   });
 
-  it("should serialize ref filters with non-name field", () => {
+  it("serializes ref filters with non-name field", () => {
     const filters = new Map<string, IFilterValue>([
       ["category", { operator: "equals", value: { id: "123" } }],
     ]);
@@ -708,19 +711,19 @@ describe("parseFiltersFromUrl", () => {
     { id: "category", columnType: "REF" },
   ];
 
-  it("should return empty state for empty query", () => {
+  it("returns empty state for empty query", () => {
     const result = parseFiltersFromUrl({}, columns);
     expect(result.filters.size).toBe(0);
     expect(result.search).toBe("");
   });
 
-  it("should parse search from mg_search", () => {
+  it("parses search from mg_search", () => {
     const result = parseFiltersFromUrl({ mg_search: "test" }, columns);
     expect(result.search).toBe("test");
     expect(result.filters.size).toBe(0);
   });
 
-  it("should parse filters", () => {
+  it("parses filters", () => {
     const result = parseFiltersFromUrl(
       { name: "John", age: "18..65" },
       columns
@@ -736,7 +739,7 @@ describe("parseFiltersFromUrl", () => {
     });
   });
 
-  it("should skip reserved params (mg_*) except mg_search", () => {
+  it("skips reserved params (mg_*) except mg_search", () => {
     const result = parseFiltersFromUrl(
       { mg_search: "test", mg_page: "2", mg_limit: "10" },
       columns
@@ -745,12 +748,12 @@ describe("parseFiltersFromUrl", () => {
     expect(result.filters.size).toBe(0);
   });
 
-  it("should skip unknown columns", () => {
+  it("skips unknown columns", () => {
     const result = parseFiltersFromUrl({ unknown: "value" }, columns);
     expect(result.filters.size).toBe(0);
   });
 
-  it("should parse ref filters with dotted key syntax", () => {
+  it("parses ref filters with dotted key syntax", () => {
     const result = parseFiltersFromUrl(
       { "category.name": "Cat1|Cat2" },
       columns
@@ -761,7 +764,7 @@ describe("parseFiltersFromUrl", () => {
     });
   });
 
-  it("should parse ref filters with non-name field", () => {
+  it("parses ref filters with non-name field", () => {
     const result = parseFiltersFromUrl({ "category.id": "123" }, columns);
     expect(result.filters.get("category")).toEqual({
       operator: "equals",
@@ -769,7 +772,7 @@ describe("parseFiltersFromUrl", () => {
     });
   });
 
-  it("should parse ref filters with backward compatibility (no dot)", () => {
+  it("parses ref filters with backward compatibility (no dot)", () => {
     const result = parseFiltersFromUrl({ category: "Cat1|Cat2" }, columns);
     expect(result.filters.get("category")).toEqual({
       operator: "equals",
@@ -793,7 +796,7 @@ describe("parseFiltersFromUrl", () => {
 });
 
 describe("extractStringKey (via serializeFilterValue)", () => {
-  it("should extract nested string value", () => {
+  it("extracts nested string value", () => {
     const result = serializeFilterValue({
       operator: "equals",
       value: { data: { name: "NestedValue" } },
@@ -801,7 +804,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
     expect(result).toBe("NestedValue");
   });
 
-  it("should handle empty objects gracefully", () => {
+  it("handles empty objects gracefully", () => {
     const result = serializeFilterValue({
       operator: "equals",
       value: {},
@@ -809,7 +812,7 @@ describe("extractStringKey (via serializeFilterValue)", () => {
     expect(result).toBe("");
   });
 
-  it("should handle deeply nested objects with recursion limit", () => {
+  it("handles deeply nested objects with recursion limit", () => {
     const deepObj = {
       a: {
         b: {

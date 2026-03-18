@@ -2,7 +2,7 @@
 
 ## Current status
 
-Phase 14 complete. Suggested order: Phase 13 (test cleanup, medium), Phase 11 (UseFilters object, large).
+Phase 13 complete. Suggested next: Phase 11 (UseFilters object, large).
 
 ## Phase 14: Fix paging param loss on filter URL update [x]
 
@@ -12,6 +12,7 @@ Phase 14 complete. Suggested order: Phase 13 (test cleanup, medium), Phase 11 (U
 - Sidebar.vue was already correct (spreads full `route.query`)
 - Added test: non-filter params like `page` and `view` are preserved on filter URL update
 - Updated existing reserved-params test to also verify non-mg params
+- Stabilized `gqlFilter` ref with JSON comparison guard — prevents spurious updates when URL changes for non-filter reasons (paging, sorting), which was causing TableEMX2 to reset page to 1
 - All 73 useFilters tests pass
 
 ---
@@ -27,18 +28,17 @@ Phase 14 complete. Suggested order: Phase 13 (test cleanup, medium), Phase 11 (U
 - Updated story file (`useFilters.story.vue`) to use `equals` instead of `in`
 - All 150 tests updated and passing
 
-## Phase 13: Test readability improvements
+## Phase 13: Test readability improvements [x]
 
-### Status: TODO
-
-### Steps
-- [ ] 13.1 Standardize fake timers: use `beforeEach`/`afterEach` across all filter test files
-- [ ] 13.2 Remove raw `setTimeout(resolve, 600)` in FilterPicker.spec.ts → use fake timers
-- [ ] 13.3 Fix inline `vi.useFakeTimers()`/`vi.useRealTimers()` in Ref.spec.ts
-- [ ] 13.4 Fix test naming: remove `should` prefix inconsistency, fix misleading names
-- [ ] 13.5 Sidebar.spec.ts: extract `waitForMetadataLoad()` helper, fix `toBeLessThanOrEqual(5)` → `toBe(5)`
-- [ ] 13.6 Move `computeDefaultFilters` tests from FilterPicker.spec.ts to own spec file
-- [ ] 13.7 Extract shared column fixtures in buildFilter.spec.ts
+### What was done
+- Standardized fake timers: `beforeEach`/`afterEach` pattern in FilterPicker, Ref, Ontology specs
+- Replaced raw `setTimeout(resolve, 600)` with `vi.advanceTimersByTime()` + `flushPromises()` in FilterPicker
+- Removed inline `vi.useFakeTimers()`/`vi.useRealTimers()` from Ref and Ontology specs
+- Removed "should" prefix from 30 test names in useFilters.spec.ts
+- Fixed `toBeLessThanOrEqual(5)` → `toBe(5)` in Sidebar.spec.ts
+- Moved `computeDefaultFilters` tests to own spec file (`utils/computeDefaultFilters.spec.ts`)
+- Extracted shared column fixtures (`orderColumn`, `nameColumn`, `userColumn`) in buildFilter.spec.ts
+- All 212 filter tests pass across 10 files
 
 ---
 

@@ -311,8 +311,6 @@ describe("OntologyInput", () => {
     });
 
     it("should debounce search input and only search once", async () => {
-      vi.useFakeTimers();
-
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -354,8 +352,6 @@ describe("OntologyInput", () => {
 
       const callCountAfter = mockFetch.mock.calls.length;
       expect(callCountAfter - callCountBefore).toBe(1);
-
-      vi.useRealTimers();
     });
 
     it("should work in forceList mode with toggle search", async () => {

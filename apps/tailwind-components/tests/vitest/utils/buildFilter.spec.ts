@@ -3,11 +3,23 @@ import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
+const orderColumn: IColumn = {
+  id: "order",
+  columnType: "REF",
+  label: "Order",
+  refTableId: "Order",
+};
+const nameColumn: IColumn = { id: "name", columnType: "STRING", label: "Name" };
+const userColumn: IColumn = {
+  id: "user",
+  columnType: "REF",
+  label: "User",
+  refTableId: "User",
+};
+
 describe("buildGraphQLFilter", () => {
   it("builds nested filter for 3-level path", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.pet.category", { operator: "equals", value: { name: "dogs" } }],
     ]);
@@ -18,9 +30,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("builds nested filter for 2-level path", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.status", { operator: "like", value: "active" }],
     ]);
@@ -31,9 +41,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("builds nested filter for 4-level path", () => {
-    const columns: IColumn[] = [
-      { id: "user", columnType: "REF", label: "User", refTableId: "User" },
-    ];
+    const columns: IColumn[] = [userColumn];
     const filters = new Map<string, IFilterValue>([
       [
         "user.address.city.country",
@@ -51,10 +59,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("combines multiple nested filters at different depths", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-      { id: "user", columnType: "REF", label: "User", refTableId: "User" },
-    ];
+    const columns: IColumn[] = [orderColumn, userColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.pet.category", { operator: "equals", value: { name: "dogs" } }],
       ["user.name", { operator: "like", value: "John" }],
@@ -67,9 +72,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("handles nested filters with between operator", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.price", { operator: "between", value: [10, 100] }],
     ]);
@@ -80,9 +83,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("handles nested filters with equals operator for ref arrays", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       [
         "order.pet.category",
@@ -101,9 +102,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("ignores filters for unknown root columns", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       ["unknown.pet.category", { operator: "equals", value: { name: "dogs" } }],
     ]);
@@ -112,9 +111,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("builds simple filter without nesting", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
     ]);
@@ -125,9 +122,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("includes search in filter", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "John" }],
     ]);
@@ -139,9 +134,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("parses space-separated string as AND terms", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "dog cat" }],
     ]);
@@ -152,9 +145,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("parses 'and' keyword string as AND terms with _and wrapper", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "dog and cat" }],
     ]);
@@ -165,9 +156,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("treats plus as literal character (not AND separator)", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "dog+cat" }],
     ]);
@@ -178,9 +167,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("parses nested path with 'and' keyword string", () => {
-    const columns: IColumn[] = [
-      { id: "order", columnType: "REF", label: "Order", refTableId: "Order" },
-    ];
+    const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.pet.name", { operator: "like", value: "dog and cat" }],
     ]);
@@ -194,9 +181,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("handles single term like filter without parsing", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "dog" }],
     ]);
@@ -207,9 +192,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("treats standalone 'and' keyword as AND separator", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "tools and human" }],
     ]);
@@ -220,9 +203,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("parses quoted phrase with unquoted term as AND terms", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "'aap noot' mies" }],
     ]);
@@ -233,9 +214,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("parses quoted phrase with AND keyword", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "like", value: "'aap noot' and mies" }],
     ]);
@@ -249,9 +228,7 @@ describe("buildGraphQLFilter", () => {
     ["notNull", { name: { notNull: true } }],
     ["isNull", { name: { isNull: true } }],
   ] as const)("builds %s filter", (operator, expected) => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator, value: null }],
     ]);
@@ -319,9 +296,7 @@ describe("buildGraphQLFilter", () => {
   });
 
   it("equals with empty array produces { equals: [] }", () => {
-    const columns: IColumn[] = [
-      { id: "name", columnType: "STRING", label: "Name" },
-    ];
+    const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
       ["name", { operator: "equals", value: [] }],
     ]);

@@ -1,6 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import InputRef from "../../../../app/components/input/Ref.vue";
 
 vi.mock("../../../../app/composables/fetchTableMetadata", () => {
@@ -70,8 +70,13 @@ describe("facet count fetching", () => {
   let mockFetchGraphql: ReturnType<typeof vi.mocked<typeof fetchGraphql>>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     vi.clearAllMocks();
     mockFetchGraphql = vi.mocked(fetchGraphql);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("fetches counts via _groupBy after loading options", async () => {
@@ -118,7 +123,6 @@ describe("facet count fetching", () => {
   });
 
   it("re-fetches counts when crossFilter changes", async () => {
-    vi.useFakeTimers();
     mockFetchGraphql.mockResolvedValue({
       Pet_groupBy: [],
     });
@@ -155,7 +159,6 @@ describe("facet count fetching", () => {
     vi.advanceTimersByTime(300);
     await flushPromises();
 
-    vi.useRealTimers();
     expect(mockFetchGraphql.mock.calls.length).toBeGreaterThan(callsBefore);
     const lastCall =
       mockFetchGraphql.mock.calls[mockFetchGraphql.mock.calls.length - 1];

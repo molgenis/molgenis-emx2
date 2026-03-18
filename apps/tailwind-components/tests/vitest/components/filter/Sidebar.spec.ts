@@ -281,7 +281,7 @@ describe("Sidebar", () => {
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
-      expect(filterColumns.length).toBeLessThanOrEqual(5);
+      expect(filterColumns.length).toBe(5);
     });
   });
 
