@@ -353,6 +353,7 @@
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
+      :activeRoles="activeRoles"
       @close="handleModalClose"
       :apply-default-values="editMode === 'add'"
     />
@@ -602,6 +603,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    activeRoles: {
+      type: Array,
+      default: () => [],
     },
   },
   computed: {

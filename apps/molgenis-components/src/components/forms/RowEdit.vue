@@ -22,6 +22,7 @@
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"
+      :activeRoles="activeRoles"
       :filter="refFilter[column.id]"
       @update:modelValue="handleModelValueUpdate($event, column)"
     />
@@ -94,7 +95,12 @@ export default {
     canEdit: {
       type: Boolean,
       required: false,
-      default: () => true,
+      default: () => false,
+    },
+    activeRoles: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
     errorPerColumn: {
       type: Object,

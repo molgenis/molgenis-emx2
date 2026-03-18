@@ -138,7 +138,12 @@ export default {
     canEdit: {
       type: Boolean,
       required: false,
-      default: () => true,
+      default: () => false,
+    },
+    activeRoles: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
   },
   components: {

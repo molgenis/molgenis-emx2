@@ -17,7 +17,7 @@
       :canDelete="canDelete"
       :canManage="canManage"
       :locale="session?.locale"
-      :session="session"
+      :activeRoles="session?.activeRoles"
     />
   </div>
 </template>
@@ -47,31 +47,19 @@ export default {
       const isEditor = this.session?.activeRoles?.some(
         (r) => r.name === "Editor"
       );
-      return !!(
-        isEditor ||
-        this.canManage ||
-        this.hasTablePermission("insert")
-      );
+      return !!(isEditor || this.hasTablePermission("insert"));
     },
     canUpdate() {
       const isEditor = this.session?.activeRoles?.some(
         (r) => r.name === "Editor"
       );
-      return !!(
-        isEditor ||
-        this.canManage ||
-        this.hasTablePermission("update")
-      );
+      return !!(isEditor || this.hasTablePermission("update"));
     },
     canDelete() {
       const isEditor = this.session?.activeRoles?.some(
         (r) => r.name === "Editor"
       );
-      return !!(
-        isEditor ||
-        this.canManage ||
-        this.hasTablePermission("delete")
-      );
+      return !!(isEditor || this.hasTablePermission("delete"));
     },
     canEdit() {
       return this.canInsert || this.canUpdate || this.canDelete;

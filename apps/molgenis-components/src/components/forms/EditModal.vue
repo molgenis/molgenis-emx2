@@ -24,6 +24,7 @@
               :clone="clone"
               :errorPerColumn="rowErrors"
               :applyDefaultValues="applyDefaultValues"
+              :activeRoles="activeRoles"
               @update:model-value="checkForErrors"
             />
           </div>
@@ -134,11 +135,13 @@ const props = withDefaults(
     useChapters?: boolean | null;
     defaultValue?: Record<string, any> | null;
     applyDefaultValues?: boolean;
+    activeRoles?: any[];
   }>(),
-  { clone: false, defaultValue: null, useChapters: null }
+  { clone: false, defaultValue: null, useChapters: null, activeRoles: () => [] }
 );
 
 const {
+  activeRoles,
   applyDefaultValues,
   clone,
   defaultValue,

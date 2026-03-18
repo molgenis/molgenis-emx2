@@ -9,6 +9,7 @@
       :canUpdate="canUpdate"
       :canDelete="canDelete"
       :canManage="canManage"
+      :activeRoles="activeRoles"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
       @updateShowFilters="updateFilters"
@@ -87,6 +88,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    activeRoles: {
+      type: Array,
+      default: () => [],
     },
     showOrderBy: {
       type: String,
