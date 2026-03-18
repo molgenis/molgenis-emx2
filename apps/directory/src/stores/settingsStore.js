@@ -21,6 +21,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   const configUpdateStatus = ref(0);
   const currentPage = ref(1);
   const configurationFetched = ref(false);
+  const googleAnalyticsId = ref("");
   const config = ref({
     language: "en",
     graphqlEndpoint: "graphql",
@@ -80,6 +81,12 @@ export const useSettingsStore = defineStore("settingsStore", () => {
       (setting) => setting.key === "directory"
     );
 
+    if (response._settings.find((setting) => setting.key === "ANALYTICS_ID")) {
+      googleAnalyticsId.value = response._settings.find(
+        (setting) => setting.key === "ANALYTICS_ID"
+      ).value;
+    }
+
     if (savedDirectoryConfig?.value) {
       config.value = JSON.parse(decodeURI(savedDirectoryConfig.value));
     }
@@ -108,6 +115,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
   return {
     config,
+    googleAnalyticsId,
     configurationFetched,
     configurationPromise,
     configUpdateStatus,
