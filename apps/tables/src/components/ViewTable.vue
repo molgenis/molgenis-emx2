@@ -60,9 +60,7 @@ export default {
     },
     canManage() {
       const isAdmin = this.session?.email === "admin";
-      const isManager = this.session?.activeRoles?.some(
-        (r) => r.name === "Manager"
-      );
+      const isManager = this.session?.roles?.includes("Manager");
       return isManager || isAdmin;
     },
     activeTable() {

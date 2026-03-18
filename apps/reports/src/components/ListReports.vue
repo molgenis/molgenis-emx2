@@ -1,11 +1,7 @@
 <template>
   <Spinner v-if="!session" />
   <MessageWarning
-    v-else-if="
-      !session ||
-      !session.roles ||
-      !session.activeRoles?.some((r) => r.name === 'Viewer')
-    "
+    v-else-if="!session || !session.roles || !session.roles?.includes('Viewer')"
   >
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
@@ -92,10 +88,10 @@ export default {
   },
   computed: {
     canEdit() {
-      return this.session?.activeRoles?.some((r) => r.name === "Manager");
+      return this.session?.roles?.includes("Manager");
     },
     canView() {
-      return this.session?.activeRoles?.some((r) => r.name === "Viewer");
+      return this.session?.roles?.includes("Viewer");
     },
     reportsWithId() {
       if (this.reports) {
