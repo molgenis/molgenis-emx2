@@ -11,7 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@heroicons/vue": "^2.0.18",
+    "@heroicons/vue": "2.0.18",
     "d3": "7.8.5",
     "graphql-request": "5.2.0",
     "molgenis-components": "workspace:*",
@@ -21,9 +21,9 @@
   },
   "devDependencies": {
     "@types/d3": "7.4.3",
-    "@vitejs/plugin-vue": "4.6.2",
+    "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "5.4.21",
+    "vite": "7.3.1",
     "vitest": "1.6.1"
   },
   "browserslist": [
