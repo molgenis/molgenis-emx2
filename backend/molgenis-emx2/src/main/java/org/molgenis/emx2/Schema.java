@@ -82,7 +82,7 @@ public interface Schema {
 
   boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
 
-  void createRole(String roleName, String description);
+  void createRole(String roleName);
 
   void deleteRole(String roleName);
 

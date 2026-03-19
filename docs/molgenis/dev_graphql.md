@@ -317,7 +317,6 @@ effective permissions.
   _schema {
     roles {
       name
-      description
       system
       permissions {
         table
@@ -353,7 +352,6 @@ mutation {
     roles: [
       {
         name: "TableAViewer"
-        description: "Read-only access to TableA"
         permissions: [
           { table: "TableA", select: true }
         ]
