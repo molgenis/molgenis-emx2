@@ -12,7 +12,7 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException
+from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, MissingHRICoreException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts
 
@@ -151,9 +151,9 @@ class StagingMigrator(Client):
                     if table.id == "Resources":
                         try:
                             check_hricore(updated_table)
-                        except ValueError as ve:
+                        except MissingHRICoreException as ve:
                             self.errors.append(ve)
-                            raise ValueError(ve)
+                            raise MissingHRICoreException(ve.msg)
 
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv(index=False))
@@ -410,11 +410,10 @@ class StagingMigrator(Client):
     def _copy_resource_columns(self, table_df: pd.DataFrame) -> pd.DataFrame:
         """Inserts values for columns 'publisher', 'creator', 'contact point' from Resources into this table."""
         resources = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Resources'))
-        cols = ["publisher", "creator", "contact point"]
-        for rc in resources.columns:
-            if any(map(lambda c: rc.startswith(c), cols)):
-                table_df[rc] = table_df["resource"].apply(lambda r: resources.loc[resources['id'] == r, rc])
-
+        table_df["creator"] = table_df["resource"].map(resources.set_index('id')["creator.id"].to_dict())
+        table_df["publisher"] = table_df["resource"].map(resources.set_index('id')["publisher.id"].to_dict())
+        table_df["contact point.first name"] = table_df["resource"].map(resources.set_index('id')["contact point.first name"].to_dict())
+        table_df["contact point.last name"] = table_df["resource"].map(resources.set_index('id')["contact point.last name"].to_dict())
         return table_df
 
     def _get_source_profile(self) -> str | None:
