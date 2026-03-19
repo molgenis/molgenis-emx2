@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import ValueString from "./String.vue";
-import ValueDecimal from "./Decimal.vue";
-import ValueInt from "./Int.vue";
-import ValueLong from "./Long.vue";
+import {
+  isBoolElement,
+  isDecimalElement,
+  isEmailElement,
+  isHyperlinkElement,
+  isIntElement,
+  isObjectElement,
+  isStringElement,
+  isTextElement,
+} from "../../utils/typeChecks";
 import ValueBool from "./Bool.vue";
+import ValueDecimal from "./Decimal.vue";
 import ValueEmail from "./Email.vue";
 import ValueHyperlink from "./Hyperlink.vue";
+import ValueInt from "./Int.vue";
 import ValueObject from "./Object.vue";
-import ValueDate from "./Date.vue";
-import ValueDateTime from "./DateTime.vue";
+import ValueString from "./String.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -23,76 +30,50 @@ const props = withDefaults(
   }
 );
 
-const elementType = computed(() => props.metadata.columnType.split("_")[0]);
+const elementType = computed(
+  () => props.metadata.columnType.split("_ARRAY")[0]
+);
 </script>
 
 <template>
   <template v-for="(listElement, index) in data">
     <ValueString
-      v-if="
-        elementType === 'STRING' ||
-        elementType === 'AUTO_ID' ||
-        elementType === 'PERIOD'
-      "
+      v-if="isStringElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as string"
+      :data="listElement"
     />
-    <ValueString
-      v-else-if="elementType === 'TEXT'"
+    <ValueText
+      v-else-if="isTextElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as string"
+      :data="listElement"
     />
     <ValueDecimal
-      v-else-if="elementType === 'DECIMAL'"
+      v-else-if="isDecimalElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as number"
-    />
-    <ValueLong
-      v-else-if="elementType === 'LONG'"
-      :metadata="metadata"
-      :data="listElement as number"
+      :data="listElement"
     />
     <ValueInt
-      v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"
+      v-else-if="isIntElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as number"
+      :data="listElement"
     />
     <ValueBool
-      v-else-if="elementType === 'BOOL'"
+      v-else-if="isBoolElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as boolean"
+      :data="listElement"
     />
     <ValueEmail
-      v-else-if="elementType === 'EMAIL'"
+      v-else-if="isEmailElement(elementType, listElement)"
       :metadata="metadata"
-      :data="listElement as string"
+      :data="listElement"
     />
     <ValueHyperlink
-      v-else-if="elementType === 'HYPERLINK'"
-      :metadata="metadata"
-      :data="listElement as string"
-    />
-    <ValueObject
-      v-else-if="
-        elementType === 'REF' ||
-        elementType === 'MULTISELECT' ||
-        elementType === 'CHECKBOX'
-      "
+      v-else-if="isHyperlinkElement(elementType, listElement)"
       :metadata="metadata"
       :data="listElement"
     />
     <ValueObject
-      v-else-if="elementType === 'ONTOLOGY'"
-      :metadata="metadata"
-      :data="listElement"
-    />
-    <ValueDate
-      v-else-if="elementType === 'DATE'"
-      :metadata="metadata"
-      :data="listElement"
-    />
-    <ValueDateTime
-      v-else-if="elementType === 'DATETIME'"
+      v-else-if="isObjectElement(elementType, listElement)"
       :metadata="metadata"
       :data="listElement"
     />
