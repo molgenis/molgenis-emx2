@@ -58,6 +58,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .page-section {
   box-sizing: content-box;
 

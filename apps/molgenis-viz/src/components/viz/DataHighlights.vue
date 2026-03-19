@@ -54,6 +54,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .data-highlights {
   display: flex;
   justify-content: center;

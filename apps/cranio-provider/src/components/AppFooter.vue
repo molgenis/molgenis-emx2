@@ -74,6 +74,9 @@ defineProps<{
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+
 .page-footer {
   background-color: $gray-000;
 

@@ -16,6 +16,8 @@ withDefaults(
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
 .dashboard-chart-layout {
   display: grid;
   grid-template-columns: 1fr;

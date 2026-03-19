@@ -156,6 +156,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .home-page-header.header-image-background {
   background-position: 0 60%;
 }

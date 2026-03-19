@@ -536,6 +536,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .d3-grouped-column-chart {
   h3.chart-title {
     margin: 0;

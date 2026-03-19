@@ -136,6 +136,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 @mixin visuallyHidden {
   position: absolute;
   clip: rect(1px 1px 1px 1px);

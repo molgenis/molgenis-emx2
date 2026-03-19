@@ -40,6 +40,8 @@ onUpdated(() => setLoadingBlockHeight());
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
 @keyframes pulse {
   0% {
     opacity: 1;

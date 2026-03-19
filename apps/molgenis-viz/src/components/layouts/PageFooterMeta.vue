@@ -14,6 +14,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .page-footer-meta-links {
   display: flex;
   justify-content: center;

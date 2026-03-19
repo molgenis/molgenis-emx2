@@ -56,6 +56,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .link-card {
   display: flex;
   justify-content: center;

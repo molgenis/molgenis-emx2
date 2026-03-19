@@ -76,6 +76,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 $border-radius: 6px;
 
 .accordion {

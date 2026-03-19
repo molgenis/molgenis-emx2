@@ -37,6 +37,8 @@ const classNames = computed(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .dashboard-box {
   box-shadow: $box-shadow;
   box-sizing: content-box;

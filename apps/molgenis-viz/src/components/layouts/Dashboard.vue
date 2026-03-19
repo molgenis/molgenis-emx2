@@ -39,6 +39,8 @@ const classNames = computed(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .dashboard-container {
   background-color: $gray-050;
   padding: 2em 0;

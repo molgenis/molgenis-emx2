@@ -94,6 +94,8 @@ data.value = ["Control", "Experimental"].map((group) => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .viz-section {
   text-align: center;
 }

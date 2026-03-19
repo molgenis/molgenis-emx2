@@ -51,6 +51,10 @@ import Studies from "../components/Studies.vue";
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 #accordion-studies-nav {
   .accordion-heading {
     background-color: #0084b4;

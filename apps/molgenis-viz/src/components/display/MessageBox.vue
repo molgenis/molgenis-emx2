@@ -49,6 +49,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .message-box {
   display: flex;
   border-radius: 0;

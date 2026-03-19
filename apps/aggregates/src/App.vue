@@ -12,3 +12,8 @@ import { Molgenis } from "molgenis-components";
 const session = ref(null);
 const page = ref(null);
 </script>
+
+<style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+</style>

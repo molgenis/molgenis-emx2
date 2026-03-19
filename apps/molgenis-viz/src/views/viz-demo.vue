@@ -142,6 +142,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 #reset-filters {
   width: 150px;
   background: none;

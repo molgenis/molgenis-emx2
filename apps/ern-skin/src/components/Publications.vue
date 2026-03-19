@@ -91,6 +91,10 @@ getPublications().catch((err) => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 .publication-list-error {
   .heroicons {
     @include setIconSize(24px);

@@ -36,6 +36,8 @@ const cssClassNames = computed(() => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
 .address {
   font-style: normal;
   font-size: 14pt;

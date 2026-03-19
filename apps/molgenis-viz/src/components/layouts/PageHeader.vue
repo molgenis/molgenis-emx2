@@ -106,6 +106,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .page-header {
   position: relative;
   display: flex;

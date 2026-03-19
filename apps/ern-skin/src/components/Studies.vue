@@ -84,6 +84,10 @@ getStudies().catch((err) => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 .study-list-error {
   .heroicons {
     @include setIconSize(24px);

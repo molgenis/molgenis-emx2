@@ -26,6 +26,8 @@ const classNames = computed(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .dashboard-chart-layout {
   display: grid;
   grid-template-columns: 1fr;

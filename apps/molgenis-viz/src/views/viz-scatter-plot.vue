@@ -129,6 +129,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .viz-section-dark {
   background-color: $gray-700;
   color: $gray-000;

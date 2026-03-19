@@ -16,6 +16,8 @@ defineProps<{
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
 .value-showcase {
   display: grid;
   grid-template-areas: "icon" "title" "description";

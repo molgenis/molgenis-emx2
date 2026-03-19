@@ -48,6 +48,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles" as *;
+
 .input__search {
   display: block;
   width: 100%;
