@@ -154,14 +154,8 @@ export default {
         this.session?.email !== "anonymous"
       ) {
         return true;
-      } else if (item.role === "Viewer") {
-        return this.session?.roles?.includes("Viewer");
-      } else if (item.role === "Editor") {
-        return this.session?.roles?.includes("Editor");
-      } else if (item.role === "Manager") {
-        return this.session?.roles?.includes("Manager");
       } else {
-        return false;
+        return this.session?.roles?.includes(item.role);
       }
     },
   },

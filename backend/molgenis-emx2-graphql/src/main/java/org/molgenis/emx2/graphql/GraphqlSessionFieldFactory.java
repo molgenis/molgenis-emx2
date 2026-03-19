@@ -13,11 +13,10 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -186,9 +185,8 @@ public class GraphqlSessionFieldFactory {
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
-                List<String> roleNames = schema.getInheritedRolesForActiveUser();
-                result.put(ROLES, roleNames);
-                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema, roleNames));
+                result.put(ROLES, schema.getInheritedRolesForActiveUser());
+                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());
@@ -201,35 +199,17 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  private static List<Map<String, Object>> buildTablePermissions(
-      Schema schema, List<String> roleNames) {
-    Collection<String> tableNames = schema.getTableNames();
-    Map<String, Map<String, Object>> byTable = new LinkedHashMap<>();
-    for (String roleName : roleNames) {
-      List<TablePermission> rolePerms = schema.getRoleInfo(roleName).permissions();
-      for (TablePermission p : rolePerms) {
-        Collection<String> targets = "*".equals(p.table()) ? tableNames : List.of(p.table());
-        for (String tableName : targets) {
-          byTable.computeIfAbsent(
-              tableName,
-              k -> {
-                Map<String, Object> e = new LinkedHashMap<>();
-                e.put(NAME, k);
-                e.put(CAN_VIEW, false);
-                e.put(CAN_INSERT, false);
-                e.put(CAN_UPDATE, false);
-                e.put(CAN_DELETE, false);
-                return e;
-              });
-          Map<String, Object> entry = byTable.get(tableName);
-          if (Boolean.TRUE.equals(p.select())) entry.put(CAN_VIEW, true);
-          if (Boolean.TRUE.equals(p.insert())) entry.put(CAN_INSERT, true);
-          if (Boolean.TRUE.equals(p.update())) entry.put(CAN_UPDATE, true);
-          if (Boolean.TRUE.equals(p.delete())) entry.put(CAN_DELETE, true);
-        }
-      }
-    }
-    return new ArrayList<>(byTable.values());
+  private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
+    return schema.getPermissionsForActiveUser().stream()
+        .map(
+            p ->
+                Map.<String, Object>of(
+                    NAME, p.table(),
+                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
+                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
+                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
+                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
+        .collect(Collectors.toList());
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {
