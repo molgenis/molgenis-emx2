@@ -94,9 +94,7 @@ public class GraphqlFactory {
     mutationBuilder.field(schemaFields.dropMutation(schema));
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
 
-    if ((schema.getRoleForActiveUser() != null
-            && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
-        || schema.getDatabase().isAdmin()) {
+    if (schema.getPermissionEvaluator().canManage()) {
       queryBuilder.field(schemaFields.changeLogQuery(schema));
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
     }
