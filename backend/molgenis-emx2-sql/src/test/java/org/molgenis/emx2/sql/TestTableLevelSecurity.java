@@ -132,8 +132,6 @@ class TestTableLevelSecurity {
     }
   }
 
-  // --- Access control enforcement ---
-
   @Test
   void userWithViewerRoleCanSelectGrantedTable() {
     database.becomeAdmin();
@@ -293,11 +291,9 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRevokeRole", null);
-    // Grant SELECT + INSERT
     schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, true, true, null, null));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
-    // Verify INSERT works
     database.setActiveUser(USER_EDITOR);
     database.tx(
         db ->
@@ -305,11 +301,9 @@ class TestTableLevelSecurity {
                 .getTable(TABLE_A)
                 .insert(new Row().setString("id", "r_partial").setString("value", "v")));
 
-    // Revoke INSERT by passing false, keep SELECT
     database.becomeAdmin();
     schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, null, false, null, null));
 
-    // Verify INSERT is now denied
     database.setActiveUser(USER_EDITOR);
     database.tx(
         db ->
@@ -320,7 +314,6 @@ class TestTableLevelSecurity {
                         .getTable(TABLE_A)
                         .insert(new Row().setString("id", "r_partial2").setString("value", "v"))));
 
-    // Verify SELECT still works
     database.tx(
         db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
 
@@ -368,6 +361,86 @@ class TestTableLevelSecurity {
     TablePermission p = viewerInfo.permissions().getFirst();
     assertEquals("*", p.table());
     assertEquals(Boolean.TRUE, p.select());
+  }
+
+  @Test
+  void grantIsLostAfterTableDropAndRecreate() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("LifecycleRole", null);
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.addMember(USER_VIEWER, "LifecycleRole");
+
+    database.setActiveUser(USER_VIEWER);
+    database.tx(
+        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.dropTable(TABLE_A);
+    schema.create(table(TABLE_A).add(column("id").setPkey()).add(column("value")));
+
+    database.setActiveUser(USER_VIEWER);
+    database.tx(
+        db ->
+            assertThrows(
+                Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).insert(new Row().setString("id", "r1").setString("value", "hello"));
+    schema.removeMember(USER_VIEWER);
+    schema.deleteRole("LifecycleRole");
+  }
+
+  @Test
+  void multipleGrantsOnSameTableAreMergedForActiveUser() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("MergeGrantRole", null);
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A, null, true, null, null));
+    schema.addMember(USER_EDITOR, "MergeGrantRole");
+
+    try {
+      database.setActiveUser(USER_EDITOR);
+      database.tx(
+          db -> {
+            List<TablePermission> perms = db.getSchema(SCHEMA).getPermissionsForActiveUser();
+            TablePermission merged =
+                perms.stream()
+                    .filter(p -> TABLE_A.equals(p.table()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
+            assertEquals(Boolean.TRUE, merged.select());
+            assertEquals(Boolean.TRUE, merged.insert());
+            assertNull(merged.update());
+            assertNull(merged.delete());
+          });
+
+      database.tx(
+          db -> {
+            assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+            assertDoesNotThrow(
+                () ->
+                    db.getSchema(SCHEMA)
+                        .getTable(TABLE_A)
+                        .insert(new Row().setString("id", "r_merge").setString("value", "v")));
+          });
+
+      database.becomeAdmin();
+      schema.getTable(TABLE_A).delete(new Row().setString("id", "r_merge"));
+    } finally {
+      database.becomeAdmin();
+      schema.removeMember(USER_EDITOR);
+      schema.deleteRole("MergeGrantRole");
+    }
+  }
+
+  @Test
+  void roleNameTooLongIsRejected() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String tooLong = "A".repeat(33);
+    assertThrows(MolgenisException.class, () -> schema.createRole(tooLong, null));
   }
 
   @Test
