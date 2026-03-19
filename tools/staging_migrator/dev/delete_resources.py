@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE = 'UMCG'
+CATALOGUE = 'catalogue'
 
 log = logging.getLogger('publisher')
 

@@ -112,9 +112,7 @@ def load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
 
 
 def set_all_delete(table: Table) -> pd.DataFrame:
-    """
-    Adds an `mg_delete` column to the table and sets its values to `true`.
-    """
+    """Adds an `mg_delete` column to the table and sets its values to `true`."""
     source_df = load_table('source', table)
     source_df["mg_delete"] = True
     return source_df
@@ -123,7 +121,6 @@ def check_hricore(resources: pd.DataFrame):
     """Verifies that the `hricore` column is set to `true` for the Resources listed."""
     def is_missing(val) -> bool:
         return (type(val) == NAType) or val != True
-    # missing_hri = resources.loc[resources['hricore'].isin() or resources['hricore'] != True, 'id']
     missing_hri = resources.loc[resources['hricore'].apply(is_missing), 'id']
     if len(missing_hri.index) != 0:
         raise MissingHRICoreException(f"Value 'hricore' not set to 'Yes' for resource {', '.join(missing_hri.values)!r}")
