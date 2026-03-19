@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
@@ -18,6 +19,7 @@ public class SqlRoleManager {
 
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
+  public static final int PG_MAX_ID_LENGTH = 63;
 
   private final SqlDatabase database;
 
@@ -34,6 +36,14 @@ public class SqlRoleManager {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
+    if (fullRole.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException(
+          "Role name '"
+              + roleName
+              + "' is too long: the combined identifier '"
+              + fullRole
+              + "' exceeds PostgreSQL's 63-byte limit");
+    }
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
     executeCreateRole(jooq(), fullRole);
     jooq().execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
