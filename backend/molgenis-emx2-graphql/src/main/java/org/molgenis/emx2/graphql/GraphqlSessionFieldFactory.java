@@ -16,7 +16,6 @@ import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -209,7 +208,7 @@ public class GraphqlSessionFieldFactory {
                     CAN_INSERT, Boolean.TRUE.equals(p.insert()),
                     CAN_UPDATE, Boolean.TRUE.equals(p.update()),
                     CAN_DELETE, Boolean.TRUE.equals(p.delete())))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {
