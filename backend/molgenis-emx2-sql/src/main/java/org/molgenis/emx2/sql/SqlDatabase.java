@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -15,7 +16,11 @@ import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Record6;
+import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
@@ -53,6 +58,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
+  private String rlsContextCacheKey;
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
@@ -68,11 +74,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         @Override
         public void onUserChange() {
           clearCache();
+          rlsContextCacheKey = null;
+          connectionProvider.clearRlsCache();
         }
 
         @Override
         public void onSchemaChange() {
           clearCache();
+          rlsContextCacheKey = null;
+          connectionProvider.clearRlsCache();
           super.onSchemaChange();
           logger.info("cleared caches after commit that includes changes on schema(s)");
         }
@@ -86,6 +96,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
     this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
+    this.connectionProvider.setRlsSessionVars(
+        copy.connectionProvider.getRlsActiveRole(),
+        copy.connectionProvider.getRlsBypassSelect(),
+        copy.connectionProvider.getRlsBypassInsert(),
+        copy.connectionProvider.getRlsBypassUpdate(),
+        copy.connectionProvider.getRlsBypassDelete());
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
@@ -628,6 +644,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider.setActiveUser(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
+    if (inTx) {
+      setRlsContext();
+    }
   }
 
   @Override
@@ -740,6 +759,242 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public DSLContext getJooq() {
     return jooq;
+  }
+
+  public SqlRoleManager getRoleManager() {
+    return new SqlRoleManager(this);
+  }
+
+  public void setRlsContextForSchema(String schemaName) {
+    setRlsContext();
+  }
+
+  public void setRlsContext() {
+    String activeUser = getActiveUser();
+    if (activeUser == null || ADMIN_USER.equals(activeUser)) {
+      clearRlsContext();
+      return;
+    }
+    String cacheKey = activeUser;
+    if (cacheKey.equals(rlsContextCacheKey)) {
+      return;
+    }
+    String pgUser = MG_USER_PREFIX + activeUser;
+    try {
+      Result<Record> roleRecords =
+          jooq.fetch(
+              "SELECT r.rolname FROM pg_roles r"
+                  + " JOIN pg_auth_members am ON am.roleid = r.oid"
+                  + " JOIN pg_roles m ON m.oid = am.member"
+                  + " WHERE m.rolname = {0} AND r.rolname LIKE {1}",
+              pgUser, MG_ROLE_PREFIX + "%");
+
+      List<String> customRoles = new ArrayList<>();
+      boolean hasSystemRole = false;
+      for (Record record : roleRecords) {
+        String fullRole = record.get("rolname", String.class);
+        int lastSlash = fullRole.lastIndexOf('/');
+        if (lastSlash > 0) {
+          String shortRole = fullRole.substring(lastSlash + 1);
+          if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(shortRole)) {
+            hasSystemRole = true;
+            break;
+          } else {
+            customRoles.add(fullRole);
+          }
+        }
+      }
+
+      if (hasSystemRole) {
+        setBypassAll();
+        rlsContextCacheKey = cacheKey;
+      } else if (!customRoles.isEmpty()) {
+        buildRlsSessionVars(customRoles);
+        rlsContextCacheKey = cacheKey;
+      } else {
+        clearRlsContext();
+      }
+    } catch (Exception e) {
+      clearRlsContext();
+    }
+  }
+
+  private void buildRlsSessionVars(List<String> roleNames) {
+    String activeRoles = String.join(",", roleNames);
+
+    Field<String> fRoleName = DSL.field(name("role_name"), String.class);
+    Field<String> fTableSchema = DSL.field(name("table_schema"), String.class);
+    Field<String> fTableName = DSL.field(name("table_name"), String.class);
+    Field<String> fSelectLevel = DSL.field(name("select_level"), String.class);
+    Field<Boolean> fInsertRls = DSL.field(name("insert_rls"), Boolean.class);
+    Field<Boolean> fUpdateRls = DSL.field(name("update_rls"), Boolean.class);
+    Field<Boolean> fDeleteRls = DSL.field(name("delete_rls"), Boolean.class);
+    org.jooq.Table<?> rlsPerms = DSL.table(name("MOLGENIS", "rls_permissions"));
+
+    Set<String> bypassSelect = new LinkedHashSet<>();
+    Set<String> bypassInsert = new LinkedHashSet<>();
+    Set<String> bypassUpdate = new LinkedHashSet<>();
+    Set<String> bypassDelete = new LinkedHashSet<>();
+
+    try {
+      Result<Record6<String, String, String, Boolean, Boolean, Boolean>> rlsRows =
+          jooq.select(fTableSchema, fTableName, fSelectLevel, fInsertRls, fUpdateRls, fDeleteRls)
+              .from(rlsPerms)
+              .where(fRoleName.in(roleNames))
+              .fetch();
+
+      Map<String, PermissionAccumulator> wildcardPerms = new HashMap<>();
+      Map<String, PermissionAccumulator> perTablePerms = new HashMap<>();
+
+      for (Record row : rlsRows) {
+        String tSchema = row.get(fTableSchema);
+        String tName = row.get(fTableName);
+        String selectLevel = row.get(fSelectLevel);
+        Boolean insertRls = row.get(fInsertRls);
+        Boolean updateRls = row.get(fUpdateRls);
+        Boolean deleteRls = row.get(fDeleteRls);
+
+        if ("*".equals(tName)) {
+          PermissionAccumulator acc =
+              wildcardPerms.computeIfAbsent(tSchema, k -> new PermissionAccumulator());
+          if (!"ROW".equals(selectLevel) && selectLevel != null) acc.hasSelectBypass = true;
+          if (!Boolean.TRUE.equals(insertRls) && insertRls != null) acc.hasInsertBypass = true;
+          if (!Boolean.TRUE.equals(updateRls) && updateRls != null) acc.hasUpdateBypass = true;
+          if (!Boolean.TRUE.equals(deleteRls) && deleteRls != null) acc.hasDeleteBypass = true;
+        } else {
+          String fqTable = tSchema + "." + tName;
+          PermissionAccumulator acc =
+              perTablePerms.computeIfAbsent(fqTable, k -> new PermissionAccumulator());
+          if (!"ROW".equals(selectLevel) && selectLevel != null) acc.hasSelectBypass = true;
+          else if ("ROW".equals(selectLevel)) acc.hasSelectRow = true;
+          if (!Boolean.TRUE.equals(insertRls) && insertRls != null) acc.hasInsertBypass = true;
+          else if (Boolean.TRUE.equals(insertRls)) acc.hasInsertRow = true;
+          if (!Boolean.TRUE.equals(updateRls) && updateRls != null) acc.hasUpdateBypass = true;
+          else if (Boolean.TRUE.equals(updateRls)) acc.hasUpdateRow = true;
+          if (!Boolean.TRUE.equals(deleteRls) && deleteRls != null) acc.hasDeleteBypass = true;
+          else if (Boolean.TRUE.equals(deleteRls)) acc.hasDeleteRow = true;
+        }
+      }
+
+      Field<String> fSchemaname = DSL.field(name("t", "schemaname"), String.class);
+      Field<String> fTablename = DSL.field(name("t", "tablename"), String.class);
+      Field<Boolean> fRelRowSecurity = DSL.field(name("c", "relrowsecurity"), Boolean.class);
+      Field<String> fRelname = DSL.field(name("c", "relname"), String.class);
+      Field<Object> fRelnamespace = DSL.field(name("c", "relnamespace"));
+      Field<Object> fOid = DSL.field(name("n", "oid"));
+      Field<String> fNspname = DSL.field(name("n", "nspname"), String.class);
+
+      for (Map.Entry<String, PermissionAccumulator> entry : wildcardPerms.entrySet()) {
+        String tSchema = entry.getKey();
+        PermissionAccumulator acc = entry.getValue();
+
+        Result<Record1<String>> rlsTables =
+            jooq.select(fTablename)
+                .from(DSL.table(name("pg_tables")).as("t"))
+                .join(DSL.table(name("pg_class")).as("c"))
+                .on(fRelname.eq(fTablename))
+                .join(DSL.table(name("pg_namespace")).as("n"))
+                .on(fRelnamespace.eq(fOid).and(fNspname.eq(fSchemaname)))
+                .where(fSchemaname.eq(tSchema))
+                .and(fRelRowSecurity.eq(true))
+                .fetch();
+
+        for (Record tableRecord : rlsTables) {
+          String tableName = tableRecord.get(fTablename);
+          String fqTable = tSchema + "." + tableName;
+          if (acc.hasSelectBypass) bypassSelect.add(fqTable);
+          if (acc.hasInsertBypass) bypassInsert.add(fqTable);
+          if (acc.hasUpdateBypass) bypassUpdate.add(fqTable);
+          if (acc.hasDeleteBypass) bypassDelete.add(fqTable);
+        }
+      }
+
+      for (Map.Entry<String, PermissionAccumulator> entry : perTablePerms.entrySet()) {
+        String fqTable = entry.getKey();
+        PermissionAccumulator acc = entry.getValue();
+
+        if (acc.hasSelectBypass) bypassSelect.add(fqTable);
+        if (acc.hasInsertBypass) bypassInsert.add(fqTable);
+        if (acc.hasUpdateBypass) bypassUpdate.add(fqTable);
+        if (acc.hasDeleteBypass) bypassDelete.add(fqTable);
+
+        if (acc.hasSelectRow && !acc.hasSelectBypass) bypassSelect.remove(fqTable);
+        if (acc.hasInsertRow && !acc.hasInsertBypass) bypassInsert.remove(fqTable);
+        if (acc.hasUpdateRow && !acc.hasUpdateBypass) bypassUpdate.remove(fqTable);
+        if (acc.hasDeleteRow && !acc.hasDeleteBypass) bypassDelete.remove(fqTable);
+      }
+    } catch (Exception e) {
+      logger.error("Failed to load RLS permissions, clearing context for safety", e);
+      clearRlsContext();
+      return;
+    }
+
+    String selectStr = String.join(",", bypassSelect);
+    String insertStr = String.join(",", bypassInsert);
+    String updateStr = String.join(",", bypassUpdate);
+    String deleteStr = String.join(",", bypassDelete);
+
+    connectionProvider.setRlsSessionVars(activeRoles, selectStr, insertStr, updateStr, deleteStr);
+
+    if (inTx) {
+      jooq.execute("SET LOCAL molgenis.active_role = {0}", inline(activeRoles));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_select = {0}", inline(selectStr));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_insert = {0}", inline(insertStr));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_update = {0}", inline(updateStr));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_delete = {0}", inline(deleteStr));
+    }
+  }
+
+  private static class PermissionAccumulator {
+    boolean hasSelectBypass = false;
+    boolean hasInsertBypass = false;
+    boolean hasUpdateBypass = false;
+    boolean hasDeleteBypass = false;
+    boolean hasSelectRow = false;
+    boolean hasInsertRow = false;
+    boolean hasUpdateRow = false;
+    boolean hasDeleteRow = false;
+  }
+
+  public void setRlsContextForSchema(String schemaName, String userRole) {
+    if (userRole == null) {
+      clearRlsContext();
+      return;
+    }
+    if (SqlRoleManager.SYSTEM_ROLE_NAMES.contains(userRole)) {
+      setBypassAll();
+      return;
+    }
+    buildRlsSessionVars(List.of(SqlRoleManager.fullRoleName(schemaName, userRole)));
+  }
+
+  public void clearRlsContext() {
+    rlsContextCacheKey = null;
+    connectionProvider.clearRlsCache();
+    if (inTx) {
+      jooq.execute("SET LOCAL molgenis.active_role = ''");
+      jooq.execute("SET LOCAL molgenis.rls_bypass_select = ''");
+      jooq.execute("SET LOCAL molgenis.rls_bypass_insert = ''");
+      jooq.execute("SET LOCAL molgenis.rls_bypass_update = ''");
+      jooq.execute("SET LOCAL molgenis.rls_bypass_delete = ''");
+    }
+  }
+
+  private void setBypassAll() {
+    rlsContextCacheKey = null;
+    connectionProvider.setRlsSessionVars("", "*", "*", "*", "*");
+    if (inTx) {
+      jooq.execute("SET LOCAL molgenis.rls_bypass_select = {0}", inline("*"));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_insert = {0}", inline("*"));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_update = {0}", inline("*"));
+      jooq.execute("SET LOCAL molgenis.rls_bypass_delete = {0}", inline("*"));
+      jooq.execute("SET LOCAL molgenis.active_role = ''");
+    }
+  }
+
+  private void appendTable(StringBuilder sb, String fqTable) {
+    if (sb.length() > 0) sb.append(",");
+    sb.append(fqTable);
   }
 
   public DSLContext getJooqWithExtendedTimeout() {
@@ -932,5 +1187,35 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Updating of role failed", dae);
     }
+  }
+
+  @Override
+  public void createGlobalRole(String roleName, String description) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void deleteGlobalRole(String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void addGlobalRoleInherits(String globalRoleName, String schemaName, String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public void removeGlobalRoleInherits(String globalRoleName, String schemaName, String roleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public Map<String, List<String>> getGlobalRoleInherits(String globalRoleName) {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  @Override
+  public List<RoleInfo> getGlobalRoleInfos() {
+    throw new UnsupportedOperationException("Not yet implemented");
   }
 }

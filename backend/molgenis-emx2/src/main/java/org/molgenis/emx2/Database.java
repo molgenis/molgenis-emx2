@@ -109,4 +109,16 @@ public interface Database extends HasSettingsInterface<Database> {
   void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
 
   void updateRoles(String userName, List<Map<String, String>> roles);
+
+  void createGlobalRole(String roleName, String description);
+
+  void deleteGlobalRole(String roleName);
+
+  void addGlobalRoleInherits(String globalRoleName, String schemaName, String roleName);
+
+  void removeGlobalRoleInherits(String globalRoleName, String schemaName, String roleName);
+
+  Map<String, List<String>> getGlobalRoleInherits(String globalRoleName);
+
+  List<RoleInfo> getGlobalRoleInfos();
 }

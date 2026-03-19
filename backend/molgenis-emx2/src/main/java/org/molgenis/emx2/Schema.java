@@ -81,4 +81,18 @@ public interface Schema {
   Table getTableByNameOrIdCaseInsensitive(String name);
 
   boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
+
+  void createRole(String roleName, String description);
+
+  void deleteRole(String roleName);
+
+  void grant(String roleName, Permission permission);
+
+  void revoke(String roleName, Permission permission);
+
+  RoleInfo getRoleInfo(String roleName);
+
+  List<RoleInfo> getRoleInfos();
+
+  List<Permission> getPermissionsForActiveUser();
 }
