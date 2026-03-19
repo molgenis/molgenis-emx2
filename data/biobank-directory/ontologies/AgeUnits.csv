@@ -3,3 +3,4 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,YEAR,Year,,,,,
 ,WEEK,Week,,,,,
 ,DAY,Day,,,,,
+,EMBRYONIC,Embryonic Day,,,,,
