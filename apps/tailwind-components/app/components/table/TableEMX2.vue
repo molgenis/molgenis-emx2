@@ -22,6 +22,15 @@
         :columns="columns"
         @update:columns="handleColumnsUpdate"
       />
+
+      <Button
+        v-if="data?.tableMetadata"
+        type="outline"
+        :href="`/${schemaId}/api/csv/${tableId}`"
+        icon="Download"
+      >
+        Download
+      </Button>
     </div>
   </div>
 
