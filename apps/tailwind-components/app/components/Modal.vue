@@ -65,86 +65,119 @@ function hide() {
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <OptionalFocusTrap v-if="visible" :enabled="!backgroundAccessible">
-        <div target="modal-title">
-          <div
-            v-if="visible"
-            role="dialog"
-            aria-labelledby="modal-title"
-            :aria-modal="true"
-            ref="dialog"
-            class="fixed min-h-lvh w-full top-0 left-0 flex z-50 overscroll-contain"
-            :style="backgroundAccessible ? 'pointer-events: none' : ''"
+      <Transition :name="`modal-${type}`">
+        <div v-if="visible">
+          <OptionalFocusTrap
+            :enabled="!backgroundAccessible"
+            target="modal-title"
           >
             <div
-              v-if="!backgroundAccessible"
-              id="backdrop"
-              @click="visible = false"
-              class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
-              tabindex="-1"
-            />
-
-            <div
-              style="pointer-events: all"
-              class="bg-modal w-3/4 relative rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
-              :class="[
-                {
-                  'm-auto': type === 'center',
-                  'ml-auto': type === 'right',
-                  'mr-auto': type === 'left',
-                },
-                maxWidth,
-              ]"
-              :style="
-                backgroundAccessible &&
-                'filter: drop-shadow(gray 0.25rem 0.25rem 5px);'
-              "
+              role="dialog"
+              aria-labelledby="modal-title"
+              :aria-modal="true"
+              ref="dialog"
+              class="fixed min-h-lvh w-full top-0 left-0 flex z-50 overscroll-contain"
+              :class="{ 'pointer-events-none': backgroundAccessible }"
             >
-              <slot name="header">
-                <header
-                  class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
-                >
-                  <div
-                    v-if="subtitle"
-                    class="text-title-contrast overflow-y-auto"
-                  >
-                    {{ subtitle }}
-                  </div>
-                  <h2
-                    v-if="title"
-                    id="modal-title"
-                    ref="modal-title"
-                    class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
-                  >
-                    {{ title }}
-                  </h2>
-
-                  <button
-                    @click="visible = false"
-                    aria-label="Close modal"
-                    class="absolute top-7 right-8 p-1"
-                  >
-                    <BaseIcon class="text-button-input-toggle" name="cross" />
-                  </button>
-                </header>
-              </slot>
+              <div
+                v-if="!backgroundAccessible"
+                id="backdrop"
+                @click="visible = false"
+                class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
+                tabindex="-1"
+              />
 
               <div
-                class="flex-1 flex flex-col min-h-0 overflow-y-auto"
-                id="modal-content"
+                class="bg-modal w-3/4 relative rounded-t-none rounded-b-theme h-[95vh] flex flex-col pointer-events-auto"
+                :class="[
+                  {
+                    'm-auto': type === 'center',
+                    'ml-auto': type === 'right',
+                    'mr-auto': type === 'left',
+                  },
+                  maxWidth,
+                ]"
+                :style="
+                  backgroundAccessible &&
+                  'filter: drop-shadow(rgba(0,0,0,0.1) 0.2rem 0.2rem 5px);'
+                "
               >
-                <slot />
-              </div>
+                <slot name="header">
+                  <header
+                    class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
+                  >
+                    <div
+                      v-if="subtitle"
+                      class="text-title-contrast overflow-y-auto"
+                    >
+                      {{ subtitle }}
+                    </div>
+                    <h2
+                      v-if="title"
+                      id="modal-title"
+                      ref="modal-title"
+                      class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
+                    >
+                      {{ title }}
+                    </h2>
 
-              <footer
-                class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
-              >
-                <slot name="footer" :hide="hide" />
-              </footer>
+                    <button
+                      @click="visible = false"
+                      aria-label="Close modal"
+                      class="absolute top-7 right-8 p-1"
+                    >
+                      <BaseIcon class="text-button-input-toggle" name="cross" />
+                    </button>
+                  </header>
+                </slot>
+
+                <div
+                  class="flex-1 flex flex-col min-h-0 overflow-y-auto"
+                  id="modal-content"
+                >
+                  <slot />
+                </div>
+
+                <footer
+                  class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
+                >
+                  <slot name="footer" :hide="hide" />
+                </footer>
+              </div>
             </div>
-          </div>
+          </OptionalFocusTrap>
         </div>
-      </OptionalFocusTrap>
+      </Transition>
     </Teleport>
   </ClientOnly>
 </template>
+
+<style lang="css" scoped>
+.modal-center-enter-active .bg-modal,
+.modal-center-leave-active,
+.modal-center-leave-active .bg-modal,
+.modal-left-enter-active .bg-modal,
+.modal-left-leave-active,
+.modal-left-leave-active .bg-modal,
+.modal-right-enter-active .bg-modal,
+.modal-right-leave-active,
+.modal-right-leave-active .bg-modal {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.modal-center-enter-from .bg-modal,
+.modal-center-leave-to .bg-modal {
+  opacity: 0;
+  transform: translateY(-15%);
+}
+.modal-left-enter-from .bg-modal,
+.modal-left-leave-to .bg-modal {
+  opacity: 0;
+  transform: translateX(-15%);
+}
+.modal-right-enter-from .bg-modal,
+.modal-right-leave-to .bg-modal {
+  opacity: 0;
+  transform: translateX(15%);
+}
+</style>
