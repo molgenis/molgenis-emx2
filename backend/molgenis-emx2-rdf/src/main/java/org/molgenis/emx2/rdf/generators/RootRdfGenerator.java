@@ -38,6 +38,6 @@ public class RootRdfGenerator extends RdfGenerator {
     schemas.forEach(emx2RdfGenerator::describeSchema);
     tables.forEach(i -> emx2RdfGenerator.describeTable(namespaces, i));
     tables.forEach(i -> emx2RdfGenerator.describeColumns(namespaces, i, null));
-    tables.forEach(i -> emx2RdfGenerator.processRows(namespaces, rdfMapData, i, null));
+    tables.forEach(i -> emx2RdfGenerator.processRows(namespaces, rdfMapData, i, null, null));
   }
 }
