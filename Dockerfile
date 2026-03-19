@@ -1,14 +1,15 @@
-FROM ubuntu:24.04
+FROM eclipse-temurin:21-jre-noble
 
-RUN apt update && apt -y upgrade && apt -y install python3 python3-pip python3-venv openjdk-21-jre-headless
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip python3-venv && \
+    rm -rf /var/lib/apt/lists/* && \
+    useradd -m molgenis
 
-ARG JAR_FILE
-COPY build/libs/${JAR_FILE} app.jar
-COPY custom-app custom-app
-EXPOSE 8080
-RUN useradd -m molgenis
+COPY --link build/docker/deps/ /app/lib/
+COPY --link build/docker/app/ /app/lib/
+COPY --link custom-app /app/lib/custom-app
 
 USER molgenis
-
-COPY entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 8080
+ENTRYPOINT ["java"]
+CMD ["-cp", "/app/lib/*", "org.molgenis.emx2.RunMolgenisEmx2"]
