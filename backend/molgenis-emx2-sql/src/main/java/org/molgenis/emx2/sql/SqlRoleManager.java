@@ -88,7 +88,7 @@ public class SqlRoleManager {
                          LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
                          END LOOP; END $$;""",
                 inline(fullRole));
-            jooq().execute("DROP ROLE IF EXISTS {0}", name(fullRole));
+            jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
 
           } finally {
             db.setActiveUser(currentUser);
