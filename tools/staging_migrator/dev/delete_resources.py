@@ -36,9 +36,9 @@ def main(args):
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
 
         for sa in staging_areas:
-            log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
+            log.info(f"\nDeleting resources in staging area {sa!r} from {CATALOGUE!r}.")
             migrator.set_source(sa)
-            migrator.migrate(keep_zips=True)
+            migrator.delete_resource()
 
 
 if __name__ == '__main__':
