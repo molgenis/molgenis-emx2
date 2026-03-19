@@ -31,6 +31,7 @@
               AND schema_name <> 'public'
         LOOP
             EXECUTE format('DROP SCHEMA %I CASCADE;', r.schema_name);
+            COMMIT;
         END LOOP;
     END$$;
 
