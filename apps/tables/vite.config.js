@@ -4,6 +4,9 @@ import devProxy from "../dev-proxy.config";
 
 export default defineConfig(({ command }) => ({
   plugins: [vue()],
+  // css: {
+
+  // }
   base: command === "serve" ? "/" : "apps/tables/",
   server: {
     proxy: devProxy,

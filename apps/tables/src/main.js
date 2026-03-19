@@ -5,7 +5,7 @@ import ListTables from "./components/ListTables.vue";
 import ViewTable from "./components/ViewTable.vue";
 import { EditModal } from "molgenis-components";
 
-import "molgenis-components";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
