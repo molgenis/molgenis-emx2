@@ -478,6 +478,6 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
-    return roleManager().getPermissionsForActiveUser(getName());
+    return roleManager().getTablePermissionsForActiveUser(getName());
   }
 }

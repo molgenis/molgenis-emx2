@@ -5,16 +5,16 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SqlRoleManager {
-  private static final Logger logger = LoggerFactory.getLogger(SqlRoleManager.class);
 
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
@@ -156,7 +156,7 @@ public class SqlRoleManager {
                 row.get("table_name", String.class), select, insert, update, delete));
       }
     } catch (Exception e) {
-      logger.error("Failed to get permissions for {} in {}", roleName, schemaName, e);
+      throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
     }
     return result;
   }
@@ -182,20 +182,56 @@ public class SqlRoleManager {
     return result;
   }
 
-  public List<TablePermission> getPermissionsForActiveUser(String schemaName) {
+  public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
     String activeUser = database.getActiveUser();
-    if (activeUser == null || ANONYMOUS.equals(activeUser)) {
-      return List.of();
-    }
     SqlSchema schema = database.getSchema(schemaName);
-    if (schema == null) {
-      return List.of();
+    List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
+
+    if (roleNames.isEmpty()) return List.of();
+
+    Map<String, TablePermission> merged = new LinkedHashMap<>();
+    for (String roleName : roleNames) {
+      for (TablePermission p : getPermissions(schemaName, roleName)) {
+        if (hasAnyPermission(p)) {
+          merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
+        }
+      }
     }
-    String roleName = schema.getRoleForUser(activeUser);
-    if (roleName == null || roleName.isEmpty()) {
-      return List.of();
+    expandWildcard(merged, schema.getTableNames());
+    return new ArrayList<>(merged.values());
+  }
+
+  private static void expandWildcard(
+      Map<String, TablePermission> permissions, Collection<String> tableNames) {
+    TablePermission wildcard = permissions.remove("*");
+    if (wildcard == null) return;
+    for (String tableName : tableNames) {
+      permissions.merge(
+          tableName,
+          new TablePermission(
+              tableName,
+              wildcard.select(),
+              wildcard.insert(),
+              wildcard.update(),
+              wildcard.delete()),
+          SqlRoleManager::mergePermissions);
     }
-    return getPermissions(schemaName, roleName);
+  }
+
+  private static boolean hasAnyPermission(TablePermission p) {
+    return Boolean.TRUE.equals(p.select())
+        || Boolean.TRUE.equals(p.insert())
+        || Boolean.TRUE.equals(p.update())
+        || Boolean.TRUE.equals(p.delete());
+  }
+
+  private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
+    return new TablePermission(
+        a.table(),
+        Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null,
+        Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null,
+        Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null,
+        Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null);
   }
 
   public boolean isSystemRole(String roleName) {
@@ -215,7 +251,7 @@ public class SqlRoleManager {
 
   private String getDescription(String schemaName, String roleName) {
     return jooq()
-        .select(field("shobj_description(oid, 'pg_authid')")) // TODO: do we need a description?
+        .select(field("shobj_description(oid, 'pg_authid')"))
         .from(PG_ROLES)
         .where(field(ROLNAME).eq(inline(fullRoleName(schemaName, roleName))))
         .fetchOne(0, String.class);
