@@ -41,7 +41,7 @@ writer: stream
 
     assertAll(
         () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test
@@ -52,7 +52,7 @@ writer: stream
 
     assertAll(
         () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test
@@ -64,7 +64,7 @@ writer: stream
 
     assertAll(
         () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test

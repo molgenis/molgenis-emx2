@@ -43,15 +43,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
-import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
-import org.molgenis.emx2.rdf.generators.RdfGenerator;
-import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
+import org.molgenis.emx2.rdf.generators.*;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
-import org.molgenis.emx2.rdf.writers.RdfModelWriter;
-import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
+import org.molgenis.emx2.rdf.writers.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -1681,9 +1675,9 @@ example,http://example.com/
 
   private void parseSchemaRdf(RDFHandler handler, Schema schema) throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(schema);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(schema);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1694,9 +1688,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1710,9 +1704,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, primaryKey);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table, primaryKey);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1726,9 +1720,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, column);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table, column);
       }
       parseString(handler, outputStream.toString());
     }
