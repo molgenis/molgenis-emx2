@@ -14,7 +14,8 @@ from molgenis_emx2_pyclient.utils import convert_dtypes
 from pandas._libs.missing import NAType
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
-from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException
+from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException, \
+    MissingHRICoreException
 from staging_migrator.src.molgenis_emx2_staging_migrator.migrator import SchemaType
 
 log = logging.getLogger(__name__)
@@ -125,4 +126,4 @@ def check_hricore(resources: pd.DataFrame):
     # missing_hri = resources.loc[resources['hricore'].isin() or resources['hricore'] != True, 'id']
     missing_hri = resources.loc[resources['hricore'].apply(is_missing), 'id']
     if len(missing_hri.index) != 0:
-        raise ValueError(f"Value 'hricore' not set to 'true' for resource {', '.join(missing_hri.values)}")
+        raise MissingHRICoreException(f"Value 'hricore' not set to 'Yes' for resource {', '.join(missing_hri.values)!r}")
