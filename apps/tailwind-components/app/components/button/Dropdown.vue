@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useId } from "vue";
+import Button from "../Button.vue";
+import { Dropdown, type Placement } from "floating-vue";
+import type { P } from "vitest/dist/chunks/environment.d8YfPkTm.js";
 
 const ariaId = useId();
 
@@ -8,31 +11,32 @@ withDefaults(
     label: string;
     icon?: string;
     iconPosition?: "left" | "right";
+    iconOnly?: boolean;
+    placement?: Placement;
   }>(),
   {
     icon: "caret-down",
     iconPosition: "right",
+    iconOnly: false,
+    placement: "bottom-start",
   }
 );
 </script>
 <template>
-  <VDropdown
-    :aria-id="ariaId"
-    :distance="2"
-    :skidding="4"
-    placement="bottom-start"
-  >
+  <Dropdown :aria-id="ariaId" :distance="1" :placement="placement">
     <Button
       type="outline"
       size="medium"
       :icon="icon"
       :icon-position="iconPosition"
+      :icon-only="iconOnly"
+      :label="label"
       >{{ label }}</Button
     >
     <template #popper>
       <slot></slot>
     </template>
-  </VDropdown>
+  </Dropdown>
 </template>
 
 <style>

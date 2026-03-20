@@ -1,5 +1,5 @@
 <template>
-  <div class="flex pb-[30px] justify-between">
+  <div class="flex pb-[30px] justify-between px-2 md:px-0">
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       v-model="settings.search"
@@ -8,12 +8,13 @@
       id="search-input"
     />
 
-    <div class="flex gap-[10px]">
+    <ActionBar>
       <Button
         v-if="props.isEditable && data?.tableMetadata"
         type="primary"
         icon="add-circle"
         @click="onAddRowClicked"
+        class="whitespace-nowrap"
       >
         Add {{ tableId }}
       </Button>
@@ -22,7 +23,20 @@
         :columns="columns"
         @update:columns="handleColumnsUpdate"
       />
-    </div>
+
+      <Button type="outline" class="whitespace-nowrap" icon="trash"
+        >Action 1</Button
+      >
+      <Button type="outline" class="whitespace-nowrap" icon="edit"
+        >Action 2</Button
+      >
+      <Button type="outline" class="whitespace-nowrap" icon="more-vert"
+        >Action 3</Button
+      >
+      <Button type="outline" class="whitespace-nowrap" icon="download"
+        >Action 4</Button
+      >
+    </ActionBar>
   </div>
 
   <div
@@ -234,6 +248,7 @@ import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
+import ActionBar from "./ActionBar.vue";
 
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
