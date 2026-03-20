@@ -104,7 +104,7 @@ function hide() {
               >
                 <slot name="header">
                   <header
-                    class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
+                    class="pt-8 px-8 flex-none overflow-y-auto border-b border-divider"
                   >
                     <div
                       v-if="subtitle"
@@ -139,7 +139,7 @@ function hide() {
                 </div>
 
                 <footer
-                  class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
+                  class="bg-modal-footer px-8 rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
                 >
                   <slot name="footer" :hide="hide" />
                 </footer>
