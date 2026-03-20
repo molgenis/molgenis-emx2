@@ -42,9 +42,14 @@ class Transform:
         self.resources()
         self.organisations()
         self.publications()
+        self.variable_values()
+        self.variable_mappings()
+        self.linked_resources()
+
+        for table_name in ['Quantitative information', 'Linked resources']:
+            self.rename_tables(table_name)
 
     # TODO: for vac4eu BPE model is an exception, not part of a network, also other model in VAC4EU
-    # TODO: renaming of tables, e.g. Linkages
 
     def resources(self):
         """Transform columns in Data sources, Databanks
@@ -123,10 +128,17 @@ class Transform:
         """ Transform columns in Organisations and alter structure
         """
         # TODO: move DAPs to Organisations.role = data access provider (remove all other columns)
+        #  > do by hand, only 6 entries in table
         # TODO: move 'Data sources.data holder' to Organisations.role = 'data holder'
+        #  > do by hand, not many entries in table
 
         df_all_organisations = pd.DataFrame()
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+
+        df_organisations.rename(columns={'type': 'organisation type'}, inplace=True)
+
+        # type should be 'Organisation'
+        df_organisations['type'] = 'Organisation'
 
         # get lead organisations
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
@@ -189,7 +201,7 @@ class Transform:
             df_merged_pubs = df_merged_pubs.reset_index()
             df_resource_pubs = get_publications(df_merged_pubs, df_publications)
 
-        #TOD: fix publications, save to file
+        df_resource_pubs.to_csv(self.path + 'Publications.csv', index=False)
 
     def variable_values(self):
         # restructure variable values
@@ -200,6 +212,25 @@ class Transform:
 
             df_var_values.to_csv(self.path + 'Variable values.csv', index=False)
 
+    def variable_mappings(self):
+        df_var_mappings = pd.read_csv(self.path + 'Variable mappings.csv', keep_default_na=False, dtype='object')
+
+        if not len(df_var_mappings) == 0:
+            df_var_mappings['repeats'] = 'NA'
+
+            df_var_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+
+    def linked_resources(self):
+        df_linked_resources = pd.read_csv(self.path + 'Linked resources.csv', dtype='object')
+        if not len(df_linked_resources) == 0:
+            df_linked_resources.rename(columns={'main resource': 'resource'}, inplace=True)
+
+        df_linked_resources.to_csv(self.path + 'Linked resources.csv', index=False)
+
+    def rename_tables(self, table_name):
+        if table_name + '.csv' in os.listdir(self.path):
+            if table_name == 'Linked resources':
+                os.rename(self.path + 'Linked resources.csv', self.path + 'Linkages.csv')
 
 
 def get_resource_type(r_type):
