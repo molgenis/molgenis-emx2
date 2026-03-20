@@ -88,12 +88,12 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-t-none rounded-b-theme h-[95vh] flex flex-col pointer-events-auto"
+                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto"
                 :class="[
                   {
                     'm-auto': type === 'center',
-                    'ml-auto': type === 'right',
-                    'mr-auto': type === 'left',
+                    'ml-auto rounded-r-none': type === 'right',
+                    'mr-auto rounded-l-none': type === 'left',
                     'shadow-no-background-modal': backgroundAccessible,
                   },
                   maxWidth,
