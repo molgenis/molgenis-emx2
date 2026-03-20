@@ -27,6 +27,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 @keyframes loadingIconSpin {
   from {
     transform: rotate(0deg);

@@ -74,6 +74,8 @@ const navClasses = computed(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .quick-links {
   .quick-links-nav {
     display: flex;

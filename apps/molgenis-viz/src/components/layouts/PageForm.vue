@@ -36,6 +36,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .page-form {
   box-sizing: border-box;
   padding: 1.5em 1em;

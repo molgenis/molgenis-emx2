@@ -84,6 +84,7 @@ function onChange(event: Event) {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .chart-selector {
   display: flex;
   justify-content: flex-start;
@@ -101,8 +102,6 @@ function onChange(event: Event) {
     flex-grow: 1;
 
     input[type="radio"] {
-      @include visuallyHidden;
-
       &:checked {
         & + label {
           background-color: $blue-800;

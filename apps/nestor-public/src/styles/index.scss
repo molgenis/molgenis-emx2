@@ -1,3 +1,6 @@
+@use "./variables.scss" as *;
+@use "molgenis-viz/styles" as *;
+
 .app-page,
 .app-footer {
   font-size: 14pt;

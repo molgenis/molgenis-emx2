@@ -128,6 +128,10 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 .app-footer {
   display: grid;
   grid-template-columns: 1fr;

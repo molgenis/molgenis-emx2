@@ -88,6 +88,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
 $borderRadius: 24pt;
 
 .provider-listings {

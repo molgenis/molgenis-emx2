@@ -44,6 +44,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .molgenis-citation {
   background-color: $gray-000;
   text-align: center;

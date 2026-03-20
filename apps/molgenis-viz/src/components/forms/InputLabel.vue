@@ -30,6 +30,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .input-label {
   display: block;
   color: $gray-900;

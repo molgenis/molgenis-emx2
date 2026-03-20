@@ -43,6 +43,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 @mixin separator {
   content: "";
   display: inline-block;

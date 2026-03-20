@@ -83,6 +83,9 @@ import Publications from "../components/Publications.vue";
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
 .navbar {
   display: flex;
   gap: 1rem;

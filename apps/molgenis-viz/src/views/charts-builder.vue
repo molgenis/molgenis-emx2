@@ -66,6 +66,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 #addNewChart {
   margin-top: 1em;
   @include styleButton($background-color: none, $color: $blue-800);

@@ -190,6 +190,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+
 #publicDashboard {
   .d3-table {
     caption {

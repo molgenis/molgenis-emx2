@@ -18,6 +18,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .app-page {
   font-size: 15pt;
   color: $gray-700;

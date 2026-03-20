@@ -39,6 +39,8 @@ const page = ref(null);
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 body {
   padding: 0;
   margin: 0;

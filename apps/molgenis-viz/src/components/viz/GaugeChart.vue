@@ -231,6 +231,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .d3-gauge {
   h3.chart-title {
     margin: 0;
