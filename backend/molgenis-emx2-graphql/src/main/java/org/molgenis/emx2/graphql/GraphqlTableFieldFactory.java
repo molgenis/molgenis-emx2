@@ -51,6 +51,7 @@ public class GraphqlTableFieldFactory {
           .build();
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
+  private final Set<String> tablesWithSelectPermission;
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -64,6 +65,11 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
+    this.tablesWithSelectPermission =
+        schema.getPermissionsForActiveUser().stream()
+            .filter(p -> Boolean.TRUE.equals(p.select()))
+            .map(TablePermission::table)
+            .collect(Collectors.toUnmodifiableSet());
   }
 
   // helper to generate globally unique identifiers
@@ -169,7 +175,6 @@ public class GraphqlTableFieldFactory {
 
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
-    TableMetadata table = col.getTable();
     switch (col.getColumnType().getBaseType()) {
       case HEADING:
         // nothing to do
@@ -238,7 +243,7 @@ public class GraphqlTableFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLInt)));
         break;
       case REF:
-        if (hasViewPermission(table)) {
+        if (hasViewPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
@@ -252,7 +257,7 @@ public class GraphqlTableFieldFactory {
         break;
       case REF_ARRAY:
       case REFBACK:
-        if (hasViewPermission(table)) {
+        if (hasViewPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
@@ -302,9 +307,11 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private boolean hasViewPermission(TableMetadata table) {
+  boolean hasViewPermission(TableMetadata table) {
     return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
+        || tablesWithSelectPermission.contains("*")
+        || tablesWithSelectPermission.contains(table.getTableName());
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -363,15 +370,15 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (schema.hasActiveUserRole(EXISTS) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(EXISTS) || hasViewPermission(table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (schema.hasActiveUserRole(RANGE) || table.getTableType().equals(ONTOLOGIES)) {
+    if (schema.hasActiveUserRole(RANGE) || hasViewPermission(table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (schema.hasActiveUserRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
+    if (hasViewPermission(table)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())

@@ -55,7 +55,7 @@ export const useSession = async (schemaId?: string) => {
         session.value.roles = {};
       }
       session.value.roles[schemaId] =
-        schemaRolesResult?.data.value?.data._session.roles;
+        schemaRolesResult?.data.value?.data?._session?.roles;
     }
   }
 
@@ -78,7 +78,7 @@ export const useSession = async (schemaId?: string) => {
       if (!session.value.roles) {
         session.value.roles = {};
       }
-      session.value.roles[schemaId] = schemaRolesResult.data._session.roles;
+      session.value.roles[schemaId] = schemaRolesResult.data?._session?.roles;
     }
   }
 

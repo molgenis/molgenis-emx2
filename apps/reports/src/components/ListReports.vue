@@ -1,11 +1,7 @@
 <template>
   <Spinner v-if="!session" />
   <MessageWarning
-    v-else-if="
-      !session ||
-      !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
-    "
+    v-else-if="!session || !session.roles || !session.roles?.includes('Viewer')"
   >
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
