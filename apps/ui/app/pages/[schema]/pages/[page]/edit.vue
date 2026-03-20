@@ -22,7 +22,7 @@ import HtmlPreview from "../../../../../../tailwind-components/app/components/ed
 import {
   getPage,
   newDeveloperPage,
-} from "../../../../../../tailwind-components/app/utils/Pages";
+} from "../../../../../../tailwind-components/app/utils/cms";
 
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
 

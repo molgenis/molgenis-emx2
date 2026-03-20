@@ -26,8 +26,15 @@
   </div>
 
   <div
+    ref="tableContainer"
     class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
   >
+    <div
+      v-if="guideX !== null"
+      class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
+      :style="{ left: guideX + 'px' }"
+    />
+
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
@@ -43,11 +50,20 @@
             </TableHeadCell>
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
-              :class="{
-                'w-60 lg:w-full': columns.length <= 5,
-                'w-60': columns.length > 5,
+              :style="{
+                width: columnWidths[column.id] + 'px',
+                userSelect: isResizing ? 'none' : 'auto',
               }"
+              class="relative group"
             >
+              <div
+                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
+                @mousedown.stop="startResize($event, column.id)"
+              >
+                <div
+                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
+                />
+              </div>
               <TableHeaderAction
                 :column="column"
                 :schemaId="schemaId"
@@ -78,6 +94,7 @@
 
             <TableCellEMX2
               v-for="(column, colIndex) in sortedVisibleColumns"
+              :style="{ width: columnWidths[column.id] + 'px' }"
               class="text-table-row group-hover:bg-hover"
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
@@ -229,6 +246,7 @@ import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import { useColumnResize } from "../../composables/useColumnResize";
 
 const props = withDefaults(
   defineProps<{
@@ -251,6 +269,11 @@ const refTableColumn = ref<IRefColumn>();
 // initially set to the current tableId
 const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
+
+const tableContainer = ref<HTMLElement | null>(null);
+
+const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
+  useColumnResize(tableContainer);
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
@@ -284,6 +307,23 @@ const { data, refresh } = useAsyncData(
       tableData,
     };
   }
+);
+
+let widthsInitialized = false;
+
+watch(
+  () => columns.value,
+  (newColumns) => {
+    if (
+      !widthsInitialized &&
+      Array.isArray(newColumns) &&
+      newColumns.length > 0
+    ) {
+      setInitialWidths(newColumns);
+      widthsInitialized = true;
+    }
+  },
+  { immediate: true, deep: true }
 );
 
 const rows = computed(() =>

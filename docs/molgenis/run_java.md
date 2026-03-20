@@ -7,6 +7,12 @@ Steps:
     ```console
     psql postgres
     ```
+
+    Or on macOS:
+
+    ```
+      psql -U postgres
+    ```
 * Then in psql console paste
     ```console
     create database molgenis;
@@ -36,7 +42,7 @@ For example:
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
 
-# METRICS
+# Metrics
 
 MOLGENIS enables metrics api for example to use with prometheus. By default this is disabled. Please on use configure carefully to avoid abuse.
 
@@ -47,6 +53,15 @@ For example:
 java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
 
 # Tips
+
+## Logging
+
+To enable more detailed logging, you can configure the log4j2.level JVM option. For example:
+```shell
+java -jar app.jar -Dlog4j2.level=DEBUG
+```
+This option sets the logging level according to the standard [Log4j2 logging levels](https://logging.apache.org/log4j/2.x/manual/customloglevels.html).
+
 
 ## On mac you can install postgres using [homebrew](https://formulae.brew.sh/formula/postgresql)
 
@@ -66,3 +81,9 @@ rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 
 ```
+
+# FAQ
+
+If you previously had an installation of Molgenis and want to start fresh, check out the [delete all schemas tool document section](/apps/docs/#/molgenis/run_updates?id=delete-all-schemas-tool)
+
+Alternatively, if you want to execute the ```SQL``` on the database yourself, [here is a link](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/utility-sql) to the files.
