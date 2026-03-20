@@ -17,7 +17,7 @@
           size="small"
           label="Reset to default"
           icon="RestartAlt"
-          class="leading-9"
+          class="leading-9 whitespace-nowrap"
           :onclick="resetToDefault"
         />
       </template>
