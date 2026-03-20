@@ -94,13 +94,10 @@ function hide() {
                     'm-auto': type === 'center',
                     'ml-auto': type === 'right',
                     'mr-auto': type === 'left',
+                    'shadow-no-background-modal': backgroundAccessible,
                   },
                   maxWidth,
                 ]"
-                :style="
-                  backgroundAccessible &&
-                  'filter: drop-shadow(rgba(0,0,0,0.1) 0.2rem 0.2rem 5px);'
-                "
               >
                 <slot name="header">
                   <header

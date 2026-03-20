@@ -24,7 +24,7 @@ let typeSetting = ref<"center" | "left" | "right">("center");
         :backgroundAccessible="backgroundAccessibleSetting"
       >
         <div>
-          <p class="p-8">
+          <p class="p-8 text-neutral">
             Good resolutions are useless attempts to interfere with scientific
             laws. Their origin is pure vanity. Their result is absolutely nil.
             They give us, now and then, some of those luxurious sterile emotions
@@ -46,7 +46,7 @@ let typeSetting = ref<"center" | "left" | "right">("center");
               remove content
             </button>
           </div>
-          <p v-for="index in sectionCount" class="p-8">
+          <p v-for="index in sectionCount" class="p-8 text-neutral">
             Good resolutions are useless attempts to interfere with scientific
             laws. Their origin is pure vanity. Their result is absolutely nil.
             They give us, now and then, some of those luxurious sterile emotions

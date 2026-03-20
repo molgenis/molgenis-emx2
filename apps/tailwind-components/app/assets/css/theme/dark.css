@@ -2,16 +2,12 @@
   --color-gray-50: #c0c0c0;
   --color-gray-600: #2c2c2c;
   --background-color-navigation: var(--color-gray-800);
-  --background-image-sidebar-gradient: linear-gradient(
-    180deg,
-    var(--color-gray-600) -24.76%,
-    var(--color-gray-600) 86.02%
-  );
-  --background-image-base-gradient: linear-gradient(
-    180deg,
-    var(--color-gray-800),
-    var(--color-gray-800) 133.81%
-  );
+  --background-image-sidebar-gradient: linear-gradient(180deg,
+      var(--color-gray-600) -24.76%,
+      var(--color-gray-600) 86.02%);
+  --background-image-base-gradient: linear-gradient(180deg,
+      var(--color-gray-800),
+      var(--color-gray-800) 133.81%);
 
   --background-color-button-tree-node-toggle: var(--color-green-200);
 
@@ -105,6 +101,8 @@
   --background-color-form-required: var(--color-gray-900);
   --background-color-form-required-btn: var(--color-gray-900);
   --background-color-form-required-btn-hover: var(--color-gray-300);
+
+  --box-shadow-no-background-modal: 0 0 1px rgba(255, 255, 255, 1);
 
   /** input switch styles */
   --background-color-button-switch: var(--color-gray-900);
