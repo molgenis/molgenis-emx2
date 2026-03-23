@@ -31,7 +31,7 @@ public class IdGeneratorService {
       return DSL.val(computed.replace(Constants.COMPUTED_AUTOID_TOKEN, id));
     }
 
-    DSLIdGenerator generator = new RetryingIdGenerator(column);
+    RetryingIdGenerator generator = new RetryingIdGenerator(column);
     return generator.generateId();
   }
 

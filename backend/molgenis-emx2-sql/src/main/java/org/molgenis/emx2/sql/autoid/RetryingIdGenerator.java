@@ -6,7 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.generator.AutoIdFormat;
 
-public class RetryingIdGenerator implements DSLIdGenerator {
+public class RetryingIdGenerator {
 
   private final AutoIdFormat autoIdFormat;
   private final String schemaName;
