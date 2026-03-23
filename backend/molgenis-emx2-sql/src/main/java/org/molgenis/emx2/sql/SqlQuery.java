@@ -742,6 +742,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
+    if (table.getTableType() == TableType.ONTOLOGIES) return count();
     if (schema.hasActiveUserRole(COUNT.toString())) {
       return count();
     } else if (getTablesWithSelectPermission().contains("*")
