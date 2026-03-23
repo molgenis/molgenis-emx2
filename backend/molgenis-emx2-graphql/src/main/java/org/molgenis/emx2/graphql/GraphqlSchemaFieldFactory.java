@@ -148,10 +148,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.SYSTEM)
                   .type(Scalars.GraphQLBoolean))
           .field(
@@ -193,10 +189,6 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -560,7 +552,6 @@ public class GraphqlSchemaFieldFactory {
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(GraphqlConstants.NAME, role.name());
-    roleMap.put(GraphqlConstants.DESCRIPTION, role.description());
     roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
     roleMap.put(
         GraphqlConstants.PERMISSIONS,
@@ -705,9 +696,8 @@ public class GraphqlSchemaFieldFactory {
     if (roles == null) return;
     for (Map<String, Object> roleMap : roles) {
       String roleName = (String) roleMap.get(GraphqlConstants.NAME);
-      String description = (String) roleMap.get(GraphqlConstants.DESCRIPTION);
       if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
-        schema.createRole(roleName, description);
+        schema.createRole(roleName);
       }
       List<Map<String, Object>> perms =
           (List<Map<String, Object>>) roleMap.get(GraphqlConstants.PERMISSIONS);
@@ -726,7 +716,12 @@ public class GraphqlSchemaFieldFactory {
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
     Boolean isRowLevel = (Boolean) permMap.get(GraphqlConstants.IS_ROW_LEVEL);
-    return new TablePermission(table, select, insert, update, delete, isRowLevel);
+    return new TablePermission(table)
+        .select(select)
+        .insert(insert)
+        .update(update)
+        .delete(delete)
+        .rowLevel(isRowLevel);
   }
 
   private static void dropRoles(

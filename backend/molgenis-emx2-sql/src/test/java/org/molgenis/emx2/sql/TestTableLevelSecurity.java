@@ -43,11 +43,10 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
 
-    schema.createRole("ReaderA", "Can only read TableA");
+    schema.createRole("ReaderA");
 
     Role info = schema.getRoleInfo("ReaderA");
     assertEquals("ReaderA", info.name());
-    assertEquals("Can only read TableA", info.description());
     assertFalse(info.isSystemRole());
 
     schema.deleteRole("ReaderA");
@@ -58,7 +57,7 @@ class TestTableLevelSecurity {
   void cannotCreateSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    assertThrows(MolgenisException.class, () -> schema.createRole("Viewer", null));
+    assertThrows(MolgenisException.class, () -> schema.createRole("Viewer"));
   }
 
   @Test
@@ -72,7 +71,7 @@ class TestTableLevelSecurity {
   void cannotGrantToSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null, null);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("Viewer", selectPermission));
   }
 
@@ -80,7 +79,7 @@ class TestTableLevelSecurity {
   void cannotGrantToNonExistentRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null, null);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
   }
 
@@ -88,189 +87,137 @@ class TestTableLevelSecurity {
   void cannotGrantToNonExistentTable() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("TempRole", null);
-    TablePermission permission = new TablePermission("NoSuchTable", true, null, null, null, null);
-    try {
-      assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
-    } finally {
-      schema.deleteRole("TempRole");
-    }
+    schema.createRole("TempRole");
+    TablePermission permission = new TablePermission("NoSuchTable").select(true);
+    assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
   }
 
   @Test
   void getRoleInfoReturnsGrantedPermissions() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("MetaRole", "test");
-    try {
-      schema.grant("MetaRole", new TablePermission(TABLE_A, true, null, true, null, null));
+    schema.createRole("MetaRole");
+    schema.grant("MetaRole", new TablePermission(TABLE_A).select(true).update(true));
 
-      Role info = schema.getRoleInfo("MetaRole");
-      assertEquals(1, info.permissions().size());
+    Role info = schema.getRoleInfo("MetaRole");
+    assertEquals(1, info.permissions().size());
 
-      TablePermission p = info.permissions().getFirst();
-      assertEquals(TABLE_A, p.table());
-      assertEquals(Boolean.TRUE, p.select());
-      assertEquals(Boolean.TRUE, p.update());
-      assertNull(p.insert());
-      assertNull(p.delete());
-    } finally {
-      schema.deleteRole("MetaRole");
-    }
+    TablePermission p = info.permissions().getFirst();
+    assertEquals(TABLE_A, p.table());
+    assertEquals(Boolean.TRUE, p.select());
+    assertEquals(Boolean.TRUE, p.update());
+    assertNull(p.insert());
+    assertNull(p.delete());
   }
 
   @Test
   void getRoleInfosIncludesCustomRoles() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("ListedRole", null);
-    try {
-      List<Role> all = schema.getRoleInfos();
-      assertTrue(all.stream().anyMatch(r -> r.name().equals("ListedRole")));
-    } finally {
-      schema.deleteRole("ListedRole");
-    }
+    schema.createRole("ListedRole");
+    List<Role> all = schema.getRoleInfos();
+    assertTrue(all.stream().anyMatch(r -> r.name().equals("ListedRole")));
   }
-
-  // --- Access control enforcement ---
 
   @Test
   void userWithViewerRoleCanSelectGrantedTable() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("ViewerRole", null);
-    schema.grant("ViewerRole", new TablePermission(TABLE_A, true, null, null, null, null));
+    schema.createRole("ViewerRole");
+    schema.grant("ViewerRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
-    try {
-      database.setActiveUser(USER_VIEWER);
-      database.tx(
-          db -> {
-            List<Row> rows = db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows();
-            assertEquals(1, rows.size());
-          });
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_VIEWER);
-      schema.deleteRole("ViewerRole");
-    }
+    database.setActiveUser(USER_VIEWER);
+
+    List<Row> rows = database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows();
+    assertEquals(1, rows.size());
   }
 
   @Test
   void userWithoutGrantCannotSelectTable() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("NoTableRole", null);
+    schema.createRole("NoTableRole");
     schema.addMember(USER_NO_ACCESS, "NoTableRole");
 
-    try {
-      database.setActiveUser(USER_NO_ACCESS);
-      database.tx(
-          db ->
-              assertThrows(
-                  Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_NO_ACCESS);
-      schema.deleteRole("NoTableRole");
-    }
+    database.setActiveUser(USER_NO_ACCESS);
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
   }
 
   @Test
   void userCanOnlySeeGrantedTables() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("PartialRole", null);
+    schema.createRole("PartialRole");
     // Grant access to TABLE_A only
-    schema.grant("PartialRole", new TablePermission(TABLE_A, true, null, null, null, null));
+    schema.grant("PartialRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "PartialRole");
 
-    try {
-      database.setActiveUser(USER_VIEWER);
-      database.tx(
-          db -> {
-            // TABLE_A: should succeed
-            assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
-            // TABLE_B: should fail – no grant
-            assertThrows(
-                Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_B).retrieveRows());
-          });
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_VIEWER);
-      schema.deleteRole("PartialRole");
-    }
+    database.setActiveUser(USER_VIEWER);
+
+    // TABLE_A: should succeed
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+    // TABLE_B: should fail – no grant
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_B).retrieveRows());
   }
 
   @Test
   void userWithInsertPermissionCanInsertRows() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("EditorRole", null);
-    schema.grant("EditorRole", new TablePermission(TABLE_A, true, true, true, true, null));
+    schema.createRole("EditorRole");
+    schema.grant(
+        "EditorRole",
+        new TablePermission(TABLE_A).select(true).insert(true).update(true).delete(true));
     schema.addMember(USER_EDITOR, "EditorRole");
 
-    try {
-      database.setActiveUser(USER_EDITOR);
-      database.tx(
-          db -> {
-            db.getSchema(SCHEMA)
-                .getTable(TABLE_A)
-                .insert(new Row().setString("id", "r_editor").setString("value", "inserted"));
-          });
+    database.setActiveUser(USER_EDITOR);
 
-      database.becomeAdmin();
-      List<Row> rows = schema.getTable(TABLE_A).retrieveRows();
-      assertTrue(rows.stream().anyMatch(r -> "r_editor".equals(r.getString("id"))));
+    database
+        .getSchema(SCHEMA)
+        .getTable(TABLE_A)
+        .insert(new Row().setString("id", "r_editor").setString("value", "inserted"));
 
-      // Cleanup
-      schema.getTable(TABLE_A).delete(new Row().setString("id", "r_editor"));
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_EDITOR);
-      schema.deleteRole("EditorRole");
-    }
+    database.becomeAdmin();
+    List<Row> rows = schema.getTable(TABLE_A).retrieveRows();
+    assertTrue(rows.stream().anyMatch(r -> "r_editor".equals(r.getString("id"))));
+
+    // Cleanup
+    schema.getTable(TABLE_A).delete(new Row().setString("id", "r_editor"));
   }
 
   @Test
   void userWithoutWritePermissionCannotInsertRows() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("ReadOnlyRole", null);
+    schema.createRole("ReadOnlyRole");
     // Only SELECT – no insert/update/delete
-    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A, true, null, null, null, null));
+    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
-    try {
-      database.setActiveUser(USER_EDITOR);
-      database.tx(
-          db -> {
-            assertThrows(
-                Exception.class,
-                () ->
-                    db.getSchema(SCHEMA)
-                        .getTable(TABLE_A)
-                        .insert(new Row().setString("id", "fail").setString("value", "x")));
-          });
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_EDITOR);
-      schema.deleteRole("ReadOnlyRole");
-    }
+    database.setActiveUser(USER_EDITOR);
+    assertThrows(
+        Exception.class,
+        () ->
+            database
+                .getSchema(SCHEMA)
+                .getTable(TABLE_A)
+                .insert(new Row().setString("id", "fail").setString("value", "x")));
   }
 
   @Test
   void revokeRemovesTableAccess() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("RevokeRole", null);
-    schema.grant("RevokeRole", new TablePermission(TABLE_A, true, null, null, null, null));
+    schema.createRole("RevokeRole");
+    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "RevokeRole");
 
     // Verify access exists
     database.setActiveUser(USER_VIEWER);
-    database.tx(
-        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
 
     // Revoke
     database.becomeAdmin();
@@ -278,51 +225,42 @@ class TestTableLevelSecurity {
 
     // Verify access is gone
     database.setActiveUser(USER_VIEWER);
-    database.tx(
-        db ->
-            assertThrows(
-                Exception.class, () -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
 
-    database.becomeAdmin();
-    schema.removeMember(USER_VIEWER);
-    schema.deleteRole("RevokeRole");
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
   }
 
   @Test
   void grantWithFalseRevokesIndividualPrivilege() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("PartialRevokeRole", null);
+    schema.createRole("PartialRevokeRole");
     // Grant SELECT + INSERT
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, true, true, null, null, null));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
-    // Verify INSERT works
     database.setActiveUser(USER_EDITOR);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(TABLE_A)
-                .insert(new Row().setString("id", "r_partial").setString("value", "v")));
 
-    // Revoke INSERT by passing false, keep SELECT
+    database
+        .getSchema(SCHEMA)
+        .getTable(TABLE_A)
+        .insert(new Row().setString("id", "r_partial").setString("value", "v"));
+
     database.becomeAdmin();
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, null, false, null, null, null));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).insert(false));
 
-    // Verify INSERT is now denied
     database.setActiveUser(USER_EDITOR);
-    database.tx(
-        db ->
-            assertThrows(
-                Exception.class,
-                () ->
-                    db.getSchema(SCHEMA)
-                        .getTable(TABLE_A)
-                        .insert(new Row().setString("id", "r_partial2").setString("value", "v"))));
+
+    assertThrows(
+        Exception.class,
+        () ->
+            database
+                .getSchema(SCHEMA)
+                .getTable(TABLE_A)
+                .insert(new Row().setString("id", "r_partial2").setString("value", "v")));
 
     // Verify SELECT still works
-    database.tx(
-        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
 
     database.becomeAdmin();
     schema.getTable(TABLE_A).delete(new Row().setString("id", "r_partial"));
@@ -334,28 +272,19 @@ class TestTableLevelSecurity {
   void getPermissionsForActiveUserReturnsCorrectPermissions() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("ActiveUserRole", null);
-    schema.grant("ActiveUserRole", new TablePermission(TABLE_B, true, null, null, true, null));
+    schema.createRole("ActiveUserRole");
+    schema.grant("ActiveUserRole", new TablePermission(TABLE_B).select(true).delete(true));
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
-    try {
-      database.setActiveUser(USER_VIEWER);
-      database.tx(
-          db -> {
-            List<TablePermission> perms = db.getSchema(SCHEMA).getPermissionsForActiveUser();
-            assertEquals(1, perms.size());
-            TablePermission p = perms.getFirst();
-            assertEquals(TABLE_B, p.table());
-            assertEquals(Boolean.TRUE, p.select());
-            assertEquals(Boolean.TRUE, p.delete());
-            assertNull(p.insert());
-            assertNull(p.update());
-          });
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_VIEWER);
-      schema.deleteRole("ActiveUserRole");
-    }
+    database.setActiveUser(USER_VIEWER);
+    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    assertEquals(1, perms.size());
+    TablePermission p = perms.getFirst();
+    assertEquals(TABLE_B, p.table());
+    assertEquals(Boolean.TRUE, p.select());
+    assertEquals(Boolean.TRUE, p.delete());
+    assertNull(p.insert());
+    assertNull(p.update());
   }
 
   @Test
@@ -371,17 +300,79 @@ class TestTableLevelSecurity {
   }
 
   @Test
+  void grantIsLostAfterTableDropAndRecreate() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("LifecycleRole");
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(true));
+    schema.addMember(USER_VIEWER, "LifecycleRole");
+
+    database.setActiveUser(USER_VIEWER);
+    database.tx(
+        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.dropTable(TABLE_A);
+    schema.create(table(TABLE_A).add(column("id").setPkey()).add(column("value")));
+
+    database.setActiveUser(USER_VIEWER);
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).insert(new Row().setString("id", "r1").setString("value", "hello"));
+    schema.removeMember(USER_VIEWER);
+    schema.deleteRole("LifecycleRole");
+  }
+
+  @Test
+  void multipleGrantsOnSameTableAreMergedForActiveUser() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("MergeGrantRole");
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).insert(true));
+    schema.addMember(USER_EDITOR, "MergeGrantRole");
+
+    database.setActiveUser(USER_EDITOR);
+    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    TablePermission merged =
+        perms.stream()
+            .filter(p -> TABLE_A.equals(p.table()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
+    assertEquals(Boolean.TRUE, merged.select());
+    assertEquals(Boolean.TRUE, merged.insert());
+    assertNull(merged.update());
+    assertNull(merged.delete());
+
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+    assertDoesNotThrow(
+        () ->
+            database
+                .getSchema(SCHEMA)
+                .getTable(TABLE_A)
+                .insert(new Row().setString("id", "r_merge").setString("value", "v")));
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).delete(new Row().setString("id", "r_merge"));
+  }
+
+  @Test
+  void roleNameTooLongIsRejected() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String tooLong = "A".repeat(33);
+    assertThrows(MolgenisException.class, () -> schema.createRole(tooLong));
+  }
+
+  @Test
   void nonManagerCannotCreateRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.addMember(USER_NO_ACCESS, Privileges.VIEWER.toString());
 
-    try {
-      database.setActiveUser(USER_NO_ACCESS);
-      assertThrows(MolgenisException.class, () -> schema.createRole("Forbidden", null));
-    } finally {
-      database.becomeAdmin();
-      schema.removeMember(USER_NO_ACCESS);
-    }
+    database.setActiveUser(USER_NO_ACCESS);
+    assertThrows(MolgenisException.class, () -> schema.createRole("Forbidden"));
   }
 }

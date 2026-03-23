@@ -32,7 +32,7 @@
           </template>
           <template v-slot:rowcolheader>
             <RowButtonAdd
-              v-if="canEdit"
+              v-if="canInsert ?? canEdit"
               :id="'row-button-add-' + tableId"
               :tableId="tableId"
               :schemaId="schemaId"
@@ -58,7 +58,7 @@
               :rowKey="slotProps.rowKey"
             />
             <RowButtonEdit
-              v-if="canEdit"
+              v-if="canUpdate ?? canEdit"
               :id="'row-button-edit-' + tableId"
               :tableId="tableId"
               :schemaId="schemaId"
@@ -67,7 +67,7 @@
               class="text-left"
             />
             <RowButtonDelete
-              v-if="canEdit"
+              v-if="canDelete ?? canEdit"
               :id="'row-button-del-' + tableId"
               :tableId="tableId"
               :tableLabel="tableMetadata.label"
@@ -133,6 +133,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    canInsert: { default: undefined },
+    canUpdate: { default: undefined },
+    canDelete: { default: undefined },
     filter: {
       type: Object,
       required: false,

@@ -154,20 +154,8 @@ export default {
         this.session?.email !== "anonymous"
       ) {
         return true;
-      } else if (item.role === "Viewer") {
-        return this.session?.roles?.some((r) =>
-          ["Viewer", "Editor", "Manager", "Owner"].includes(r.name)
-        );
-      } else if (item.role === "Editor") {
-        return this.session?.roles?.some((r) =>
-          ["Editor", "Manager", "Owner"].includes(r.name)
-        );
-      } else if (item.role === "Manager") {
-        return this.session?.roles?.some((r) =>
-          ["Manager", "Owner"].includes(r.name)
-        );
       } else {
-        return false;
+        return this.session?.roles?.includes(item.role);
       }
     },
   },

@@ -35,8 +35,7 @@ export default {
       return (
         this.session &&
         (this.session.admin ||
-          (this.session.roles &&
-            this.session.roles.some((r) => r.name === "Manager")))
+          (this.session.roles && this.session.roles.includes("Manager")))
       );
     },
   },

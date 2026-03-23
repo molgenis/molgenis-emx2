@@ -119,6 +119,37 @@ system.
 }
 ```
 
+The `roles` field returns the names of the roles assigned to the current user as a plain list of strings (e.g.
+`["Viewer", "Editor"]`). Use this for schema-level role checks such as `Manager` or `Editor`.
+
+To retrieve computed per-table permissions for the current user, use `tablePermissions`:
+
+```graphql
+{
+  _session {
+    email
+    admin
+    roles
+    tablePermissions {
+      name
+      canView
+      canInsert
+      canUpdate
+      canDelete
+    }
+    schemas
+  }
+}
+```
+
+- `roles` — list of role name strings for the current user. Use for schema-level checks (e.g. `roles.includes("Manager")`).
+- `tablePermissions` — effective permissions per table, computed from all inherited roles. Each entry contains:
+  - `name` — table name
+  - `canView` — user can read rows from this table
+  - `canInsert` — user can insert rows into this table
+  - `canUpdate` — user can update rows in this table
+  - `canDelete` — user can delete rows from this table
+
 ### settings
 
 MOLGENIS has a generic key/value settings query for storing settings on database level
@@ -286,7 +317,6 @@ effective permissions.
   _schema {
     roles {
       name
-      description
       system
       permissions {
         table
@@ -324,7 +354,6 @@ mutation {
     roles: [
       {
         name: "TableAViewer"
-        description: "Read-only access to TableA"
         permissions: [
           { table: "TableA", select: true }
         ]

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
@@ -7,19 +8,20 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SqlRoleManager {
-  private static final Logger logger = LoggerFactory.getLogger(SqlRoleManager.class);
 
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
+  public static final int PG_MAX_ID_LENGTH = 63;
 
   private final SqlDatabase database;
 
@@ -36,10 +38,30 @@ public class SqlRoleManager {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
+    if (fullRole.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException(
+          "Role name '"
+              + roleName
+              + "' is too long: the combined identifier '"
+              + fullRole
+              + "' exceeds PostgreSQL's 63-byte limit");
+    }
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
-    executeCreateRole(jooq(), fullRole);
-    jooq().execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
-    jooq().execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(fullRole));
+    String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
+    database.tx( // we need to lift to admin to create a role
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            executeCreateRole(jooq, fullRole);
+            jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(fullRole));
+            jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(fullRole), name(ownerRole));
+            jooq.execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
   }
 
   public void deleteRole(String schemaName, String roleName) {
@@ -50,22 +72,31 @@ public class SqlRoleManager {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
-    for (String tableName : database.getSchema(schemaName).getTableNames()) {
-      jooq()
-          .execute(
-              "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
-    }
-    jooq()
-        .execute(
-            """
-                DO $$ DECLARE m TEXT; BEGIN
-                 FOR m IN SELECT rolname FROM pg_roles
-                 WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
-                 LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
-                 END LOOP; END $$;""",
-            inline(fullRole));
-    jooq().execute("DROP ROLE IF EXISTS {0}", name(fullRole));
-    database.getListener().schemaChanged(schemaName);
+    database.tx( // we need to lift to admin to drop a role
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            for (String tableName : database.getSchema(schemaName).getTableNames()) {
+              jooq.execute(
+                  "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+            }
+            jooq.execute(
+                """
+                        DO $$ DECLARE m TEXT; BEGIN
+                         FOR m IN SELECT rolname FROM pg_roles
+                         WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
+                         LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
+                         END LOOP; END $$;""",
+                inline(fullRole));
+            jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
+
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+    database.getListener().onSchemaChange();
   }
 
   public boolean roleExists(String schemaName, String roleName) {
@@ -96,7 +127,7 @@ public class SqlRoleManager {
     if (Boolean.TRUE.equals(permission.isRowLevel())) {
       enableRowLevelSecurity(schemaName, tableName);
     }
-    database.getListener().schemaChanged(schemaName);
+    database.getListener().onSchemaChange();
   }
 
   private void enableRowLevelSecurity(String schemaName, String tableName) {
@@ -122,11 +153,17 @@ public class SqlRoleManager {
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
+    if (isSystemRole(roleName)) {
+      throw new MolgenisException("Cannot revoke permissions from system role: " + roleName);
+    }
+    if (!roleExists(schemaName, roleName)) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
     disableRowLevelSecurityIfUnused(schemaName, tableName);
-    database.getListener().schemaChanged(schemaName);
+    database.getListener().onSchemaChange();
   }
 
   private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
@@ -214,19 +251,22 @@ public class SqlRoleManager {
         Boolean isRowLevel =
             Boolean.TRUE.equals(row.get("is_row_level", Boolean.class)) ? true : null;
         result.add(
-            new TablePermission(
-                row.get("table_name", String.class), select, insert, update, delete, isRowLevel));
+            new TablePermission(row.get("table_name", String.class))
+                .select(select)
+                .insert(insert)
+                .update(update)
+                .delete(delete)
+                .rowLevel(isRowLevel));
       }
     } catch (Exception e) {
-      logger.error("Failed to get permissions for {} in {}", roleName, schemaName, e);
+      throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
     }
     return result;
   }
 
   public Role getRole(String schemaName, String roleName) {
     boolean system = isSystemRole(roleName);
-    String description = system ? null : getDescription(schemaName, roleName);
-    return new Role(roleName, description, system, getPermissions(schemaName, roleName));
+    return new Role(roleName, system, getPermissions(schemaName, roleName));
   }
 
   public List<Role> getRoles(String schemaName) {
@@ -244,20 +284,58 @@ public class SqlRoleManager {
     return result;
   }
 
-  public List<TablePermission> getPermissionsForActiveUser(String schemaName) {
+  public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
     String activeUser = database.getActiveUser();
-    if (activeUser == null || ANONYMOUS.equals(activeUser)) {
-      return List.of();
-    }
     SqlSchema schema = database.getSchema(schemaName);
-    if (schema == null) {
-      return List.of();
+    List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
+
+    if (roleNames.isEmpty()) return List.of();
+
+    Map<String, TablePermission> merged = new LinkedHashMap<>();
+    for (String roleName : roleNames) {
+      for (TablePermission p : getPermissions(schemaName, roleName)) {
+        if (hasAnyPermission(p)) {
+          merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
+        }
+      }
     }
-    String roleName = schema.getRoleForUser(activeUser);
-    if (roleName == null || roleName.isEmpty()) {
-      return List.of();
+    expandWildcard(merged, schema.getTableNames());
+    return new ArrayList<>(merged.values());
+  }
+
+  private static void expandWildcard(
+      Map<String, TablePermission> permissions, Collection<String> tableNames) {
+    TablePermission wildcard = permissions.remove("*");
+    if (wildcard == null) return;
+    for (String tableName : tableNames) {
+      permissions.merge(
+          tableName,
+          new TablePermission(tableName)
+              .select(wildcard.select())
+              .insert(wildcard.insert())
+              .update(wildcard.update())
+              .delete(wildcard.delete()),
+          SqlRoleManager::mergePermissions);
     }
-    return getPermissions(schemaName, roleName);
+  }
+
+  private static boolean hasAnyPermission(TablePermission p) {
+    return Boolean.TRUE.equals(p.select())
+        || Boolean.TRUE.equals(p.insert())
+        || Boolean.TRUE.equals(p.update())
+        || Boolean.TRUE.equals(p.delete());
+  }
+
+  private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
+    return new TablePermission(a.table())
+        .select(Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null)
+        .insert(Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null)
+        .update(Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null)
+        .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null)
+        .rowLevel(
+            Boolean.TRUE.equals(a.isRowLevel()) || Boolean.TRUE.equals(b.isRowLevel())
+                ? true
+                : null);
   }
 
   public boolean isSystemRole(String roleName) {
@@ -268,33 +346,18 @@ public class SqlRoleManager {
     return MG_ROLE_PREFIX + schemaName + "/" + roleName;
   }
 
-  public void setDescription(String schemaName, String roleName, String description) {
-    jooq()
-        .execute(
-            "COMMENT ON ROLE {0} IS {1}",
-            name(fullRoleName(schemaName, roleName)), inline(description));
-  }
-
-  private String getDescription(String schemaName, String roleName) {
-    return jooq()
-        .select(field("shobj_description(oid, 'pg_authid')")) // TODO: do we need a description?
-        .from(PG_ROLES)
-        .where(field(ROLNAME).eq(inline(fullRoleName(schemaName, roleName))))
-        .fetchOne(0, String.class);
-  }
-
   private List<TablePermission> systemPermissions(String roleName) {
     if (roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())
         || roleName.equals(Privileges.COUNT.toString())) {
-      return List.of(new TablePermission("*", null, null, null, null, null));
+      return List.of(new TablePermission("*"));
     } else if (roleName.equals(Privileges.VIEWER.toString())) {
-      return List.of(new TablePermission("*", true, null, null, null, null));
+      return List.of(new TablePermission("*").select(true));
     } else if (roleName.equals(Privileges.EDITOR.toString())
         || roleName.equals(Privileges.MANAGER.toString())
         || roleName.equals(Privileges.OWNER.toString())) {
-      return List.of(new TablePermission("*", true, true, true, true, null));
+      return List.of(new TablePermission("*").select(true).insert(true).update(true).delete(true));
     }
     return List.of();
   }

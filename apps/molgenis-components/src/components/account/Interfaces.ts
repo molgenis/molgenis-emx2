@@ -1,24 +1,18 @@
 import { ISetting } from "metadata-utils";
 
-export interface IRolePermission {
-  table: string;
-  select?: boolean;
-  insert?: boolean;
-  update?: boolean;
-  delete?: boolean;
-}
-
-export interface IRole {
+export interface ITablePermission {
   name: string;
-  description?: string;
-  system: boolean;
-  permissions: IRolePermission[];
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface ISession {
   email?: string;
   locale?: string;
-  roles?: IRole[];
+  roles?: string[];
+  tablePermissions?: ITablePermission[];
   schemas?: any;
   settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;

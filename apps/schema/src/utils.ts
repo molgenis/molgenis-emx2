@@ -6,16 +6,13 @@ export const schemaQuery = gql`
     _session {
       schemas
       admin
-      roles {
+      roles
+      tablePermissions {
         name
-        description
-        permissions {
-          table
-          select
-          insert
-          update
-          delete
-        }
+        canView
+        canInsert
+        canUpdate
+        canDelete
       }
     }
     _schema {
