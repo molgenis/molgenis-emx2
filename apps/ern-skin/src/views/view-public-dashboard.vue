@@ -88,8 +88,9 @@
             xvar="category"
             yvar="value"
             xAxisLineBreaker=";"
-            :yMax="ageByGroupMax"
-            :yTickValues="ageByGroupTicks"
+            :yMin="0"
+            :yMax="ageByGroupYAxis.limit"
+            :yTickValues="ageByGroupYAxis.ticks"
             :chartHeight="225"
             :chartMargins="{ top: 10, right: 5, bottom: 40, left: 25 }"
             :columnPaddingInner="0.2"
@@ -112,10 +113,11 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-ignore
 import {
   Page,
   Dashboard,
@@ -129,11 +131,16 @@ import {
   PieChart2,
   ColumnChart,
   WorldGeoJson,
+  // @ts-ignore
 } from "molgenis-viz";
 
-import { seqAlong } from "../utils/utils";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { max } from "d3";
 const d3 = { max };
+
+interface IKeyValuePairs {
+  [key: string]: number;
+}
 
 let loading = ref(true);
 let error = ref(null);
@@ -141,7 +148,7 @@ let registryHighlights = ref({});
 let organisations = ref([]);
 let ageByGroup = ref([]);
 let ageByGroupMax = ref(0);
-let ageByGroupTicks = ref([]);
+let ageByGroupYAxis = ref<IKeyValuePairs>({});
 let patientsByGroup = ref([]);
 let sexAtBirth = ref([]);
 
@@ -218,10 +225,7 @@ async function getStatistics() {
       };
     });
 
-  const maxvalue = d3.max(ageByGroup.value, (row) => row.value);
-  ageByGroupMax.value = Math.round(maxvalue / 10) * 10;
-
-  ageByGroupTicks.value = seqAlong(0, ageByGroupMax.value, 2);
+  ageByGroupYAxis.value = generateAxisTickData(ageByGroup!.value, "value");
 
   const patientsBySex = data
     .filter((row) => row.name === "sex")[0]
