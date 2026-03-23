@@ -10,7 +10,8 @@
             metadata.columnType === 'CHECKBOX'
           "
           :metadata="metadata"
-          :data="data"
+          :data="assertListValue(data)"
+          @listRefCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueString
@@ -23,19 +24,19 @@
             metadata.columnType === 'PERIOD'
           "
           :metadata="metadata"
-          :data="data"
+          :data="assertStringValue(data)"
         />
 
         <ValueText
           v-else-if="metadata.columnType === 'TEXT'"
           :metadata="metadata"
-          :data="data"
+          :data="assertStringValue(data)"
         />
 
         <ValueDecimal
           v-else-if="metadata.columnType === 'DECIMAL'"
           :metadata="metadata"
-          :data="data"
+          :data="assertNumberValue(data)"
         />
 
         <ValueLong
@@ -60,45 +61,46 @@
             metadata.columnType === 'SELECT'
           "
           :metadata="metadata as IRefColumn"
-          :data="data"
+          :data="assertRowValue(data)"
           @refCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueObject
           v-else-if="metadata.columnType === 'ONTOLOGY'"
           :metadata="metadata"
-          :data="data"
+          :data="assertRowValue(data)"
+          @refCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueBool
           v-else-if="metadata.columnType === 'BOOL'"
           :metadata="metadata"
-          :data="data"
+          :data="assertBooleanValue(data)"
         />
 
         <ValueEmail
           v-else-if="metadata.columnType === 'EMAIL'"
           :metadata="metadata"
-          :data="data"
+          :data="assertStringValue(data)"
         />
 
         <ValueHyperlink
           v-else-if="metadata.columnType === 'HYPERLINK'"
           :metadata="metadata"
-          :data="data"
+          :data="assertStringValue(data)"
         />
 
         <ValueRefBack
           v-else-if="metadata.columnType === 'REFBACK'"
           :metadata="metadata as IRefColumn"
-          :data="data"
+          :data="assertTableValue(data)"
           @refBackCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueFile
           v-else-if="metadata.columnType === 'FILE'"
           :metadata="metadata"
-          :data="data"
+          :data="assertFileValue(data)"
         />
       </template>
       <template v-else>
@@ -109,8 +111,16 @@
 </template>
 
 <script setup lang="ts">
-import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import type { RefPayload } from "../../../types/types";
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+} from "../../../../metadata-utils/src/types";
+import type {
+  ColumnPayload,
+  ListPayload,
+  RefPayload,
+} from "../../../types/types";
 import ValueList from "../value/List.vue";
 import ValueString from "../value/String.vue";
 import ValueText from "../value/Text.vue";
@@ -124,13 +134,22 @@ import ValueEmail from "../value/Email.vue";
 import ValueHyperlink from "../value/Hyperlink.vue";
 import ValueRefBack from "../value/RefBack.vue";
 import ValueFile from "../value/File.vue";
+import {
+  assertListValue,
+  assertStringValue,
+  assertNumberValue,
+  assertBooleanValue,
+  assertRowValue,
+  assertTableValue,
+  assertFileValue,
+} from "../../utils/typeUtils";
 
-defineProps<{
+const props = defineProps<{
   metadata?: IColumn;
-  data?: any;
+  data?: columnValue;
 }>();
 
 defineEmits<{
-  (e: "cellClicked", payload: RefPayload): void;
+  (e: "cellClicked", payload: RefPayload | ColumnPayload | ListPayload): void;
 }>();
 </script>

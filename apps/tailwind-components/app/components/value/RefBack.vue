@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
-import { rowToString } from "../../utils/rowToString";
+import { columnValueToString } from "../../utils/columnValueToString";
 import type { RefPayload } from "../../../types/types";
 
 const props = defineProps<{
   metadata: IRefColumn;
-  data: IRow[];
+  data?: IRow[] | null;
 }>();
 
 const emit = defineEmits<{
@@ -14,7 +14,9 @@ const emit = defineEmits<{
 }>();
 
 const handleRefBackCellClicked = () => {
-  if (!props.data[0]) return;
+  if (props.data === null || props.data === undefined || !props.data[0]) {
+    return;
+  }
   emit("refBackCellClicked", {
     metadata: props.metadata,
     data: props.data[0], // todo think about how to handle multiple rows, separate for each row or joined as one?
@@ -22,14 +24,16 @@ const handleRefBackCellClicked = () => {
 };
 
 const refBackColumnLabel = computed(() => {
-  // we know that in case of refback, either refLabel or refLabelDefault is defined, although this can not easily be expressed in the typescript
+  if (!props.data) {
+    return "";
+  }
   const labelTemplate = (
     props.metadata.refLabel
       ? props.metadata.refLabel
       : props.metadata.refLabelDefault
   ) as string;
   return props.data
-    .map((refRow) => rowToString(refRow, labelTemplate))
+    .map((refRow) => columnValueToString(refRow, labelTemplate))
     .join(", ");
 });
 </script>

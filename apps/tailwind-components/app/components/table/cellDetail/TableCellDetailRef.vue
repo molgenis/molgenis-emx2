@@ -1,46 +1,3 @@
-<template>
-  <Modal
-    v-model:visible="visible"
-    :title="refColumnLabel"
-    :subtitle="refSubTitle"
-    max-width="max-w-9/10"
-    @closed="onModalClose"
-  >
-    <section
-      v-if="!loading"
-      v-for="section in sections"
-      class="px-8 first:pt-[50px] last:pb-[50px]"
-      :class="section.heading ? 'pt-[50px]' : ''"
-    >
-      <h3
-        v-if="section.heading"
-        class="text-heading-3xl font-display text-title-contrast mb-4"
-      >
-        {{ section.heading }}
-      </h3>
-      <DefinitionList :compact="false">
-        <template v-for="field in section.fields">
-          <DefinitionListTerm class="text-title-contrast"
-            >{{ field.metadata.label }}
-          </DefinitionListTerm>
-          <DefinitionListDefinition class="text-title-contrast">
-            <ValueEMX2
-              :data="field.value"
-              :metadata="field.metadata"
-              @valueClick="handleValueClicked"
-            />
-          </DefinitionListDefinition>
-        </template>
-      </DefinitionList>
-    </section>
-    <template #footer="{ hide }">
-      <div class="flex width-full justify-end">
-        <menu class="flex items-center justify-end h-[82px] gap-[10px]"> </menu>
-      </div>
-    </template>
-  </Modal>
-</template>
-
 <script setup lang="ts">
 import DefinitionListTerm from "../../DefinitionListTerm.vue";
 import type {
@@ -50,10 +7,9 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import Modal from "../../Modal.vue";
 import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
 import { computed, ref, unref } from "vue";
-import { rowToString } from "../../../utils/rowToString";
+import { columnValueToString } from "../../../utils/columnValueToString";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ValueEMX2 from "../../value/EMX2.vue";
@@ -64,7 +20,7 @@ import DefinitionList from "../../DefinitionList.vue";
 const props = withDefaults(
   defineProps<{
     metadata: IRefColumn;
-    row: IRow;
+    columnValue: columnValue;
     schema: string;
     sourceTableId: string;
     showDataOwner?: boolean;
@@ -87,13 +43,14 @@ interface IRefStackItem {
 }
 const refStack = ref<IRefStackItem[]>([]);
 
-const visible = ref(false);
-
 const emit = defineEmits(["onClose"]);
 
-function onModalClose() {
-  emit("onClose");
-}
+await fetchData(
+  props.columnValue as IRow,
+  props.metadata.refTableId,
+  props.schema,
+  props.sourceTableId
+);
 
 const sourceColumn = computed(() => {
   return sourceTableMetadata.value?.columns.find(
@@ -107,14 +64,7 @@ const refColumnLabel = computed(() => {
       ? sourceColumn.value?.refLabel
       : sourceColumn.value?.refLabelDefault
   ) as string;
-  return rowToString(refRow.value, labelTemplate);
-});
-
-const refSubTitle = computed(() => {
-  const column = refRowMetadata.value?.columns.find(
-    (column) => column.id === refColumnId.value
-  );
-  return column?.refTableId ?? props.metadata.refTableId;
+  return columnValueToString(refRow.value, labelTemplate);
 });
 
 async function fetchData(
@@ -178,13 +128,6 @@ const sections = computed(() => {
     });
 });
 
-await fetchData(
-  props.row,
-  props.metadata.refTableId,
-  props.schema,
-  props.sourceTableId
-);
-
 function handleValueClicked(event: RefPayload) {
   if (refColumnLabel.value && refRowMetadata.value) {
     refStack.value.push({
@@ -196,10 +139,40 @@ function handleValueClicked(event: RefPayload) {
   refColumnId.value = event.metadata.id;
 
   fetchData(
-    event.data,
+    event.data as IRow,
     event.metadata.refTableId,
     event.metadata.refSchemaId ?? props.schema,
     refRowMetadata.value?.id ?? props.sourceTableId
   );
 }
 </script>
+
+<template>
+  <section
+    v-if="!loading"
+    v-for="section in sections"
+    class="px-8 first:pt-[50px] last:pb-[50px]"
+    :class="section.heading ? 'pt-[50px]' : ''"
+  >
+    <h3
+      v-if="section.heading"
+      class="text-heading-3xl font-display text-title-contrast mb-4"
+    >
+      {{ section.heading }}
+    </h3>
+    <DefinitionList :compact="false">
+      <template v-for="field in section.fields">
+        <DefinitionListTerm class="text-title-contrast"
+          >{{ field.metadata.label }}
+        </DefinitionListTerm>
+        <DefinitionListDefinition class="text-title-contrast">
+          <ValueEMX2
+            :data="field.value"
+            :metadata="field.metadata"
+            @valueClick="handleValueClicked"
+          />
+        </DefinitionListDefinition>
+      </template>
+    </DefinitionList>
+  </section>
+</template>

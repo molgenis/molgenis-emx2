@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { flattenObject } from "../../utils/flattenObject";
 import { computed } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type { ColumnPayload } from "../../../types/types";
 
 const props = defineProps<{
   metadata: IColumn;
-  data: Record<string, any>;
+  data?: IRow | null;
+}>();
+
+const emit = defineEmits<{
+  (e: "refCellClicked", data: ColumnPayload): void;
 }>();
 
 const hasTemplate = computed(
@@ -13,6 +18,9 @@ const hasTemplate = computed(
 );
 
 const asTemplate = computed(() => {
+  if (!props.data) {
+    return "";
+  }
   const ids = Object.keys(props.data);
   const vals = Object.values(props.data);
   const refLabel = props.metadata.refLabel
@@ -28,25 +36,44 @@ const asTemplate = computed(() => {
 });
 
 const asDotSeparatedString = computed(() => {
+  if (!props.data) {
+    return "";
+  }
   let result = "";
   Object.keys(props.data).forEach((key) => {
-    if (props.data[key] === null) {
+    const value = props.data ? props.data[key] : null;
+    if (value === null) {
       //nothing
-    } else if (typeof props.data[key] === "object") {
-      result += flattenObject(props.data[key]);
+    } else if (typeof value === "object") {
+      result += flattenObject(value);
     } else {
-      result += "." + props.data[key];
+      result += "." + value;
     }
   });
   return result.replace(/^\./, "");
 });
+
+function handleRefCellClicked() {
+  if (!props.data) {
+    return;
+  }
+  emit("refCellClicked", {
+    metadata: props.metadata,
+    data: props.data,
+  });
+}
 </script>
 
 <template>
-  <span v-if="hasTemplate">
-    {{ asTemplate }}
-  </span>
-  <span v-else>
-    {{ asDotSeparatedString }}
-  </span>
+  <div
+    class="underline hover:cursor-pointer text-link inline"
+    @click="handleRefCellClicked"
+  >
+    <span v-if="hasTemplate">
+      {{ asTemplate }}
+    </span>
+    <span v-else>
+      {{ asDotSeparatedString }}
+    </span>
+  </div>
 </template>

@@ -169,16 +169,22 @@
     @update="handlePagingRequest($event)"
   />
 
-  <TableModalRef
-    :id="`table-emx2-${schemaId}-${tableId}-modal-ref`"
-    v-if="showModal && refTableRow && refTableColumn"
+  <Modal
+    type="right"
     v-model:visible="showModal"
-    :metadata="refTableColumn"
-    :row="refTableRow"
-    :schema="schemaId"
-    :sourceTableId="refSourceTableId"
-    :showDataOwner="false"
-  />
+    :title="cellDetailSubtitle"
+    :subtitle="cellDetailColumn?.columnType"
+    @closed="showModal = false"
+  >
+    <TableCellDetailRef
+      v-if="cellDetailColumn"
+      :metadata="toRefColumn(cellDetailColumn)"
+      :columnValue="toRefColumnValue(cellDetailValue)"
+      :schema="schemaId"
+      :sourceTableId="refSourceTableId"
+      :showDataOwner="false"
+    />
+  </Modal>
 
   <DeleteModal
     v-if="data?.tableMetadata && rowDataForModal"
@@ -223,6 +229,7 @@ import type {
   columnValue,
 } from "../../../../metadata-utils/src/types";
 import type {
+  cellPayload,
   ITableSettings,
   RefPayload,
   sortDirection,
@@ -237,7 +244,7 @@ import TableHeadCell from "./TableHeadCell.vue";
 
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
-import TableModalRef from "./modal/TableModalRef.vue";
+import Modal from "../Modal.vue";
 import InputSearch from "../input/Search.vue";
 
 import Button from "../Button.vue";
@@ -247,6 +254,8 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
+import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 
 const props = withDefaults(
   defineProps<{
@@ -264,8 +273,10 @@ const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
-const refTableRow = ref<IRow>();
-const refTableColumn = ref<IRefColumn>();
+
+const cellDetailColumn = ref<IColumn>();
+const cellDetailSubtitle = ref<string>();
+const cellDetailValue = ref<columnValue>();
 // initially set to the current tableId
 const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
@@ -399,15 +410,17 @@ function handlePagingRequest(page: number) {
 }
 
 function handleCellClick(
-  event: RefPayload,
+  event: cellPayload,
   column: IColumn,
   row: Record<string, any>
 ) {
-  refTableRow.value = event.data;
-  refTableColumn.value =
-    column.columnType === "REF"
-      ? (column as IRefColumn)
-      : (column as IRefColumn); // todo other types of column
+  console.log("Cell clicked:", { event, column, row });
+
+  cellDetailSubtitle.value = column.label;
+  cellDetailColumn.value = column;
+  if (isRefLikeDetail.value) {
+    cellDetailValue.value = event.data as columnValue;
+  }
 
   showModal.value = true;
 }
@@ -450,4 +463,9 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
+
+const isRefLikeDetail = computed(() => {
+  const type = cellDetailColumn.value?.columnType;
+  return type === "REF" || type === "RADIO" || type === "SELECT";
+});
 </script>
