@@ -264,9 +264,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   @Order(8)
   void dropCustomRoleViaGraphql() {
     database.becomeAdmin();
-    database
-        .getSchema(SCHEMA)
-        .grant("ReaderA", new TablePermission(TABLE_A, true, null, null, null));
+    database.getSchema(SCHEMA).grant("ReaderA", new TablePermission(TABLE_A).select(true));
 
     login(OWNER_USER, OWNER_PASS);
     String body =

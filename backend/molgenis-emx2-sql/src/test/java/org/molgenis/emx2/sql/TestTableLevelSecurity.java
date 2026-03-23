@@ -71,7 +71,7 @@ class TestTableLevelSecurity {
   void cannotGrantToSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("Viewer", selectPermission));
   }
 
@@ -79,7 +79,7 @@ class TestTableLevelSecurity {
   void cannotGrantToNonExistentRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A, true, null, null, null);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
   }
 
@@ -88,7 +88,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("TempRole");
-    TablePermission permission = new TablePermission("NoSuchTable", true, null, null, null);
+    TablePermission permission = new TablePermission("NoSuchTable").select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
   }
 
@@ -97,7 +97,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MetaRole");
-    schema.grant("MetaRole", new TablePermission(TABLE_A, true, null, true, null));
+    schema.grant("MetaRole", new TablePermission(TABLE_A).select(true).update(true));
 
     Role info = schema.getRoleInfo("MetaRole");
     assertEquals(1, info.permissions().size());
@@ -124,7 +124,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ViewerRole");
-    schema.grant("ViewerRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("ViewerRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -151,7 +151,7 @@ class TestTableLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRole");
     // Grant access to TABLE_A only
-    schema.grant("PartialRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("PartialRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "PartialRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -168,7 +168,9 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("EditorRole");
-    schema.grant("EditorRole", new TablePermission(TABLE_A, true, true, true, true));
+    schema.grant(
+        "EditorRole",
+        new TablePermission(TABLE_A).select(true).insert(true).update(true).delete(true));
     schema.addMember(USER_EDITOR, "EditorRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -192,7 +194,7 @@ class TestTableLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ReadOnlyRole");
     // Only SELECT – no insert/update/delete
-    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -210,7 +212,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("RevokeRole");
-    schema.grant("RevokeRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "RevokeRole");
 
     // Verify access exists
@@ -233,7 +235,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRevokeRole");
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, true, true, null, null));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -244,7 +246,7 @@ class TestTableLevelSecurity {
         .insert(new Row().setString("id", "r_partial").setString("value", "v"));
 
     database.becomeAdmin();
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A, null, false, null, null));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).insert(false));
 
     database.setActiveUser(USER_EDITOR);
 
@@ -264,7 +266,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ActiveUserRole");
-    schema.grant("ActiveUserRole", new TablePermission(TABLE_B, true, null, null, true));
+    schema.grant("ActiveUserRole", new TablePermission(TABLE_B).select(true).delete(true));
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -295,7 +297,7 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("LifecycleRole");
-    schema.grant("LifecycleRole", new TablePermission(TABLE_A, true, null, null, null));
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_VIEWER, "LifecycleRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -321,8 +323,8 @@ class TestTableLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MergeGrantRole");
-    schema.grant("MergeGrantRole", new TablePermission(TABLE_A, true, null, null, null));
-    schema.grant("MergeGrantRole", new TablePermission(TABLE_A, null, true, null, null));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).insert(true));
     schema.addMember(USER_EDITOR, "MergeGrantRole");
 
     database.setActiveUser(USER_EDITOR);

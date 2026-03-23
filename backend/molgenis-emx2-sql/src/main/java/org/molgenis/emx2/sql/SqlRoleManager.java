@@ -126,6 +126,12 @@ public class SqlRoleManager {
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
+    if (isSystemRole(roleName)) {
+      throw new MolgenisException("Cannot revoke permissions from system role: " + roleName);
+    }
+    if (!roleExists(schemaName, roleName)) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
@@ -183,8 +189,11 @@ public class SqlRoleManager {
         Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
         Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
         result.add(
-            new TablePermission(
-                row.get("table_name", String.class), select, insert, update, delete));
+            new TablePermission(row.get("table_name", String.class))
+                .select(select)
+                .insert(insert)
+                .update(update)
+                .delete(delete));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -238,12 +247,11 @@ public class SqlRoleManager {
     for (String tableName : tableNames) {
       permissions.merge(
           tableName,
-          new TablePermission(
-              tableName,
-              wildcard.select(),
-              wildcard.insert(),
-              wildcard.update(),
-              wildcard.delete()),
+          new TablePermission(tableName)
+              .select(wildcard.select())
+              .insert(wildcard.insert())
+              .update(wildcard.update())
+              .delete(wildcard.delete()),
           SqlRoleManager::mergePermissions);
     }
   }
@@ -256,12 +264,11 @@ public class SqlRoleManager {
   }
 
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
-    return new TablePermission(
-        a.table(),
-        Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null,
-        Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null,
-        Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null,
-        Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null);
+    return new TablePermission(a.table())
+        .select(Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null)
+        .insert(Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null)
+        .update(Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null)
+        .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null);
   }
 
   public boolean isSystemRole(String roleName) {
@@ -277,13 +284,13 @@ public class SqlRoleManager {
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())
         || roleName.equals(Privileges.COUNT.toString())) {
-      return List.of(new TablePermission("*", null, null, null, null));
+      return List.of(new TablePermission("*"));
     } else if (roleName.equals(Privileges.VIEWER.toString())) {
-      return List.of(new TablePermission("*", true, null, null, null));
+      return List.of(new TablePermission("*").select(true));
     } else if (roleName.equals(Privileges.EDITOR.toString())
         || roleName.equals(Privileges.MANAGER.toString())
         || roleName.equals(Privileges.OWNER.toString())) {
-      return List.of(new TablePermission("*", true, true, true, true));
+      return List.of(new TablePermission("*").select(true).insert(true).update(true).delete(true));
     }
     return List.of();
   }

@@ -706,7 +706,7 @@ public class GraphqlSchemaFieldFactory {
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(table, select, insert, update, delete);
+    return new TablePermission(table).select(select).insert(insert).update(update).delete(delete);
   }
 
   private static void dropRoles(
