@@ -416,7 +416,7 @@ async def test_report_task_progress(caplog):
         client.signin(username, password)
 
         file_path = RESOURCES_DIR / "delete" / "pet store.zip"
-        api_url = f"{client.url}/pet store/api/zip?async=true"
+        api_url = f"{client.url}/pet store/api/zip/_all?async=true"
 
         with open(file_path, 'rb') as file:
             response = client.session.post(

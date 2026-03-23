@@ -37,7 +37,7 @@ const crumbs = [
   { url: `/${routeSchema}/shacl`, label: "shacl" },
 ];
 
-const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
+const { data, status, error } = await useFetch(`/${routeSchema}/api/shacls`, {
   key: "shaclSets",
   getCachedData(key, nuxtApp) {
     return nuxtApp.payload.data[key] || nuxtApp.static.data[key];

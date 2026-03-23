@@ -11,11 +11,14 @@ import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
+import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
+import org.molgenis.emx2.rdf.jsonld.JsonLdSchemaGenerator;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -72,12 +75,24 @@ public class ApplicationCachePerUser {
     }
   }
 
+  private record SchemaContextKey(String schemaName, String schemaUrl) {
+    public SchemaContextKey {
+      if (schemaName == null || schemaName.isEmpty()) {
+        throw new IllegalArgumentException("schemaName cannot be null or empty");
+      }
+      if (schemaUrl == null || schemaUrl.isEmpty()) {
+        throw new IllegalArgumentException("schemaUrl cannot be null or empty");
+      }
+    }
+  }
+
   private static final Logger logger = LoggerFactory.getLogger(ApplicationCachePerUser.class);
 
   private final Cache<UserKey, Database> databaseCache;
   private final Cache<UserSchemaKey, Schema> schemaCache;
   private final Cache<UserKey, GraphqlExecutor> graphqlDatabaseCache;
   private final Cache<UserSchemaKey, GraphqlExecutor> graphqlSchemaCache;
+  private final Cache<SchemaContextKey, Map<String, Object>> jsonLdContextCache;
   private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
 
   private ApplicationCachePerUser() {
@@ -100,6 +115,11 @@ public class ApplicationCachePerUser {
         Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
             .maximumSize(APP_GQL_SCHEMA_CACHE_SIZE)
+            .build();
+    jsonLdContextCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_SCHEMA_CACHE_SIZE)
             .build();
   }
 
@@ -226,6 +246,13 @@ public class ApplicationCachePerUser {
     return null;
   }
 
+  public Map<String, Object> getJsonLdContext(
+      String schemaName, String schemaUrl, SchemaMetadata meta) {
+    return jsonLdContextCache.get(
+        new SchemaContextKey(schemaName, schemaUrl),
+        k -> JsonLdSchemaGenerator.generateJsonLdSchemaAsMap(meta, schemaUrl));
+  }
+
   /**
    * this method is used to reset cache of all sessions, necessary when for example metadata changes
    */
@@ -235,6 +262,7 @@ public class ApplicationCachePerUser {
     schemaCache.invalidateAll();
     graphqlSchemaCache.invalidateAll();
     graphqlDatabaseCache.invalidateAll();
+    jsonLdContextCache.invalidateAll();
     logger.info("cleared all caches");
   }
 }

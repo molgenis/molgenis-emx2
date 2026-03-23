@@ -187,7 +187,7 @@ public class TestGraphQLCompositeKeys {
   //
   //    // have to reload graphql
   //    grapql =
-  //        new GraphqlApiFactory()
+  //        new GraphqlExecutor()
   //            .createGraphqlForSchema(
   //                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
   //
