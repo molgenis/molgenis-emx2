@@ -332,6 +332,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     assertTrue(body.contains("\"*\""), "System roles must report wildcard table permission");
   }
 
+  // ── Schema roles query ──────────────────────────────────────────────────
+
   @Test
   @Order(10)
   void customRoleWithMixedPermissionsShownInSchemaQuery() {
@@ -381,6 +383,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     assertTrue(body.contains("\"Editor\""), "Editor role must appear");
     assertTrue(body.contains("\"system\" : true"), "System roles must have system:true");
   }
+
+  // ── Session edge cases ────────────────────────────────────────────────────
 
   @Test
   @Order(12)
@@ -448,6 +452,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.removeMember(CUSTOM_USER);
     schema.deleteRole("FalseTestRole");
   }
+
+  // ── Access enforcement ───────────────────────────────────────────────────
 
   @Test
   @Order(14)
