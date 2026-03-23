@@ -33,10 +33,24 @@ class TestRowLevelSecurity {
     Schema schema = database.dropCreateSchema(SCHEMA);
     schema.create(table(ARTICLES).add(column("id").setPkey()).add(column("title")));
 
-    schema.createRole("TeamA", "Team A members");
-    schema.createRole("TeamB", "Team B members");
-    schema.grant("TeamA", new TablePermission(ARTICLES, true, true, true, true, true));
-    schema.grant("TeamB", new TablePermission(ARTICLES, true, true, true, true, true));
+    schema.createRole("TeamA");
+    schema.createRole("TeamB");
+    schema.grant(
+        "TeamA",
+        new TablePermission(ARTICLES)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.grant(
+        "TeamB",
+        new TablePermission(ARTICLES)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
 
     // Row visible only to TeamA
     schema
@@ -143,7 +157,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     assertDoesNotThrow(
-        () -> schema.grant("TeamA", new TablePermission(ARTICLES, true, null, null, null, true)));
+        () -> schema.grant("TeamA", new TablePermission(ARTICLES).select(true).rowLevel(true)));
   }
 
   @Test
@@ -202,8 +216,8 @@ class TestRowLevelSecurity {
   void revokingLastRowLevelGrantDisablesRls() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("TempRole", null);
-    schema.grant("TempRole", new TablePermission(ARTICLES, true, null, null, null, true));
+    schema.createRole("TempRole");
+    schema.grant("TempRole", new TablePermission(ARTICLES).select(true).rowLevel(true));
 
     assertTrue(
         schema.getRoleInfo("TempRole").permissions().stream()
@@ -223,8 +237,8 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     String table = "Solo";
     schema.create(table(table).add(column("id").setPkey()));
-    schema.createRole("SoloRole", null);
-    schema.grant("SoloRole", new TablePermission(table, true, null, null, null, true));
+    schema.createRole("SoloRole");
+    schema.grant("SoloRole", new TablePermission(table).select(true).rowLevel(true));
 
     assertTrue(
         schema.getRoleInfo("SoloRole").permissions().stream()
