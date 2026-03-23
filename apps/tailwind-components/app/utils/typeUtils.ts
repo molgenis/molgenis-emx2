@@ -107,6 +107,10 @@ export function assertFileValue(
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     throw new Error(`Expected an object value, but got ${typeof value}`);
   }
+  // allow empty objects to be treated as undefined file values :S
+  if (isEmptyObject(value)) {
+    return undefined;
+  }
   if (!("filename" in value) || typeof value.filename !== "string") {
     throw new Error(`Expected an object with a string 'filename' property`);
   }
@@ -154,4 +158,13 @@ export function toRefColumn(column: IColumn): IRefColumn {
 export function toRefColumnValue(column: columnValue): IRow {
   assertRefColumnValue(column);
   return column;
+}
+
+function isEmptyObject(column: columnValue) {
+  return (
+    column &&
+    typeof column === "object" &&
+    !Array.isArray(column) &&
+    Object.keys(column).length === 0
+  );
 }
