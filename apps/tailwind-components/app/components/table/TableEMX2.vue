@@ -184,11 +184,11 @@
       :sourceTableId="refSourceTableId"
       :showDataOwner="false"
     />
-    <template v-else-if="cellDetailValue && isArrayLike">
+    <template v-else-if="cellDetailValue && isArrayLikeDetail">
       <ul>
         <li v-for="(item, index) in cellDetailValue" :key="index">
           <TableCellDetailRef
-            v-if="cellDetailColumn && isRefLikeDetail"
+            v-if="cellDetailColumn"
             :metadata="toRefColumn(cellDetailColumn)"
             :columnValue="toRefColumnValue(item as columnValue)"
             :schema="schemaId"
@@ -480,11 +480,17 @@ async function afterRowDeleted() {
 
 const isRefLikeDetail = computed(() => {
   const type = cellDetailColumn.value?.columnType;
-  return type === "REF" || type === "RADIO" || type === "SELECT";
+  return (
+    type === "REF" ||
+    type === "RADIO" ||
+    type === "SELECT" ||
+    type === "ONTOLOGY" ||
+    type === "REFBACK"
+  );
 });
 
-const isArrayLike = computed(() => {
+const isArrayLikeDetail = computed(() => {
   const type = cellDetailColumn.value?.columnType;
-  return type?.endsWith("_ARRAY");
+  return type?.endsWith("_ARRAY") || type === "MULTISELECT";
 });
 </script>
