@@ -126,7 +126,6 @@ export function assertListValue(
 }
 
 export function assertRefColumn(column: IColumn): asserts column is IRefColumn {
-  console.log("Asserting column is a reference column:", column);
   if (
     !(
       column.refTableId &&

@@ -177,13 +177,27 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="cellDetailColumn"
+      v-if="cellDetailColumn && isRefLikeDetail"
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="schemaId"
       :sourceTableId="refSourceTableId"
       :showDataOwner="false"
     />
+    <template v-else-if="cellDetailValue && isArrayLike">
+      <ul>
+        <li v-for="(item, index) in cellDetailValue" :key="index">
+          <TableCellDetailRef
+            v-if="cellDetailColumn && isRefLikeDetail"
+            :metadata="toRefColumn(cellDetailColumn)"
+            :columnValue="toRefColumnValue(item as columnValue)"
+            :schema="schemaId"
+            :sourceTableId="refSourceTableId"
+            :showDataOwner="false"
+          />
+        </li>
+      </ul>
+    </template>
   </Modal>
 
   <DeleteModal
@@ -418,9 +432,9 @@ function handleCellClick(
 
   cellDetailSubtitle.value = column.label;
   cellDetailColumn.value = column;
-  if (isRefLikeDetail.value) {
-    cellDetailValue.value = event.data as columnValue;
-  }
+  // if (isRefLikeDetail.value) {
+  cellDetailValue.value = event.data as columnValue;
+  // }
 
   showModal.value = true;
 }
@@ -467,5 +481,10 @@ async function afterRowDeleted() {
 const isRefLikeDetail = computed(() => {
   const type = cellDetailColumn.value?.columnType;
   return type === "REF" || type === "RADIO" || type === "SELECT";
+});
+
+const isArrayLike = computed(() => {
+  const type = cellDetailColumn.value?.columnType;
+  return type?.endsWith("_ARRAY");
 });
 </script>
