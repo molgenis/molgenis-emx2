@@ -28,6 +28,7 @@
         type="outline"
         :href="`/${schemaId}/api/csv/${tableId}`"
         icon="Download"
+        download
       >
         Download
       </Button>
