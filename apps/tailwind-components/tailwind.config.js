@@ -89,6 +89,7 @@ module.exports = {
     extend: {
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
+        "no-background-modal": "var(--box-shadow-no-background-modal)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
