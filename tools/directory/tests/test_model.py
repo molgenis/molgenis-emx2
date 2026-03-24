@@ -1,7 +1,7 @@
 # noinspection PyProtectedMember
 from unittest.mock import MagicMock
 
-from molgenis_emx2.directory_client.model import (
+from src.molgenis_emx2.directory_client.model import (
     ExternalServerNode,
     Node,
     NodeData,
