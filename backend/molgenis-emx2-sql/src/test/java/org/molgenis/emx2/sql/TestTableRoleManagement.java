@@ -370,5 +370,11 @@ class TestTableRoleManagement {
     assertEquals(Boolean.TRUE, merged.insert(), "insert should be merged from InsertOnly role");
     assertNull(merged.update());
     assertNull(merged.delete());
+
+    // clean up to avoid leaking anonymous Viewer into other tests
+    database.becomeAdmin();
+    schema.removeMember("anonymous");
+    schema.removeMember(USER_VIEWER);
+    schema.deleteRole("InsertOnly");
   }
 }
