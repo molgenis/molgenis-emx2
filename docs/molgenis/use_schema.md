@@ -323,14 +323,14 @@ For example:
 | parts     | productNo  | 2   |                           |
 | parts     | partNo     | 2   |                           |
 
-#### in combination with type=auto_id
+#### in combination with type=AUTO_ID
 
 This will generate a value for a column by using the special `${mg_autoid}` token in the computed expression. For 
 example:
 
 | tableName | columnName | key | type    | computed             |
 |-----------|------------|-----|---------|----------------------|
-| parts     | id         | 1   | auto_id | foo-${mg_autoid}-bar |
+| parts     | id         | 1   | AUTO_ID | foo-${mg_autoid}-bar |
 
 ${mg_autoid} with prefix and postfix `foo-${mg_autoid}-bar` would result in something like `foo-QJdAS6LqfA-bar`
 
