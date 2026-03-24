@@ -890,8 +890,8 @@ public class GraphqlSchemaFieldFactory {
                 try {
                   Schema s = db.getSchema(schema.getName());
                   changeTables(s, dataFetchingEnvironment);
-                  changeMembers(s, dataFetchingEnvironment);
                   changeRoles(s, dataFetchingEnvironment);
+                  changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
                   // this sync is a bit sad.

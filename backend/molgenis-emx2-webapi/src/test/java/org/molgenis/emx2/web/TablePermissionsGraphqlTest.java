@@ -490,11 +490,20 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   @Test
   @Order(15)
   void refColumnToUngrantedTableIsHiddenInGraphqlSchema() {
-    database.becomeAdmin();
-    Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("RefTestRole");
-    schema.grant("RefTestRole", new TablePermission(TABLE_WITH_REF).select(true));
-    schema.addMember(CUSTOM_USER, "RefTestRole");
+    login(OWNER_USER, OWNER_PASS);
+    String setupBody =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",permissions:[{table:\\"ArticleWithRef\\",select:true}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .statusCode(200)
+            .extract()
+            .asString();
+    assertNoGraphqlErrors(setupBody);
 
     login(CUSTOM_USER, CUSTOM_PASS);
     String body =
@@ -529,9 +538,25 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
         "Ref to ungranted table should be hidden or produce error, response: " + refBody);
 
     // Cleanup
-    database.becomeAdmin();
-    schema.removeMember(CUSTOM_USER);
-    schema.deleteRole("RefTestRole");
+    login(OWNER_USER, OWNER_PASS);
+    given()
+        .sessionId(sessionId)
+        .body(
+            """
+            {"query":"mutation{drop(members:\\"tpgql_custom\\"){message}}"}
+            """)
+        .post(SCHEMA_GQL)
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(sessionId)
+        .body(
+            """
+            {"query":"mutation{drop(roles:\\"RefTestRole\\"){message}}"}
+            """)
+        .post(SCHEMA_GQL)
+        .then()
+        .statusCode(200);
   }
 
   private static void assertNoGraphqlErrors(String responseBody) {
