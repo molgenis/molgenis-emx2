@@ -345,16 +345,20 @@ class TestTableRoleManagement {
   }
 
   @Test
-  void multipleRolesWithDifferentPermissionsAreMerged() {
+  void anonymousViewerAndCustomRolePermissionsAreMerged() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.createRole("MergeRoleA");
-    schema.createRole("MergeRoleB");
-    schema.grant("MergeRoleA", new TablePermission(TABLE_A).select(true));
-    schema.grant("MergeRoleB", new TablePermission(TABLE_A).insert(true));
-    schema.addMember(USER_VIEWER, "MergeRoleA");
-    schema.addMember(USER_VIEWER, "MergeRoleB");
 
+    // anonymous gets Viewer, so select on all tables
+    schema.addMember("anonymous", "Viewer");
+
+    // custom role only grants insert on TABLE_A
+    schema.createRole("InsertOnly");
+    schema.grant("InsertOnly", new TablePermission(TABLE_A).insert(true));
+    schema.addMember(USER_VIEWER, "InsertOnly");
+
+    // every user inherits anonymous privileges via PostgreSQL role inheritance,
+    // so the user should see merged permissions: select from anonymous + insert from InsertOnly
     database.setActiveUser(USER_VIEWER);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
     TablePermission merged =
@@ -362,8 +366,8 @@ class TestTableRoleManagement {
             .filter(p -> TABLE_A.equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
-    assertEquals(Boolean.TRUE, merged.select(), "select should be merged from MergeRoleA");
-    assertEquals(Boolean.TRUE, merged.insert(), "insert should be merged from MergeRoleB");
+    assertEquals(Boolean.TRUE, merged.select(), "select should be merged from anonymous Viewer");
+    assertEquals(Boolean.TRUE, merged.insert(), "insert should be merged from InsertOnly role");
     assertNull(merged.update());
     assertNull(merged.delete());
   }
