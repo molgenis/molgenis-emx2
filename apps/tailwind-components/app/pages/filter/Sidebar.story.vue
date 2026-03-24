@@ -32,13 +32,10 @@
       ]"
     >
       <FilterSidebar
-        v-model:filter-states="filterStates"
-        v-model:search-terms="searchTerms"
-        :all-columns="columns"
+        :filters="filters"
         :schema-id="schemaId"
         :table-id="tableId"
         :show-search="true"
-        :mobile-display="isMobile"
       />
     </div>
     <div v-else class="p-4 opacity-50 italic">No columns loaded</div>
@@ -46,10 +43,13 @@
     <div class="mt-4 p-4 bg-white rounded border max-w-md">
       <h3 class="font-semibold mb-2">Current Filter Values</h3>
       <div class="text-body-sm space-y-1 font-mono">
-        <div v-for="[key, val] in filterStates" :key="key">
+        <div v-for="[key, val] in filters.filterStates.value" :key="key">
           <strong>{{ key }}:</strong> {{ JSON.stringify(val) }}
         </div>
-        <div v-if="filterStates.size === 0" class="opacity-50 italic">
+        <div
+          v-if="filters.filterStates.value.size === 0"
+          class="opacity-50 italic"
+        >
           No active filters
         </div>
       </div>
@@ -70,13 +70,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type {
-  IColumn,
-  ITableMetaData,
-} from "../../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../../types/filters";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import FilterSidebar from "../../components/filter/Sidebar.vue";
+import { useFilters } from "../../composables/useFilters";
 
 const route = useRoute();
 const router = useRouter();
@@ -85,19 +82,24 @@ const schemaId = ref<string>((route.query.schema as string) || "type test");
 const tableId = ref<string>((route.query.table as string) || "Types");
 const metadata = ref<ITableMetaData>();
 const isMobile = ref(false);
-const filterStates = ref<Map<string, IFilterValue>>(new Map());
-const searchTerms = ref("");
 
-const columns = computed<IColumn[]>(() => metadata.value?.columns ?? []);
+const columns = computed(
+  () =>
+    metadata.value?.columns?.filter(
+      (c) => !c.id.startsWith("mg_") && !EXCLUDED_TYPES.includes(c.columnType)
+    ) ?? []
+);
+
+const filters = useFilters(columns);
 
 const sidebarReady = ref(false);
 
-const EXCLUDED_TYPES = ["HEADING", "SECTION"];
+const EXCLUDED_TYPES = ["HEADING", "SECTION", "FILE"];
 
 watch(
-  columns,
+  () => metadata.value?.columns,
   (cols) => {
-    if (!cols.length) {
+    if (!cols?.length) {
       sidebarReady.value = false;
       return;
     }
@@ -122,8 +124,7 @@ watch(
 );
 
 watch([schemaId, tableId], ([newSchema, newTable]) => {
-  filterStates.value = new Map();
-  searchTerms.value = "";
+  filters.clearFilters();
   sidebarReady.value = false;
   router.replace({ query: { schema: newSchema, table: newTable } });
 });

@@ -8,7 +8,11 @@ import {
 } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
-import type { ActiveFilter, IFilterValue } from "../../types/filters";
+import type {
+  ActiveFilter,
+  IFilterValue,
+  UseFilters,
+} from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
 
@@ -107,7 +111,7 @@ export function serializeFilterValue(value: IFilterValue): string | null {
 
 function extractRefField(value: IFilterValue): string {
   const val = value.value;
-  if (Array.isArray(val) && val.length && typeof val[0] === "object") {
+  if (Array.isArray(val) && val.length && typeof val[0] === "object" && val[0] !== null) {
     return Object.keys(val[0])[0] ?? "name";
   }
   if (typeof val === "object" && val !== null) {
@@ -144,7 +148,7 @@ export function parseFilterValue(
 
   if (RANGE_TYPES.includes(columnType)) {
     if (urlValue.includes("..")) {
-      const [minStr, maxStr] = urlValue.split("..");
+      const [minStr = "", maxStr = ""] = urlValue.split("..");
       const isDateType = columnType.includes("DATE");
       return {
         operator: "between",
@@ -332,19 +336,16 @@ export function useFilters(
     return parseFiltersFromUrl(route.query, columns.value);
   });
 
-  const filterStatesFromUrl = computed(() => parsedUrlState.value.filters);
-  const searchValueFromUrl = computed(() => parsedUrlState.value.search);
-
   const filterStatesRef = ref<Map<string, IFilterValue>>(new Map());
   const searchValueRef = ref("");
 
   const actualSearchValue = urlSyncEnabled
-    ? searchValueFromUrl
+    ? computed(() => parsedUrlState.value.search)
     : searchValueRef;
 
   const actualFilterStates = computed({
     get: () =>
-      urlSyncEnabled ? filterStatesFromUrl.value : filterStatesRef.value,
+      urlSyncEnabled ? parsedUrlState.value.filters : filterStatesRef.value,
     set: (newFilters: Map<string, IFilterValue>) => {
       if (urlSyncEnabled) {
         if (!router || !route) return;
@@ -465,7 +466,7 @@ export function useFilters(
     return result;
   });
 
-  return {
+  const result: UseFilters = {
     filterStates: actualFilterStates,
     searchValue: actualSearchValue,
     gqlFilter,
@@ -475,4 +476,6 @@ export function useFilters(
     clearFilters,
     removeFilter,
   };
+
+  return result;
 }

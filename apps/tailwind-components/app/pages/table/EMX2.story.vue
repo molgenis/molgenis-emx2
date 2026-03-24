@@ -43,24 +43,20 @@ const filterColumns = computed(
     ) ?? []
 );
 
-const {
-  filterStates,
-  searchValue,
-  gqlFilter,
-  activeFilters,
-  removeFilter,
-  clearFilters,
-} = useFilters(filterColumns, { urlSync: showFilters.value });
+const filters = useFilters(filterColumns, { urlSync: showFilters.value });
 
 const activeFilter = computed(() =>
-  showFilters.value ? gqlFilter.value : undefined
+  showFilters.value ? filters.gqlFilter.value : undefined
 );
 
-watch(searchValue, (val) => {
-  if (showFilters.value) {
-    tableSettings.value.search = val;
+watch(
+  () => filters.searchValue.value,
+  (val) => {
+    if (showFilters.value) {
+      tableSettings.value.search = val;
+    }
   }
-});
+);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   if (route.query.schema === newSchemaId && route.query.table === newTableId) {
@@ -102,8 +98,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
       <div :class="{ 'flex gap-6': showFilters }">
         <FilterSidebar
           v-if="showFilters"
-          v-model:filterStates="filterStates"
-          v-model:searchTerms="searchValue"
+          :filters="filters"
           :schemaId="schemaId"
           :tableId="tableId"
           :showSearch="true"
@@ -121,9 +116,9 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
           >
             <template v-if="showFilters" #below-toolbar>
               <ActiveFilters
-                :filters="activeFilters"
-                @remove="removeFilter"
-                @clear-all="clearFilters"
+                :filters="filters.activeFilters.value"
+                @remove="filters.removeFilter"
+                @clear-all="filters.clearFilters"
               />
             </template>
           </TableEMX2>

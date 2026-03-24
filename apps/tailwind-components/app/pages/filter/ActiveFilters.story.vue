@@ -37,14 +37,6 @@ const nullFilters: ActiveFilter[] = [
     values: [],
   },
 ];
-
-function handleRemove(columnId: string) {
-  console.log("Remove filter:", columnId);
-}
-
-function handleClearAll() {
-  console.log("Clear all filters");
-}
 </script>
 
 <template>
@@ -52,11 +44,7 @@ function handleClearAll() {
     <div class="space-y-8">
       <div>
         <h3 class="text-lg font-bold mb-2">Empty State</h3>
-        <ActiveFilters
-          :filters="emptyFilters"
-          @remove="handleRemove"
-          @clear-all="handleClearAll"
-        />
+        <ActiveFilters :filters="emptyFilters" />
         <p class="text-sm text-gray-500 mt-2">
           (Nothing displayed when no filters)
         </p>
@@ -64,20 +52,12 @@ function handleClearAll() {
 
       <div>
         <h3 class="text-lg font-bold mb-2">Single Filter (String/Like)</h3>
-        <ActiveFilters
-          :filters="singleFilter"
-          @remove="handleRemove"
-          @clear-all="handleClearAll"
-        />
+        <ActiveFilters :filters="singleFilter" />
       </div>
 
       <div>
         <h3 class="text-lg font-bold mb-2">Multiple Filters</h3>
-        <ActiveFilters
-          :filters="multipleFilters"
-          @remove="handleRemove"
-          @clear-all="handleClearAll"
-        />
+        <ActiveFilters :filters="multipleFilters" />
         <p class="text-sm text-gray-500 mt-2">
           (String like, range between, ref array in)
         </p>
@@ -88,30 +68,18 @@ function handleClearAll() {
         <div class="space-y-4">
           <div>
             <p class="text-sm mb-2">Min only:</p>
-            <ActiveFilters
-              :filters="rangeMinOnly"
-              @remove="handleRemove"
-              @clear-all="handleClearAll"
-            />
+            <ActiveFilters :filters="rangeMinOnly" />
           </div>
           <div>
             <p class="text-sm mb-2">Max only:</p>
-            <ActiveFilters
-              :filters="rangeMaxOnly"
-              @remove="handleRemove"
-              @clear-all="handleClearAll"
-            />
+            <ActiveFilters :filters="rangeMaxOnly" />
           </div>
         </div>
       </div>
 
       <div>
         <h3 class="text-lg font-bold mb-2">Null Filters</h3>
-        <ActiveFilters
-          :filters="nullFilters"
-          @remove="handleRemove"
-          @clear-all="handleClearAll"
-        />
+        <ActiveFilters :filters="nullFilters" />
         <p class="text-sm text-gray-500 mt-2">(isNull and notNull operators)</p>
       </div>
     </div>

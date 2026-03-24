@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { computed, ref, useId, watch } from "vue";
+import { computed, nextTick, ref, useId, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../../types/filters";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type {
+  FilterValue,
+  IFilterValue,
+  UseFilters,
+} from "../../../types/filters";
 import FilterColumn from "./Column.vue";
 import InputSearch from "../input/Search.vue";
 import FilterPicker from "./FilterPicker.vue";
-import type { ActiveFilter } from "../../../types/filters";
 
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { MAX_NESTING_DEPTH } from "../../utils/filterConstants";
 import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
-import { formatFilterValue } from "../../utils/formatFilterValue";
 import type { IGraphQLFilter } from "../../../types/filters";
 import {
   createCountFetcher,
@@ -24,6 +26,7 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
+    filters: UseFilters;
     title?: string;
     showSearch?: boolean;
   }>(),
@@ -96,9 +99,10 @@ const userHasCustomized = ref(
   typeof route.query[MG_FILTERS_PARAM] === "string"
 );
 
-watch(visibleFilterIds, (newIds) => {
+watch(visibleFilterIds, async (newIds) => {
   userHasCustomized.value = true;
   const isDefault = arraysEqual(newIds, defaultFilterIds.value);
+  await nextTick();
   const currentQuery = { ...route.query };
 
   if (isDefault) {
@@ -120,9 +124,7 @@ function handleFilterToggle(columnId: string) {
     visibleFilterIds.value = visibleFilterIds.value.filter(
       (id) => id !== columnId
     );
-    const newMap = new Map(filterStates.value);
-    newMap.delete(columnId);
-    filterStates.value = newMap;
+    props.filters.removeFilter(columnId);
   } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
     visibleFilterIds.value = [...visibleFilterIds.value, columnId];
   }
@@ -133,23 +135,18 @@ function handleFilterReset() {
   const removedIds = visibleFilterIds.value.filter(
     (id) => !newDefaults.includes(id)
   );
-  if (removedIds.length > 0) {
-    const newMap = new Map(filterStates.value);
-    for (const id of removedIds) {
-      newMap.delete(id);
-    }
-    filterStates.value = newMap;
+  for (const id of removedIds) {
+    props.filters.removeFilter(id);
   }
   userHasCustomized.value = false;
   visibleFilterIds.value = newDefaults;
 }
 
-const filterStates = defineModel<Map<string, IFilterValue>>("filterStates", {
-  default: () => new Map(),
-});
-
-const searchTerms = defineModel<string>("searchTerms", {
-  default: "",
+const searchTerms = computed({
+  get: () => props.filters.searchValue.value,
+  set: (val: string) => {
+    props.filters.setSearch(val);
+  },
 });
 
 const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
@@ -158,7 +155,7 @@ const crossFilterMap = computed(() => {
   const map = new Map<string, IGraphQLFilter>();
   for (const filterId of visibleFilterIds.value) {
     const crossFilterStates = new Map<string, IFilterValue>();
-    filterStates.value.forEach((value, key) => {
+    props.filters.filterStates.value.forEach((value, key) => {
       if (key !== filterId) {
         crossFilterStates.set(key, value);
       }
@@ -244,7 +241,7 @@ const resolvedFilters = computed<IFilter[]>(() => {
 });
 
 function getFilterValue(columnId: string): IFilterValue | null {
-  return filterStates.value.get(columnId) || null;
+  return props.filters.filterStates.value.get(columnId) || null;
 }
 
 function findColumnForPath(fullPath: string): IColumn | undefined {
@@ -264,21 +261,24 @@ function findColumnForPath(fullPath: string): IColumn | undefined {
   return currentColumns.find((c) => c.id === segments[segments.length - 1]);
 }
 
-async function extractRefPkey(column: IColumn, val: any): Promise<any> {
+async function extractRefPkey(
+  column: IColumn,
+  val: FilterValue
+): Promise<FilterValue> {
   if (val === null || typeof val !== "object") return val;
   if (!column.refTableId) return val;
   const schemaId = column.refSchemaId || props.schemaId;
   try {
     if (Array.isArray(val)) {
-      return await Promise.all(
+      return (await Promise.all(
         val.map((item) =>
           typeof item === "object" && item !== null
-            ? getPrimaryKey(item, column.refTableId!, schemaId)
+            ? getPrimaryKey(item as IRow, column.refTableId!, schemaId)
             : item
         )
-      );
+      )) as FilterValue;
     }
-    return await getPrimaryKey(val, column.refTableId, schemaId);
+    return await getPrimaryKey(val as IRow, column.refTableId, schemaId);
   } catch {
     return val;
   }
@@ -288,33 +288,18 @@ async function setFilterValue(
   columnId: string,
   value: IFilterValue | null | undefined
 ) {
-  const newMap = new Map(filterStates.value);
   if (value === null || value === undefined) {
-    newMap.delete(columnId);
+    props.filters.removeFilter(columnId);
   } else {
     const column = findColumnForPath(columnId);
     if (column && column.refTableId && value.value !== null) {
       const stripped = await extractRefPkey(column, value.value);
-      newMap.set(columnId, { ...value, value: stripped });
+      props.filters.setFilter(columnId, { ...value, value: stripped });
     } else {
-      newMap.set(columnId, value);
+      props.filters.setFilter(columnId, value);
     }
   }
-  filterStates.value = newMap;
 }
-
-const activeFiltersList = computed<ActiveFilter[]>(() => {
-  const result: ActiveFilter[] = [];
-  for (const [columnId, filterValue] of filterStates.value) {
-    const filter = resolvedFilters.value.find((f) => f.fullPath === columnId);
-    const label = filter?.label || columnId;
-    const { displayValue, values } = formatFilterValue(filterValue);
-    if (displayValue) {
-      result.push({ columnId, label, displayValue, values });
-    }
-  }
-  return result;
-});
 
 function getCountFetcher(columnPath: string): ICountFetcher {
   return createCountFetcher({
@@ -354,8 +339,7 @@ async function loadRefColumnsForPath(fullPath: string) {
           tableMetadata.columns.filter(
             (col) =>
               !col.id.startsWith("mg_") &&
-              !unfilterable.includes(col.columnType) &&
-              (col as any).showFilter !== false
+              !unfilterable.includes(col.columnType)
           )
         );
       } catch {

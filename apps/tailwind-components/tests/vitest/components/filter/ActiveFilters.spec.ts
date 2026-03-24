@@ -8,7 +8,6 @@ describe("ActiveFilters", () => {
     const wrapper = mount(ActiveFilters, {
       props: { filters: [] },
     });
-
     expect(wrapper.find("div").exists()).toBe(false);
   });
 
@@ -17,7 +16,6 @@ describe("ActiveFilters", () => {
       { columnId: "name", label: "Name", displayValue: "John", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const chips = wrapper.findAll("button[aria-label^='Remove filter']");
     expect(chips).toHaveLength(1);
     expect(chips[0].text()).toContain("Name");
@@ -30,7 +28,6 @@ describe("ActiveFilters", () => {
       { columnId: "age", label: "Age", displayValue: "25", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const chips = wrapper.findAll("button[aria-label^='Remove filter']");
     expect(chips).toHaveLength(2);
   });
@@ -45,7 +42,6 @@ describe("ActiveFilters", () => {
       },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     expect(wrapper.text()).toContain("3");
   });
 
@@ -54,10 +50,8 @@ describe("ActiveFilters", () => {
       { columnId: "name", label: "Name", displayValue: "John", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const chip = wrapper.find("button[aria-label^='Remove filter']");
     await chip.trigger("click");
-
     expect(wrapper.emitted("remove")).toBeTruthy();
     expect(wrapper.emitted("remove")?.[0]).toEqual(["name"]);
   });
@@ -67,7 +61,6 @@ describe("ActiveFilters", () => {
       { columnId: "name", label: "Name", displayValue: "John", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const removeAllButton = wrapper.find("button:not([aria-label])");
     expect(removeAllButton.exists()).toBe(true);
     expect(removeAllButton.text()).toBe("Remove all");
@@ -79,10 +72,8 @@ describe("ActiveFilters", () => {
       { columnId: "age", label: "Age", displayValue: "25", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const clearAllButton = wrapper.find("button:not([aria-label])");
     await clearAllButton.trigger("click");
-
     expect(wrapper.emitted("clearAll")).toBeTruthy();
   });
 
@@ -91,7 +82,6 @@ describe("ActiveFilters", () => {
       { columnId: "name", label: "Name", displayValue: "John", values: [] },
     ];
     const wrapper = mount(ActiveFilters, { props: { filters } });
-
     const chip = wrapper.find("button[aria-label]");
     expect(chip.attributes("aria-label")).toBe("Remove filter: Name");
   });
@@ -110,17 +100,12 @@ describe("ActiveFilters", () => {
       global: {
         stubs: {
           VDropdown: {
-            template: `
-              <div>
-                <slot />
-                <div class="popper"><slot name="popper" /></div>
-              </div>
-            `,
+            template:
+              '<div><slot /><div class="popper"><slot name="popper" /></div></div>',
           },
         },
       },
     });
-
     const popperContent = wrapper.find(".popper");
     expect(popperContent.text()).toContain("A");
     expect(popperContent.text()).toContain("B");
@@ -136,17 +121,12 @@ describe("ActiveFilters", () => {
       global: {
         stubs: {
           VDropdown: {
-            template: `
-              <div>
-                <slot />
-                <div class="popper"><slot name="popper" /></div>
-              </div>
-            `,
+            template:
+              '<div><slot /><div class="popper"><slot name="popper" /></div></div>',
           },
         },
       },
     });
-
     const popperContent = wrapper.find(".popper");
     expect(popperContent.text()).toContain("John");
   });

@@ -40,6 +40,18 @@ describe("useFilters", () => {
     },
   ]);
 
+  it("returns a UseFilters-typed object", () => {
+    const result = useFilters(mockColumns);
+    expect(result).toHaveProperty("filterStates");
+    expect(result).toHaveProperty("searchValue");
+    expect(result).toHaveProperty("gqlFilter");
+    expect(result).toHaveProperty("activeFilters");
+    expect(result).toHaveProperty("setFilter");
+    expect(result).toHaveProperty("setSearch");
+    expect(result).toHaveProperty("clearFilters");
+    expect(result).toHaveProperty("removeFilter");
+  });
+
   it("initializes with empty filter state", () => {
     const { filterStates, searchValue, gqlFilter } = useFilters(mockColumns);
 
@@ -414,7 +426,7 @@ describe("useFilters", () => {
   });
 
   it("computes activeFilters from filterStates", () => {
-    const { setFilter, activeFilters } = useFilters(ref(mockColumns));
+    const { setFilter, activeFilters } = useFilters(mockColumns);
     setFilter("name", { operator: "like", value: "John" });
     expect(activeFilters.value).toEqual([
       { columnId: "name", label: "Name", displayValue: "John", values: [] },
@@ -422,7 +434,7 @@ describe("useFilters", () => {
   });
 
   it("activeFilters excludes empty filter values", () => {
-    const { setFilter, activeFilters } = useFilters(ref(mockColumns));
+    const { setFilter, activeFilters } = useFilters(mockColumns);
     setFilter("name", { operator: "like", value: "" });
     expect(activeFilters.value).toEqual([]);
   });

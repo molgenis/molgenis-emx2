@@ -24,7 +24,8 @@ vi.stubGlobal(
 
 import Sidebar from "../../../../app/components/filter/Sidebar.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
-import type { IFilterValue } from "../../../../types/filters";
+import type { IFilterValue, UseFilters } from "../../../../types/filters";
+import { ref, computed } from "vue";
 
 const mockRoute = { query: {} as Record<string, string> };
 const mockRouter = { replace: vi.fn() };
@@ -142,12 +143,50 @@ const defaultProps = {
   tableId: "Patient",
 };
 
+function createMockUseFilters(
+  initialFilters?: Map<string, IFilterValue>
+): UseFilters {
+  const filterStatesRef = ref<Map<string, IFilterValue>>(
+    initialFilters ?? new Map()
+  );
+  const searchValueRef = ref("");
+
+  return {
+    filterStates: filterStatesRef,
+    searchValue: searchValueRef,
+    gqlFilter: ref({}),
+    activeFilters: computed(() => []),
+    setFilter: (columnId: string, value: IFilterValue | null) => {
+      const newMap = new Map(filterStatesRef.value);
+      if (value === null) {
+        newMap.delete(columnId);
+      } else {
+        newMap.set(columnId, value);
+      }
+      filterStatesRef.value = newMap;
+    },
+    setSearch: (value: string) => {
+      searchValueRef.value = value;
+    },
+    clearFilters: () => {
+      filterStatesRef.value = new Map();
+      searchValueRef.value = "";
+    },
+    removeFilter: (columnId: string) => {
+      const newMap = new Map(filterStatesRef.value);
+      newMap.delete(columnId);
+      filterStatesRef.value = newMap;
+    },
+  };
+}
+
 function mountSidebar(props = {}, filterStates?: Map<string, IFilterValue>) {
-  return mount(Sidebar, {
+  const mockFilters = createMockUseFilters(filterStates);
+  const wrapper = mount(Sidebar, {
     props: {
       ...defaultProps,
+      filters: mockFilters,
       ...props,
-      ...(filterStates !== undefined ? { filterStates } : {}),
     },
     global: {
       stubs: {
@@ -157,6 +196,7 @@ function mountSidebar(props = {}, filterStates?: Map<string, IFilterValue>) {
       },
     },
   });
+  return { wrapper, mockFilters };
 }
 
 describe("Sidebar", () => {
@@ -167,29 +207,29 @@ describe("Sidebar", () => {
 
   describe("rendering", () => {
     it("renders default title Filters", () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       expect(wrapper.text()).toContain("Filters");
     });
 
     it("renders custom title when provided", () => {
-      const wrapper = mountSidebar({ title: "My Filters" });
+      const { wrapper } = mountSidebar({ title: "My Filters" });
       expect(wrapper.text()).toContain("My Filters");
     });
 
     it("renders search input when showSearch is true", () => {
-      const wrapper = mountSidebar({ showSearch: true });
+      const { wrapper } = mountSidebar({ showSearch: true });
       const searchStub = wrapper.findComponent({ name: "InputSearch" });
       expect(searchStub.exists()).toBe(true);
     });
 
     it("hides search input when showSearch is false", () => {
-      const wrapper = mountSidebar({ showSearch: false });
+      const { wrapper } = mountSidebar({ showSearch: false });
       const searchStub = wrapper.findComponent({ name: "InputSearch" });
       expect(searchStub.exists()).toBe(false);
     });
 
     it("applies bg-sidebar-gradient class", () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       expect(wrapper.find(".bg-sidebar-gradient").exists()).toBe(true);
     });
   });
@@ -201,7 +241,7 @@ describe("Sidebar", () => {
         columns: [...allColumns, ...unfilterableColumns],
       });
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
 
@@ -218,7 +258,7 @@ describe("Sidebar", () => {
 
   describe("smart defaults", () => {
     it("shows ontology columns as default visible filters", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -228,7 +268,7 @@ describe("Sidebar", () => {
     });
 
     it("fills remaining slots with ref columns when fewer than 5 ontology columns", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -238,7 +278,7 @@ describe("Sidebar", () => {
     });
 
     it("does not show string columns by default", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -256,7 +296,7 @@ describe("Sidebar", () => {
         ],
       });
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -277,7 +317,7 @@ describe("Sidebar", () => {
         columns: manyOntologyCols,
       });
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -287,7 +327,7 @@ describe("Sidebar", () => {
 
   describe("filter toggle", () => {
     it("adds a filter when FilterPicker emits toggle for a hidden column", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -306,7 +346,7 @@ describe("Sidebar", () => {
     });
 
     it("removes a filter when FilterPicker emits toggle for a visible column", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -328,7 +368,7 @@ describe("Sidebar", () => {
       const initialFilterStates = new Map<string, IFilterValue>([
         ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
       ]);
-      const wrapper = mountSidebar({}, initialFilterStates);
+      const { wrapper, mockFilters } = mountSidebar({}, initialFilterStates);
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -336,19 +376,13 @@ describe("Sidebar", () => {
       await picker.vm.$emit("toggle", "disease");
       await nextTick();
 
-      const emittedUpdates = wrapper.emitted("update:filterStates");
-      expect(emittedUpdates).toBeTruthy();
-      const lastEmitted = emittedUpdates![emittedUpdates!.length - 1][0] as Map<
-        string,
-        IFilterValue
-      >;
-      expect(lastEmitted.has("disease")).toBe(false);
+      expect(mockFilters.filterStates.value.has("disease")).toBe(false);
     });
   });
 
   describe("filter reset", () => {
     it("resets to default filters when FilterPicker emits reset", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -373,7 +407,7 @@ describe("Sidebar", () => {
       const initialFilterStates = new Map<string, IFilterValue>([
         ["name", { operator: "like", value: "test" }],
       ]);
-      const wrapper = mountSidebar({}, initialFilterStates);
+      const { wrapper, mockFilters } = mountSidebar({}, initialFilterStates);
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -384,20 +418,14 @@ describe("Sidebar", () => {
       await picker.vm.$emit("reset");
       await nextTick();
 
-      const emittedUpdates = wrapper.emitted("update:filterStates");
-      expect(emittedUpdates).toBeTruthy();
-      const lastEmitted = emittedUpdates![emittedUpdates!.length - 1][0] as Map<
-        string,
-        IFilterValue
-      >;
-      expect(lastEmitted.has("name")).toBe(false);
+      expect(mockFilters.filterStates.value.has("name")).toBe(false);
     });
   });
 
   describe("URL sync", () => {
     it("reads visible filter IDs from mg_filters URL param on mount", async () => {
       mockRoute.query = { mg_filters: "name,notes" };
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -407,7 +435,7 @@ describe("Sidebar", () => {
     });
 
     it("writes mg_filters to URL when visible filters change from defaults", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -424,7 +452,7 @@ describe("Sidebar", () => {
     });
 
     it("removes mg_filters from URL when visible filters match defaults", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -466,7 +494,7 @@ describe("Sidebar", () => {
           columns: [{ id: "name", label: "Name", columnType: "STRING" }],
         });
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await flushPromises();
       await nextTick();
 
@@ -503,7 +531,7 @@ describe("Sidebar", () => {
         ["hospital.name", { operator: "like", value: "General" }],
       ]);
 
-      const wrapper = mountSidebar({}, initialFilterStates);
+      const { wrapper } = mountSidebar({}, initialFilterStates);
       await flushPromises();
       await nextTick();
 
@@ -543,7 +571,7 @@ describe("Sidebar", () => {
         })
         .mockRejectedValueOnce(new Error("Network error"));
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await flushPromises();
       await nextTick();
 
@@ -560,7 +588,7 @@ describe("Sidebar", () => {
     });
 
     it("passes column label for top-level columns", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -579,7 +607,7 @@ describe("Sidebar", () => {
       const initialFilterStates = new Map<string, IFilterValue>([
         ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
       ]);
-      const wrapper = mountSidebar({}, initialFilterStates);
+      const { wrapper } = mountSidebar({}, initialFilterStates);
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -594,7 +622,7 @@ describe("Sidebar", () => {
     });
 
     it("removes a filter when FilterColumn emits remove", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -627,7 +655,7 @@ describe("Sidebar", () => {
         mg_filters: Array.from({ length: 25 }, (_, i) => `col${i}`).join(","),
       };
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
 
@@ -651,7 +679,7 @@ describe("Sidebar", () => {
     it("results in empty filterableColumns when fetchTableMetadata throws on mount", async () => {
       mockFetchTableMetadata.mockRejectedValueOnce(new Error("Network error"));
 
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
 
@@ -666,7 +694,7 @@ describe("Sidebar", () => {
 
   describe("FilterPicker props", () => {
     it("passes filterable columns, schemaId, and visibleFilterIds to FilterPicker", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
@@ -686,7 +714,7 @@ describe("Sidebar", () => {
     });
 
     it("passes defaultFilterIds to FilterPicker", async () => {
-      const wrapper = mountSidebar();
+      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });

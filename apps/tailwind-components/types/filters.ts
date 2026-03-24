@@ -12,9 +12,18 @@ export type FilterOperator =
   | "notNull"
   | "isNull";
 
+export type FilterValue =
+  | string
+  | number
+  | boolean
+  | Record<string, unknown>
+  | Record<string, unknown>[]
+  | (string | number | null)[]
+  | null;
+
 export interface IFilterValue {
   operator: FilterOperator;
-  value: any;
+  value: FilterValue;
 }
 
 // GraphQL filter types - matches EMX2 GraphQL API
@@ -50,4 +59,17 @@ export interface IGraphQLFilter {
     | IGraphQLFilter[]
     | string
     | undefined;
+}
+
+import type { Ref, ComputedRef } from "vue";
+
+export interface UseFilters {
+  filterStates: Ref<Map<string, IFilterValue>>;
+  searchValue: Ref<string> | ComputedRef<string>;
+  gqlFilter: Ref<IGraphQLFilter>;
+  activeFilters: ComputedRef<ActiveFilter[]>;
+  setFilter: (columnId: string, value: IFilterValue | null) => void;
+  setSearch: (value: string) => void;
+  clearFilters: () => void;
+  removeFilter: (columnId: string) => void;
 }

@@ -61,22 +61,20 @@ const filterColumns = computed(
     ) ?? []
 );
 
-const {
-  filterStates,
-  searchValue,
-  gqlFilter,
-  activeFilters,
-  removeFilter,
-  clearFilters,
-} = useFilters(filterColumns, {
+const filters = useFilters(filterColumns, {
   urlSync: true,
   route,
   router,
 });
 
-watch(searchValue, (val) => {
-  tableSettings.value.search = val;
-});
+const gqlFilter = computed(() => filters.gqlFilter.value);
+
+watch(
+  () => filters.searchValue.value,
+  (val) => {
+    tableSettings.value.search = val;
+  }
+);
 
 function handleSettingsUpdate() {
   const query = {
@@ -130,8 +128,7 @@ const { isAdmin, session } = await useSession(schemaId);
 
     <div class="flex gap-6">
       <FilterSidebar
-        v-model:filterStates="filterStates"
-        v-model:searchTerms="searchValue"
+        :filters="filters"
         :schemaId="schemaId"
         :tableId="tableId"
         :showSearch="true"
@@ -150,9 +147,9 @@ const { isAdmin, session } = await useSession(schemaId);
         >
           <template #below-toolbar>
             <ActiveFilters
-              :filters="activeFilters"
-              @remove="removeFilter"
-              @clear-all="clearFilters"
+              :filters="filters.activeFilters.value"
+              @remove="filters.removeFilter"
+              @clear-all="filters.clearFilters"
             />
           </template>
           <template #additional-row-actions="{ row }">

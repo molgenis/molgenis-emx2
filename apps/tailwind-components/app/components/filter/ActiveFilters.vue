@@ -10,14 +10,6 @@ const emit = defineEmits<{
   remove: [columnId: string];
   clearAll: [];
 }>();
-
-function handleRemove(columnId: string) {
-  emit("remove", columnId);
-}
-
-function handleClearAll() {
-  emit("clearAll");
-}
 </script>
 
 <template>
@@ -38,7 +30,7 @@ function handleClearAll() {
       class="!max-w-none shrink-0"
     >
       <Button
-        @click="handleRemove(filter.columnId)"
+        @click="emit('remove', filter.columnId)"
         type="filterWell"
         size="tiny"
         icon="cross"
@@ -77,7 +69,7 @@ function handleClearAll() {
     </VDropdown>
 
     <button
-      @click="handleClearAll"
+      @click="emit('clearAll')"
       class="whitespace-nowrap text-white text-xs underline hover:no-underline cursor-pointer"
     >
       Remove all

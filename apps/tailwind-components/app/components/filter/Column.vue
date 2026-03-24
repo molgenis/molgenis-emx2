@@ -3,8 +3,9 @@ import { computed } from "vue";
 import type {
   IColumn,
   CellValueType,
+  columnValue,
 } from "../../../../metadata-utils/src/types";
-import type { IFilterValue, FilterOperator } from "../../../types/filters";
+import type { IFilterValue, FilterOperator, FilterValue } from "../../../types/filters";
 import type { ICountFetcher } from "../../utils/createCountFetcher";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
@@ -111,15 +112,15 @@ const rangeValue = computed({
 });
 
 const singleValue = computed({
-  get: () => {
+  get: (): columnValue | columnValue[] => {
     if (!modelValue.value) return null;
-    return modelValue.value.value ?? null;
+    return (modelValue.value.value ?? null) as columnValue | columnValue[];
   },
   set: (val) => {
     if (val == null || val === "") {
       modelValue.value = null;
     } else {
-      modelValue.value = { operator: getDefaultOperator(), value: val };
+      modelValue.value = { operator: getDefaultOperator(), value: val as FilterValue };
     }
   },
 });
