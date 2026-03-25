@@ -23,7 +23,9 @@ const props = withDefaults(
   }
 );
 
-const elementType = computed(() => props.metadata.columnType.split("_")[0]);
+const elementType = computed(
+  () => props.metadata.columnType.split("_ARRAY")[0]
+);
 </script>
 
 <template>
