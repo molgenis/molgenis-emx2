@@ -36,7 +36,9 @@ public class SqlTypeUtils extends TypeUtils {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-      } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
+      } else if (c.getDefaultValue() != null
+          && !row.notNull(c.getName())
+          && !(c.isReference() && row.containsName(c.getName()))) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
             if (c.isRefArray()) {

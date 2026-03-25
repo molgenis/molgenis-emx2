@@ -15,6 +15,7 @@ import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.NotAcceptableResponse;
+import io.javalin.http.UploadedFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -27,6 +28,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfImportTask;
 import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
@@ -61,6 +63,8 @@ public class RDFApi {
   }
 
   public static void create(Javalin app) {
+    app.post("/{schema}/api/rdf/import", RDFApi::importByUrl);
+    app.post("/{schema}/api/rdf/import/file", RDFApi::importByFile);
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples
     // created on-the-fly, there is no way of knowing (or is there?)
@@ -299,6 +303,31 @@ public class RDFApi {
     if (format == null) format = selectFormat(ctx);
     ctx.contentType(format.getDefaultMIMEType());
     return format;
+  }
+
+  private static void importByUrl(Context ctx) {
+    Schema schema = getSchema(ctx);
+    Map body = ctx.bodyAsClass(Map.class);
+    String url = (String) body.get("url");
+    if (url == null || url.isBlank()) {
+      throw new MolgenisException("Missing 'url' in request body");
+    }
+    RdfImportTask task = new RdfImportTask(schema, url);
+    String id = TaskApi.submit(task);
+    ctx.json(new TaskReference(id, schema));
+  }
+
+  private static void importByFile(Context ctx) {
+    Schema schema = getSchema(ctx);
+    UploadedFile uploadedFile = ctx.uploadedFile("file");
+    if (uploadedFile == null) {
+      throw new MolgenisException("Missing 'file' in upload");
+    }
+    String filename = uploadedFile.filename();
+    String formatHint = filename.substring(filename.lastIndexOf('.'));
+    RdfImportTask task = new RdfImportTask(schema, uploadedFile.content(), formatHint);
+    String id = TaskApi.submit(task);
+    ctx.json(new TaskReference(id, schema));
   }
 
   public static RDFFormat selectFormat(Context ctx) {

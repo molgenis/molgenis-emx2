@@ -1,0 +1,57 @@
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix vcard:   <http://www.w3.org/2006/vcard/ns#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://example.org/catalog/1>
+    a dcat:Catalog ;
+    dcterms:title "Example Health Biobank Catalog"@en ;
+    dcterms:description "A catalog of health and biobank datasets for research purposes."@en ;
+    dcterms:publisher <https://example.org/organization/1> ;
+    dcat:contactPoint <https://example.org/contact/1> ;
+    dcat:dataset <https://example.org/dataset/cohort-1> ;
+    dcat:dataset <https://example.org/dataset/cohort-2> ;
+    dcat:dataset <https://example.org/dataset/external-1> .
+
+<https://example.org/organization/1>
+    a foaf:Agent ;
+    foaf:name "Example Health Research Institute"@en .
+
+<https://example.org/contact/1>
+    a vcard:Individual ;
+    vcard:fn "Data Access Committee" ;
+    vcard:hasEmail <mailto:dac@example.org> .
+
+<https://example.org/dataset/cohort-1>
+    a dcat:Dataset ;
+    dcterms:title "Longitudinal Cardiovascular Cohort"@en ;
+    dcterms:description "A longitudinal cohort study tracking cardiovascular outcomes over 10 years."@en ;
+    dcterms:identifier "cohort-1" ;
+    dcat:keyword "cardiovascular"@en, "longitudinal"@en, "cohort"@en ;
+    dcat:theme <http://publications.europa.eu/resource/authority/data-theme/HEAL> ;
+    dcterms:temporal [
+        a dcterms:PeriodOfTime ;
+        dcat:startDate "2010-01-01"^^xsd:date ;
+        dcat:endDate   "2020-12-31"^^xsd:date
+    ] ;
+    dcat:landingPage <https://example.org/dataset/cohort-1/landing> .
+
+<https://example.org/dataset/cohort-2>
+    a dcat:Dataset ;
+    dcterms:title "Rare Disease Patient Registry"@en ;
+    dcterms:description "A registry of patients diagnosed with rare diseases across European centres."@en ;
+    dcterms:identifier "cohort-2" ;
+    dcat:keyword "rare disease"@en, "registry"@en, "biobank"@en ;
+    dcat:theme <http://publications.europa.eu/resource/authority/data-theme/HEAL>,
+               <http://publications.europa.eu/resource/authority/data-theme/SOCI> ;
+    dcterms:temporal [
+        a dcterms:PeriodOfTime ;
+        dcat:startDate "2015-06-01"^^xsd:date
+    ] ;
+    dcat:landingPage <https://example.org/dataset/cohort-2/landing> .
