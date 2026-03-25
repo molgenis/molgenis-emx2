@@ -2,7 +2,32 @@
 
 ## Current status
 
-Phase 13 complete. Suggested next: Phase 11 (UseFilters object, large).
+Phases 11–16 done. useFilters is a complete filter controller. Sidebar and FilterPicker are pure display.
+
+## Phase 16: Ontology fix + e2e tests + cleanup [x]
+
+### What was done
+- Fixed `buildGraphQLFilter` for ONTOLOGY columns: uses `_match_any_including_children` instead of `{ name: { equals: [...] } }`
+- Added `FilterValue` type to replace `any` in `IFilterValue.value`
+- Added Playwright e2e tests (`apps/ui/tests/e2e/filter-counts.spec.ts`): counts visible, filter click works, URL filters, ontology parent matching
+- Memoized `getCountFetcher` to prevent infinite re-render loop (template called it per render, creating new watchers)
+- Made `refColumnsCache` internal to useFilters, exposed `getRefColumns(path)` instead
+- FilterPicker receives `filters: UseFilters` prop directly (no more individual props/emits)
+- Removed `schemaId` prop from FilterPicker (useFilters owns it)
+- Made `flattenColumns` a computed (`flatRows`) instead of a function called per render
+- Removed `defaultFilterIds`, `findColumnForPath`, `crossFilterMap` from public `UseFilters` interface (internal only)
+
+## Phase 15: Move filter visibility into useFilters [x]
+
+### What was done
+- All filter state/logic moved from Sidebar into useFilters: visibility, column resolution, cross-filtering, counts, ref pkey stripping
+- useFilters takes optional `schemaId`/`tableId` for ref resolution and count fetching
+- Sidebar is now ~30 lines of pure display (template + scoped CSS)
+- FilterPicker receives `filters` object, calls `filters.toggleFilter()` / `filters.resetFilters()` directly
+- Eliminated duplicate `refColumnsCache` (was in both Sidebar and FilterPicker)
+- All consumers pass `schemaId`/`tableId` to useFilters options
+
+---
 
 ## Phase 14: Fix paging param loss on filter URL update [x]
 
@@ -42,50 +67,13 @@ Phase 13 complete. Suggested next: Phase 11 (UseFilters object, large).
 
 ---
 
-## Phase 11: UseFilters object pattern
+## Phase 11: UseFilters object pattern [x]
 
-### Status: TODO
-
-### Problem
-`useFilters` returns individual refs/functions that consumers destructure. Sidebar receives filter state via multiple v-models (`filterStates`, `searchTerms`). This differs from the `UseForm` pattern where a single rich object is passed as one prop.
-
-### Goal
-Align with `UseForm` pattern — `useFilters` returns a `UseFilters` object passed as single prop. Sidebar and ActiveFilters both accept the object directly, reducing consumer wiring.
-
-```typescript
-const filters = useFilters(columns, { urlSync: true, route, router });
-
-<FilterSidebar :filters="filters" :schemaId="schemaId" :tableId="tableId" />
-<ActiveFilters :filters="filters" />
-```
-
-### Consumers (3 files)
-1. `apps/ui/app/pages/[schema]/[table]/index.vue` — production table view
-2. `apps/tailwind-components/app/pages/table/EMX2.story.vue` — story
-3. `apps/tailwind-components/app/pages/filter/Sidebar.story.vue` — story
-
-### Resolved questions
-1. `visibleFilterIds` and filter picker stay in Sidebar (UI concern, not state)
-2. Two-way binding via direct ref mutation (same as UseForm) — no v-model needed
-3. `activeFilters` stays as computed on UseFilters return object
-4. ActiveFilters receives full `filters` object — calls `filters.removeFilter()` and `filters.clearFilters()` internally
-5. Sidebar.story.vue should use `useFilters()` to demo the real integration pattern
-
-### Steps
-- [ ] 11.1 Define `UseFilters` interface in `types/filters.ts`
-- [ ] 11.2 Refactor `useFilters` to return typed `UseFilters` object
-- [ ] 11.3 Update Sidebar: replace v-model:filterStates/searchTerms with `filters: UseFilters` prop
-- [ ] 11.4 Update ActiveFilters: accept `filters: UseFilters` prop, internalize remove/clearAll
-- [ ] 11.5 Update consumers: `apps/ui/.../[table]/index.vue`, `EMX2.story.vue`, `Sidebar.story.vue`
-- [ ] 11.6 Update tests (Sidebar.spec.ts, ActiveFilters.spec.ts, useFilters.spec.ts)
-- [ ] 11.7 Run format + lint on tailwind-components and ui apps
-
-### Done so far
-- [x] Added `activeFilters` computed to `useFilters` return value
-- [x] Removed duplicate `activeFiltersList` from ui/index.vue and EMX2.story.vue
-
-### Future (out of scope)
-- Compose entire table view (filters + table + pagination) as reusable component developers can embed anywhere
+### What was done
+- `useFilters` returns a typed `UseFilters` object instead of individual refs/functions
+- Sidebar accepts `filters: UseFilters` prop instead of separate v-models
+- All consumers pass single `filters` object
+- `FilterValue` union type replaces `any` in `IFilterValue.value`
 
 ---
 
