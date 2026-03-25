@@ -897,6 +897,7 @@ public class GraphqlSchemaFieldFactory {
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
+                  db.getListener().onSchemaChange();
                 } catch (IOException e) {
                   throw new GraphqlException("Save metadata failed", e);
                 }
