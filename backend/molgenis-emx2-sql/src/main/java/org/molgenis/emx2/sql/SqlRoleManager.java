@@ -46,12 +46,19 @@ public class SqlRoleManager {
     }
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
-    database.getJooqAsAdmin(
-        jooq -> {
-          executeCreateRole(jooq, fullRole);
-          jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(fullRole));
-          jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(fullRole), name(ownerRole));
-          jooq.execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
+    database.tx( // we need to lift to admin to create a role
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            executeCreateRole(jooq, fullRole);
+            jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(fullRole));
+            jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(fullRole), name(ownerRole));
+            jooq.execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
         });
   }
 
@@ -63,21 +70,29 @@ public class SqlRoleManager {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
-    database.getJooqAsAdmin(
-        adminJooq -> {
-          for (String tableName : database.getSchema(schemaName).getTableNames()) {
-            adminJooq.execute(
-                "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    database.tx( // we need to lift to admin to drop a role
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            for (String tableName : database.getSchema(schemaName).getTableNames()) {
+              jooq.execute(
+                  "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+            }
+            jooq.execute(
+                """
+                        DO $$ DECLARE m TEXT; BEGIN
+                         FOR m IN SELECT rolname FROM pg_roles
+                         WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
+                         LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
+                         END LOOP; END $$;""",
+                inline(fullRole));
+            jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
+
+          } finally {
+            db.setActiveUser(currentUser);
           }
-          adminJooq.execute(
-              """
-                  DO $$ DECLARE m TEXT; BEGIN
-                   FOR m IN SELECT rolname FROM pg_roles
-                   WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
-                   LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
-                   END LOOP; END $$;""",
-              inline(fullRole));
-          adminJooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
         });
     database.getListener().onSchemaChange();
   }
