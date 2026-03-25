@@ -104,7 +104,7 @@
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column, row)"
+              @cellClicked="handleCellClick($event, column)"
             >
               <template #row-actions v-if="colIndex === 0">
                 <div
@@ -173,7 +173,6 @@
     type="right"
     v-model:visible="showModal"
     :title="cellDetailSubtitle"
-    :subtitle="cellDetailColumn?.columnType"
     @closed="showModal = false"
   >
     <TableCellDetailRef
@@ -429,19 +428,10 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handleCellClick(
-  event: cellPayload,
-  column: IColumn,
-  row: Record<string, any>
-) {
-  console.log("Cell clicked:", { event, column, row });
-
+function handleCellClick(event: cellPayload, column: IColumn) {
   cellDetailSubtitle.value = column.label;
   cellDetailColumn.value = column;
-  // if (isRefLikeDetail.value) {
   cellDetailValue.value = event.data as columnValue;
-  // }
-
   showModal.value = true;
 }
 
