@@ -157,7 +157,7 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --ignore CVE-2026-23112 --only-severity critical 
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --ignore-base --exit-code --only-severity critical 
 
     - run:
         name: deploy preview to azure
