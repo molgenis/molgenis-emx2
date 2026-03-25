@@ -4,23 +4,26 @@ import type {
   columnValue,
   IColumn,
 } from "../../../../metadata-utils/src/types";
-import ValueString from "./String.vue";
-import ValueDecimal from "./Decimal.vue";
-import ValueInt from "./Int.vue";
-import ValueLong from "./Long.vue";
+import type { ListPayload } from "../../../types/types";
+import {
+  assertBooleanValue,
+  assertNumberValue,
+  assertRowValue,
+  assertStringValue,
+  assertTableValue,
+  toRefColumn,
+} from "../../utils/typeUtils";
 import ValueBool from "./Bool.vue";
-import ValueEmail from "./Email.vue";
-import ValueHyperlink from "./Hyperlink.vue";
-import ValueObject from "./Object.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
-import {
-  assertStringValue,
-  assertNumberValue,
-  assertBooleanValue,
-  assertRowValue,
-} from "../../utils/typeUtils";
-import type { ListPayload } from "../../../types/types";
+import ValueDecimal from "./Decimal.vue";
+import ValueEmail from "./Email.vue";
+import ValueHyperlink from "./Hyperlink.vue";
+import ValueInt from "./Int.vue";
+import ValueLong from "./Long.vue";
+import ValueObject from "./Object.vue";
+import ValueString from "./String.vue";
+import ValueRefBack from "./RefBack.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -105,13 +108,19 @@ function handleCellClick() {
       "
       :metadata="metadata"
       :data="assertRowValue(listElement)"
-      @refCellClicked.self="handleCellClick()"
+      @refCellClicked.self="handleCellClick"
+    />
+    <ValueRefBack
+      v-else-if="metadata.columnType === 'REFBACK'"
+      :metadata="toRefColumn(metadata)"
+      :data="assertTableValue(listElement)"
+      @refBackCellClicked="handleCellClick"
     />
     <ValueObject
       v-else-if="elementType === 'ONTOLOGY'"
       :metadata="metadata"
       :data="assertRowValue(listElement)"
-      @refCellClicked.self="handleCellClick()"
+      @refCellClicked="handleCellClick"
     />
     <ValueDate
       v-else-if="elementType === 'DATE'"

@@ -14,7 +14,11 @@ import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ValueEMX2 from "../../value/EMX2.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
-import type { RefPayload } from "../../../../types/types";
+import type {
+  ColumnPayload,
+  ListPayload,
+  RefPayload,
+} from "../../../../types/types";
 import DefinitionList from "../../DefinitionList.vue";
 
 const props = withDefaults(
@@ -31,19 +35,14 @@ const props = withDefaults(
 );
 
 const loading = ref(true);
-const refColumnId = ref(props.metadata.id);
 const refRow = ref<IRow>({});
 const refRowMetadata = ref<ITableMetaData>();
 
 const sourceTableMetadata = ref<ITableMetaData>();
 
-interface IRefStackItem {
-  refRow: IRow;
-  refMetadata: ITableMetaData;
-}
-const refStack = ref<IRefStackItem[]>([]);
-
-const emit = defineEmits(["onClose"]);
+const emit = defineEmits<{
+  (e: "onRefClick", payload: RefPayload | ColumnPayload | ListPayload): void;
+}>();
 
 await fetchData(
   props.columnValue as IRow,
@@ -51,21 +50,6 @@ await fetchData(
   props.schema,
   props.sourceTableId
 );
-
-const sourceColumn = computed(() => {
-  return sourceTableMetadata.value?.columns.find(
-    (column) => column.id === refColumnId.value
-  );
-});
-
-const refColumnLabel = computed(() => {
-  const labelTemplate = (
-    sourceColumn.value?.refLabel
-      ? sourceColumn.value?.refLabel
-      : sourceColumn.value?.refLabelDefault
-  ) as string;
-  return columnValueToString(refRow.value, labelTemplate);
-});
 
 async function fetchData(
   row: IRow,
@@ -127,24 +111,6 @@ const sections = computed(() => {
       return section.fields.length > 0;
     });
 });
-
-function handleValueClicked(event: RefPayload) {
-  if (refColumnLabel.value && refRowMetadata.value) {
-    refStack.value.push({
-      refRow: unref(refRow.value),
-      refMetadata: unref(refRowMetadata.value),
-    });
-  }
-
-  refColumnId.value = event.metadata.id;
-
-  fetchData(
-    event.data as IRow,
-    event.metadata.refTableId,
-    event.metadata.refSchemaId ?? props.schema,
-    refRowMetadata.value?.id ?? props.sourceTableId
-  );
-}
 </script>
 
 <template>
@@ -169,7 +135,7 @@ function handleValueClicked(event: RefPayload) {
           <ValueEMX2
             :data="field.value"
             :metadata="field.metadata"
-            @valueClick="handleValueClicked"
+            @valueClick="$emit('onRefClick', $event)"
           />
         </DefinitionListDefinition>
       </template>

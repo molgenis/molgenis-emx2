@@ -177,12 +177,15 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail"
+      v-if="
+        cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail && showModal
+      "
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="schemaId"
       :sourceTableId="refSourceTableId"
       :showDataOwner="false"
+      @onRefClick="handleDetailRefClick"
     />
     <template v-else-if="cellDetailValue && isArrayLikeDetail">
       <ul>
@@ -194,6 +197,7 @@
             :schema="schemaId"
             :sourceTableId="refSourceTableId"
             :showDataOwner="false"
+            @onRefClick="handleDetailRefClick"
           />
         </li>
       </ul>
@@ -235,7 +239,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useId, watch } from "vue";
+import { computed, nextTick, ref, useId, watch } from "vue";
 import type {
   IRow,
   IColumn,
@@ -244,7 +248,9 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
+  ColumnPayload,
   ITableSettings,
+  ListPayload,
   RefPayload,
   sortDirection,
 } from "../../../types/types";
@@ -435,6 +441,22 @@ function handleCellClick(
   // if (isRefLikeDetail.value) {
   cellDetailValue.value = event.data as columnValue;
   // }
+
+  showModal.value = true;
+}
+
+async function handleDetailRefClick(
+  event: RefPayload | ColumnPayload | ListPayload
+) {
+  showModal.value = false;
+  await nextTick();
+
+  const columnMetadata = event.metadata;
+
+  cellDetailSubtitle.value = columnMetadata.label;
+  cellDetailColumn.value = columnMetadata;
+
+  cellDetailValue.value = event.data as columnValue;
 
   showModal.value = true;
 }

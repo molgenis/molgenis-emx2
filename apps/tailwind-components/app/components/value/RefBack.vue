@@ -13,17 +13,18 @@ const emit = defineEmits<{
   (e: "refBackCellClicked", payload: RefPayload): void;
 }>();
 
-const handleRefBackCellClicked = () => {
+const handleRefBackCellClicked = (index: number) => {
   if (props.data === null || props.data === undefined || !props.data[0]) {
     return;
   }
+
   emit("refBackCellClicked", {
     metadata: props.metadata,
-    data: props.data[0], // todo think about how to handle multiple rows, separate for each row or joined as one?
+    data: props.data[index],
   });
 };
 
-const refBackColumnLabel = computed(() => {
+const refBackColumnLabels = computed(() => {
   if (!props.data) {
     return "";
   }
@@ -32,16 +33,19 @@ const refBackColumnLabel = computed(() => {
       ? props.metadata.refLabel
       : props.metadata.refLabelDefault
   ) as string;
-  return props.data
-    .map((refRow) => columnValueToString(refRow, labelTemplate))
-    .join(", ");
+  return props.data.map((refRow) => columnValueToString(refRow, labelTemplate));
 });
 </script>
 
 <template>
   <span
+    v-for="(refBackColumnLabel, index) in refBackColumnLabels"
     class="underline hover:cursor-pointer text-link"
-    @click="handleRefBackCellClicked"
-    >{{ refBackColumnLabel }}</span
+    @click="handleRefBackCellClicked(index)"
   >
+    {{ refBackColumnLabel
+    }}<span class="no-underline" v-if="index < refBackColumnLabels.length - 1"
+      >,
+    </span>
+  </span>
 </template>
