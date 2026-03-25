@@ -73,7 +73,9 @@ function handleCellClick() {
     <ValueLong
       v-else-if="elementType === 'LONG'"
       :metadata="metadata"
-      :data="assertNumberValue(listElement)"
+      :data="
+        typeof listElement === 'number' ? listElement : Number(listElement)
+      "
     />
     <ValueInt
       v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"

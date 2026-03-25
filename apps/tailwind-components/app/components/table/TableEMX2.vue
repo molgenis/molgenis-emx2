@@ -177,7 +177,7 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="cellDetailColumn && isRefLikeDetail"
+      v-if="cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail"
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="schemaId"
@@ -483,14 +483,18 @@ const isRefLikeDetail = computed(() => {
   return (
     type === "REF" ||
     type === "RADIO" ||
+    type === "CHECKBOX" ||
     type === "SELECT" ||
     type === "ONTOLOGY" ||
-    type === "REFBACK"
+    type === "REFBACK" ||
+    type === "MULTISELECT"
   );
 });
 
 const isArrayLikeDetail = computed(() => {
   const type = cellDetailColumn.value?.columnType;
-  return type?.endsWith("_ARRAY") || type === "MULTISELECT";
+  return (
+    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+  );
 });
 </script>
