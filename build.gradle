@@ -86,21 +86,35 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 tasks.register('ci', WriteProperties) {
     destinationFile.set(file('build/ci.properties'))
     property 'TAG_NAME', tagName
-    property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
+}
+
+tasks.register('dockerPrepare') {
+    dependsOn installDist
+    doLast {
+        def installLib = file("build/install/${project.name}/lib")
+        def depsDir = file("build/docker/deps")
+        def appDir = file("build/docker/app")
+        delete(depsDir, appDir)
+        depsDir.mkdirs()
+        appDir.mkdirs()
+        def projectVersion = project.version.toString().replace("v", "")
+        installLib.eachFile { f ->
+            def isProjectJar = f.name.contains(projectVersion)
+            java.nio.file.Files.copy(f.toPath(), new File(isProjectJar ? appDir : depsDir, f.name).toPath())
+        }
+    }
 }
 
 // Docker build and push tasks using Docker CLI (Gradle 9 compatible)
 tasks.register('dockerBuild', Exec) {
-    dependsOn shadowJar
+    dependsOn dockerPrepare
     description = 'Build Docker image using Docker CLI'
 
     doFirst {
         logger.lifecycle("Building Docker image: ${imageName}:${tagName} and ${imageName}:latest")
-        logger.lifecycle("Using JAR file: ${shadowJar.archiveFile.get().asFile.name}")
     }
 
     commandLine 'docker', 'build',
-        '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
         '-t', "${imageName}:${tagName}",
         '-t', "${imageName}:latest",
         '.'
