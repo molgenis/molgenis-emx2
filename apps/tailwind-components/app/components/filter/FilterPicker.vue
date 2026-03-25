@@ -69,7 +69,7 @@ interface FlatPickerRow {
   isRefExpandable: boolean;
 }
 
-function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
+const flatRows = computed<FlatPickerRow[]>(() => {
   const rows: FlatPickerRow[] = [];
 
   function walk(cols: IColumn[], parentPath: string, depth: number) {
@@ -92,9 +92,9 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
     }
   }
 
-  walk(columns, "", 0);
+  walk(sortedColumns.value, "", 0);
   return rows;
-}
+});
 </script>
 
 <template>
@@ -120,7 +120,7 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
         </div>
 
         <div class="max-h-80 overflow-y-auto">
-          <div v-for="row in flattenColumns(sortedColumns)" :key="row.path">
+          <div v-for="row in flatRows" :key="row.path">
             <button
               @click="filters.toggleFilter(row.path)"
               v-tooltip.right="columnTooltip(row.column)"
