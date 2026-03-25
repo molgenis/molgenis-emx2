@@ -1,4 +1,4 @@
-FROM ubuntu:24.10
+FROM ubuntu:25.10
 
 RUN apt update && apt -y upgrade && apt -y install python3 python3-pip python3-venv openjdk-21-jre-headless
 
