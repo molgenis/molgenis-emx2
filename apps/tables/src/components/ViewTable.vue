@@ -56,7 +56,7 @@ export default {
       return this.tablePermission?.canDelete || false;
     },
     canEdit() {
-      return this.canInsert || this.canUpdate || this.canDelete;
+      return this.canInsert || this.canUpdate || this.canDelete || false;
     },
     canManage() {
       const isAdmin = this.session?.email === "admin";

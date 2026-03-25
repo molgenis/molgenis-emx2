@@ -133,9 +133,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    canInsert: { default: undefined },
-    canUpdate: { default: undefined },
-    canDelete: { default: undefined },
+    canInsert: { default: false },
+    canUpdate: { default: false },
+    canDelete: { default: false },
     filter: {
       type: Object,
       required: false,

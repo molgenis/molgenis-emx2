@@ -13,11 +13,7 @@
       </div>
       <div v-else class="pb-3">
         <h4>Upload</h4>
-        <MessageWarning
-          v-if="
-            !session || !session.roles || !session.roles?.includes('Editor')
-          "
-        >
+        <MessageWarning v-if="!session?.roles?.includes('Editor')">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
