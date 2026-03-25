@@ -133,6 +133,7 @@ public class MolgenisWebservice {
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
     PodiumApi.create(app);
+    DcatHarvestApi.create(app);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);

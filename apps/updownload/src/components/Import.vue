@@ -42,6 +42,15 @@
               <Spinner v-if="loading" />
             </form>
             <br />
+            <div class="mt-3 p-3 border rounded bg-light">
+              <strong>DCAT Harvest (beta)</strong>
+              <p class="mb-1">
+                Import metadata from FAIR Data Points and other DCAT catalogs.
+              </p>
+              <router-link to="/harvest" class="btn btn-outline-primary btn-sm">
+                Open DCAT Harvest
+              </router-link>
+            </div>
           </div>
         </div>
         <div
