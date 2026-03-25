@@ -617,6 +617,7 @@ public class GraphqlSchemaFieldFactory {
                 // this sync is a bit sad.
                 ((SqlSchemaMetadata) schema.getMetadata())
                     .sync((SqlSchemaMetadata) s.getMetadata());
+                db.getListener().onSchemaChange();
               });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
@@ -905,13 +906,14 @@ public class GraphqlSchemaFieldFactory {
                 try {
                   Schema s = db.getSchema(schema.getName());
                   changeTables(s, dataFetchingEnvironment);
-                  changeMembers(s, dataFetchingEnvironment);
                   changeRoles(s, dataFetchingEnvironment);
+                  changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
+                  db.getListener().onSchemaChange();
                 } catch (IOException e) {
                   throw new GraphqlException("Save metadata failed", e);
                 }

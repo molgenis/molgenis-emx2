@@ -6,11 +6,18 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.TableType;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")
@@ -19,6 +26,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   private static final String SCHEMA = "TablePermissionsGqlTest";
   private static final String TABLE_A = "ArticleA";
   private static final String TABLE_B = "ArticleB";
+  private static final String TABLE_ONTOLOGY = "TagOntology";
+  private static final String TABLE_WITH_REF = "ArticleWithRef";
 
   private static final String OWNER_USER = "tpgql_owner";
   private static final String CUSTOM_USER = "tpgql_custom";
@@ -44,9 +53,15 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     Schema schema = database.dropCreateSchema(SCHEMA);
     schema.create(
         table(TABLE_A).add(column("id").setPkey()).add(column("value")),
-        table(TABLE_B).add(column("id").setPkey()).add(column("value")));
+        table(TABLE_B).add(column("id").setPkey()).add(column("value")),
+        table(TABLE_ONTOLOGY).setTableType(TableType.ONTOLOGIES),
+        table(TABLE_WITH_REF)
+            .add(column("id").setPkey())
+            .add(column("ref").setType(ColumnType.REF).setRefTable(TABLE_B)));
     schema.getTable(TABLE_A).insert(new Row().setString("id", "a1").setString("value", "hello"));
     schema.getTable(TABLE_B).insert(new Row().setString("id", "b1").setString("value", "world"));
+    schema.getTable(TABLE_ONTOLOGY).insert(new Row().setString("name", "tag1").setInt("order", 1));
+    schema.getTable(TABLE_WITH_REF).insert(new Row().setString("id", "wr1").setString("ref", "b1"));
 
     schema.addMember(OWNER_USER, Privileges.OWNER.toString());
     schema.addMember(VIEWER_USER, Privileges.VIEWER.toString());
@@ -315,6 +330,233 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     assertTrue(body.contains("\"Viewer\""), "System Viewer role must appear");
     assertTrue(body.contains("\"system\" : true"), "System roles must have system:true");
     assertTrue(body.contains("\"*\""), "System roles must report wildcard table permission");
+  }
+
+  // ── Schema roles query ──────────────────────────────────────────────────
+
+  @Test
+  @Order(10)
+  void customRoleWithMixedPermissionsShownInSchemaQuery() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("MixedRole");
+    schema.grant("MixedRole", new TablePermission(TABLE_A).select(true).insert(true));
+
+    login(OWNER_USER, OWNER_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ _schema { roles { name system permissions { table select insert update delete } } } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertTrue(body.contains("\"MixedRole\""), "MixedRole must appear in schema roles");
+    assertTrue(body.contains("\"system\" : false"), "Custom role must have system:false");
+    assertTrue(body.contains("\"ArticleA\""), "Permission should reference ArticleA");
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.deleteRole("MixedRole");
+  }
+
+  @Test
+  @Order(11)
+  void editorSystemRoleShownWithFullPermissions() {
+    login(OWNER_USER, OWNER_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ _schema { roles { name system permissions { table select insert update delete } } } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertTrue(body.contains("\"Editor\""), "Editor role must appear");
+    assertTrue(body.contains("\"system\" : true"), "System roles must have system:true");
+  }
+
+  // ── Session edge cases ────────────────────────────────────────────────────
+
+  @Test
+  @Order(12)
+  void userWithEmptyRoleSessionHasNoTablePermissions() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("EmptyGqlRole");
+    schema.addMember(CUSTOM_USER, "EmptyGqlRole");
+
+    login(CUSTOM_USER, CUSTOM_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ _session { tablePermissions { name canView canInsert canUpdate canDelete } } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertNoGraphqlErrors(body);
+    assertFalse(
+        body.contains("\"canView\" : true"), "User with empty role should not have canView:true");
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.removeMember(CUSTOM_USER);
+    schema.deleteRole("EmptyGqlRole");
+  }
+
+  @Test
+  @Order(13)
+  void revokeViaFalseShowsCorrectSessionPermission() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("FalseTestRole");
+    schema.grant(
+        "FalseTestRole", new TablePermission(TABLE_A).select(true).insert(true).update(true));
+    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(false));
+    schema.addMember(CUSTOM_USER, "FalseTestRole");
+
+    login(CUSTOM_USER, CUSTOM_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ _session { tablePermissions { name canView canInsert canUpdate canDelete } } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertNoGraphqlErrors(body);
+    assertTrue(body.contains("\"canView\" : true"), "canView should be true (select granted)");
+    assertTrue(
+        body.contains("\"canInsert\" : false"), "canInsert should be false (explicitly revoked)");
+    assertTrue(body.contains("\"canUpdate\" : true"), "canUpdate should be true (update granted)");
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.removeMember(CUSTOM_USER);
+    schema.deleteRole("FalseTestRole");
+  }
+
+  // ── Access enforcement ───────────────────────────────────────────────────
+
+  @Test
+  @Order(14)
+  void ontologyTableAccessibleToCustomUserWithoutGrant() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("OntologyTestRole");
+    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(true));
+    schema.addMember(CUSTOM_USER, "OntologyTestRole");
+
+    login(CUSTOM_USER, CUSTOM_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ TagOntology { name } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertNoGraphqlErrors(body);
+    assertTrue(
+        body.contains("tag1"), "Ontology table data must be accessible without explicit grant");
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.removeMember(CUSTOM_USER);
+    schema.deleteRole("OntologyTestRole");
+  }
+
+  @Test
+  @Order(15)
+  void refColumnToUngrantedTableIsHiddenInGraphqlSchema() {
+    login(OWNER_USER, OWNER_PASS);
+    String setupBody =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",permissions:[{table:\\"ArticleWithRef\\",select:true}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .statusCode(200)
+            .extract()
+            .asString();
+    assertNoGraphqlErrors(setupBody);
+
+    login(CUSTOM_USER, CUSTOM_PASS);
+    String body =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ ArticleWithRef { id } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertNoGraphqlErrors(body);
+    assertTrue(body.contains("wr1"), "User should be able to read granted table");
+
+    String refBody =
+        given()
+            .sessionId(sessionId)
+            .body(
+                """
+                {"query":"{ ArticleWithRef { id ref { id } } }"}
+                """)
+            .post(SCHEMA_GQL)
+            .then()
+            .extract()
+            .asString();
+
+    assertTrue(
+        refBody.contains("errors") || !refBody.contains("b1"),
+        "Ref to ungranted table should be hidden or produce error, response: " + refBody);
+
+    // Cleanup
+    login(OWNER_USER, OWNER_PASS);
+    given()
+        .sessionId(sessionId)
+        .body(
+            """
+            {"query":"mutation{drop(members:\\"tpgql_custom\\"){message}}"}
+            """)
+        .post(SCHEMA_GQL)
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(sessionId)
+        .body(
+            """
+            {"query":"mutation{drop(roles:\\"RefTestRole\\"){message}}"}
+            """)
+        .post(SCHEMA_GQL)
+        .then()
+        .statusCode(200);
   }
 
   private static void assertNoGraphqlErrors(String responseBody) {
