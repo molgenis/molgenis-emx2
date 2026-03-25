@@ -21,3 +21,6 @@ class MissingHRICoreException(StagingMigratorException):
 
 class ReferenceDeleteError(StagingMigratorException):
     """Thrown when a record is to be deleted, but is still referenced by another record."""
+
+class NoSuchResourceException(StagingMigratorException):
+    """Thrown when a resource is to be edited that is missing in the target's Resources table."""

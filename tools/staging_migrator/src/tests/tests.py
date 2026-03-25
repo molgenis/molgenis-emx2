@@ -123,5 +123,5 @@ def test_add_resource():
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
-        migrator.add_data_resource()
+        migrator.add_data_resource(CATALOGUE)
 

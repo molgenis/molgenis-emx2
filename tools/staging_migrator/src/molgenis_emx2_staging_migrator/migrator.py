@@ -12,7 +12,8 @@ from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTable
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
-from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, MissingHRICoreException
+from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, \
+    MissingHRICoreException, NoSuchResourceException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts
 
@@ -101,9 +102,6 @@ class StagingMigrator(Client):
         # Upload the zip to the target schema
         self.upload_zip_stream(zip_stream)
 
-        if self.target == "UMCG":
-            self.add_data_resource()
-
         if not keep_zips:
             # Remove any downloaded files from disk
             self.cleanup()
@@ -136,7 +134,7 @@ class StagingMigrator(Client):
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
 
-                if source_profile in ["CohortStaging", "UMCGCohortsStaging"]:
+                if source_profile in ["CohortStaging", "UMCGCohortsStaging", "UMCUCohorts"]:
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
@@ -325,7 +323,7 @@ class StagingMigrator(Client):
         if self.source == self.target:
             raise NoSuchSchemaException(f"Target schema must be different from source schema.")
 
-    def add_data_resource(self):
+    def add_data_resource(self, resource: str):
         """Adds the source id to the target's data resources."""
 
         update_filepath = BASE_DIR / "update.zip"
@@ -337,7 +335,9 @@ class StagingMigrator(Client):
             except KeyError:
                 return
 
-        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {self.target}", as_df=True)
+        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {resource}", as_df=True)
+        if len(t_resources.index) == 0:
+            raise NoSuchResourceException(f"Resource {resource!r} not found in table Resources for target {self.target!r}.")
 
         new_resources = [res for res in u_resources["id"] if res not in t_resources["data resources"].str.split(',')]
 

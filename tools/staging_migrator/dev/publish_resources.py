@@ -39,6 +39,8 @@ def main(args):
             log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
             migrator.set_source(sa)
             migrator.migrate(keep_zips=True)
+            # Uncomment following line to add the source's resource to a resource's data resources
+            # migrator.add_data_resource()
 
 
 if __name__ == '__main__':
