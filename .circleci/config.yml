@@ -151,7 +151,11 @@ jobs:
           export $( cat build/ci.properties | xargs )
           docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
-    
+
+    - run:
+        name: Install jq
+        command: apt-get update && apt-get install -y jq
+
     - run:
         name: Docker-Scout scanning on cve's, break on critical.
         command: |
