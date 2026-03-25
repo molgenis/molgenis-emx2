@@ -70,7 +70,7 @@ describe("buildQueryFilter", () => {
     expect(expectedFilter).toEqual(filterString);
   });
 
-  it("should filter on both root and sub-table when filterTable is an array (issue #6085)", () => {
+  it("should filter on both root and sub-table when filterTable is an array", () => {
     const filtersWithMultipleTables: IFilter[] = [
       {
         id: "areasOfInformation",
@@ -92,9 +92,6 @@ describe("buildQueryFilter", () => {
 
     const result = buildQueryFilter(filtersWithMultipleTables);
 
-    // The filter should match resources that have "Tobacco" as an area of
-    // information directly OR have collection events with "Tobacco".
-    // Using _or ensures both paths are checked.
     expect(result).toEqual({
       _or: [
         {
