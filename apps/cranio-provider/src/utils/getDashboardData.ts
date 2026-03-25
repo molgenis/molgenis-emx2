@@ -1,10 +1,6 @@
 import { request, gql } from "graphql-request";
-import type {
-  IDashboardPagesResponse,
-  IChartsResponse,
-  ICharts,
-  IDashboardPages,
-} from "../types/schema";
+import type { ICharts, IDashboardPages } from "../types/schema";
+import type { IDashboardPagesResponse, IChartsResponse } from "../types/app";
 
 export async function getDashboardPage(
   url: string,
@@ -35,7 +31,13 @@ export async function getDashboardPage(
           bottomMargin
           leftMargin
           legendPosition
-          dataPoints {
+          dataPoints(
+            orderby: [
+              { dataPointPrimaryCategory: ASC }
+              { dataPointSecondaryCategory: ASC }
+              { dataPointOrder: ASC }
+            ]
+          ) {
             dataPointId
             dataPointName
             dataPointValue
@@ -93,7 +95,13 @@ export async function getDashboardChart(
         bottomMargin
         leftMargin
         legendPosition
-        dataPoints {
+        dataPoints(
+          orderby: [
+            { dataPointPrimaryCategory: ASC }
+            { dataPointSecondaryCategory: ASC }
+            { dataPointOrder: ASC }
+          ]
+        ) {
           dataPointId
           dataPointName
           dataPointValue
