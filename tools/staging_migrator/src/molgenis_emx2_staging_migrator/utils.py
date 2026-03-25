@@ -117,8 +117,10 @@ def set_all_delete(table: Table) -> pd.DataFrame:
     source_df["mg_delete"] = True
     return source_df
 
-def check_hricore(resources: pd.DataFrame):
+def check_hricore(resources: pd.DataFrame, profile: str):
     """Verifies that the `hricore` column is set to `true` for the Resources listed."""
+    if profile not in ["UMCGCohortsStaging", "UMCUCohorts"]:
+        return
     def is_missing(val) -> bool:
         return (type(val) == NAType) or val != True
     missing_hri = resources.loc[resources['hricore'].apply(is_missing), 'id']

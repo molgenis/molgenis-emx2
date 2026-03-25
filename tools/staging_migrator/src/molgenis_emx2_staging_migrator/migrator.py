@@ -148,7 +148,7 @@ class StagingMigrator(Client):
                         updated_table = self._copy_resource_columns(updated_table)
                     if table.id == "Resources":
                         try:
-                            check_hricore(updated_table)
+                            check_hricore(updated_table, source_profile)
                         except MissingHRICoreException as ve:
                             self.errors.append(ve)
                             raise MissingHRICoreException(ve.msg)
