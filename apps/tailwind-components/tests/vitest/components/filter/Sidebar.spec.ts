@@ -142,12 +142,7 @@ function createMockUseFilters(
   );
   const refColumnsCacheInternal = new Map<string, IColumn[]>();
 
-  const defaultFilterIds = computed(() => [
-    "disease",
-    "phenotype",
-    "hospital",
-    "medications",
-  ]);
+  const defaultIds = ["disease", "phenotype", "hospital", "medications"];
 
   const resolvedFilters = computed(() => {
     return visibleFilterIdsRef.value
@@ -162,8 +157,6 @@ function createMockUseFilters(
       label: string;
     }[];
   });
-
-  const crossFilterMap = computed(() => new Map());
 
   return {
     filterStates: filterStatesRef,
@@ -193,7 +186,6 @@ function createMockUseFilters(
     },
     columns: columnsRef,
     visibleFilterIds: visibleFilterIdsRef,
-    defaultFilterIds,
     toggleFilter: (columnId: string) => {
       if (visibleFilterIdsRef.value.includes(columnId)) {
         const newIds = visibleFilterIdsRef.value.filter(
@@ -203,24 +195,22 @@ function createMockUseFilters(
         const newMap = new Map(filterStatesRef.value);
         newMap.delete(columnId);
         filterStatesRef.value = newMap;
-        writeVisibleFiltersToUrl(newIds, defaultFilterIds.value);
+        writeVisibleFiltersToUrl(newIds, defaultIds);
       } else if (visibleFilterIdsRef.value.length < MAX_VISIBLE_FILTERS_MOCK) {
         const newIds = [...visibleFilterIdsRef.value, columnId];
         visibleFilterIdsRef.value = newIds;
-        writeVisibleFiltersToUrl(newIds, defaultFilterIds.value);
+        writeVisibleFiltersToUrl(newIds, defaultIds);
       }
     },
     resetFilters: () => {
-      const newDefaults = [...defaultFilterIds.value];
+      const newDefaults = [...defaultIds];
       visibleFilterIdsRef.value = newDefaults;
       filterStatesRef.value = new Map();
-      writeVisibleFiltersToUrl(newDefaults, defaultFilterIds.value);
+      writeVisibleFiltersToUrl(newDefaults, defaultIds);
     },
     loadRefColumns: vi.fn(),
     getRefColumns: (path: string) => refColumnsCacheInternal.get(path) ?? [],
     resolvedFilters,
-    findColumnForPath: (fullPath: string) =>
-      columnsRef.value.find((c) => c.id === fullPath),
     setFilterValue: async (
       columnId: string,
       value: IFilterValue | null | undefined
@@ -235,7 +225,6 @@ function createMockUseFilters(
         filterStatesRef.value = newMap;
       }
     },
-    crossFilterMap,
     getCountFetcher: vi.fn().mockReturnValue({
       fetchRefCounts: vi.fn().mockResolvedValue(new Map()),
       fetchOntologyLeafCounts: vi.fn().mockResolvedValue(new Map()),

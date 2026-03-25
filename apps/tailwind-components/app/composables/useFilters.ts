@@ -810,16 +810,12 @@ export function useFilters(
     removeFilter,
     columns,
     visibleFilterIds,
-    defaultFilterIds,
     toggleFilter,
     resetFilters,
     loadRefColumns,
     getRefColumns,
     resolvedFilters,
-    findColumnForPath,
     setFilterValue,
-    crossFilterMap,
-
     getCountFetcher,
   };
 

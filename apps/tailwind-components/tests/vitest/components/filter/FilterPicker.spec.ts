@@ -114,7 +114,6 @@ describe("FilterPicker", () => {
     return {
       columns: ref(columns),
       visibleFilterIds: ref(visibleIds),
-      defaultFilterIds: computed(() => ["country", "diagnosis"]),
       toggleFilter: vi.fn(),
       resetFilters: vi.fn(),
       loadRefColumns: vi.fn(),
@@ -128,9 +127,7 @@ describe("FilterPicker", () => {
       clearFilters: vi.fn(),
       removeFilter: vi.fn(),
       resolvedFilters: computed(() => []),
-      findColumnForPath: vi.fn(),
       setFilterValue: vi.fn(),
-      crossFilterMap: computed(() => new Map()),
       getCountFetcher: vi.fn(),
     } as unknown as UseFilters;
   }

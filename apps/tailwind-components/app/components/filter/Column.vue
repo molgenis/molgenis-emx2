@@ -5,7 +5,11 @@ import type {
   CellValueType,
   columnValue,
 } from "../../../../metadata-utils/src/types";
-import type { IFilterValue, FilterOperator, FilterValue } from "../../../types/filters";
+import type {
+  IFilterValue,
+  FilterOperator,
+  FilterValue,
+} from "../../../types/filters";
 import type { ICountFetcher } from "../../utils/createCountFetcher";
 import Input from "../Input.vue";
 import FilterRange from "./Range.vue";
@@ -120,7 +124,10 @@ const singleValue = computed({
     if (val == null || val === "") {
       modelValue.value = null;
     } else {
-      modelValue.value = { operator: getDefaultOperator(), value: val as FilterValue };
+      modelValue.value = {
+        operator: getDefaultOperator(),
+        value: val as FilterValue,
+      };
     }
   },
 });

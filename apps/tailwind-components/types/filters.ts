@@ -82,17 +82,14 @@ export interface UseFilters {
   removeFilter: (columnId: string) => void;
   columns: Ref<IColumn[]>;
   visibleFilterIds: Ref<string[]>;
-  defaultFilterIds: ComputedRef<string[]>;
   toggleFilter: (columnId: string) => void;
   resetFilters: () => void;
   loadRefColumns: (path: string, column: IColumn) => Promise<void>;
   getRefColumns: (path: string) => IColumn[];
   resolvedFilters: ComputedRef<ResolvedFilter[]>;
-  findColumnForPath: (fullPath: string) => IColumn | undefined;
   setFilterValue: (
     columnId: string,
     value: IFilterValue | null | undefined
   ) => Promise<void>;
-  crossFilterMap: ComputedRef<Map<string, IGraphQLFilter>>;
   getCountFetcher: (columnPath: string) => ICountFetcher;
 }
