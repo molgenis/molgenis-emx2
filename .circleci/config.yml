@@ -157,7 +157,8 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical --only-unfixed
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-unfixed --exit-code --only-severity critical --ignore-suppressed --format gitlab  > scout-report.json
+          jq '[.vulnerabilities[] | select(.fixAvailable == true and .severity == "critical")] | length' scout-report.json
 
     - run:
         name: deploy preview to azure
