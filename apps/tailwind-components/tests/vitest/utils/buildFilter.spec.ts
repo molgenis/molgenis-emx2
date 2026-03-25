@@ -286,6 +286,48 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ category: { code: { equals: ["A1"] } } });
   });
 
+  it("uses _match_any_including_children for ONTOLOGY columns", () => {
+    const columns: IColumn[] = [
+      {
+        id: "tags",
+        columnType: "ONTOLOGY_ARRAY",
+        label: "Tags",
+        refTableId: "Tag",
+      },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["tags", { operator: "equals", value: [{ name: "colors" }] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: { _match_any_including_children: ["colors"] },
+    });
+  });
+
+  it("uses _match_any_including_children for multiple ONTOLOGY values", () => {
+    const columns: IColumn[] = [
+      {
+        id: "tags",
+        columnType: "ONTOLOGY",
+        label: "Tags",
+        refTableId: "Tag",
+      },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "tags",
+        {
+          operator: "equals",
+          value: [{ name: "green" }, { name: "blue" }],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: { _match_any_including_children: ["green", "blue"] },
+    });
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([

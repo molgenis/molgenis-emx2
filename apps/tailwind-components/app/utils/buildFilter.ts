@@ -1,6 +1,8 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
 
+const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+
 type ParsedTerms = { terms: string[] };
 
 export function parseFilterTerms(input: string): ParsedTerms {
@@ -73,7 +75,11 @@ export function buildGraphQLFilter(
             const refValues = arr.map(
               (v: any) => (v as Record<string, unknown>)[refField]
             );
-            filterValueObj = { [refField]: { equals: refValues } };
+            if (ONTOLOGY_TYPES.includes(column.columnType)) {
+              filterValueObj = { _match_any_including_children: refValues };
+            } else {
+              filterValueObj = { [refField]: { equals: refValues } };
+            }
           } else {
             filterValueObj = { equals: arr };
           }
