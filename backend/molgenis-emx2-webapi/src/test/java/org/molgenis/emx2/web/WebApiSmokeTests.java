@@ -1270,15 +1270,9 @@ class WebApiSmokeTests extends ApiTestBase {
             assertTrue(
                 resultBaseNonExisting.contains(
                     "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
-        () ->
-            assertTrue(
-                resultBase.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        () -> assertTrue(resultBase.contains("foaf:accountName")),
         // Validate schema API.
-        () ->
-            assertTrue(
-                resultSchema.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        () -> assertTrue(resultSchema.contains("foaf:accountName")),
         // Test on small snippet to validate "files:" is absent (and all other fields are present)
         () ->
             assertTrue(
