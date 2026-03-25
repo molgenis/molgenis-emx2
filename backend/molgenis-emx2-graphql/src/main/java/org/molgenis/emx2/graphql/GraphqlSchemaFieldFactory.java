@@ -608,6 +608,7 @@ public class GraphqlSchemaFieldFactory {
                 // this sync is a bit sad.
                 ((SqlSchemaMetadata) schema.getMetadata())
                     .sync((SqlSchemaMetadata) s.getMetadata());
+                db.getListener().onSchemaChange();
               });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
