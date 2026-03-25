@@ -17,7 +17,18 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
         (filter.config as IRefArrayFilterCustomConfig).buildFilterFunction) &&
       filter?.conditions?.length
     ) {
-      if (filter.config.filterTable) {
+      if (Array.isArray(filter.config.filterTable)) {
+        // @ts-ignore
+        const condition = {
+          [filter.config.columnId]: { equals: filter.conditions },
+        };
+        accum._or = [
+          condition,
+          ...filter.config.filterTable.map((table) => ({
+            [table]: condition,
+          })),
+        ];
+      } else if (filter.config.filterTable) {
         if (!accum[filter.config.filterTable]) {
           accum[filter.config.filterTable] = {};
         }

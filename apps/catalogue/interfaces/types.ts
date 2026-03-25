@@ -262,7 +262,7 @@ export interface ISearchFilter extends IAbstractFilter {
 export interface IFilterConfig {
   label: string;
   initialCollapsed?: boolean;
-  filterTable?: string;
+  filterTable?: string | string[];
 }
 
 export interface ISearchFilterConfig extends IFilterConfig {

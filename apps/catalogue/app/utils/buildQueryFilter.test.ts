@@ -70,6 +70,49 @@ describe("buildQueryFilter", () => {
     expect(expectedFilter).toEqual(filterString);
   });
 
+  it("should filter on both root and sub-table when filterTable is an array (issue #6085)", () => {
+    const filtersWithMultipleTables: IFilter[] = [
+      {
+        id: "areasOfInformation",
+        config: {
+          label: "Areas of information",
+          type: "ONTOLOGY",
+          ontologyTableId: "AreasOfInformationCohorts",
+          ontologySchema: "CatalogueOntologies",
+          columnId: "areasOfInformation",
+          filterTable: ["collectionEvents"],
+        },
+        conditions: [
+          {
+            name: "Tobacco",
+          },
+        ],
+      },
+    ];
+
+    const result = buildQueryFilter(filtersWithMultipleTables);
+
+    // The filter should match resources that have "Tobacco" as an area of
+    // information directly OR have collection events with "Tobacco".
+    // Using _or ensures both paths are checked.
+    expect(result).toEqual({
+      _or: [
+        {
+          areasOfInformation: {
+            equals: [{ name: "Tobacco" }],
+          },
+        },
+        {
+          collectionEvents: {
+            areasOfInformation: {
+              equals: [{ name: "Tobacco" }],
+            },
+          },
+        },
+      ],
+    });
+  });
+
   it("should use the buildFilterFunction to build the filter confition(s) if it is set on the filter config", () => {
     const filtersWithFunction: IFilter[] = [
       {

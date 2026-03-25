@@ -170,7 +170,7 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
       columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      filterTable: ["collectionEvents"],
     },
     conditions: [],
   },
