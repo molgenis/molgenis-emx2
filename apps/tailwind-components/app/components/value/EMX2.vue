@@ -76,7 +76,7 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="['Ref', 'RADIO'].includes(metadata.columnType)"
+    v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
     :metadata="metadata as IRefColumn"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
