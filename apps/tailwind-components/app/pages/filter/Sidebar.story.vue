@@ -90,7 +90,10 @@ const columns = computed(
     ) ?? []
 );
 
-const filters = useFilters(columns);
+const filters = useFilters(columns, {
+  schemaId: schemaId.value,
+  tableId: tableId.value,
+});
 
 const sidebarReady = ref(false);
 

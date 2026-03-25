@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
+import { ref, computed } from "vue";
 import FilterPicker from "../../../../app/components/filter/FilterPicker.vue";
 import InputCheckboxIcon from "../../../../app/components/input/CheckboxIcon.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
+import type { UseFilters } from "../../../../types/filters";
 
 describe("FilterPicker", () => {
   beforeEach(() => {
@@ -105,11 +107,36 @@ describe("FilterPicker", () => {
     },
   ];
 
+  function createMockFilters(
+    columns: IColumn[] = mockColumns,
+    visibleIds: string[] = ["country", "diagnosis"]
+  ) {
+    return {
+      columns: ref(columns),
+      visibleFilterIds: ref(visibleIds),
+      defaultFilterIds: computed(() => ["country", "diagnosis"]),
+      toggleFilter: vi.fn(),
+      resetFilters: vi.fn(),
+      loadRefColumns: vi.fn(),
+      getRefColumns: vi.fn().mockReturnValue([]),
+      filterStates: ref(new Map()),
+      searchValue: ref(""),
+      gqlFilter: ref({}),
+      activeFilters: computed(() => []),
+      setFilter: vi.fn(),
+      setSearch: vi.fn(),
+      clearFilters: vi.fn(),
+      removeFilter: vi.fn(),
+      resolvedFilters: computed(() => []),
+      findColumnForPath: vi.fn(),
+      setFilterValue: vi.fn(),
+      crossFilterMap: computed(() => new Map()),
+      getCountFetcher: vi.fn(),
+    } as unknown as UseFilters;
+  }
+
   const defaultProps = {
-    columns: mockColumns,
-    visibleFilterIds: ["country", "diagnosis"],
-    defaultFilterIds: ["country", "diagnosis"],
-    schemaId: "test",
+    filters: createMockFilters(),
   };
 
   const vDropdownStub = {
@@ -194,7 +221,7 @@ describe("FilterPicker", () => {
       ];
 
       const wrapper = mount(FilterPicker, {
-        props: { ...defaultProps, columns: columnsWithFile },
+        props: { filters: createMockFilters(columnsWithFile) },
         global: {
           stubs: {
             VDropdown: vDropdownStub,
@@ -358,10 +385,11 @@ describe("FilterPicker", () => {
     });
   });
 
-  describe("Toggle event", () => {
-    it("emits toggle event when column is clicked", async () => {
+  describe("Toggle", () => {
+    it("calls filters.toggleFilter when column is clicked", async () => {
+      const mockFilters = createMockFilters();
       const wrapper = mount(FilterPicker, {
-        props: defaultProps,
+        props: { filters: mockFilters },
         global: {
           stubs: {
             VDropdown: vDropdownStub,
@@ -381,8 +409,7 @@ describe("FilterPicker", () => {
       });
       await columnButtons[0].trigger("click");
 
-      expect(wrapper.emitted("toggle")).toBeTruthy();
-      expect(wrapper.emitted("toggle")?.[0]).toEqual(["name"]);
+      expect(mockFilters.toggleFilter).toHaveBeenCalledWith("name");
     });
   });
 
@@ -402,9 +429,10 @@ describe("FilterPicker", () => {
       expect(wrapper.text()).toContain("Reset to defaults");
     });
 
-    it("emits reset event when reset button is clicked", async () => {
+    it("calls filters.resetFilters when reset button is clicked", async () => {
+      const mockFilters = createMockFilters();
       const wrapper = mount(FilterPicker, {
-        props: defaultProps,
+        props: { filters: mockFilters },
         global: {
           stubs: {
             VDropdown: vDropdownStub,
@@ -420,7 +448,7 @@ describe("FilterPicker", () => {
       );
       await resetButton?.trigger("click");
 
-      expect(wrapper.emitted("reset")).toBeTruthy();
+      expect(mockFilters.resetFilters).toHaveBeenCalled();
     });
   });
 

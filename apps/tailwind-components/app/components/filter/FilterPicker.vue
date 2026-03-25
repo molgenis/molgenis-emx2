@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { UseFilters } from "../../../types/filters";
 import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 import InputSearch from "../input/Search.vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import {
   MAX_NESTING_DEPTH,
   REF_EXPANDABLE_TYPES,
@@ -19,27 +19,17 @@ function columnTooltip(col: IColumn): string {
 }
 
 const props = defineProps<{
-  columns: IColumn[];
-  visibleFilterIds: string[];
-  defaultFilterIds: string[];
-  schemaId: string;
-}>();
-
-const emit = defineEmits<{
-  toggle: [columnId: string];
-  reset: [];
+  filters: UseFilters;
 }>();
 
 const searchQuery = ref("");
 const searchInputId = useId();
 const expandedPaths = ref<Set<string>>(new Set());
-const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
-const refLoadingKeys = ref<Set<string>>(new Set());
 
 const EXCLUDED_TYPES = ["HEADING", "SECTION", "FILE"];
 
 const sortedColumns = computed(() => {
-  let cols = props.columns.filter(
+  let cols = props.filters.columns.value.filter(
     (col) =>
       !EXCLUDED_TYPES.includes(col.columnType) && !col.id.startsWith("mg_")
   );
@@ -53,15 +43,7 @@ const sortedColumns = computed(() => {
 });
 
 function isVisible(columnId: string): boolean {
-  return props.visibleFilterIds.includes(columnId);
-}
-
-function handleToggle(columnId: string) {
-  emit("toggle", columnId);
-}
-
-function handleReset() {
-  emit("reset");
+  return props.filters.visibleFilterIds.value.includes(columnId);
 }
 
 function toggleRefExpand(parentPath: string, column: IColumn) {
@@ -75,34 +57,9 @@ function toggleRefExpand(parentPath: string, column: IColumn) {
     }
   } else {
     newSet.add(parentPath);
-    loadRefColumns(parentPath, column);
+    props.filters.loadRefColumns(parentPath, column);
   }
   expandedPaths.value = newSet;
-}
-
-async function loadRefColumns(parentPath: string, column: IColumn) {
-  if (
-    refColumnsCache.value.has(parentPath) ||
-    refLoadingKeys.value.has(parentPath)
-  )
-    return;
-  if (!column.refTableId) return;
-
-  refLoadingKeys.value.add(parentPath);
-  const schemaId = column.refSchemaId || props.schemaId;
-  try {
-    const meta = await fetchTableMetadata(schemaId, column.refTableId);
-    const unfilterable = ["HEADING", "SECTION"];
-    refColumnsCache.value.set(
-      parentPath,
-      meta.columns.filter(
-        (c) => !c.id.startsWith("mg_") && !unfilterable.includes(c.columnType)
-      )
-    );
-  } catch {
-  } finally {
-    refLoadingKeys.value.delete(parentPath);
-  }
 }
 
 interface FlatPickerRow {
@@ -115,12 +72,7 @@ interface FlatPickerRow {
 function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
   const rows: FlatPickerRow[] = [];
 
-  function walk(
-    cols: IColumn[],
-    parentPath: string,
-    depth: number,
-    parentSchemaId: string
-  ) {
+  function walk(cols: IColumn[], parentPath: string, depth: number) {
     for (const col of cols) {
       const path = parentPath ? `${parentPath}.${col.id}` : col.id;
       const isRef =
@@ -132,15 +84,15 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
         isRefExpandable: isRef && depth < MAX_NESTING_DEPTH,
       });
       if (isRef && expandedPaths.value.has(path) && depth < MAX_NESTING_DEPTH) {
-        const children = refColumnsCache.value.get(path);
-        if (children) {
-          walk(children, path, depth + 1, col.refSchemaId || parentSchemaId);
+        const children = props.filters.getRefColumns(path);
+        if (children.length) {
+          walk(children, path, depth + 1);
         }
       }
     }
   }
 
-  walk(columns, "", 0, props.schemaId);
+  walk(columns, "", 0);
   return rows;
 }
 </script>
@@ -170,7 +122,7 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
         <div class="max-h-80 overflow-y-auto">
           <div v-for="row in flattenColumns(sortedColumns)" :key="row.path">
             <button
-              @click="handleToggle(row.path)"
+              @click="filters.toggleFilter(row.path)"
               v-tooltip.right="columnTooltip(row.column)"
               class="w-full py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
               :style="{
@@ -208,7 +160,7 @@ function flattenColumns(columns: IColumn[]): FlatPickerRow[] {
             type="text"
             size="tiny"
             icon="restart-alt"
-            @click="handleReset"
+            @click="filters.resetFilters"
             class="w-full justify-start"
             >Reset to defaults</Button
           >

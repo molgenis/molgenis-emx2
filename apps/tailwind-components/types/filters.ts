@@ -62,6 +62,14 @@ export interface IGraphQLFilter {
 }
 
 import type { Ref, ComputedRef } from "vue";
+import type { IColumn } from "../../metadata-utils/src/types";
+import type { ICountFetcher } from "../app/utils/createCountFetcher";
+
+export interface ResolvedFilter {
+  fullPath: string;
+  column: IColumn;
+  label: string;
+}
 
 export interface UseFilters {
   filterStates: Ref<Map<string, IFilterValue>>;
@@ -72,4 +80,19 @@ export interface UseFilters {
   setSearch: (value: string) => void;
   clearFilters: () => void;
   removeFilter: (columnId: string) => void;
+  columns: Ref<IColumn[]>;
+  visibleFilterIds: Ref<string[]>;
+  defaultFilterIds: ComputedRef<string[]>;
+  toggleFilter: (columnId: string) => void;
+  resetFilters: () => void;
+  loadRefColumns: (path: string, column: IColumn) => Promise<void>;
+  getRefColumns: (path: string) => IColumn[];
+  resolvedFilters: ComputedRef<ResolvedFilter[]>;
+  findColumnForPath: (fullPath: string) => IColumn | undefined;
+  setFilterValue: (
+    columnId: string,
+    value: IFilterValue | null | undefined
+  ) => Promise<void>;
+  crossFilterMap: ComputedRef<Map<string, IGraphQLFilter>>;
+  getCountFetcher: (columnPath: string) => ICountFetcher;
 }

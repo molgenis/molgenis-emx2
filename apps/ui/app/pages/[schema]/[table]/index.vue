@@ -60,11 +60,12 @@ const filterColumns = computed(
         !["HEADING", "SECTION", "FILE"].includes(c.columnType)
     ) ?? []
 );
-
 const filters = useFilters(filterColumns, {
   urlSync: true,
   route,
   router,
+  schemaId,
+  tableId,
 });
 
 const gqlFilter = computed(() => filters.gqlFilter.value);

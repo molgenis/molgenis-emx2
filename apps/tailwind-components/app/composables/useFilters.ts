@@ -5,9 +5,10 @@ import {
   type Ref,
   onMounted,
   getCurrentInstance,
+  nextTick,
 } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../metadata-utils/src/types";
 import type {
   ActiveFilter,
   IFilterValue,
@@ -15,6 +16,15 @@ import type {
 } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
+import { computeDefaultFilters } from "../utils/computeDefaultFilters";
+import { MAX_NESTING_DEPTH } from "../utils/filterConstants";
+import {
+  createCountFetcher,
+  type ICountFetcher,
+} from "../utils/createCountFetcher";
+import { getPrimaryKey } from "../utils/getPrimaryKey";
+import fetchTableMetadata from "./fetchTableMetadata";
+import type { FilterValue } from "../../types/filters";
 
 export interface UseFiltersOptions {
   debounceMs?: number;
@@ -26,6 +36,8 @@ export interface UseFiltersOptions {
     >;
   };
   router?: { replace: (opts: Record<string, unknown>) => void };
+  schemaId?: string;
+  tableId?: string;
 }
 
 const REF_TYPES = [
@@ -68,6 +80,8 @@ const RANGE_TYPES = [
 const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
 const SEARCH_PARAM = "mg_search";
+export const MG_FILTERS_PARAM = "mg_filters";
+export const MAX_VISIBLE_FILTERS = 25;
 
 export function serializeFilterValue(value: IFilterValue): string | null {
   const { operator, value: val } = value;
@@ -111,7 +125,12 @@ export function serializeFilterValue(value: IFilterValue): string | null {
 
 function extractRefField(value: IFilterValue): string {
   const val = value.value;
-  if (Array.isArray(val) && val.length && typeof val[0] === "object" && val[0] !== null) {
+  if (
+    Array.isArray(val) &&
+    val.length &&
+    typeof val[0] === "object" &&
+    val[0] !== null
+  ) {
     return Object.keys(val[0])[0] ?? "name";
   }
   if (typeof val === "object" && val !== null) {
@@ -297,6 +316,15 @@ function getNonFilterParams(
   return preserved;
 }
 
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((val, idx) => val === sortedB[idx]);
+}
+
+const REF_COLUMN_UNFILTERABLE = ["HEADING", "SECTION"];
+
 export function useFilters(
   columns: Ref<IColumn[]>,
   options?: UseFiltersOptions
@@ -466,6 +494,311 @@ export function useFilters(
     return result;
   });
 
+  // --- Visibility ---
+
+  const schemaId = options?.schemaId ?? "";
+  const tableId = options?.tableId ?? "";
+
+  const defaultFilterIds = computed(() => computeDefaultFilters(columns.value));
+
+  function getInitialVisibleFilters(): string[] {
+    const urlParam = route?.query?.[MG_FILTERS_PARAM];
+    if (typeof urlParam === "string" && urlParam.trim()) {
+      return urlParam
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
+        .slice(0, MAX_VISIBLE_FILTERS);
+    }
+    return [...defaultFilterIds.value];
+  }
+
+  const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
+
+  const userHasCustomized = ref(
+    typeof route?.query?.[MG_FILTERS_PARAM] === "string"
+  );
+
+  watch(visibleFilterIds, async (newIds) => {
+    userHasCustomized.value = true;
+    const isDefault = arraysEqual(newIds, defaultFilterIds.value);
+    await nextTick();
+    if (!router || !route) return;
+    const currentQuery = { ...route.query };
+
+    if (isDefault) {
+      delete currentQuery[MG_FILTERS_PARAM];
+    } else {
+      currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
+    }
+
+    router.replace({ query: currentQuery });
+  });
+
+  watch(defaultFilterIds, (newDefaults) => {
+    if (userHasCustomized.value) return;
+    visibleFilterIds.value = [...newDefaults];
+  });
+
+  function toggleFilter(columnId: string) {
+    if (visibleFilterIds.value.includes(columnId)) {
+      visibleFilterIds.value = visibleFilterIds.value.filter(
+        (id) => id !== columnId
+      );
+      removeFilter(columnId);
+    } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
+      visibleFilterIds.value = [...visibleFilterIds.value, columnId];
+    }
+  }
+
+  function resetFilters() {
+    const newDefaults = [...defaultFilterIds.value];
+    const removedIds = visibleFilterIds.value.filter(
+      (id) => !newDefaults.includes(id)
+    );
+    for (const id of removedIds) {
+      removeFilter(id);
+    }
+    userHasCustomized.value = false;
+    visibleFilterIds.value = newDefaults;
+  }
+
+  // --- Ref column resolution ---
+
+  const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
+  const refLoadingKeys = ref<Set<string>>(new Set());
+
+  async function loadRefColumns(parentPath: string, column: IColumn) {
+    if (
+      refColumnsCache.value.has(parentPath) ||
+      refLoadingKeys.value.has(parentPath)
+    )
+      return;
+    if (!column.refTableId) return;
+
+    refLoadingKeys.value.add(parentPath);
+    const refSchemaId = column.refSchemaId || schemaId;
+    try {
+      const meta = await fetchTableMetadata(refSchemaId, column.refTableId);
+      refColumnsCache.value.set(
+        parentPath,
+        meta.columns.filter(
+          (c) =>
+            !c.id.startsWith("mg_") &&
+            !REF_COLUMN_UNFILTERABLE.includes(c.columnType)
+        )
+      );
+    } catch {
+    } finally {
+      refLoadingKeys.value.delete(parentPath);
+    }
+  }
+
+  async function loadRefColumnsForPath(fullPath: string) {
+    const segments = fullPath.split(".");
+    let currentColumns: IColumn[] = columns.value;
+    let currentSchemaId = schemaId;
+
+    for (
+      let depth = 0;
+      depth < segments.length && depth < MAX_NESTING_DEPTH;
+      depth++
+    ) {
+      const segment = segments[depth]!;
+      const pathSoFar = segments.slice(0, depth + 1).join(".");
+
+      const column = currentColumns.find((c) => c.id === segment);
+      if (!column || !column.refTableId) return;
+
+      if (!refColumnsCache.value.has(pathSoFar)) {
+        const refSchemaId = column.refSchemaId || currentSchemaId;
+        try {
+          const tableMetadata = await fetchTableMetadata(
+            refSchemaId,
+            column.refTableId
+          );
+          refColumnsCache.value.set(
+            pathSoFar,
+            tableMetadata.columns.filter(
+              (col) =>
+                !col.id.startsWith("mg_") &&
+                !REF_COLUMN_UNFILTERABLE.includes(col.columnType)
+            )
+          );
+        } catch {
+          return;
+        }
+      }
+
+      currentColumns = refColumnsCache.value.get(pathSoFar) || [];
+      currentSchemaId = column.refSchemaId || currentSchemaId;
+    }
+  }
+
+  async function loadMissingRefColumns(ids: string[]) {
+    for (const id of ids) {
+      if (!id.includes(".")) continue;
+      const segments = id.split(".");
+      for (let depth = 0; depth < segments.length - 1; depth++) {
+        const pathSoFar = segments.slice(0, depth + 1).join(".");
+        if (!refColumnsCache.value.has(pathSoFar)) {
+          await loadRefColumnsForPath(id);
+          break;
+        }
+      }
+    }
+  }
+
+  watch(visibleFilterIds, loadMissingRefColumns, { immediate: true });
+
+  watch(columns, () => {
+    loadMissingRefColumns(visibleFilterIds.value);
+  });
+
+  function getRefColumns(path: string): IColumn[] {
+    return refColumnsCache.value.get(path) ?? [];
+  }
+
+  function findColumnForPath(fullPath: string): IColumn | undefined {
+    const segments = fullPath.split(".");
+    if (segments.length === 1) {
+      return columns.value.find((c) => c.id === segments[0]);
+    }
+
+    let currentColumns: IColumn[] = columns.value;
+    for (let depth = 0; depth < segments.length - 1; depth++) {
+      const pathSoFar = segments.slice(0, depth + 1).join(".");
+      const cached = refColumnsCache.value.get(pathSoFar);
+      if (!cached) return undefined;
+      currentColumns = cached;
+    }
+
+    return currentColumns.find((c) => c.id === segments[segments.length - 1]);
+  }
+
+  const resolvedFilters = computed(() => {
+    const result: { fullPath: string; column: IColumn; label: string }[] = [];
+
+    for (const filterId of visibleFilterIds.value) {
+      const segments = filterId.split(".");
+
+      if (segments.length === 1) {
+        const column = columns.value.find((c) => c.id === filterId);
+        if (column) {
+          result.push({
+            fullPath: filterId,
+            column,
+            label: column.label || column.id,
+          });
+        }
+      } else {
+        const column = findColumnForPath(filterId);
+        if (!column) continue;
+
+        const labels: string[] = [];
+        let currentColumns: IColumn[] = columns.value;
+
+        for (let depth = 0; depth < segments.length - 1; depth++) {
+          const seg = segments[depth]!;
+          const parentCol = currentColumns.find((c) => c.id === seg);
+          if (!parentCol) break;
+          labels.push(parentCol.label || parentCol.id);
+          const pathSoFar = segments.slice(0, depth + 1).join(".");
+          currentColumns = refColumnsCache.value.get(pathSoFar) || [];
+        }
+
+        result.push({
+          fullPath: filterId,
+          column,
+          label: labels.join(".") + "." + (column.label || column.id),
+        });
+      }
+    }
+
+    return result;
+  });
+
+  // --- Ref pkey stripping ---
+
+  async function extractRefPkey(
+    column: IColumn,
+    val: FilterValue
+  ): Promise<FilterValue> {
+    if (val === null || typeof val !== "object") return val;
+    if (!column.refTableId) return val;
+    const refSchemaId = column.refSchemaId || schemaId;
+    try {
+      if (Array.isArray(val)) {
+        return (await Promise.all(
+          val.map((item) =>
+            typeof item === "object" && item !== null
+              ? getPrimaryKey(item as IRow, column.refTableId!, refSchemaId)
+              : item
+          )
+        )) as FilterValue;
+      }
+      return await getPrimaryKey(val as IRow, column.refTableId, refSchemaId);
+    } catch {
+      return val;
+    }
+  }
+
+  async function setFilterValue(
+    columnId: string,
+    value: IFilterValue | null | undefined
+  ) {
+    if (value === null || value === undefined) {
+      removeFilter(columnId);
+    } else {
+      const column = findColumnForPath(columnId);
+      if (column && column.refTableId && value.value !== null) {
+        const stripped = await extractRefPkey(column, value.value);
+        setFilter(columnId, { ...value, value: stripped });
+      } else {
+        setFilter(columnId, value);
+      }
+    }
+  }
+
+  // --- Cross-filter and count fetching ---
+
+  const crossFilterMap = computed(() => {
+    const map = new Map<string, ReturnType<typeof buildGraphQLFilter>>();
+    for (const filterId of visibleFilterIds.value) {
+      const crossFilterStates = new Map<string, IFilterValue>();
+      actualFilterStates.value.forEach((value, key) => {
+        if (key !== filterId) {
+          crossFilterStates.set(key, value);
+        }
+      });
+      map.set(
+        filterId,
+        buildGraphQLFilter(
+          crossFilterStates,
+          columns.value,
+          actualSearchValue.value
+        )
+      );
+    }
+    return map;
+  });
+
+  const countFetcherCache = new Map<string, ICountFetcher>();
+
+  function getCountFetcher(columnPath: string): ICountFetcher {
+    let fetcher = countFetcherCache.get(columnPath);
+    if (!fetcher) {
+      fetcher = createCountFetcher({
+        schemaId,
+        tableId,
+        columnPath,
+        getCrossFilter: () => crossFilterMap.value.get(columnPath),
+      });
+      countFetcherCache.set(columnPath, fetcher);
+    }
+    return fetcher;
+  }
+
   const result: UseFilters = {
     filterStates: actualFilterStates,
     searchValue: actualSearchValue,
@@ -475,6 +808,19 @@ export function useFilters(
     setSearch,
     clearFilters,
     removeFilter,
+    columns,
+    visibleFilterIds,
+    defaultFilterIds,
+    toggleFilter,
+    resetFilters,
+    loadRefColumns,
+    getRefColumns,
+    resolvedFilters,
+    findColumnForPath,
+    setFilterValue,
+    crossFilterMap,
+
+    getCountFetcher,
   };
 
   return result;

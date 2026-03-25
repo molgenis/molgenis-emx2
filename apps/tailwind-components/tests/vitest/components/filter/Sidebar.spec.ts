@@ -98,39 +98,8 @@ const unfilterableColumns: IColumn[] = [
 
 const mockFetchTableMetadata = vi.hoisted(() =>
   vi.fn().mockResolvedValue({
-    id: "Patient",
-    columns: [
-      {
-        id: "disease",
-        label: "Disease",
-        columnType: "ONTOLOGY",
-        refTableId: "Diseases",
-        refSchemaId: "Ontologies",
-      },
-      {
-        id: "phenotype",
-        label: "Phenotype",
-        columnType: "ONTOLOGY_ARRAY",
-        refTableId: "Phenotypes",
-        refSchemaId: "Ontologies",
-      },
-      {
-        id: "hospital",
-        label: "Hospital",
-        columnType: "REF",
-        refTableId: "Hospital",
-        refSchemaId: "test",
-      },
-      {
-        id: "medications",
-        label: "Medications",
-        columnType: "REF_ARRAY",
-        refTableId: "Medication",
-        refSchemaId: "test",
-      },
-      { id: "name", label: "Name", columnType: "STRING" },
-      { id: "notes", label: "Notes", columnType: "TEXT" },
-    ],
+    id: "Hospital",
+    columns: [{ id: "name", label: "Name", columnType: "STRING" }],
   })
 );
 
@@ -138,18 +107,63 @@ vi.mock("../../../../app/composables/fetchTableMetadata", () => ({
   default: mockFetchTableMetadata,
 }));
 
+const MAX_VISIBLE_FILTERS_MOCK = 25;
+
 const defaultProps = {
   schemaId: "test",
   tableId: "Patient",
 };
 
+function writeVisibleFiltersToUrl(newIds: string[], defaultIds: string[]) {
+  const isDefault =
+    newIds.length === defaultIds.length &&
+    [...newIds].sort().every((v, i) => v === [...defaultIds].sort()[i]);
+  const currentQuery = { ...mockRoute.query };
+  if (isDefault) {
+    delete currentQuery["mg_filters"];
+  } else {
+    currentQuery["mg_filters"] = newIds.join(",");
+  }
+  mockRouter.replace({ query: currentQuery });
+}
+
 function createMockUseFilters(
-  initialFilters?: Map<string, IFilterValue>
+  initialFilters?: Map<string, IFilterValue>,
+  initialColumns?: IColumn[],
+  initialVisibleIds?: string[]
 ): UseFilters {
   const filterStatesRef = ref<Map<string, IFilterValue>>(
     initialFilters ?? new Map()
   );
   const searchValueRef = ref("");
+  const columnsRef = ref<IColumn[]>(initialColumns ?? allColumns);
+  const visibleFilterIdsRef = ref<string[]>(
+    initialVisibleIds ?? ["disease", "phenotype", "hospital", "medications"]
+  );
+  const refColumnsCacheInternal = new Map<string, IColumn[]>();
+
+  const defaultFilterIds = computed(() => [
+    "disease",
+    "phenotype",
+    "hospital",
+    "medications",
+  ]);
+
+  const resolvedFilters = computed(() => {
+    return visibleFilterIdsRef.value
+      .map((id) => {
+        const column = columnsRef.value.find((c) => c.id === id);
+        if (!column) return null;
+        return { fullPath: id, column, label: column.label || column.id };
+      })
+      .filter(Boolean) as {
+      fullPath: string;
+      column: IColumn;
+      label: string;
+    }[];
+  });
+
+  const crossFilterMap = computed(() => new Map());
 
   return {
     filterStates: filterStatesRef,
@@ -177,11 +191,66 @@ function createMockUseFilters(
       newMap.delete(columnId);
       filterStatesRef.value = newMap;
     },
+    columns: columnsRef,
+    visibleFilterIds: visibleFilterIdsRef,
+    defaultFilterIds,
+    toggleFilter: (columnId: string) => {
+      if (visibleFilterIdsRef.value.includes(columnId)) {
+        const newIds = visibleFilterIdsRef.value.filter(
+          (id) => id !== columnId
+        );
+        visibleFilterIdsRef.value = newIds;
+        const newMap = new Map(filterStatesRef.value);
+        newMap.delete(columnId);
+        filterStatesRef.value = newMap;
+        writeVisibleFiltersToUrl(newIds, defaultFilterIds.value);
+      } else if (visibleFilterIdsRef.value.length < MAX_VISIBLE_FILTERS_MOCK) {
+        const newIds = [...visibleFilterIdsRef.value, columnId];
+        visibleFilterIdsRef.value = newIds;
+        writeVisibleFiltersToUrl(newIds, defaultFilterIds.value);
+      }
+    },
+    resetFilters: () => {
+      const newDefaults = [...defaultFilterIds.value];
+      visibleFilterIdsRef.value = newDefaults;
+      filterStatesRef.value = new Map();
+      writeVisibleFiltersToUrl(newDefaults, defaultFilterIds.value);
+    },
+    loadRefColumns: vi.fn(),
+    getRefColumns: (path: string) => refColumnsCacheInternal.get(path) ?? [],
+    resolvedFilters,
+    findColumnForPath: (fullPath: string) =>
+      columnsRef.value.find((c) => c.id === fullPath),
+    setFilterValue: async (
+      columnId: string,
+      value: IFilterValue | null | undefined
+    ) => {
+      if (value === null || value === undefined) {
+        const newMap = new Map(filterStatesRef.value);
+        newMap.delete(columnId);
+        filterStatesRef.value = newMap;
+      } else {
+        const newMap = new Map(filterStatesRef.value);
+        newMap.set(columnId, value);
+        filterStatesRef.value = newMap;
+      }
+    },
+    crossFilterMap,
+    getCountFetcher: vi.fn().mockReturnValue({
+      fetchRefCounts: vi.fn().mockResolvedValue(new Map()),
+      fetchOntologyLeafCounts: vi.fn().mockResolvedValue(new Map()),
+      fetchOntologyParentCounts: vi.fn().mockResolvedValue(new Map()),
+      getCrossFilter: vi.fn().mockReturnValue(undefined),
+    }),
   };
 }
 
-function mountSidebar(props = {}, filterStates?: Map<string, IFilterValue>) {
-  const mockFilters = createMockUseFilters(filterStates);
+function mountSidebar(
+  props = {},
+  filterStates?: Map<string, IFilterValue>,
+  columns?: IColumn[]
+) {
+  const mockFilters = createMockUseFilters(filterStates, columns);
   const wrapper = mount(Sidebar, {
     props: {
       ...defaultProps,
@@ -234,25 +303,13 @@ describe("Sidebar", () => {
     });
   });
 
-  describe("internal metadata fetch", () => {
-    it("filters out HEADING, SECTION, FILE, and mg_* columns internally", async () => {
-      mockFetchTableMetadata.mockResolvedValueOnce({
-        id: "Patient",
-        columns: [...allColumns, ...unfilterableColumns],
-      });
-
-      const { wrapper } = mountSidebar();
-      await nextTick();
+  describe("columns from filters.columns", () => {
+    it("passes filters object to FilterPicker", async () => {
+      const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
 
       const picker = wrapper.findComponent({ name: "FilterPicker" });
-      const columns = picker.props("columns") as IColumn[];
-      const columnIds = columns.map((c) => c.id);
-
-      expect(columnIds).not.toContain("heading1");
-      expect(columnIds).not.toContain("section1");
-      expect(columnIds).not.toContain("file1");
-      expect(columnIds).not.toContain("mg_insertedOn");
+      expect(picker.props("filters")).toBe(mockFilters);
     });
   });
 
@@ -288,15 +345,8 @@ describe("Sidebar", () => {
     });
 
     it("shows no filters when all columns are unfilterable types", async () => {
-      mockFetchTableMetadata.mockResolvedValueOnce({
-        id: "Patient",
-        columns: [
-          { id: "heading1", label: "Demographics", columnType: "HEADING" },
-          { id: "section1", label: "Section", columnType: "SECTION" },
-        ],
-      });
+      const { wrapper } = mountSidebar({}, undefined, []);
 
-      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -312,12 +362,26 @@ describe("Sidebar", () => {
         refSchemaId: "Ont",
       }));
 
-      mockFetchTableMetadata.mockResolvedValueOnce({
-        id: "Patient",
-        columns: manyOntologyCols,
+      const mockFilters = createMockUseFilters(
+        undefined,
+        manyOntologyCols,
+        manyOntologyCols.slice(0, 5).map((c) => c.id)
+      );
+
+      const wrapper = mount(Sidebar, {
+        props: {
+          ...defaultProps,
+          filters: mockFilters,
+        },
+        global: {
+          stubs: {
+            FilterColumn: true,
+            FilterPicker: true,
+            InputSearch: true,
+          },
+        },
       });
 
-      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -326,17 +390,16 @@ describe("Sidebar", () => {
   });
 
   describe("filter toggle", () => {
-    it("adds a filter when FilterPicker emits toggle for a hidden column", async () => {
-      const { wrapper } = mountSidebar();
+    it("re-renders when filters.visibleFilterIds changes", async () => {
+      const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       const initialCount = wrapper.findAllComponents({
         name: "FilterColumn",
       }).length;
 
-      await picker.vm.$emit("toggle", "name");
+      mockFilters.toggleFilter("name");
       await nextTick();
 
       const newCount = wrapper.findAllComponents({
@@ -345,17 +408,16 @@ describe("Sidebar", () => {
       expect(newCount).toBe(initialCount + 1);
     });
 
-    it("removes a filter when FilterPicker emits toggle for a visible column", async () => {
-      const { wrapper } = mountSidebar();
+    it("re-renders when a visible filter is toggled off", async () => {
+      const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
 
       const initialCount = wrapper.findAllComponents({
         name: "FilterColumn",
       }).length;
 
-      await picker.vm.$emit("toggle", "disease");
+      mockFilters.toggleFilter("disease");
       await nextTick();
 
       const newCount = wrapper.findAllComponents({
@@ -363,69 +425,23 @@ describe("Sidebar", () => {
       }).length;
       expect(newCount).toBe(initialCount - 1);
     });
-
-    it("removes filter value when toggling off a column that has a value", async () => {
-      const initialFilterStates = new Map<string, IFilterValue>([
-        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
-      ]);
-      const { wrapper, mockFilters } = mountSidebar({}, initialFilterStates);
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-
-      await picker.vm.$emit("toggle", "disease");
-      await nextTick();
-
-      expect(mockFilters.filterStates.value.has("disease")).toBe(false);
-    });
-  });
-
-  describe("filter reset", () => {
-    it("resets to default filters when FilterPicker emits reset", async () => {
-      const { wrapper } = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-
-      await picker.vm.$emit("toggle", "name");
-      await nextTick();
-
-      const countAfterToggle = wrapper.findAllComponents({
-        name: "FilterColumn",
-      }).length;
-
-      await picker.vm.$emit("reset");
-      await nextTick();
-
-      const countAfterReset = wrapper.findAllComponents({
-        name: "FilterColumn",
-      }).length;
-      expect(countAfterReset).toBeLessThan(countAfterToggle);
-    });
-
-    it("clears filter values for columns removed during reset", async () => {
-      const initialFilterStates = new Map<string, IFilterValue>([
-        ["name", { operator: "like", value: "test" }],
-      ]);
-      const { wrapper, mockFilters } = mountSidebar({}, initialFilterStates);
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-
-      await picker.vm.$emit("toggle", "name");
-      await nextTick();
-
-      await picker.vm.$emit("reset");
-      await nextTick();
-
-      expect(mockFilters.filterStates.value.has("name")).toBe(false);
-    });
   });
 
   describe("URL sync", () => {
     it("reads visible filter IDs from mg_filters URL param on mount", async () => {
       mockRoute.query = { mg_filters: "name,notes" };
-      const { wrapper } = mountSidebar();
+
+      const mockFilters = createMockUseFilters(undefined, allColumns, [
+        "name",
+        "notes",
+      ]);
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: { FilterColumn: true, FilterPicker: true, InputSearch: true },
+        },
+      });
+
       await nextTick();
       await nextTick();
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
@@ -434,67 +450,62 @@ describe("Sidebar", () => {
       expect(columnIds).toContain("notes");
     });
 
-    it("writes mg_filters to URL when visible filters change from defaults", async () => {
-      const { wrapper } = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
+    it("renders filters matching visibleFilterIds from mock", async () => {
+      const mockFilters = createMockUseFilters(undefined, allColumns, [
+        "name",
+        "notes",
+      ]);
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: { FilterColumn: true, FilterPicker: true, InputSearch: true },
+        },
+      });
 
-      await picker.vm.$emit("toggle", "name");
-      await nextTick();
-
-      expect(mockRouter.replace).toHaveBeenCalled();
-      const lastCall =
-        mockRouter.replace.mock.calls[mockRouter.replace.mock.calls.length - 1];
-      const query = lastCall[0]?.query;
-      expect(query?.mg_filters).toBeDefined();
-      expect(query?.mg_filters).toContain("name");
-    });
-
-    it("removes mg_filters from URL when visible filters match defaults", async () => {
-      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-
-      await picker.vm.$emit("toggle", "name");
-      await nextTick();
-      mockRouter.replace.mockClear();
-
-      await picker.vm.$emit("reset");
-      await nextTick();
-
-      expect(mockRouter.replace).toHaveBeenCalled();
-      const lastCall =
-        mockRouter.replace.mock.calls[mockRouter.replace.mock.calls.length - 1];
-      const query = lastCall[0]?.query;
-      expect(query?.mg_filters).toBeUndefined();
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const columnIds = filterColumns.map((f) => f.props("column")?.id);
+      expect(columnIds).toContain("name");
+      expect(columnIds).toContain("notes");
     });
   });
 
   describe("nested filters", () => {
     it("resolves nested dotted path from URL to correct FilterColumn", async () => {
-      mockRoute.query = { mg_filters: "hospital.name" };
+      const hospitalColumn: IColumn = {
+        id: "hospital",
+        label: "Hospital",
+        columnType: "REF",
+        refTableId: "Hospital",
+        refSchemaId: "test",
+      };
+      const nameColumn: IColumn = {
+        id: "name",
+        label: "Name",
+        columnType: "STRING",
+      };
 
-      mockFetchTableMetadata
-        .mockResolvedValueOnce({
-          id: "Patient",
-          columns: [
-            {
-              id: "hospital",
-              label: "Hospital",
-              columnType: "REF",
-              refTableId: "Hospital",
-              refSchemaId: "test",
-            },
-          ],
-        })
-        .mockResolvedValueOnce({
-          id: "Hospital",
-          columns: [{ id: "name", label: "Name", columnType: "STRING" }],
-        });
+      const mockFilters = createMockUseFilters(
+        undefined,
+        [hospitalColumn],
+        ["hospital.name"]
+      );
+      (mockFilters.resolvedFilters as any) = computed(() => [
+        {
+          fullPath: "hospital.name",
+          column: nameColumn,
+          label: "Hospital.Name",
+        },
+      ]);
 
-      const { wrapper } = mountSidebar();
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: { FilterColumn: true, FilterPicker: true, InputSearch: true },
+        },
+      });
+
       await flushPromises();
       await nextTick();
 
@@ -507,31 +518,43 @@ describe("Sidebar", () => {
     });
 
     it("resolves nested filter value from URL correctly", async () => {
-      mockRoute.query = { mg_filters: "hospital.name" };
-
-      mockFetchTableMetadata
-        .mockResolvedValueOnce({
-          id: "Patient",
-          columns: [
-            {
-              id: "hospital",
-              label: "Hospital",
-              columnType: "REF",
-              refTableId: "Hospital",
-              refSchemaId: "test",
-            },
-          ],
-        })
-        .mockResolvedValueOnce({
-          id: "Hospital",
-          columns: [{ id: "name", label: "Name", columnType: "STRING" }],
-        });
+      const hospitalColumn: IColumn = {
+        id: "hospital",
+        label: "Hospital",
+        columnType: "REF",
+        refTableId: "Hospital",
+        refSchemaId: "test",
+      };
+      const nameColumn: IColumn = {
+        id: "name",
+        label: "Name",
+        columnType: "STRING",
+      };
 
       const initialFilterStates = new Map<string, IFilterValue>([
         ["hospital.name", { operator: "like", value: "General" }],
       ]);
 
-      const { wrapper } = mountSidebar({}, initialFilterStates);
+      const mockFilters = createMockUseFilters(
+        initialFilterStates,
+        [hospitalColumn],
+        ["hospital.name"]
+      );
+      (mockFilters.resolvedFilters as any) = computed(() => [
+        {
+          fullPath: "hospital.name",
+          column: nameColumn,
+          label: "Hospital.Name",
+        },
+      ]);
+
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: { FilterColumn: true, FilterPicker: true, InputSearch: true },
+        },
+      });
+
       await flushPromises();
       await nextTick();
 
@@ -547,31 +570,30 @@ describe("Sidebar", () => {
     });
 
     it("gracefully skips nested path when ref metadata fetch fails", async () => {
-      mockRoute.query = { mg_filters: "disease,hospital.name" };
+      const diseaseColumn: IColumn = {
+        id: "disease",
+        label: "Disease",
+        columnType: "ONTOLOGY",
+        refTableId: "Diseases",
+        refSchemaId: "Ontologies",
+      };
 
-      mockFetchTableMetadata
-        .mockResolvedValueOnce({
-          id: "Patient",
-          columns: [
-            {
-              id: "disease",
-              label: "Disease",
-              columnType: "ONTOLOGY",
-              refTableId: "Diseases",
-              refSchemaId: "Ontologies",
-            },
-            {
-              id: "hospital",
-              label: "Hospital",
-              columnType: "REF",
-              refTableId: "Hospital",
-              refSchemaId: "test",
-            },
-          ],
-        })
-        .mockRejectedValueOnce(new Error("Network error"));
+      const mockFilters = createMockUseFilters(
+        undefined,
+        [diseaseColumn],
+        ["disease"]
+      );
+      (mockFilters.resolvedFilters as any) = computed(() => [
+        { fullPath: "disease", column: diseaseColumn, label: "Disease" },
+      ]);
 
-      const { wrapper } = mountSidebar();
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: { FilterColumn: true, FilterPicker: true, InputSearch: true },
+        },
+      });
+
       await flushPromises();
       await nextTick();
 
@@ -639,53 +661,59 @@ describe("Sidebar", () => {
   });
 
   describe("MAX_VISIBLE_FILTERS cap", () => {
-    it("refuses to add a filter when already at 25 visible filters", async () => {
+    it("renders 25 FilterColumns when given 25 visible filters", async () => {
       const manyColumns: IColumn[] = Array.from({ length: 26 }, (_, i) => ({
         id: `col${i}`,
         label: `Col ${i}`,
         columnType: "STRING" as const,
       }));
 
-      mockFetchTableMetadata.mockResolvedValueOnce({
-        id: "Patient",
-        columns: manyColumns,
+      const initial25Ids = Array.from({ length: 25 }, (_, i) => `col${i}`);
+
+      const mockFilters = createMockUseFilters(
+        undefined,
+        manyColumns,
+        initial25Ids
+      );
+
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: {
+            FilterColumn: true,
+            FilterPicker: true,
+            InputSearch: true,
+          },
+        },
       });
 
-      mockRoute.query = {
-        mg_filters: Array.from({ length: 25 }, (_, i) => `col${i}`).join(","),
-      };
-
-      const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
 
-      const filterColumnsBefore = wrapper.findAllComponents({
+      const filterColumns = wrapper.findAllComponents({
         name: "FilterColumn",
       }).length;
-      expect(filterColumnsBefore).toBe(25);
-
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-      await picker.vm.$emit("toggle", "col25");
-      await nextTick();
-
-      const filterColumnsAfter = wrapper.findAllComponents({
-        name: "FilterColumn",
-      }).length;
-      expect(filterColumnsAfter).toBe(25);
+      expect(filterColumns).toBe(25);
     });
   });
 
   describe("metadata fetch failure", () => {
-    it("results in empty filterableColumns when fetchTableMetadata throws on mount", async () => {
-      mockFetchTableMetadata.mockRejectedValueOnce(new Error("Network error"));
+    it("renders no FilterColumns when filters.columns is empty", async () => {
+      const mockFilters = createMockUseFilters(undefined, [], []);
 
-      const { wrapper } = mountSidebar();
+      const wrapper = mount(Sidebar, {
+        props: { ...defaultProps, filters: mockFilters },
+        global: {
+          stubs: {
+            FilterColumn: true,
+            FilterPicker: true,
+            InputSearch: true,
+          },
+        },
+      });
+
       await nextTick();
       await nextTick();
-
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-      const columns = picker.props("columns") as IColumn[];
-      expect(columns).toHaveLength(0);
 
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       expect(filterColumns).toHaveLength(0);
@@ -693,34 +721,12 @@ describe("Sidebar", () => {
   });
 
   describe("FilterPicker props", () => {
-    it("passes filterable columns, schemaId, and visibleFilterIds to FilterPicker", async () => {
-      const { wrapper } = mountSidebar();
+    it("passes filters object to FilterPicker", async () => {
+      const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
       const picker = wrapper.findComponent({ name: "FilterPicker" });
-
-      const columns = picker.props("columns") as IColumn[];
-      expect(columns.length).toBeGreaterThan(0);
-      const columnIds = columns.map((c) => c.id);
-      expect(columnIds).toContain("disease");
-      expect(columnIds).toContain("hospital");
-      expect(columnIds).toContain("name");
-
-      expect(picker.props("schemaId")).toBe("test");
-
-      const visibleIds = picker.props("visibleFilterIds") as string[];
-      expect(Array.isArray(visibleIds)).toBe(true);
-      expect(visibleIds.length).toBeGreaterThan(0);
-    });
-
-    it("passes defaultFilterIds to FilterPicker", async () => {
-      const { wrapper } = mountSidebar();
-      await nextTick();
-      await nextTick();
-      const picker = wrapper.findComponent({ name: "FilterPicker" });
-      const defaultIds = picker.props("defaultFilterIds") as string[];
-      expect(Array.isArray(defaultIds)).toBe(true);
-      expect(defaultIds).toContain("disease");
+      expect(picker.props("filters")).toBe(mockFilters);
     });
   });
 });

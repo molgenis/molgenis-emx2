@@ -43,7 +43,11 @@ const filterColumns = computed(
     ) ?? []
 );
 
-const filters = useFilters(filterColumns, { urlSync: showFilters.value });
+const filters = useFilters(filterColumns, {
+  urlSync: showFilters.value,
+  schemaId: schemaId.value,
+  tableId: tableId.value,
+});
 
 const activeFilter = computed(() =>
   showFilters.value ? filters.gqlFilter.value : undefined
