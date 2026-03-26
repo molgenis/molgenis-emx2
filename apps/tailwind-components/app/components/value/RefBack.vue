@@ -26,7 +26,7 @@ const handleRefBackCellClicked = (index: number) => {
 
 const refBackColumnLabels = computed(() => {
   if (!props.data) {
-    return "";
+    return [];
   }
   const labelTemplate = (
     props.metadata.refLabel

@@ -66,6 +66,14 @@ export function assertStringValue(
 export function assertNumberValue(
   value: columnValue
 ): number | undefined | null {
+  if (typeof value === "string") {
+    const num = Number(value);
+    if (isNaN(num)) {
+      throw new Error(`Expected a number value, but got ${typeof value}`);
+    }
+    return num;
+  }
+
   if (typeof value !== "number" && value !== null && value !== undefined) {
     throw new Error(`Expected a number value, but got ${typeof value}`);
   }
