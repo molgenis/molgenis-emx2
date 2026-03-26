@@ -2,16 +2,14 @@
   <Button type="outline" icon="columns" @click="showModal = true">
     Columns
   </Button>
-  <SideModal
-    class="hidden"
-    :slide-in-right="true"
-    :fullScreen="false"
-    button-alignment="left"
-    :show="showModal"
-    @close="showModal = false"
+  <Modal
+    v-model:visible="showModal"
+    type="right"
+    title="Columns"
+    subtitle="add table name hereu"
+    :background-accessible="false"
   >
-    <ContentBlockModal title="Columns">
-      <template v-slot:title-button>
+      <div class="px-8 py-5">
         <Button
           type="text"
           size="small"
@@ -20,7 +18,6 @@
           class="leading-9"
           :onclick="resetToDefault"
         />
-      </template>
 
       <InputSelect
         id="column-sorting-select"
@@ -42,7 +39,7 @@
                 <InputCheckbox
                   v-model="element.visible"
                   :id="element.id"
-                  class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
+                  class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
                 />
                 <!-- TODO move styling to checkbox component -->
               </div>
@@ -53,22 +50,23 @@
                 {{ element.label }}
               </label>
             </div>
-            <BaseIcon name="equal" class="hover:cursor-grab" />
+            <BaseIcon name="drag-horizontal" class="hover:cursor-grab" style="opacity: 0.2;"/>
           </div>
         </li>
       </ul>
-    </ContentBlockModal>
+    </div>
     <template #footer>
-      <Button type="primary" size="small" label="Save" @click="handleSave" />
-      <Button
-        type="secondary"
-        size="small"
-        label="Cancel"
-        class="ml-2.5"
-        @click="handleCancel"
-      />
+      <div class="flex gap-2 justify-start py-2">
+        <Button type="primary" size="small" label="Save" @click="handleSave" />
+        <Button
+          type="secondary"
+          size="small"
+          label="Cancel"
+          @click="handleCancel"
+        />
+      </div>
     </template>
-  </SideModal>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -76,8 +74,7 @@ import { ref, watch } from "vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
-import SideModal from "../../SideModal.vue";
-import ContentBlockModal from "../../content/ContentBlockModal.vue";
+import Modal from "../../Modal.vue";
 import InputSelect from "../../input/Select.vue";
 import InputCheckbox from "../../input/Checkbox.vue";
 import Button from "../../Button.vue";
