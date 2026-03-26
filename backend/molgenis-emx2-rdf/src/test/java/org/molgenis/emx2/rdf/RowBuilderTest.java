@@ -281,6 +281,125 @@ class RowBuilderTest {
   }
 
   @Test
+  void resolvesCompositePkeyViaReverseRef() {
+    Database compositDb = TestDatabaseFactory.getTestDatabase();
+    Schema compositSchema = compositDb.dropCreateSchema("RowBuilderTestComposite");
+
+    compositSchema.create(
+        new TableMetadata("Resources")
+            .setTableType(TableType.DATA)
+            .add(new Column("pid").setPkey())
+            .add(new Column("title").setSemantics("http://purl.org/dc/terms/title"))
+            .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")),
+        new TableMetadata("Organisations")
+            .setTableType(TableType.DATA)
+            .add(new Column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1))
+            .add(new Column("id").setKey(1))
+            .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name")));
+
+    Resource resSubject = Values.iri("https://example.org/resource/res1");
+    Resource orgSubject = Values.iri("https://example.org/org/org1");
+
+    TableMetadata resourcesMeta = compositSchema.getTable("Resources").getMetadata();
+    TableMetadata orgsMeta = compositSchema.getTable("Organisations").getMetadata();
+
+    Column resIdCol = resourcesMeta.getColumn("identifier");
+    Column publisherCol =
+        new Column("publisher")
+            .setType(ColumnType.REF)
+            .setRefTable("Organisations")
+            .setSemantics("http://purl.org/dc/terms/publisher");
+    Column orgNameCol = orgsMeta.getColumn("name");
+
+    Map<Resource, Map<ColumnMapping, List<Value>>> matchedData = new HashMap<>();
+
+    Map<ColumnMapping, List<Value>> resData = new HashMap<>();
+    resData.put(new ColumnMapping(resourcesMeta, resIdCol), List.of(Values.literal("res1")));
+    resData.put(new ColumnMapping(resourcesMeta, publisherCol), List.of(orgSubject));
+    matchedData.put(resSubject, resData);
+
+    Map<ColumnMapping, List<Value>> orgData = new HashMap<>();
+    orgData.put(new ColumnMapping(orgsMeta, orgNameCol), List.of(Values.literal("UMCG")));
+    matchedData.put(orgSubject, orgData);
+
+    Map<Resource, Set<IRI>> typeMap = new HashMap<>();
+    typeMap.put(resSubject, Set.of(DCAT_DATASET));
+    typeMap.put(orgSubject, Set.of(FOAF_AGENT));
+
+    RowBuilder.RowBuildResult result = RowBuilder.buildRows(matchedData, typeMap, compositSchema);
+
+    List<Row> orgRows = result.rowsByTable().get("Organisations");
+    assertNotNull(orgRows, "Expected Organisations rows");
+    assertEquals(1, orgRows.size());
+    assertEquals("res1", orgRows.get(0).getString("resource"));
+    assertEquals("org1", orgRows.get(0).getString("id"));
+    assertEquals("UMCG", orgRows.get(0).getString("name"));
+  }
+
+  @Test
+  void duplicatesRowForMultipleParentRefs() {
+    Database compositDb = TestDatabaseFactory.getTestDatabase();
+    Schema compositSchema = compositDb.dropCreateSchema("RowBuilderTestDuplicate");
+
+    compositSchema.create(
+        new TableMetadata("Resources")
+            .setTableType(TableType.DATA)
+            .add(new Column("pid").setPkey())
+            .add(new Column("title").setSemantics("http://purl.org/dc/terms/title"))
+            .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")),
+        new TableMetadata("Organisations")
+            .setTableType(TableType.DATA)
+            .add(new Column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1))
+            .add(new Column("id").setKey(1))
+            .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name")));
+
+    Resource res1Subject = Values.iri("https://example.org/resource/res1");
+    Resource res2Subject = Values.iri("https://example.org/resource/res2");
+    Resource orgSubject = Values.iri("https://example.org/org/shared-org");
+
+    TableMetadata resourcesMeta = compositSchema.getTable("Resources").getMetadata();
+    TableMetadata orgsMeta = compositSchema.getTable("Organisations").getMetadata();
+
+    Column resIdCol = resourcesMeta.getColumn("identifier");
+    Column publisherCol =
+        new Column("publisher")
+            .setType(ColumnType.REF)
+            .setRefTable("Organisations")
+            .setSemantics("http://purl.org/dc/terms/publisher");
+    Column orgNameCol = orgsMeta.getColumn("name");
+
+    Map<Resource, Map<ColumnMapping, List<Value>>> matchedData = new HashMap<>();
+
+    Map<ColumnMapping, List<Value>> res1Data = new HashMap<>();
+    res1Data.put(new ColumnMapping(resourcesMeta, resIdCol), List.of(Values.literal("res1")));
+    res1Data.put(new ColumnMapping(resourcesMeta, publisherCol), List.of(orgSubject));
+    matchedData.put(res1Subject, res1Data);
+
+    Map<ColumnMapping, List<Value>> res2Data = new HashMap<>();
+    res2Data.put(new ColumnMapping(resourcesMeta, resIdCol), List.of(Values.literal("res2")));
+    res2Data.put(new ColumnMapping(resourcesMeta, publisherCol), List.of(orgSubject));
+    matchedData.put(res2Subject, res2Data);
+
+    Map<ColumnMapping, List<Value>> orgData = new HashMap<>();
+    orgData.put(new ColumnMapping(orgsMeta, orgNameCol), List.of(Values.literal("SharedOrg")));
+    matchedData.put(orgSubject, orgData);
+
+    Map<Resource, Set<IRI>> typeMap = new HashMap<>();
+    typeMap.put(res1Subject, Set.of(DCAT_DATASET));
+    typeMap.put(res2Subject, Set.of(DCAT_DATASET));
+    typeMap.put(orgSubject, Set.of(FOAF_AGENT));
+
+    RowBuilder.RowBuildResult result = RowBuilder.buildRows(matchedData, typeMap, compositSchema);
+
+    List<Row> orgRows = result.rowsByTable().get("Organisations");
+    assertNotNull(orgRows, "Expected Organisations rows");
+    assertEquals(2, orgRows.size(), "Expected one row per parent resource");
+    List<String> resourceValues = orgRows.stream().map(r -> r.getString("resource")).toList();
+    assertTrue(resourceValues.contains("res1"), "Expected row for res1");
+    assertTrue(resourceValues.contains("res2"), "Expected row for res2");
+  }
+
+  @Test
   void skipsSubjectWithNoType() {
     Resource subject = Values.iri("https://example.org/dataset/notype");
 

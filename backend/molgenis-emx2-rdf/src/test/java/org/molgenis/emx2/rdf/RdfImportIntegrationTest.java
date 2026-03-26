@@ -200,6 +200,56 @@ class RdfImportIntegrationTest {
 
   @Test
   @org.junit.jupiter.api.Order(7)
+  void importsCompositePkeyOrganisations() {
+    Database compDb = TestDatabaseFactory.getTestDatabase();
+    Schema compSchema = compDb.dropCreateSchema("RdfImportCompositePkey");
+
+    compSchema.create(
+        new TableMetadata("Resources")
+            .setTableType(TableType.DATA)
+            .add(new Column("id").setKey(1))
+            .add(new Column("pid").setKey(2).setSemantics("http://purl.org/dc/terms/identifier"))
+            .add(new Column("name").setSemantics("http://purl.org/dc/terms/title")),
+        new TableMetadata("Organisations")
+            .setTableType(TableType.DATA)
+            .setSemantics("foaf:Agent,org:Organization")
+            .add(new Column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1))
+            .add(new Column("id").setKey(1))
+            .add(new Column("organisation name").setSemantics("http://xmlns.com/foaf/0.1/name"))
+            .add(
+                new Column("organisation pid")
+                    .setSemantics("http://purl.org/dc/terms/identifier")));
+
+    String ttl =
+        "@prefix dcat: <http://www.w3.org/ns/dcat#> .\n"
+            + "@prefix dcterms: <http://purl.org/dc/terms/> .\n"
+            + "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n"
+            + "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
+            + "\n"
+            + "<http://ex.org/api/rdf/Resources/id=res1> rdf:type dcat:Dataset ;\n"
+            + "    dcterms:title \"Test Resource\" ;\n"
+            + "    dcterms:identifier \"res1\" .\n"
+            + "\n"
+            + "<http://ex.org/api/rdf/Organisations/id=UMCG&resource=res1> rdf:type foaf:Agent ;\n"
+            + "    foaf:name \"UMCG\" ;\n"
+            + "    dcterms:identifier \"https://ror.org/umcg\" .\n";
+
+    InputStream ttlStream = new ByteArrayInputStream(ttl.getBytes(StandardCharsets.UTF_8));
+    RdfImportTask task = new RdfImportTask(compSchema, ttlStream, ".ttl");
+    task.run();
+
+    assertEquals(TaskStatus.COMPLETED, task.getStatus(), task.getDescription());
+
+    List<Row> organisations = compSchema.getTable("Organisations").retrieveRows();
+    assertFalse(
+        organisations.isEmpty(), "Expected at least 1 organisation after composite pkey roundtrip");
+    assertEquals("UMCG", organisations.get(0).getString("id"));
+
+    compDb.dropSchema("RdfImportCompositePkey");
+  }
+
+  @Test
+  @org.junit.jupiter.api.Order(8)
   void importMalformedRdfProducesError() {
     String malformed = "this is not valid RDF at all";
     InputStream is = new ByteArrayInputStream(malformed.getBytes(StandardCharsets.UTF_8));

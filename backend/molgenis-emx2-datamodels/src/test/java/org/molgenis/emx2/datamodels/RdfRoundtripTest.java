@@ -104,8 +104,36 @@ class RdfRoundtripTest {
             .anyMatch(r -> r.getString("name") != null),
         "Imported resources should have names");
 
-    // Note: Organisations/Contacts have composite pkeys (resource+id) scoped to Resources,
-    // which the simple importer can't resolve yet — a known v2 improvement.
+    // Verify Organisations and Contacts scoped to importable Resources
+    // Only Organisations/Contacts linked to Resources with rdf:type are importable
+    long sourceOrganisations =
+        source
+            .getTable("Organisations")
+            .query()
+            .where(f("resource", f("rdf type", IS_NULL, false)))
+            .retrieveRows()
+            .size();
+    long sourceContacts =
+        source
+            .getTable("Contacts")
+            .query()
+            .where(f("resource", f("rdf type", IS_NULL, false)))
+            .retrieveRows()
+            .size();
+    long targetOrganisations = target.getTable("Organisations").retrieveRows().size();
+    long targetContacts = target.getTable("Contacts").retrieveRows().size();
+    assertTrue(
+        targetOrganisations >= sourceOrganisations,
+        "Target should have at least as many organisations: source="
+            + sourceOrganisations
+            + " target="
+            + targetOrganisations);
+    assertTrue(
+        targetContacts >= sourceContacts,
+        "Target should have at least as many contacts: source="
+            + sourceContacts
+            + " target="
+            + targetContacts);
   }
 
   @AfterAll

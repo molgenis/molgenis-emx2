@@ -17,8 +17,11 @@ import org.molgenis.emx2.rdf.ReverseAnnotationMapper.ColumnMapping;
 import org.molgenis.emx2.rdf.RowBuilder.RowBuildResult;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.utils.TableSort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RdfImportTask extends Task {
+  private static final Logger log = LoggerFactory.getLogger(RdfImportTask.class);
   private final Schema schema;
   private final String sourceUrl;
   private final InputStream sourceStream;
@@ -125,8 +128,10 @@ public class RdfImportTask extends Task {
         } catch (Exception e) {
           permanentlyFailed.add(tableName);
           savedCounts.put(tableName, 0);
-          saveWarnings.add(
-              "Skipped table '" + tableName + "' (" + rows.size() + " rows): " + e.getMessage());
+          String warning =
+              "Skipped table '" + tableName + "' (" + rows.size() + " rows): " + e.getMessage();
+          saveWarnings.add(warning);
+          log.debug(warning);
         }
       }
 
