@@ -65,15 +65,12 @@ function handleRefCellClicked() {
 </script>
 
 <template>
-  <div
-    class="underline hover:cursor-pointer text-link inline"
-    @click="handleRefCellClicked"
-  >
+  <span class="inline">
     <span v-if="hasTemplate">
       {{ asTemplate }}
     </span>
     <span v-else>
       {{ asDotSeparatedString }}
     </span>
-  </div>
+  </span>
 </template>
