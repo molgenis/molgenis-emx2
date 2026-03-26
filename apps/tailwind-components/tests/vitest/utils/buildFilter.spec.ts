@@ -2,20 +2,20 @@ import { describe, it, expect } from "vitest";
 import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
+import { stringColumn as nameColumn, makeColumn } from "../fixtures/columns";
 
-const orderColumn: IColumn = {
+const orderColumn: IColumn = makeColumn({
   id: "order",
   columnType: "REF",
   label: "Order",
   refTableId: "Order",
-};
-const nameColumn: IColumn = { id: "name", columnType: "STRING", label: "Name" };
-const userColumn: IColumn = {
+});
+const userColumn: IColumn = makeColumn({
   id: "user",
   columnType: "REF",
   label: "User",
   refTableId: "User",
-};
+});
 
 describe("buildGraphQLFilter", () => {
   it("builds nested filter for 3-level path", () => {

@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
-import { ref, computed } from "vue";
 import FilterPicker from "../../../../app/components/filter/FilterPicker.vue";
 import InputCheckboxIcon from "../../../../app/components/input/CheckboxIcon.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
-import type { UseFilters } from "../../../../types/filters";
+import { createMockUseFilters } from "../../fixtures/mockFilters";
 
 describe("FilterPicker", () => {
   beforeEach(() => {
@@ -111,25 +110,11 @@ describe("FilterPicker", () => {
     columns: IColumn[] = mockColumns,
     visibleIds: string[] = ["country", "diagnosis"]
   ) {
-    return {
-      columns: ref(columns),
-      visibleFilterIds: ref(visibleIds),
-      toggleFilter: vi.fn(),
-      resetFilters: vi.fn(),
-      loadRefColumns: vi.fn(),
-      getRefColumns: vi.fn().mockReturnValue([]),
-      filterStates: ref(new Map()),
-      searchValue: ref(""),
-      gqlFilter: ref({}),
-      activeFilters: computed(() => []),
-      setFilter: vi.fn(),
-      setSearch: vi.fn(),
-      clearFilters: vi.fn(),
-      removeFilter: vi.fn(),
-      resolvedFilters: computed(() => []),
-      setFilterValue: vi.fn(),
-      getCountFetcher: vi.fn(),
-    } as unknown as UseFilters;
+    return createMockUseFilters({
+      reactive: false,
+      initialColumns: columns,
+      initialVisibleIds: visibleIds,
+    });
   }
 
   const defaultProps = {

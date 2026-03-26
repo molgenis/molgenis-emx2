@@ -21,40 +21,15 @@ vi.stubGlobal(
 import FilterColumn from "../../../../app/components/filter/Column.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../../types/filters";
+import {
+  stringColumn,
+  intColumn,
+  dateColumn,
+  boolColumn,
+  refColumn,
+} from "../../fixtures/columns";
 
 describe("FilterColumn", () => {
-  const stringColumn: IColumn = {
-    id: "name",
-    label: "Name",
-    columnType: "STRING",
-  };
-
-  const intColumn: IColumn = {
-    id: "age",
-    label: "Age",
-    columnType: "INT",
-  };
-
-  const dateColumn: IColumn = {
-    id: "birthdate",
-    label: "Birth Date",
-    columnType: "DATE",
-  };
-
-  const boolColumn: IColumn = {
-    id: "active",
-    label: "Active",
-    columnType: "BOOL",
-  };
-
-  const refColumn: IColumn = {
-    id: "pet",
-    label: "Pet",
-    columnType: "REF",
-    refSchemaId: "test",
-    refTableId: "Pet",
-  };
-
   describe("Visual wrapper (from 6.3.2 Container)", () => {
     it("renders column label as title", () => {
       const wrapper = mount(FilterColumn, {
