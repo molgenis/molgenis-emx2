@@ -10,50 +10,48 @@
     :background-accessible="false"
   >
       <div class="px-8 py-5">
-        <Button
-          type="text"
-          size="small"
-          label="Reset to default"
-          icon="RestartAlt"
-          class="leading-9"
-          :onclick="resetToDefault"
-        />
+        <div class="flex flex-row mb-5">
+          <InputSelect
+            id="column-sorting-select"
+            label="Sort by"
+            v-model="selectedSortMethod"
+            :options="sortMethods"
+            @change="handleSortMethodChanged"
+          />
+          <Button
+            type="text"
+            size="small"
+            label="Reset to default"
+            icon="RestartAlt"
+            class="ml-4 whitespace-nowrap"
+            :onclick="resetToDefault"
+          />
 
-      <InputSelect
-        id="column-sorting-select"
-        label="Sort by"
-        v-model="selectedSortMethod"
-        :options="sortMethods"
-        @change="handleSortMethodChanged"
-      />
+        </div>
+      <div class="flex flex-row" v-for="option in columnsInColumnsSelectModal" :key="option.id">
 
-      <ul>
-        <li
-          v-for="element in columnsInColumnsSelectModal"
-          :key="element.id"
-          class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab"
+        <InputLabel
+          :for="`column-checkbox-group-${option.label}`"
+          class="group flex justify-start items-center relative text-title-contrast"
         >
-          <div class="flex justify-between">
-            <div class="flex items-start">
-              <div class="flex items-center">
-                <InputCheckbox
-                  v-model="element.visible"
-                  :id="element.id"
-                  class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox"
-                />
-                <!-- TODO move styling to checkbox component -->
-              </div>
-              <label
-                class="text-title hover:cursor-pointer text-body-sm group"
-                :for="element.id"
-              >
-                {{ element.label }}
-              </label>
-            </div>
-            <BaseIcon name="drag-horizontal" class="hover:cursor-grab" style="opacity: 0.2;"/>
-          </div>
-        </li>
-      </ul>
+          <input
+            type="checkbox"
+            :id="`column-checkbox-group-${option.label}`"
+            :value="option.visible"
+            v-model="option.visible"
+            class="ml-4 mt-2 sr-only"
+          />
+          <InputCheckboxIcon
+            :checked="option.visible"
+          />
+          <span class="block">
+            {{ option.label }}
+          </span>
+
+        </InputLabel>
+          <BaseIcon name="drag-horizontal" class="ml-auto hover:cursor-grab" style="opacity: 0.2;"/>
+      </div>
+
     </div>
     <template #footer>
       <div class="flex gap-2 justify-start py-2">
