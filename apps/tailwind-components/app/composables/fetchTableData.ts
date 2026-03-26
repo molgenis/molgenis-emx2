@@ -120,7 +120,7 @@ export const getColumnIds = async (
           )) +
           " }";
       } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        gqlFields = gqlFields + " " + col.id + " {name, label}";
+        gqlFields = gqlFields + " " + col.id + " {name, label, definition}";
       } else if (col.columnType === "FILE") {
         gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
       } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
