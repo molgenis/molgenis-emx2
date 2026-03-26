@@ -27,6 +27,13 @@ packages:
   - directory
   - ui
 
+onlyBuiltDependencies:
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
+  - core-js
+  - esbuild
+  - vue-demi
+
 overrides:
   cookie@<0.7.0: '>=0.7.0'
   devalue@>=5.1.0 <5.6.2: '>=5.6.2'
@@ -41,4 +48,3 @@ overrides:
   tar@<=7.5.2: '>=7.5.3'
   tar@<=7.5.3: '>=7.5.4'
   undici@<6.23.0: '>=6.23.0'
-  simple-git@<=3.32.2: '>=3.32.3'
