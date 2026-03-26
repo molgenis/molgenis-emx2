@@ -101,12 +101,8 @@ export interface ITableSettings {
 
 export interface IColumnDisplay extends IColumn {
   displayComponent?: Component;
-  layout?: "inline" | "block" | "full";
-  getHref?: (col: IColumn, row: IRow) => string;
-  clickAction?: (col: IColumn, row: IRow) => void;
   listConfig?: IListConfig;
   displayLabel?: string;
-  hidden?: boolean;
 }
 
 export interface IListConfig {
