@@ -38,7 +38,9 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         v-model:schemaId="schemaId"
         v-model:tableId="tableId"
       />
-      <label class="text-title font-bold" for="is-editable">Is Editable: </label>
+      <label class="text-title font-bold" for="is-editable"
+        >Is Editable:
+      </label>
       <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
       <div class="py-10" />
 
