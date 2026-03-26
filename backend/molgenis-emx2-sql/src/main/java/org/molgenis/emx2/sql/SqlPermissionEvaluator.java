@@ -80,7 +80,7 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
   private List<TablePermission> getActiveUserPermissions() {
     if (activeUserPermissions == null) {
       activeUserPermissions =
-          schema.getDatabase().getRoleManager().getPermissionsForActiveUser(schema.getName());
+          schema.getDatabase().getRoleManager().getTablePermissionsForActiveUser(schema.getName());
     }
     return activeUserPermissions;
   }
