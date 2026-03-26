@@ -23,7 +23,7 @@ export interface Organisations extends IOrganisations {
   country?: string;
   latitude?: number;
   longitude?: number;
-  providerInformation?: IDataproviders;
+  providerInformation?: IDataproviders[];
   hasSubmittedData?: string;
   providerIdentifier?: string;
 }
