@@ -35,7 +35,9 @@ public class FilteringRdfHandler implements RDFHandler {
     Value object = st.getObject();
 
     if (RDF_TYPE.equals(predicate)) {
-      typeMap.computeIfAbsent(subject, key -> new HashSet<>()).add((IRI) object);
+      if (object.isIRI()) {
+        typeMap.computeIfAbsent(subject, key -> new HashSet<>()).add((IRI) object);
+      }
       return;
     }
 

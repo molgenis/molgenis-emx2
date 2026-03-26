@@ -440,6 +440,36 @@ For each child subject assigned to a table with composite pkey:
 
 ---
 
+## Known Limitations (v1)
+
+### Crash/correctness (fixed in this PR)
+- ~~FilteringRdfHandler crashed on non-IRI rdf:type objects~~ → fixed with instanceof guard
+- ~~URL fetch ignored Content-Type, defaulted to Turtle~~ → fixed, now uses response Content-Type
+- ~~URL InputStream resource leak~~ → fixed with try-with-resources
+- ~~OntologyMapper NPE on null ontology name~~ → fixed with null guard
+- ~~expandSemantic duplicated NamespaceMapper~~ → fixed, now uses NamespaceMapper
+- ~~Retry loop swallowed exceptions silently~~ → fixed, now logs at debug level
+
+### Data handling
+- **Language tags stripped**: multi-language literals (`"title"@en`, `"title"@nl`) — first value wins, no language preference mechanism
+- **Blank node subjects produce unstable PIDs**: blank node IDs are parser-session-scoped, breaks idempotency for blank-node subjects
+- **Duplicate PIDs from different URIs**: subjects with same URI local name but different hosts produce same pid — last write wins
+- **`dcterms:temporal` blank nodes not propagated**: PeriodOfTime blank nodes with start/end dates are not mapped up to the parent Resource's start year/end year columns
+- **Typed literals**: `xsd:boolean` value `"1"` and scientific notation `xsd:float` values may not round-trip correctly through TypeUtils
+
+### DCAT coverage
+- **TypeDiscriminator is hardcoded**: only knows dcat:Catalog, dcat:Dataset, dcat:DatasetSeries, foaf:Agent, org:Organization, vcard:Individual
+- **`dcat:Dataset` hardcoded to "Cohort study"**: domain-specific, not suitable for generic DCAT-AP catalogues
+- **Missing DCAT-AP types**: dcat:Distribution, dcat:DataService, dcat:CatalogRecord, vcard:Organization not handled
+- **No pagination**: large catalogues using hydra:PagedCollection only get first page
+- **No URI dereferencing**: external resources referenced by URI but not inline are stored by local name
+
+### Schema/import
+- **No atomicity**: multi-table save is not wrapped in schema.tx(), partial imports possible on failure
+- **SqlTypeUtils containsName guard**: works for simple REFs, not verified for all composite REF patterns
+- **alternativeIds column not migrated**: existing ontology tables won't have the column until recreated
+- **Required columns without semantic mapping**: target table columns that are required but have no RDF predicate mapping will cause save failures
+
 ## Out of Scope (v1)
 - SPARQL endpoint harvesting (only document-based RDF)
 - Bi-directional sync

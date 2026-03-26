@@ -57,8 +57,9 @@ public class RdfImportTask extends Task {
       parseTask.start();
       FilteringRdfHandler handler = new FilteringRdfHandler(predicateMap);
       if (sourceUrl != null) {
-        InputStream urlStream = RdfFetcher.fetchUrl(sourceUrl);
-        RdfFetcher.parse(urlStream, null, handler);
+        try (RdfFetcher.FetchResult fetch = RdfFetcher.fetchUrlWithFormat(sourceUrl)) {
+          RdfFetcher.parse(fetch.inputStream(), fetch.contentType(), handler);
+        }
       } else {
         RdfFetcher.parse(sourceStream, formatHint, handler);
       }
@@ -105,6 +106,7 @@ public class RdfImportTask extends Task {
               savedCounts.put(tableName, rows.size());
               progress = true;
             } catch (Exception e) {
+              log.debug("Save failed for table '{}', will retry: {}", tableName, e.getMessage());
               stillPending.add(tableName);
             }
           }

@@ -3,12 +3,13 @@ package org.molgenis.emx2.rdf;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.ReverseAnnotationMapper.ColumnMapping;
 import org.molgenis.emx2.rdf.TypeDiscriminator.TableAssignment;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,8 @@ import org.slf4j.LoggerFactory;
 public class RowBuilder {
 
   private static final Logger log = LoggerFactory.getLogger(RowBuilder.class);
-  private static final String DCTERMS_IDENTIFIER = "http://purl.org/dc/terms/identifier";
-
-  private static final Map<String, String> DEFAULT_PREFIX_MAP =
-      DefaultNamespace.streamAll()
-          .collect(Collectors.toMap(Namespace::getPrefix, Namespace::getName));
+  private static final IRI DCTERMS_IDENTIFIER_IRI =
+      Values.iri("http://purl.org/dc/terms/identifier");
 
   public record RowBuildResult(Map<String, List<Row>> rowsByTable, List<String> warnings) {}
 
@@ -38,6 +36,7 @@ public class RowBuilder {
     Map<Resource, String> tableBySubject = new HashMap<>();
     List<String> warnings = new ArrayList<>();
     Map<String, OntologyMapper> ontologyMappers = new HashMap<>();
+    NamespaceMapper namespaceMapper = new NamespaceMapper("http://localhost/", schema);
 
     for (Map.Entry<Resource, Map<ColumnMapping, List<Value>>> entry : matchedData.entrySet()) {
       Resource subject = entry.getKey();
@@ -53,7 +52,8 @@ public class RowBuilder {
       Row row = new Row();
       Table targetTable = schema.getTable(assignment.tableName());
       if (targetTable != null) {
-        setInitialPkeyValues(row, subject, subjectData, targetTable.getMetadata());
+        setInitialPkeyValues(
+            row, subject, subjectData, targetTable.getMetadata(), namespaceMapper, schema);
       }
 
       if (assignment.typeValue() != null) {
@@ -72,7 +72,7 @@ public class RowBuilder {
           continue;
         }
 
-        setColumnValue(row, column, values, matchedData, ontologyMappers, schema);
+        setColumnValue(row, column, values, matchedData, ontologyMappers, schema, namespaceMapper);
       }
 
       rowsByTable.computeIfAbsent(assignment.tableName(), k -> new ArrayList<>()).add(row);
@@ -81,9 +81,10 @@ public class RowBuilder {
     }
 
     discoverReferencedSubjects(
-        matchedData, typeMap, rowsByTable, rowBySubject, tableBySubject, schema);
+        matchedData, typeMap, rowsByTable, rowBySubject, tableBySubject, schema, namespaceMapper);
 
-    resolveCompositePkeys(rowsByTable, rowBySubject, tableBySubject, matchedData, schema);
+    resolveCompositePkeys(
+        rowsByTable, rowBySubject, tableBySubject, matchedData, schema, namespaceMapper);
 
     filterRowsWithUnresolvableForeignKeys(rowsByTable, schema, warnings);
 
@@ -96,7 +97,8 @@ public class RowBuilder {
       Map<String, List<Row>> rowsByTable,
       Map<Resource, Row> rowBySubject,
       Map<Resource, String> tableBySubject,
-      Schema schema) {
+      Schema schema,
+      NamespaceMapper namespaceMapper) {
 
     for (Map<ColumnMapping, List<Value>> subjectData : matchedData.values()) {
       for (Map.Entry<ColumnMapping, List<Value>> mappingEntry : subjectData.entrySet()) {
@@ -121,7 +123,8 @@ public class RowBuilder {
             continue;
           }
           Row row = new Row();
-          setInitialPkeyValues(row, refSubject, Map.of(), targetTable.getMetadata());
+          setInitialPkeyValues(
+              row, refSubject, Map.of(), targetTable.getMetadata(), namespaceMapper, schema);
           if (assignment.typeValue() != null) {
             row.set("type", assignment.typeValue());
           }
@@ -193,7 +196,12 @@ public class RowBuilder {
   }
 
   private static void setInitialPkeyValues(
-      Row row, Resource subject, Map<ColumnMapping, List<Value>> subjectData, TableMetadata table) {
+      Row row,
+      Resource subject,
+      Map<ColumnMapping, List<Value>> subjectData,
+      TableMetadata table,
+      NamespaceMapper namespaceMapper,
+      Schema schema) {
     List<Column> pkeyColumns =
         table.getColumns().stream().filter(col -> col.getKey() == 1).toList();
     String encodedKey = extractUriLocalName(subject.stringValue());
@@ -209,7 +217,7 @@ public class RowBuilder {
               });
     } catch (Exception e) {
       log.trace("Could not decode pkey from URI {}: {}", subject, e.getMessage());
-      String fallback = extractPid(subject, subjectData);
+      String fallback = extractPid(subject, subjectData, namespaceMapper, schema);
       for (Column col : pkeyColumns) {
         if (!col.isReference()) {
           row.set(col.getName(), fallback);
@@ -230,7 +238,8 @@ public class RowBuilder {
       Map<Resource, Row> rowBySubject,
       Map<Resource, String> tableBySubject,
       Map<Resource, Map<ColumnMapping, List<Value>>> matchedData,
-      Schema schema) {
+      Schema schema,
+      NamespaceMapper namespaceMapper) {
 
     Map<Resource, List<ParentRef>> reverseIndex = buildReverseIndex(matchedData);
 
@@ -272,7 +281,11 @@ public class RowBuilder {
             for (ParentRef parent : matchingParents) {
               Row copy = copyRow(originalRow);
               String parentPid =
-                  extractPid(parent.parentSubject(), matchedData.get(parent.parentSubject()));
+                  extractPid(
+                      parent.parentSubject(),
+                      matchedData.get(parent.parentSubject()),
+                      namespaceMapper,
+                      schema);
               copy.set(refCol.getName(), parentPid);
               resolvedRows.add(copy);
             }
@@ -335,7 +348,8 @@ public class RowBuilder {
       List<Value> values,
       Map<Resource, Map<ColumnMapping, List<Value>>> matchedData,
       Map<String, OntologyMapper> ontologyMappers,
-      Schema schema) {
+      Schema schema,
+      NamespaceMapper namespaceMapper) {
 
     String colName = column.getName();
     ColumnType colType = column.getColumnType();
@@ -367,14 +381,24 @@ public class RowBuilder {
             values.stream()
                 .filter(Value::isIRI)
                 .map(
-                    v -> extractPid((Resource) v, matchedData.getOrDefault((Resource) v, Map.of())))
+                    v ->
+                        extractPid(
+                            (Resource) v,
+                            matchedData.getOrDefault((Resource) v, Map.of()),
+                            namespaceMapper,
+                            schema))
                 .toArray(String[]::new);
         row.setRefArray(colName, (Object[]) pids);
       } else {
         Value refValue = values.get(0);
         if (refValue.isIRI()) {
           Resource refSubject = (Resource) refValue;
-          String refPid = extractPid(refSubject, matchedData.getOrDefault(refSubject, Map.of()));
+          String refPid =
+              extractPid(
+                  refSubject,
+                  matchedData.getOrDefault(refSubject, Map.of()),
+                  namespaceMapper,
+                  schema);
           row.set(colName, refPid);
         }
       }
@@ -393,18 +417,11 @@ public class RowBuilder {
     }
   }
 
-  private static String expandSemantic(String semantic) {
-    int colon = semantic.indexOf(':');
-    if (colon <= 0) {
-      return semantic;
-    }
-    String prefix = semantic.substring(0, colon);
-    String local = semantic.substring(colon + 1);
-    String namespace = DEFAULT_PREFIX_MAP.get(prefix);
-    return namespace != null ? namespace + local : semantic;
-  }
-
-  private static String extractPid(Resource subject, Map<ColumnMapping, List<Value>> data) {
+  private static String extractPid(
+      Resource subject,
+      Map<ColumnMapping, List<Value>> data,
+      NamespaceMapper namespaceMapper,
+      Schema schema) {
     for (Map.Entry<ColumnMapping, List<Value>> entry : data.entrySet()) {
       Column column = entry.getKey().column();
       String[] semantics = column.getSemantics();
@@ -412,7 +429,11 @@ public class RowBuilder {
         continue;
       }
       for (String semantic : semantics) {
-        if (DCTERMS_IDENTIFIER.equals(expandSemantic(semantic)) && !entry.getValue().isEmpty()) {
+        if (!semantic.contains(":")) {
+          continue;
+        }
+        IRI resolved = namespaceMapper.map(schema, semantic);
+        if (DCTERMS_IDENTIFIER_IRI.equals(resolved) && !entry.getValue().isEmpty()) {
           return entry.getValue().get(0).stringValue();
         }
       }

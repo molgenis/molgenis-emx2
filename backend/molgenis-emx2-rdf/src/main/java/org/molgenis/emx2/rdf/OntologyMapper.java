@@ -22,6 +22,7 @@ public class OntologyMapper {
 
     for (Row row : rows) {
       String name = row.getString("name");
+      if (name == null) continue;
 
       String uri = row.getString("ontologyTermURI");
       if (uri != null) {

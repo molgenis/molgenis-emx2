@@ -16,18 +16,14 @@ public class RdfFetcher {
 
   private RdfFetcher() {}
 
-  public static void parse(InputStream input, String formatHint, RDFHandler handler) {
-    RDFFormat format = detectFormat(formatHint);
-    RDFParser parser = Rio.createParser(format);
-    parser.setRDFHandler(handler);
-    try {
-      parser.parse(input);
-    } catch (Exception e) {
-      throw new MolgenisException("Failed to parse RDF: " + e.getMessage());
+  public record FetchResult(InputStream inputStream, String contentType) implements AutoCloseable {
+    @Override
+    public void close() throws Exception {
+      inputStream.close();
     }
   }
 
-  public static InputStream fetchUrl(String url) {
+  public static FetchResult fetchUrlWithFormat(String url) {
     try {
       HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
       conn.setRequestProperty("Accept", ACCEPT_HEADER);
@@ -38,7 +34,7 @@ public class RdfFetcher {
       if (status >= 400) {
         throw new MolgenisException("HTTP " + status + " fetching " + url);
       }
-      return conn.getInputStream();
+      return new FetchResult(conn.getInputStream(), conn.getContentType());
     } catch (MolgenisException e) {
       throw e;
     } catch (Exception e) {
@@ -46,8 +42,15 @@ public class RdfFetcher {
     }
   }
 
-  public static String getContentType(HttpURLConnection connection) {
-    return connection.getContentType();
+  public static void parse(InputStream input, String formatHint, RDFHandler handler) {
+    RDFFormat format = detectFormat(formatHint);
+    RDFParser parser = Rio.createParser(format);
+    parser.setRDFHandler(handler);
+    try {
+      parser.parse(input);
+    } catch (Exception e) {
+      throw new MolgenisException("Failed to parse RDF: " + e.getMessage());
+    }
   }
 
   private static RDFFormat detectFormat(String hint) {
