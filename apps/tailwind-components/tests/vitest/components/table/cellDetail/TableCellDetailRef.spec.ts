@@ -80,6 +80,7 @@ function mountWithSuspense(props: Record<string, unknown>) {
     defineComponent({
       render() {
         return h(Suspense, null, {
+          // @ts-ignore
           default: h(TableCellDetailRef, props),
         });
       },
