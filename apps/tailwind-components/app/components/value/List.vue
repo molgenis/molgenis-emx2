@@ -106,7 +106,7 @@ function handleCellClick() {
       "
       :metadata="metadata"
       :data="assertRowValue(listElement)"
-      @refCellClicked.self="handleCellClick"
+      @refCellClicked="handleCellClick"
     />
     <ValueRefBack
       v-else-if="metadata.columnType === 'REFBACK'"
