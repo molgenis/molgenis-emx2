@@ -9,52 +9,59 @@
     subtitle="add table name hereu"
     :background-accessible="false"
   >
-      <div class="px-8 py-5">
-        <div class="flex flex-row mb-5">
-          <InputSelect
-            id="column-sorting-select"
-            label="Sort by"
-            v-model="selectedSortMethod"
-            :options="sortMethods"
-            @change="handleSortMethodChanged"
+    <div class="px-8 py-5">
+      <div class="flex flex-row mb-5">
+        <InputSelect
+          id="column-sorting-select"
+          label="Sort by"
+          v-model="selectedSortMethod"
+          :options="sortMethods"
+          @change="handleSortMethodChanged"
+        />
+        <Button
+          type="text"
+          size="small"
+          label="Reset to default"
+          icon="RestartAlt"
+          class="ml-4 whitespace-nowrap"
+          :onclick="resetToDefault"
+        />
+      </div>
+      <UseSortable
+        v-model="columnsInColumnsSelectModal"
+        @start="startOrderEvent"
+        :options="{ animation: 150 }"
+      >
+        <div
+          class="flex flex-row"
+          v-for="option in columnsInColumnsSelectModal"
+          :key="option.id"
+        >
+          <InputLabel
+            :for="`column-checkbox-group-${option.label}`"
+            class="group flex justify-start items-center relative text-title-contrast"
+          >
+            <input
+              type="checkbox"
+              :id="`column-checkbox-group-${option.label}`"
+              :value="option.visible"
+              v-model="option.visible"
+              class="ml-4 mt-2 sr-only"
+            />
+            <InputCheckboxIcon :checked="option.visible" />
+            <span class="block">
+              {{ option.label }}
+              {{ option.position }}
+            </span>
+          </InputLabel>
+          <BaseIcon
+            name="drag-horizontal"
+            class="ml-auto hover:cursor-grab"
+            style="opacity: 0.2"
           />
-          <Button
-            type="text"
-            size="small"
-            label="Reset to default"
-            icon="RestartAlt"
-            class="ml-4 whitespace-nowrap"
-            :onclick="resetToDefault"
-          />
-
         </div>
-        <UseSortable v-model="columnsInColumnsSelectModal" @start="startOrderEvent">
-          <div class="flex flex-row" v-for="option in columnsInColumnsSelectModal" :key="option.id">
-
-            <InputLabel
-              :for="`column-checkbox-group-${option.label}`"
-              class="group flex justify-start items-center relative text-title-contrast"
-            >
-              <input
-                type="checkbox"
-                :id="`column-checkbox-group-${option.label}`"
-                :value="option.visible"
-                v-model="option.visible"
-                class="ml-4 mt-2 sr-only"
-              />
-              <InputCheckboxIcon
-                :checked="option.visible"
-              />
-              <span class="block">
-                {{ option.label }}
-                {{ option.position }}
-              </span>
-
-            </InputLabel>
-              <BaseIcon name="drag-horizontal" class="ml-auto hover:cursor-grab" style="opacity: 0.2;"/>
-          </div>
-       </UseSortable>
-    {{ columnsInColumnsSelectModal }}
+      </UseSortable>
+      {{ columnsInColumnsSelectModal }}
     </div>
     <template #footer>
       <div class="flex gap-2 justify-start py-2">
@@ -79,7 +86,7 @@ import Modal from "../../Modal.vue";
 import InputSelect from "../../input/Select.vue";
 import InputCheckbox from "../../input/Checkbox.vue";
 import Button from "../../Button.vue";
-import { UseSortable } from '@vueuse/integrations/useSortable/component'
+import { UseSortable } from "@vueuse/integrations/useSortable/component";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
@@ -126,7 +133,7 @@ function handleSave() {
       columnsInColumnsSelectModal.value
     );
   }
-  
+
   const updated = props.columns.map((column: IColumn) => {
     const columnConfig = columnsInColumnsSelectModal.value.find(
       (col) => col.id === column.id
