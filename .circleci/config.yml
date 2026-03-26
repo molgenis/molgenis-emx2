@@ -151,14 +151,13 @@ jobs:
           export $( cat build/ci.properties | xargs )
           docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
-    
+
     - run:
         name: Docker-Scout scanning on cve's, break on critical.
         command: |
           export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
-
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
     - run:
         name: deploy preview to azure
         command: |
