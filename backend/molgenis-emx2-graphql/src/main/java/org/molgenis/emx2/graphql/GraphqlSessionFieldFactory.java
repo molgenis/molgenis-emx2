@@ -22,6 +22,28 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
 
+  static final GraphQLObjectType outputTablePermissionsType =
+      GraphQLObjectType.newObject()
+          .name("MolgenisTablePermission")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_VIEW)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
   public GraphqlSessionFieldFactory() {
     // no instance
   }
@@ -141,8 +163,8 @@ public class GraphqlSessionFieldFactory {
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
-                        .name(ACTIVE_ROLES)
-                        .type(GraphQLList.list(GraphqlSchemaFieldFactory.outputRolesType)))
+                        .name(TABLE_PERMISSIONS)
+                        .type(GraphQLList.list(outputTablePermissionsType)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
@@ -162,15 +184,8 @@ public class GraphqlSessionFieldFactory {
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
-                List<String> roleNames = schema.getInheritedRolesForActiveUser();
-                result.put(ROLES, roleNames);
-                result.put(
-                    ACTIVE_ROLES,
-                    roleNames.stream()
-                        .map(
-                            roleName ->
-                                GraphqlSchemaFieldFactory.roleToMap(schema.getRoleInfo(roleName)))
-                        .toList());
+                result.put(ROLES, schema.getInheritedRolesForActiveUser());
+                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());
@@ -181,6 +196,19 @@ public class GraphqlSessionFieldFactory {
               return result;
             })
         .build();
+  }
+
+  private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
+    return schema.getPermissionsForActiveUser().stream()
+        .map(
+            p ->
+                Map.<String, Object>of(
+                    NAME, p.table(),
+                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
+                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
+                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
+                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
+        .toList();
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {

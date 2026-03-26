@@ -120,9 +120,9 @@ system.
 ```
 
 The `roles` field returns the names of the roles assigned to the current user as a plain list of strings (e.g.
-`["Viewer", "Editor"]`). This format is stable and intended for backwards-compatible integrations.
+`["Viewer", "Editor"]`). Use this for schema-level role checks such as `Manager` or `Editor`.
 
-To retrieve the full role definitions including table-level permissions, use `activeRoles`:
+To retrieve computed per-table permissions for the current user, use `tablePermissions`:
 
 ```graphql
 {
@@ -130,26 +130,25 @@ To retrieve the full role definitions including table-level permissions, use `ac
     email
     admin
     roles
-    activeRoles {
+    tablePermissions {
       name
-      description
-      system
-      permissions {
-        table
-        select
-        insert
-        update
-        delete
-      }
+      canView
+      canInsert
+      canUpdate
+      canDelete
     }
     schemas
   }
 }
 ```
 
-- `roles` — list of role name strings assigned to the current user. Stable, backwards-compatible.
-- `activeRoles` — same roles as rich objects, including per-table permission details. See
-  [Table-level permissions API](#table-level-permissions-api) for field descriptions.
+- `roles` — list of role name strings for the current user. Use for schema-level checks (e.g. `roles.includes("Manager")`).
+- `tablePermissions` — effective permissions per table, computed from all inherited roles. Each entry contains:
+  - `name` — table name
+  - `canView` — user can read rows from this table
+  - `canInsert` — user can insert rows into this table
+  - `canUpdate` — user can update rows in this table
+  - `canDelete` — user can delete rows from this table
 
 ### settings
 
@@ -318,7 +317,6 @@ effective permissions.
   _schema {
     roles {
       name
-      description
       system
       permissions {
         table
@@ -354,7 +352,6 @@ mutation {
     roles: [
       {
         name: "TableAViewer"
-        description: "Read-only access to TableA"
         permissions: [
           { table: "TableA", select: true }
         ]

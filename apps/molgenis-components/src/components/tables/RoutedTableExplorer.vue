@@ -9,6 +9,7 @@
       :canUpdate="canUpdate"
       :canDelete="canDelete"
       :canManage="canManage"
+      :tablePermissions="tablePermissions"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
       @updateShowFilters="updateFilters"
@@ -87,6 +88,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    tablePermissions: {
+      type: Array,
+      default: () => [],
     },
     showOrderBy: {
       type: String,

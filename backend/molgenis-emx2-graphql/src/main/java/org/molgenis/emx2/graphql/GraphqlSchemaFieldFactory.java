@@ -144,10 +144,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.SYSTEM)
                   .type(Scalars.GraphQLBoolean))
           .field(
@@ -185,10 +181,6 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -552,7 +544,6 @@ public class GraphqlSchemaFieldFactory {
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(GraphqlConstants.NAME, role.name());
-    roleMap.put(GraphqlConstants.DESCRIPTION, role.description());
     roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
     roleMap.put(
         GraphqlConstants.PERMISSIONS,
@@ -617,6 +608,7 @@ public class GraphqlSchemaFieldFactory {
                 // this sync is a bit sad.
                 ((SqlSchemaMetadata) schema.getMetadata())
                     .sync((SqlSchemaMetadata) s.getMetadata());
+                db.getListener().onSchemaChange();
               });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
@@ -696,9 +688,8 @@ public class GraphqlSchemaFieldFactory {
     if (roles == null) return;
     for (Map<String, Object> roleMap : roles) {
       String roleName = (String) roleMap.get(GraphqlConstants.NAME);
-      String description = (String) roleMap.get(GraphqlConstants.DESCRIPTION);
       if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
-        schema.createRole(roleName, description);
+        schema.createRole(roleName);
       }
       List<Map<String, Object>> perms =
           (List<Map<String, Object>>) roleMap.get(GraphqlConstants.PERMISSIONS);
@@ -716,7 +707,7 @@ public class GraphqlSchemaFieldFactory {
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(table, select, insert, update, delete);
+    return new TablePermission(table).select(select).insert(insert).update(update).delete(delete);
   }
 
   private static void dropRoles(
@@ -898,13 +889,14 @@ public class GraphqlSchemaFieldFactory {
                 try {
                   Schema s = db.getSchema(schema.getName());
                   changeTables(s, dataFetchingEnvironment);
-                  changeMembers(s, dataFetchingEnvironment);
                   changeRoles(s, dataFetchingEnvironment);
+                  changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
+                  db.getListener().onSchemaChange();
                 } catch (IOException e) {
                   throw new GraphqlException("Save metadata failed", e);
                 }

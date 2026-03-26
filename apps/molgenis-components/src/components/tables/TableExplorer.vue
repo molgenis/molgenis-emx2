@@ -353,6 +353,7 @@
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
+      :tablePermissions="tablePermissions"
       @close="handleModalClose"
       :apply-default-values="editMode === 'add'"
     />
@@ -602,6 +603,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    tablePermissions: {
+      type: Array,
+      default: () => [],
     },
   },
   computed: {

@@ -64,23 +64,19 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
   }
 
   private boolean tableHasSelectGrant(String tableName) {
-    Set<String> perms = getTablesWithSelectPermission();
-    return perms.contains("*") || perms.contains(tableName);
+    return getTablesWithSelectPermission().contains(tableName);
   }
 
   private boolean tableHasGrant(
       String tableName, java.util.function.Function<TablePermission, Boolean> grantExtractor) {
     return getActiveUserPermissions().stream()
-        .anyMatch(
-            p ->
-                (p.table().equals("*") || p.table().equals(tableName))
-                    && Boolean.TRUE.equals(grantExtractor.apply(p)));
+        .anyMatch(p -> p.table().equals(tableName) && Boolean.TRUE.equals(grantExtractor.apply(p)));
   }
 
   private List<TablePermission> getActiveUserPermissions() {
     if (activeUserPermissions == null) {
       activeUserPermissions =
-          schema.getDatabase().getRoleManager().getPermissionsForActiveUser(schema.getName());
+          schema.getDatabase().getRoleManager().getTablePermissionsForActiveUser(schema.getName());
     }
     return activeUserPermissions;
   }

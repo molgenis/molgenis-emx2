@@ -61,8 +61,8 @@ class TestPermissionEvaluator {
     schema.addMember(USER_EDITOR, Privileges.EDITOR.toString());
     schema.addMember(USER_MANAGER, Privileges.MANAGER.toString());
 
-    schema.createRole("CustomReader", "Can read TableA");
-    schema.grant("CustomReader", new TablePermission(TABLE_A, true, null, null, null));
+    schema.createRole("CustomReader");
+    schema.grant("CustomReader", new TablePermission(TABLE_A).select(true));
     schema.addMember(USER_CUSTOM, "CustomReader");
   }
 
@@ -205,8 +205,8 @@ class TestPermissionEvaluator {
     void customWriterCanInsertGrantedTableOnly() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("InsertWriter", null);
-      schema.grant("InsertWriter", new TablePermission(TABLE_A, true, true, null, null));
+      schema.createRole("InsertWriter");
+      schema.grant("InsertWriter", new TablePermission(TABLE_A).select(true).insert(true));
       schema.addMember(USER_NO_ROLE, "InsertWriter");
 
       try {
@@ -244,8 +244,8 @@ class TestPermissionEvaluator {
     void customWriterCanUpdateGrantedTableOnly() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("UpdateWriter", null);
-      schema.grant("UpdateWriter", new TablePermission(TABLE_A, true, null, true, null));
+      schema.createRole("UpdateWriter");
+      schema.grant("UpdateWriter", new TablePermission(TABLE_A).select(true).update(true));
       schema.addMember(USER_NO_ROLE, "UpdateWriter");
 
       try {
@@ -265,8 +265,8 @@ class TestPermissionEvaluator {
     void insertOnlyGrantCannotUpdate() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("InsertOnly", null);
-      schema.grant("InsertOnly", new TablePermission(TABLE_A, true, true, null, null));
+      schema.createRole("InsertOnly");
+      schema.grant("InsertOnly", new TablePermission(TABLE_A).select(true).insert(true));
       schema.addMember(USER_NO_ROLE, "InsertOnly");
 
       try {
@@ -302,8 +302,8 @@ class TestPermissionEvaluator {
     void customWriterCanDeleteGrantedTableOnly() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("DeleteWriter", null);
-      schema.grant("DeleteWriter", new TablePermission(TABLE_A, true, null, null, true));
+      schema.createRole("DeleteWriter");
+      schema.grant("DeleteWriter", new TablePermission(TABLE_A).select(true).delete(true));
       schema.addMember(USER_NO_ROLE, "DeleteWriter");
 
       try {
@@ -323,8 +323,8 @@ class TestPermissionEvaluator {
     void insertUpdateGrantCannotDelete() {
       database.becomeAdmin();
       Schema schema = database.getSchema(SCHEMA);
-      schema.createRole("NoDelete", null);
-      schema.grant("NoDelete", new TablePermission(TABLE_A, true, true, true, null));
+      schema.createRole("NoDelete");
+      schema.grant("NoDelete", new TablePermission(TABLE_A).select(true).insert(true).update(true));
       schema.addMember(USER_NO_ROLE, "NoDelete");
 
       try {
