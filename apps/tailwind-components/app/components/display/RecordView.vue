@@ -108,8 +108,27 @@ const sections = computed<SectionGroup[]>(() => {
   return result;
 });
 
+function hasNonEmptyValue(col: ISectionField): boolean {
+  const val = col.value;
+  if (val === null || val === undefined || val === "") return false;
+  if (Array.isArray(val) && val.length === 0) return false;
+  if (
+    typeof val === "object" &&
+    !Array.isArray(val) &&
+    Object.keys(val).length === 0
+  )
+    return false;
+  return true;
+}
+
+const visibleSections = computed(() =>
+  props.showEmpty
+    ? sections.value
+    : sections.value.filter((s) => s.columns.some(hasNonEmptyValue))
+);
+
 const navSections = computed(() =>
-  sections.value
+  visibleSections.value
     .filter(
       (s) =>
         s.heading &&
@@ -137,6 +156,7 @@ const hasSideNav = computed(
 </script>
 
 <template>
+  <div class="lg:px-[30px] px-0">
   <DetailPageLayout :show-side-nav="hasSideNav">
     <template #header>
       <slot name="header"></slot>
@@ -146,7 +166,7 @@ const hasSideNav = computed(
     </template>
     <template #main>
       <RecordSection
-        v-for="(section, index) in sections"
+        v-for="(section, index) in visibleSections"
         :key="section.heading?.id || `orphan-${index}`"
         :heading="section.heading"
         :is-section="section.isSection"
@@ -157,4 +177,5 @@ const hasSideNav = computed(
       <slot name="footer"></slot>
     </template>
   </DetailPageLayout>
+  </div>
 </template>

@@ -20,11 +20,7 @@ const props = withDefaults(
   }
 );
 
-const headingClasses = computed(() =>
-  props.isSection
-    ? "mb-5 uppercase text-heading-4xl font-display text-record-heading"
-    : "text-xl font-semibold mb-3 text-record-heading"
-);
+const headingClasses = "mb-5 uppercase text-heading-4xl font-display";
 
 const visibleColumns = computed(() => {
   if (props.showEmpty) return props.columns;
@@ -65,7 +61,7 @@ const sectionHeading = computed(() => {
 <template>
   <section
     :id="heading?.id"
-    class="bg-content py-18 lg:px-12.5 px-5 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden mb-6"
+    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden mb-6"
   >
     <h2 v-if="sectionHeading" :class="headingClasses">
       {{ sectionHeading }}
@@ -79,7 +75,7 @@ const sectionHeading = computed(() => {
         <DefinitionListTerm class="text-record-label"
           >{{
             col.meta.displayLabel || col.meta.label || col.meta.id
-          }}:</DefinitionListTerm
+          }}</DefinitionListTerm
         >
         <DefinitionListDefinition class="text-record-value">
           <RecordColumn
@@ -98,7 +94,7 @@ const sectionHeading = computed(() => {
         class="record-list-section"
       >
         <dt class="font-bold text-body-base mb-2 text-record-label">
-          {{ col.meta.displayLabel || col.meta.label || col.meta.id }}:
+          {{ col.meta.displayLabel || col.meta.label || col.meta.id }}
         </dt>
         <dd class="text-record-value">
           <RecordColumn
