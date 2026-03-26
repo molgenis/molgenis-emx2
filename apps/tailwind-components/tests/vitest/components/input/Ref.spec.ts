@@ -79,49 +79,6 @@ describe("facet count fetching", () => {
     vi.useRealTimers();
   });
 
-  it("fetches counts via _groupBy after loading options", async () => {
-    mockFetchGraphql.mockResolvedValue({
-      Pet_groupBy: [
-        { count: 3, bird: { name: "tweety" } },
-        { count: 5, bird: { name: "daffy" } },
-      ],
-    });
-
-    const { createCountFetcher } = await import(
-      "../../../../app/utils/createCountFetcher"
-    );
-    const countFetcher = createCountFetcher({
-      schemaId: "test-schema",
-      tableId: "Pet",
-      columnPath: "bird",
-      getCrossFilter: () => ({ age: { between: [1, 10] } }),
-    });
-
-    const wrapper = mount(InputRef, {
-      props: {
-        id: "test-ref-counts",
-        refTableId: "bird",
-        refSchemaId: "test-schema",
-        refLabel: "${name}",
-        isArray: true,
-        limit: 20,
-        countFetcher,
-      },
-    });
-
-    await flushPromises();
-
-    expect(mockFetchGraphql).toHaveBeenCalledWith(
-      "test-schema",
-      expect.stringContaining("Pet_groupBy"),
-      expect.objectContaining({
-        filter: expect.objectContaining({
-          age: { between: [1, 10] },
-        }),
-      })
-    );
-  });
-
   it("fetches base counts once on mount via fetchRefBaseCounts", async () => {
     const fetchRefBaseCountsMock = vi.fn().mockResolvedValue(new Map());
     mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });

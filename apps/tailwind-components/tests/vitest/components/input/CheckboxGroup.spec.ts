@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { expect, it } from "vitest";
 import InputCheckboxGroup from "../../../../app/components/input/CheckboxGroup.vue";
 
@@ -15,13 +16,15 @@ const wrapper = mount(InputCheckboxGroup, {
 
 it("to be focused", async () => {
   const firstInputElem = wrapper.get('input[type="checkbox"]');
-  firstInputElem.trigger("focus");
-  expect(wrapper.emitted("focus"));
+  await firstInputElem.trigger("focusin");
+  await nextTick();
+  expect(wrapper.emitted("focus")).toBeTruthy();
 });
 
 it("to be blurred", async () => {
   const firstInputElem = wrapper.get('input[type="checkbox"]');
-  firstInputElem.trigger("focus");
-  firstInputElem.trigger("blur");
-  expect(wrapper.emitted("blur"));
+  await firstInputElem.trigger("focusin");
+  await firstInputElem.trigger("focusout");
+  await nextTick();
+  expect(wrapper.emitted("blur")).toBeTruthy();
 });

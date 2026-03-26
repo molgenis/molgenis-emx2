@@ -14,6 +14,41 @@ describe("createCountFetcher", () => {
   });
 
   describe("fetchRefCounts", () => {
+    it("calls _groupBy with cross-filter and returns counts by label", async () => {
+      mockFetchGraphql.mockResolvedValue({
+        Pet_groupBy: [
+          { count: 3, bird: { name: "tweety" } },
+          { count: 5, bird: { name: "daffy" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "Pet",
+        columnPath: "bird",
+        getCrossFilter: () => ({ age: { between: [1, 10] } }),
+      });
+
+      const options = new Map<string, Record<string, unknown>>([
+        ["tweety", { name: "tweety" }],
+        ["daffy", { name: "daffy" }],
+      ]);
+
+      const counts = await fetcher.fetchRefCounts(options);
+
+      expect(mockFetchGraphql).toHaveBeenCalledWith(
+        "test-schema",
+        expect.stringContaining("Pet_groupBy"),
+        expect.objectContaining({
+          filter: expect.objectContaining({
+            age: { between: [1, 10] },
+          }),
+        })
+      );
+      expect(counts.get("tweety")).toBe(3);
+      expect(counts.get("daffy")).toBe(5);
+    });
+
     it("returns counts mapped by label using key from first option", async () => {
       mockFetchGraphql.mockResolvedValueOnce({
         Patient_groupBy: [

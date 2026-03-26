@@ -43,7 +43,7 @@ describe("listbox", () => {
     expect(firstOptionText.html()).toEqual("<span>Select an option</span>");
   });
 
-  it.each([options])("listbox options have aria-selected defined", (elem) => {
+  it.each(options)("listbox options have aria-selected defined", (elem) => {
     const ariaSelected = elem.attributes("aria-selected");
     if (elem.find("span").html() === "<span>Select an option</span>") {
       expect(ariaSelected).toEqual("true");

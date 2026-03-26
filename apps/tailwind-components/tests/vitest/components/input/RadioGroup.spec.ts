@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { expect, it } from "vitest";
 import InputRadiogroup from "../../../../app/components/input/RadioGroup.vue";
 
@@ -19,13 +20,15 @@ it("the parent of the hidden input should have a class relative to keep the posi
 
 it("to be focused", async () => {
   const firstInputElem = wrapper.get('input[type="radio"]');
-  firstInputElem.trigger("focus");
-  expect(wrapper.emitted("focus"));
+  await firstInputElem.trigger("focusin");
+  await nextTick();
+  expect(wrapper.emitted("focus")).toBeTruthy();
 });
 
 it("to be blurred", async () => {
   const firstInputElem = wrapper.get('input[type="radio"]');
-  firstInputElem.trigger("focus");
-  firstInputElem.trigger("blur");
-  expect(wrapper.emitted("blur"));
+  await firstInputElem.trigger("focusin");
+  await firstInputElem.trigger("focusout");
+  await nextTick();
+  expect(wrapper.emitted("blur")).toBeTruthy();
 });
