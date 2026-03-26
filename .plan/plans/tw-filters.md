@@ -6,7 +6,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 **61 files changed** (against origin/master): 16 new source files, 6 stories, 14 test files, 2 shared test fixtures, 8 modified existing components, 6 test quality fixes, plus config/CSS/types.
 
-**382 vitest tests, all passing** (47 test files).
+**406 vitest tests, all passing** (48 test files).
 
 ---
 
@@ -83,41 +83,27 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 ## Priority: Next Tasks
 
-### Task 3: Prevent filter option flickering during count reloads
-**Priority: highest (most visible UX issue)**
+### ✅ Completed — Task 3: Prevent filter option flickering during count reloads
 
-Root causes identified:
-1. `listOptions` computed in Ref.vue (line 71-82) recreates full array on every count Map change — even though only counts changed, not the options
-2. CheckboxGroup.vue (line 56) missing `:key` on v-for items — Vue can't track which DOM element maps to which option
-3. Ontology `pruneByBaseCounts()` (line 695-721) mutates tree structure on EVERY count refresh — should only prune on initial base count load, not on cross-filter updates
-4. `countsLoading` boolean is global — spinner shows on ALL items, not per-item
-5. `createCountFetcher` always returns new Map instances — triggers reactive cascade
-
-Implementation:
-- **Fix 1** (quick): Add `:key="option.value"` to CheckboxGroup v-for (line 56)
-- **Fix 2**: Separate Ref.vue `listOptions` into stable option list + reactive count overlay. Base count filtering should be a separate computed that only reruns when baseCounts change, not on cross-filter count changes.
-- **Fix 3**: In Ontology, only prune on initial base count load. Cross-filter count updates should only change count numbers, never mutate tree structure.
-- **Fix 4**: Per-item loading state (or no spinner at all — just update count in place)
+- CheckboxGroup: added `:key="option.value"` to v-for
+- Ref.vue: split `listOptions` into `visibleByBaseCount` (stable Set) + `listOptions` computed
+- Ontology.vue: added `prunedNodes` tracking Set so `pruneByBaseCounts` only prunes new nodes
+- CheckboxGroup + TreeNode: removed global `countsLoading` spinner, counts update in-place
 
 Files: `Ref.vue`, `Ontology.vue`, `CheckboxGroup.vue`, `TreeNode.vue`, `createCountFetcher.ts`
 
-### Task 1: Click "X options hidden" to reveal all
-**Priority: medium (quick win after Task 3)**
+### ✅ Completed — Task 1: Click "X options hidden" to reveal all
 
-- **Ref.vue**: Add `showAllOptions = ref(false)`. Modify `listOptions` filter (line 75) to: `if (searchTerms.value || showAllOptions.value) return true`. Make the "X options hidden" message a clickable button that toggles `showAllOptions`.
-- **Ontology.vue**: Add `showAllHidden = ref(false)`. Skip `pruneByBaseCounts()` when true (line 689 condition). Make message clickable. When toggled back off, re-prune. Note: Ontology already has per-node `showingAll` via `showAllChildrenOfNode()` — the new toggle is a global override.
+- Ref.vue: added `showAllOptions` ref, bypass base count filter when true, "X options hidden" is now a clickable button toggling show/hide
+- Ontology.vue: added `showAllHidden` ref + `toggleShowAllHidden()`, skip pruning when true, clickable button triggers reload/re-prune
 
 Files: `Ref.vue`, `Ontology.vue`
 
-### Task 2: Removing filter from sidebar should clear filter state
-**Priority: investigate — code appears correct**
+### ✅ Completed — not a bug — Task 2: Removing filter from sidebar should clear filter state
 
-Analysis shows `toggleFilter()` (useFilters.ts line 548) already calls `removeFilter()` when hiding. The full chain: toggleFilter → removeFilter → setFilter(null) → delete from Map → URL sync → gqlFilter recompute.
-
-Need to verify:
-- Write a red-green test reproducing the reported behavior
-- Check alternative paths: FilterPicker toggle, ActiveFilters "clear all", direct URL manipulation
-- If test passes, this may be a perceived issue (flicker makes it look like state persists) — would be fixed by Task 3
+- 4 new tests added to `useFilters.spec.ts` covering `toggleFilter`/`removeFilter`/`resetFilters`/URL sync removal
+- All pass green immediately — removal logic is correct
+- Perceived issue likely caused by flicker (fixed in Task 3)
 
 Files: `useFilters.ts`, `useFilters.spec.ts`
 

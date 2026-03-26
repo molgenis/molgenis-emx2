@@ -61,6 +61,7 @@ const showSearch = ref<boolean>(false);
 const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
 const showSelect = ref(false);
+const showAllOptions = ref(false);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 const columnName = computed<string>(() => {
@@ -68,13 +69,22 @@ const columnName = computed<string>(() => {
 });
 
 //computed elements to translate to CheckboxGroup or
+const visibleByBaseCount = computed(() => {
+  if (baseCounts.value.size === 0) return null;
+  const visible = new Set<string>();
+  for (const label of Object.keys(optionMap.value)) {
+    const bc = baseCounts.value.get(label);
+    if (bc === undefined || bc > 0) visible.add(label);
+  }
+  return visible;
+});
+
 const listOptions = computed(() => {
   return Object.keys(optionMap.value)
     .filter((label) => {
-      if (baseCounts.value.size === 0) return true;
-      if (searchTerms.value) return true;
-      const baseCount = baseCounts.value.get(label);
-      return baseCount === undefined || baseCount > 0;
+      if (searchTerms.value || showAllOptions.value) return true;
+      if (!visibleByBaseCount.value) return true;
+      return visibleByBaseCount.value.has(label);
     })
     .map((label) => {
       return { value: label } as IValueLabel;
@@ -334,11 +344,8 @@ const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
 
 const hiddenByBaseCount = computed(() => {
-  if (baseCounts.value.size === 0) return 0;
-  return Object.keys(optionMap.value).filter((label) => {
-    const bc = baseCounts.value.get(label);
-    return bc === 0;
-  }).length;
+  if (!visibleByBaseCount.value) return 0;
+  return Object.keys(optionMap.value).length - visibleByBaseCount.value.size;
 });
 
 const debouncedRefetchCounts = useDebounceFn(async () => {
@@ -525,18 +532,22 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
-        <div
-          v-if="
-            countFetcher &&
-            hiddenByBaseCount > 0 &&
-            listOptions.length === 0 &&
-            !isInitLoading
-          "
-          class="text-body-sm text-gray-500 italic px-2 py-1"
+        <button
+          v-if="countFetcher && hiddenByBaseCount > 0 && !isInitLoading"
+          class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
+          @click="showAllOptions = !showAllOptions"
         >
-          {{ hiddenByBaseCount }} option{{ hiddenByBaseCount !== 1 ? "s" : "" }}
-          hidden (no matching records)
-        </div>
+          <template v-if="showAllOptions">
+            Hide {{ hiddenByBaseCount }} empty option{{
+              hiddenByBaseCount !== 1 ? "s" : ""
+            }}
+          </template>
+          <template v-else>
+            Show {{ hiddenByBaseCount }} hidden option{{
+              hiddenByBaseCount !== 1 ? "s" : ""
+            }}
+          </template>
+        </button>
       </div>
     </InputGroupContainer>
   </div>

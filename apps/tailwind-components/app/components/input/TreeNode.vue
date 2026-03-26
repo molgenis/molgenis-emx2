@@ -408,17 +408,9 @@ onUnmounted(() => {
             :class="'text-title-contrast'"
           >
             {{ node.label || node.name
-            }}<span
-              v-if="facetCounts"
-              class="shrink-0 ml-0.5 inline-flex items-center gap-0.5"
+            }}<span v-if="facetCounts" class="shrink-0 ml-0.5"
+              >({{ facetCounts.get(node.name) ?? 0 }})</span
             >
-              <span>({{ facetCounts.get(node.name) ?? 0 }})</span>
-              <BaseIcon
-                v-if="countsLoading"
-                name="progress-activity"
-                class="animate-spin"
-                :width="12"
-            /></span>
           </span>
         </InputLabel>
         <div

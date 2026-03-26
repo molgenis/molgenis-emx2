@@ -1318,4 +1318,83 @@ describe("OntologyInput", () => {
       expect(mockFetch.mock.calls.length - callCountBefore).toBe(1);
     });
   });
+
+  describe("Base Count Pruning and Show Hidden", () => {
+    it("should show pruned nodes when clicking show hidden button", async () => {
+      const leafCounts = new Map<string, number>();
+      const parentCounts = new Map<string, number>();
+      const baseLeafCounts = new Map<string, number>();
+      const baseParentCounts = new Map<string, number>();
+
+      const mockCountFetcher = {
+        fetchOntologyLeafCounts: vi.fn(() => Promise.resolve(leafCounts)),
+        fetchOntologyParentCounts: vi.fn(() => Promise.resolve(parentCounts)),
+        fetchOntologyLeafBaseCounts: vi.fn(() =>
+          Promise.resolve(baseLeafCounts)
+        ),
+        fetchOntologyParentBaseCounts: vi.fn(() =>
+          Promise.resolve(baseParentCounts)
+        ),
+        fetchRefCounts: vi.fn(() => Promise.resolve(new Map())),
+        fetchRefBaseCounts: vi.fn(() => Promise.resolve(new Map())),
+        getCrossFilter: vi.fn(() => undefined),
+      };
+
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+        { name: "T3", parent: null, label: "Term 3" },
+        { name: "T4", parent: null, label: "Term 4" },
+        { name: "T5", parent: null, label: "Term 5" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      baseLeafCounts.set("T1", 10);
+      baseLeafCounts.set("T2", 5);
+      baseLeafCounts.set("T3", 0);
+      baseLeafCounts.set("T4", 3);
+      baseLeafCounts.set("T5", 0);
+      leafCounts.set("T1", 10);
+      leafCounts.set("T2", 5);
+      leafCounts.set("T3", 0);
+      leafCounts.set("T4", 3);
+      leafCounts.set("T5", 0);
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          countFetcher: mockCountFetcher,
+          selectCutOff: 25,
+        },
+      });
+      await flushPromises();
+
+      let labels = getNodeLabels(wrapper);
+      expect(labels.some((l) => l.includes("Term 1"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 2"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 4"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 3"))).toBe(false);
+      expect(labels.some((l) => l.includes("Term 5"))).toBe(false);
+
+      const showBtn = findButtonByText(wrapper, "hidden");
+      expect(showBtn).not.toBeNull();
+      expect(showBtn!.text()).toContain("2");
+
+      await showBtn!.trigger("click");
+      await flushPromises();
+
+      labels = getNodeLabels(wrapper);
+      expect(labels.some((l) => l.includes("Term 1"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 2"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 3"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 4"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 5"))).toBe(true);
+    });
+  });
 });

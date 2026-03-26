@@ -53,7 +53,11 @@ function resetModelValue() {
     @focus="emit('focus')"
     @blur="emit('blur')"
   >
-    <div class="flex flex-row min-w-0" v-for="option in options">
+    <div
+      class="flex flex-row min-w-0"
+      v-for="option in options"
+      :key="option.value"
+    >
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
         class="group flex flex-1 justify-start items-center relative min-w-0 overflow-hidden"
@@ -90,17 +94,8 @@ function resetModelValue() {
           <span class="truncate min-w-0" v-tooltip.top="option.value" v-else>
             {{ option.value }}
           </span>
-          <span
-            v-if="facetCounts"
-            class="shrink-0 ml-0.5 flex items-center gap-0.5"
-          >
-            <span>({{ facetCounts.get(option.value as string) ?? 0 }})</span>
-            <BaseIcon
-              v-if="countsLoading"
-              name="progress-activity"
-              class="animate-spin"
-              :width="12"
-            />
+          <span v-if="facetCounts" class="shrink-0 ml-0.5">
+            ({{ facetCounts.get(option.value as string) ?? 0 }})
           </span>
         </span>
       </InputLabel>

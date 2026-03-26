@@ -460,6 +460,99 @@ describe("useFilters", () => {
     expect(filterStates.value.has("name")).toBe(false);
   });
 
+  it("toggleFilter removes filter and clears gqlFilter output", async () => {
+    const columns = ref([
+      { id: "name", label: "Name", columnType: "STRING" },
+      { id: "age", label: "Age", columnType: "INT" },
+    ]);
+    const { visibleFilterIds, toggleFilter, setFilter, gqlFilter } = useFilters(
+      columns,
+      { debounceMs: 0 }
+    );
+    visibleFilterIds.value = ["name", "age"];
+    setFilter("name", { operator: "like", value: "John" });
+    await nextTick();
+    expect(gqlFilter.value).toEqual({ name: { like: "John" } });
+
+    toggleFilter("name");
+    await nextTick();
+    expect(gqlFilter.value).toEqual({});
+  });
+
+  it("resetFilters clears all non-default filter state", async () => {
+    const columns = ref([
+      { id: "name", label: "Name", columnType: "STRING" },
+      { id: "age", label: "Age", columnType: "INT" },
+    ]);
+    const {
+      visibleFilterIds,
+      toggleFilter,
+      setFilter,
+      filterStates,
+      gqlFilter,
+      resetFilters,
+    } = useFilters(columns, { debounceMs: 0 });
+
+    toggleFilter("name");
+    toggleFilter("age");
+    setFilter("name", { operator: "like", value: "John" });
+    setFilter("age", { operator: "equals", value: 30 });
+    await nextTick();
+    expect(filterStates.value.size).toBe(2);
+    expect(gqlFilter.value).not.toEqual({});
+
+    resetFilters();
+    await nextTick();
+    expect(filterStates.value.size).toBe(0);
+    expect(gqlFilter.value).toEqual({});
+  });
+
+  it("removeFilter on non-existent filter is a no-op", async () => {
+    const { filterStates, setFilter, removeFilter, gqlFilter } = useFilters(
+      mockColumns,
+      { debounceMs: 0 }
+    );
+
+    setFilter("name", { operator: "like", value: "test" });
+    await nextTick();
+    expect(filterStates.value.size).toBe(1);
+    expect(gqlFilter.value).toEqual({ name: { like: "test" } });
+
+    removeFilter("age");
+    await nextTick();
+    expect(filterStates.value.size).toBe(1);
+    expect(gqlFilter.value).toEqual({ name: { like: "test" } });
+  });
+
+  it("toggleFilter with URL sync updates URL after removal", async () => {
+    const mockRoute = reactive({ query: {} as Record<string, string> });
+    const mockRouter = {
+      replace: vi.fn((opts) => {
+        mockRoute.query = opts.query as Record<string, string>;
+      }),
+    };
+
+    const columns = ref([
+      { id: "name", label: "Name", columnType: "STRING" },
+      { id: "age", label: "Age", columnType: "INT" },
+    ]);
+    const { visibleFilterIds, toggleFilter, setFilter } = useFilters(columns, {
+      debounceMs: 0,
+      urlSync: true,
+      route: mockRoute,
+      router: mockRouter,
+    });
+
+    visibleFilterIds.value = ["name", "age"];
+    setFilter("name", { operator: "like", value: "John" });
+    await nextTick();
+    expect(mockRoute.query["name"]).toBe("John");
+
+    toggleFilter("name");
+    await nextTick();
+    expect(mockRoute.query["name"]).toBeUndefined();
+  });
+
   it("reactively updates when URL changes", async () => {
     const mockRoute = reactive({
       query: { name: "test" } as Record<string, string>,

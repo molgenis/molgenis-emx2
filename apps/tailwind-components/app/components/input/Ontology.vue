@@ -93,6 +93,8 @@ function reset() {
   loadingNodes.value.clear();
   baseCounts.value = new Map();
   prunedByBaseCount.value = 0;
+  prunedNodes.value.clear();
+  showAllHidden.value = false;
   reload();
 }
 
@@ -131,17 +133,18 @@ async function reload() {
     query += `rootCount:  ${props.ontologyTableId}_agg(filter: {parent: { _is_null: true } }){count}`;
   }
 
-  query = reloadSelectionLabels
-    ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
-    : `query myquery{${query}}`;
-  const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  if (query) {
+    query = reloadSelectionLabels
+      ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
+      : `query myquery{${query}}`;
+    const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  // update new counts if there
-  totalCount.value = data.totalCount?.count || totalCount.value;
-  rootCount.value = data.rootCount?.count || rootCount.value;
+    totalCount.value = data.totalCount?.count || totalCount.value;
+    rootCount.value = data.rootCount?.count || rootCount.value;
 
-  if (reloadSelectionLabels) {
-    await applyModelValue(data);
+    if (reloadSelectionLabels) {
+      await applyModelValue(data);
+    }
   }
 
   if (
@@ -469,7 +472,8 @@ async function autoPageAfterPrune(node: ITreeNodeState) {
   const minVisible = Math.min(props.selectCutOff || 25, props.limit || 20);
   let safetyCounter = 0;
   while (
-    (node.children?.length || 0) < minVisible &&
+    (node.children?.filter((c) => c.visible !== false).length || 0) <
+      minVisible &&
     node.loadMoreHasMore &&
     safetyCounter < 10
   ) {
@@ -629,6 +633,8 @@ const localFacetCounts = ref<Map<string, number>>(new Map());
 const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
 const prunedByBaseCount = ref(0);
+const prunedNodes = ref<Set<string>>(new Set());
+const showAllHidden = ref(false);
 
 function collectVisibleNodeNames(node: ITreeNodeState): {
   leaves: string[];
@@ -685,39 +691,64 @@ async function fetchCountsForVisibleNodes() {
 
   localFacetCounts.value = newCounts;
 
-  if (!searchTerms.value) {
-    prunedByBaseCount.value += pruneByBaseCounts(rootNode.value);
+  if (!searchTerms.value && !showAllHidden.value) {
+    prunedByBaseCount.value += hideByBaseCounts(
+      rootNode.value,
+      prunedNodes.value
+    );
   }
 
   countsLoading.value = false;
 }
 
-function pruneByBaseCounts(node: ITreeNodeState): number {
-  let removed = 0;
-  if (!node.children) return removed;
-  const remaining: ITreeNodeState[] = [];
+function toggleShowAllHidden() {
+  showAllHidden.value = !showAllHidden.value;
+  setHiddenNodesVisibility(rootNode.value, showAllHidden.value);
+}
+
+function setHiddenNodesVisibility(node: ITreeNodeState, show: boolean) {
+  if (!node.children) return;
   for (const child of node.children) {
+    const bc = baseCounts.value.get(child.name);
+    if (bc === 0) {
+      child.visible = show;
+    }
+    if (child.children && child.children.length > 0) {
+      setHiddenNodesVisibility(child, show);
+    }
+  }
+}
+
+function hideByBaseCounts(node: ITreeNodeState, seen: Set<string>): number {
+  let hidden = 0;
+  if (!node.children) return hidden;
+  for (const child of node.children) {
+    if (seen.has(child.name)) {
+      if (child.expanded && child.children && child.children.length > 0) {
+        hidden += hideByBaseCounts(child, seen);
+      }
+      continue;
+    }
+    seen.add(child.name);
     const isExpandedParent =
       child.expanded && child.children && child.children.length > 0;
     if (isExpandedParent) {
-      removed += pruneByBaseCounts(child);
+      hidden += hideByBaseCounts(child, seen);
       const ownCount = baseCounts.value.get(child.name);
-      if (child.children.length === 0 && ownCount === 0) {
-        removed++;
-      } else {
-        remaining.push(child);
+      const visibleChildren = child.children.filter((c) => c.visible !== false);
+      if (visibleChildren.length === 0 && ownCount === 0) {
+        child.visible = false;
+        hidden++;
       }
     } else {
       const count = baseCounts.value.get(child.name);
       if (count === 0) {
-        removed++;
-      } else {
-        remaining.push(child);
+        child.visible = false;
+        hidden++;
       }
     }
   }
-  node.children = remaining;
-  return removed;
+  return hidden;
 }
 
 const debouncedRefetchCounts = useDebounceFn(() => {
@@ -911,20 +942,22 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             aria-live="polite"
             aria-atomic="true"
           />
-          <div
-            v-if="
-              countFetcher &&
-              prunedByBaseCount > 0 &&
-              !countsLoading &&
-              !initLoading
-            "
-            class="text-body-sm text-gray-500 italic px-2 py-1"
+          <button
+            v-if="countFetcher && prunedByBaseCount > 0 && !initLoading"
+            class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
+            @click="toggleShowAllHidden"
           >
-            {{ prunedByBaseCount }} option{{
-              prunedByBaseCount !== 1 ? "s" : ""
-            }}
-            hidden (no matching records)
-          </div>
+            <template v-if="showAllHidden">
+              Hide {{ prunedByBaseCount }} empty option{{
+                prunedByBaseCount !== 1 ? "s" : ""
+              }}
+            </template>
+            <template v-else>
+              Show {{ prunedByBaseCount }} hidden option{{
+                prunedByBaseCount !== 1 ? "s" : ""
+              }}
+            </template>
+          </button>
         </fieldset>
       </div>
     </InputGroupContainer>
