@@ -40,10 +40,22 @@ const dataColumns = computed(() =>
   )
 );
 
+const nonEmptyColumns = computed(() => {
+  if (!props.rows.length) return dataColumns.value;
+  return dataColumns.value.filter((col) =>
+    props.rows.some((row) => {
+      const val = row[col.id];
+      if (val === null || val === undefined || val === "") return false;
+      if (Array.isArray(val) && val.length === 0) return false;
+      return true;
+    })
+  );
+});
+
 const tableColumns = computed(() => {
-  if (!props.config?.visibleColumns?.length) return dataColumns.value;
+  if (!props.config?.visibleColumns?.length) return nonEmptyColumns.value;
   return props.config.visibleColumns
-    .map((id) => dataColumns.value.find((c) => c.id === id))
+    .map((id) => nonEmptyColumns.value.find((c) => c.id === id))
     .filter(Boolean) as IColumn[];
 });
 
