@@ -19,6 +19,7 @@ import type {
   RefPayload,
 } from "../../../../types/types";
 import DefinitionList from "../../DefinitionList.vue";
+import { toRefColumnValue } from "../../../utils/typeUtils";
 
 const props = withDefaults(
   defineProps<{
@@ -44,7 +45,7 @@ const emit = defineEmits<{
 }>();
 
 await fetchData(
-  props.columnValue as IRow,
+  toRefColumnValue(props.columnValue),
   props.metadata.refTableId,
   props.schema,
   props.sourceTableId
@@ -127,8 +128,8 @@ const sections = computed(() => {
     </h3>
     <DefinitionList :compact="false">
       <template v-for="field in section.fields">
-        <DefinitionListTerm class="text-title-contrast"
-          >{{ field.metadata.label }}
+        <DefinitionListTerm class="text-title-contrast">
+          {{ field.metadata.label }}
         </DefinitionListTerm>
         <DefinitionListDefinition class="text-title-contrast">
           <ValueEMX2
