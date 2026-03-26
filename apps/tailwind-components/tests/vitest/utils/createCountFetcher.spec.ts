@@ -224,6 +224,250 @@ describe("createCountFetcher", () => {
     });
   });
 
+  describe("fetchRefBaseCounts", () => {
+    it("builds query without cross-filter in variables", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 5, species: { name: "Dog" } },
+          { count: 3, species: { name: "Cat" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "mySchema",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "cross-filter-value" }),
+      });
+
+      const options = new Map<string, Record<string, unknown>>([
+        ["Dog", { name: "Dog" }],
+        ["Cat", { name: "Cat" }],
+      ]);
+
+      await fetcher.fetchRefBaseCounts(options);
+
+      expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
+      const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(query).toContain("Patient_groupBy");
+      expect(variables.filter).not.toHaveProperty("_search");
+    });
+
+    it("returns counts map", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 5, species: { name: "Dog" } },
+          { count: 3, species: { name: "Cat" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "test" }),
+      });
+
+      const options = new Map<string, Record<string, unknown>>([
+        ["Dog", { name: "Dog" }],
+        ["Cat", { name: "Cat" }],
+      ]);
+
+      const counts = await fetcher.fetchRefBaseCounts(options);
+
+      expect(counts.get("Dog")).toBe(5);
+      expect(counts.get("Cat")).toBe(3);
+    });
+
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchRefBaseCounts(
+        new Map([["Dog", { name: "Dog" }]])
+      );
+
+      expect(counts.size).toBe(0);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("returns empty map for nested dotted column path", async () => {
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "hospital.species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchRefBaseCounts(
+        new Map([["Amsterdam", { name: "Amsterdam" }]])
+      );
+
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(counts.size).toBe(0);
+    });
+  });
+
+  describe("fetchOntologyLeafBaseCounts", () => {
+    it("builds query without cross-filter in variables", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 7, species: { name: "Dog" } },
+          { count: 2, species: { name: "Cat" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "mySchema",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "cross-filter-value" }),
+      });
+
+      await fetcher.fetchOntologyLeafBaseCounts(["Dog", "Cat"]);
+
+      expect(mockFetchGraphql).toHaveBeenCalledTimes(1);
+      const [schema, , variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(variables.filter).not.toHaveProperty("_search");
+    });
+
+    it("returns counts map", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 7, species: { name: "Dog" } },
+          { count: 2, species: { name: "Cat" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "test" }),
+      });
+
+      const counts = await fetcher.fetchOntologyLeafBaseCounts(["Dog", "Cat"]);
+
+      expect(counts.get("Dog")).toBe(7);
+      expect(counts.get("Cat")).toBe(2);
+    });
+
+    it("returns empty map for empty names array", async () => {
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchOntologyLeafBaseCounts([]);
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(counts.size).toBe(0);
+    });
+
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchOntologyLeafBaseCounts(["Dog", "Cat"]);
+
+      expect(counts.size).toBe(0);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+  });
+
+  describe("fetchOntologyParentBaseCounts", () => {
+    it("returns counts by name using aliased _agg queries without cross-filter", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        c_Animal: { count: 10 },
+        c_Plant: { count: 5 },
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "mySchema",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "cross-filter-value" }),
+      });
+
+      const counts = await fetcher.fetchOntologyParentBaseCounts([
+        "Animal",
+        "Plant",
+      ]);
+
+      const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(query).toContain("Patient_agg");
+      expect(query).toContain("c_Animal");
+      expect(query).toContain("c_Plant");
+      expect(
+        variables.filter_c_Animal.species._match_any_including_children
+      ).toBe("Animal");
+      expect(
+        variables.filter_c_Plant.species._match_any_including_children
+      ).toBe("Plant");
+      expect(variables.filter_c_Animal).not.toHaveProperty("_search");
+
+      expect(counts.get("Animal")).toBe(10);
+      expect(counts.get("Plant")).toBe(5);
+    });
+
+    it("returns empty map for empty names array", async () => {
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchOntologyParentBaseCounts([]);
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(counts.size).toBe(0);
+    });
+
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchOntologyParentBaseCounts(["Animal"]);
+
+      expect(counts.size).toBe(0);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+  });
+
   describe("fetchOntologyParentCounts", () => {
     it("returns counts by name using aliased _agg queries with _match_any_including_children", async () => {
       mockFetchGraphql.mockResolvedValueOnce({

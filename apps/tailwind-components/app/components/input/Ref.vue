@@ -69,9 +69,16 @@ const columnName = computed<string>(() => {
 
 //computed elements to translate to CheckboxGroup or
 const listOptions = computed(() => {
-  return Object.keys(optionMap.value).map((label) => {
-    return { value: label } as IValueLabel;
-  });
+  return Object.keys(optionMap.value)
+    .filter((label) => {
+      if (baseCounts.value.size === 0) return true;
+      if (searchTerms.value) return true;
+      const baseCount = baseCounts.value.get(label);
+      return baseCount === undefined || baseCount > 0;
+    })
+    .map((label) => {
+      return { value: label } as IValueLabel;
+    });
 });
 
 const selection = computed(() =>
@@ -183,8 +190,15 @@ async function loadOptions(filter: IQueryMetaData) {
       }
     }
     countsLoading.value = true;
-    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    const [counts, baseCountsResult] = await Promise.all([
+      props.countFetcher.fetchRefCounts(optMap),
+      props.countFetcher.fetchRefBaseCounts(optMap),
+    ]);
     localFacetCounts.value = counts;
+    const newBaseCounts = new Map<string, number>(baseCounts.value);
+    for (const [label, count] of baseCountsResult)
+      newBaseCounts.set(label, count);
+    baseCounts.value = newBaseCounts;
     countsLoading.value = false;
   }
 }
@@ -316,7 +330,16 @@ const onBlur = useDebounceFn(() => {
 }, 100);
 
 const localFacetCounts = ref<Map<string, number>>(new Map());
+const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
+
+const hiddenByBaseCount = computed(() => {
+  if (baseCounts.value.size === 0) return 0;
+  return Object.keys(optionMap.value).filter((label) => {
+    const bc = baseCounts.value.get(label);
+    return bc === 0;
+  }).length;
+});
 
 const debouncedRefetchCounts = useDebounceFn(async () => {
   if (!props.countFetcher) return;
@@ -502,7 +525,18 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
-        <div v-if="!listOptions?.length">No options found</div>
+        <div
+          v-if="
+            countFetcher &&
+            hiddenByBaseCount > 0 &&
+            listOptions.length === 0 &&
+            !isInitLoading
+          "
+          class="text-body-sm text-gray-500 italic px-2 py-1"
+        >
+          {{ hiddenByBaseCount }} option{{ hiddenByBaseCount !== 1 ? "s" : "" }}
+          hidden (no matching records)
+        </div>
       </div>
     </InputGroupContainer>
   </div>

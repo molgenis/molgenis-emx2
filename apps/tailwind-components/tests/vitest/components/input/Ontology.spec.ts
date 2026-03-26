@@ -1030,6 +1030,261 @@ describe("OntologyInput", () => {
     });
   });
 
+  describe("base counts fetching", () => {
+    it("fetches base counts once on mount via fetchOntologyLeafBaseCounts", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const fetchOntologyLeafBaseCountsMock = vi
+        .fn()
+        .mockResolvedValue(new Map());
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => ({}),
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyLeafBaseCounts =
+        fetchOntologyLeafBaseCountsMock;
+
+      mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+
+      expect(fetchOntologyLeafBaseCountsMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not re-fetch base counts when crossFilter changes", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const fetchOntologyLeafBaseCountsMock = vi
+        .fn()
+        .mockResolvedValue(new Map());
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      let currentFilter: Record<string, unknown> = {};
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => currentFilter,
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyLeafBaseCounts =
+        fetchOntologyLeafBaseCountsMock;
+
+      mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+      expect(fetchOntologyLeafBaseCountsMock).toHaveBeenCalledTimes(1);
+
+      mockFetch.mockResolvedValueOnce(new Map());
+      currentFilter = { age: { equals: 5 } };
+      await nextTick();
+      vi.advanceTimersByTime(400);
+      await flushPromises();
+
+      expect(fetchOntologyLeafBaseCountsMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("prunes nodes with baseCount=0 from tree (not passed to TreeNode)", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const baseCountsMap = new Map([
+        ["Term1", 4],
+        ["Term2", 0],
+        ["Term3", 2],
+        ["Term4", 0],
+        ["Term5", 1],
+      ]);
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => ({}),
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyLeafBaseCounts = vi
+        .fn()
+        .mockResolvedValue(baseCountsMap);
+      countFetcher.fetchOntologyParentBaseCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+
+      const wrapper = mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+
+      const treeNode = wrapper.findComponent(TreeNode);
+      expect(treeNode.exists()).toBe(true);
+      expect(treeNode.props("baseCounts")).toBeUndefined();
+
+      const labels = getNodeLabels(wrapper);
+      expect(labels.some((l) => l.includes("Term 1"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 2"))).toBe(false);
+      expect(labels.some((l) => l.includes("Term 3"))).toBe(true);
+      expect(labels.some((l) => l.includes("Term 4"))).toBe(false);
+      expect(labels.some((l) => l.includes("Term 5"))).toBe(true);
+    });
+  });
+
+  describe("Pruning after expand", () => {
+    it("prunes child terms with baseCount=0 after expanding parent", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const fetchLeafBaseCountsMock = vi.fn().mockResolvedValue(new Map());
+      const fetchParentBaseCountsMock = vi.fn().mockResolvedValue(new Map());
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => ({}),
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyLeafBaseCounts = fetchLeafBaseCountsMock;
+      countFetcher.fetchOntologyParentBaseCounts = fetchParentBaseCountsMock;
+
+      const wrapper = mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+      await flushPromises();
+
+      fetchLeafBaseCountsMock.mockResolvedValue(
+        new Map([
+          ["ChildA", 3],
+          ["ChildB", 0],
+          ["ChildC", 0],
+          ["ChildD", 5],
+        ])
+      );
+      fetchParentBaseCountsMock.mockResolvedValue(new Map());
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(
+          [
+            {
+              name: "ChildA",
+              label: "Child A",
+              definition: "",
+              code: "",
+              codesystem: "",
+              ontologyTermURI: "",
+              children: [],
+            },
+            {
+              name: "ChildB",
+              label: "Child B",
+              definition: "",
+              code: "",
+              codesystem: "",
+              ontologyTermURI: "",
+              children: [],
+            },
+            {
+              name: "ChildC",
+              label: "Child C",
+              definition: "",
+              code: "",
+              codesystem: "",
+              ontologyTermURI: "",
+              children: [],
+            },
+            {
+              name: "ChildD",
+              label: "Child D",
+              definition: "",
+              code: "",
+              codesystem: "",
+              ontologyTermURI: "",
+              children: [],
+            },
+          ],
+          4,
+          4
+        )
+      );
+
+      const expandBtn = findExpandButton(wrapper, "Term1");
+      expect(expandBtn.exists()).toBe(true);
+      await expandBtn.trigger("click");
+      await flushPromises();
+
+      const labels = getNodeLabels(wrapper);
+      expect(labels.some((l) => l.includes("Child A"))).toBe(true);
+      expect(labels.some((l) => l.includes("Child B"))).toBe(false);
+      expect(labels.some((l) => l.includes("Child C"))).toBe(false);
+      expect(labels.some((l) => l.includes("Child D"))).toBe(true);
+    });
+  });
+
   describe("Prevent Duplicate Loads", () => {
     it("should only fetch once for simultaneous load more calls", async () => {
       mockFetch.mockResolvedValueOnce({

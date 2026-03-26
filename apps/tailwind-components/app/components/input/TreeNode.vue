@@ -27,7 +27,7 @@ const props = withDefaults(
     disabled?: boolean;
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
-    enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    enableAutoLoad?: boolean;
     facetCounts?: Map<string, number>;
     countsLoading?: boolean;
   }>(),
@@ -37,7 +37,7 @@ const props = withDefaults(
     multiselect: true,
     isSearching: false,
     scrollContainer: null,
-    enableAutoLoad: true, // Default to enabled for backward compatibility
+    enableAutoLoad: true,
     countsLoading: false,
   }
 );
@@ -410,11 +410,15 @@ onUnmounted(() => {
             {{ node.label || node.name
             }}<span
               v-if="facetCounts"
-              class="shrink-0 ml-0.5 transition-opacity duration-200"
-              :class="countsLoading ? 'opacity-50' : 'opacity-100'"
+              class="shrink-0 ml-0.5 inline-flex items-center gap-0.5"
             >
-              ({{ facetCounts.get(node.name) ?? 0 }})</span
-            >
+              <span>({{ facetCounts.get(node.name) ?? 0 }})</span>
+              <BaseIcon
+                v-if="countsLoading"
+                name="progress-activity"
+                class="animate-spin"
+                :width="12"
+            /></span>
           </span>
         </InputLabel>
         <div

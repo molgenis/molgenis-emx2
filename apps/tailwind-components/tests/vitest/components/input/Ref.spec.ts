@@ -122,6 +122,153 @@ describe("facet count fetching", () => {
     );
   });
 
+  it("fetches base counts once on mount via fetchRefBaseCounts", async () => {
+    const fetchRefBaseCountsMock = vi.fn().mockResolvedValue(new Map());
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+    countFetcher.fetchRefBaseCounts = fetchRefBaseCountsMock;
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-base-counts",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    expect(fetchRefBaseCountsMock).toHaveBeenCalledTimes(1);
+
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+    await wrapper.setProps({ countFetcher });
+    await flushPromises();
+
+    expect(fetchRefBaseCountsMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides options where baseCount is 0", async () => {
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+
+    countFetcher.fetchRefCounts = vi.fn().mockResolvedValue(new Map());
+    countFetcher.fetchRefBaseCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 3],
+        ["looney", 0],
+        ["daffy", 2],
+        ["sylvester", 0],
+        ["elmer", 1],
+        ["bugs", 5],
+      ])
+    );
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-hide-zero",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    const html = wrapper.html();
+    expect(html).toContain("tweety");
+    expect(html).not.toContain("looney");
+    expect(html).toContain("daffy");
+    expect(html).not.toContain("sylvester");
+  });
+
+  it("shows options with baseCount>0 even when crossFilter count is 0", async () => {
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+
+    countFetcher.fetchRefCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 0],
+        ["daffy", 3],
+      ])
+    );
+    countFetcher.fetchRefBaseCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 5],
+        ["daffy", 3],
+      ])
+    );
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-show-greyed",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    const html = wrapper.html();
+    expect(html).toContain("tweety");
+    expect(html).toContain("daffy");
+  });
+
+  it("shows all options when no countFetcher provided", async () => {
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-no-fetcher",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+      },
+    });
+
+    await flushPromises();
+
+    const html = wrapper.html();
+    expect(html).toContain("tweety");
+    expect(html).toContain("looney");
+    expect(html).toContain("daffy");
+  });
+
   it("re-fetches counts when crossFilter changes", async () => {
     mockFetchGraphql.mockResolvedValue({
       Pet_groupBy: [],

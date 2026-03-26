@@ -91,6 +91,8 @@ function reset() {
   totalCount.value = 0;
   rootCount.value = 0;
   loadingNodes.value.clear();
+  baseCounts.value = new Map();
+  prunedByBaseCount.value = 0;
   reload();
 }
 
@@ -104,6 +106,7 @@ watch(
 );
 
 async function reload() {
+  prunedByBaseCount.value = 0;
   //goal is to have only one query to server as the network has most performance impact
   let query = "";
   const variables: any = {};
@@ -156,9 +159,10 @@ async function reload() {
     const allData = await fetchGraphql(props.ontologySchemaId, query, {});
     rootNode.value.children = assembleTree(allData.allTerms || []);
     applySelectedStates();
-    fetchCountsForVisibleNodes();
+    await fetchCountsForVisibleNodes();
   } else {
     await loadPage(rootNode.value, 0);
+    await autoPageAfterPrune(rootNode.value);
   }
 
   initLoading.value = false;
@@ -285,7 +289,7 @@ async function loadPage(
     applyStateToNode(node);
   }
 
-  fetchCountsForVisibleNodes();
+  await fetchCountsForVisibleNodes();
 }
 
 async function applyModelValue(data: any = undefined): Promise<void> {
@@ -425,8 +429,11 @@ async function toggleTermExpand(
 ) {
   if (!node.expanded) {
     node.showingAll = showAll;
-    await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
     node.expanded = true;
+    await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
+    if (!showAll) {
+      await autoPageAfterPrune(node);
+    }
   } else {
     node.expanded = false;
   }
@@ -457,6 +464,20 @@ async function applyFilterToNode(node: ITreeNodeState) {
   await toggleTermExpand(node, false);
 }
 
+async function autoPageAfterPrune(node: ITreeNodeState) {
+  if (!props.countFetcher || searchTerms.value) return;
+  const minVisible = Math.min(props.selectCutOff || 25, props.limit || 20);
+  let safetyCounter = 0;
+  while (
+    (node.children?.length || 0) < minVisible &&
+    node.loadMoreHasMore &&
+    safetyCounter < 10
+  ) {
+    safetyCounter++;
+    await loadPage(node, node.loadMoreOffset || 0);
+  }
+}
+
 async function loadMoreTerms(node: ITreeNodeState) {
   const nodeKey = node.name || "__root__";
   if (loadingNodes.value.has(nodeKey)) {
@@ -471,6 +492,9 @@ async function loadMoreTerms(node: ITreeNodeState) {
     const showingAll = node.showingAll || false;
     const searchValue = showingAll ? undefined : searchTerms.value || undefined;
     await loadPage(node, node.loadMoreOffset || 0, searchValue, showingAll);
+    if (!showingAll) {
+      await autoPageAfterPrune(node);
+    }
   } finally {
     loadingNodes.value.delete(nodeKey);
   }
@@ -602,7 +626,9 @@ onMounted(() => {
 });
 
 const localFacetCounts = ref<Map<string, number>>(new Map());
+const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
+const prunedByBaseCount = ref(0);
 
 function collectVisibleNodeNames(node: ITreeNodeState): {
   leaves: string[];
@@ -628,22 +654,70 @@ async function fetchCountsForVisibleNodes() {
   const { leaves, parents } = collectVisibleNodeNames(rootNode.value);
   const newCounts = new Map<string, number>(localFacetCounts.value);
   countsLoading.value = true;
-  if (leaves.length > 0) {
-    const leafCounts = await props.countFetcher.fetchOntologyLeafCounts(leaves);
-    for (const [name, count] of leafCounts) {
-      newCounts.set(name, count);
-    }
+
+  const [leafCounts, parentCounts, baseLeafCounts, baseParentCounts] =
+    await Promise.all([
+      leaves.length > 0
+        ? props.countFetcher.fetchOntologyLeafCounts(leaves)
+        : Promise.resolve(new Map<string, number>()),
+      parents.length > 0
+        ? props.countFetcher.fetchOntologyParentCounts(parents)
+        : Promise.resolve(new Map<string, number>()),
+      leaves.length > 0
+        ? props.countFetcher.fetchOntologyLeafBaseCounts(leaves)
+        : Promise.resolve(new Map<string, number>()),
+      parents.length > 0
+        ? props.countFetcher.fetchOntologyParentBaseCounts(parents)
+        : Promise.resolve(new Map<string, number>()),
+    ]);
+
+  for (const [name, count] of leafCounts) {
+    newCounts.set(name, count);
   }
-  if (parents.length > 0) {
-    const parentCounts = await props.countFetcher.fetchOntologyParentCounts(
-      parents
-    );
-    for (const [name, count] of parentCounts) {
-      newCounts.set(name, count);
-    }
+  for (const [name, count] of parentCounts) {
+    newCounts.set(name, count);
   }
+
+  const newBaseCounts = new Map<string, number>(baseCounts.value);
+  for (const [name, count] of baseLeafCounts) newBaseCounts.set(name, count);
+  for (const [name, count] of baseParentCounts) newBaseCounts.set(name, count);
+  baseCounts.value = newBaseCounts;
+
   localFacetCounts.value = newCounts;
+
+  if (!searchTerms.value) {
+    prunedByBaseCount.value += pruneByBaseCounts(rootNode.value);
+  }
+
   countsLoading.value = false;
+}
+
+function pruneByBaseCounts(node: ITreeNodeState): number {
+  let removed = 0;
+  if (!node.children) return removed;
+  const remaining: ITreeNodeState[] = [];
+  for (const child of node.children) {
+    const isExpandedParent =
+      child.expanded && child.children && child.children.length > 0;
+    if (isExpandedParent) {
+      removed += pruneByBaseCounts(child);
+      const ownCount = baseCounts.value.get(child.name);
+      if (child.children.length === 0 && ownCount === 0) {
+        removed++;
+      } else {
+        remaining.push(child);
+      }
+    } else {
+      const count = baseCounts.value.get(child.name);
+      if (count === 0) {
+        removed++;
+      } else {
+        remaining.push(child);
+      }
+    }
+  }
+  node.children = remaining;
+  return removed;
 }
 
 const debouncedRefetchCounts = useDebounceFn(() => {
@@ -837,6 +911,20 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             aria-live="polite"
             aria-atomic="true"
           />
+          <div
+            v-if="
+              countFetcher &&
+              prunedByBaseCount > 0 &&
+              !countsLoading &&
+              !initLoading
+            "
+            class="text-body-sm text-gray-500 italic px-2 py-1"
+          >
+            {{ prunedByBaseCount }} option{{
+              prunedByBaseCount !== 1 ? "s" : ""
+            }}
+            hidden (no matching records)
+          </div>
         </fieldset>
       </div>
     </InputGroupContainer>

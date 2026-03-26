@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import type { columnValue } from "../../../../metadata-utils/src/types";
+import BaseIcon from "../BaseIcon.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
 import InputLabel from "../input/Label.vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
@@ -91,10 +92,15 @@ function resetModelValue() {
           </span>
           <span
             v-if="facetCounts"
-            class="shrink-0 ml-0.5 transition-opacity duration-200"
-            :class="countsLoading ? 'opacity-50' : 'opacity-100'"
+            class="shrink-0 ml-0.5 flex items-center gap-0.5"
           >
-            ({{ facetCounts.get(option.value as string) ?? 0 }})
+            <span>({{ facetCounts.get(option.value as string) ?? 0 }})</span>
+            <BaseIcon
+              v-if="countsLoading"
+              name="progress-activity"
+              class="animate-spin"
+              :width="12"
+            />
           </span>
         </span>
       </InputLabel>
