@@ -37,13 +37,14 @@ public class RowBuilder {
     List<String> warnings = new ArrayList<>();
     Map<String, OntologyMapper> ontologyMappers = new HashMap<>();
     NamespaceMapper namespaceMapper = new NamespaceMapper("http://localhost/", schema);
+    TypeDiscriminator typeDiscriminator = new TypeDiscriminator(schema);
 
     for (Map.Entry<Resource, Map<ColumnMapping, List<Value>>> entry : matchedData.entrySet()) {
       Resource subject = entry.getKey();
       Map<ColumnMapping, List<Value>> subjectData = entry.getValue();
 
       Set<IRI> types = typeMap.getOrDefault(subject, Set.of());
-      TableAssignment assignment = TypeDiscriminator.assignTable(types);
+      TableAssignment assignment = typeDiscriminator.assignTable(types);
       if (assignment == null) {
         warnings.add("Skipping subject " + subject + ": no matching table for types " + types);
         continue;
@@ -56,8 +57,8 @@ public class RowBuilder {
             row, subject, subjectData, targetTable.getMetadata(), namespaceMapper, schema);
       }
 
-      if (assignment.typeValue() != null) {
-        row.set("type", assignment.typeValue());
+      if (assignment.typeColumnName() != null && assignment.typeValue() != null) {
+        row.set(assignment.typeColumnName(), assignment.typeValue());
       }
 
       for (Map.Entry<ColumnMapping, List<Value>> mappingEntry : subjectData.entrySet()) {
@@ -81,11 +82,19 @@ public class RowBuilder {
     }
 
     discoverReferencedSubjects(
-        matchedData, typeMap, rowsByTable, rowBySubject, tableBySubject, schema, namespaceMapper);
+        matchedData,
+        typeMap,
+        rowsByTable,
+        rowBySubject,
+        tableBySubject,
+        schema,
+        namespaceMapper,
+        typeDiscriminator);
 
     resolveCompositePkeys(
         rowsByTable, rowBySubject, tableBySubject, matchedData, schema, namespaceMapper);
 
+    filterRowsMissingRequiredColumns(rowsByTable, schema, warnings);
     filterRowsWithUnresolvableForeignKeys(rowsByTable, schema, warnings);
 
     return new RowBuildResult(rowsByTable, warnings);
@@ -98,7 +107,8 @@ public class RowBuilder {
       Map<Resource, Row> rowBySubject,
       Map<Resource, String> tableBySubject,
       Schema schema,
-      NamespaceMapper namespaceMapper) {
+      NamespaceMapper namespaceMapper,
+      TypeDiscriminator typeDiscriminator) {
 
     for (Map<ColumnMapping, List<Value>> subjectData : matchedData.values()) {
       for (Map.Entry<ColumnMapping, List<Value>> mappingEntry : subjectData.entrySet()) {
@@ -114,7 +124,7 @@ public class RowBuilder {
             continue;
           }
           Set<IRI> types = typeMap.getOrDefault(refSubject, Set.of());
-          TableAssignment assignment = TypeDiscriminator.assignTable(types);
+          TableAssignment assignment = typeDiscriminator.assignTable(types);
           if (assignment == null) {
             continue;
           }
@@ -125,13 +135,50 @@ public class RowBuilder {
           Row row = new Row();
           setInitialPkeyValues(
               row, refSubject, Map.of(), targetTable.getMetadata(), namespaceMapper, schema);
-          if (assignment.typeValue() != null) {
-            row.set("type", assignment.typeValue());
+          if (assignment.typeColumnName() != null && assignment.typeValue() != null) {
+            row.set(assignment.typeColumnName(), assignment.typeValue());
           }
           rowsByTable.computeIfAbsent(assignment.tableName(), k -> new ArrayList<>()).add(row);
           rowBySubject.put(refSubject, row);
           tableBySubject.put(refSubject, assignment.tableName());
         }
+      }
+    }
+  }
+
+  private static void filterRowsMissingRequiredColumns(
+      Map<String, List<Row>> rowsByTable, Schema schema, List<String> warnings) {
+    for (Map.Entry<String, List<Row>> tableEntry : new HashMap<>(rowsByTable).entrySet()) {
+      String tableName = tableEntry.getKey();
+      Table table = schema.getTable(tableName);
+      if (table == null) {
+        continue;
+      }
+      List<Column> requiredNonKeyColumns =
+          table.getMetadata().getColumns().stream()
+              .filter(
+                  col ->
+                      col.isRequired()
+                          && col.getKey() == 0
+                          && col.getComputed() == null
+                          && col.getDefaultValue() == null
+                          && col.getColumnType() != ColumnType.REFBACK)
+              .toList();
+      if (requiredNonKeyColumns.isEmpty()) {
+        continue;
+      }
+      List<Row> validRows =
+          tableEntry.getValue().stream()
+              .filter(
+                  row ->
+                      requiredNonKeyColumns.stream()
+                          .allMatch(col -> row.getString(col.getName()) != null))
+              .toList();
+      int skipped = tableEntry.getValue().size() - validRows.size();
+      if (skipped > 0) {
+        warnings.add(
+            "Skipped " + skipped + " rows in '" + tableName + "' with missing required columns");
+        rowsByTable.put(tableName, validRows);
       }
     }
   }

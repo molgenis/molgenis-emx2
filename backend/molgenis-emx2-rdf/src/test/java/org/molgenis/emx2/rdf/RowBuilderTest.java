@@ -36,6 +36,7 @@ class RowBuilderTest {
     schema.create(
         new TableMetadata("Organisations")
             .setTableType(TableType.DATA)
+            .setSemantics("foaf:Agent,org:Organization")
             .add(new Column("pid").setPkey())
             .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name"))
             .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")));
@@ -68,7 +69,14 @@ class RowBuilderTest {
 
     Table resourceTypes = schema.getTable("Resource types");
     resourceTypes.insert(
-        new Row().setString("name", "Catalogue"), new Row().setString("name", "Cohort study"));
+        new Row()
+            .setString("name", "Catalogue")
+            .setString("ontologyTermURI", "http://www.w3.org/ns/dcat#Catalog"),
+        new Row()
+            .setString("name", "Cohort study")
+            .setString("ontologyTermURI", "http://www.w3.org/ns/dcat#Dataset")
+            .setStringArray(
+                "alternativeIds", new String[] {"http://www.w3.org/ns/dcat#DatasetSeries"}));
 
     Table dataThemes = schema.getTable("Data themes");
     dataThemes.insert(
@@ -288,11 +296,13 @@ class RowBuilderTest {
     compositSchema.create(
         new TableMetadata("Resources")
             .setTableType(TableType.DATA)
+            .setSemantics("dcat:Dataset")
             .add(new Column("pid").setPkey())
             .add(new Column("title").setSemantics("http://purl.org/dc/terms/title"))
             .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")),
         new TableMetadata("Organisations")
             .setTableType(TableType.DATA)
+            .setSemantics("foaf:Agent")
             .add(new Column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1))
             .add(new Column("id").setKey(1))
             .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name")));
@@ -344,11 +354,13 @@ class RowBuilderTest {
     compositSchema.create(
         new TableMetadata("Resources")
             .setTableType(TableType.DATA)
+            .setSemantics("dcat:Dataset")
             .add(new Column("pid").setPkey())
             .add(new Column("title").setSemantics("http://purl.org/dc/terms/title"))
             .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")),
         new TableMetadata("Organisations")
             .setTableType(TableType.DATA)
+            .setSemantics("foaf:Agent")
             .add(new Column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1))
             .add(new Column("id").setKey(1))
             .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name")));

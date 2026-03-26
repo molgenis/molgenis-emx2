@@ -26,12 +26,14 @@ class RdfImportIntegrationTest {
 
     schema.create(
         new TableMetadata("Organisations")
+            .setSemantics("foaf:Agent,org:Organization")
             .add(new Column("pid").setPkey())
             .add(new Column("name").setSemantics("http://xmlns.com/foaf/0.1/name"))
             .add(new Column("identifier").setSemantics("http://purl.org/dc/terms/identifier")));
 
     schema.create(
         new TableMetadata("Contacts")
+            .setSemantics("vcard:Individual")
             .add(new Column("pid").setPkey())
             .add(new Column("name").setSemantics("http://www.w3.org/2006/vcard/ns#fn"))
             .add(new Column("email").setSemantics("http://www.w3.org/2006/vcard/ns#hasEmail")));
@@ -73,7 +75,14 @@ class RdfImportIntegrationTest {
     schema
         .getTable("Resource types")
         .insert(
-            new Row().setString("name", "Catalogue"), new Row().setString("name", "Cohort study"));
+            new Row()
+                .setString("name", "Catalogue")
+                .setString("ontologyTermURI", "http://www.w3.org/ns/dcat#Catalog"),
+            new Row()
+                .setString("name", "Cohort study")
+                .setString("ontologyTermURI", "http://www.w3.org/ns/dcat#Dataset")
+                .setStringArray(
+                    "alternativeIds", new String[] {"http://www.w3.org/ns/dcat#DatasetSeries"}));
 
     schema
         .getTable("Data themes")
@@ -207,6 +216,7 @@ class RdfImportIntegrationTest {
     compSchema.create(
         new TableMetadata("Resources")
             .setTableType(TableType.DATA)
+            .setSemantics("dcat:Dataset")
             .add(new Column("id").setKey(1))
             .add(new Column("pid").setKey(2).setSemantics("http://purl.org/dc/terms/identifier"))
             .add(new Column("name").setSemantics("http://purl.org/dc/terms/title")),

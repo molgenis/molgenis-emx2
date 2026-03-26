@@ -51,7 +51,9 @@ public class RdfImportTask extends Task {
       mapTask.start();
       Map<IRI, List<ColumnMapping>> predicateMap =
           ReverseAnnotationMapper.buildPredicateMap(schema);
-      mapTask.complete("Built predicate map with " + predicateMap.size() + " predicates");
+      String mapMsg = "Built predicate map with " + predicateMap.size() + " predicates";
+      mapTask.complete(mapMsg);
+      log.info(mapMsg);
 
       Task parseTask = addSubTask("Parsing RDF data");
       parseTask.start();
@@ -63,18 +65,32 @@ public class RdfImportTask extends Task {
       } else {
         RdfFetcher.parse(sourceStream, formatHint, handler);
       }
-      parseTask.complete(
+      String parseMsg =
           "Parsed "
               + handler.getMatchedData().size()
               + " subjects, "
               + handler.getUnmatchedCount()
-              + " unmatched triples");
+              + " unmatched triples";
+      parseTask.complete(parseMsg);
+      log.info(parseMsg);
 
       Task buildTask = addSubTask("Building rows from RDF data");
       buildTask.start();
       RowBuildResult result =
           RowBuilder.buildRows(handler.getMatchedData(), handler.getTypeMap(), schema);
-      buildTask.complete("Built rows for " + result.rowsByTable().size() + " tables");
+      String buildMsg =
+          "Built rows for "
+              + result.rowsByTable().size()
+              + " tables "
+              + result.rowsByTable().entrySet().stream()
+                  .map(e -> e.getKey() + "=" + e.getValue().size())
+                  .toList()
+              + ", "
+              + result.warnings().size()
+              + " warnings";
+      buildTask.complete(buildMsg);
+      log.info(buildMsg);
+      result.warnings().stream().limit(5).forEach(w -> log.info("  Warning: {}", w));
 
       Task saveTask = addSubTask("Saving rows to database");
       saveTask.start();
@@ -106,7 +122,7 @@ public class RdfImportTask extends Task {
               savedCounts.put(tableName, rows.size());
               progress = true;
             } catch (Exception e) {
-              log.debug("Save failed for table '{}', will retry: {}", tableName, e.getMessage());
+              log.info("Save failed for table '{}', will retry: {}", tableName, e.getMessage());
               stillPending.add(tableName);
             }
           }
