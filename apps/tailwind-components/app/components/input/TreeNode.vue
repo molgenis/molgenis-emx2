@@ -81,14 +81,18 @@ const hasChildren = computed(
 
 const hiddenNodesCount = computed(
   () =>
-    props.parentNode.children?.filter((child) => child.visible === false)
-      .length || 0
+    props.parentNode.children?.filter(
+      (child) => child.visible === false && !child.hiddenByCount
+    ).length || 0
 );
 
 const hiddenSelectedCount = computed(
   () =>
     props.parentNode.children?.filter(
-      (node) => node.visible === false && node.selected === "selected"
+      (node) =>
+        node.visible === false &&
+        !node.hiddenByCount &&
+        node.selected === "selected"
     ).length || 0
 );
 

@@ -712,6 +712,7 @@ function setHiddenNodesVisibility(node: ITreeNodeState, show: boolean) {
     const bc = baseCounts.value.get(child.name);
     if (bc === 0) {
       child.visible = show;
+      child.hiddenByCount = !show;
     }
     if (child.children && child.children.length > 0) {
       setHiddenNodesVisibility(child, show);
@@ -738,12 +739,14 @@ function hideByBaseCounts(node: ITreeNodeState, seen: Set<string>): number {
       const visibleChildren = child.children.filter((c) => c.visible !== false);
       if (visibleChildren.length === 0 && ownCount === 0) {
         child.visible = false;
+        child.hiddenByCount = true;
         hidden++;
       }
     } else {
       const count = baseCounts.value.get(child.name);
       if (count === 0) {
         child.visible = false;
+        child.hiddenByCount = true;
         hidden++;
       }
     }
@@ -943,7 +946,12 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             aria-atomic="true"
           />
           <button
-            v-if="countFetcher && prunedByBaseCount > 0 && !initLoading"
+            v-if="
+              countFetcher &&
+              prunedByBaseCount > 0 &&
+              !initLoading &&
+              !searchTerms
+            "
             class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
             @click="toggleShowAllHidden"
           >

@@ -61,6 +61,7 @@ export interface ITreeNodeState extends ITreeNode {
   /* whether this node is showing all children (bypassing search filter) */
   showingAll?: boolean;
   unfilteredTotal?: number;
+  hiddenByCount?: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";

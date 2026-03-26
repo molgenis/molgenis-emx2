@@ -533,7 +533,12 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
         <button
-          v-if="countFetcher && hiddenByBaseCount > 0 && !isInitLoading"
+          v-if="
+            countFetcher &&
+            hiddenByBaseCount > 0 &&
+            !isInitLoading &&
+            !searchTerms
+          "
           class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
           @click="showAllOptions = !showAllOptions"
         >

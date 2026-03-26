@@ -163,6 +163,171 @@ describe("facet count fetching", () => {
     expect(html).not.toContain("sylvester");
   });
 
+  it("reveals hidden options when clicking show button", async () => {
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+
+    countFetcher.fetchRefCounts = vi.fn().mockResolvedValue(new Map());
+    countFetcher.fetchRefBaseCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 3],
+        ["looney", 0],
+        ["daffy", 2],
+        ["sylvester", 0],
+        ["elmer", 1],
+        ["bugs", 5],
+      ])
+    );
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-reveal-hidden",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    expect(wrapper.html()).not.toContain("looney");
+    expect(wrapper.html()).not.toContain("sylvester");
+
+    const showBtn = wrapper
+      .findAll("button")
+      .find((btn) => btn.text().includes("hidden"));
+    expect(showBtn).toBeDefined();
+    await showBtn!.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.html()).toContain("looney");
+    expect(wrapper.html()).toContain("sylvester");
+  });
+
+  it("re-hides options when clicking hide button", async () => {
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+
+    countFetcher.fetchRefCounts = vi.fn().mockResolvedValue(new Map());
+    countFetcher.fetchRefBaseCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 3],
+        ["looney", 0],
+        ["daffy", 2],
+        ["sylvester", 0],
+        ["elmer", 1],
+        ["bugs", 5],
+      ])
+    );
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-rehide",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    const showBtn = wrapper
+      .findAll("button")
+      .find((btn) => btn.text().includes("hidden"));
+    expect(showBtn).toBeDefined();
+    await showBtn!.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.html()).toContain("looney");
+    expect(wrapper.html()).toContain("sylvester");
+
+    const hideBtn = wrapper
+      .findAll("button")
+      .find((btn) => btn.text().includes("Hide"));
+    expect(hideBtn).toBeDefined();
+    await hideBtn!.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.html()).not.toContain("looney");
+    expect(wrapper.html()).not.toContain("sylvester");
+  });
+
+  it("hides show-hidden button during search", async () => {
+    mockFetchGraphql.mockResolvedValue({ Pet_groupBy: [] });
+
+    const { createCountFetcher } = await import(
+      "../../../../app/utils/createCountFetcher"
+    );
+    const countFetcher = createCountFetcher({
+      schemaId: "test-schema",
+      tableId: "Pet",
+      columnPath: "bird",
+      getCrossFilter: () => ({}),
+    });
+
+    countFetcher.fetchRefCounts = vi.fn().mockResolvedValue(new Map());
+    countFetcher.fetchRefBaseCounts = vi.fn().mockResolvedValue(
+      new Map([
+        ["tweety", 3],
+        ["looney", 0],
+        ["daffy", 2],
+        ["sylvester", 0],
+        ["elmer", 1],
+        ["bugs", 5],
+      ])
+    );
+
+    const wrapper = mount(InputRef, {
+      props: {
+        id: "test-ref-search-hide-btn",
+        refTableId: "bird",
+        refSchemaId: "test-schema",
+        refLabel: "${name}",
+        isArray: true,
+        limit: 20,
+        countFetcher,
+      },
+    });
+
+    await flushPromises();
+
+    expect(
+      wrapper.findAll("button").find((btn) => btn.text().includes("hidden"))
+    ).toBeDefined();
+
+    (wrapper.vm as any).searchTerms = "twee";
+    await nextTick();
+    await flushPromises();
+
+    expect(
+      wrapper.findAll("button").find((btn) => btn.text().includes("hidden"))
+    ).toBeUndefined();
+  });
+
   it("shows options with baseCount>0 even when crossFilter count is 0", async () => {
     const { createCountFetcher } = await import(
       "../../../../app/utils/createCountFetcher"
