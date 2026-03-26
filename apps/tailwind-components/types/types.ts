@@ -150,8 +150,20 @@ export interface ISession {
 
 export interface RefPayload {
   metadata: IRefColumn;
-  data: IRow;
+  data: columnValue;
 }
+
+export interface ColumnPayload {
+  metadata: IColumn;
+  data: columnValue;
+}
+
+export interface ListPayload {
+  metadata: IColumn;
+  data: columnValue[];
+}
+
+export type cellPayload = ColumnPayload | RefPayload | ListPayload;
 
 export interface Section {
   heading: string;
