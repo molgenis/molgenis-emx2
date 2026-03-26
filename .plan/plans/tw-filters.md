@@ -1,116 +1,129 @@
-# Plan: feat/tw-filters — Filter System in tailwind-components
+# feat/tw-filters — Filter System for tailwind-components
 
-## Current status
+## Summary
 
-Phases 11–16 done. useFilters is a complete filter controller. Sidebar and FilterPicker are pure display.
+New filter system for the tailwind-components library: composable-driven, URL-synced, with faceted counts and smart defaults. Replaces the old catalogue-specific filter implementation with a reusable, schema-driven approach.
 
-## Phase 16: Ontology fix + e2e tests + cleanup [x]
+**61 files changed** (against origin/master): 16 new source files, 6 stories, 14 test files, 2 shared test fixtures, 8 modified existing components, 6 test quality fixes, plus config/CSS/types.
 
-### What was done
-- Fixed `buildGraphQLFilter` for ONTOLOGY columns: uses `_match_any_including_children` instead of `{ name: { equals: [...] } }`
-- Added `FilterValue` type to replace `any` in `IFilterValue.value`
-- Added Playwright e2e tests (`apps/ui/tests/e2e/filter-counts.spec.ts`): counts visible, filter click works, URL filters, ontology parent matching
-- Memoized `getCountFetcher` to prevent infinite re-render loop (template called it per render, creating new watchers)
-- Made `refColumnsCache` internal to useFilters, exposed `getRefColumns(path)` instead
-- FilterPicker receives `filters: UseFilters` prop directly (no more individual props/emits)
-- Removed `schemaId` prop from FilterPicker (useFilters owns it)
-- Made `flattenColumns` a computed (`flatRows`) instead of a function called per render
-- Removed `defaultFilterIds`, `findColumnForPath`, `crossFilterMap` from public `UseFilters` interface (internal only)
-
-## Phase 15: Move filter visibility into useFilters [x]
-
-### What was done
-- All filter state/logic moved from Sidebar into useFilters: visibility, column resolution, cross-filtering, counts, ref pkey stripping
-- useFilters takes optional `schemaId`/`tableId` for ref resolution and count fetching
-- Sidebar is now ~30 lines of pure display (template + scoped CSS)
-- FilterPicker receives `filters` object, calls `filters.toggleFilter()` / `filters.resetFilters()` directly
-- Eliminated duplicate `refColumnsCache` (was in both Sidebar and FilterPicker)
-- All consumers pass `schemaId`/`tableId` to useFilters options
+**382 vitest tests, all passing** (47 test files).
 
 ---
 
-## Phase 14: Fix paging param loss on filter URL update [x]
+## Reviewer Checklist
 
-### What was done
-- Added `getNonFilterParams()` helper in `useFilters.ts` — preserves all query params except `mg_search` and column-ID-based filter params
-- Updated `actualFilterStates.set()` and `updateUrl()` to use `getNonFilterParams` instead of only preserving `mg_*` params
-- Sidebar.vue was already correct (spreads full `route.query`)
-- Added test: non-filter params like `page` and `view` are preserved on filter URL update
-- Updated existing reserved-params test to also verify non-mg params
-- Stabilized `gqlFilter` ref with JSON comparison guard — prevents spurious updates when URL changes for non-filter reasons (paging, sorting), which was causing TableEMX2 to reset page to 1
-- All 73 useFilters tests pass
+### Core: useFilters composable (`app/composables/useFilters.ts`)
+- [ ] Returns typed `UseFilters` object with all filter state + methods
+- [ ] URL sync: bidirectional (filter↔URL), preserves non-filter params (page, view)
+- [ ] Debounced `gqlFilter` computed with JSON comparison guard (prevents spurious updates)
+- [ ] 5 operators: `equals`, `like`, `between`, `notNull`, `isNull`
+- [ ] `like` always uses AND semantics for space-separated terms
+- [ ] Serialization round-trip: filter state → URL string → parse → GraphQL filter
+- [ ] Tests: `composables/useFilters.spec.ts` (~25 composable tests) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests)
 
----
+### Filter components (`app/components/filter/`)
+- [ ] **Sidebar.vue** (~30 lines) — pure display wrapper, receives `UseFilters` prop
+- [ ] **FilterPicker.vue** — column toggle dropdown, excludes HEADING/SECTION/FILE/mg_* columns
+- [ ] **Column.vue** — dispatches to correct input type (text/range/bool), operator derivation from column type
+- [ ] **Range.vue** — min/max tuple input with slot-based API
+- [ ] **ActiveFilters.vue** — chip display with remove/clearAll events
+- [ ] Stories exist for all 5 components + useFilters composable
 
-## Phase 12: Simplify FilterOperator [x]
+### Filter utilities (`app/utils/`)
+- [ ] **buildFilter.ts** — converts filter state to GraphQL filter syntax (nested refs, ontology `_match_any_including_children`)
+- [ ] **createCountFetcher.ts** — `ICountFetcher` factory: ref counts via `_groupBy`, ontology counts via `_groupBy` + `_agg`, base counts (no cross-filter) for hiding empty options
+- [ ] **computeDefaultFilters.ts** — smart defaults: ontology first, then refs, max 5
+- [ ] **formatFilterValue.ts** — display formatting for active filter chips
+- [ ] **resolveFilterLabels.ts** — async label resolution for nested ref paths
+- [ ] **filterConstants.ts** — shared constants
 
-### What was done
-- Removed `like_or`, `like_and`, `in` from `FilterOperator` — only 5 operators remain: `equals`, `like`, `between`, `notNull`, `isNull`
-- `like` now always uses AND semantics for multi-term strings (space-separated → `_and`)
-- `parseFilterTerms` simplified: removed `mode` field from `ParsedTerms` type (always AND)
-- `in` replaced with `equals` everywhere: `parseFilterValue`, `serializeFilterValue`, `formatFilterValue`
-- Removed dead `AND_VALUE_SEPARATOR` constant
-- Updated story file (`useFilters.story.vue`) to use `equals` instead of `in`
-- All 150 tests updated and passing
+### Filter types (`types/filters.ts`)
+- [ ] `IFilterValue`, `FilterOperator`, `IGraphQLFilter`, `UseFilters` interface, `ICountFetcher` interface
 
-## Phase 13: Test readability improvements [x]
+### Modified existing components
+- [ ] **Ref.vue** — facet counts, base count hiding (baseCount=0 hidden, crossFilter count=0 shown), search overrides hiding
+- [ ] **Ontology.vue** — tree pruning by base counts, auto-paging after pruning, parent counts via `_agg`
+- [ ] **TreeNode.vue** — simplified (just renders what it's given), loading spinner
+- [ ] **CheckboxGroup.vue** — count display + loading spinner
+- [ ] **RadioGroup.vue** — minor fix
+- [ ] **TableEMX2.vue** — `below-toolbar` slot for ActiveFilters
+- [ ] **fetchTableMetadata.ts** — `includeSubclassColumns` option
 
-### What was done
-- Standardized fake timers: `beforeEach`/`afterEach` pattern in FilterPicker, Ref, Ontology specs
-- Replaced raw `setTimeout(resolve, 600)` with `vi.advanceTimersByTime()` + `flushPromises()` in FilterPicker
-- Removed inline `vi.useFakeTimers()`/`vi.useRealTimers()` from Ref and Ontology specs
-- Removed "should" prefix from 30 test names in useFilters.spec.ts
-- Fixed `toBeLessThanOrEqual(5)` → `toBe(5)` in Sidebar.spec.ts
-- Moved `computeDefaultFilters` tests to own spec file (`utils/computeDefaultFilters.spec.ts`)
-- Extracted shared column fixtures (`orderColumn`, `nameColumn`, `userColumn`) in buildFilter.spec.ts
-- All 212 filter tests pass across 10 files
+### UI app integration
+- [ ] **apps/ui `[schema]/[table]/index.vue`** — filter sidebar + ActiveFilters bar
+- [ ] **apps/ui `filter-counts.spec.ts`** — e2e Playwright test
 
----
+### Test quality fixes (found during review, not filter-specific)
+- [ ] **CheckboxGroup.spec.ts** — fixed broken assertions (bare `expect()` with no matcher), fixed event triggers (`focus`→`focusin`)
+- [ ] **RadioGroup.spec.ts** — same fix
+- [ ] **Listbox.spec.ts** — fixed `it.each([options])` → `it.each(options)` (was running once instead of per-option)
+- [ ] **Form.spec.ts** — fixed incorrect mock path
+- [ ] **Ref.spec.ts** — moved createCountFetcher test to proper utility spec
+- [ ] **Ontology.spec.ts** — expanded test coverage for tree pruning + auto-paging
 
-## Phase 11: UseFilters object pattern [x]
-
-### What was done
-- `useFilters` returns a typed `UseFilters` object instead of individual refs/functions
-- Sidebar accepts `filters: UseFilters` prop instead of separate v-models
-- All consumers pass single `filters` object
-- `FilterValue` union type replaces `any` in `IFilterValue.value`
-
----
-
-## Phase 10: Simplify FilterColumn [x]
-
-### What was done
-- Created `createCountFetcher` factory (`app/utils/createCountFetcher.ts`) — stateless `ICountFetcher` with `fetchRefCounts`, `fetchOntologyLeafCounts`, `fetchOntologyParentCounts`
-- Column.vue props reduced from 8 to 4: `column`, `label?`, `removable?`, `countFetcher?`
-- Removed prop drilling: `schemaId`, `tableId`, `columnPath`, `crossFilter`, `depth`, `labelPrefix` all gone from Column.vue and Input.vue
-- Replaced `ResolvedFilter` with `IFilter` interface (fullPath, column, label)
-- CSS var overrides moved to `.filter-sidebar-context` scoped class in Sidebar
-- Deleted `useFilterCounts` composable (replaced by `createCountFetcher`)
-- `ICountFetcher.getCrossFilter()` exposed as plain getter for reactive watching
-- Added tests for nested filter path resolution from URL
-- Fixed bug: `loadRefColumnsForPath` ran before metadata loaded — added `filterableColumns` watcher
+### Test infrastructure (new)
+- [ ] **fixtures/columns.ts** — shared IColumn constants used across 6 test files
+- [ ] **fixtures/mockFilters.ts** — unified UseFilters mock factory (reactive + stub modes)
 
 ---
 
-## Phase 9: Lazy per-input facet counts [x]
+## Architecture Decisions
 
-### What was done
-- Moved count fetching from centralized Sidebar into InputRef and InputOntology
-- Counts fetched only for currently-visible options (not all values)
-- Cross-filter per column (all filters EXCEPT current) for faceted counts
-- Ontology parent counts via `_agg` + `_match_any_including_children`
-- Debounced refetch on crossFilter change (~300ms)
-- Opacity transition for async count loading (no spinners)
+1. **Composable-driven, not component-driven**: All filter state lives in `useFilters`. Components are thin display layers. This makes the filter system testable without DOM.
+
+2. **Lazy facet counts**: Counts fetched per-input (not centralized), only for visible options. Cross-filter excludes current column. Debounced 300ms.
+
+3. **Base count hiding**: Options with zero records in unfiltered dataset are hidden. Options that become zero due to cross-filtering remain visible (count shows 0). Search overrides hiding.
+
+4. **URL as source of truth**: Filter state serialized to URL params. Supports back/forward navigation. Non-filter params preserved.
+
+5. **5 operators only**: `equals`, `like`, `between`, `notNull`, `isNull`. Removed `like_or`, `like_and`, `in` for simplicity.
 
 ---
 
-## Phases 1–8 [x]
+## Priority: Next Tasks
 
-See git history. Key milestones:
-- Phase 1–6: Port filter system to tailwind-components
-- Phase 7: Review fixes, test improvements, dead code removal
-- Phase 8: Simplification — self-contained Sidebar, removed mobileDisplay, extracted utilities
+### Task 3: Prevent filter option flickering during count reloads
+**Priority: highest (most visible UX issue)**
 
-### Resolved from Phase 7
-1. `like_or`/`like_and` → dropped, `like` always uses AND semantics (Phase 12)
-2. `in` operator → dropped, use `equals` instead (Phase 12)
+Root causes identified:
+1. `listOptions` computed in Ref.vue (line 71-82) recreates full array on every count Map change — even though only counts changed, not the options
+2. CheckboxGroup.vue (line 56) missing `:key` on v-for items — Vue can't track which DOM element maps to which option
+3. Ontology `pruneByBaseCounts()` (line 695-721) mutates tree structure on EVERY count refresh — should only prune on initial base count load, not on cross-filter updates
+4. `countsLoading` boolean is global — spinner shows on ALL items, not per-item
+5. `createCountFetcher` always returns new Map instances — triggers reactive cascade
+
+Implementation:
+- **Fix 1** (quick): Add `:key="option.value"` to CheckboxGroup v-for (line 56)
+- **Fix 2**: Separate Ref.vue `listOptions` into stable option list + reactive count overlay. Base count filtering should be a separate computed that only reruns when baseCounts change, not on cross-filter count changes.
+- **Fix 3**: In Ontology, only prune on initial base count load. Cross-filter count updates should only change count numbers, never mutate tree structure.
+- **Fix 4**: Per-item loading state (or no spinner at all — just update count in place)
+
+Files: `Ref.vue`, `Ontology.vue`, `CheckboxGroup.vue`, `TreeNode.vue`, `createCountFetcher.ts`
+
+### Task 1: Click "X options hidden" to reveal all
+**Priority: medium (quick win after Task 3)**
+
+- **Ref.vue**: Add `showAllOptions = ref(false)`. Modify `listOptions` filter (line 75) to: `if (searchTerms.value || showAllOptions.value) return true`. Make the "X options hidden" message a clickable button that toggles `showAllOptions`.
+- **Ontology.vue**: Add `showAllHidden = ref(false)`. Skip `pruneByBaseCounts()` when true (line 689 condition). Make message clickable. When toggled back off, re-prune. Note: Ontology already has per-node `showingAll` via `showAllChildrenOfNode()` — the new toggle is a global override.
+
+Files: `Ref.vue`, `Ontology.vue`
+
+### Task 2: Removing filter from sidebar should clear filter state
+**Priority: investigate — code appears correct**
+
+Analysis shows `toggleFilter()` (useFilters.ts line 548) already calls `removeFilter()` when hiding. The full chain: toggleFilter → removeFilter → setFilter(null) → delete from Map → URL sync → gqlFilter recompute.
+
+Need to verify:
+- Write a red-green test reproducing the reported behavior
+- Check alternative paths: FilterPicker toggle, ActiveFilters "clear all", direct URL manipulation
+- If test passes, this may be a perceived issue (flicker makes it look like state persists) — would be fixed by Task 3
+
+Files: `useFilters.ts`, `useFilters.spec.ts`
+
+## Future Work
+
+- **Type fetchGraphql responses** — `fetchGraphql` returns `Promise<any>`. Fix: add generic typing `fetchGraphql<T>()`, define response interfaces (`IGroupByResponse`, `IAggResponse`, `IOntologySizeProbe`), type test mock data. This catches code↔mock drift at compile time.
+- **E2e smoke tests for API contracts** — 9 test files (101 tests) mock backend responses with no type safety. Add 3 e2e smoke tests (filter sidebar, ontology input, ref facet counts) to anchor response shapes against real backend.
+- **Backend: add limit/offset to _groupBy** — `_groupBy` GraphQL field lacks `limit`/`offset` parameters. The backend dataFetcher already handles them — only the GraphQL field definition needs updating (`GraphqlTableFieldFactory.tableGroupByField()`, add `.argument()` calls). Enables paginating through "terms with records" for large flat ontologies (10,000+ terms).
+- **Consolidate test mocks** — shared `$fetch` stub (duplicated in Sidebar/Column specs), standardise mockRoute/mockRouter patterns, simplify gqlFilter assertions in useFilters.spec.ts that overlap with buildFilter.spec.ts.
