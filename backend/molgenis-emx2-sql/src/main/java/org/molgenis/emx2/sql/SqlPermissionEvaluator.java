@@ -2,16 +2,15 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.*;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 
 public class SqlPermissionEvaluator implements PermissionEvaluator {
 
   private final SqlSchemaMetadata schema;
-  private Set<String> tablesWithSelectPermission;
-  private List<TablePermission> activeUserPermissions;
+  private Map<String, TablePermission> permissionsByTable;
 
   public SqlPermissionEvaluator(SqlSchemaMetadata schema) {
     this.schema = schema;
@@ -21,7 +20,7 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
   public boolean canView(TableMetadata table) {
     return table.getTableType() == TableType.ONTOLOGIES
         || hasRole(VIEWER)
-        || tableHasSelectGrant(table.getTableName());
+        || permissionFor(table).map(TablePermission::hasSelect).orElse(false);
   }
 
   @Override
@@ -36,17 +35,17 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
 
   @Override
   public boolean canInsert(TableMetadata table) {
-    return hasRole(EDITOR) || tableHasGrant(table.getTableName(), TablePermission::insert);
+    return hasRole(EDITOR) || permissionFor(table).map(TablePermission::hasInsert).orElse(false);
   }
 
   @Override
   public boolean canUpdate(TableMetadata table) {
-    return hasRole(EDITOR) || tableHasGrant(table.getTableName(), TablePermission::update);
+    return hasRole(EDITOR) || permissionFor(table).map(TablePermission::hasUpdate).orElse(false);
   }
 
   @Override
   public boolean canDelete(TableMetadata table) {
-    return hasRole(EDITOR) || tableHasGrant(table.getTableName(), TablePermission::delete);
+    return hasRole(EDITOR) || permissionFor(table).map(TablePermission::hasDelete).orElse(false);
   }
 
   @Override
@@ -63,32 +62,20 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
     return schema.hasActiveUserRole(privilege.toString());
   }
 
-  private boolean tableHasSelectGrant(String tableName) {
-    return getTablesWithSelectPermission().contains(tableName);
+  private Optional<TablePermission> permissionFor(TableMetadata table) {
+    return Optional.ofNullable(getPermissionsByTable().get(table.getTableName()));
   }
 
-  private boolean tableHasGrant(
-      String tableName, java.util.function.Function<TablePermission, Boolean> grantExtractor) {
-    return getActiveUserPermissions().stream()
-        .anyMatch(p -> p.table().equals(tableName) && Boolean.TRUE.equals(grantExtractor.apply(p)));
-  }
-
-  private List<TablePermission> getActiveUserPermissions() {
-    if (activeUserPermissions == null) {
-      activeUserPermissions =
-          schema.getDatabase().getRoleManager().getTablePermissionsForActiveUser(schema.getName());
+  private Map<String, TablePermission> getPermissionsByTable() {
+    if (permissionsByTable == null) {
+      permissionsByTable =
+          schema
+              .getDatabase()
+              .getRoleManager()
+              .getTablePermissionsForActiveUser(schema.getName())
+              .stream()
+              .collect(Collectors.toUnmodifiableMap(TablePermission::table, p -> p));
     }
-    return activeUserPermissions;
-  }
-
-  private Set<String> getTablesWithSelectPermission() {
-    if (tablesWithSelectPermission == null) {
-      tablesWithSelectPermission =
-          getActiveUserPermissions().stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
-              .map(TablePermission::table)
-              .collect(Collectors.toUnmodifiableSet());
-    }
-    return tablesWithSelectPermission;
+    return permissionsByTable;
   }
 }

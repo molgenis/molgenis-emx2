@@ -204,10 +204,10 @@ public class GraphqlSessionFieldFactory {
             p ->
                 Map.<String, Object>of(
                     NAME, p.table(),
-                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
-                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
-                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
-                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
+                    CAN_VIEW, p.hasSelect(),
+                    CAN_INSERT, p.hasInsert(),
+                    CAN_UPDATE, p.hasUpdate(),
+                    CAN_DELETE, p.hasDelete()))
         .toList();
   }
 

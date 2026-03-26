@@ -141,22 +141,22 @@ public class SqlRoleManager {
   private void applyPgGrants(
       String schemaName, String fullRole, String tableName, TablePermission p) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    if (Boolean.TRUE.equals(p.select())) {
+    if (p.hasSelect()) {
       jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.select())) {
       jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.insert())) {
+    if (p.hasInsert()) {
       jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.insert())) {
       jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.update())) {
+    if (p.hasUpdate()) {
       jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.update())) {
       jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.delete())) {
+    if (p.hasDelete()) {
       jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.delete())) {
       jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
@@ -184,16 +184,12 @@ public class SqlRoleManager {
                        GROUP BY table_name""",
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
-        Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
-        Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
-        Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
-        Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
         result.add(
             new TablePermission(row.get("table_name", String.class))
-                .select(select)
-                .insert(insert)
-                .update(update)
-                .delete(delete));
+                .select(trueOrNull(row, "can_select"))
+                .insert(trueOrNull(row, "can_insert"))
+                .update(trueOrNull(row, "can_update"))
+                .delete(trueOrNull(row, "can_delete")));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -257,18 +253,19 @@ public class SqlRoleManager {
   }
 
   private static boolean hasAnyPermission(TablePermission p) {
-    return Boolean.TRUE.equals(p.select())
-        || Boolean.TRUE.equals(p.insert())
-        || Boolean.TRUE.equals(p.update())
-        || Boolean.TRUE.equals(p.delete());
+    return p.hasSelect() || p.hasInsert() || p.hasUpdate() || p.hasDelete();
   }
 
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
     return new TablePermission(a.table())
-        .select(Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null)
-        .insert(Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null)
-        .update(Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null)
-        .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null);
+        .select(a.hasSelect() || b.hasSelect() ? true : null)
+        .insert(a.hasInsert() || b.hasInsert() ? true : null)
+        .update(a.hasUpdate() || b.hasUpdate() ? true : null)
+        .delete(a.hasDelete() || b.hasDelete() ? true : null);
+  }
+
+  private static Boolean trueOrNull(Record row, String field) {
+    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? true : null;
   }
 
   public boolean isSystemRole(String roleName) {
