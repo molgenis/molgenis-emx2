@@ -6,6 +6,8 @@ import {
   getRowLabel,
   filterDataColumns,
   filterNonEmptyColumns,
+  isRefColumn,
+  buildRefHref,
 } from "../../../app/utils/displayUtils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
@@ -212,5 +214,80 @@ describe("filterNonEmptyColumns", () => {
     const rows = [{ name: "A", description: {}, status: [] }];
     const result = filterNonEmptyColumns(columns, rows);
     expect(result.map((c) => c.id)).toEqual(["name"]);
+  });
+});
+
+describe("isRefColumn", () => {
+  it("returns true for REF", () => {
+    expect(isRefColumn("REF")).toBe(true);
+  });
+
+  it("returns true for SELECT", () => {
+    expect(isRefColumn("SELECT")).toBe(true);
+  });
+
+  it("returns true for RADIO", () => {
+    expect(isRefColumn("RADIO")).toBe(true);
+  });
+
+  it("returns false for REF_ARRAY", () => {
+    expect(isRefColumn("REF_ARRAY")).toBe(false);
+  });
+
+  it("returns false for REFBACK", () => {
+    expect(isRefColumn("REFBACK")).toBe(false);
+  });
+
+  it("returns false for ONTOLOGY", () => {
+    expect(isRefColumn("ONTOLOGY")).toBe(false);
+  });
+
+  it("returns false for STRING", () => {
+    expect(isRefColumn("STRING")).toBe(false);
+  });
+});
+
+describe("buildRefHref", () => {
+  it("builds href with single key value", () => {
+    const href = buildRefHref("myschema", "Resources", undefined, {
+      id: "ALSPAC",
+    });
+    expect(href).toBe(
+      `/myschema/Resources/${encodeURIComponent("ALSPAC")}?keys=${encodeURIComponent('{"id":"ALSPAC"}')}`
+    );
+  });
+
+  it("builds href with composite key", () => {
+    const href = buildRefHref("myschema", "Datasets", undefined, {
+      resource: "ALSPAC",
+      name: "core",
+    });
+    expect(href).toContain("/myschema/Datasets/");
+    expect(href).toContain("ALSPAC-core");
+    expect(href).toContain(
+      encodeURIComponent('{"resource":"ALSPAC","name":"core"}')
+    );
+  });
+
+  it("uses refSchemaId when provided", () => {
+    const href = buildRefHref("myschema", "Resources", "otherschema", {
+      id: "X",
+    });
+    expect(href.startsWith("/otherschema/Resources/")).toBe(true);
+  });
+
+  it("falls back to schemaId when refSchemaId is undefined", () => {
+    const href = buildRefHref("myschema", "Resources", undefined, {
+      id: "X",
+    });
+    expect(href.startsWith("/myschema/Resources/")).toBe(true);
+  });
+
+  it("handles nested key objects in slug", () => {
+    const href = buildRefHref("s", "T", undefined, {
+      id: "A",
+      nested: { foo: "bar" },
+    });
+    expect(href).toContain("/s/T/A?");
   });
 });

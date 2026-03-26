@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import type { IColumnDisplay } from "../../../types/types";
-import { isEmptyValue, buildRefbackFilter } from "../../utils/displayUtils";
+import {
+  isEmptyValue,
+  buildRefbackFilter,
+  isRefColumn,
+  buildRefHref,
+} from "../../utils/displayUtils";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
 import Emx2ListView from "./Emx2ListView.vue";
 
@@ -35,6 +41,24 @@ const listFilter = computed(
       props.parentRowId
     ) || props.column.listConfig?.filter
 );
+
+const refHref = ref<string | undefined>();
+
+watchEffect(async () => {
+  if (
+    !props.schemaId ||
+    !props.column.refTableId ||
+    !isRefColumn(props.column.columnType) ||
+    !props.value ||
+    typeof props.value !== "object"
+  ) {
+    refHref.value = undefined;
+    return;
+  }
+  const schema = props.column.refSchemaId || props.schemaId;
+  const rowKey = await getPrimaryKey(props.value, props.column.refTableId, schema);
+  refHref.value = buildRefHref(props.schemaId, props.column.refTableId, props.column.refSchemaId, rowKey);
+});
 </script>
 
 <template>
@@ -61,5 +85,12 @@ const listFilter = computed(
     :filter="listFilter"
     :config="column.listConfig"
   />
+  <NuxtLink
+    v-else-if="refHref"
+    :to="refHref"
+    class="text-link hover:underline"
+  >
+    <ValueEMX2 :metadata="column" :data="value" />
+  </NuxtLink>
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>

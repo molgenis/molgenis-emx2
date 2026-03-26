@@ -1,5 +1,7 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 
+const REF_COLUMN_TYPES = ["REF", "SELECT", "RADIO"];
+
 export function isEmptyValue(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
   if (Array.isArray(val) && val.length === 0) return true;
@@ -70,4 +72,21 @@ export function filterNonEmptyColumns(
   return columns.filter((col) =>
     rows.some((row) => !isEmptyValue(row[col.id]))
   );
+}
+
+export function isRefColumn(columnType: string): boolean {
+  return REF_COLUMN_TYPES.includes(columnType);
+}
+
+export function buildRefHref(
+  schemaId: string,
+  refTableId: string,
+  refSchemaId: string | undefined,
+  rowKey: Record<string, any>
+): string {
+  const schema = refSchemaId || schemaId;
+  const slug = Object.values(rowKey)
+    .filter((v) => typeof v === "string" || typeof v === "number")
+    .join("-");
+  return `/${schema}/${refTableId}/${encodeURIComponent(slug)}?keys=${encodeURIComponent(JSON.stringify(rowKey))}`;
 }
