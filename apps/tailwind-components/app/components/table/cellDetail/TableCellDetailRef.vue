@@ -8,8 +8,7 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
-import { computed, ref, unref } from "vue";
-import { columnValueToString } from "../../../utils/columnValueToString";
+import { computed, ref } from "vue";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ValueEMX2 from "../../value/EMX2.vue";
