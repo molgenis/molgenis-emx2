@@ -119,6 +119,7 @@ export interface IListConfig {
   getHref?: (col: IColumn, row: IRow) => string;
   filter?: object;
   rowLabel?: string;
+  hideColumns?: string[];
 }
 
 export interface IRecordViewConfig {

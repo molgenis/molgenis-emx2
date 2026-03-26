@@ -11,6 +11,8 @@ const props = withDefaults(
     data: Record<string, any>;
     showEmpty?: boolean;
     showSideNav?: boolean;
+    schemaId?: string;
+    rowId?: Record<string, any>;
   }>(),
   {
     showEmpty: false,
@@ -157,25 +159,29 @@ const hasSideNav = computed(
 
 <template>
   <div class="lg:px-[30px] px-0">
-  <DetailPageLayout :show-side-nav="hasSideNav">
-    <template #header>
-      <slot name="header"></slot>
-    </template>
-    <template v-if="hasSideNav" #sidebar>
-      <SideNav :sections="navSections" :title="navTitle" />
-    </template>
-    <template #main>
-      <RecordSection
-        v-for="(section, index) in visibleSections"
-        :key="section.heading?.id || `orphan-${index}`"
-        :heading="section.heading"
-        :is-section="section.isSection"
-        :columns="section.columns"
-        :show-empty="showEmpty"
-      />
+    <DetailPageLayout :show-side-nav="hasSideNav">
+      <template #header>
+        <slot name="header"></slot>
+      </template>
+      <template v-if="hasSideNav" #sidebar>
+        <SideNav :sections="navSections" :title="navTitle" />
+      </template>
+      <template #main>
+        <div class="grid lg:gap-2.5 gap-0">
+          <RecordSection
+            v-for="(section, index) in visibleSections"
+            :key="section.heading?.id || `orphan-${index}`"
+            :heading="section.heading"
+            :is-section="section.isSection"
+            :columns="section.columns"
+            :show-empty="showEmpty"
+            :schema-id="schemaId"
+            :parent-row-id="rowId"
+          />
+        </div>
 
-      <slot name="footer"></slot>
-    </template>
-  </DetailPageLayout>
+        <slot name="footer"></slot>
+      </template>
+    </DetailPageLayout>
   </div>
 </template>

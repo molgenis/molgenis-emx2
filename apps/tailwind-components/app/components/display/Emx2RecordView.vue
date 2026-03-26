@@ -114,12 +114,24 @@ const processedColumns = computed<IColumnDisplay[]>(() => {
       }
     }
 
+    if (
+      merged.columnType === "REFBACK" &&
+      merged.refTableId &&
+      !merged.listConfig
+    ) {
+      merged.listConfig = {
+        layout: "table",
+        pageSize: 10,
+        showSearch: true,
+        hideColumns: merged.refBackId ? [merged.refBackId] : [],
+      };
+    }
+
     return merged;
   });
 
   return columns;
 });
-
 </script>
 
 <template>
@@ -136,6 +148,8 @@ const processedColumns = computed<IColumnDisplay[]>(() => {
       :data="rowData"
       :show-empty="config?.showEmpty ?? false"
       :show-side-nav="config?.showSideNav"
+      :schema-id="schemaId"
+      :row-id="rowId"
     >
       <template #header>
         <slot name="header" />

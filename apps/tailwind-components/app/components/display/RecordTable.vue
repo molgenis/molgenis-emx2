@@ -37,6 +37,10 @@ const firstColumnConfig = computed(() => {
   return firstCol ? getColumnConfig(firstCol.id) : undefined;
 });
 
+const firstColumnIsKey = computed(
+  () => props.columns.length > 0 && props.columns[0].key === 1
+);
+
 const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
 </script>
 
@@ -50,7 +54,7 @@ const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
             :key="col.id"
             :class="[
               'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
-              colIndex === 0
+              colIndex === 0 && firstColumnIsKey
                 ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
                 : '',
             ]"
@@ -70,12 +74,12 @@ const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
             :key="col.id"
             :class="[
               'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap overflow-hidden text-ellipsis group-hover:bg-black/5',
-              colIndex === 0
+              colIndex === 0 && firstColumnIsKey
                 ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
                 : '',
             ]"
           >
-            <div v-if="colIndex === 0" class="flex items-center gap-2">
+            <div v-if="colIndex === 0 && firstColumnIsKey" class="flex items-center gap-2">
               <slot name="actions" :row="row" />
               <NuxtLink
                 v-if="firstColumnConfig?.getHref"

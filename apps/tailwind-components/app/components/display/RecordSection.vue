@@ -12,6 +12,8 @@ const props = withDefaults(
     isSection?: boolean;
     columns: ISectionField[];
     showEmpty?: boolean;
+    schemaId?: string;
+    parentRowId?: Record<string, any>;
   }>(),
   {
     heading: null,
@@ -61,27 +63,27 @@ const sectionHeading = computed(() => {
 <template>
   <section
     :id="heading?.id"
-    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden mb-6"
+    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden"
   >
     <h2 v-if="sectionHeading" :class="headingClasses">
       {{ sectionHeading }}
     </h2>
-    <p v-if="heading?.description" class="text-definition-list-term mb-4">
+    <p v-if="heading?.description" class="mb-5 prose max-w-none">
       {{ heading.description }}
     </p>
 
     <DefinitionList v-if="regularColumns.length">
       <template v-for="col in regularColumns" :key="col.meta.id">
-        <DefinitionListTerm class="text-record-label"
-          >{{
-            col.meta.displayLabel || col.meta.label || col.meta.id
-          }}</DefinitionListTerm
-        >
+        <DefinitionListTerm class="text-record-label">{{
+          col.meta.displayLabel || col.meta.label || col.meta.id
+        }}</DefinitionListTerm>
         <DefinitionListDefinition class="text-record-value">
           <RecordColumn
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
+            :schema-id="schemaId"
+            :parent-row-id="parentRowId"
           />
         </DefinitionListDefinition>
       </template>
@@ -101,6 +103,8 @@ const sectionHeading = computed(() => {
             :column="col.meta"
             :value="col.value"
             :show-empty="showEmpty"
+            :schema-id="schemaId"
+            :parent-row-id="parentRowId"
           />
         </dd>
       </div>
