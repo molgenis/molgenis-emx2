@@ -6,7 +6,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 **61 files changed** (against origin/master): 16 new source files, 6 stories, 14 test files, 2 shared test fixtures, 8 modified existing components, 6 test quality fixes, plus config/CSS/types.
 
-**406 vitest tests, all passing** (48 test files).
+**413 vitest tests, all passing** (48 test files).
 
 ---
 
@@ -19,7 +19,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] 5 operators: `equals`, `like`, `between`, `notNull`, `isNull`
 - [ ] `like` always uses AND semantics for space-separated terms
 - [ ] Serialization round-trip: filter state → URL string → parse → GraphQL filter
-- [ ] Tests: `composables/useFilters.spec.ts` (~25 composable tests) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests)
+- [ ] Tests: `composables/useFilters.spec.ts` (~29 composable tests, incl. toggleFilter/removeFilter/resetFilters removal paths) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests)
 
 ### Filter components (`app/components/filter/`)
 - [ ] **Sidebar.vue** (~30 lines) — pure display wrapper, receives `UseFilters` prop
@@ -37,14 +37,15 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] **resolveFilterLabels.ts** — async label resolution for nested ref paths
 - [ ] **filterConstants.ts** — shared constants
 
-### Filter types (`types/filters.ts`)
+### Filter types (`types/filters.ts`) + modified types (`types/types.ts`)
 - [ ] `IFilterValue`, `FilterOperator`, `IGraphQLFilter`, `UseFilters` interface, `ICountFetcher` interface
+- [ ] `ITreeNodeState.hiddenByCount` — distinguishes base-count-hidden from search-hidden nodes
 
 ### Modified existing components
-- [ ] **Ref.vue** — facet counts, base count hiding (baseCount=0 hidden, crossFilter count=0 shown), search overrides hiding
-- [ ] **Ontology.vue** — tree pruning by base counts, auto-paging after pruning, parent counts via `_agg`
-- [ ] **TreeNode.vue** — simplified (just renders what it's given), loading spinner
-- [ ] **CheckboxGroup.vue** — count display + loading spinner
+- [ ] **Ref.vue** — facet counts, base count hiding (baseCount=0 hidden via `visibleByBaseCount` computed, crossFilter count=0 shown), search overrides hiding, clickable "show/hide hidden options" toggle
+- [ ] **Ontology.vue** — visibility-based hiding by base counts (`hiddenByCount` flag, no physical removal), auto-paging after hiding, parent counts via `_agg`, clickable "show/hide hidden options" toggle, `reload()` skips empty GraphQL query when counts cached
+- [ ] **TreeNode.vue** — simplified (just renders what it's given), excludes `hiddenByCount` nodes from "hidden by search" message
+- [ ] **CheckboxGroup.vue** — count display, `:key` on v-for for stable DOM tracking
 - [ ] **RadioGroup.vue** — minor fix
 - [ ] **TableEMX2.vue** — `below-toolbar` slot for ActiveFilters
 - [ ] **fetchTableMetadata.ts** — `includeSubclassColumns` option
@@ -58,8 +59,8 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] **RadioGroup.spec.ts** — same fix
 - [ ] **Listbox.spec.ts** — fixed `it.each([options])` → `it.each(options)` (was running once instead of per-option)
 - [ ] **Form.spec.ts** — fixed incorrect mock path
-- [ ] **Ref.spec.ts** — moved createCountFetcher test to proper utility spec
-- [ ] **Ontology.spec.ts** — expanded test coverage for tree pruning + auto-paging
+- [ ] **Ref.spec.ts** — moved createCountFetcher test to proper utility spec, added show/re-hide toggle + search-override tests
+- [ ] **Ontology.spec.ts** — expanded test coverage for tree pruning + auto-paging, added show/re-hide toggle + search-override + no-false-hidden-message tests
 
 ### Test infrastructure (new)
 - [ ] **fixtures/columns.ts** — shared IColumn constants used across 6 test files
@@ -85,19 +86,23 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 ### ✅ Completed — Task 3: Prevent filter option flickering during count reloads
 
-- CheckboxGroup: added `:key="option.value"` to v-for
+- CheckboxGroup: added `:key="option.value"` to v-for for stable DOM tracking
 - Ref.vue: split `listOptions` into `visibleByBaseCount` (stable Set) + `listOptions` computed
-- Ontology.vue: added `prunedNodes` tracking Set so `pruneByBaseCounts` only prunes new nodes
+- Ontology.vue: replaced physical node removal with `visible=false` + `hiddenByCount` flag — no tree structure mutation on count updates
 - CheckboxGroup + TreeNode: removed global `countsLoading` spinner, counts update in-place
+- TreeNode: excludes `hiddenByCount` nodes from "hidden by search" message
+- Ontology `reload()`: skips empty GraphQL query when counts already cached
 
-Files: `Ref.vue`, `Ontology.vue`, `CheckboxGroup.vue`, `TreeNode.vue`, `createCountFetcher.ts`
+Files: `Ref.vue`, `Ontology.vue`, `CheckboxGroup.vue`, `TreeNode.vue`, `types/types.ts`
 
 ### ✅ Completed — Task 1: Click "X options hidden" to reveal all
 
-- Ref.vue: added `showAllOptions` ref, bypass base count filter when true, "X options hidden" is now a clickable button toggling show/hide
-- Ontology.vue: added `showAllHidden` ref + `toggleShowAllHidden()`, skip pruning when true, clickable button triggers reload/re-prune
+- Ref.vue: added `showAllOptions` ref, bypass base count filter when true, clickable button toggles show/hide
+- Ontology.vue: `toggleShowAllHidden()` toggles `visible` on count-hidden nodes (synchronous, no reload), `setHiddenNodesVisibility()` walks tree
+- Both: "show hidden" button hidden during search (search already shows all matches)
+- Tests: 4 Ontology tests (show, re-hide, search-override, no false message) + 3 Ref tests (show, re-hide, search-override)
 
-Files: `Ref.vue`, `Ontology.vue`
+Files: `Ref.vue`, `Ontology.vue`, `TreeNode.vue`, `types/types.ts`, `Ontology.spec.ts`, `Ref.spec.ts`
 
 ### ✅ Completed — not a bug — Task 2: Removing filter from sidebar should clear filter state
 
