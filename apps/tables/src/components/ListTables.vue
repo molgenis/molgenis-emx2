@@ -19,14 +19,22 @@
         v-model="search"
       />
       <h2>Data tables</h2>
-      <TablesTable v-if="tables.length > 0" :tables="tables" />
+      <TablesTable
+        v-if="tables.length > 0"
+        :tables="tables"
+        :tablePermissions="session?.tablePermissions"
+      />
       <p v-else>No tables found</p>
       <h2>Ontology tables</h2>
       <p>
         These tables are automatically created for each column with type =
         ontology or ontology_array.
       </p>
-      <TablesTable v-if="ontologies.length > 0" :tables="ontologies" />
+      <TablesTable
+        v-if="ontologies.length > 0"
+        :tables="ontologies"
+        :tablePermissions="session?.tablePermissions"
+      />
       <p v-else>No ontologies found</p>
     </div>
   </div>
