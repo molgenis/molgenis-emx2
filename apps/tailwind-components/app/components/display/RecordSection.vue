@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IColumnDisplay, ISectionField } from "../../../types/types";
+import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
@@ -26,12 +27,7 @@ const headingClasses = "mb-5 uppercase text-heading-4xl font-display";
 
 const visibleColumns = computed(() => {
   if (props.showEmpty) return props.columns;
-  return props.columns.filter((col) => {
-    const val = col.value;
-    if (val === null || val === undefined || val === "") return false;
-    if (Array.isArray(val) && val.length === 0) return false;
-    return true;
-  });
+  return props.columns.filter((col) => !isEmptyValue(col.value));
 });
 
 function isListColumn(col: ISectionField): boolean {
@@ -48,15 +44,8 @@ const listColumns = computed(() =>
 );
 
 const sectionHeading = computed(() => {
-  if (
-    !props.heading ||
-    props.heading.id === "_top" ||
-    props.heading.id === "mg_top_of_form" ||
-    props.heading.label === "_top"
-  )
-    return false;
-  const result = props.heading.label || props.heading.id;
-  return result;
+  if (!props.heading || isTopSection(props.heading)) return false;
+  return props.heading.label || props.heading.id;
 });
 </script>
 

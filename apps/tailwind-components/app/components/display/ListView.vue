@@ -3,6 +3,11 @@ import { computed } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IListConfig } from "../../../types/types";
+import {
+  filterDataColumns,
+  filterNonEmptyColumns,
+  getRowLabel,
+} from "../../utils/displayUtils";
 import RecordTable from "./RecordTable.vue";
 import InlinePagination from "./InlinePagination.vue";
 
@@ -26,31 +31,13 @@ const emit = defineEmits<{
   "update:page": [page: number];
 }>();
 
-const hiddenSet = computed(
-  () => new Set(props.config?.hideColumns || [])
-);
-
 const dataColumns = computed(() =>
-  props.columns.filter(
-    (c) =>
-      c.columnType !== "SECTION" &&
-      c.columnType !== "HEADING" &&
-      !c.id.startsWith("mg_") &&
-      !hiddenSet.value.has(c.id)
-  )
+  filterDataColumns(props.columns, props.config?.hideColumns)
 );
 
-const nonEmptyColumns = computed(() => {
-  if (!props.rows.length) return dataColumns.value;
-  return dataColumns.value.filter((col) =>
-    props.rows.some((row) => {
-      const val = row[col.id];
-      if (val === null || val === undefined || val === "") return false;
-      if (Array.isArray(val) && val.length === 0) return false;
-      return true;
-    })
-  );
-});
+const nonEmptyColumns = computed(() =>
+  filterNonEmptyColumns(dataColumns.value, props.rows)
+);
 
 const tableColumns = computed(() => {
   if (!props.config?.visibleColumns?.length) return nonEmptyColumns.value;
@@ -58,16 +45,6 @@ const tableColumns = computed(() => {
     .map((id) => nonEmptyColumns.value.find((c) => c.id === id))
     .filter(Boolean) as IColumn[];
 });
-
-function getRowLabel(row: Record<string, any>): string {
-  if (props.config?.rowLabel) {
-    return props.config.rowLabel.replace(
-      /\$\{(\w+)\}/g,
-      (_, key) => row[key] ?? ""
-    );
-  }
-  return row.label || row.name || row.id || JSON.stringify(row);
-}
 
 function rowKey(row: Record<string, any>): string {
   return row.id || row.name || JSON.stringify(row);
@@ -105,9 +82,9 @@ function rowKey(row: Record<string, any>): string {
             :to="config.getHref(columns[0], row)"
             class="text-link hover:underline"
           >
-            {{ getRowLabel(row) }}
+            {{ getRowLabel(row, config?.rowLabel) }}
           </NuxtLink>
-          <span v-else>{{ getRowLabel(row) }}</span>
+          <span v-else>{{ getRowLabel(row, config?.rowLabel) }}</span>
         </li>
       </ul>
       <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>

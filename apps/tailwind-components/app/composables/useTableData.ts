@@ -74,7 +74,6 @@ export function useTableData(
     }
   }
 
-  // watch reactive params and trigger refresh
   watch(page, () => fetchData(), { immediate: false });
   watch(
     () => searchTerms?.value,
@@ -92,7 +91,6 @@ export function useTableData(
     { immediate: false, deep: true }
   );
 
-  // initial fetch
   fetchData();
 
   const metadata = computed(() => metadataRef.value);

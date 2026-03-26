@@ -129,7 +129,7 @@ export interface IRecordViewConfig {
 
 export interface ISectionField {
   meta: IColumnDisplay;
-  value: any;
+  value: columnValue;
 }
 
 export interface ISection {

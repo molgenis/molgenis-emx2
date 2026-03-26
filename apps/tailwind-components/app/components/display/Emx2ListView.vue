@@ -17,13 +17,11 @@ const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 
-const filterComputed = computed(() => props.filter);
-
 const { metadata, rows, status, totalPages, showPagination, errorMessage } =
   useTableData(props.schemaId, props.tableId, {
     pageSize: props.config?.pageSize || 10,
     page,
-    filter: filterComputed,
+    filter: computed(() => props.filter),
     searchTerms,
   });
 

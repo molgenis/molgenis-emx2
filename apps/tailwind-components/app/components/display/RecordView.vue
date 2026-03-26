@@ -4,6 +4,7 @@ import type { IColumnDisplay, ISectionField } from "../../../types/types";
 import RecordSection from "./RecordSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
+import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
 
 const props = withDefaults(
   defineProps<{
@@ -49,8 +50,7 @@ const sections = computed<SectionGroup[]>(() => {
   }
 
   for (const section of sectionColumns) {
-    const isTopSection =
-      section.id === "mg_top_of_form" || section.label === "_top";
+    const isTop = isTopSection(section);
     const sectionDirectColumns = dataColumns.filter(
       (c) => c.section === section.id && !c.heading
     );
@@ -60,8 +60,8 @@ const sections = computed<SectionGroup[]>(() => {
       headingColumns.some((h) => h.section === section.id)
     ) {
       result.push({
-        heading: isTopSection ? null : section,
-        isSection: !isTopSection,
+        heading: isTop ? null : section,
+        isSection: !isTop,
         columns: sectionDirectColumns.map((col) => ({
           meta: col,
           value: props.data[col.id],
@@ -110,34 +110,17 @@ const sections = computed<SectionGroup[]>(() => {
   return result;
 });
 
-function hasNonEmptyValue(col: ISectionField): boolean {
-  const val = col.value;
-  if (val === null || val === undefined || val === "") return false;
-  if (Array.isArray(val) && val.length === 0) return false;
-  if (
-    typeof val === "object" &&
-    !Array.isArray(val) &&
-    Object.keys(val).length === 0
-  )
-    return false;
-  return true;
-}
-
 const visibleSections = computed(() =>
   props.showEmpty
     ? sections.value
-    : sections.value.filter((s) => s.columns.some(hasNonEmptyValue))
+    : sections.value.filter((s) =>
+        s.columns.some((col) => !isEmptyValue(col.value))
+      )
 );
 
 const navSections = computed(() =>
   visibleSections.value
-    .filter(
-      (s) =>
-        s.heading &&
-        s.heading.id !== "_top" &&
-        s.heading.id !== "mg_top_of_form" &&
-        s.heading.label !== "_top"
-    )
+    .filter((s) => s.heading && !isTopSection(s.heading))
     .map((s) => ({
       id: s.heading!.id,
       label: s.heading!.label || s.heading!.id,
