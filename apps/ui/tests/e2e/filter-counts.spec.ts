@@ -26,9 +26,12 @@ test.describe("Filter counts", () => {
     const rowsBefore = await table.locator("tbody tr").count();
 
     const sidebar = page.locator(".filter-sidebar-context");
-    const filterCheckbox = sidebar.locator("label").filter({
-      has: page.getByText(/\(\d+\)/),
-    }).first();
+    const filterCheckbox = sidebar
+      .locator("label")
+      .filter({
+        has: page.getByText(/\(\d+\)/),
+      })
+      .first();
     await expect(filterCheckbox).toBeVisible({ timeout: 10000 });
     await filterCheckbox.click();
     await page.waitForLoadState("networkidle");
