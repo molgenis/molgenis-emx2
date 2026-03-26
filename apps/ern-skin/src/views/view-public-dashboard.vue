@@ -1,5 +1,4 @@
 <template>
-  {{ organisations[0] }}
   <Page id="page-dashboard">
     <LoadingScreen v-if="loading" />
     <div class="page-section padding-h-2" v-else-if="!loading && error">
