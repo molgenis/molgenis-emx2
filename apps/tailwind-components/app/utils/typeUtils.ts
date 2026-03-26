@@ -153,7 +153,12 @@ export function assertRefColumn(column: IColumn): asserts column is IRefColumn {
 export function assertRefColumnValue(
   column: columnValue
 ): asserts column is IRow {
-  if (!column || (!Array.isArray(column) && typeof column !== "object")) {
+  if (
+    column == null ||
+    Array.isArray(column) ||
+    typeof column !== "object" ||
+    Object.getPrototypeOf(column) !== Object.prototype
+  ) {
     throw new Error("Value is not a valid reference column value");
   }
 }
