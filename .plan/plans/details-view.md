@@ -10,14 +10,16 @@ Two consumers:
 ## Key Design Decisions
 
 ### Dumb/Smart Split
-- **RecordView** (dumb) — takes `columns: IColumnDisplay[]` + `data: Record<string, any>`, does all rendering. No backend calls.
-- **Emx2RecordView** (smart) — fetches metadata + row from backend, merges IColumn → IColumnDisplay, passes to RecordView.
+- **RecordView** (dumb) — takes `columns: IColumnDisplay[]` + `data`, does all rendering. No backend calls.
+- **Emx2RecordView** (smart) — fetches metadata + row, merges IColumn → IColumnDisplay, passes to RecordView.
+- **ListView** (dumb) — takes `rows` + `columns` + `config`, renders as table/cards/list.
+- **Emx2ListView** (smart) — fetches paginated data, delegates to ListView.
 
 ### IColumnDisplay (client-side only)
 Extends IColumn with: `displayComponent`, `layout`, `getHref`, `clickAction`, `listConfig`, `displayLabel`, `hidden`. Backend stays clean.
 
 ### Master/Detail via listConfig
-REF_ARRAY/REFBACK columns get `listConfig` with layout/visibleColumns/pageSize/showSearch/getHref. RecordColumn renders Emx2ListView when listConfig is present.
+REFBACK columns get `listConfig` auto-generated. RecordColumn renders Emx2ListView for REFBACK. REF_ARRAY stays inline for now (data already in parent row).
 
 ### Tags → Component Resolution
 `displayMap` on Emx2RecordView resolves tags → `displayComponent` during merge. Dumb components just check `column.displayComponent`.
@@ -50,58 +52,51 @@ REF_ARRAY/REFBACK columns get `listConfig` with layout/visibleColumns/pageSize/s
 - [x] Hide empty sections from both rendering and SideNav
 - [x] Empty value detection: null, undefined, "", [], {}
 
-### Phase 3: Emx2ListView for REFBACK/REF_ARRAY — NEXT
-Goal: REF_ARRAY and REFBACK columns render as embedded searchable/paginated lists instead of comma-separated inline text.
+### Phase 3: ListView + Emx2ListView — DONE
+- [x] ListView (dumb): table/cards/list modes, filters SECTION/HEADING/mg_ columns
+- [x] Emx2ListView (smart): useTableData, search (shown when >1 page), pagination
+- [x] RecordColumn: REFBACK → Emx2ListView with auto-built filter
+- [x] Emx2RecordView: auto-generates listConfig for REFBACK (table, pageSize 10, search)
+- [x] hideColumns in IListConfig: auto-hides refBackId column in nested tables
+- [x] Hide columns where all rows are empty in nested tables
+- [x] RecordTable: first column only sticky/linked when primary key
+- [x] Ontology values: plain text with (!) definition tooltip (CustomTooltip)
+- [x] fetchTableData: include `definition` in ontology GraphQL expansion
 
-**Architecture:**
-```
-RecordColumn (detects REFBACK/REF_ARRAY)
-  └── Emx2ListView (self-contained, fetches own data)
-        ├── useTableData(refSchemaId, refTableId, filter)
-        ├── optional search bar
-        ├── InlinePagination
-        └── renders as table / cards / list per listConfig
-```
+### Phase 4: Progressive Disclosure for References — NEXT
+Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 
-**Key: Emx2ListView is self-contained.** It takes schemaId + tableId + filter and fetches its own paginated data. This avoids loading all related rows upfront in the parent record fetch.
+**Design concept — three levels of detail:**
+1. **Compact**: Show primary/secondary key columns inline (scannable)
+2. **Preview**: Side modal or expandable showing more fields (quick look)
+3. **Full**: Navigate to detail page (deep dive)
+
+**For REF (single reference):**
+- Currently: shows refLabel as plain text
+- Improve: make clickable, show side modal with record preview on click
+- Or: show as compact card with key fields + expand button
+
+**For REF_ARRAY:**
+- Currently: inline comma-separated
+- Improve: show as embedded table (like REFBACK) with proper filter
+- Filter challenge: need to build `{id: {equals: [val1, val2, ...]}}` from parent row data
+- Alternative: client-side pagination of parent row's array data
+
+**For REFBACK:**
+- Currently: embedded table via Emx2ListView (DONE)
+- Improve: add row click → side modal preview → navigate to full detail
+
+**Column importance metadata:**
+- Could use `key` field (1 = primary, 2+ = secondary) for compact display
+- Or introduce `visible` / `importance` hint on columns
+- Determines which columns show in compact list/table views vs full detail
 
 **Steps:**
-- [ ] Copy Emx2ListView from generic-view, adapt to our IListConfig type
-- [ ] RecordColumn: when column is REF_ARRAY/REFBACK, render Emx2ListView instead of ValueEMX2
-  - Build filter from parent row's key columns (REFBACK: `{refBackId: {equals: rowId}}`)
-  - Pass listConfig (layout, visibleColumns, pageSize, etc.)
-  - Need access to parent row data and schema context → pass via props or provide/inject
-- [ ] Emx2RecordView: auto-generate listConfig defaults for REF_ARRAY/REFBACK columns
-  - refSchemaId from column.refSchemaId
-  - refTableId from column.refTableId
-  - default pageSize: 10
-  - default layout: "table"
-- [ ] RecordSection: keep separating "inline" vs "block" columns (REF_ARRAY/REFBACK = block)
-- [ ] Story file for Emx2ListView
-- [ ] Test with catalogue-demo Resources table (which has REFBACK columns)
-
-**Data flow for REFBACK:**
-```
-Parent record: Resources { id: "ACBB" }
-REFBACK column: datasets (refTableId: "Datasets", refBackId: "resource")
-  → Emx2ListView fetches: Datasets where resource.id = "ACBB"
-  → Renders as paginated table with search
-```
-
-**Data flow for REF_ARRAY:**
-```
-Parent record already has the array data in row[columnId]
-But for large arrays, better to fetch paginated from backend
-  → Emx2ListView fetches: refTable where id in [array values]
-  → Or: use column filter from parent context
-```
-
-### Phase 4: Standard Display Components
-- [ ] OntologyTreeDisplay — collapsible tree for ONTOLOGY/ONTOLOGY_ARRAY columns
-- [ ] CardGridDisplay — ref items as cards with links
-- [ ] FileListDisplay — file download cards
-- [ ] IntroDisplay — hero block (logo, website, contact)
-- [ ] Export defaultDisplayMap from tailwind-components
+- [ ] REF values: clickable, open side modal with Emx2RecordView of referenced record
+- [ ] REFBACK table rows: clickable, open side modal with record preview
+- [ ] REF_ARRAY: render as embedded table (build filter from parent row array values)
+- [ ] Side modal component for record preview (reuse existing SideModal + RecordView)
+- [ ] Column importance: decide on metadata approach for compact vs full display
 
 ### Phase 5: Upgrade [entity].vue
 - [ ] Replace 220-line bespoke page with Emx2RecordView
@@ -113,14 +108,21 @@ But for large arrays, better to fetch paginated from backend
   - URL pattern: `/${schemaId}/${refTableId}/${encodedRowId}`
 - [ ] Test with various table shapes
 
-### Phase 6: Catalogue Demo
+### Phase 6: Standard Display Components
+- [ ] OntologyTreeDisplay — collapsible tree for ONTOLOGY/ONTOLOGY_ARRAY columns
+- [ ] CardGridDisplay — ref items as cards with links
+- [ ] FileListDisplay — file download cards
+- [ ] IntroDisplay — hero block (logo, website, contact)
+- [ ] Export defaultDisplayMap from tailwind-components
+
+### Phase 7: Catalogue Demo
 - [ ] Dataset detail page using Emx2RecordView + Emx2DataView
 - [ ] Resource/collection detail page (the big one)
 - [ ] Visual comparison with handcrafted pages
 - [ ] Theme testing (Light, Dark, Molgenis, UMCG, AUMC)
 - [ ] Responsive testing (desktop, tablet, mobile)
 
-### Phase 7: Tests & Polish
+### Phase 8: Tests & Polish
 - [ ] Unit tests for display components
 - [ ] Story files for all components
 - [ ] E2E smoke test
@@ -131,33 +133,45 @@ But for large arrays, better to fetch paginated from backend
 |---------|------------------|-----------------|--------|
 | Key/value pairs | Name, acronym, dates | RecordSection def-list | DONE |
 | Sidebar TOC | Section navigation | Auto-generated SideNav | DONE |
-| Conditional sections | Skip empty sections | showEmpty=false + empty detection | DONE |
+| Conditional sections | Skip empty sections | showEmpty + empty detection | DONE |
 | Custom links | Navigate to sub-pages | getHref in columnConfig | DONE (type ready) |
-| Related table with search | Variables, subpopulations | listConfig → Emx2ListView | Phase 3 |
-| Ontology trees | Data categories, conditions | displayComponent tag resolution | Phase 4 |
-| Card grid | Networks, publications | CardGridDisplay | Phase 4 |
-| File downloads | Documentation files | FileListDisplay | Phase 4 |
-| Hero intro | Logo, website, contact | IntroDisplay | Phase 4 |
-| Harmonisation grid | Variable harmonisation status | Custom component via displayMap | Phase 6 |
+| REFBACK tables | Subpopulations, datasets | Emx2ListView nested table | DONE |
+| Ontology tooltips | Design type (!) icon | CustomTooltip + definition | DONE |
+| Hide empty columns | Nested tables | Auto-filter in ListView | DONE |
+| REF drill-down | Click resource → details | Side modal preview | Phase 4 |
+| REF_ARRAY tables | Networks, publications | Embedded table + filter | Phase 4 |
+| Ontology trees | Data categories, conditions | OntologyTreeDisplay | Phase 6 |
+| Card grid | Networks as cards | CardGridDisplay | Phase 6 |
+| File downloads | Documentation files | FileListDisplay | Phase 6 |
+| Hero intro | Logo, website, contact | IntroDisplay | Phase 6 |
+| Harmonisation grid | Variable harmonisation | Custom displayMap component | Phase 7 |
 
 ## Files
 
-### Existing (modified)
-- `types/types.ts` — IColumnDisplay, IListConfig, IRecordViewConfig
+### Done
+- `types/types.ts` — IColumnDisplay, IListConfig, IRecordViewConfig, hideColumns
 - `display/RecordView.vue` — dumb, IColumnDisplay[], DetailPageLayout + SideNav
-- `display/RecordSection.vue` — catalogue styling, IColumnDisplay
-- `display/RecordColumn.vue` — uses displayComponent directly
-- `display/Emx2RecordView.vue` — smart wrapper, merge logic
+- `display/RecordSection.vue` — catalogue styling, IColumnDisplay, schemaId/parentRowId passthrough
+- `display/RecordColumn.vue` — displayComponent, Emx2ListView for REFBACK
+- `display/RecordTable.vue` — conditional sticky first column (key only)
+- `display/Emx2RecordView.vue` — smart wrapper, merge logic, auto listConfig for REFBACK
+- `display/ListView.vue` — dumb list/table/cards, filters empty/hidden columns
+- `display/Emx2ListView.vue` — smart list with useTableData, search, pagination
+- `display/InlinePagination.vue` — prev/next
 - `layout/DetailPageLayout.vue` — sidebar + main layout
-- `SideNav.vue` — scrollspy navigation with title
+- `SideNav.vue` — scrollspy navigation with title, scroll to top
+- `value/Object.vue` — plain text + definition tooltip
+- `composables/fetchTableData.ts` — ontology definition in expansion
 
-### Next (Phase 3)
-- `display/Emx2ListView.vue` — copy from generic-view, adapt to IListConfig
-- `display/RecordColumn.vue` — add Emx2ListView rendering for REFBACK/REF_ARRAY
+### Next (Phase 4)
+- Side modal component for record preview
+- REF click handler → side modal
+- REFBACK/REF_ARRAY row click → side modal
+- REF_ARRAY filter building
 
-### Future (Phase 4+)
+### Future (Phase 5+)
+- `apps/ui/pages/[schema]/[table]/[entity].vue` — simplify with Emx2RecordView
 - `display/OntologyTreeDisplay.vue`
 - `display/CardGridDisplay.vue`
 - `display/FileListDisplay.vue`
 - `display/IntroDisplay.vue`
-- `apps/ui/pages/[schema]/[table]/[entity].vue` — simplify
