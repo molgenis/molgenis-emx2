@@ -547,7 +547,7 @@ export function useFilters(
       );
       removeFilter(columnId);
     } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
-      visibleFilterIds.value = [...visibleFilterIds.value, columnId];
+      visibleFilterIds.value = [columnId, ...visibleFilterIds.value];
     }
   }
 

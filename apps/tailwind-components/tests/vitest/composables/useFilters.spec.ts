@@ -439,6 +439,34 @@ describe("useFilters", () => {
     expect(activeFilters.value).toEqual([]);
   });
 
+  it("toggleFilter prepends new filter at beginning of list", () => {
+    const columns = ref([
+      { id: "name", columnType: "STRING" },
+      { id: "age", columnType: "INT" },
+      { id: "status", columnType: "STRING" },
+    ]);
+    const { visibleFilterIds, toggleFilter } = useFilters(columns);
+    visibleFilterIds.value = ["name", "age"];
+    toggleFilter("status");
+    expect(visibleFilterIds.value[0]).toBe("status");
+    expect(visibleFilterIds.value).toEqual(["status", "name", "age"]);
+  });
+
+  it("toggleFilter clears filter state when removing a filter", () => {
+    const columns = ref([
+      { id: "name", columnType: "STRING" },
+      { id: "age", columnType: "INT" },
+    ]);
+    const { visibleFilterIds, toggleFilter, setFilter, filterStates } =
+      useFilters(columns);
+    visibleFilterIds.value = ["name", "age"];
+    setFilter("name", { operator: "like", value: "test" });
+    expect(filterStates.value.has("name")).toBe(true);
+    toggleFilter("name");
+    expect(visibleFilterIds.value).toEqual(["age"]);
+    expect(filterStates.value.has("name")).toBe(false);
+  });
+
   it("reactively updates when URL changes", async () => {
     const mockRoute = reactive({
       query: { name: "test" } as Record<string, string>,
