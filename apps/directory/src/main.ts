@@ -1,12 +1,11 @@
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
-import VueGtag from "vue-gtag";
 
 import App from "./App.vue";
 import router from "./router";
 
-import "molgenis-components/dist/style.css";
+import "../../molgenis-components/dist/molgenis-components.css";
 import "./dev-assets/mg-bbmri-eric-4.css";
 
 /** Add font awesome icons */
@@ -26,7 +25,6 @@ export const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueGtag, { bootstrap: false }, router);
 
 app.mount("#app");
 

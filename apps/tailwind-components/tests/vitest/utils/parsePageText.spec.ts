@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import { parsePageText } from "../../../app/utils/Pages";
+import { parsePageText } from "../../../app/utils/cms";
 
 describe("parsePageText:", () => {
   test("extra leading and trailing quotes are removed", () => {
