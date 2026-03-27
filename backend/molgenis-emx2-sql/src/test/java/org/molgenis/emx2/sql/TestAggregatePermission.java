@@ -56,7 +56,8 @@ public class TestAggregatePermission {
 
   @Test
   public void testAggregatorCanRetrieveCountsWithMinimum10() {
-    assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
+    String json = schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON();
+    assertTrue(json.contains("10"));
   }
 
   @Test
@@ -77,9 +78,7 @@ public class TestAggregatePermission {
               .retrieveJSON();
       assertTrue(json.contains("16.21")); // should be a sum of all 'green'
     } finally {
-      AGGREGATE_COUNT_THRESHOLD =
-          1; // no other tests affected, but reset just to make sure. Todo: later this becomes a
-      // setting.
+      AGGREGATE_COUNT_THRESHOLD = 10;
     }
   }
 
