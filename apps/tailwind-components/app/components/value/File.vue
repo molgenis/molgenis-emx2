@@ -2,10 +2,10 @@
 import type { fileValue, IColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metadata: IColumn;
-  data: fileValue;
+  data?: fileValue | null;
 }>();
 </script>
 
 <template>
-  <span>{{ data.filename }}</span>
+  <span>{{ data?.filename }}</span>
 </template>

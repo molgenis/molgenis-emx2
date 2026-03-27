@@ -27,6 +27,13 @@ packages:
   - directory
   - ui
 
+onlyBuiltDependencies:
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
+  - core-js
+  - esbuild
+  - vue-demi
+
 overrides:
   cookie@<0.7.0: '>=0.7.0'
   devalue@>=5.1.0 <5.6.2: '>=5.6.2'
