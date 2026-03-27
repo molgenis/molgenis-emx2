@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
+  public static int AGGREGATE_COUNT_THRESHOLD = 10;
+  public static int AGGREGATE_RANGE_STEPSIZE = 10;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -744,8 +745,9 @@ public class SqlQuery extends QueryBean {
   private Field<Integer> getCountField(SqlTableMetadata table) {
     return switch (permissionEvaluator.getAggregateLevel(table)) {
       case FULL, COUNT -> count();
-      case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-      case RANGE -> field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+      case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, AGGREGATE_COUNT_THRESHOLD);
+      case RANGE ->
+          field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, AGGREGATE_RANGE_STEPSIZE);
       default -> throw new MolgenisException("Need permission >= RANGE to perform count queries");
     };
   }
@@ -761,7 +763,7 @@ public class SqlQuery extends QueryBean {
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
-      throw new MolgenisException("COUNt or SUM is required when using group by");
+      throw new MolgenisException("COUNT or SUM is required when using group by");
     }
 
     // filter conditions
