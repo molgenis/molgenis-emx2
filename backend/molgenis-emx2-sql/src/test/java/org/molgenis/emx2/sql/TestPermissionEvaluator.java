@@ -120,10 +120,10 @@ class TestPermissionEvaluator {
   class GetAggregateLevel {
 
     @Test
-    void viewerGetsFull() {
+    void viewerGetsCount() {
       PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
       TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.FULL, eval.getAggregateLevel(tableA));
+      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(tableA));
     }
 
     @Test
@@ -155,10 +155,10 @@ class TestPermissionEvaluator {
     }
 
     @Test
-    void customRoleGetsFullOnGrantedTable() {
+    void customRoleGetsCountOnGrantedTable() {
       PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
       TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.FULL, eval.getAggregateLevel(tableA));
+      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(tableA));
     }
 
     @Test
@@ -169,11 +169,11 @@ class TestPermissionEvaluator {
     }
 
     @Test
-    void ontologyTableGetsFull() {
+    void ontologyTableGetsCount() {
       PermissionEvaluator eval = evaluatorFor(USER_EXISTS);
       TableMetadata ontology =
           database.getSchema(SCHEMA).getMetadata().getTableMetadata(ONTOLOGY_TABLE);
-      assertEquals(AggregateLevel.FULL, eval.getAggregateLevel(ontology));
+      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(ontology));
     }
   }
 

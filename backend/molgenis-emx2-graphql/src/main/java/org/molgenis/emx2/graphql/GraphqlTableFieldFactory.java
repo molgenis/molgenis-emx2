@@ -370,7 +370,7 @@ public class GraphqlTableFieldFactory {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (level == AggregateLevel.FULL) {
+    if (level == AggregateLevel.COUNT) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())

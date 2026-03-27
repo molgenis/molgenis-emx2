@@ -25,7 +25,7 @@ public class SqlPermissionEvaluator implements PermissionEvaluator {
 
   @Override
   public AggregateLevel getAggregateLevel(TableMetadata table) {
-    if (canView(table)) return AggregateLevel.FULL;
+    if (canView(table)) return AggregateLevel.COUNT;
     if (hasRole(COUNT)) return AggregateLevel.COUNT;
     if (hasRole(AGGREGATOR)) return AggregateLevel.AGGREGATOR;
     if (hasRole(RANGE)) return AggregateLevel.RANGE;

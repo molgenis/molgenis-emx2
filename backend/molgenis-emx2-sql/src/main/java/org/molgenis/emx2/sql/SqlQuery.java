@@ -744,7 +744,7 @@ public class SqlQuery extends QueryBean {
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
     return switch (permissionEvaluator.getAggregateLevel(table)) {
-      case FULL, COUNT -> count();
+      case COUNT -> count();
       case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, AGGREGATE_COUNT_THRESHOLD);
       case RANGE ->
           field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, AGGREGATE_RANGE_STEPSIZE);
