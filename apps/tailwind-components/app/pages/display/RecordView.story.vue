@@ -8,94 +8,94 @@ const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);
 
 const mockColumns: IColumnDisplay[] = [
-    // Orphan columns (no section/heading)
-    { id: "id", label: "ID", columnType: "AUTO_ID" },
-    { id: "name", label: "Name", columnType: "STRING" },
+  // Orphan columns (no section/heading)
+  { id: "id", label: "ID", columnType: "AUTO_ID" },
+  { id: "name", label: "Name", columnType: "STRING" },
 
-    // Section 1: General Info
-    {
-      id: "generalSection",
-      label: "General Information",
-      columnType: "SECTION",
-      description: "Basic details about the pet",
-    },
-    {
-      id: "species",
-      label: "Species",
-      columnType: "ONTOLOGY",
-      section: "generalSection",
-    },
-    {
-      id: "breed",
-      label: "Breed",
-      columnType: "STRING",
-      section: "generalSection",
-    },
-    {
-      id: "birthDate",
-      label: "Birth Date",
-      columnType: "DATE",
-      section: "generalSection",
-    },
+  // Section 1: General Info
+  {
+    id: "generalSection",
+    label: "General Information",
+    columnType: "SECTION",
+    description: "Basic details about the pet",
+  },
+  {
+    id: "species",
+    label: "Species",
+    columnType: "ONTOLOGY",
+    section: "generalSection",
+  },
+  {
+    id: "breed",
+    label: "Breed",
+    columnType: "STRING",
+    section: "generalSection",
+  },
+  {
+    id: "birthDate",
+    label: "Birth Date",
+    columnType: "DATE",
+    section: "generalSection",
+  },
 
-    // Section 1 > Heading: Physical
-    {
-      id: "physicalHeading",
-      label: "Physical Characteristics",
-      columnType: "HEADING",
-      section: "generalSection",
-    },
-    {
-      id: "weight",
-      label: "Weight (kg)",
-      columnType: "DECIMAL",
-      heading: "physicalHeading",
-    },
-    {
-      id: "color",
-      label: "Color",
-      columnType: "STRING",
-      heading: "physicalHeading",
-    },
+  // Section 1 > Heading: Physical
+  {
+    id: "physicalHeading",
+    label: "Physical Characteristics",
+    columnType: "HEADING",
+    section: "generalSection",
+  },
+  {
+    id: "weight",
+    label: "Weight (kg)",
+    columnType: "DECIMAL",
+    heading: "physicalHeading",
+  },
+  {
+    id: "color",
+    label: "Color",
+    columnType: "STRING",
+    heading: "physicalHeading",
+  },
 
-    // Section 2: Owner Info
-    {
-      id: "ownerSection",
-      label: "Owner Information",
-      columnType: "SECTION",
-      description: "Details about the pet owner",
-    },
-    {
-      id: "owner",
-      label: "Owner",
-      columnType: "REF",
-      section: "ownerSection",
-      refTableId: "Owner",
-      refSchemaId: "pet store",
-      refLabel: "${firstName} ${lastName}",
-      refLabelDefault: "${firstName}",
-      refLinkId: "id",
-    } as IRefColumn,
-    {
-      id: "ownerContact",
-      label: "Contact Email",
-      columnType: "EMAIL",
-      section: "ownerSection",
-    },
+  // Section 2: Owner Info
+  {
+    id: "ownerSection",
+    label: "Owner Information",
+    columnType: "SECTION",
+    description: "Details about the pet owner",
+  },
+  {
+    id: "owner",
+    label: "Owner",
+    columnType: "REF",
+    section: "ownerSection",
+    refTableId: "Owner",
+    refSchemaId: "pet store",
+    refLabel: "${firstName} ${lastName}",
+    refLabelDefault: "${firstName}",
+    refLinkId: "id",
+  } as IRefColumn,
+  {
+    id: "ownerContact",
+    label: "Contact Email",
+    columnType: "EMAIL",
+    section: "ownerSection",
+  },
 
-    // Section 3: Related
-    { id: "relatedSection", label: "Related Records", columnType: "SECTION" },
-    {
-      id: "orders",
-      label: "Orders",
-      columnType: "REF_ARRAY",
-      section: "relatedSection",
-      refTableId: "Order",
-      refSchemaId: "pet store",
-      refLabel: "${orderId} - ${status}",
-      refLabelDefault: "${orderId}",
-      refLinkId: "orderId",
-    } as IRefColumn,
+  // Section 3: Related
+  { id: "relatedSection", label: "Related Records", columnType: "SECTION" },
+  {
+    id: "orders",
+    label: "Orders",
+    columnType: "REF_ARRAY",
+    section: "relatedSection",
+    refTableId: "Order",
+    refSchemaId: "pet store",
+    refLabel: "${orderId} - ${status}",
+    refLabelDefault: "${orderId}",
+    refLinkId: "orderId",
+  } as IRefColumn,
   {
     id: "tags",
     label: "Tags",

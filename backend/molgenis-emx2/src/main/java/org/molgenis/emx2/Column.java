@@ -583,9 +583,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRefLabelDefault() {
     if (!isReference()) return null;
-    List<Column> allPk = getRefTable().getPrimaryKeyColumns();
     Set<String> excludedPkeyFields =
-        allPk.stream()
+        getRefTable().getPrimaryKeyColumns().stream()
             .filter(
                 pk ->
                     isRefback()

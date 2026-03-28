@@ -79,7 +79,10 @@ const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
                 : '',
             ]"
           >
-            <div v-if="colIndex === 0 && firstColumnIsKey" class="flex items-center gap-2">
+            <div
+              v-if="colIndex === 0 && firstColumnIsKey"
+              class="flex items-center gap-2"
+            >
               <slot name="actions" :row="row" />
               <NuxtLink
                 v-if="firstColumnConfig?.getHref"
