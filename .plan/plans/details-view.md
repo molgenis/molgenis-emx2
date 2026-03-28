@@ -16,7 +16,7 @@ Two consumers:
 - **Emx2ListView** (smart) — fetches paginated data, delegates to ListView.
 
 ### IColumnDisplay (client-side only)
-Extends IColumn with: `displayComponent`, `layout`, `getHref`, `clickAction`, `listConfig`, `displayLabel`, `hidden`. Backend stays clean.
+Extends IColumn with: `displayComponent`, `listConfig`, `displayLabel`. Backend stays clean. REF/SELECT/RADIO navigation uses automatic NuxtLink wrapping via `buildRefHref` — not config-driven.
 
 ### Master/Detail via listConfig
 REFBACK columns get `listConfig` auto-generated. RecordColumn renders Emx2ListView for REFBACK. REF_ARRAY stays inline for now (data already in parent row).
@@ -52,6 +52,10 @@ REFBACK columns get `listConfig` auto-generated. RecordColumn renders Emx2ListVi
 - [x] Hide empty sections from both rendering and SideNav
 - [x] Empty value detection: null, undefined, "", [], {}
 
+### Phase 3b: Subclass Column Support — DONE
+- [x] `fetchTableMetadata` composable: `includeSubclassColumns` option fetches inherited columns across class hierarchy
+- [x] `getSubclassColumns` composable: traverses inheritance tree to collect all columns from subclasses
+
 ### Phase 3: ListView + Emx2ListView — DONE
 - [x] ListView (dumb): table/cards/list modes, filters SECTION/HEADING/mg_ columns
 - [x] Emx2ListView (smart): useTableData, search (shown when >1 page), pagination
@@ -63,7 +67,7 @@ REFBACK columns get `listConfig` auto-generated. RecordColumn renders Emx2ListVi
 - [x] Ontology values: plain text with (!) definition tooltip (CustomTooltip)
 - [x] fetchTableData: include `definition` in ontology GraphQL expansion
 
-### Phase 4: Progressive Disclosure for References — NEXT
+### Phase 4: Progressive Disclosure for References — IN PROGRESS
 Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 
 **Design concept — three levels of detail:**
@@ -72,31 +76,25 @@ Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 3. **Full**: Navigate to detail page (deep dive)
 
 **For REF (single reference):**
-- Currently: shows refLabel as plain text
-- Improve: make clickable, show side modal with record preview on click
-- Or: show as compact card with key fields + expand button
+- [x] REF/SELECT/RADIO values: automatic NuxtLink to detail page via `buildRefHref` (commit 0ce1c5c30)
+- [ ] Side modal preview on click (instead of direct navigation)
 
 **For REF_ARRAY:**
-- Currently: inline comma-separated
-- Improve: show as embedded table (like REFBACK) with proper filter
-- Filter challenge: need to build `{id: {equals: [val1, val2, ...]}}` from parent row data
-- Alternative: client-side pagination of parent row's array data
+- Currently: inline comma-separated with NuxtLink per item
+- [ ] Render as embedded table (like REFBACK) with filter built from parent row array values
 
 **For REFBACK:**
 - Currently: embedded table via Emx2ListView (DONE)
-- Improve: add row click → side modal preview → navigate to full detail
+- [ ] Add row click → side modal preview → navigate to full detail
 
 **Column importance metadata:**
 - Could use `key` field (1 = primary, 2+ = secondary) for compact display
-- Or introduce `visible` / `importance` hint on columns
 - Determines which columns show in compact list/table views vs full detail
 
-**Steps:**
-- [ ] REF values: clickable, open side modal with Emx2RecordView of referenced record
+**Remaining steps:**
+- [ ] Side modal component for record preview (reuse existing SideModal + RecordView)
 - [ ] REFBACK table rows: clickable, open side modal with record preview
 - [ ] REF_ARRAY: render as embedded table (build filter from parent row array values)
-- [ ] Side modal component for record preview (reuse existing SideModal + RecordView)
-- [ ] Column importance: decide on metadata approach for compact vs full display
 
 ### Phase 5: Upgrade [entity].vue
 - [ ] Replace 220-line bespoke page with Emx2RecordView
@@ -134,7 +132,7 @@ Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 | Key/value pairs | Name, acronym, dates | RecordSection def-list | DONE |
 | Sidebar TOC | Section navigation | Auto-generated SideNav | DONE |
 | Conditional sections | Skip empty sections | showEmpty + empty detection | DONE |
-| Custom links | Navigate to sub-pages | getHref in columnConfig | DONE (type ready) |
+| REF navigation | Navigate to referenced record | Auto NuxtLink via buildRefHref | DONE |
 | REFBACK tables | Subpopulations, datasets | Emx2ListView nested table | DONE |
 | Ontology tooltips | Design type (!) icon | CustomTooltip + definition | DONE |
 | Hide empty columns | Nested tables | Auto-filter in ListView | DONE |
@@ -152,7 +150,7 @@ Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 - `types/types.ts` — IColumnDisplay, IListConfig, IRecordViewConfig, hideColumns
 - `display/RecordView.vue` — dumb, IColumnDisplay[], DetailPageLayout + SideNav
 - `display/RecordSection.vue` — catalogue styling, IColumnDisplay, schemaId/parentRowId passthrough
-- `display/RecordColumn.vue` — displayComponent, Emx2ListView for REFBACK
+- `display/RecordColumn.vue` — displayComponent, Emx2ListView for REFBACK, NuxtLink for REF/SELECT/RADIO
 - `display/RecordTable.vue` — conditional sticky first column (key only)
 - `display/Emx2RecordView.vue` — smart wrapper, merge logic, auto listConfig for REFBACK
 - `display/ListView.vue` — dumb list/table/cards, filters empty/hidden columns
@@ -162,12 +160,14 @@ Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 - `SideNav.vue` — scrollspy navigation with title, scroll to top
 - `value/Object.vue` — plain text + definition tooltip
 - `composables/fetchTableData.ts` — ontology definition in expansion
+- `composables/fetchTableMetadata.ts` — metadata fetch with includeSubclassColumns option
+- `composables/getSubclassColumns.ts` — inheritance tree column collector
+- `composables/displayUtils.ts` — pure utility functions (buildRefHref, getPrimaryKey, etc.)
 
 ### Next (Phase 4)
 - Side modal component for record preview
-- REF click handler → side modal
 - REFBACK/REF_ARRAY row click → side modal
-- REF_ARRAY filter building
+- REF_ARRAY embedded table with filter building
 
 ### Future (Phase 5+)
 - `apps/ui/pages/[schema]/[table]/[entity].vue` — simplify with Emx2RecordView

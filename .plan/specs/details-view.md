@@ -8,29 +8,9 @@ Client-side extension of backend IColumn with display hints. RecordView (dumb) w
 
 ```typescript
 export interface IColumnDisplay extends IColumn {
-  // Custom renderer component (set directly, or resolved from tags via displayMap in Emx2RecordView)
   displayComponent?: Component;
-
-  // Layout hint for how this column occupies space in a section
-  // "inline" = definition list key/value (default for scalars)
-  // "block" = full-width below definition list (default for REF_ARRAY/REFBACK)
-  // "full" = full-width, no section container (hero/intro blocks)
-  layout?: "inline" | "block" | "full";
-
-  // Navigation: make the value a clickable link
-  getHref?: (col: IColumn, row: IRow) => string;
-
-  // Navigation: custom click handler
-  clickAction?: (col: IColumn, row: IRow) => void;
-
-  // For REF_ARRAY/REFBACK: how to render the related list
   listConfig?: IListConfig;
-
-  // Override label from metadata
   displayLabel?: string;
-
-  // Hide this column entirely
-  hidden?: boolean;
 }
 ```
 
@@ -49,6 +29,7 @@ export interface IListConfig {
   getHref?: (col: IColumn, row: IRow) => string;
   filter?: object;
   rowLabel?: string;
+  hideColumns?: string[];
 }
 ```
 
@@ -100,9 +81,8 @@ Pure rendering component. No backend calls. No displayMap — columns already ha
 **Behavior:**
 1. Groups columns by SECTION/HEADING (using columnType)
 2. Filters empty values (unless showEmpty)
-3. Filters hidden columns
-4. Generates SideNav sections from SECTION columns
-5. Renders DetailPageLayout with SideNav + RecordSection per group
+3. Generates SideNav sections from SECTION columns
+4. Renders DetailPageLayout with SideNav + RecordSection per group
 
 ### Emx2RecordView (smart wrapper)
 
@@ -130,10 +110,7 @@ Fetches data, builds IColumnDisplay[], delegates to RecordView.
 4. For each column:
    a. Apply columnConfig[column.id] overrides (spread)
    b. If no displayComponent yet, resolve tags against displayMap → set displayComponent
-   c. Auto-detect layout if not set:
-      - REFBACK/REF_ARRAY → "block"
-      - Everything else → "inline"
-   d. If REF_ARRAY/REFBACK and no listConfig, set default listConfig
+   c. If REFBACK and no listConfig, set default listConfig (table, pageSize 10, search)
 5. Append extraColumns
 6. Fetch row data
 7. Pass columns + data to RecordView
@@ -152,9 +129,8 @@ Fetches data, builds IColumnDisplay[], delegates to RecordView.
 ```
 
 **Rendering:**
-- "inline" columns → DefinitionList (dt/dd grid)
-- "block" columns → full-width below definition list
-- "full" columns → break out of section container
+- Scalar/REF columns → DefinitionList (dt/dd grid)
+- REFBACK/REF_ARRAY columns → full-width below definition list
 
 ### RecordColumn
 
@@ -168,10 +144,9 @@ Fetches data, builds IColumnDisplay[], delegates to RecordView.
 ```
 
 **Resolution order:**
-1. If `column.hidden` → render nothing
-2. If empty and !showEmpty → render nothing
-3. If `column.displayComponent` → render that component with `{column, value, showEmpty}`
-4. Fallback → ValueEMX2
+1. If empty and !showEmpty → render nothing
+2. If `column.displayComponent` → render that component with `{column, value, showEmpty}`
+3. Fallback → ValueEMX2; REF/SELECT/RADIO values are automatically wrapped in NuxtLink using `buildRefHref` (no config needed)
 
 ## Display Components (tag-driven, resolved in Emx2RecordView)
 
@@ -249,13 +224,6 @@ Note: `columnConfig` displayComponent takes precedence over tag-based resolution
   :schema-id="schema"
   table-id="Datasets"
   :row-id="rowId"
-  :config="{
-    columnConfig: {
-      resource: {
-        getHref: (col, row) => `/${catalogue}/collections/${row.id}`,
-      },
-    },
-  }"
 >
   <template #header>
     <BreadCrumbs :crumbs="crumbs" />
@@ -285,7 +253,7 @@ Note: `columnConfig` displayComponent takes precedence over tag-based resolution
   }"
   :config="{
     columnConfig: {
-      logo: { displayComponent: IntroDisplay, layout: 'full' },
+      logo: { displayComponent: IntroDisplay },
       dataCategories: { displayComponent: OntologyTreeDisplay },
       collectionEvents: {
         listConfig: {
