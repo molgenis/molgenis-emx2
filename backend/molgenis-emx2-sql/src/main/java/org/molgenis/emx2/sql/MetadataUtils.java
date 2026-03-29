@@ -583,7 +583,7 @@ public class MetadataUtils {
             column.getProfiles(),
             column.getVisible(),
             column.isSummary(),
-            column.getDisplay())
+            Objects.toString(column.getDisplay(), null))
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
@@ -608,7 +608,7 @@ public class MetadataUtils {
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
         .set(COLUMN_SUMMARY, column.isSummary())
-        .set(COLUMN_DISPLAY, column.getDisplay())
+        .set(COLUMN_DISPLAY, Objects.toString(column.getDisplay(), null))
         .execute();
   }
 
@@ -651,7 +651,8 @@ public class MetadataUtils {
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     c.setSummary(col.get(COLUMN_SUMMARY, Boolean.class));
-    c.setDisplay(col.get(COLUMN_DISPLAY, String.class));
+    String displayStr = col.get(COLUMN_DISPLAY, String.class);
+    if (displayStr != null) c.setDisplay(DisplayType.valueOf(displayStr));
     return c;
   }
 

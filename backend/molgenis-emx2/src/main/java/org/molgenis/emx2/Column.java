@@ -46,7 +46,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   private Boolean readonly = false;
   private Boolean summary = false;
-  private String display = null;
+  private DisplayType display = null;
   private String defaultValue = null;
   private boolean indexed = false;
   private boolean cascadeDelete = false;
@@ -260,11 +260,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public String getDisplay() {
+  public DisplayType getDisplay() {
     return display;
   }
 
-  public Column setDisplay(String display) {
+  public Column setDisplay(DisplayType display) {
     this.display = display;
     return this;
   }

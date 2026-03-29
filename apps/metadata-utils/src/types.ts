@@ -77,7 +77,7 @@ export interface IColumn {
   validation?: string;
   visible?: string;
   summary?: boolean;
-  display?: string;
+  display?: "table" | "cards" | "list";
   table?: string;
   name?: string;
   inherited?: boolean;

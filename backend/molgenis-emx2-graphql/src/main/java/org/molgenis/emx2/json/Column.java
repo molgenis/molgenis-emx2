@@ -106,7 +106,7 @@ public class Column {
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
     this.summary = column.isSummary();
-    this.display = column.getDisplay();
+    this.display = column.getDisplay() != null ? column.getDisplay().name().toLowerCase() : null;
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
@@ -152,7 +152,8 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setSummary(summary);
-    c.setDisplay(display);
+    if (display != null) c.setDisplay(org.molgenis.emx2.DisplayType.valueOf(display.toUpperCase()));
+
     c.setProfiles(profiles);
     c.setFormLabel(formLabel);
 

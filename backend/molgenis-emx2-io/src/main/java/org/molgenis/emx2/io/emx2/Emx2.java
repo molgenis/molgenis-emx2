@@ -145,7 +145,8 @@ public class Emx2 {
           if (row.notNull(READ_ONLY))
             column.setReadonly(TypeUtils.toBool(row.getString(READ_ONLY)));
           if (row.notNull(SUMMARY)) column.setSummary(TypeUtils.toBool(row.getString(SUMMARY)));
-          if (row.notNull(DISPLAY)) column.setDisplay(row.getString(DISPLAY));
+          if (row.notNull(DISPLAY))
+            column.setDisplay(DisplayType.valueOf(row.getString(DISPLAY).toUpperCase().trim()));
 
           if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
             column.drop();
@@ -303,7 +304,7 @@ public class Emx2 {
         if (column.isReadonly()) row.setString(READ_ONLY, column.isReadonly().toString());
         if (Boolean.TRUE.equals(column.isSummary()))
           row.setString(SUMMARY, column.isSummary().toString());
-        if (column.getDisplay() != null) row.set(DISPLAY, column.getDisplay());
+        if (column.getDisplay() != null) row.set(DISPLAY, column.getDisplay().name().toLowerCase());
         if (column.getDefaultValue() != null)
           row.setString(DEFAULT_VALUE, column.getDefaultValue());
         if (column.getKey() > 0) row.setInt(KEY, column.getKey());
