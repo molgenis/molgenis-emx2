@@ -22,6 +22,8 @@ public class Column {
   private Integer key = 0;
   private String required = null;
   private Boolean readonly = false;
+  private Boolean summary = false;
+  private String display = null;
   private String defaultValue;
   private String refSchemaId = null;
   private String refSchemaName = null;
@@ -103,6 +105,8 @@ public class Column {
     this.validation = column.getValidation();
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
+    this.summary = column.isSummary();
+    this.display = column.getDisplay();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
@@ -147,6 +151,8 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
+    c.setSummary(summary);
+    c.setDisplay(display);
     c.setProfiles(profiles);
     c.setFormLabel(formLabel);
 
@@ -336,6 +342,22 @@ public class Column {
 
   public void setReadonly(Boolean readonly) {
     this.readonly = readonly;
+  }
+
+  public Boolean getSummary() {
+    return summary;
+  }
+
+  public void setSummary(Boolean summary) {
+    this.summary = summary;
+  }
+
+  public String getDisplay() {
+    return display;
+  }
+
+  public void setDisplay(String display) {
+    this.display = display;
   }
 
   public void setComputed(String computed) {
