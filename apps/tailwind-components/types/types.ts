@@ -107,7 +107,7 @@ export interface IColumnDisplay extends IColumn {
 }
 
 export interface IListConfig {
-  layout?: "table" | "cards" | "list";
+  layout?: "TABLE" | "CARDS" | "LIST";
   component?: Component;
   visibleColumns?: string[];
   pageSize?: number;

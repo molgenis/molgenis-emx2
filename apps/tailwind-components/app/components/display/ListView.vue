@@ -15,7 +15,7 @@ const props = withDefaults(
   defineProps<{
     rows: Record<string, any>[];
     columns: IColumn[];
-    layout?: "table" | "cards" | "list";
+    layout?: "TABLE" | "CARDS" | "LIST";
     visibleColumns?: string[];
     hideColumns?: string[];
     rowLabel?: string;
@@ -28,7 +28,7 @@ const props = withDefaults(
     tableId?: string;
   }>(),
   {
-    layout: "table",
+    layout: "TABLE",
     totalPages: 1,
     currentPage: 1,
     showPagination: false,
@@ -61,7 +61,7 @@ function rowKey(row: Record<string, any>): string {
 
 <template>
   <div>
-    <template v-if="layout === 'table'">
+    <template v-if="layout === 'TABLE'">
       <RecordTable
         :columns="tableColumns"
         :rows="rows"
@@ -70,7 +70,7 @@ function rowKey(row: Record<string, any>): string {
       />
     </template>
 
-    <template v-else-if="layout === 'cards'">
+    <template v-else-if="layout === 'CARDS'">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <component
           v-if="component"

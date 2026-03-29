@@ -23,7 +23,7 @@ public class Column {
   private String required = null;
   private Boolean readonly = false;
   private Boolean summary = false;
-  private String display = null;
+  private org.molgenis.emx2.DisplayType display = null;
   private String defaultValue;
   private String refSchemaId = null;
   private String refSchemaName = null;
@@ -106,7 +106,7 @@ public class Column {
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
     this.summary = column.isSummary();
-    this.display = column.getDisplay() != null ? column.getDisplay().name().toLowerCase() : null;
+    this.display = column.getDisplay();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
@@ -152,7 +152,7 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setSummary(summary);
-    if (display != null) c.setDisplay(org.molgenis.emx2.DisplayType.valueOf(display.toUpperCase()));
+    c.setDisplay(display);
 
     c.setProfiles(profiles);
     c.setFormLabel(formLabel);
@@ -353,12 +353,15 @@ public class Column {
     this.summary = summary;
   }
 
-  public String getDisplay() {
+  public org.molgenis.emx2.DisplayType getDisplay() {
     return display;
   }
 
   public void setDisplay(String display) {
-    this.display = display;
+    this.display =
+        display != null
+            ? org.molgenis.emx2.DisplayType.valueOf(display.toUpperCase().trim())
+            : null;
   }
 
   public void setComputed(String computed) {

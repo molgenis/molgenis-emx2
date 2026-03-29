@@ -19,14 +19,14 @@ const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 
-const layout = computed((): "table" | "cards" | "list" => {
+const layout = computed((): "TABLE" | "CARDS" | "LIST" => {
   const override = props.column?.listConfig?.layout;
-  const raw = override || props.column?.display || "table";
-  if (raw === "cards" || raw === "list") return raw;
-  return "table";
+  const raw = override || props.column?.display || "TABLE";
+  if (raw === "CARDS" || raw === "LIST") return raw;
+  return "TABLE";
 });
 
-const showSearch = computed(() => layout.value === "table");
+const showSearch = computed(() => layout.value === "TABLE");
 
 const pageSize = computed(() => {
   return props.column?.listConfig?.pageSize || 10;
@@ -46,7 +46,7 @@ const visibleColumns = computed(() => {
   const override = props.column?.listConfig?.visibleColumns;
   if (override?.length) return override;
 
-  if (layout.value === "table") return undefined;
+  if (layout.value === "TABLE") return undefined;
 
   const summaryCols = refTableColumns.value
     .filter((c) => c.summary)

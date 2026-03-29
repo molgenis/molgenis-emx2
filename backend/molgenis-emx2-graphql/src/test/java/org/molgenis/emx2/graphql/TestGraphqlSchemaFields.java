@@ -653,7 +653,7 @@ public class TestGraphqlSchemaFields {
         "mutation{change(tables:[{name:\"SummaryDisplayTest\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",summary:true},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
     String result = execute("{_schema{tables{name,columns{name,summary,display}}}}").toString();
     assertTrue(result.contains("\"summary\":true"));
-    assertTrue(result.contains("\"display\":\"cards\""));
+    assertTrue(result.contains("\"display\":\"CARDS\""));
     execute("mutation{drop(tables:\"SummaryDisplayTest\"){message}}");
   }
 
