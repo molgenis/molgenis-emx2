@@ -75,6 +75,22 @@ public class TestImportExportAllExamples {
     assertTrue(result.getMetadata().getTableMetadata("test").getColumn("readOnly").isReadonly());
   }
 
+  @Test
+  public void testSummaryAndDisplayColumnProperties() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "10");
+    schema1.create(
+        table(
+            "test",
+            column("id").setPkey(),
+            column("summaryField").setSummary(true),
+            column("displayField").setDisplay("cards")));
+    Schema result = executeCompare(schema1);
+    assertTrue(result.getMetadata().getTableMetadata("test").getColumn("summaryField").isSummary());
+    assertEquals(
+        "cards",
+        result.getMetadata().getTableMetadata("test").getColumn("displayField").getDisplay());
+  }
+
   public Schema executeCompare(SchemaMetadata schema1) throws MolgenisException {
     try {
       // now write it out and fromReader back and compare

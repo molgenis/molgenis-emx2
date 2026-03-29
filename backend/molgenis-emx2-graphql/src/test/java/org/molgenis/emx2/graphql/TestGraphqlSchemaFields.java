@@ -647,6 +647,39 @@ public class TestGraphqlSchemaFields {
     assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
+  @Test
+  public void testSummaryAndDisplayInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"SummaryDisplayTest\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",summary:true},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
+
+    JsonNode tables =
+        execute("{_schema{tables{name,columns{name,summary,display}}}}").at("/_schema/tables");
+
+    JsonNode targetTable = null;
+    for (JsonNode t : tables) {
+      if ("SummaryDisplayTest".equals(t.at("/name").textValue())) {
+        targetTable = t;
+        break;
+      }
+    }
+    assertNotNull(targetTable, "Table SummaryDisplayTest should exist in schema");
+
+    JsonNode columns = targetTable.at("/columns");
+    JsonNode summaryCol = null;
+    JsonNode displayCol = null;
+    for (JsonNode col : columns) {
+      if ("summaryCol".equals(col.at("/name").textValue())) summaryCol = col;
+      if ("displayCol".equals(col.at("/name").textValue())) displayCol = col;
+    }
+
+    assertNotNull(summaryCol, "summaryCol should be present");
+    assertNotNull(displayCol, "displayCol should be present");
+    assertTrue(summaryCol.at("/summary").booleanValue());
+    assertEquals("cards", displayCol.at("/display").textValue());
+
+    execute("mutation{drop(tables:\"SummaryDisplayTest\"){message}}");
+  }
+
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);

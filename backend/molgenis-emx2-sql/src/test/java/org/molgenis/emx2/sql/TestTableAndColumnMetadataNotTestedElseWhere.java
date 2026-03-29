@@ -37,6 +37,26 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
   }
 
   @Test
+  public void testSummaryAndDisplayColumnProperties() {
+    Schema s = db.dropCreateSchema("testSummaryAndDisplayColumnProperties");
+    s.create(
+        table(
+            "TestTable",
+            column("id").setPkey(),
+            column("summaryField").setSummary(true),
+            column("displayField").setDisplay("cards")));
+
+    db.clearCache();
+
+    TableMetadata reloaded =
+        db.getSchema("testSummaryAndDisplayColumnProperties").getTable("TestTable").getMetadata();
+    assertTrue(reloaded.getColumn("summaryField").isSummary());
+    assertEquals("cards", reloaded.getColumn("displayField").getDisplay());
+    assertFalse(reloaded.getColumn("id").isSummary());
+    assertNull(reloaded.getColumn("id").getDisplay());
+  }
+
+  @Test
   public void testColumnPosition() {
     Schema s = db.dropCreateSchema("testColumnPosition");
     TableMetadata t = s.create(table("test", column("col1"), column("col2"))).getMetadata();
