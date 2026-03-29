@@ -619,7 +619,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         .filter(ref -> !ref.isOverlapping())
         .filter(ref -> !excludedPkeyFields.contains(ref.getRefTo()))
         .map(ref -> "${" + String.join(".", ref.getPath()) + "}")
-        .collect(Collectors.joining("."));
+        .collect(Collectors.joining(" "));
   }
 
   public Column setRefLabel(String refLabel) {
