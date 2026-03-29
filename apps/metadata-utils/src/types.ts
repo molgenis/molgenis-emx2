@@ -80,6 +80,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  sourceTableId?: string;
 }
 
 export interface IRefColumn extends IColumn {
@@ -100,6 +101,7 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  inheritId?: string;
 }
 
 export interface ISchemaMetaData {

@@ -58,6 +58,8 @@ const errorText = computed(
         :total-pages="totalPages"
         :current-page="page"
         :show-pagination="showPagination"
+        :schema-id="schemaId"
+        :table-id="tableId"
         @update:page="page = $event"
       />
     </LoadingContent>

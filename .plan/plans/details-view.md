@@ -67,34 +67,32 @@ REFBACK columns get `listConfig` auto-generated. RecordColumn renders Emx2ListVi
 - [x] Ontology values: plain text with (!) definition tooltip (CustomTooltip)
 - [x] fetchTableData: include `definition` in ontology GraphQL expansion
 
-### Phase 4: Progressive Disclosure for References — IN PROGRESS
-Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
+### Phase 4: REF_ARRAY Display + Row Navigation — DONE
+Goal: Consistent table rendering for both REF_ARRAY and REFBACK, with clickable rows.
 
-**Design concept — three levels of detail:**
-1. **Compact**: Show primary/secondary key columns inline (scannable)
-2. **Preview**: Side modal or expandable showing more fields (quick look)
-3. **Full**: Navigate to detail page (deep dive)
+**4a. REF_ARRAY as Emx2ListView table** — DONE
+- [x] `isRefArrayColumn()` in displayUtils.ts (REF_ARRAY, MULTISELECT, CHECKBOX)
+- [x] RecordColumn.vue: async `refArrayFilter` — fetches ref table metadata, finds REFBACK column, builds filter
+- [x] `showListView` triggers for both REFBACK and REF_ARRAY (when listConfig + filter ready)
+- [x] Emx2RecordView.vue: auto-generates listConfig for REF_ARRAY (table, pageSize 10, search)
+- [x] REF_ARRAY and REFBACK now render identically via Emx2ListView
+- [x] Tests for `isRefArrayColumn` in displayUtils.spec.ts
 
-**For REF (single reference):**
-- [x] REF/SELECT/RADIO values: automatic NuxtLink to detail page via `buildRefHref` (commit 0ce1c5c30)
-- [ ] Side modal preview on click (instead of direct navigation)
+**4b. Row click for REF values** — DONE
+- [x] REF/SELECT/RADIO values: automatic NuxtLink to detail page (commit 0ce1c5c30)
 
-**For REF_ARRAY:**
-- Currently: inline comma-separated with NuxtLink per item
-- [ ] Render as embedded table (like REFBACK) with filter built from parent row array values
+**4c. REFBACK table row click → detail page** — DONE
+- [x] RecordTable.vue: `schemaId`/`tableId` props, async `handleRowClick` with getPrimaryKey + buildRefHref + navigateTo
+- [x] Row gets `cursor-pointer` + `@click` when schemaId/tableId provided
+- [x] ListView.vue: threads `schemaId`/`tableId` to RecordTable
+- [x] Emx2ListView.vue: passes `schemaId`/`tableId` to ListView
 
-**For REFBACK:**
-- Currently: embedded table via Emx2ListView (DONE)
-- [ ] Add row click → side modal preview → navigate to full detail
+**4d. REF_ARRAY row click → detail page** — DONE
+- [x] Comes for free with 4c (Emx2ListView tables have clickable rows)
 
-**Column importance metadata:**
-- Could use `key` field (1 = primary, 2+ = secondary) for compact display
-- Determines which columns show in compact list/table views vs full detail
-
-**Remaining steps:**
-- [ ] Side modal component for record preview (reuse existing SideModal + RecordView)
-- [ ] REFBACK table rows: clickable, open side modal with record preview
-- [ ] REF_ARRAY: render as embedded table (build filter from parent row array values)
+**Deferred:**
+- Side modal preview (nice-to-have, not priority — direct navigation is sufficient)
+- Column importance metadata (can revisit when needed)
 
 ### Phase 5: Upgrade [entity].vue
 - [ ] Replace 220-line bespoke page with Emx2RecordView
@@ -165,9 +163,8 @@ Goal: Consistent drill-down pattern for REF, REF_ARRAY, and REFBACK.
 - `composables/displayUtils.ts` — pure utility functions (buildRefHref, getPrimaryKey, etc.)
 
 ### Next (Phase 4)
-- Side modal component for record preview
-- REFBACK/REF_ARRAY row click → side modal
-- REF_ARRAY embedded table with filter building
+- RecordColumn.vue / ValueList.vue — REF_ARRAY as bulleted list of NuxtLinks
+- RecordTable.vue — full-row click navigation for REFBACK tables
 
 ### Future (Phase 5+)
 - `apps/ui/pages/[schema]/[table]/[entity].vue` — simplify with Emx2RecordView

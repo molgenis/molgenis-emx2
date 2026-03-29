@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { navigateTo } from "#imports";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 
 interface IColumnAction {
@@ -7,6 +8,8 @@ interface IColumnAction {
   clickAction?: (col: IColumn, row: IRow) => void;
 }
 import ValueEMX2 from "../value/EMX2.vue";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
+import { buildRefHref } from "../../utils/displayUtils";
 
 const COLUMN_WIDTH = 240;
 
@@ -14,6 +17,8 @@ const props = defineProps<{
   columns: IColumn[];
   rows: IRow[];
   columnConfig?: Record<string, IColumnAction>;
+  schemaId?: string;
+  tableId?: string;
 }>();
 
 defineSlots<{
@@ -38,10 +43,19 @@ const firstColumnConfig = computed(() => {
 });
 
 const firstColumnIsKey = computed(
-  () => props.columns.length > 0 && props.columns[0].key === 1
+  () => props.columns.length > 0 && props.columns[0]?.key === 1
 );
 
 const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
+
+const isRowClickable = computed(() => !!props.schemaId && !!props.tableId);
+
+async function handleRowClick(row: IRow) {
+  if (!props.schemaId || !props.tableId) return;
+  const rowKey = await getPrimaryKey(row, props.tableId, props.schemaId);
+  const href = buildRefHref(props.schemaId, props.tableId, undefined, rowKey);
+  navigateTo(href);
+}
 </script>
 
 <template>
@@ -67,7 +81,11 @@ const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
         <tr
           v-for="(row, rowIndex) in rows"
           :key="rowKey(row, rowIndex)"
-          class="border-b border-black/10 hover:bg-black/5 group"
+          :class="[
+            'border-b border-black/10 hover:bg-black/5 group',
+            isRowClickable ? 'cursor-pointer' : '',
+          ]"
+          @click="isRowClickable ? handleRowClick(row) : undefined"
         >
           <td
             v-for="(col, colIndex) in columns"

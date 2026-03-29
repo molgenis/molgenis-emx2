@@ -103,6 +103,7 @@ export interface IColumnDisplay extends IColumn {
   displayComponent?: Component;
   listConfig?: IListConfig;
   displayLabel?: string;
+  tags?: string[];
 }
 
 export interface IListConfig {

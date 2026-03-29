@@ -1,6 +1,7 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 const REF_COLUMN_TYPES = ["REF", "SELECT", "RADIO"];
+const REF_ARRAY_COLUMN_TYPES = ["REF_ARRAY", "MULTISELECT", "CHECKBOX"];
 
 export function isEmptyValue(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
@@ -78,6 +79,10 @@ export function isRefColumn(columnType: string): boolean {
   return REF_COLUMN_TYPES.includes(columnType);
 }
 
+export function isRefArrayColumn(columnType: string): boolean {
+  return REF_ARRAY_COLUMN_TYPES.includes(columnType);
+}
+
 export function buildRefHref(
   schemaId: string,
   refTableId: string,
@@ -88,5 +93,7 @@ export function buildRefHref(
   const slug = Object.values(rowKey)
     .filter((v) => typeof v === "string" || typeof v === "number")
     .join("-");
-  return `/${schema}/${refTableId}/${encodeURIComponent(slug)}?keys=${encodeURIComponent(JSON.stringify(rowKey))}`;
+  return `/${schema}/${refTableId}/${encodeURIComponent(
+    slug
+  )}?keys=${encodeURIComponent(JSON.stringify(rowKey))}`;
 }

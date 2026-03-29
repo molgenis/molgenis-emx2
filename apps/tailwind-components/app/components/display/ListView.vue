@@ -19,6 +19,8 @@ const props = withDefaults(
     totalPages?: number;
     currentPage?: number;
     showPagination?: boolean;
+    schemaId?: string;
+    tableId?: string;
   }>(),
   {
     totalPages: 1,
@@ -54,7 +56,12 @@ function rowKey(row: Record<string, any>): string {
 <template>
   <div>
     <template v-if="config?.layout === 'table'">
-      <RecordTable :columns="tableColumns" :rows="rows" />
+      <RecordTable
+        :columns="tableColumns"
+        :rows="rows"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
     </template>
 
     <template v-else-if="config?.layout === 'cards' && config?.component">

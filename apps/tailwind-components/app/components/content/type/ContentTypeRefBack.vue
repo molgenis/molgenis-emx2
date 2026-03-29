@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const longestRowIndex = computed(() => {
-  return props.field.value.reduce(
+  return (props.field.value as Object[])?.reduce(
     (maxIndex: number, row: Object, currentIndex: number) =>
       Object.keys(row).length > Object.keys(maxIndex).length
         ? currentIndex
@@ -27,7 +27,7 @@ function isEmpty(obj: any) {
 }
 
 const rows = computed(() => {
-  return props.field.value.map((row: Object) => {
+  return (props.field.value as Object[])?.map((row: Object) => {
     return Object.entries(row).map(([key, value]) => {
       const filteredValue =
         typeof value === "object"

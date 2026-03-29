@@ -6,6 +6,7 @@ import RecordView from "./RecordView.vue";
 import LoadingContent from "../LoadingContent.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import fetchRowData from "../../composables/fetchRowData";
+import { isRefArrayColumn } from "../../utils/displayUtils";
 
 const props = defineProps<{
   schemaId: string;
@@ -124,6 +125,18 @@ const processedColumns = computed<IColumnDisplay[]>(() => {
         pageSize: 10,
         showSearch: true,
         hideColumns: merged.refBackId ? [merged.refBackId] : [],
+      };
+    }
+
+    if (
+      isRefArrayColumn(merged.columnType) &&
+      merged.refTableId &&
+      !merged.listConfig
+    ) {
+      merged.listConfig = {
+        layout: "table",
+        pageSize: 10,
+        showSearch: true,
       };
     }
 

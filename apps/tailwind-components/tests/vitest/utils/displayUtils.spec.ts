@@ -7,6 +7,7 @@ import {
   filterDataColumns,
   filterNonEmptyColumns,
   isRefColumn,
+  isRefArrayColumn,
   buildRefHref,
 } from "../../../app/utils/displayUtils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
@@ -113,7 +114,9 @@ describe("buildRefbackFilter", () => {
   });
 
   it("returns undefined when parentRowId is missing", () => {
-    expect(buildRefbackFilter("REFBACK", "resource", undefined)).toBeUndefined();
+    expect(
+      buildRefbackFilter("REFBACK", "resource", undefined)
+    ).toBeUndefined();
   });
 });
 
@@ -166,7 +169,11 @@ describe("filterDataColumns", () => {
 
   it("filters out SECTION, HEADING, and mg_ columns", () => {
     const result = filterDataColumns(columns);
-    expect(result.map((c) => c.id)).toEqual(["name", "description", "resource"]);
+    expect(result.map((c) => c.id)).toEqual([
+      "name",
+      "description",
+      "resource",
+    ]);
   });
 
   it("also hides columns in hideColumns list", () => {
@@ -176,7 +183,11 @@ describe("filterDataColumns", () => {
 
   it("returns all data columns when hideColumns is empty", () => {
     const result = filterDataColumns(columns, []);
-    expect(result.map((c) => c.id)).toEqual(["name", "description", "resource"]);
+    expect(result.map((c) => c.id)).toEqual([
+      "name",
+      "description",
+      "resource",
+    ]);
   });
 });
 
@@ -247,13 +258,45 @@ describe("isRefColumn", () => {
   });
 });
 
+describe("isRefArrayColumn", () => {
+  it("returns true for REF_ARRAY", () => {
+    expect(isRefArrayColumn("REF_ARRAY")).toBe(true);
+  });
+
+  it("returns true for MULTISELECT", () => {
+    expect(isRefArrayColumn("MULTISELECT")).toBe(true);
+  });
+
+  it("returns true for CHECKBOX", () => {
+    expect(isRefArrayColumn("CHECKBOX")).toBe(true);
+  });
+
+  it("returns false for REF", () => {
+    expect(isRefArrayColumn("REF")).toBe(false);
+  });
+
+  it("returns false for REFBACK", () => {
+    expect(isRefArrayColumn("REFBACK")).toBe(false);
+  });
+
+  it("returns false for STRING", () => {
+    expect(isRefArrayColumn("STRING")).toBe(false);
+  });
+
+  it("returns false for ONTOLOGY", () => {
+    expect(isRefArrayColumn("ONTOLOGY")).toBe(false);
+  });
+});
+
 describe("buildRefHref", () => {
   it("builds href with single key value", () => {
     const href = buildRefHref("myschema", "Resources", undefined, {
       id: "ALSPAC",
     });
     expect(href).toBe(
-      `/myschema/Resources/${encodeURIComponent("ALSPAC")}?keys=${encodeURIComponent('{"id":"ALSPAC"}')}`
+      `/myschema/Resources/${encodeURIComponent(
+        "ALSPAC"
+      )}?keys=${encodeURIComponent('{"id":"ALSPAC"}')}`
     );
   });
 
