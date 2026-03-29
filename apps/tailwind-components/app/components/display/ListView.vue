@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type Component } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { IListConfig } from "../../../types/types";
 import {
   filterDataColumns,
   filterNonEmptyColumns,
@@ -10,12 +9,18 @@ import {
 } from "../../utils/displayUtils";
 import RecordTable from "./RecordTable.vue";
 import InlinePagination from "./InlinePagination.vue";
+import ListCard from "./ListCard.vue";
 
 const props = withDefaults(
   defineProps<{
     rows: Record<string, any>[];
     columns: IColumn[];
-    config?: IListConfig;
+    layout?: "table" | "cards" | "list";
+    visibleColumns?: string[];
+    hideColumns?: string[];
+    rowLabel?: string;
+    getHref?: (col: IColumn, row: Record<string, any>) => string;
+    component?: Component;
     totalPages?: number;
     currentPage?: number;
     showPagination?: boolean;
@@ -23,6 +28,7 @@ const props = withDefaults(
     tableId?: string;
   }>(),
   {
+    layout: "table",
     totalPages: 1,
     currentPage: 1,
     showPagination: false,
@@ -34,7 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const dataColumns = computed(() =>
-  filterDataColumns(props.columns, props.config?.hideColumns)
+  filterDataColumns(props.columns, props.hideColumns)
 );
 
 const nonEmptyColumns = computed(() =>
@@ -42,8 +48,8 @@ const nonEmptyColumns = computed(() =>
 );
 
 const tableColumns = computed(() => {
-  if (!props.config?.visibleColumns?.length) return nonEmptyColumns.value;
-  return props.config.visibleColumns
+  if (!props.visibleColumns?.length) return nonEmptyColumns.value;
+  return props.visibleColumns
     .map((id) => nonEmptyColumns.value.find((c) => c.id === id))
     .filter(Boolean) as IColumn[];
 });
@@ -55,7 +61,7 @@ function rowKey(row: Record<string, any>): string {
 
 <template>
   <div>
-    <template v-if="config?.layout === 'table'">
+    <template v-if="layout === 'table'">
       <RecordTable
         :columns="tableColumns"
         :rows="rows"
@@ -64,13 +70,23 @@ function rowKey(row: Record<string, any>): string {
       />
     </template>
 
-    <template v-else-if="config?.layout === 'cards' && config?.component">
-      <div class="grid gap-4">
+    <template v-else-if="layout === 'cards'">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <component
-          :is="config.component"
+          v-if="component"
+          :is="component"
           v-for="(row, index) in rows"
           :key="rowKey(row) || index"
           :data="row"
+        />
+        <ListCard
+          v-else
+          v-for="(row, index) in rows"
+          :key="rowKey(row) || index"
+          :title="getRowLabel(row, rowLabel)"
+          :data="row"
+          :columns="tableColumns"
+          :href="getHref && columns[0] ? getHref(columns[0], row) : undefined"
         />
       </div>
       <p
@@ -85,13 +101,13 @@ function rowKey(row: Record<string, any>): string {
       <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
         <li v-for="row in rows" :key="rowKey(row)">
           <NuxtLink
-            v-if="config?.getHref && columns[0]"
-            :to="config.getHref(columns[0], row)"
+            v-if="getHref && columns[0]"
+            :to="getHref(columns[0], row)"
             class="text-link hover:underline"
           >
-            {{ getRowLabel(row, config?.rowLabel) }}
+            {{ getRowLabel(row, rowLabel) }}
           </NuxtLink>
-          <span v-else>{{ getRowLabel(row, config?.rowLabel) }}</span>
+          <span v-else>{{ getRowLabel(row, rowLabel) }}</span>
         </li>
       </ul>
       <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>

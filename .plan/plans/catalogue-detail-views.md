@@ -4,10 +4,12 @@
 Replace catalogue's 5 bespoke detail pages (~1,950 lines) with config-driven Emx2RecordView, using column/table settings to control rendering. Focus: detail views only (list views, landing pages, harmonisation matrix out of scope).
 
 ## Current State
-Phases 1-4 delivered generic detail view components:
+Phases 1-5 delivered generic detail view components:
 - Emx2RecordView, RecordView, RecordSection, RecordColumn
 - Emx2ListView for REFBACK and REF_ARRAY (paginated table, search, clickable rows)
 - SideNav, DetailPageLayout, ontology tooltips, empty section hiding
+- OntologyTreeDisplay for ONTOLOGY/ONTOLOGY_ARRAY (collapsible tree with definition tooltips)
+- apps/ui already uses Emx2RecordView for its detail page
 
 ## Decisions Made
 1. **`displayAs` → column setting** (not first-class property). It's a display hint, settings are sufficient.
@@ -30,7 +32,10 @@ Currently always renders as **table**. Catalogue uses 3 modes:
 Cards need configurable field subset (name, description, image, link). Bullet list uses refLabel.
 
 ### 3. Ontology tree display
-ONTOLOGY_ARRAY renders as flat comma-separated text. Catalogue has collapsible tree display (ContentOntology 80 lines + TreeNode 83 lines). Used in 4/5 detail pages. No equivalent in tailwind-components yet.
+~~ONTOLOGY_ARRAY renders as flat comma-separated text.~~ (RESOLVED — Phase 5) OntologyTreeDisplay auto-detects flat vs tree, renders collapsible tree with definition tooltips.
+
+### 5. HEADING columns missing from data models
+Catalogue data model CSVs (Collection Events, Resources, Subpopulations, Datasets, Variables) have no HEADING type columns. Without these, Emx2RecordView renders all fields as a flat list without sidebar navigation or section grouping. The catalogue's handcrafted pages organize content into sections — this structure needs to be encoded as HEADING columns in the data model.
 
 ### 4. Top-level vs nested tables
 No metadata distinction. Collection Events, Subpopulations, Datasets are "nested" — shown inline, shouldn't appear as standalone pages in entity list.
@@ -102,30 +107,43 @@ Lift catalogue's display-only tree into tailwind-components.
 - [x] `fetchTableData.ts` updated to include 4-level parent chain for ONTOLOGY/ONTOLOGY_ARRAY
 - [ ] Test with catalogue data (data categories, medical conditions)
 
-### Phase 6: Display Mode Settings + Components
-Enable metadata-driven choice between table, cards, and bullet list.
+### Phase 6: Column Display Properties + Card Component
 
-**6a. Column settings infrastructure**
-- [ ] Verify column settings are exposed in GraphQL metadata response
-- [ ] Verify IColumn TypeScript type includes `settings` field
-- [ ] If not, add to metadata GraphQL query and IColumn type
+#### 6a. Backend: add `summary` (boolean) and `display` (string) to Column
+New first-class Column properties (not settings). Controls how columns/refs render in detail views.
 
-**6b. Frontend: read `displayAs` + `cardFields` settings**
-- [ ] Emx2RecordView: in column processing, read `displayAs` from column settings
-- [ ] Map to listConfig.layout: `table` / `cards` / `list`
-- [ ] Read `cardFields` from column settings → `listConfig.visibleColumns`
-- [ ] Fallback: `table` if no setting, refLabelDefault fields if no cardFields
+- `summary: boolean` — marks column for inclusion in compact/lookup views (cards, nested tables)
+- `display: string` — on REF_ARRAY/REFBACK columns, controls layout: `table` (default), `cards`, `list`
 
-**6c. Card grid in ListView**
-- [ ] ListView `cards` layout: render generic card per row (currently requires custom component)
-- [ ] Generic card: shows `visibleColumns` fields as definition list, name as heading, link to detail
-- [ ] Responsive grid: 1 col mobile, 2 col tablet, 3 col desktop
-- [ ] Story file
+**Backend changes (migration 32 → 33):**
+- [x] `Column.java`: add `summary` (Boolean, default false) + `display` (String) fields, getters, setters, copy constructor
+- [x] `MetadataUtils.java`: add field definitions, init(), save (insert+conflict), load (recordToColumn)
+- [x] `migration32.sql`: ALTER TABLE column_metadata ADD COLUMN summary/display
+- [x] `Migrations.java`: version 32→33, execute migration32.sql
+- [x] `GraphqlSchemaFieldFactory.java`: expose `summary` and `display` in GraphQL schema
+- [x] CSV import/export: Column properties included in Emx2.java (constants, import, headers, export)
+- [x] `json/Column.java`: fields, constructor mapping, getColumnMetadata, getters/setters
+- [ ] JUnit test: create column with summary=true and display="card", verify persistence
 
-**6d. Bullet list in ListView**
-- [ ] ListView `list` layout already works (bullet list with NuxtLink)
-- [ ] Ensure `getRowLabel` uses `refLabel`/`refLabelDefault` template
-- [ ] Verify Emx2ListView passes row href for link generation
+#### 6b. Frontend: read `summary` + `display` from metadata
+- [x] `IColumn` type (metadata-utils/src/types.ts): add `summary?: boolean`, `display?: string`
+- [x] GraphQL metadata query (gql/metadata.js): add `summary`, `display` to columns query
+- [x] `Emx2RecordView`: read `display` from column → set `listConfig.layout`
+- [x] `Emx2RecordView`: filter ref table columns to `summary: true` → set `listConfig.visibleColumns`
+- [x] Default when no summary columns: show primary key + first columns, max 5 total
+- [x] Switched from `fetchTableMetadata` to `fetchMetadata` for full schema access
+
+#### 6c. Generic card component for ListView
+- [x] `display/ListCard.vue`: generic card showing summary fields as definition list, name as heading, link to detail
+- [x] `ListView.vue`: when `layout === 'card'`, render ListCard in responsive grid (no custom component needed)
+- [x] Responsive grid: 1 col mobile, 2 col desktop (`grid grid-cols-1 lg:grid-cols-2`)
+- [x] Story file for ListCard + card grid layout
+- [x] `IListConfig.layout` extended to accept `"card"` alongside `"cards"`
+
+#### 6d. Test with catalogue data model
+- [x] `data/_models/shared/Resources.csv`: set `display: card` on `people involved` (refback to Contacts)
+- [x] `data/_models/shared/Contacts.csv`: set `summary: true` on `first name`, `last name`, `role`
+- [ ] Verify card grid renders on resource detail page at `/catalogue/Resources/{id}`
 
 ### Phase 7: Nested Table Type (backend)
 
@@ -143,6 +161,8 @@ Enable metadata-driven choice between table, cards, and bullet list.
 
 ### Phase 8: Catalogue Detail Pages Demo
 Wire everything together on real catalogue data model.
+
+**Prerequisite:** HEADING columns must be added to catalogue data model CSVs (see What's Missing #5).
 
 - [ ] Set up catalogue data model with settings:
   - `organisations.displayAs = cards`, `organisations.cardFields = name,acronym,country,website`

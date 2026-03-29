@@ -69,11 +69,7 @@ const showListView = computed(() => {
   if (type === "REFBACK" && props.column.refBackId && props.parentRowId) {
     return true;
   }
-  if (
-    isRefArrayColumn(type) &&
-    props.column.listConfig &&
-    refArrayFilter.value
-  ) {
+  if (isRefArrayColumn(type) && refArrayFilter.value) {
     return true;
   }
   return false;
@@ -81,18 +77,16 @@ const showListView = computed(() => {
 
 const listFilter = computed(() => {
   if (props.column.columnType === "REFBACK") {
-    return (
-      buildRefbackFilter(
-        props.column.columnType,
-        props.column.refBackId,
-        props.parentRowId
-      ) || props.column.listConfig?.filter
+    return buildRefbackFilter(
+      props.column.columnType,
+      props.column.refBackId,
+      props.parentRowId
     );
   }
   if (isRefArrayColumn(props.column.columnType)) {
-    return refArrayFilter.value || props.column.listConfig?.filter;
+    return refArrayFilter.value;
   }
-  return props.column.listConfig?.filter;
+  return undefined;
 });
 
 const isOntologyColumn = computed(() => {
@@ -149,7 +143,7 @@ watchEffect(async () => {
     :schema-id="column.refSchemaId || schemaId!"
     :table-id="column.refTableId!"
     :filter="listFilter"
-    :config="column.listConfig"
+    :column="column"
   />
   <NuxtLink v-else-if="refHref" :to="refHref" class="text-link hover:underline">
     <ValueEMX2 :metadata="column" :data="value" />

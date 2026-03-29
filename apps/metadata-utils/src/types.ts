@@ -76,6 +76,8 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
+  summary?: boolean;
+  display?: string;
   table?: string;
   name?: string;
   inherited?: boolean;

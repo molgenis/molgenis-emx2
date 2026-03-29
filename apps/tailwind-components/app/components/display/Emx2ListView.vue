@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, useId } from "vue";
-import type { IListConfig } from "../../../types/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumnDisplay } from "../../../types/types";
 import { useTableData } from "../../composables/useTableData";
+import { getRowLabel } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
 import ListView from "./ListView.vue";
@@ -10,22 +12,79 @@ const props = defineProps<{
   schemaId: string;
   tableId: string;
   filter?: object;
-  config?: IListConfig;
+  column?: IColumnDisplay;
 }>();
 
 const searchInputId = useId();
 const page = ref(1);
 const searchTerms = ref("");
 
+const layout = computed((): "table" | "cards" | "list" => {
+  const override = props.column?.listConfig?.layout;
+  const raw = override || props.column?.display || "table";
+  if (raw === "cards" || raw === "list") return raw;
+  return "table";
+});
+
+const showSearch = computed(() => layout.value === "table");
+
+const pageSize = computed(() => {
+  return props.column?.listConfig?.pageSize || 10;
+});
+
 const { metadata, rows, status, totalPages, showPagination, errorMessage } =
   useTableData(props.schemaId, props.tableId, {
-    pageSize: props.config?.pageSize || 10,
+    pageSize: pageSize.value,
     page,
     filter: computed(() => props.filter),
     searchTerms,
   });
 
-const columns = computed(() => metadata.value?.columns || []);
+const refTableColumns = computed(() => metadata.value?.columns || []);
+
+const visibleColumns = computed(() => {
+  const override = props.column?.listConfig?.visibleColumns;
+  if (override?.length) return override;
+
+  if (layout.value === "table") return undefined;
+
+  const summaryCols = refTableColumns.value
+    .filter((c) => c.summary)
+    .map((c) => c.id);
+  if (summaryCols.length > 0) return summaryCols;
+
+  const keyCols = refTableColumns.value
+    .filter((c) => c.key && c.key > 0)
+    .map((c) => c.id);
+  const otherCols = refTableColumns.value
+    .filter(
+      (c) =>
+        (!c.key || c.key === 0) &&
+        c.columnType !== "HEADING" &&
+        c.columnType !== "SECTION" &&
+        !c.id.startsWith("mg_")
+    )
+    .slice(0, 5 - keyCols.length)
+    .map((c) => c.id);
+  return [...keyCols, ...otherCols];
+});
+
+const hideColumns = computed(() => {
+  const override = props.column?.listConfig?.hideColumns;
+  if (override?.length) return override;
+  return props.column?.refBackId ? [props.column.refBackId] : [];
+});
+
+const rowLabel = computed(() => {
+  const override = props.column?.listConfig?.rowLabel;
+  return override || props.column?.refLabelDefault || undefined;
+});
+
+function getHref(_col: IColumn, row: Record<string, any>): string {
+  return `/${props.schemaId}/${props.tableId}/${encodeURIComponent(
+    getRowLabel(row, rowLabel.value)
+  )}`;
+}
 
 const errorText = computed(
   () =>
@@ -37,7 +96,7 @@ const errorText = computed(
 <template>
   <div>
     <InputSearch
-      v-if="config?.showSearch && showPagination"
+      v-if="showSearch && showPagination"
       :id="searchInputId"
       v-model="searchTerms"
       placeholder="Search..."
@@ -53,8 +112,12 @@ const errorText = computed(
     >
       <ListView
         :rows="rows"
-        :columns="columns"
-        :config="config"
+        :columns="refTableColumns"
+        :layout="layout"
+        :visible-columns="visibleColumns"
+        :hide-columns="hideColumns"
+        :row-label="rowLabel"
+        :get-href="getHref"
         :total-pages="totalPages"
         :current-page="page"
         :show-pagination="showPagination"

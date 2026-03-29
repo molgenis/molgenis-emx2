@@ -94,81 +94,164 @@ Goal: Consistent table rendering for both REF_ARRAY and REFBACK, with clickable 
 - Side modal preview (nice-to-have, not priority — direct navigation is sufficient)
 - Column importance metadata (can revisit when needed)
 
-### Phase 5: Upgrade [entity].vue
-- [ ] Replace 220-line bespoke page with Emx2RecordView
-- [ ] Keep edit/delete buttons via #header slot
-- [ ] Keep field search filter
-- [ ] Nested row click → navigate to detail page (`/schema/table/entityId`)
-  - ListView/RecordTable rows get auto-generated getHref from key columns
-  - Clicking a row in a REFBACK table opens that record's detail view
-  - URL pattern: `/${schemaId}/${refTableId}/${encodedRowId}`
-- [ ] Test with various table shapes
+## Catalogue Gap Analysis (List + Detail views only)
 
-### Phase 6: Standard Display Components
-- [ ] OntologyTreeDisplay — collapsible tree for ONTOLOGY/ONTOLOGY_ARRAY columns
-- [ ] CardGridDisplay — ref items as cards with links
-- [ ] FileListDisplay — file download cards
-- [ ] IntroDisplay — hero block (logo, website, contact)
-- [ ] Export defaultDisplayMap from tailwind-components
+### What We Have vs What Catalogue Needs
 
-### Phase 7: Catalogue Demo
-- [ ] Dataset detail page using Emx2RecordView + Emx2DataView
-- [ ] Resource/collection detail page (the big one)
+#### DETAIL VIEWS — Catalogue has 5 detail pages (~1,950 lines of bespoke code)
+
+| Catalogue Page | Lines | Can Replace Now? | Gaps |
+|----------------|-------|------------------|------|
+| Resource/Collection detail | 1,014 | Partially | Ontology trees, card grids, file downloads, intro hero, publications |
+| Collection Event detail | 257 | Mostly | Ontology trees |
+| Subpopulation detail | 266 | Mostly | Ontology trees |
+| Variable detail (resource) | 212 | Partially | Harmonisation grid (OUT OF SCOPE) |
+| Variable detail (catalogue) | 203 | Partially | Harmonisation grid (OUT OF SCOPE) |
+
+#### What already works for detail views (no changes needed):
+- **Key/value definition lists** → RecordSection
+- **Sidebar TOC with scrollspy** → SideNav (auto-generated from SECTION columns)
+- **Conditional sections** → empty detection + showEmpty
+- **REF navigation** → auto NuxtLink via buildRefHref
+- **REFBACK nested tables** → Emx2ListView (paginated, searchable, clickable rows)
+- **REF_ARRAY nested tables** → Emx2ListView (same as REFBACK)
+- **Ontology tooltips** → CustomTooltip with definition
+- **Hide empty columns** → filterNonEmptyColumns
+- **Row click → detail page** → RecordTable with schemaId/tableId
+
+#### Gaps for detail views (need new displayComponent or feature):
+
+| Gap | Catalogue Components | Complexity | Priority |
+|-----|---------------------|------------|----------|
+| **Ontology trees** | ContentOntology + TreeNode (163 lines) | Medium | HIGH — used in 4/5 detail pages |
+| **Card grids** | OrganisationCard, ContactCard, ReferenceCard (~180 lines) | Medium | MEDIUM — organisations, networks, contributors |
+| **File downloads** | ContentBlockAttachedFiles (in tailwind-components already) | Low | LOW — just wire up via displayComponent |
+| **Intro hero** | ContentBlockIntro (247 lines: logo, website, contact modal) | High | LOW — cosmetic, can add later |
+| **Publications list** | ContentBlockPublications (custom link list) | Low | LOW — could be a simple displayComponent |
+| **Side modal preview** | SideModal + *Display components (~480 lines) | High | SKIP — direct navigation via row click replaces this |
+
+#### LIST VIEWS — Catalogue has 2 list pages (+ 2 landing pages, OUT OF SCOPE)
+
+| Catalogue Page | Can Replace? | Gaps |
+|----------------|-------------|------|
+| Collections/Networks browse | No — needs filter sidebar, cards, view modes | Full list page framework needed |
+| Variables browse | No — needs filter sidebar, variable cards | Full list page framework + harmonisation (OUT OF SCOPE) |
+
+#### What we have for list views:
+- **Emx2ListView** — paginated table with search (works for nested tables)
+- **ListView** — table/cards/list layouts
+- **RecordTable** — read-only table with clickable rows
+
+#### What's missing for list views:
+| Gap | Catalogue Components | Complexity | Priority |
+|-----|---------------------|------------|----------|
+| **Filter sidebar** | FilterSidebar + FilterContainer + FilterOntology + FilterList (~400 lines) | HIGH | HIGH — core list page feature |
+| **Search page layout** | SearchPage.vue (sidebar + main two-column) | Low | HIGH — needed as container |
+| **Filter well** | FilterWell (active filter chips with remove) | Medium | MEDIUM |
+| **Result cards** | ResourceCard, VariableCard (~200 lines) | Medium | MEDIUM — or use generic card |
+| **View mode switching** | SearchResultsViewTabs (detailed/compact) | Low | LOW |
+| **Result count** | SearchResultsCount | Trivial | LOW |
+| **URL-based filter state** | Query parameter serialization | Medium | HIGH — expected UX |
+
+### Recommended Phases
+
+### Phase 5: Ontology Tree Display Component — DONE
+Highest-impact gap — used in 4/5 catalogue detail pages.
+- [x] OntologyTreeDisplay.vue — smart component, auto-detects flat list vs hierarchical tree
+- [x] OntologyTreeNode.vue — recursive collapsible tree node with definition tooltips
+- [x] buildOntologyTree.ts utility with 14 vitest tests
+- [x] RecordColumn: direct ONTOLOGY/ONTOLOGY_ARRAY columnType detection (not via displayMap)
+- [x] fetchTableData: 4-level parent chain for ontology GQL queries
+- [x] Story file
+
+### Phase 6: Card Display Components
+For organisations, networks, contributors sections.
+- [ ] CardGridDisplay — renders REF_ARRAY/REFBACK as card grid instead of table
+- [ ] Generic card template (name, description, link, optional image)
+- [ ] Customizable via slot or card component prop in IListConfig
+- [ ] Story file
+
+### Phase 7: Upgrade [entity].vue (apps/ui) — DONE
+- [x] apps/ui [entity].vue already imports Emx2RecordView directly
+- [x] Edit/delete kept via modal overlay in the page itself
+
+### Phase 7b: HEADING columns in catalogue data models
+Prerequisite for catalogue demo — without HEADINGs, detail pages render as flat lists without sidebar navigation.
+- [ ] Add HEADING columns to Collection Events model CSV
+- [ ] Add HEADING columns to Resources model CSV
+- [ ] Add HEADING columns to Subpopulations model CSV
+- [ ] Add HEADING columns to Datasets model CSV
+- [ ] Add HEADING columns to Variables model CSV
+- [ ] Group fields into logical sections matching catalogue's current detail page layout
+
+### Phase 7c: DATA_NESTED table type (backend + frontend)
+See catalogue-detail-views.md Phase 7 for full details.
+- [ ] Add DATA_NESTED to TableType.java (backend)
+- [ ] Update switch statements and DATA checks in RDF + import/export
+- [ ] Update TypeScript type in frontend
+- [ ] Filter DATA_NESTED from main table list in apps/ui
+
+### Phase 8: Catalogue Detail Pages Demo
+**Prerequisite:** HEADING columns must be added to catalogue data model CSVs (Phase 7b) and DATA_NESTED implemented (Phase 7c).
+At this point we can replace collection event, subpopulation, and most of the resource detail page.
+- [ ] Collection event detail → Emx2RecordView + ontology tree displayMap
+- [ ] Subpopulation detail → Emx2RecordView + ontology tree displayMap
+- [ ] Resource detail → Emx2RecordView + displayMap (ontology tree, card grid)
 - [ ] Visual comparison with handcrafted pages
-- [ ] Theme testing (Light, Dark, Molgenis, UMCG, AUMC)
-- [ ] Responsive testing (desktop, tablet, mobile)
+- [ ] File download — wire up existing ContentBlockAttachedFiles
+- [ ] Publications — simple displayComponent or just use default rendering
 
-### Phase 8: Tests & Polish
-- [ ] Unit tests for display components
-- [ ] Story files for all components
-- [ ] E2E smoke test
+### Phase 9: Generic List Page Framework (NEW)
+Build the equivalent of catalogue's SearchPage for any EMX2 table.
+- [ ] Emx2SearchPage (smart) — schema/table driven, auto-generates filters from metadata
+- [ ] SearchPageLayout — two-column layout (filter sidebar + results)
+- [ ] Filter components — auto-generate from column types:
+  - STRING/TEXT → search input
+  - ONTOLOGY/ONTOLOGY_ARRAY → tree filter
+  - REF/REF_ARRAY → list filter
+  - BOOL → checkbox
+  - INT/DECIMAL/DATE → range filter
+- [ ] FilterWell — active filter chips
+- [ ] URL-based filter state (query params)
+- [ ] Result cards — generic card component (configurable via IListConfig)
+- [ ] Pagination, result count, view mode switching
 
-## What Current Catalogue Pages Need
+### Phase 10: Catalogue List Pages Demo
+- [ ] Collections/Networks browse → Emx2SearchPage with config
+- [ ] Compare with handcrafted browse pages
+- [ ] Theme + responsive testing
 
-| Pattern | Catalogue Example | Generic Solution | Status |
-|---------|------------------|-----------------|--------|
-| Key/value pairs | Name, acronym, dates | RecordSection def-list | DONE |
-| Sidebar TOC | Section navigation | Auto-generated SideNav | DONE |
-| Conditional sections | Skip empty sections | showEmpty + empty detection | DONE |
-| REF navigation | Navigate to referenced record | Auto NuxtLink via buildRefHref | DONE |
-| REFBACK tables | Subpopulations, datasets | Emx2ListView nested table | DONE |
-| Ontology tooltips | Design type (!) icon | CustomTooltip + definition | DONE |
-| Hide empty columns | Nested tables | Auto-filter in ListView | DONE |
-| REF drill-down | Click resource → details | Side modal preview | Phase 4 |
-| REF_ARRAY tables | Networks, publications | Embedded table + filter | Phase 4 |
-| Ontology trees | Data categories, conditions | OntologyTreeDisplay | Phase 6 |
-| Card grid | Networks as cards | CardGridDisplay | Phase 6 |
-| File downloads | Documentation files | FileListDisplay | Phase 6 |
-| Hero intro | Logo, website, contact | IntroDisplay | Phase 6 |
-| Harmonisation grid | Variable harmonisation | Custom displayMap component | Phase 7 |
+### NOT IN SCOPE
+- Landing pages with CTA cards and stats
+- Variable harmonisation matrix
+- Shopping cart integration
+- Contact modal / side modal previews (direct navigation replaces these)
 
 ## Files
 
-### Done
-- `types/types.ts` — IColumnDisplay, IListConfig, IRecordViewConfig, hideColumns
+### Done (Phases 1-5)
+- `types/types.ts` — IColumnDisplay, IListConfig, IRecordViewConfig
 - `display/RecordView.vue` — dumb, IColumnDisplay[], DetailPageLayout + SideNav
-- `display/RecordSection.vue` — catalogue styling, IColumnDisplay, schemaId/parentRowId passthrough
-- `display/RecordColumn.vue` — displayComponent, Emx2ListView for REFBACK, NuxtLink for REF/SELECT/RADIO
-- `display/RecordTable.vue` — conditional sticky first column (key only)
-- `display/Emx2RecordView.vue` — smart wrapper, merge logic, auto listConfig for REFBACK
+- `display/RecordSection.vue` — catalogue styling, schemaId/parentRowId passthrough
+- `display/RecordColumn.vue` — displayComponent, Emx2ListView for REFBACK + REF_ARRAY, NuxtLink for REF, OntologyTreeDisplay for ONTOLOGY/ONTOLOGY_ARRAY
+- `display/RecordTable.vue` — clickable rows with schemaId/tableId navigation
+- `display/Emx2RecordView.vue` — smart wrapper, auto listConfig for REFBACK + REF_ARRAY
 - `display/ListView.vue` — dumb list/table/cards, filters empty/hidden columns
 - `display/Emx2ListView.vue` — smart list with useTableData, search, pagination
 - `display/InlinePagination.vue` — prev/next
+- `display/OntologyTreeDisplay.vue` — auto-detects flat list vs hierarchical tree
+- `display/OntologyTreeNode.vue` — recursive collapsible tree node with definition tooltips
 - `layout/DetailPageLayout.vue` — sidebar + main layout
-- `SideNav.vue` — scrollspy navigation with title, scroll to top
+- `SideNav.vue` — scrollspy navigation with title
 - `value/Object.vue` — plain text + definition tooltip
-- `composables/fetchTableData.ts` — ontology definition in expansion
-- `composables/fetchTableMetadata.ts` — metadata fetch with includeSubclassColumns option
+- `composables/fetchTableData.ts` — ontology definition + 4-level parent chain in expansion
+- `composables/fetchTableMetadata.ts` — with includeSubclassColumns
 - `composables/getSubclassColumns.ts` — inheritance tree column collector
-- `composables/displayUtils.ts` — pure utility functions (buildRefHref, getPrimaryKey, etc.)
+- `utils/displayUtils.ts` — buildRefHref, isRefColumn, isRefArrayColumn, etc.
+- `utils/buildOntologyTree.ts` — builds tree structure from flat ontology rows (14 vitest tests)
 
-### Next (Phase 4)
-- RecordColumn.vue / ValueList.vue — REF_ARRAY as bulleted list of NuxtLinks
-- RecordTable.vue — full-row click navigation for REFBACK tables
-
-### Future (Phase 5+)
-- `apps/ui/pages/[schema]/[table]/[entity].vue` — simplify with Emx2RecordView
-- `display/OntologyTreeDisplay.vue`
-- `display/CardGridDisplay.vue`
-- `display/FileListDisplay.vue`
-- `display/IntroDisplay.vue`
+### Future
+- `display/CardGridDisplay.vue` — card layout for refs
+- `display/Emx2SearchPage.vue` — smart list page with filters
+- `layout/SearchPageLayout.vue` — filter sidebar + results
+- `filter/*.vue` — auto-generated filter components
