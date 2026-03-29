@@ -11,6 +11,7 @@ import {
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
 import Emx2ListView from "./Emx2ListView.vue";
+import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 
@@ -94,6 +95,10 @@ const listFilter = computed(() => {
   return props.column.listConfig?.filter;
 });
 
+const isOntologyColumn = computed(() => {
+  return ["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType);
+});
+
 const refHref = ref<string | undefined>();
 
 watchEffect(async () => {
@@ -149,5 +154,6 @@ watchEffect(async () => {
   <NuxtLink v-else-if="refHref" :to="refHref" class="text-link hover:underline">
     <ValueEMX2 :metadata="column" :data="value" />
   </NuxtLink>
+  <OntologyTreeDisplay v-else-if="isOntologyColumn" :value="value" />
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>
