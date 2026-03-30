@@ -26,7 +26,6 @@ const props = withDefaults(
     metadata: IRefColumn;
     columnValue: columnValue;
     schema: string;
-    sourceTableId: string;
     showDataOwner?: boolean;
   }>(),
   {

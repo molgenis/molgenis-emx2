@@ -182,7 +182,6 @@
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="cellDetailSchemaId ?? schemaId"
-      :sourceTableId="refSourceTableId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
     />
@@ -194,7 +193,6 @@
             :metadata="toRefColumn(cellDetailColumn)"
             :columnValue="toRefColumnValue(item as columnValue)"
             :schema="cellDetailSchemaId ?? schemaId"
-            :sourceTableId="refSourceTableId"
             :showDataOwner="false"
             @onRefClick="handleDetailRefClick"
           />
@@ -297,8 +295,6 @@ const cellDetailSchemaId = ref<string>();
 const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
-// initially set to the current tableId
-const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
 
 const tableContainer = ref<HTMLElement | null>(null);
