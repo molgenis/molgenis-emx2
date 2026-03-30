@@ -54,17 +54,28 @@ class SqlSchemaMetadataExecutor {
     // make editor also viewer
     db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
 
-    // make manager also editor, viewer and aggregator
     db.getJooq()
         .execute(
-            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-            name(aggregator), name(viewer), name(editor), name(manager));
+            "GRANT {0},{1},{2},{3},{4},{5} TO {6} WITH ADMIN OPTION",
+            name(exists),
+            name(range),
+            name(aggregator),
+            name(count),
+            name(viewer),
+            name(editor),
+            name(manager));
 
-    // make owner also editor, manager, member
     db.getJooq()
         .execute(
-            "GRANT {0},{1},{2},{3} TO {4} WITH ADMIN OPTION",
-            name(aggregator), name(viewer), name(editor), name(manager), name(owner));
+            "GRANT {0},{1},{2},{3},{4},{5},{6} TO {7} WITH ADMIN OPTION",
+            name(exists),
+            name(range),
+            name(aggregator),
+            name(count),
+            name(viewer),
+            name(editor),
+            name(manager),
+            name(owner));
 
     String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
     String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);

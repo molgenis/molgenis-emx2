@@ -8,7 +8,8 @@
       :row="row"
       :columns="columns"
       :tableId="tableId"
-      :can-edit="canEdit"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
       :template="template"
       @reload="$emit('reload')"
       @edit="$emit('edit', $event)"
@@ -30,7 +31,8 @@ export default defineComponent({
     data: { type: Array, default: () => [] },
     columns: { type: Array, default: () => [] },
     tableId: { type: String, required: true },
-    canEdit: { type: Boolean, default: false },
+    canUpdate: { type: Boolean, default: false },
+    canDelete: { type: Boolean, default: false },
     template: { type: String, required: false },
   },
 });

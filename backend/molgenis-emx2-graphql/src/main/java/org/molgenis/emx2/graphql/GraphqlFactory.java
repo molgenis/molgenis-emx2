@@ -1,7 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Privileges.VIEWER;
-
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.GraphQLObjectType;
@@ -106,8 +104,7 @@ public class GraphqlFactory {
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
-        if (table.getTableType().equals(TableType.ONTOLOGIES)
-            || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+        if (tableField.hasViewPermission(table)) {
           queryBuilder.field(tableField.tableQueryField(table));
         }
         queryBuilder.field(tableField.tableAggField(table));
