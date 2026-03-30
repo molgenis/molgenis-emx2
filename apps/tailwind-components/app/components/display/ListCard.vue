@@ -3,6 +3,11 @@ import { computed } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
+import {
+  getDetailColumns,
+  getDescriptionColumn,
+  getLogoColumn,
+} from "../../utils/displayUtils";
 
 const props = defineProps<{
   title: string;
@@ -12,32 +17,15 @@ const props = defineProps<{
 }>();
 
 const descriptionColumn = computed(() =>
-  props.columns?.find(
-    (c) => c.role === "DESCRIPTION" && props.data[c.id] != null
-  )
+  getDescriptionColumn(props.columns ?? [], props.data)
 );
 
-const detailColumns = computed(() => {
-  const cols = props.columns ?? [];
-  const explicit = cols.filter(
-    (c) => c.role === "DETAIL" && props.data[c.id] != null
-  );
-  if (explicit.length > 0) return explicit;
-  return cols
-    .filter(
-      (c) =>
-        !c.role &&
-        (!c.key || c.key === 0) &&
-        c.columnType !== "HEADING" &&
-        c.columnType !== "SECTION" &&
-        !c.id.startsWith("mg_") &&
-        props.data[c.id] != null
-    )
-    .slice(0, 5);
-});
+const detailColumns = computed(() =>
+  getDetailColumns(props.columns ?? [], props.data)
+);
 
 const logoColumn = computed(() =>
-  props.columns?.find((c) => c.role === "LOGO" && props.data[c.id] != null)
+  getLogoColumn(props.columns ?? [], props.data)
 );
 </script>
 

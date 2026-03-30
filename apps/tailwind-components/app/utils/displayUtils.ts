@@ -83,6 +83,41 @@ export function isRefArrayColumn(columnType: string): boolean {
   return REF_ARRAY_COLUMN_TYPES.includes(columnType);
 }
 
+export function getDetailColumns(
+  columns: IColumn[],
+  data: Record<string, any>
+): IColumn[] {
+  const explicit = columns.filter(
+    (c) => c.role === "DETAIL" && data[c.id] != null
+  );
+  if (explicit.length > 0) return explicit;
+  return columns
+    .filter(
+      (c) =>
+        !c.role &&
+        (!c.key || c.key === 0) &&
+        c.columnType !== "HEADING" &&
+        c.columnType !== "SECTION" &&
+        !c.id.startsWith("mg_") &&
+        data[c.id] != null
+    )
+    .slice(0, 5);
+}
+
+export function getDescriptionColumn(
+  columns: IColumn[],
+  data: Record<string, any>
+): IColumn | undefined {
+  return columns.find((c) => c.role === "DESCRIPTION" && data[c.id] != null);
+}
+
+export function getLogoColumn(
+  columns: IColumn[],
+  data: Record<string, any>
+): IColumn | undefined {
+  return columns.find((c) => c.role === "LOGO" && data[c.id] != null);
+}
+
 export function buildRefHref(
   schemaId: string,
   refTableId: string,
