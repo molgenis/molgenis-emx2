@@ -82,10 +82,12 @@ public class TestImportExportAllExamples {
         table(
             "test",
             column("id").setPkey(),
-            column("summaryField").setSummary(true),
+            column("summaryField").setRole(ColumnRole.DETAIL),
             column("displayField").setDisplay(DisplayType.CARDS)));
     Schema result = executeCompare(schema1);
-    assertTrue(result.getMetadata().getTableMetadata("test").getColumn("summaryField").isSummary());
+    assertEquals(
+        ColumnRole.DETAIL,
+        result.getMetadata().getTableMetadata("test").getColumn("summaryField").getRole());
     assertEquals(
         DisplayType.CARDS,
         result.getMetadata().getTableMetadata("test").getColumn("displayField").getDisplay());

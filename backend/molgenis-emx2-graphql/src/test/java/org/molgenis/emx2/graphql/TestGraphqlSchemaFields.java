@@ -650,9 +650,9 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testSummaryAndDisplayInSchemaMetadata() throws IOException {
     execute(
-        "mutation{change(tables:[{name:\"SummaryDisplayTest\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",summary:true},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
-    String result = execute("{_schema{tables{name,columns{name,summary,display}}}}").toString();
-    assertTrue(result.contains("\"summary\":true"));
+        "mutation{change(tables:[{name:\"SummaryDisplayTest\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",role:\"DETAIL\"},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
+    String result = execute("{_schema{tables{name,columns{name,role,display}}}}").toString();
+    assertTrue(result.contains("\"role\":\"DETAIL\""));
     assertTrue(result.contains("\"display\":\"CARDS\""));
     execute("mutation{drop(tables:\"SummaryDisplayTest\"){message}}");
   }

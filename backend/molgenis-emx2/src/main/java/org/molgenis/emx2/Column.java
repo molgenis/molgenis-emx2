@@ -45,7 +45,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
-  private Boolean summary = false;
+  private ColumnRole role = null;
   private DisplayType display = null;
   private String defaultValue = null;
   private boolean indexed = false;
@@ -126,7 +126,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     required = column.required;
     key = column.key;
     readonly = column.readonly;
-    summary = column.summary;
+    role = column.role;
     display = column.display;
     defaultValue = column.defaultValue;
     indexed = column.indexed;
@@ -251,12 +251,12 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
-  public Boolean isSummary() {
-    return summary;
+  public ColumnRole getRole() {
+    return role;
   }
 
-  public Column setSummary(Boolean summary) {
-    this.summary = summary;
+  public Column setRole(ColumnRole role) {
+    this.role = role;
     return this;
   }
 

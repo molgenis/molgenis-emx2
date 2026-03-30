@@ -48,10 +48,8 @@ const visibleColumns = computed(() => {
 
   if (layout.value === "TABLE") return undefined;
 
-  const summaryCols = refTableColumns.value
-    .filter((c) => c.summary)
-    .map((c) => c.id);
-  if (summaryCols.length > 0) return summaryCols;
+  const roleCols = refTableColumns.value.filter((c) => c.role).map((c) => c.id);
+  if (roleCols.length > 0) return roleCols;
 
   const keyCols = refTableColumns.value
     .filter((c) => c.key && c.key > 0)

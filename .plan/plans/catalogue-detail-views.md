@@ -112,8 +112,8 @@ Lift catalogue's display-only tree into tailwind-components.
 #### 6a. Backend: add `summary` (boolean) and `display` (string) to Column
 New first-class Column properties (not settings). Controls how columns/refs render in detail views.
 
-- `summary: boolean` — marks column for inclusion in compact/lookup views (cards, nested tables)
-- `display: string` — on REF_ARRAY/REFBACK columns, controls layout: `table` (default), `cards`, `list`
+- `role: ColumnRole` — column's display role: TITLE, SUBTITLE, DESCRIPTION, LOGO, DETAIL
+- `display: DisplayType` — on REF_ARRAY/REFBACK columns, controls layout: TABLE (default), CARDS, LIST
 
 **Backend changes (migration 32 → 33):**
 - [x] `Column.java`: add `summary` (Boolean, default false) + `display` (String) fields, getters, setters, copy constructor

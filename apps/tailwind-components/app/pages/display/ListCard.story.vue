@@ -3,10 +3,22 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 import ListCard from "../../components/display/ListCard.vue";
 
 const columns: IColumn[] = [
-  { id: "name", label: "Name", columnType: "STRING", key: 1 },
-  { id: "description", label: "Description", columnType: "TEXT", key: 0 },
-  { id: "type", label: "Type", columnType: "STRING", key: 0 },
-  { id: "contact", label: "Contact", columnType: "STRING", key: 0 },
+  { id: "name", label: "Name", columnType: "STRING", key: 1, role: "TITLE" },
+  {
+    id: "description",
+    label: "Description",
+    columnType: "TEXT",
+    key: 0,
+    role: "DESCRIPTION",
+  },
+  { id: "type", label: "Type", columnType: "STRING", key: 0, role: "DETAIL" },
+  {
+    id: "contact",
+    label: "Contact",
+    columnType: "STRING",
+    key: 0,
+    role: "DETAIL",
+  },
 ];
 
 const sampleData = {

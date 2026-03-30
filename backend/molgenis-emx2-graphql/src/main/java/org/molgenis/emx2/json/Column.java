@@ -3,6 +3,7 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.ColumnRole;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
@@ -22,7 +23,7 @@ public class Column {
   private Integer key = 0;
   private String required = null;
   private Boolean readonly = false;
-  private Boolean summary = false;
+  private ColumnRole role = null;
   private org.molgenis.emx2.DisplayType display = null;
   private String defaultValue;
   private String refSchemaId = null;
@@ -105,7 +106,7 @@ public class Column {
     this.validation = column.getValidation();
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
-    this.summary = column.isSummary();
+    this.role = column.getRole();
     this.display = column.getDisplay();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
@@ -151,7 +152,7 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
-    c.setSummary(summary);
+    c.setRole(role);
     c.setDisplay(display);
 
     c.setProfiles(profiles);
@@ -345,12 +346,12 @@ public class Column {
     this.readonly = readonly;
   }
 
-  public Boolean getSummary() {
-    return summary;
+  public ColumnRole getRole() {
+    return role;
   }
 
-  public void setSummary(Boolean summary) {
-    this.summary = summary;
+  public void setRole(String role) {
+    this.role = role != null ? ColumnRole.valueOf(role.toUpperCase().trim()) : null;
   }
 
   public org.molgenis.emx2.DisplayType getDisplay() {

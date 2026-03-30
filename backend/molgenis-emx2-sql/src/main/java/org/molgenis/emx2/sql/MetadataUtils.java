@@ -97,8 +97,7 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
-  private static final Field<Boolean> COLUMN_SUMMARY =
-      field(name("summary"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_ROLE = field(name("role"), VARCHAR.nullable(true));
   private static final Field<String> COLUMN_DISPLAY =
       field(name("display"), VARCHAR.nullable(true));
   private static final Field<String> COLUMN_DEFAULT =
@@ -254,7 +253,7 @@ public class MetadataUtils {
                         COLUMN_SEMANTICS,
                         COLUMN_VISIBLE,
                         COLUMN_FORM_LABEL,
-                        COLUMN_SUMMARY,
+                        COLUMN_ROLE,
                         COLUMN_DISPLAY)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
@@ -555,7 +554,7 @@ public class MetadataUtils {
             COLUMN_DEFAULT,
             COLUMN_PROFILES,
             COLUMN_VISIBLE,
-            COLUMN_SUMMARY,
+            COLUMN_ROLE,
             COLUMN_DISPLAY)
         .values(
             column.getTable().getSchema().getName(),
@@ -582,7 +581,7 @@ public class MetadataUtils {
             column.getDefaultValue(),
             column.getProfiles(),
             column.getVisible(),
-            column.isSummary(),
+            Objects.toString(column.getRole(), null),
             Objects.toString(column.getDisplay(), null))
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -607,7 +606,7 @@ public class MetadataUtils {
         .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
-        .set(COLUMN_SUMMARY, column.isSummary())
+        .set(COLUMN_ROLE, Objects.toString(column.getRole(), null))
         .set(COLUMN_DISPLAY, Objects.toString(column.getDisplay(), null))
         .execute();
   }
@@ -650,7 +649,8 @@ public class MetadataUtils {
     c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
-    c.setSummary(col.get(COLUMN_SUMMARY, Boolean.class));
+    String roleStr = col.get(COLUMN_ROLE, String.class);
+    if (roleStr != null) c.setRole(ColumnRole.valueOf(roleStr));
     String displayStr = col.get(COLUMN_DISPLAY, String.class);
     if (displayStr != null) c.setDisplay(DisplayType.valueOf(displayStr));
     return c;

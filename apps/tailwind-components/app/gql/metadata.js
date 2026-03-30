@@ -33,7 +33,7 @@ export default gql`
           position
           computed
           visible
-          summary
+          role
           display
           validation
         }
