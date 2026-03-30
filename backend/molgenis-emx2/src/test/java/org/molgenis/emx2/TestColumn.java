@@ -60,7 +60,7 @@ public class TestColumn {
     schema.getTableMetadata("Other").add(column("contact").setType(REF).setRefTable("Contacts"));
 
     Column contactColumn = schema.getTableMetadata("Other").getColumn("contact");
-    assertEquals("${resource.id}.${name}", contactColumn.getRefLabelDefault());
+    assertEquals("${resource.id} ${name}", contactColumn.getRefLabelDefault());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class TestColumn {
 
     Column variableColumn = schema.getTableMetadata("Resources").getColumn("variable");
     assertEquals(
-        "${dataset.resource.id}.${dataset.name}.${name}", variableColumn.getRefLabelDefault());
+        "${dataset.resource.id} ${dataset.name} ${name}", variableColumn.getRefLabelDefault());
   }
 
   @Test
