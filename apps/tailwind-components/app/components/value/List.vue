@@ -39,7 +39,7 @@ const props = withDefaults(
 const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
-  
+
 const emit = defineEmits<{
   (e: "listRefCellClicked", data: ListPayload): void;
 }>();
