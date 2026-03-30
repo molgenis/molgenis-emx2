@@ -35,7 +35,7 @@ const downloadUrl = computed(() => props.data?.url || "");
 </script>
 
 <template>
-  <span class="overflow-ellipsis whitespace-nowrap overflow-hidden flex-0">
+  <span class="overflow-ellipsis whitespace-nowrap">
     <a
       v-if="downloadUrl"
       :href="downloadUrl"
