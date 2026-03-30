@@ -32,7 +32,7 @@ describe("value/File.vue", () => {
     expect(link.text()).toBe("report.pdf");
     expect(link.attributes("href")).toBe("https://example.com/report.pdf");
     expect(link.attributes("download")).toBe("report.pdf");
-    expect(wrapper.text()).toContain("(size: 1.5 KB)");
+    expect(wrapper.text()).toContain("(1.5 KB)");
   });
 
   it("falls back to plain text when there is no downloadable url", () => {
@@ -53,7 +53,7 @@ describe("value/File.vue", () => {
 
     expect(wrapper.find("a").exists()).toBe(false);
     expect(wrapper.text()).toContain("notes.txt");
-    expect(wrapper.text()).toContain("(size: 0 B)");
+    expect(wrapper.text()).toContain("(0 B)");
   });
 
   it("shows default fallback values when file details are missing or invalid", () => {
@@ -72,6 +72,6 @@ describe("value/File.vue", () => {
     });
 
     expect(wrapper.text()).toContain("No file");
-    expect(wrapper.text()).toContain("(size: Unknown size)");
+    expect(wrapper.text()).toContain("(Unknown size)");
   });
 });

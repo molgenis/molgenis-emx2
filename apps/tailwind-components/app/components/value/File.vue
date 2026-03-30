@@ -46,6 +46,6 @@ const downloadUrl = computed(() => props.data?.url || "");
     </a>
     <span v-else class="truncate">{{ fileName }}</span>
 
-    <span> (size: {{ formattedSize }})</span>
+    <span> ({{ formattedSize }})</span>
   </span>
 </template>
