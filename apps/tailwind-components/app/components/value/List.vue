@@ -58,7 +58,8 @@ function handleCellClick() {
       v-if="
         elementType === 'STRING' ||
         elementType === 'AUTO_ID' ||
-        elementType === 'PERIOD'
+        elementType === 'PERIOD' ||
+        elementType === 'UUID'
       "
       :metadata="metadata"
       :data="assertStringValue(listElement)"

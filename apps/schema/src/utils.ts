@@ -9,6 +9,7 @@ export const schemaQuery = gql`
       roles
       tablePermissions {
         name
+        id
         canView
         canInsert
         canUpdate
