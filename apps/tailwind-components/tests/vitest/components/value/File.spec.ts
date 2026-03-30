@@ -58,17 +58,17 @@ describe("value/File.vue", () => {
 
   it("shows default fallback values when file details are missing or invalid", () => {
     const myData = {
-          id: "file-3",
-          filename: "No file",
-          extension: "",
-          url: "",
-          size: -1,
-        } as fileValue
+      id: "file-3",
+      filename: "No file",
+      extension: "",
+      url: "",
+      size: -1,
+    } as fileValue;
     const wrapper = mount(FileValue, {
       props: {
         metadata,
         data: myData,
-      }
+      },
     });
 
     expect(wrapper.text()).toContain("No file");
