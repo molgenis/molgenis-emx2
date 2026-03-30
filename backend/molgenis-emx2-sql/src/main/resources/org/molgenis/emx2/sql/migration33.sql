@@ -1,2 +1,0 @@
-ALTER TABLE "MOLGENIS"."column_metadata" ADD COLUMN IF NOT EXISTS role VARCHAR;
-ALTER TABLE "MOLGENIS"."column_metadata" DROP COLUMN IF EXISTS summary;
