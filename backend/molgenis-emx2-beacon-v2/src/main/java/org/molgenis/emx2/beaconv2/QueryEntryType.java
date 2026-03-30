@@ -240,7 +240,7 @@ public class QueryEntryType {
     return switch (this.granularity) {
       case BOOLEAN -> level.ordinal() >= AggregateLevel.EXISTS.ordinal();
       case COUNT, AGGREGATED -> level.ordinal() >= AggregateLevel.RANGE.ordinal();
-      case RECORD, UNDEFINED -> level == AggregateLevel.COUNT;
+      case RECORD, UNDEFINED -> evaluator.canView(table);
     };
   }
 }
