@@ -74,6 +74,11 @@ public class Emx2 {
               .getTableMetadata(tableName)
               .setTableType(TableType.valueOf(row.getString(TABLE_TYPE)));
         }
+        if (row.notNull(ROLE)) {
+          schema
+              .getTableMetadata(tableName)
+              .setRole(TableRole.valueOf(row.getString(ROLE).toUpperCase().trim()));
+        }
 
         if (row.getString(OLD_NAME) != null) {
           schema.getTableMetadata(tableName).setOldName(row.getString(OLD_NAME));
@@ -256,6 +261,7 @@ public class Emx2 {
       row.setString(TABLE_EXTENDS, table.getInheritName());
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
+      if (table.getRole() != null) row.setString(ROLE, table.getRole().name().toLowerCase());
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);

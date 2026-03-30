@@ -397,6 +397,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_ROLE)
+                  .type(Scalars.GraphQLString))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -548,6 +552,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ROLE)
                   .type(Scalars.GraphQLString))
           .build();
 

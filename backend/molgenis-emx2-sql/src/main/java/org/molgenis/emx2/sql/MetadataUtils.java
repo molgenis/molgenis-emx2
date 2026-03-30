@@ -56,6 +56,7 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<String> TABLE_ROLE = field(name("table_role"), VARCHAR.nullable(true));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -218,7 +219,8 @@ public class MetadataUtils {
                         TABLE_IMPORT_SCHEMA,
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
-                        TABLE_TYPE)
+                        TABLE_TYPE,
+                        TABLE_ROLE)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME),
                         foreignKey(TABLE_SCHEMA)
@@ -364,6 +366,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              TABLE_ROLE,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -374,6 +377,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              Objects.toString(table.getRole(), null),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -383,6 +387,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(TABLE_ROLE, Objects.toString(table.getRole(), null))
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -511,6 +516,9 @@ public class MetadataUtils {
         r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
+    }
+    if (r.get(TABLE_ROLE, String.class) != null) {
+      table.setRole(TableRole.valueOf(r.get(TABLE_ROLE, String.class)));
     }
     return table;
   }
