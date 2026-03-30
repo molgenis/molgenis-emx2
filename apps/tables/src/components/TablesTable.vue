@@ -35,7 +35,7 @@ export default {
   methods: {
     hasPermission(table) {
       if (!this.tablePermissions?.length) return true;
-      const perm = this.tablePermissions.find((p) => p.name === table.name);
+      const perm = this.tablePermissions.find((p) => p.id === table.id);
       return perm?.canView || table.tableType === "ONTOLOGIES";
     },
   },
