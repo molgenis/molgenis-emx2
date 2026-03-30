@@ -101,7 +101,7 @@ export default {
       return "Select " + this.tableId; //todo need a label
     },
     tablePermission() {
-      return this.tablePermissions?.find((p) => p.name === this.tableId);
+      return this.tablePermissions?.find((p) => p.id === this.tableId);
     },
   },
   methods: {
