@@ -38,8 +38,6 @@ const loading = ref(true);
 const refRow = ref<IRow>({});
 const refRowMetadata = ref<ITableMetaData>();
 
-const sourceTableMetadata = ref<ITableMetaData>();
-
 const emit = defineEmits<{
   (e: "onRefClick", payload: RefPayload | ColumnPayload | ListPayload): void;
 }>();
@@ -47,22 +45,15 @@ const emit = defineEmits<{
 await fetchData(
   toRefColumnValue(props.columnValue),
   props.metadata.refTableId,
-  props.schema,
-  props.sourceTableId
+  props.schema
 );
 
-async function fetchData(
-  row: IRow,
-  tableId: string,
-  schema: string,
-  sourceTableId: string
-) {
+async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;
   const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
 
   refRow.value = await fetchRowData(schema, tableId, rowKey);
   refRowMetadata.value = await fetchTableMetadata(schema, tableId);
-  sourceTableMetadata.value = await fetchTableMetadata(schema, sourceTableId);
 
   loading.value = false;
 }
