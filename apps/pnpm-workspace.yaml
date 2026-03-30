@@ -28,19 +28,17 @@ packages:
   - ui
 
 onlyBuiltDependencies:
-  - '@fortawesome/fontawesome-free'
-  - '@parcel/watcher'
+  - "@fortawesome/fontawesome-free"
+  - "@parcel/watcher"
   - core-js
   - esbuild
   - vue-demi
 
 overrides:
-  '@tootallnate/once@<3.0.1': '>=3.0.1'
-  cookie@<0.7.0: '>=0.7.0'
-  esbuild@<=0.24.2: '>=0.25.0'
-  happy-dom@<20.8.9: '>=20.8.9'
-  happy-dom@>=15.10.0 <=20.8.7: '>=20.8.8'
-  lodash-es@>=4.0.0 <=4.17.22: '>=4.17.23'
-  serialize-javascript@<7.0.5: '>=7.0.5'
-  serialize-javascript@<=7.0.2: '>=7.0.3'
-  yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  "@tootallnate/once@<3.0.1": ">=3.0.1"
+  cookie@<0.7.0: ">=0.7.0"
+  esbuild@<=0.24.2: ">=0.25.0"
+  happy-dom@<20.8.9: ">=20.8.9"
+  lodash-es@>=4.0.0 <=4.17.22: ">=4.17.23"
+  serialize-javascript@<7.0.5: ">=7.0.5"
+  yaml@>=2.0.0 <2.8.3: ">=2.8.3"
