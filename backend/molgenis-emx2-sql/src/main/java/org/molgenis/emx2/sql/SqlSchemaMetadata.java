@@ -5,8 +5,6 @@ import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 
 import java.util.*;
@@ -247,7 +245,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     User user = getDatabase().getUser(username);
     if (user.isAdmin()) {
       // admin has all roles
-      return executeGetRoles(getJooq(), getName());
+      return getDatabase().getRoleManager().getRoleNames(getName());
     }
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
@@ -271,7 +269,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public String getRoleForUser(String user) {
     if (user == null) user = ANONYMOUS;
     user = user.trim();
-    for (Member m : executeGetMembers(getJooq(), this)) {
+    for (Member m : getDatabase().getRoleManager().getMembers(getName())) {
       if (m.getUser().equals(user)) return m.getRole();
     }
     return null;
