@@ -2,6 +2,7 @@ import { ISetting } from "metadata-utils";
 
 export interface ITablePermission {
   name: string;
+  id: string;
   canView: boolean;
   canInsert: boolean;
   canUpdate: boolean;

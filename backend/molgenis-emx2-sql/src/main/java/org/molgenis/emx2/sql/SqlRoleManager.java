@@ -184,12 +184,13 @@ public class SqlRoleManager {
                        GROUP BY table_name""",
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
+        String tableName = row.get("table_name", String.class);
         Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
         Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
         Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
         Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
         result.add(
-            new TablePermission(row.get("table_name", String.class))
+            new TablePermission(tableName)
                 .select(select)
                 .insert(insert)
                 .update(update)
