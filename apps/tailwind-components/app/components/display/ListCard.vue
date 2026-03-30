@@ -17,15 +17,24 @@ const descriptionColumn = computed(() =>
   )
 );
 
-const detailColumns = computed(() =>
-  (props.columns ?? []).filter(
-    (c) =>
-      c.role !== "TITLE" &&
-      c.role !== "DESCRIPTION" &&
-      c.role !== "LOGO" &&
-      props.data[c.id] != null
-  )
-);
+const detailColumns = computed(() => {
+  const cols = props.columns ?? [];
+  const explicit = cols.filter(
+    (c) => c.role === "DETAIL" && props.data[c.id] != null
+  );
+  if (explicit.length > 0) return explicit;
+  return cols
+    .filter(
+      (c) =>
+        !c.role &&
+        (!c.key || c.key === 0) &&
+        c.columnType !== "HEADING" &&
+        c.columnType !== "SECTION" &&
+        !c.id.startsWith("mg_") &&
+        props.data[c.id] != null
+    )
+    .slice(0, 5);
+});
 
 const logoColumn = computed(() =>
   props.columns?.find((c) => c.role === "LOGO" && props.data[c.id] != null)
