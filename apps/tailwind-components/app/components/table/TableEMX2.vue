@@ -1,5 +1,9 @@
 <template>
   <div class="flex pb-[30px] justify-between">
+    <RowControles
+      :number-of-selected-rows="numberOfSelectedRows"
+      @row-action="handleRowAction"
+    />
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       v-model="settings.search"
@@ -39,6 +43,11 @@
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
           <tr>
+            <TableHeadCell class="sticky left-0 bg-table z-20 w-12">
+              <div class="flex justify-center items-center">
+                <Checkbox @change="toggleAllRows" />
+              </div>
+            </TableHeadCell>
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
               <TableHeaderAction
                 :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -86,6 +95,17 @@
             }"
           >
             <TableCellEMX2
+              class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+            >
+              <div class="flex justify-center items-center h-full">
+                <Checkbox
+                  :model-value="selectedRows.has(getRowId(row))"
+                  @update:model-value="toggleRowSelection(getRowId(row))"
+                />
+              </div>
+            </TableCellEMX2>
+
+            <TableCellEMX2
               v-if="showDraftColumn"
               class="text-table-row group-hover:bg-hover"
             >
@@ -108,7 +128,7 @@
             >
               <template #row-actions v-if="colIndex === 0">
                 <div
-                  class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                  class="absolute left-14 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                 >
                   <Button
                     v-if="isEditable"
@@ -240,7 +260,6 @@ import { computed, nextTick, ref, useId, watch } from "vue";
 import type {
   IRow,
   IColumn,
-  IRefColumn,
   columnValue,
 } from "../../../../metadata-utils/src/types";
 import type {
@@ -270,9 +289,11 @@ import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import Checkbox from "../input/Checkbox.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
+import RowControles from "./control/RowControles.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -285,6 +306,10 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (e: "view-details", payload: IRow): void;
+}>();
+
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
@@ -296,6 +321,7 @@ const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
+const selectedRows = ref<Set<string>>(new Set());
 
 const tableContainer = ref<HTMLElement | null>(null);
 
@@ -394,8 +420,58 @@ const sortedVisibleColumns = computed(() => {
   return sortColumns(visibleColumns);
 });
 
+const allRowsSelected = computed(() => {
+  return (
+    rows.value.length > 0 &&
+    rows.value.every((row) => selectedRows.value.has(getRowId(row)))
+  );
+});
+
+const someRowsSelected = computed(() => {
+  return (
+    selectedRows.value.size > 0 && selectedRows.value.size < rows.value.length
+  );
+});
+
+const numberOfSelectedRows = computed(() => selectedRows.value.size);
+
 function handleColumnsUpdate(newColumns: IColumn[]) {
   columns.value = newColumns;
+}
+
+function toggleRowSelection(rowId: string) {
+  if (selectedRows.value.has(rowId)) {
+    selectedRows.value.delete(rowId);
+  } else {
+    selectedRows.value.add(rowId);
+  }
+}
+
+function toggleAllRows() {
+  if (allRowsSelected.value) {
+    selectedRows.value.clear();
+  } else {
+    rows.value.forEach((row) => {
+      selectedRows.value.add(getRowId(row));
+    });
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  if ("action" in payload) {
+    const action = payload.action;
+    const singleRowSelected =
+      selectedRows.value.size === 1
+        ? rows.value.find((row) => selectedRows.value.has(getRowId(row)))
+        : null;
+    if (action === "delete-selection" && singleRowSelected) {
+      onShowDeleteModal(singleRowSelected);
+    } else if (action === "edit-selection" && singleRowSelected) {
+      onShowEditModal(singleRowSelected);
+    } else if (action === "view-details" && singleRowSelected) {
+      emit("view-details", singleRowSelected);
+    }
+  }
 }
 
 function handleSortRequest(columnId: string) {

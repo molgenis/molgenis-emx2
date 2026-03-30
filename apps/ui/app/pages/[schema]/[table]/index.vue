@@ -110,6 +110,7 @@ const { isAdmin, session } = await useSession(schemaId);
       :tableId="tableId"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      @view-details="handleViewRowRequest"
     >
       <template #additional-row-actions="{ row }">
         <Button
