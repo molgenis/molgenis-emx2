@@ -88,7 +88,7 @@ const sectionHeading = computed(() => {
         <dt class="font-bold text-body-base mb-2 capitalize">
           {{ col.meta.displayLabel || col.meta.label || col.meta.id }}
         </dt>
-        <dd class="text-black">
+        <dd class="text-black ml-0">
           <RecordColumn
             :column="col.meta"
             :value="col.value"

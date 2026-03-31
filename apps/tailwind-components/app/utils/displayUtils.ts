@@ -124,6 +124,7 @@ export function getRoleText(value: any): string {
   if (Array.isArray(value))
     return value.map((item) => item?.name ?? String(item)).join(", ");
   if (typeof value === "object" && value.name) return value.name;
+  if (typeof value === "object") return Object.values(value).filter(Boolean).join(" ");
   return String(value);
 }
 

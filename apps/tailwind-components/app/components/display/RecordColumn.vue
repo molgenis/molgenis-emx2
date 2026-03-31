@@ -9,6 +9,7 @@ import {
   buildRefHref,
   hasOntologyHierarchy,
   filterColumnsByRole,
+  getRowLabel,
 } from "../../utils/displayUtils";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
@@ -119,6 +120,13 @@ const isHierarchicalOntology = computed(() => {
   return hasOntologyHierarchy(props.value);
 });
 
+function getInlineHref(_col: IColumn, row: Record<string, any>): string {
+  const schema = props.column.refSchemaId || props.schemaId || "";
+  const table = props.column.refTableId || "";
+  const label = getRowLabel(row, props.column.refLabelDefault);
+  return `/${schema}/${table}/${encodeURIComponent(label)}`;
+}
+
 const refHref = ref<string | undefined>();
 
 watchEffect(async () => {
@@ -182,6 +190,8 @@ watchEffect(async () => {
     :layout="column.display || 'TABLE'"
     :schema-id="column.refSchemaId || schemaId"
     :table-id="column.refTableId"
+    :get-href="getInlineHref"
+    :row-label="column.refLabelDefault"
   />
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>

@@ -26,7 +26,7 @@ Subpopulations,,administrative,heading,,,,,,,,,Administrative information,"DataC
 Subpopulations,,counts,refback,,,,Subpopulation counts,,subpopulation,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",,,
 Subpopulations,,contact point,ref,,,,Contacts,resource,,,dcat:contactPoint,Contact point for this subpopulation. Value copied from Resources table,DataCatalogueFlat,,,
 Subpopulations,,publisher,ref,,,,Organisations,resource,,,dcterms:publisher,Organisation that published this subpopulation. Value copied from Resources table,DataCatalogueFlat,,,
-Subpopulations,,creator,ref_array,,,,Organisations,resource,,,dcterms:creator,Organisation(s) that created this subpopulation. Value copied from Resources table,DataCatalogueFlat,,,
+Subpopulations,,creator,ref_array,,,,Organisations,resource,,,dcterms:creator,Organisation(s) that created this subpopulation. Value copied from Resources table,DataCatalogueFlat,,cards,
 Subpopulations,,issued,datetime,,,,,,,,dcterms:issued,When the data for this subpopulation was first published,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Subpopulations,,modified,datetime,,,,,,,,dcterms:modified, When the data for this subpopulation was last modified,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Subpopulations,,theme,ontology_array,,,CatalogueOntologies,Themes,,,,dcat:theme,"A main category of the subpopulation. A subpopulation can have multiple themes, for health data theme must at least take the value 'Health', which is set as a default","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",= [{name: 'Health'}],,

@@ -526,8 +526,8 @@ describe("getRoleText", () => {
     expect(getRoleText([{ name: "A" }, { name: "B" }])).toBe("A, B");
   });
 
-  it("coerces non-name object to string", () => {
-    expect(getRoleText({ other: "x" })).toBe("[object Object]");
+  it("joins non-name object values", () => {
+    expect(getRoleText({ other: "x" })).toBe("x");
   });
 });
 

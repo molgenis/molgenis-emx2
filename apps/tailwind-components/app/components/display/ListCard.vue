@@ -6,6 +6,7 @@ import ValueEMX2 from "../value/EMX2.vue";
 import {
   getDetailColumns,
   getDescriptionColumn,
+  getLogoColumn,
 } from "../../utils/displayUtils";
 
 const props = defineProps<{
@@ -22,11 +23,26 @@ const descriptionColumn = computed(() =>
 const detailColumns = computed(() =>
   getDetailColumns(props.columns ?? [], props.data)
 );
+
+const logoColumn = computed(() =>
+  getLogoColumn(props.columns ?? [], props.data)
+);
+
+const logoUrl = computed(() => {
+  if (!logoColumn.value) return undefined;
+  return props.data[logoColumn.value.id]?.url;
+});
 </script>
 
 <template>
   <li class="border lg:even:border-l-0 p-11 relative -mb-[1px]">
     <div class="flex items-start flex-col h-full">
+      <img
+        v-if="logoUrl"
+        :src="logoUrl"
+        :alt="title"
+        class="max-h-16 max-w-full mb-2 object-contain"
+      />
       <span class="block">
         <NuxtLink
           v-if="href"

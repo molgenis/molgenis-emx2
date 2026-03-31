@@ -27,7 +27,7 @@
 
   <div
     ref="tableContainer"
-    class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
+    class="relative rounded-b-theme border border-theme border-color-theme"
   >
     <div
       v-if="guideX !== null"

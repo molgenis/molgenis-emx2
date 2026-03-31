@@ -7,7 +7,6 @@ import PageHeader from "../../../../../tailwind-components/app/components/PageHe
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import Emx2RecordView from "../../../../../tailwind-components/app/components/display/Emx2RecordView.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
-import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import { computed, ref, useId } from "vue";
@@ -38,12 +37,7 @@ const { data: rowData, refresh } = await useAsyncData(
 );
 
 const showEditModal = ref(false);
-const showDeleteModal = ref(false);
 const recordViewKey = ref(0);
-
-function afterRowDeleted() {
-  router.push(`/${schemaId}/${tableId}`);
-}
 
 function afterEditClosed() {
   showEditModal.value = false;
@@ -52,10 +46,6 @@ function afterEditClosed() {
 }
 
 const enableEditing = computed(() => {
-  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
-});
-
-const enableDeleting = computed(() => {
   return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
 });
 </script>
@@ -87,27 +77,9 @@ const enableDeleting = computed(() => {
           @click="showEditModal = true"
           >Edit
         </Button>
-        <Button
-          v-if="enableDeleting"
-          type="outline"
-          icon="trash"
-          @click="showDeleteModal = true"
-          >Delete
-        </Button>
       </div>
     </template>
   </Emx2RecordView>
-
-  <DeleteModal
-    v-if="tableMetadata && rowData && showDeleteModal"
-    :showButton="false"
-    :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
-    v-model:visible="showDeleteModal"
-    @update:deleted="afterRowDeleted"
-    @update:cancelled="showDeleteModal = false"
-  />
 
   <EditModal
     v-if="tableMetadata && rowData && showEditModal"

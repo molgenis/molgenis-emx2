@@ -9,6 +9,8 @@ import {
   isTopSection,
   getTitleText,
   getSubtitleText,
+  getLogoColumn,
+  getRoleText,
 } from "../../utils/displayUtils";
 
 const props = withDefaults(
@@ -135,9 +137,16 @@ const navSections = computed(() =>
 const navTitle = computed(() => {
   const keyColumns = props.columns
     .filter((c) => c.key === 1)
-    .map((c) => props.data[c.id])
+    .map((c) => getRoleText(props.data[c.id]))
     .filter(Boolean);
   return keyColumns.join(" - ") || undefined;
+});
+
+const logoColumn = computed(() => getLogoColumn(props.columns, props.data));
+const logoUrl = computed(() => {
+  if (!logoColumn.value) return undefined;
+  const val = props.data[logoColumn.value.id];
+  return val?.url;
 });
 
 const hasSideNav = computed(
@@ -164,7 +173,7 @@ const autoSubtitle = computed(() => getSubtitleText(props.columns, props.data));
         </div>
       </template>
       <template v-if="hasSideNav" #sidebar>
-        <SideNav :sections="navSections" :title="navTitle" />
+        <SideNav :sections="navSections" :title="navTitle" :image="logoUrl" />
       </template>
       <template #main>
         <div class="grid lg:gap-2.5 gap-0">

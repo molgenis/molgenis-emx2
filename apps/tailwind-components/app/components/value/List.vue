@@ -134,8 +134,7 @@ function handleCellClick() {
     <span v-else>{{ elementType }}</span>
     <span
       v-if="Number(data?.length) - 1 !== Number(index) && !hideListSeparator"
-    >
-      ,&nbsp;
+      >,
     </span>
   </template>
 </template>

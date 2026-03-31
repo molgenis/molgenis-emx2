@@ -35,21 +35,26 @@ function rowKey(row: IRow, index: number): string {
   return String(index);
 }
 
-const firstColumnConfig = computed(() => {
-  const firstCol = props.columns[0];
-  return firstCol ? getColumnConfig(firstCol.id) : undefined;
+const linkColumnIndex = computed(() => {
+  const titleIndex = props.columns.findIndex((c) => c.role === "TITLE");
+  if (titleIndex !== -1) return titleIndex;
+  const keyIndex = props.columns.findIndex((c) => c.key === 1);
+  return keyIndex;
 });
 
-const firstColumnIsKey = computed(
-  () => props.columns.length > 0 && props.columns[0]?.key === 1
-);
+const linkColumnConfig = computed(() => {
+  const idx = linkColumnIndex.value;
+  if (idx === -1) return undefined;
+  const col = props.columns[idx];
+  return col ? getColumnConfig(col.id) : undefined;
+});
 
 const isRowClickable = computed(() => !!props.schemaId && !!props.tableId);
 
 async function handleRowClick(row: IRow) {
   if (!props.schemaId || !props.tableId) return;
-  const rowKey = await getPrimaryKey(row, props.tableId, props.schemaId);
-  const href = buildRefHref(props.schemaId, props.tableId, undefined, rowKey);
+  const key = await getPrimaryKey(row, props.tableId, props.schemaId);
+  const href = buildRefHref(props.schemaId, props.tableId, undefined, key);
   navigateTo(href);
 }
 </script>
@@ -75,37 +80,45 @@ async function handleRowClick(row: IRow) {
         <tr
           v-for="(row, rowIndex) in rows"
           :key="rowKey(row, rowIndex)"
-          class="sm:hover:bg-hover sm:hover:cursor-pointer"
-          @click="isRowClickable ? handleRowClick(row) : undefined"
+          class="sm:hover:bg-hover"
         >
           <td
             v-for="(col, colIndex) in columns"
             :key="col.id"
             :class="[
-              'py-2.5 px-2.5 border-b border-gray-200 text-table-row first:font-bold first:text-link first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5',
+              'py-2.5 px-2.5 border-b border-gray-200 text-table-row first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5',
               colIndex > 0 ? 'hidden sm:table-cell' : '',
             ]"
           >
             <div
-              v-if="colIndex === 0 && firstColumnIsKey"
+              v-if="colIndex === linkColumnIndex"
               class="flex items-center gap-2"
             >
               <slot name="actions" :row="row" />
               <NuxtLink
-                v-if="firstColumnConfig?.getHref"
-                :to="firstColumnConfig.getHref(col, row)"
-                class="text-link hover:underline truncate"
+                v-if="linkColumnConfig?.getHref"
+                :to="linkColumnConfig.getHref(col, row)"
+                class="font-bold text-link hover:underline truncate"
               >
                 <ValueEMX2 :metadata="col" :data="row[col.id]" />
               </NuxtLink>
               <span
-                v-else-if="firstColumnConfig?.clickAction"
-                class="text-link hover:underline cursor-pointer truncate"
-                @click="firstColumnConfig.clickAction(col, row)"
+                v-else-if="linkColumnConfig?.clickAction"
+                class="font-bold text-link hover:underline cursor-pointer truncate"
+                @click="linkColumnConfig.clickAction(col, row)"
               >
                 <ValueEMX2 :metadata="col" :data="row[col.id]" />
               </span>
-              <ValueEMX2 v-else :metadata="col" :data="row[col.id]" />
+              <span
+                v-else-if="isRowClickable"
+                class="font-bold text-link hover:underline cursor-pointer truncate"
+                @click="handleRowClick(row)"
+              >
+                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+              </span>
+              <span v-else class="font-bold">
+                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+              </span>
             </div>
             <ValueEMX2 v-else :metadata="col" :data="row[col.id]" />
           </td>
