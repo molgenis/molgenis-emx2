@@ -5,8 +5,6 @@ import { toRefColumn } from "../../utils/typeUtils";
 import ValueBool from "./Bool.vue";
 import ValueDecimal from "./Decimal.vue";
 import ValueEmail from "./Email.vue";
-import ValueDate from "./Date.vue";
-import ValueDateTime from "./DateTime.vue";
 import ValueFile from "./File.vue";
 import ValueHyperlink from "./Hyperlink.vue";
 import ValueInt from "./Int.vue";
@@ -17,6 +15,8 @@ import ValueRef from "./Ref.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
+import ValueDate from "./Date.vue";
+import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
