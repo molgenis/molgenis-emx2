@@ -153,7 +153,7 @@ public class TestColumn {
                 .setRefBack("resource"));
 
     Column countsColumn = schema.getTableMetadata("Resources").getColumn("counts");
-    assertEquals("${subpopulation.name}.${ageGroup}", countsColumn.getRefLabelDefault());
+    assertEquals("${subpopulation.name} ${ageGroup}", countsColumn.getRefLabelDefault());
   }
 
   @Test
