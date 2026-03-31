@@ -785,7 +785,7 @@ public class GraphqlSchemaFieldFactory {
                     .name(ROLES)
                     .type(GraphQLList.list(outputRolesType)));
 
-    if (schema.getPermissionEvaluator().canManage()) {
+    if (PermissionEvaluator.canManage(schema)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition()
               .name(MEMBERS)

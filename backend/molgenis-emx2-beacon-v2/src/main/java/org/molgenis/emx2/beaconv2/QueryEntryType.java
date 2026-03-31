@@ -57,7 +57,7 @@ public class QueryEntryType {
     if (table == null) {
       throw new MolgenisException("Table " + entryType.getId() + " does not exist");
     }
-    if (isAuthorized(schema.getPermissionEvaluator(), table.getMetadata())) {
+    if (isAuthorized(schema, table.getMetadata())) {
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 
@@ -89,7 +89,7 @@ public class QueryEntryType {
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
-    if (!isAuthorized(table.getSchema().getPermissionEvaluator(), table.getMetadata())) return 0;
+    if (!isAuthorized(table.getSchema(), table.getMetadata())) return 0;
     int numTotalResults = 0;
     ObjectNode resultSet = mapper.createObjectNode();
     resultSet.put("id", table.getSchema().getName());
@@ -235,12 +235,12 @@ public class QueryEntryType {
     return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();
   }
 
-  private boolean isAuthorized(PermissionEvaluator evaluator, TableMetadata table) {
-    AggregateLevel level = evaluator.getAggregateLevel(table);
+  private boolean isAuthorized(Schema schema, TableMetadata table) {
+    AggregateLevel level = PermissionEvaluator.getAggregateLevel(schema, table);
     return switch (this.granularity) {
       case BOOLEAN -> level.ordinal() >= AggregateLevel.EXISTS.ordinal();
       case COUNT, AGGREGATED -> level.ordinal() >= AggregateLevel.RANGE.ordinal();
-      case RECORD, UNDEFINED -> evaluator.canView(table);
+      case RECORD, UNDEFINED -> PermissionEvaluator.canView(schema, table);
     };
   }
 }

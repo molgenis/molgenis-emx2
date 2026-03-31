@@ -21,6 +21,7 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,20 +49,17 @@ public class SqlQuery extends QueryBean {
   private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
 
   private final SqlSchemaMetadata schema;
-  private final PermissionEvaluator permissionEvaluator;
   private final List<String> tableAliasList = new LinkedList<>();
   private Set<String> tablesWithSelectPermission = null;
 
   public SqlQuery(SqlSchemaMetadata schema, String field) {
     super(field);
     this.schema = schema;
-    this.permissionEvaluator = new SqlPermissionEvaluator(schema);
   }
 
   public SqlQuery(SqlSchemaMetadata schema, String field, SelectColumn[] selection) {
     super(field);
     this.schema = schema;
-    this.permissionEvaluator = new SqlPermissionEvaluator(schema);
     this.select(selection);
   }
 
@@ -188,7 +186,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!permissionEvaluator.canView(table)) {
+    if (!PermissionEvaluator.canView(getSchema(), table)) {
       throw new MolgenisException(
           "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
@@ -707,7 +705,7 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (permissionEvaluator.tablePermissionAtLeast(table, AggregateLevel.EXISTS)) {
+        if (PermissionEvaluator.tablePermissionAtLeast(getSchema(), table, AggregateLevel.EXISTS)) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
@@ -742,7 +740,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
-    return switch (permissionEvaluator.getAggregateLevel(table)) {
+    return switch (PermissionEvaluator.getAggregateLevel(getSchema(), table)) {
       case COUNT -> count();
       case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, AGGREGATE_COUNT_THRESHOLD);
       case RANGE ->
@@ -1777,5 +1775,9 @@ public class SqlQuery extends QueryBean {
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
+  }
+
+  private Schema getSchema() {
+    return schema.getDatabase().getSchema(schema.getName());
   }
 }

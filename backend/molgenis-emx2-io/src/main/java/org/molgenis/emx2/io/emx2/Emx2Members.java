@@ -47,6 +47,6 @@ public class Emx2Members {
   }
 
   private static boolean canAccessMembers(Schema schema) {
-    return schema.getPermissionEvaluator().canManage();
+    return PermissionEvaluator.canManage(schema);
   }
 }

@@ -93,6 +93,4 @@ public interface Schema {
   List<Role> getRoleInfos();
 
   List<TablePermission> getPermissionsForActiveUser();
-
-  PermissionEvaluator getPermissionEvaluator();
 }

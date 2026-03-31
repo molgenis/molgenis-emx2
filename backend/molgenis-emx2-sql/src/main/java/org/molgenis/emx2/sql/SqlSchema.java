@@ -424,7 +424,7 @@ public class SqlSchema implements Schema {
   }
 
   private void requireManager() {
-    if (!getPermissionEvaluator().canManage()) {
+    if (!PermissionEvaluator.canManage(this)) {
       throw new MolgenisException(
           "Permission denied: role management requires Manager or Owner privileges");
     }
@@ -467,10 +467,5 @@ public class SqlSchema implements Schema {
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
     return roleManager().getTablePermissionsForActiveUser(getName());
-  }
-
-  @Override
-  public PermissionEvaluator getPermissionEvaluator() {
-    return new SqlPermissionEvaluator(getMetadata());
   }
 }

@@ -27,10 +27,9 @@ public class MolgenisIO {
     outputRoles(store, schema);
     outputSettings(store, schema);
 
-    PermissionEvaluator evaluator = schema.getPermissionEvaluator();
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      if (evaluator.canView(table.getMetadata())) {
+      if (PermissionEvaluator.canView(schema, table.getMetadata())) {
         writeTableToStore(store, table, includeSystemColumns);
       }
     }

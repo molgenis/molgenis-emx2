@@ -94,7 +94,7 @@ public class GraphqlFactory {
     mutationBuilder.field(schemaFields.dropMutation(schema));
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
 
-    if (schema.getPermissionEvaluator().canManage()) {
+    if (PermissionEvaluator.canManage(schema)) {
       queryBuilder.field(schemaFields.changeLogQuery(schema));
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
     }

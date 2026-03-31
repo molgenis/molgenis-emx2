@@ -66,10 +66,10 @@ class TestPermissionEvaluator {
     schema.addMember(USER_CUSTOM, "CustomReader");
   }
 
-  private static PermissionEvaluator evaluatorFor(String user) {
+  private static Schema schemaFor(String user) {
     database.becomeAdmin();
     database.setActiveUser(user);
-    return database.getSchema(SCHEMA).getPermissionEvaluator();
+    return database.getSchema(SCHEMA);
   }
 
   @Nested
@@ -77,42 +77,41 @@ class TestPermissionEvaluator {
 
     @Test
     void viewerCanViewAllTables() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      TableMetadata tableB = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_B);
-      assertTrue(eval.canView(tableA));
-      assertTrue(eval.canView(tableB));
+      Schema s = schemaFor(USER_VIEWER);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+      assertTrue(PermissionEvaluator.canView(s, tableA));
+      assertTrue(PermissionEvaluator.canView(s, tableB));
     }
 
     @Test
     void existsUserCannotViewTables() {
-      PermissionEvaluator eval = evaluatorFor(USER_EXISTS);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canView(tableA));
+      Schema s = schemaFor(USER_EXISTS);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(PermissionEvaluator.canView(s, tableA));
     }
 
     @Test
     void customRoleCanViewGrantedTableOnly() {
-      PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      TableMetadata tableB = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_B);
-      assertTrue(eval.canView(tableA));
-      assertFalse(eval.canView(tableB));
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+      assertTrue(PermissionEvaluator.canView(s, tableA));
+      assertFalse(PermissionEvaluator.canView(s, tableB));
     }
 
     @Test
     void ontologyTablesAlwaysViewable() {
-      PermissionEvaluator eval = evaluatorFor(USER_EXISTS);
-      TableMetadata ontology =
-          database.getSchema(SCHEMA).getMetadata().getTableMetadata(ONTOLOGY_TABLE);
-      assertTrue(eval.canView(ontology));
+      Schema s = schemaFor(USER_EXISTS);
+      TableMetadata ontology = s.getMetadata().getTableMetadata(ONTOLOGY_TABLE);
+      assertTrue(PermissionEvaluator.canView(s, ontology));
     }
 
     @Test
     void editorCanViewAllTables() {
-      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertTrue(eval.canView(tableA));
+      Schema s = schemaFor(USER_EDITOR);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(PermissionEvaluator.canView(s, tableA));
     }
   }
 
@@ -121,59 +120,58 @@ class TestPermissionEvaluator {
 
     @Test
     void viewerGetsCount() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_VIEWER);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.COUNT, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void countGetsCount() {
-      PermissionEvaluator eval = evaluatorFor(USER_COUNT);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_COUNT);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.COUNT, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void aggregatorGetsAggregator() {
-      PermissionEvaluator eval = evaluatorFor(USER_AGGREGATOR);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.AGGREGATOR, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_AGGREGATOR);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.AGGREGATOR, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void rangeGetsRange() {
-      PermissionEvaluator eval = evaluatorFor(USER_RANGE);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.RANGE, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_RANGE);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.RANGE, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void existsGetsExists() {
-      PermissionEvaluator eval = evaluatorFor(USER_EXISTS);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.EXISTS, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_EXISTS);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.EXISTS, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void customRoleGetsCountOnGrantedTable() {
-      PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(tableA));
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertEquals(AggregateLevel.COUNT, PermissionEvaluator.getAggregateLevel(s, tableA));
     }
 
     @Test
     void customRoleGetsExistsOnNonGrantedTable() {
-      PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
-      TableMetadata tableB = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_B);
-      assertEquals(AggregateLevel.EXISTS, eval.getAggregateLevel(tableB));
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+      assertEquals(AggregateLevel.EXISTS, PermissionEvaluator.getAggregateLevel(s, tableB));
     }
 
     @Test
     void ontologyTableGetsCount() {
-      PermissionEvaluator eval = evaluatorFor(USER_EXISTS);
-      TableMetadata ontology =
-          database.getSchema(SCHEMA).getMetadata().getTableMetadata(ONTOLOGY_TABLE);
-      assertEquals(AggregateLevel.COUNT, eval.getAggregateLevel(ontology));
+      Schema s = schemaFor(USER_EXISTS);
+      TableMetadata ontology = s.getMetadata().getTableMetadata(ONTOLOGY_TABLE);
+      assertEquals(AggregateLevel.COUNT, PermissionEvaluator.getAggregateLevel(s, ontology));
     }
   }
 
@@ -182,23 +180,23 @@ class TestPermissionEvaluator {
 
     @Test
     void editorCanInsert() {
-      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertTrue(eval.canInsert(tableA));
+      Schema s = schemaFor(USER_EDITOR);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(PermissionEvaluator.canInsert(s, tableA));
     }
 
     @Test
     void viewerCannotInsert() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canInsert(tableA));
+      Schema s = schemaFor(USER_VIEWER);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(PermissionEvaluator.canInsert(s, tableA));
     }
 
     @Test
     void customReaderCannotInsert() {
-      PermissionEvaluator eval = evaluatorFor(USER_CUSTOM);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canInsert(tableA));
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(PermissionEvaluator.canInsert(s, tableA));
     }
 
     @Test
@@ -210,11 +208,11 @@ class TestPermissionEvaluator {
       schema.addMember(USER_NO_ROLE, "InsertWriter");
 
       try {
-        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
-        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
-        TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
-        assertTrue(eval.canInsert(tableA));
-        assertFalse(eval.canInsert(tableB));
+        Schema s = schemaFor(USER_NO_ROLE);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+        assertTrue(PermissionEvaluator.canInsert(s, tableA));
+        assertFalse(PermissionEvaluator.canInsert(s, tableB));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
@@ -228,16 +226,16 @@ class TestPermissionEvaluator {
 
     @Test
     void editorCanUpdate() {
-      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertTrue(eval.canUpdate(tableA));
+      Schema s = schemaFor(USER_EDITOR);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(PermissionEvaluator.canUpdate(s, tableA));
     }
 
     @Test
     void viewerCannotUpdate() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canUpdate(tableA));
+      Schema s = schemaFor(USER_VIEWER);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(PermissionEvaluator.canUpdate(s, tableA));
     }
 
     @Test
@@ -249,11 +247,11 @@ class TestPermissionEvaluator {
       schema.addMember(USER_NO_ROLE, "UpdateWriter");
 
       try {
-        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
-        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
-        TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
-        assertTrue(eval.canUpdate(tableA));
-        assertFalse(eval.canUpdate(tableB));
+        Schema s = schemaFor(USER_NO_ROLE);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+        assertTrue(PermissionEvaluator.canUpdate(s, tableA));
+        assertFalse(PermissionEvaluator.canUpdate(s, tableB));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
@@ -270,9 +268,9 @@ class TestPermissionEvaluator {
       schema.addMember(USER_NO_ROLE, "InsertOnly");
 
       try {
-        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
-        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
-        assertFalse(eval.canUpdate(tableA));
+        Schema s = schemaFor(USER_NO_ROLE);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(PermissionEvaluator.canUpdate(s, tableA));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
@@ -286,16 +284,16 @@ class TestPermissionEvaluator {
 
     @Test
     void editorCanDelete() {
-      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertTrue(eval.canDelete(tableA));
+      Schema s = schemaFor(USER_EDITOR);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertTrue(PermissionEvaluator.canDelete(s, tableA));
     }
 
     @Test
     void viewerCannotDelete() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      TableMetadata tableA = database.getSchema(SCHEMA).getMetadata().getTableMetadata(TABLE_A);
-      assertFalse(eval.canDelete(tableA));
+      Schema s = schemaFor(USER_VIEWER);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      assertFalse(PermissionEvaluator.canDelete(s, tableA));
     }
 
     @Test
@@ -307,11 +305,11 @@ class TestPermissionEvaluator {
       schema.addMember(USER_NO_ROLE, "DeleteWriter");
 
       try {
-        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
-        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
-        TableMetadata tableB = schema.getMetadata().getTableMetadata(TABLE_B);
-        assertTrue(eval.canDelete(tableA));
-        assertFalse(eval.canDelete(tableB));
+        Schema s = schemaFor(USER_NO_ROLE);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+        assertTrue(PermissionEvaluator.canDelete(s, tableA));
+        assertFalse(PermissionEvaluator.canDelete(s, tableB));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
@@ -328,9 +326,9 @@ class TestPermissionEvaluator {
       schema.addMember(USER_NO_ROLE, "NoDelete");
 
       try {
-        PermissionEvaluator eval = evaluatorFor(USER_NO_ROLE);
-        TableMetadata tableA = schema.getMetadata().getTableMetadata(TABLE_A);
-        assertFalse(eval.canDelete(tableA));
+        Schema s = schemaFor(USER_NO_ROLE);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(PermissionEvaluator.canDelete(s, tableA));
       } finally {
         database.becomeAdmin();
         schema.removeMember(USER_NO_ROLE);
@@ -344,21 +342,21 @@ class TestPermissionEvaluator {
 
     @Test
     void managerCanManage() {
-      PermissionEvaluator eval = evaluatorFor(USER_MANAGER);
-      assertTrue(eval.canManage());
+      Schema s = schemaFor(USER_MANAGER);
+      assertTrue(PermissionEvaluator.canManage(s));
     }
 
     @Test
     void editorCannotManage() {
-      PermissionEvaluator eval = evaluatorFor(USER_EDITOR);
-      assertFalse(eval.canManage());
+      Schema s = schemaFor(USER_EDITOR);
+      assertFalse(PermissionEvaluator.canManage(s));
     }
 
     @Test
     void adminCanManage() {
       database.becomeAdmin();
-      PermissionEvaluator eval = database.getSchema(SCHEMA).getPermissionEvaluator();
-      assertTrue(eval.canManage());
+      Schema s = database.getSchema(SCHEMA);
+      assertTrue(PermissionEvaluator.canManage(s));
     }
   }
 
@@ -368,14 +366,14 @@ class TestPermissionEvaluator {
     @Test
     void adminIsAdmin() {
       database.becomeAdmin();
-      PermissionEvaluator eval = database.getSchema(SCHEMA).getPermissionEvaluator();
-      assertTrue(eval.isAdmin());
+      Schema s = database.getSchema(SCHEMA);
+      assertTrue(PermissionEvaluator.isAdmin(s));
     }
 
     @Test
     void regularUserIsNotAdmin() {
-      PermissionEvaluator eval = evaluatorFor(USER_VIEWER);
-      assertFalse(eval.isAdmin());
+      Schema s = schemaFor(USER_VIEWER);
+      assertFalse(PermissionEvaluator.isAdmin(s));
     }
   }
 }

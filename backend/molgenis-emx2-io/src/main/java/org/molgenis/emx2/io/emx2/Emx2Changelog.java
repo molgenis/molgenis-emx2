@@ -53,6 +53,6 @@ public class Emx2Changelog {
   }
 
   private static boolean canAccessChangelog(Schema schema) {
-    return schema.getPermissionEvaluator().canManage();
+    return PermissionEvaluator.canManage(schema);
   }
 }

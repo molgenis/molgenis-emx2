@@ -173,7 +173,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (new SqlPermissionEvaluator(this).canManage()) {
+    if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
       getDatabase()
           .tx(
               db -> {

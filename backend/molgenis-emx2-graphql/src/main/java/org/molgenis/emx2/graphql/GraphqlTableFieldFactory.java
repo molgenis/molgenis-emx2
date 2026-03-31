@@ -49,7 +49,6 @@ public class GraphqlTableFieldFactory {
           .build();
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
-  private final PermissionEvaluator permissionEvaluator;
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -63,7 +62,6 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
-    this.permissionEvaluator = schema.getPermissionEvaluator();
   }
 
   // helper to generate globally unique identifiers
@@ -302,7 +300,7 @@ public class GraphqlTableFieldFactory {
   }
 
   boolean hasViewPermission(TableMetadata table) {
-    return permissionEvaluator.canView(table);
+    return PermissionEvaluator.canView(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -336,12 +334,13 @@ public class GraphqlTableFieldFactory {
     }
 
     for (Column column : table.getColumnsIncludingSubclasses()) {
-      if (column.isReference() && (permissionEvaluator.canView(table) || column.isOntology())) {
+      if (column.isReference()
+          && (PermissionEvaluator.canView(schema, table) || column.isOntology())) {
         groupByBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
                 .name(column.getIdentifier())
                 .type(createTableObjectType(column.getRefTable())));
-      } else if (!column.isReference() && permissionEvaluator.canView(table)) {
+      } else if (!column.isReference() && PermissionEvaluator.canView(schema, table)) {
         createTableField(column, groupByBuilder);
       }
     }
@@ -361,15 +360,15 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (permissionEvaluator.tablePermissionAtLeast(table, AggregateLevel.EXISTS)) {
+    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.EXISTS)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (permissionEvaluator.tablePermissionAtLeast(table, AggregateLevel.RANGE)) {
+    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.RANGE)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (permissionEvaluator.tablePermissionAtLeast(table, AggregateLevel.COUNT)) {
+    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.COUNT)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())

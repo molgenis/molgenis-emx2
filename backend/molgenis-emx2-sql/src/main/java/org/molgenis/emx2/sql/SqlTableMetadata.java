@@ -421,7 +421,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setSettings(Map<String, String> settings) {
-    if (new SqlPermissionEvaluator((SqlSchemaMetadata) getSchema()).canUpdate(this)) {
+    if (PermissionEvaluator.canUpdate(getDatabase().getSchema(getSchemaName()), this)) {
       getDatabase()
           .tx(
               db ->

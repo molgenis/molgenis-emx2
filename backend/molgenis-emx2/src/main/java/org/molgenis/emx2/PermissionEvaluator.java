@@ -1,33 +1,68 @@
 package org.molgenis.emx2;
 
-/**
- * Single authority for authorization decisions. Combines system roles and table-level grants into a
- * unified answer, so callers don't need to understand both permission models.
- */
-public interface PermissionEvaluator {
+import static org.molgenis.emx2.Privileges.*;
 
-  /** Can the active user read rows from this table? */
-  boolean canView(TableMetadata table);
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-  /** What aggregate level does the active user have on this table? */
-  AggregateLevel getAggregateLevel(TableMetadata table);
+public final class PermissionEvaluator {
 
-  default boolean tablePermissionAtLeast(TableMetadata table, AggregateLevel level) {
-    return getAggregateLevel(table).isAtLeast(level);
+  private PermissionEvaluator() {}
+
+  public static boolean canView(Schema schema, TableMetadata table) {
+    return table.getTableType() == TableType.ONTOLOGIES
+        || hasRole(schema, VIEWER)
+        || permissionFor(schema, table).map(TablePermission::hasSelect).orElse(false);
   }
 
-  /** Can the active user insert rows into this table? */
-  boolean canInsert(TableMetadata table);
+  public static AggregateLevel getAggregateLevel(Schema schema, TableMetadata table) {
+    if (canView(schema, table)) return AggregateLevel.COUNT;
+    if (hasRole(schema, COUNT)) return AggregateLevel.COUNT;
+    if (hasRole(schema, AGGREGATOR)) return AggregateLevel.AGGREGATOR;
+    if (hasRole(schema, RANGE)) return AggregateLevel.RANGE;
+    if (hasRole(schema, EXISTS)) return AggregateLevel.EXISTS;
+    return AggregateLevel.NONE;
+  }
 
-  /** Can the active user update rows in this table? */
-  boolean canUpdate(TableMetadata table);
+  public static boolean tablePermissionAtLeast(
+      Schema schema, TableMetadata table, AggregateLevel level) {
+    return getAggregateLevel(schema, table).isAtLeast(level);
+  }
 
-  /** Can the active user delete rows from this table? */
-  boolean canDelete(TableMetadata table);
+  public static boolean canInsert(Schema schema, TableMetadata table) {
+    return hasRole(schema, EDITOR)
+        || permissionFor(schema, table).map(TablePermission::hasInsert).orElse(false);
+  }
 
-  /** Can the active user manage the schema (create/alter/drop tables, manage roles)? */
-  boolean canManage();
+  public static boolean canUpdate(Schema schema, TableMetadata table) {
+    return hasRole(schema, EDITOR)
+        || permissionFor(schema, table).map(TablePermission::hasUpdate).orElse(false);
+  }
 
-  /** Is the active user a database-level admin? */
-  boolean isAdmin();
+  public static boolean canDelete(Schema schema, TableMetadata table) {
+    return hasRole(schema, EDITOR)
+        || permissionFor(schema, table).map(TablePermission::hasDelete).orElse(false);
+  }
+
+  public static boolean canManage(Schema schema) {
+    return isAdmin(schema) || hasRole(schema, MANAGER);
+  }
+
+  public static boolean isAdmin(Schema schema) {
+    return schema.getDatabase().isAdmin();
+  }
+
+  private static boolean hasRole(Schema schema, Privileges privilege) {
+    return schema.getInheritedRolesForActiveUser().contains(privilege.toString());
+  }
+
+  private static Optional<TablePermission> permissionFor(Schema schema, TableMetadata table) {
+    return Optional.ofNullable(getPermissionsByTable(schema).get(table.getTableName()));
+  }
+
+  private static Map<String, TablePermission> getPermissionsByTable(Schema schema) {
+    return schema.getPermissionsForActiveUser().stream()
+        .collect(Collectors.toUnmodifiableMap(TablePermission::table, p -> p));
+  }
 }

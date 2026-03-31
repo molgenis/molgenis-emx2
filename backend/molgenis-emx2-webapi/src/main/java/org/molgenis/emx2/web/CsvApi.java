@@ -62,7 +62,7 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!schema.getPermissionEvaluator().canManage()) {
+    if (!PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
 
@@ -162,7 +162,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (schema.getPermissionEvaluator().canManage()) {
+    if (PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
