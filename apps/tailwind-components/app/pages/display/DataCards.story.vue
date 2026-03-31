@@ -58,7 +58,7 @@ const spec = `
 - Renders a grid of cards from a rows array
 - Inlines title, description, and detail fields per row
 - Supports 1- or 2-column grid layout
-- Optional href links per row via getHref prop
+- Optional href links per row via schemaId + tableId
 - Shows "No items" when rows is empty
 
 ## Props
@@ -67,14 +67,15 @@ const spec = `
 | rows | Record<string, any>[] | required |
 | columns | IColumn[] | undefined |
 | gridColumns | 1 \| 2 | 2 |
-| rowLabel | string | undefined |
-| getHref | (row) => string | undefined |
+| rowLabelTemplate | string | undefined |
+| schemaId | string | undefined |
+| tableId | string | undefined |
 
 ## Test Checklist
 - [ ] Cards render in 2-col grid by default
 - [ ] Cards render in 1-col grid when gridColumns=1
-- [ ] Title links when getHref provided
-- [ ] Title plain text when no getHref
+- [ ] Title links when schemaId + tableId provided
+- [ ] Title plain text when no schemaId/tableId
 - [ ] Description shown when DESCRIPTION column present
 - [ ] Detail columns shown as label-value pairs
 - [ ] Ref object values render correctly
@@ -96,9 +97,8 @@ const spec = `
           <DataCards
             :rows="rows"
             :columns="columns"
-            :get-href="
-              (row) => `/testSchema/Cohort/${encodeURIComponent(row.name)}`
-            "
+            schema-id="testSchema"
+            table-id="Cohort"
           />
         </div>
 
@@ -109,9 +109,8 @@ const spec = `
           <DataCards
             :rows="rowsWithRefs"
             :columns="columns"
-            :get-href="
-              (row) => `/testSchema/Cohort/${encodeURIComponent(row.name)}`
-            "
+            schema-id="testSchema"
+            table-id="Cohort"
           />
         </div>
 
