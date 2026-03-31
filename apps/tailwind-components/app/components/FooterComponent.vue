@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseIcon from "./BaseIcon.vue";
+import FooterVersion from "../../../catalogue/app/components/footer/FooterVersion.vue";
 </script>
 
 <template>
@@ -111,6 +112,7 @@ import BaseIcon from "./BaseIcon.vue";
         </ul>
       </div>
     </div>
+    <FooterVersion />
     <slot></slot>
   </div>
 </template>
