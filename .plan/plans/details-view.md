@@ -68,13 +68,27 @@ Nuxt auto-registers components as `Display{Name}` from `display/` folder. Curren
 RecordColumn is smart — fetches ref table metadata, resolves primary keys, builds filters. The "dumb" leaf rendering is already the sub-components (ValueEMX2, DataTable, DataCard, OntologyTreeDisplay). No benefit to splitting; just rename to acknowledge it's an Emx2 component.
 
 ### Tasks
-- [ ] Rename all display components
+- [x] Rename all display components
+- [ ] Clean up DataList: make truly dumb, move pagination/schema/getHref to Emx2DataList
+- [ ] Explicit layout types: TABLE, CARDS, LIST, LINKS (remove v-else fallback + component prop)
+- [ ] Update DisplayType enum backend to include LINKS
 - [ ] Story: DataTable — table with clickable title, various column types
 - [ ] Story: DataCard — card with role annotations (logo, title, description, detail)
-- [ ] Story: DataList — switch between TABLE/CARDS/bullet layouts
+- [ ] Story: DataList — switch between TABLE/CARDS/LIST/LINKS layouts
 - [ ] Story: DetailView — full detail page with sections, sidebar, nested lists
 - [ ] Deprecate old `Record.vue` (add note, don't delete yet)
-- [ ] Update all consumer imports (apps/ui, stories, tests)
+
+#### DataList layout types
+| Layout | Component | Description |
+|---|---|---|
+| TABLE | DataTable | Tabular rows with clickable title column |
+| CARDS | DataCard grid | Card grid (2 col desktop, 1 col mobile) |
+| LIST | DataCard list | Cards in single column |
+| LINKS | inline bullets | Simple name-only bullet links |
+
+#### DataList prop cleanup (make truly dumb)
+DataList props: `rows`, `columns`, `layout`, `rowLabel`
+Move to Emx2DataList: `schemaId`, `tableId`, `getHref`, `pagination`, `search`, `component`
 
 ## Open Items (this branch)
 

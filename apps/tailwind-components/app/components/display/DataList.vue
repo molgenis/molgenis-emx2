@@ -3,9 +3,9 @@ import { computed, type Component } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { getListColumns, getRowLabel } from "../../utils/displayUtils";
-import RecordTable from "./RecordTable.vue";
+import RecordTable from "./DataTable.vue";
 import InlinePagination from "./InlinePagination.vue";
-import ListCard from "./ListCard.vue";
+import ListCard from "./DataCard.vue";
 
 const props = withDefaults(
   defineProps<{

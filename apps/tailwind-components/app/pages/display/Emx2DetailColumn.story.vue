@@ -5,7 +5,7 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import DisplayRecordColumn from "../../components/display/RecordColumn.vue";
+import DisplayRecordColumn from "../../components/display/Emx2DetailColumn.vue";
 
 // Custom component for testing displayConfig.component with Vue Component
 const CustomPetDisplay = defineComponent({

@@ -4,8 +4,8 @@ import { useRoute, useRouter } from "vue-router";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import type { IColumnDisplay } from "../../../types/types";
 import DemoDataControls from "../../DemoDataControls.vue";
-import Emx2RecordView from "../../components/display/Emx2RecordView.vue";
-import RecordView from "../../components/display/RecordView.vue";
+import Emx2RecordView from "../../components/display/Emx2DetailView.vue";
+import RecordView from "../../components/display/DetailView.vue";
 
 const router = useRouter();
 const route = useRoute();

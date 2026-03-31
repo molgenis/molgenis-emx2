@@ -13,8 +13,8 @@ import {
 } from "../../utils/displayUtils";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
-import Emx2ListView from "./Emx2ListView.vue";
-import ListView from "./ListView.vue";
+import Emx2ListView from "./Emx2DataList.vue";
+import ListView from "./DataList.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
 import type {

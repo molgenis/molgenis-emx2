@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import type { ISectionField } from "../../../types/types";
-import RecordSection from "../../components/display/RecordSection.vue";
+import RecordSection from "../../components/display/DetailSection.vue";
 
 const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);

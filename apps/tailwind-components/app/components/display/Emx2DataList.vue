@@ -6,7 +6,7 @@ import { useTableData } from "../../composables/useTableData";
 import { getRowLabel, getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
-import ListView from "./ListView.vue";
+import ListView from "./DataList.vue";
 
 const props = defineProps<{
   schemaId: string;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IColumnDisplay, ISectionField } from "../../../types/types";
-import RecordSection from "./RecordSection.vue";
+import RecordSection from "./DetailSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
 import {

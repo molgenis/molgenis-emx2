@@ -5,7 +5,7 @@ import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import PageHeader from "../../components/PageHeader.vue";
 import BreadCrumbs from "../../components/BreadCrumbs.vue";
-import Emx2RecordView from "../../components/display/Emx2RecordView.vue";
+import Emx2RecordView from "../../components/display/Emx2DetailView.vue";
 import type { IRecordViewConfig } from "../../../types/types";
 
 const router = useRouter();

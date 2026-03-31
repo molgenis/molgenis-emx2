@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import ListCard from "../../components/display/ListCard.vue";
+import ListCard from "../../components/display/DataCard.vue";
 
 const columns: IColumn[] = [
   { id: "name", label: "Name", columnType: "STRING", key: 1, role: "TITLE" },

@@ -3,7 +3,7 @@ import { computed, type Component } from "vue";
 import { useAsyncData } from "#app";
 import type { IColumnDisplay, IRecordViewConfig } from "../../../types/types";
 import type { IRow } from "../../../../metadata-utils/src/types";
-import RecordView from "./RecordView.vue";
+import RecordView from "./DetailView.vue";
 import LoadingContent from "../LoadingContent.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import fetchRowData from "../../composables/fetchRowData";

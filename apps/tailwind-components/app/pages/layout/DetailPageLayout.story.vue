@@ -6,7 +6,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import ContentBlocks from "../../components/content/ContentBlocks.vue";
 import ContentBlock from "../../components/content/ContentBlock.vue";
-import RecordColumn from "../../components/display/RecordColumn.vue";
+import RecordColumn from "../../components/display/Emx2DetailColumn.vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const showSideNav = ref(true);
