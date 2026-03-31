@@ -7,6 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -26,6 +27,7 @@ public class GraphqlSessionFieldFactory {
       GraphQLObjectType.newObject()
           .name("MolgenisTablePermission")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(CAN_VIEW)
@@ -203,6 +205,7 @@ public class GraphqlSessionFieldFactory {
         .map(
             p ->
                 Map.<String, Object>of(
+                    ID, convertToPascalCase(p.table()),
                     NAME, p.table(),
                     CAN_VIEW, Boolean.TRUE.equals(p.select()),
                     CAN_INSERT, Boolean.TRUE.equals(p.insert()),
