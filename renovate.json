@@ -3,16 +3,14 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [
+  "packageRules": [ 
     {
       "matchUpdateTypes": ["security"],
       "prPriority": 100,
       "prConcurrentLimit": 0,
       "prCreation": "immediate"
-    }
-  ],
-  "packageRules": [ 
-      {
+    },
+    {
       "matchManagers": ["gradle"],
       "matchPackagePatterns": [".*","!jooq"],
       "matchUpdateTypes": ["minor", "patch"],
