@@ -10,5 +10,9 @@ public enum AggregateLevel {
   EXISTS,
   RANGE,
   AGGREGATOR,
-  COUNT
+  COUNT;
+
+  public boolean isAtLeast(AggregateLevel other) {
+    return this.ordinal() >= other.ordinal();
+  }
 }

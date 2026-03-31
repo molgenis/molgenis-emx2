@@ -12,6 +12,10 @@ public interface PermissionEvaluator {
   /** What aggregate level does the active user have on this table? */
   AggregateLevel getAggregateLevel(TableMetadata table);
 
+  default boolean tablePermissionAtLeast(TableMetadata table, AggregateLevel level) {
+    return getAggregateLevel(table).isAtLeast(level);
+  }
+
   /** Can the active user insert rows into this table? */
   boolean canInsert(TableMetadata table);
 

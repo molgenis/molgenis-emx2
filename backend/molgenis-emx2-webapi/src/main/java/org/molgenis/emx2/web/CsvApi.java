@@ -62,7 +62,7 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+    if (schema.getPermissionEvaluator().canManage()) {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
 
@@ -162,7 +162,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+    if (schema.getPermissionEvaluator().canManage()) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
@@ -185,10 +185,6 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
-    return schema.getPermissionEvaluator().canManage();
   }
 
   private static void getSettings(Context ctx) throws IOException {
