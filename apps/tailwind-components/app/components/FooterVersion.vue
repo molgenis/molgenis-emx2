@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { useRuntimeConfig } from "#app";
-
-const config = useRuntimeConfig();
-const schema = config.public.schema as string;
-
-const { data } = await $fetch(`/${schema}/graphql`, {
+const { data } = await $fetch("/api/graphql", {
   key: `manifest`,
   method: "POST",
   body: {
