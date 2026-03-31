@@ -62,7 +62,7 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (schema.getPermissionEvaluator().canManage()) {
+    if (!schema.getPermissionEvaluator().canManage()) {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
 
