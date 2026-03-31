@@ -4,12 +4,11 @@
   </Button>
   <Modal
     v-model:visible="showModal"
-    type="right"
-    title="Columns"
-    subtitle="add table name hereu"
+    type="right"    title="Columns"
+    :subtitle="tableId"
     :background-accessible="false"
-  >
-    <div class="px-8 py-5">
+    maxWidth="max-w-md">
+      <div class="px-8 py-5">
       <div class="flex flex-row mb-5">
         <InputSelect
           id="column-sorting-select"
@@ -43,7 +42,7 @@
           >
             <Button v-if="option.visible" @click="option.visible = false" iconOnly type='inline' size='small' icon="visible" label="add" class="-mt-1 -mb-1 mr-1"/>
             <Button v-else @click="option.visible = true" iconOnly type='inline' size='small' icon="hidden" label="add" class="-mt-1 -mb-1 mr-1"/>
-            <span class="block hover:cursor-grab ">
+            <span class="block hover:cursor-grab truncate max-w-3/4">
               {{ option.label }}
             </span>
           </InputLabel>
@@ -81,9 +80,15 @@ import { UseSortable } from "@vueuse/integrations/useSortable/component";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
-const props = defineProps<{
+const props = withDefaults(
+  defineProps<{
   columns: IColumn[];
-}>();
+  tableId?: string;
+  }>(),
+  {
+    tableId: "",
+  }
+);
 
 const emits = defineEmits(["update:columns"]);
 
