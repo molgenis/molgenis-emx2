@@ -1,4 +1,4 @@
-package org.molgenis.emx2.harvester;
+package org.molgenis.emx2.harvester.jsonld;
 
 import java.io.IOException;
 import java.io.StringWriter;

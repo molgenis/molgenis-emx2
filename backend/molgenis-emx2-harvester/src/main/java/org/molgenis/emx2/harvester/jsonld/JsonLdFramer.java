@@ -1,4 +1,4 @@
-package org.molgenis.emx2.harvester;
+package org.molgenis.emx2.harvester.jsonld;
 
 import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdOptions;
