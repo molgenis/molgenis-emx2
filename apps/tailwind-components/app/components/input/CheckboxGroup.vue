@@ -13,6 +13,7 @@ withDefaults(
       options: IValueLabel[];
       showClearButton?: boolean;
       facetCounts?: Map<string, number>;
+      baseFacetCounts?: Map<string, number>;
       countsLoading?: boolean;
     }
   >(),
@@ -95,7 +96,20 @@ function resetModelValue() {
             {{ option.value }}
           </span>
           <span v-if="facetCounts" class="shrink-0 ml-0.5">
-            ({{ facetCounts.get(option.value as string) ?? 0 }})
+            <template
+              v-if="
+                baseFacetCounts &&
+                !modelValue?.includes(option.value) &&
+                baseFacetCounts.get(option.value as string) !==
+                  facetCounts.get(option.value as string)
+              "
+            >
+              ({{ facetCounts.get(option.value as string) ?? 0 }} /
+              {{ baseFacetCounts.get(option.value as string) ?? 0 }})
+            </template>
+            <template v-else>
+              ({{ facetCounts.get(option.value as string) ?? 0 }})
+            </template>
           </span>
         </span>
       </InputLabel>

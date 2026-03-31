@@ -517,6 +517,7 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             :facet-counts="
               localFacetCounts.size > 0 ? localFacetCounts : undefined
             "
+            :base-facet-counts="baseCounts.size > 0 ? baseCounts : undefined"
             :counts-loading="countsLoading"
           />
           <InputRadioGroup

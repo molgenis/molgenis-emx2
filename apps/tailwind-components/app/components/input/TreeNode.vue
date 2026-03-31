@@ -29,6 +29,7 @@ const props = withDefaults(
     scrollContainer?: HTMLElement | null;
     enableAutoLoad?: boolean;
     facetCounts?: Map<string, number>;
+    baseFacetCounts?: Map<string, number>;
     countsLoading?: boolean;
   }>(),
   {
@@ -412,9 +413,21 @@ onUnmounted(() => {
             :class="'text-title-contrast'"
           >
             {{ node.label || node.name
-            }}<span v-if="facetCounts" class="shrink-0 ml-0.5"
-              >({{ facetCounts.get(node.name) ?? 0 }})</span
-            >
+            }}<span v-if="facetCounts" class="shrink-0 ml-0.5">
+              <template
+                v-if="
+                  baseFacetCounts &&
+                  node.selected !== 'selected' &&
+                  baseFacetCounts.get(node.name) !== facetCounts.get(node.name)
+                "
+              >
+                ({{ facetCounts.get(node.name) ?? 0 }} /
+                {{ baseFacetCounts.get(node.name) ?? 0 }})
+              </template>
+              <template v-else>
+                ({{ facetCounts.get(node.name) ?? 0 }})
+              </template>
+            </span>
           </span>
         </InputLabel>
         <div
@@ -445,6 +458,7 @@ onUnmounted(() => {
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
           :facetCounts="facetCounts"
+          :baseFacetCounts="baseFacetCounts"
           :countsLoading="countsLoading"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
