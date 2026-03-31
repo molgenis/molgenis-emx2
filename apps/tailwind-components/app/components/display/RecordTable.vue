@@ -11,8 +11,6 @@ import ValueEMX2 from "../value/EMX2.vue";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { buildRefHref } from "../../utils/displayUtils";
 
-const COLUMN_WIDTH = 240;
-
 const props = defineProps<{
   columns: IColumn[];
   rows: IRow[];
@@ -46,8 +44,6 @@ const firstColumnIsKey = computed(
   () => props.columns.length > 0 && props.columns[0]?.key === 1
 );
 
-const tableWidth = computed(() => `${props.columns.length * COLUMN_WIDTH}px`);
-
 const isRowClickable = computed(() => !!props.schemaId && !!props.tableId);
 
 async function handleRowClick(row: IRow) {
@@ -60,17 +56,15 @@ async function handleRowClick(row: IRow) {
 
 <template>
   <div class="overflow-x-auto overscroll-x-contain">
-    <table class="text-left table-fixed" :style="{ minWidth: tableWidth }">
+    <table class="w-full table-auto">
       <thead>
-        <tr class="border-b border-black/10">
+        <tr>
           <th
             v-for="(col, colIndex) in columns"
             :key="col.id"
             :class="[
-              'px-3 py-2 text-body-sm font-semibold bg-table text-table-column-header whitespace-nowrap',
-              colIndex === 0 && firstColumnIsKey
-                ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
-                : '',
+              'py-2.5 px-2.5 text-left border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5',
+              colIndex > 0 ? 'hidden sm:table-cell' : '',
             ]"
           >
             {{ col.label || col.id }}
@@ -81,20 +75,15 @@ async function handleRowClick(row: IRow) {
         <tr
           v-for="(row, rowIndex) in rows"
           :key="rowKey(row, rowIndex)"
-          :class="[
-            'border-b border-black/10 hover:bg-black/5 group',
-            isRowClickable ? 'cursor-pointer' : '',
-          ]"
+          class="sm:hover:bg-hover sm:hover:cursor-pointer"
           @click="isRowClickable ? handleRowClick(row) : undefined"
         >
           <td
             v-for="(col, colIndex) in columns"
             :key="col.id"
             :class="[
-              'px-3 py-2 text-body-base bg-table text-table-row whitespace-nowrap overflow-hidden text-ellipsis group-hover:bg-black/5',
-              colIndex === 0 && firstColumnIsKey
-                ? 'sticky left-0 z-10 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]'
-                : '',
+              'py-2.5 px-2.5 border-b border-gray-200 text-table-row first:font-bold first:text-link first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5',
+              colIndex > 0 ? 'hidden sm:table-cell' : '',
             ]"
           >
             <div

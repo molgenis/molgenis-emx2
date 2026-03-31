@@ -3,7 +3,7 @@ import { ref, computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IColumnDisplay } from "../../../types/types";
 import { useTableData } from "../../composables/useTableData";
-import { getRowLabel } from "../../utils/displayUtils";
+import { getRowLabel, filterColumnsByRole } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
 import ListView from "./ListView.vue";
@@ -40,7 +40,9 @@ const { metadata, rows, status, totalPages, showPagination, errorMessage } =
     searchTerms,
   });
 
-const refTableColumns = computed(() => metadata.value?.columns || []);
+const refTableColumns = computed(() =>
+  filterColumnsByRole(metadata.value?.columns || [])
+);
 
 const visibleColumns = computed(() => {
   const override = props.column?.listConfig?.visibleColumns;

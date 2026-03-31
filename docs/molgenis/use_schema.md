@@ -180,6 +180,58 @@ Text value that describes the column, or when columnName is empty, the table.
 ### form label
 
 Optional string value that defines a label to shown when the field is used within the context of a form.
+
+### role
+
+Using 'role' you can indicate the display function of a column when records are shown as cards (e.g. in detail views where a reference is displayed as a card grid). Possible values:
+
+| Value | Purpose | Example |
+|-------|---------|---------|
+| title | Card heading / row label | Name or acronym field |
+| subtitle | Secondary heading below title | Full name when acronym is title |
+| description | Card description text (truncated to 2 lines) | Description field |
+| logo | Image shown on the card | Logo file field |
+| detail | Additional fields shown in the card body | Type, year, role fields |
+
+When a reference column has `display=cards`, the referenced table's columns with `role` values determine what appears on each card. Columns without a `role` are not shown on cards.
+
+### display
+
+Using 'display' you can control how a reference column (ref_array or refback) is rendered in detail views. Possible values:
+
+| Value | Layout | Description |
+|-------|--------|-------------|
+| table | Paginated table | Default. Shows referenced records in a searchable, sortable table |
+| cards | Card grid | Shows referenced records as cards in a responsive grid (2 columns on desktop). Uses `role` settings from the referenced table to determine card content |
+| list | Bullet list | Shows referenced records as a simple list |
+
+Example:
+
+| tableName | columnName | columnType | refTable | refBack | display |
+|-----------|------------|------------|----------|---------|---------|
+| Resources | organisations involved | refback | Organisations | resource | cards |
+| Resources | datasets | refback | Datasets | resource | |
+| Resources | collection events | refback | Collection events | resource | |
+
+In this example, organisations are shown as cards while datasets and collection events use the default table layout.
+
+### tableRole
+
+Using 'tableRole' on a table (in the row where columnName is empty) you can control whether a table appears on the schema landing page. Possible values:
+
+| Value | Description |
+|-------|-------------|
+| MAIN | Default. Table is shown in the schema's table list |
+| DETAIL | Table is hidden from the landing page. Used for tables that are only meaningful as nested detail of another table (e.g. Collection events, Subpopulations) |
+
+Example:
+
+| tableName | tableRole | description |
+|-----------|-----------|-------------|
+| Resources | | Main resource table (default: shown on landing) |
+| Collection events | DETAIL | Only shown as nested table within a Resource |
+| Subpopulations | DETAIL | Only shown as nested table within a Resource |
+
 ## Cross-references
 
 You can define cross-references from one table to another by using the types listed in the [relationship types](#relationships) section. In postgresql, these cross-references translate, and array of foreign key with triggers protecting foreign key constraints respectively. When using cross-references, the name of the reference table (_refTable_) is required.

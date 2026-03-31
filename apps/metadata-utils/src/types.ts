@@ -76,7 +76,7 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
-  role?: "TITLE" | "SUBTITLE" | "DESCRIPTION" | "LOGO" | "DETAIL";
+  role?: "TITLE" | "SUBTITLE" | "DESCRIPTION" | "LOGO" | "DETAIL" | "INTERNAL";
   display?: "TABLE" | "CARDS" | "LIST";
   table?: string;
   name?: string;

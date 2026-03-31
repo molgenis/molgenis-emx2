@@ -68,10 +68,9 @@ const enableDeleting = computed(() => {
     :row-id="rowId"
   >
     <template #header>
-      <PageHeader :title="entityId" align="left">
+      <PageHeader :title="entityId">
         <template #prefix>
           <BreadCrumbs
-            :align="'left'"
             :crumbs="[
               { label: schemaId, url: `/${schemaId}` },
               { label: tableId, url: `/${schemaId}/${tableId}` },

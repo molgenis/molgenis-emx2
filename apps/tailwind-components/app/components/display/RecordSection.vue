@@ -32,7 +32,8 @@ const visibleColumns = computed(() => {
 
 function isListColumn(col: ISectionField): boolean {
   const type = col.meta.columnType;
-  return type === "REF_ARRAY" || type === "REFBACK";
+  if (type === "REF_ARRAY" || type === "REFBACK") return true;
+  return false;
 }
 
 const regularColumns = computed(() =>
@@ -63,10 +64,10 @@ const sectionHeading = computed(() => {
 
     <DefinitionList v-if="regularColumns.length">
       <template v-for="col in regularColumns" :key="col.meta.id">
-        <DefinitionListTerm class="text-record-label">{{
+        <DefinitionListTerm class="capitalize">{{
           col.meta.displayLabel || col.meta.label || col.meta.id
         }}</DefinitionListTerm>
-        <DefinitionListDefinition class="text-record-value">
+        <DefinitionListDefinition class="text-black">
           <RecordColumn
             :column="col.meta"
             :value="col.value"
@@ -84,10 +85,10 @@ const sectionHeading = computed(() => {
         :key="col.meta.id"
         class="record-list-section"
       >
-        <dt class="font-bold text-body-base mb-2 text-record-label">
+        <dt class="font-bold text-body-base mb-2 capitalize">
           {{ col.meta.displayLabel || col.meta.label || col.meta.id }}
         </dt>
-        <dd class="text-record-value">
+        <dd class="text-black">
           <RecordColumn
             :column="col.meta"
             :value="col.value"

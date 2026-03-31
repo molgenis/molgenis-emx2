@@ -175,7 +175,7 @@ For organisations, networks, contributors sections.
 - [x] apps/ui [entity].vue already imports Emx2RecordView directly
 - [x] Edit/delete kept via modal overlay in the page itself
 
-### Phase 7b: HEADING columns in catalogue data models
+### Phase 7b: HEADING columns in catalogue data models — DEFERRED (separate PR)
 Prerequisite for catalogue demo — without HEADINGs, detail pages render as flat lists without sidebar navigation.
 - [ ] Add HEADING columns to Collection Events model CSV
 - [ ] Add HEADING columns to Resources model CSV
@@ -184,14 +184,14 @@ Prerequisite for catalogue demo — without HEADINGs, detail pages render as fla
 - [ ] Add HEADING columns to Variables model CSV
 - [ ] Group fields into logical sections matching catalogue's current detail page layout
 
-### Phase 7c: DATA_NESTED table type (backend + frontend)
+### Phase 7c: DATA_NESTED table type (backend + frontend) — DEFERRED (separate PR)
 See catalogue-detail-views.md Phase 7 for full details.
 - [ ] Add DATA_NESTED to TableType.java (backend)
 - [ ] Update switch statements and DATA checks in RDF + import/export
 - [ ] Update TypeScript type in frontend
 - [ ] Filter DATA_NESTED from main table list in apps/ui
 
-### Phase 8: Catalogue Detail Pages Demo
+### Phase 8: Catalogue Detail Pages Demo — DEFERRED (separate PR)
 **Prerequisite:** HEADING columns must be added to catalogue data model CSVs (Phase 7b) and DATA_NESTED implemented (Phase 7c).
 At this point we can replace collection event, subpopulation, and most of the resource detail page.
 - [ ] Collection event detail → Emx2RecordView + ontology tree displayMap
@@ -201,7 +201,7 @@ At this point we can replace collection event, subpopulation, and most of the re
 - [ ] File download — wire up existing ContentBlockAttachedFiles
 - [ ] Publications — simple displayComponent or just use default rendering
 
-### Phase 9: Generic List Page Framework (NEW)
+### Phase 9: Generic List Page Framework — DEFERRED (separate PR)
 Build the equivalent of catalogue's SearchPage for any EMX2 table.
 - [ ] Emx2SearchPage (smart) — schema/table driven, auto-generates filters from metadata
 - [ ] SearchPageLayout — two-column layout (filter sidebar + results)
@@ -216,7 +216,7 @@ Build the equivalent of catalogue's SearchPage for any EMX2 table.
 - [ ] Result cards — generic card component (configurable via IListConfig)
 - [ ] Pagination, result count, view mode switching
 
-### Phase 10: Catalogue List Pages Demo
+### Phase 10: Catalogue List Pages Demo — DEFERRED (separate PR)
 - [ ] Collections/Networks browse → Emx2SearchPage with config
 - [ ] Compare with handcrafted browse pages
 - [ ] Theme + responsive testing

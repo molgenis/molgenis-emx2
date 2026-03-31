@@ -145,7 +145,7 @@ New first-class Column properties (not settings). Controls how columns/refs rend
 - [x] `data/_models/shared/Contacts.csv`: set `summary: true` on `first name`, `last name`, `role`
 - [ ] Verify card grid renders on resource detail page at `/catalogue/Resources/{id}`
 
-### Phase 7: Nested Table Type (backend)
+### Phase 7: Nested Table Type (backend) — DEFERRED (separate PR)
 
 **7a. Backend enum**
 - [ ] Add `DATA_NESTED` to `TableType.java`
@@ -159,7 +159,7 @@ New first-class Column properties (not settings). Controls how columns/refs rend
 - [ ] apps/ui `[schema]/index.vue`: filter DATA_NESTED from main table list (or show with indicator)
 - [ ] RecordTable row click: DATA_NESTED tables still navigate to detail page (no change needed)
 
-### Phase 8: Catalogue Detail Pages Demo
+### Phase 8: Catalogue Detail Pages Demo — DEFERRED (separate PR)
 Wire everything together on real catalogue data model.
 
 **Prerequisite:** HEADING columns must be added to catalogue data model CSVs (see What's Missing #5).

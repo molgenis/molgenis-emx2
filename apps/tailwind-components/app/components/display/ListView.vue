@@ -70,8 +70,8 @@ function rowKey(row: Record<string, any>): string {
       />
     </template>
 
-    <template v-else-if="layout === 'CARDS'">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <template v-else-if="layout === 'LIST'">
+      <ul class="grid grid-cols-1">
         <component
           v-if="component"
           :is="component"
@@ -88,7 +88,34 @@ function rowKey(row: Record<string, any>): string {
           :columns="tableColumns"
           :href="getHref && columns[0] ? getHref(columns[0], row) : undefined"
         />
-      </div>
+      </ul>
+      <p
+        v-if="rows.length === 0"
+        class="text-gray-400 dark:text-gray-500 italic"
+      >
+        No items
+      </p>
+    </template>
+
+    <template v-else-if="layout === 'CARDS'">
+      <ul class="grid grid-cols-1 lg:grid-cols-2">
+        <component
+          v-if="component"
+          :is="component"
+          v-for="(row, index) in rows"
+          :key="rowKey(row) || index"
+          :data="row"
+        />
+        <ListCard
+          v-else
+          v-for="(row, index) in rows"
+          :key="rowKey(row) || index"
+          :title="getRowLabel(row, rowLabel)"
+          :data="row"
+          :columns="tableColumns"
+          :href="getHref && columns[0] ? getHref(columns[0], row) : undefined"
+        />
+      </ul>
       <p
         v-if="rows.length === 0"
         class="text-gray-400 dark:text-gray-500 italic"

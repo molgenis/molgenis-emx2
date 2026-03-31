@@ -60,14 +60,14 @@ const processedColumns = computed<IColumnDisplay[]>(() => {
 
   let columns: IColumnDisplay[] = [...metadata.value.columns];
 
-  if (!props.config?.showMgColumns) {
-    columns = columns.filter(
-      (col) =>
+  columns = columns.filter(
+    (col) =>
+      col.role !== "INTERNAL" &&
+      (props.config?.showMgColumns ||
         !col.id.startsWith("mg_") ||
         col.columnType === "SECTION" ||
-        col.columnType === "HEADING"
-    );
-  }
+        col.columnType === "HEADING")
+  );
 
   if (props.config?.extraColumns?.length) {
     columns = [...columns, ...props.config.extraColumns];

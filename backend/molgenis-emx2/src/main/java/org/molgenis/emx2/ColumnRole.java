@@ -5,5 +5,6 @@ public enum ColumnRole {
   SUBTITLE,
   DESCRIPTION,
   LOGO,
-  DETAIL
+  DETAIL,
+  INTERNAL
 }

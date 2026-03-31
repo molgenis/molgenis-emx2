@@ -118,6 +118,51 @@ export function getLogoColumn(
   return columns.find((c) => c.role === "LOGO" && data[c.id] != null);
 }
 
+export function getRoleText(value: any): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (Array.isArray(value))
+    return value.map((item) => item?.name ?? String(item)).join(", ");
+  if (typeof value === "object" && value.name) return value.name;
+  return String(value);
+}
+
+export function getTitleText(
+  columns: IColumn[],
+  data: Record<string, any>
+): string {
+  return columns
+    .filter((c) => c.role === "TITLE")
+    .map((c) => getRoleText(data[c.id]))
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function getSubtitleText(
+  columns: IColumn[],
+  data: Record<string, any>
+): string {
+  return columns
+    .filter((c) => c.role === "SUBTITLE")
+    .map((c) => getRoleText(data[c.id]))
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function filterColumnsByRole(columns: IColumn[]): IColumn[] {
+  const nonInternal = columns.filter((c) => c.role !== "INTERNAL");
+  const withRoles = nonInternal.filter((c) => c.role);
+  if (withRoles.length === 0) return nonInternal;
+  const titleCols = withRoles.filter((c) => c.role === "TITLE");
+  const otherCols = withRoles.filter((c) => c.role !== "TITLE");
+  return [...titleCols, ...otherCols];
+}
+
+export function hasOntologyHierarchy(value: any): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.some((item) => item?.parent != null);
+}
+
 export function buildRefHref(
   schemaId: string,
   refTableId: string,

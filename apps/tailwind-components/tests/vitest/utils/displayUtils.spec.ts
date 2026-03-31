@@ -6,12 +6,17 @@ import {
   getRowLabel,
   filterDataColumns,
   filterNonEmptyColumns,
+  filterColumnsByRole,
   isRefColumn,
   isRefArrayColumn,
   buildRefHref,
   getDetailColumns,
   getDescriptionColumn,
   getLogoColumn,
+  getRoleText,
+  getTitleText,
+  getSubtitleText,
+  hasOntologyHierarchy,
 } from "../../../app/utils/displayUtils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
@@ -497,5 +502,183 @@ describe("getLogoColumn", () => {
     const data = { name: "Alice" };
     const result = getLogoColumn(columns, data);
     expect(result).toBeUndefined();
+  });
+});
+
+describe("getRoleText", () => {
+  it("returns empty string for null", () => {
+    expect(getRoleText(null)).toBe("");
+  });
+
+  it("returns empty string for undefined", () => {
+    expect(getRoleText(undefined)).toBe("");
+  });
+
+  it("returns string values directly", () => {
+    expect(getRoleText("hello")).toBe("hello");
+  });
+
+  it("returns name from object with name property", () => {
+    expect(getRoleText({ name: "Amsterdam" })).toBe("Amsterdam");
+  });
+
+  it("joins array items by name", () => {
+    expect(getRoleText([{ name: "A" }, { name: "B" }])).toBe("A, B");
+  });
+
+  it("coerces non-name object to string", () => {
+    expect(getRoleText({ other: "x" })).toBe("[object Object]");
+  });
+});
+
+describe("getTitleText", () => {
+  it("joins values from TITLE role columns with space", () => {
+    const columns = [
+      col({ id: "firstName", columnType: "STRING", role: "TITLE" }),
+      col({ id: "lastName", columnType: "STRING", role: "TITLE" }),
+    ];
+    const data = { firstName: "John", lastName: "Doe" };
+    expect(getTitleText(columns, data)).toBe("John Doe");
+  });
+
+  it("returns empty string when no TITLE columns", () => {
+    const columns = [col({ id: "name", columnType: "STRING" })];
+    const data = { name: "Alice" };
+    expect(getTitleText(columns, data)).toBe("");
+  });
+
+  it("skips empty values", () => {
+    const columns = [
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "suffix", columnType: "STRING", role: "TITLE" }),
+    ];
+    const data = { name: "Alice", suffix: null };
+    expect(getTitleText(columns, data)).toBe("Alice");
+  });
+
+  it("extracts name from object value", () => {
+    const columns = [col({ id: "org", columnType: "REF", role: "TITLE" })];
+    const data = { org: { name: "UMCG" } };
+    expect(getTitleText(columns, data)).toBe("UMCG");
+  });
+});
+
+describe("filterColumnsByRole", () => {
+  it("returns all non-INTERNAL columns when no roles are set", () => {
+    const columns = [
+      col({ id: "name", columnType: "STRING" }),
+      col({ id: "description", columnType: "TEXT" }),
+    ];
+    const result = filterColumnsByRole(columns);
+    expect(result.map((c) => c.id)).toEqual(["name", "description"]);
+  });
+
+  it("excludes INTERNAL columns even when no other roles are set", () => {
+    const columns = [
+      col({ id: "name", columnType: "STRING" }),
+      col({ id: "internal", columnType: "STRING", role: "INTERNAL" }),
+    ];
+    const result = filterColumnsByRole(columns);
+    expect(result.map((c) => c.id)).toEqual(["name"]);
+  });
+
+  it("returns only role-configured columns when roles are present", () => {
+    const columns = [
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "description", columnType: "TEXT" }),
+      col({ id: "status", columnType: "STRING", role: "DETAIL" }),
+    ];
+    const result = filterColumnsByRole(columns);
+    expect(result.map((c) => c.id)).toEqual(["name", "status"]);
+  });
+
+  it("excludes INTERNAL columns even when other roles exist", () => {
+    const columns = [
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "internal", columnType: "STRING", role: "INTERNAL" }),
+      col({ id: "status", columnType: "STRING", role: "DETAIL" }),
+    ];
+    const result = filterColumnsByRole(columns);
+    expect(result.map((c) => c.id)).toEqual(["name", "status"]);
+  });
+
+  it("puts TITLE columns first when roles are present", () => {
+    const columns = [
+      col({ id: "status", columnType: "STRING", role: "DETAIL" }),
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "description", columnType: "TEXT", role: "DESCRIPTION" }),
+    ];
+    const result = filterColumnsByRole(columns);
+    expect(result[0].id).toBe("name");
+    expect(result.map((c) => c.id)).toContain("status");
+    expect(result.map((c) => c.id)).toContain("description");
+  });
+
+  it("returns empty array for empty input", () => {
+    expect(filterColumnsByRole([])).toEqual([]);
+  });
+});
+
+describe("hasOntologyHierarchy", () => {
+  it("returns false for non-array values", () => {
+    expect(hasOntologyHierarchy(null)).toBe(false);
+    expect(hasOntologyHierarchy(undefined)).toBe(false);
+    expect(hasOntologyHierarchy("string")).toBe(false);
+    expect(hasOntologyHierarchy({ name: "term" })).toBe(false);
+  });
+
+  it("returns false for empty array", () => {
+    expect(hasOntologyHierarchy([])).toBe(false);
+  });
+
+  it("returns false when no items have parent", () => {
+    expect(hasOntologyHierarchy([{ name: "A" }, { name: "B" }])).toBe(false);
+  });
+
+  it("returns false when all parent values are null", () => {
+    expect(
+      hasOntologyHierarchy([
+        { name: "A", parent: null },
+        { name: "B", parent: null },
+      ])
+    ).toBe(false);
+  });
+
+  it("returns true when at least one item has a non-null parent", () => {
+    expect(
+      hasOntologyHierarchy([
+        { name: "A", parent: null },
+        { name: "B", parent: { name: "A" } },
+      ])
+    ).toBe(true);
+  });
+
+  it("returns true when parent is a string", () => {
+    expect(hasOntologyHierarchy([{ name: "B", parent: "A" }])).toBe(true);
+  });
+});
+
+describe("getSubtitleText", () => {
+  it("joins values from SUBTITLE role columns with space", () => {
+    const columns = [
+      col({ id: "type", columnType: "STRING", role: "SUBTITLE" }),
+      col({ id: "year", columnType: "STRING", role: "SUBTITLE" }),
+    ];
+    const data = { type: "Cohort", year: "2020" };
+    expect(getSubtitleText(columns, data)).toBe("Cohort 2020");
+  });
+
+  it("returns empty string when no SUBTITLE columns", () => {
+    const columns = [col({ id: "name", columnType: "STRING" })];
+    const data = { name: "Alice" };
+    expect(getSubtitleText(columns, data)).toBe("");
+  });
+
+  it("skips null values", () => {
+    const columns = [
+      col({ id: "type", columnType: "STRING", role: "SUBTITLE" }),
+    ];
+    const data = { type: null };
+    expect(getSubtitleText(columns, data)).toBe("");
   });
 });

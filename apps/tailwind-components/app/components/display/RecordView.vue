@@ -4,7 +4,12 @@ import type { IColumnDisplay, ISectionField } from "../../../types/types";
 import RecordSection from "./RecordSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
-import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
+import {
+  isEmptyValue,
+  isTopSection,
+  getTitleText,
+  getSubtitleText,
+} from "../../utils/displayUtils";
 
 const props = withDefaults(
   defineProps<{
@@ -138,13 +143,25 @@ const navTitle = computed(() => {
 const hasSideNav = computed(
   () => props.showSideNav !== false && navSections.value.length > 0
 );
+
+const autoTitle = computed(() => getTitleText(props.columns, props.data));
+const autoSubtitle = computed(() => getSubtitleText(props.columns, props.data));
 </script>
 
 <template>
-  <div class="lg:px-[30px] px-0">
+  <div class="max-w-lg mx-auto lg:px-[30px] px-0">
     <DetailPageLayout :show-side-nav="hasSideNav">
       <template #header>
-        <slot name="header"></slot>
+        <slot v-if="$slots.header" name="header"></slot>
+        <div
+          v-else-if="autoTitle || autoSubtitle"
+          class="flex flex-col px-5 pt-5 pb-6 lg:pb-10 lg:px-0 text-center text-title"
+        >
+          <h1 class="font-display text-heading-6xl">{{ autoTitle }}</h1>
+          <p v-if="autoSubtitle" class="mt-1 text-body-lg">
+            {{ autoSubtitle }}
+          </p>
+        </div>
       </template>
       <template v-if="hasSideNav" #sidebar>
         <SideNav :sections="navSections" :title="navTitle" />

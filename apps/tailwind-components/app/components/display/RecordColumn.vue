@@ -7,13 +7,19 @@ import {
   isRefColumn,
   isRefArrayColumn,
   buildRefHref,
+  hasOntologyHierarchy,
+  filterColumnsByRole,
 } from "../../utils/displayUtils";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
 import Emx2ListView from "./Emx2ListView.vue";
+import ListView from "./ListView.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
-import type { ITableMetaData } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
@@ -29,15 +35,16 @@ const props = withDefaults(
 );
 
 const refArrayFilter = ref<Record<string, any> | undefined>();
+const refTableColumns = ref<IColumn[]>([]);
 
 watchEffect(async () => {
   if (
     !isRefArrayColumn(props.column.columnType) ||
     !props.column.refTableId ||
-    !props.schemaId ||
-    !props.parentRowId
+    !props.schemaId
   ) {
     refArrayFilter.value = undefined;
+    refTableColumns.value = [];
     return;
   }
   const schema = props.column.refSchemaId || props.schemaId;
@@ -47,6 +54,7 @@ watchEffect(async () => {
   );
   if (!refTable?.columns) {
     refArrayFilter.value = undefined;
+    refTableColumns.value = [];
     return;
   }
   const refbackCol = refTable.columns.find(
@@ -58,8 +66,16 @@ watchEffect(async () => {
       keyFilter[key] = { equals: val };
     }
     refArrayFilter.value = { [refbackCol.id]: keyFilter };
+    refTableColumns.value = [];
   } else {
     refArrayFilter.value = undefined;
+    const allCols = refTable.columns.filter(
+      (c) =>
+        !c.id.startsWith("mg_") &&
+        c.columnType !== "HEADING" &&
+        c.columnType !== "SECTION"
+    );
+    refTableColumns.value = filterColumnsByRole(allCols);
   }
 });
 
@@ -89,8 +105,18 @@ const listFilter = computed(() => {
   return undefined;
 });
 
-const isOntologyColumn = computed(() => {
-  return ["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType);
+const showInlineListView = computed(() => {
+  if (showListView.value) return false;
+  if (!isRefArrayColumn(props.column.columnType)) return false;
+  if (!Array.isArray(props.value) || props.value.length === 0) return false;
+  if (!props.column.refTableId || !props.schemaId) return false;
+  return refTableColumns.value.length > 0;
+});
+
+const isHierarchicalOntology = computed(() => {
+  if (!["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType))
+    return false;
+  return hasOntologyHierarchy(props.value);
 });
 
 const refHref = ref<string | undefined>();
@@ -148,6 +174,14 @@ watchEffect(async () => {
   <NuxtLink v-else-if="refHref" :to="refHref" class="text-link hover:underline">
     <ValueEMX2 :metadata="column" :data="value" />
   </NuxtLink>
-  <OntologyTreeDisplay v-else-if="isOntologyColumn" :value="value" />
+  <OntologyTreeDisplay v-else-if="isHierarchicalOntology" :value="value" />
+  <ListView
+    v-else-if="showInlineListView"
+    :rows="value"
+    :columns="refTableColumns"
+    :layout="column.display || 'TABLE'"
+    :schema-id="column.refSchemaId || schemaId"
+    :table-id="column.refTableId"
+  />
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>
