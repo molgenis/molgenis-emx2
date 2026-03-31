@@ -115,15 +115,6 @@ export interface IListConfig {
   rowLabel?: string;
 }
 
-export interface IRecordViewConfig {
-  columnConfig?: Record<string, Partial<IColumnDisplay>>;
-  showEmpty?: boolean;
-  showMgColumns?: boolean;
-  visibleColumns?: string[];
-  extraColumns?: IColumnDisplay[];
-  showSideNav?: boolean;
-}
-
 export interface ISectionField {
   meta: IColumnDisplay;
   value: columnValue;

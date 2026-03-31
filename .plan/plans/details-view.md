@@ -67,12 +67,13 @@ display/
 Only DataTable and DataCard are truly dumb (no fetching, no schema awareness). Everything else is part of the EMX2 display system — and that's fine.
 
 ### Tasks
-- [ ] Merge Emx2DetailView into DetailView (move fetching + column processing)
-- [ ] Merge Emx2DataList into DataList (move pagination, search, data fetching)
-- [ ] Rename Emx2DetailColumn → DetailColumn
-- [ ] Delete Emx2DetailView.vue, Emx2DataList.vue, Emx2DetailColumn.vue
-- [ ] Update all imports (apps/ui, stories, tests, internal cross-refs)
-- [ ] Update story files
+- [x] Merge Emx2DetailView into DetailView (smart/dumb dual API)
+- [x] Merge Emx2DataList into DataList (smart/dumb dual API)
+- [x] Rename Emx2DetailColumn → DetailColumn
+- [x] Delete Emx2DetailView.vue, Emx2DataList.vue, Emx2DetailColumn.vue
+- [x] Update all imports (apps/ui, stories, tests, internal cross-refs)
+- [x] Update story files (DetailView, DetailColumn, DetailPageLayout)
+- [x] Guard useTableData against empty schemaId/tableId (dumb mode fix)
 - [ ] Run tests
 - [ ] Story: DataTable — table with various column types
 - [ ] Story: DataCard — card with role annotations

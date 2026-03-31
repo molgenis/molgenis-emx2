@@ -1,100 +1,181 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { NuxtLink } from "#components";
+import { ref, computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+import { useTableData } from "../../composables/useTableData";
 import { getListColumns, getRowLabel } from "../../utils/displayUtils";
+import InputSearch from "../input/Search.vue";
+import LoadingContent from "../LoadingContent.vue";
+import InlinePagination from "./InlinePagination.vue";
 import DataTable from "./DataTable.vue";
-import DataCard from "./DataCard.vue";
+import DataCards from "./DataCards.vue";
+import DataLinks from "./DataLinks.vue";
 
 const props = withDefaults(
   defineProps<{
-    rows: Record<string, any>[];
-    columns: IColumn[];
-    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
-    rowLabel?: string;
-    getHref?: (row: Record<string, any>) => string;
     schemaId?: string;
     tableId?: string;
+    filter?: object;
+    rows?: Record<string, any>[];
+    columns?: IColumn[];
+    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
+    pageSize?: number;
+    hideColumns?: string[];
+    rowLabelTemplate?: string;
   }>(),
   {
     layout: "TABLE",
+    pageSize: 10,
   }
 );
 
-const tableColumns = computed(() =>
-  getListColumns(props.columns, {
-    rows: props.rows,
+const isSmartMode = computed(
+  () => !!(props.schemaId && props.tableId && !props.rows)
+);
+
+const searchInputId = useId();
+const page = ref(1);
+const searchTerms = ref("");
+
+const showSearch = computed(
+  () => isSmartMode.value && props.layout === "TABLE"
+);
+
+const {
+  metadata,
+  rows: fetchedRows,
+  status,
+  totalPages,
+  showPagination,
+  errorMessage,
+} = useTableData(props.schemaId || "", props.tableId || "", {
+  pageSize: props.pageSize,
+  page,
+  filter: computed(() => props.filter),
+  searchTerms,
+});
+
+const smartListColumns = computed(() =>
+  getListColumns(metadata.value?.columns || [], {
+    layout: props.layout as "TABLE" | "CARDS" | "LIST" | undefined,
+    hideColumns: props.hideColumns,
+    rows: fetchedRows.value,
   })
 );
 
-function rowKey(row: Record<string, any>): string {
-  return row.id || row.name || JSON.stringify(row);
+const errorText = computed(
+  () =>
+    errorMessage.value ||
+    (status.value === "error" ? "Failed to load data" : undefined)
+);
+
+const dumbColumns = computed(() =>
+  getListColumns(props.columns || [], {
+    rows: props.rows || [],
+  })
+);
+
+const effectiveRows = computed(() =>
+  isSmartMode.value ? fetchedRows.value : props.rows || []
+);
+
+const effectiveColumns = computed(() =>
+  isSmartMode.value ? smartListColumns.value : dumbColumns.value
+);
+
+function buildRowHref(row: Record<string, any>): string | undefined {
+  if (!props.schemaId || !props.tableId) return undefined;
+  return `/${props.schemaId}/${props.tableId}/${encodeURIComponent(
+    getRowLabel(row, props.rowLabelTemplate)
+  )}`;
 }
 </script>
 
 <template>
-  <div>
-    <template v-if="layout === 'TABLE'">
-      <DataTable
-        :columns="tableColumns"
-        :rows="rows"
-        :schema-id="schemaId"
-        :table-id="tableId"
-      />
-    </template>
-
-    <template v-else-if="layout === 'CARDS'">
-      <ul class="grid grid-cols-1 lg:grid-cols-2">
-        <DataCard
-          v-for="(row, index) in rows"
-          :key="rowKey(row) || index"
-          :title="getRowLabel(row, rowLabel)"
-          :data="row"
-          :columns="tableColumns"
-          :href="getHref?.(row)"
+  <div v-if="isSmartMode">
+    <InputSearch
+      v-if="showSearch && showPagination"
+      :id="searchInputId"
+      v-model="searchTerms"
+      placeholder="Search..."
+      size="small"
+      class="mb-4"
+    />
+    <LoadingContent
+      :id="`list-${schemaId}-${tableId}`"
+      :status="status"
+      loading-text="Loading..."
+      :error-text="errorText"
+      :show-slot-on-error="false"
+    >
+      <div>
+        <DataTable
+          v-if="layout === 'TABLE'"
+          :columns="effectiveColumns"
+          :rows="effectiveRows"
+          :schema-id="schemaId"
+          :table-id="tableId"
         />
-      </ul>
-      <p
-        v-if="rows.length === 0"
-        class="text-gray-400 dark:text-gray-500 italic"
-      >
-        No items
-      </p>
-    </template>
-
-    <template v-else-if="layout === 'LIST'">
-      <ul class="grid grid-cols-1">
-        <DataCard
-          v-for="(row, index) in rows"
-          :key="rowKey(row) || index"
-          :title="getRowLabel(row, rowLabel)"
-          :data="row"
-          :columns="tableColumns"
-          :href="getHref?.(row)"
+        <DataCards
+          v-else-if="layout === 'CARDS'"
+          :rows="effectiveRows"
+          :columns="effectiveColumns"
+          :grid-columns="2"
+          :row-label-template="rowLabelTemplate"
+          :get-href="buildRowHref"
         />
-      </ul>
-      <p
-        v-if="rows.length === 0"
-        class="text-gray-400 dark:text-gray-500 italic"
-      >
-        No items
-      </p>
-    </template>
-
-    <template v-else-if="layout === 'LINKS'">
-      <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
-        <li v-for="row in rows" :key="rowKey(row)">
-          <NuxtLink
-            v-if="getHref"
-            :to="getHref(row)"
-            class="text-link hover:underline"
-          >
-            {{ getRowLabel(row, rowLabel) }}
-          </NuxtLink>
-          <span v-else>{{ getRowLabel(row, rowLabel) }}</span>
-        </li>
-      </ul>
-      <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>
-    </template>
+        <DataCards
+          v-else-if="layout === 'LIST'"
+          :rows="effectiveRows"
+          :columns="effectiveColumns"
+          :grid-columns="1"
+          :row-label-template="rowLabelTemplate"
+          :get-href="buildRowHref"
+        />
+        <DataLinks
+          v-else-if="layout === 'LINKS'"
+          :rows="effectiveRows"
+          :row-label-template="rowLabelTemplate"
+          :get-href="buildRowHref"
+        />
+      </div>
+    </LoadingContent>
+    <InlinePagination
+      v-if="showPagination"
+      :current-page="page"
+      :total-pages="totalPages"
+      class="mt-4"
+      @update:page="page = $event"
+    />
+  </div>
+  <div v-else>
+    <DataTable
+      v-if="layout === 'TABLE'"
+      :columns="effectiveColumns"
+      :rows="effectiveRows"
+      :schema-id="schemaId"
+      :table-id="tableId"
+    />
+    <DataCards
+      v-else-if="layout === 'CARDS'"
+      :rows="effectiveRows"
+      :columns="effectiveColumns"
+      :grid-columns="2"
+      :row-label-template="rowLabelTemplate"
+      :get-href="buildRowHref"
+    />
+    <DataCards
+      v-else-if="layout === 'LIST'"
+      :rows="effectiveRows"
+      :columns="effectiveColumns"
+      :grid-columns="1"
+      :row-label-template="rowLabelTemplate"
+      :get-href="buildRowHref"
+    />
+    <DataLinks
+      v-else-if="layout === 'LINKS'"
+      :rows="effectiveRows"
+      :row-label-template="rowLabelTemplate"
+      :get-href="buildRowHref"
+    />
   </div>
 </template>

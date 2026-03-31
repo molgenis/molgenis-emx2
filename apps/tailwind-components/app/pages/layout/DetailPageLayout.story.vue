@@ -1,13 +1,74 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types";
 import DetailPageLayout from "../../components/layout/DetailPageLayout.vue";
 import SideNav from "../../components/SideNav.vue";
 import PageHeader from "../../components/PageHeader.vue";
 import BreadCrumbs from "../../components/BreadCrumbs.vue";
 import ContentBlocks from "../../components/content/ContentBlocks.vue";
 import ContentBlock from "../../components/content/ContentBlock.vue";
-import RecordColumn from "../../components/display/Emx2DetailColumn.vue";
+import RecordColumn from "../../components/display/DetailColumn.vue";
+import DetailView from "../../components/display/DetailView.vue";
+import DemoDataControls from "../../DemoDataControls.vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+
+const router = useRouter();
+const route = useRoute();
+
+const smartSchemaId = ref<string>(
+  (route.query.schema as string) || "pet store"
+);
+const smartTableId = ref<string>((route.query.table as string) || "Pet");
+const smartMetadata = ref<ITableMetaData>();
+const smartFormValues = ref<Record<string, any>>({});
+
+const showSideNavSmart = ref(true);
+const showEmptySmart = ref(false);
+
+const smartRowId = computed(() => {
+  if (!smartMetadata.value || !smartFormValues.value) return {};
+  const keyColumns =
+    smartMetadata.value.columns?.filter((c) => c.key === 1) || [];
+  const result: Record<string, any> = {};
+  for (const col of keyColumns) {
+    if (smartFormValues.value[col.id] !== undefined) {
+      result[col.id] = smartFormValues.value[col.id];
+    }
+  }
+  return result;
+});
+
+const hasSmartRowId = computed(() => Object.keys(smartRowId.value).length > 0);
+
+const smartCrumbs = computed(() => [
+  { label: "Home", url: "/" },
+  { label: smartSchemaId.value, url: `/${smartSchemaId.value}` },
+  {
+    label: smartTableId.value,
+    url: `/${smartSchemaId.value}/list/${smartTableId.value}`,
+  },
+  { label: smartFormValues.value?.name || "Record", url: "" },
+]);
+
+const smartRecordTitle = computed(() => {
+  if (!smartFormValues.value) return "Record";
+  return (
+    smartFormValues.value.name ||
+    smartFormValues.value.label ||
+    smartFormValues.value.id ||
+    JSON.stringify(smartRowId.value)
+  );
+});
+
+watch([smartSchemaId, smartTableId], ([newSchemaId, newTableId]) => {
+  router.push({
+    query: {
+      schema: newSchemaId,
+      table: newTableId,
+    },
+  });
+});
 
 const showSideNav = ref(true);
 const clickLog = ref<string[]>([]);
@@ -329,5 +390,66 @@ const getRefClickAction = (col: IColumn, val: any) => () => {
         </div>
       </template>
     </DetailPageLayout>
+
+    <h2 class="text-heading-lg mb-4 mt-12">
+      Pattern 3: DetailView with auto SideNav (smart mode)
+    </h2>
+    <p class="text-body-base mb-4">
+      DetailView fetches data and renders with auto-generated SideNav from
+      SECTION columns.
+    </p>
+
+    <div class="space-y-4 p-4 bg-gray-100 dark:bg-gray-800 rounded mb-6">
+      <DemoDataControls
+        v-model:metadata="smartMetadata"
+        v-model:schemaId="smartSchemaId"
+        v-model:tableId="smartTableId"
+        v-model:formValues="smartFormValues"
+        :include-row-select="true"
+        :row-index="1"
+      />
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input
+            id="show-side-nav-smart"
+            type="checkbox"
+            v-model="showSideNavSmart"
+            class="hover:cursor-pointer"
+          />
+          <label for="show-side-nav-smart" class="hover:cursor-pointer">
+            showSideNav
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="showEmptySmart" v-model="showEmptySmart" type="checkbox" />
+          <label for="showEmptySmart">Show empty values</label>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="!hasSmartRowId" class="p-8 border rounded dark:border-gray-600">
+      <p class="text-gray-500 italic text-center">
+        Select a row above to view the detail page layout.
+      </p>
+    </div>
+
+    <DetailView
+      v-else
+      :key="`${smartSchemaId}-${smartTableId}-${JSON.stringify(smartRowId)}`"
+      :schema-id="smartSchemaId"
+      :table-id="smartTableId"
+      :row-id="smartRowId"
+      :show-empty="showEmptySmart"
+      :show-side-nav="showSideNavSmart"
+    >
+      <template #header>
+        <PageHeader :id="`header-${smartTableId}`" :title="smartRecordTitle">
+          <template #prefix>
+            <BreadCrumbs :crumbs="smartCrumbs" />
+          </template>
+        </PageHeader>
+      </template>
+    </DetailView>
   </div>
 </template>

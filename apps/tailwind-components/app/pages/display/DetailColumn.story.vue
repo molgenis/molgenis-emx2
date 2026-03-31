@@ -5,9 +5,8 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import DisplayRecordColumn from "../../components/display/Emx2DetailColumn.vue";
+import DetailColumn from "../../components/display/DetailColumn.vue";
 
-// Custom component for testing displayConfig.component with Vue Component
 const CustomPetDisplay = defineComponent({
   name: "CustomPetDisplay",
   props: {
@@ -21,7 +20,7 @@ const CustomPetDisplay = defineComponent({
         { class: "p-3 bg-purple-100 border-2 border-purple-400 rounded-lg" },
         [
           h("p", { class: "font-bold text-purple-800 mb-2" }, [
-            "🎨 Custom Component: ",
+            "Custom Component: ",
             props.column.label,
           ]),
           h(
@@ -42,7 +41,6 @@ const CustomPetDisplay = defineComponent({
 const showEmpty = ref(false);
 const clickLog = ref<string[]>([]);
 
-// Click handler for logging
 function handleRefClick(col: IColumn, row: IRow) {
   const message = `Clicked REF: column="${col.id}", value=${JSON.stringify(
     row
@@ -113,7 +111,6 @@ const refColumn = computed<IColumn>(() => ({
   displayConfig: { clickAction: handleRefClick },
 }));
 
-// RADIO and SELECT render same as REF (single object value)
 const radioColumn: IColumn = {
   id: "status",
   label: "Status",
@@ -130,7 +127,6 @@ const selectColumn: IColumn = {
   refLabelDefault: "${name}",
 };
 
-// CHECKBOX and MULTISELECT render same as REF_ARRAY (array of objects)
 const checkboxColumn: IColumn = {
   id: "features",
   label: "Features",
@@ -183,7 +179,6 @@ const refBackColumn = computed<IColumn>(() => ({
   displayConfig: { clickAction: handleRefClick },
 }));
 
-// Column for slot usage example
 const slotRefArrayColumn: IColumn = {
   id: "pets",
   label: "Pets (Custom Slot)",
@@ -195,7 +190,6 @@ const slotRefArrayColumn: IColumn = {
   refLinkId: "name",
 };
 
-// Mock ref table metadata for table display mode
 const petTableMetadata: ITableMetaData = {
   id: "Pet",
   schemaId: "pet store",
@@ -210,7 +204,6 @@ const petTableMetadata: ITableMetaData = {
   ],
 };
 
-// Column with table display mode
 const tableDisplayColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Table Mode)",
@@ -228,7 +221,6 @@ const tableDisplayColumn = computed<IColumn>(() => ({
   },
 }));
 
-// Column with table display mode and custom page size
 const tableDisplayLargeColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Table Mode, pageSize=3)",
@@ -247,7 +239,6 @@ const tableDisplayLargeColumn = computed<IColumn>(() => ({
   },
 }));
 
-// Column with custom Vue Component for display
 const customComponentColumn = computed<IColumn>(() => ({
   id: "pets",
   label: "Pets (Custom Component)",
@@ -262,7 +253,6 @@ const customComponentColumn = computed<IColumn>(() => ({
   },
 }));
 
-// Mock pet data for table mode
 const petTableData = [
   { name: "Fluffy", species: "Cat", age: 3, vaccinated: true },
   { name: "Buddy", species: "Dog", age: 5, vaccinated: true },
@@ -285,13 +275,11 @@ const ontologyArrayColumn: IColumn = {
   columnType: "ONTOLOGY_ARRAY",
 };
 
-// Mock data for REF_ARRAY with pagination (15 items)
 const largeRefArrayValue = Array.from({ length: 15 }, (_, i) => ({
   orderId: `ORD-${String(i + 1).padStart(3, "0")}`,
   status: ["Pending", "Shipped", "Delivered"][i % 3],
 }));
 
-// Mock ontology data with tree structure
 const ontologyTreeValue = {
   name: "Mammal",
   definition: "Warm-blooded vertebrates",
@@ -314,7 +302,7 @@ function clearLog() {
 
 <template>
   <div class="p-5 space-y-6">
-    <h1 class="text-2xl font-bold">RecordColumn Component</h1>
+    <h1 class="text-2xl font-bold">DetailColumn Component</h1>
     <p class="text-gray-600">
       Renders a single column value with type-based dispatch.
     </p>
@@ -324,7 +312,6 @@ function clearLog() {
       <label for="showEmpty">Show empty values as "not provided"</label>
     </div>
 
-    <!-- Wrap examples in bg-content to match RecordView/RecordSection -->
     <div
       class="bg-content p-6 rounded shadow-primary space-y-6 text-record-value"
     >
@@ -335,7 +322,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">STRING:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="stringColumn"
             value="John Doe"
             :show-empty="showEmpty"
@@ -344,7 +331,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">INT:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="intColumn"
             :value="42"
             :show-empty="showEmpty"
@@ -353,7 +340,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">BOOL (true):</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="boolColumn"
             :value="true"
             :show-empty="showEmpty"
@@ -362,7 +349,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">BOOL (false):</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="boolColumn"
             :value="false"
             :show-empty="showEmpty"
@@ -371,7 +358,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">DECIMAL:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="decimalColumn"
             :value="19.99"
             :show-empty="showEmpty"
@@ -380,7 +367,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">DATE:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="dateColumn"
             value="2024-01-15"
             :show-empty="showEmpty"
@@ -389,7 +376,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">TEXT:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="textColumn"
             value="A longer description text that demonstrates how text values are displayed."
             :show-empty="showEmpty"
@@ -398,7 +385,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">EMAIL:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="emailColumn"
             value="john@example.com"
             :show-empty="showEmpty"
@@ -407,7 +394,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">HYPERLINK:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="hyperlinkColumn"
             value="https://molgenis.org"
             :show-empty="showEmpty"
@@ -426,7 +413,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">REF:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="refColumn"
             :value="{ name: 'Fluffy' }"
             :show-empty="showEmpty"
@@ -435,7 +422,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">RADIO:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="radioColumn"
             :value="{ name: 'Active' }"
             :show-empty="showEmpty"
@@ -444,7 +431,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">SELECT:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="selectColumn"
             :value="{ name: 'High' }"
             :show-empty="showEmpty"
@@ -489,7 +476,7 @@ function clearLog() {
           <span class="font-medium text-record-label"
             >REF_ARRAY (3 items):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="refArrayColumn"
             :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
             :show-empty="showEmpty"
@@ -500,7 +487,7 @@ function clearLog() {
           <span class="font-medium text-record-label"
             >REF_ARRAY (15 items):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="refArrayLargeColumn"
             :value="largeRefArrayValue"
             :show-empty="showEmpty"
@@ -509,7 +496,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
           <span class="font-medium text-record-label">REFBACK:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="refBackColumn"
             :value="[
               { firstName: 'John', lastName: 'Doe', id: 1 },
@@ -521,7 +508,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
           <span class="font-medium text-record-label">CHECKBOX:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="checkboxColumn"
             :value="[{ name: 'WiFi' }, { name: 'Parking' }, { name: 'Pool' }]"
             :show-empty="showEmpty"
@@ -530,7 +517,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
           <span class="font-medium text-record-label">MULTISELECT:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="multiselectColumn"
             :value="[
               { name: 'Electronics' },
@@ -551,14 +538,13 @@ function clearLog() {
         </h2>
         <p class="text-sm text-gray-500">
           REF_ARRAY/REFBACK columns support a #list slot for custom rendering.
-          This example shows a custom styled list using the slot.
         </p>
 
         <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
           <span class="font-medium text-record-label"
             >REF_ARRAY (Custom Slot):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="slotRefArrayColumn"
             :value="[{ name: 'Fluffy' }, { name: 'Buddy' }, { name: 'Max' }]"
             :show-empty="showEmpty"
@@ -575,12 +561,7 @@ function clearLog() {
                 </ul>
               </div>
             </template>
-          </DisplayRecordColumn>
-        </div>
-
-        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
-          <strong>Note:</strong> When no #list slot is provided, the default
-          bullet list rendering with pagination is used.
+          </DetailColumn>
         </div>
       </div>
 
@@ -588,16 +569,12 @@ function clearLog() {
         <h2 class="text-xl font-semibold text-record-heading">
           Table Display Mode (displayConfig.component='table')
         </h2>
-        <p class="text-sm text-gray-500">
-          REF_ARRAY columns can use displayConfig to render as a table. Requires
-          refTableMetadata and visibleColumns to be set.
-        </p>
 
         <div class="space-y-2">
           <span class="font-medium text-record-label"
             >REF_ARRAY with table mode (3 columns):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="tableDisplayColumn"
             :value="petTableData.slice(0, 3)"
             :show-empty="showEmpty"
@@ -608,24 +585,11 @@ function clearLog() {
           <span class="font-medium text-record-label"
             >REF_ARRAY with table mode (7 items, pageSize=3):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="tableDisplayLargeColumn"
             :value="petTableData"
             :show-empty="showEmpty"
           />
-        </div>
-
-        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
-          <strong>Note:</strong> Table mode requires:
-          <ul class="list-disc list-inside mt-2">
-            <li>
-              <code>displayConfig.component = 'table'</code>
-            </li>
-            <li>
-              <code>displayConfig.visibleColumns</code> array of column IDs
-            </li>
-            <li><code>refTableMetadata</code> with column definitions</li>
-          </ul>
         </div>
       </div>
 
@@ -633,29 +597,16 @@ function clearLog() {
         <h2 class="text-xl font-semibold text-record-heading">
           Custom Vue Component (displayConfig.component=Component)
         </h2>
-        <p class="text-sm text-gray-500">
-          Instead of a string like 'table', you can pass an actual Vue Component
-          to displayConfig.component. The component receives column and value as
-          props.
-        </p>
 
         <div class="space-y-2">
           <span class="font-medium text-record-label"
             >REF_ARRAY with custom component:</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="customComponentColumn"
             :value="petTableData.slice(0, 4)"
             :show-empty="showEmpty"
           />
-        </div>
-
-        <div class="p-4 bg-gray-50 border border-gray-200 rounded text-sm">
-          <strong>Note:</strong> Custom component receives:
-          <ul class="list-disc list-inside mt-2">
-            <li><code>column: IColumn</code> - the column metadata</li>
-            <li><code>value: any</code> - the data value</li>
-          </ul>
         </div>
       </div>
 
@@ -666,7 +617,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
           <span class="font-medium text-record-label">ONTOLOGY (single):</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="ontologyColumn"
             :value="{
               name: 'Dog',
@@ -680,7 +631,7 @@ function clearLog() {
           <span class="font-medium text-record-label"
             >ONTOLOGY_ARRAY (flat list):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="ontologyArrayColumn"
             :value="[
               { name: 'Friendly', definition: 'Good with people' },
@@ -695,7 +646,7 @@ function clearLog() {
           <span class="font-medium text-record-label"
             >ONTOLOGY (tree with children):</span
           >
-          <DisplayRecordColumn
+          <DetailColumn
             :column="ontologyColumn"
             :value="ontologyTreeValue"
             :show-empty="showEmpty"
@@ -711,7 +662,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">null value:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="emptyColumn"
             :value="null"
             :show-empty="showEmpty"
@@ -723,7 +674,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">undefined value:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="emptyColumn"
             :value="undefined"
             :show-empty="showEmpty"
@@ -735,7 +686,7 @@ function clearLog() {
 
         <div class="grid grid-cols-[150px_1fr] gap-2 items-center">
           <span class="font-medium text-record-label">empty string:</span>
-          <DisplayRecordColumn
+          <DetailColumn
             :column="emptyColumn"
             value=""
             :show-empty="showEmpty"
@@ -746,6 +697,5 @@ function clearLog() {
         </div>
       </div>
     </div>
-    <!-- close bg-content wrapper -->
   </div>
 </template>

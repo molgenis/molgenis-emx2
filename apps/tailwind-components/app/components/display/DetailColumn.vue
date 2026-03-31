@@ -9,12 +9,10 @@ import {
   buildRefHref,
   hasOntologyHierarchy,
   getListColumns,
-  getRowLabel,
 } from "../../utils/displayUtils";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import ValueEMX2 from "../value/EMX2.vue";
-import Emx2ListView from "./Emx2DataList.vue";
-import ListView from "./DataList.vue";
+import DataList from "./DataList.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
 import type {
@@ -116,13 +114,6 @@ const isHierarchicalOntology = computed(() => {
   return hasOntologyHierarchy(props.value);
 });
 
-function getInlineHref(row: Record<string, any>): string {
-  const schema = props.column.refSchemaId || props.schemaId || "";
-  const table = props.column.refTableId || "";
-  const label = getRowLabel(row, props.column.refLabelDefault);
-  return `/${schema}/${table}/${encodeURIComponent(label)}`;
-}
-
 const refHref = ref<string | undefined>();
 
 watchEffect(async () => {
@@ -168,26 +159,28 @@ watchEffect(async () => {
     :value="value"
     :show-empty="showEmpty"
   />
-  <Emx2ListView
+  <DataList
     v-else-if="showListView"
     :schema-id="column.refSchemaId || schemaId!"
     :table-id="column.refTableId!"
     :filter="listFilter"
-    :column="column"
+    :layout="column.display || 'TABLE'"
+    :page-size="column.listConfig?.pageSize"
+    :hide-columns="column.refBackId ? [column.refBackId] : undefined"
+    :row-label-template="column.listConfig?.rowLabel || column.refLabelDefault"
   />
   <NuxtLink v-else-if="refHref" :to="refHref" class="text-link hover:underline">
     <ValueEMX2 :metadata="column" :data="value" />
   </NuxtLink>
   <OntologyTreeDisplay v-else-if="isHierarchicalOntology" :value="value" />
-  <ListView
+  <DataList
     v-else-if="showInlineListView"
     :rows="value"
     :columns="refTableColumns"
     :layout="column.display || 'TABLE'"
     :schema-id="column.refSchemaId || schemaId"
     :table-id="column.refTableId"
-    :get-href="getInlineHref"
-    :row-label="column.refLabelDefault"
+    :row-label-template="column.refLabelDefault"
   />
   <ValueEMX2 v-else :metadata="column" :data="value" />
 </template>

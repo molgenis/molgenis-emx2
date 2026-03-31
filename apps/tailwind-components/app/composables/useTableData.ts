@@ -46,6 +46,10 @@ export function useTableData(
   const errorRef = ref<string | undefined>(undefined);
 
   async function fetchData(): Promise<void> {
+    if (!schemaId || !tableId) {
+      status.value = "idle";
+      return;
+    }
     status.value = "pending";
     errorRef.value = undefined;
     try {

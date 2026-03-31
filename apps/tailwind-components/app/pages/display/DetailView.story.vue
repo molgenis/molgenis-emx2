@@ -1,18 +1,69 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { IRefColumn } from "../../../../metadata-utils/src/types";
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type {
+  ITableMetaData,
+  IRefColumn,
+} from "../../../../metadata-utils/src/types";
 import type { IColumnDisplay } from "../../../types/types";
-import RecordView from "../../components/display/DetailView.vue";
+import DemoDataControls from "../../DemoDataControls.vue";
+import DetailView from "../../components/display/DetailView.vue";
+
+const router = useRouter();
+const route = useRoute();
+
+const schemaId = ref<string>((route.query.schema as string) || "pet store");
+const tableId = ref<string>((route.query.table as string) || "Pet");
+const metadata = ref<ITableMetaData>();
+const formValues = ref<Record<string, any>>({});
 
 const showEmpty = ref(false);
-const clickLog = ref<string[]>([]);
+const useMockData = ref(false);
+const viewColumnsInput = ref("");
+
+const viewColumns = computed(() => {
+  if (!viewColumnsInput.value.trim()) return undefined;
+  return viewColumnsInput.value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+});
+
+const columnTransform = computed(() => {
+  if (!viewColumns.value?.length) return undefined;
+  return (columns: IColumnDisplay[]) => {
+    const viewColumnSet = new Set(viewColumns.value);
+    return columns.filter((col) => viewColumnSet.has(col.id));
+  };
+});
+
+const rowId = computed(() => {
+  if (!metadata.value || !formValues.value) return {};
+  const keyColumns = metadata.value.columns?.filter((c) => c.key === 1) || [];
+  const result: Record<string, any> = {};
+  for (const col of keyColumns) {
+    if (formValues.value[col.id] !== undefined) {
+      result[col.id] = formValues.value[col.id];
+    }
+  }
+  return result;
+});
+
+const hasRowId = computed(() => Object.keys(rowId.value).length > 0);
+
+watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
+  router.push({
+    query: {
+      schema: newSchemaId,
+      table: newTableId,
+    },
+  });
+});
 
 const mockColumns: IColumnDisplay[] = [
-  // Orphan columns (no section/heading)
   { id: "id", label: "ID", columnType: "AUTO_ID" },
-  { id: "name", label: "Name", columnType: "STRING" },
+  { id: "name", label: "Name", columnType: "STRING", key: 1 },
 
-  // Section 1: General Info
   {
     id: "generalSection",
     label: "General Information",
@@ -38,7 +89,6 @@ const mockColumns: IColumnDisplay[] = [
     section: "generalSection",
   },
 
-  // Section 1 > Heading: Physical
   {
     id: "physicalHeading",
     label: "Physical Characteristics",
@@ -58,7 +108,6 @@ const mockColumns: IColumnDisplay[] = [
     heading: "physicalHeading",
   },
 
-  // Section 2: Owner Info
   {
     id: "ownerSection",
     label: "Owner Information",
@@ -83,7 +132,6 @@ const mockColumns: IColumnDisplay[] = [
     section: "ownerSection",
   },
 
-  // Section 3: Related
   { id: "relatedSection", label: "Related Records", columnType: "SECTION" },
   {
     id: "orders",
@@ -104,7 +152,6 @@ const mockColumns: IColumnDisplay[] = [
   },
 ];
 
-// Mock row data
 const mockRow = {
   id: "PET-001",
   name: "Fluffy",
@@ -126,7 +173,6 @@ const mockRow = {
   ],
 };
 
-// Row with some empty values
 const mockRowWithEmpty = {
   ...mockRow,
   breed: null,
@@ -134,107 +180,130 @@ const mockRowWithEmpty = {
   ownerContact: "",
   tags: [],
 };
-
-function clearLog() {
-  clickLog.value = [];
-}
 </script>
 
 <template>
   <div class="p-5 space-y-8">
-    <h1 class="text-2xl font-bold">RecordView Component</h1>
+    <h1 class="text-2xl font-bold">DetailView Component</h1>
     <p class="text-gray-600 dark:text-gray-400">
-      Renders a complete record with two-level hierarchy: SECTION (text-2xl) >
-      HEADING (text-xl) > columns. Orphan columns (no section/heading) appear
-      first.
+      Renders a complete record with two-level hierarchy: SECTION > HEADING >
+      columns. Smart mode fetches data from EMX2 backend; dumb mode renders
+      provided data directly.
     </p>
 
-    <div
-      class="flex items-center gap-2 p-4 bg-gray-100 dark:bg-gray-800 rounded"
-    >
-      <input id="showEmpty" v-model="showEmpty" type="checkbox" />
-      <label for="showEmpty">Show empty values</label>
+    <div class="space-y-4 p-4 bg-gray-100 dark:bg-gray-800 rounded">
+      <DemoDataControls
+        v-model:metadata="metadata"
+        v-model:schemaId="schemaId"
+        v-model:tableId="tableId"
+        v-model:formValues="formValues"
+        :include-row-select="true"
+        :row-index="1"
+      />
+
+      <div class="flex flex-col gap-2">
+        <label for="viewColumns" class="text-title font-bold">
+          View Columns (comma-separated, leave empty for all):
+        </label>
+        <input
+          id="viewColumns"
+          v-model="viewColumnsInput"
+          type="text"
+          class="border border-black p-2 dark:bg-gray-700 dark:border-gray-600"
+          placeholder="e.g., name, species, breed"
+        />
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input id="showEmpty" v-model="showEmpty" type="checkbox" />
+          <label for="showEmpty">Show empty values</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="useMock" v-model="useMockData" type="checkbox" />
+          <label for="useMock">Use mock data (offline mode)</label>
+        </div>
+      </div>
     </div>
 
-    <!-- Click log -->
-    <div
-      class="p-4 bg-gray-50 dark:bg-gray-800 rounded border dark:border-gray-600"
-    >
-      <div class="flex justify-between items-center mb-2">
-        <span class="font-medium">Click Event Log:</span>
-        <button class="text-sm text-blue-600 hover:underline" @click="clearLog">
-          Clear
-        </button>
-      </div>
-      <div v-if="clickLog.length === 0" class="text-gray-400 italic">
-        No clicks yet - click any REF link to see events
-      </div>
-      <ul v-else class="space-y-1 text-sm font-mono">
-        <li
-          v-for="(log, index) in clickLog"
-          :key="index"
-          class="text-gray-700 dark:text-gray-300"
-        >
-          {{ log }}
-        </li>
-      </ul>
-    </div>
+    <div v-if="!useMockData" class="space-y-4">
+      <h2 class="text-xl font-semibold">Live Backend Data (smart mode)</h2>
 
-    <!-- Full record view -->
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Complete Record View</h2>
-      <div class="p-4 border rounded dark:border-gray-600">
-        <RecordView
-          :columns="mockColumns"
-          :data="mockRow"
+      <div v-if="!hasRowId" class="p-4 border rounded dark:border-gray-600">
+        <p class="text-gray-500 italic">
+          Select a row above to view its details.
+        </p>
+      </div>
+
+      <div v-else class="p-4 border rounded dark:border-gray-600">
+        <DetailView
+          :key="`${schemaId}-${tableId}-${JSON.stringify(rowId)}`"
+          :schema-id="schemaId"
+          :table-id="tableId"
+          :row-id="rowId"
           :show-empty="showEmpty"
+          :column-transform="columnTransform"
         >
           <template #header>
             <div class="mb-6 pb-4 border-b dark:border-gray-600">
-              <h1 class="text-3xl font-bold">{{ mockRow.name }}</h1>
-              <p class="text-gray-500">Record ID: {{ mockRow.id }}</p>
+              <h1 class="text-3xl font-bold">{{ tableId }} Record</h1>
+              <p class="text-gray-500">Row ID: {{ JSON.stringify(rowId) }}</p>
             </div>
           </template>
           <template #footer>
             <div
               class="mt-6 pt-4 border-t dark:border-gray-600 text-sm text-gray-500"
             >
-              Footer slot example - could contain actions, timestamps, etc.
+              Schema: {{ schemaId }} | Table: {{ tableId }}
             </div>
           </template>
-        </RecordView>
+        </DetailView>
       </div>
     </div>
 
-    <!-- Record with empty values -->
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Record with Empty Values</h2>
+    <div v-else class="space-y-4">
+      <h2 class="text-xl font-semibold">Mock Data (dumb mode)</h2>
       <p class="text-sm text-gray-500">
-        Toggle "Show empty values" above to see hidden columns.
+        Using static mock data. Uncheck "Use mock data" to connect to backend.
       </p>
-      <div class="p-4 border rounded dark:border-gray-600">
-        <RecordView
-          :columns="mockColumns"
-          :data="mockRowWithEmpty"
-          :show-empty="showEmpty"
-        />
-      </div>
-    </div>
 
-    <!-- Dark mode test -->
-    <div class="space-y-4">
-      <h2 class="text-xl font-semibold">Dark Mode Test</h2>
-      <p class="text-sm text-gray-500">
-        Toggle dark mode in your browser/OS to verify styling.
-      </p>
-      <div
-        class="p-4 border rounded bg-white dark:bg-gray-900 dark:border-gray-600"
-      >
-        <RecordView
-          :columns="mockColumns"
-          :data="mockRow"
-          :show-empty="showEmpty"
-        />
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold">Complete Record View</h3>
+        <div class="p-4 border rounded dark:border-gray-600">
+          <DetailView
+            :columns="mockColumns"
+            :data="mockRow"
+            :show-empty="showEmpty"
+          >
+            <template #header>
+              <div class="mb-6 pb-4 border-b dark:border-gray-600">
+                <h1 class="text-3xl font-bold">{{ mockRow.name }}</h1>
+                <p class="text-gray-500">Mock Pet Record</p>
+              </div>
+            </template>
+            <template #footer>
+              <div
+                class="mt-6 pt-4 border-t dark:border-gray-600 text-sm text-gray-500"
+              >
+                Footer slot example
+              </div>
+            </template>
+          </DetailView>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold">Record with Empty Values</h3>
+        <p class="text-sm text-gray-500">
+          Toggle "Show empty values" above to see hidden columns.
+        </p>
+        <div class="p-4 border rounded dark:border-gray-600">
+          <DetailView
+            :columns="mockColumns"
+            :data="mockRowWithEmpty"
+            :show-empty="showEmpty"
+          />
+        </div>
       </div>
     </div>
   </div>

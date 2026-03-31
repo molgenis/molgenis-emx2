@@ -5,7 +5,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import Emx2RecordView from "../../../../../tailwind-components/app/components/display/Emx2DetailView.vue";
+import DetailView from "../../../../../tailwind-components/app/components/display/DetailView.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
@@ -51,7 +51,7 @@ const enableEditing = computed(() => {
 </script>
 
 <template>
-  <Emx2RecordView
+  <DetailView
     :key="recordViewKey"
     :schema-id="schemaId"
     :table-id="tableId"
@@ -79,7 +79,7 @@ const enableEditing = computed(() => {
         </Button>
       </div>
     </template>
-  </Emx2RecordView>
+  </DetailView>
 
   <EditModal
     v-if="tableMetadata && rowData && showEditModal"

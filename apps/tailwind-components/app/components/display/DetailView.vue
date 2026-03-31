@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useAsyncData } from "#app";
 import type { IColumnDisplay, ISectionField } from "../../../types/types";
+import type { IRow } from "../../../../metadata-utils/src/types";
 import RecordSection from "./DetailSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
+import LoadingContent from "../LoadingContent.vue";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import fetchRowData from "../../composables/fetchRowData";
 import {
   isEmptyValue,
   isTopSection,
@@ -15,17 +20,91 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    columns: IColumnDisplay[];
-    data: Record<string, any>;
+    schemaId?: string;
+    tableId?: string;
+    rowId?: IRow;
+    columns?: IColumnDisplay[];
+    data?: Record<string, any>;
     showEmpty?: boolean;
     showSideNav?: boolean;
-    schemaId?: string;
-    rowId?: Record<string, any>;
+    columnTransform?: (columns: IColumnDisplay[]) => IColumnDisplay[];
   }>(),
   {
     showEmpty: false,
   }
 );
+
+const isSmartMode = computed(
+  () => !!(props.schemaId && props.tableId && props.rowId)
+);
+
+const {
+  data: metadata,
+  status: metadataStatus,
+  error: metadataError,
+} = useAsyncData(
+  `metadata-${props.schemaId}-${props.tableId}`,
+  () => fetchTableMetadata(props.schemaId!, props.tableId!),
+  {
+    watch: [() => props.schemaId, () => props.tableId],
+    immediate: isSmartMode.value,
+  }
+);
+
+const {
+  data: rowData,
+  status: rowStatus,
+  error: rowError,
+} = useAsyncData(
+  `row-${props.schemaId}-${props.tableId}-${JSON.stringify(props.rowId)}`,
+  () => fetchRowData(props.schemaId!, props.tableId!, props.rowId!),
+  {
+    watch: [() => props.schemaId, () => props.tableId, () => props.rowId],
+    immediate: isSmartMode.value,
+  }
+);
+
+const combinedStatus = computed(() => {
+  if (!isSmartMode.value) return "success";
+  if (metadataStatus.value === "pending" || rowStatus.value === "pending")
+    return "pending";
+  if (metadataStatus.value === "error" || rowStatus.value === "error")
+    return "error";
+  return "success";
+});
+
+const errorText = computed(() => {
+  if (!isSmartMode.value) return undefined;
+  if (metadataError.value)
+    return `Failed to load metadata: ${metadataError.value.message}`;
+  if (rowError.value)
+    return `Failed to load row data: ${rowError.value.message}`;
+  return undefined;
+});
+
+const processedColumns = computed<IColumnDisplay[]>(() => {
+  let columns: IColumnDisplay[];
+
+  if (isSmartMode.value) {
+    if (!metadata.value) return [];
+    columns = metadata.value.columns.filter(
+      (col) =>
+        col.role !== "INTERNAL" &&
+        (!col.id.startsWith("mg_") ||
+          col.columnType === "SECTION" ||
+          col.columnType === "HEADING")
+    );
+  } else {
+    columns = props.columns || [];
+  }
+
+  return props.columnTransform ? props.columnTransform(columns) : columns;
+});
+
+const effectiveData = computed(() => {
+  if (!isSmartMode.value) return props.data || {};
+  return rowData.value || {};
+});
 
 interface SectionGroup {
   heading: IColumnDisplay | null;
@@ -34,7 +113,7 @@ interface SectionGroup {
 }
 
 const sections = computed<SectionGroup[]>(() => {
-  const columns = props.columns;
+  const columns = processedColumns.value;
   const result: SectionGroup[] = [];
 
   const sectionColumns = columns.filter((c) => c.columnType === "SECTION");
@@ -51,7 +130,7 @@ const sections = computed<SectionGroup[]>(() => {
       isSection: false,
       columns: orphanColumns.map((col) => ({
         meta: col,
-        value: props.data[col.id],
+        value: effectiveData.value[col.id],
       })),
     });
   }
@@ -71,7 +150,7 @@ const sections = computed<SectionGroup[]>(() => {
         isSection: !isTop,
         columns: sectionDirectColumns.map((col) => ({
           meta: col,
-          value: props.data[col.id],
+          value: effectiveData.value[col.id],
         })),
       });
     }
@@ -91,7 +170,7 @@ const sections = computed<SectionGroup[]>(() => {
           isSection: false,
           columns: headingColumns_.map((col) => ({
             meta: col,
-            value: props.data[col.id],
+            value: effectiveData.value[col.id],
           })),
         });
       }
@@ -108,7 +187,7 @@ const sections = computed<SectionGroup[]>(() => {
         isSection: false,
         columns: headingColumns_.map((col) => ({
           meta: col,
-          value: props.data[col.id],
+          value: effectiveData.value[col.id],
         })),
       });
     }
@@ -135,17 +214,19 @@ const navSections = computed(() =>
 );
 
 const navTitle = computed(() => {
-  const keyColumns = props.columns
+  const keyColumns = processedColumns.value
     .filter((c) => c.key === 1)
-    .map((c) => getRoleText(props.data[c.id]))
+    .map((c) => getRoleText(effectiveData.value[c.id]))
     .filter(Boolean);
   return keyColumns.join(" - ") || undefined;
 });
 
-const logoColumn = computed(() => getLogoColumn(props.columns, props.data));
+const logoColumn = computed(() =>
+  getLogoColumn(processedColumns.value, effectiveData.value)
+);
 const logoUrl = computed(() => {
   if (!logoColumn.value) return undefined;
-  const val = props.data[logoColumn.value.id];
+  const val = effectiveData.value[logoColumn.value.id];
   return val?.url;
 });
 
@@ -153,44 +234,61 @@ const hasSideNav = computed(
   () => props.showSideNav !== false && navSections.value.length > 0
 );
 
-const autoTitle = computed(() => getTitleText(props.columns, props.data));
-const autoSubtitle = computed(() => getSubtitleText(props.columns, props.data));
+const autoTitle = computed(() =>
+  getTitleText(processedColumns.value, effectiveData.value)
+);
+const autoSubtitle = computed(() =>
+  getSubtitleText(processedColumns.value, effectiveData.value)
+);
+
+const isReady = computed(() => {
+  if (!isSmartMode.value) return true;
+  return processedColumns.value.length > 0 && rowData.value;
+});
 </script>
 
 <template>
-  <div class="max-w-lg mx-auto lg:px-[30px] px-0">
-    <DetailPageLayout :show-side-nav="hasSideNav">
-      <template #header>
-        <slot v-if="$slots.header" name="header"></slot>
-        <div
-          v-else-if="autoTitle || autoSubtitle"
-          class="flex flex-col px-5 pt-5 pb-6 lg:pb-10 lg:px-0 text-center text-title"
-        >
-          <h1 class="font-display text-heading-6xl">{{ autoTitle }}</h1>
-          <p v-if="autoSubtitle" class="mt-1 text-body-lg">
-            {{ autoSubtitle }}
-          </p>
-        </div>
-      </template>
-      <template v-if="hasSideNav" #sidebar>
-        <SideNav :sections="navSections" :title="navTitle" :image="logoUrl" />
-      </template>
-      <template #main>
-        <div class="grid lg:gap-2.5 gap-0">
-          <RecordSection
-            v-for="(section, index) in visibleSections"
-            :key="section.heading?.id || `orphan-${index}`"
-            :heading="section.heading"
-            :is-section="section.isSection"
-            :columns="section.columns"
-            :show-empty="showEmpty"
-            :schema-id="schemaId"
-            :parent-row-id="rowId"
-          />
-        </div>
+  <LoadingContent
+    :id="`detail-view-${schemaId}-${tableId}`"
+    :status="combinedStatus"
+    loading-text="Loading record..."
+    :error-text="errorText"
+    :show-slot-on-error="false"
+  >
+    <div v-if="isReady" class="max-w-lg mx-auto lg:px-[30px] px-0">
+      <DetailPageLayout :show-side-nav="hasSideNav">
+        <template #header>
+          <slot v-if="$slots.header" name="header"></slot>
+          <div
+            v-else-if="autoTitle || autoSubtitle"
+            class="flex flex-col px-5 pt-5 pb-6 lg:pb-10 lg:px-0 text-center text-title"
+          >
+            <h1 class="font-display text-heading-6xl">{{ autoTitle }}</h1>
+            <p v-if="autoSubtitle" class="mt-1 text-body-lg">
+              {{ autoSubtitle }}
+            </p>
+          </div>
+        </template>
+        <template v-if="hasSideNav" #sidebar>
+          <SideNav :sections="navSections" :title="navTitle" :image="logoUrl" />
+        </template>
+        <template #main>
+          <div class="grid lg:gap-2.5 gap-0">
+            <RecordSection
+              v-for="(section, index) in visibleSections"
+              :key="section.heading?.id || `orphan-${index}`"
+              :heading="section.heading"
+              :is-section="section.isSection"
+              :columns="section.columns"
+              :show-empty="showEmpty"
+              :schema-id="schemaId"
+              :parent-row-id="rowId"
+            />
+          </div>
 
-        <slot name="footer"></slot>
-      </template>
-    </DetailPageLayout>
-  </div>
+          <slot name="footer"></slot>
+        </template>
+      </DetailPageLayout>
+    </div>
+  </LoadingContent>
 </template>

@@ -5,7 +5,7 @@ import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
-import RecordColumn from "./Emx2DetailColumn.vue";
+import RecordColumn from "./DetailColumn.vue";
 
 const props = withDefaults(
   defineProps<{
