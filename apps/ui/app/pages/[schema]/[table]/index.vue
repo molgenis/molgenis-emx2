@@ -133,7 +133,7 @@ const { isAdmin, session } = await useSession(schemaId);
         :schemaId="schemaId"
         :tableId="tableId"
         :showSearch="true"
-        class="w-64 shrink-0"
+        class="w-128 shrink-0"
       />
       <div class="flex-1 min-w-0">
         <TableEMX2

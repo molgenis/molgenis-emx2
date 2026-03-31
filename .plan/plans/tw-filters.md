@@ -6,7 +6,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 **61 files changed** (against origin/master): 16 new source files, 6 stories, 14 test files, 2 shared test fixtures, 8 modified existing components, 6 test quality fixes, plus config/CSS/types.
 
-**418 vitest tests, all passing** (48 test files).
+**421 vitest tests, all passing** (49 test files).
 
 ---
 

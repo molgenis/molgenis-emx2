@@ -13,13 +13,14 @@ vi.mock("../../../app/composables/fetchMetadata", () => ({
 function makeTable(
   id: string,
   columns: IColumn[],
-  inheritName?: string
+  inheritName?: string,
+  name?: string
 ): ITableMetaData {
   return {
     id,
     schemaId: "test",
-    name: id,
-    label: id,
+    name: name ?? id,
+    label: name ?? id,
     tableType: "DATA",
     columns,
     ...(inheritName !== undefined ? { inheritName } : {}),
@@ -131,6 +132,28 @@ describe("getSubclassColumns", () => {
 
     expect(result).toHaveLength(1);
     expect((result[0] as any).sourceTableId).toBe("Child");
+  });
+
+  it("matches inheritName against table name, not id", async () => {
+    mockSchema([
+      makeTable(
+        "CollectionEvents",
+        [makeColumn("id")],
+        undefined,
+        "Collection events"
+      ),
+      makeTable(
+        "SubCollection",
+        [makeColumn("id"), makeColumn("extra")],
+        "Collection events",
+        "Sub collection"
+      ),
+    ]);
+
+    const result = await getSubclassColumns("test", "CollectionEvents");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("extra");
   });
 
   it("handles empty subclass column arrays", async () => {

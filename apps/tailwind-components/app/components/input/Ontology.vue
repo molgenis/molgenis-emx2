@@ -58,6 +58,7 @@ const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
 
+// Virtual root node to hold the ontology tree and its pagination state
 const rootNode = ref<ITreeNodeState>({
   name: "__root__",
   label: "Root",

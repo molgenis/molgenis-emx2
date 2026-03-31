@@ -13,19 +13,19 @@ export async function getSubclassColumns(
   if (!parentTable) return [];
 
   return collectSubclassColumns(
-    tableId,
+    parentTable.name,
     schemaMetadata.tables,
     new Set(parentTable.columns.map((c) => c.id))
   );
 }
 
 function collectSubclassColumns(
-  parentId: string,
+  parentName: string,
   allTables: ITableMetaData[],
   parentColumnIds: Set<string>,
   result: IColumn[] = []
 ): IColumn[] {
-  const subclasses = allTables.filter((t) => t.inheritName === parentId);
+  const subclasses = allTables.filter((t) => t.inheritName === parentName);
 
   for (const subclass of subclasses) {
     for (const col of subclass.columns) {
@@ -37,7 +37,7 @@ function collectSubclassColumns(
       }
     }
 
-    collectSubclassColumns(subclass.id, allTables, parentColumnIds, result);
+    collectSubclassColumns(subclass.name, allTables, parentColumnIds, result);
   }
 
   return result;
