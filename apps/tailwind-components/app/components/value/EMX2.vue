@@ -17,8 +17,6 @@ import ValueRef from "./Ref.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
-import ValueDate from "./Date.vue";
-import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
