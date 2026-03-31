@@ -99,7 +99,6 @@ describe("TableCellDetailRef.vue", () => {
       },
       columnValue: { id: "bird-1" },
       schema: "petstore",
-      sourceTableId: "owners",
     });
 
     await flushPromises();
@@ -123,7 +122,6 @@ describe("TableCellDetailRef.vue", () => {
       },
       columnValue: { id: "bird-1" },
       schema: "petstore",
-      sourceTableId: "owners",
       showDataOwner: true,
     });
 
