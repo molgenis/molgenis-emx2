@@ -3,6 +3,14 @@
   "extends": [
     "config:base"
   ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["security"],
+      "prPriority": 100,
+      "prConcurrentLimit": 0,
+      "prCreation": "immediate"
+    }
+  ],
   "packageRules": [ 
       {
       "matchManagers": ["gradle"],
