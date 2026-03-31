@@ -178,6 +178,27 @@ describe("parseFilterValue", () => {
       value: "550e8400-e29b-41d4-a716-446655440000",
     });
   });
+
+  it("parses ontology value as plain string array (not object array)", () => {
+    const ontologyColumn: IColumn = { id: "tags", columnType: "ONTOLOGY" };
+    const result = parseFilterValue("Adult", ontologyColumn);
+    expect(result).toEqual({ operator: "equals", value: ["Adult"] });
+  });
+
+  it("parses pipe-separated ontology values as plain string array", () => {
+    const ontologyColumn: IColumn = { id: "tags", columnType: "ONTOLOGY" };
+    const result = parseFilterValue("Adult|Child", ontologyColumn);
+    expect(result).toEqual({ operator: "equals", value: ["Adult", "Child"] });
+  });
+
+  it("parses ONTOLOGY_ARRAY value as plain string array", () => {
+    const ontologyArrayColumn: IColumn = {
+      id: "tags",
+      columnType: "ONTOLOGY_ARRAY",
+    };
+    const result = parseFilterValue("Adult|Child", ontologyArrayColumn);
+    expect(result).toEqual({ operator: "equals", value: ["Adult", "Child"] });
+  });
 });
 
 describe("serializeFiltersToUrl", () => {
@@ -252,6 +273,24 @@ describe("serializeFiltersToUrl", () => {
     });
     const result = serializeFiltersToUrl(filters, "", columns);
     expect(result["order.pet.category.name"]).toBe("dogs");
+  });
+
+  it("serializes nested ontology filter (plain string values) with .name suffix", () => {
+    const columns = [
+      {
+        id: "collectionEvents",
+        columnType: "REF_ARRAY",
+        label: "Collection Events",
+        refTableId: "CollectionEvent",
+      },
+    ];
+    const filters = new Map();
+    filters.set("collectionEvents.ageGroups", {
+      operator: "equals",
+      value: ["Adult", "Child"],
+    });
+    const result = serializeFiltersToUrl(filters, "", columns);
+    expect(result["collectionEvents.ageGroups.name"]).toBe("Adult|Child");
   });
 });
 

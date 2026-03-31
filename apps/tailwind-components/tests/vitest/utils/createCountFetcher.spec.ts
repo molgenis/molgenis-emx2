@@ -82,20 +82,34 @@ describe("createCountFetcher", () => {
       expect(counts.get("Cat")).toBe(3);
     });
 
-    it("returns empty map for nested dotted column path", async () => {
+    it("uses _agg per item for nested dotted column path", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        c_Netherlands: { count: 5 },
+        c_Germany: { count: 3 },
+      });
+
       const fetcher = createCountFetcher({
         schemaId: "s",
-        tableId: "Patient",
-        columnPath: "hospital.city",
+        tableId: "Resources",
+        columnPath: "organisation.country",
         getCrossFilter: () => ({}),
       });
 
       const counts = await fetcher.fetchRefCounts(
-        new Map([["Amsterdam", { name: "Amsterdam" }]])
+        new Map([
+          ["Netherlands", { name: "Netherlands" }],
+          ["Germany", { name: "Germany" }],
+        ])
       );
 
-      expect(mockFetchGraphql).not.toHaveBeenCalled();
-      expect(counts.size).toBe(0);
+      expect(mockFetchGraphql).toHaveBeenCalledOnce();
+      const [, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(query).toContain("Resources_agg");
+      expect(variables.filter_c_Netherlands).toEqual({
+        organisation: { country: { name: { equals: ["Netherlands"] } } },
+      });
+      expect(counts.get("Netherlands")).toBe(5);
+      expect(counts.get("Germany")).toBe(3);
     });
 
     it("sets count to 0 for labels not in response", async () => {
@@ -193,7 +207,12 @@ describe("createCountFetcher", () => {
       expect(counts.get("Cat")).toBe(2);
     });
 
-    it("returns empty map for nested dotted column path", async () => {
+    it("uses _agg with _match_any_including_children for nested dotted column path", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        c_Dog: { count: 4 },
+        c_Cat: { count: 0 },
+      });
+
       const fetcher = createCountFetcher({
         schemaId: "s",
         tableId: "Patient",
@@ -201,10 +220,16 @@ describe("createCountFetcher", () => {
         getCrossFilter: () => ({}),
       });
 
-      const counts = await fetcher.fetchOntologyLeafCounts(["Dog"]);
+      const counts = await fetcher.fetchOntologyLeafCounts(["Dog", "Cat"]);
 
-      expect(mockFetchGraphql).not.toHaveBeenCalled();
-      expect(counts.size).toBe(0);
+      expect(mockFetchGraphql).toHaveBeenCalledOnce();
+      const [, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(query).toContain("Patient_agg");
+      expect(variables.filter_c_Dog).toEqual({
+        hospital: { species: { _match_any_including_children: "Dog" } },
+      });
+      expect(counts.get("Dog")).toBe(4);
+      expect(counts.get("Cat")).toBe(0);
     });
 
     it("returns empty map for empty names array", async () => {
@@ -337,20 +362,35 @@ describe("createCountFetcher", () => {
       consoleWarnSpy.mockRestore();
     });
 
-    it("returns empty map for nested dotted column path", async () => {
+    it("uses _agg per item for nested dotted column path without cross-filter", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        c_Dog: { count: 7 },
+        c_Cat: { count: 2 },
+      });
+
       const fetcher = createCountFetcher({
         schemaId: "s",
         tableId: "Patient",
         columnPath: "hospital.species",
-        getCrossFilter: () => ({}),
+        getCrossFilter: () => ({ _search: "should-be-excluded" }),
       });
 
       const counts = await fetcher.fetchRefBaseCounts(
-        new Map([["Amsterdam", { name: "Amsterdam" }]])
+        new Map([
+          ["Dog", { name: "Dog" }],
+          ["Cat", { name: "Cat" }],
+        ])
       );
 
-      expect(mockFetchGraphql).not.toHaveBeenCalled();
-      expect(counts.size).toBe(0);
+      expect(mockFetchGraphql).toHaveBeenCalledOnce();
+      const [, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(query).toContain("Patient_agg");
+      expect(variables.filter_c_Dog).toEqual({
+        hospital: { species: { name: { equals: ["Dog"] } } },
+      });
+      expect(variables.filter_c_Dog._search).toBeUndefined();
+      expect(counts.get("Dog")).toBe(7);
+      expect(counts.get("Cat")).toBe(2);
     });
   });
 

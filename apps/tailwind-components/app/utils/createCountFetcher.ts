@@ -50,6 +50,48 @@ function sanitizeAlias(name: string): string {
   return "c_" + name.replace(/[^a-zA-Z0-9]/g, "_");
 }
 
+async function _fetchAggCounts(
+  schemaId: string,
+  tableId: string,
+  names: string[],
+  buildItemFilter: (name: string) => any,
+  crossFilter?: IGraphQLFilter
+): Promise<Map<string, number>> {
+  if (names.length === 0) return new Map();
+
+  const aliases = names.map((name) => ({
+    alias: sanitizeAlias(name),
+    name,
+  }));
+
+  const queryParts = aliases.map(
+    ({ alias }) => `
+      ${alias}: ${tableId}_agg(filter: $filter_${alias}) {
+        count
+      }
+    `
+  );
+
+  const variableDefinitions = aliases
+    .map(({ alias }) => `$filter_${alias}: ${tableId}Filter`)
+    .join(", ");
+
+  const query = `query(${variableDefinitions}) { ${queryParts.join("\n")} }`;
+
+  const variables: Record<string, any> = {};
+  for (const { alias, name } of aliases) {
+    variables[`filter_${alias}`] = { ...crossFilter, ...buildItemFilter(name) };
+  }
+
+  const result = await fetchGraphql(schemaId, query, variables);
+  const counts = new Map<string, number>();
+  for (const { alias, name } of aliases) {
+    const aggResult = result[alias];
+    counts.set(name, aggResult?.count || 0);
+  }
+  return counts;
+}
+
 export function createCountFetcher(config: {
   schemaId: string;
   tableId: string;
@@ -60,12 +102,32 @@ export function createCountFetcher(config: {
     options: Map<string, Record<string, unknown>>,
     crossFilter?: IGraphQLFilter
   ): Promise<Map<string, number>> {
-    if (config.columnPath.includes(".")) return new Map();
     if (options.size === 0) return new Map();
 
     const firstEntry = options.values().next().value;
     if (!firstEntry) return new Map();
     const keyField = Object.keys(firstEntry)[0] ?? "name";
+
+    if (config.columnPath.includes(".")) {
+      try {
+        return await _fetchAggCounts(
+          config.schemaId,
+          config.tableId,
+          [...options.keys()],
+          (name) =>
+            buildNestedFilterValue(config.columnPath, {
+              [keyField]: { equals: [name] },
+            }),
+          crossFilter
+        );
+      } catch (error) {
+        console.warn(
+          `Failed to fetch ref counts for ${config.columnPath}:`,
+          error
+        );
+        return new Map();
+      }
+    }
 
     const fieldSelector = buildNestedFieldSelector(config.columnPath, keyField);
     const names = [...options.keys()];
@@ -117,8 +179,28 @@ export function createCountFetcher(config: {
     names: string[],
     crossFilter?: IGraphQLFilter
   ): Promise<Map<string, number>> {
-    if (config.columnPath.includes(".")) return new Map();
     if (names.length === 0) return new Map();
+
+    if (config.columnPath.includes(".")) {
+      try {
+        return await _fetchAggCounts(
+          config.schemaId,
+          config.tableId,
+          names,
+          (name) =>
+            buildNestedFilterValue(config.columnPath, {
+              _match_any_including_children: name,
+            }),
+          crossFilter
+        );
+      } catch (error) {
+        console.warn(
+          `Failed to fetch ontology leaf counts for ${config.columnPath}:`,
+          error
+        );
+        return new Map();
+      }
+    }
 
     const fieldSelector = buildNestedFieldSelector(config.columnPath, "name");
 
@@ -169,44 +251,19 @@ export function createCountFetcher(config: {
     names: string[],
     crossFilter?: IGraphQLFilter
   ): Promise<Map<string, number>> {
-    if (config.columnPath.includes(".")) return new Map();
     if (names.length === 0) return new Map();
 
-    const aliases = names.map((name) => ({
-      alias: sanitizeAlias(name),
-      name,
-    }));
-
-    const queryParts = aliases.map(
-      ({ alias }) => `
-      ${alias}: ${config.tableId}_agg(filter: $filter_${alias}) {
-        count
-      }
-    `
-    );
-
-    const variableDefinitions = aliases
-      .map(({ alias }) => `$filter_${alias}: ${config.tableId}Filter`)
-      .join(", ");
-
-    const query = `query(${variableDefinitions}) { ${queryParts.join("\n")} }`;
-
-    const variables: Record<string, any> = {};
-    for (const { alias, name } of aliases) {
-      const nestedFilter = buildNestedFilterValue(config.columnPath, {
-        _match_any_including_children: name,
-      });
-      variables[`filter_${alias}`] = { ...crossFilter, ...nestedFilter };
-    }
-
     try {
-      const result = await fetchGraphql(config.schemaId, query, variables);
-      const counts = new Map<string, number>();
-      for (const { alias, name } of aliases) {
-        const aggResult = result[alias];
-        counts.set(name, aggResult?.count || 0);
-      }
-      return counts;
+      return await _fetchAggCounts(
+        config.schemaId,
+        config.tableId,
+        names,
+        (name) =>
+          buildNestedFilterValue(config.columnPath, {
+            _match_any_including_children: name,
+          }),
+        crossFilter
+      );
     } catch (error) {
       console.warn(
         `Failed to fetch ontology parent counts for ${config.columnPath}:`,

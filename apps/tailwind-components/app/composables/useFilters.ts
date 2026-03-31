@@ -155,6 +155,15 @@ export function parseFilterValue(
 
   const columnType = column.columnType;
 
+  const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+  if (ONTOLOGY_TYPES.includes(columnType)) {
+    if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
+      const values = urlValue.split(MULTI_VALUE_SEPARATOR);
+      return { operator: "equals", value: values };
+    }
+    return { operator: "equals", value: [urlValue] };
+  }
+
   if (REF_TYPES.includes(columnType)) {
     const field = refField ?? "name";
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
@@ -239,7 +248,7 @@ export function serializeFiltersToUrl(
           const refField = extractRefField(value);
           params[`${key}.${refField}`] = serialized;
         } else {
-          params[key] = serialized;
+          params[`${key}.name`] = serialized;
         }
       } else if (REF_TYPES.includes(column.columnType)) {
         const refField = extractRefField(value);
@@ -389,59 +398,6 @@ export function useFilters(
       }
     },
   });
-
-  const _gqlFilter = computed(() =>
-    buildGraphQLFilter(
-      actualFilterStates.value,
-      columns.value,
-      actualSearchValue.value
-    )
-  );
-  const gqlFilter = ref(_gqlFilter.value);
-  const updateGqlFilter = useDebounceFn(() => {
-    const newFilter = _gqlFilter.value;
-    if (JSON.stringify(newFilter) !== JSON.stringify(gqlFilter.value)) {
-      gqlFilter.value = newFilter;
-    }
-  }, options?.debounceMs ?? 300);
-
-  watch(
-    () => columns.value.length,
-    (newLen, oldLen) => {
-      if (oldLen === 0 && newLen > 0) {
-        updateGqlFilter();
-      }
-    }
-  );
-
-  if (urlSyncEnabled) {
-    watch(
-      () => route?.query,
-      () => {
-        updateGqlFilter();
-      },
-      { deep: true }
-    );
-
-    if (getCurrentInstance()) {
-      onMounted(() => {
-        gqlFilter.value = _gqlFilter.value;
-      });
-    } else {
-      gqlFilter.value = _gqlFilter.value;
-    }
-  } else {
-    watch(
-      filterStatesRef,
-      () => {
-        updateGqlFilter();
-      },
-      { deep: true, flush: "sync" }
-    );
-    watch(searchValueRef, () => {
-      updateGqlFilter();
-    });
-  }
 
   function updateUrl(filters: Map<string, IFilterValue>, search: string) {
     if (!router || !route) return;
@@ -676,6 +632,71 @@ export function useFilters(
     return currentColumns.find((c) => c.id === segments[segments.length - 1]);
   }
 
+  const columnTypeMap = computed(() => {
+    const map = new Map<string, string>();
+    for (const filterId of visibleFilterIds.value) {
+      const column = findColumnForPath(filterId);
+      if (column) {
+        map.set(filterId, column.columnType);
+      }
+    }
+    return map;
+  });
+
+  const _gqlFilter = computed(() =>
+    buildGraphQLFilter(
+      actualFilterStates.value,
+      columns.value,
+      actualSearchValue.value,
+      columnTypeMap.value
+    )
+  );
+  const gqlFilter = ref(_gqlFilter.value);
+  const updateGqlFilter = useDebounceFn(() => {
+    const newFilter = _gqlFilter.value;
+    if (JSON.stringify(newFilter) !== JSON.stringify(gqlFilter.value)) {
+      gqlFilter.value = newFilter;
+    }
+  }, options?.debounceMs ?? 300);
+
+  watch(
+    () => columns.value.length,
+    (newLen, oldLen) => {
+      if (oldLen === 0 && newLen > 0) {
+        updateGqlFilter();
+      }
+    }
+  );
+
+  if (urlSyncEnabled) {
+    watch(
+      () => route?.query,
+      () => {
+        updateGqlFilter();
+      },
+      { deep: true }
+    );
+
+    if (getCurrentInstance()) {
+      onMounted(() => {
+        gqlFilter.value = _gqlFilter.value;
+      });
+    } else {
+      gqlFilter.value = _gqlFilter.value;
+    }
+  } else {
+    watch(
+      filterStatesRef,
+      () => {
+        updateGqlFilter();
+      },
+      { deep: true, flush: "sync" }
+    );
+    watch(searchValueRef, () => {
+      updateGqlFilter();
+    });
+  }
+
   const resolvedFilters = computed(() => {
     const result: { fullPath: string; column: IColumn; label: string }[] = [];
 
@@ -776,7 +797,8 @@ export function useFilters(
         buildGraphQLFilter(
           crossFilterStates,
           columns.value,
-          actualSearchValue.value
+          actualSearchValue.value,
+          columnTypeMap.value
         )
       );
     }

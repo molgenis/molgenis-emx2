@@ -328,6 +328,33 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
+  it("uses _match_any_including_children for nested ontology with plain string values", () => {
+    const filters = new Map<string, IFilterValue>();
+    filters.set("collectionEvents.ageGroups", {
+      operator: "equals",
+      value: ["All ages"],
+    });
+
+    const columns: IColumn[] = [
+      {
+        id: "collectionEvents",
+        columnType: "REF_ARRAY",
+        label: "Collection Events",
+      },
+    ];
+
+    const columnTypeMap = new Map([
+      ["collectionEvents.ageGroups", "ONTOLOGY_ARRAY"],
+    ]);
+
+    const result = buildGraphQLFilter(filters, columns, "", columnTypeMap);
+    expect(result).toEqual({
+      collectionEvents: {
+        ageGroups: { _match_any_including_children: ["All ages"] },
+      },
+    });
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([

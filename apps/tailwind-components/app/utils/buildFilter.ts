@@ -49,7 +49,8 @@ function setNestedValue(obj: any, path: string[], value: any): void {
 export function buildGraphQLFilter(
   filterStates: Map<string, IFilterValue>,
   columns: IColumn[],
-  searchValue?: string
+  searchValue?: string,
+  columnTypeMap?: Map<string, string>
 ): IGraphQLFilter {
   const filter: IGraphQLFilter = {};
 
@@ -70,16 +71,20 @@ export function buildGraphQLFilter(
       case "equals":
         if (typeof value === "object" && value !== null) {
           const arr = Array.isArray(value) ? value : [value];
+          const resolvedType =
+            columnTypeMap?.get(columnId) || column.columnType;
           if (arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null) {
             const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
             const refValues = arr.map(
               (v: any) => (v as Record<string, unknown>)[refField]
             );
-            if (ONTOLOGY_TYPES.includes(column.columnType)) {
+            if (ONTOLOGY_TYPES.includes(resolvedType)) {
               filterValueObj = { _match_any_including_children: refValues };
             } else {
               filterValueObj = { [refField]: { equals: refValues } };
             }
+          } else if (ONTOLOGY_TYPES.includes(resolvedType)) {
+            filterValueObj = { _match_any_including_children: arr };
           } else {
             filterValueObj = { equals: arr };
           }
