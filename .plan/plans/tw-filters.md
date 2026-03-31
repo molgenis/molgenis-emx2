@@ -6,7 +6,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 
 **61 files changed** (against origin/master): 16 new source files, 6 stories, 14 test files, 2 shared test fixtures, 8 modified existing components, 6 test quality fixes, plus config/CSS/types.
 
-**413 vitest tests, all passing** (48 test files).
+**418 vitest tests, all passing** (48 test files).
 
 ---
 
@@ -19,7 +19,7 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] 5 operators: `equals`, `like`, `between`, `notNull`, `isNull`
 - [ ] `like` always uses AND semantics for space-separated terms
 - [ ] Serialization round-trip: filter state → URL string → parse → GraphQL filter
-- [ ] Tests: `composables/useFilters.spec.ts` (~29 composable tests, incl. toggleFilter/removeFilter/resetFilters removal paths) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests)
+- [ ] Tests: `composables/useFilters.spec.ts` (~33 composable tests, incl. toggleFilter/removeFilter/resetFilters removal paths) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests, incl. ontology URL round-trip tests)
 
 ### Filter components (`app/components/filter/`)
 - [ ] **Sidebar.vue** (~30 lines) — pure display wrapper, receives `UseFilters` prop
@@ -30,8 +30,8 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] Stories exist for all 5 components + useFilters composable
 
 ### Filter utilities (`app/utils/`)
-- [ ] **buildFilter.ts** — converts filter state to GraphQL filter syntax (nested refs, ontology `_match_any_including_children`)
-- [ ] **createCountFetcher.ts** — `ICountFetcher` factory: ref counts via `_groupBy`, ontology counts via `_groupBy` + `_agg`, base counts (no cross-filter) for hiding empty options
+- [ ] **buildFilter.ts** — converts filter state to GraphQL filter syntax (nested refs, ontology `_match_any_including_children`); accepts optional `columnTypeMap` to resolve leaf column types for nested paths
+- [ ] **createCountFetcher.ts** — `ICountFetcher` factory: ref counts via `_groupBy`, ontology counts via `_groupBy` + `_agg`, base counts (no cross-filter) for hiding empty options; nested paths use per-item `_agg` via shared `_fetchAggCounts` helper
 - [ ] **computeDefaultFilters.ts** — smart defaults: ontology first, then refs, max 5
 - [ ] **formatFilterValue.ts** — display formatting for active filter chips
 - [ ] **resolveFilterLabels.ts** — async label resolution for nested ref paths
@@ -111,6 +111,20 @@ Files: `Ref.vue`, `Ontology.vue`, `TreeNode.vue`, `types/types.ts`, `Ontology.sp
 - Perceived issue likely caused by flicker (fixed in Task 3)
 
 Files: `useFilters.ts`, `useFilters.spec.ts`
+
+### ✅ Completed — Task 4: Enable nested filter counting + fix ontology URL round-trip
+
+Three interleaved fixes for nested/path-based filters (e.g. `collectionEvents.ageGroups`):
+
+**Ontology URL round-trip**: `parseFilterValue` returns plain strings for ONTOLOGY types (not `{ name: "..." }` objects). `serializeFiltersToUrl` appends `.name` for nested string values. Prevents empty filter wells after page reload.
+
+**Nested counting**: Per-item `_agg` queries for nested paths via shared `_fetchAggCounts` helper. Ref counts use `equals`, ontology counts use `_match_any_including_children`. Non-nested paths still use efficient `_groupBy`.
+
+**buildFilter columnTypeMap**: `buildGraphQLFilter` accepts optional `columnTypeMap` to resolve leaf column type for nested paths. Without it, `collectionEvents.ageGroups` resolved to REF_ARRAY (root column) instead of ONTOLOGY_ARRAY (leaf), producing wrong filter operator.
+
+Backend verification: `_agg` through nested array refs returns correct distinct counts for single-value filters.
+
+Files: `useFilters.ts`, `buildFilter.ts`, `createCountFetcher.ts`, `buildFilter.spec.ts`, `createCountFetcher.spec.ts`, `filterUrlCodec.spec.ts`
 
 ## Future Work
 
