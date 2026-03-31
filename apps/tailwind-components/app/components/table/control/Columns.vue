@@ -33,7 +33,7 @@
         :options="{ animation: 150 }"
       >
         <div
-          class="flex flex-row"
+          class="flex flex-row hover:cursor-grab "
           v-for="option in columnsInColumnsSelectModal"
           :key="option.id"
         >
@@ -41,27 +41,18 @@
             :for="`column-checkbox-group-${option.label}`"
             class="group flex justify-start items-center relative text-title-contrast"
           >
-            <input
-              type="checkbox"
-              :id="`column-checkbox-group-${option.label}`"
-              :value="option.visible"
-              v-model="option.visible"
-              class="ml-4 mt-2 sr-only"
-            />
-            <InputCheckboxIcon :checked="option.visible" />
-            <span class="block">
+            <Button v-if="option.visible" @click="option.visible = false" iconOnly type='inline' size='small' icon="visible" label="add" class="-mt-1 -mb-1 mr-1"/>
+            <Button v-else @click="option.visible = true" iconOnly type='inline' size='small' icon="hidden" label="add" class="-mt-1 -mb-1 mr-1"/>
+            <span class="block hover:cursor-grab ">
               {{ option.label }}
-              {{ option.position }}
             </span>
           </InputLabel>
           <BaseIcon
             name="drag-horizontal"
-            class="ml-auto hover:cursor-grab"
-            style="opacity: 0.2"
+            class="ml-auto text-title-contrast"
           />
         </div>
       </UseSortable>
-      {{ columnsInColumnsSelectModal }}
     </div>
     <template #footer>
       <div class="flex gap-2 justify-start py-2">
