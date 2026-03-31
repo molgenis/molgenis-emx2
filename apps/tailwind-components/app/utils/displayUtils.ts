@@ -163,7 +163,7 @@ export function filterColumnsByRole(columns: IColumn[]): IColumn[] {
 export function getListColumns(
   columns: IColumn[],
   options?: {
-    layout?: "TABLE" | "CARDS" | "LIST";
+    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
     hideColumns?: string[];
     visibleColumns?: string[];
     rows?: Record<string, any>[];

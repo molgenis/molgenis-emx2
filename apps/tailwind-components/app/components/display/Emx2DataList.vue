@@ -6,6 +6,7 @@ import { useTableData } from "../../composables/useTableData";
 import { getRowLabel, getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
+import InlinePagination from "./InlinePagination.vue";
 import ListView from "./DataList.vue";
 
 const props = defineProps<{
@@ -52,7 +53,7 @@ const rowLabel = computed(() => {
   return override || props.column?.refLabelDefault || undefined;
 });
 
-function getHref(_col: IColumn, row: Record<string, any>): string {
+function getHref(row: Record<string, any>): string {
   return `/${props.schemaId}/${props.tableId}/${encodeURIComponent(
     getRowLabel(row, rowLabel.value)
   )}`;
@@ -88,13 +89,16 @@ const errorText = computed(
         :layout="layout"
         :row-label="rowLabel"
         :get-href="getHref"
-        :total-pages="totalPages"
-        :current-page="page"
-        :show-pagination="showPagination"
         :schema-id="schemaId"
         :table-id="tableId"
-        @update:page="page = $event"
       />
     </LoadingContent>
+    <InlinePagination
+      v-if="showPagination"
+      :current-page="page"
+      :total-pages="totalPages"
+      class="mt-4"
+      @update:page="page = $event"
+    />
   </div>
 </template>

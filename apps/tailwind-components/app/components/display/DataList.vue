@@ -1,37 +1,25 @@
 <script setup lang="ts">
-import { computed, type Component } from "vue";
+import { computed } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { getListColumns, getRowLabel } from "../../utils/displayUtils";
-import RecordTable from "./DataTable.vue";
-import InlinePagination from "./InlinePagination.vue";
-import ListCard from "./DataCard.vue";
+import DataTable from "./DataTable.vue";
+import DataCard from "./DataCard.vue";
 
 const props = withDefaults(
   defineProps<{
     rows: Record<string, any>[];
     columns: IColumn[];
-    layout?: "TABLE" | "CARDS" | "LIST";
+    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
     rowLabel?: string;
-    getHref?: (col: IColumn, row: Record<string, any>) => string;
-    component?: Component;
-    totalPages?: number;
-    currentPage?: number;
-    showPagination?: boolean;
+    getHref?: (row: Record<string, any>) => string;
     schemaId?: string;
     tableId?: string;
   }>(),
   {
     layout: "TABLE",
-    totalPages: 1,
-    currentPage: 1,
-    showPagination: false,
   }
 );
-
-const emit = defineEmits<{
-  "update:page": [page: number];
-}>();
 
 const tableColumns = computed(() =>
   getListColumns(props.columns, {
@@ -47,7 +35,7 @@ function rowKey(row: Record<string, any>): string {
 <template>
   <div>
     <template v-if="layout === 'TABLE'">
-      <RecordTable
+      <DataTable
         :columns="tableColumns"
         :rows="rows"
         :schema-id="schemaId"
@@ -55,50 +43,15 @@ function rowKey(row: Record<string, any>): string {
       />
     </template>
 
-    <template v-else-if="layout === 'LIST'">
-      <ul class="grid grid-cols-1">
-        <component
-          v-if="component"
-          :is="component"
-          v-for="(row, index) in rows"
-          :key="rowKey(row) || index"
-          :data="row"
-        />
-        <ListCard
-          v-else
-          v-for="(row, index) in rows"
-          :key="rowKey(row) || index"
-          :title="getRowLabel(row, rowLabel)"
-          :data="row"
-          :columns="tableColumns"
-          :href="getHref && columns[0] ? getHref(columns[0], row) : undefined"
-        />
-      </ul>
-      <p
-        v-if="rows.length === 0"
-        class="text-gray-400 dark:text-gray-500 italic"
-      >
-        No items
-      </p>
-    </template>
-
     <template v-else-if="layout === 'CARDS'">
       <ul class="grid grid-cols-1 lg:grid-cols-2">
-        <component
-          v-if="component"
-          :is="component"
-          v-for="(row, index) in rows"
-          :key="rowKey(row) || index"
-          :data="row"
-        />
-        <ListCard
-          v-else
+        <DataCard
           v-for="(row, index) in rows"
           :key="rowKey(row) || index"
           :title="getRowLabel(row, rowLabel)"
           :data="row"
           :columns="tableColumns"
-          :href="getHref && columns[0] ? getHref(columns[0], row) : undefined"
+          :href="getHref?.(row)"
         />
       </ul>
       <p
@@ -109,12 +62,31 @@ function rowKey(row: Record<string, any>): string {
       </p>
     </template>
 
-    <template v-else>
+    <template v-else-if="layout === 'LIST'">
+      <ul class="grid grid-cols-1">
+        <DataCard
+          v-for="(row, index) in rows"
+          :key="rowKey(row) || index"
+          :title="getRowLabel(row, rowLabel)"
+          :data="row"
+          :columns="tableColumns"
+          :href="getHref?.(row)"
+        />
+      </ul>
+      <p
+        v-if="rows.length === 0"
+        class="text-gray-400 dark:text-gray-500 italic"
+      >
+        No items
+      </p>
+    </template>
+
+    <template v-else-if="layout === 'LINKS'">
       <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
         <li v-for="row in rows" :key="rowKey(row)">
           <NuxtLink
-            v-if="getHref && columns[0]"
-            :to="getHref(columns[0], row)"
+            v-if="getHref"
+            :to="getHref(row)"
             class="text-link hover:underline"
           >
             {{ getRowLabel(row, rowLabel) }}
@@ -124,13 +96,5 @@ function rowKey(row: Record<string, any>): string {
       </ul>
       <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>
     </template>
-
-    <InlinePagination
-      v-if="showPagination"
-      :current-page="currentPage || 1"
-      :total-pages="totalPages || 1"
-      class="mt-4"
-      @update:page="emit('update:page', $event)"
-    />
   </div>
 </template>

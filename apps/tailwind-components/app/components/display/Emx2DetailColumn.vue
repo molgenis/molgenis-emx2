@@ -116,7 +116,7 @@ const isHierarchicalOntology = computed(() => {
   return hasOntologyHierarchy(props.value);
 });
 
-function getInlineHref(_col: IColumn, row: Record<string, any>): string {
+function getInlineHref(row: Record<string, any>): string {
   const schema = props.column.refSchemaId || props.schemaId || "";
   const table = props.column.refTableId || "";
   const label = getRowLabel(row, props.column.refLabelDefault);
