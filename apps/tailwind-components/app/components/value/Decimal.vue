@@ -2,7 +2,7 @@
 import type { IColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metadata: IColumn;
-  data: number;
+  data?: number | null;
 }>();
 </script>
 

@@ -37,7 +37,7 @@ export default {
   },
   computed: {
     tablePermission() {
-      return this.session?.tablePermissions?.find((p) => p.name === this.table);
+      return this.session?.tablePermissions?.find((p) => p.id === this.table);
     },
     canView() {
       return (

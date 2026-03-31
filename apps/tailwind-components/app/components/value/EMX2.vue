@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import type { RefPayload } from "../../../types/types";
+import type { ListPayload, RefPayload } from "../../../types/types";
+import { toRefColumn } from "../../utils/typeUtils";
+import ValueBool from "./Bool.vue";
+import ValueDecimal from "./Decimal.vue";
+import ValueEmail from "./Email.vue";
+import ValueFile from "./File.vue";
+import ValueHyperlink from "./Hyperlink.vue";
+import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
+import ValueLong from "./Long.vue";
+import ValueObject from "./Object.vue";
+import ValueRef from "./Ref.vue";
+import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
-import ValueDecimal from "./Decimal.vue";
-import ValueLong from "./Long.vue";
-import ValueInt from "./Int.vue";
-import ValueRef from "./Ref.vue";
-import ValueObject from "./Object.vue";
-import ValueBool from "./Bool.vue";
-import ValueEmail from "./Email.vue";
-import ValueHyperlink from "./Hyperlink.vue";
-import ValueRefBack from "./RefBack.vue";
-import ValueFile from "./File.vue";
+import ValueDate from "./Date.vue";
+import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
@@ -27,17 +30,22 @@ withDefaults(
 );
 
 defineEmits<{
-  (e: "valueClick", payload: RefPayload): void;
+  (e: "valueClick", payload: RefPayload | ListPayload): void;
 }>();
 </script>
 
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueList
-    v-else-if="metadata.columnType.endsWith('ARRAY')"
+    v-else-if="
+      metadata.columnType.endsWith('ARRAY') ||
+      metadata.columnType === 'CHECKBOX' ||
+      metadata.columnType === 'MULTISELECT'
+    "
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
+    @listRefCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueString
@@ -76,7 +84,7 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="['Ref', 'RADIO'].includes(metadata.columnType)"
+    v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
     :metadata="metadata as IRefColumn"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
@@ -108,12 +116,25 @@ defineEmits<{
 
   <ValueRefBack
     v-else-if="metadata.columnType === 'REFBACK'"
-    :metadata="metadata as IRefColumn"
+    :metadata="toRefColumn(metadata)"
     :data="data"
+    @refBackCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueFile
     v-else-if="metadata.columnType === 'FILE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDate
+    v-else-if="metadata.columnType === 'DATE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDateTime
+    v-else-if="metadata.columnType === 'DATETIME'"
     :metadata="metadata"
     :data="data"
   />
