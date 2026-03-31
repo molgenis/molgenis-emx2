@@ -6,11 +6,10 @@ import {
   buildRefbackFilter,
   isRefColumn,
   isRefArrayColumn,
-  buildRefHref,
   hasOntologyHierarchy,
   getListColumns,
 } from "../../utils/displayUtils";
-import { getPrimaryKey } from "../../utils/getPrimaryKey";
+import { useRecordNavigation } from "../../composables/useRecordNavigation";
 import ValueEMX2 from "../value/EMX2.vue";
 import DataList from "./DataList.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
@@ -114,32 +113,27 @@ const isHierarchicalOntology = computed(() => {
   return hasOntologyHierarchy(props.value);
 });
 
-const refHref = ref<string | undefined>();
+const { navigateToRecord } = useRecordNavigation();
 
-watchEffect(async () => {
-  if (
-    !props.schemaId ||
-    !props.column.refTableId ||
-    !isRefColumn(props.column.columnType) ||
-    !props.value ||
-    typeof props.value !== "object"
-  ) {
-    refHref.value = undefined;
-    return;
-  }
-  const schema = props.column.refSchemaId || props.schemaId;
-  const rowKey = await getPrimaryKey(
-    props.value,
-    props.column.refTableId,
-    schema
-  );
-  refHref.value = buildRefHref(
-    props.schemaId,
-    props.column.refTableId,
-    props.column.refSchemaId,
-    rowKey
+const isClickableRef = computed(() => {
+  return (
+    !!props.schemaId &&
+    !!props.column.refTableId &&
+    isRefColumn(props.column.columnType) &&
+    !!props.value &&
+    typeof props.value === "object"
   );
 });
+
+function handleRefClick() {
+  if (!props.schemaId || !props.column.refTableId || !props.value) return;
+  navigateToRecord(
+    props.schemaId,
+    props.column.refTableId,
+    props.value,
+    props.column.refSchemaId
+  );
+}
 </script>
 
 <template>
@@ -169,9 +163,14 @@ watchEffect(async () => {
     :hide-columns="column.refBackId ? [column.refBackId] : undefined"
     :row-label-template="column.listConfig?.rowLabel || column.refLabelDefault"
   />
-  <NuxtLink v-else-if="refHref" :to="refHref" class="text-link hover:underline">
+  <a
+    v-else-if="isClickableRef"
+    href="#"
+    class="text-link hover:underline"
+    @click.prevent="handleRefClick"
+  >
     <ValueEMX2 :metadata="column" :data="value" />
-  </NuxtLink>
+  </a>
   <OntologyTreeDisplay v-else-if="isHierarchicalOntology" :value="value" />
   <DataList
     v-else-if="showInlineListView"

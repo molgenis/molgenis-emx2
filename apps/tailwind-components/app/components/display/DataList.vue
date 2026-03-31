@@ -2,7 +2,7 @@
 import { ref, computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
-import { getListColumns, getRowLabel } from "../../utils/displayUtils";
+import { getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
 import InlinePagination from "./InlinePagination.vue";
@@ -81,13 +81,6 @@ const effectiveRows = computed(() =>
 const effectiveColumns = computed(() =>
   isSmartMode.value ? smartListColumns.value : dumbColumns.value
 );
-
-function buildRowHref(row: Record<string, any>): string | undefined {
-  if (!props.schemaId || !props.tableId) return undefined;
-  return `/${props.schemaId}/${props.tableId}/${encodeURIComponent(
-    getRowLabel(row, props.rowLabelTemplate)
-  )}`;
-}
 </script>
 
 <template>
@@ -121,7 +114,8 @@ function buildRowHref(row: Record<string, any>): string | undefined {
           :columns="effectiveColumns"
           :grid-columns="2"
           :row-label-template="rowLabelTemplate"
-          :get-href="buildRowHref"
+          :schema-id="schemaId"
+          :table-id="tableId"
         />
         <DataCards
           v-else-if="layout === 'LIST'"
@@ -129,13 +123,15 @@ function buildRowHref(row: Record<string, any>): string | undefined {
           :columns="effectiveColumns"
           :grid-columns="1"
           :row-label-template="rowLabelTemplate"
-          :get-href="buildRowHref"
+          :schema-id="schemaId"
+          :table-id="tableId"
         />
         <DataLinks
           v-else-if="layout === 'LINKS'"
           :rows="effectiveRows"
           :row-label-template="rowLabelTemplate"
-          :get-href="buildRowHref"
+          :schema-id="schemaId"
+          :table-id="tableId"
         />
       </div>
     </LoadingContent>
@@ -161,7 +157,8 @@ function buildRowHref(row: Record<string, any>): string | undefined {
       :columns="effectiveColumns"
       :grid-columns="2"
       :row-label-template="rowLabelTemplate"
-      :get-href="buildRowHref"
+      :schema-id="schemaId"
+      :table-id="tableId"
     />
     <DataCards
       v-else-if="layout === 'LIST'"
@@ -169,13 +166,15 @@ function buildRowHref(row: Record<string, any>): string | undefined {
       :columns="effectiveColumns"
       :grid-columns="1"
       :row-label-template="rowLabelTemplate"
-      :get-href="buildRowHref"
+      :schema-id="schemaId"
+      :table-id="tableId"
     />
     <DataLinks
       v-else-if="layout === 'LINKS'"
       :rows="effectiveRows"
       :row-label-template="rowLabelTemplate"
-      :get-href="buildRowHref"
+      :schema-id="schemaId"
+      :table-id="tableId"
     />
   </div>
 </template>

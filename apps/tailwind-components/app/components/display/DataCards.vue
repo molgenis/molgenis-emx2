@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import {
@@ -8,6 +7,7 @@ import {
   getDescriptionColumn,
   getLogoColumn,
 } from "../../utils/displayUtils";
+import { useRecordNavigation } from "../../composables/useRecordNavigation";
 
 const props = withDefaults(
   defineProps<{
@@ -15,7 +15,8 @@ const props = withDefaults(
     columns?: IColumn[];
     gridColumns?: 1 | 2;
     rowLabelTemplate?: string;
-    getHref?: (row: Record<string, any>) => string | undefined;
+    schemaId?: string;
+    tableId?: string;
   }>(),
   {
     gridColumns: 2,
@@ -26,12 +27,10 @@ function rowKey(row: Record<string, any>): string {
   return row.id || row.name || JSON.stringify(row);
 }
 
+const { navigateToRecord } = useRecordNavigation();
+
 function cardTitle(row: Record<string, any>): string {
   return getRowLabel(row, props.rowLabelTemplate);
-}
-
-function cardHref(row: Record<string, any>): string | undefined {
-  return props.getHref?.(row);
 }
 
 function cardDescription(row: Record<string, any>): string | undefined {
@@ -65,13 +64,14 @@ function cardLogoUrl(row: Record<string, any>): string | undefined {
           class="max-h-16 max-w-full mb-2 object-contain"
         />
         <span class="block">
-          <NuxtLink
-            v-if="cardHref(row)"
-            :to="cardHref(row)!"
+          <a
+            v-if="schemaId && tableId"
+            href="#"
             class="font-bold text-link hover:underline"
+            @click.prevent="navigateToRecord(schemaId, tableId, row)"
           >
             {{ cardTitle(row) }}
-          </NuxtLink>
+          </a>
           <span v-else class="font-bold">{{ cardTitle(row) }}</span>
         </span>
         <p v-if="cardDescription(row)" class="mt-1 line-clamp-2">

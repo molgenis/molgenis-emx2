@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { navigateTo } from "#imports";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 
 interface IColumnAction {
@@ -8,8 +7,7 @@ interface IColumnAction {
   clickAction?: (col: IColumn, row: IRow) => void;
 }
 import ValueEMX2 from "../value/EMX2.vue";
-import { getPrimaryKey } from "../../utils/getPrimaryKey";
-import { buildRefHref } from "../../utils/displayUtils";
+import { useRecordNavigation } from "../../composables/useRecordNavigation";
 
 const props = defineProps<{
   columns: IColumn[];
@@ -51,11 +49,11 @@ const linkColumnConfig = computed(() => {
 
 const isRowClickable = computed(() => !!props.schemaId && !!props.tableId);
 
+const { navigateToRecord } = useRecordNavigation();
+
 async function handleRowClick(row: IRow) {
   if (!props.schemaId || !props.tableId) return;
-  const key = await getPrimaryKey(row, props.tableId, props.schemaId);
-  const href = buildRefHref(props.schemaId, props.tableId, undefined, key);
-  navigateTo(href);
+  navigateToRecord(props.schemaId, props.tableId, row);
 }
 </script>
 

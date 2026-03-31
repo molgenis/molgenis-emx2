@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { NuxtLink } from "#components";
 import { getRowLabel } from "../../utils/displayUtils";
+import { useRecordNavigation } from "../../composables/useRecordNavigation";
 
 const props = defineProps<{
   rows: Record<string, any>[];
   rowLabelTemplate?: string;
-  getHref?: (row: Record<string, any>) => string | undefined;
+  schemaId?: string;
+  tableId?: string;
 }>();
+
+const { navigateToRecord } = useRecordNavigation();
 
 function rowKey(row: Record<string, any>): string {
   return row.id || row.name || JSON.stringify(row);
@@ -16,13 +19,14 @@ function rowKey(row: Record<string, any>): string {
 <template>
   <ul v-if="rows.length" class="grid gap-1 pl-4 list-disc list-outside">
     <li v-for="row in rows" :key="rowKey(row)">
-      <NuxtLink
-        v-if="getHref && getHref(row)"
-        :to="getHref(row)!"
+      <a
+        v-if="schemaId && tableId"
+        href="#"
         class="text-link hover:underline"
+        @click.prevent="navigateToRecord(schemaId, tableId, row)"
       >
         {{ getRowLabel(row, rowLabelTemplate) }}
-      </NuxtLink>
+      </a>
       <span v-else>{{ getRowLabel(row, rowLabelTemplate) }}</span>
     </li>
   </ul>
