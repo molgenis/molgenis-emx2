@@ -107,16 +107,12 @@ export interface IColumnDisplay extends IColumn {
 }
 
 export interface IListConfig {
-  layout?: "TABLE" | "CARDS" | "LIST";
-  component?: Component;
-  visibleColumns?: string[];
   pageSize?: number;
+  component?: Component;
   showSearch?: boolean;
-  showFilters?: boolean;
   getHref?: (col: IColumn, row: IRow) => string;
   filter?: object;
   rowLabel?: string;
-  hideColumns?: string[];
 }
 
 export interface IRecordViewConfig {

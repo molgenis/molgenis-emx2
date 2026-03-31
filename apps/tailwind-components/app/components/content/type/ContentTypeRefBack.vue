@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ISectionField } from "../../../../types/types";
+import type { columnValueObject } from "../../../../metadata-utils/src/types";
+import { isEmptyValue } from "../../../app/utils/displayUtils";
 
 const props = defineProps<{
   field: ISectionField;
 }>();
 
+const items = computed(() => props.field.value as columnValueObject[]);
+
 const longestRowIndex = computed(() => {
-  return (props.field.value as Object[])?.reduce(
-    (maxIndex: number, row: Object, currentIndex: number) =>
+  return items.value?.reduce(
+    (maxIndex: number, row: columnValueObject, currentIndex: number) =>
       Object.keys(row).length > Object.keys(maxIndex).length
         ? currentIndex
         : maxIndex,
@@ -16,22 +20,12 @@ const longestRowIndex = computed(() => {
   );
 });
 
-function isEmpty(obj: any) {
-  for (const prop in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 const rows = computed(() => {
-  return (props.field.value as Object[])?.map((row: Object) => {
+  return items.value?.map((row: columnValueObject) => {
     return Object.entries(row).map(([key, value]) => {
       const filteredValue =
         typeof value === "object"
-          ? isEmpty(value)
+          ? isEmptyValue(value)
             ? ""
             : JSON.stringify(value)
           : value;

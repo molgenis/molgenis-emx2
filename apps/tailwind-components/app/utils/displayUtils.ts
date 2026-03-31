@@ -124,7 +124,8 @@ export function getRoleText(value: any): string {
   if (Array.isArray(value))
     return value.map((item) => item?.name ?? String(item)).join(", ");
   if (typeof value === "object" && value.name) return value.name;
-  if (typeof value === "object") return Object.values(value).filter(Boolean).join(" ");
+  if (typeof value === "object")
+    return Object.values(value).filter(Boolean).join(" ");
   return String(value);
 }
 
@@ -157,6 +158,55 @@ export function filterColumnsByRole(columns: IColumn[]): IColumn[] {
   const titleCols = withRoles.filter((c) => c.role === "TITLE");
   const otherCols = withRoles.filter((c) => c.role !== "TITLE");
   return [...titleCols, ...otherCols];
+}
+
+export function getListColumns(
+  columns: IColumn[],
+  options?: {
+    layout?: "TABLE" | "CARDS" | "LIST";
+    hideColumns?: string[];
+    visibleColumns?: string[];
+    rows?: Record<string, any>[];
+  }
+): IColumn[] {
+  const opts = options || {};
+  const hiddenSet = new Set(opts.hideColumns || []);
+
+  let result = columns.filter(
+    (c) =>
+      c.role !== "INTERNAL" &&
+      c.columnType !== "SECTION" &&
+      c.columnType !== "HEADING" &&
+      !c.id.startsWith("mg_") &&
+      !hiddenSet.has(c.id)
+  );
+
+  if (opts.visibleColumns?.length) {
+    result = opts.visibleColumns
+      .map((id) => result.find((c) => c.id === id))
+      .filter(Boolean) as IColumn[];
+  } else if (opts.layout && opts.layout !== "TABLE") {
+    const roleCols = result.filter((c) => c.role);
+    if (roleCols.length > 0) {
+      const titleCols = roleCols.filter((c) => c.role === "TITLE");
+      const otherCols = roleCols.filter((c) => c.role !== "TITLE");
+      result = [...titleCols, ...otherCols];
+    } else {
+      const keyCols = result.filter((c) => c.key && c.key > 0);
+      const otherCols = result
+        .filter((c) => !c.key || c.key === 0)
+        .slice(0, 5 - keyCols.length);
+      result = [...keyCols, ...otherCols];
+    }
+  }
+
+  if (opts.rows?.length) {
+    result = result.filter((col) =>
+      opts.rows!.some((row) => !isEmptyValue(row[col.id]))
+    );
+  }
+
+  return result;
 }
 
 export function hasOntologyHierarchy(value: any): boolean {

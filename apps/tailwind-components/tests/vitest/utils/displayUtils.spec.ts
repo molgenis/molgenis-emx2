@@ -7,6 +7,7 @@ import {
   filterDataColumns,
   filterNonEmptyColumns,
   filterColumnsByRole,
+  getListColumns,
   isRefColumn,
   isRefArrayColumn,
   buildRefHref,
@@ -680,5 +681,112 @@ describe("getSubtitleText", () => {
     ];
     const data = { type: null };
     expect(getSubtitleText(columns, data)).toBe("");
+  });
+});
+
+describe("getListColumns", () => {
+  const columns = [
+    col({ id: "mg_top", columnType: "SECTION" }),
+    col({ id: "overview", columnType: "HEADING" }),
+    col({ id: "mg_insertedOn", columnType: "DATETIME" }),
+    col({ id: "rdf", columnType: "STRING", role: "INTERNAL" }),
+    col({ id: "id", columnType: "STRING", key: 1 }),
+    col({ id: "name", columnType: "STRING", role: "TITLE" }),
+    col({ id: "description", columnType: "TEXT", role: "DESCRIPTION" }),
+    col({ id: "type", columnType: "STRING", role: "DETAIL" }),
+    col({ id: "status", columnType: "STRING" }),
+    col({ id: "country", columnType: "STRING" }),
+    col({ id: "extra1", columnType: "STRING" }),
+    col({ id: "extra2", columnType: "STRING" }),
+    col({ id: "extra3", columnType: "STRING" }),
+  ];
+
+  it("removes structural, system, and INTERNAL columns by default", () => {
+    const result = getListColumns(columns);
+    const ids = result.map((c) => c.id);
+    expect(ids).not.toContain("mg_top");
+    expect(ids).not.toContain("overview");
+    expect(ids).not.toContain("mg_insertedOn");
+    expect(ids).not.toContain("rdf");
+    expect(ids).toContain("id");
+    expect(ids).toContain("name");
+  });
+
+  it("respects hideColumns", () => {
+    const result = getListColumns(columns, { hideColumns: ["status"] });
+    expect(result.map((c) => c.id)).not.toContain("status");
+  });
+
+  it("respects visibleColumns and preserves order", () => {
+    const result = getListColumns(columns, {
+      visibleColumns: ["description", "name"],
+    });
+    expect(result.map((c) => c.id)).toEqual(["description", "name"]);
+  });
+
+  it("for CARDS layout with roles, keeps only role columns with TITLE first", () => {
+    const result = getListColumns(columns, { layout: "CARDS" });
+    const ids = result.map((c) => c.id);
+    expect(ids[0]).toBe("name");
+    expect(ids).toContain("description");
+    expect(ids).toContain("type");
+    expect(ids).not.toContain("status");
+    expect(ids).not.toContain("country");
+  });
+
+  it("for CARDS layout without roles, falls back to key + first 5 non-key columns", () => {
+    const noRoleCols = [
+      col({ id: "mg_top", columnType: "SECTION" }),
+      col({ id: "id", columnType: "STRING", key: 1 }),
+      col({ id: "a", columnType: "STRING" }),
+      col({ id: "b", columnType: "STRING" }),
+      col({ id: "c", columnType: "STRING" }),
+      col({ id: "d", columnType: "STRING" }),
+      col({ id: "e", columnType: "STRING" }),
+      col({ id: "f", columnType: "STRING" }),
+    ];
+    const result = getListColumns(noRoleCols, { layout: "CARDS" });
+    expect(result).toHaveLength(5);
+    expect(result[0].id).toBe("id");
+  });
+
+  it("for TABLE layout, keeps all data columns", () => {
+    const result = getListColumns(columns, { layout: "TABLE" });
+    expect(result.map((c) => c.id)).toContain("status");
+    expect(result.map((c) => c.id)).toContain("country");
+  });
+
+  it("removes all-empty columns when rows provided", () => {
+    const result = getListColumns(columns, {
+      rows: [
+        {
+          id: "1",
+          name: "A",
+          description: null,
+          type: "",
+          status: null,
+          country: null,
+          extra1: null,
+          extra2: null,
+          extra3: null,
+        },
+        {
+          id: "2",
+          name: "B",
+          description: null,
+          type: "",
+          status: null,
+          country: null,
+          extra1: null,
+          extra2: null,
+          extra3: null,
+        },
+      ],
+    });
+    expect(result.map((c) => c.id)).toEqual(["id", "name"]);
+  });
+
+  it("returns empty array for empty input", () => {
+    expect(getListColumns([])).toEqual([]);
   });
 });

@@ -26,6 +26,56 @@ TableRole enum (MAIN/DETAIL). DETAIL tables hidden from landing page.
 ### Phase 9: Polish & Small Fixes — DONE
 Logo on cards + sidebar. Comma spacing. List alignment. Double scrollbar fix. ref_array items as links. Title-column-only click in tables. Date/DateTime display. ValueFile as download link. Sidebar [object object] fix. Delete button removed. Subpopulations creator=cards. Datasets variables refback.
 
+### Phase 10: Refactor — getListColumns + IListConfig cleanup — DONE
+Single `getListColumns` pure function replaces duplicated filtering in Emx2ListView, ListView, RecordColumn. Removed `layout`/`visibleColumns`/`hideColumns`/`showFilters` from IListConfig — column metadata (`display`, `role`) is single source of truth. IListConfig now only has UI concerns (pageSize, component, rowLabel).
+
+### Phase 10b: Type cleanup — IN PROGRESS
+- [x] Emx2RecordView.rowId: `Record<string, any>` → `IRow`
+- [x] ContentTypeOntologyArray: removed `Item` interface + double-cast, uses `columnValueObject[]`
+- [x] ContentTypeRefBack: `Object[]` → `columnValueObject[]`, uses `isEmptyValue` from displayUtils
+
+## Phase 11: Rename components + stories
+
+### Naming convention
+Nuxt auto-registers components as `Display{Name}` from `display/` folder. Current names are inconsistent and collide with pre-existing components.
+
+**Pre-existing components (NOT ours, don't rename):**
+- `display/Record.vue` — older detail view (takes tableMetadata + inputRowData)
+- `display/List.vue` — simple `<ul>` wrapper
+- `display/ListItem.vue` — simple `<li>` wrapper
+- `display/CodeBlock.vue` — code display
+- `table/TableEMX2.vue` — table explorer (editable, sortable)
+
+**Dumb components (no backend calls, pure rendering):**
+
+| Current | New | Nuxt auto-name | Why |
+|---|---|---|---|
+| `RecordView.vue` | `DetailView.vue` | `DisplayDetailView` | Main detail page layout with sections + sidebar |
+| `RecordSection.vue` | `DetailSection.vue` | `DisplayDetailSection` | Section within detail view (heading + columns). Passes schemaId/parentRowId through but doesn't fetch — stays dumb |
+| `RecordColumn.vue` | → split, see below | | Currently smart (fetches metadata). Needs splitting |
+| `RecordTable.vue` | `DataTable.vue` | `DisplayDataTable` | Read-only table with clickable title column |
+| `ListView.vue` | `DataList.vue` | `DisplayDataList` | Renders rows as TABLE/CARDS/bullets via layout prop |
+| `ListCard.vue` | `DataCard.vue` | `DisplayDataCard` | Single card using role annotations |
+
+**Smart components (fetch data from backend):**
+
+| Current | New | Why |
+|---|---|---|
+| `Emx2RecordView.vue` | `Emx2DetailView.vue` | Smart wrapper for DetailView |
+| `Emx2ListView.vue` | `Emx2DataList.vue` | Smart wrapper for DataList |
+
+**RecordColumn → Emx2DetailColumn (no split):**
+RecordColumn is smart — fetches ref table metadata, resolves primary keys, builds filters. The "dumb" leaf rendering is already the sub-components (ValueEMX2, DataTable, DataCard, OntologyTreeDisplay). No benefit to splitting; just rename to acknowledge it's an Emx2 component.
+
+### Tasks
+- [ ] Rename all display components
+- [ ] Story: DataTable — table with clickable title, various column types
+- [ ] Story: DataCard — card with role annotations (logo, title, description, detail)
+- [ ] Story: DataList — switch between TABLE/CARDS/bullet layouts
+- [ ] Story: DetailView — full detail page with sections, sidebar, nested lists
+- [ ] Deprecate old `Record.vue` (add note, don't delete yet)
+- [ ] Update all consumer imports (apps/ui, stories, tests)
+
 ## Open Items (this branch)
 
 ### Visual Testing (manual)

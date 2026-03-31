@@ -3,7 +3,7 @@ import { ref, computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IColumnDisplay } from "../../../types/types";
 import { useTableData } from "../../composables/useTableData";
-import { getRowLabel, filterColumnsByRole } from "../../utils/displayUtils";
+import { getRowLabel, getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
 import LoadingContent from "../LoadingContent.vue";
 import ListView from "./ListView.vue";
@@ -20,8 +20,7 @@ const page = ref(1);
 const searchTerms = ref("");
 
 const layout = computed((): "TABLE" | "CARDS" | "LIST" => {
-  const override = props.column?.listConfig?.layout;
-  const raw = override || props.column?.display || "TABLE";
+  const raw = props.column?.display || "TABLE";
   if (raw === "CARDS" || raw === "LIST") return raw;
   return "TABLE";
 });
@@ -40,40 +39,13 @@ const { metadata, rows, status, totalPages, showPagination, errorMessage } =
     searchTerms,
   });
 
-const refTableColumns = computed(() =>
-  filterColumnsByRole(metadata.value?.columns || [])
+const listColumns = computed(() =>
+  getListColumns(metadata.value?.columns || [], {
+    layout: layout.value,
+    hideColumns: props.column?.refBackId ? [props.column.refBackId] : [],
+    rows: rows.value,
+  })
 );
-
-const visibleColumns = computed(() => {
-  const override = props.column?.listConfig?.visibleColumns;
-  if (override?.length) return override;
-
-  if (layout.value === "TABLE") return undefined;
-
-  const roleCols = refTableColumns.value.filter((c) => c.role).map((c) => c.id);
-  if (roleCols.length > 0) return roleCols;
-
-  const keyCols = refTableColumns.value
-    .filter((c) => c.key && c.key > 0)
-    .map((c) => c.id);
-  const otherCols = refTableColumns.value
-    .filter(
-      (c) =>
-        (!c.key || c.key === 0) &&
-        c.columnType !== "HEADING" &&
-        c.columnType !== "SECTION" &&
-        !c.id.startsWith("mg_")
-    )
-    .slice(0, 5 - keyCols.length)
-    .map((c) => c.id);
-  return [...keyCols, ...otherCols];
-});
-
-const hideColumns = computed(() => {
-  const override = props.column?.listConfig?.hideColumns;
-  if (override?.length) return override;
-  return props.column?.refBackId ? [props.column.refBackId] : [];
-});
 
 const rowLabel = computed(() => {
   const override = props.column?.listConfig?.rowLabel;
@@ -112,10 +84,8 @@ const errorText = computed(
     >
       <ListView
         :rows="rows"
-        :columns="refTableColumns"
+        :columns="listColumns"
         :layout="layout"
-        :visible-columns="visibleColumns"
-        :hide-columns="hideColumns"
         :row-label="rowLabel"
         :get-href="getHref"
         :total-pages="totalPages"

@@ -2,11 +2,7 @@
 import { computed, type Component } from "vue";
 import { NuxtLink } from "#components";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import {
-  filterDataColumns,
-  filterNonEmptyColumns,
-  getRowLabel,
-} from "../../utils/displayUtils";
+import { getListColumns, getRowLabel } from "../../utils/displayUtils";
 import RecordTable from "./RecordTable.vue";
 import InlinePagination from "./InlinePagination.vue";
 import ListCard from "./ListCard.vue";
@@ -16,8 +12,6 @@ const props = withDefaults(
     rows: Record<string, any>[];
     columns: IColumn[];
     layout?: "TABLE" | "CARDS" | "LIST";
-    visibleColumns?: string[];
-    hideColumns?: string[];
     rowLabel?: string;
     getHref?: (col: IColumn, row: Record<string, any>) => string;
     component?: Component;
@@ -39,20 +33,11 @@ const emit = defineEmits<{
   "update:page": [page: number];
 }>();
 
-const dataColumns = computed(() =>
-  filterDataColumns(props.columns, props.hideColumns)
+const tableColumns = computed(() =>
+  getListColumns(props.columns, {
+    rows: props.rows,
+  })
 );
-
-const nonEmptyColumns = computed(() =>
-  filterNonEmptyColumns(dataColumns.value, props.rows)
-);
-
-const tableColumns = computed(() => {
-  if (!props.visibleColumns?.length) return nonEmptyColumns.value;
-  return props.visibleColumns
-    .map((id) => nonEmptyColumns.value.find((c) => c.id === id))
-    .filter(Boolean) as IColumn[];
-});
 
 function rowKey(row: Record<string, any>): string {
   return row.id || row.name || JSON.stringify(row);

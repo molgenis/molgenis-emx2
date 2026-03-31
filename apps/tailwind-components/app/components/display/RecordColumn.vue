@@ -8,7 +8,7 @@ import {
   isRefArrayColumn,
   buildRefHref,
   hasOntologyHierarchy,
-  filterColumnsByRole,
+  getListColumns,
   getRowLabel,
 } from "../../utils/displayUtils";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
@@ -70,13 +70,9 @@ watchEffect(async () => {
     refTableColumns.value = [];
   } else {
     refArrayFilter.value = undefined;
-    const allCols = refTable.columns.filter(
-      (c) =>
-        !c.id.startsWith("mg_") &&
-        c.columnType !== "HEADING" &&
-        c.columnType !== "SECTION"
-    );
-    refTableColumns.value = filterColumnsByRole(allCols);
+    refTableColumns.value = getListColumns(refTable.columns, {
+      layout: props.column.display as "TABLE" | "CARDS" | "LIST" | undefined,
+    });
   }
 });
 
