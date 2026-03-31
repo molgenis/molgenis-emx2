@@ -5,92 +5,109 @@ Replace handcrafted catalogue detail pages (~1,950 lines across 5 pages) with a 
 
 ## Completed
 
-### Phase 1-2: Foundation + RecordView — DONE
-RecordView/RecordSection/RecordColumn dumb components. Emx2RecordView smart wrapper. SideNav scrollspy. Catalogue styling. Empty section hiding.
-
-### Phase 3: ListView + Emx2ListView — DONE
-Table/cards/list layout modes. Paginated search. REFBACK via Emx2ListView. RecordTable clickable title column. Ontology tooltips. Hide empty columns.
-
-### Phase 4: REF_ARRAY Display + Row Navigation — DONE
-REF_ARRAY as Emx2ListView. REF/SELECT/RADIO auto-link. Row click to detail.
-
-### Phase 5: Ontology Tree Display — DONE
-OntologyTreeDisplay auto-detects flat vs hierarchical. buildOntologyTree with 14 tests.
-
-### Phase 6: Column Display Properties — DONE
-Backend: ColumnRole enum (TITLE/SUBTITLE/DESCRIPTION/LOGO/DETAIL/INTERNAL), DisplayType enum (TABLE/CARDS/LIST), migration32, GraphQL + CSV import/export. Frontend: ListCard with role annotations, displayUtils (16+ tests). Data: HEADING columns + role/display annotations in Resources, Collection Events, Subpopulations.
-
-### Phase 7: Table Role — DONE
-TableRole enum (MAIN/DETAIL). DETAIL tables hidden from landing page.
+### Phase 1-7: Core Implementation — DONE
+Foundation components, ListView, REF_ARRAY display, ontology trees, column display properties (ColumnRole, DisplayType), TableRole (MAIN/DETAIL), HEADING sections in data models.
 
 ### Phase 9: Polish & Small Fixes — DONE
-Logo on cards + sidebar. Comma spacing. List alignment. Double scrollbar fix. ref_array items as links. Title-column-only click in tables. Date/DateTime display. ValueFile as download link. Sidebar [object object] fix. Delete button removed. Subpopulations creator=cards. Datasets variables refback.
+Logo, dates, links, scrollbar, alignment, comma spacing, delete button, data model annotations.
 
-### Phase 10: Refactor — getListColumns + IListConfig cleanup — DONE
-Single `getListColumns` pure function replaces duplicated filtering in Emx2ListView, ListView, RecordColumn. Removed `layout`/`visibleColumns`/`hideColumns`/`showFilters` from IListConfig — column metadata (`display`, `role`) is single source of truth. IListConfig now only has UI concerns (pageSize, component, rowLabel).
+### Phase 10: Refactor — DONE
+getListColumns consolidation, IListConfig stripped to UI-only, type cleanup (IRow, columnValueObject).
 
-### Phase 10b: Type cleanup — IN PROGRESS
-- [x] Emx2RecordView.rowId: `Record<string, any>` → `IRow`
-- [x] ContentTypeOntologyArray: removed `Item` interface + double-cast, uses `columnValueObject[]`
-- [x] ContentTypeRefBack: `Object[]` → `columnValueObject[]`, uses `isEmptyValue` from displayUtils
+### Phase 11: Rename + DataList cleanup — DONE
+Renamed all display components for clarity. DataList made dumb with 4 explicit layouts (TABLE/CARDS/LIST/LINKS). Pagination moved to Emx2DataList.
 
-## Phase 11: Rename components + stories
+**Current component tree:**
+```
+display/
+  DetailView.vue          — layout: sections + sidebar (needs schema context)
+  DetailSection.vue       — one section: heading + columns (passes schema context)
+  Emx2DetailColumn.vue    — one column value (fetches ref metadata, smart)
+  DataList.vue            — renders rows as TABLE/CARDS/LIST/LINKS (dumb-ish, takes getHref)
+  DataTable.vue           — read-only table, clickable title column (dumb)
+  DataCard.vue            — single card with role annotations (dumb)
+  Emx2DetailView.vue      — fetches metadata + row, delegates to DetailView
+  Emx2DataList.vue        — fetches paginated data, delegates to DataList
+  OntologyTreeDisplay.vue — auto flat/hierarchical ontology
+  InlinePagination.vue    — prev/next
+  SideNav.vue             — scrollspy sidebar
+```
 
-### Naming convention
-Nuxt auto-registers components as `Display{Name}` from `display/` folder. Current names are inconsistent and collide with pre-existing components.
+## Phase 12: Merge Emx2 wrappers — simplify component tree
 
-**Pre-existing components (NOT ours, don't rename):**
-- `display/Record.vue` — older detail view (takes tableMetadata + inputRowData)
-- `display/List.vue` — simple `<ul>` wrapper
-- `display/ListItem.vue` — simple `<li>` wrapper
-- `display/CodeBlock.vue` — code display
-- `table/TableEMX2.vue` — table explorer (editable, sortable)
+### Problem
+The Emx2* prefix was meant to separate "smart" (fetches data) from "dumb" (pure rendering). But the "dumb" components (DetailView, DetailSection) need schema context anyway for navigation, so the split is artificial. Nobody uses DetailView without Emx2DetailView.
 
-**Dumb components (no backend calls, pure rendering):**
+### Solution
+Merge smart wrappers into their corresponding components. Drop the Emx2 prefix. Components that fetch data just... fetch data. No pretense of a dumb/smart split where the split doesn't exist.
 
-| Current | New | Nuxt auto-name | Why |
-|---|---|---|---|
-| `RecordView.vue` | `DetailView.vue` | `DisplayDetailView` | Main detail page layout with sections + sidebar |
-| `RecordSection.vue` | `DetailSection.vue` | `DisplayDetailSection` | Section within detail view (heading + columns). Passes schemaId/parentRowId through but doesn't fetch — stays dumb |
-| `RecordColumn.vue` | → split, see below | | Currently smart (fetches metadata). Needs splitting |
-| `RecordTable.vue` | `DataTable.vue` | `DisplayDataTable` | Read-only table with clickable title column |
-| `ListView.vue` | `DataList.vue` | `DisplayDataList` | Renders rows as TABLE/CARDS/bullets via layout prop |
-| `ListCard.vue` | `DataCard.vue` | `DisplayDataCard` | Single card using role annotations |
+### Merges
 
-**Smart components (fetch data from backend):**
-
-| Current | New | Why |
+| Merge into | Absorbs | What moves |
 |---|---|---|
-| `Emx2RecordView.vue` | `Emx2DetailView.vue` | Smart wrapper for DetailView |
-| `Emx2ListView.vue` | `Emx2DataList.vue` | Smart wrapper for DataList |
+| `DetailView.vue` | `Emx2DetailView.vue` | Data fetching (fetchTableMetadata, fetchRowData, useAsyncData), column processing (filter INTERNAL/mg_, resolve displayComponent from tags) |
+| `DetailColumn.vue` | `Emx2DetailColumn.vue` | Just rename — it was already smart, prefix was acknowledging that |
+| `DataList.vue` | `Emx2DataList.vue` | Data fetching (useTableData), pagination (InlinePagination), search (InputSearch), getHref building |
 
-**RecordColumn → Emx2DetailColumn (no split):**
-RecordColumn is smart — fetches ref table metadata, resolves primary keys, builds filters. The "dumb" leaf rendering is already the sub-components (ValueEMX2, DataTable, DataCard, OntologyTreeDisplay). No benefit to splitting; just rename to acknowledge it's an Emx2 component.
+### Result: 3 fewer files
+
+```
+display/
+  DetailView.vue       — fetches metadata + row, renders sections + sidebar
+  DetailSection.vue    — one section: heading + columns
+  DetailColumn.vue     — one column value, fetches ref metadata when needed
+  DataList.vue         — fetches paginated data, renders as TABLE/CARDS/LIST/LINKS
+  DataTable.vue        — truly dumb: renders rows as table
+  DataCard.vue         — truly dumb: renders one card
+  OntologyTreeDisplay.vue
+  InlinePagination.vue
+  SideNav.vue
+```
+
+Only DataTable and DataCard are truly dumb (no fetching, no schema awareness). Everything else is part of the EMX2 display system — and that's fine.
 
 ### Tasks
-- [x] Rename all display components
-- [ ] Clean up DataList: make truly dumb, move pagination/schema/getHref to Emx2DataList
-- [ ] Explicit layout types: TABLE, CARDS, LIST, LINKS (remove v-else fallback + component prop)
-- [ ] Update DisplayType enum backend to include LINKS
-- [ ] Story: DataTable — table with clickable title, various column types
-- [ ] Story: DataCard — card with role annotations (logo, title, description, detail)
-- [ ] Story: DataList — switch between TABLE/CARDS/LIST/LINKS layouts
+- [ ] Merge Emx2DetailView into DetailView (move fetching + column processing)
+- [ ] Merge Emx2DataList into DataList (move pagination, search, data fetching)
+- [ ] Rename Emx2DetailColumn → DetailColumn
+- [ ] Delete Emx2DetailView.vue, Emx2DataList.vue, Emx2DetailColumn.vue
+- [ ] Update all imports (apps/ui, stories, tests, internal cross-refs)
+- [ ] Update story files
+- [ ] Run tests
+- [ ] Story: DataTable — table with various column types
+- [ ] Story: DataCard — card with role annotations
+- [ ] Story: DataList — switch between TABLE/CARDS/LIST/LINKS
 - [ ] Story: DetailView — full detail page with sections, sidebar, nested lists
-- [ ] Deprecate old `Record.vue` (add note, don't delete yet)
 
-#### DataList layout types
-| Layout | Component | Description |
-|---|---|---|
-| TABLE | DataTable | Tabular rows with clickable title column |
-| CARDS | DataCard grid | Card grid (2 col desktop, 1 col mobile) |
-| LIST | DataCard list | Cards in single column |
-| LINKS | inline bullets | Simple name-only bullet links |
+### Consumer API after merge
 
-#### DataList prop cleanup (make truly dumb)
-DataList props: `rows`, `columns`, `layout`, `rowLabel`
-Move to Emx2DataList: `schemaId`, `tableId`, `getHref`, `pagination`, `search`, `component`
+```vue
+<!-- apps/ui entity page — same as before, just no Emx2 prefix -->
+<DetailView
+  :schema-id="schemaId"
+  :table-id="tableId"
+  :row-id="rowId"
+>
+  <template #header>
+    <PageHeader :title="entityId" />
+    <Button v-if="canEdit" @click="showEditModal = true">Edit</Button>
+  </template>
+</DetailView>
 
-## Open Items (this branch)
+<!-- Nested data list (used internally by DetailColumn for REFBACK/REF_ARRAY) -->
+<DataList
+  :schema-id="schemaId"
+  :table-id="tableId"
+  :filter="refbackFilter"
+  :column="column"
+/>
+
+<!-- Truly dumb — usable anywhere -->
+<DataTable :columns="columns" :rows="rows" />
+<DataCard :title="name" :data="row" :columns="columns" />
+```
+
+## Open Items
 
 ### Visual Testing (manual)
 - [ ] Verify cards, logo, dates, links, variables refback with running app
@@ -99,18 +116,10 @@ Move to Emx2DataList: `schemaId`, `tableId`, `getHref`, `pagination`, `search`, 
 
 ### Minor Gaps
 - [ ] Backend JUnit test for column role/display persistence
-- [ ] HEADING columns needed in more catalogue data models (Datasets, Variables, Organisations, Contacts, Networks)
+- [ ] HEADING columns needed in more catalogue data models
 
 ## Deferred (separate PRs)
-
-### DATA_NESTED table type
-Currently using TableRole=DETAIL (lighter touch, same UX). DATA_NESTED enum only needed if DETAIL tables require different DB/API behavior.
-
-### Catalogue Detail Pages Demo
-Wire Emx2RecordView for catalogue's 5 detail pages. Requires HEADING columns in all catalogue data model CSVs.
-
-### Generic List/Search Page Framework
-Emx2SearchPage with auto-generated filters, filter sidebar, URL-based filter state, result cards.
-
-### Out of Scope
-Landing pages, variable harmonisation, shopping cart, contact modals.
+- DATA_NESTED table type (TableRole=DETAIL covers it for now)
+- Catalogue detail pages demo (needs HEADINGs in all models)
+- Generic list/search page framework
+- Landing pages, harmonisation, shopping cart — out of scope
