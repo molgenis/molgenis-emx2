@@ -1,4 +1,3 @@
-import type { Component } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -99,29 +98,13 @@ export interface ITableSettings {
   search: string;
 }
 
-export interface IColumnDisplay extends IColumn {
-  displayComponent?: Component;
-  listConfig?: IListConfig;
-  displayLabel?: string;
-  tags?: string[];
-}
-
-export interface IListConfig {
-  pageSize?: number;
-  component?: Component;
-  showSearch?: boolean;
-  getHref?: (col: IColumn, row: IRow) => string;
-  filter?: object;
-  rowLabel?: string;
-}
-
 export interface ISectionField {
-  meta: IColumnDisplay;
+  meta: IColumn;
   value: columnValue;
 }
 
 export interface ISection {
-  meta: IColumnDisplay;
+  meta: IColumn;
   fields: ISectionField[];
 }
 

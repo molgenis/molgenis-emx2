@@ -2,10 +2,10 @@
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type {
+  IColumn,
   ITableMetaData,
   IRefColumn,
 } from "../../../../metadata-utils/src/types";
-import type { IColumnDisplay } from "../../../types/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import DetailView from "../../components/display/DetailView.vue";
 
@@ -31,7 +31,7 @@ const viewColumns = computed(() => {
 
 const columnTransform = computed(() => {
   if (!viewColumns.value?.length) return undefined;
-  return (columns: IColumnDisplay[]) => {
+  return (columns: IColumn[]) => {
     const viewColumnSet = new Set(viewColumns.value);
     return columns.filter((col) => viewColumnSet.has(col.id));
   };
@@ -60,7 +60,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   });
 });
 
-const mockColumns: IColumnDisplay[] = [
+const mockColumns: IColumn[] = [
   { id: "id", label: "ID", columnType: "AUTO_ID" },
   { id: "name", label: "Name", columnType: "STRING", key: 1 },
 

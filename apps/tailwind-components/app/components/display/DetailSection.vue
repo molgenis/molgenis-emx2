@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumnDisplay, ISectionField } from "../../../types/types";
+import type { ISectionField } from "../../../types/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
@@ -9,7 +10,7 @@ import RecordColumn from "./DetailColumn.vue";
 
 const props = withDefaults(
   defineProps<{
-    heading?: IColumnDisplay | null;
+    heading?: IColumn | null;
     isSection?: boolean;
     columns: ISectionField[];
     showEmpty?: boolean;
@@ -65,7 +66,7 @@ const sectionHeading = computed(() => {
     <DefinitionList v-if="regularColumns.length">
       <template v-for="col in regularColumns" :key="col.meta.id">
         <DefinitionListTerm class="capitalize">{{
-          col.meta.displayLabel || col.meta.label || col.meta.id
+          col.meta.label || col.meta.id
         }}</DefinitionListTerm>
         <DefinitionListDefinition class="text-black">
           <RecordColumn
@@ -86,7 +87,7 @@ const sectionHeading = computed(() => {
         class="record-list-section"
       >
         <dt class="font-bold text-body-base mb-2 capitalize">
-          {{ col.meta.displayLabel || col.meta.label || col.meta.id }}
+          {{ col.meta.label || col.meta.id }}
         </dt>
         <dd class="text-black ml-0">
           <RecordColumn

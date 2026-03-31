@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import type { IColumnDisplay } from "../../../types/types";
 import {
   isEmptyValue,
   buildRefbackFilter,
@@ -21,7 +20,7 @@ import type {
 
 const props = withDefaults(
   defineProps<{
-    column: IColumnDisplay;
+    column: IColumn;
     value: any;
     showEmpty?: boolean;
     schemaId?: string;
@@ -146,22 +145,14 @@ function handleRefClick() {
   >
     not provided
   </span>
-  <component
-    v-else-if="column.displayComponent"
-    :is="column.displayComponent"
-    :column="column"
-    :value="value"
-    :show-empty="showEmpty"
-  />
   <DataList
     v-else-if="showListView"
     :schema-id="column.refSchemaId || schemaId!"
     :table-id="column.refTableId!"
     :filter="listFilter"
     :layout="column.display || 'TABLE'"
-    :page-size="column.listConfig?.pageSize"
     :hide-columns="column.refBackId ? [column.refBackId] : undefined"
-    :row-label-template="column.listConfig?.rowLabel || column.refLabelDefault"
+    :row-label-template="column.refLabelDefault"
   />
   <a
     v-else-if="isClickableRef"

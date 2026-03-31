@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useAsyncData } from "#app";
-import type { IColumnDisplay, ISectionField } from "../../../types/types";
-import type { IRow } from "../../../../metadata-utils/src/types";
+import type { ISectionField } from "../../../types/types";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 import RecordSection from "./DetailSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
@@ -23,11 +23,11 @@ const props = withDefaults(
     schemaId?: string;
     tableId?: string;
     rowId?: IRow;
-    columns?: IColumnDisplay[];
+    columns?: IColumn[];
     data?: Record<string, any>;
     showEmpty?: boolean;
     showSideNav?: boolean;
-    columnTransform?: (columns: IColumnDisplay[]) => IColumnDisplay[];
+    columnTransform?: (columns: IColumn[]) => IColumn[];
   }>(),
   {
     showEmpty: false,
@@ -82,8 +82,8 @@ const errorText = computed(() => {
   return undefined;
 });
 
-const processedColumns = computed<IColumnDisplay[]>(() => {
-  let columns: IColumnDisplay[];
+const processedColumns = computed<IColumn[]>(() => {
+  let columns: IColumn[];
 
   if (isSmartMode.value) {
     if (!metadata.value) return [];
@@ -107,7 +107,7 @@ const effectiveData = computed(() => {
 });
 
 interface SectionGroup {
-  heading: IColumnDisplay | null;
+  heading: IColumn | null;
   isSection: boolean;
   columns: ISectionField[];
 }
