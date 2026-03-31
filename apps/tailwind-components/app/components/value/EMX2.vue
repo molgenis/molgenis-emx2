@@ -15,6 +15,8 @@ import ValueRef from "./Ref.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
+import ValueDate from "./Date.vue";
+import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
@@ -35,7 +37,11 @@ defineEmits<{
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueList
-    v-else-if="metadata.columnType.endsWith('ARRAY')"
+    v-else-if="
+      metadata.columnType.endsWith('ARRAY') ||
+      metadata.columnType === 'CHECKBOX' ||
+      metadata.columnType === 'MULTISELECT'
+    "
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
@@ -117,6 +123,18 @@ defineEmits<{
 
   <ValueFile
     v-else-if="metadata.columnType === 'FILE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDate
+    v-else-if="metadata.columnType === 'DATE'"
+    :metadata="metadata"
+    :data="data"
+  />
+
+  <ValueDateTime
+    v-else-if="metadata.columnType === 'DATETIME'"
     :metadata="metadata"
     :data="data"
   />
