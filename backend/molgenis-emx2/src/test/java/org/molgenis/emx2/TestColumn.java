@@ -21,7 +21,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultExcludesRefBackColumn() {
+  void refLabelDefaultExcludesRefBackColumn() {
     SchemaMetadata schema = createResourcesContactsSchema();
     schema
         .getTableMetadata("Resources")
@@ -32,7 +32,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultExcludesBackRefForRefColumn() {
+  void refLabelDefaultExcludesBackRefForRefColumn() {
     SchemaMetadata schema = createResourcesContactsSchema();
     schema
         .getTableMetadata("Resources")
@@ -43,7 +43,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultExcludesBackRefForRefArrayColumn() {
+  void refLabelDefaultExcludesBackRefForRefArrayColumn() {
     SchemaMetadata schema = createResourcesContactsSchema();
     schema
         .getTableMetadata("Resources")
@@ -54,7 +54,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultIncludesAllPartsForUnrelatedTable() {
+  void refLabelDefaultIncludesAllPartsForUnrelatedTable() {
     SchemaMetadata schema = createResourcesContactsSchema();
     schema.create(table("Other", column("id").setType(STRING).setKey(1)));
     schema.getTableMetadata("Other").add(column("contact").setType(REF).setRefTable("Contacts"));
@@ -64,7 +64,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultRefbackIndirectViaIntermediary() {
+  void refLabelDefaultRefbackIndirectViaIntermediary() {
     SchemaMetadata schema = new SchemaMetadata("TestColumn");
     schema.create(table("Resources", column("id").setType(STRING).setKey(1)));
     schema.create(
@@ -86,7 +86,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultRefIndirectNoOverlap() {
+  void refLabelDefaultRefIndirectNoOverlap() {
     SchemaMetadata schema = new SchemaMetadata("TestColumn");
     schema.create(table("Resources", column("id").setType(STRING).setKey(1)));
     schema.create(
@@ -109,7 +109,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultRefbackMultipleFksSkipsOnlyRefBackColumn() {
+  void refLabelDefaultRefbackMultipleFksSkipsOnlyRefBackColumn() {
     SchemaMetadata schema = new SchemaMetadata("TestColumn");
     schema.create(table("Resources", column("id").setType(STRING).setKey(1)));
     schema.create(
@@ -126,7 +126,7 @@ public class TestColumn {
   }
 
   @Test
-  public void refLabelDefaultWithRefLink() {
+  void refLabelDefaultWithRefLink() {
     SchemaMetadata schema = new SchemaMetadata("TestColumn");
     schema.create(table("Resources", column("id").setType(STRING).setKey(1)));
     schema.create(
@@ -157,7 +157,7 @@ public class TestColumn {
   }
 
   @Test
-  public void isSystemColumn() {
+  void isSystemColumn() {
     assertAll(
         () -> assertFalse(new Column("test").isSystemColumn()),
         () -> assertTrue(new Column("mg_test").isSystemColumn()),
@@ -165,7 +165,7 @@ public class TestColumn {
   }
 
   @Test
-  public void validColumnName() {
+  void validColumnName() {
     assertAll(
         // valid: 1 or more legal characters
         () -> assertDoesNotThrow(() -> new Column("a")),
