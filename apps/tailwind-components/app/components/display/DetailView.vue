@@ -31,7 +31,7 @@ const props = withDefaults(
   }>(),
   {
     showEmpty: false,
-    showSideNav: true
+    showSideNav: true,
   }
 );
 
