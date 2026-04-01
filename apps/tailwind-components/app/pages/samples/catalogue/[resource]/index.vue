@@ -32,10 +32,10 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData } from "#app";
 import { navigateTo } from "#imports";
-import type { IColumn } from "../../../../../metadata-utils/src/types";
-import DetailView from "../../../components/display/DetailView.vue";
-import fetchGraphql from "../../../composables/fetchGraphql";
-import { provideRecordNavigation } from "../../../composables/useRecordNavigation";
+import type { IColumn } from "../../../../../../metadata-utils/src/types";
+import DetailView from "../../../../components/display/DetailView.vue";
+import fetchGraphql from "../../../../composables/fetchGraphql";
+import { provideRecordNavigation } from "../../../../composables/useRecordNavigation";
 
 const route = useRoute();
 
