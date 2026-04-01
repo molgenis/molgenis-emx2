@@ -106,22 +106,46 @@ Create `pages/samples/catalogue/[resource]/subpopulations/[subpopulation].vue`:
 - Document remaining differences
 - Update this plan with final state
 
-## Status: Phase 1 IN PROGRESS — basic page + columnTransform done
+## Status: Phase 1 IN PROGRESS — basic page working, next: expandLevel + rowTransform + columnTransform for aggregates
 
 ### Progress
 - [x] Created `pages/samples/catalogue/[resource].vue` with smart mode
-- [x] Added columnTransform mapping 14 catalogue sections
-- [ ] Test with real data, verify rendering
-- [ ] Add expandLevel if nested data is shallow
-- [ ] Add rowTransform if computed values needed
-- [ ] Add header-actions slot for contact button
+- [x] Resource picker with clickable IDs from catalogue-demo
+- [x] Menu link in sidebar under "Sample pages"
+- [x] DetailSection filters TITLE/SUBTITLE/LOGO from section body (no duplication)
+- [x] Removed custom columnTransform — uses backend metadata sections as-is
+- [x] Visual review: page renders, sections show, side nav works
+- [ ] **F2: expandLevel=3** — expose prop on DetailView, pass to fetchRowData, use on sample page
+- [ ] **F1: rowTransform** — expose prop on DetailView, applied after fetch before render. Use on sample page to aggregate collection event ontology data into row values:
+  - Override `areas of information` with merged `collectionEvents[*].areasOfInformation` (column exists on Resources)
+  - Override `biospecimen collected` with merged `collectionEvents[*].sampleCategories` (column exists on Resources)
+  - Create `_merged data categories` from merged `collectionEvents[*].dataCategories` (no column on Resources)
+  - Create `_merged sample categories` from merged `collectionEvents[*].sampleCategories` (no column on Resources)
+- [ ] **columnTransform** — minimal: inject virtual columns for `_merged data categories` and `_merged sample categories` into "available data and samples" section
+- [ ] Add header-actions slot (F3) for contact button
 - [ ] Breadcrumbs
+
+### Aggregation strategy for "Available Data & Samples"
+The catalogue aggregates ontology arrays across all collection events into a merged resource-level summary. Implementation:
+1. `expandLevel=3` fetches collection events with nested ontology fields
+2. `rowTransform` merges them: flatMap → deduplicate by name → set on row
+3. For `areas of information` and `biospecimen collected`: override existing Resource column values (column defs already exist with correct type/section)
+4. For `data categories` and `sample categories`: no Resource-level columns exist, so rowTransform creates virtual row values (`_merged data categories`, `_merged sample categories`) and columnTransform injects matching virtual column defs into the "available data and samples" section
 
 ## Decisions Made
 - Incremental approach: pages first, framework enhancements as needed
+- Use backend metadata sections as-is, only override with columnTransform where needed
+- rowTransform overrides existing column values where possible, only adds virtual columns when no Resource-level column exists
 - Publications: `doi` as TITLE role, `reference` as DESCRIPTION role
 - removeChildIfParentSelected: wontfix (data quality)
 - Contact button: `#header-actions` slot (F3)
 - Nested transforms: deferred to future work unless needed
 - Dataset variable filter: removed, use standard DataList search
 - Breadcrumbs: page config
+
+## Open Issues
+### Height constraints for list/card values
+Lists and cards in detail sections can grow very tall. Need a mechanism to limit displayed items (e.g. show first few with "show more").
+- **Option A**: Wrap with `ShowMore` component (height-limited). Concern: `ShowMore` uses ResizeObserver which may be expensive with many instances on a detail page.
+- **Option B**: Per-type truncation — make ontology/ref value components show first N items with a "show N more" toggle. Lighter weight, no observer needed, and semantically aware (knows it's truncating items not pixels).
+- **Recommendation**: Option B preferred — implement `maxItems` prop on value components (Ref, RefBack, OntologyTreeDisplay, List) that truncates to N items with expand toggle. Avoids observer overhead and gives better UX per type.
