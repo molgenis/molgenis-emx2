@@ -31,12 +31,11 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              [uiText['home']]: '../',
+              [uiText['home']]: '/',
               [collection?.biobank
-                ?.name]: `../biobank/${collection?.biobank?.id}`,
-              [collection?.name]: `../collection/${collection?.id}`,
+                ?.name]: `#/biobank/${collection?.biobank?.id}`,
+              [collection?.name]: `#/collection/${collection?.id}`,
             }"
-            useRouterLink
           />
           <check-out
             v-if="collection"
