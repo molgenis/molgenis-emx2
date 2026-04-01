@@ -26,9 +26,14 @@ const props = withDefaults(
 
 const headingClasses = "mb-5 uppercase text-heading-4xl font-display";
 
+const HEADER_ROLES = new Set(["TITLE", "SUBTITLE", "LOGO"]);
+
 const visibleColumns = computed(() => {
-  if (props.showEmpty) return props.columns;
-  return props.columns.filter((col) => !isEmptyValue(col.value));
+  const cols = props.columns.filter(
+    (col) => !HEADER_ROLES.has(col.meta.role as string)
+  );
+  if (props.showEmpty) return cols;
+  return cols.filter((col) => !isEmptyValue(col.value));
 });
 
 function isListColumn(col: ISectionField): boolean {

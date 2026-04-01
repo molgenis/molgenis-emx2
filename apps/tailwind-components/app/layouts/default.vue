@@ -94,6 +94,13 @@ function scrollToTop() {
                 >Edit modal</NuxtLink
               >
             </div>
+            <div class="py-2">
+              <NuxtLink
+                class="hover:underline text-title"
+                to="/samples/catalogue/LifeCycle"
+                >Catalogue detail</NuxtLink
+              >
+            </div>
 
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">

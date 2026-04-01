@@ -106,7 +106,16 @@ Create `pages/samples/catalogue/[resource]/subpopulations/[subpopulation].vue`:
 - Document remaining differences
 - Update this plan with final state
 
-## Status: APPROVED — starting Phase 1
+## Status: Phase 1 IN PROGRESS — basic page + columnTransform done
+
+### Progress
+- [x] Created `pages/samples/catalogue/[resource].vue` with smart mode
+- [x] Added columnTransform mapping 14 catalogue sections
+- [ ] Test with real data, verify rendering
+- [ ] Add expandLevel if nested data is shallow
+- [ ] Add rowTransform if computed values needed
+- [ ] Add header-actions slot for contact button
+- [ ] Breadcrumbs
 
 ## Decisions Made
 - Incremental approach: pages first, framework enhancements as needed
