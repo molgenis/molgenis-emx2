@@ -162,7 +162,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (PermissionEvaluator.canManage(schema)) {
+    if (!PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
