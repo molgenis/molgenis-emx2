@@ -467,6 +467,7 @@ public class SqlQuery extends QueryBean {
         } else {
           // nested query
           Column c = getColumnByName(table, f.getColumn());
+          Filter positiveFilter = invertIfAllNegation(f);
           SelectSelectStep subQuery =
               (SelectSelectStep<?>)
                   jsonFilterQuery(
@@ -474,9 +475,20 @@ public class SqlQuery extends QueryBean {
                       column,
                       tableAlias,
                       subAlias,
-                      f,
+                      positiveFilter != null ? positiveFilter : f,
                       new String[0]);
-          conditions.add(whereColumnInSubquery(c, subQuery));
+          Condition condition = whereColumnInSubquery(c, subQuery);
+          if (positiveFilter != null) {
+            condition = not(condition);
+            if (!c.isRefback()) {
+              condition =
+                  or(
+                      whereColumnIsNullOrNotNull(
+                          subAlias, name(alias(subAlias), c.getName()), c, new Boolean[] {true}),
+                      condition);
+            }
+          }
+          conditions.add(condition);
         }
       }
     }
@@ -1604,6 +1616,22 @@ public class SqlQuery extends QueryBean {
       }
     }
     return searchConditions.isEmpty() ? null : and(searchConditions);
+  }
+
+  private static Filter invertIfAllNegation(Filter f) {
+    Collection<Filter> subs = f.getSubfilters();
+    if (subs.isEmpty()) return null;
+    List<Filter> flipped = new ArrayList<>(subs.size());
+    for (Filter sub : subs) {
+      if (MATCH_NONE.equals(sub.getOperator())) {
+        flipped.add(FilterBean.f(sub.getColumn(), MATCH_ANY, sub.getValues()));
+      } else if (NOT_EQUALS.equals(sub.getOperator())) {
+        flipped.add(FilterBean.f(sub.getColumn(), EQUALS, sub.getValues()));
+      } else {
+        return null;
+      }
+    }
+    return FilterBean.f(f.getColumn(), flipped.toArray(new Filter[0]));
   }
 
   private Condition whereColumnInSubquery(Column c, SelectSelectStep subQuery) {

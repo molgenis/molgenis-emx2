@@ -114,6 +114,20 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  void testMatchNoneOnRefArray() throws IOException {
+    // fire ant has tags purple+red+green, should be excluded when filtering match_none: red
+    // pooky has no tags, should be included (trivially satisfies match_none)
+    String result = execute("{Pet(filter:{tags:{name:{match_none:[\"red\"]}}}){name}}").toString();
+    assertFalse(result.contains("tom")); // tom has only red tag
+    assertFalse(result.contains("tweety")); // tweety has only red tag
+    assertFalse(result.contains("spike")); // spike has red+green tags
+    assertFalse(result.contains("fire ant")); // fire ant has purple+red+green tags
+    assertTrue(result.contains("pooky")); // pooky has no tags (null)
+    assertTrue(result.contains("sylvester")); // sylvester has only purple tag
+    assertTrue(result.contains("jerry")); // jerry has only blue tag
+  }
+
+  @Test
   void testNullAndNotNull() throws IOException {
     // ref
     String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();
