@@ -10,7 +10,7 @@
     <div class="z-30 relative min-h-screen flex flex-col">
       <Header>
         <template #logo>
-          <Logo link="/" />
+          <Logo link="/" inverted />
         </template>
         <template #nav>
           <Navigation :navigation="navigation" />
