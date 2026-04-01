@@ -90,91 +90,12 @@
       {{ error }}
     </Message>
 
-    <section
-      v-if="revealedSecret"
-      class="bg-form rounded-lg border border-color-theme p-4 space-y-3"
-    >
-      <div
-        class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
-      >
-        <div>
-          <p class="text-sm font-semibold text-title">Credential Issued</p>
-          <p class="text-xs text-definition-list-term">
-            Worker <code>{{ revealedSecret.workerId }}</code> • shown once
-          </p>
-        </div>
-        <Button type="outline" size="tiny" @click="dismissRevealedSecret"
-          >Dismiss</Button
-        >
-      </div>
-
-      <div class="rounded-md border border-color-theme bg-content p-3">
-        <div
-          class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
-        >
-          <div class="min-w-0">
-            <p
-              class="text-[11px] font-semibold text-table-column-header uppercase tracking-wider mb-1"
-            >
-              Secret
-            </p>
-            <code class="block text-xs leading-relaxed break-all">{{
-              revealedSecret.secret
-            }}</code>
-          </div>
-          <Button
-            type="primary"
-            size="tiny"
-            class="sm:shrink-0"
-            @click="copySecretValue"
-          >
-            {{ copyState === "secret" ? "Copied" : "Copy Secret" }}
-          </Button>
-        </div>
-      </div>
-
-      <p class="text-xs text-definition-list-term">
-        Store this secret now. It cannot be retrieved later.
-      </p>
-
-      <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <div class="rounded-md border border-color-theme bg-content p-3">
-          <div class="flex items-start justify-between gap-2 mb-2">
-            <p
-              class="text-xs text-table-column-header font-semibold uppercase tracking-wider"
-            >
-              Write `.secret`
-            </p>
-            <Button type="outline" size="tiny" @click="copyWriteSecretCommand">
-              {{ copyState === "write" ? "Copied" : "Copy" }}
-            </Button>
-          </div>
-          <pre class="text-xs whitespace-pre-wrap break-all leading-relaxed">{{
-            secretWriteSnippet(revealedSecret.secret)
-          }}</pre>
-        </div>
-
-        <div class="rounded-md border border-color-theme bg-content p-3">
-          <div class="flex items-start justify-between gap-2 mb-2">
-            <p
-              class="text-xs text-table-column-header font-semibold uppercase tracking-wider"
-            >
-              Daemon Config
-            </p>
-            <Button type="outline" size="tiny" @click="copyDaemonConfig">
-              {{ copyState === "config" ? "Copied" : "Copy" }}
-            </Button>
-          </div>
-          <pre class="text-xs whitespace-pre-wrap break-all leading-relaxed">{{
-            daemonConfigSnippet(revealedSecret.workerId)
-          }}</pre>
-        </div>
-      </div>
-
-      <p v-if="copyMessage" class="text-xs text-definition-list-term">
-        {{ copyMessage }}
-      </p>
-    </section>
+    <WorkerManageModal
+      v-if="managingWorkerId"
+      v-model:visible="showManageModal"
+      :worker-id="managingWorkerId"
+      :active-jobs="managingWorkerJobs"
+    />
 
     <div
       v-if="loading && !workers.length"
@@ -234,12 +155,7 @@
           <tbody>
             <template v-for="worker in workers" :key="worker.worker_id">
               <tr
-                :class="[
-                  'border-b border-color-theme transition-colors',
-                  expandedWorkerId === worker.worker_id
-                    ? 'bg-content/40'
-                    : 'hover:bg-hover',
-                ]"
+                class="border-b border-color-theme transition-colors hover:bg-hover"
               >
                 <td class="px-4 py-3 align-top">
                   <code class="text-xs bg-content px-1.5 py-0.5 rounded">{{
@@ -288,14 +204,9 @@
                     <Button
                       type="outline"
                       size="tiny"
-                      :disabled="credentialsLoadingFor === worker.worker_id"
-                      @click="toggleCredentials(worker.worker_id)"
+                      @click="openManageModal(worker)"
                     >
-                      {{
-                        expandedWorkerId === worker.worker_id
-                          ? "Close"
-                          : "Manage"
-                      }}
+                      Manage
                     </Button>
                     <Button
                       type="outline"
@@ -305,230 +216,6 @@
                     >
                       Remove
                     </Button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr
-                v-if="expandedWorkerId === worker.worker_id"
-                class="border-b border-color-theme last:border-b-0 bg-content/40"
-              >
-                <td class="px-4 py-4 lg:px-5" colspan="6">
-                  <div
-                    class="flex flex-wrap items-start justify-between gap-3 mb-4"
-                  >
-                    <div>
-                      <p class="text-sm font-semibold text-title">
-                        Manage Worker <code>{{ worker.worker_id }}</code>
-                      </p>
-                      <p class="text-xs text-definition-list-term mt-1">
-                        Issue creates the first credential when none exists.
-                        Revoke active credentials in the table below.
-                      </p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      <Button
-                        v-if="!hasActiveCredential(worker.worker_id)"
-                        type="outline"
-                        size="tiny"
-                        :disabled="credentialActionFor === worker.worker_id"
-                        @click="onIssueCredential(worker.worker_id)"
-                      >
-                        Issue
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div
-                      class="rounded-md border border-color-theme bg-form p-3"
-                    >
-                      <p
-                        class="text-xs font-semibold text-table-column-header uppercase tracking-wider mb-2"
-                      >
-                        Running Jobs
-                      </p>
-                      <div
-                        v-if="worker.active_jobs?.length"
-                        class="space-y-2 text-sm"
-                      >
-                        <div
-                          v-for="activeJob in worker.active_jobs"
-                          :key="activeJob.id"
-                          class="flex items-center justify-between gap-3 rounded-md border border-color-theme bg-content px-2 py-1.5"
-                        >
-                          <NuxtLink
-                            :to="`/jobs/${activeJob.id}`"
-                            class="text-xs font-mono text-button-outline hover:text-button-outline-hover underline underline-offset-2"
-                          >
-                            {{ shortId(activeJob.id) }}
-                          </NuxtLink>
-                          <StatusBadge :status="activeJob.status" />
-                        </div>
-                      </div>
-                      <p
-                        v-else
-                        class="rounded-md border border-color-theme bg-content p-2 text-xs text-definition-list-term"
-                      >
-                        No running jobs.
-                      </p>
-                    </div>
-
-                    <div
-                      class="rounded-md border border-color-theme bg-form p-3 lg:col-span-2"
-                    >
-                      <div class="flex items-center justify-between gap-3 mb-2">
-                        <p
-                          class="text-xs font-semibold text-table-column-header uppercase tracking-wider"
-                        >
-                          Credentials
-                        </p>
-                        <span
-                          v-if="getActiveCredential(worker.worker_id)"
-                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs border border-green-500/40 bg-green-500/10 text-green-700"
-                        >
-                          Active:
-                          {{
-                            shortCredentialId(
-                              getActiveCredential(worker.worker_id)?.id
-                            )
-                          }}
-                        </span>
-                      </div>
-
-                      <div
-                        v-if="credentialsLoadingFor === worker.worker_id"
-                        class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
-                      >
-                        Loading credentials...
-                      </div>
-
-                      <div
-                        v-else-if="
-                          !getWorkerCredentials(worker.worker_id).length
-                        "
-                        class="rounded-md border border-color-theme bg-content p-3 text-xs text-definition-list-term"
-                      >
-                        No credentials issued.
-                      </div>
-
-                      <div
-                        v-else
-                        class="rounded-md border border-color-theme bg-content"
-                      >
-                        <div class="overflow-x-auto">
-                          <table class="w-full text-xs text-table-row">
-                            <thead>
-                              <tr
-                                class="border-b border-color-theme text-table-column-header"
-                              >
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Status
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Credential
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Created
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Last Used
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Expires
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Label
-                                </th>
-                                <th
-                                  class="px-3 py-2 text-left font-semibold uppercase tracking-wider"
-                                >
-                                  Action
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr
-                                v-for="credential in getWorkerCredentials(
-                                  worker.worker_id
-                                )"
-                                :key="credential.id"
-                                :class="[
-                                  'border-b border-color-theme last:border-b-0',
-                                  credential.status === 'ACTIVE'
-                                    ? 'bg-green-500/5'
-                                    : '',
-                                ]"
-                              >
-                                <td class="px-3 py-2 align-top">
-                                  <span
-                                    class="inline-flex items-center px-2 py-0.5 rounded-full border"
-                                    :class="
-                                      credentialStatusClass(credential.status)
-                                    "
-                                  >
-                                    {{ credential.status }}
-                                  </span>
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  <code
-                                    class="bg-form px-1.5 py-0.5 rounded"
-                                    :title="credential.id"
-                                  >
-                                    {{ shortCredentialId(credential.id) }}
-                                  </code>
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  {{ formatDate(credential.created_at) }}
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  {{ formatDate(credential.last_used_at) }}
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  {{ formatDate(credential.expires_at) }}
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  {{ credential.label || "-" }}
-                                </td>
-                                <td class="px-3 py-2 align-top">
-                                  <Button
-                                    v-if="credential.status === 'ACTIVE'"
-                                    type="outline"
-                                    size="tiny"
-                                    :disabled="
-                                      credentialActionFor === worker.worker_id
-                                    "
-                                    @click="
-                                      onRevokeCredential(
-                                        worker.worker_id,
-                                        credential.id
-                                      )
-                                    "
-                                  >
-                                    Revoke
-                                  </Button>
-                                  <span v-else class="text-definition-list-term"
-                                    >-</span
-                                  >
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </td>
               </tr>
@@ -546,13 +233,11 @@ import Button from "../../../tailwind-components/app/components/Button.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../components/HpcPill.vue";
+import WorkerManageModal from "../components/WorkerManageModal.vue";
 import {
 	deleteWorker,
-	fetchWorkerCredentials,
 	fetchWorkers,
 	issueWorkerCredential,
-	revokeWorkerCredential,
-	type WorkerCredential,
 	type WorkerSummary,
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
@@ -562,17 +247,24 @@ const loading = ref(false);
 const refreshing = ref(false);
 const error = ref<string | null>(null);
 const deletingWorker = ref<string | null>(null);
-const expandedWorkerId = ref<string | null>(null);
-const credentialsByWorker = ref<Record<string, WorkerCredential[]>>({});
-const credentialsLoadingFor = ref<string | null>(null);
-const credentialActionFor = ref<string | null>(null);
-const revealedSecret = ref<{ workerId: string; secret: string } | null>(null);
 const showBootstrap = ref(false);
 const bootstrapWorkerId = ref("");
 const bootstrapLabel = ref("");
 const bootstrapBusy = ref(false);
-const copyState = ref<"secret" | "write" | "config" | null>(null);
-const copyMessage = ref<string | null>(null);
+
+// Manage modal state
+const showManageModal = ref(false);
+const managingWorkerId = ref<string | null>(null);
+const managingWorkerJobs = ref<Array<{ id: string; status: string }>>([]);
+
+function openManageModal(worker: WorkerSummary) {
+  managingWorkerId.value = worker.worker_id;
+  managingWorkerJobs.value = (worker.active_jobs ?? []).map((j) => ({
+    id: j.id,
+    status: j.status,
+  }));
+  showManageModal.value = true;
+}
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
@@ -626,42 +318,6 @@ function heartbeatTextClass(ts: string | null): string {
 	return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "text-red-700" : "text-green-600";
 }
 
-function credentialStatusClass(status: string): string {
-	if (status === "ACTIVE")
-		return "border-green-500/40 bg-green-500/10 text-green-700";
-	if (status === "REVOKED")
-		return "border-red-500/40 bg-red-500/10 text-red-700";
-	if (status === "EXPIRED")
-		return "border-yellow-500/40 bg-yellow-500/10 text-yellow-800";
-	return "border-color-theme bg-content text-definition-list-term";
-}
-
-function shortId(idVal: string): string {
-	return idVal?.substring?.(0, 8) || idVal || "-";
-}
-
-function shortCredentialId(idVal: string): string {
-	if (!idVal) return "-";
-	if (idVal.length <= 12) return idVal;
-	return `${idVal.slice(0, 8)}...${idVal.slice(-4)}`;
-}
-
-function getWorkerCredentials(workerId: string): WorkerCredential[] {
-	return credentialsByWorker.value[workerId] ?? [];
-}
-
-function getActiveCredential(workerId: string): WorkerCredential | null {
-	return (
-		getWorkerCredentials(workerId).find(
-			(credential) => credential.status === "ACTIVE",
-		) ?? null
-	);
-}
-
-function hasActiveCredential(workerId: string): boolean {
-	return !!getActiveCredential(workerId);
-}
-
 function mergeWorkers(nextWorkers: WorkerSummary[]) {
 	const previousById = new Map(
 		workers.value.map((worker) => [worker.worker_id, worker]),
@@ -673,66 +329,9 @@ function mergeWorkers(nextWorkers: WorkerSummary[]) {
 	});
 }
 
-async function loadCredentials(workerId: string, force = false) {
-	if (!force && credentialsByWorker.value[workerId]) return;
-	credentialsLoadingFor.value = workerId;
-	try {
-		credentialsByWorker.value[workerId] =
-			await fetchWorkerCredentials(workerId);
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		if (credentialsLoadingFor.value === workerId) {
-			credentialsLoadingFor.value = null;
-		}
-	}
-}
-
-async function toggleCredentials(workerId: string) {
-	if (expandedWorkerId.value === workerId) {
-		expandedWorkerId.value = null;
-		return;
-	}
-	expandedWorkerId.value = workerId;
-	await loadCredentials(workerId);
-}
-
 function normalizeOptional(value: string): string | undefined {
 	const trimmed = value.trim();
 	return trimmed ? trimmed : undefined;
-}
-
-async function runCredentialAction(
-	workerId: string,
-	opts: { label?: string } = {},
-) {
-	credentialActionFor.value = workerId;
-	error.value = null;
-
-	try {
-		const label = normalizeOptional(opts.label ?? "");
-		const result = await issueWorkerCredential(workerId, { label });
-
-		revealedSecret.value = { workerId, secret: result.secret };
-		await loadCredentials(workerId, true);
-	} catch (e: unknown) {
-		const message = toErrorMessage(e);
-		if (message.includes("already has an active credential")) {
-			error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
-		} else {
-			error.value = message;
-		}
-	} finally {
-		credentialActionFor.value = null;
-	}
-}
-
-async function onIssueCredential(workerId: string) {
-	if (hasActiveCredential(workerId)) {
-		error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
-		return;
-	}
-	await runCredentialAction(workerId);
 }
 
 async function runBootstrapIssue() {
@@ -744,11 +343,16 @@ async function runBootstrapIssue() {
 
 	bootstrapBusy.value = true;
 	try {
-		await runCredentialAction(workerId, {
-			label: normalizeOptional(bootstrapLabel.value),
-		});
+		const label = normalizeOptional(bootstrapLabel.value);
+		await issueWorkerCredential(workerId, { label });
 		showBootstrap.value = false;
 		await loadWorkers({ background: true });
+		// Open manage modal so user can see the credential
+		managingWorkerId.value = workerId;
+		managingWorkerJobs.value = [];
+		showManageModal.value = true;
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
 	} finally {
 		bootstrapBusy.value = false;
 	}
@@ -756,101 +360,6 @@ async function runBootstrapIssue() {
 
 async function onBootstrapIssue() {
 	await runBootstrapIssue();
-}
-
-async function onRevokeCredential(workerId: string, credentialId: string) {
-	if (!confirm(`Revoke credential ${credentialId}?`)) return;
-
-	credentialActionFor.value = workerId;
-	try {
-		await revokeWorkerCredential(workerId, credentialId);
-		await loadCredentials(workerId, true);
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		credentialActionFor.value = null;
-	}
-}
-
-function fallbackCopyText(value: string): boolean {
-	try {
-		const area = document.createElement("textarea");
-		area.value = value;
-		area.setAttribute("readonly", "true");
-		area.style.position = "fixed";
-		area.style.opacity = "0";
-		area.style.pointerEvents = "none";
-		document.body.appendChild(area);
-		area.focus();
-		area.select();
-		const copied = document.execCommand("copy");
-		document.body.removeChild(area);
-		return copied;
-	} catch {
-		return false;
-	}
-}
-
-async function copyText(value: string, key: "secret" | "write" | "config") {
-	copyMessage.value = null;
-	try {
-		if (navigator.clipboard?.writeText) {
-			await navigator.clipboard.writeText(value);
-		} else if (!fallbackCopyText(value)) {
-			throw new Error("Clipboard unavailable");
-		}
-		copyState.value = key;
-		setTimeout(() => {
-			if (copyState.value === key) copyState.value = null;
-		}, 1500);
-	} catch {
-		const copied = fallbackCopyText(value);
-		if (copied) {
-			copyState.value = key;
-			copyMessage.value = "Copied using fallback clipboard mode.";
-			setTimeout(() => {
-				if (copyState.value === key) copyState.value = null;
-				copyMessage.value = null;
-			}, 2000);
-		} else {
-			copyMessage.value =
-				"Copy failed. Select text manually and press Cmd/Ctrl+C.";
-		}
-	}
-}
-
-async function copySecretValue() {
-	if (!revealedSecret.value) return;
-	await copyText(revealedSecret.value.secret, "secret");
-}
-
-async function copyWriteSecretCommand() {
-	if (!revealedSecret.value) return;
-	await copyText(secretWriteSnippet(revealedSecret.value.secret), "write");
-}
-
-async function copyDaemonConfig() {
-	if (!revealedSecret.value) return;
-	await copyText(daemonConfigSnippet(revealedSecret.value.workerId), "config");
-}
-
-function dismissRevealedSecret() {
-	revealedSecret.value = null;
-	copyState.value = null;
-	copyMessage.value = null;
-}
-
-function secretWriteSnippet(secret: string): string {
-	return `printf '%s' '${secret}' > .secret && chmod 600 .secret`;
-}
-
-function daemonConfigSnippet(workerId: string): string {
-	return [
-		"emx2:",
-		'  base_url: "https://emx2.example.org"',
-		`  worker_id: "${workerId}"`,
-		'  worker_secret_file: ".secret"',
-	].join("\n");
 }
 
 async function onDeleteWorker(workerId: string) {
