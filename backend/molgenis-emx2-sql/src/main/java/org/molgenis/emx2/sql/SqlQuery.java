@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = 10;
-  public static int AGGREGATE_RANGE_STEPSIZE = 10;
+  public static final int AGGREGATE_COUNT_THRESHOLD = 10;
+  public static final int AGGREGATE_RANGE_STEPSIZE = 10;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
