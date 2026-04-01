@@ -60,7 +60,9 @@
         <slot />
       </main>
 
-      <FooterComponent class="mt-[7.8125rem]" />
+      <FooterComponent class="mt-[7.8125rem]">
+        <FooterVersion />
+      </FooterComponent>
     </div>
   </div>
 </template>
@@ -77,6 +79,7 @@ import Logo from "../../../tailwind-components/app/components/Logo.vue";
 import LogoMobile from "../../../tailwind-components/app/components/LogoMobile.vue";
 import Navigation from "../../../tailwind-components/app/components/Navigation.vue";
 import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
+import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 
 const config = useRuntimeConfig();
