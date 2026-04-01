@@ -185,12 +185,35 @@ export function getListColumns(
     result = opts.visibleColumns
       .map((id) => result.find((c) => c.id === id))
       .filter(Boolean) as IColumn[];
-  } else if (opts.layout && opts.layout !== "TABLE") {
+  } else if (opts.layout) {
     const roleCols = result.filter((c) => c.role);
     if (roleCols.length > 0) {
-      const titleCols = roleCols.filter((c) => c.role === "TITLE");
-      const otherCols = roleCols.filter((c) => c.role !== "TITLE");
-      result = [...titleCols, ...otherCols];
+      const titleCols = result.filter((c) => c.role === "TITLE");
+      const descCols = result.filter((c) => c.role === "DESCRIPTION");
+      const detailCols = result.filter((c) => c.role === "DETAIL");
+      const slotsUsed = titleCols.length + descCols.length;
+      const remaining = 5 - slotsUsed;
+      const shownDetailCols = detailCols.slice(0, remaining);
+      const fallbackCols = result.filter(
+        (c) => !c.role && (!c.key || c.key === 0) && !c.id.startsWith("mg_")
+      );
+      if (detailCols.length > 0) {
+        const afterDetail = Math.max(0, remaining - shownDetailCols.length);
+        result = [
+          ...titleCols,
+          ...descCols,
+          ...shownDetailCols,
+          ...(opts.layout === "TABLE"
+            ? fallbackCols.slice(0, afterDetail)
+            : []),
+        ];
+      } else {
+        result = [
+          ...titleCols,
+          ...descCols,
+          ...fallbackCols.slice(0, remaining),
+        ];
+      }
     } else {
       const keyCols = result.filter((c) => c.key && c.key > 0);
       const otherCols = result

@@ -750,10 +750,15 @@ describe("getListColumns", () => {
     expect(result[0].id).toBe("id");
   });
 
-  it("for TABLE layout, keeps all data columns", () => {
+  it("for TABLE layout with roles, applies role-based selection with max 5 columns", () => {
     const result = getListColumns(columns, { layout: "TABLE" });
-    expect(result.map((c) => c.id)).toContain("status");
-    expect(result.map((c) => c.id)).toContain("country");
+    const ids = result.map((c) => c.id);
+    expect(ids[0]).toBe("name");
+    expect(ids).toContain("description");
+    expect(ids).toContain("type");
+    expect(result).toHaveLength(5);
+    expect(ids).toContain("status");
+    expect(ids).toContain("country");
   });
 
   it("removes all-empty columns when rows provided", () => {
@@ -788,5 +793,68 @@ describe("getListColumns", () => {
 
   it("returns empty array for empty input", () => {
     expect(getListColumns([])).toEqual([]);
+  });
+
+  it("for TABLE layout without roles, limits to key columns plus up to 4 others (max 5 total)", () => {
+    const noRoleCols = [
+      col({ id: "mg_top", columnType: "SECTION" }),
+      col({ id: "id", columnType: "STRING", key: 1 }),
+      col({ id: "a", columnType: "STRING" }),
+      col({ id: "b", columnType: "STRING" }),
+      col({ id: "c", columnType: "STRING" }),
+      col({ id: "d", columnType: "STRING" }),
+      col({ id: "e", columnType: "STRING" }),
+      col({ id: "f", columnType: "STRING" }),
+    ];
+    const result = getListColumns(noRoleCols, { layout: "TABLE" });
+    expect(result).toHaveLength(5);
+    expect(result[0].id).toBe("id");
+  });
+
+  it("multiple TITLE columns count as 1 toward the 5-column limit", () => {
+    const manyTitleCols = [
+      col({ id: "firstName", columnType: "STRING", role: "TITLE" }),
+      col({ id: "lastName", columnType: "STRING", role: "TITLE" }),
+      col({ id: "detail1", columnType: "STRING", role: "DETAIL" }),
+      col({ id: "detail2", columnType: "STRING", role: "DETAIL" }),
+      col({ id: "detail3", columnType: "STRING", role: "DETAIL" }),
+      col({ id: "detail4", columnType: "STRING", role: "DETAIL" }),
+    ];
+    const result = getListColumns(manyTitleCols, { layout: "CARDS" });
+    expect(result).toHaveLength(5);
+    expect(result[0].id).toBe("firstName");
+    expect(result[1].id).toBe("lastName");
+  });
+
+  it("DESCRIPTION column appears after TITLE but before DETAIL columns", () => {
+    const orderedCols = [
+      col({ id: "detail1", columnType: "STRING", role: "DETAIL" }),
+      col({ id: "bio", columnType: "TEXT", role: "DESCRIPTION" }),
+      col({ id: "title1", columnType: "STRING", role: "TITLE" }),
+    ];
+    const result = getListColumns(orderedCols, { layout: "CARDS" });
+    const ids = result.map((c) => c.id);
+    expect(ids.indexOf("title1")).toBeLessThan(ids.indexOf("bio"));
+    expect(ids.indexOf("bio")).toBeLessThan(ids.indexOf("detail1"));
+  });
+
+  it("without DETAIL roles, fills remaining slots with other non-title, non-description, non-key, non-system columns", () => {
+    const fallbackCols = [
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "a", columnType: "STRING" }),
+      col({ id: "b", columnType: "STRING" }),
+      col({ id: "c", columnType: "STRING" }),
+      col({ id: "d", columnType: "STRING" }),
+      col({ id: "e", columnType: "STRING" }),
+    ];
+    const result = getListColumns(fallbackCols, { layout: "CARDS" });
+    const ids = result.map((c) => c.id);
+    expect(ids[0]).toBe("name");
+    expect(result).toHaveLength(5);
+    expect(ids).toContain("a");
+    expect(ids).toContain("b");
+    expect(ids).toContain("c");
+    expect(ids).toContain("d");
+    expect(ids).not.toContain("e");
   });
 });
