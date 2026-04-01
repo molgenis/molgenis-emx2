@@ -28,10 +28,13 @@ const props = withDefaults(
     showEmpty?: boolean;
     showSideNav?: boolean;
     columnTransform?: (columns: IColumn[]) => IColumn[];
+    expandLevel?: number;
+    rowTransform?: (row: Record<string, any>) => Record<string, any>;
   }>(),
   {
     showEmpty: false,
     showSideNav: true,
+    expandLevel: 2,
   }
 );
 
@@ -58,7 +61,13 @@ const {
   error: rowError,
 } = useAsyncData(
   `row-${props.schemaId}-${props.tableId}-${JSON.stringify(props.rowId)}`,
-  () => fetchRowData(props.schemaId!, props.tableId!, props.rowId!),
+  () =>
+    fetchRowData(
+      props.schemaId!,
+      props.tableId!,
+      props.rowId!,
+      props.expandLevel
+    ),
   {
     watch: [() => props.schemaId, () => props.tableId, () => props.rowId],
     immediate: isSmartMode.value,
@@ -103,8 +112,8 @@ const processedColumns = computed<IColumn[]>(() => {
 });
 
 const effectiveData = computed(() => {
-  if (!isSmartMode.value) return props.data || {};
-  return rowData.value || {};
+  const raw = isSmartMode.value ? rowData.value || {} : props.data || {};
+  return props.rowTransform ? props.rowTransform(raw) : raw;
 });
 
 interface SectionGroup {
