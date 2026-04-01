@@ -110,13 +110,6 @@ Experiments lrGS,,secondary analysis centre,multiselect,,,,,CatalogueOntologies,
 Experiments OGM,,secondary analysis centre,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://id.nlm.nih.gov/mesh/D000094422,Analysis or reanalysis of existing data collected by another centre usually for a different purpose,Patient registry
 Experiments RNA,,secondary analysis centre,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://id.nlm.nih.gov/mesh/D000094422,Analysis or reanalysis of existing data collected by another centre usually for a different purpose,Patient registry
 NGS sequencing,,secondary analysis pipeline version,string,,,,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000152,A datum which describes the version of the bioinformatics pipeline used.,Patient registry
-Experiments,,extra attributes,refback,,,,,,Extra experiment attributes,,experiment,${label},,,,Additional metadata for experiments,Patient registry
-Extra experiment attributes,,,,,,,,,,,,,,,,Additional metadata for experiments,Patient registry
-Extra experiment attributes,,experiment,select,,,1,TRUE,,Experiments,,,,,,,A link to the experiment(s),Patient registry
-Extra experiment attributes,,label,string,,,1,TRUE,,,,,,,,,A label that describes the value,Patient registry
-Extra experiment attributes,,value,string,,,,,,,,,,,,,A value to store in the database,Patient registry
-Extra experiment attributes,,unit,string,,,,,,,,,,,,,"If applicable, an indication of the format of the value",Patient registry
-Extra experiment attributes,,comments,string,,,,,,,,,,,,,Additional context about an attribute,Patient registry
 Clinical observations,Observations,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,This table extends observations with clinical details compatible with phenopacket,"Patient registry, FAIR Genomes"
 Clinical observations,,Clinical Observations,heading,,,,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Clinical observations,,observation performed by,select,,,,,,Contacts,,,,,,http://purl.obolibrary.org/obo/NCIT_C48206,"The individual that performed the clinical observation (e.g., made the diagnosis, performed the evaluation, etc.)","Patient registry, FAIR Genomes"
