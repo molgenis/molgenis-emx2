@@ -1,3 +1,4 @@
+import type { Menu } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -161,6 +162,42 @@ export function assertRefColumnValue(
   ) {
     throw new Error("Value is not a valid reference column value");
   }
+}
+
+export function assertMenu(menu: any): asserts menu is Menu {
+  if (!Array.isArray(menu)) {
+    throw new Error(`Expected menu to be an array, but got ${typeof menu}`);
+  }
+  menu.forEach((item, index) => {
+    if (typeof item.label !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'label' property`
+      );
+    }
+    if (typeof item.href !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'href' property`
+      );
+    }
+    if (typeof item.role !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'role' property`
+      );
+    }
+    if (typeof item.key !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'key' property`
+      );
+    }
+    if (item.submenu && !Array.isArray(item.submenu)) {
+      throw new Error(
+        `Expected menu item at index ${index} to have an array 'submenu' property`
+      );
+    }
+    if (item.submenu) {
+      item.submenu.forEach(assertMenu);
+    }
+  });
 }
 
 export function toRefColumn(column: IColumn): IRefColumn {

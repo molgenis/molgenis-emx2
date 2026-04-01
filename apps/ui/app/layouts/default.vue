@@ -81,6 +81,7 @@ import Navigation from "../../../tailwind-components/app/components/Navigation.v
 import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
 import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -117,18 +118,28 @@ const isSignedIn = computed(
 );
 const isAdmin = computed(() => session.value?.admin);
 
+// const navigation = computed(() => {
+//   const items = [];
+//   if (schema.value) {
+//     items.push({ label: "SHACL", link: `/${schema.value}/shacl` });
+//   }
+//   if (schema.value && isAdmin.value) {
+//     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
+//     items.push({ label: "Pages", link: `/${schema.value}/pages/` });
+//   }
+//   if (isAdmin.value) {
+//     items.push({ label: "Admin", link: `/admin` });
+//   }
+//   return items;
+// });
+
+const menu = await useMenu();
+
 const navigation = computed(() => {
-  const items = [];
-  if (schema.value) {
-    items.push({ label: "SHACL", link: `/${schema.value}/shacl` });
-  }
-  if (schema.value && isAdmin.value) {
-    items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
-    items.push({ label: "Pages", link: `/${schema.value}/pages/` });
-  }
-  if (isAdmin.value) {
-    items.push({ label: "Admin", link: `/admin` });
-  }
+  const items: { label: string; link: string }[] = [];
+  menu.value.forEach((item) => {
+    items.push({ label: item.label, link: item.href });
+  });
   return items;
 });
 </script>

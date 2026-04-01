@@ -178,3 +178,13 @@ export interface Crumb {
   url: string;
   label: string;
 }
+
+export interface MenuItem {
+  label: string;
+  href: string;
+  role: string;
+  key: string;
+  submenu: Menu;
+}
+
+export type Menu = MenuItem[];
