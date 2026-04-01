@@ -106,7 +106,7 @@ Create `pages/samples/catalogue/[resource]/subpopulations/[subpopulation].vue`:
 - Document remaining differences
 - Update this plan with final state
 
-## Status: Phase 1 IN PROGRESS — basic page working, next: expandLevel + rowTransform + columnTransform for aggregates
+## Status: Phases 1-3 DONE — next: Phase 4 (review & polish)
 
 ### Progress
 - [x] Created `pages/samples/catalogue/[resource].vue` with smart mode
@@ -115,22 +115,20 @@ Create `pages/samples/catalogue/[resource]/subpopulations/[subpopulation].vue`:
 - [x] DetailSection filters TITLE/SUBTITLE/LOGO from section body (no duplication)
 - [x] Removed custom columnTransform — uses backend metadata sections as-is
 - [x] Visual review: page renders, sections show, side nav works
-- [ ] **F2: expandLevel=3** — expose prop on DetailView, pass to fetchRowData, use on sample page
-- [ ] **F1: rowTransform** — expose prop on DetailView, applied after fetch before render. Use on sample page to aggregate collection event ontology data into row values:
-  - Override `areas of information` with merged `collectionEvents[*].areasOfInformation` (column exists on Resources)
-  - Override `biospecimen collected` with merged `collectionEvents[*].sampleCategories` (column exists on Resources)
-  - Create `_merged data categories` from merged `collectionEvents[*].dataCategories` (no column on Resources)
-  - Create `_merged sample categories` from merged `collectionEvents[*].sampleCategories` (no column on Resources)
-- [ ] **columnTransform** — minimal: inject virtual columns for `_merged data categories` and `_merged sample categories` into "available data and samples" section
-- [ ] Add header-actions slot (F3) for contact button
-- [ ] Breadcrumbs
+- [x] **F2: expandLevel=3** — exposed `expandLevel` prop on DetailView (default 2), passed to fetchRowData. Sample page uses `:expand-level="3"`
+- [x] **F1: rowTransform** — exposed `rowTransform` prop on DetailView, applied in `effectiveData` computed after fetch. Sample page uses `aggregateCollectionEvents` to merge collection event ontology data (deduplicate by name)
+- [x] **columnTransform** — `injectMergedColumns` injects two virtual `ONTOLOGY_ARRAY` columns into "availableDataAndSamples" HEADING
+- [x] **Framework fix**: removed ONTOLOGY_ARRAY from non-root skip list in fetchTableData.ts so nested ontology fields are actually fetched
+- [x] Column IDs confirmed camelCase (backend `getIdentifier()` → `convertToCamelCase()`)
+- [ ] Add header-actions slot (F3) for contact button — deferred to Phase 4
+- [ ] Breadcrumbs — deferred to Phase 4
 
 ### Aggregation strategy for "Available Data & Samples"
 The catalogue aggregates ontology arrays across all collection events into a merged resource-level summary. Implementation:
-1. `expandLevel=3` fetches collection events with nested ontology fields
+1. `expandLevel=3` fetches collection events with nested ontology fields (required framework fix: ONTOLOGY_ARRAY no longer skipped at non-root level)
 2. `rowTransform` merges them: flatMap → deduplicate by name → set on row
-3. For `areas of information` and `biospecimen collected`: override existing Resource column values (column defs already exist with correct type/section)
-4. For `data categories` and `sample categories`: no Resource-level columns exist, so rowTransform creates virtual row values (`_merged data categories`, `_merged sample categories`) and columnTransform injects matching virtual column defs into the "available data and samples" section
+3. For `areasOfInformation` and `biospecimenCollected`: override existing Resource column values
+4. For `_mergedDataCategories` and `_mergedSampleCategories`: virtual row values + columnTransform injects virtual column defs into "availableDataAndSamples" heading
 
 ## Decisions Made
 - Incremental approach: pages first, framework enhancements as needed
