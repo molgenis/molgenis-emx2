@@ -13,5 +13,5 @@ test("View ref details", async ({ page }) => {
   await page.locator("table").getByText("pooky").first().click();
   await page.waitForLoadState("networkidle");
   // verify the ref details
-  await expect(page.locator("h2")).toContainText("pet");
+  await expect(page.locator("#modal-title")).toContainText("pet");
 });
