@@ -31,11 +31,35 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData } from "#app";
+import { navigateTo } from "#imports";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import DetailView from "../../../components/display/DetailView.vue";
 import fetchGraphql from "../../../composables/fetchGraphql";
+import { provideRecordNavigation } from "../../../composables/useRecordNavigation";
 
 const route = useRoute();
+
+provideRecordNavigation({
+  async navigateToRecord(schemaId, tableId, row) {
+    const resource = route.params.resource as string;
+    if (tableId === "CollectionEvents" && row.name) {
+      await navigateTo(
+        `/samples/catalogue/${resource}/collection-events/${encodeURIComponent(
+          row.name
+        )}`
+      );
+      return;
+    }
+    if (tableId === "Subpopulations" && row.name) {
+      await navigateTo(
+        `/samples/catalogue/${resource}/subpopulations/${encodeURIComponent(
+          row.name
+        )}`
+      );
+      return;
+    }
+  },
+});
 
 const rowId = computed(() => ({
   id: route.params.resource as string,
@@ -108,13 +132,13 @@ function injectMergedColumns(columns: IColumn[]): IColumn[] {
   const virtualColumns: IColumn[] = [
     {
       id: "_mergedDataCategories",
-      label: "Data categories (all events)",
+      label: "Data categories",
       columnType: "ONTOLOGY_ARRAY",
       heading: headingId,
     } as IColumn,
     {
       id: "_mergedSampleCategories",
-      label: "Sample categories (all events)",
+      label: "Sample categories",
       columnType: "ONTOLOGY_ARRAY",
       heading: headingId,
     } as IColumn,
