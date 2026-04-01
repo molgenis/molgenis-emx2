@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useAsyncData } from "#app";
+import { useAsyncData, useHead } from "#app";
 import type { ISectionField } from "../../../types/types";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  IRow,
+  recordValue,
+} from "../../../../metadata-utils/src/types";
 import RecordSection from "./DetailSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
@@ -29,7 +33,7 @@ const props = withDefaults(
     showSideNav?: boolean;
     columnTransform?: (columns: IColumn[]) => IColumn[];
     expandLevel?: number;
-    rowTransform?: (row: Record<string, any>) => Record<string, any>;
+    rowTransform?: (row: recordValue) => recordValue;
   }>(),
   {
     showEmpty: false,
@@ -250,6 +254,23 @@ const autoTitle = computed(() =>
 const autoSubtitle = computed(() =>
   getSubtitleText(processedColumns.value, effectiveData.value)
 );
+const autoDescription = computed(() =>
+  processedColumns.value
+    .filter((c) => c.role === "DESCRIPTION")
+    .map((c) => getRoleText(effectiveData.value[c.id]))
+    .filter(Boolean)
+    .join(" ")
+);
+
+useHead(() => {
+  if (!isSmartMode.value) return {};
+  return {
+    title: autoTitle.value || undefined,
+    meta: autoDescription.value
+      ? [{ name: "description", content: autoDescription.value }]
+      : [],
+  };
+});
 
 const isReady = computed(() => {
   if (!isSmartMode.value) return true;
