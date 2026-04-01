@@ -8,12 +8,16 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
-import { rowToString } from "../../utils/rowToString";
+import type {
+  columnValue,
+  IRefColumn,
+  IRow,
+} from "../../../../metadata-utils/src/types";
+import { columnValueToString } from "../../utils/columnValueToString";
 import type { RefPayload } from "../../../types/types";
 const props = defineProps<{
   metadata: IRefColumn;
-  data: IRow;
+  data?: columnValue | null;
 }>();
 
 const emit = defineEmits<{
@@ -21,6 +25,9 @@ const emit = defineEmits<{
 }>();
 
 function handleRefCellClicked() {
+  if (!props.data) {
+    return;
+  }
   emit("refCellClicked", {
     metadata: props.metadata,
     data: props.data,
@@ -28,11 +35,14 @@ function handleRefCellClicked() {
 }
 
 const refColumnLabel = computed(() => {
+  if (!props.data) {
+    return "";
+  }
   const labelTemplate = (
     props.metadata.refLabel
       ? props.metadata.refLabel
       : props.metadata.refLabelDefault
   ) as string;
-  return rowToString(props.data, labelTemplate);
+  return columnValueToString(props.data, labelTemplate);
 });
 </script>
