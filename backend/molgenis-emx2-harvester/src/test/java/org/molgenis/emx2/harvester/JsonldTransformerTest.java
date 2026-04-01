@@ -1,6 +1,12 @@
 package org.molgenis.emx2.harvester;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -15,13 +21,6 @@ import org.molgenis.emx2.harvester.jsonld.JsonLdFrameGenerator;
 import org.molgenis.emx2.harvester.jsonld.JsonLdFramer;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.stream.Collectors;
-
 public class JsonldTransformerTest {
 
   @Test
@@ -29,21 +28,21 @@ public class JsonldTransformerTest {
     Repository repository = new SailRepository(new MemoryStore());
 
     try (RepositoryConnection conn = repository.getConnection();
-         InputStream stream = readTtl("pet-store.ttl");
-         OutputStream out = new ByteArrayOutputStream()) {
+        InputStream stream = readTtl("pet-store.ttl");
+        OutputStream out = new ByteArrayOutputStream()) {
 
       RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, out);
       writer.startRDF();
 
       Rio.parse(stream, RDFFormat.TURTLE)
-              .forEach(
-                      statement -> {
-                        try {
-                          writer.handleStatement(statement);
-                        } catch (Exception e) {
-                          e.printStackTrace();
-                        }
-                      });
+          .forEach(
+              statement -> {
+                try {
+                  writer.handleStatement(statement);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              });
 
       // End the JSON-LD document
       writer.endRDF();
@@ -93,7 +92,7 @@ public class JsonldTransformerTest {
 
     Set<String> targetColumns = resolveTargetColumns(frameResult.frame, schema);
     Map<String, String> reverseContext =
-            buildReverseContext(frameResult.frame.get("@context"), targetColumns);
+        buildReverseContext(frameResult.frame.get("@context"), targetColumns);
     List<JsonNode> graphItems = extractGraphItems(frameResult.framedJson);
     List<Row> rows = collectResourceRows(graphItems, reverseContext);
     rows.forEach(row -> System.out.println(row.toString()));
@@ -115,9 +114,9 @@ public class JsonldTransformerTest {
       return Set.of();
     }
     return table.getMetadata().getColumns().stream()
-            .filter(col -> col.getKey() != 1)
-            .map(Column::getIdentifier)
-            .collect(Collectors.toSet());
+        .filter(col -> col.getKey() != 1)
+        .map(Column::getIdentifier)
+        .collect(Collectors.toSet());
   }
 
   String findTableNameForType(JsonNode frame, String dcatType) {
@@ -207,25 +206,25 @@ public class JsonldTransformerTest {
 
   boolean isDcatResource(String itemType) {
     return DCAT_CATALOG.equals(itemType)
-            || DCAT_DATASET.equals(itemType)
-            || "dcat:DataService".equals(itemType);
+        || DCAT_DATASET.equals(itemType)
+        || "dcat:DataService".equals(itemType);
   }
 
   Row nodeToRow(JsonNode item, String itemType, Map<String, String> reverseContext) {
     Row row = new Row();
     item.fields()
-            .forEachRemaining(
-                    entry -> {
-                      String rawKey = entry.getKey();
-                      JsonNode value = entry.getValue();
-                      if (rawKey.startsWith("@") || value.isNull()) {
-                        return;
-                      }
-                      String columnName = reverseContext.get(rawKey);
-                      if (columnName != null) {
-                        setRowField(row, columnName, value);
-                      }
-                    });
+        .forEachRemaining(
+            entry -> {
+              String rawKey = entry.getKey();
+              JsonNode value = entry.getValue();
+              if (rawKey.startsWith("@") || value.isNull()) {
+                return;
+              }
+              String columnName = reverseContext.get(rawKey);
+              if (columnName != null) {
+                setRowField(row, columnName, value);
+              }
+            });
 
     if (!row.getColumnNames().contains("type")) {
       String inferredType = inferTypeFromDcatType(itemType);

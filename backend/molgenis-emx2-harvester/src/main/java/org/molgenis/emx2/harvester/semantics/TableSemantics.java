@@ -4,12 +4,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Values;
-import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableSemantics {

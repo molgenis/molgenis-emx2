@@ -39,12 +39,12 @@ class SparqlSelectTransformerTest {
           PREFIX Pet-store: <http://localhost:8080/pet-store/api/rdf/>
           PREFIX Pet: <http://localhost:8080/pet-store/api/rdf/Pet/column/>
           PREFIX Pet: <http://localhost:8080/pet-store/api/rdf/Pet/column/>
-          
+
           PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          
+
           PREFIX Harvesting-Data: <http://localhost:8080/pet-store/api/rdf/Pet/column/>
-          
-          
+
+
           SELECT
               ?pet ?name ?categoryName ?status ?weight ?orderId
               (GROUP_CONCAT(?tagName; separator=", ") AS ?tags)
@@ -54,13 +54,13 @@ class SparqlSelectTransformerTest {
                   Harvesting-Data:category               ?category ;
                   Harvesting-Data:status                 ?status ;
                   Harvesting-Data:weight                 ?weight .
-          
+
               ?category rdfs:label ?categoryName
               OPTIONAL {
                   ?pet Harvesting-Data:orders ?order .
                   ?order rdfs:label ?orderId .
               }
-          
+
               OPTIONAL {
                   ?pet Harvesting-Data:tags ?tag .
                   ?tag rdfs:label ?tagName .

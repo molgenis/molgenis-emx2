@@ -1,5 +1,9 @@
 package org.molgenis.emx2.harvester.semantics;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Statement;
@@ -7,11 +11,6 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class TableNameMapping {
 
@@ -40,10 +39,10 @@ public class TableNameMapping {
           tableNameMappings.put(semantic, table.getTableName());
         } else {
           Namespace namespace =
-                  DefaultNamespace.streamAll()
-                          .filter(x -> x.getPrefix().equals(split[0]))
-                          .findFirst()
-                          .orElseThrow();
+              DefaultNamespace.streamAll()
+                  .filter(x -> x.getPrefix().equals(split[0]))
+                  .findFirst()
+                  .orElseThrow();
 
           tableNameMappings.put(namespace.getName() + split[1], table.getTableName());
         }
