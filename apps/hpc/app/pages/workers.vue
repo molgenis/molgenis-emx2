@@ -541,21 +541,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-import { formatDate } from "../utils/jobs";
-import {
-  fetchWorkers,
-  deleteWorker,
-  fetchWorkerCredentials,
-  issueWorkerCredential,
-  revokeWorkerCredential,
-  type WorkerCredential,
-  type WorkerSummary,
-} from "../composables/useHpcApi";
+import { onMounted, onUnmounted, ref } from "vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
-import Message from "../../../tailwind-components/app/components/Message.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../components/HpcPill.vue";
+import {
+	deleteWorker,
+	fetchWorkerCredentials,
+	fetchWorkers,
+	issueWorkerCredential,
+	revokeWorkerCredential,
+	type WorkerCredential,
+	type WorkerSummary,
+} from "../composables/useHpcApi";
+import { formatDate } from "../utils/jobs";
 
 const workers = ref<WorkerSummary[]>([]);
 const loading = ref(false);
@@ -578,329 +578,330 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
 function toErrorMessage(e: unknown): string {
-  const errorLike = e as {
-    data?: { detail?: string; title?: string };
-    response?: {
-      _data?: { detail?: string; title?: string; status?: number };
-      data?: { detail?: string; title?: string };
-      status?: number;
-    };
-    statusCode?: number;
-    status?: number;
-    message?: string;
-  };
-  const detail =
-    errorLike?.data?.detail ||
-    errorLike?.response?._data?.detail ||
-    errorLike?.response?.data?.detail;
-  const title =
-    errorLike?.data?.title ||
-    errorLike?.response?._data?.title ||
-    errorLike?.response?.data?.title;
-  const status =
-    errorLike?.statusCode ??
-    errorLike?.status ??
-    errorLike?.response?.status ??
-    errorLike?.response?._data?.status;
+	const errorLike = e as {
+		data?: { detail?: string; title?: string };
+		response?: {
+			_data?: { detail?: string; title?: string; status?: number };
+			data?: { detail?: string; title?: string };
+			status?: number;
+		};
+		statusCode?: number;
+		status?: number;
+		message?: string;
+	};
+	const detail =
+		errorLike?.data?.detail ||
+		errorLike?.response?._data?.detail ||
+		errorLike?.response?.data?.detail;
+	const title =
+		errorLike?.data?.title ||
+		errorLike?.response?._data?.title ||
+		errorLike?.response?.data?.title;
+	const status =
+		errorLike?.statusCode ??
+		errorLike?.status ??
+		errorLike?.response?.status ??
+		errorLike?.response?._data?.status;
 
-  if (detail) {
-    return status ? `${status}${title ? ` ${title}` : ""}: ${detail}` : detail;
-  }
-  if (errorLike?.message) return errorLike.message;
-  return "Request failed";
+	if (detail) {
+		return status ? `${status}${title ? ` ${title}` : ""}: ${detail}` : detail;
+	}
+	if (errorLike?.message) return errorLike.message;
+	return "Request failed";
 }
 
 function heartbeatAgeMs(ts: string | null): number {
-  if (!ts) return Number.POSITIVE_INFINITY;
-  const parsed = new Date(ts).getTime();
-  if (Number.isNaN(parsed)) return Number.POSITIVE_INFINITY;
-  return Date.now() - parsed;
+	if (!ts) return Number.POSITIVE_INFINITY;
+	const parsed = new Date(ts).getTime();
+	if (Number.isNaN(parsed)) return Number.POSITIVE_INFINITY;
+	return Date.now() - parsed;
 }
 
 function heartbeatDotClass(ts: string | null): string {
-  return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "bg-red-500" : "bg-green-500";
+	return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "bg-red-500" : "bg-green-500";
 }
 
 function heartbeatTextClass(ts: string | null): string {
-  if (!ts) return "text-definition-list-term";
-  return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "text-red-700" : "text-green-600";
+	if (!ts) return "text-definition-list-term";
+	return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "text-red-700" : "text-green-600";
 }
 
 function credentialStatusClass(status: string): string {
-  if (status === "ACTIVE")
-    return "border-green-500/40 bg-green-500/10 text-green-700";
-  if (status === "REVOKED")
-    return "border-red-500/40 bg-red-500/10 text-red-700";
-  if (status === "EXPIRED")
-    return "border-yellow-500/40 bg-yellow-500/10 text-yellow-800";
-  return "border-color-theme bg-content text-definition-list-term";
+	if (status === "ACTIVE")
+		return "border-green-500/40 bg-green-500/10 text-green-700";
+	if (status === "REVOKED")
+		return "border-red-500/40 bg-red-500/10 text-red-700";
+	if (status === "EXPIRED")
+		return "border-yellow-500/40 bg-yellow-500/10 text-yellow-800";
+	return "border-color-theme bg-content text-definition-list-term";
 }
 
 function shortId(idVal: string): string {
-  return idVal?.substring?.(0, 8) || idVal || "-";
+	return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
 function shortCredentialId(idVal: string): string {
-  if (!idVal) return "-";
-  if (idVal.length <= 12) return idVal;
-  return `${idVal.slice(0, 8)}...${idVal.slice(-4)}`;
+	if (!idVal) return "-";
+	if (idVal.length <= 12) return idVal;
+	return `${idVal.slice(0, 8)}...${idVal.slice(-4)}`;
 }
 
 function getWorkerCredentials(workerId: string): WorkerCredential[] {
-  return credentialsByWorker.value[workerId] ?? [];
+	return credentialsByWorker.value[workerId] ?? [];
 }
 
 function getActiveCredential(workerId: string): WorkerCredential | null {
-  return (
-    getWorkerCredentials(workerId).find(
-      (credential) => credential.status === "ACTIVE"
-    ) ?? null
-  );
+	return (
+		getWorkerCredentials(workerId).find(
+			(credential) => credential.status === "ACTIVE",
+		) ?? null
+	);
 }
 
 function hasActiveCredential(workerId: string): boolean {
-  return !!getActiveCredential(workerId);
+	return !!getActiveCredential(workerId);
 }
 
 function mergeWorkers(nextWorkers: WorkerSummary[]) {
-  const previousById = new Map(
-    workers.value.map((worker) => [worker.worker_id, worker])
-  );
-  workers.value = nextWorkers.map((nextWorker) => {
-    const previous = previousById.get(nextWorker.worker_id);
-    if (!previous) return nextWorker;
-    return { ...previous, ...nextWorker };
-  });
+	const previousById = new Map(
+		workers.value.map((worker) => [worker.worker_id, worker]),
+	);
+	workers.value = nextWorkers.map((nextWorker) => {
+		const previous = previousById.get(nextWorker.worker_id);
+		if (!previous) return nextWorker;
+		return { ...previous, ...nextWorker };
+	});
 }
 
 async function loadCredentials(workerId: string, force = false) {
-  if (!force && credentialsByWorker.value[workerId]) return;
-  credentialsLoadingFor.value = workerId;
-  try {
-    credentialsByWorker.value[workerId] = await fetchWorkerCredentials(
-      workerId
-    );
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    if (credentialsLoadingFor.value === workerId) {
-      credentialsLoadingFor.value = null;
-    }
-  }
+	if (!force && credentialsByWorker.value[workerId]) return;
+	credentialsLoadingFor.value = workerId;
+	try {
+		credentialsByWorker.value[workerId] =
+			await fetchWorkerCredentials(workerId);
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		if (credentialsLoadingFor.value === workerId) {
+			credentialsLoadingFor.value = null;
+		}
+	}
 }
 
 async function toggleCredentials(workerId: string) {
-  if (expandedWorkerId.value === workerId) {
-    expandedWorkerId.value = null;
-    return;
-  }
-  expandedWorkerId.value = workerId;
-  await loadCredentials(workerId);
+	if (expandedWorkerId.value === workerId) {
+		expandedWorkerId.value = null;
+		return;
+	}
+	expandedWorkerId.value = workerId;
+	await loadCredentials(workerId);
 }
 
 function normalizeOptional(value: string): string | undefined {
-  const trimmed = value.trim();
-  return trimmed ? trimmed : undefined;
+	const trimmed = value.trim();
+	return trimmed ? trimmed : undefined;
 }
 
 async function runCredentialAction(
-  workerId: string,
-  opts: { label?: string } = {}
+	workerId: string,
+	opts: { label?: string } = {},
 ) {
-  credentialActionFor.value = workerId;
-  error.value = null;
+	credentialActionFor.value = workerId;
+	error.value = null;
 
-  try {
-    const label = normalizeOptional(opts.label ?? "");
-    const result = await issueWorkerCredential(workerId, { label });
+	try {
+		const label = normalizeOptional(opts.label ?? "");
+		const result = await issueWorkerCredential(workerId, { label });
 
-    revealedSecret.value = { workerId, secret: result.secret };
-    await loadCredentials(workerId, true);
-  } catch (e: unknown) {
-    const message = toErrorMessage(e);
-    if (message.includes("already has an active credential")) {
-      error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
-    } else {
-      error.value = message;
-    }
-  } finally {
-    credentialActionFor.value = null;
-  }
+		revealedSecret.value = { workerId, secret: result.secret };
+		await loadCredentials(workerId, true);
+	} catch (e: unknown) {
+		const message = toErrorMessage(e);
+		if (message.includes("already has an active credential")) {
+			error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
+		} else {
+			error.value = message;
+		}
+	} finally {
+		credentialActionFor.value = null;
+	}
 }
 
 async function onIssueCredential(workerId: string) {
-  if (hasActiveCredential(workerId)) {
-    error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
-    return;
-  }
-  await runCredentialAction(workerId);
+	if (hasActiveCredential(workerId)) {
+		error.value = `Worker ${workerId} already has an active credential. Revoke it in Manage Worker, then issue again.`;
+		return;
+	}
+	await runCredentialAction(workerId);
 }
 
 async function runBootstrapIssue() {
-  const workerId = bootstrapWorkerId.value.trim();
-  if (!workerId) {
-    error.value = "Worker ID is required to issue a credential.";
-    return;
-  }
+	const workerId = bootstrapWorkerId.value.trim();
+	if (!workerId) {
+		error.value = "Worker ID is required to issue a credential.";
+		return;
+	}
 
-  bootstrapBusy.value = true;
-  try {
-    await runCredentialAction(workerId, {
-      label: normalizeOptional(bootstrapLabel.value),
-    });
-    showBootstrap.value = false;
-    await loadWorkers({ background: true });
-  } finally {
-    bootstrapBusy.value = false;
-  }
+	bootstrapBusy.value = true;
+	try {
+		await runCredentialAction(workerId, {
+			label: normalizeOptional(bootstrapLabel.value),
+		});
+		showBootstrap.value = false;
+		await loadWorkers({ background: true });
+	} finally {
+		bootstrapBusy.value = false;
+	}
 }
 
 async function onBootstrapIssue() {
-  await runBootstrapIssue();
+	await runBootstrapIssue();
 }
 
 async function onRevokeCredential(workerId: string, credentialId: string) {
-  if (!confirm(`Revoke credential ${credentialId}?`)) return;
+	if (!confirm(`Revoke credential ${credentialId}?`)) return;
 
-  credentialActionFor.value = workerId;
-  try {
-    await revokeWorkerCredential(workerId, credentialId);
-    await loadCredentials(workerId, true);
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    credentialActionFor.value = null;
-  }
+	credentialActionFor.value = workerId;
+	try {
+		await revokeWorkerCredential(workerId, credentialId);
+		await loadCredentials(workerId, true);
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		credentialActionFor.value = null;
+	}
 }
 
 function fallbackCopyText(value: string): boolean {
-  try {
-    const area = document.createElement("textarea");
-    area.value = value;
-    area.setAttribute("readonly", "true");
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    area.style.pointerEvents = "none";
-    document.body.appendChild(area);
-    area.focus();
-    area.select();
-    const copied = document.execCommand("copy");
-    document.body.removeChild(area);
-    return copied;
-  } catch {
-    return false;
-  }
+	try {
+		const area = document.createElement("textarea");
+		area.value = value;
+		area.setAttribute("readonly", "true");
+		area.style.position = "fixed";
+		area.style.opacity = "0";
+		area.style.pointerEvents = "none";
+		document.body.appendChild(area);
+		area.focus();
+		area.select();
+		const copied = document.execCommand("copy");
+		document.body.removeChild(area);
+		return copied;
+	} catch {
+		return false;
+	}
 }
 
 async function copyText(value: string, key: "secret" | "write" | "config") {
-  copyMessage.value = null;
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-    } else if (!fallbackCopyText(value)) {
-      throw new Error("Clipboard unavailable");
-    }
-    copyState.value = key;
-    setTimeout(() => {
-      if (copyState.value === key) copyState.value = null;
-    }, 1500);
-  } catch {
-    const copied = fallbackCopyText(value);
-    if (copied) {
-      copyState.value = key;
-      copyMessage.value = "Copied using fallback clipboard mode.";
-      setTimeout(() => {
-        if (copyState.value === key) copyState.value = null;
-        copyMessage.value = null;
-      }, 2000);
-    } else {
-      copyMessage.value =
-        "Copy failed. Select text manually and press Cmd/Ctrl+C.";
-    }
-  }
+	copyMessage.value = null;
+	try {
+		if (navigator.clipboard?.writeText) {
+			await navigator.clipboard.writeText(value);
+		} else if (!fallbackCopyText(value)) {
+			throw new Error("Clipboard unavailable");
+		}
+		copyState.value = key;
+		setTimeout(() => {
+			if (copyState.value === key) copyState.value = null;
+		}, 1500);
+	} catch {
+		const copied = fallbackCopyText(value);
+		if (copied) {
+			copyState.value = key;
+			copyMessage.value = "Copied using fallback clipboard mode.";
+			setTimeout(() => {
+				if (copyState.value === key) copyState.value = null;
+				copyMessage.value = null;
+			}, 2000);
+		} else {
+			copyMessage.value =
+				"Copy failed. Select text manually and press Cmd/Ctrl+C.";
+		}
+	}
 }
 
 async function copySecretValue() {
-  if (!revealedSecret.value) return;
-  await copyText(revealedSecret.value.secret, "secret");
+	if (!revealedSecret.value) return;
+	await copyText(revealedSecret.value.secret, "secret");
 }
 
 async function copyWriteSecretCommand() {
-  if (!revealedSecret.value) return;
-  await copyText(secretWriteSnippet(revealedSecret.value.secret), "write");
+	if (!revealedSecret.value) return;
+	await copyText(secretWriteSnippet(revealedSecret.value.secret), "write");
 }
 
 async function copyDaemonConfig() {
-  if (!revealedSecret.value) return;
-  await copyText(daemonConfigSnippet(revealedSecret.value.workerId), "config");
+	if (!revealedSecret.value) return;
+	await copyText(daemonConfigSnippet(revealedSecret.value.workerId), "config");
 }
 
 function dismissRevealedSecret() {
-  revealedSecret.value = null;
-  copyState.value = null;
-  copyMessage.value = null;
+	revealedSecret.value = null;
+	copyState.value = null;
+	copyMessage.value = null;
 }
 
 function secretWriteSnippet(secret: string): string {
-  return `printf '%s' '${secret}' > .secret && chmod 600 .secret`;
+	return `printf '%s' '${secret}' > .secret && chmod 600 .secret`;
 }
 
 function daemonConfigSnippet(workerId: string): string {
-  return [
-    "emx2:",
-    '  base_url: "https://emx2.example.org"',
-    `  worker_id: "${workerId}"`,
-    '  worker_secret_file: ".secret"',
-  ].join("\n");
+	return [
+		"emx2:",
+		'  base_url: "https://emx2.example.org"',
+		`  worker_id: "${workerId}"`,
+		'  worker_secret_file: ".secret"',
+	].join("\n");
 }
 
 async function onDeleteWorker(workerId: string) {
-  if (
-    !confirm(
-      `Remove worker "${workerId}"? Jobs assigned to this worker will retain their history.`
-    )
-  ) {
-    return;
-  }
+	if (
+		!confirm(
+			`Remove worker "${workerId}"? Jobs assigned to this worker will retain their history.`,
+		)
+	) {
+		return;
+	}
 
-  deletingWorker.value = workerId;
-  try {
-    await deleteWorker(workerId);
-    await loadWorkers();
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    deletingWorker.value = null;
-  }
+	deletingWorker.value = workerId;
+	try {
+		await deleteWorker(workerId);
+		await loadWorkers();
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		deletingWorker.value = null;
+	}
 }
 
 async function loadWorkers({
-  background = false,
-}: { background?: boolean } = {}) {
-  if (!initialLoadDone && !background) loading.value = true;
-  if (background) refreshing.value = true;
-  if (!background) error.value = null;
+	background = false,
+}: {
+	background?: boolean;
+} = {}) {
+	if (!initialLoadDone && !background) loading.value = true;
+	if (background) refreshing.value = true;
+	if (!background) error.value = null;
 
-  try {
-    const fetched = await fetchWorkers();
-    mergeWorkers(fetched);
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    if (!initialLoadDone) {
-      loading.value = false;
-      initialLoadDone = true;
-    }
-    if (background) refreshing.value = false;
-  }
+	try {
+		const fetched = await fetchWorkers();
+		mergeWorkers(fetched);
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		if (!initialLoadDone) {
+			loading.value = false;
+			initialLoadDone = true;
+		}
+		if (background) refreshing.value = false;
+	}
 }
 
 onMounted(() => {
-  loadWorkers();
-  refreshInterval = setInterval(() => loadWorkers({ background: true }), 15000);
+	loadWorkers();
+	refreshInterval = setInterval(() => loadWorkers({ background: true }), 15000);
 });
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval);
+	if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>

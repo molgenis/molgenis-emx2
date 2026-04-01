@@ -45,28 +45,28 @@
 import { computed } from "vue";
 
 const props = defineProps<{
-  currentPage: number;
-  totalPages: number;
+	currentPage: number;
+	totalPages: number;
 }>();
 
 const emit = defineEmits<(e: "update", page: number) => void>();
 
 const safeTotalPages = computed(() => {
-  const parsed = Number(props.totalPages);
-  if (!Number.isFinite(parsed)) return 1;
-  return Math.max(1, Math.floor(parsed));
+	const parsed = Number(props.totalPages);
+	if (!Number.isFinite(parsed)) return 1;
+	return Math.max(1, Math.floor(parsed));
 });
 
 const safeCurrentPage = computed(() => {
-  const parsed = Number(props.currentPage);
-  if (!Number.isFinite(parsed)) return 1;
-  return Math.min(safeTotalPages.value, Math.max(1, Math.floor(parsed)));
+	const parsed = Number(props.currentPage);
+	if (!Number.isFinite(parsed)) return 1;
+	return Math.min(safeTotalPages.value, Math.max(1, Math.floor(parsed)));
 });
 
 function goToPage(page: number) {
-  const target = Math.min(safeTotalPages.value, Math.max(1, Math.floor(page)));
-  if (target !== safeCurrentPage.value) {
-    emit("update", target);
-  }
+	const target = Math.min(safeTotalPages.value, Math.max(1, Math.floor(page)));
+	if (target !== safeCurrentPage.value) {
+		emit("update", target);
+	}
 }
 </script>

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { useHead } from "#app";
+
 useHead({
-  htmlAttrs: {
-    lang: "en-GB",
-  },
+	htmlAttrs: {
+		lang: "en-GB",
+	},
 });
 </script>
 

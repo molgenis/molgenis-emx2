@@ -158,9 +158,7 @@ class TestShellBackendQueryStatus:
         ep = tmp_path / "slow.sh"
         ep.write_text("#!/bin/bash\nsleep 30\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["slow:default"] = ProfileEntry(
-            host_entrypoint=str(ep)
-        )
+        shell_config.profiles["slow:default"] = ProfileEntry(host_entrypoint=str(ep))
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-slow", "processor": "slow", "profile": "default"}
@@ -178,9 +176,7 @@ class TestShellBackendQueryStatus:
         ep = tmp_path / "slow2.sh"
         ep.write_text("#!/bin/bash\nsleep 30\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["slow2:default"] = ProfileEntry(
-            host_entrypoint=str(ep)
-        )
+        shell_config.profiles["slow2:default"] = ProfileEntry(host_entrypoint=str(ep))
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-slow2", "processor": "slow2", "profile": "default"}
@@ -231,9 +227,7 @@ class TestShellBackendCancel:
         ep = tmp_path / "long.sh"
         ep.write_text("#!/bin/bash\nsleep 60\n")
         ep.chmod(ep.stat().st_mode | stat.S_IEXEC)
-        shell_config.profiles["long:default"] = ProfileEntry(
-            host_entrypoint=str(ep)
-        )
+        shell_config.profiles["long:default"] = ProfileEntry(host_entrypoint=str(ep))
 
         backend = ShellBackend(shell_config)
         job = {"id": "job-cancel", "processor": "long", "profile": "default"}

@@ -89,95 +89,94 @@
 </template>
 
 <script setup lang="ts">
-import { useHead } from "#app";
-import { useState } from "#app";
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import type { ISession } from "../../../tailwind-components/types/types";
+import { useHead, useState } from "#app";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
 import Logo from "../../../tailwind-components/app/components/Logo.vue";
 import LogoMobile from "../../../tailwind-components/app/components/LogoMobile.vue";
 import Navigation from "../../../tailwind-components/app/components/Navigation.vue";
-import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
+import { useSession } from "../../../tailwind-components/app/composables/useSession";
+import type { ISession } from "../../../tailwind-components/types/types";
 import { fetchHpcHealth } from "../composables/useHpcApi";
 
 const session = useState<ISession | null>("session", () => null);
 const sessionClient = ref<Awaited<ReturnType<typeof useSession>> | null>(null);
 const route = useRoute();
 const isLoginPage = computed(() => {
-  const normalizedPath = route.path.replace(/\/+$/, "") || "/";
-  return normalizedPath === "/login";
+	const normalizedPath = route.path.replace(/\/+$/, "") || "/";
+	return normalizedPath === "/login";
 });
 
 useHead({
-  titleTemplate: (titleChunk: string | undefined): string | null => {
-    return titleChunk ? `${titleChunk} | HPC Dashboard` : "HPC Dashboard";
-  },
+	titleTemplate: (titleChunk: string | undefined): string | null => {
+		return titleChunk ? `${titleChunk} | HPC Dashboard` : "HPC Dashboard";
+	},
 });
 
 const isSignedIn = computed(
-  () => !!session.value?.email && session.value?.email !== "anonymous"
+	() => !!session.value?.email && session.value?.email !== "anonymous",
 );
 
 const hpcStatus = ref<"loading" | "ok" | "not_configured" | "unavailable">(
-  "loading"
+	"loading",
 );
 
 async function ensureSessionClient() {
-  if (sessionClient.value) return sessionClient.value;
-  try {
-    sessionClient.value = await useSession();
-    return sessionClient.value;
-  } catch (e) {
-    console.error("Failed to initialize session:", e);
-    session.value = null;
-    return null;
-  }
+	if (sessionClient.value) return sessionClient.value;
+	try {
+		sessionClient.value = await useSession();
+		return sessionClient.value;
+	} catch (e) {
+		console.error("Failed to initialize session:", e);
+		session.value = null;
+		return null;
+	}
 }
 
 async function handleSignOut() {
-  const client = await ensureSessionClient();
-  if (!client) {
-    return;
-  }
-  await client.signOut();
+	const client = await ensureSessionClient();
+	if (!client) {
+		return;
+	}
+	await client.signOut();
 }
 
 async function checkHealth() {
-  try {
-    const health = await fetchHpcHealth();
-    if (!health) {
-      hpcStatus.value = "unavailable";
-    } else if (!health.hpc_enabled) {
-      hpcStatus.value = "not_configured";
-    } else {
-      hpcStatus.value = "ok";
-    }
-  } catch {
-    hpcStatus.value = "unavailable";
-  }
+	try {
+		const health = await fetchHpcHealth();
+		if (!health) {
+			hpcStatus.value = "unavailable";
+		} else if (!health.hpc_enabled) {
+			hpcStatus.value = "not_configured";
+		} else {
+			hpcStatus.value = "ok";
+		}
+	} catch {
+		hpcStatus.value = "unavailable";
+	}
 }
 
 watch(
-  isSignedIn,
-  (val) => {
-    if (val) checkHealth();
-  },
-  { immediate: true }
+	isSignedIn,
+	(val) => {
+		if (val) checkHealth();
+	},
+	{ immediate: true },
 );
 
 const navigation = computed(() => [
-  { label: "Jobs", link: "/" },
-  { label: "Workers", link: "/workers" },
-  { label: "Artifacts", link: "/artifacts" },
+	{ label: "Jobs", link: "/" },
+	{ label: "Workers", link: "/workers" },
+	{ label: "Artifacts", link: "/artifacts" },
 ]);
 
 onMounted(() => {
-  void ensureSessionClient();
+	void ensureSessionClient();
 });
 </script>
 

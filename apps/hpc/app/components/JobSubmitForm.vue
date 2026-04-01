@@ -125,52 +125,40 @@
           </p>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-record-label mb-1"
-            >Available Artifacts</label
-          >
-          <div class="flex gap-2">
-            <InputSelect
-              id="job-submit-input-artifacts"
-              v-model="selectedArtifact"
-              class="flex-1"
-              :options="artifactOptions"
-              placeholder="Select a committed artifact..."
-            />
-            <Button
-              type="outline"
-              size="small"
-              :disabled="!selectedArtifact"
-              @click="addArtifact"
-            >
-              Add
-            </Button>
-          </div>
-          <p class="text-xs text-definition-list-term mt-1">
-            Selected artifacts are shown by name and sent by ID in the
-            submission payload order.
-          </p>
-        </div>
+        <Button type="outline" size="small" @click="showArtifactPicker = true">
+          + Add Artifact
+        </Button>
 
-        <div v-if="form.inputs.length" class="mt-2">
-          <ul class="flex flex-wrap gap-2">
-            <li
-              v-for="(id, idx) in form.inputs"
-              :key="id"
-              class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-content text-sm text-title"
-            >
-              <span>{{ artifactChipLabel(id) }}</span>
-              <Button
-                type="text"
-                size="tiny"
-                icon="cross"
-                :icon-only="true"
-                :aria-label="`Remove artifact ${artifactChipLabel(id)}`"
-                :label="`Remove artifact ${artifactChipLabel(id)}`"
-                @click="form.inputs.splice(idx, 1)"
-              />
-            </li>
-          </ul>
+        <ArtifactPickerModal
+          v-model:visible="showArtifactPicker"
+          :already-selected="form.inputs"
+          @confirm="onArtifactsConfirmed"
+        />
+
+        <div v-if="form.inputs.length" class="mt-3 space-y-2">
+          <div
+            v-for="(id, idx) in form.inputs"
+            :key="id"
+            class="flex items-center justify-between p-3 rounded-lg border border-color-theme bg-content"
+          >
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-title truncate">
+                {{ artifactDisplayName(id) }}
+              </p>
+              <p class="text-xs text-definition-list-term">
+                {{ artifactDisplayMeta(id) }}
+              </p>
+            </div>
+            <Button
+              type="text"
+              size="tiny"
+              icon="cross"
+              :icon-only="true"
+              :aria-label="`Remove artifact ${artifactDisplayName(id)}`"
+              :label="`Remove artifact ${artifactDisplayName(id)}`"
+              @click="form.inputs.splice(idx, 1)"
+            />
+          </div>
         </div>
         <p v-else class="text-xs text-definition-list-term mt-1">
           No input artifacts selected.
@@ -192,163 +180,175 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from "vue";
-import {
-  submitJob,
-  fetchArtifacts,
-  fetchCapabilities,
-} from "../composables/useHpcApi";
-import type { NormalizedArtifact } from "../composables/useArtifactsApi";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
-import Message from "../../../tailwind-components/app/components/Message.vue";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import InputTextArea from "../../../tailwind-components/app/components/input/TextArea.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import type { NormalizedArtifact } from "../composables/useArtifactsApi";
+import {
+	fetchArtifacts,
+	fetchCapabilities,
+	submitJob,
+} from "../composables/useHpcApi";
+import ArtifactPickerModal from "./ArtifactPickerModal.vue";
 
 const emit = defineEmits(["submitted", "close"]);
 
 const form = reactive({
-  processor: "",
-  profile: "",
-  parametersJson: "",
-  timeoutSeconds: null as number | null,
-  inputs: [] as string[],
+	processor: "",
+	profile: "",
+	parametersJson: "",
+	timeoutSeconds: null as number | null,
+	inputs: [] as string[],
 });
 const error = ref<string | null>(null);
 const submitting = ref(false);
-const selectedArtifact = ref("");
+const showArtifactPicker = ref(false);
 type SubmitJobPayload = {
-  processor: string;
-  profile?: string;
-  parameters: unknown;
-  inputs?: string[];
-  timeout_seconds?: number;
+	processor: string;
+	profile?: string;
+	parameters: unknown;
+	inputs?: string[];
+	timeout_seconds?: number;
 };
 
 const availableArtifacts = ref<NormalizedArtifact[]>([]);
 const capabilities = ref<{ processor: string; profile: string }[]>([]);
 
 const processors = computed(() => [
-  ...new Set(capabilities.value.map((c) => c.processor)),
+	...new Set(capabilities.value.map((c) => c.processor)),
 ]);
 const profiles = computed(() => {
-  if (!form.processor) return [];
-  return [
-    ...new Set(
-      capabilities.value
-        .filter((c) => c.processor === form.processor)
-        .map((c) => c.profile)
-    ),
-  ];
+	if (!form.processor) return [];
+	return [
+		...new Set(
+			capabilities.value
+				.filter((c) => c.processor === form.processor)
+				.map((c) => c.profile),
+		),
+	];
 });
 
 const timeoutSecondsStr = computed({
-  get: () =>
-    form.timeoutSeconds != null ? String(form.timeoutSeconds) : "",
-  set: (val: string) => {
-    const trimmed = val.trim();
-    if (!trimmed) {
-      form.timeoutSeconds = null;
-    } else {
-      const n = parseInt(trimmed, 10);
-      form.timeoutSeconds = Number.isNaN(n) ? null : n;
-    }
-  },
+	get: () => (form.timeoutSeconds != null ? String(form.timeoutSeconds) : ""),
+	set: (val: string) => {
+		const trimmed = val.trim();
+		if (!trimmed) {
+			form.timeoutSeconds = null;
+		} else {
+			const n = parseInt(trimmed, 10);
+			form.timeoutSeconds = Number.isNaN(n) ? null : n;
+		}
+	},
 });
 
-const artifactOptions = computed(() =>
-  availableArtifacts.value.map((a) => ({
-    value: a.id,
-    label: `${a.name || a.id?.substring(0, 8)}${a.type ? ` (${a.type})` : ""}`,
-  }))
-);
+function onArtifactsConfirmed(artifacts: NormalizedArtifact[]) {
+	for (const a of artifacts) {
+		if (!form.inputs.includes(a.id)) {
+			form.inputs.push(a.id);
+		}
+		if (!availableArtifacts.value.find((x) => x.id === a.id)) {
+			availableArtifacts.value.push(a);
+		}
+	}
+	showArtifactPicker.value = false;
+}
+
+function artifactDisplayName(id: string): string {
+	const a = availableArtifacts.value.find((x) => x.id === id);
+	return a?.name || id.substring(0, 8);
+}
+
+function artifactDisplayMeta(id: string): string {
+	const a = availableArtifacts.value.find((x) => x.id === id);
+	if (!a) return "";
+	const parts: string[] = [];
+	if (a.type) parts.push(a.type);
+	if (a.size_bytes) parts.push(formatSize(Number(a.size_bytes)));
+	if (a.committed_at) parts.push(new Date(a.committed_at).toLocaleDateString());
+	return parts.join(" \u00b7 ");
+}
+
+function formatSize(bytes: number): string {
+	const n = Number(bytes || 0);
+	if (n < 1024) return `${n} B`;
+	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+	if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+	return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
 
 watch(
-  () => form.processor,
-  () => {
-    if (profiles.value.length && !profiles.value.includes(form.profile)) {
-      form.profile = "";
-    }
-  }
+	() => form.processor,
+	() => {
+		if (profiles.value.length && !profiles.value.includes(form.profile)) {
+			form.profile = "";
+		}
+	},
 );
 
-function addArtifact() {
-  if (
-    selectedArtifact.value &&
-    !form.inputs.includes(selectedArtifact.value)
-  ) {
-    form.inputs.push(selectedArtifact.value);
-  }
-  selectedArtifact.value = "";
-}
-
-function artifactChipLabel(id: string): string {
-  const artifact = availableArtifacts.value.find((a) => a.id === id);
-  if (!artifact) return id?.substring(0, 8) || id || "-";
-  return artifact.name || artifact.id?.substring(0, 8) || "-";
-}
-
 async function loadArtifacts() {
-  try {
-    const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
-    availableArtifacts.value = result.items;
-  } catch {
-    // silently ignore — artifact selection is optional
-  }
+	try {
+		const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
+		availableArtifacts.value = result.items;
+	} catch {
+		// silently ignore — artifact selection is optional
+	}
 }
 
 async function loadCapabilities() {
-  try {
-    capabilities.value = await fetchCapabilities();
-  } catch {
-    // silently ignore — falls back to free-text inputs
-  }
+	try {
+		capabilities.value = await fetchCapabilities();
+	} catch {
+		// silently ignore — falls back to free-text inputs
+	}
 }
 
 async function handleSubmit() {
-  error.value = null;
-  if (!form.processor.trim()) {
-    error.value = "Processor is required.";
-    return;
-  }
-  let parameters = null;
-  if (form.parametersJson.trim()) {
-    try {
-      parameters = JSON.parse(form.parametersJson);
-    } catch {
-      error.value = "Parameters must be valid JSON.";
-      return;
-    }
-  }
-  submitting.value = true;
-  try {
-    const payload: SubmitJobPayload = {
-      processor: form.processor,
-      profile: form.profile || undefined,
-      parameters,
-    };
-    if (form.inputs.length) {
-      payload.inputs = form.inputs;
-    }
-    if (form.timeoutSeconds != null && form.timeoutSeconds > 0) {
-      payload.timeout_seconds = form.timeoutSeconds;
-    }
-    await submitJob(payload);
-    form.processor = "";
-    form.profile = "";
-    form.parametersJson = "";
-    form.timeoutSeconds = null;
-    form.inputs = [];
-    emit("submitted");
-  } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : "Job submission failed.";
-  } finally {
-    submitting.value = false;
-  }
+	error.value = null;
+	if (!form.processor.trim()) {
+		error.value = "Processor is required.";
+		return;
+	}
+	let parameters = null;
+	if (form.parametersJson.trim()) {
+		try {
+			parameters = JSON.parse(form.parametersJson);
+		} catch {
+			error.value = "Parameters must be valid JSON.";
+			return;
+		}
+	}
+	submitting.value = true;
+	try {
+		const payload: SubmitJobPayload = {
+			processor: form.processor,
+			profile: form.profile || undefined,
+			parameters,
+		};
+		if (form.inputs.length) {
+			payload.inputs = form.inputs;
+		}
+		if (form.timeoutSeconds != null && form.timeoutSeconds > 0) {
+			payload.timeout_seconds = form.timeoutSeconds;
+		}
+		await submitJob(payload);
+		form.processor = "";
+		form.profile = "";
+		form.parametersJson = "";
+		form.timeoutSeconds = null;
+		form.inputs = [];
+		emit("submitted");
+	} catch (e: unknown) {
+		error.value = e instanceof Error ? e.message : "Job submission failed.";
+	} finally {
+		submitting.value = false;
+	}
 }
 
 onMounted(() => {
-  loadArtifacts();
-  loadCapabilities();
+	loadArtifacts();
+	loadCapabilities();
 });
 </script>

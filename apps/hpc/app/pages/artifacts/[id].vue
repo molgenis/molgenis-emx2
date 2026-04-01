@@ -324,23 +324,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRoute, navigateTo } from "#app/composables/router";
-import {
-  fetchArtifactDetail,
-  fetchArtifactSummary,
-  downloadArtifactFile,
-  deleteArtifact,
-} from "../../composables/useHpcApi";
-import type {
-  ArtifactFileRow,
-  ArtifactSummary,
-  NormalizedArtifact,
-} from "../../composables/useArtifactsApi";
-import { formatDate } from "../../utils/jobs";
+import { computed, onMounted, ref } from "vue";
+import { navigateTo, useRoute } from "#app/composables/router";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../../components/HpcPill.vue";
+import type {
+	ArtifactFileRow,
+	ArtifactSummary,
+	NormalizedArtifact,
+} from "../../composables/useArtifactsApi";
+import {
+	deleteArtifact,
+	downloadArtifactFile,
+	fetchArtifactDetail,
+	fetchArtifactSummary,
+} from "../../composables/useHpcApi";
+import { formatDate } from "../../utils/jobs";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);
@@ -353,115 +353,122 @@ const error = ref<string | null>(null);
 const deleting = ref(false);
 
 const PROVENANCE_KEYS = new Set([
-  "job_id",
-  "processor",
-  "profile",
-  "worker_id",
-  "artifact_role",
-  "created_by",
-  "input_artifact_ids",
-  "parameters_hash",
+	"job_id",
+	"processor",
+	"profile",
+	"worker_id",
+	"artifact_role",
+	"created_by",
+	"input_artifact_ids",
+	"parameters_hash",
 ]);
 
 function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+	return error instanceof Error
+		? error.message
+		: String(error ?? "Unknown error");
 }
 
 const provenance = computed(() => {
-  const meta = artifact.value?.metadata;
-  if (!meta || typeof meta !== "object" || !meta.job_id) return null;
-  return meta;
+	const meta = artifact.value?.metadata;
+	if (!meta || typeof meta !== "object" || !meta.job_id) return null;
+	return meta;
 });
 
 const extraMetadata = computed(() => {
-  const meta = artifact.value?.metadata;
-  if (!meta || typeof meta !== "object") return meta;
-  const extra: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(meta)) {
-    if (!PROVENANCE_KEYS.has(k)) extra[k] = v;
-  }
-  return extra;
+	const meta = artifact.value?.metadata;
+	if (!meta || typeof meta !== "object") return meta;
+	const extra: Record<string, unknown> = {};
+	for (const [k, v] of Object.entries(meta)) {
+		if (!PROVENANCE_KEYS.has(k)) extra[k] = v;
+	}
+	return extra;
 });
 
 const hasExtraMetadata = computed(() => {
-  const extra = extraMetadata.value;
-  if (!extra) return false;
-  if (typeof extra === "object") return Object.keys(extra).length > 0;
-  return true;
+	const extra = extraMetadata.value;
+	if (!extra) return false;
+	if (typeof extra === "object") return Object.keys(extra).length > 0;
+	return true;
 });
 
 function shortId(idVal: string): string {
-  return idVal?.substring?.(0, 8) || idVal || "-";
+	return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
 function inputArtifactChipLabel(input: ArtifactSummary | null): string {
-  if (!input) return "-";
-  if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
-  if (input.name) return input.name;
-  if (input.id) return shortId(input.id);
-  return "-";
+	if (!input) return "-";
+	if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
+	if (input.name) return input.name;
+	if (input.id) return shortId(input.id);
+	return "-";
 }
 
 function formatSize(bytes: number | null | undefined): string {
-  if (bytes == null) return "-";
-  const n = Number(bytes);
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+	if (bytes == null) return "-";
+	const n = Number(bytes);
+	if (n < 1024) return `${n} B`;
+	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+	return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function formatJson(val: unknown): string {
-  if (!val) return "";
-  if (typeof val === "string") {
-    try {
-      return JSON.stringify(JSON.parse(val), null, 2);
-    } catch {
-      return val;
-    }
-  }
-  return JSON.stringify(val, null, 2);
+	if (!val) return "";
+	if (typeof val === "string") {
+		try {
+			return JSON.stringify(JSON.parse(val), null, 2);
+		} catch {
+			return val;
+		}
+	}
+	return JSON.stringify(val, null, 2);
 }
 
 async function onDownload(filePath: string) {
-  try {
-    await downloadArtifactFile(id.value, filePath);
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  }
+	try {
+		await downloadArtifactFile(id.value, filePath);
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	}
 }
 
 async function onDelete() {
-  if (!confirm(`Delete artifact ${id.value}?`)) return;
-  deleting.value = true;
-  try {
-    await deleteArtifact(id.value);
-    navigateTo("/artifacts");
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    deleting.value = false;
-  }
+	if (!confirm(`Delete artifact ${id.value}?`)) return;
+	deleting.value = true;
+	try {
+		await deleteArtifact(id.value);
+		navigateTo("/artifacts");
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		deleting.value = false;
+	}
 }
 
 onMounted(async () => {
-  try {
-    const result = await fetchArtifactDetail(id.value);
-    artifact.value = result.artifact;
-    files.value = result.files;
+	try {
+		const result = await fetchArtifactDetail(id.value);
+		artifact.value = result.artifact;
+		files.value = result.files;
 
-    const inputIds = Array.isArray(result.artifact?.metadata?.input_artifact_ids)
-      ? result.artifact.metadata.input_artifact_ids.filter(
-          (value: unknown): value is string =>
-            typeof value === "string" && value.trim().length > 0
-        )
-      : [];
-    provenanceInputArtifacts.value = await Promise.all(
-      inputIds.map(async (inputId) => (await fetchArtifactSummary(inputId)) ?? { id: inputId })
-    );
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    loading.value = false;
-  }
+		const inputIds = Array.isArray(
+			result.artifact?.metadata?.input_artifact_ids,
+		)
+			? result.artifact.metadata.input_artifact_ids.filter(
+					(value: unknown): value is string =>
+						typeof value === "string" && value.trim().length > 0,
+				)
+			: [];
+		provenanceInputArtifacts.value = await Promise.all(
+			inputIds.map(
+				async (inputId) =>
+					(await fetchArtifactSummary(inputId)) ?? { id: inputId },
+			),
+		);
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		loading.value = false;
+	}
 });
 </script>

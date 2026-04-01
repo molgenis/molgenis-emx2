@@ -350,19 +350,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRoute } from "#app/composables/router";
-import { fetchJobDetail, deleteJob } from "../../composables/useHpcApi";
-import type {
-  NormalizedJob,
-  NormalizedTransition,
-} from "../../composables/useJobsApi";
-import { formatDate, formatProgressPercent } from "../../utils/jobs";
-import { isTerminal } from "../../utils/protocol";
-import { navigateTo } from "#app/composables/router";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { navigateTo, useRoute } from "#app/composables/router";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../../components/HpcPill.vue";
+import { deleteJob, fetchJobDetail } from "../../composables/useHpcApi";
+import type {
+	NormalizedJob,
+	NormalizedTransition,
+} from "../../composables/useJobsApi";
+import { formatDate, formatProgressPercent } from "../../utils/jobs";
+import { isTerminal } from "../../utils/protocol";
 
 const route = useRoute();
 const id = computed(() => route.params.id as string);
@@ -379,128 +378,135 @@ const DETAIL_PREVIEW_LIMIT = 180;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+	return error instanceof Error
+		? error.message
+		: String(error ?? "Unknown error");
 }
 
 const normalizedInputs = computed(() => {
-  const inputs = job.value?.inputs;
-  if (!inputs) return [];
-  if (Array.isArray(inputs)) {
-    return inputs.map((item) => normalizeInputArtifact(item));
-  }
-  if (typeof inputs === "object") {
-    return Object.entries(inputs)
-      .filter(([, value]) => typeof value === "string")
-      .map(([name, value]) => ({ id: value as string, name }));
-  }
-  return [];
+	const inputs = job.value?.inputs;
+	if (!inputs) return [];
+	if (Array.isArray(inputs)) {
+		return inputs.map((item) => normalizeInputArtifact(item));
+	}
+	if (typeof inputs === "object") {
+		return Object.entries(inputs)
+			.filter(([, value]) => typeof value === "string")
+			.map(([name, value]) => ({ id: value as string, name }));
+	}
+	return [];
 });
 
 function normalizeInputArtifact(input: unknown): JobInputRef {
-  if (typeof input === "string") return { id: input };
-  if (!input || typeof input !== "object") return {};
+	if (typeof input === "string") return { id: input };
+	if (!input || typeof input !== "object") return {};
 
-  const artifactInput = input as { artifact_id?: unknown; id?: unknown; name?: unknown };
-  const directId = artifactInput.artifact_id || artifactInput.id;
+	const artifactInput = input as {
+		artifact_id?: unknown;
+		id?: unknown;
+		name?: unknown;
+	};
+	const directId = artifactInput.artifact_id || artifactInput.id;
 
-  if (typeof directId === "string") {
-    return {
-      id: directId,
-      name: typeof artifactInput.name === "string" ? artifactInput.name : undefined,
-    };
-  }
-  return {};
+	if (typeof directId === "string") {
+		return {
+			id: directId,
+			name:
+				typeof artifactInput.name === "string" ? artifactInput.name : undefined,
+		};
+	}
+	return {};
 }
 
 async function onDelete() {
-  if (!confirm(`Delete job ${id.value}?`)) return;
-  deleting.value = true;
-  try {
-    await deleteJob(id.value);
-    navigateTo("/");
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    deleting.value = false;
-  }
+	if (!confirm(`Delete job ${id.value}?`)) return;
+	deleting.value = true;
+	try {
+		await deleteJob(id.value);
+		navigateTo("/");
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		deleting.value = false;
+	}
 }
 
 function shortId(idVal: string): string {
-  return idVal?.substring?.(0, 8) || idVal || "-";
+	return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
 function inputArtifactChipLabel(input: JobInputRef): string {
-  if (!input) return "-";
-  if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
-  if (input.name) return input.name;
-  if (input.id) return shortId(input.id);
-  return "-";
+	if (!input) return "-";
+	if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
+	if (input.name) return input.name;
+	if (input.id) return shortId(input.id);
+	return "-";
 }
 
 function formatJson(val: unknown): string {
-  if (!val) return "";
-  if (typeof val === "string") {
-    try {
-      return JSON.stringify(JSON.parse(val), null, 2);
-    } catch {
-      return val;
-    }
-  }
-  return JSON.stringify(val, null, 2);
+	if (!val) return "";
+	if (typeof val === "string") {
+		try {
+			return JSON.stringify(JSON.parse(val), null, 2);
+		} catch {
+			return val;
+		}
+	}
+	return JSON.stringify(val, null, 2);
 }
 
 function canExpandDetail(detail?: string | null): boolean {
-  return typeof detail === "string" && detail.length > DETAIL_PREVIEW_LIMIT;
+	return typeof detail === "string" && detail.length > DETAIL_PREVIEW_LIMIT;
 }
 
 function isDetailExpanded(transitionId: string): boolean {
-  return !!expandedTransitionDetails.value[transitionId];
+	return !!expandedTransitionDetails.value[transitionId];
 }
 
 function toggleDetail(transitionId: string): void {
-  expandedTransitionDetails.value[transitionId] =
-    !expandedTransitionDetails.value[transitionId];
+	expandedTransitionDetails.value[transitionId] =
+		!expandedTransitionDetails.value[transitionId];
 }
 
 function displayDetail(transition: NormalizedTransition): string {
-  const detail = transition?.detail || "-";
-  if (!canExpandDetail(detail) || isDetailExpanded(transition.id))
-    return detail;
-  return `${detail.slice(0, DETAIL_PREVIEW_LIMIT)}...`;
+	const detail = transition?.detail || "-";
+	if (!canExpandDetail(detail) || isDetailExpanded(transition.id))
+		return detail;
+	return `${detail.slice(0, DETAIL_PREVIEW_LIMIT)}...`;
 }
 
 function hasTransitionProgress(transition: NormalizedTransition): boolean {
-  return (
-    typeof transition?.progress === "number" ||
-    typeof transition?.phase === "string" ||
-    typeof transition?.message === "string"
-  );
+	return (
+		typeof transition?.progress === "number" ||
+		typeof transition?.phase === "string" ||
+		typeof transition?.message === "string"
+	);
 }
 
 function transitionProgressSummary(transition: NormalizedTransition): string {
-  return transition.phase || transition.message || "In progress";
+	return transition.phase || transition.message || "In progress";
 }
 
 async function loadJobDetail() {
-  try {
-    const result = await fetchJobDetail(id.value);
-    job.value = result.job;
-    transitions.value = result.transitions;
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  }
+	try {
+		const result = await fetchJobDetail(id.value);
+		job.value = result.job;
+		transitions.value = result.transitions;
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	}
 }
 
 onMounted(async () => {
-  await loadJobDetail();
-  loading.value = false;
-  refreshInterval = setInterval(async () => {
-    if (!job.value || isTerminal(job.value.status)) return;
-    await loadJobDetail();
-  }, 10000);
+	await loadJobDetail();
+	loading.value = false;
+	refreshInterval = setInterval(async () => {
+		if (!job.value || isTerminal(job.value.status)) return;
+		await loadJobDetail();
+	}, 10000);
 });
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval);
+	if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>

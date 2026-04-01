@@ -277,17 +277,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { navigateTo } from "#app/composables/router";
-import { fetchJobs, deleteJob, cancelJob } from "../composables/useHpcApi";
-import type { NormalizedJob } from "../composables/useJobsApi";
-import { JOB_STATUSES, isTerminal } from "../utils/protocol";
-import { formatDate } from "../utils/jobs";
 import Button from "../../../tailwind-components/app/components/Button.vue";
-import HpcPagination from "../components/HpcPagination.vue";
-import Message from "../../../tailwind-components/app/components/Message.vue";
-import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 import InputCheckboxIcon from "../../../tailwind-components/app/components/input/CheckboxIcon.vue";
+import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import HpcPagination from "../components/HpcPagination.vue";
+import { cancelJob, deleteJob, fetchJobs } from "../composables/useHpcApi";
+import type { NormalizedJob } from "../composables/useJobsApi";
+import { formatDate } from "../utils/jobs";
+import { isTerminal, JOB_STATUSES } from "../utils/protocol";
 
 const statuses = JOB_STATUSES;
 
@@ -312,298 +312,303 @@ const selectAllMatching = ref(false);
 const pageSelectCheckbox = ref<HTMLInputElement | null>(null);
 const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1);
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(totalCount.value / limit.value))
+	Math.max(1, Math.ceil(totalCount.value / limit.value)),
 );
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
 function toErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error ?? "Unknown error");
+	return error instanceof Error
+		? error.message
+		: String(error ?? "Unknown error");
 }
 
 function mergeJobs(nextJobs: NormalizedJob[]) {
-  const previousById = new Map(items.value.map((job) => [job.id, job]));
-  items.value = nextJobs.map((nextJob) => {
-    const previous = previousById.get(nextJob.id);
-    if (!previous) return nextJob;
-    return { ...previous, ...nextJob };
-  });
+	const previousById = new Map(items.value.map((job) => [job.id, job]));
+	items.value = nextJobs.map((nextJob) => {
+		const previous = previousById.get(nextJob.id);
+		if (!previous) return nextJob;
+		return { ...previous, ...nextJob };
+	});
 }
 
 const pageSelectableIds = computed(() =>
-  items.value
-    .filter((job) => isTerminal(job.status))
-    .map((job) => String(job?.id || ""))
-    .filter(Boolean)
+	items.value
+		.filter((job) => isTerminal(job.status))
+		.map((job) => String(job?.id || ""))
+		.filter(Boolean),
 );
 
 const selectedCount = computed(() => {
-  if (selectAllMatching.value) {
-    return Math.max(0, totalSelectableCount.value - excludedIds.value.size);
-  }
-  return selectedIds.value.size;
+	if (selectAllMatching.value) {
+		return Math.max(0, totalSelectableCount.value - excludedIds.value.size);
+	}
+	return selectedIds.value.size;
 });
 
 const hasSelection = computed(() => selectedCount.value > 0);
 
 const scopeLabel = computed(() =>
-  statusFilter.value ? `status=${statusFilter.value}` : "current filter"
+	statusFilter.value ? `status=${statusFilter.value}` : "current filter",
 );
 
 const allPageSelected = computed(() => {
-  if (!pageSelectableIds.value.length) return false;
-  return pageSelectableIds.value.every((id) => isJobSelected(id));
+	if (!pageSelectableIds.value.length) return false;
+	return pageSelectableIds.value.every((id) => isJobSelected(id));
 });
 
 const somePageSelected = computed(() => {
-  if (!pageSelectableIds.value.length) return false;
-  const selectedOnPage = pageSelectableIds.value.filter((id) =>
-    isJobSelected(id)
-  ).length;
-  return selectedOnPage > 0 && selectedOnPage < pageSelectableIds.value.length;
+	if (!pageSelectableIds.value.length) return false;
+	const selectedOnPage = pageSelectableIds.value.filter((id) =>
+		isJobSelected(id),
+	).length;
+	return selectedOnPage > 0 && selectedOnPage < pageSelectableIds.value.length;
 });
 
 const showSelectMoreBanner = computed(
-  () =>
-    !selectAllMatching.value &&
-    allPageSelected.value &&
-    totalSelectableCount.value > pageSelectableIds.value.length
+	() =>
+		!selectAllMatching.value &&
+		allPageSelected.value &&
+		totalSelectableCount.value > pageSelectableIds.value.length,
 );
 
 function isJobSelected(id: string): boolean {
-  if (selectAllMatching.value) return !excludedIds.value.has(id);
-  return selectedIds.value.has(id);
+	if (selectAllMatching.value) return !excludedIds.value.has(id);
+	return selectedIds.value.has(id);
 }
 
 function toggleJobSelection(id: string, checked: boolean) {
-  if (selectAllMatching.value) {
-    const nextExcluded = new Set(excludedIds.value);
-    if (checked) nextExcluded.delete(id);
-    else nextExcluded.add(id);
-    excludedIds.value = nextExcluded;
-    return;
-  }
-  const nextSelected = new Set(selectedIds.value);
-  if (checked) nextSelected.add(id);
-  else nextSelected.delete(id);
-  selectedIds.value = nextSelected;
+	if (selectAllMatching.value) {
+		const nextExcluded = new Set(excludedIds.value);
+		if (checked) nextExcluded.delete(id);
+		else nextExcluded.add(id);
+		excludedIds.value = nextExcluded;
+		return;
+	}
+	const nextSelected = new Set(selectedIds.value);
+	if (checked) nextSelected.add(id);
+	else nextSelected.delete(id);
+	selectedIds.value = nextSelected;
 }
 
 function togglePageSelection(checked: boolean) {
-  if (selectAllMatching.value) {
-    const nextExcluded = new Set(excludedIds.value);
-    for (const id of pageSelectableIds.value) {
-      if (checked) nextExcluded.delete(id);
-      else nextExcluded.add(id);
-    }
-    excludedIds.value = nextExcluded;
-    return;
-  }
-  const nextSelected = new Set(selectedIds.value);
-  for (const id of pageSelectableIds.value) {
-    if (checked) nextSelected.add(id);
-    else nextSelected.delete(id);
-  }
-  selectedIds.value = nextSelected;
+	if (selectAllMatching.value) {
+		const nextExcluded = new Set(excludedIds.value);
+		for (const id of pageSelectableIds.value) {
+			if (checked) nextExcluded.delete(id);
+			else nextExcluded.add(id);
+		}
+		excludedIds.value = nextExcluded;
+		return;
+	}
+	const nextSelected = new Set(selectedIds.value);
+	for (const id of pageSelectableIds.value) {
+		if (checked) nextSelected.add(id);
+		else nextSelected.delete(id);
+	}
+	selectedIds.value = nextSelected;
 }
 
 function selectAllMatchingResults() {
-  selectAllMatching.value = true;
-  selectedIds.value = new Set();
-  excludedIds.value = new Set();
+	selectAllMatching.value = true;
+	selectedIds.value = new Set();
+	excludedIds.value = new Set();
 }
 
 async function onSelectAllMatchingResults() {
-  const ids = await collectAllMatchingJobIds();
-  totalSelectableCount.value = ids.length;
-  selectAllMatchingResults();
+	const ids = await collectAllMatchingJobIds();
+	totalSelectableCount.value = ids.length;
+	selectAllMatchingResults();
 }
 
 function clearSelection() {
-  selectedIds.value = new Set();
-  excludedIds.value = new Set();
-  selectAllMatching.value = false;
+	selectedIds.value = new Set();
+	excludedIds.value = new Set();
+	selectAllMatching.value = false;
 }
 
 async function collectAllMatchingJobIds(): Promise<string[]> {
-  const ids: string[] = [];
-  const pageSize = 200;
-  let cursor = 0;
-  while (true) {
-    const result = await fetchJobs({
-      status: statusFilter.value || undefined,
-      limit: pageSize,
-      offset: cursor,
-    });
-    if (!result.items.length) break;
-    for (const job of result.items) {
-      const id = String(job?.id || "");
-      if (!id || !isTerminal(job.status)) continue;
-      if (excludedIds.value.has(id)) continue;
-      ids.push(id);
-    }
-    cursor += pageSize;
-    if (cursor >= result.totalCount) break;
-  }
-  return ids;
+	const ids: string[] = [];
+	const pageSize = 200;
+	let cursor = 0;
+	while (true) {
+		const result = await fetchJobs({
+			status: statusFilter.value || undefined,
+			limit: pageSize,
+			offset: cursor,
+		});
+		if (!result.items.length) break;
+		for (const job of result.items) {
+			const id = String(job?.id || "");
+			if (!id || !isTerminal(job.status)) continue;
+			if (excludedIds.value.has(id)) continue;
+			ids.push(id);
+		}
+		cursor += pageSize;
+		if (cursor >= result.totalCount) break;
+	}
+	return ids;
 }
 
 async function refreshSelectableCount() {
-  if (selectAllMatching.value) return;
-  totalSelectableCount.value = (await collectAllMatchingJobIds()).length;
+	if (selectAllMatching.value) return;
+	totalSelectableCount.value = (await collectAllMatchingJobIds()).length;
 }
 
-async function deleteInBatches(ids: string[], batchSize = 8): Promise<string[]> {
-  const failedIds: string[] = [];
-  bulkTotalCount.value = ids.length;
-  bulkDeletedCount.value = 0;
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const batch = ids.slice(i, i + batchSize);
-    const results = await Promise.allSettled(batch.map((id) => deleteJob(id)));
-    results.forEach((result, index) => {
-      if (result.status === "fulfilled") {
-        bulkDeletedCount.value += 1;
-      } else {
-        failedIds.push(batch[index]);
-      }
-    });
-  }
-  return failedIds;
+async function deleteInBatches(
+	ids: string[],
+	batchSize = 8,
+): Promise<string[]> {
+	const failedIds: string[] = [];
+	bulkTotalCount.value = ids.length;
+	bulkDeletedCount.value = 0;
+	for (let i = 0; i < ids.length; i += batchSize) {
+		const batch = ids.slice(i, i + batchSize);
+		const results = await Promise.allSettled(batch.map((id) => deleteJob(id)));
+		results.forEach((result, index) => {
+			if (result.status === "fulfilled") {
+				bulkDeletedCount.value += 1;
+			} else {
+				failedIds.push(batch[index]);
+			}
+		});
+	}
+	return failedIds;
 }
 
 async function loadJobs({ background = false }: { background?: boolean } = {}) {
-  if (!initialLoadDone && !background) loading.value = true;
-  if (!background) error.value = null;
-  try {
-    const result = await fetchJobs({
-      status: statusFilter.value || undefined,
-      limit: limit.value,
-      offset: offset.value,
-    });
-    mergeJobs(result.items);
-    totalCount.value = result.totalCount;
-    if (!background) {
-      await refreshSelectableCount();
-    }
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    if (!initialLoadDone) {
-      loading.value = false;
-      initialLoadDone = true;
-    }
-  }
+	if (!initialLoadDone && !background) loading.value = true;
+	if (!background) error.value = null;
+	try {
+		const result = await fetchJobs({
+			status: statusFilter.value || undefined,
+			limit: limit.value,
+			offset: offset.value,
+		});
+		mergeJobs(result.items);
+		totalCount.value = result.totalCount;
+		if (!background) {
+			await refreshSelectableCount();
+		}
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		if (!initialLoadDone) {
+			loading.value = false;
+			initialLoadDone = true;
+		}
+	}
 }
 
 async function onDeleteSelected() {
-  if (!selectedCount.value) return;
+	if (!selectedCount.value) return;
 
-  const label = selectAllMatching.value
-    ? `${selectedCount.value} matching terminal job(s)`
-    : `${selectedCount.value} selected terminal job(s)`;
+	const label = selectAllMatching.value
+		? `${selectedCount.value} matching terminal job(s)`
+		: `${selectedCount.value} selected terminal job(s)`;
 
-  if (selectAllMatching.value) {
-    const token = `DELETE ${selectedCount.value}`;
-    const typed = prompt(
-      `Dangerous action: delete ${label} in ${scopeLabel.value}.\nType "${token}" to confirm.`
-    );
-    if (typed !== token) return;
-  } else if (!confirm(`Delete ${label}? This cannot be undone.`)) {
-    return;
-  }
+	if (selectAllMatching.value) {
+		const token = `DELETE ${selectedCount.value}`;
+		const typed = prompt(
+			`Dangerous action: delete ${label} in ${scopeLabel.value}.\nType "${token}" to confirm.`,
+		);
+		if (typed !== token) return;
+	} else if (!confirm(`Delete ${label}? This cannot be undone.`)) {
+		return;
+	}
 
-  bulkDeleting.value = true;
-  error.value = null;
-  notice.value = null;
-  try {
-    const targetIds = selectAllMatching.value
-      ? await collectAllMatchingJobIds()
-      : Array.from(selectedIds.value);
-    const failedIds = await deleteInBatches(targetIds);
+	bulkDeleting.value = true;
+	error.value = null;
+	notice.value = null;
+	try {
+		const targetIds = selectAllMatching.value
+			? await collectAllMatchingJobIds()
+			: Array.from(selectedIds.value);
+		const failedIds = await deleteInBatches(targetIds);
 
-    if (failedIds.length) {
-      const preview = failedIds.slice(0, 5).join(", ");
-      error.value =
-        `Deleted ${targetIds.length - failedIds.length}/${targetIds.length} jobs. ` +
-        `Failed: ${failedIds.length}${preview ? ` (e.g. ${preview})` : ""}`;
-    } else {
-      notice.value = `Deleted ${targetIds.length} job(s).`;
-    }
-    clearSelection();
-    await loadJobs();
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    bulkDeleting.value = false;
-    bulkDeletedCount.value = 0;
-    bulkTotalCount.value = 0;
-  }
+		if (failedIds.length) {
+			const preview = failedIds.slice(0, 5).join(", ");
+			error.value =
+				`Deleted ${targetIds.length - failedIds.length}/${targetIds.length} jobs. ` +
+				`Failed: ${failedIds.length}${preview ? ` (e.g. ${preview})` : ""}`;
+		} else {
+			notice.value = `Deleted ${targetIds.length} job(s).`;
+		}
+		clearSelection();
+		await loadJobs();
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		bulkDeleting.value = false;
+		bulkDeletedCount.value = 0;
+		bulkTotalCount.value = 0;
+	}
 }
 
 async function onDelete(job: NormalizedJob) {
-  if (!confirm(`Delete job ${job.id?.substring(0, 8)}...?`)) return;
-  deleting.value = true;
-  notice.value = null;
-  try {
-    await deleteJob(job.id);
-    clearSelection();
-    await loadJobs();
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    deleting.value = false;
-  }
+	if (!confirm(`Delete job ${job.id?.substring(0, 8)}...?`)) return;
+	deleting.value = true;
+	notice.value = null;
+	try {
+		await deleteJob(job.id);
+		clearSelection();
+		await loadJobs();
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		deleting.value = false;
+	}
 }
 
 async function onCancel(job: NormalizedJob) {
-  if (!confirm(`Cancel job ${job.id?.substring(0, 8)}...?`)) return;
-  cancelling.value = true;
-  notice.value = null;
-  try {
-    await cancelJob(job.id);
-    await loadJobs();
-  } catch (e: unknown) {
-    error.value = toErrorMessage(e);
-  } finally {
-    cancelling.value = false;
-  }
+	if (!confirm(`Cancel job ${job.id?.substring(0, 8)}...?`)) return;
+	cancelling.value = true;
+	notice.value = null;
+	try {
+		await cancelJob(job.id);
+		await loadJobs();
+	} catch (e: unknown) {
+		error.value = toErrorMessage(e);
+	} finally {
+		cancelling.value = false;
+	}
 }
 
 function onJobSubmitted() {
-  showForm.value = false;
-  notice.value = null;
-  loadJobs();
+	showForm.value = false;
+	notice.value = null;
+	loadJobs();
 }
 
 function onPageUpdate(page: number) {
-  offset.value = Math.max(0, (page - 1) * limit.value);
+	offset.value = Math.max(0, (page - 1) * limit.value);
 }
 
 watch(statusFilter, () => {
-  clearSelection();
-  notice.value = null;
-  offset.value = 0;
-  loadJobs();
+	clearSelection();
+	notice.value = null;
+	offset.value = 0;
+	loadJobs();
 });
 
 watch(offset, () => {
-  loadJobs();
+	loadJobs();
 });
 
 watch([allPageSelected, somePageSelected], () => {
-  nextTick(() => {
-    if (!pageSelectCheckbox.value) return;
-    pageSelectCheckbox.value.indeterminate = somePageSelected.value;
-  });
+	nextTick(() => {
+		if (!pageSelectCheckbox.value) return;
+		pageSelectCheckbox.value.indeterminate = somePageSelected.value;
+	});
 });
 
 onMounted(() => {
-  loadJobs();
-  refreshInterval = setInterval(() => loadJobs({ background: true }), 10000);
+	loadJobs();
+	refreshInterval = setInterval(() => loadJobs({ background: true }), 10000);
 });
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval);
+	if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>
