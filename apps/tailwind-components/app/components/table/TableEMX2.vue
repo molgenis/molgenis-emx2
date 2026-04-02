@@ -128,7 +128,7 @@
             >
               <template #row-actions v-if="colIndex === 0">
                 <div
-                  class="absolute left-14 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                  class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                 >
                   <Button
                     v-if="isEditable"
