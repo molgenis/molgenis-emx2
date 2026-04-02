@@ -74,7 +74,11 @@ function cardLogoUrl(row: Record<string, any>): string | undefined {
           </a>
           <span v-else class="font-bold">{{ cardTitle(row) }}</span>
         </span>
-        <p v-if="cardDescription(row)" class="mt-1 line-clamp-2">
+        <p
+          v-if="cardDescription(row)"
+          class="mt-1 line-clamp-2"
+          :title="cardDescription(row)"
+        >
           {{ cardDescription(row) }}
         </p>
         <dl v-if="cardDetailColumns(row).length" class="mt-3 grid gap-1">

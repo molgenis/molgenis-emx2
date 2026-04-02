@@ -7,31 +7,44 @@ import { moduleToString } from "#imports";
 
 const query = moduleToString(metadataGql);
 
+const inflight = new Map<string, Promise<ISchemaMetaData>>();
+const resolved = new Map<string, ISchemaMetaData>();
+
 export default async (schemaId: string): Promise<ISchemaMetaData> => {
-  // Use sessionStorage to cache data
+  if (resolved.has(schemaId)) return resolved.get(schemaId)!;
+
   const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
     serializer: StorageSerializers.object,
   });
 
-  if (!cached.value) {
-    const { data } = await $fetch(`/${schemaId}/graphql`, {
+  if (cached.value) return cached.value;
+
+  if (!inflight.has(schemaId)) {
+    const promise = $fetch(`/${schemaId}/graphql`, {
       method: "POST",
-      body: {
-        query,
-      },
-    }).catch((error) => {
-      console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
-      throw createError({
-        ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+      body: { query },
+    })
+      .then(({ data }) => {
+        resolved.set(schemaId, data._schema);
+        cached.value = data._schema;
+        return data._schema as ISchemaMetaData;
+      })
+      .catch((error) => {
+        console.error(
+          `Could not fetch metadata for schema ${schemaId}, `,
+          error
+        );
+        throw createError({
+          ...error,
+          statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+        });
+      })
+      .finally(() => {
+        inflight.delete(schemaId);
       });
-    });
 
-    console.log(`Fetching metadata for schema ${schemaId}`);
-
-    // Update the cache
-    cached.value = data._schema;
+    inflight.set(schemaId, promise);
   }
 
-  return cached.value;
+  return inflight.get(schemaId)!;
 };

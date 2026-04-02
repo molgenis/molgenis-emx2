@@ -106,26 +106,52 @@ Create `pages/samples/catalogue/[resource]/subpopulations/[subpopulation].vue`:
 - Document remaining differences
 - Update this plan with final state
 
-## Status: Phases 1-3 DONE — next: Phase 4 (review & polish)
+## Status: Phase 4 in progress — performance done, next: F9 prefetch pagination or visual comparison
 
 ### Progress
-- [x] Created `pages/samples/catalogue/[resource].vue` with smart mode
+- [x] Created `pages/samples/catalogue/[resource]/index.vue` with smart mode
 - [x] Resource picker with clickable IDs from catalogue-demo
 - [x] Menu link in sidebar under "Sample pages"
 - [x] DetailSection filters TITLE/SUBTITLE/LOGO from section body (no duplication)
 - [x] Removed custom columnTransform — uses backend metadata sections as-is
 - [x] Visual review: page renders, sections show, side nav works
-- [x] **F2: expandLevel=3** — exposed `expandLevel` prop on DetailView (default 2), passed to fetchRowData. Sample page uses `:expand-level="3"`
-- [x] **F1: rowTransform** — exposed `rowTransform` prop on DetailView, applied in `effectiveData` computed after fetch. Sample page uses `aggregateCollectionEvents` to merge collection event ontology data (deduplicate by name)
+- [x] **F2: expandLevel=3** — exposed `expandLevel` prop on DetailView (default 2), passed to fetchRowData
+- [x] **F1: rowTransform** — exposed `rowTransform` prop on DetailView, applied in `effectiveData` computed after fetch
 - [x] **columnTransform** — `injectMergedColumns` injects two virtual `ONTOLOGY_ARRAY` columns into "availableDataAndSamples" HEADING
-- [x] **Framework fix**: removed ONTOLOGY_ARRAY from non-root skip list in fetchTableData.ts so nested ontology fields are actually fetched
+- [x] **Framework fix**: removed ONTOLOGY_ARRAY from non-root skip list in fetchTableData.ts
+- [x] **Framework fix**: getRowFilter now handles REF columns in composite keys
+- [x] **Framework fix**: useHead in DetailView — auto-sets page title and meta description in smart mode
 - [x] Column IDs confirmed camelCase (backend `getIdentifier()` → `convertToCamelCase()`)
-- [ ] Add header-actions slot (F3) for contact button — deferred to Phase 4
-- [ ] Breadcrumbs — deferred to Phase 4
+- [x] Collection event detail page (`[resource]/collection-events/[event].vue`)
+- [x] Subpopulation detail page (`[resource]/subpopulations/[subpopulation].vue`)
+- [x] `provideRecordNavigation` on resource page for sub-page routing
+- [x] Sidebar nav links for all three pages
+- [x] Fixed Nuxt routing: moved `[resource].vue` → `[resource]/index.vue` for nested routes
+
+### Phase 4 Progress
+- [x] **F4: Type label above title** — DetailView shows `metadata.value.label` as small uppercase text above title in smart mode. Header now shows when any of tableLabel/autoTitle/autoSubtitle is present.
+- [x] **F5: Breadcrumbs** — center-aligned page-level breadcrumbs on all three sample pages
+- [x] **getTitleText key fallback** — falls back to key=1 column values when no TITLE role columns exist
+- [x] **Story cleanup** — removed custom `#header` slot overrides from DetailView.story and DetailPageLayout.story so they use auto-generated headers
+- [x] **Sidebar cleanup** — removed collection event/subpopulation links (reachable via navigation from resource page)
+- [ ] **F3: Header-actions slot** for contact button
+- [x] **Height constraints** — maxItems truncation on List.vue, OntologyTreeDisplay, ValueEMX2, DetailColumn (default 5 for array/ontology types)
+- [x] **Card description tooltip** — native title attribute on clamped card descriptions
+- [x] **Date nowrap** — whitespace-nowrap on Date/DateTime values, List.vue wrapper changed to inline span
+- [x] **Metadata fetch dedup** — inflight promise cache in fetchMetadata.ts prevents duplicate _schema queries
+- [x] **F6: REFBACK prefetch** — use expandLevel data to render REFBACK DataLists without extra queries. See [spec](../specs/refback-prefetch.md).
+- [x] **F7: SSR metadata caching** — `resolved` Map in fetchMetadata.ts caches across SSR calls. See [spec](../specs/ssr-query-optimization.md).
+- [x] **F8: Empty REFBACK prefetch** — accept empty arrays as valid prefetched data, eliminating smart DataList fallback queries.
+- [x] **expandLevel=2** — reduced from 3 (ontology parent chains are hardcoded, independent of expandLevel)
+- [x] **Skip useTableData in dumb DataList** — prevents client-side re-fetches after hydration
+- [x] **Simplify DetailColumn** — merged two DataList blocks into one; DataList decides smart/dumb via rows prop
+- [ ] **F9: Prefetch pagination** — optional nestedLimit + always include _agg{count}, hybrid smart/dumb DataList. See [spec](../specs/prefetch-pagination.md).
+- [ ] Visual comparison with catalogue originals
+- [ ] Document remaining differences
 
 ### Aggregation strategy for "Available Data & Samples"
 The catalogue aggregates ontology arrays across all collection events into a merged resource-level summary. Implementation:
-1. `expandLevel=3` fetches collection events with nested ontology fields (required framework fix: ONTOLOGY_ARRAY no longer skipped at non-root level)
+1. `expandLevel=2` fetches collection events with nested ontology fields (required framework fix: ONTOLOGY_ARRAY no longer skipped at non-root level; ontology parent chains are hardcoded independent of expandLevel)
 2. `rowTransform` merges them: flatMap → deduplicate by name → set on row
 3. For `areasOfInformation` and `biospecimenCollected`: override existing Resource column values
 4. For `_mergedDataCategories` and `_mergedSampleCategories`: virtual row values + columnTransform injects virtual column defs into "availableDataAndSamples" heading
@@ -142,8 +168,65 @@ The catalogue aggregates ontology arrays across all collection events into a mer
 - Breadcrumbs: page config
 
 ## Open Issues
-### Height constraints for list/card values
-Lists and cards in detail sections can grow very tall. Need a mechanism to limit displayed items (e.g. show first few with "show more").
-- **Option A**: Wrap with `ShowMore` component (height-limited). Concern: `ShowMore` uses ResizeObserver which may be expensive with many instances on a detail page.
-- **Option B**: Per-type truncation — make ontology/ref value components show first N items with a "show N more" toggle. Lighter weight, no observer needed, and semantically aware (knows it's truncating items not pixels).
-- **Recommendation**: Option B preferred — implement `maxItems` prop on value components (Ref, RefBack, OntologyTreeDisplay, List) that truncates to N items with expand toggle. Avoids observer overhead and gives better UX per type.
+### Height constraints for list/card values — PLAN
+
+**Problem**: Some column types can produce unbounded/tall content on detail pages.
+
+#### Complete column type audit
+
+**Already truncated (no work needed):**
+| Type | Rendering | Why it's fine |
+|------|-----------|---------------|
+| TEXT | ValueText → ContentReadMore | 250-char substring + "read more" toggle already implemented |
+| REFBACK | DataList (smart, paginated) | Always paginated via DataList |
+| REF_ARRAY (showListView) | DataList (smart, paginated) | Paginated when rendered as list/table |
+| FILE | ValueFile | CSS `overflow-ellipsis whitespace-nowrap` |
+
+**Needs maxItems truncation (array types that render inline):**
+| Type | Rendering | Issue |
+|------|-----------|-------|
+| ONTOLOGY_ARRAY | OntologyTreeDisplay | Tree can have many nodes |
+| ONTOLOGY (hierarchical) | OntologyTreeDisplay | Deep/wide trees |
+| REF_ARRAY (showInlineListView) | DataList inline | Inline list can be long |
+| STRING_ARRAY | List.vue → ValueString | Many items |
+| TEXT_ARRAY | List.vue → ValueString | Many items (rendered as plain text, not markdown) |
+| EMAIL_ARRAY | List.vue → ValueEmail | Many items |
+| HYPERLINK_ARRAY | List.vue → ValueHyperlink | Many items |
+| MULTISELECT | List.vue → ValueObject | Many selections |
+| CHECKBOX | List.vue → ValueObject | Many selections |
+
+**No truncation needed (bounded by nature):**
+All scalar types: STRING, INT, LONG, DECIMAL, BOOL, DATE, DATETIME, PERIOD, UUID, AUTO_ID, EMAIL, HYPERLINK, NON_NEGATIVE_INT, REF, SELECT, RADIO, ONTOLOGY (single flat)
+
+#### Approach
+
+Per-component `maxItems` prop (not CSS-based ShowMore wrapping). ShowMore uses ResizeObserver + line-count — wrong granularity for array items.
+
+#### Components to change
+
+| Component | Handles | Change |
+|-----------|---------|--------|
+| `OntologyTreeDisplay` | ONTOLOGY, ONTOLOGY_ARRAY trees | Add `maxItems`, slice top-level nodes, toggle |
+| `List.vue` (value) | All *_ARRAY, MULTISELECT, CHECKBOX | Add `maxItems`, slice items, toggle |
+| `DetailColumn.vue` | Routes to value components | Pass `maxItems` to OntologyTreeDisplay and ValueEMX2 |
+| `ValueEMX2.vue` | Delegates to List.vue etc. | Pass `maxItems` through to List.vue |
+
+**Not in scope:**
+- DataList (already paginated)
+- Ref.vue, RefBack.vue (single item / already paginated)
+- TEXT (already has ContentReadMore)
+- ShowMore.vue (text/line-based, different use case)
+
+#### Implementation steps
+
+1. **List.vue**: Add `maxItems?: number` prop. Slice displayed items, show "Show N more" / "Show less" toggle button.
+
+2. **OntologyTreeDisplay**: Add `maxItems?: number` prop. For flat lists: slice array. For hierarchical trees: count top-level nodes only.
+
+3. **ValueEMX2.vue**: Accept and pass `maxItems` to List.vue.
+
+4. **DetailColumn.vue**: Accept `maxItems` prop. Pass to OntologyTreeDisplay and ValueEMX2.
+
+5. **Default**: Hardcode default maxItems=10 in DetailColumn for list-type columns. Overridable via columnTransform (`{ ...col, maxItems: 20 }`).
+
+6. **Toggle styling**: Small text button: "Show N more" / "Show less". Reuse existing text-link styles.

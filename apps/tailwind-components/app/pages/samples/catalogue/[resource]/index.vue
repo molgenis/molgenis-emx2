@@ -21,7 +21,7 @@
       table-id="Resources"
       :row-id="rowId"
       :show-side-nav="true"
-      :expand-level="3"
+      :expand-level="2"
       :row-transform="aggregateCollectionEvents"
       :column-transform="injectMergedColumns"
     />

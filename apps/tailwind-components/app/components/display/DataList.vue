@@ -47,12 +47,16 @@ const {
   totalPages,
   showPagination,
   errorMessage,
-} = useTableData(props.schemaId || "", props.tableId || "", {
-  pageSize: props.pageSize,
-  page,
-  filter: computed(() => props.filter),
-  searchTerms,
-});
+} = useTableData(
+  isSmartMode.value ? props.schemaId || "" : "",
+  isSmartMode.value ? props.tableId || "" : "",
+  {
+    pageSize: props.pageSize,
+    page,
+    filter: computed(() => props.filter),
+    searchTerms,
+  }
+);
 
 const smartListColumns = computed(() =>
   getListColumns(metadata.value?.columns || [], {
@@ -70,6 +74,8 @@ const errorText = computed(
 
 const dumbColumns = computed(() =>
   getListColumns(props.columns || [], {
+    layout: props.layout as "TABLE" | "CARDS" | "LIST" | undefined,
+    hideColumns: props.hideColumns,
     rows: props.rows || [],
   })
 );

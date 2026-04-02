@@ -25,6 +25,7 @@ const props = withDefaults(
     showEmpty?: boolean;
     schemaId?: string;
     parentRowId?: Record<string, any>;
+    maxItems?: number;
   }>(),
   {
     showEmpty: false,
@@ -35,8 +36,9 @@ const refArrayFilter = ref<Record<string, any> | undefined>();
 const refTableColumns = ref<IColumn[]>([]);
 
 watchEffect(async () => {
+  const type = props.column.columnType;
   if (
-    !isRefArrayColumn(props.column.columnType) ||
+    (type !== "REFBACK" && !isRefArrayColumn(type)) ||
     !props.column.refTableId ||
     !props.schemaId
   ) {
@@ -57,32 +59,36 @@ watchEffect(async () => {
   const refbackCol = refTable.columns.find(
     (c) => c.columnType === "REFBACK" && c.refBackId === props.column.id
   );
+
+  refTableColumns.value = getListColumns(refTable.columns, {
+    layout: props.column.display as "TABLE" | "CARDS" | "LIST" | undefined,
+  });
+
   if (refbackCol && props.parentRowId) {
     const keyFilter: Record<string, any> = {};
     for (const [key, val] of Object.entries(props.parentRowId)) {
       keyFilter[key] = { equals: val };
     }
     refArrayFilter.value = { [refbackCol.id]: keyFilter };
-    refTableColumns.value = [];
   } else {
     refArrayFilter.value = undefined;
-    refTableColumns.value = getListColumns(refTable.columns, {
-      layout: props.column.display as "TABLE" | "CARDS" | "LIST" | undefined,
-    });
   }
 });
 
-const showListView = computed(() => {
-  if (!props.column.refTableId || !props.schemaId) return false;
+const showDataList = computed(() => {
   const type = props.column.columnType;
-  if (type === "REFBACK" && props.column.refBackId && props.parentRowId) {
+  if (type !== "REFBACK" && !isRefArrayColumn(type)) return false;
+  if (!props.column.refTableId || !props.schemaId) return false;
+  if (Array.isArray(props.value)) return true;
+  if (type === "REFBACK" && props.column.refBackId && props.parentRowId)
     return true;
-  }
-  if (isRefArrayColumn(type) && refArrayFilter.value) {
-    return true;
-  }
+  if (isRefArrayColumn(type) && refArrayFilter.value) return true;
   return false;
 });
+
+const listRows = computed(() =>
+  Array.isArray(props.value) ? props.value : undefined
+);
 
 const listFilter = computed(() => {
   if (props.column.columnType === "REFBACK") {
@@ -96,14 +102,6 @@ const listFilter = computed(() => {
     return refArrayFilter.value;
   }
   return undefined;
-});
-
-const showInlineListView = computed(() => {
-  if (showListView.value) return false;
-  if (!isRefArrayColumn(props.column.columnType)) return false;
-  if (!Array.isArray(props.value) || props.value.length === 0) return false;
-  if (!props.column.refTableId || !props.schemaId) return false;
-  return refTableColumns.value.length > 0;
 });
 
 const isHierarchicalOntology = computed(() => {
@@ -137,18 +135,20 @@ function handleRefClick() {
 
 <template>
   <template
-    v-if="isEmptyValue(value) && !showEmpty && !showListView"
+    v-if="isEmptyValue(value) && !showEmpty && !showDataList"
   ></template>
   <span
-    v-else-if="isEmptyValue(value) && showEmpty && !showListView"
+    v-else-if="isEmptyValue(value) && showEmpty && !showDataList"
     class="text-gray-400 italic"
   >
     not provided
   </span>
   <DataList
-    v-else-if="showListView"
-    :schema-id="column.refSchemaId || schemaId!"
-    :table-id="column.refTableId!"
+    v-else-if="showDataList"
+    :rows="listRows"
+    :columns="refTableColumns"
+    :schema-id="column.refSchemaId || schemaId"
+    :table-id="column.refTableId"
     :filter="listFilter"
     :layout="column.display || 'TABLE'"
     :hide-columns="column.refBackId ? [column.refBackId] : undefined"
@@ -162,15 +162,10 @@ function handleRefClick() {
   >
     <ValueEMX2 :metadata="column" :data="value" />
   </a>
-  <OntologyTreeDisplay v-else-if="isHierarchicalOntology" :value="value" />
-  <DataList
-    v-else-if="showInlineListView"
-    :rows="value"
-    :columns="refTableColumns"
-    :layout="column.display || 'TABLE'"
-    :schema-id="column.refSchemaId || schemaId"
-    :table-id="column.refTableId"
-    :row-label-template="column.refLabelDefault"
+  <OntologyTreeDisplay
+    v-else-if="isHierarchicalOntology"
+    :value="value"
+    :maxItems="maxItems"
   />
-  <ValueEMX2 v-else :metadata="column" :data="value" />
+  <ValueEMX2 v-else :metadata="column" :data="value" :maxItems="maxItems" />
 </template>
