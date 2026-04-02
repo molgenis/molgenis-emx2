@@ -200,11 +200,13 @@ public class SqlTable implements Table {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
+    final Map<String, List<Row>> deleteRows = new LinkedHashMap<>();
     final Map<String, Set<String>> columnsProvided = new LinkedHashMap<>();
 
     SqlSchema schema = (SqlSchema) db.getSchema(schemaName);
     SqlTable table = schema.getTable(tableName);
-    String tableClass = getMgTableClass(table.getMetadata());
+    Column profileColumn = table.getMetadata().getProfileColumn();
+    String discriminatorColumn = profileColumn != null ? profileColumn.getName() : MG_TABLECLASS;
 
     // validate
     if (table.getMetadata().getPrimaryKeys().isEmpty())
@@ -215,81 +217,93 @@ public class SqlTable implements Table {
 
     db.tx(
         db2 -> {
+          SqlSchema txSchema = (SqlSchema) db2.getSchema(schemaName);
           for (Row row : rows) {
-
-            // set table class if not set, and see for first time
-            if (row.notNull(MG_TABLECLASS)
-                && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
-
-              // validate
-              String rowTableName = row.getString(MG_TABLECLASS);
-              if (!rowTableName.contains(".")) {
-                if (schema.getTable(rowTableName) != null) {
-                  row.setString(MG_TABLECLASS, schemaName + "." + rowTableName);
-                } else {
-                  throw new MolgenisException(
-                      MG_TABLECLASS
-                          + " value failed in row "
-                          + count.get()
-                          + ": found '"
-                          + rowTableName
-                          + "'");
-                }
+            String[] targets = new String[] {tableName};
+            if (row.notNull(discriminatorColumn)) {
+              if (profileColumn != null && profileColumn.getColumnType() == ColumnType.PROFILES) {
+                targets = row.getStringArray(discriminatorColumn);
               } else {
-                String rowSchemaName = rowTableName.split("\\.")[0];
-                String rowTableName2 = rowTableName.split("\\.")[1];
-                if (db.getSchema(rowSchemaName) == null
-                    || db.getSchema(rowSchemaName).getTable(rowTableName2) == null) {
-                  throw new MolgenisException(
-                      "invalid value in column '"
-                          + MG_TABLECLASS
-                          + "' on row "
-                          + count.get()
-                          + ": found '"
-                          + rowTableName
-                          + "'");
+                targets = new String[] {row.getString(discriminatorColumn)};
+              }
+            }
+
+            if (profileColumn != null && transactionType != MutationType.INSERT) {
+              Set<String> keepSet = new HashSet<>();
+              keepSet.add(tableName);
+              for (String target : targets) {
+                keepSet.add(target);
+                TableMetadata targetMeta = schema.getMetadata().getTableMetadata(target);
+                if (targetMeta != null) {
+                  for (TableMetadata ancestor : targetMeta.getAllInheritedTables()) {
+                    keepSet.add(ancestor.getTableName());
+                  }
                 }
               }
-            } else {
-              row.set(MG_TABLECLASS, tableClass);
+              for (TableMetadata child : table.getMetadata().getSubclassTables()) {
+                if (!keepSet.contains(child.getTableName())) {
+                  String deleteKey = schemaName + "." + child.getTableName();
+                  deleteRows.computeIfAbsent(deleteKey, k -> new ArrayList<>()).add(row);
+                  if (deleteRows.get(deleteKey).size() >= 100) {
+                    executeDeleteBatch(txSchema, child, deleteRows.get(deleteKey));
+                    deleteRows.get(deleteKey).clear();
+                  }
+                }
+              }
             }
 
-            // create batches for each table class
-            String subclassName = row.getString(MG_TABLECLASS);
-            if (!subclassRows.containsKey(subclassName)) {
-              subclassRows.put(subclassName, new ArrayList<>());
-            }
+            MutationType batchType = profileColumn != null ? SAVE : transactionType;
 
-            // check columns provided didn't change
-            if (columnsProvided.get(subclassName) == null) {
-              columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
-            }
+            for (String target : targets) {
+              String subclassName =
+                  resolveSubclassName(db, schema, schemaName, discriminatorColumn, target, count);
 
-            // execute batch; or columns provided changes
-            if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 100) {
-              executeBatch(
-                  (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
-                  transactionType,
-                  count,
-                  subclassRows,
-                  subclassName,
-                  columnsProvided.get(subclassName));
-              // reset columns provided
-              columnsProvided.get(subclassName).clear();
-              columnsProvided.get(subclassName).addAll(row.getColumnNames());
-            }
+              if (profileColumn != null && row.notNull(profileColumn.getName())) {
+                validateProfileValue(table, target, table.getMetadata().getSubclassTables());
+              } else if (profileColumn == null) {
+                row.setString(MG_TABLECLASS, subclassName);
+              }
 
-            // add to batch list, and execute if batch is large enough
-            subclassRows.get(subclassName).add(row);
+              if (!subclassRows.containsKey(subclassName)) {
+                subclassRows.put(subclassName, new ArrayList<>());
+              }
+              if (columnsProvided.get(subclassName) == null) {
+                columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
+              }
+              if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
+                  || subclassRows.get(subclassName).size() >= 100) {
+                executeBatch(
+                    (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
+                    batchType,
+                    count,
+                    subclassRows,
+                    subclassName,
+                    columnsProvided.get(subclassName));
+                columnsProvided.get(subclassName).clear();
+                columnsProvided.get(subclassName).addAll(row.getColumnNames());
+              }
+              subclassRows.get(subclassName).add(row);
+            }
           }
 
-          // execute any remaining batches
+          // flush remaining delete batches before inserts/upserts
+          for (Map.Entry<String, List<Row>> batch : deleteRows.entrySet()) {
+            if (!batch.getValue().isEmpty()) {
+              String childTableName = batch.getKey().split("\\.")[1];
+              TableMetadata childMeta = schema.getMetadata().getTableMetadata(childTableName);
+              if (childMeta != null) {
+                executeDeleteBatch(txSchema, childMeta, batch.getValue());
+              }
+            }
+          }
+
+          // execute any remaining insert/upsert batches
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
             if (!batch.getValue().isEmpty()) {
+              MutationType batchType = profileColumn != null ? SAVE : transactionType;
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
-                  transactionType,
+                  batchType,
                   count,
                   subclassRows,
                   batch.getKey(),
@@ -309,6 +323,90 @@ public class SqlTable implements Table {
         count,
         transactionType.name().toLowerCase() + "d (incl subclass if applicable)");
     return count.get();
+  }
+
+  private static String resolveSubclassName(
+      Database db,
+      SqlSchema schema,
+      String schemaName,
+      String discriminatorColumn,
+      String target,
+      AtomicInteger count) {
+    if (!target.contains(".")) {
+      if (schema.getTable(target) != null) {
+        return schemaName + "." + target;
+      } else {
+        throw new MolgenisException(
+            discriminatorColumn
+                + " value failed in row "
+                + count.get()
+                + ": found '"
+                + target
+                + "'");
+      }
+    } else {
+      String rowSchemaName = target.split("\\.")[0];
+      String rowTableName = target.split("\\.")[1];
+      if (db.getSchema(rowSchemaName) == null
+          || db.getSchema(rowSchemaName).getTable(rowTableName) == null) {
+        throw new MolgenisException(
+            "invalid value in column '"
+                + discriminatorColumn
+                + "' on row "
+                + count.get()
+                + ": found '"
+                + target
+                + "'");
+      }
+      return target;
+    }
+  }
+
+  private static void validateProfileValue(
+      SqlTable parentTable, String profileValue, List<TableMetadata> allChildTables) {
+    TableMetadata subtable = parentTable.getMetadata().getSchema().getTableMetadata(profileValue);
+    if (subtable == null || subtable.getTableType() == TableType.BLOCK) {
+      throw new MolgenisException(
+          "Invalid profile value: '"
+              + profileValue
+              + "' is not a valid subtable of '"
+              + parentTable.getName()
+              + "'"
+              + (subtable != null
+                  ? " ('" + profileValue + "' is a block, not a selectable profile)"
+                  : ""));
+    }
+    boolean isChild =
+        allChildTables.stream().anyMatch(c -> c.getTableName().equals(subtable.getTableName()));
+    if (!isChild) {
+      throw new MolgenisException(
+          "Invalid profile value: '"
+              + profileValue
+              + "' is not a subtable of '"
+              + parentTable.getName()
+              + "'");
+    }
+  }
+
+  private static void executeDeleteBatch(
+      SqlSchema schema, TableMetadata childMeta, List<Row> rows) {
+    if (rows.isEmpty()) return;
+    DSLContext jooq = schema.getJooq();
+    List<String> pkNames = childMeta.getPrimaryKeys();
+    List<Condition> pkeyConditions = new ArrayList<>();
+    for (Row row : rows) {
+      List<Condition> pkFields = new ArrayList<>();
+      for (String pk : pkNames) {
+        Object pkValue = row.getValueMap().get(pk);
+        pkFields.add(field(name(pk)).eq(pkValue != null ? inline(pkValue) : inline((Object) null)));
+      }
+      if (!pkFields.isEmpty()) {
+        pkeyConditions.add(and(pkFields));
+      }
+    }
+    if (!pkeyConditions.isEmpty()) {
+      jooq.deleteFrom(childMeta.getJooqTable()).where(or(pkeyConditions)).execute();
+    }
   }
 
   private static boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
@@ -379,11 +477,13 @@ public class SqlTable implements Table {
 
   private int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    boolean inherit = table.getMetadata().getInheritNames() != null;
     int count = 0;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+      for (SqlTable inheritedTable : table.getInheritedTables()) {
+        // use upsert (updateOnConflict=true) for all parent inserts to handle diamond inheritance
+        count = inheritedTable.insertBatch(inheritedTable, rows, true, updateColumns);
+      }
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
@@ -440,11 +540,12 @@ public class SqlTable implements Table {
   }
 
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    boolean inherit = table.getMetadata().getInheritNames() != null;
     int count = 0;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
+      for (SqlTable inheritedTable : table.getInheritedTables()) {
+        count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
+      }
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
@@ -536,9 +637,11 @@ public class SqlTable implements Table {
             // delete remaining elements
             deleteBatch(table, batch);
 
-            // finally delete in superclass
-            if (table.getMetadata().getInheritName() != null) {
-              table.getInheritedTable().delete(rows);
+            // finally delete in superclass tables
+            if (table.getMetadata().getInheritNames() != null) {
+              for (SqlTable inheritedTable : table.getInheritedTables()) {
+                inheritedTable.delete(rows);
+              }
             }
 
             // notify handlers
@@ -682,15 +785,39 @@ public class SqlTable implements Table {
 
   @Override
   public SqlTable getInheritedTable() {
+    if (getMetadata().getInheritNames() == null || getMetadata().getInheritNames().length == 0) {
+      return null;
+    }
     if (getMetadata().getImportSchema() != null) {
       return (SqlTable)
           getSchema()
               .getDatabase()
               .getSchema(getMetadata().getImportSchema())
-              .getTable(getMetadata().getInheritName());
+              .getTable(getMetadata().getInheritNames()[0]);
     } else {
-      return (SqlTable) getSchema().getTable(getMetadata().getInheritName());
+      return (SqlTable) getSchema().getTable(getMetadata().getInheritNames()[0]);
     }
+  }
+
+  // Casts TableMetadata results to SqlTable so insertBatch can recursively insert into parent
+  // tables.
+  public List<SqlTable> getInheritedTables() {
+    List<SqlTable> result = new ArrayList<>();
+    if (getMetadata().getInheritNames() != null) {
+      for (String name : getMetadata().getInheritNames()) {
+        if (getMetadata().getImportSchema() != null) {
+          result.add(
+              (SqlTable)
+                  getSchema()
+                      .getDatabase()
+                      .getSchema(getMetadata().getImportSchema())
+                      .getTable(name));
+        } else {
+          result.add((SqlTable) getSchema().getTable(name));
+        }
+      }
+    }
+    return result;
   }
 
   private static void log(

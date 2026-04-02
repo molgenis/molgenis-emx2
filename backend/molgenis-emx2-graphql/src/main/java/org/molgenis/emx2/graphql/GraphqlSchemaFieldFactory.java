@@ -370,7 +370,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.INHERIT_ID)
-                  .type(Scalars.GraphQLString))
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTIONS)

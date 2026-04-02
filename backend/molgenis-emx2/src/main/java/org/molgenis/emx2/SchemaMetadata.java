@@ -145,14 +145,14 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
-    if (current.getInheritedTable() != null) {
-      String scopeTableName = current.getInheritName();
-      if (!current.getInheritedTable().getSchemaName().equals(getName())) {
-        scopeTableName = current.getInheritedTable().getSchemaName() + "_" + scopeTableName;
+    for (TableMetadata inheritedTable : current.getInheritedTables()) {
+      String scopeTableName = inheritedTable.getTableName();
+      if (!inheritedTable.getSchemaName().equals(getName())) {
+        scopeTableName = inheritedTable.getSchemaName() + "_" + scopeTableName;
       }
       if (!tables.containsKey(scopeTableName)) {
-        tables.put(scopeTableName, current.getInheritedTable());
-        addExternalTablesRecursive(tables, current.getInheritedTable());
+        tables.put(scopeTableName, inheritedTable);
+        addExternalTablesRecursive(tables, inheritedTable);
       }
     }
     for (Column c : current.getColumns()) {

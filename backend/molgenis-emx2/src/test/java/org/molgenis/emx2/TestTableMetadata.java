@@ -18,7 +18,7 @@ public class TestTableMetadata {
             .create(
                 table("Person", column("name")),
                 table("Employee", column("details").setType(ColumnType.HEADING), column("salary"))
-                    .setInheritName("Person"));
+                    .setInheritNames("Person"));
 
     List<Column> result = s.getTableMetadata("Person").getColumnsIncludingSubclasses();
     assertEquals(3, result.size());
@@ -74,7 +74,7 @@ public class TestTableMetadata {
     c1.setTable(table);
     c2.setTable(table);
     table.setSchema(schema);
-    table.setInheritName("parent table");
+    table.setInheritNames("parent table");
 
     // Parent table for inheritance validation
     Column c3 = new Column("parent column");

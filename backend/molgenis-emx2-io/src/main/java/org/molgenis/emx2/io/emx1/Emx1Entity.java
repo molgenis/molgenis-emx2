@@ -16,7 +16,8 @@ public class Emx1Entity {
 
   public Emx1Entity(TableMetadata tm) {
     this.name = tm.getTableName();
-    this.extnds = tm.getInheritName();
+    String[] inheritNames = tm.getInheritNames();
+    this.extnds = (inheritNames != null && inheritNames.length > 0) ? inheritNames[0] : null;
   }
 
   public Emx1Entity(Row row) {

@@ -1,6 +1,8 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static org.molgenis.emx2.ColumnType.PROFILE;
+import static org.molgenis.emx2.ColumnType.PROFILES;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
@@ -98,7 +100,11 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   private static void checkRequired(Column c, Row row, Map<String, Object> values) {
-    if (!row.isDraft() && c.getComputed() == null && !AUTO_ID.equals(c.getColumnType())) {
+    if (!row.isDraft()
+        && c.getComputed() == null
+        && !AUTO_ID.equals(c.getColumnType())
+        && !PROFILE.equals(c.getColumnType())
+        && !PROFILES.equals(c.getColumnType())) {
       if (c.isRequired() && hasEmptyFields(c, row)) {
         throw new MolgenisException("column '" + c.getName() + "' is required in " + row);
       } else if (c.isConditionallyRequired()) {

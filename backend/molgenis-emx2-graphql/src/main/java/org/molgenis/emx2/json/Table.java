@@ -16,8 +16,8 @@ public class Table {
   private String oldName;
   private boolean drop;
   private String[] pkey;
-  private String inheritId;
-  private String inheritName;
+  private String[] inheritIds;
+  private String[] inheritNames;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -49,9 +49,14 @@ public class Table {
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
-    if (tableMetadata.getInheritName() != null) {
-      this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
-      this.inheritName = tableMetadata.getInheritName();
+    if (tableMetadata.getInheritNames() != null) {
+      this.inheritNames = tableMetadata.getInheritNames();
+      if (!tableMetadata.getInheritedTables().isEmpty()) {
+        this.inheritIds =
+            tableMetadata.getInheritedTables().stream()
+                .map(TableMetadata::getIdentifier)
+                .toArray(String[]::new);
+      }
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
@@ -133,12 +138,12 @@ public class Table {
     this.pkey = pkey;
   }
 
-  public String getInheritId() {
-    return inheritId;
+  public String[] getInheritIds() {
+    return inheritIds;
   }
 
-  public void setInheritId(String inheritId) {
-    this.inheritId = inheritId;
+  public void setInheritIds(String[] inheritIds) {
+    this.inheritIds = inheritIds;
   }
 
   public List<LanguageValue> getDescriptions() {
@@ -197,12 +202,12 @@ public class Table {
     this.labels = labels;
   }
 
-  public String getInheritName() {
-    return inheritName;
+  public String[] getInheritNames() {
+    return inheritNames;
   }
 
-  public void setInheritName(String inheritName) {
-    this.inheritName = inheritName;
+  public void setInheritNames(String[] inheritNames) {
+    this.inheritNames = inheritNames;
   }
 
   public String getLabel() {

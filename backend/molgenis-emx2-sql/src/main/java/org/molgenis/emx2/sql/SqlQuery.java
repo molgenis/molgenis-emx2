@@ -577,12 +577,10 @@ public class SqlQuery extends QueryBean {
                 }
               });
 
-      TableMetadata parent = table.getInheritedTable();
-      while (parent != null) {
+      for (TableMetadata ancestor : table.getAllInheritedTables()) {
         search.add(
-            field(name(alias(subAlias), searchColumnName(parent.getTableName())))
+            field(name(alias(subAlias), searchColumnName(ancestor.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
-        parent = parent.getInheritedTable();
       }
       searchCondition.add(or(search));
     }
@@ -908,30 +906,22 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
-
     Table<org.jooq.Record> result = table.getJooqTable();
-    TableMetadata inheritedTable = table.getInheritedTable();
-    // root and intermediate levels have mg_tableclass column
-    Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
-    while (inheritedTable != null) {
-      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
-      }
-      result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
-      inheritedTable = inheritedTable.getInheritedTable();
-      if (inheritedTable != null) {
-        mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
+    Set<String> joined = new HashSet<>();
+    joined.add(table.getTableName());
+
+    for (TableMetadata parent : table.getAllInheritedTables()) {
+      if (joined.add(parent.getTableName())) {
+        Field<?>[] using = parent.getPrimaryKeyFields().toArray(new Field<?>[0]);
+        result = result.join(parent.getJooqTable()).using(using);
       }
     }
-    // join subclass tables also
+
     for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
-      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+      if (joined.add(subclassTable.getTableName())) {
+        Field<?>[] using = subclassTable.getPrimaryKeyFields().toArray(new Field<?>[0]);
+        result = result.leftJoin(subclassTable.getJooqTable()).using(using);
       }
-      result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
 
     return result;
@@ -1585,25 +1575,26 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereConditionSearch(
       TableMetadata table, String tableAlias, String[] searchTerms) {
-    List<Condition> searchConditions = new ArrayList<>();
-    while (table != null) {
-      List<Condition> subConditions = new ArrayList<>();
-      // will get inherit tables too
-      for (String term : searchTerms) {
-        for (String subTerm : term.split(" ")) {
-          subTerm = subTerm.trim();
-          Field<Object> field =
-              field(name(alias(tableAlias), searchColumnName(table.getTableName())));
-          // short terms with 'like', longer with trigram
-          subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
+    if (searchTerms == null || searchTerms.length == 0) return null;
+
+    List<String> searchableTables = new ArrayList<>();
+    searchableTables.add(table.getTableName());
+    for (TableMetadata ancestor : table.getAllInheritedTables()) {
+      searchableTables.add(ancestor.getTableName());
+    }
+    List<Condition> termConditions = new ArrayList<>();
+    for (String term : searchTerms) {
+      for (String subTerm : term.split(" ")) {
+        List<Condition> columnConditions = new ArrayList<>();
+        for (String tbl : searchableTables) {
+          columnConditions.add(
+              field(name(alias(tableAlias), searchColumnName(tbl)))
+                  .likeIgnoreCase("%" + subTerm.trim() + "%"));
         }
-      }
-      table = table.getInheritedTable();
-      if (!subConditions.isEmpty()) {
-        searchConditions.add(and(subConditions));
+        termConditions.add(or(columnConditions));
       }
     }
-    return searchConditions.isEmpty() ? null : and(searchConditions);
+    return termConditions.isEmpty() ? null : and(termConditions);
   }
 
   private Condition whereColumnInSubquery(Column c, SelectSelectStep subQuery) {

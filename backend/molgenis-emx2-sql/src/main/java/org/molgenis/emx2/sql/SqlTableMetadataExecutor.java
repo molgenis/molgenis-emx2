@@ -57,24 +57,25 @@ class SqlTableMetadataExecutor {
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
 
     // create columns from primary key of superclass
-    if (table.getInheritName() != null) {
-      if (table.getInheritedTable() == null) {
+    if (table.getInheritNames() != null) {
+      List<TableMetadata> parents = table.getInheritedTables();
+      if (parents.isEmpty()) {
         throw new MolgenisException(
             "Cannot inherit "
                 + table.getImportSchema()
                 + "."
-                + table.getInheritName()
+                + String.join(",", table.getInheritNames())
                 + ": not found");
       }
-      executeSetInherit(jooq, table, table.getInheritedTable());
+      boolean addMgTableclass = parents.get(0).getRootTable().getProfileColumn() == null;
+      executeSetInherit(jooq, table, parents, addMgTableclass);
     }
 
     // then create columns
     for (Column column : table.getNonInheritedColumns()) {
       if (!column.isHeading()) {
         validateColumn(column);
-        if (table.getInheritName() == null
-            || table.getInheritedTable().getColumn(column.getName()) == null) {
+        if (!table.hasColumnInParent(column.getName())) {
           executeCreateColumn(jooq, column);
         }
       } else {
@@ -87,9 +88,7 @@ class SqlTableMetadataExecutor {
 
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
-      if ((table.getInheritName() == null
-              || table.getInheritedTable().getColumn(column.getName()) == null)
-          && column.isReference()) {
+      if (!table.hasColumnInParent(column.getName()) && column.isReference()) {
         SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
       }
     }
@@ -98,7 +97,7 @@ class SqlTableMetadataExecutor {
     executeEnableSearch(jooq, table);
 
     // add meta columns (only superclass table)
-    if (table.getInheritName() == null) {
+    if (table.getInheritNames() == null || table.getInheritNames().length == 0) {
       executeAddMetaColumns(table);
     }
 
@@ -138,43 +137,53 @@ class SqlTableMetadataExecutor {
         .execute();
   }
 
-  static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
-    if (other.getPrimaryKeys().isEmpty()) {
+  static void executeSetInherit(
+      DSLContext jooq, TableMetadata table, List<TableMetadata> parents, boolean addMgTableclass) {
+    if (parents.isEmpty()) return;
+    TableMetadata firstParent = parents.get(0);
+    if (firstParent.getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Extend failed: Cannot make table '"
               + table.getTableName()
               + "' extend table '"
-              + table.getInheritName()
+              + firstParent.getTableName()
               + "' because table primary key is null");
     }
+    if (addMgTableclass && parents.size() > 1) {
+      throw new MolgenisException(
+          "Extend failed: Table '"
+              + table.getTableName()
+              + "' uses old-style inheritance (no profile column in ancestors) which only supports a single parent. Found: "
+              + parents.stream().map(TableMetadata::getTableName).collect(Collectors.joining(",")));
+    }
 
-    // remove meta, we use super class meta
     executeRemoveMetaColumns(jooq, table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
-    copyTm.setInheritName(other.getTableName());
-    // create primary key fields based on parent
-    for (Field pkey : other.getPrimaryKeyFields()) {
+    copyTm.setInheritNames(
+        parents.stream().map(TableMetadata::getTableName).toArray(String[]::new));
+    for (Field pkey : firstParent.getPrimaryKeyFields()) {
       jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
-    createOrReplaceKey(jooq, copyTm, 1, other.getPrimaryKeyFields());
-    // create foreign key to parent
-    jooq.alterTable(table.getJooqTable())
-        .add(
-            constraint("fkey_" + table.getTableName() + "_extends_" + other.getTableName())
-                .foreignKey(other.getPrimaryKeyFields())
-                .references(other.getJooqTable(), other.getPrimaryKeyFields())
-                .onUpdateCascade()
-                .onDeleteCascade())
-        .execute();
-    // add column to superclass table
-    if (other.getLocalColumn(MG_TABLECLASS) == null) {
-      other.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
-
-      // should not be user editable, we add trigger
-      createMgTableClassCannotUpdateCheck((SqlTableMetadata) other, jooq);
+    createOrReplaceKey(jooq, copyTm, 1, firstParent.getPrimaryKeyFields());
+    for (TableMetadata parent : parents) {
+      jooq.alterTable(table.getJooqTable())
+          .add(
+              constraint("fkey_" + table.getTableName() + "_extends_" + parent.getTableName())
+                  .foreignKey(parent.getPrimaryKeyFields())
+                  .references(parent.getJooqTable(), parent.getPrimaryKeyFields())
+                  .onUpdateCascade()
+                  .onDeleteCascade())
+          .execute();
     }
-    createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
+    if (addMgTableclass) {
+      TableMetadata root = firstParent.getRootTable();
+      if (root.getLocalColumn(MG_TABLECLASS) == null) {
+        root.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
+        createMgTableClassCannotUpdateCheck((SqlTableMetadata) root, jooq);
+      }
+    }
+    createOrReplaceKey(jooq, table, 1, firstParent.getKeyFields(1));
   }
 
   static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
@@ -451,7 +460,7 @@ SELECT
   b.import_schema,
   b.table_inherits
   FROM "MOLGENIS".column_metadata a, "MOLGENIS".table_metadata b,  inherited_columns c
-  WHERE b.table_inherits=c.table_name
+  WHERE c.table_name = ANY(b.table_inherits)
   AND (b.import_schema IS NULL AND b.table_schema = c.table_schema OR b.import_schema = c.table_schema)
   AND a.table_schema = b.table_schema
   AND a.table_name=b.table_name

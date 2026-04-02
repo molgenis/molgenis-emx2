@@ -239,10 +239,10 @@ public class SqlSchema implements Schema {
         if (mergeTable.getImportSchema() != null) {
           table.setImportSchema(mergeTable.getImportSchema());
         }
-        table.setInheritName(mergeTable.getInheritName());
+        table.setInheritNames(mergeTable.getInheritNames());
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
-        if (mergeTable.getInheritName() == null) {
+        if (mergeTable.getInheritNames() == null) {
           mergeTable.getColumns().stream().filter(Column::isPrimaryKey).forEach(newTable::add);
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
@@ -261,13 +261,13 @@ public class SqlSchema implements Schema {
         TableMetadata oldTable = targetSchema.getTableMetadata(mergeTable.getTableName());
 
         // set inheritance
-        if (mergeTable.getInheritName() != null) {
+        if (mergeTable.getInheritNames() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInheritName(mergeTable.getInheritName());
-        } else if (oldTable.getInheritName() != null) {
-          oldTable.removeInherit();
+          oldTable.setInheritNames(mergeTable.getInheritNames());
+        } else if (oldTable.getInheritNames() != null) {
+          oldTable.removeInheritNames();
         }
 
         // update table settings
