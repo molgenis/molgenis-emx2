@@ -6,6 +6,9 @@
     showOrderBy="submitDate"
     showOrder="DESC"
     :canEdit="true"
+    :canDelete="true"
+    :canUpdate="true"
+    :canInsert="true"
     :canManage="true"
   >
     <template v-slot:rowheader="slotProps">
