@@ -133,8 +133,14 @@ export function getTitleText(
   columns: IColumn[],
   data: Record<string, any>
 ): string {
-  return columns
+  const titleFromRole = columns
     .filter((c) => c.role === "TITLE")
+    .map((c) => getRoleText(data[c.id]))
+    .filter(Boolean)
+    .join(" ");
+  if (titleFromRole) return titleFromRole;
+  return columns
+    .filter((c) => c.key === 1)
     .map((c) => getRoleText(data[c.id]))
     .filter(Boolean)
     .join(" ");

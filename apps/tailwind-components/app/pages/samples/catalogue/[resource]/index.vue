@@ -1,5 +1,6 @@
 <template>
   <div>
+    <BreadCrumbs :crumbs="breadcrumbs" align="center" />
     <div class="flex flex-wrap gap-2 p-4 bg-gray-100 rounded mb-4">
       <NuxtLink
         v-for="resource in resources"
@@ -33,6 +34,7 @@ import { useRoute } from "vue-router";
 import { useAsyncData } from "#app";
 import { navigateTo } from "#imports";
 import type { IColumn } from "../../../../../../metadata-utils/src/types";
+import BreadCrumbs from "../../../../components/BreadCrumbs.vue";
 import DetailView from "../../../../components/display/DetailView.vue";
 import fetchGraphql from "../../../../composables/fetchGraphql";
 import { provideRecordNavigation } from "../../../../composables/useRecordNavigation";
@@ -60,6 +62,11 @@ provideRecordNavigation({
     }
   },
 });
+
+const breadcrumbs = computed(() => [
+  { label: "Collections", url: "/samples/catalogue/LifeCycle" },
+  { label: (route.params.resource as string) || "", url: "" },
+]);
 
 const rowId = computed(() => ({
   id: route.params.resource as string,

@@ -243,21 +243,7 @@ const mockRowWithEmpty = {
           :row-id="rowId"
           :show-empty="showEmpty"
           :column-transform="columnTransform"
-        >
-          <template #header>
-            <div class="mb-6 pb-4 border-b dark:border-gray-600">
-              <h1 class="text-3xl font-bold">{{ tableId }} Record</h1>
-              <p class="text-gray-500">Row ID: {{ JSON.stringify(rowId) }}</p>
-            </div>
-          </template>
-          <template #footer>
-            <div
-              class="mt-6 pt-4 border-t dark:border-gray-600 text-sm text-gray-500"
-            >
-              Schema: {{ schemaId }} | Table: {{ tableId }}
-            </div>
-          </template>
-        </DetailView>
+        />
       </div>
     </div>
 

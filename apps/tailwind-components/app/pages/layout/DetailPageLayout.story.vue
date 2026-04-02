@@ -107,14 +107,6 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
       :row-id="rowId"
       :show-empty="showEmpty"
       :show-side-nav="showSideNav"
-    >
-      <template #header>
-        <PageHeader :id="`header-${tableId}`" :title="recordTitle">
-          <template #prefix>
-            <BreadCrumbs :crumbs="crumbs" />
-          </template>
-        </PageHeader>
-      </template>
-    </DetailView>
+    />
   </div>
 </template>

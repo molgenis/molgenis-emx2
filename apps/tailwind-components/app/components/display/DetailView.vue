@@ -248,6 +248,11 @@ const hasSideNav = computed(
   () => props.showSideNav !== false && navSections.value.length > 0
 );
 
+const tableLabel = computed(() => {
+  if (!isSmartMode.value || !metadata.value) return undefined;
+  return metadata.value.label;
+});
+
 const autoTitle = computed(() =>
   getTitleText(processedColumns.value, effectiveData.value)
 );
@@ -291,9 +296,14 @@ const isReady = computed(() => {
         <template #header>
           <slot v-if="$slots.header" name="header"></slot>
           <div
-            v-else-if="autoTitle || autoSubtitle"
+            v-else-if="tableLabel || autoTitle || autoSubtitle"
             class="flex flex-col px-5 pt-5 pb-6 lg:pb-10 lg:px-0 text-center text-title"
           >
+            <span
+              v-if="tableLabel"
+              class="text-body-sm uppercase tracking-wide opacity-60 mb-1"
+              >{{ tableLabel }}</span
+            >
             <h1 class="font-display text-heading-6xl">{{ autoTitle }}</h1>
             <p v-if="autoSubtitle" class="mt-1 text-body-lg">
               {{ autoSubtitle }}
