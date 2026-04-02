@@ -83,7 +83,6 @@ tasks.register("cleanApps", Delete) {
         delete file("${project.projectDir}/.output")
 
 
-
         // delete only known workspace folders' generated things; no global fileTree over repo
         workspaceDirs.each { dirName ->
             def dir = project.file(dirName)
@@ -93,8 +92,8 @@ tasks.register("cleanApps", Delete) {
                 delete new File(dir, "showCase")
                 delete new File(dir, "node_modules") // optional
                 delete new File(dir, "build")
-                delete new File(dir, ".nuxt")
-                delete new File(dir, ".output")
+                delete file("${project.projectDir}/.nuxt")
+                delete file("${project.projectDir}/.output")
             }
         }
     }
