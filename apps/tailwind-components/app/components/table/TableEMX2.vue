@@ -319,7 +319,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "view-details", payload: IRow): void;
+  (e: "view-details", payload: TableRow): void;
 }>();
 
 const showAddModal = ref<boolean>(false);
@@ -351,7 +351,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-type TableRow = {
+export type TableRow = {
   _rowId: Record<string, columnValue>;
 } & Record<string, columnValue>;
 

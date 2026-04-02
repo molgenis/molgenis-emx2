@@ -6,7 +6,7 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import { useSession } from "../../../composables/useSession";
-import { useTable } from "~/composables/useTable";
+import { useTable } from "../../../composables/useTable";
 import FormError from "../../form/Error.vue";
 import Button from "../../Button.vue";
 import BaseIcon from "../../BaseIcon.vue";

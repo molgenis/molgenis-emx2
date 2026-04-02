@@ -13,10 +13,10 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import type { TableRow } from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -68,7 +68,7 @@ function handleSettingsUpdate() {
   router.push({ query });
 }
 
-async function handleViewRowRequest(row: IRow) {
+async function handleViewRowRequest(row: TableRow) {
   const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
 
   router.push({
