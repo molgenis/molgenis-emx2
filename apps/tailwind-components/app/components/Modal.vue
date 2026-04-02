@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
 import { registerModal } from "../utils/modalManager";
-import { UseFocusTrap } from "@vueuse/integrations/useFocusTrap/component";
+import OptionalFocusTrap from "./OptionalFocusTrap.vue";
 
 withDefaults(
   defineProps<{
