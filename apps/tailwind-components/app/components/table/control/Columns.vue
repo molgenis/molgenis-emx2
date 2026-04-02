@@ -88,6 +88,7 @@ import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
 import Modal from "../../Modal.vue";
 import InputSelect from "../../input/Select.vue";
+import InputLabel from "../../input/Label.vue";
 import InputCheckboxIcon from "../../input/CheckboxIcon.vue";
 import Button from "../../Button.vue";
 import { UseSortable } from "@vueuse/integrations/useSortable/component";
