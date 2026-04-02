@@ -20,7 +20,6 @@
 
       <TableControlColumns
         :columns="columns"
-        :tableId="props.tableId"
         @update:columns="handleColumnsUpdate"
       />
     </div>

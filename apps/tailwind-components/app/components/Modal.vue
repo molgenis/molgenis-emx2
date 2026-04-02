@@ -88,7 +88,7 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto"
+                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto overflow-auto"
                 :class="[
                   {
                     'm-auto': type === 'center',
@@ -137,6 +137,12 @@ function hide() {
 
                 <footer
                   class="bg-modal-footer px-8 rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
+                  :class="[
+                    {
+                      'rounded-r-none': type === 'right',
+                      'rounded-l-none': type === 'left',
+                    },
+                  ]"
                 >
                   <slot name="footer" :hide="hide" />
                 </footer>

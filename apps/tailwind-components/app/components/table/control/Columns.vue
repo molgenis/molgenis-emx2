@@ -5,29 +5,35 @@
   <Modal
     v-model:visible="showModal"
     type="right"
-    title="Columns"
-    :subtitle="tableId"
     :background-accessible="false"
     maxWidth="max-w-md"
   >
-    <div class="px-8 py-5">
+    <div class="p-8">
       <div class="flex flex-row mb-5">
-        <InputSelect
-          id="column-sorting-select"
-          label="Sort by"
-          v-model="selectedSortMethod"
-          :options="sortMethods"
-          @change="handleSortMethodChanged"
-        />
+        <h2
+          id="modal-title"
+          class="uppercase text-heading-4xl font-display text-title-contrast"
+        >
+          Columns
+        </h2>
         <Button
           type="text"
           size="small"
           label="Reset to default"
           icon="RestartAlt"
-          class="ml-4 whitespace-nowrap"
+          class="ml-auto mr-0 pr-2 whitespace-nowrap"
           :onclick="resetToDefault"
         />
       </div>
+      <InputSelect
+        id="column-sorting-select"
+        label="Sort by"
+        class="mb-5"
+        v-model="selectedSortMethod"
+        :options="sortMethods"
+        @change="handleSortMethodChanged"
+      />
+
       <UseSortable
         v-model="columnsInColumnsSelectModal"
         @start="startOrderEvent"
@@ -42,39 +48,27 @@
             :for="`column-checkbox-group-${option.label}`"
             class="group flex justify-start items-center relative text-title-contrast"
           >
-            <Button
-              v-if="option.visible"
-              @click="option.visible = false"
-              iconOnly
-              type="inline"
-              size="small"
-              icon="visible"
-              label="add"
-              class="-mt-1 -mb-1 mr-1"
+            <input
+              type="checkbox"
+              :id="`column-checkbox-group-${option.label}`"
+              :value="option.visible"
+              v-model="option.visible"
+              class="ml-4 mt-2 sr-only"
             />
-            <Button
-              v-else
-              @click="option.visible = true"
-              iconOnly
-              type="inline"
-              size="small"
-              icon="hidden"
-              label="add"
-              class="-mt-1 -mb-1 mr-1"
-            />
+            <InputCheckboxIcon :checked="option.visible" />
             <span class="block hover:cursor-grab truncate max-w-3/4">
               {{ option.label }}
             </span>
           </InputLabel>
-          <BaseIcon
-            name="drag-horizontal"
-            class="ml-auto text-title-contrast"
-          />
+          <BaseIcon name="equal" class="ml-auto text-border" :width="24" />
         </div>
       </UseSortable>
     </div>
+    <template #header>
+      <div />
+    </template>
     <template #footer>
-      <div class="flex gap-2 justify-start py-2">
+      <div class="flex gap-2 justify-start py-5">
         <Button type="primary" size="small" label="Save" @click="handleSave" />
         <Button
           type="secondary"
@@ -100,15 +94,10 @@ import { UseSortable } from "@vueuse/integrations/useSortable/component";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
-const props = withDefaults(
-  defineProps<{
-    columns: IColumn[];
-    tableId?: string;
-  }>(),
-  {
-    tableId: "",
-  }
-);
+const props = defineProps<{
+  columns: IColumn[];
+  tableId?: string;
+}>();
 
 const emits = defineEmits(["update:columns"]);
 
