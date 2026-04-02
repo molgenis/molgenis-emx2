@@ -101,20 +101,6 @@ function scrollToTop() {
                 >Catalogue detail</NuxtLink
               >
             </div>
-            <div class="py-2">
-              <NuxtLink
-                class="hover:underline text-title"
-                to="/samples/catalogue/LifeCycle/collection-events/y1"
-                >Collection event detail</NuxtLink
-              >
-            </div>
-            <div class="py-2">
-              <NuxtLink
-                class="hover:underline text-title"
-                to="/samples/catalogue/LifeCycle/subpopulations/y1"
-                >Subpopulation detail</NuxtLink
-              >
-            </div>
 
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
