@@ -77,6 +77,9 @@ class Transform:
         df_networks.to_csv(self.path + 'Networks.csv', index=False)
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
+        # remove resources table
+        os.remove(self.path + 'Resources.csv')
+
 
 def assign_table_type(resource_type):
     if 'Catalogue' in resource_type:
