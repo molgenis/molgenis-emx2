@@ -50,8 +50,10 @@ test("the row should be removed from the table after deletion", async ({
   await expect(
     page.getByRole("heading", { name: "Delete Category" })
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Delete" })).toBeVisible();
-  await page.getByRole("button", { name: "Delete" }).click();
+  await expect(
+    page.getByRole("button", { name: "Delete" }).first()
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Delete" }).first().click();
 
   await page.waitForTimeout(1000); // wait for the table to update
 
