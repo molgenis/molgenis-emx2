@@ -195,8 +195,7 @@
       "
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
-      :schema="schemaId"
-      :sourceTableId="refSourceTableId"
+      :schema="cellDetailSchemaId ?? schemaId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
     />
@@ -207,8 +206,7 @@
             v-if="cellDetailColumn"
             :metadata="toRefColumn(cellDetailColumn)"
             :columnValue="toRefColumnValue(item as columnValue)"
-            :schema="schemaId"
-            :sourceTableId="refSourceTableId"
+            :schema="cellDetailSchemaId ?? schemaId"
             :showDataOwner="false"
             @onRefClick="handleDetailRefClick"
           />
@@ -308,11 +306,10 @@ const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
+const cellDetailSchemaId = ref<string>();
 const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
-// initially set to the current tableId
-const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
 
 const tableContainer = ref<HTMLElement | null>(null);
@@ -446,6 +443,7 @@ function handlePagingRequest(page: number) {
 function handleCellClick(event: cellPayload, column: IColumn) {
   cellDetailSubtitle.value = column.label;
   cellDetailColumn.value = column;
+  cellDetailSchemaId.value = column.refSchemaId ?? props.schemaId;
   cellDetailValue.value = event.data as columnValue;
   showModal.value = true;
 }
@@ -460,6 +458,7 @@ async function handleDetailRefClick(
 
   cellDetailSubtitle.value = columnMetadata.label;
   cellDetailColumn.value = columnMetadata;
+  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? props.schemaId;
 
   cellDetailValue.value = event.data as columnValue;
 
