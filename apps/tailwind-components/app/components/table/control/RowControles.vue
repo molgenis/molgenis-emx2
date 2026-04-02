@@ -3,6 +3,7 @@ import { computed } from "vue";
 import Button from "../../Button.vue";
 const props = defineProps<{
   numberOfSelectedRows: number;
+  canEdit: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -19,6 +20,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
     class="flex flex-row items-center gap-2 px-2 group border border-theme rounded-theme"
   >
     <Button
+      v-if="canEdit"
       :icon-only="true"
       icon="trash"
       type="inline"
@@ -28,6 +30,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
       @click="emit('rowAction', { action: 'delete-selection' })"
     />
     <Button
+      v-if="canEdit"
       :icon-only="true"
       icon="edit"
       type="inline"

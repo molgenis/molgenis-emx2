@@ -2,6 +2,7 @@
   <div class="flex pb-[30px] justify-between">
     <RowControles
       :number-of-selected-rows="numberOfSelectedRows"
+      :can-edit="props.isEditable"
       @row-action="handleRowAction"
     />
     <InputSearch
@@ -99,8 +100,8 @@
             >
               <div class="flex justify-center items-center h-full">
                 <Checkbox
-                  :model-value="selectedRows.has(getRowId(row))"
-                  @update:model-value="toggleRowSelection(getRowId(row))"
+                  :model-value="selectedRows.has(row._rowId)"
+                  @update:model-value="toggleRowSelection(row._rowId)"
                 />
               </div>
             </TableCellEMX2>
@@ -143,7 +144,7 @@
                     aria-haspopup="dialog"
                     :aria-expanded="showDeleteModal"
                   >
-                    {{ getRowId(row) }}
+                    {{ JSON.stringify(row._rowId) }}
                   </Button>
                   <Button
                     v-if="isEditable"
@@ -158,7 +159,7 @@
                     aria-haspopup="dialog"
                     :aria-expanded="showEditModal"
                   >
-                    {{ getRowId(row) }}
+                    {{ JSON.stringify(row._rowId) }}
                   </Button>
 
                   <slot name="additional-row-actions" :row="row" />
@@ -231,6 +232,16 @@
     @update:deleted="afterRowDeleted"
   />
 
+  <DeleteRows
+    v-if="data?.tableMetadata && showDeleteMultipleModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :keys="selectedRows"
+    v-model:visible="showDeleteMultipleModal"
+    @update:deleted="afterRowDeleted"
+  />
+
   <EditModal
     v-if="data?.tableMetadata && showEditModal"
     :key="`edit-modal-${useId()}`"
@@ -273,7 +284,7 @@ import type {
 import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
-import { fetchTableData, fetchTableMetadata } from "#imports";
+import { fetchTableData, fetchTableMetadata, getPrimaryKey } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
@@ -294,6 +305,7 @@ import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import RowControles from "./control/RowControles.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -313,6 +325,7 @@ const emit = defineEmits<{
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
+const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
@@ -321,7 +334,7 @@ const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
-const selectedRows = ref<Set<string>>(new Set());
+const selectedRows = ref<Set<Record<string, columnValue>>>(new Set());
 
 const tableContainer = ref<HTMLElement | null>(null);
 
@@ -337,6 +350,10 @@ const settings = defineModel<ITableSettings>("settings", {
     search: "",
   }),
 });
+
+type TableRow = {
+  _rowId: Record<string, columnValue>;
+} & Record<string, columnValue>;
 
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -355,9 +372,20 @@ const { data, refresh } = useAsyncData(
       searchTerms: settings.value.search,
     });
 
+    // add unique row identifier for selection purposes
+    const rows: TableRow[] = await Promise.all(
+      tableData.rows.map(async (row) => {
+        return {
+          ...row,
+          _rowId: await getPrimaryKey(row, props.tableId, props.schemaId),
+        };
+      })
+    );
+
     return {
       tableMetadata,
-      tableData,
+      rows,
+      count: tableData.count,
     };
   }
 );
@@ -380,24 +408,14 @@ watch(
 );
 
 const rows = computed(() =>
-  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+  Array.isArray(data.value?.rows) ? data.value?.rows : []
 );
 
 const showDraftColumn = computed(() =>
   rows.value.some((row) => row?.mg_draft === true)
 );
 
-const count = computed(() => data.value?.tableData?.count ?? 0);
-
-const primaryKeys = computed(() => {
-  return columns.value
-    ?.map((col: IColumn) => {
-      if (Object.hasOwn(col, "key")) {
-        return col.id;
-      }
-    })
-    .filter((value: any) => value);
-});
+const count = computed(() => data.value?.count ?? 0);
 
 watch(
   () => data.value?.tableMetadata,
@@ -423,13 +441,7 @@ const sortedVisibleColumns = computed(() => {
 const allRowsSelected = computed(() => {
   return (
     rows.value.length > 0 &&
-    rows.value.every((row) => selectedRows.value.has(getRowId(row)))
-  );
-});
-
-const someRowsSelected = computed(() => {
-  return (
-    selectedRows.value.size > 0 && selectedRows.value.size < rows.value.length
+    rows.value.every((row) => selectedRows.value.has(row._rowId))
   );
 });
 
@@ -439,7 +451,7 @@ function handleColumnsUpdate(newColumns: IColumn[]) {
   columns.value = newColumns;
 }
 
-function toggleRowSelection(rowId: string) {
+function toggleRowSelection(rowId: Record<string, columnValue>) {
   if (selectedRows.value.has(rowId)) {
     selectedRows.value.delete(rowId);
   } else {
@@ -447,12 +459,12 @@ function toggleRowSelection(rowId: string) {
   }
 }
 
-function toggleAllRows() {
+async function toggleAllRows() {
   if (allRowsSelected.value) {
     selectedRows.value.clear();
   } else {
     rows.value.forEach((row) => {
-      selectedRows.value.add(getRowId(row));
+      selectedRows.value.add(row._rowId);
     });
   }
 }
@@ -462,7 +474,7 @@ function handleRowAction(payload: { action: string }) {
     const action = payload.action;
     const singleRowSelected =
       selectedRows.value.size === 1
-        ? rows.value.find((row) => selectedRows.value.has(getRowId(row)))
+        ? rows.value.find((row) => selectedRows.value.has(row._rowId))
         : null;
     if (action === "delete-selection" && singleRowSelected) {
       onShowDeleteModal(singleRowSelected);
@@ -470,6 +482,8 @@ function handleRowAction(payload: { action: string }) {
       onShowEditModal(singleRowSelected);
     } else if (action === "view-details" && singleRowSelected) {
       emit("view-details", singleRowSelected);
+    } else if (action === "delete-selection" && selectedRows.value.size > 1) {
+      showDeleteMultipleModal.value = true;
     }
   }
 }
@@ -524,13 +538,6 @@ async function handleDetailRefClick(
   cellDetailValue.value = event.data as columnValue;
 
   showModal.value = true;
-}
-
-function getRowId(row: IRow) {
-  return primaryKeys.value
-    .map((key) => row[key as string])
-    .join("-")
-    .replaceAll(" ", "-");
 }
 
 function onShowDeleteModal(row: Record<string, columnValue>) {

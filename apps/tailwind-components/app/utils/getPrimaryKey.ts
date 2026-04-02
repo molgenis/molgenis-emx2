@@ -1,5 +1,6 @@
 import { fetchMetadata } from "#imports";
 import type {
+  columnValue,
   IColumn,
   IRow,
   ITableMetaData,
@@ -9,7 +10,7 @@ export async function getPrimaryKey(
   row: IRow,
   tableId: string,
   schemaId: string
-): Promise<Record<string, any>> {
+): Promise<Record<string, columnValue>> {
   const schema = await fetchMetadata(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId
