@@ -1,9 +1,9 @@
+import { useState } from "#app";
 import { useAsyncData } from "#app/composables/asyncData";
+import { useRouter } from "#app/composables/router";
 import { computed, type Ref } from "vue";
-import { useRoute, useRouter } from "#app/composables/router";
 import type { ISession } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
-import { useState } from "#app";
 
 export const useSession = async (schemaId?: string) => {
   const router = useRouter();
