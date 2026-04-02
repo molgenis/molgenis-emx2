@@ -8,7 +8,7 @@
     :background-accessible="false"
     maxWidth="max-w-md"
   >
-    <div class="p-8">
+    <div class="p-8 overflow-x-hidden">
       <div class="flex flex-row mb-5">
         <h2
           id="modal-title"
@@ -56,7 +56,7 @@
               class="ml-4 mt-2 sr-only"
             />
             <InputCheckboxIcon :checked="option.visible" />
-            <span class="block hover:cursor-grab truncate max-w-3/4">
+            <span class="block hover:cursor-grab truncate max-w-64">
               {{ option.label }}
             </span>
           </InputLabel>
