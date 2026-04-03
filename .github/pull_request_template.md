@@ -1,3 +1,5 @@
+## By submitting a pull request, I confirm I have read and agreed to the terms as described in [CONTRIBUTING.md](https://github.com/molgenis/molgenis-emx2/blob/master/CONTRIBUTING.md)
+
 ### What are the main changes you did
 - explain what you changed and essential considerations.
 

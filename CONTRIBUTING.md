@@ -2,6 +2,20 @@
 
 MOLGENIS EMX2 is an open source platform built on FAIR data principles (Findability, Accessibility, Interoperability, and Reusability). We are dedicated to building and maintaining EMX2 to support the wider scientific community, and we welcome contributions from anyone. Whether you would like to report a bug or add a new feature, contributing to EMX2 can happen in a number of ways. Use this guide to get started.
 
+## Licensing of Contributions
+
+By submitting a pull request to this repository, you agree to grant the maintainers of this project (such as the MOLGENIS-EMX2 team) a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable license to:
+* Use, reproduce, modify, adapt, create derivative work of, and distribute your contribution and such derivative works.
+* Incorporate your contribution into MOLGENIS EMX2 and other works
+* Sublicense your contribution as part of MOLGENIS EMX2 and other works
+* Re-license your contribution as part of MOLGENIS EMX2 and other works under any license compatible with LGPL-v3.0 or later versions of LGPL
+
+You are free to use your contribution elsewhere, as long as it does not conflict with any rights given as described in this document.
+
+By submitting a a pull request, you acknowledge that:
+* You have the legal rights to grant these permissions
+* Your contribution does not infringe on the rights of any third party
+
 ## How to contribute
 
 The review of contributions will take place on GitHub [molgenis-emx2 repository](https://github.com/molgenis/molgenis-emx2). A GitHub account is required to contribute. Depending on the type of contributions (issues, features, code), there are different methods for contributing to the MOLGENIS EMX2 software. These are described in the following sections.
