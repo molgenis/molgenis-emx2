@@ -107,11 +107,12 @@ public class Emx2 {
       else {
         try {
           if (row.getString(TABLE_EXTENDS) != null) {
-            throw new MolgenisException(
-                "Parsing of sheet molgenis failed: Column "
-                    + TABLE_EXTENDS
-                    + " not supported for columns at "
-                    + lineNo);
+            schema.getTableMetadata(tableName).setInheritNames(row.getStringArray(TABLE_EXTENDS));
+          }
+          if (row.getString(TABLE_TYPE) != null) {
+            schema
+                .getTableMetadata(tableName)
+                .setTableType(TableType.valueOf(row.getString(TABLE_TYPE)));
           }
 
           Column column = column(row.getString(COLUMN_NAME));

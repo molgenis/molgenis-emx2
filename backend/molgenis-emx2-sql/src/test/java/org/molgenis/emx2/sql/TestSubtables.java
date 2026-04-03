@@ -45,14 +45,14 @@ public class TestSubtables {
 
     schema.create(
         table("sampling")
-            .setTableType(TableType.BLOCK)
+            .setTableType(TableType.INTERNAL)
             .setInheritNames("Experiments")
             .add(column("sample type").setType(STRING))
             .add(column("tissue type").setType(STRING)));
 
     schema.create(
         table("sequencing")
-            .setTableType(TableType.BLOCK)
+            .setTableType(TableType.INTERNAL)
             .setInheritNames("Experiments")
             .add(column("library strategy").setType(STRING))
             .add(column("read length").setType(INT)));
@@ -601,19 +601,19 @@ public class TestSubtables {
   }
 
   @Test
-  public void testBlockTableTypePersisted() {
+  public void testInternalTableTypePersisted() {
     createPickOneSchema();
 
     Schema reloaded = db.getSchema(SCHEMA_PICK_ONE);
 
     assertEquals(
-        TableType.BLOCK,
+        TableType.INTERNAL,
         reloaded.getTable("sampling").getMetadata().getTableType(),
-        "sampling should have TableType.BLOCK after reload");
+        "sampling should have TableType.INTERNAL after reload");
     assertEquals(
-        TableType.BLOCK,
+        TableType.INTERNAL,
         reloaded.getTable("sequencing").getMetadata().getTableType(),
-        "sequencing should have TableType.BLOCK after reload");
+        "sequencing should have TableType.INTERNAL after reload");
     assertEquals(
         TableType.DATA,
         reloaded.getTable("WGS").getMetadata().getTableType(),

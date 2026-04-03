@@ -93,24 +93,25 @@ Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified
 - Can't reroot table with subclasses (validated)
 - `getInheritedTables()` throws only when DB-backed, skips in-memory (cross-schema graceful handling)
 
-### Phase 3: GraphQL API — complete remaining work
+### Phase 3: GraphQL API — COMPLETE
 
-**Done so far**: `inheritNames` exposed as String[] list, 3 smoke tests pass.
+- `inheritNames` exposed as String[] list
+- PROFILE/PROFILES columns queryable via GraphQL
+- `TableType.INTERNAL` exposed in `_schema` metadata query
+- Mutations with profile values create correct child table rows
+- Fixed `TypeUtils.convertToRows()` to include subclass columns
+- 4 smoke tests added in `TestTableQueriesWithInheritance`
 
-**Remaining**:
-- Verify PROFILE/PROFILES columns work in GraphQL queries and mutations
-- Verify `TableType.INTERNAL` exposed correctly in schema metadata
-- Verify mutations with profile values create correct child table rows
-- Add smoke tests for any gaps
+### Phase 4: IO Pipeline — COMPLETE
 
-### Phase 4: IO Pipeline — complete remaining work
+- CSV `tableExtends` round-trips comma-separated multi-parent
+- `TableType.INTERNAL` round-trips in CSV export/import
+- Fixed `Emx2.java` parser for compact CSV rows with table metadata + columnName
+- 2 smoke tests added in `TestExtends`
 
-**Done so far**: CSV `tableExtends` round-trips comma-separated multi-parent. Smoke test passes.
-
-**Remaining**:
-- Verify `TableType.INTERNAL` round-trips in CSV export/import
-- Verify all IO paths handle multi-parent (zip import, bulk upload)
-- Add smoke tests for any gaps
+**Also completed (cross-cutting)**:
+- `TableType.BLOCK` renamed to `INTERNAL` with `migration33.sql`
+- `SqlDatabase.removeUser()` atomicity bug fixed
 
 ### Phase 5: Frontend — Schema & Explorer Apps
 

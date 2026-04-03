@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
@@ -51,12 +52,12 @@ public class TestTableQueriesWithInheritance {
             .add(column("experiment_type").setType(ColumnType.PROFILE).setRequired(true)));
     multiParentSchema.create(
         table("Sampling")
-            .setTableType(TableType.BLOCK)
+            .setTableType(TableType.INTERNAL)
             .setInheritNames("Experiments")
             .add(column("sample_type")));
     multiParentSchema.create(
         table("Sequencing")
-            .setTableType(TableType.BLOCK)
+            .setTableType(TableType.INTERNAL)
             .setInheritNames("Experiments")
             .add(column("library_strategy")));
     multiParentSchema.create(
@@ -92,9 +93,10 @@ public class TestTableQueriesWithInheritance {
     assertFalse(tables.isMissingNode(), "tables should be present in schema");
 
     JsonNode wgsTable = findTableByName(tables, "WGS");
-    assertTrue(wgsTable != null, "WGS table should be present");
+    assertNotNull(wgsTable, "WGS table should be present");
     JsonNode inheritNames = wgsTable.get("inheritNames");
-    assertTrue(inheritNames != null && inheritNames.isArray(), "inheritNames should be an array");
+    assertNotNull(inheritNames, "inheritNames should not be null");
+    assertTrue(inheritNames.isArray(), "inheritNames should be an array");
     assertEquals(2, inheritNames.size(), "WGS should have 2 parents");
 
     boolean hasSampling = false;
@@ -108,12 +110,56 @@ public class TestTableQueriesWithInheritance {
   }
 
   @Test
+  public void testInternalTableTypeExposedInSchemaMetadata() throws IOException {
+    JsonNode result = execute(multiParentGrapql, "{_schema{tables{name,tableType}}}");
+    JsonNode tables = result.at("/_schema/tables");
+    assertFalse(tables.isMissingNode(), "tables should be present in schema");
+
+    JsonNode samplingTable = findTableByName(tables, "Sampling");
+    assertNotNull(samplingTable, "Sampling table should be present");
+    assertEquals(
+        "INTERNAL",
+        samplingTable.at("/tableType").asText(),
+        "Sampling should have tableType INTERNAL");
+
+    JsonNode sequencingTable = findTableByName(tables, "Sequencing");
+    assertNotNull(sequencingTable, "Sequencing table should be present");
+    assertEquals(
+        "INTERNAL",
+        sequencingTable.at("/tableType").asText(),
+        "Sequencing should have tableType INTERNAL");
+
+    JsonNode wgsTable = findTableByName(tables, "WGS");
+    assertNotNull(wgsTable, "WGS table should be present");
+    String wgsTableType = wgsTable.at("/tableType").asText();
+    assertTrue(
+        wgsTableType.isEmpty() || "DATA".equals(wgsTableType),
+        "WGS should have DATA or null tableType");
+  }
+
+  @Test
+  public void testProfileColumnQueryableFromRoot() throws IOException {
+    JsonNode result =
+        execute(
+            multiParentGrapql, "{Experiments(filter:{id:{equals:\"wgs1\"}}){id,experiment_type}}");
+    JsonNode rows = result.at("/Experiments");
+    assertFalse(rows.isMissingNode(), "Experiments query result should be present");
+    assertEquals(1, rows.size(), "Experiments should have 1 matching row");
+    assertEquals(
+        "WGS",
+        rows.get(0).at("/experiment_type").asText(),
+        "experiment_type (PROFILE column) should return the profile value");
+  }
+
+  @Test
   public void testMultiParentInheritanceDataQuery() throws IOException {
     JsonNode result =
-        execute(multiParentGrapql, "{WGS{id,name,sample_type,library_strategy,coverage}}");
+        execute(
+            multiParentGrapql,
+            "{WGS(filter:{id:{equals:\"wgs1\"}}){id,name,sample_type,library_strategy,coverage}}");
     JsonNode wgsRows = result.at("/WGS");
     assertFalse(wgsRows.isMissingNode(), "WGS query result should be present");
-    assertEquals(1, wgsRows.size(), "WGS should have 1 row");
+    assertEquals(1, wgsRows.size(), "WGS should have 1 row matching wgs1");
 
     JsonNode row = wgsRows.get(0);
     assertEquals("wgs1", row.at("/id").asText());
@@ -125,11 +171,29 @@ public class TestTableQueriesWithInheritance {
 
   @Test
   public void testMultiParentInheritanceVisibleViaRootTable() throws IOException {
-    JsonNode result = execute(multiParentGrapql, "{Experiments{id,name}}");
+    JsonNode result =
+        execute(multiParentGrapql, "{Experiments(filter:{id:{equals:\"wgs1\"}}){id,name}}");
     JsonNode rows = result.at("/Experiments");
     assertFalse(rows.isMissingNode(), "Experiments query result should be present");
-    assertEquals(1, rows.size(), "Experiments should contain the WGS row via inheritance");
+    assertEquals(1, rows.size(), "Experiments should contain 1 row matching wgs1");
     assertEquals("wgs1", rows.get(0).at("/id").asText());
+  }
+
+  @Test
+  public void testMutationWithProfileValueViaGraphql() throws IOException {
+    String mutation =
+        "mutation { insert(Experiments: [{id: \"wgs2\", name: \"WGS experiment 2\","
+            + " experiment_type: \"WGS\", sample_type: \"tissue\", library_strategy: \"WES\","
+            + " coverage: 50}]) { message } }";
+    execute(multiParentGrapql, mutation);
+
+    JsonNode result =
+        execute(multiParentGrapql, "{WGS(filter:{id:{equals:\"wgs2\"}}){id,coverage,sample_type}}");
+    JsonNode wgsRows = result.at("/WGS");
+    assertFalse(wgsRows.isMissingNode(), "WGS query result should be present after mutation");
+    assertEquals(1, wgsRows.size(), "inserted row should appear in WGS child table");
+    assertEquals(50, wgsRows.get(0).at("/coverage").asInt());
+    assertEquals("tissue", wgsRows.get(0).at("/sample_type").asText());
   }
 
   private JsonNode findTableByName(JsonNode tables, String name) {

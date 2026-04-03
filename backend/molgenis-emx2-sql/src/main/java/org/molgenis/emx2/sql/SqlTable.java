@@ -349,7 +349,7 @@ public class SqlTable implements Table {
   private static void validateProfileValue(
       SqlTable parentTable, String profileValue, List<TableMetadata> allChildTables) {
     TableMetadata subtable = parentTable.getMetadata().getSchema().getTableMetadata(profileValue);
-    if (subtable == null || subtable.getTableType() == TableType.BLOCK) {
+    if (subtable == null || subtable.getTableType() == TableType.INTERNAL) {
       throw new MolgenisException(
           "Invalid profile value: '"
               + profileValue

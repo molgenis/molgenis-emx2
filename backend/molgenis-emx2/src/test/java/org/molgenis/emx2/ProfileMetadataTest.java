@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 public class ProfileMetadataTest {
 
   @Test
-  void testBlockTableTypeExists() {
-    assertNotNull(TableType.BLOCK);
+  void testInternalTableTypeExists() {
+    assertNotNull(TableType.INTERNAL);
     assertEquals(3, TableType.values().length);
   }
 
@@ -55,7 +55,7 @@ public class ProfileMetadataTest {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());
     TableMetadata sampling =
-        table("sampling").setTableType(TableType.BLOCK).setInheritNames("Experiments");
+        table("sampling").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
     TableMetadata wgs = table("WGS").setInheritNames("sampling");
 
     schema.create(experiments);
@@ -73,9 +73,9 @@ public class ProfileMetadataTest {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());
     TableMetadata sampling =
-        table("sampling").setTableType(TableType.BLOCK).setInheritNames("Experiments");
+        table("sampling").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
     TableMetadata sequencing =
-        table("sequencing").setTableType(TableType.BLOCK).setInheritNames("Experiments");
+        table("sequencing").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
     TableMetadata wgs = table("WGS").setInheritNames("sampling", "sequencing");
     TableMetadata imaging = table("Imaging").setInheritNames("Experiments");
 
@@ -99,12 +99,12 @@ public class ProfileMetadataTest {
   }
 
   @Test
-  void testBlockTableType() {
-    TableMetadata blockTable = table("SomeBlock").setTableType(TableType.BLOCK);
-    assertEquals(TableType.BLOCK, blockTable.getTableType());
+  void testInternalTableType() {
+    TableMetadata internalTable = table("SomeInternal").setTableType(TableType.INTERNAL);
+    assertEquals(TableType.INTERNAL, internalTable.getTableType());
 
     TableMetadata dataTable = table("SomeData").setTableType(TableType.DATA);
-    assertNotEquals(TableType.BLOCK, dataTable.getTableType());
+    assertNotEquals(TableType.INTERNAL, dataTable.getTableType());
   }
 
   @Test

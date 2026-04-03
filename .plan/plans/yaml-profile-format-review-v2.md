@@ -6,7 +6,7 @@
 
 1. **Profile column always on root table.** `getProfileColumn()` should walk to root and check there. A profile column on a non-root table is invalid.
 2. **`hasProfileColumnInAncestors()` is unnecessary.** If profile columns must be on root, then `getRootTable().getProfileColumn() != null` is the check. Remove `hasProfileColumnInAncestors()`.
-3. **`isBlock()` and `getIncludedBlockTables()` removed from TableMetadata.** Backend never branches on block status. `TableType.BLOCK` stays in the enum and in `table_metadata` (UX marker), but no methods in `TableMetadata` expose it.
+3. **`isBlock()` and `getIncludedBlockTables()` removed from TableMetadata.** Backend never branches on block status. `TableType.INTERNAL` stays in the enum and in `table_metadata` (UX marker), but no methods in `TableMetadata` expose it.
 4. **One inheritance style in code.** No `subtableStyle` boolean — every extends is the same FK mechanism. The only variable is whether `mg_tableclass` is added (when root has no profile column).
 5. **Unified row management.** Both old-style (`mg_tableclass`) and profile-based subclass rows use the same `insertBatch` recursive mechanism. No separate `handleSubtableRows` with manual JOOQ upsert.
 
@@ -29,7 +29,7 @@ Remove both methods. Callers:
 - `SqlTable.handleSubtableRows` line 404: will be eliminated (see §5)
 - `SqlTable.handleSubtableRows` line 427: will be eliminated (see §5)
 - `SqlQuery.collectAncestorSearchableTableNames` line 1637: rewrite (see §4d)
-- `ProfileMetadataTest`: update tests — remove `isBlock()` assertions, remove `getIncludedBlockTables()` assertions. `TableType.BLOCK` still exists, test via `getTableType() == TableType.BLOCK` if needed.
+- `ProfileMetadataTest`: update tests — remove `isBlock()` assertions, remove `getIncludedBlockTables()` assertions. `TableType.INTERNAL` still exists, test via `getTableType() == TableType.INTERNAL` if needed.
 
 **d) Move `existsInAnyParent()` here** (from SqlTableMetadata)
 Rename to `hasColumnInParent(String columnName)`. Instance method on TableMetadata. Checks `getInheritedTables()` (direct parents only — sufficient for column overlap detection).
@@ -171,7 +171,7 @@ Row arrives at parent table with profile="WGS"
 
 ### 6. Test updates
 
-- `ProfileMetadataTest.java`: Remove `isBlock()` and `getIncludedBlockTables()` test assertions. Keep `TableType.BLOCK` check via `getTableType()`.
+- `ProfileMetadataTest.java`: Remove `isBlock()` and `getIncludedBlockTables()` test assertions. Keep `TableType.INTERNAL` check via `getTableType()`.
 - All existing tests (`TestSubtables`, `TestInherits`, full SQL suite) must still pass.
 - No new tests needed — this is refactoring, not behavior change.
 

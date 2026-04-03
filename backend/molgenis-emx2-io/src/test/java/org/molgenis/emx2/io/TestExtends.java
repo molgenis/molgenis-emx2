@@ -2,16 +2,19 @@ package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -160,6 +163,103 @@ public class TestExtends {
         new String[] {"sampling", "sequencing"},
         reimported.getTableMetadata("WGS").getInheritNames(),
         "WGS should still inherit from both sampling and sequencing after re-import");
+  }
+
+  @Test
+  public void internalTableTypeRoundTrip() throws IOException {
+    String csv =
+        """
+        tableName,tableExtends,tableType,columnName,key
+        Experiments,,,id,1
+        Experiments,,,name,
+        Experiments,,,experiment_type,
+        Sampling,Experiments,INTERNAL,sample_type,
+        Sequencing,Experiments,INTERNAL,library_strategy,
+        WGS,"Sampling,Sequencing",,coverage,
+        """;
+
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(csv)));
+
+    assertEquals(
+        TableType.INTERNAL,
+        sm.getTableMetadata("Sampling").getTableType(),
+        "Sampling should have INTERNAL table type after import");
+    assertEquals(
+        TableType.INTERNAL,
+        sm.getTableMetadata("Sequencing").getTableType(),
+        "Sequencing should have INTERNAL table type after import");
+    assertEquals(
+        TableType.DATA,
+        sm.getTableMetadata("WGS").getTableType(),
+        "WGS should have DATA table type");
+
+    List<Row> exported = Emx2.toRowList(sm);
+
+    Row samplingRow =
+        exported.stream()
+            .filter(
+                r ->
+                    "Sampling".equals(r.getString("tableName"))
+                        && r.getString("columnName") == null)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("Sampling table row not found in export"));
+
+    assertEquals(
+        "INTERNAL",
+        samplingRow.getString("tableType"),
+        "Sampling tableType should be INTERNAL in export");
+
+    SchemaMetadata reimported = Emx2.fromRowList(exported);
+
+    assertEquals(
+        TableType.INTERNAL,
+        reimported.getTableMetadata("Sampling").getTableType(),
+        "Sampling should still have INTERNAL table type after re-import");
+    assertEquals(
+        TableType.INTERNAL,
+        reimported.getTableMetadata("Sequencing").getTableType(),
+        "Sequencing should still have INTERNAL table type after re-import");
+  }
+
+  @Test
+  public void multiParentWithInternalTablesAndProfileColumnRoundTrip() throws IOException {
+    String csv =
+        """
+        tableName,tableExtends,tableType,columnName,key,columnType
+        Experiments,,,id,1,
+        Experiments,,,name,,
+        Experiments,,,experiment_type,,profile
+        Sampling,Experiments,INTERNAL,sample_type,,
+        Sequencing,Experiments,INTERNAL,library_strategy,,
+        WGS,"Sampling,Sequencing",,coverage,,int
+        """;
+
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(csv)));
+
+    assertEquals(TableType.INTERNAL, sm.getTableMetadata("Sampling").getTableType());
+    assertEquals(TableType.INTERNAL, sm.getTableMetadata("Sequencing").getTableType());
+    assertArrayEquals(
+        new String[] {"Sampling", "Sequencing"}, sm.getTableMetadata("WGS").getInheritNames());
+
+    assertNotNull(
+        sm.getTableMetadata("Experiments").getColumn("experiment_type"),
+        "experiment_type column should exist");
+    assertEquals(
+        ColumnType.PROFILE,
+        sm.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType(),
+        "experiment_type should have PROFILE column type");
+
+    List<Row> exported = Emx2.toRowList(sm);
+    SchemaMetadata reimported = Emx2.fromRowList(exported);
+
+    assertEquals(TableType.INTERNAL, reimported.getTableMetadata("Sampling").getTableType());
+    assertEquals(TableType.INTERNAL, reimported.getTableMetadata("Sequencing").getTableType());
+    assertArrayEquals(
+        new String[] {"Sampling", "Sequencing"},
+        reimported.getTableMetadata("WGS").getInheritNames());
+    assertEquals(
+        ColumnType.PROFILE,
+        reimported.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType());
   }
 
   private void validate1(SchemaMetadata sm) {

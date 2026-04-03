@@ -528,17 +528,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
-    tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
-    log(start, "removed user " + user);
-
     tx(
-        db ->
-            ((SqlDatabase) db)
-                .getJooq()
-                .deleteFrom(USERS_METADATA)
-                .where(USER_NAME.eq(user))
-                .execute());
-    log(start, "removed metadata from user " + user);
+        db -> {
+          SqlDatabase sqlDb = (SqlDatabase) db;
+          sqlDb.getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user));
+          sqlDb.getJooq().deleteFrom(USERS_METADATA).where(USER_NAME.eq(user)).execute();
+        });
+    log(start, "removed user " + user);
   }
 
   public void setEnabledUser(String user, boolean enabled) {

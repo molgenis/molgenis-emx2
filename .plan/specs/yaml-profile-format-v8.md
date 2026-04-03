@@ -18,7 +18,7 @@ Proof of concept for the profile mechanism in EMX2 YAML. Uses Approach A's table
 
 7. **Import at column level.** `- import: blocks/sampling.yaml` can also appear inside a section's `columns:` list. The imported file is then a column sequence (no section wrapper). Same override rules: later columns with the same `name` override in place; new columns are appended.
 
-8. **Subtables and blocks.** Subtables are user-selectable profiles (shown in the profile selector dropdown) and each subtable becomes a backend table. Blocks group column definitions and compose into subtables via `includes:` — they also become backend tables (to avoid column duplication when shared across subtables). Blocks are marked `tableType = BLOCK` in `table_metadata`; subtables are regular DATA tables — their "subtable" status is derived from being a non-BLOCK child of a table with a PROFILE column. Profile options come from non-BLOCK children of the parent table.
+8. **Subtables and blocks.** Subtables are user-selectable profiles (shown in the profile selector dropdown) and each subtable becomes a backend table. Blocks group column definitions and compose into subtables via `includes:` — they also become backend tables (to avoid column duplication when shared across subtables). Blocks are marked `tableType = INTERNAL` in `table_metadata`; subtables are regular DATA tables — their "subtable" status is derived from being a non-INTERNAL child of a table with a PROFILE column. Profile options come from non-INTERNAL children of the parent table.
 
 9. **Main schema at top level, fixed schemas alongside.** Each schema file defines the main schema (user-named at deploy time) at the top level: `imports`, `activeProfiles`, `settings`, `permissions`. Additional schemas with fixed names (e.g. a shared ontology schema) are declared in `fixedSchemas:`. This keeps the primary thing front and centre.
 
@@ -646,7 +646,7 @@ For `columnType: profiles` (pick-many), a single parent row can have entries in 
 3. For each table file: walk `sections:` in order. For each `- import:`, read the block file, merge overrides. Filter imported `profiles:` to names in this table's `profiles:` header.
 4. Within each section, walk `columns:`. For each `- import:`, splice. Resolve overrides (later same-name wins in place).
 5. Resolve subtable composition: for each subtable T, collect all columns from sections where `T ∈ section.profiles` OR any block B in `T.includes` has `B ∈ section.profiles`. These columns form T's backend table. Also collect column-level `profiles:` overrides.
-6. Result: parent tables with shared columns + PROFILE/PROFILES column, subtable tables (extending parent via FK, regular DATA type) with profile-specific columns, and block tables (`tableType = BLOCK`, also PG tables with FK to parent). Profile selector options = non-BLOCK children of the parent table.
+6. Result: parent tables with shared columns + PROFILE/PROFILES column, subtable tables (extending parent via FK, regular DATA type) with profile-specific columns, and block tables (`tableType = INTERNAL`, also PG tables with FK to parent). Profile selector options = non-INTERNAL children of the parent table.
 
 ### Additive column scope
 
@@ -740,7 +740,7 @@ External collaborators contribute via pull requests. Releases are tagged (`v3.2.
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| `TableType.BLOCK` enum exists | TableType.java | ProfileMetadataTest | implemented |
+| `TableType.INTERNAL` enum exists | TableType.java | ProfileMetadataTest | implemented |
 | `ColumnType.PROFILE` extends STRING, `isReference()==false` | ColumnType.java | ProfileMetadataTest | implemented |
 | `ColumnType.PROFILES` extends STRING_ARRAY, `isArray()==true` | ColumnType.java | ProfileMetadataTest | implemented |
 | `getInheritNames()` returns String[] (not String) | TableMetadata.java | ProfileMetadataTest | implemented |
@@ -819,7 +819,7 @@ External collaborators contribute via pull requests. Releases are tagged (`v3.2.
 | Behavior | Component | Test | Status |
 |---|---|---|---|
 | `inheritNames` persisted as varchar[] and round-trips | MetadataUtils | TestSubtables | implemented |
-| Block stored with `table_type = BLOCK` in table_metadata | MetadataUtils | TestSubtables | implemented |
+| Block stored with `table_type = INTERNAL` in table_metadata | MetadataUtils | TestSubtables | implemented |
 | Migration: `table_inherits` varchar → varchar[] | Migrations | TestSubtables | implemented |
 
 ### Backward Compatibility
