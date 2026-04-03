@@ -106,5 +106,5 @@ curl -X GET   https://<server>/api/tasks/scheduled
 
 Clear all non-running jobs:
 ```bash
-curl -X POST  https://<server>/api/tasks/clear
+curl -X GET  https://<server>/api/tasks/clear
 ```
