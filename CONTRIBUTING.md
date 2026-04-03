@@ -4,7 +4,7 @@ MOLGENIS EMX2 is an open source platform built on FAIR data principles (Findabil
 
 ## Licensing of Contributions
 
-By submitting a pull request to this repository, you agree to grant the maintainers of this project (such as the MOLGENIS-EMX2 team) a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable license to:
+By submitting a pull request to this repository, you agree to grant the maintainers of this project a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable license to:
 * Use, reproduce, modify, adapt, create derivative work of, and distribute your contribution and such derivative works.
 * Incorporate your contribution into MOLGENIS EMX2 and other works
 * Sublicense your contribution as part of MOLGENIS EMX2 and other works
