@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -113,6 +114,52 @@ public class TestExtends {
     assertEquals("width", sm.getTableMetadata("rectangle").getColumns().get(3).getName());
     assertEquals("height", sm.getTableMetadata("rectangle").getColumns().get(4).getName());
     assertEquals("author", sm.getTableMetadata("rectangle").getColumns().get(5).getName());
+  }
+
+  @Test
+  public void multiParentInheritanceCsvRoundTrip() throws IOException {
+    String csv =
+        """
+        tableName,tableExtends,columnName,key
+        Experiments,,,
+        sampling,Experiments,,
+        sequencing,Experiments,,
+        WGS,"sampling,sequencing",,
+        Experiments,,id,1
+        Experiments,,name,
+        sampling,,sample_type,
+        sequencing,,library_strategy,
+        WGS,,coverage,
+        """;
+
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(csv)));
+
+    assertArrayEquals(
+        new String[] {"sampling", "sequencing"},
+        sm.getTableMetadata("WGS").getInheritNames(),
+        "WGS should inherit from both sampling and sequencing after import");
+
+    List<Row> exported = Emx2.toRowList(sm);
+
+    Row wgsTableRow =
+        exported.stream()
+            .filter(
+                r -> "WGS".equals(r.getString("tableName")) && r.getString("columnName") == null)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("WGS table row not found in export"));
+
+    String tableExtendsValue = wgsTableRow.getString("tableExtends");
+    assertEquals(
+        "sampling,sequencing",
+        tableExtendsValue,
+        "tableExtends should be comma-separated for multi-parent inheritance");
+
+    SchemaMetadata reimported = Emx2.fromRowList(exported);
+
+    assertArrayEquals(
+        new String[] {"sampling", "sequencing"},
+        reimported.getTableMetadata("WGS").getInheritNames(),
+        "WGS should still inherit from both sampling and sequencing after re-import");
   }
 
   private void validate1(SchemaMetadata sm) {

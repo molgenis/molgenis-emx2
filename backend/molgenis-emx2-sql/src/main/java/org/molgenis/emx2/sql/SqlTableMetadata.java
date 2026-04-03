@@ -353,7 +353,7 @@ class SqlTableMetadata extends TableMetadata {
       throw new MolgenisException(
           "Table '"
               + getTableName()
-              + "' alr eady has inheritance set to '"
+              + "' already has inheritance set to '"
               + String.join(",", getInheritNames())
               + "'. Cannot change to '"
               + String.join(",", otherTable)
@@ -383,6 +383,41 @@ class SqlTableMetadata extends TableMetadata {
           "Set inheritance failed: To extend table '"
               + other.getTableName()
               + "' it must have primary key set");
+
+    TableMetadata expectedRoot = other.getRootTable();
+    for (int i = 1; i < otherTable.length; i++) {
+      TableMetadata parent =
+          getImportSchema() != null
+              ? getSchema()
+                  .getDatabase()
+                  .getSchema(getImportSchema())
+                  .getMetadata()
+                  .getTableMetadata(otherTable[i])
+              : getSchema().getTableMetadata(otherTable[i]);
+      if (parent == null) {
+        throw new MolgenisException(
+            "Inheritance failed: parent table '" + otherTable[i] + "' does not exist");
+      }
+      if (!parent.getRootTable().getQualifiedName().equals(expectedRoot.getQualifiedName())) {
+        throw new MolgenisException(
+            "Inheritance failed: all parents must share the same root table. '"
+                + otherTable[0]
+                + "' has root '"
+                + expectedRoot.getQualifiedName()
+                + "' but '"
+                + otherTable[i]
+                + "' has root '"
+                + parent.getRootTable().getQualifiedName()
+                + "'");
+      }
+    }
+
+    if (getSchema() != null && !getSubclassTables().isEmpty()) {
+      throw new MolgenisException(
+          "Inheritance failed: table '"
+              + getTableName()
+              + "' already has subclasses and cannot become a child table");
+    }
 
     final boolean rootHasProfileColumn = other.getRootTable().getProfileColumn() != null;
     final boolean isSubtableStyle = rootHasProfileColumn;

@@ -365,11 +365,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT_NAME)
-                  .type(Scalars.GraphQLString))
+                  .name(GraphqlConstants.INHERIT_NAMES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT_ID)
+                  .name(GraphqlConstants.INHERIT_IDS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -513,8 +513,8 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERIT_NAME)
-                  .type(Scalars.GraphQLString))
+                  .name(INHERIT_NAMES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTIONS)

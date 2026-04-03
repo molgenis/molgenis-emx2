@@ -200,13 +200,13 @@ public class SqlTable implements Table {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
-    final Map<String, List<Row>> deleteRows = new LinkedHashMap<>();
     final Map<String, Set<String>> columnsProvided = new LinkedHashMap<>();
 
     SqlSchema schema = (SqlSchema) db.getSchema(schemaName);
     SqlTable table = schema.getTable(tableName);
     Column profileColumn = table.getMetadata().getProfileColumn();
     String discriminatorColumn = profileColumn != null ? profileColumn.getName() : MG_TABLECLASS;
+    MutationType batchType = profileColumn != null ? SAVE : transactionType;
 
     // validate
     if (table.getMetadata().getPrimaryKeys().isEmpty())
@@ -222,7 +222,8 @@ public class SqlTable implements Table {
             String[] targets = new String[] {tableName};
             if (row.notNull(discriminatorColumn)) {
               if (profileColumn != null && profileColumn.getColumnType() == ColumnType.PROFILES) {
-                targets = row.getStringArray(discriminatorColumn);
+                String[] arr = row.getStringArray(discriminatorColumn);
+                if (arr != null) targets = arr;
               } else {
                 targets = new String[] {row.getString(discriminatorColumn)};
               }
@@ -232,27 +233,22 @@ public class SqlTable implements Table {
               Set<String> keepSet = new HashSet<>();
               keepSet.add(tableName);
               for (String target : targets) {
-                keepSet.add(target);
-                TableMetadata targetMeta = schema.getMetadata().getTableMetadata(target);
+                String unqualifiedTarget = target.contains(".") ? target.split("\\.")[1] : target;
+                keepSet.add(unqualifiedTarget);
+                TableMetadata targetMeta = schema.getMetadata().getTableMetadata(unqualifiedTarget);
                 if (targetMeta != null) {
                   for (TableMetadata ancestor : targetMeta.getAllInheritedTables()) {
                     keepSet.add(ancestor.getTableName());
                   }
                 }
               }
+              List<Row> singleRow = List.of(row);
               for (TableMetadata child : table.getMetadata().getSubclassTables()) {
                 if (!keepSet.contains(child.getTableName())) {
-                  String deleteKey = schemaName + "." + child.getTableName();
-                  deleteRows.computeIfAbsent(deleteKey, k -> new ArrayList<>()).add(row);
-                  if (deleteRows.get(deleteKey).size() >= 100) {
-                    executeDeleteBatch(txSchema, child, deleteRows.get(deleteKey));
-                    deleteRows.get(deleteKey).clear();
-                  }
+                  executeDeleteBatch(txSchema, child, singleRow);
                 }
               }
             }
-
-            MutationType batchType = profileColumn != null ? SAVE : transactionType;
 
             for (String target : targets) {
               String subclassName =
@@ -286,21 +282,9 @@ public class SqlTable implements Table {
             }
           }
 
-          // flush remaining delete batches before inserts/upserts
-          for (Map.Entry<String, List<Row>> batch : deleteRows.entrySet()) {
-            if (!batch.getValue().isEmpty()) {
-              String childTableName = batch.getKey().split("\\.")[1];
-              TableMetadata childMeta = schema.getMetadata().getTableMetadata(childTableName);
-              if (childMeta != null) {
-                executeDeleteBatch(txSchema, childMeta, batch.getValue());
-              }
-            }
-          }
-
           // execute any remaining insert/upsert batches
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
             if (!batch.getValue().isEmpty()) {
-              MutationType batchType = profileColumn != null ? SAVE : transactionType;
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   batchType,

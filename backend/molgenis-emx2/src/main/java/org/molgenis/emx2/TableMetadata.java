@@ -455,11 +455,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     if (inheritNames != null && inheritNames.length > 0 && getSchema() != null) {
       for (String name : inheritNames) {
         TableMetadata parent = resolveTable(name);
-        if (parent == null) {
+        if (parent != null) {
+          result.add(parent);
+        } else if (getSchema().getDatabase() != null) {
           throw new MolgenisException(
               "Cannot find table '" + name + "' for inheritance of table '" + getTableName() + "'");
         }
-        result.add(parent);
       }
     }
     return result;
@@ -532,6 +533,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getSchemaName() {
     return getSchema().getName();
+  }
+
+  public String getQualifiedName() {
+    return getSchemaName() + "." + getTableName();
   }
 
   public List<Column> getPrimaryKeyColumns() {

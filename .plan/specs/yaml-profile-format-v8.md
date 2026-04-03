@@ -743,30 +743,35 @@ External collaborators contribute via pull requests. Releases are tagged (`v3.2.
 | `TableType.BLOCK` enum exists | TableType.java | ProfileMetadataTest | implemented |
 | `ColumnType.PROFILE` extends STRING, `isReference()==false` | ColumnType.java | ProfileMetadataTest | implemented |
 | `ColumnType.PROFILES` extends STRING_ARRAY, `isArray()==true` | ColumnType.java | ProfileMetadataTest | implemented |
-| `getInheritNames()` returns String[] (not String — compiler catches callers) | TableMetadata.java | ProfileMetadataTest | implemented |
+| `getInheritNames()` returns String[] (not String) | TableMetadata.java | ProfileMetadataTest | implemented |
 | `setInheritNames(String)` wraps as single-item array (backward compat) | TableMetadata.java | ProfileMetadataTest | implemented |
 | `setInheritNames(String...)` stores multiple entries | TableMetadata.java | ProfileMetadataTest | implemented |
-| `getInheritedTables()` returns `List<TableMetadata>` of ALL direct parents (no BLOCK-walking) | TableMetadata.java | ProfileMetadataTest | implemented |
+| `getInheritedTables()` returns `List<TableMetadata>` of ALL direct parents | TableMetadata.java | ProfileMetadataTest | implemented |
+| `getAllInheritedTables()` recursively collects all ancestors | TableMetadata.java | ProfileMetadataTest | implemented |
 | `getRootTable()` follows first parent chain to top | TableMetadata.java | — | implemented |
-| `getIncludedBlockTables()` returns BLOCK entries from inheritNames (UX helper only) | TableMetadata.java | ProfileMetadataTest | implemented |
-| `getSubclassTables()` finds transitive children (deduped via LinkedHashSet) | TableMetadata.java | ProfileMetadataTest | implemented |
-| `isBlock()` checks `tableType == BLOCK` (UX hint only — backend NEVER branches on this for structural decisions) | TableMetadata.java | ProfileMetadataTest | implemented |
-| `hasProfileColumnInAncestors()` on `TableMetadata` — single source of truth (not duplicated in Executor) | TableMetadata.java | ProfileMetadataTest | **needs fix** |
+| `getSubclassTables()` finds transitive children (deduped) | TableMetadata.java | ProfileMetadataTest | implemented |
+| `getProfileColumn()` checks root table for PROFILE/PROFILES column | TableMetadata.java | ProfileMetadataTest | implemented |
+| PROFILE column validation: must be on root table (non-root throws error) | TableMetadata.java | ProfileMetadataTest | implemented |
+| `hasColumnInParent(name)` checks direct parents for column | TableMetadata.java | — | implemented |
+| `isBlock()` and `getIncludedBlockTables()` removed — no backend branching on block status | TableMetadata.java | — | implemented (removed) |
+| `hasProfileColumnInAncestors()` removed — replaced by `getRootTable().getProfileColumn()` | TableMetadata.java | — | implemented (removed) |
 | Blocks behave identically to subtables at DB level | — | — | by design |
-| `getProfileColumn()` finds PROFILE/PROFILES column | TableMetadata.java | ProfileMetadataTest | implemented |
-| `setInheritNames("Person")` wraps as ["Person"] (backward compat) | TableMetadata.java | TestInherits | implemented |
 | Multi-parent: `getColumns()` merges columns from ALL parents | TableMetadata.java | ProfileMetadataTest | implemented |
 | Multi-parent: `insertBatch` recursively inserts into ALL parents (upsert for diamond) | SqlTable.java | TestSubtables | implemented |
 | Multi-parent: FK created to EACH direct parent | SqlTableMetadataExecutor | TestSubtables | implemented |
+| `getQualifiedName()` returns `schemaName + "." + tableName` | TableMetadata.java | — | implemented |
+| PROFILE column on non-root table → throws error | TableMetadata.java | ProfileMetadataTest | implemented |
+| Multi-parent: all parents must share same root (validated via `getQualifiedName()`) | SqlTableMetadata | TestSubtables | implemented |
+| Can't set inheritance on table that already has subclasses | SqlTableMetadata | TestSubtables | implemented |
 
 ### SQL Layer — Table Creation
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| Inheritance style decision: `hasProfileColumnInAncestors(parent)` → no mg_tableclass; else → mg_tableclass | SqlTableMetadata, SqlTableMetadataExecutor | TestSubtables, TestInherits | **needs fix** (currently also checks `isBlock()`) |
-| Subtable/block: PK + FK to parent (CASCADE), NO mg_tableclass (when parent has profile column) | SqlTableMetadataExecutor | TestSubtables | implemented |
-| No profile column in ancestors → old-style extends WITH mg_tableclass (backward compat) | SqlTableMetadataExecutor | TestInherits | **needs fix** (fallback not explicit) |
-| `executeSetInherit()` — single method with `addMgTableclass` parameter (no separate `executeSetSubtableInherit`) | SqlTableMetadataExecutor | TestSubtables, TestInherits | **needs fix** (currently two separate methods) |
+| Inheritance style: `getRootTable().getProfileColumn() != null` → no mg_tableclass; else → mg_tableclass | SqlTableMetadata, SqlTableMetadataExecutor | TestSubtables, TestInherits | implemented |
+| `executeSetInherit()` sets ALL parent names, creates FK to each | SqlTableMetadataExecutor | TestSubtables, TestInherits | implemented |
+| mg_tableclass added to ROOT table (not just direct parent) | SqlTableMetadataExecutor | TestInherits | implemented |
+| Old-style extends: rejects multiple parents with clear error | SqlTableMetadataExecutor | TestInherits | implemented |
 | PROFILE column stored as varchar | SqlColumnExecutor | TestSubtables | implemented |
 | PROFILES column stored as varchar[] | SqlColumnExecutor | TestSubtables | implemented |
 
@@ -774,35 +779,40 @@ External collaborators contribute via pull requests. Releases are tagged (`v3.2.
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| `existsInAnyParent()` is instance method (not static with `tm` param) | SqlTableMetadata | — | **needs fix** |
-| `setInheritNames` error identifies specific table not found (not whole list) | SqlTableMetadata | — | **needs fix** |
-| `setInheritTransaction` documents why `inheritNames[0]` for old-style | SqlTableMetadata | — | **needs fix** |
-| `SqlTable.getInheritedTables()` documents why SqlTable cast is needed | SqlTable | — | **needs fix** (add comment) |
+| `hasColumnInParent()` instance method on TableMetadata (single source of truth) | TableMetadata | — | implemented |
+| `setInheritNames` error identifies specific table not found | SqlTableMetadata | — | implemented |
+| `SqlTable.getInheritedTables()` casts to SqlTable (needed by insertBatch) | SqlTable | — | implemented |
 
 ### SQL Layer — Row Management
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| Insert with profile="WGS" → rows in parent + WGS + included blocks | SqlTable | TestSubtables | implemented |
+| Unified discriminator: `profileColumn.getName()` or `MG_TABLECLASS` — same `subclassRows` batching | SqlTable | TestSubtables, TestInherits | implemented |
+| Insert with profile="WGS" → rows in parent + WGS + ancestor blocks via insertBatch recursion | SqlTable | TestSubtables | implemented |
 | Insert with profile=null → row in parent only | SqlTable | TestSubtables | implemented |
-| Update profile WGS→Imaging → old subtable/block rows deleted, new created | SqlTable | TestSubtables | implemented |
+| Update profile WGS→Imaging → batched delete of non-matching subtables (keepSet), then upsert new | SqlTable | TestSubtables | implemented |
 | Delete parent → CASCADE deletes all child rows | SqlTable | TestSubtables | implemented |
 | Invalid profile name → error | SqlTable | TestSubtables | implemented |
 | PROFILES pick-many: rows in multiple subtables | SqlTable | TestSubtables | implemented |
 | PROFILES remove entry → subtable row deleted | SqlTable | TestSubtables | implemented |
-| Shared block: independent rows per parent row across subtables | SqlTable | TestSubtables | implemented |
-| `handleSubtableRows` reuses existing insert path where possible | SqlTable | TestSubtables | **needs review** (currently manual upsert) |
+| Batched delete uses `DSL.or()` for single SQL statement per table | SqlTable | TestSubtables | implemented |
+| `handleSubtableRows`/`insertChildSubtableRow` removed — unified into subclassRows flow | SqlTable | — | implemented (removed) |
+| Unified discriminator: one code path for mg_tableclass and profile | SqlTable | TestSubtables, TestInherits | implemented |
+| Per-row delete of non-matching subtables (keepSet = target + ancestors) | SqlTable | TestSubtables | implemented |
+| `getStringArray()` null-safe for PROFILES column | SqlTable | — | implemented |
 
 ### SQL Layer — Querying
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| Query parent → LEFT JOINs all subtable+block child tables | SqlQuery | TestSubtables | implemented |
+| Query parent → LEFT JOINs all child tables (PK-only, no mg_tableclass in join key) | SqlQuery | TestSubtables | implemented |
+| Ancestor tables → INNER JOIN (PK-only) | SqlQuery | TestSubtables, TestInherits | implemented |
+| `tableWithInheritanceJoin`: iterative ancestor loop + subclass LEFT JOIN (no recursion) | SqlQuery | TestSubtables, TestInherits | implemented |
+| Search covers self + ancestors only (no subclass search) | SqlQuery | TestSubtables | implemented |
 | Wide sparse result: subtable columns NULL for non-matching profiles | SqlQuery | TestSubtables | implemented |
 | Filter on subtable column via parent query → works | SqlQuery | TestSubtables | implemented |
-| Query subtable/block directly → subtable-specific + PK columns | SqlQuery | TestSubtables | implemented |
-| `whereConditionSearch` uses `TableMetadata.getAllInheritedTables()` for ancestors | SqlQuery | TestSubtables | **needs fix** (currently custom recursive collector) |
-| `tableWithInheritanceJoin` — keep minimal; simplify recursive helper if single-parent old-style | SqlQuery | TestSubtables | **needs review** |
+| Query subtable directly → subtable-specific + inherited columns | SqlQuery | TestSubtables | implemented |
+| Search from child finds data in all parent columns | SqlQuery | TestSubtables | implemented |
 
 ### Metadata Persistence
 
@@ -816,10 +826,19 @@ External collaborators contribute via pull requests. Releases are tagged (`v3.2.
 
 | Behavior | Component | Test | Status |
 |---|---|---|---|
-| Existing TestInherits tests pass unchanged | all | TestInherits | implemented (needs test run) |
+| Existing TestInherits tests pass unchanged | all | TestInherits | implemented |
 | Single-entry inheritName behaves like old inheritName | TableMetadata | TestInherits | implemented |
 | mg_tableclass still works for regular extends (no profile column in ancestors) | SqlTableMetadataExecutor | TestInherits | implemented |
-| No profile columns anywhere → exact same behavior as before (mg_tableclass fallback) | all | TestInherits | **needs explicit test** |
+| No profile columns anywhere → exact same behavior as before (mg_tableclass fallback) | all | TestInherits | implemented |
+
+### Cross-module Verification
+
+| Behavior | Component | Test | Status |
+|---|---|---|---|
+| GraphQL: `inheritNames` exposed as String[] list | GraphqlSchemaFieldFactory | TestTableQueriesWithInheritance | implemented |
+| GraphQL: multi-parent data query returns all inherited columns | GraphqlSchemaFieldFactory | TestTableQueriesWithInheritance | implemented |
+| GraphQL: data visible via root table query | GraphqlSchemaFieldFactory | TestTableQueriesWithInheritance | implemented |
+| CSV: multi-parent `tableExtends` round-trips as comma-separated | Emx2.java | TestExtends | implemented |
 
 ---
 

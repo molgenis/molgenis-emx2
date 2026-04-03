@@ -41,7 +41,7 @@ public class TestSubtables {
             .add(column("experiment id").setType(STRING).setPkey())
             .add(column("name").setType(STRING))
             .add(column("date").setType(DATE))
-            .add(column("experiment type").setType(PROFILE).setRequired(true)));
+            .add(column("experiment type").setType(PROFILE)));
 
     schema.create(
         table("sampling")
@@ -655,6 +655,46 @@ public class TestSubtables {
         1,
         foundViaSequencingColumn.size(),
         "WGS search should find data in sequencing parent columns");
+  }
+
+  // -------------------------------------------------------------------------
+  // Inheritance Validation
+  // -------------------------------------------------------------------------
+
+  @Test
+  void testMultiParentMustShareSameRoot() {
+    Schema schema = db.dropCreateSchema("TestSubtablesMultiRoot");
+
+    schema.create(table("RootA").add(column("id").setType(STRING).setPkey()));
+    schema.create(table("RootB").add(column("id").setType(STRING).setPkey()));
+    schema.create(table("ChildA").setInheritNames("RootA").add(column("fieldA").setType(STRING)));
+
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            schema.create(
+                table("NewTable")
+                    .setInheritNames("ChildA", "RootB")
+                    .add(column("extra").setType(STRING))),
+        "Should throw when parents have different root tables");
+
+    db.dropSchema("TestSubtablesMultiRoot");
+  }
+
+  @Test
+  void testCannotRerootTableWithSubclasses() {
+    Schema schema = db.dropCreateSchema("TestSubtablesReroot");
+
+    schema.create(table("TableA").add(column("id").setType(STRING).setPkey()));
+    schema.create(table("TableB").setInheritNames("TableA").add(column("fieldB").setType(STRING)));
+    schema.create(table("TableC").add(column("id").setType(STRING).setPkey()));
+
+    assertThrows(
+        MolgenisException.class,
+        () -> schema.getTable("TableA").getMetadata().setInheritNames("TableC"),
+        "Should throw when table has subclasses and would become a child");
+
+    db.dropSchema("TestSubtablesReroot");
   }
 
   // -------------------------------------------------------------------------
