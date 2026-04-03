@@ -12,7 +12,7 @@ By submitting a pull request to this repository, you agree to grant the maintain
 
 You are free to use your contribution elsewhere, as long as it does not conflict with any rights given as described in this document.
 
-By submitting a a pull request, you acknowledge that:
+Furthermore, you acknowledge that:
 * You have the legal rights to grant these permissions
 * Your contribution does not infringe on the rights of any third party
 
