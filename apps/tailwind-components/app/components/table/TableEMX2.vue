@@ -269,7 +269,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from "vue";
 import type {
-  IRow,
   IColumn,
   columnValue,
 } from "../../../../metadata-utils/src/types";

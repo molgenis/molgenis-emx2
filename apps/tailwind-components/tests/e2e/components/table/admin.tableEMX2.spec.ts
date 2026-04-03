@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@nuxt/test-utils/playwright";
 
 import playwrightConfig from "../../../../playwright.config";
 
@@ -8,57 +8,40 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.use({ storageState: "playwright/.auth/user.json" });
 
-test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}table/EMX2.story?schema=pet+store&table=Category`);
+test.beforeEach(async ({ page, goto }) => {
+  await goto(`${route}table/EMX2.story?schema=pet+store&table=Category`, {
+    waitUntil: "hydration",
+  });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
   await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
-  await expect(
-    page
-      .locator("div")
-      .filter({ hasText: /^Table: CategoryOrderPetTagUser$/ })
-      .locator("#table-select")
-  ).toHaveValue("Category");
 });
 
 test("the row should be removed from the table after deletion", async ({
   page,
+  goto,
 }) => {
-  await page.getByText("Is Editable:").click();
-  // add
+  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
   await expect(
     page.getByRole("button", { name: "Add Category" })
   ).toBeVisible();
+
+  // create row to delete
   await page.getByRole("button", { name: "Add Category" }).click();
-  await expect(
-    page.getByRole("button", { name: "Save", exact: true })
-  ).toBeVisible();
   await page.getByRole("textbox", { name: "name Required" }).click();
-  await page.getByRole("textbox", { name: "name Required" }).fill("testdel");
+  await page.getByRole("textbox", { name: "name Required" }).fill("deltest");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("button", { name: "Cancel" }).click();
 
-  // delete
-  await page.getByRole("button", { name: "Close modal", exact: true }).click();
-  await expect(
-    page.getByRole("cell", { name: "testdel", exact: true })
-  ).toBeVisible();
+  // delete row
 
+  await page.getByRole("searchbox", { name: "Search Category" }).click();
   await page
-    .getByText("deletetestdel", { exact: true })
-    .filter({ visible: false })
-    .dispatchEvent("click");
-
-  await expect(
-    page.getByRole("heading", { name: "Delete Category" })
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Delete" }).first()
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Delete" }).first().click();
-
-  await page.waitForTimeout(1000); // wait for the table to update
-
-  // check
-  await expect(
-    page.getByRole("cell", { name: "testdel", exact: true })
-  ).not.toBeVisible();
+    .getByRole("searchbox", { name: "Search Category" })
+    .fill("deltest");
+  await page.getByText("deltest", { exact: true }).click();
+  // header is in row 0, so row with deltest is row 1
+  await page.getByRole("row").nth(1).hover();
+  await page.getByRole("button", { name: 'delete{"name":"deltest"}' }).click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.getByRole("row")).toHaveCount(1);
 });
