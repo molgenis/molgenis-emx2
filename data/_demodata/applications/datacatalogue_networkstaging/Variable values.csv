@@ -1,0 +1,5 @@
+resource,dataset,variable,value,label,order,is missing,ontology term URI,since version,until version
+testNetwork,testTable,study_id,101,Gen R,,,,1.0.0,
+testNetwork,testTable,study_id,105,ALSPAC,,,,1.0.0,
+testNetwork,testTable,study_id,111,ELFE,,,,1.0.0,
+testNetwork,testTable,study_id,112,EDEN,,,,1.0.0,

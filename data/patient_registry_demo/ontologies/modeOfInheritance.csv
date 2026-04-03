@@ -1,0 +1,4 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,xLinked,X-Linked,,,,,,
+2,autoRecessive,Autosomal / recessive,,,,,,
+3,autoDetruiment,Autosomal Detruiment,,,,,,

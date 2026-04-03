@@ -1,0 +1,9 @@
+order,name,code,parent,ontologyTermURI,definition
+1,Birth,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030008,
+2,Immigration,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030009,
+3,Residency obtained,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030010,
+4,Insurance coverage start,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030011,
+5,Disease diagnosis,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030012,
+6,Start of treatment,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030013,
+7,Practice registration,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000030014,
+8,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029971/terms/200000031066,

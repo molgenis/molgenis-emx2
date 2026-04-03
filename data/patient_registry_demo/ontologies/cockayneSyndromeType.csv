@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,csType1,"Cockayne syndrome Type 1 or ""classic"" form",,,,,
+2,csType2,Cockayne syndrome Type 2 or severe form,,,,,
+3,csType3,Cockayne syndrome Type 3 or milder form,,,,,
+4,csUndetermined,Undetermined form or unspecified Cockayne syndrome,,,,,

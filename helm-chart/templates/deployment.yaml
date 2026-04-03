@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "emx2.fullname" . }}
+  labels:
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "emx2.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "emx2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          name: {{ .Chart.Name }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: {{ .Values.image.resourceLimitMemory | quote }}
+            requests:
+              memory: {{ .Values.image.resourceRequestMemory | quote }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MOLGENIS_ADMIN_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: adminpassword
+            - name: MOLGENIS_POSTGRES_USER
+              value: {{ .Values.database.username }}
+            - name: MOLGENIS_POSTGRES_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: databasepassword
+            - name: MOLGENIS_POSTGRES_URI
+              value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+            - name: MOLGENIS_INCLUDE_TYPE_TEST_DEMO
+              value: {{ .Values.includeTypeTestDemo | quote }}
+            - name: MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO
+              value: {{ .Values.includePatientRegistryDemo | quote }}
+            - name: MOLGENIS_INCLUDE_CATALOGUE_DEMO
+              value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
+            - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
+              value: {{ .Values.directory.includeDirectoryDemo | quote }}
+            - name: MOLGENIS_METRICS_ENABLED
+              value: {{ .Values.metrics.enabled | quote }}
+{{- if .Values.oidc.enabled  }}
+            - name: MOLGENIS_OIDC_CLIENT_ID
+              value: {{ .Values.oidc.client_id }}
+            - name: MOLGENIS_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-oidc
+                  key: client_secret
+            - name: MOLGENIS_OIDC_CLIENT_NAME
+              value: {{ .Values.oidc.client_name }}
+            - name: MOLGENIS_OIDC_DISCOVERY_URI
+              value: {{ .Values.oidc.discovery_url }}
+            - name: MOLGENIS_OIDC_CALLBACK_URL
+              value: {{ .Values.oidc.callback_url }}
+{{- end }}
+        - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          name: postgres
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - -c
+            - shared_buffers=256MB
+            - -c
+            - max_locks_per_transaction=1024
+          resources:
+            limits:
+              memory: {{ .Values.image.pgResourceLimitMemory | quote }}
+            requests:
+              memory: {{ .Values.image.pgResourceRequestMemory | quote }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.name }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-postgres
+                  key: postgrespassword
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.username }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-pv
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-initdb
+              mountPath: /docker-entrypoint-initdb.d
+        - image: "{{ .Values.ssrCatalogue.image.repository }}:{{ .Values.image.tag }}"
+          name: ssr-catalogue
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: "128Mi"
+            requests:
+              memory: "64Mi"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NUXT_PUBLIC_API_BASE
+              value: {{ .Values.ssrCatalogue.environment.apiBase }}
+            - name: NUXT_PUBLIC_EMX2_THEME
+              value: {{ .Values.ssrCatalogue.environment.theme }}
+            - name: NUXT_PUBLIC_EMX2_LOGO
+              value: {{ .Values.ssrCatalogue.environment.logo }}
+            - name: NUXT_PUBLIC_SITE_TITLE
+              value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
+            - name: NUXT_PUBLIC_ANALYTICS_KEY
+              value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
+            - name: NUXT_PUBLIC_SCHEMA
+              value: {{ .Values.ssrCatalogue.environment.schema | quote }}
+      volumes:
+        - name: postgres-initdb
+          configMap:
+            name: postgres-initdb-config
+        - name: postgres-pv
+          persistentVolumeClaim:
+            claimName: {{ include "emx2.fullname" . }}-postgres-pv
+      restartPolicy: Always
+status: {}

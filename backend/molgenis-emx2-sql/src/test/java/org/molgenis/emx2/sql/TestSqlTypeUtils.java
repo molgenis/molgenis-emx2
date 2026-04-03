@@ -1,0 +1,75 @@
+package org.molgenis.emx2.sql;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnTypeGroups.*;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
+import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
+
+import java.util.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
+
+class TestSqlTypeUtils {
+
+  @BeforeAll
+  static void before() {
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      SnowflakeIdGenerator.init("123");
+    }
+  }
+
+  @Test
+  void autoIdGetsSkipped() {
+    TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
+
+    final Row row = new Row("myCol", null);
+    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    assertNull(row.getString("myCol"));
+  }
+
+  @Test
+  void testArrayConversionToMap() {
+    List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
+    Row row = row("STRING array", "aa,bb");
+
+    Map<String, Object> output = convertRowToMap(columns, row);
+
+    assertAll(
+        () -> assertEquals(Set.of("sTRINGArray"), output.keySet()),
+        () ->
+            assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("sTRINGArray"))));
+  }
+
+  @Test
+  void testWorkingValidationForEmailArray() {
+    List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
+    Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
+
+    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetTypedValue() {
+    Column column = mock(Column.class);
+    Row row = mock(Row.class);
+
+    EXCLUDE_REFERENCE_HEADING.forEach(
+        columnType -> {
+          when(column.getColumnType()).thenReturn(columnType);
+          when(column.getPrimitiveColumnType()).thenReturn(columnType.getBaseType());
+          SqlTypeUtils.getTypedValue(column, row);
+        });
+  }
+
+  @Test
+  void testAllColumnTypesCoveredGetPsqlType() {
+    EXCLUDE_FILE_PERIOD_REFERENCE_HEADING.forEach(SqlTypeUtils::getPsqlType);
+  }
+}

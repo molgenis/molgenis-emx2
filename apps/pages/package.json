@@ -1,0 +1,32 @@
+{
+  "name": "pages",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "vite lint",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "core-js": "3.34.0",
+    "graphql-request": "5.2.0",
+    "molgenis-components": "workspace:*",
+    "monaco-editor": "0.52.2",
+    "vue": "3.5.22",
+    "vue-router": "4.4.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "5.2.4",
+    "prettier": "2.8.8",
+    "vite": "7.3.1",
+    "vite-plugin-html": "3.2.2",
+    "vite-plugin-monaco-editor": "1.1.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "license": "LGPL-3.0"
+}

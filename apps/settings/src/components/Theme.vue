@@ -1,0 +1,201 @@
+<template>
+  <div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <Spinner v-if="loading" />
+    <div v-else>
+      <p>Use settings below to change look and feel:</p>
+      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+      <label><b>Choose primary color</b></label
+      ><br />
+      <ColorPicker
+        class="mb-2"
+        v-model:pureColor="primaryColor"
+        format="hex6"
+        shape="circle"
+      />
+      {{ primaryColor }}
+      <InputString
+        class="mt-3"
+        id="theme-url-input"
+        label="Set logo url"
+        v-model="logoURL"
+      />
+      <InputText
+        id="additional-css-input"
+        label="Additional Css"
+        v-model="additionalCss"
+      />
+      <InputText
+        id="additional-html-footer-input"
+        label="Additional footer HTML"
+        v-model="additionalFooterHtml"
+      />
+      <InputText
+        id="additional-js-input"
+        label="Additional javascript"
+        v-model="additionalJs"
+      />
+
+      <ButtonAction @click="saveSettings">Save theme</ButtonAction>
+      <br /><br />
+      <a
+        v-if="this.session.settings.cssURL"
+        :href="this.session.settings.cssURL"
+      >
+        view theme css
+      </a>
+    </div>
+  </div>
+</template>
+
+<script>
+import {
+  ButtonAction,
+  InputString,
+  InputText,
+  MessageError,
+  MessageSuccess,
+  Spinner,
+} from "molgenis-components";
+import { ColorPicker } from "vue3-colorpicker";
+import "vue3-colorpicker/style.css";
+import { request } from "graphql-request";
+
+export default {
+  components: {
+    InputString,
+    InputText,
+    ButtonAction,
+    MessageError,
+    MessageSuccess,
+    ColorPicker,
+    Spinner,
+  },
+  props: {
+    session: Object,
+  },
+  data() {
+    return {
+      primaryColor: null,
+      secondaryColor: null,
+      logoURL: null,
+      loading: false,
+      graphqlError: null,
+      success: null,
+      additionalCss: null,
+      additionalFooterHtml: null,
+      additionalJs: null,
+    };
+  },
+  created() {
+    this.loadSettings();
+  },
+  watch: {
+    session() {
+      this.loadSettings();
+    },
+  },
+  methods: {
+    loadSettings() {
+      this.additionalCss = this.session?.settings?.additionalCss;
+      this.additionalFooterHtml = this.session?.settings?.additionalFooterHtml;
+      this.additionalJs = this.session?.settings?.additionalJs;
+      this.logoURL = this.session.settings.logoURL;
+      if (this.session?.settings?.cssURL) {
+        const urlParams = new URL(
+          this.session.settings.cssURL,
+          document.baseURI
+        ).searchParams;
+        this.primaryColor = urlParams.get("primaryColor")
+          ? "#" + urlParams.get("primaryColor")
+          : null;
+        this.secondaryColor = urlParams.get("secondaryColor")
+          ? "#" + urlParams.get("secondaryColor")
+          : null;
+      }
+    },
+    async saveSettings() {
+      let settingsAlter = [];
+      let settingsDrop = [];
+      let cssUrl = "theme.css?";
+      if (this.primaryColor || this.secondaryColor) {
+        if (this.primaryColor)
+          cssUrl += "primaryColor=" + this.primaryColor.substr(1) + "&";
+        if (this.secondaryColor)
+          cssUrl += "secondaryColor=" + this.secondaryColor.substr(1) + "&";
+        cssUrl = cssUrl.substr(0, cssUrl.length - 1);
+        settingsAlter.push({ key: "cssURL", value: cssUrl });
+      } else {
+        settingsDrop.push({ key: "cssURL" });
+      }
+      if (this.logoURL) {
+        settingsAlter.push({ key: "logoURL", value: this.logoURL });
+      } else {
+        settingsDrop.push({ key: "logoURL" });
+      }
+      if (this.additionalCss) {
+        settingsAlter.push({ key: "additionalCss", value: this.additionalCss });
+      } else {
+        settingsDrop.push({ key: "additionalCss" });
+      }
+      if (this.additionalFooterHtml) {
+        settingsAlter.push({
+          key: "additionalFooterHtml",
+          value: this.additionalFooterHtml,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalFooterHtml" });
+      }
+      if (this.additionalJs) {
+        settingsAlter.push({
+          key: "additionalJs",
+          value: this.additionalJs,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalJs" });
+      }
+      this.loading = true;
+      this.loading = true;
+      this.graphqlError = null;
+      this.success = null;
+      //alter
+      if (settingsAlter.length > 0) {
+        await request(
+          "graphql",
+          `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
+          { alter: settingsAlter }
+        )
+          .then((data) => {
+            this.success = data.change.message;
+          })
+          .catch((error) => {
+            this.graphqlError = error.response.errors[0].message;
+          })
+          .finally((this.loading = false));
+      }
+      // drop, dunno how to do this in one call!
+      if (settingsDrop.length > 0) {
+        await request(
+          "graphql",
+          `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
+          { drop: settingsDrop }
+        )
+          .then((data) => {
+            this.success = data.drop.message;
+          })
+          .catch((error) => {
+            this.graphqlError = error.response.errors[0].message;
+          })
+          .finally((this.loading = false));
+      }
+      /*
+        The nice wat to reload is: 
+          this.$router.go();
+        Safari is not picking up the reload (browser bug) so using the fallback: 
+          window.location.reload();
+      */
+      window.location.reload();
+    },
+  },
+};
+</script>

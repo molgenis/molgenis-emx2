@@ -1,0 +1,3 @@
+chart id,chart type,chart title,chart subtitle,x axis label,x axis min value,x axis max value,x axis ticks,y axis label,y axis min value,y axis max value,y axis ticks,top margin,right margin,bottom margin,left margin,legend position,data points,dashboard page
+recruitment-count,vertical bar chart,Patients recruited by group,Count of patients by study allocation since the start of the project (Jan 2025),Group,,,,Count,0,,,15,10,80,30,top,,Home
+recruitment-count-by-site,vertical bar chart,Patient recruitment by site and group,Further breakdown of recruitment data by study site and group assignment,Site,,,,Count,0,,,15,10,80,30,top,,Home

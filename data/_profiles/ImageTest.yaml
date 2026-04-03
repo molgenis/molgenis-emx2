@@ -1,0 +1,9 @@
+---
+name: Image test
+description: "test image loading"
+
+profileTags: ImageTest
+
+demoData: _demodata/applications/imagetest
+
+settings: _settings/datacatalogue

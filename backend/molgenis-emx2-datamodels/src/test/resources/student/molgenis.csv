@@ -1,0 +1,11 @@
+table, column, properties
+courses, tableName,
+courses, start date,
+courses , end date, date
+students, first tableName
+students, last tableName
+students, , unique(first tableName, last tableName)
+students, main subject,
+enrollments, student first tableName, ref(students, first tableName)
+enrollments, student last tableName, ref(students, last tableName)
+enrollments, course, ref(courses,tableName)

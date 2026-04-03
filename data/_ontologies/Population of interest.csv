@@ -1,0 +1,10 @@
+order,name,label,code,parent,ontologyTermURI,definition
+1,Immunocompromised,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/200000032237,
+2,Renal impaired,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/200000032238,
+3,Hepatic impaired,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/200000032239,
+4,Frail population,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/200000032240,
+5,Women of childbearing potential not using contraception,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/100000076059,
+6,Women of childbearing potential using contraception,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/100000076060,
+7,Pregnant women,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/100000076061,
+8,Nursing women,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/100000076062,
+9,Other,,,,https://spor.ema.europa.eu/rmswi/#/lists/100000075937/terms/100000076065,

@@ -1,0 +1,68 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
+import "info.jslt" as info
+import "range.jslt" as range
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "info": .info,
+    "response": {
+        "resultSets":
+        [for (.resultSets) {
+            "id": .id,
+            "type": "dataset",
+            "setType": "individuals",
+            "exists": true,
+            "resultsCount": .count,
+            "info": range(.),
+            "results":
+            [for (.results) {
+                "id": .id,
+                "sex": ontology(.genderAtBirth),
+                "age": {
+                    "ageGroup": ontology(.ageGroup),
+                    "age": { "iso8601duration": .yearOfBirth } // TODO: parse to period
+                },
+                "diseaseCausalGenes":
+                [for (.clinicalObservations)
+                    ontology(.molecularDiagnosisGene[0])
+                ],
+                "ethnicity": ontology(.ethnicity),
+                "geographicOrigin": ontology(.geographicOrigin),
+                "disease":
+                // Clinical observations -> [ diseases ]
+                [for (.clinicalObservations)  {// TODO: handle multiple disease per clinical observation?
+                    let disease = .diseases[0]
+                    "diseaseCode": ontology($disease.disease),
+                    "ageOfOnset": {
+                        "ageGroup": ontology($disease.ageAtOnset_ageGroup),
+                        "age": { "iso8601duration": $disease.ageAtOnset}
+                    },
+                    "ageAtDiagnosis": {
+                        "ageGroup": ontology($disease.ageAtDiagnosis_ageGroup),
+                        "age": { "iso8601duration": $disease.ageAtDiagnosis_age_iso8601duration }
+
+                    },
+                    "severity": ontology($disease.severity)
+                    }
+                ],
+
+                "measures":
+                // Clinical observations -> [ measurements }
+                [for (.clinicalObservations)
+                    [for (.measurements) {
+                        "assayCode": ontology(.code),
+                        "date": .clinicalObservation.dateOfObservation,
+                        "measurementVariable": .variable,
+                        "measurementValue": {
+                            "value": .value,
+                            "unit": ontology(.unit)
+                        },
+                        "observationMoment": { "age": { "iso8601duration": .clinicalObservation.ageAtObservation } }
+                    }]
+                ]
+            }]
+        }]
+    }
+}

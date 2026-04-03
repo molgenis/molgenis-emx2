@@ -1,0 +1,7 @@
+id,label,ontology,uri,description
+FEMALE,Female,Miabis,,Female
+MALE,Male,Miabis,,Male
+NASK,Not asked,,,
+NAV,Not available,,,
+UNDIFFERENTIAL,Undifferentiated,Miabis,,"Undifferentiated, the gender could not be uniquely identified such as hermaprhodite"
+UNKNOWN,Unknown,Miabis,,A proper value is applicable but not known

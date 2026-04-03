@@ -1,0 +1,37 @@
+.app-page,
+.app-footer {
+  font-size: 14pt;
+}
+
+.app-page {
+  .page-header {
+    height: 22em;
+
+    &.header-image-background {
+      background-position: 0 20%;
+    }
+  }
+
+  .page-section {
+    padding-top: 1em;
+
+    .page-section-content {
+      h2 {
+        padding: 12px 0;
+        margin-bottom: 0.15em;
+      }
+    }
+  }
+}
+
+.message-box {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  .message-text {
+    p {
+      margin-bottom: 0;
+    }
+  }
+}

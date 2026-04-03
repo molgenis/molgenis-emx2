@@ -1,0 +1,44 @@
+package org.molgenis.emx2.beaconv2.requests;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class BeaconRequestParameters {
+
+  @JsonProperty("$ref")
+  String ref;
+
+  String description;
+
+  public BeaconRequestParameters(String $ref, String description) {
+    this.ref = $ref;
+    this.description = description;
+  }
+
+  public BeaconRequestParameters() {
+    this.ref = "./requestParameters.json";
+    this.description = "Parameters used for the entry type specific query";
+  }
+
+  public void empty() {
+    this.ref = null;
+    this.description = null;
+  }
+
+  public String getRef() {
+    return ref;
+  }
+
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+}

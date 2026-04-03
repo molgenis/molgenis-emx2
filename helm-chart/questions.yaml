@@ -1,0 +1,128 @@
+categories:
+  - EMX2
+questions:
+  - variable: ingress.hosts
+    label: Hostname(s)
+    description: "Specify a list of hostnames for this EMX2 instance"
+    type: array
+    required: true
+    default:
+      - "emx2.dev.molgenis.org"
+      - "catalogue.dev.molgenis.org"
+    group: "Loadbalancing"
+  - variable: image.repository
+    label: Repository
+    description: "Specify a repository"
+    type: enum
+    required: true
+    options:
+      - molgenis/molgenis-emx2
+      - molgenis/molgenis-emx2-snapshot
+    default: "molgenis/molgenis-emx2"
+    group: "Provisioning"
+  - variable: ssrCatalogue.image.repository
+    label: SSR Catalogue Repository
+    description: "Specify a ssr catalogue repository"
+    type: enum
+    required: true
+    options:
+      - molgenis/ssr-catalogue
+      - molgenis/ssr-catalogue-snapshot
+    default: "molgenis/ssr-catalogue"
+    group: "Provisioning"
+  - variable: image.tag
+    label: Version
+    description: "Specify a version of the application"
+    type: string
+    required: true
+    default: "latest"
+    group: "Provisioning"
+  - variable: ssrCatalogue.image.tag
+    label: SSR Catalogue image version
+    description: "Specify a version of the ssr catalogue application"
+    type: string
+    required: true
+    default: "latest"
+    group: "Provisioning"
+  - variable: adminPassword
+    label: Administrator password
+    description: "Specify an administrator password"
+    type: password
+    required: true
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.apiBase
+    label: emx2 backend api location
+    description: "Specify location to use for the api calls from the ssr catalogue"
+    type: string
+    required: true
+    default: "emx2.dev.molgenis.org"
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.theme
+    label: SSR catalogue theme
+    description: "Specify a theme name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.logo
+    label: emx2 backend api location
+    description: "Specify logo name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.analyticsKey
+    label: ssr catalogue analytics key
+    description: "Key for analytics call"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: oidc.enabled
+    label: OIDC enabled
+    description: "Enabled OIDC"
+    type: boolean
+    required: true
+    default: false
+    group: "Authentication"
+    show_subquestion_if: true
+    subquestions:
+      - variable: oidc.client_name
+        label: Client name
+        description: "Specify a client name for the authentication service"
+        type: string
+        required: true
+        default: "MolgenisAuth"
+        group: "Authentication"
+      - variable: oidc.client_id
+        label: Client ID
+        description: "Specify a client ID for the authentication service"
+        type: string
+        required: true
+        group: "Authentication"
+      - variable: oidc.client_secret
+        label: Client secret
+        description: "Specify a client secret for the authentication service"
+        type: password
+        required: true
+        group: "Authentication"
+      - variable: oidc.discovery_url
+        label: Discovery url
+        description: "Specify a discovery url of the authentication service"
+        type: string
+        required: true
+        default: "https://auth.molgenis.org/.well-known/openid-configuration/"
+        group: "Authentication"
+      - variable: oidc.callback_url
+        label: Domain of the callback url
+        description: "Specify a the domain of the callback url e.g. https://example.org "
+        type: string
+        required: true
+        group: "Authentication"
+  - variable: metrics.enabled
+    label: is metrics enabled
+    description: "Key for analytics call"
+    type: string
+    required: false
+    default: false
+    group: "Provisioning"

@@ -1,0 +1,4 @@
+table,column,properties
+subject,tableName
+sample,tableName,
+sample,subject,"ref(subject,tableName)"

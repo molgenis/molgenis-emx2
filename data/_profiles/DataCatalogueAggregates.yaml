@@ -1,0 +1,11 @@
+---
+name: Aggregates for data collections in data catalogue.
+
+profileTags: DataCatalogueAggregates
+
+demoData: _demodata/applications/datacatalogue_aggregates
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous

@@ -1,0 +1,306 @@
+name,definition,codesystem,code,ontologyTermURI
+Punjabi Sikh,Punjabi Sikh,HANCESTRO,0589,http://purl.obolibrary.org/obo/HANCESTRO_0589
+European American,European American,HANCESTRO,0590,http://purl.obolibrary.org/obo/HANCESTRO_0590
+Esan,Esan,HANCESTRO,0591,http://purl.obolibrary.org/obo/HANCESTRO_0591
+Luhya,Luhya,HANCESTRO,0592,http://purl.obolibrary.org/obo/HANCESTRO_0592
+Maasai,Maasai,HANCESTRO,0593,http://purl.obolibrary.org/obo/HANCESTRO_0593
+Mende,Mende,HANCESTRO,0594,http://purl.obolibrary.org/obo/HANCESTRO_0594
+ancestry category,ancestry category,HANCESTRO,0004,http://purl.obolibrary.org/obo/HANCESTRO_0004
+European,European,HANCESTRO,0005,http://purl.obolibrary.org/obo/HANCESTRO_0005
+South Asian,South Asian,HANCESTRO,0006,http://purl.obolibrary.org/obo/HANCESTRO_0006
+South East Asian,South East Asian,HANCESTRO,0007,http://purl.obolibrary.org/obo/HANCESTRO_0007
+Asian,Asian,HANCESTRO,0008,http://purl.obolibrary.org/obo/HANCESTRO_0008
+East Asian,East Asian,HANCESTRO,0009,http://purl.obolibrary.org/obo/HANCESTRO_0009
+African,African,HANCESTRO,0010,http://purl.obolibrary.org/obo/HANCESTRO_0010
+Sub-Saharan African,Sub-Saharan African,HANCESTRO,0011,http://purl.obolibrary.org/obo/HANCESTRO_0011
+Native American,Native American,HANCESTRO,0013,http://purl.obolibrary.org/obo/HANCESTRO_0013
+Hispanic or Latin American,Hispanic or Latin American,HANCESTRO,0014,http://purl.obolibrary.org/obo/HANCESTRO_0014
+"Greater Middle Eastern (Middle Eastern, North African or Persian)","Greater Middle Eastern (Middle Eastern, North African or Persian)",HANCESTRO,0015,http://purl.obolibrary.org/obo/HANCESTRO_0015
+African American or Afro-Caribbean,African American or Afro-Caribbean,HANCESTRO,0016,http://purl.obolibrary.org/obo/HANCESTRO_0016
+Oceanian,Oceanian,HANCESTRO,0017,http://purl.obolibrary.org/obo/HANCESTRO_0017
+uncategorised population,uncategorised population,HANCESTRO,0018,http://purl.obolibrary.org/obo/HANCESTRO_0018
+Japanese,Japanese,HANCESTRO,0019,http://purl.obolibrary.org/obo/HANCESTRO_0019
+Taiwanese,Taiwanese,HANCESTRO,0020,http://purl.obolibrary.org/obo/HANCESTRO_0020
+Chinese,Chinese,HANCESTRO,0021,http://purl.obolibrary.org/obo/HANCESTRO_0021
+Korean,Korean,HANCESTRO,0022,http://purl.obolibrary.org/obo/HANCESTRO_0022
+Mongolian,Mongolian,HANCESTRO,0023,http://purl.obolibrary.org/obo/HANCESTRO_0023
+Macanese,Macanese,HANCESTRO,0024,http://purl.obolibrary.org/obo/HANCESTRO_0024
+Singaporean Chinese,Singaporean Chinese,HANCESTRO,0025,http://purl.obolibrary.org/obo/HANCESTRO_0025
+Hong Kong Chinese,Hong Kong Chinese,HANCESTRO,0026,http://purl.obolibrary.org/obo/HANCESTRO_0026
+Han Chinese,Han Chinese,HANCESTRO,0027,http://purl.obolibrary.org/obo/HANCESTRO_0027
+Central Asian,Central Asian,HANCESTRO,0286,http://purl.obolibrary.org/obo/HANCESTRO_0286
+genetically isolated population,genetically isolated population,HANCESTRO,0290,http://purl.obolibrary.org/obo/HANCESTRO_0290
+Italian,Italian,HANCESTRO,0307,http://purl.obolibrary.org/obo/HANCESTRO_0307
+Sardinian,Sardinian,HANCESTRO,0309,http://purl.obolibrary.org/obo/HANCESTRO_0309
+Val Borbera,Val Borbera,HANCESTRO,0310,http://purl.obolibrary.org/obo/HANCESTRO_0310
+Friuli Venezia Giulia,Friuli Venezia Giulia,HANCESTRO,0311,http://purl.obolibrary.org/obo/HANCESTRO_0311
+Carlantino,Carlantino,HANCESTRO,0312,http://purl.obolibrary.org/obo/HANCESTRO_0312
+Old Order Amish,Old Order Amish,HANCESTRO,0313,http://purl.obolibrary.org/obo/HANCESTRO_0313
+Sorbian,Sorbian,HANCESTRO,0314,http://purl.obolibrary.org/obo/HANCESTRO_0314
+Hutterite,Hutterite,HANCESTRO,0315,http://purl.obolibrary.org/obo/HANCESTRO_0315
+Amish,Amish,HANCESTRO,0316,http://purl.obolibrary.org/obo/HANCESTRO_0316
+Erasmus Rucphen,Erasmus Rucphen,HANCESTRO,0317,http://purl.obolibrary.org/obo/HANCESTRO_0317
+Orcadian,Orcadian,HANCESTRO,0318,http://purl.obolibrary.org/obo/HANCESTRO_0318
+Korculan,Korculan,HANCESTRO,0319,http://purl.obolibrary.org/obo/HANCESTRO_0319
+Dutch,Dutch,HANCESTRO,0320,http://purl.obolibrary.org/obo/HANCESTRO_0320
+Finnish,Finnish,HANCESTRO,0321,http://purl.obolibrary.org/obo/HANCESTRO_0321
+Finnish founder,Finnish founder,HANCESTRO,0322,http://purl.obolibrary.org/obo/HANCESTRO_0322
+Dutch founder,Dutch founder,HANCESTRO,0323,http://purl.obolibrary.org/obo/HANCESTRO_0323
+Ashkenazi Jew,Ashkenazi Jew,HANCESTRO,0324,http://purl.obolibrary.org/obo/HANCESTRO_0324
+Sudanese,Sudanese,HANCESTRO,0331,http://purl.obolibrary.org/obo/HANCESTRO_0331
+Sahrawi,Sahrawi,HANCESTRO,0332,http://purl.obolibrary.org/obo/HANCESTRO_0332
+Anguillan,Anguillan,HANCESTRO,0333,http://purl.obolibrary.org/obo/HANCESTRO_0333
+Antiguan or Barbudan,Antiguan or Barbudan,HANCESTRO,0334,http://purl.obolibrary.org/obo/HANCESTRO_0334
+Barbadian,Barbadian,HANCESTRO,0335,http://purl.obolibrary.org/obo/HANCESTRO_0335
+Haitian,Haitian,HANCESTRO,0336,http://purl.obolibrary.org/obo/HANCESTRO_0336
+Jamaican,Jamaican,HANCESTRO,0337,http://purl.obolibrary.org/obo/HANCESTRO_0337
+Tajikistani,Tajikistani,HANCESTRO,0338,http://purl.obolibrary.org/obo/HANCESTRO_0338
+Turkmen,Turkmen,HANCESTRO,0339,http://purl.obolibrary.org/obo/HANCESTRO_0339
+Uzbekistani,Uzbekistani,HANCESTRO,0340,http://purl.obolibrary.org/obo/HANCESTRO_0340
+Afghan,Afghan,HANCESTRO,0341,http://purl.obolibrary.org/obo/HANCESTRO_0341
+Kazakhstani,Kazakhstani,HANCESTRO,0342,http://purl.obolibrary.org/obo/HANCESTRO_0342
+Kyrgyzstani,Kyrgyzstani,HANCESTRO,0343,http://purl.obolibrary.org/obo/HANCESTRO_0343
+Albanian,Albanian,HANCESTRO,0344,http://purl.obolibrary.org/obo/HANCESTRO_0344
+Andorran,Andorran,HANCESTRO,0345,http://purl.obolibrary.org/obo/HANCESTRO_0345
+Australian,Australian,HANCESTRO,0346,http://purl.obolibrary.org/obo/HANCESTRO_0346
+Austrian,Austrian,HANCESTRO,0347,http://purl.obolibrary.org/obo/HANCESTRO_0347
+Belarusian,Belarusian,HANCESTRO,0348,http://purl.obolibrary.org/obo/HANCESTRO_0348
+Belgian,Belgian,HANCESTRO,0349,http://purl.obolibrary.org/obo/HANCESTRO_0349
+Bermudian,Bermudian,HANCESTRO,0350,http://purl.obolibrary.org/obo/HANCESTRO_0350
+Bosnian or Herzegovinian,Bosnian or Herzegovinian,HANCESTRO,0351,http://purl.obolibrary.org/obo/HANCESTRO_0351
+Brazilian,Brazilian,HANCESTRO,0352,http://purl.obolibrary.org/obo/HANCESTRO_0352
+Bulgarian,Bulgarian,HANCESTRO,0353,http://purl.obolibrary.org/obo/HANCESTRO_0353
+Canadian,Canadian,HANCESTRO,0354,http://purl.obolibrary.org/obo/HANCESTRO_0354
+Channel Islander,Channel Islander,HANCESTRO,0355,http://purl.obolibrary.org/obo/HANCESTRO_0355
+Chilean,Chilean,HANCESTRO,0356,http://purl.obolibrary.org/obo/HANCESTRO_0356
+Croatian,Croatian,HANCESTRO,0357,http://purl.obolibrary.org/obo/HANCESTRO_0357
+Czech,Czech,HANCESTRO,0358,http://purl.obolibrary.org/obo/HANCESTRO_0358
+Danish,Danish,HANCESTRO,0359,http://purl.obolibrary.org/obo/HANCESTRO_0359
+Estonian,Estonian,HANCESTRO,0360,http://purl.obolibrary.org/obo/HANCESTRO_0360
+Faroese,Faroese,HANCESTRO,0361,http://purl.obolibrary.org/obo/HANCESTRO_0361
+Falkland Islander,Falkland Islander,HANCESTRO,0362,http://purl.obolibrary.org/obo/HANCESTRO_0362
+French,French,HANCESTRO,0363,http://purl.obolibrary.org/obo/HANCESTRO_0363
+German,German,HANCESTRO,0364,http://purl.obolibrary.org/obo/HANCESTRO_0364
+Gibraltarian,Gibraltarian,HANCESTRO,0365,http://purl.obolibrary.org/obo/HANCESTRO_0365
+Greek,Greek,HANCESTRO,0366,http://purl.obolibrary.org/obo/HANCESTRO_0366
+Greenlander,Greenlander,HANCESTRO,0367,http://purl.obolibrary.org/obo/HANCESTRO_0367
+Hungrian,Hungrian,HANCESTRO,0368,http://purl.obolibrary.org/obo/HANCESTRO_0368
+Icelandic,Icelandic,HANCESTRO,0369,http://purl.obolibrary.org/obo/HANCESTRO_0369
+Manx,Manx,HANCESTRO,0370,http://purl.obolibrary.org/obo/HANCESTRO_0370
+Latvian,Latvian,HANCESTRO,0371,http://purl.obolibrary.org/obo/HANCESTRO_0371
+Liechtensteiner,Liechtensteiner,HANCESTRO,0372,http://purl.obolibrary.org/obo/HANCESTRO_0372
+Lithuanian,Lithuanian,HANCESTRO,0373,http://purl.obolibrary.org/obo/HANCESTRO_0373
+Luxembourgish,Luxembourgish,HANCESTRO,0374,http://purl.obolibrary.org/obo/HANCESTRO_0374
+Maltese,Maltese,HANCESTRO,0375,http://purl.obolibrary.org/obo/HANCESTRO_0375
+Monegasque,Monegasque,HANCESTRO,0376,http://purl.obolibrary.org/obo/HANCESTRO_0376
+Montenegrin,Montenegrin,HANCESTRO,0377,http://purl.obolibrary.org/obo/HANCESTRO_0377
+New Zealandish,New Zealandish,HANCESTRO,0378,http://purl.obolibrary.org/obo/HANCESTRO_0378
+Norfolk Islander,Norfolk Islander,HANCESTRO,0379,http://purl.obolibrary.org/obo/HANCESTRO_0379
+Norwegian,Norwegian,HANCESTRO,0380,http://purl.obolibrary.org/obo/HANCESTRO_0380
+Polish,Polish,HANCESTRO,0381,http://purl.obolibrary.org/obo/HANCESTRO_0381
+Portugese,Portugese,HANCESTRO,0382,http://purl.obolibrary.org/obo/HANCESTRO_0382
+Irish,Irish,HANCESTRO,0383,http://purl.obolibrary.org/obo/HANCESTRO_0383
+Moldovan,Moldovan,HANCESTRO,0384,http://purl.obolibrary.org/obo/HANCESTRO_0384
+Romanian,Romanian,HANCESTRO,0385,http://purl.obolibrary.org/obo/HANCESTRO_0385
+Russian,Russian,HANCESTRO,0386,http://purl.obolibrary.org/obo/HANCESTRO_0386
+Saint-Pierrais or Miquelonnais,Saint-Pierrais or Miquelonnais,HANCESTRO,0387,http://purl.obolibrary.org/obo/HANCESTRO_0387
+Sammarinese,Sammarinese,HANCESTRO,0388,http://purl.obolibrary.org/obo/HANCESTRO_0388
+Serb,Serb,HANCESTRO,0389,http://purl.obolibrary.org/obo/HANCESTRO_0389
+Slovak,Slovak,HANCESTRO,0390,http://purl.obolibrary.org/obo/HANCESTRO_0390
+Slovene,Slovene,HANCESTRO,0391,http://purl.obolibrary.org/obo/HANCESTRO_0391
+Spanish,Spanish,HANCESTRO,0392,http://purl.obolibrary.org/obo/HANCESTRO_0392
+Swedish,Swedish,HANCESTRO,0393,http://purl.obolibrary.org/obo/HANCESTRO_0393
+Swiss,Swiss,HANCESTRO,0394,http://purl.obolibrary.org/obo/HANCESTRO_0394
+Macedonian,Macedonian,HANCESTRO,0395,http://purl.obolibrary.org/obo/HANCESTRO_0395
+Ukrainian,Ukrainian,HANCESTRO,0396,http://purl.obolibrary.org/obo/HANCESTRO_0396
+Argentine,Argentine,HANCESTRO,0397,http://purl.obolibrary.org/obo/HANCESTRO_0397
+Bahamian,Bahamian,HANCESTRO,0398,http://purl.obolibrary.org/obo/HANCESTRO_0398
+Belizean,Belizean,HANCESTRO,0399,http://purl.obolibrary.org/obo/HANCESTRO_0399
+Bolivian,Bolivian,HANCESTRO,0400,http://purl.obolibrary.org/obo/HANCESTRO_0400
+British Virgin Islander,British Virgin Islander,HANCESTRO,0401,http://purl.obolibrary.org/obo/HANCESTRO_0401
+Caymanian,Caymanian,HANCESTRO,0402,http://purl.obolibrary.org/obo/HANCESTRO_0402
+Colombian,Colombian,HANCESTRO,0403,http://purl.obolibrary.org/obo/HANCESTRO_0403
+Costa Rican,Costa Rican,HANCESTRO,0404,http://purl.obolibrary.org/obo/HANCESTRO_0404
+Cuban,Cuban,HANCESTRO,0405,http://purl.obolibrary.org/obo/HANCESTRO_0405
+Dominican,Dominican,HANCESTRO,0406,http://purl.obolibrary.org/obo/HANCESTRO_0406
+Ecuadorian,Ecuadorian,HANCESTRO,0407,http://purl.obolibrary.org/obo/HANCESTRO_0407
+Salvadoran,Salvadoran,HANCESTRO,0408,http://purl.obolibrary.org/obo/HANCESTRO_0408
+French Guianese,French Guianese,HANCESTRO,0409,http://purl.obolibrary.org/obo/HANCESTRO_0409
+Grenadian,Grenadian,HANCESTRO,0410,http://purl.obolibrary.org/obo/HANCESTRO_0410
+Guatemalan,Guatemalan,HANCESTRO,0411,http://purl.obolibrary.org/obo/HANCESTRO_0411
+Guyanese,Guyanese,HANCESTRO,0412,http://purl.obolibrary.org/obo/HANCESTRO_0412
+Honduran,Honduran,HANCESTRO,0413,http://purl.obolibrary.org/obo/HANCESTRO_0413
+Martinican,Martinican,HANCESTRO,0414,http://purl.obolibrary.org/obo/HANCESTRO_0414
+Mexican,Mexican,HANCESTRO,0415,http://purl.obolibrary.org/obo/HANCESTRO_0415
+Montserratian,Montserratian,HANCESTRO,0416,http://purl.obolibrary.org/obo/HANCESTRO_0416
+Nicaraguan,Nicaraguan,HANCESTRO,0417,http://purl.obolibrary.org/obo/HANCESTRO_0417
+Panamanian,Panamanian,HANCESTRO,0418,http://purl.obolibrary.org/obo/HANCESTRO_0418
+Paraguayan,Paraguayan,HANCESTRO,0419,http://purl.obolibrary.org/obo/HANCESTRO_0419
+Peruvian,Peruvian,HANCESTRO,0420,http://purl.obolibrary.org/obo/HANCESTRO_0420
+Puerto Rican,Puerto Rican,HANCESTRO,0421,http://purl.obolibrary.org/obo/HANCESTRO_0421
+Kittitian or Nevisian,Kittitian or Nevisian,HANCESTRO,0422,http://purl.obolibrary.org/obo/HANCESTRO_0422
+Saint Lucian,Saint Lucian,HANCESTRO,0423,http://purl.obolibrary.org/obo/HANCESTRO_0423
+Saint Vincentian,Saint Vincentian,HANCESTRO,0424,http://purl.obolibrary.org/obo/HANCESTRO_0424
+Surinamese,Surinamese,HANCESTRO,0425,http://purl.obolibrary.org/obo/HANCESTRO_0425
+Trinidadian or Tobagonian,Trinidadian or Tobagonian,HANCESTRO,0426,http://purl.obolibrary.org/obo/HANCESTRO_0426
+Turks and Caicos Islander,Turks and Caicos Islander,HANCESTRO,0427,http://purl.obolibrary.org/obo/HANCESTRO_0427
+Virgin Islander,Virgin Islander,HANCESTRO,0428,http://purl.obolibrary.org/obo/HANCESTRO_0428
+Uruguayan,Uruguayan,HANCESTRO,0429,http://purl.obolibrary.org/obo/HANCESTRO_0429
+Venezuelan,Venezuelan,HANCESTRO,0430,http://purl.obolibrary.org/obo/HANCESTRO_0430
+Algerian,Algerian,HANCESTRO,0431,http://purl.obolibrary.org/obo/HANCESTRO_0431
+Armenian,Armenian,HANCESTRO,0432,http://purl.obolibrary.org/obo/HANCESTRO_0432
+Azerbaijani,Azerbaijani,HANCESTRO,0433,http://purl.obolibrary.org/obo/HANCESTRO_0433
+Bahraini,Bahraini,HANCESTRO,0434,http://purl.obolibrary.org/obo/HANCESTRO_0434
+Cypriote,Cypriote,HANCESTRO,0435,http://purl.obolibrary.org/obo/HANCESTRO_0435
+Egyptian,Egyptian,HANCESTRO,0436,http://purl.obolibrary.org/obo/HANCESTRO_0436
+Georgian,Georgian,HANCESTRO,0437,http://purl.obolibrary.org/obo/HANCESTRO_0437
+Iranian,Iranian,HANCESTRO,0438,http://purl.obolibrary.org/obo/HANCESTRO_0438
+Iraqi,Iraqi,HANCESTRO,0439,http://purl.obolibrary.org/obo/HANCESTRO_0439
+Israeli,Israeli,HANCESTRO,0440,http://purl.obolibrary.org/obo/HANCESTRO_0440
+Jordanian,Jordanian,HANCESTRO,0441,http://purl.obolibrary.org/obo/HANCESTRO_0441
+Kuwaiti,Kuwaiti,HANCESTRO,0442,http://purl.obolibrary.org/obo/HANCESTRO_0442
+Lebanese,Lebanese,HANCESTRO,0443,http://purl.obolibrary.org/obo/HANCESTRO_0443
+Libyan,Libyan,HANCESTRO,0444,http://purl.obolibrary.org/obo/HANCESTRO_0444
+Moroccan,Moroccan,HANCESTRO,0445,http://purl.obolibrary.org/obo/HANCESTRO_0445
+Palestinian,Palestinian,HANCESTRO,0446,http://purl.obolibrary.org/obo/HANCESTRO_0446
+Omani,Omani,HANCESTRO,0447,http://purl.obolibrary.org/obo/HANCESTRO_0447
+Qatari,Qatari,HANCESTRO,0448,http://purl.obolibrary.org/obo/HANCESTRO_0448
+Saudi,Saudi,HANCESTRO,0449,http://purl.obolibrary.org/obo/HANCESTRO_0449
+Tunisian,Tunisian,HANCESTRO,0450,http://purl.obolibrary.org/obo/HANCESTRO_0450
+Turkish,Turkish,HANCESTRO,0451,http://purl.obolibrary.org/obo/HANCESTRO_0451
+Emirati,Emirati,HANCESTRO,0452,http://purl.obolibrary.org/obo/HANCESTRO_0452
+Yemeni,Yemeni,HANCESTRO,0453,http://purl.obolibrary.org/obo/HANCESTRO_0453
+Aruban,Aruban,HANCESTRO,0454,http://purl.obolibrary.org/obo/HANCESTRO_0454
+Christmas Islander,Christmas Islander,HANCESTRO,0455,http://purl.obolibrary.org/obo/HANCESTRO_0455
+Cocos Islander,Cocos Islander,HANCESTRO,0456,http://purl.obolibrary.org/obo/HANCESTRO_0456
+Curacaoan,Curacaoan,HANCESTRO,0457,http://purl.obolibrary.org/obo/HANCESTRO_0457
+Kosovar,Kosovar,HANCESTRO,0458,http://purl.obolibrary.org/obo/HANCESTRO_0458
+Northern Mariana Islander,Northern Mariana Islander,HANCESTRO,0459,http://purl.obolibrary.org/obo/HANCESTRO_0459
+South Sudanese,South Sudanese,HANCESTRO,0460,http://purl.obolibrary.org/obo/HANCESTRO_0460
+Syrian,Syrian,HANCESTRO,0461,http://purl.obolibrary.org/obo/HANCESTRO_0461
+British,British,HANCESTRO,0462,http://purl.obolibrary.org/obo/HANCESTRO_0462
+American,American,HANCESTRO,0463,http://purl.obolibrary.org/obo/HANCESTRO_0463
+American Samoan,American Samoan,HANCESTRO,0464,http://purl.obolibrary.org/obo/HANCESTRO_0464
+Cook Islander,Cook Islander,HANCESTRO,0465,http://purl.obolibrary.org/obo/HANCESTRO_0465
+Fijian,Fijian,HANCESTRO,0466,http://purl.obolibrary.org/obo/HANCESTRO_0466
+French Polynesian,French Polynesian,HANCESTRO,0467,http://purl.obolibrary.org/obo/HANCESTRO_0467
+Guamanian,Guamanian,HANCESTRO,0468,http://purl.obolibrary.org/obo/HANCESTRO_0468
+I-Kiribati,I-Kiribati,HANCESTRO,0469,http://purl.obolibrary.org/obo/HANCESTRO_0469
+Marshallese,Marshallese,HANCESTRO,0470,http://purl.obolibrary.org/obo/HANCESTRO_0470
+Micronesian,Micronesian,HANCESTRO,0471,http://purl.obolibrary.org/obo/HANCESTRO_0471
+Nauruan,Nauruan,HANCESTRO,0472,http://purl.obolibrary.org/obo/HANCESTRO_0472
+New Caledonian,New Caledonian,HANCESTRO,0473,http://purl.obolibrary.org/obo/HANCESTRO_0473
+Niuean,Niuean,HANCESTRO,0474,http://purl.obolibrary.org/obo/HANCESTRO_0474
+Palauan,Palauan,HANCESTRO,0475,http://purl.obolibrary.org/obo/HANCESTRO_0475
+Papua New Guinean,Papua New Guinean,HANCESTRO,0476,http://purl.obolibrary.org/obo/HANCESTRO_0476
+Pitcairn Islander,Pitcairn Islander,HANCESTRO,0477,http://purl.obolibrary.org/obo/HANCESTRO_0477
+Samoan,Samoan,HANCESTRO,0478,http://purl.obolibrary.org/obo/HANCESTRO_0478
+Solomon Islander,Solomon Islander,HANCESTRO,0479,http://purl.obolibrary.org/obo/HANCESTRO_0479
+Tokelauan,Tokelauan,HANCESTRO,0480,http://purl.obolibrary.org/obo/HANCESTRO_0480
+Tongan,Tongan,HANCESTRO,0481,http://purl.obolibrary.org/obo/HANCESTRO_0481
+Tuvaluan,Tuvaluan,HANCESTRO,0482,http://purl.obolibrary.org/obo/HANCESTRO_0482
+Ni-Vanuato,Ni-Vanuato,HANCESTRO,0483,http://purl.obolibrary.org/obo/HANCESTRO_0483
+Wallis and Futuna Islander,Wallis and Futuna Islander,HANCESTRO,0484,http://purl.obolibrary.org/obo/HANCESTRO_0484
+Bangladeshi,Bangladeshi,HANCESTRO,0485,http://purl.obolibrary.org/obo/HANCESTRO_0485
+Bhutanese,Bhutanese,HANCESTRO,0486,http://purl.obolibrary.org/obo/HANCESTRO_0486
+Indian,Indian,HANCESTRO,0487,http://purl.obolibrary.org/obo/HANCESTRO_0487
+Maldivian,Maldivian,HANCESTRO,0488,http://purl.obolibrary.org/obo/HANCESTRO_0488
+Nepalese,Nepalese,HANCESTRO,0489,http://purl.obolibrary.org/obo/HANCESTRO_0489
+Pakistani,Pakistani,HANCESTRO,0490,http://purl.obolibrary.org/obo/HANCESTRO_0490
+Sri Lankan,Sri Lankan,HANCESTRO,0491,http://purl.obolibrary.org/obo/HANCESTRO_0491
+Bruneian,Bruneian,HANCESTRO,0492,http://purl.obolibrary.org/obo/HANCESTRO_0492
+Cambodian,Cambodian,HANCESTRO,0493,http://purl.obolibrary.org/obo/HANCESTRO_0493
+Indonesian,Indonesian,HANCESTRO,0494,http://purl.obolibrary.org/obo/HANCESTRO_0494
+Lao,Lao,HANCESTRO,0495,http://purl.obolibrary.org/obo/HANCESTRO_0495
+Malaysian,Malaysian,HANCESTRO,0496,http://purl.obolibrary.org/obo/HANCESTRO_0496
+Burmese,Burmese,HANCESTRO,0497,http://purl.obolibrary.org/obo/HANCESTRO_0497
+Filipino,Filipino,HANCESTRO,0498,http://purl.obolibrary.org/obo/HANCESTRO_0498
+Thai,Thai,HANCESTRO,0500,http://purl.obolibrary.org/obo/HANCESTRO_0500
+Timorese,Timorese,HANCESTRO,0501,http://purl.obolibrary.org/obo/HANCESTRO_0501
+Vietnamese,Vietnamese,HANCESTRO,0502,http://purl.obolibrary.org/obo/HANCESTRO_0502
+Cameroonian,Cameroonian,HANCESTRO,0503,http://purl.obolibrary.org/obo/HANCESTRO_0503
+Cape Verdean,Cape Verdean,HANCESTRO,0504,http://purl.obolibrary.org/obo/HANCESTRO_0504
+Chadian,Chadian,HANCESTRO,0505,http://purl.obolibrary.org/obo/HANCESTRO_0505
+Ethiopian,Ethiopian,HANCESTRO,0506,http://purl.obolibrary.org/obo/HANCESTRO_0506
+Kenyan,Kenyan,HANCESTRO,0507,http://purl.obolibrary.org/obo/HANCESTRO_0507
+Liberian,Liberian,HANCESTRO,0508,http://purl.obolibrary.org/obo/HANCESTRO_0508
+Malagasy,Malagasy,HANCESTRO,0509,http://purl.obolibrary.org/obo/HANCESTRO_0509
+Mauritanian,Mauritanian,HANCESTRO,0510,http://purl.obolibrary.org/obo/HANCESTRO_0510
+Mauritian,Mauritian,HANCESTRO,0511,http://purl.obolibrary.org/obo/HANCESTRO_0511
+Mahoran,Mahoran,HANCESTRO,0512,http://purl.obolibrary.org/obo/HANCESTRO_0512
+Namibian,Namibian,HANCESTRO,0513,http://purl.obolibrary.org/obo/HANCESTRO_0513
+Sao Tomean,Sao Tomean,HANCESTRO,0514,http://purl.obolibrary.org/obo/HANCESTRO_0514
+Senegalese,Senegalese,HANCESTRO,0515,http://purl.obolibrary.org/obo/HANCESTRO_0515
+Seychellois,Seychellois,HANCESTRO,0516,http://purl.obolibrary.org/obo/HANCESTRO_0516
+Sierra Leonean,Sierra Leonean,HANCESTRO,0517,http://purl.obolibrary.org/obo/HANCESTRO_0517
+Somali,Somali,HANCESTRO,0518,http://purl.obolibrary.org/obo/HANCESTRO_0518
+South African,South African,HANCESTRO,0519,http://purl.obolibrary.org/obo/HANCESTRO_0519
+St. Helenian,St. Helenian,HANCESTRO,0520,http://purl.obolibrary.org/obo/HANCESTRO_0520
+Ugandan,Ugandan,HANCESTRO,0521,http://purl.obolibrary.org/obo/HANCESTRO_0521
+Angolan,Angolan,HANCESTRO,0522,http://purl.obolibrary.org/obo/HANCESTRO_0522
+Beninese,Beninese,HANCESTRO,0523,http://purl.obolibrary.org/obo/HANCESTRO_0523
+Motswana,Motswana,HANCESTRO,0524,http://purl.obolibrary.org/obo/HANCESTRO_0524
+Burkinabe,Burkinabe,HANCESTRO,0525,http://purl.obolibrary.org/obo/HANCESTRO_0525
+Burundian,Burundian,HANCESTRO,0526,http://purl.obolibrary.org/obo/HANCESTRO_0526
+Central African,Central African,HANCESTRO,0527,http://purl.obolibrary.org/obo/HANCESTRO_0527
+Comoran,Comoran,HANCESTRO,0528,http://purl.obolibrary.org/obo/HANCESTRO_0528
+Congolese,Congolese,HANCESTRO,0529,http://purl.obolibrary.org/obo/HANCESTRO_0529
+Ivoirian,Ivoirian,HANCESTRO,0530,http://purl.obolibrary.org/obo/HANCESTRO_0530
+Djiboutian,Djiboutian,HANCESTRO,0531,http://purl.obolibrary.org/obo/HANCESTRO_0531
+Equatorial Guinean,Equatorial Guinean,HANCESTRO,0532,http://purl.obolibrary.org/obo/HANCESTRO_0532
+Eritrean,Eritrean,HANCESTRO,0533,http://purl.obolibrary.org/obo/HANCESTRO_0533
+Gabonese,Gabonese,HANCESTRO,0534,http://purl.obolibrary.org/obo/HANCESTRO_0534
+Gambian,Gambian,HANCESTRO,0535,http://purl.obolibrary.org/obo/HANCESTRO_0535
+Ghanaian,Ghanaian,HANCESTRO,0536,http://purl.obolibrary.org/obo/HANCESTRO_0536
+Guinean,Guinean,HANCESTRO,0537,http://purl.obolibrary.org/obo/HANCESTRO_0537
+Bissau-Guinean,Bissau-Guinean,HANCESTRO,0538,http://purl.obolibrary.org/obo/HANCESTRO_0538
+Mosotho,Mosotho,HANCESTRO,0539,http://purl.obolibrary.org/obo/HANCESTRO_0539
+Malawian,Malawian,HANCESTRO,0540,http://purl.obolibrary.org/obo/HANCESTRO_0540
+Malian,Malian,HANCESTRO,0541,http://purl.obolibrary.org/obo/HANCESTRO_0541
+Mozambican,Mozambican,HANCESTRO,0542,http://purl.obolibrary.org/obo/HANCESTRO_0542
+Nigerien,Nigerien,HANCESTRO,0543,http://purl.obolibrary.org/obo/HANCESTRO_0543
+Nigerian,Nigerian,HANCESTRO,0544,http://purl.obolibrary.org/obo/HANCESTRO_0544
+Rwandan,Rwandan,HANCESTRO,0545,http://purl.obolibrary.org/obo/HANCESTRO_0545
+Swazi,Swazi,HANCESTRO,0546,http://purl.obolibrary.org/obo/HANCESTRO_0546
+Togolese,Togolese,HANCESTRO,0547,http://purl.obolibrary.org/obo/HANCESTRO_0547
+Tanzanian,Tanzanian,HANCESTRO,0548,http://purl.obolibrary.org/obo/HANCESTRO_0548
+Zambian,Zambian,HANCESTRO,0549,http://purl.obolibrary.org/obo/HANCESTRO_0549
+Zimbabweian,Zimbabweian,HANCESTRO,0550,http://purl.obolibrary.org/obo/HANCESTRO_0550
+genetically homogenous Irish,genetically homogenous Irish,HANCESTRO,0551,http://purl.obolibrary.org/obo/HANCESTRO_0551
+Aboriginal Australian,Aboriginal Australian,HANCESTRO,0552,http://purl.obolibrary.org/obo/HANCESTRO_0552
+Silk Road founder,Silk Road founder,HANCESTRO,0554,http://purl.obolibrary.org/obo/HANCESTRO_0554
+Arab Israeli founder,Arab Israeli founder,HANCESTRO,0555,http://purl.obolibrary.org/obo/HANCESTRO_0555
+Cilento,Cilento,HANCESTRO,0556,http://purl.obolibrary.org/obo/HANCESTRO_0556
+Costa Rican founder,Costa Rican founder,HANCESTRO,0557,http://purl.obolibrary.org/obo/HANCESTRO_0557
+French Canadian founder,French Canadian founder,HANCESTRO,0558,http://purl.obolibrary.org/obo/HANCESTRO_0558
+Italian founder,Italian founder,HANCESTRO,0559,http://purl.obolibrary.org/obo/HANCESTRO_0559
+Northern Finnish founder,Northern Finnish founder,HANCESTRO,0560,http://purl.obolibrary.org/obo/HANCESTRO_0560
+Romanian founder,Romanian founder,HANCESTRO,0561,http://purl.obolibrary.org/obo/HANCESTRO_0561
+South Tyrolean,South Tyrolean,HANCESTRO,0563,http://purl.obolibrary.org/obo/HANCESTRO_0563
+Vis founder,Vis founder,HANCESTRO,0564,http://purl.obolibrary.org/obo/HANCESTRO_0564
+Split founder,Split founder,HANCESTRO,0565,http://purl.obolibrary.org/obo/HANCESTRO_0565
+undefined ancestry population,undefined ancestry population,HANCESTRO,0566,http://purl.obolibrary.org/obo/HANCESTRO_0566
+Afro-Caribbean,Afro-Caribbean,HANCESTRO,0567,http://purl.obolibrary.org/obo/HANCESTRO_0567
+African American,African American,HANCESTRO,0568,http://purl.obolibrary.org/obo/HANCESTRO_0568
+Talana,Talana,HANCESTRO,0569,http://purl.obolibrary.org/obo/HANCESTRO_0569
+Pima Indian,Pima Indian,HANCESTRO,0570,http://purl.obolibrary.org/obo/HANCESTRO_0570
+Plains American Indian,Plains American Indian,HANCESTRO,0571,http://purl.obolibrary.org/obo/HANCESTRO_0571
+Kosraen,Kosraen,HANCESTRO,0572,http://purl.obolibrary.org/obo/HANCESTRO_0572
+Native Hawaiian,Native Hawaiian,HANCESTRO,0573,http://purl.obolibrary.org/obo/HANCESTRO_0573
+Pacific Islander,Pacific Islander,HANCESTRO,0574,http://purl.obolibrary.org/obo/HANCESTRO_0574
+Yoruban,Yoruban,HANCESTRO,0575,http://purl.obolibrary.org/obo/HANCESTRO_0575
+West African,West African,HANCESTRO,0576,http://purl.obolibrary.org/obo/HANCESTRO_0576
+Dai Chinese,Dai Chinese,HANCESTRO,0577,http://purl.obolibrary.org/obo/HANCESTRO_0577
+Hui Chinese,Hui Chinese,HANCESTRO,0578,http://purl.obolibrary.org/obo/HANCESTRO_0578
+Jingpo Chinese,Jingpo Chinese,HANCESTRO,0579,http://purl.obolibrary.org/obo/HANCESTRO_0579
+Malaysian Chinese,Malaysian Chinese,HANCESTRO,0580,http://purl.obolibrary.org/obo/HANCESTRO_0580
+Uygur Chinese,Uygur Chinese,HANCESTRO,0581,http://purl.obolibrary.org/obo/HANCESTRO_0581
+Tibetan,Tibetan,HANCESTRO,0582,http://purl.obolibrary.org/obo/HANCESTRO_0582
+Taiwanese Han,Taiwanese Han,HANCESTRO,0583,http://purl.obolibrary.org/obo/HANCESTRO_0583
+Sri Lankan Sinhalese,Sri Lankan Sinhalese,HANCESTRO,0584,http://purl.obolibrary.org/obo/HANCESTRO_0584
+Tatar,Tatar,HANCESTRO,0585,http://purl.obolibrary.org/obo/HANCESTRO_0585
+Bashkir,Bashkir,HANCESTRO,0586,http://purl.obolibrary.org/obo/HANCESTRO_0586
+Martu Australian Aboriginal,Martu Australian Aboriginal,HANCESTRO,0587,http://purl.obolibrary.org/obo/HANCESTRO_0587
+Jewish Israeli,Jewish Israeli,HANCESTRO,0588,http://purl.obolibrary.org/obo/HANCESTRO_0588
+Eskimo,Eskimo,HANCESTRO,0595,http://purl.obolibrary.org/obo/HANCESTRO_0595
+Arab,Arab,HANCESTRO,0596,http://purl.obolibrary.org/obo/HANCESTRO_0596

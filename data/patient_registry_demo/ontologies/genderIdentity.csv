@@ -1,0 +1,16 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,exploringGenderIdentity,Exploring gender identity,,GSSO,1594,http://purl.obolibrary.org/obo/GSSO_001594,A gender identity in question or in the process of being questioned.
+2,femaleGenderIdentity,Female gender identity,,GSSO,89,http://purl.obolibrary.org/obo/GSSO_000089,Having an identity considered female.
+3,maleGenderIdentity,Male gender identity,,GSSO,90,http://purl.obolibrary.org/obo/GSSO_000090,Having an identity considered male.
+4,noGenderIdentity,No gender identity,,GSSO,9485,http://purl.obolibrary.org/obo/GSSO_009485,"An indication that no gender identity has developed. Use for neonates whose assigned sex at birth is 'undifferentiated'. For a person who identifies as not having a gender, use 'non-gendered identity'."
+5,nonbinaryGenderIdentity,Nonbinary gender identity,,GSSO,2328,http://purl.obolibrary.org/obo/GSSO_002328,Having an identity considered nonbinary or as falling under the nonbinary umbrella.
+6,exclusiveGenderIdentity,Exclusive gender identity,,GSSO,10346,http://purl.obolibrary.org/obo/GSSO_010346,"A gender which has a certain prerequisite which may be unrelated to gender, such as one belonging to a particular culture or indigenous group."
+7,fluctuatingGenderIdentity,Fluctuating gender identity,,GSSO,2329,http://purl.obolibrary.org/obo/GSSO_002329,Having a gender identity which fluctuates or switches (such as being male sometimes and female other times).
+8,indescribableGenderIdentity,Indescribable gender identity,,GSSO,11422,http://purl.obolibrary.org/obo/GSSO_011422,"Any of various gender identities defined by their inability to be described, communicated, or otherwise understood."
+9,multipleGenderIdentity,Multiple gender identity,,GSSO,2330,http://purl.obolibrary.org/obo/GSSO_002330,Having a multiple gender identities simultaneously.
+10,non_genderedIdentity,Non-gendered identity,,GSSO,2331,http://purl.obolibrary.org/obo/GSSO_002331,Having a gender identity that is genderless or having no gender identity whatsoever.
+11,overlappingGenderIdentity,Overlapping gender identity,,GSSO,2332,http://purl.obolibrary.org/obo/GSSO_002332,Having a gender identity which overlaps somewhat with other gender identities but not in their entirety.
+12,partialGenderIdentity,Partial gender identity,,GSSO,2333,http://purl.obolibrary.org/obo/GSSO_002333,"Having a gender identity which includes part of another gender identity, but not all of it (for example, identifying somewhat with female, but not entirely)."
+13,otherGenderIdentity,Other gender identity,,GSSO,9484,http://purl.obolibrary.org/obo/GSSO_009484,A datum representing a person's gender identity which is not listed.
+14,unknownGenderIdentity,Unknown gender identity,,GSSO,9482,http://purl.obolibrary.org/obo/GSSO_009482,A datum representing that a person's gender identity is not known for any of various reasons.
+15,undisclosedGenderIdentity,Undisclosed gender identity,,GSSO,9483,http://purl.obolibrary.org/obo/GSSO_009483,"A datum representing when an individual does not wish to disclose their gender identity, thereby making their gender identity unknown."

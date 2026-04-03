@@ -1,0 +1,13 @@
+id,name,value,value label,series,primary category,secondary category,primary category label,secondary category label,time value,time unit,color,description,sort order,included in chart
+recruitment-count-control,Healthy Controls,30,,,,,,,,,,Number of Healthy Controls patients recruited,2,recruitment-count
+recruitment-count-intervention,Intervention,30,,,,,,,,,,Number of Intervention patients recruited,0,recruitment-count
+recruitment-count-placebo,Placebo,30,,,,,,,,,,Number of Placebo patients recruited,1,recruitment-count
+recruitment-count-by-site-site-001-healthy controls,Healthy Controls,10,,,site_001,,University Hospital of AAA,,,,,Number of Healthy Controls patients recruited at University Hospital of AAA,0,recruitment-count-by-site
+recruitment-count-by-site-site-001-intervention,Intervention,10,,,site_001,,University Hospital of AAA,,,,,Number of Intervention patients recruited at University Hospital of AAA,3,recruitment-count-by-site
+recruitment-count-by-site-site-001-placebo,Placebo,15,,,site_001,,University Hospital of AAA,,,,,Number of Placebo patients recruited at University Hospital of AAA,6,recruitment-count-by-site
+recruitment-count-by-site-site-002-healthy controls,Healthy Controls,10,,,site_002,,National insitute of BBB,,,,,Number of Healthy Controls patients recruited at National insitute of BBB,1,recruitment-count-by-site
+recruitment-count-by-site-site-002-intervention,Intervention,5,,,site_002,,National insitute of BBB,,,,,Number of Intervention patients recruited at National insitute of BBB,4,recruitment-count-by-site
+recruitment-count-by-site-site-002-placebo,Placebo,10,,,site_002,,National insitute of BBB,,,,,Number of Placebo patients recruited at National insitute of BBB,7,recruitment-count-by-site
+recruitment-count-by-site-site-003-healthy controls,Healthy Controls,10,,,site_003,,University of CCC,,,,,Number of Healthy Controls patients recruited at University of CCC,2,recruitment-count-by-site
+recruitment-count-by-site-site-003-intervention,Intervention,15,,,site_003,,University of CCC,,,,,Number of Intervention patients recruited at University of CCC,5,recruitment-count-by-site
+recruitment-count-by-site-site-003-placebo,Placebo,5,,,site_003,,University of CCC,,,,,Number of Placebo patients recruited at University of CCC,8,recruitment-count-by-site

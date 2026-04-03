@@ -1,0 +1,18 @@
+---
+name: Networks data model
+description: "This catalogue contains metadata on networks of data collections."
+
+profileTags: NetworksStaging
+
+# demoData: _demodata/applications/datacatalogue_networkstaging
+
+# settings: _settings/datacatalogue
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: true
+

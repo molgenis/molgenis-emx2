@@ -1,0 +1,3 @@
+name,code,order,definition,parent,ontologyTermURI
+Retrospective,retrospective,1,Retrospective data collection,,
+Prospective,prospective,2,Prospective data collection,,

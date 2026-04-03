@@ -1,0 +1,144 @@
+<template>
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    class="radio-form-group"
+    :errorMessage="errorMessage"
+  >
+    <div
+      @mouseenter="isMouseOver = true"
+      @mouseleave="isMouseOver = false"
+      class="input-group"
+      :class="direction === 'vertical' ? 'flex-column' : 'flex-row'"
+    >
+      <div
+        v-for="(item, idx) in options"
+        :key="idx"
+        class="form-check form-check-inline"
+      >
+        <input
+          class="form-check-input"
+          :class="{ 'is-invalid': errorMessage }"
+          type="radio"
+          :id="id + idx"
+          :aria-describedby="id + 'Help'"
+          :value="item"
+          v-model="radioValue"
+        />
+        <label class="form-check-label" :for="id + idx">{{ item }}</label>
+      </div>
+      <div class="input-group-append">
+        <button
+          v-show="isClearShown"
+          class="btn btn-link radio-clear-value"
+          @click="radioValue = null"
+        >
+          clear
+        </button>
+      </div>
+    </div>
+  </FormGroup>
+</template>
+
+<script>
+import BaseInput from "./baseInputs/BaseInput.vue";
+import FormGroup from "./FormGroup.vue";
+
+export default {
+  name: "InputRadio",
+  extends: BaseInput,
+  components: { FormGroup },
+  props: {
+    options: {
+      type: Array,
+      required: true,
+    },
+    isClearable: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    direction: {
+      type: String,
+      required: false,
+      default: "horizontal",
+    },
+  },
+  data() {
+    return {
+      radioValue: this.modelValue,
+      isMouseOver: false,
+    };
+  },
+  watch: {
+    radioValue() {
+      this.$emit("update:modelValue", this.radioValue);
+    },
+    modelValue(newValue) {
+      this.radioValue = newValue;
+    },
+  },
+  computed: {
+    isClearShown() {
+      if (this.isClearable !== undefined && this.isClearable === false) {
+        return false;
+      } else {
+        return (
+          this.isMouseOver &&
+          this.radioValue !== null &&
+          this.radioValue !== undefined
+        );
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.input-group-append button {
+  padding-top: 0;
+  padding-bottom: 0;
+  border: 0;
+}
+</style>
+
+<docs>
+<template>
+  <div>
+    <label>Basic example</label>
+    <demo-item>
+      <InputRadio
+          id="input-radio-1"
+          v-model="value1"
+          :options="['options 1', 'option 2']"
+          label="My radio input label"
+          description="Some help needed?"
+      />
+      <div>You selected: {{ value1 }}</div>
+    </demo-item>
+
+    <label>Example with defaultValue</label>
+    <demo-item>
+      <InputRadio
+          id="input-radio-2"
+          v-model="value2"
+          :options="['option 1', 'option 2']"
+          label="My radio input label"
+      />
+      <div>You selected: {{ value2 }}</div>
+    </demo-item>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value1: null,
+        value2: 'option 1',
+      };
+    },
+  };
+</script>
+</docs>

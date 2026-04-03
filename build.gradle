@@ -1,0 +1,171 @@
+plugins {
+    id "java"
+    id "org.sonarqube" version "7.2.2.6593"
+    id 'maven-publish'
+    id 'com.gradleup.shadow' version '8.3.9'
+    id 'application'
+}
+
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+    javaVersion = JavaVersion.VERSION_21
+}
+
+allprojects {
+    if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
+        version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
+    }
+    else {
+        version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
+}
+println "Corrected version checking for optional snapshot: " + rootProject.version
+
+nyxPublish.dependsOn assemble
+
+sonar {
+    properties {
+        property "sonar.scanner.skipJreProvisioning", "true"
+        property 'sonar.projectName', 'molgenis-emx2'
+        property 'sonar.projectKey', 'molgenis_molgenis-emx2'
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/backend/build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml"
+    }
+}
+
+tasks.withType(Test) {
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':backend:molgenis-emx2-run')
+}
+
+shadowJar {
+    zip64 = true
+    archiveBaseName = 'molgenis-emx2'
+    mergeServiceFiles()
+    archiveVersion = project.version.replace("v","")
+
+    // Multi-release is needed for graalvm lib
+    manifest {
+        attributes(
+                "Main-Class": "org.molgenis.emx2.RunMolgenisEmx2",
+                "Multi-Release": "true"
+        )
+    }
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+}
+
+publishing {
+    repositories {
+        maven {
+            // change to point to repo later
+            url = "${layout.buildDirectory.get()}/repo"
+        }
+    }
+}
+
+project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
+
+def imageName = 'docker.io/molgenis/molgenis-emx2'
+def tagName = project.version.toString().replace("v","")
+if (version.toString().endsWith('-SNAPSHOT')) {
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
+    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
+}
+// write a file to pickup in deployment to use specific tags in upgrade
+tasks.register('ci', WriteProperties) {
+    destinationFile.set(file('build/ci.properties'))
+    property 'TAG_NAME', tagName
+    property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
+}
+
+// Docker build and push tasks using Docker CLI (Gradle 9 compatible)
+tasks.register('dockerBuild', Exec) {
+    dependsOn shadowJar
+    description = 'Build Docker image using Docker CLI'
+
+    doFirst {
+        logger.lifecycle("Building Docker image: ${imageName}:${tagName} and ${imageName}:latest")
+        logger.lifecycle("Using JAR file: ${shadowJar.archiveFile.get().asFile.name}")
+    }
+
+    commandLine 'docker', 'build',
+        '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
+        '-t', "${imageName}:${tagName}",
+        '-t', "${imageName}:latest",
+        '.'
+}
+
+tasks.register('dockerPush', Exec) {
+    dependsOn dockerBuild
+    description = 'Push Docker image to registry using Docker CLI'
+
+    doFirst {
+        logger.lifecycle("Pushing Docker image: ${imageName} with tags: ${tagName}, latest")
+    }
+
+    commandLine 'docker', 'push', imageName, '--all-tags'
+}
+
+tasks.register('dockerClean', Delete) {
+    description = 'Clean JAR files from project root directory'
+    delete fileTree(dir: projectDir, include: '*.jar')
+}
+
+String getGitHash() {
+    try {
+        // Use ProcessBuilder to properly inherit environment and handle git command
+        def process = new ProcessBuilder('git', 'rev-parse', '--short', 'HEAD')
+            .directory(rootProject.projectDir)
+            .redirectErrorStream(true)
+            .start()
+        process.waitFor()
+
+        if (process.exitValue() == 0) {
+            return process.inputStream.text.trim()
+        } else {
+            logger.warn("Git command failed, using 'unknown' as hash")
+            return "unknown"
+        }
+    } catch (Exception e) {
+        logger.warn("Failed to get git hash: ${e.message}, using 'unknown' as hash")
+        return "unknown"
+    }
+}
+
+application {
+    mainClass.set(javaMainClass)
+}
+
+jar {
+    reproducibleFileOrder = true
+    manifest {
+        attributes(
+                'Specification-Version': project.version.toString(),
+                'Implementation-Version': getGitHash(),
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+}
+
+//task to install pre-commit hook that applies formatting
+tasks.register('installPreCommitGitFormatApplyHook', Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-apply')
+    rename 'pre-commit-format-apply', 'pre-commit'
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    filePermissions {
+        unix(0775)
+    }
+}

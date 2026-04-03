@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,absent,Absent,,,,,
+2,blistersErosions,Blisters or erosions,,,,,
+3,stenoses,Stenoses,,,,,

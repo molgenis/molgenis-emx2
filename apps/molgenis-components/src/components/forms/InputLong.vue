@@ -1,0 +1,68 @@
+<template>
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
+    <InputGroup>
+      <BaseInputLong
+        :id="id"
+        :modelValue="modelValue"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        :class="{ 'is-invalid': errorMessage }"
+        @update:modelValue="$emit('update:modelValue', $event)"
+      />
+      <template v-slot:append>
+        <slot name="append" />
+      </template>
+    </InputGroup>
+  </FormGroup>
+</template>
+
+<script>
+import BaseInput from "./baseInputs/BaseInput.vue";
+import BaseInputLong from "./baseInputs/BaseInputLong.vue";
+import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
+
+export default {
+  extends: BaseInput,
+  components: {
+    FormGroup,
+    BaseInputLong,
+    InputGroup,
+  },
+};
+</script>
+
+<docs>
+<template>
+  <div>
+    <demo-item>
+      <div>
+        <InputLong id="input-long" v-model="value" label="My long input label" description="Some help needed?"/>
+        You typed: {{ JSON.stringify(value) }}
+      </div>
+    </demo-item>
+    <demo-item>
+      <div>
+        <InputLong id="input-long-read-only" v-model="value" label="Readonly" readonly/>
+        Value: {{ JSON.stringify(value) }}
+      </div>
+    </demo-item>
+  </div>
+</template>
+<script>
+  export default {
+    data: function() {
+      return {
+        value: "9223372036854775807"
+      };
+    }
+  };
+</script>
+</docs>

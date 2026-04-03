@@ -1,0 +1,31 @@
+plugins {
+    id 'base'
+}
+
+tasks.register('copyDistFiles', Copy) {
+    from "."
+    exclude 'build'
+    into "${project.layout.buildDirectory.get()}/resources/main/public_html/apps/${project.name}"
+    outputs.dir("${project.layout.buildDirectory.get()}/resources/main/public_html/apps/${project.name}")
+    outputs.cacheIf { true }
+}
+
+tasks.register('createJar', Zip) {
+    dependsOn copyDistFiles
+    archiveBaseName = 'molgenis-emx2-docs'
+    archiveExtension = 'jar'
+    destinationDirectory = layout.buildDirectory.dir("build/libs").get().asFile
+    from('build/resources/main')
+}
+
+configurations {
+    appResources
+}
+configurations.default.extendsFrom(configurations.appResources)
+
+artifacts {
+    appResources(createJar.getArchiveFile()) {
+        builtBy createJar
+        type = "jar"
+    }
+}

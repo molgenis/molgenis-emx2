@@ -1,0 +1,17 @@
+---
+name: CohortsStaging
+description: "This schema is used by cohorts to enter their data."
+
+profileTags: CohortsStaging
+
+demoData: _demodata/applications/datacatalogue_cohortstaging
+
+settings:
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: true

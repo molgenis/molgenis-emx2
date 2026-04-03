@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,ercc6,ERCC6,,,,,
+2,ercc8,ERCC8,,,,,
+3,unknown,Unknown,,,,,
+4,other,Other,,,,,

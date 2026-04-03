@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,skin,Skin/Subcutaneous Tissue,,NCIT,C92441,http://purl.obolibrary.org/obo/NCIT_C92441,Skin/Subcutaneous Tissue
+2,blood,Blood Sample,,NCIT,C17610,http://purl.obolibrary.org/obo/NCIT_C17610,
+3,saliva,Saliva Sample,,NCIT,C174119,http://purl.obolibrary.org/obo/NCIT_C174119,
+4,other,Other Sample,,,,,

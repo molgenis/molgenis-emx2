@@ -1,0 +1,7 @@
+user,role
+anonymous,Viewer
+customer,Range
+pet_shop_owner,Owner
+shopmanager,Manager
+shopowner,Owner
+shopviewer,Viewer

@@ -1,0 +1,33 @@
+{
+  "name": "cranio-provider",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "format": "prettier src tests  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@heroicons/vue": "2.0.18",
+    "d3": "7.8.5",
+    "graphql-request": "5.2.0",
+    "molgenis-components": "workspace:*",
+    "molgenis-viz": "workspace:*",
+    "vue": "3.5.22",
+    "vue-router": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/d3": "7.4.3",
+    "@vitejs/plugin-vue": "5.2.4",
+    "prettier": "2.8.8",
+    "vite": "7.3.1",
+    "vitest": "1.6.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

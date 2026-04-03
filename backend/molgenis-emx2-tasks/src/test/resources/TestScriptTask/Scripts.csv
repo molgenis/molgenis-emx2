@@ -1,0 +1,80 @@
+name,type,script,dependencies,extraFile,extraFile_filename,outputFileExtension,disabled,failureAddress,cron,mg_draft
+ZIP attachment test,python,"""""""
+Script to demonstrate expected behaviour of a script with
+additional modules and files in the _SYSTEM_ tasks environment.
+""""""
+
+import os
+from pathlib import Path
+
+import pandas as pd
+from dotenv import load_dotenv
+
+from extrafiles import TimeTeller
+
+load_dotenv()
+data_file_path = Path(__file__).parent / ""extrafiles"" / ""data.csv""
+output_path = os.environ.get(""OUTPUT_FILE"")
+
+def main():
+    print(""==================================="")
+
+    current_time = TimeTeller.tell_time()
+    print(current_time)
+
+    with open(output_path, 'w') as f:
+        f.write(current_time)
+
+
+
+if __name__ == '__main__':
+    main()","pandas>=2
+python-dotenv",extrafiles,extrafiles.zip,txt,,,,false
+CSV attachment test,python,"""""""
+Script to demonstrate expected behaviour of a script with
+additional modules and files in the _SYSTEM_ tasks environment.
+""""""
+
+from pathlib import Path
+
+import pandas as pd
+
+data_file_path = Path(__file__).parent / ""data.csv""
+
+def main():
+
+    print(""Printing contents of 'data.csv'"")
+    dates_df = pd.read_csv(data_file_path, index_col=0)
+    print(dates_df)
+
+
+if __name__ == '__main__':
+    main()",pandas>=2,data,data.csv,,,,,false
+Invalid filename test,python,"import os;
+import numpy as np
+import sys
+# you can get parameters via sys.argv[1]
+print('Hello, world!')
+a = np.array([1, 2, 3, 4, 5, 6])
+print(""MOLGENIS_TOKEN=""+os.environ['MOLGENIS_TOKEN']);
+if len(sys.argv) >= 2:
+    print(""sys.argv[1]=""+sys.argv[1]);
+OUTPUT_FILE=os.environ['OUTPUT_FILE'];
+print(""OUTPUT_FILE=""+os.environ['OUTPUT_FILE']);
+f = open(OUTPUT_FILE, ""a"")
+f.write(""Readme"")
+f.close()",numpy==2.2.4,venv,venv.zip,txt,,,,false
+hello world,python,"import os;
+import numpy as np
+import sys
+# you can get parameters via sys.argv[1]
+print('Hello, world!')
+a = np.array([1, 2, 3, 4, 5, 6])
+print(""MOLGENIS_TOKEN=""+os.environ['MOLGENIS_TOKEN']);
+if len(sys.argv) >= 2:
+    print(""sys.argv[1]=""+sys.argv[1]);
+OUTPUT_FILE=os.environ['OUTPUT_FILE'];
+print(""OUTPUT_FILE=""+os.environ['OUTPUT_FILE']);
+f = open(OUTPUT_FILE, ""a"")
+f.write(""Readme"")
+f.close()",numpy==2.2.4,,,txt,,,,false

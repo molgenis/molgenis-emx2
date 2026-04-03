@@ -1,0 +1,281 @@
+<template>
+  <Molgenis v-model="session">
+    <div class="bg-white container" :key="JSON.stringify(session)">
+      <h1>Up/Download for {{ schema }}</h1>
+      <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+      <div v-if="taskId" class="pb-3">
+        <h4>Progress of current upload:</h4>
+        <ul class="fa-ul">
+          <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+        </ul>
+        <ButtonAction v-if="taskDone" @click="done"> Done </ButtonAction>
+      </div>
+      <div v-else class="pb-3">
+        <h4>Upload</h4>
+        <MessageWarning v-if="!session?.roles?.includes('Editor')">
+          You don't have permission to upload data. Might you need to login?
+        </MessageWarning>
+        <div v-else>
+          <p>
+            Import and export data (tables) and metadata (schema, settings) in
+            bulk.
+          </p>
+          <div>
+            <p>
+              Import data by uploading files in excel, csv, zip, json or yaml
+              format.
+            </p>
+            <form class="form-inline">
+              <InputFile v-model="file" />
+              <ButtonAction @click="upload" v-if="file != undefined">
+                Import
+              </ButtonAction>
+              <Spinner v-if="loading" />
+            </form>
+            <br />
+          </div>
+        </div>
+        <div
+          v-if="
+            session &&
+            session.roles &&
+            session.roles?.some((r) => r === 'Viewer' || r === 'Aggregator')
+          "
+        ></div>
+        <h4>Download</h4>
+        <MessageWarning
+          v-if="!session || !session.roles || session.roles.length == 0"
+        >
+          You don't have permission to download data. Might you need to login?
+        </MessageWarning>
+        <div v-else>
+          <p>Export data by downloading various file formats:</p>
+          <div>
+            <p>
+              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
+              <a :href="`/${schema}/api/json`">json</a> /
+              <a :href="`/${schema}/api/yaml`">yaml</a>
+            </p>
+
+            <p>
+              Export schema+data in one file as
+              <a :href="`/${schema}/api/excel`">excel</a> /
+              <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/ttl`">ttl</a> /
+              <a :href="`/${schema}/api/jsonld`">jsonld</a>
+            </p>
+
+            <div>
+              Export schema information:
+              <ul>
+                <li>
+                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                </li>
+                <li v-if="isManagerOrOwner">
+                  Changelog:
+                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                    csv
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div v-if="visibleTables?.length" :key="tablesHash">
+              Export specific tables:
+              <ul>
+                <li v-for="table in visibleTables" :key="table.id">
+                  {{ table.label }}:
+                  <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                </li>
+              </ul>
+            </div>
+
+            <p>
+              Note to programmers: the GET endpoints above also accept http POST
+              command for updates, and DELETE commands for deletions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Molgenis>
+</template>
+
+<script>
+import {
+  ButtonAction,
+  InputFile,
+  Spinner,
+  MessageError,
+  MessageSuccess,
+  MessageWarning,
+  Molgenis,
+  Task,
+} from "molgenis-components";
+import { request } from "graphql-request";
+
+/** Data import tool */
+export default {
+  components: {
+    ButtonAction,
+    Spinner,
+    InputFile,
+    MessageError,
+    MessageSuccess,
+    MessageWarning,
+    Molgenis,
+    Task,
+  },
+  data: function () {
+    return {
+      session: null,
+      schema: null,
+      tables: [],
+      file: null,
+      error: null,
+      success: null,
+      loading: false,
+      taskId: null,
+      taskDone: false,
+    };
+  },
+  computed: {
+    visibleTables() {
+      if (this.session?.roles?.includes("Viewer")) {
+        return this.tables;
+      } else {
+        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
+      }
+    },
+    isManagerOrOwner() {
+      return this.session?.roles?.includes("Manager");
+    },
+    tablesHash() {
+      if (this.tables) {
+        return this.tables.map((table) => table.id).join("-");
+      } else {
+        return null;
+      }
+    },
+  },
+  methods: {
+    loadSchema() {
+      this.loading = true;
+      request("graphql", "{_schema{id,label,tables{id,label,tableType}}}")
+        .then((data) => {
+          this.schema = data._schema.id;
+          this.tables = data._schema.tables;
+        })
+        .catch((error) => {
+          this.error = error.response.errors[0].message;
+        })
+        .finally((this.loading = false));
+    },
+    upload() {
+      this.error = null;
+      this.success = null;
+      this.loading = true;
+      this.taskDone = false;
+      const splitFileName = this.file.name.split(".");
+      const fileName = splitFileName[0];
+      const type = splitFileName[splitFileName.length - 1];
+      if (["csv", "json", "yaml"].includes(type)) {
+        const reader = new FileReader();
+        reader.readAsText(this.file);
+        reader.onload = () => {
+          const url = `/${this.schema}/api/${type}?async=true`;
+          const options = {
+            method: "POST",
+            body: reader.result,
+            headers: { fileName: fileName },
+          };
+          fetch(url, options)
+            .then((response) => {
+              if (response.ok) {
+                response.json().then((response) => {
+                  if (response.id) {
+                    // if identifier is present it's a task
+                    this.taskId = response.id;
+                  } else {
+                    // it's a regular response
+                    this.success = response.message;
+                  }
+                  this.error = null;
+                });
+              } else {
+                response.json().then((error) => {
+                  this.success = null;
+                  this.error = error.errors[0].message;
+                });
+              }
+            })
+            .catch((error) => {
+              this.error = error;
+            })
+            .finally(() => {
+              this.file = null;
+              this.loading = false;
+              this.loadSchema();
+            });
+        };
+      } else if (["xlsx", "zip"].includes(type)) {
+        let formData = new FormData();
+        formData.append("file", this.file);
+        let url =
+          "/" +
+          this.schema +
+          "/api/" +
+          (type === "xlsx" ? "excel" : "zip") +
+          "?async=true";
+        fetch(url, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (response.ok) {
+              response.json().then((task) => {
+                this.taskId = task.id;
+                this.error = null;
+              });
+            } else {
+              response.json().then((error) => {
+                this.success = null;
+                this.error = error.errors[0].message;
+              });
+            }
+          })
+          .catch((error) => {
+            this.error = error;
+          })
+          .finally(() => {
+            this.file = null;
+            this.loading = false;
+            this.loadSchema();
+          });
+      } else {
+        this.error = "File extension " + type + " not supported";
+      }
+    },
+    taskUpdated(task) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.taskDone = true;
+      }
+    },
+    done() {
+      this.taskId = null;
+    },
+  },
+  watch: {
+    session() {
+      if (this.session && this.session.roles) {
+        this.loadSchema();
+      }
+    },
+  },
+};
+</script>

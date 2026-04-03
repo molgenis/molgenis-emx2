@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import type { IColumn } from "../../../../metadata-utils/src/types";
+import BaseIcon from "../BaseIcon.vue";
+defineProps<{
+  metadata?: IColumn;
+  data?: string | null;
+}>();
+</script>
+
+<template>
+  <span class="overflow-ellipsis whitespace-nowrap text-link">
+    <BaseIcon name="external-link" class="inline mr-2" />
+    <a class="underline" target="_blank" :href="data ?? undefined">{{
+      data
+    }}</a>
+  </span>
+</template>

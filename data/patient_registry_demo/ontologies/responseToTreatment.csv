@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,complete,complete,,,,,
+2,partial,partial,,,,,
+3,noResponse,no response,,,,,

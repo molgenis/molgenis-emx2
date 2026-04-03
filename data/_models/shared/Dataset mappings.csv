@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Dataset mappings,,,,,,,,,,,,Mappings from collected or source datasets to harmonised or target datasets,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+Dataset mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,Name of the dataset being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+Dataset mappings,,target,ref,1,TRUE,,Resources,,,,,Network being mapped to,"DataCatalogueFlat,RWEStaging,StudiesStaging",
+Dataset mappings,,target dataset,ref,1,TRUE,,Datasets,target,,,,"Name of the dataset being mapped to, or harmonised with","DataCatalogueFlat,RWEStaging,StudiesStaging",
+Dataset mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,"Name of the variable being mapped to, or harmonised with",CohortsStaging,
+Dataset mappings,,target dataset,ref,1,TRUE,catalogue,Datasets,target,,,,"Name of the dataset being mapped to, or harmonised with",CohortsStaging,
+Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+Dataset mappings,,description,text,,,,,,,,,Human readible description of the mapping,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+Dataset mappings,,syntax,text,,,,,,,,,"Formal definition of the mapping, ideally in executable code","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",

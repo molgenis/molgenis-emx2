@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,ebs,EBS,,,,,
+2,jeb,JEB,,,,,
+3,ddeb,DDEB,,,,,
+4,rdeb,RDEB,,,,,
+5,keb,KEB (Kindler EB),,,,,
+6,other,Other,,,,,

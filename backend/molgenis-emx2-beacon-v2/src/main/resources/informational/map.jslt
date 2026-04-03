@@ -1,0 +1,19 @@
+import "meta.jslt" as meta
+let beaconUrl = .url
+{
+    "$schema": "../beaconMapResponse.json",
+    "meta": meta(.),
+    "response": {
+        "$schema": "../../configuration/beaconMapSchema.json",
+        "endpointSets":
+        {for (.entryTypes)
+            .name: {
+                "entryType": .name,
+                "openAPIEndpointsDefinition": "./" + .name + "/endpoints.json",
+                "rootUrl": $beaconUrl + .name,
+                "singleEntryUrl": $beaconUrl + .name + "/{id}",
+                "filterTermsUrl": $beaconUrl + .name + "/filtering_terms"
+            }
+        }
+    }
+}

@@ -1,0 +1,9 @@
+id,label,size
+1,≤ ten,1
+2,≤ hunderd,2
+3,≤ thousand,3
+4,≤ ten thousand,4
+5,≤ hundred thousand,5
+6,≤ one million,6
+7,≤ ten million,7
+8,≤ hundred million,8

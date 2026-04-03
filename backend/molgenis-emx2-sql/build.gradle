@@ -1,0 +1,34 @@
+dependencies {
+    implementation 'org.postgresql:postgresql:42.7.5'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'
+    implementation project(':backend:molgenis-emx2')
+    testImplementation project(':backend:molgenis-emx2-sql')
+    testImplementation project(':backend:molgenis-emx2')
+    testImplementation project(':backend:molgenis-emx2-datamodels')
+    testImplementation project(':backend:molgenis-emx2-tasks')
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.7';
+}
+
+//tool should be here otherwise requires build of unnecessary modules
+tasks.register('cleandb', JavaExec) {
+    group = 'application'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('org.molgenis.emx2.sql.AToolToCleanDatabase')
+}
+
+// Task to initialize database for tests
+tasks.register('initDatabase', JavaExec) {
+    group = 'application'
+    description = 'Initialize database for testing'
+
+    mainClass.set('org.molgenis.emx2.sql.InitDatabase')
+    classpath = sourceSets.test.runtimeClasspath
+
+    def outputFile = layout.buildDirectory.file('initDatabase.txt')
+    outputs.file(outputFile)
+    outputs.upToDateWhen { outputFile.get().asFile.exists() }
+
+    doLast {
+        outputFile.get().asFile.text = 'This is the output of the initDatabase task.'
+    }
+}

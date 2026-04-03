@@ -1,0 +1,14 @@
+name,parent,codesystem,code,ontologyTermURI,definition
+second,,sio,SIO_000435,http://semanticscience.org/resource/SIO_000435,"A second (symbol: s) is the base unit of time in the International System of Units (SI) and is the second division of the hour by sixty, the first division by 60 being the minute."
+microsecond,second,uo,UO_0000029,http://purl.obolibrary.org/obo/UO_0000029,"""A time unit which is equal to one millionth of a second or 10^[-6] s."" [NIST:NIST]"
+millisecond,second,uo,UO_0000028,http://purl.obolibrary.org/obo/UO_0000028,"""A time unit which is equal to one thousandth of a second or 10^[-3] s."" [NIST:NIST]"
+nanosecond,second,uo,UO_0000150,http://purl.obolibrary.org/obo/UO_0000150,"""A time unit which is equal to one thousandth of one millionth of a second or 10^[-9] s."" [NIST:NIST]"
+picosecond,second,uo,UO_0000030,http://purl.obolibrary.org/obo/UO_0000030,"""A time unit which is equal to 10^[-12] s."" [NIST:NIST]"
+minute,,sio,SIO_000434,http://semanticscience.org/resource/SIO_000434,A minute is a period of 60 seconds.
+hour,,sio,SIO_000433,http://semanticscience.org/resource/SIO_000433,An hour is a period of 60 minutes.
+day,,sio,SIO_000430,http://semanticscience.org/resource/SIO_000430,A day is a period of 24 hours.
+week,,sio,SIO_001354,http://semanticscience.org/resource/SIO_001354,A week is a period of 7 consecutive days.
+month,,sio,SIO_000429,http://semanticscience.org/resource/SIO_000429,A month is a period of time that divides the year.
+year,,sio,SIO_000428,http://semanticscience.org/resource/SIO_000428,A year is a period of time taken by a planet to make one revolution around the sun.
+century,,sio,SIO_000431,http://semanticscience.org/resource/SIO_000431,A century is a period of one hundred years.
+millennium,,sio,SIO_000432,http://semanticscience.org/resource/SIO_000432,A millenium is a period of 1000 years

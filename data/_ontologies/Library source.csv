@@ -1,0 +1,8 @@
+name,definition,codesystem,code,ontologyTermURI
+genomic source,"Genomic DNA (includes PCR products from genomic DNA).",GENEPIO,0001966,http://purl.obolibrary.org/obo/GENEPIO_0001966
+metagenomic source,"Mixed material from metagenome.",GENEPIO,0001967,http://purl.obolibrary.org/obo/GENEPIO_0001967
+metatranscriptomic source,"Transcription products from community targets.",GENEPIO,0001968,http://purl.obolibrary.org/obo/GENEPIO_0001968
+other library source,"Other, unspecified, or unknown library source material.",GENEPIO,0001969,http://purl.obolibrary.org/obo/GENEPIO_0001969
+synthetic source,"Synthetic DNA.",GENEPIO,0001970,http://purl.obolibrary.org/obo/GENEPIO_0001970
+transcriptomic source,"Transcription products or non genomic DNA (EST, cDNA, RT-PCR, screened libraries).",GENEPIO,0001971,http://purl.obolibrary.org/obo/GENEPIO_0001971
+viral RNA source,"Viral RNA.",GENEPIO,0001972,http://purl.obolibrary.org/obo/GENEPIO_0001972

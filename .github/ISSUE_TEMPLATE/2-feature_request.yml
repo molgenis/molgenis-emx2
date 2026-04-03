@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an enhancement or new feature
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue
+      description: A clear and concise description of what feature is currently missing. What issues are you currently running into?
+      placeholder: "Currently I'm missing '....' and therefore cannot use EMX2 yet in situations like '....'"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution
+      description: A clear and concise description of what you want to happen.
+      placeholder: "The functionalities '....' need to be implemented so that if '....' is done, the expected behaviour is '....'"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: A clear and concise description of any alternative solutions or features you've considered.
+      placeholder: "I have considered '....', though it has its own limitations, namely '....'"
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here (such as a relevant project you're involved in).
+      placeholder: "I'm involved in project '....' where we need such a feature."

@@ -1,0 +1,144 @@
+.app-page,
+.page-footer {
+  font-size: 13pt;
+
+  .page-header {
+    height: 21em;
+
+    &.header-image-background {
+      background-position: 0 100%;
+    }
+    .background-image-filter {
+      opacity: 0.5;
+    }
+  }
+
+  .page-section {
+    h2 {
+      color: $brand-blue-600;
+      margin-bottom: 0.25em;
+    }
+
+    &.section-background-brand {
+      background-color: $brand-blue-900;
+    }
+  }
+}
+
+.message-box {
+  .message-text {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.quick-links-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  .link-card {
+    flex-grow: 1;
+    padding: 1em 0.5em;
+    height: 4em;
+    text-align: center;
+    background-color: $gray-050;
+
+    $offset: 5px;
+    box-shadow: $offset $offset 0 0 $brand-red-orange-900;
+
+    a {
+      font-size: 11pt;
+      color: $brand-blue-900;
+    }
+
+    svg {
+      $size: 14px;
+      width: $size;
+      height: $size;
+      margin-top: -3px;
+      color: $brand-red-orange-900;
+      stroke-width: 3px;
+    }
+
+    &:hover,
+    &:focus {
+      background-color: $brand-blue-600;
+
+      a {
+        text-decoration: underline;
+        color: $gray-050;
+      }
+
+      svg {
+        color: $gray-050;
+      }
+    }
+  }
+}
+
+.icon-cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+  padding: 2em 0;
+  $brand-border: 1px solid $brand-red-orange-900;
+
+  @media screen and (min-width: 636px) {
+    flex-wrap: nowrap;
+  }
+
+  .icon-card {
+    width: 100%;
+    position: relative;
+    flex-grow: 1;
+    padding: 1em 0.75em;
+    padding-top: 1.75em;
+    background-color: $gray-000;
+    border-top: $brand-border;
+    box-shadow: $box-shadow;
+
+    .card-icon {
+      position: absolute;
+      top: -1.25em;
+      left: calc(50% - 0.6em);
+      padding: 0.5em 0.6em;
+      border-radius: 50%;
+      background-color: $gray-000;
+      color: $brand-blue-600;
+      border: $brand-border;
+      z-index: 1;
+
+      $size: 16pt;
+      svg {
+        width: $size;
+        height: $size;
+      }
+    }
+
+    p {
+      margin-bottom: 0;
+
+      &.card-heading {
+        @include textTransform(bold);
+        text-align: center;
+        color: $brand-blue-600;
+      }
+
+      &.card-description {
+        font-size: 11pt;
+        color: $gray-600;
+      }
+    }
+  }
+}

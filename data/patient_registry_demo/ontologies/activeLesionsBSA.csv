@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,blisters,Blisters,,,,,
+2,erythema,Erythema,,,,,
+3,erosions,Erosions,,,,,
+4,wounds,Wounds,,,,,
+5,naevus,EB Naevus,,,,,
+6,motPigmentation,Mottled pigmentation,,,,,

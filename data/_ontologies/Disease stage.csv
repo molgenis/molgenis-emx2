@@ -1,0 +1,15 @@
+name,definition,codesystem,code,ontologyTermURI
+asymptomatic,"A disease stage characterized by the lack of symptoms associated with a given disease.",OGMS,0000117,http://purl.obolibrary.org/obo/OGMS_0000117
+onset,"A disease stage that marks the beginning of a disease.",OGMS,0000118,http://purl.obolibrary.org/obo/OGMS_0000118
+acute onset,"A disease stage with a rapid unfolding of signs and symptoms.",OGMS,0000119,http://purl.obolibrary.org/obo/OGMS_0000119
+relapse,"A disease stage which is preceded by a remission and characterized by the return of a manifestation of a disease.",OGMS,0000105,http://purl.obolibrary.org/obo/OGMS_0000105
+remission,"A disease stage which is characterized by the lack of a manifestation of a disease.",OGMS,0000106,http://purl.obolibrary.org/obo/OGMS_0000106
+complete remission,"A remission which is characterized by a prolonged lack of all manifestations of a disease.",OGMS,0000120,http://purl.obolibrary.org/obo/OGMS_0000120
+partial remission,"A remission which is characterized by a prolonged lack of some manifestations of a disease.",OGMS,0000121,http://purl.obolibrary.org/obo/OGMS_0000121
+progression stage,"progression stage",OGMS,0000133,http://purl.obolibrary.org/obo/OGMS_0000133
+cancer progression stage,"cancer progression stage",OGMS,0000134,http://purl.obolibrary.org/obo/OGMS_0000134
+cancer progression stage 0,"A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ).",OGMS,0000135,http://purl.obolibrary.org/obo/OGMS_0000135
+cancer progression stage I,"A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass.",OGMS,0000136,http://purl.obolibrary.org/obo/OGMS_0000136
+cancer progression stage II,"A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass.",OGMS,0000137,http://purl.obolibrary.org/obo/OGMS_0000137
+cancer progression stage III,"A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to one or more regional draining lymph nodes.",OGMS,0000138,http://purl.obolibrary.org/obo/OGMS_0000138
+cancer progression stage IV,"A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes.",OGMS,0000139,http://purl.obolibrary.org/obo/OGMS_0000139
