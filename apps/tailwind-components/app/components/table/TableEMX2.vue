@@ -283,7 +283,9 @@ import type {
 import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
-import { fetchTableData, fetchTableMetadata, getPrimaryKey } from "#imports";
+import fetchTableData from "../../composables/fetchTableData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
