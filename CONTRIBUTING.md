@@ -8,7 +8,7 @@ By submitting a pull request to this repository, you agree to grant the maintain
 * Use, reproduce, modify, adapt, create derivative work of, and distribute your contribution and such derivative works.
 * Incorporate your contribution into MOLGENIS EMX2 and other works
 * Sublicense your contribution as part of MOLGENIS EMX2 and other works
-* Re-license your contribution as part of MOLGENIS EMX2 and other works under any license compatible with LGPLv3 or later versions of LGPL
+* Re-license your contribution as part of MOLGENIS EMX2 and other works under any license compatible with [LGPLv3](https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE) or later versions of LGPL
 
 You are free to use your contribution elsewhere, as long as it does not conflict with any rights given as described in this document.
 
