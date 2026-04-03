@@ -77,6 +77,7 @@ subprojects {
         implementation 'org.eclipse.rdf4j:rdf4j-rio-rdfxml:5.0.1'
         implementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:5.0.1'
         implementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-binary:5.0.1'
         implementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
         implementation 'org.eclipse.rdf4j:rdf4j-sail-nativerdf:5.0.1'
 

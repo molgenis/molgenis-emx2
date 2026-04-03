@@ -51,7 +51,8 @@ public class RDFApi {
             RDFFormat.NTRIPLES,
             RDFFormat.NQUADS,
             RDFFormat.TRIG,
-            RDFFormat.N3);
+            RDFFormat.N3,
+            RDFFormat.BINARY);
 
     for (RDFFormat format : acceptedRdfFormats) {
       MediaType mediaType = MediaType.parse(format.getDefaultMIMEType());
