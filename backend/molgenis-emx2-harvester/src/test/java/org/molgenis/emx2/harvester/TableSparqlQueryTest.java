@@ -41,9 +41,17 @@ class TableSparqlQueryTest {
   }
 
   @Test
+  void printTest() {
+    TableSparqlQuery query = new TableSparqlQuery(schema.getMetadata(), "Pet");
+    query.build();
+    System.out.println(query.asString());
+  }
+
+  @Test
   void shouldReadPets() {
-    TupleQuery tupleQuery =
-        conn.prepareTupleQuery(QueryLanguage.SPARQL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o }");
+    TableSparqlQuery query = new TableSparqlQuery(schema.getMetadata(), "Pet");
+    query.build();
+    TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.asString());
     tupleQuery.evaluate().stream().forEach(System.out::println);
   }
 
