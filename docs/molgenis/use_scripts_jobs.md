@@ -40,8 +40,7 @@ described [here](use_usingpyclient.md#scripts-and-jobs)
 ## Jobs
 
 Under the _Jobs_ tab the results of previously executed jobs can be viewed and the status of currently running jobs can be observed.
-Inspect the logs for more detail about the progress of the
-If specified the output file can be obtained from here.
+Inspect the logs for more detail about the progress of the job. If specified the output file can be obtained from here.
 
 ## API
 
