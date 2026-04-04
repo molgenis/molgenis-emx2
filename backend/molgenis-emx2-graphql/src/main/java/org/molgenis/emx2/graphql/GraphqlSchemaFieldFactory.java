@@ -500,6 +500,10 @@ public class GraphqlSchemaFieldFactory {
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.PROFILES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
@@ -530,6 +534,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.PROFILES)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()

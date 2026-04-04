@@ -45,7 +45,7 @@ Backend complete:
 - `profiles` field on outputTableType and outputColumnMetadataType
 - 8 GraphQL integration tests + 7 ProfileUtils unit tests, all green
 
-### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — NEXT
+### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — DONE
 
 Default all user-facing `_schema` queries to `applyProfileFilter: true`.
 Schema editor app keeps unfiltered access (admin view).
@@ -78,6 +78,23 @@ These fetch schema name/roles/settings only (no tables/columns), skip:
 - Run `pnpm lint` and `pnpm format` on each touched app
 - Manual verify: schema editor still shows all tables/columns
 - Manual verify: data apps hide non-active-profile tables/columns
+
+### Step 5f: GraphQL mutation for setting activeProfiles on schema — NEXT
+
+Currently `activeProfiles` is persisted via `SchemaMetadata.setActiveProfiles()` / `MetadataUtils.saveSchemaMetadata()`,
+but there's no GraphQL mutation to set it. Without this:
+- Schema editor can't configure which profiles are active
+- `applyProfileFilter: true` is a no-op (no profiles to filter by)
+- E2e tests can only use `profiles` query parameter workaround
+
+Add to `GraphqlSchemaFieldFactory.changeFetcher()`:
+- Read an `activeProfiles` argument (string array) from `change` mutation
+- Call `schema.getMetadata().setActiveProfiles(...)` + trigger save
+- Alternative: handle in `changeSettings` by recognizing `activeProfiles` key
+
+Also needed:
+- Expose `activeProfiles` on `_schema` output type (so frontend can read current profiles)
+- Update e2e test to use `applyProfileFilter: true` with schema-level profiles
 
 ### Step 6: Wire YAML into web API
 

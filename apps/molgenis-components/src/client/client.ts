@@ -182,7 +182,7 @@ async function getPrimaryKeyFields(
 }
 
 const metadataQuery = `{
-  _schema {
+  _schema(applyProfileFilter: true) {
     id,
     tables {
       id,

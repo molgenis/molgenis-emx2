@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
   {
-    _schema {
+    _schema(applyProfileFilter: true) {
       id
       label
       tables {
