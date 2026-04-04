@@ -33,67 +33,72 @@ TemplateResult holds: name, description, schema, profiles, settings, permissions
 Wildcard expansion (`tables/*`), role mapping (view→Viewer, edit→Editor).
 3 new tests: testTemplateRd3, testTemplateFull, testTemplateRoundtrip. All 9 tests pass.
 
-### Step 4: Profile filtering — NEXT
+### Step 4: Profile filtering — DONE (commits f6bb94233, 346590656)
 
-**Principle**: Profiles control visibility, not existence. All tables/columns always exist in PostgreSQL.
-GraphQL data schema is UNCHANGED — all fields always available. Filtering is metadata-level only.
+Backend complete:
+- migration35.sql: `tableProfiles` + `schemaProfiles` columns
+- MetadataUtils: persists table/schema profiles
+- SchemaMetadata: `getActiveProfiles()` / `setActiveProfiles()`
+- ProfileUtils: `matchesActiveProfiles()` with positive/negative matching
+- TableMetadata: `getColumnsForProfiles()` / `getNonInheritedColumnsForProfiles()`
+- GraphQL `_schema`: `applyProfileFilter` + `profiles` filter params
+- `profiles` field on outputTableType and outputColumnMetadataType
+- 8 GraphQL integration tests + 7 ProfileUtils unit tests, all green
 
-#### Design decisions
-- Profiles are a **first-class metadata field** (like settings), not stuffed into settings map
-- `Column.profiles` — already exists, persisted via COLUMN_PROFILES
-- `TableMetadata.profiles` — exists in Java, needs DB persistence (migration)
-- `SchemaMetadata.profiles` — NEW, the "active profiles" for this schema (migration)
-- Use same persistence mechanism as column profiles (String[] in metadata tables)
+### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — NEXT
 
-#### Profile matching logic
-- No profiles on column/table → always visible
-- `profiles: [wgs]` → visible only when `wgs` is in schema's active profiles
-- `profiles: [-core]` → visible when `core` is NOT in schema's active profiles
-- No active profiles on schema (empty/null) → all columns/tables visible (no filtering)
+Default all user-facing `_schema` queries to `applyProfileFilter: true`.
+Schema editor app keeps unfiltered access (admin view).
 
-#### 4a: Migration — persist table + schema profiles
-- Add `TABLE_PROFILES` column to `table_metadata` table
-- Add `SCHEMA_PROFILES` column to `schema_metadata` table (active profiles)
-- Update MetadataUtils to read/write table profiles and schema profiles
+#### 5a: Shared query definitions (high priority — affects most apps)
+- `apps/tailwind-components/app/gql/metadata.js` — central shared query
+  → add `applyProfileFilter: true` argument
+- `apps/molgenis-components/src/client/client.ts` — core client `metadataQuery`
+  → add `applyProfileFilter: true` argument
 
-#### 4b: Metadata layer — profile filter methods
-- `SchemaMetadata.getActiveProfiles()` / `setActiveProfiles(String...)`
-- `TableMetadata.getColumnsForProfiles(String[] activeProfiles)` → filtered column list
-- `TableMetadata.getVisibleExtensions(String[] activeProfiles)` → filtered extension list
-- Shared `ProfileUtils.matchesProfiles(String[] itemProfiles, String[] activeProfiles)` helper
+#### 5b: Inline `_schema` queries in page components
+- `apps/ui/app/pages/[schema]/index.vue` — table listing
+- `apps/tables/src/App.vue` — table view
+- `apps/molgenis-viz/src/gql/schema.ts` — visualization
+  → add `applyProfileFilter: true` to each
 
-#### 4c: GraphQL metadata API — filtered metadata response
-- `_schema` query gets two new optional filter parameters:
-  - `applyProfileFilter: Boolean` — when true, filter using schema's active profiles
-  - `profiles: [String]` — explicit profile list to filter by (overrides schema's active profiles)
-  - No parameters / both null → return full unfiltered metadata (backward compatible)
-- Client receives only profile-matching columns/tables → no profile logic needed in client
-- Standard API calls use `applyProfileFilter: true` for normal UI rendering
-- Admin/schema editor can call without filter to see everything
-- GraphQL **data** schema stays unchanged (all fields always queryable)
+#### 5c: Schema editor — explicit NO filter (admin view)
+- `apps/schema/src/utils.ts` — `schemaQuery` — DO NOT add filter
+- Consider adding `applyProfileFilter: false` explicitly for clarity
 
-#### 4d: SqlQuery + SqlTable — CSV import/export awareness
-- CSV export: SqlQuery uses profile-filtered columns (omit non-active columns from output)
-- CSV import: SqlTable silently skips non-active-profile columns on write
-- Ensures CSV roundtrip respects profile boundaries
+#### 5d: Queries that DON'T need filtering
+These fetch schema name/roles/settings only (no tables/columns), skip:
+- `apps/ui/app/util/adminUtils.ts` (roles only)
+- `apps/projectmanager/src/gql/schemaName.js` (name only)
+- `apps/cranio-provider/src/utils/getSchemaName.ts` (name only)
+- `apps/settings/src/components/Members.vue` (roles only)
+- `_schemas` queries (schema list, no table metadata)
 
-#### Future (not this step)
-- Store template reference on schema (for migration/upgrade tracking)
-- Profile write mode setting (strict=error vs lenient=skip)
+#### 5e: Verify + test
+- Run `pnpm lint` and `pnpm format` on each touched app
+- Manual verify: schema editor still shows all tables/columns
+- Manual verify: data apps hide non-active-profile tables/columns
 
-### Step 5: Wire YAML into web API
+### Step 6: Wire YAML into web API
 
 Replace or extend `/{schema}/api/yaml` endpoints in `JsonYamlApi.java`:
 - GET: export in new hierarchical format
 - POST: import from new hierarchical format (call `fromYamlFile`)
 
+### Step 7: CSV import/export profile awareness (deferred)
+- CSV export: filter columns by active profiles
+- CSV import: silently skip non-active-profile columns
+- Lower priority — can be done after frontend is working
+
 ### NOT in scope
 - `- import:` fragment inclusion with overrides (future)
 - i18n labels in YAML (future — current CSV format handles this)
+- Template reference on schema (for migration/upgrade tracking)
 
 ## Verification
 
 After each step:
 1. `./gradlew :backend:molgenis-emx2-io:test`
 2. `./gradlew :backend:molgenis-emx2-sql:test` (after step 4)
-3. `./gradlew :backend:molgenis-emx2-webapi:test` (after step 5)
+3. `./gradlew :backend:molgenis-emx2-webapi:test` (after step 6)
+4. `pnpm lint && pnpm format` on touched apps (after step 5)
