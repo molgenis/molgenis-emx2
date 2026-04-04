@@ -68,6 +68,25 @@ async function createTablesWithProfiles(request: any): Promise<void> {
   }
 }
 
+async function setActiveProfiles(
+  request: any,
+  profiles: string[]
+): Promise<void> {
+  const profilesArg = profiles.map((p) => `"${p}"`).join(", ");
+  const response = await request.post(`/${SCHEMA_NAME}/api/graphql`, {
+    data: {
+      query: `mutation { change(activeProfiles: [${profilesArg}]) { message } }`,
+    },
+  });
+
+  const result = await response.json();
+  if (result.errors) {
+    throw new Error(
+      `Failed to set active profiles: ${JSON.stringify(result.errors)}`
+    );
+  }
+}
+
 async function deleteTestSchema(request: any): Promise<void> {
   await request.post(`/api/graphql`, {
     data: {
@@ -120,68 +139,36 @@ async function signin(request: any): Promise<void> {
 }
 
 test.describe("Profile Filtering", () => {
+  test.describe.configure({ mode: "serial" });
+
   test.beforeAll(async ({ request }) => {
     await signin(request);
+    await deleteTestSchema(request);
     await createTestSchema(request);
     await createTablesWithProfiles(request);
+    await setActiveProfiles(request, ["wgs"]);
   });
 
   test.afterAll(async ({ request }) => {
+    await signin(request);
     await deleteTestSchema(request);
   });
 
-  test("should show all tables in listing when no profiles active", async ({
-    page,
-  }) => {
-    await page.goto(`${route}${SCHEMA_NAME}`);
-
-    if (await page.getByRole("button", { name: "Signin" }).isVisible()) {
-      await page.getByRole("button", { name: "Signin" }).click();
-      await page.getByRole("textbox", { name: "Username" }).fill("admin");
-      await page.getByRole("textbox", { name: "Username" }).press("Tab");
-      await page.getByRole("textbox", { name: "Password" }).fill("admin");
-      await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page.getByRole("button", { name: "Account" })).toBeVisible();
-    }
-
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      SCHEMA_NAME
-    );
-
-    const samplesLink = page.getByRole("link", { name: "Samples" }).first();
-    await expect(samplesLink).toBeVisible();
-
-    const wgsLink = page.getByRole("link", { name: "WGS" }).first();
-    await expect(wgsLink).toBeVisible();
-
-    const imagingLink = page.getByRole("link", { name: "Imaging" }).first();
-    await expect(imagingLink).toBeVisible();
+  test.beforeEach(async ({ request }) => {
+    await signin(request);
   });
 
-  test("should filter tables via API with explicit profiles parameter", async ({
+  test("should filter tables via API with applyProfileFilter", async ({
     request,
   }) => {
     const response = await request.post(`/${SCHEMA_NAME}/api/graphql`, {
       data: {
-        query: `
-          {
-            _schema(profiles: ["wgs"]) {
-              tables {
-                name
-                profiles
-              }
-            }
-          }
-        `,
+        query: `{ _schema(applyProfileFilter: true) { tables { name profiles } } }`,
       },
     });
 
     const result = await response.json();
-    if (result.errors) {
-      throw new Error(
-        `Failed to query schema: ${JSON.stringify(result.errors)}`
-      );
-    }
+    expect(result.errors).toBeUndefined();
 
     const tables = result.data._schema.tables;
     const tableNames = tables.map((t: any) => t.name);
@@ -191,33 +178,17 @@ test.describe("Profile Filtering", () => {
     expect(tableNames).not.toContain("Imaging");
   });
 
-  test("should filter columns via API with explicit profiles parameter", async ({
+  test("should filter columns via API with applyProfileFilter", async ({
     request,
   }) => {
     const response = await request.post(`/${SCHEMA_NAME}/api/graphql`, {
       data: {
-        query: `
-          {
-            _schema(profiles: ["wgs"]) {
-              tables {
-                name
-                columns {
-                  name
-                  profiles
-                }
-              }
-            }
-          }
-        `,
+        query: `{ _schema(applyProfileFilter: true) { tables { name columns { name profiles } } } }`,
       },
     });
 
     const result = await response.json();
-    if (result.errors) {
-      throw new Error(
-        `Failed to query schema: ${JSON.stringify(result.errors)}`
-      );
-    }
+    expect(result.errors).toBeUndefined();
 
     const tables = result.data._schema.tables;
     const samplesTable = tables.find((t: any) => t.name === "Samples");
@@ -228,41 +199,38 @@ test.describe("Profile Filtering", () => {
     expect(samplesColumnNames).toContain("wgs_field");
   });
 
-  test("should hide profile-filtered columns via API when profile not active", async ({
+  test("should expose activeProfiles in schema metadata", async ({
     request,
   }) => {
     const response = await request.post(`/${SCHEMA_NAME}/api/graphql`, {
       data: {
-        query: `
-          {
-            _schema(profiles: ["imaging"]) {
-              tables {
-                name
-                columns {
-                  name
-                  profiles
-                }
-              }
-            }
-          }
-        `,
+        query: `{ _schema { activeProfiles } }`,
       },
     });
 
     const result = await response.json();
-    if (result.errors) {
-      throw new Error(
-        `Failed to query schema: ${JSON.stringify(result.errors)}`
-      );
-    }
+    expect(result.errors).toBeUndefined();
 
-    const tables = result.data._schema.tables;
-    const samplesTable = tables.find((t: any) => t.name === "Samples");
-    const samplesColumnNames = samplesTable.columns.map((c: any) => c.name);
+    const activeProfiles = result.data._schema.activeProfiles;
+    expect(activeProfiles).toEqual(["wgs"]);
+  });
 
-    expect(samplesColumnNames).toContain("id");
-    expect(samplesColumnNames).toContain("name");
-    expect(samplesColumnNames).not.toContain("wgs_field");
+  test("should only show profile-matching tables in UI listing", async ({
+    page,
+  }) => {
+    await page.goto(`${route}${SCHEMA_NAME}`);
+    await page.getByRole("button", { name: "Signin" }).click();
+    await page.getByRole("textbox", { name: "Username" }).fill("admin");
+    await page.getByRole("textbox", { name: "Username" }).press("Tab");
+    await page.getByRole("textbox", { name: "Password" }).fill("admin");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("button", { name: "Account" })).toBeVisible();
+    await page.goto(`${route}${SCHEMA_NAME}`);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByText("Samples")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("WGS")).toBeVisible();
+    await expect(page.getByText("Imaging")).not.toBeVisible();
   });
 
   test("should show all columns in form when no profiles active", async ({
@@ -272,32 +240,28 @@ test.describe("Profile Filtering", () => {
     await signin(request);
     await insertSampleRecord(request);
 
+    await page.goto(`${route}`);
+    await page.getByRole("button", { name: "Signin" }).click();
+    await page.getByRole("textbox", { name: "Username" }).fill("admin");
+    await page.getByRole("textbox", { name: "Username" }).press("Tab");
+    await page.getByRole("textbox", { name: "Password" }).fill("admin");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("button", { name: "Account" })).toBeVisible();
     await page.goto(`${route}${SCHEMA_NAME}/Samples`);
-
-    if (await page.getByRole("button", { name: "Signin" }).isVisible()) {
-      await page.getByRole("button", { name: "Signin" }).click();
-      await page.getByRole("textbox", { name: "Username" }).fill("admin");
-      await page.getByRole("textbox", { name: "Username" }).press("Tab");
-      await page.getByRole("textbox", { name: "Password" }).fill("admin");
-      await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page.getByRole("button", { name: "Account" })).toBeVisible();
-    }
-
+    await page.waitForLoadState("networkidle");
     const sampleLink = page
-      .getByRole("link", { name: "test-record-1" })
+      .getByRole("cell", { name: "test-record-1" })
       .first();
-    await expect(sampleLink).toBeVisible();
+    await expect(sampleLink).toBeVisible({ timeout: 10000 });
     await sampleLink.click();
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Samples"
     );
 
-    const nameField = page.getByLabel(/^name$/i).first();
-    await expect(nameField).toBeVisible();
-
-    const wgsFieldLabel = page.getByText(/wgs.field/i).first();
-    await expect(wgsFieldLabel).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("name", { exact: true })).toBeVisible();
+    await expect(page.getByText("wgs_field")).toBeVisible();
 
     await deleteSampleRecord(request);
   });

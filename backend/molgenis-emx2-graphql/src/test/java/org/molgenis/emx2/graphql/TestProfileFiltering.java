@@ -179,6 +179,46 @@ class TestProfileFiltering {
   }
 
   @Test
+  void testActiveProfilesInSchemaOutput() throws IOException {
+    JsonNode result = execute("{_schema{activeProfiles}}");
+    JsonNode activeProfiles = result.at("/_schema/activeProfiles");
+    assertNotNull(activeProfiles);
+    assertTrue(activeProfiles.isArray());
+    assertEquals(2, activeProfiles.size());
+    assertEquals("wgs", activeProfiles.get(0).asText());
+    assertEquals("rna", activeProfiles.get(1).asText());
+  }
+
+  @Test
+  void testTableProfilesViaChangeMutation() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"NewProfiled\",profiles:[\"test\"],columns:[{name:\"id\",columnType:\"STRING\",key:1}]}]){message}}");
+    JsonNode result = execute("{_schema{tables{name,profiles}}}");
+    JsonNode tables = result.at("/_schema/tables");
+    JsonNode newTable = findByName(tables, "NewProfiled");
+    assertNotNull(newTable, "NewProfiled should exist");
+    JsonNode profiles = newTable.get("profiles");
+    assertNotNull(profiles, "NewProfiled should have profiles");
+    assertEquals(1, profiles.size());
+    assertEquals("test", profiles.get(0).asText());
+
+    execute("mutation{change(tables:[{name:\"NewProfiled\",drop:true}]){message}}");
+  }
+
+  @Test
+  void testChangeActiveProfilesViaMutation() throws IOException {
+    try {
+      execute("mutation{change(activeProfiles:[\"imaging\"]){message}}");
+      JsonNode result = execute("{_schema{activeProfiles}}");
+      JsonNode activeProfiles = result.at("/_schema/activeProfiles");
+      assertEquals(1, activeProfiles.size());
+      assertEquals("imaging", activeProfiles.get(0).asText());
+    } finally {
+      execute("mutation{change(activeProfiles:[\"wgs\",\"rna\"]){message}}");
+    }
+  }
+
+  @Test
   void testProfilesFieldReturnedInTableMetadata() throws IOException {
     JsonNode result = execute("{_schema{tables{name,profiles}}}");
 

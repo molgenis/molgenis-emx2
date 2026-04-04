@@ -101,6 +101,7 @@ public class GraphqlConstants {
   public static final String CAN_DELETE = "canDelete";
   public static final String PROFILES = "profiles";
   public static final String APPLY_PROFILE_FILTER = "applyProfileFilter";
+  public static final String ACTIVE_PROFILES = "activeProfiles";
 
   private GraphqlConstants() {
     // hide constructor

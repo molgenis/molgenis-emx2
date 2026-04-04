@@ -610,6 +610,14 @@ public class GraphqlSchemaFieldFactory {
       // add settings for the schema
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
+      // add active profiles for the schema
+      String[] activeProfilesArray = schema.getMetadata().getActiveProfiles();
+      if (activeProfilesArray != null) {
+        result.put(GraphqlConstants.ACTIVE_PROFILES, Arrays.asList(activeProfilesArray));
+      } else {
+        result.put(GraphqlConstants.ACTIVE_PROFILES, List.of());
+      }
+
       // add name
       result.put(
           ID, schema.getMetadata().getName()); // todo, think if we want to switch to identifier
@@ -866,7 +874,11 @@ public class GraphqlSchemaFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(ROLES)
-                    .type(GraphQLList.list(outputRolesType)));
+                    .type(GraphQLList.list(outputRolesType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GraphqlConstants.ACTIVE_PROFILES)
+                    .type(GraphQLList.list(Scalars.GraphQLString)));
 
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(Privileges.MANAGER.toString())
@@ -970,6 +982,10 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ROLES)
                 .type(GraphQLList.list(inputRoleType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ACTIVE_PROFILES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
 
@@ -986,6 +1002,7 @@ public class GraphqlSchemaFieldFactory {
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
+                  changeActiveProfiles(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
@@ -1060,6 +1077,16 @@ public class GraphqlSchemaFieldFactory {
               schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
             }
           });
+    }
+  }
+
+  private void changeActiveProfiles(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<String> activeProfiles =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.ACTIVE_PROFILES);
+    if (activeProfiles != null) {
+      ((SqlSchemaMetadata) schema.getMetadata())
+          .saveActiveProfiles(activeProfiles.toArray(new String[0]));
     }
   }
 

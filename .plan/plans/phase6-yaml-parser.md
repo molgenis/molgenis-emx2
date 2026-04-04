@@ -58,22 +58,15 @@ Schema editor (`apps/schema/src/utils.ts`) left unfiltered (admin view).
 Added `profiles` to `MolgenisColumnInput` and `MolgenisTableInput` GraphQL input types.
 E2e test: `apps/ui/tests/e2e/profile-filtering.spec.ts` (5 tests: table listing, API table/column filtering, form view).
 
-### Step 5f: GraphQL mutation for setting activeProfiles on schema — NEXT
+### Step 5f: GraphQL mutation for setting activeProfiles on schema — DONE (commit pending)
 
-Currently `activeProfiles` is persisted via `SchemaMetadata.setActiveProfiles()` / `MetadataUtils.saveSchemaMetadata()`,
-but there's no GraphQL mutation to set it. Without this:
-- Schema editor can't configure which profiles are active
-- `applyProfileFilter: true` is a no-op (no profiles to filter by)
-- E2e tests can only use `profiles` query parameter workaround
-
-Add to `GraphqlSchemaFieldFactory.changeFetcher()`:
-- Read an `activeProfiles` argument (string array) from `change` mutation
-- Call `schema.getMetadata().setActiveProfiles(...)` + trigger save
-- Alternative: handle in `changeSettings` by recognizing `activeProfiles` key
-
-Also needed:
-- Expose `activeProfiles` on `_schema` output type (so frontend can read current profiles)
-- Update e2e test to use `applyProfileFilter: true` with schema-level profiles
+- `ACTIVE_PROFILES` constant in `GraphqlConstants.java`
+- `activeProfiles` field on `_schema` output type + query fetcher response
+- `activeProfiles` argument on `change` mutation
+- `changeActiveProfiles()` handler → `SqlSchemaMetadata.saveActiveProfiles()`
+- `sync()` now also syncs profiles
+- 2 JUnit tests: read activeProfiles from `_schema`, set via `change` mutation
+- E2e test updated: sets activeProfiles via mutation, tests `applyProfileFilter: true`, verifies UI table listing filters correctly
 
 ### Step 6: Wire YAML into web API
 

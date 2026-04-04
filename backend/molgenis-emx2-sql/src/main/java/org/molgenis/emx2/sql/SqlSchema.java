@@ -239,6 +239,9 @@ public class SqlSchema implements Schema {
         if (mergeTable.getImportSchema() != null) {
           table.setImportSchema(mergeTable.getImportSchema());
         }
+        if (mergeTable.getProfiles() != null) {
+          table.setProfiles(mergeTable.getProfiles());
+        }
         table.setInheritNames(mergeTable.getInheritNames());
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
@@ -288,6 +291,9 @@ public class SqlSchema implements Schema {
         }
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
+        }
+        if (mergeTable.getProfiles() != null) {
+          oldTable.setProfiles(mergeTable.getProfiles());
         }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());

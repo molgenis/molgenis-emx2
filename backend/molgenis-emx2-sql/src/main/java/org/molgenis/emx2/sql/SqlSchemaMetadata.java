@@ -56,6 +56,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
       // sync settings
       this.setSettingsWithoutReload(from.getSettings());
+
+      // sync profiles
+      this.setActiveProfiles(from.getActiveProfiles());
     }
   }
 
@@ -232,6 +235,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public Map<String, String> getSettings() {
     return super.getSettings();
+  }
+
+  public void saveActiveProfiles(String... profiles) {
+    setActiveProfiles(profiles);
+    MetadataUtils.saveSchemaMetadata(getDatabase().getJooq(), this);
   }
 
   protected DSLContext getJooq() {
