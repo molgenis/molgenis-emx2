@@ -116,8 +116,12 @@ public class Emx2 {
           }
 
           Column column = column(row.getString(COLUMN_NAME));
-          if (row.notNull(COLUMN_TYPE))
-            column.setType(ColumnType.valueOf(row.getString(COLUMN_TYPE).toUpperCase().trim()));
+          if (row.notNull(COLUMN_TYPE)) {
+            String rawType = row.getString(COLUMN_TYPE).toUpperCase().trim();
+            if ("PROFILE".equals(rawType)) rawType = "EXTENSION";
+            else if ("PROFILES".equals(rawType)) rawType = "EXTENSION_ARRAY";
+            column.setType(ColumnType.valueOf(rawType));
+          }
           if (row.notNull(KEY)) column.setKey(row.getInteger(KEY));
           if (row.notNull(REF_SCHEMA)) column.setRefSchemaName(row.getString(REF_SCHEMA));
           if (row.notNull(REF_TABLE)) column.setRefTable(row.getString(REF_TABLE));

@@ -79,7 +79,7 @@ async function configureTableInheritance(request: any): Promise<void> {
       change {
         updateTable(name: "Experiments", columns: [
           {name: "id", columnType: "STRING", key: 1}
-          {name: "experiment_type", columnType: "PROFILE"}
+          {name: "experiment_type", columnType: "EXTENSION"}
         ]) {
           message
         }
@@ -175,7 +175,7 @@ async function verifySchemaViaAPI(request: any): Promise<void> {
   expect(imagingTable).toBeDefined();
   expect(imagingTable.inheritNames).toContain("Experiments");
 
-  expect(experimentsTable.columns.find((c: any) => c.name === "experiment_type").columnType).toBe("PROFILE");
+  expect(experimentsTable.columns.find((c: any) => c.name === "experiment_type").columnType).toBe("EXTENSION");
 }
 
 test.describe("Schema Editor - Multiple Inheritance UI", () => {
@@ -249,7 +249,7 @@ test.describe("Schema Editor - Multiple Inheritance UI", () => {
 
     const profileTypeCell = page.getByRole("row").filter({
       has: page.getByText("experiment_type"),
-    }).getByText("PROFILE");
+    }).getByText("EXTENSION");
     await expect(profileTypeCell).toBeVisible();
   });
 

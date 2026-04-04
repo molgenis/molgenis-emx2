@@ -518,8 +518,8 @@ export function buildGraphqlFilter(
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT") ||
           col.columnType.startsWith("JSON") ||
-          col.columnType === "PROFILE" ||
-          col.columnType === "PROFILES"
+          col.columnType === "EXTENSION" ||
+          col.columnType === "EXTENSION_ARRAY"
         ) {
           filter[col.id] = { like: conditions };
         } else if (

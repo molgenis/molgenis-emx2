@@ -29,6 +29,8 @@ Everything else is layered on top:
 
 ### Terminology
 
+> **Note**: Phase 5.5 established new terminology. See `.plan/specs/new_naming.md` for the full naming conventions. The terms below use the original implementation names; the YAML parser (Phase 6) will bridge to the new names.
+
 - **Parent table** = any table listed in `inheritNames`
 - **Child table** = any table whose `inheritNames` includes this table
 - **Root table** = the top of the inheritance tree (no parents)
@@ -135,14 +137,54 @@ Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified
 - Readonly `inheritNames` enforced for existing tables (no re-rooting via UI)
 - `inheritIds` fallback when backend returns old-style single `inheritId`
 
+### Phase 5.5: Naming & Terminology — COMPLETE
+
+**Goal**: Establish clearer naming conventions before implementing YAML parser.
+
+**Spec**: `.plan/specs/new_naming.md`
+
+**Key decisions:**
+- "Extension" replaces "subtable" — modular capability added via `extends`
+- `columnType: EXTENSION` / `EXTENSION_ARRAY` replaces `PROFILE` / `PROFILES`
+- `TableType.INTERNAL` for non-selectable extensions (unchanged in backend)
+- "Profile" = constraint/UX layer controlling visibility (new concept, identifier-based)
+- "Template" = deployment bundle (replaces "schema file")
+- "Section" = UI grouping (unchanged)
+- `inherits` replaces `inheritTable` in YAML (Java `inheritNames` unchanged for now)
+- Profile identifiers: `[a-zA-Z][a-zA-Z0-9_]*`, no spaces
+- Two visibility mechanisms (extension-based + profile-based) combined with AND
+- Informed by FHIR, openEHR, OMOP, CDISC research
+
+### Phase 5.6: Rename PROFILE → EXTENSION column types — COMPLETE
+
+**Goal**: Rename `ColumnType.PROFILE` to `EXTENSION` and `ColumnType.PROFILES` to `EXTENSION_ARRAY` across the entire codebase.
+
+**Spec**: `.plan/specs/new_naming.md` (Naming Conventions table)
+
+**Summary of completed work:**
+
+- `ColumnType.java`: `PROFILE(STRING)` → `EXTENSION(STRING)`, `PROFILES(STRING_ARRAY)` → `EXTENSION_ARRAY(STRING_ARRAY)`
+- All Java production files updated: `TableMetadata`, `SqlTypeUtils`, `SqlTable`, `SqlSchema`, `ColumnTypeRdfMapper`
+- All Java test files updated: `ProfileMetadataTest`, `TestSubtables`, `TestExtends`, `TestTableQueriesWithInheritance`
+- `migration34.sql`: updates stored `columnType` values in `column_metadata`; `Migrations.java` wired, `SOFTWARE_DATABASE_VERSION` bumped to 35
+- `Emx2.java`: backward compatibility mapping for old CSV values `"PROFILE"` → `"EXTENSION"`, `"PROFILES"` → `"EXTENSION_ARRAY"`
+- Frontend: `types.ts`, `columnTypes.js`, `formUtils.ts`, `admin!multi-inheritance.spec.ts`
+- Review confirmed zero remaining `ColumnType.PROFILE`/`PROFILES` references
+- All 4 test suites pass (TestSubtables 20/20, TestExtends 5/5, TestTableQueriesWithInheritance 7/7, ProfileMetadataTest OK)
+
 ### Phase 6: YAML Parser
 
-**Goal**: Parse v8 YAML table files into `SchemaMetadata`.
+**Goal**: Parse YAML table files into `SchemaMetadata` using new naming conventions.
 
-- One file per table, sections, imports
-- Section-scoped profiles
-- Block import resolution
-- Schema-level deployment configs
+**Spec**: `.plan/specs/new_naming.md` (YAML Format section)
+
+- One file per table, `- name:` sequence syntax throughout
+- `extensions:` block with `inherits`, `internal`, `profiles`
+- `sections:` with `extension:` scoping and `profiles:` visibility
+- Profile definition files (`profiles/` directory)
+- Template files with imports, profiles, settings, permissions, fixedSchemas
+- Import resolution at any level with override mechanics
+- Rename `ColumnType.PROFILE` -> `EXTENSION`, `ColumnType.PROFILES` -> `EXTENSION_ARRAY`
 
 ### Phase 7: Documentation
 

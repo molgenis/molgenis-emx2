@@ -17,17 +17,17 @@ public class ProfileMetadataTest {
 
   @Test
   void testProfileColumnType() {
-    assertEquals(ColumnType.STRING, ColumnType.PROFILE.getBaseType());
-    assertFalse(ColumnType.PROFILE.isReference());
-    assertTrue(ColumnType.PROFILE.isAtomicType());
-    assertFalse(ColumnType.PROFILE.isArray());
+    assertEquals(ColumnType.STRING, ColumnType.EXTENSION.getBaseType());
+    assertFalse(ColumnType.EXTENSION.isReference());
+    assertTrue(ColumnType.EXTENSION.isAtomicType());
+    assertFalse(ColumnType.EXTENSION.isArray());
   }
 
   @Test
   void testProfilesColumnType() {
-    assertEquals(ColumnType.STRING_ARRAY, ColumnType.PROFILES.getBaseType());
-    assertTrue(ColumnType.PROFILES.isArray());
-    assertFalse(ColumnType.PROFILES.isReference());
+    assertEquals(ColumnType.STRING_ARRAY, ColumnType.EXTENSION_ARRAY.getBaseType());
+    assertTrue(ColumnType.EXTENSION_ARRAY.isArray());
+    assertFalse(ColumnType.EXTENSION_ARRAY.isReference());
   }
 
   @Test
@@ -110,7 +110,7 @@ public class ProfileMetadataTest {
   @Test
   void testGetProfileColumnWithProfileType() {
     TableMetadata tableWithProfile =
-        table("WithProfile", column("name"), column("myProfile").setType(ColumnType.PROFILE));
+        table("WithProfile", column("name"), column("myProfile").setType(ColumnType.EXTENSION));
     Column profileColumn = tableWithProfile.getProfileColumn();
     assertNotNull(profileColumn);
     assertEquals("myProfile", profileColumn.getName());
@@ -119,7 +119,10 @@ public class ProfileMetadataTest {
   @Test
   void testGetProfileColumnWithProfilesType() {
     TableMetadata tableWithProfiles =
-        table("WithProfiles", column("name"), column("myProfiles").setType(ColumnType.PROFILES));
+        table(
+            "WithProfiles",
+            column("name"),
+            column("myProfiles").setType(ColumnType.EXTENSION_ARRAY));
     Column profileColumn = tableWithProfiles.getProfileColumn();
     assertNotNull(profileColumn);
     assertEquals("myProfiles", profileColumn.getName());

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 34;
+  private static final int SOFTWARE_DATABASE_VERSION = 35;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -205,6 +205,13 @@ public class Migrations {
           if (version < 34) {
             executeMigrationFile(
                 tdb, "migration33.sql", "rename table_type BLOCK to INTERNAL in table_metadata");
+          }
+
+          if (version < 35) {
+            executeMigrationFile(
+                tdb,
+                "migration34.sql",
+                "rename column_type PROFILE to EXTENSION and PROFILES to EXTENSION_ARRAY");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

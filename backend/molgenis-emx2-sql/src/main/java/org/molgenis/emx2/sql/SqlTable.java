@@ -221,7 +221,8 @@ public class SqlTable implements Table {
           for (Row row : rows) {
             String[] targets = new String[] {tableName};
             if (row.notNull(discriminatorColumn)) {
-              if (profileColumn != null && profileColumn.getColumnType() == ColumnType.PROFILES) {
+              if (profileColumn != null
+                  && profileColumn.getColumnType() == ColumnType.EXTENSION_ARRAY) {
                 String[] arr = row.getStringArray(discriminatorColumn);
                 if (arr != null) targets = arr;
               } else {

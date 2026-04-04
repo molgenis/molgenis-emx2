@@ -72,8 +72,8 @@ public abstract class ColumnTypeRdfMapper {
           entry(ColumnType.SECTION, RdfColumnType.SKIP), // Should not be in RDF output.
 
           // format flavors that extend a baseType
-          entry(ColumnType.PROFILE, RdfColumnType.STRING),
-          entry(ColumnType.PROFILES, RdfColumnType.STRING),
+          entry(ColumnType.EXTENSION, RdfColumnType.STRING),
+          entry(ColumnType.EXTENSION_ARRAY, RdfColumnType.STRING),
           entry(ColumnType.AUTO_ID, RdfColumnType.STRING),
           entry(ColumnType.ONTOLOGY, RdfColumnType.ONTOLOGY),
           entry(ColumnType.ONTOLOGY_ARRAY, RdfColumnType.ONTOLOGY),

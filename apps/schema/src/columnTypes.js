@@ -25,8 +25,8 @@ export default [
   "ONTOLOGY_ARRAY",
   "PERIOD",
   "PERIOD_ARRAY",
-  "PROFILE",
-  "PROFILES",
+  "EXTENSION",
+  "EXTENSION_ARRAY",
   "REF", //deprecated
   "SELECT",
   "RADIO",

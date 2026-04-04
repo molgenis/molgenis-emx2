@@ -247,8 +247,8 @@ public class SqlSchema implements Schema {
               .filter(
                   c ->
                       c.isPrimaryKey()
-                          || c.getColumnType() == ColumnType.PROFILE
-                          || c.getColumnType() == ColumnType.PROFILES)
+                          || c.getColumnType() == ColumnType.EXTENSION
+                          || c.getColumnType() == ColumnType.EXTENSION_ARRAY)
               .forEach(newTable::add);
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {

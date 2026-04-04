@@ -364,10 +364,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata add(Column... column) {
     for (Column c : column) {
-      if (c.getColumnType() == ColumnType.PROFILE || c.getColumnType() == ColumnType.PROFILES) {
+      if (c.getColumnType() == ColumnType.EXTENSION
+          || c.getColumnType() == ColumnType.EXTENSION_ARRAY) {
         if (getInheritNames() != null && getInheritNames().length > 0) {
           throw new MolgenisException(
-              "Cannot add PROFILE/PROFILES column '"
+              "Cannot add EXTENSION/EXTENSION_ARRAY column '"
                   + getTableName()
                   + "."
                   + c.getName()
@@ -719,7 +720,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public Column getProfileColumn() {
     TableMetadata root = getRootTable();
     for (Column c : root.getLocalColumns()) {
-      if (c.getColumnType() == ColumnType.PROFILE || c.getColumnType() == ColumnType.PROFILES) {
+      if (c.getColumnType() == ColumnType.EXTENSION
+          || c.getColumnType() == ColumnType.EXTENSION_ARRAY) {
         return c;
       }
     }
