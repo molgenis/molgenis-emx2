@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.emx2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import org.molgenis.emx2.*;
@@ -221,6 +222,37 @@ public class Emx2Yaml {
 
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     return mapper.writeValueAsString(doc);
+  }
+
+  public static String toYamlSchema(SchemaMetadata schema) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    boolean first = true;
+    for (TableMetadata table : schema.getTables()) {
+      if (table.getInheritNames() == null || table.getInheritNames().length == 0) {
+        if (!first) {
+          sb.append("---\n");
+        }
+        sb.append(toYamlFile(schema, table.getTableName()));
+        first = false;
+      }
+    }
+    return sb.toString();
+  }
+
+  public static SchemaMetadata fromYamlSchema(String yaml) throws IOException {
+    SchemaMetadata schema = new SchemaMetadata();
+    String[] documents = yaml.split("(?m)^---\\s*$");
+    for (String doc : documents) {
+      String trimmed = doc.trim();
+      if (!trimmed.isEmpty()) {
+        SchemaMetadata fileSchema =
+            fromYamlFile(new ByteArrayInputStream(trimmed.getBytes(StandardCharsets.UTF_8)));
+        for (TableMetadata table : fileSchema.getTables()) {
+          schema.create(table);
+        }
+      }
+    }
+    return schema;
   }
 
   public static void toYamlDirectory(SchemaMetadata schema, Path directory) throws IOException {

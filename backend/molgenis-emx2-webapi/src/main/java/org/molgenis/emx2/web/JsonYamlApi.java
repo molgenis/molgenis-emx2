@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.json.JsonUtil.*;
 import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
@@ -10,6 +9,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.json.JsonUtil;
 
 public class JsonYamlApi {
@@ -32,14 +32,14 @@ public class JsonYamlApi {
   }
 
   private static void deleteSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata schema = yamlToSchema(ctx.body());
+    SchemaMetadata schema = Emx2Yaml.fromYamlSchema(ctx.body());
     getSchema(ctx).discard(schema);
     ctx.status(200);
     ctx.result("{ \"message\": \"remove metadata success\" }");
   }
 
   static void postSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata otherSchema = yamlToSchema(ctx.body());
+    SchemaMetadata otherSchema = Emx2Yaml.fromYamlSchema(ctx.body());
     getSchema(ctx).migrate(otherSchema);
     ctx.status(200);
     ctx.result("{ \"message\": \"add/update metadata success\" }");
@@ -47,18 +47,18 @@ public class JsonYamlApi {
 
   static void getSchemaYAML(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    String json = schemaToYaml(schema.getMetadata(), true);
+    String yaml = Emx2Yaml.toYamlSchema(schema.getMetadata());
     ctx.contentType(ACCEPT_YAML);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     ctx.header(
         "Content-Disposition",
-        "attachment; filename=\"" + schema.getName() + "_ " + date + ".yaml\"");
+        "attachment; filename=\"" + schema.getName() + "_" + date + ".yaml\"");
     ctx.status(200);
-    ctx.json(json);
+    ctx.result(yaml);
   }
 
   private static void deleteSchemaJSON(Context ctx) throws IOException {
-    SchemaMetadata schema = jsonToSchema(ctx.body());
+    SchemaMetadata schema = JsonUtil.jsonToSchema(ctx.body());
     getSchema(ctx).discard(schema);
     ctx.status(200);
     ctx.result("{ \"message\": \"removed metadata items success\" }");
@@ -66,7 +66,7 @@ public class JsonYamlApi {
 
   static void postSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    SchemaMetadata otherSchema = jsonToSchema(ctx.body());
+    SchemaMetadata otherSchema = JsonUtil.jsonToSchema(ctx.body());
     schema.migrate(otherSchema);
     ctx.status(200);
     ctx.result("{ \"message\": \"add/update metadata success\" }");

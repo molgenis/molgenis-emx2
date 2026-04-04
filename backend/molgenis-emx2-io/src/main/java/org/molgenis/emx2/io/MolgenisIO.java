@@ -7,12 +7,16 @@ import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
-import java.nio.file.Path;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Map;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.emx1.Emx1;
+import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.io.tablestore.*;
 import org.molgenis.emx2.tasks.Task;
 
@@ -43,6 +47,56 @@ public class MolgenisIO {
 
   public static void toZipFile(Path zipFile, Schema schema, boolean includeSystemColumns) {
     outputAll(new TableStoreForCsvInZipFile(zipFile), schema, includeSystemColumns);
+  }
+
+  public static void toYamlZipFile(Path zipFile, Schema schema, boolean includeSystemColumns) {
+    TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
+    outputRoles(store, schema);
+    outputSettings(store, schema);
+    boolean hasViewPermission = schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+    for (String tableName : schema.getTableNames()) {
+      Table table = schema.getTable(tableName);
+      if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+        writeTableToStore(store, table, includeSystemColumns);
+      }
+    }
+    try {
+      Path tempDir = Files.createTempDirectory("yaml_export_");
+      try {
+        Emx2Yaml.toYamlDirectory(schema.getMetadata(), tempDir);
+        try (FileSystem zipfs = FileSystems.newFileSystem(zipFile, Map.of())) {
+          Path tablesDir = zipfs.getPath("/tables");
+          if (!Files.exists(tablesDir)) {
+            Files.createDirectories(tablesDir);
+          }
+          Path tempTablesDir = tempDir.resolve("tables");
+          if (Files.exists(tempTablesDir)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(tempTablesDir, "*.yaml")) {
+              for (Path yamlFile : stream) {
+                Files.copy(
+                    yamlFile,
+                    tablesDir.resolve(yamlFile.getFileName().toString()),
+                    StandardCopyOption.REPLACE_EXISTING);
+              }
+            }
+          }
+          Files.writeString(zipfs.getPath("/molgenis.yaml"), "# MOLGENIS EMX2 YAML format\n");
+        }
+      } finally {
+        Path tempTablesDir = tempDir.resolve("tables");
+        if (Files.exists(tempTablesDir)) {
+          try (DirectoryStream<Path> stream = Files.newDirectoryStream(tempTablesDir)) {
+            for (Path file : stream) {
+              Files.deleteIfExists(file);
+            }
+          }
+          Files.deleteIfExists(tempTablesDir);
+        }
+        Files.deleteIfExists(tempDir);
+      }
+    } catch (IOException e) {
+      throw new MolgenisException("YAML ZIP export failed", e);
+    }
   }
 
   public static void toExcelFile(Path excelFile, Schema schema, boolean includeSystemColumns) {

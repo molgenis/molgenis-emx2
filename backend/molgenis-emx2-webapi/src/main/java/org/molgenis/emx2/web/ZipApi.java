@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.zip.ZipFile;
 import javax.validation.constraints.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
@@ -25,6 +26,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
+import org.molgenis.emx2.io.ImportYamlZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -43,6 +45,7 @@ public class ZipApi {
     final String schemaPath = "/{schema}/api/zip"; // NOSONAR
     app.get(schemaPath, ZipApi::getZip);
     app.post(schemaPath, ZipApi::postZip);
+    app.get("/{schema}/api/yamlzip", ZipApi::getYamlZip);
 
     // table level operations
     final String tablePath = "/{schema}/api/zip/{table}"; // NOSONAR
@@ -76,6 +79,26 @@ public class ZipApi {
     }
   }
 
+  static void getYamlZip(Context ctx) throws IOException {
+    boolean includeSystemColumns = includeSystemColumns(ctx);
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    tempDir.toFile().deleteOnExit();
+    try (OutputStream outputStream = ctx.res().getOutputStream()) {
+      Schema schema = getSchema(ctx);
+      String fileName = schema.getName() + System.currentTimeMillis() + ".yaml.zip";
+      ctx.contentType(APPLICATION_ZIP_MIME_TYPE);
+      ctx.header(CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+      Path zipFile = tempDir.resolve("download.zip");
+      MolgenisIO.toYamlZipFile(zipFile, schema, includeSystemColumns);
+      outputStream.write(Files.readAllBytes(zipFile));
+      ctx.result("Export success");
+    } finally {
+      try (Stream<Path> files = Files.walk(tempDir)) {
+        files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
+    }
+  }
+
   static void postZip(Context ctx) throws MolgenisException, IOException, ServletException {
     Long start = System.currentTimeMillis();
     Schema schema = getSchema(ctx);
@@ -93,14 +116,21 @@ public class ZipApi {
       String fileName = ctx.req().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
-        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
+        boolean isYamlFormat;
+        try (ZipFile zf = new ZipFile(tempFile)) {
+          isYamlFormat = zf.getEntry("molgenis.yaml") != null;
+        }
+        Task task =
+            isYamlFormat
+                ? new ImportYamlZipTask(tempFile.toPath(), schema, false)
+                : new ImportCsvZipTask(tempFile.toPath(), schema, false);
         if (ctx.queryParam("async") != null) {
           String parentTaskId = ctx.queryParam("parentJob");
           String id = TaskApi.submit(task, parentTaskId);
           ctx.json(new TaskReference(id, schema));
           return;
         } else {
-          MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
+          task.run();
         }
       } else if (fileName.endsWith(".xlsx")) {
         MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);

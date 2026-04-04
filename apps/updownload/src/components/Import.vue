@@ -62,6 +62,7 @@
               Export schema+data in one file as
               <a :href="`/${schema}/api/excel`">excel</a> /
               <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/yamlzip`">yaml.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>

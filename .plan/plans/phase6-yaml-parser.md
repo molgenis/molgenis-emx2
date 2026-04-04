@@ -45,34 +45,51 @@ Backend complete:
 - `profiles` field on outputTableType and outputColumnMetadataType
 - 8 GraphQL integration tests + 7 ProfileUtils unit tests, all green
 
-### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — DONE (commit pending)
+### Step 5: Frontend profile filtering — DONE (commits 45f9c976c, next)
 
-Added `applyProfileFilter: true` to 5 user-facing `_schema` queries:
-- `apps/tailwind-components/app/gql/metadata.js`
-- `apps/molgenis-components/src/client/client.ts`
-- `apps/ui/app/pages/[schema]/index.vue`
-- `apps/tables/src/App.vue`
-- `apps/molgenis-viz/src/gql/schema.ts`
+5a-5e: Added `applyProfileFilter: true` to 5 user-facing `_schema` queries.
+Schema editor left unfiltered. Added `profiles` to GraphQL mutation input types.
 
-Schema editor (`apps/schema/src/utils.ts`) left unfiltered (admin view).
-Added `profiles` to `MolgenisColumnInput` and `MolgenisTableInput` GraphQL input types.
-E2e test: `apps/ui/tests/e2e/profile-filtering.spec.ts` (5 tests: table listing, API table/column filtering, form view).
+5f: GraphQL `activeProfiles` mutation + output:
+- `change(activeProfiles: [...])` mutation to set active profiles on schema
+- `activeProfiles` exposed on `_schema` output type
+- Fixed table profiles lost in JSON→SchemaMetadata and migrate paths
+- `saveActiveProfiles()` on SqlSchemaMetadata, `sync()` includes profiles
+- 3 JUnit tests + 5 e2e tests (API filtering, UI listing, form columns) — all green
+- Full `./gradlew test` passes, all apps formatted+linted
 
-### Step 5f: GraphQL mutation for setting activeProfiles on schema — DONE (commit pending)
+### Step 6: Wire YAML into web API — DONE
 
-- `ACTIVE_PROFILES` constant in `GraphqlConstants.java`
-- `activeProfiles` field on `_schema` output type + query fetcher response
-- `activeProfiles` argument on `change` mutation
-- `changeActiveProfiles()` handler → `SqlSchemaMetadata.saveActiveProfiles()`
-- `sync()` now also syncs profiles
-- 2 JUnit tests: read activeProfiles from `_schema`, set via `change` mutation
-- E2e test updated: sets activeProfiles via mutation, tests `applyProfileFilter: true`, verifies UI table listing filters correctly
+Replaced flat Jackson-based YAML with hierarchical Emx2Yaml format:
+- Added `toYamlSchema()` / `fromYamlSchema()` — multi-document YAML (root tables separated by `---`)
+- `JsonYamlApi.java`: GET/POST/DELETE now use `Emx2Yaml` instead of `JsonUtil`
+- Updated `WebApiSmokeTests.testJsonYamlApi()` for new format
+- Updownload app works unchanged (already links to `/{schema}/api/yaml`)
+- IO + WebAPI tests pass (pre-existing failures in `testScriptScheduling` and `TablePermissionsGraphqlTest` unrelated)
 
-### Step 6: Wire YAML into web API
+### Step 6b: YAML+ZIP download and ZIP import detection — DONE
 
-Replace or extend `/{schema}/api/yaml` endpoints in `JsonYamlApi.java`:
-- GET: export in new hierarchical format
-- POST: import from new hierarchical format (call `fromYamlFile`)
+#### Decisions
+- Separate endpoint: `/{schema}/api/yamlzip` (not query param)
+- ZIP with YAML uses `molgenis.yaml` as marker file (vs `molgenis.csv` for CSV format)
+- `tables/*.yaml` for metadata, data CSVs alongside
+- Modify existing classes, no new TableStore
+
+#### Download: `GET /{schema}/api/yamlzip`
+- New endpoint in `ZipApi.java`
+- Export metadata as `tables/*.yaml` (via `Emx2Yaml.toYamlDirectory`)
+- Export table data as CSV files (same as current)
+- Include `molgenis.yaml` marker file in root (can be empty or contain schema-level metadata)
+
+#### Upload: ZIP detection in `postZip()`
+- Check ZIP contents: if `molgenis.yaml` exists → YAML path
+- YAML path: parse `tables/*.yaml` via `Emx2Yaml.fromYamlDirectory`, import data CSVs normally
+- CSV path: existing `ImportCsvZipTask` (no change)
+- Max 1 template file in root
+
+#### Frontend
+- Add `yaml.zip` link in `apps/updownload/src/components/Import.vue`
+- Upload unchanged — ZIP upload already goes to `/{schema}/api/zip`
 
 ### Step 7: CSV import/export profile awareness (deferred)
 - CSV export: filter columns by active profiles
