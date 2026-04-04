@@ -1,0 +1,16 @@
+name: RD3
+description: "Rare Disease Data for Discovery"
+
+imports:
+  - ../tables/*
+
+profiles:
+  - wgs
+  - rna
+
+settings:
+  landingPage: "Welcome to RD3"
+
+permissions:
+  view: anonymous
+  edit: user

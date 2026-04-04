@@ -226,6 +226,53 @@ class Emx2YamlTest {
     }
   }
 
+  @Test
+  void testTemplateRd3() throws Exception {
+    Path template = Path.of(getClass().getResource("/yaml-model/templates/rd3.yaml").toURI());
+    Emx2Yaml.TemplateResult result = Emx2Yaml.fromYamlTemplate(template);
+
+    assertEquals("RD3", result.getName());
+    assertEquals("Rare Disease Data for Discovery", result.getDescription());
+
+    SchemaMetadata schema = result.getSchema();
+    assertNotNull(schema.getTableMetadata("Individuals"));
+    assertNotNull(schema.getTableMetadata("Samples"));
+    assertNotNull(schema.getTableMetadata("Experiments"));
+    assertNotNull(schema.getTableMetadata("Observations"));
+    assertEquals(12, schema.getTables().size());
+
+    assertEquals(List.of("wgs", "rna"), result.getProfiles());
+
+    assertEquals("Welcome to RD3", result.getSettings().get("landingPage"));
+
+    assertEquals("Viewer", result.getPermissions().get("anonymous"));
+    assertEquals("Editor", result.getPermissions().get("user"));
+  }
+
+  @Test
+  void testTemplateFull() throws Exception {
+    Path template = Path.of(getClass().getResource("/yaml-model/templates/full.yaml").toURI());
+    Emx2Yaml.TemplateResult result = Emx2Yaml.fromYamlTemplate(template);
+
+    assertEquals("Full", result.getName());
+
+    assertTrue(result.getProfiles().isEmpty());
+
+    assertEquals(12, result.getSchema().getTables().size());
+  }
+
+  @Test
+  void testTemplateRoundtrip() throws Exception {
+    Path template = Path.of(getClass().getResource("/yaml-model/templates/rd3.yaml").toURI());
+    Emx2Yaml.TemplateResult original = Emx2Yaml.fromYamlTemplate(template);
+
+    String yaml = Emx2Yaml.toYamlTemplate(original);
+    assertTrue(yaml.contains("name: "));
+    assertTrue(yaml.contains("RD3"));
+    assertTrue(yaml.contains("profiles:"));
+    assertTrue(yaml.contains("wgs"));
+  }
+
   private SchemaMetadata loadFromResource(String resourcePath) throws IOException {
     try (InputStream inputStream = getClass().getResourceAsStream(resourcePath)) {
       assertNotNull(inputStream, "Resource not found: " + resourcePath);

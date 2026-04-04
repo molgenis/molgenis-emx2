@@ -39,6 +39,19 @@ public class Emx2Yaml {
   private static final String FIELD_DROP = "drop";
   private static final String FIELD_IMPORT_SCHEMA = "importSchema";
   private static final String TABLES_DIR = "tables";
+  private static final String FIELD_IMPORTS = "imports";
+  private static final String FIELD_SETTINGS = "settings";
+  private static final String FIELD_PERMISSIONS = "permissions";
+  private static final String FIELD_FIXED_SCHEMAS = "fixedSchemas";
+  private static final String FIELD_SCHEMA_NAME = "schemaName";
+  private static final String ROLE_VIEW = "view";
+  private static final String ROLE_EDIT = "edit";
+  private static final String ROLE_MANAGE = "manage";
+  private static final String ROLE_OWNER = "owner";
+  private static final String ROLE_VIEWER = "Viewer";
+  private static final String ROLE_EDITOR = "Editor";
+  private static final String ROLE_MANAGER = "Manager";
+  private static final String ROLE_OWNER_VALUE = "Owner";
 
   private Emx2Yaml() {
     // hidden
@@ -448,6 +461,262 @@ public class Emx2Yaml {
     }
 
     return column;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static TemplateResult fromYamlTemplate(Path templateFile) throws IOException {
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    Map<String, Object> yaml;
+    try (InputStream inputStream = Files.newInputStream(templateFile)) {
+      yaml = mapper.readValue(inputStream, Map.class);
+    }
+
+    String name = (String) yaml.get(FIELD_NAME);
+    if (name == null) {
+      throw new MolgenisException("YAML template parse error: missing required 'name' field");
+    }
+    String description = (String) yaml.get(FIELD_DESCRIPTION);
+
+    Path baseDir = templateFile.getParent();
+    SchemaMetadata schema = new SchemaMetadata();
+    List<String> imports = (List<String>) yaml.getOrDefault(FIELD_IMPORTS, List.of());
+    for (String importEntry : imports) {
+      for (Path yamlFile : resolveImport(baseDir, importEntry)) {
+        try (InputStream inputStream = Files.newInputStream(yamlFile)) {
+          SchemaMetadata fileSchema = fromYamlFile(inputStream);
+          for (TableMetadata table : fileSchema.getTables()) {
+            schema.create(table);
+          }
+        }
+      }
+    }
+
+    List<String> profiles = (List<String>) yaml.getOrDefault(FIELD_PROFILES, List.of());
+
+    Map<String, String> settings = new LinkedHashMap<>();
+    Map<String, Object> rawSettings =
+        (Map<String, Object>) yaml.getOrDefault(FIELD_SETTINGS, Map.of());
+    for (Map.Entry<String, Object> entry : rawSettings.entrySet()) {
+      settings.put(entry.getKey(), entry.getValue() != null ? entry.getValue().toString() : null);
+    }
+
+    Map<String, String> permissions = new LinkedHashMap<>();
+    Map<String, Object> rawPermissions =
+        (Map<String, Object>) yaml.getOrDefault(FIELD_PERMISSIONS, Map.of());
+    for (Map.Entry<String, Object> entry : rawPermissions.entrySet()) {
+      String role = mapRole(entry.getKey());
+      if (role != null) {
+        permissions.put(entry.getValue().toString(), role);
+      }
+    }
+
+    List<FixedSchema> fixedSchemas = new ArrayList<>();
+    List<Map<String, Object>> rawFixedSchemas =
+        (List<Map<String, Object>>) yaml.getOrDefault(FIELD_FIXED_SCHEMAS, List.of());
+    for (Map<String, Object> rawFixed : rawFixedSchemas) {
+      String schemaName = (String) rawFixed.get(FIELD_SCHEMA_NAME);
+      String fixedDescription = (String) rawFixed.get(FIELD_DESCRIPTION);
+      SchemaMetadata fixedSchema = new SchemaMetadata();
+      List<String> fixedImports = (List<String>) rawFixed.getOrDefault(FIELD_IMPORTS, List.of());
+      for (String importEntry : fixedImports) {
+        for (Path yamlFile : resolveImport(baseDir, importEntry)) {
+          try (InputStream inputStream = Files.newInputStream(yamlFile)) {
+            SchemaMetadata fileSchema = fromYamlFile(inputStream);
+            for (TableMetadata table : fileSchema.getTables()) {
+              fixedSchema.create(table);
+            }
+          }
+        }
+      }
+      Map<String, String> fixedPermissions = new LinkedHashMap<>();
+      Map<String, Object> rawFixedPermissions =
+          (Map<String, Object>) rawFixed.getOrDefault(FIELD_PERMISSIONS, Map.of());
+      for (Map.Entry<String, Object> entry : rawFixedPermissions.entrySet()) {
+        String role = mapRole(entry.getKey());
+        if (role != null) {
+          fixedPermissions.put(entry.getValue().toString(), role);
+        }
+      }
+      fixedSchemas.add(
+          new FixedSchema(schemaName, fixedDescription, fixedSchema, fixedPermissions));
+    }
+
+    return new TemplateResult(
+        name, description, schema, profiles, settings, permissions, fixedSchemas);
+  }
+
+  private static List<Path> resolveImport(Path baseDir, String importEntry) throws IOException {
+    if (importEntry.endsWith("/*")) {
+      String dirPart = importEntry.substring(0, importEntry.length() - 2);
+      Path dir = baseDir.resolve(dirPart).normalize();
+      List<Path> result = new ArrayList<>();
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.yaml")) {
+        for (Path path : stream) {
+          result.add(path);
+        }
+      }
+      return result;
+    } else {
+      return List.of(baseDir.resolve(importEntry).normalize());
+    }
+  }
+
+  private static String mapRole(String keyword) {
+    return switch (keyword) {
+      case ROLE_VIEW -> ROLE_VIEWER;
+      case ROLE_EDIT -> ROLE_EDITOR;
+      case ROLE_MANAGE -> ROLE_MANAGER;
+      case ROLE_OWNER -> ROLE_OWNER_VALUE;
+      default -> null;
+    };
+  }
+
+  @SuppressWarnings("unchecked")
+  public static String toYamlTemplate(TemplateResult result) throws IOException {
+    Map<String, Object> doc = new LinkedHashMap<>();
+    doc.put(FIELD_NAME, result.getName());
+    if (result.getDescription() != null) {
+      doc.put(FIELD_DESCRIPTION, result.getDescription());
+    }
+    if (!result.getProfiles().isEmpty()) {
+      doc.put(FIELD_PROFILES, result.getProfiles());
+    }
+    if (!result.getSettings().isEmpty()) {
+      doc.put(FIELD_SETTINGS, result.getSettings());
+    }
+    if (!result.getPermissions().isEmpty()) {
+      Map<String, String> permissionsOut = new LinkedHashMap<>();
+      for (Map.Entry<String, String> entry : result.getPermissions().entrySet()) {
+        String keyword = reverseMapRole(entry.getValue());
+        if (keyword != null) {
+          permissionsOut.put(keyword, entry.getKey());
+        }
+      }
+      doc.put(FIELD_PERMISSIONS, permissionsOut);
+    }
+    if (!result.getFixedSchemas().isEmpty()) {
+      List<Map<String, Object>> fixedList = new ArrayList<>();
+      for (FixedSchema fixed : result.getFixedSchemas()) {
+        Map<String, Object> fixedMap = new LinkedHashMap<>();
+        fixedMap.put(FIELD_SCHEMA_NAME, fixed.getSchemaName());
+        if (fixed.getDescription() != null) {
+          fixedMap.put(FIELD_DESCRIPTION, fixed.getDescription());
+        }
+        if (!fixed.getPermissions().isEmpty()) {
+          Map<String, String> permissionsOut = new LinkedHashMap<>();
+          for (Map.Entry<String, String> entry : fixed.getPermissions().entrySet()) {
+            String keyword = reverseMapRole(entry.getValue());
+            if (keyword != null) {
+              permissionsOut.put(keyword, entry.getKey());
+            }
+          }
+          fixedMap.put(FIELD_PERMISSIONS, permissionsOut);
+        }
+        fixedList.add(fixedMap);
+      }
+      doc.put(FIELD_FIXED_SCHEMAS, fixedList);
+    }
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    return mapper.writeValueAsString(doc);
+  }
+
+  private static String reverseMapRole(String role) {
+    return switch (role) {
+      case ROLE_VIEWER -> ROLE_VIEW;
+      case ROLE_EDITOR -> ROLE_EDIT;
+      case ROLE_MANAGER -> ROLE_MANAGE;
+      case ROLE_OWNER_VALUE -> ROLE_OWNER;
+      default -> null;
+    };
+  }
+
+  public static class TemplateResult {
+    private final String name;
+    private final String description;
+    private final SchemaMetadata schema;
+    private final List<String> profiles;
+    private final Map<String, String> settings;
+    private final Map<String, String> permissions;
+    private final List<FixedSchema> fixedSchemas;
+
+    public TemplateResult(
+        String name,
+        String description,
+        SchemaMetadata schema,
+        List<String> profiles,
+        Map<String, String> settings,
+        Map<String, String> permissions,
+        List<FixedSchema> fixedSchemas) {
+      this.name = name;
+      this.description = description;
+      this.schema = schema;
+      this.profiles = profiles;
+      this.settings = settings;
+      this.permissions = permissions;
+      this.fixedSchemas = fixedSchemas;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public SchemaMetadata getSchema() {
+      return schema;
+    }
+
+    public List<String> getProfiles() {
+      return profiles;
+    }
+
+    public Map<String, String> getSettings() {
+      return settings;
+    }
+
+    public Map<String, String> getPermissions() {
+      return permissions;
+    }
+
+    public List<FixedSchema> getFixedSchemas() {
+      return fixedSchemas;
+    }
+  }
+
+  public static class FixedSchema {
+    private final String schemaName;
+    private final String description;
+    private final SchemaMetadata schema;
+    private final Map<String, String> permissions;
+
+    public FixedSchema(
+        String schemaName,
+        String description,
+        SchemaMetadata schema,
+        Map<String, String> permissions) {
+      this.schemaName = schemaName;
+      this.description = description;
+      this.schema = schema;
+      this.permissions = permissions;
+    }
+
+    public String getSchemaName() {
+      return schemaName;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public SchemaMetadata getSchema() {
+      return schema;
+    }
+
+    public Map<String, String> getPermissions() {
+      return permissions;
+    }
   }
 
   @SuppressWarnings("unchecked")

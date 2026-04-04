@@ -1,0 +1,12 @@
+name: Full
+description: "All tables, all profiles - development and testing"
+
+imports:
+  - ../tables/*
+
+settings:
+  landingPage: "Development instance"
+
+permissions:
+  view: anonymous
+  edit: user
