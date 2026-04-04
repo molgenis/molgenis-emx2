@@ -78,6 +78,7 @@ export default {
         NON_NEGATIVE_INT_ARRAY: InputNonNegativeInt,
         LONG_ARRAY: InputLong,
         STRING_ARRAY: InputString,
+        PROFILES: InputString,
         TEXT_ARRAY: InputText,
         UUID_ARRAY: InputString,
       }[this.columnType];

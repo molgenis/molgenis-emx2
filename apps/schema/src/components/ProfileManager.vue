@@ -255,9 +255,9 @@ const convertToCsv = function () {
     "tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles";
   selectedTables.value.forEach((t) => {
     csv += `${formatValue(t.name)},${formatValue(
-      t.inheritName
+      t.inheritNames ?? []
     )},,,,,,,,,${formatValue(t.semantics)},${formatValue(
-      t.descrpition
+      t.description
     )},${formatValue(t.profiles)}\n`;
     t.columns
       ?.filter((c) => c.selected)

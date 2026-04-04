@@ -24,16 +24,22 @@
         label="description"
         :locales="locales"
       />
-      <InputSelect
-        v-if="rootTable !== undefined"
-        id="table_extends"
-        v-model="table.inheritName"
-        :required="true"
-        :options="inheritOptions"
-        :readonly="table.oldName !== undefined"
-        :errorMessage="subclassInvalid"
-        label="Extends table (can not be edited after creation)"
-      />
+      <template v-if="rootTable !== undefined">
+        <InputCheckbox
+          v-if="table.oldName === undefined"
+          id="table_extends"
+          v-model="table.inheritNames"
+          :options="inheritOptions"
+          :errorMessage="subclassInvalid"
+          label="Extends table(s) (can not be edited after creation)"
+        />
+        <div v-else class="mb-3">
+          <label class="form-label"
+            >Extends table(s) (can not be edited after creation)</label
+          >
+          <div>{{ table.inheritNames?.join(", ") }}</div>
+        </div>
+      </template>
       <ArrayInput
         id="table_semantics"
         columnType="STRING_ARRAY"
@@ -64,7 +70,7 @@ import {
   IconAction,
   ButtonAction,
   MessageWarning,
-  InputSelect,
+  InputCheckbox,
   ArrayInput,
   ButtonAlt,
   deepClone,
@@ -79,7 +85,7 @@ export default {
     IconAction,
     ButtonAction,
     MessageWarning,
-    InputSelect,
+    InputCheckbox,
     ButtonAlt,
     InputTextLocalized,
   },
@@ -137,7 +143,6 @@ export default {
               .filter((name) => name !== this.table.name)
           );
         }
-        this.table.inheritName = result[0];
         return result;
       }
       return undefined;
@@ -171,7 +176,7 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inheritName === undefined
+      return this.inheritOptions && !this.table.inheritNames?.length
         ? "Extends is required in case of subclass"
         : null;
     },

@@ -262,6 +262,61 @@ public class TestExtends {
         reimported.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType());
   }
 
+  @Test
+  public void oneStepCsvImportMultiParentWithProfileColumn() throws IOException {
+    String csv =
+        """
+        tableName,tableType,tableExtends,columnName,columnType,key,required
+        Experiments,,,id,STRING,1,TRUE
+        Experiments,,,experiment_type,PROFILE,,
+        sampling,INTERNAL,Experiments,tissue_type,STRING,,
+        sequencing,INTERNAL,Experiments,read_length,INT,,
+        WGS,,"sampling,sequencing",coverage,DECIMAL,,
+        Imaging,,Experiments,modality,STRING,,
+        """;
+
+    SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(csv)));
+
+    assertArrayEquals(
+        new String[] {"sampling", "sequencing"},
+        sm.getTableMetadata("WGS").getInheritNames(),
+        "WGS should inherit from both sampling and sequencing in memory");
+    assertEquals(
+        ColumnType.PROFILE,
+        sm.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType(),
+        "Experiments should have a PROFILE column in memory");
+    assertEquals(
+        TableType.INTERNAL,
+        sm.getTableMetadata("sampling").getTableType(),
+        "sampling should have INTERNAL table type in memory");
+
+    String schemaName = "TestExtendsOneStep";
+    database.dropSchemaIfExists(schemaName);
+    Schema oneStepSchema = database.createSchema(schemaName);
+    try {
+      oneStepSchema.migrate(sm);
+
+      assertArrayEquals(
+          new String[] {"sampling", "sequencing"},
+          oneStepSchema.getMetadata().getTableMetadata("WGS").getInheritNames(),
+          "WGS should inherit from both sampling and sequencing after DB migrate");
+      assertEquals(
+          ColumnType.PROFILE,
+          oneStepSchema
+              .getMetadata()
+              .getTableMetadata("Experiments")
+              .getColumn("experiment_type")
+              .getColumnType(),
+          "Experiments should have a PROFILE column after DB migrate");
+      assertEquals(
+          TableType.INTERNAL,
+          oneStepSchema.getMetadata().getTableMetadata("sampling").getTableType(),
+          "sampling should have INTERNAL table type after DB migrate");
+    } finally {
+      database.dropSchemaIfExists(schemaName);
+    }
+  }
+
   private void validate1(SchemaMetadata sm) {
     // shape should have columns name',description
     assertEquals(2, sm.getTableMetadata("shape").getColumnsWithoutMetadata().size());

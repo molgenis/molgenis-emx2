@@ -517,7 +517,9 @@ export function buildGraphqlFilter(
           col.columnType.startsWith("AUTO_ID") ||
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT") ||
-          col.columnType.startsWith("JSON")
+          col.columnType.startsWith("JSON") ||
+          col.columnType === "PROFILE" ||
+          col.columnType === "PROFILES"
         ) {
           filter[col.id] = { like: conditions };
         } else if (

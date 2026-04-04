@@ -113,14 +113,27 @@ Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified
 - `TableType.BLOCK` renamed to `INTERNAL` with `migration33.sql`
 - `SqlDatabase.removeUser()` atomicity bug fixed
 
-### Phase 5: Frontend — Schema & Explorer Apps
+### Phase 5: Frontend — Schema & Explorer Apps — COMPLETE
 
 **Goal**: PROFILE/PROFILES columns work in the UI.
 
-- `apps/schema/` — schema editor: INTERNAL table type, PROFILE/PROFILES columns
-- `apps/explorer/` — table explorer: wide sparse results, show/hide child columns based on profile
-- `apps/molgenis-components/` — form components: PROFILE dropdown, PROFILES multi-select
-- `apps/metadata-utils/` — TypeScript types: PROFILE, PROFILES, INTERNAL
+**Summary of completed work:**
+
+- `apps/metadata-utils/` — TypeScript types: PROFILE, PROFILES, INTERNAL added; `inheritNames: string[]` on `ITableMetaData`
+- `apps/schema/src/utils.ts` — GraphQL `_schema` query already had `inheritNames`; `getSubclassColumns` updated for multi-parent + diamond dedup
+- `apps/schema/src/components/TableEditModal.vue` — multi-parent editing: `InputCheckbox` for new tables, plain text display for existing; `inheritIds` fallback for pre-existing `inheritName`
+- `apps/schema/src/components/TableView.vue` — displays comma-separated parent names from `inheritNames`
+- `apps/schema/src/components/SchemaDiagram.vue` + `NomnomDiagram.vue` — loop `inheritNames` and draw one edge per parent
+- `apps/schema/src/components/PrintViewTable.vue` + `PrintViewList.vue` — fixed inconsistent field names (`inherit` vs `inheritName`), now display `inheritNames` joined by comma
+- `apps/schema/src/components/ProfileManager.vue` — filters out `TableType.INTERNAL` tables from profile selector; CSV export handles comma-separated `inheritNames`
+- `apps/schema/src/components/ColumnEditModal.vue` — PROFILE/PROFILES in column type dropdown; `getColumnsForTable()` handles multiple parents
+- `apps/molgenis-components/src/components/forms/FormInput.vue` + `ArrayInput.vue` + `FilterInput.vue` + `formUtils.ts` — PROFILE/PROFILES added to type maps
+- `apps/tailwind-components/app/composables/getSubclassColumns.ts` — multi-parent support + diamond dedup via Set
+
+**Bug fixes:**
+- Legacy `inheritName` string normalized to `inheritNames` array on load
+- Readonly `inheritNames` enforced for existing tables (no re-rooting via UI)
+- `inheritIds` fallback when backend returns old-style single `inheritId`
 
 ### Phase 6: YAML Parser
 

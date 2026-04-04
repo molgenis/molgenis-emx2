@@ -45,6 +45,7 @@ const typeToInputMap = {
   EMAIL: InputEmail,
   HYPERLINK: InputHyperlink,
   STRING: InputString,
+  PROFILE: InputString,
   TEXT: InputText,
   JSON: InputJson,
   INT: InputInt,
@@ -78,6 +79,7 @@ const typeToInputMap = {
   CHECKBOX: InputRefList,
   MULTISELECT: InputRefList,
   STRING_ARRAY: ArrayInput,
+  PROFILES: ArrayInput,
   TEXT_ARRAY: ArrayInput,
 };
 

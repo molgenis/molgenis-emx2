@@ -602,13 +602,6 @@ function getRefTableColumns(
   const table = tables.find(
     (table: Record<string, any>) => table.name === fromTable
   );
-  if (table?.inheritName) {
-    const inheritedTable = tables.find(
-      (otherTable: Record<string, any>) => table.inheritName === otherTable.name
-    );
-    return [...inheritedTable?.columns, ...table?.columns];
-  } else {
-    return table?.columns || [];
-  }
+  return table?.columns || [];
 }
 </script>

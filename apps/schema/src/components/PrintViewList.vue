@@ -69,7 +69,8 @@
         <div v-for="subclass in table.subclasses">
           <br />
           <div>
-            <b>{{ subclass.name }}</b> (extends: {{ subclass.inherit }})
+            <b>{{ subclass.name }}</b> (extends:
+            {{ (subclass.inheritNames ?? []).join(", ") }})
             <span v-if="getDescription(subclass)">
               <i> - {{ getDescription(subclass) }}</i>
             </span>

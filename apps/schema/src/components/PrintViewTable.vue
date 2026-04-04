@@ -67,7 +67,9 @@
             </tr>
             <tr v-for="subclass in table.subclasses">
               <td>{{ subclass.name }}</td>
-              <td>{{ subclass.inherit }}</td>
+              <td>
+                {{ (subclass.inheritNames ?? []).join(", ") }}
+              </td>
               <td>{{ getDescription(subclass) }}</td>
             </tr>
           </tbody>

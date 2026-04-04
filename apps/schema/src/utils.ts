@@ -21,7 +21,7 @@ export const schemaQuery = gql`
       tables {
         name
         tableType
-        inheritName
+        inheritNames
         labels {
           locale
           value
@@ -106,7 +106,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (table.inheritName === undefined) {
+    if (!table.inheritNames?.length) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -125,21 +125,27 @@ export function convertToSubclassTables(rawSchema: any) {
     table.columns.sort((a, b) => a.position - b.position);
   });
   //remove the subclass tables
-  schema.tables = schema.tables.filter((table) => table.inherit === undefined);
+  schema.tables = schema.tables.filter((table) => !table.inheritNames?.length);
   return schema;
 }
 
 export function getSubclassTables(schema, tableName) {
-  let subclasses = schema.tables.filter(
-    (table) => table.inheritName === tableName
+  const subclasses = schema.tables.filter((table) =>
+    table.inheritNames?.includes(tableName)
   );
-  return subclasses.concat(
+  const all = subclasses.concat(
     subclasses
       .map((table) => {
         return getSubclassTables(schema, table.name);
       })
       .flat(1)
   );
+  const seen = new Set<string>();
+  return all.filter((table) => {
+    if (seen.has(table.name)) return false;
+    seen.add(table.name);
+    return true;
+  });
 }
 
 export function convertToCamelCase(string: string): string {
@@ -208,7 +214,7 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.id = convertToPascalCase(table.name);
   table.label = getLocalizedLabel(table);
   table.description = getLocalizedDescription(table, "en");
-  table.inheritId = convertToPascalCase(table.inheritName);
+  table.inheritIds = (table.inheritNames ?? []).map(convertToPascalCase);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);
     column.label = getLocalizedLabel(column, "en") || column.name;

@@ -115,7 +115,10 @@
                       class="hoverIcon"
                     />
                   </td>
-                  <td>extends {{ subclass.inheritName }}</td>
+                  <td>
+                    extends
+                    {{ (subclass.inheritNames ?? []).join(", ") }}
+                  </td>
                   <td>
                     {{ subclass.description }}
                   </td>

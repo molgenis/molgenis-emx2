@@ -45,6 +45,8 @@ const filterTypeMap = {
   AUTO_ID: StringFilter,
   STRING: StringFilter,
   STRING_ARRAY: StringFilter,
+  PROFILE: StringFilter,
+  PROFILES: StringFilter,
   EMAIL: StringFilter,
   EMAIL_ARRAY: StringFilter,
   HYPERLINK: StringFilter,
