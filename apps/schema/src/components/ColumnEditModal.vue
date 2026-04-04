@@ -226,6 +226,35 @@
                   description="(Optional) customize label shown on forms"
                 />
               </div>
+              <div class="col-4">
+                <div class="profiles-checkboxes">
+                  <InputCheckbox
+                    id="column_profiles"
+                    v-model="column.profiles"
+                    :options="availableProfiles"
+                    :hideClearButton="true"
+                    label="profiles"
+                  />
+                </div>
+                <div class="d-flex align-items-end">
+                  <InputString
+                    id="column_new_profile"
+                    v-model="newProfile"
+                    label="Add new profile"
+                    class="flex-grow-1"
+                  />
+                  <button
+                    class="btn btn-outline-primary ml-2 mb-1"
+                    type="button"
+                    @click="addNewProfile"
+                    :disabled="
+                      !newProfile || availableProfiles.includes(newProfile)
+                    "
+                  >
+                    <i class="fas fa-fw fa-plus"></i>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="row" v-if="subclassNames !== undefined">
@@ -281,6 +310,10 @@
 </template>
 
 <style>
+.profiles-checkboxes .form-check-inline {
+  display: block;
+}
+
 .column-scroll {
   /** want to have columns not higher than modal allows so we get separate scroll bars for preview */
   max-height: calc(100vh - 240px);
@@ -297,6 +330,7 @@ import {
   Client, //@ts-ignore
   IconAction, //@ts-ignore
   InputBoolean, //@ts-ignore
+  InputCheckbox, //@ts-ignore
   InputRadio, //@ts-ignore
   InputSelect, //@ts-ignore
   InputString, //@ts-ignore
@@ -313,7 +347,7 @@ import {
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import { addTableIdsLabelsDescription } from "../utils";
+import { addTableIdsLabelsDescription, getAvailableProfiles } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -324,6 +358,7 @@ export default {
     InputString,
     ArrayInput,
     InputBoolean,
+    InputCheckbox,
     InputSelect,
     InputRadio,
     IconAction,
@@ -390,9 +425,13 @@ export default {
       rowErrors: {} as Record<string, string>,
       columnTypes,
       AUTO_ID,
+      newProfile: "" as string,
     };
   },
   computed: {
+    availableProfiles(): string[] {
+      return getAvailableProfiles(this.schema, this.column.profiles);
+    },
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
@@ -491,6 +530,16 @@ export default {
     },
   },
   methods: {
+    addNewProfile() {
+      if (
+        this.newProfile &&
+        !this.availableProfiles.includes(this.newProfile)
+      ) {
+        if (!this.column.profiles) this.column.profiles = [];
+        this.column.profiles.push(this.newProfile);
+        this.newProfile = "";
+      }
+    },
     showModal() {
       this.modalVisible = true;
     },

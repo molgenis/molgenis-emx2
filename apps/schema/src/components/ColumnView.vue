@@ -16,6 +16,11 @@
             ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
+        <span v-if="column.profiles" class="small text-muted">
+          [<template v-for="(profile, index) in column.profiles"
+            ><template v-if="index > 0">, </template>{{ profile }}</template
+          >]
+        </span>
       </span>
       <IconBar class="d-inline-block">
         <ColumnEditModal

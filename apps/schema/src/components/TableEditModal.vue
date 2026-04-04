@@ -46,6 +46,31 @@
         v-model="table.semantics"
         label="Semantics"
       />
+      <div class="profiles-checkboxes">
+        <InputCheckbox
+          id="table_profiles"
+          v-model="table.profiles"
+          :options="availableProfiles"
+          :hideClearButton="true"
+          label="Profiles"
+        />
+      </div>
+      <div class="d-flex align-items-end mb-3">
+        <InputString
+          id="table_new_profile"
+          v-model="newProfile"
+          label="Add new profile"
+          class="flex-grow-1"
+        />
+        <button
+          class="btn btn-outline-primary ml-2 mb-1"
+          type="button"
+          @click="addNewProfile"
+          :disabled="!newProfile || availableProfiles.includes(newProfile)"
+        >
+          <i class="fas fa-fw fa-plus"></i>
+        </button>
+      </div>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
@@ -62,6 +87,12 @@
   />
 </template>
 
+<style scoped>
+.profiles-checkboxes :deep(.form-check-inline) {
+  display: block;
+}
+</style>
+
 <script>
 import {
   constants,
@@ -76,6 +107,7 @@ import {
   deepClone,
   InputTextLocalized,
 } from "molgenis-components";
+import { getAvailableProfiles } from "../utils.ts";
 
 export default {
   components: {
@@ -125,9 +157,13 @@ export default {
       table: {},
       /** whether modal is visible */
       modalVisible: false,
+      newProfile: "",
     };
   },
   computed: {
+    availableProfiles() {
+      return getAvailableProfiles(this.schema, this.table.profiles);
+    },
     title() {
       return this.tableType === "ontology"
         ? `${this.operation} ontology definition`
@@ -185,6 +221,16 @@ export default {
     },
   },
   methods: {
+    addNewProfile() {
+      if (
+        this.newProfile &&
+        !this.availableProfiles.includes(this.newProfile)
+      ) {
+        if (!this.table.profiles) this.table.profiles = [];
+        this.table.profiles.push(this.newProfile);
+        this.newProfile = "";
+      }
+    },
     showModal() {
       if (!this.modelValue) {
         this.table = {};

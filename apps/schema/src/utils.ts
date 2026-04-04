@@ -18,6 +18,7 @@ export const schemaQuery = gql`
     }
     _schema {
       name
+      activeProfiles
       tables {
         name
         tableType
@@ -31,6 +32,7 @@ export const schemaQuery = gql`
           value
         }
         semantics
+        profiles
         columns {
           name
           labels {
@@ -55,6 +57,7 @@ export const schemaQuery = gql`
             value
           }
           semantics
+          profiles
           validation
           visible
           computed
@@ -207,6 +210,29 @@ export function getLocalizedDescription(
     return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
       ?.value;
   }
+}
+
+export function getAvailableProfiles(
+  schema: any,
+  extraProfiles?: string[]
+): string[] {
+  const profiles = new Set<string>();
+  if (extraProfiles) extraProfiles.forEach((p) => profiles.add(p));
+  const allTables = [...(schema.tables || []), ...(schema.ontologies || [])];
+  for (const table of allTables) {
+    if (table.profiles) table.profiles.forEach((p: string) => profiles.add(p));
+    if (table.subclasses) {
+      for (const sub of table.subclasses) {
+        if (sub.profiles) sub.profiles.forEach((p: string) => profiles.add(p));
+      }
+    }
+    if (table.columns) {
+      for (const col of table.columns) {
+        if (col.profiles) col.profiles.forEach((p: string) => profiles.add(p));
+      }
+    }
+  }
+  return [...profiles].sort();
 }
 
 export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {

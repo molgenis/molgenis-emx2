@@ -17,6 +17,11 @@
                 >{{ semantics }}</template
               >)
             </span>
+            <span v-if="table.profiles" class="small text-muted ml-1">
+              [<template v-for="(profile, index) in table.profiles"
+                ><template v-if="index > 0">, </template>{{ profile }}</template
+              >]
+            </span>
           </h4>
           <TableEditModal
             v-if="isManager"

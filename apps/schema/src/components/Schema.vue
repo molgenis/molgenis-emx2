@@ -42,6 +42,19 @@
           </MessageSuccess>
         </div>
       </div>
+      <div
+        class="profiles-checkboxes"
+        v-if="isManager && availableProfiles.length"
+      >
+        <InputCheckbox
+          id="schema_active_profiles"
+          v-model="activeProfiles"
+          :options="availableProfiles"
+          label="Active profiles"
+          :hideClearButton="true"
+          @update:modelValue="handleActiveProfilesChange"
+        />
+      </div>
     </div>
     <Spinner v-if="loading === true" />
     <div v-else class="row">
@@ -93,6 +106,10 @@ table {
 .sticky-top {
   z-index: 998;
 }
+
+.profiles-checkboxes :deep(.form-check-inline) {
+  display: block;
+}
 </style>
 
 <script>
@@ -102,6 +119,7 @@ import SchemaToc from "./SchemaToc.vue";
 import SchemaDiagram from "./SchemaDiagram.vue";
 import {
   ButtonAction,
+  InputCheckbox,
   MessageError,
   MessageSuccess,
   MessageWarning,
@@ -114,12 +132,14 @@ import {
   schemaQuery,
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
+  getAvailableProfiles,
 } from "../utils.ts";
 import gql from "graphql-tag";
 
 export default {
   components: {
     InputBoolean,
+    InputCheckbox,
     SchemaView,
     ButtonAction,
     MessageError,
@@ -148,9 +168,19 @@ export default {
       dirty: false,
       key: Date.now(),
       isManager: false,
+      activeProfiles: [],
     };
   },
+  computed: {
+    availableProfiles() {
+      return getAvailableProfiles(this.schema);
+    },
+  },
   methods: {
+    handleActiveProfilesChange() {
+      this.dirty = true;
+      this.success = null;
+    },
     handleInput() {
       this.dirty = true;
       this.success = null;
@@ -208,14 +238,18 @@ export default {
       request(
         "graphql",
         gql`
-          mutation change($tables: [MolgenisTableInput]) {
-            change(tables: $tables) {
+          mutation change(
+            $tables: [MolgenisTableInput]
+            $activeProfiles: [String]
+          ) {
+            change(tables: $tables, activeProfiles: $activeProfiles) {
               message
             }
           }
         `,
         {
           tables: tables,
+          activeProfiles: this.activeProfiles,
         }
       )
         .then(() => {
@@ -249,6 +283,7 @@ export default {
           this.key = Date.now();
           this.dirty = false;
           this.isManager = data._session.roles?.includes("Manager");
+          this.activeProfiles = data._schema.activeProfiles || [];
         })
         .catch((error) => {
           if (error.response?.errors[0]?.message) {
