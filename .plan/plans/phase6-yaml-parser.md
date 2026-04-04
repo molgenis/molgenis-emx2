@@ -63,8 +63,13 @@ GraphQL data schema is UNCHANGED — all fields always available. Filtering is m
 - Shared `ProfileUtils.matchesProfiles(String[] itemProfiles, String[] activeProfiles)` helper
 
 #### 4c: GraphQL metadata API — filtered metadata response
-- `_schema` query uses schema's active profiles to filter returned metadata
+- `_schema` query gets two new optional filter parameters:
+  - `applyProfileFilter: Boolean` — when true, filter using schema's active profiles
+  - `profiles: [String]` — explicit profile list to filter by (overrides schema's active profiles)
+  - No parameters / both null → return full unfiltered metadata (backward compatible)
 - Client receives only profile-matching columns/tables → no profile logic needed in client
+- Standard API calls use `applyProfileFilter: true` for normal UI rendering
+- Admin/schema editor can call without filter to see everything
 - GraphQL **data** schema stays unchanged (all fields always queryable)
 
 #### 4d: SqlQuery + SqlTable — CSV import/export awareness

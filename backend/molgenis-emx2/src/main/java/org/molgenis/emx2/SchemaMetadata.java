@@ -14,6 +14,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // optional
   protected String description;
   // optional
+  protected String[] profiles;
+  // optional
   protected Database database;
 
   public SchemaMetadata() {}
@@ -71,6 +73,15 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String[] getActiveProfiles() {
+    return profiles;
+  }
+
+  public SchemaMetadata setActiveProfiles(String... profiles) {
+    this.profiles = profiles;
+    return this;
   }
 
   public Set<String> getTableNames() {

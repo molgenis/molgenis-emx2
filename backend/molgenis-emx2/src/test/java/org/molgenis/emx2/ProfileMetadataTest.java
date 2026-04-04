@@ -129,6 +129,54 @@ public class ProfileMetadataTest {
   }
 
   @Test
+  void testGetColumnsForProfiles_noActiveProfiles_returnsAll() {
+    TableMetadata table =
+        table(
+            "MyTable",
+            column("id").setPkey(),
+            column("wgsOnly").setProfiles("wgs"),
+            column("always"));
+    List<Column> result = table.getColumnsForProfiles(null);
+    assertEquals(3, result.size());
+  }
+
+  @Test
+  void testGetColumnsForProfiles_withActiveProfile_filtersCorrectly() {
+    TableMetadata table =
+        table(
+            "MyTable",
+            column("id").setPkey(),
+            column("wgsOnly").setProfiles("wgs"),
+            column("rdmOnly").setProfiles("rdm"),
+            column("always"));
+    List<Column> result = table.getColumnsForProfiles(new String[] {"wgs"});
+    List<String> names = result.stream().map(Column::getName).toList();
+    assertTrue(names.contains("id"));
+    assertTrue(names.contains("wgsOnly"));
+    assertTrue(names.contains("always"));
+    assertFalse(names.contains("rdmOnly"));
+  }
+
+  @Test
+  void testGetNonInheritedColumnsForProfiles_filtersCorrectly() {
+    SchemaMetadata schema = new SchemaMetadata("test");
+    TableMetadata base = table("Base", column("id").setPkey(), column("baseCol"));
+    TableMetadata child =
+        table(
+            "Child", column("childWgs").setProfiles("wgs"), column("childRdm").setProfiles("rdm"));
+    child.setInheritNames("Base");
+    schema.create(base);
+    schema.create(child);
+
+    List<Column> result = child.getNonInheritedColumnsForProfiles(new String[] {"wgs"});
+    List<String> names = result.stream().map(Column::getName).toList();
+    assertTrue(names.contains("childWgs"));
+    assertFalse(names.contains("childRdm"));
+    assertFalse(names.contains("id"));
+    assertFalse(names.contains("baseCol"));
+  }
+
+  @Test
   void testGetAllInheritNamesIncludesAllParentChains() {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());

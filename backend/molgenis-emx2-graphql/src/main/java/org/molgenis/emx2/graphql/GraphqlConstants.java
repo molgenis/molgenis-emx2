@@ -99,6 +99,8 @@ public class GraphqlConstants {
   public static final String CAN_INSERT = "canInsert";
   public static final String CAN_UPDATE = "canUpdate";
   public static final String CAN_DELETE = "canDelete";
+  public static final String PROFILES = "profiles";
+  public static final String APPLY_PROFILE_FILTER = "applyProfileFilter";
 
   private GraphqlConstants() {
     // hide constructor

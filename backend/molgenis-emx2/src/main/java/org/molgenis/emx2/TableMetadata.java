@@ -185,6 +185,18 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this.getColumns().stream().filter(c -> !c.isHeading()).toList();
   }
 
+  public List<Column> getColumnsForProfiles(String[] activeProfiles) {
+    return getColumns().stream()
+        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getProfiles(), activeProfiles))
+        .toList();
+  }
+
+  public List<Column> getNonInheritedColumnsForProfiles(String[] activeProfiles) {
+    return getNonInheritedColumns().stream()
+        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getProfiles(), activeProfiles))
+        .toList();
+  }
+
   public List<String> getPrimaryKeys() {
     List<String> primaryKey = new ArrayList<>();
     for (Column c : getColumns()) {

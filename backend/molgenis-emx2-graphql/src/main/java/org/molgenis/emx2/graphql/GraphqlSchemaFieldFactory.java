@@ -335,6 +335,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.PROFILES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputTableType =
       new GraphQLObjectType.Builder()
@@ -391,6 +395,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.PROFILES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -569,6 +577,17 @@ public class GraphqlSchemaFieldFactory {
       String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
+      // apply profile filtering when requested
+      List<String> explicitProfiles =
+          dataFetchingEnvironment.getArgument(GraphqlConstants.PROFILES);
+      Boolean applyProfileFilter =
+          dataFetchingEnvironment.getArgument(GraphqlConstants.APPLY_PROFILE_FILTER);
+      List<String> activeProfiles =
+          resolveActiveProfiles(schema, explicitProfiles, applyProfileFilter);
+      if (activeProfiles != null) {
+        result.put(TABLES, filterTablesByProfiles(result, activeProfiles));
+      }
+
       // add members
       List<Map<String, String>> members = new ArrayList<>();
       for (Member m : schema.getMembers()) {
@@ -590,6 +609,62 @@ public class GraphqlSchemaFieldFactory {
       result.put(LABEL, schema.getMetadata().getName());
       return result;
     };
+  }
+
+  private static List<String> resolveActiveProfiles(
+      Schema schema, List<String> explicitProfiles, Boolean applyProfileFilter) {
+    if (explicitProfiles != null && !explicitProfiles.isEmpty()) {
+      return explicitProfiles;
+    }
+    if (Boolean.TRUE.equals(applyProfileFilter)) {
+      String[] schemaProfiles = schema.getMetadata().getActiveProfiles();
+      if (schemaProfiles != null && schemaProfiles.length > 0) {
+        return Arrays.asList(schemaProfiles);
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Map<String, Object>> filterTablesByProfiles(
+      Map<String, Object> result, List<String> activeProfiles) {
+    List<Map<String, Object>> tables = (List<Map<String, Object>>) result.get(TABLES);
+    if (tables == null) {
+      return List.of();
+    }
+    String[] activeProfilesArray = activeProfiles.toArray(new String[0]);
+    List<Map<String, Object>> filteredTables = new ArrayList<>();
+    for (Map<String, Object> table : tables) {
+      List<String> tableProfiles = (List<String>) table.get(GraphqlConstants.PROFILES);
+      String[] tableProfilesArray =
+          tableProfiles != null ? tableProfiles.toArray(new String[0]) : null;
+      if (ProfileUtils.matchesActiveProfiles(tableProfilesArray, activeProfilesArray)) {
+        Map<String, Object> filteredTable = new LinkedHashMap<>(table);
+        filteredTable.put(
+            GraphqlConstants.COLUMNS, filterColumnsByProfiles(table, activeProfilesArray));
+        filteredTables.add(filteredTable);
+      }
+    }
+    return filteredTables;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Map<String, Object>> filterColumnsByProfiles(
+      Map<String, Object> table, String[] activeProfilesArray) {
+    List<Map<String, Object>> columns =
+        (List<Map<String, Object>>) table.get(GraphqlConstants.COLUMNS);
+    if (columns == null) {
+      return List.of();
+    }
+    return columns.stream()
+        .filter(
+            col -> {
+              List<String> colProfiles = (List<String>) col.get(GraphqlConstants.PROFILES);
+              String[] colProfilesArray =
+                  colProfiles != null ? colProfiles.toArray(new String[0]) : null;
+              return ProfileUtils.matchesActiveProfiles(colProfilesArray, activeProfilesArray);
+            })
+        .toList();
   }
 
   private static DataFetcher<?> dropFetcher(Schema schema) {
@@ -797,6 +872,14 @@ public class GraphqlSchemaFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
         .type(builder)
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.APPLY_PROFILE_FILTER)
+                .type(Scalars.GraphQLBoolean))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.PROFILES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
