@@ -45,39 +45,18 @@ Backend complete:
 - `profiles` field on outputTableType and outputColumnMetadataType
 - 8 GraphQL integration tests + 7 ProfileUtils unit tests, all green
 
-### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — DONE
+### Step 5: Frontend — add `applyProfileFilter: true` to `_schema` queries — DONE (commit pending)
 
-Default all user-facing `_schema` queries to `applyProfileFilter: true`.
-Schema editor app keeps unfiltered access (admin view).
+Added `applyProfileFilter: true` to 5 user-facing `_schema` queries:
+- `apps/tailwind-components/app/gql/metadata.js`
+- `apps/molgenis-components/src/client/client.ts`
+- `apps/ui/app/pages/[schema]/index.vue`
+- `apps/tables/src/App.vue`
+- `apps/molgenis-viz/src/gql/schema.ts`
 
-#### 5a: Shared query definitions (high priority — affects most apps)
-- `apps/tailwind-components/app/gql/metadata.js` — central shared query
-  → add `applyProfileFilter: true` argument
-- `apps/molgenis-components/src/client/client.ts` — core client `metadataQuery`
-  → add `applyProfileFilter: true` argument
-
-#### 5b: Inline `_schema` queries in page components
-- `apps/ui/app/pages/[schema]/index.vue` — table listing
-- `apps/tables/src/App.vue` — table view
-- `apps/molgenis-viz/src/gql/schema.ts` — visualization
-  → add `applyProfileFilter: true` to each
-
-#### 5c: Schema editor — explicit NO filter (admin view)
-- `apps/schema/src/utils.ts` — `schemaQuery` — DO NOT add filter
-- Consider adding `applyProfileFilter: false` explicitly for clarity
-
-#### 5d: Queries that DON'T need filtering
-These fetch schema name/roles/settings only (no tables/columns), skip:
-- `apps/ui/app/util/adminUtils.ts` (roles only)
-- `apps/projectmanager/src/gql/schemaName.js` (name only)
-- `apps/cranio-provider/src/utils/getSchemaName.ts` (name only)
-- `apps/settings/src/components/Members.vue` (roles only)
-- `_schemas` queries (schema list, no table metadata)
-
-#### 5e: Verify + test
-- Run `pnpm lint` and `pnpm format` on each touched app
-- Manual verify: schema editor still shows all tables/columns
-- Manual verify: data apps hide non-active-profile tables/columns
+Schema editor (`apps/schema/src/utils.ts`) left unfiltered (admin view).
+Added `profiles` to `MolgenisColumnInput` and `MolgenisTableInput` GraphQL input types.
+E2e test: `apps/ui/tests/e2e/profile-filtering.spec.ts` (5 tests: table listing, API table/column filtering, form view).
 
 ### Step 5f: GraphQL mutation for setting activeProfiles on schema — NEXT
 
