@@ -1,0 +1,52 @@
+table: Observations
+description: "Clinical observations with additive extensions"
+
+extensions:
+  - name: Dermatology
+    description: "Skin examination findings"
+    profiles: [cranio]
+  - name: Neurology
+    description: "Neurological assessment"
+    profiles: [neuro]
+  - name: Questionnaire
+    description: "Validated instruments and scores"
+
+sections:
+  - name: Common fields
+    columns:
+      - name: observation id
+        type: string
+        key: 1
+      - name: date
+        type: date
+      - name: individual
+        type: ref
+        refTable: Individuals
+      - name: observation types
+        type: extension_array
+        description: "Select one or more clinical domains"
+
+  - name: Dermatology
+    extension: Dermatology
+    columns:
+      - name: BSA percentage
+        type: decimal
+        description: "Body surface area affected (%)"
+      - name: lesion type
+        type: string
+
+  - name: Neurology
+    extension: Neurology
+    columns:
+      - name: motor score
+        type: int
+      - name: cognitive score
+        type: int
+
+  - name: Questionnaire
+    extension: Questionnaire
+    columns:
+      - name: instrument name
+        type: string
+      - name: total score
+        type: decimal

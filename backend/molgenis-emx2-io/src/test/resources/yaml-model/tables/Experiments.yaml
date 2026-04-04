@@ -1,0 +1,68 @@
+table: Experiments
+description: "Wet-lab and dry-lab experiments"
+
+extensions:
+  - name: WGS
+    description: "Whole genome sequencing"
+    inherits: [sampling, sequencing]
+    profiles: [wgs]
+  - name: RNA_seq
+    description: "Transcriptome sequencing"
+    inherits: [sampling, sequencing]
+    profiles: [rna]
+  - name: Imaging
+    description: "Medical imaging"
+    profiles: [imaging]
+  - name: sampling
+    internal: true
+  - name: sequencing
+    internal: true
+
+sections:
+  - name: Common fields
+    columns:
+      - name: experiment id
+        type: string
+        key: 1
+      - name: date
+        type: date
+      - name: experiment type
+        type: extension
+        required: true
+        profiles: [-core]
+        defaultValue: WGS
+      - name: sample
+        type: ref
+        refTable: Samples
+
+  - name: Sample collection
+    extension: sampling
+    columns:
+      - name: sample type
+        type: ontology
+        refTable: Sample types
+        semantics: http://purl.obolibrary.org/obo/OBI_0000747
+      - name: tissue type
+        type: ontology
+        refTable: Tissue types
+
+  - name: Sequencing
+    extension: sequencing
+    columns:
+      - name: library strategy
+        type: ontology
+        refTable: Library strategies
+      - name: read length
+        type: int
+      - name: platform
+        type: ontology
+        refTable: Platforms
+
+  - name: Imaging details
+    extension: Imaging
+    columns:
+      - name: modality
+        type: ontology
+        refTable: Imaging modalities
+      - name: body part examined
+        type: string
