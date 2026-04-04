@@ -33,6 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .breadcrumbs {
   width: 100%;
   padding: 1em 0;

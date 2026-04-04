@@ -493,6 +493,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .d3-scatter-plot {
   position: relative;
 

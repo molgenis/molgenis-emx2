@@ -91,6 +91,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .data-highlights {
   .data-highlight {
     background-color: $blue-900;

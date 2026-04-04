@@ -130,6 +130,10 @@ import CustomPageHeader from "../components/CustomPageHeader.vue";
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 .quicklink-cards {
   display: flex;
   justify-content: center;

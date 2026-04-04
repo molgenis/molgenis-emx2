@@ -95,6 +95,9 @@ import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+
 .quick-links {
   background-color: $gray-100;
 

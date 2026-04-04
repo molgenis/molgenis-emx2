@@ -100,6 +100,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 #legendContainer {
   padding: 1em;
   background-color: $gray-700;

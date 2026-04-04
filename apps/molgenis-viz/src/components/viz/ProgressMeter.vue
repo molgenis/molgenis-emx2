@@ -145,6 +145,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .d3-progress-meter {
   .chart-title {
     display: flex;

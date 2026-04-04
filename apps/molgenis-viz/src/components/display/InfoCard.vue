@@ -26,6 +26,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .info-card {
   box-sizing: border-box;
   padding: 1.25em;

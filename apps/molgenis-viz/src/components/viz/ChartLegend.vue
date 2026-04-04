@@ -140,6 +140,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .chart-legend {
   list-style: none;
   padding: 0;

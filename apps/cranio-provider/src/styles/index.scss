@@ -1,3 +1,6 @@
+@use "molgenis-viz/styles" as *;
+@use "./variables.scss" as *;
+
 .app-page,
 .page-footer {
   font-family: Helvetica, sans-serif;

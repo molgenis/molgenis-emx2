@@ -22,21 +22,6 @@ const conf = {
       '@': path.resolve(__dirname, "src"),
     },
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `
-          @import "@/styles/heightwidth.scss";
-          @import "@/styles/mixins.scss";
-          @import "@/styles/padding.scss";
-          @import "@/styles/palettes.scss";
-          @import "@/styles/resets.scss";
-          @import "@/styles/textPosition.scss";
-          @import "@/styles/variables.scss";
-        `,
-      },
-    },
-  },
 };
 
 export default defineConfig(({ command, mode }) => {
@@ -78,6 +63,7 @@ export default defineConfig(({ command, mode }) => {
         rollupOptions: {
           output: {
             assetFileNames: (assetInfo) => {
+              if (!assetInfo.name) return "assets/[name]-[hash][extname]";
               const extension = assetInfo.name.split(".").pop();
               if (/png|jpg|svg/.test(extension)) {
                 return `img/[name]-[hash][extname]`;

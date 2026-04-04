@@ -30,6 +30,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .button-search {
   display: flex;
   width: 100%;

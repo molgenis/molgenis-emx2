@@ -333,6 +333,8 @@ watch([chartType, tableName, xVar, yVar, groupVar], (params: Array<String>) => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .chart-builder {
   background-color: $gray-000;
   box-sizing: content-box;

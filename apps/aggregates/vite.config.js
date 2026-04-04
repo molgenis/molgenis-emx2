@@ -17,20 +17,8 @@ export default defineConfig(({command}) => {
             viz: path.resolve(dir, "node_modules/molgenis-viz/src"),
             vizdist: path.resolve(dir, "node_modules/molgenis-viz/dist"),
             molgenis: path.resolve(dir, "node_modules/molgenis-components/dist"),
+            '@': path.resolve(__dirname, "src"),
         },
-    },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `
-            @import "viz/styles/palettes.scss";
-            @import "viz/styles/variables.scss";
-            @import "viz/styles/mixins.scss";
-            @import "molgenis/molgenis-components.css";
-            @import "vizdist/molgenis-viz.css";
-        `,
-        },
-      },
     },
     plugins: [vue()],
     base: command === "serve" ? "/" : "apps/aggregates/",

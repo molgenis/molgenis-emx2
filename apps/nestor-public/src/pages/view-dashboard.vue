@@ -291,6 +291,10 @@ loadData();
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables" as *;
+
 .d3-viz {
   &.d3-pie,
   &.d3-geo-mercator {

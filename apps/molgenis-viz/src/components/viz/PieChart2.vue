@@ -429,6 +429,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
 .d3-pie {
   display: grid;
   gap: 0.1em;

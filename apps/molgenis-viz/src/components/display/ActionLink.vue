@@ -33,6 +33,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .action-link {
   display: block;
   width: 100%;

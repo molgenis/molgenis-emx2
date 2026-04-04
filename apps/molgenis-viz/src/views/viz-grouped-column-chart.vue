@@ -124,6 +124,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .output {
   display: block;
   width: 100%;

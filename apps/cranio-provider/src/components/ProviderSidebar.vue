@@ -91,6 +91,10 @@ import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
 </script>
 
 <style lang="scss">
+@use "molgenis-viz/styles" as *;
+@use "@/styles" as *;
+@use "@/styles/variables.scss" as *;
+
 .sidebar {
   background-color: $gray-000;
   box-sizing: content-box;

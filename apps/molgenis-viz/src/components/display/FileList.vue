@@ -139,6 +139,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .file-list-error {
   .heroicons {
     @include setIconSize(24px);

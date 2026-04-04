@@ -366,6 +366,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "@/styles" as *;
+
 .d3-pie-chart {
   h3.chart-title {
     margin: 0;
