@@ -42,9 +42,9 @@ Subsets determine which tables and columns are **physically created in PostgreSQ
 - Table with `subsets: [x]`: entire table created only when `x` is active.
 
 **Activating** a subset is additive and idempotent (`ADD COLUMN IF NOT EXISTS`).
-**Deactivating** a subset drops tables/columns exclusive to that subset. Requires `confirm: true` if any of those columns contain data. Never silent.
+**Deactivating** a subset is DDL-free. Columns stay in the database. The middleware stops exposing them in the active model. EMX2 constraints are middleware-enforced (except FKs); FK targets self-resolve when the target table is not in the active model. No `confirm:` flag, no data-check, no column drop.
 
-**Ontology tables: conditional drop on deactivate.** On deactivate, walk all FK references to the ontology table across all schemas (including cross-schema references on the same instance). Drop only if zero references remain. Skip silently if any FK still references it — no error. On activate: add-if-missing (unchanged).
+**Ontology tables: not dropped on deactivate.** Columns are never dropped on deactivate, so ontology FK targets remain intact. On activate: add-if-missing (unchanged).
 
 ### 4. Sections (UI Grouping)
 
@@ -59,11 +59,18 @@ User-facing named presets of subset activations. Shown in the admin picker. Carr
 ## API Contract
 
 - The API shape depends on the active subset set. Columns and tables not in the active set are absent from PostgreSQL and therefore absent from all API responses.
-- `activateSubset(name)` — additive, safe, no confirmation required.
-- `deactivateSubset(name, confirm: Boolean)` — destructive. Fails if data exists in columns to be dropped unless `confirm: true`.
-- The legacy `activeProfiles`/`applyProfileFilter` API is superseded by the split mutations above. It remains during transition and will be removed.
+- `activateSubset(name: String!): MolgenisResult` — additive, safe, no confirmation required. Writes DDL. Unknown name returns an error.
+- `deactivateSubset(name: String!): MolgenisResult` — DDL-free. Middleware stops exposing the subset's columns/tables in the active model. No confirmation needed. Columns remain in the database. Idempotent if already inactive.
+- `_schema { activeSubsets: [String], availableSubsets: [SubsetInfo], availableTemplates: [SubsetInfo], bundleName: String, bundleDescription: String }` — introspection. Non-bundle schemas return empty lists / null without error.
+- `SubsetInfo { name: String, description: String, includes: [String], active: Boolean }` — each registry entry with current activation state.
+- Bundle-lock feature flag: setting `bundleLock.enabled=true` on a bundle-backed schema causes `migrate()` to throw a `MolgenisException`. Default off. `activateSubset`/`deactivateSubset` are unaffected by the flag.
 
 ---
+
+## Legacy Field Policy
+
+- YAML bundles and templates do NOT accept `profiles:` at any level. Use `subsets:` (column/table scope) or `activeSubsets:` (template root). A `profiles:` key in a YAML template throws a `MolgenisException` naming `activeSubsets` as the replacement.
+- CSV schema imports accept `profiles` column as a one-way migration input mapped to `subsets` internally. CSV export emits `subsets`, never `profiles`.
 
 ## Validation Rules (parser must enforce)
 
@@ -73,7 +80,7 @@ User-facing named presets of subset activations. Shown in the admin picker. Carr
 | Names must be unique across `subsets:` and `templates:` sections | Hard error |
 | `includes:` must be acyclic | Hard error, naming the cycle |
 | `[a-z][a-z0-9_]*` for subset/template names | Hard error |
-| Reference completeness: if column A (subset X) has `refTable: B` (subset Y only), Y must be active | Hard error at load time, naming the missing subset |
+| Reference completeness (Rule 5 — Confirmed): a ref from column A (subset X) to table B (subset Y only) is valid if there exists at least one template or subset in the registry whose transitive closure covers both X and Y (co-reachability). Strict per-subset reachability is rejected — real bundles like `shared/` require cross-subset refs that only co-activate via templates. | Hard error at load time if no such co-activating entry exists |
 | `includes:` completeness: if Z is active and Z `includes: [Y]`, Y must be resolvable | Hard error at load time |
 | Column names must be unique table-wide (walk full nested `columns:` tree) | Hard error, naming the duplicate |
 | The key `columns` cannot be used as a column, section, or heading name | Hard error |
@@ -129,8 +136,8 @@ See [`yaml_format.md`](../../docs/molgenis/yaml_format.md) for the full key refe
 
 ## Subtype Lifecycle
 
-- A subtype is created when its subset is activated (or on first deploy if no subset tag).
-- A subtype is dropped when deactivated, subject to the same confirmation rules as columns.
+Subtypes follow the same activation/deactivation model as columns. On activate, the subtype tables are created if missing (`ADD ... IF NOT EXISTS` or `CREATE TABLE IF NOT EXISTS`). On deactivate, subtype tables remain in the database but are hidden from the active schema model by the middleware filter. No data is dropped.
+
 - Diamond inheritance (multiple `inherits:`) resolved via upsert.
 
 ---
@@ -138,7 +145,7 @@ See [`yaml_format.md`](../../docs/molgenis/yaml_format.md) for the full key refe
 ## Schema Editor Rule
 
 On a schema backed by a `molgenis.yaml` bundle:
-- The schema editor is **read-only for structure**.
+- Structural edits can be blocked by enabling `bundleLock.enabled=true` (off by default — admins are allowed to break the bundle). When enabled, `migrate()` throws `MolgenisException`; `activateSubset`/`deactivateSubset` remain unaffected.
 - Subset activate/deactivate goes through `activateSubset`/`deactivateSubset` mutations only.
 
 On a schema created ad-hoc via the editor (no bundle backing):
@@ -184,9 +191,29 @@ Note: unlike FHIR and openEHR, our subsets drive physical DDL — the API shape 
 | `subtype:` (YAML key, section/column scoping) | (parser) | YAML done; Java parser rename pending |
 | `subtype` / `subtype_array` (columnType) | `ColumnType.EXTENSION` / `ColumnType.EXTENSION_ARRAY` | YAML done; Java rename pending (`SUBTYPE` / `SUBTYPE_ARRAY`) |
 | Internal subtype | `TableType.INTERNAL` | Implemented |
-| Subset-driven DDL | (new) | Pending — Phase 9b |
-| `activateSubset` mutation | (new) | Pending |
-| `deactivateSubset` mutation | (new) | Pending |
-| Load-time completeness validation | (new) | Pending |
+| Subset-driven DDL (activate only) | `SubsetActivator.projectSchemaMetadataToActiveSubsets` + `schema.migrate(projected)` | Done — Slice 4, rewired in Phase 9 cleanup. `SubsetActivator` now exposes a pure projection function; `SqlSchema.activateSubset` calls `migrate` with the projected schema. Deactivate is DDL-free. `BundleContext`/`SubsetEntry` in core. `attachBundle(BundleContext)` on `SqlSchema`. |
+| `activateSubset` / `deactivateSubset` / `getActiveSubsets` Java API | `Schema` interface + `SqlSchema` | Done — Slice 4. |
+| `Schema.getBundleContext()` default method | `Schema` interface | Done — Slice 5. Default returns `null`; `SqlSchema` overrides to return attached `BundleContext`. |
+| `Schema.isBundleLocked()` | `SqlSchema` | Done — Slice 6. Returns `false` by default; reads `bundleLock.enabled` setting when bundle-backed. |
+| `BundleContext.getBundleName()` / `getBundleDescription()` | `BundleContext` (core) | Done — Slice 5. New constructor overload; `Emx2Yaml.toBundleContext()` passes name+description. |
+| `activateSubset(name: String!): MessageResponse` GraphQL mutation | `GraphqlSchemaFieldFactory` | Done — Slice 5. Validates known name; calls `schema.activateSubset(name)`. Unknown name → clear error. |
+| `deactivateSubset(name: String!): MessageResponse` GraphQL mutation | `GraphqlSchemaFieldFactory` | Done — Slice 5. Middleware-only; no DDL. Idempotent if already inactive. |
+| `_schema { activeSubsets, availableSubsets, availableTemplates, bundleName, bundleDescription }` | `GraphqlSchemaFieldFactory` | Done — Slice 5. `SubsetInfo` GraphQL type: `name`, `description`, `includes`, `active`. Non-bundle schemas return empty lists / null. |
+| Custom migrations hook | `MigrationRunner` | Exists but not wired (Phase 9 cleanup). Awaiting Slice 6d design. TODO comment in source. `migrations/<subset_name>/*.sql`; `_migrations` tracking table; idempotent logic in place. |
+| Load-time completeness validation | `BundleValidator.java` | Done — Phase 9b Slice 3 |
+| `imports:` preprocessor | `ImportExpander.java` | Done — Slice 3b |
+| Profile name auto-normalize | `ProfileNameNormalizer.java` | Done — Slice 3b |
 | `namespaces:` at bundle root | (new) | Pending — merge with built-in prefix map for CURIE expansion |
-| Ontology FK reachability on deactivate | (new) | Pending — walk cross-schema FKs before dropping ontology tables |
+| Bundle source path | `SchemaMetadata.bundleSourcePath` field | Done — Slice 4. Set via `setBundleSourcePath(String)`. No longer used by `activateSubset` (migrations unwired). |
+| Typed beans refactor | Slice 6c — parser beans | Pending. See plan for details. |
+| Bundle versioning + migration integration | Slice 6d — `Migrations.initOrMigrate` | Pending. `MigrationRunner` stays in place; full design TBD. |
+
+---
+
+## Deferred
+
+### Slice 6c — Typed beans (before Slice 7)
+Parser currently uses `Map<String,Object>`. Replace with typed Java record classes: `Bundle`, `TableDef`, `SubtypeDef`, `ColumnDef`, `SectionDef`, `HeadingDef`, `SubsetDef`. Enables compile-time safety and provides a typed contract for frontend integration.
+
+### Slice 6d — Bundle versioning + migration integration
+`MigrationRunner` exists with logic for running per-subset SQL scripts, but is not wired into the activation path. Integration with `Migrations.initOrMigrate` and `SOFTWARE_DATABASE_VERSION` is a design-open item. Key questions: ordering of bundle vs platform migrations, rollback story, per-schema version tracking.

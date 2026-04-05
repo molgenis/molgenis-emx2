@@ -36,8 +36,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private TableType tableType = TableType.DATA;
   // table semantics, typically an ontology URI
   private String[] semantics = null;
-  // profiles to which this table belongs
-  private String[] profiles;
+  private String[] subsets;
 
   public String[] getSemantics() {
     return semantics;
@@ -48,12 +47,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this;
   }
 
-  public String[] getProfiles() {
-    return profiles;
+  public String[] getSubsets() {
+    return subsets;
   }
 
-  public TableMetadata setProfiles(String... profiles) {
-    this.profiles = profiles;
+  public TableMetadata setSubsets(String... subsets) {
+    this.subsets = subsets;
     return this;
   }
 
@@ -108,7 +107,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.inheritNames = metadata.getInheritNames();
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
-      this.profiles = metadata.getProfiles();
+      this.subsets = metadata.getSubsets();
       this.tableType = metadata.getTableType();
     }
   }
@@ -185,15 +184,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this.getColumns().stream().filter(c -> !c.isHeading()).toList();
   }
 
-  public List<Column> getColumnsForProfiles(String[] activeProfiles) {
+  public List<Column> getColumnsForSubsets(String[] activeSubsets) {
     return getColumns().stream()
-        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getProfiles(), activeProfiles))
+        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getSubsets(), activeSubsets))
         .toList();
   }
 
-  public List<Column> getNonInheritedColumnsForProfiles(String[] activeProfiles) {
+  public List<Column> getNonInheritedColumnsForSubsets(String[] activeSubsets) {
     return getNonInheritedColumns().stream()
-        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getProfiles(), activeProfiles))
+        .filter(c -> ProfileUtils.matchesActiveProfiles(c.getSubsets(), activeSubsets))
         .toList();
   }
 

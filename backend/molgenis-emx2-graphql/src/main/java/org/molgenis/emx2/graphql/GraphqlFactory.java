@@ -93,6 +93,8 @@ public class GraphqlFactory {
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
+    mutationBuilder.field(schemaFields.activateSubsetMutation(schema));
+    mutationBuilder.field(schemaFields.deactivateSubsetMutation(schema));
 
     if ((schema.getRoleForActiveUser() != null
             && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))

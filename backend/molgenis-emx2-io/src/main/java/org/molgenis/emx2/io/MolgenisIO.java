@@ -9,8 +9,10 @@ import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -63,11 +65,11 @@ public class MolgenisIO {
     try {
       Path tempDir = Files.createTempDirectory("yaml_export_");
       try {
-        Emx2Yaml.toYamlDirectory(schema.getMetadata(), tempDir);
+        Emx2Yaml.toBundleDirectory(schema.getMetadata(), schema.getName(), null, tempDir);
         try (FileSystem zipfs = FileSystems.newFileSystem(zipFile, Map.of())) {
-          Path tablesDir = zipfs.getPath("/tables");
-          if (!Files.exists(tablesDir)) {
-            Files.createDirectories(tablesDir);
+          Path zipTablesDir = zipfs.getPath("/tables");
+          if (!Files.exists(zipTablesDir)) {
+            Files.createDirectories(zipTablesDir);
           }
           Path tempTablesDir = tempDir.resolve("tables");
           if (Files.exists(tempTablesDir)) {
@@ -75,24 +77,21 @@ public class MolgenisIO {
               for (Path yamlFile : stream) {
                 Files.copy(
                     yamlFile,
-                    tablesDir.resolve(yamlFile.getFileName().toString()),
+                    zipTablesDir.resolve(yamlFile.getFileName().toString()),
                     StandardCopyOption.REPLACE_EXISTING);
               }
             }
           }
-          Files.writeString(zipfs.getPath("/molgenis.yaml"), "# MOLGENIS EMX2 YAML format\n");
+          Path molgenisYaml = tempDir.resolve("molgenis.yaml");
+          if (Files.exists(molgenisYaml)) {
+            Files.copy(
+                molgenisYaml, zipfs.getPath("/molgenis.yaml"), StandardCopyOption.REPLACE_EXISTING);
+          }
         }
       } finally {
-        Path tempTablesDir = tempDir.resolve("tables");
-        if (Files.exists(tempTablesDir)) {
-          try (DirectoryStream<Path> stream = Files.newDirectoryStream(tempTablesDir)) {
-            for (Path file : stream) {
-              Files.deleteIfExists(file);
-            }
-          }
-          Files.deleteIfExists(tempTablesDir);
+        try (Stream<Path> files = Files.walk(tempDir)) {
+          files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(java.io.File::delete);
         }
-        Files.deleteIfExists(tempDir);
       }
     } catch (IOException e) {
       throw new MolgenisException("YAML ZIP export failed", e);

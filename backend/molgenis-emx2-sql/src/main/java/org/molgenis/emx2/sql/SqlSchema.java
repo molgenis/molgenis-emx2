@@ -12,6 +12,7 @@ import org.molgenis.emx2.*;
 public class SqlSchema implements Schema {
   private final SqlDatabase db;
   private final SqlSchemaMetadata metadata;
+  private volatile BundleContext bundleContext;
 
   public SqlSchema(SqlDatabase db, SqlSchemaMetadata metadata) {
     this.db = db;
@@ -197,6 +198,14 @@ public class SqlSchema implements Schema {
 
   @Override
   public void migrate(SchemaMetadata mergeSchema) {
+    if (isBundleLocked()) {
+      throw new MolgenisException(
+          "Schema '"
+              + getName()
+              + "' is bundle-backed (bundle: '"
+              + getBundleContext().getBundleName()
+              + "') and bundle lock is enabled. Structural edits must go through activateSubset/deactivateSubset mutations.");
+    }
     tx(database -> migrateTransaction(getName(), mergeSchema, database));
     this.getMetadata().reload();
     db.getListener().schemaChanged(getName());
@@ -239,8 +248,8 @@ public class SqlSchema implements Schema {
         if (mergeTable.getImportSchema() != null) {
           table.setImportSchema(mergeTable.getImportSchema());
         }
-        if (mergeTable.getProfiles() != null) {
-          table.setProfiles(mergeTable.getProfiles());
+        if (mergeTable.getSubsets() != null) {
+          table.setSubsets(mergeTable.getSubsets());
         }
         table.setInheritNames(mergeTable.getInheritNames());
         TableMetadata newTable = targetSchema.create(table);
@@ -292,8 +301,8 @@ public class SqlSchema implements Schema {
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
         }
-        if (mergeTable.getProfiles() != null) {
-          oldTable.setProfiles(mergeTable.getProfiles());
+        if (mergeTable.getSubsets() != null) {
+          oldTable.setSubsets(mergeTable.getSubsets());
         }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
@@ -488,5 +497,72 @@ public class SqlSchema implements Schema {
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
     return roleManager().getTablePermissionsForActiveUser(getName());
+  }
+
+  public void attachBundle(BundleContext context) {
+    this.bundleContext = context;
+  }
+
+  @Override
+  public BundleContext getBundleContext() {
+    return bundleContext;
+  }
+
+  @Override
+  public boolean isBundleLocked() {
+    if (!isBundleBacked()) return false;
+    String flag = getMetadata().getSetting(Constants.BUNDLE_LOCK_FEATURE_FLAG);
+    return "true".equalsIgnoreCase(flag);
+  }
+
+  @Override
+  public void activateSubset(String subsetName) {
+    if (bundleContext == null) {
+      throw new MolgenisException(
+          "Cannot activate subset '"
+              + subsetName
+              + "': no bundle is attached to schema '"
+              + getName()
+              + "'. Call attachBundle first.");
+    }
+    tx(
+        database -> {
+          SqlSchemaMetadata targetSchema =
+              (SqlSchemaMetadata) database.getSchema(getName()).getMetadata();
+
+          Set<String> currentActive = getActiveSubsets();
+          Set<String> subsetClosure =
+              SubsetActivator.resolveTransitiveClosure(subsetName, bundleContext);
+
+          Set<String> newActive = new HashSet<>(currentActive);
+          newActive.addAll(subsetClosure);
+
+          SchemaMetadata projected =
+              SubsetActivator.projectSchemaMetadataToActiveSubsets(
+                  bundleContext.getBundleSchema(), newActive);
+          database.getSchema(getName()).migrate(projected);
+
+          targetSchema.saveActiveSubsets(newActive.toArray(new String[0]));
+        });
+    this.getMetadata().reload();
+    db.getListener().schemaChanged(getName());
+  }
+
+  @Override
+  public void deactivateSubset(String subsetName) {
+    Set<String> current = getActiveSubsets();
+    if (!current.contains(subsetName)) return;
+
+    Set<String> updated = new HashSet<>(current);
+    updated.remove(subsetName);
+    getMetadata().saveActiveSubsets(updated.toArray(new String[0]));
+    db.getListener().schemaChanged(getName());
+  }
+
+  @Override
+  public Set<String> getActiveSubsets() {
+    String[] subsets = getMetadata().getActiveSubsets();
+    if (subsets == null) return new HashSet<>();
+    return new HashSet<>(Arrays.asList(subsets));
   }
 }

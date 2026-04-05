@@ -3,8 +3,21 @@ package org.molgenis.emx2;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface Schema {
+
+  default BundleContext getBundleContext() {
+    return null;
+  }
+
+  default boolean isBundleBacked() {
+    return getBundleContext() != null;
+  }
+
+  default boolean isBundleLocked() {
+    return false;
+  }
 
   Database getDatabase();
 
@@ -41,6 +54,12 @@ public interface Schema {
   void migrate(SchemaMetadata from);
 
   void tx(Transaction transaction);
+
+  void activateSubset(String subsetName);
+
+  void deactivateSubset(String subsetName);
+
+  Set<String> getActiveSubsets();
 
   void discard(SchemaMetadata schema);
 

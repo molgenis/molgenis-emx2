@@ -1,68 +1,62 @@
 table: Experiments
 description: "Wet-lab and dry-lab experiments"
 
-extensions:
-  - name: WGS
+subtypes:
+  WGS:
     description: "Whole genome sequencing"
     inherits: [sampling, sequencing]
-    profiles: [wgs]
-  - name: RNA_seq
+    subsets: [wgs]
+  RNA_seq:
     description: "Transcriptome sequencing"
     inherits: [sampling, sequencing]
-    profiles: [rna]
-  - name: Imaging
+    subsets: [rna]
+  Imaging:
     description: "Medical imaging"
-    profiles: [imaging]
-  - name: sampling
+    subsets: [imaging]
+  sampling:
     internal: true
-  - name: sequencing
+  sequencing:
     internal: true
 
-sections:
-  - name: Common fields
+columns:
+  experiment id:
+    type: string
+    key: 1
+  date:
+    type: date
+  experiment type:
+    type: subtype
+    required: true
+    subsets: [-core]
+    defaultValue: WGS
+  sample:
+    type: ref
+    refTable: Samples
+  Sample collection:
+    subtype: sampling
     columns:
-      - name: experiment id
-        type: string
-        key: 1
-      - name: date
-        type: date
-      - name: experiment type
-        type: extension
-        required: true
-        profiles: [-core]
-        defaultValue: WGS
-      - name: sample
-        type: ref
-        refTable: Samples
-
-  - name: Sample collection
-    extension: sampling
-    columns:
-      - name: sample type
+      sample type:
         type: ontology
         refTable: Sample types
         semantics: http://purl.obolibrary.org/obo/OBI_0000747
-      - name: tissue type
+      tissue type:
         type: ontology
         refTable: Tissue types
-
-  - name: Sequencing
-    extension: sequencing
+  Sequencing:
+    subtype: sequencing
     columns:
-      - name: library strategy
+      library strategy:
         type: ontology
         refTable: Library strategies
-      - name: read length
+      read length:
         type: int
-      - name: platform
+      platform:
         type: ontology
         refTable: Platforms
-
-  - name: Imaging details
-    extension: Imaging
+  Imaging details:
+    subtype: Imaging
     columns:
-      - name: modality
+      modality:
         type: ontology
         refTable: Imaging modalities
-      - name: body part examined
-        type: string
+      body part examined: {}

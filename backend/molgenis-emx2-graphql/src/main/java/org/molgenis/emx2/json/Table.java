@@ -95,7 +95,7 @@ public class Table {
       this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();
-    this.profiles = tableMetadata.getProfiles();
+    this.profiles = tableMetadata.getSubsets();
   }
 
   public String getName() {

@@ -92,6 +92,27 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
+  static final GraphQLObjectType outputSubsetInfoType =
+      new GraphQLObjectType.Builder()
+          .name("SubsetInfo")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INCLUDES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ACTIVE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
   private static final GraphQLInputObjectType inputDropColumnType =
       new GraphQLInputObjectType.Builder()
           .name("DropColumnInput")
@@ -557,6 +578,44 @@ public class GraphqlSchemaFieldFactory {
     // hide constructor
   }
 
+  private static void validateSubsetName(Schema schema, String name) {
+    BundleContext bundleContext = schema.getBundleContext();
+    if (bundleContext == null) {
+      throw new MolgenisException(
+          "Cannot activate subset '"
+              + name
+              + "': no bundle is attached to schema '"
+              + schema.getName()
+              + "'");
+    }
+    boolean known =
+        bundleContext.getSubsetRegistry().containsKey(name)
+            || bundleContext.getTemplateRegistry().containsKey(name);
+    if (!known) {
+      throw new MolgenisException(
+          "Unknown subset or template '"
+              + name
+              + "' in bundle '"
+              + bundleContext.getBundleName()
+              + "'");
+    }
+  }
+
+  static List<Map<String, Object>> toSubsetInfoList(
+      Map<String, SubsetEntry> registry, Set<String> activeSubsets) {
+    return registry.entrySet().stream()
+        .map(
+            entry -> {
+              Map<String, Object> info = new LinkedHashMap<>();
+              info.put(GraphqlConstants.NAME, entry.getKey());
+              info.put(GraphqlConstants.DESCRIPTION, entry.getValue().getDescription());
+              info.put(GraphqlConstants.INCLUDES, entry.getValue().getIncludes());
+              info.put(GraphqlConstants.ACTIVE, activeSubsets.contains(entry.getKey()));
+              return info;
+            })
+        .toList();
+  }
+
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(GraphqlConstants.NAME, role.name());
@@ -585,17 +644,6 @@ public class GraphqlSchemaFieldFactory {
       String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
-      // apply profile filtering when requested
-      List<String> explicitProfiles =
-          dataFetchingEnvironment.getArgument(GraphqlConstants.PROFILES);
-      Boolean applyProfileFilter =
-          dataFetchingEnvironment.getArgument(GraphqlConstants.APPLY_PROFILE_FILTER);
-      List<String> activeProfiles =
-          resolveActiveProfiles(schema, explicitProfiles, applyProfileFilter);
-      if (activeProfiles != null) {
-        result.put(TABLES, filterTablesByProfiles(result, activeProfiles));
-      }
-
       // add members
       List<Map<String, String>> members = new ArrayList<>();
       for (Member m : schema.getMembers()) {
@@ -610,12 +658,25 @@ public class GraphqlSchemaFieldFactory {
       // add settings for the schema
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
-      // add active profiles for the schema
-      String[] activeProfilesArray = schema.getMetadata().getActiveProfiles();
-      if (activeProfilesArray != null) {
-        result.put(GraphqlConstants.ACTIVE_PROFILES, Arrays.asList(activeProfilesArray));
+      // add bundle-related fields
+      Set<String> activeSubsets = schema.getActiveSubsets();
+      result.put(GraphqlConstants.ACTIVE_SUBSETS, new ArrayList<>(activeSubsets));
+
+      BundleContext bundleContext = schema.getBundleContext();
+      if (bundleContext != null) {
+        result.put(
+            GraphqlConstants.AVAILABLE_SUBSETS,
+            toSubsetInfoList(bundleContext.getSubsetRegistry(), activeSubsets));
+        result.put(
+            GraphqlConstants.AVAILABLE_TEMPLATES,
+            toSubsetInfoList(bundleContext.getTemplateRegistry(), activeSubsets));
+        result.put(GraphqlConstants.BUNDLE_NAME, bundleContext.getBundleName());
+        result.put(GraphqlConstants.BUNDLE_DESCRIPTION, bundleContext.getBundleDescription());
       } else {
-        result.put(GraphqlConstants.ACTIVE_PROFILES, List.of());
+        result.put(GraphqlConstants.AVAILABLE_SUBSETS, List.of());
+        result.put(GraphqlConstants.AVAILABLE_TEMPLATES, List.of());
+        result.put(GraphqlConstants.BUNDLE_NAME, null);
+        result.put(GraphqlConstants.BUNDLE_DESCRIPTION, null);
       }
 
       // add name
@@ -625,62 +686,6 @@ public class GraphqlSchemaFieldFactory {
       result.put(LABEL, schema.getMetadata().getName());
       return result;
     };
-  }
-
-  private static List<String> resolveActiveProfiles(
-      Schema schema, List<String> explicitProfiles, Boolean applyProfileFilter) {
-    if (explicitProfiles != null && !explicitProfiles.isEmpty()) {
-      return explicitProfiles;
-    }
-    if (Boolean.TRUE.equals(applyProfileFilter)) {
-      String[] schemaProfiles = schema.getMetadata().getActiveProfiles();
-      if (schemaProfiles != null && schemaProfiles.length > 0) {
-        return Arrays.asList(schemaProfiles);
-      }
-    }
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static List<Map<String, Object>> filterTablesByProfiles(
-      Map<String, Object> result, List<String> activeProfiles) {
-    List<Map<String, Object>> tables = (List<Map<String, Object>>) result.get(TABLES);
-    if (tables == null) {
-      return List.of();
-    }
-    String[] activeProfilesArray = activeProfiles.toArray(new String[0]);
-    List<Map<String, Object>> filteredTables = new ArrayList<>();
-    for (Map<String, Object> table : tables) {
-      List<String> tableProfiles = (List<String>) table.get(GraphqlConstants.PROFILES);
-      String[] tableProfilesArray =
-          tableProfiles != null ? tableProfiles.toArray(new String[0]) : null;
-      if (ProfileUtils.matchesActiveProfiles(tableProfilesArray, activeProfilesArray)) {
-        Map<String, Object> filteredTable = new LinkedHashMap<>(table);
-        filteredTable.put(
-            GraphqlConstants.COLUMNS, filterColumnsByProfiles(table, activeProfilesArray));
-        filteredTables.add(filteredTable);
-      }
-    }
-    return filteredTables;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static List<Map<String, Object>> filterColumnsByProfiles(
-      Map<String, Object> table, String[] activeProfilesArray) {
-    List<Map<String, Object>> columns =
-        (List<Map<String, Object>>) table.get(GraphqlConstants.COLUMNS);
-    if (columns == null) {
-      return List.of();
-    }
-    return columns.stream()
-        .filter(
-            col -> {
-              List<String> colProfiles = (List<String>) col.get(GraphqlConstants.PROFILES);
-              String[] colProfilesArray =
-                  colProfiles != null ? colProfiles.toArray(new String[0]) : null;
-              return ProfileUtils.matchesActiveProfiles(colProfilesArray, activeProfilesArray);
-            })
-        .toList();
   }
 
   private static DataFetcher<?> dropFetcher(Schema schema) {
@@ -877,8 +882,24 @@ public class GraphqlSchemaFieldFactory {
                     .type(GraphQLList.list(outputRolesType)))
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
-                    .name(GraphqlConstants.ACTIVE_PROFILES)
-                    .type(GraphQLList.list(Scalars.GraphQLString)));
+                    .name(GraphqlConstants.ACTIVE_SUBSETS)
+                    .type(GraphQLList.list(Scalars.GraphQLString)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GraphqlConstants.AVAILABLE_SUBSETS)
+                    .type(GraphQLList.list(outputSubsetInfoType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GraphqlConstants.AVAILABLE_TEMPLATES)
+                    .type(GraphQLList.list(outputSubsetInfoType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GraphqlConstants.BUNDLE_NAME)
+                    .type(Scalars.GraphQLString))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GraphqlConstants.BUNDLE_DESCRIPTION)
+                    .type(Scalars.GraphQLString));
 
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(Privileges.MANAGER.toString())
@@ -892,14 +913,6 @@ public class GraphqlSchemaFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
         .type(builder)
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.APPLY_PROFILE_FILTER)
-                .type(Scalars.GraphQLBoolean))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.PROFILES)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
@@ -982,10 +995,6 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ROLES)
                 .type(GraphQLList.list(inputRoleType)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.ACTIVE_PROFILES)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
 
@@ -1002,7 +1011,6 @@ public class GraphqlSchemaFieldFactory {
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
-                  changeActiveProfiles(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
@@ -1080,16 +1088,6 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  private void changeActiveProfiles(
-      Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<String> activeProfiles =
-        dataFetchingEnvironment.getArgument(GraphqlConstants.ACTIVE_PROFILES);
-    if (activeProfiles != null) {
-      ((SqlSchemaMetadata) schema.getMetadata())
-          .saveActiveProfiles(activeProfiles.toArray(new String[0]));
-    }
-  }
-
   private Map<String, String> convertKeyValueListToMap(List<Map<String, String>> keyValueList) {
     Map<String, String> keyValueMap = new LinkedHashMap<>();
     if (keyValueList != null) {
@@ -1099,6 +1097,41 @@ public class GraphqlSchemaFieldFactory {
           });
     }
     return keyValueMap;
+  }
+
+  public GraphQLFieldDefinition activateSubsetMutation(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("activateSubset")
+        .type(typeForMutationResult)
+        .dataFetcher(
+            env -> {
+              String name = env.getArgument(GraphqlConstants.NAME);
+              validateSubsetName(schema, name);
+              schema.activateSubset(name);
+              return new GraphqlApiMutationResult(SUCCESS, "Activated subset '%s'", name);
+            })
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.NAME)
+                .type(new GraphQLNonNull(Scalars.GraphQLString)))
+        .build();
+  }
+
+  public GraphQLFieldDefinition deactivateSubsetMutation(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("deactivateSubset")
+        .type(typeForMutationResult)
+        .dataFetcher(
+            env -> {
+              String name = env.getArgument(GraphqlConstants.NAME);
+              schema.deactivateSubset(name);
+              return new GraphqlApiMutationResult(SUCCESS, "Deactivated subset '%s'", name);
+            })
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.NAME)
+                .type(new GraphQLNonNull(Scalars.GraphQLString)))
+        .build();
   }
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {

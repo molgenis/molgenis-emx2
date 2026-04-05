@@ -35,7 +35,7 @@ public class ImportYamlZipTask extends Task {
               Path tempDir = Files.createTempDirectory("yaml_import_");
               try {
                 extractYamlFiles(zipFile, tempDir);
-                SchemaMetadata yamlSchema = Emx2Yaml.fromYamlDirectory(tempDir);
+                SchemaMetadata yamlSchema = Emx2Yaml.fromBundle(tempDir).getSchema();
 
                 Task metadataTask = this.addSubTask("Loading YAML metadata");
                 metadataTask.start();
@@ -76,6 +76,10 @@ public class ImportYamlZipTask extends Task {
     Path tablesDir = targetDir.resolve("tables");
     Files.createDirectories(tablesDir);
     try (FileSystem zipfs = FileSystems.newFileSystem(zipFile, (ClassLoader) null)) {
+      Path zipMolgenisYaml = zipfs.getPath("/molgenis.yaml");
+      if (Files.exists(zipMolgenisYaml)) {
+        Files.copy(zipMolgenisYaml, targetDir.resolve("molgenis.yaml"));
+      }
       Path zipTablesDir = zipfs.getPath("/tables");
       if (Files.exists(zipTablesDir)) {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(zipTablesDir, "*.yaml")) {
@@ -98,6 +102,7 @@ public class ImportYamlZipTask extends Task {
         }
         Files.deleteIfExists(tablesDir);
       }
+      Files.deleteIfExists(dir.resolve("molgenis.yaml"));
       Files.deleteIfExists(dir);
     } catch (IOException e) {
       // best effort cleanup

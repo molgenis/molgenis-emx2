@@ -112,7 +112,7 @@ public class Column {
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
-    this.profiles = column.getProfiles();
+    this.profiles = column.getSubsets();
 
     // calculated field
     if (table.getInheritNames() != null) {
@@ -153,7 +153,7 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
-    c.setProfiles(profiles);
+    c.setSubsets(profiles);
     c.setFormLabel(formLabel);
 
     // ignore inherited

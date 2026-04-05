@@ -256,8 +256,8 @@ class SqlSchemaMetadataExecutor {
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
 
-      // drop schema
-      db.getJooq().dropSchema(name(schemaName)).execute();
+      // drop schema with cascade to remove any unmanaged objects (e.g. migration tables)
+      db.getJooq().execute("DROP SCHEMA IF EXISTS {0} CASCADE", name(schemaName));
 
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
         db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));

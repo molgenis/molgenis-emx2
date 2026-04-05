@@ -1,22 +1,16 @@
 table: Individuals
 description: "Study participants"
 
-sections:
-  - name: Identification
-    columns:
-      - name: individual id
-        type: string
-        key: 1
-      - name: display name
-        type: string
-
-  - name: Demographics
-    columns:
-      - name: gender
-        type: ontology
-        refTable: Genders
-      - name: year of birth
-        type: int
-      - name: country of birth
-        type: ontology
-        refTable: Countries
+columns:
+  individual id:
+    type: string
+    key: 1
+  display name: {}
+  gender:
+    type: ontology
+    refTable: Genders
+  year of birth:
+    type: int
+  country of birth:
+    type: ontology
+    refTable: Countries

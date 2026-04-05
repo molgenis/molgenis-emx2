@@ -129,27 +129,27 @@ public class ProfileMetadataTest {
   }
 
   @Test
-  void testGetColumnsForProfiles_noActiveProfiles_returnsAll() {
+  void testGetColumnsForSubsets_noActiveSubsets_returnsAll() {
     TableMetadata table =
         table(
             "MyTable",
             column("id").setPkey(),
-            column("wgsOnly").setProfiles("wgs"),
+            column("wgsOnly").setSubsets("wgs"),
             column("always"));
-    List<Column> result = table.getColumnsForProfiles(null);
+    List<Column> result = table.getColumnsForSubsets(null);
     assertEquals(3, result.size());
   }
 
   @Test
-  void testGetColumnsForProfiles_withActiveProfile_filtersCorrectly() {
+  void testGetColumnsForSubsets_withActiveSubset_filtersCorrectly() {
     TableMetadata table =
         table(
             "MyTable",
             column("id").setPkey(),
-            column("wgsOnly").setProfiles("wgs"),
-            column("rdmOnly").setProfiles("rdm"),
+            column("wgsOnly").setSubsets("wgs"),
+            column("rdmOnly").setSubsets("rdm"),
             column("always"));
-    List<Column> result = table.getColumnsForProfiles(new String[] {"wgs"});
+    List<Column> result = table.getColumnsForSubsets(new String[] {"wgs"});
     List<String> names = result.stream().map(Column::getName).toList();
     assertTrue(names.contains("id"));
     assertTrue(names.contains("wgsOnly"));
@@ -158,17 +158,16 @@ public class ProfileMetadataTest {
   }
 
   @Test
-  void testGetNonInheritedColumnsForProfiles_filtersCorrectly() {
+  void testGetNonInheritedColumnsForSubsets_filtersCorrectly() {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata base = table("Base", column("id").setPkey(), column("baseCol"));
     TableMetadata child =
-        table(
-            "Child", column("childWgs").setProfiles("wgs"), column("childRdm").setProfiles("rdm"));
+        table("Child", column("childWgs").setSubsets("wgs"), column("childRdm").setSubsets("rdm"));
     child.setInheritNames("Base");
     schema.create(base);
     schema.create(child);
 
-    List<Column> result = child.getNonInheritedColumnsForProfiles(new String[] {"wgs"});
+    List<Column> result = child.getNonInheritedColumnsForSubsets(new String[] {"wgs"});
     List<String> names = result.stream().map(Column::getName).toList();
     assertTrue(names.contains("childWgs"));
     assertFalse(names.contains("childRdm"));
