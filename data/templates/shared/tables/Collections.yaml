@@ -1,0 +1,11 @@
+table: Collections
+description: Collections of data, such as cohort studies, biobanks and registries
+subsets: [aggregate_core]
+sections:
+- columns:
+  - name: id
+    key: 1
+    required: true
+    description: "IDs taken from the catalogue table 'Collections'"
+  - name: display name
+    description: Collection name for display in aggregate dashboard

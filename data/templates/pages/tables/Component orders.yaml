@@ -1,0 +1,20 @@
+---
+table: "Component orders"
+description: "The order of components with blocks"
+sections:
+- columns:
+  - name: "id"
+    type: "auto_id"
+    key: 1
+  - name: "block"
+    type: "select"
+    refTable: "Blocks"
+    description: "A block page where a component is used"
+  - name: "component"
+    type: "select"
+    refTable: "Components"
+    description: "The component that you would like to order"
+  - name: "order"
+    type: "int"
+    description: "The order in which the component appears within the block where\
+      \ 0 is the first item"

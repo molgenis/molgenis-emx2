@@ -1,0 +1,7 @@
+---
+table: "Category"
+sections:
+- columns:
+  - name: "name"
+    key: 1
+    required: "true"

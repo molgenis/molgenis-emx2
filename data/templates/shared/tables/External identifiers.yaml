@@ -1,0 +1,27 @@
+table: External identifiers
+description: External identifier(s) for this resource
+subsets: [catalogue_core]
+sections:
+- columns:
+  - name: resource
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    subsets: [catalogue_core]
+    description: Resource that this external identifier belongs to
+  - name: identifier
+    type: text
+    key: 1
+    required: true
+    subsets: [catalogue_core]
+    description: External identifier
+  - name: external identifier type
+    type: ontology
+    refTable: External identifier types
+    subsets: [catalogue_core]
+    description: External identifier type
+  - name: external identifier type other
+    type: text
+    subsets: [catalogue_core]
+    description: "If 'other', enter external identifier type"

@@ -1,0 +1,5 @@
+name: Patient Registry Demo
+description: Patient registry demo with disease group extensions
+
+tables:
+  - import: tables/

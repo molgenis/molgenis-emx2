@@ -1,0 +1,36 @@
+table: Resource mappings
+description: Mapping from collected resources to standard/harmonised resources, optionally including ETL syntaxes
+subsets: [catalogue_core]
+sections:
+- columns:
+  - name: source
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    description: Data resource that is being mapped to a (common) data model
+  - name: source version
+    description: Version of the resource that is being mapped
+  - name: target
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    description: Model being mapped to
+  - name: target version
+    description: Version of the model being mapped to
+  - name: cdms other
+    description: If cdm is not under targets, which cdm was mapped to? (default = not applicable)
+  - name: mapping status
+    type: ontology
+    refTable: Mapping status
+    description: Mapping status
+  - name: ETL frequency
+    type: int
+    description: The frequency of the ETL process, in months
+  - name: ETL specification url
+    type: hyperlink
+    description: Link to ETL specification documentation
+  - name: ETL specification document
+    type: file
+    description: Documentation concerning ETL details

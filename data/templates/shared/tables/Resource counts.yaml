@@ -1,0 +1,50 @@
+table: Resource counts
+description: Quantitative information on the resource
+subsets: [catalogue_core]
+sections:
+- columns:
+  - name: resource
+    type: ref
+    key: 1
+    refTable: Resources
+    subsets: [rwe_staging, study_staging, integrate]
+    description: Resource id
+  - name: age group
+    type: ontology
+    key: 1
+    refTable: Age groups
+    subsets: [rwe_staging, study_staging, integrate]
+    description: Select the relevant age group for this quantitative information
+  - name: population size
+    type: int
+    subsets: [rwe_staging, study_staging, integrate]
+    description: Total number of unique individuals with records captured in the data source (most recent count). In the catalogue,
+      this will accommodate counts per year
+  - name: active size
+    type: int
+    subsets: [rwe_staging, study_staging]
+    description: Number of unique, active, or currently registered individuals with records captured in the data source (most
+      recent count). In the catalogue, this will accommodate counts per year
+  - name: no individuals with samples
+    type: int
+    subsets: [cohorts_staging, rwe_staging, networks_staging, study_staging]
+    description: Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count).
+      In the catalogue, this will accommodate counts per year
+  - name: mean observation years
+    type: int
+    subsets: [rwe_staging, study_staging]
+    description: Median years for which unique individuals with records captured in the data source are observable (most recent
+      count)
+  - name: mean years active
+    type: int
+    subsets: [rwe_staging, study_staging]
+    description: Median time for which unique individuals with records captured in the data source are observable (most recent
+      count)
+  - name: median age
+    type: int
+    subsets: [catalogue_core]
+    description: Median age of individuals within data source
+  - name: proportion female
+    type: int
+    subsets: [catalogue_core]
+    description: Proportion of females in the data source

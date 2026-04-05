@@ -147,6 +147,11 @@ public class Emx2Yaml {
   }
 
   public static String toYamlFile(SchemaMetadata schema, String rootTableName) throws IOException {
+    return toYamlFile(schema, rootTableName, true);
+  }
+
+  private static String toYamlFile(
+      SchemaMetadata schema, String rootTableName, boolean includeProfiles) throws IOException {
     TableMetadata rootTable = schema.getTableMetadata(rootTableName);
     if (rootTable == null) {
       throw new MolgenisException("Table not found: " + rootTableName);
@@ -159,7 +164,7 @@ public class Emx2Yaml {
     if (rootTable.getDescription() != null) {
       doc.put(FIELD_DESCRIPTION, rootTable.getDescription());
     }
-    if (rootTable.getProfiles() != null && rootTable.getProfiles().length > 0) {
+    if (includeProfiles && rootTable.getProfiles() != null && rootTable.getProfiles().length > 0) {
       doc.put(FIELD_PROFILES, Arrays.asList(rootTable.getProfiles()));
     }
     if (rootTable.getSemantics() != null && rootTable.getSemantics().length > 0) {
@@ -183,7 +188,7 @@ public class Emx2Yaml {
         if (TableType.INTERNAL.equals(ext.getTableType())) {
           extMap.put(FIELD_INTERNAL, true);
         }
-        if (ext.getProfiles() != null && ext.getProfiles().length > 0) {
+        if (includeProfiles && ext.getProfiles() != null && ext.getProfiles().length > 0) {
           extMap.put(FIELD_PROFILES, Arrays.asList(ext.getProfiles()));
         }
         if (ext.getSemantics() != null && ext.getSemantics().length > 0) {
@@ -199,15 +204,16 @@ public class Emx2Yaml {
     }
 
     List<Map<String, Object>> sections = new ArrayList<>();
-    List<Map<String, Object>> rootColumns = buildColumnMaps(rootTable.getNonInheritedColumns());
+    List<Map<String, Object>> rootColumns =
+        buildColumnMaps(rootTable.getNonInheritedColumns(), includeProfiles);
     if (!rootColumns.isEmpty()) {
       Map<String, Object> rootSection = new LinkedHashMap<>();
-      rootSection.put(FIELD_NAME, rootTableName);
       rootSection.put(FIELD_COLUMNS, rootColumns);
       sections.add(rootSection);
     }
     for (TableMetadata ext : extensions) {
-      List<Map<String, Object>> extColumns = buildColumnMaps(ext.getNonInheritedColumns());
+      List<Map<String, Object>> extColumns =
+          buildColumnMaps(ext.getNonInheritedColumns(), includeProfiles);
       if (!extColumns.isEmpty()) {
         Map<String, Object> extSection = new LinkedHashMap<>();
         extSection.put(FIELD_NAME, ext.getTableName());
@@ -217,6 +223,9 @@ public class Emx2Yaml {
       }
     }
     if (!sections.isEmpty()) {
+      if (includeProfiles) {
+        bubbleUpProfiles(doc, sections);
+      }
       doc.put(FIELD_SECTIONS, sections);
     }
 
@@ -256,12 +265,87 @@ public class Emx2Yaml {
   }
 
   public static void toYamlDirectory(SchemaMetadata schema, Path directory) throws IOException {
+    boolean includeProfiles = !hasSingleProfile(schema);
     Path tablesDir = directory.resolve(TABLES_DIR);
     Files.createDirectories(tablesDir);
     for (TableMetadata table : schema.getTables()) {
       if (isRootTable(table)) {
-        String yaml = toYamlFile(schema, table.getTableName());
+        String yaml = toYamlFile(schema, table.getTableName(), includeProfiles);
         Files.writeString(tablesDir.resolve(table.getTableName() + ".yaml"), yaml);
+      }
+    }
+  }
+
+  private static boolean hasSingleProfile(SchemaMetadata schema) {
+    Set<String> allProfiles = new HashSet<>();
+    for (TableMetadata table : schema.getTables()) {
+      if (table.getProfiles() != null) {
+        Collections.addAll(allProfiles, table.getProfiles());
+      }
+      for (Column col : table.getColumns()) {
+        if (col.getProfiles() != null) {
+          Collections.addAll(allProfiles, col.getProfiles());
+        }
+      }
+      if (allProfiles.size() > 1) {
+        return false;
+      }
+    }
+    return allProfiles.size() <= 1;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void bubbleUpProfiles(
+      Map<String, Object> doc, List<Map<String, Object>> sections) {
+    for (Map<String, Object> section : sections) {
+      bubbleUpProfilesInSection(section);
+    }
+
+    List<List<String>> sectionProfiles = new ArrayList<>();
+    for (Map<String, Object> section : sections) {
+      List<String> sp = (List<String>) section.get(FIELD_PROFILES);
+      sectionProfiles.add(sp != null ? sp : List.of());
+    }
+
+    if (!sectionProfiles.isEmpty()
+        && sectionProfiles.stream()
+            .allMatch(p -> !p.isEmpty() && p.equals(sectionProfiles.get(0)))) {
+      List<String> commonProfiles = sectionProfiles.get(0);
+      doc.put(FIELD_PROFILES, commonProfiles);
+      for (Map<String, Object> section : sections) {
+        section.remove(FIELD_PROFILES);
+      }
+      List<Map<String, Object>> extensions = (List<Map<String, Object>>) doc.get(FIELD_EXTENSIONS);
+      if (extensions != null) {
+        for (Map<String, Object> ext : extensions) {
+          List<String> extProf = (List<String>) ext.get(FIELD_PROFILES);
+          if (extProf != null && extProf.equals(commonProfiles)) {
+            ext.remove(FIELD_PROFILES);
+          }
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void bubbleUpProfilesInSection(Map<String, Object> section) {
+    List<Map<String, Object>> columns = (List<Map<String, Object>>) section.get(FIELD_COLUMNS);
+    if (columns == null || columns.isEmpty()) {
+      return;
+    }
+
+    List<List<String>> columnProfiles = new ArrayList<>();
+    for (Map<String, Object> col : columns) {
+      List<String> cp = (List<String>) col.get(FIELD_PROFILES);
+      columnProfiles.add(cp != null ? cp : List.of());
+    }
+
+    if (!columnProfiles.isEmpty()
+        && columnProfiles.stream().allMatch(p -> !p.isEmpty() && p.equals(columnProfiles.get(0)))) {
+      List<String> commonProfiles = columnProfiles.get(0);
+      section.put(FIELD_PROFILES, commonProfiles);
+      for (Map<String, Object> col : columns) {
+        col.remove(FIELD_PROFILES);
       }
     }
   }
@@ -304,8 +388,12 @@ public class Emx2Yaml {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   private static List<Map<String, Object>> buildColumnMaps(List<Column> columns) {
+    return buildColumnMaps(columns, true);
+  }
+
+  private static List<Map<String, Object>> buildColumnMaps(
+      List<Column> columns, boolean includeProfiles) {
     List<Map<String, Object>> result = new ArrayList<>();
     for (Column col : columns) {
       if (col.isSystemColumn()) {
@@ -340,7 +428,7 @@ public class Emx2Yaml {
       if (col.getSemantics() != null && col.getSemantics().length > 0) {
         colMap.put(FIELD_SEMANTICS, Arrays.asList(col.getSemantics()));
       }
-      if (col.getProfiles() != null && col.getProfiles().length > 0) {
+      if (includeProfiles && col.getProfiles() != null && col.getProfiles().length > 0) {
         colMap.put(FIELD_PROFILES, Arrays.asList(col.getProfiles()));
       }
       if (col.getValidation() != null) {

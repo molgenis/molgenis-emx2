@@ -1,0 +1,22 @@
+---
+table: "Order"
+sections:
+- columns:
+  - name: "orderId"
+    type: "auto_id"
+    key: 1
+    required: "true"
+    computed: "ORDER:${mg_autoid}"
+  - name: "pet"
+    type: "select"
+    refTable: "Pet"
+  - name: "quantity"
+    type: "long"
+    validation: "if(quantity < 1) 'quantity should be >= 1'"
+  - name: "price"
+    type: "decimal"
+    validation: "price >= 1"
+  - name: "complete"
+    type: "bool"
+  - name: "status"
+    defaultValue: "hallo"

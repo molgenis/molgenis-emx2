@@ -1,0 +1,3 @@
+table: Version
+description: 7.4.0
+subsets: [catalogue_core]

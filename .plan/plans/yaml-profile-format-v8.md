@@ -6,8 +6,10 @@
 
 EMX2 data models are defined in flat CSV files (`molgenis.csv`). This branch adds:
 1. **Multiple inheritance** — a table can extend multiple parents via `tableExtends`
-2. **PROFILE/PROFILES column types** — discriminator columns that drive which child tables get rows (replaces `mg_tableclass` for new-style inheritance)
-3. **Structured YAML format** — one file per table, sections, imports (future phase)
+2. **EXTENSION/EXTENSION_ARRAY column types** — discriminator columns that drive which child tables get rows (replaces `mg_tableclass` for new-style inheritance)
+3. **Structured YAML format** — one file per table, sections, imports
+4. **Profile system** — tags on tables/columns that control visibility per deployment
+5. **Schema editor profile UI** — display, edit, and activate profiles
 
 CSV with `tableExtends` remains fully supported.
 
@@ -23,24 +25,26 @@ Everything else is layered on top:
 |---|---|---|
 | Multiple inheritance | `inheritNames = ["sampling", "sequencing"]` | Core feature: FKs, column merging, recursive insert/update/delete |
 | `mg_tableclass` | Old-style discriminator column (auto-managed) | Used when root has NO profile column (backward compat) |
-| PROFILE column | New-style discriminator (user-visible, pick-one) | Same role as `mg_tableclass` but explicit. Extends STRING. |
-| PROFILES column | Multi-value discriminator (pick-many) | Like PROFILE but extends STRING_ARRAY — rows in multiple children |
+| EXTENSION column | New-style discriminator (user-visible, pick-one) | Same role as `mg_tableclass` but explicit. Extends STRING. |
+| EXTENSION_ARRAY column | Multi-value discriminator (pick-many) | Like EXTENSION but extends STRING_ARRAY — rows in multiple children |
 | `TableType.INTERNAL` | Table type for non-selectable child tables | **UX-only** — backend never branches on it. Means "don't show in profile selector dropdown". Was called BLOCK. |
 
 ### Terminology
 
-> **Note**: Phase 5.5 established new terminology. See `.plan/specs/new_naming.md` for the full naming conventions. The terms below use the original implementation names; the YAML parser (Phase 6) will bridge to the new names.
+> **Note**: Phase 5.5 established new terminology. See `.plan/specs/new_naming.md` for the full naming conventions.
 
 - **Parent table** = any table listed in `inheritNames`
 - **Child table** = any table whose `inheritNames` includes this table
 - **Root table** = the top of the inheritance tree (no parents)
 - **Internal table** = a child table marked `TableType.INTERNAL` (UX hint: not selectable by users). Previously called "block". Backend treats it identically to any other child table.
-- **Profile column** = a PROFILE or PROFILES column on the root table that drives which child tables get rows on save
+- **Extension column** = an EXTENSION or EXTENSION_ARRAY column on the root table that drives which child tables get rows on save
+- **Profile** = a tag on tables/columns controlling visibility per deployment (e.g. "wgs", "imaging")
+- **Active profiles** = schema-level setting determining which profile-tagged items are visible
 
 ### How it works
 
 ```
-Experiments (root, PK: id, columns: name/date, PROFILE: experiment type)
+Experiments (root, PK: id, columns: name/date, EXTENSION: experiment type)
   ├── sampling (INTERNAL, extends Experiments, columns: sample type/tissue type)
   ├── sequencing (INTERNAL, extends Experiments, columns: library strategy/read length)  
   ├── WGS (extends sampling + sequencing, columns: coverage)
@@ -48,14 +52,14 @@ Experiments (root, PK: id, columns: name/date, PROFILE: experiment type)
 ```
 
 - `sampling` and `sequencing` are **internal tables** — they group shared columns but users don't select them directly
-- `WGS` and `Imaging` are **selectable child tables** — they appear in the profile dropdown
+- `WGS` and `Imaging` are **selectable child tables** — they appear in the extension dropdown
 - When a user inserts with `experiment type = "WGS"`, `insertBatch` recursively creates rows in WGS → sampling → Experiments and WGS → sequencing → Experiments (with upsert for diamond)
 - Querying Experiments auto-joins all children via LEFT JOIN (wide sparse result)
 
 ### Inheritance style decision
 
 One check: `getRootTable().getProfileColumn() != null`
-- **Yes** → new-style: no `mg_tableclass`, profile column is the discriminator
+- **Yes** → new-style: no `mg_tableclass`, extension column is the discriminator
 - **No** → old-style: `mg_tableclass` added to root (backward compat, single parent only)
 
 ---
@@ -71,8 +75,9 @@ One check: `getRootTable().getProfileColumn() != null`
 | `SqlQuery.java` | `tableWithInheritanceJoin()`: ancestor INNER JOIN + child LEFT JOIN (PK-only). `whereConditionSearch()`: self + ancestors |
 | `MetadataUtils.java` | Persistence: `inheritNames` as varchar[] |
 | `Emx2.java` | CSV parser: `tableExtends` as comma-separated |
-| `GraphqlSchemaFieldFactory.java` | GraphQL: `inheritNames` as String[] list |
-| `ColumnTypeRdfMapper.java` | RDF: PROFILE/PROFILES mapped to STRING |
+| `Emx2Yaml.java` | YAML parser: hierarchical format with extensions, sections, profiles |
+| `GraphqlSchemaFieldFactory.java` | GraphQL: `inheritNames` as String[] list, `profiles`, `activeProfiles` |
+| `ColumnTypeRdfMapper.java` | RDF: EXTENSION/EXTENSION_ARRAY mapped to STRING |
 
 ---
 
@@ -80,125 +85,133 @@ One check: `getRootTable().getProfileColumn() != null`
 
 ### Phase 1: Java Metadata Model — COMPLETE
 
-Extended core metadata: `TableType.INTERNAL` (was BLOCK), `ColumnType.PROFILE/PROFILES`, `inheritNames` as String[], helper methods on `TableMetadata`.
+Extended core metadata: `TableType.INTERNAL` (was BLOCK), `ColumnType.EXTENSION/EXTENSION_ARRAY` (was PROFILE/PROFILES), `inheritNames` as String[], helper methods on `TableMetadata`.
 
 ### Phase 2: SQL Layer — COMPLETE
 
-Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified row management (same `subclassRows` batching for both mg_tableclass and profile discriminator). Simplified joins and search. Migration for `table_inherits` varchar → varchar[].
-
-**Key design decisions implemented:**
-- `getRootTable().getProfileColumn()` = single inheritance style check
-- Per-row delete with keepSet (target + ancestors kept, rest deleted)
-- PK-only joins (no mg_tableclass in join key)
-- Search covers self + ancestors only
-- All parents must share same root (validated)
-- Can't reroot table with subclasses (validated)
-- `getInheritedTables()` throws only when DB-backed, skips in-memory (cross-schema graceful handling)
+Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified row management (same `subclassRows` batching for both mg_tableclass and extension discriminator). Simplified joins and search. Migration for `table_inherits` varchar → varchar[].
 
 ### Phase 3: GraphQL API — COMPLETE
 
 - `inheritNames` exposed as String[] list
-- PROFILE/PROFILES columns queryable via GraphQL
+- EXTENSION/EXTENSION_ARRAY columns queryable via GraphQL
 - `TableType.INTERNAL` exposed in `_schema` metadata query
-- Mutations with profile values create correct child table rows
-- Fixed `TypeUtils.convertToRows()` to include subclass columns
-- 4 smoke tests added in `TestTableQueriesWithInheritance`
+- Mutations with extension values create correct child table rows
 
 ### Phase 4: IO Pipeline — COMPLETE
 
 - CSV `tableExtends` round-trips comma-separated multi-parent
 - `TableType.INTERNAL` round-trips in CSV export/import
-- Fixed `Emx2.java` parser for compact CSV rows with table metadata + columnName
-- 2 smoke tests added in `TestExtends`
-
-**Also completed (cross-cutting)**:
-- `TableType.BLOCK` renamed to `INTERNAL` with `migration33.sql`
-- `SqlDatabase.removeUser()` atomicity bug fixed
 
 ### Phase 5: Frontend — Schema & Explorer Apps — COMPLETE
 
-**Goal**: PROFILE/PROFILES columns work in the UI.
-
-**Summary of completed work:**
-
-- `apps/metadata-utils/` — TypeScript types: PROFILE, PROFILES, INTERNAL added; `inheritNames: string[]` on `ITableMetaData`
-- `apps/schema/src/utils.ts` — GraphQL `_schema` query already had `inheritNames`; `getSubclassColumns` updated for multi-parent + diamond dedup
-- `apps/schema/src/components/TableEditModal.vue` — multi-parent editing: `InputCheckbox` for new tables, plain text display for existing; `inheritIds` fallback for pre-existing `inheritName`
-- `apps/schema/src/components/TableView.vue` — displays comma-separated parent names from `inheritNames`
-- `apps/schema/src/components/SchemaDiagram.vue` + `NomnomDiagram.vue` — loop `inheritNames` and draw one edge per parent
-- `apps/schema/src/components/PrintViewTable.vue` + `PrintViewList.vue` — fixed inconsistent field names (`inherit` vs `inheritName`), now display `inheritNames` joined by comma
-- `apps/schema/src/components/ProfileManager.vue` — filters out `TableType.INTERNAL` tables from profile selector; CSV export handles comma-separated `inheritNames`
-- `apps/schema/src/components/ColumnEditModal.vue` — PROFILE/PROFILES in column type dropdown; `getColumnsForTable()` handles multiple parents
-- `apps/molgenis-components/src/components/forms/FormInput.vue` + `ArrayInput.vue` + `FilterInput.vue` + `formUtils.ts` — PROFILE/PROFILES added to type maps
-- `apps/tailwind-components/app/composables/getSubclassColumns.ts` — multi-parent support + diamond dedup via Set
-
-**Bug fixes:**
-- Legacy `inheritName` string normalized to `inheritNames` array on load
-- Readonly `inheritNames` enforced for existing tables (no re-rooting via UI)
-- `inheritIds` fallback when backend returns old-style single `inheritId`
+EXTENSION/EXTENSION_ARRAY columns work in the UI. Schema editor supports multiple inheritance editing. Diagrams show multiple parent edges.
 
 ### Phase 5.5: Naming & Terminology — COMPLETE
 
-**Goal**: Establish clearer naming conventions before implementing YAML parser.
-
-**Spec**: `.plan/specs/new_naming.md`
-
-**Key decisions:**
-- "Extension" replaces "subtable" — modular capability added via `extends`
-- `columnType: EXTENSION` / `EXTENSION_ARRAY` replaces `PROFILE` / `PROFILES`
-- `TableType.INTERNAL` for non-selectable extensions (unchanged in backend)
-- "Profile" = constraint/UX layer controlling visibility (new concept, identifier-based)
-- "Template" = deployment bundle (replaces "schema file")
-- "Section" = UI grouping (unchanged)
-- `inherits` replaces `inheritTable` in YAML (Java `inheritNames` unchanged for now)
-- Profile identifiers: `[a-zA-Z][a-zA-Z0-9_]*`, no spaces
-- Two visibility mechanisms (extension-based + profile-based) combined with AND
-- Informed by FHIR, openEHR, OMOP, CDISC research
+Established naming conventions. `PROFILE` → `EXTENSION`, `PROFILES` → `EXTENSION_ARRAY`. "Profile" reserved for visibility tags.
 
 ### Phase 5.6: Rename PROFILE → EXTENSION column types — COMPLETE
 
-**Goal**: Rename `ColumnType.PROFILE` to `EXTENSION` and `ColumnType.PROFILES` to `EXTENSION_ARRAY` across the entire codebase.
+Full codebase rename with migration34.sql.
 
-**Spec**: `.plan/specs/new_naming.md` (Naming Conventions table)
+### Phase 6: YAML Parser & Web API — COMPLETE
 
-**Summary of completed work:**
+**See**: `.plan/plans/phase6-yaml-parser.md` for full details.
 
-- `ColumnType.java`: `PROFILE(STRING)` → `EXTENSION(STRING)`, `PROFILES(STRING_ARRAY)` → `EXTENSION_ARRAY(STRING_ARRAY)`
-- All Java production files updated: `TableMetadata`, `SqlTypeUtils`, `SqlTable`, `SqlSchema`, `ColumnTypeRdfMapper`
-- All Java test files updated: `ProfileMetadataTest`, `TestSubtables`, `TestExtends`, `TestTableQueriesWithInheritance`
-- `migration34.sql`: updates stored `columnType` values in `column_metadata`; `Migrations.java` wired, `SOFTWARE_DATABASE_VERSION` bumped to 35
-- `Emx2.java`: backward compatibility mapping for old CSV values `"PROFILE"` → `"EXTENSION"`, `"PROFILES"` → `"EXTENSION_ARRAY"`
-- Frontend: `types.ts`, `columnTypes.js`, `formUtils.ts`, `admin!multi-inheritance.spec.ts`
-- Review confirmed zero remaining `ColumnType.PROFILE`/`PROFILES` references
-- All 4 test suites pass (TestSubtables 20/20, TestExtends 5/5, TestTableQueriesWithInheritance 7/7, ProfileMetadataTest OK)
+Steps completed:
+- Step 1-2: Table file parser + YAML export with roundtrip tests
+- Step 3: Template file parser with wildcard expansion
+- Step 4: Profile filtering backend (migration35.sql, GraphQL `applyProfileFilter`, `activeProfiles`)
+- Step 5: Frontend profile filtering (`applyProfileFilter: true` on user-facing queries, activeProfiles mutation)
+- Step 6: Wired hierarchical YAML into web API (GET/POST/DELETE)
+- Step 6b: YAML+ZIP download/upload with `molgenis.yaml` marker
 
-### Phase 6: YAML Parser
+### Phase 7: Schema Editor Profile Support — COMPLETE
 
-**Goal**: Parse YAML table files into `SchemaMetadata` using new naming conventions.
+**Goal**: Display, edit, and activate profiles in the schema editor UI.
 
-**Spec**: `.plan/specs/new_naming.md` (YAML Format section)
+**Summary:**
+- `utils.ts`: `profiles` on tables/columns + `activeProfiles` on `_schema` in GraphQL query; `getAvailableProfiles()` utility function
+- `TableView.vue` / `ColumnView.vue`: display profiles as `[wgs]` after semantics
+- `TableEditModal.vue` / `ColumnEditModal.vue`: `InputCheckbox` multiselect from known profiles + add-new-profile input
+- `Schema.vue`: activeProfiles `InputCheckbox` in header (select from existing only, no add-new)
+- CSS: `.profiles-checkboxes :deep(.form-check-inline) { display: block }` for vertical stacking
+- 5 Playwright e2e tests (display on tables, display on columns, table edit modal, column edit modal, active profiles header)
 
-- One file per table, `- name:` sequence syntax throughout
-- `extensions:` block with `inherits`, `internal`, `profiles`
-- `sections:` with `extension:` scoping and `profiles:` visibility
-- Profile definition files (`profiles/` directory)
-- Template files with imports, profiles, settings, permissions, fixedSchemas
-- Import resolution at any level with override mechanics
-- Rename `ColumnType.PROFILE` -> `EXTENSION`, `ColumnType.PROFILES` -> `EXTENSION_ARRAY`
+### Phase 8: Extract CSV Models to YAML Table Definitions — TODO
 
-### Phase 7: Documentation
+**Goal**: Convert existing CSV table definitions to YAML format under `data/templates/`. CSV originals untouched. This phase focuses on **table definitions only** — not demodata, ontologies, settings, or template import logic.
+
+**Analysis of model groupings:**
+
+| Template dir | Source CSVs | Profile YAML files (12 templates share datacatalogue) |
+|---|---|---|
+| `petstore/` | `specific/petstore.csv` | PetStore.yaml |
+| `typetest/` | `specific/typetest.csv` | TypeTest.yaml |
+| `pages/` | `specific/Pages.csv` | Pages.yaml |
+| `datacatalogue/` | All 31 `shared/*.csv` + `specific/CatalogueOntologies/` + `specific/Catalogue aggregates.csv` | DataCatalogue, CohortsStaging, INTEGRATECohorts, NetworksStaging, RWEStaging, SharedStaging, StudiesStaging, UMCGCohorts, UMCUCohorts, DataCatalogueAggregates, PatientRegistry, FAIRGenomes, ImageTest |
+
+Key insight: 12 profiles are different **views** of one shared model (different profileTags select different subsets of tables/columns from the same 31 CSVs).
+
+**Output structure:**
+```
+data/templates/
+├── petstore/
+│   ├── petstore.yaml              # template file
+│   └── tables/*.yaml              # from specific/petstore.csv
+├── typetest/
+│   ├── typetest.yaml
+│   └── tables/*.yaml
+├── pages/
+│   ├── pages.yaml
+│   └── tables/*.yaml
+└── shared/
+    ├── tables/*.yaml              # from 31 shared/*.csv → YAML
+    ├── datacatalogue.yaml         # template: profileTags: DataCatalogueFlat
+    ├── cohortstaging.yaml         # template: profileTags: CohortsStaging
+    ├── patientregistry.yaml       # template: profileTags: Patient registry, DataCatalogueFlat
+    ├── fairgenomes.yaml           # template: profileTags: FAIR Genomes
+    └── ...                        # remaining template files
+```
+
+**Approach:**
+1. Write a conversion utility (Java or script) that reads CSV → SchemaMetadata → YAML via `Emx2Yaml.toYamlDirectory()`
+2. Start with PetStore (simplest, standalone)
+3. Convert datacatalogue shared models
+4. Create template YAML files (just name, description, profileTags for now)
+5. Verify roundtrip: YAML → SchemaMetadata → compare with CSV → SchemaMetadata
+
+**Not in scope for Phase 8:**
+- demodata, ontologies, settings (these stay in `_demodata/`, `_ontologies/`, `_settings/`)
+- Template import logic (creating schemas, loading demodata, setting permissions)
+- `firstCreateSchemasIfMissing` cascading
+- `ontologiesToFixedSchema` / `additionalFixedSchemaModel`
+
+### Phase 9: Template Import Process — TODO
+
+**Goal**: Make `ImportProfileTask` (or a new task) understand the YAML template format, so `data/templates/` directories can fully replace `data/_profiles/` + `data/_models/`.
+
+**Features to support in YAML templates:**
+- `demodata: ./demodata/` — relative path to demo data CSVs within template dir
+- `ontologies: ./ontologies/` — ontology tables within template dir
+- `settings: ./settings/` — settings files within template dir
+- `permissions:` — role assignments (setViewPermission, setEditPermission)
+- `fixedSchemas:` — ontologiesToFixedSchema, additionalFixedSchemaModel
+- `dependencies:` — replaces `firstCreateSchemasIfMissing` (create other schemas first)
+- Resolution of relative paths within template directory
+
+### Phase 10: Documentation — TODO
 
 **Goal**: Update user-facing docs in `docs/molgenis/`.
 
 **Files to update**:
 - `docs/molgenis/use_schema.md` — multiple inheritance, INTERNAL table type
 - `docs/molgenis/CSV.md` — `tableExtends` with comma-separated parents
-- `docs/molgenis/dev_profiles.md` — PROFILE/PROFILES column types, row management
+- `docs/molgenis/dev_profiles.md` — EXTENSION/EXTENSION_ARRAY column types, profiles, templates
 - `docs/molgenis/dev_architecture.md` — architecture overview
-
-### Phase 8: Translate Existing Models (optional)
-
-Create v8 YAML equivalents of existing CSV data models. CSV originals untouched.
+- New: YAML format documentation with examples
+- New: Template migration guide (CSV → YAML)
 
 ---
 
@@ -211,3 +224,4 @@ After each phase:
 4. `./gradlew :backend:molgenis-emx2-graphql:test` — GraphQL
 5. `./gradlew :backend:molgenis-emx2-rdf:test` — RDF (103 tests)
 6. Full suite for backward compat
+7. `cd apps/schema && npx playwright test` — schema editor e2e (5 tests)

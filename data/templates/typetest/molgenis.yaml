@@ -1,0 +1,5 @@
+name: Typetest
+description: Type system test schema covering all EMX2 column types
+
+tables:
+  - import: tables/

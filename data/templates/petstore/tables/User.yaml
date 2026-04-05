@@ -1,0 +1,40 @@
+---
+table: "User"
+semantics:
+- "foaf:Person"
+sections:
+- columns:
+  - name: "username"
+    key: 1
+    required: "true"
+    semantics:
+    - "foaf:accountName"
+  - name: "firstName"
+    semantics:
+    - "foaf:firstName"
+  - name: "lastName"
+    semantics:
+    - "foaf:lastName"
+  - name: "picture"
+    type: "file"
+    semantics:
+    - "foaf:img"
+  - name: "email"
+    type: "email"
+    semantics:
+    - "foaf:mbox"
+  - name: "password"
+  - name: "phone"
+    semantics:
+    - "foaf:phone"
+  - name: "userStatus"
+    type: "int"
+  - name: "pets"
+    type: "multiselect"
+    refTable: "Pet"
+    semantics:
+    - "http://example.com/petstore#hasPets"
+  - name: "address"
+    type: "heading"
+  - name: "street"
+    visible: "lastName"

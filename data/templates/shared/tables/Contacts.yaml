@@ -1,0 +1,109 @@
+table: Contacts
+description: Listing of contact persons per resource
+subsets: [catalogue_core]
+semantics:
+- vcard:Kind
+- vcard:Individual
+sections:
+- columns:
+  - name: resource
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    subsets: [catalogue_core]
+    description: Resource the contact is affiliated with
+  - name: role
+    type: ontology_array
+    refTable: Contribution types
+    semantics:
+    - vcard:hasRole
+    subsets: [catalogue_core, patient_core]
+    description: Type(s) of contribution or role in the resource
+  - name: role description
+    type: text
+    subsets: [catalogue_core, patient_core]
+    description: Description of the role
+  - name: first name
+    key: 1
+    required: true
+    semantics:
+    - foaf:firstName
+    subsets: [catalogue_core, patient_core]
+    description: First name of the contact person
+  - name: last name
+    key: 1
+    required: true
+    semantics:
+    - foaf:familyName
+    subsets: [catalogue_core, patient_core]
+    description: Last name of the contact person
+  - name: display name
+    required: true
+    semantics:
+    - foaf:name
+    - vcard:hasName
+    - vcard:fn
+    subsets: [catalogue_core]
+    computed: "firstName+' '+lastName"
+    description: Display name of the contact person
+  - name: statement of consent personal data
+    type: bool
+    required: true
+    subsets: [umcg_cohorts_staging]
+    description: 'Indicate whether this person consents to display the following personal data in the catalogue (which is
+      openly accessible): title, name, email, photo, orcid ID, institute, department, expertise, discipline and role within
+      the resource. These data-items may partly be extracted from the UMCG and/or RUG employee pages. The consent also includes
+      future linkages with other national and international catalogues and platforms to increase visibility and findability
+      (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent will not be shown
+      in the UMCG Research Data Catalogue'
+  - name: prefix
+    subsets: [catalogue_core, patient_core]
+    description: Surname prefix, if applicable
+  - name: initials
+    subsets: [catalogue_core, patient_core]
+    description: Initials of the contact person
+  - name: title
+    type: ontology
+    refTable: Titles
+    semantics:
+    - foaf:title
+    subsets: [catalogue_core, patient_core]
+    description: Title of the contact person
+  - name: organisation
+    type: ref
+    refTable: Organisations
+    semantics:
+    - foaf:Organization
+    subsets: [patient_core, beacon_v2]
+    description: Affiliated organisation of the contact person
+  - name: email
+    type: email
+    required: "if(resource?.hricore === true) 'This field is mandatory for HRICore compatibility'"
+    semantics:
+    - vcard:hasEmail
+    - foaf:mbox
+    subsets: [catalogue_core, patient_core]
+    description: "Contact's email address"
+  - name: orcid
+    semantics:
+    - dcterms:identifier
+    subsets: [catalogue_core]
+    description: Orcid of the contact person
+  - name: homepage
+    type: hyperlink
+    semantics:
+    - vcard:url
+    - foaf:workplaceHomepage
+    - vcard:hasURL
+    subsets: [catalogue_core]
+    description: "Link to contact's homepage"
+  - name: photo
+    type: file
+    semantics:
+    - foaf:img
+    subsets: [cohorts_staging, rwe_staging, networks_staging, study_staging]
+    description: "Contact's photograph"
+  - name: expertise
+    subsets: [catalogue_core]
+    description: "Description of contact's expertise"

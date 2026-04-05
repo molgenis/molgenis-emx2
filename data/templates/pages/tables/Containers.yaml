@@ -1,0 +1,63 @@
+---
+table: "Containers"
+description: "All page types (configurable, developer, etc.)"
+extensions:
+- name: "Developer pages"
+  description: "Pages built with the html, css, and javascript."
+- name: "Configurable pages"
+  description: "Pages built with the drag-and-drop interface"
+sections:
+- columns:
+  - name: "name"
+    key: 1
+    required: "true"
+    validation: "if (!/^[a-zA-Z\\-]+$/g.exec(name)) \"Name may only contain letters\
+      \ or hypens.\""
+    description: "A unique name for the container. Only letters or hypens are allowed.\
+      \ e.g., \"MyNewPage\", \"my-new-page\", etc."
+  - name: "description"
+    type: "text"
+- name: "Developer pages"
+  extension: "Developer pages"
+  columns:
+  - name: "Code"
+    type: "section"
+  - name: "html"
+    type: "text"
+  - name: "css"
+    type: "text"
+  - name: "javascript"
+    type: "text"
+  - name: "Settings"
+    type: "section"
+  - name: "dependencies"
+    type: "ref_array"
+    refTable: "Dependencies"
+    description: "The external dependencies used in the page"
+  - name: "enable base styles"
+    type: "bool"
+    defaultValue: "true"
+    description: "If true (default), minimal styles are added to the page to align\
+      \ with the rest of the MOLGENIS frontend."
+  - name: "enable button styles"
+    type: "bool"
+    defaultValue: "true"
+    description: "If true (default) and base styles are enabled, then buttons used\
+      \ in the custom page will be styled using the MOLGENIS styles. Use \"type='submit'\"\
+      \ to use primary styles."
+  - name: "enable full screen"
+    type: "bool"
+    defaultValue: "false"
+    description: "If true, custom pages will fit the width of the screen. (Default:\
+      \ false)"
+- name: "Configurable pages"
+  extension: "Configurable pages"
+  columns:
+  - name: "blocks"
+    type: "refback"
+    refTable: "Blocks"
+    refBack: "in container"
+  - name: "block order"
+    type: "refback"
+    refTable: "Block orders"
+    refBack: "configurable page"

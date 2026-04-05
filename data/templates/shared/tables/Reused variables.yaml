@@ -1,0 +1,17 @@
+table: Reused variables
+description: Listing of variables from another resource that are re-used by a resource
+subsets: [catalogue_core]
+sections:
+- columns:
+  - name: resource
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    description: Resource reusing the variable
+  - name: variable
+    type: ref
+    key: 1
+    required: true
+    refTable: Variables
+    description: Variable from another resource that is reused

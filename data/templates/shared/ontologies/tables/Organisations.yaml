@@ -1,0 +1,56 @@
+table: Organisations
+description: Metadata on an organisation (e.g., university, hospital, institution, etc.) including aliases and geolocation
+  (ideally from ROR)
+sections:
+- columns:
+  - name: name
+    key: 1
+    required: true
+  - name: label
+  - name: acronym
+  - name: parent
+    type: select
+    refTable: Organisations
+  - name: codesystem
+  - name: code
+  - name: ontologyTermURI
+    type: hyperlink
+  - name: semantics
+  - name: type
+    type: string_array
+    description: One or more values that define the type of organisation. From ROR, this is can be funder, healthcare, etc.
+  - name: definition
+  - name: aliases
+    type: string_array
+    description: Additional names that also refer to an organisation
+  - name: website
+    type: hyperlink
+    semantics:
+    - SIO:000296
+    description: A link to a website that is affiliated with this organisation.
+  - name: country
+    type: ontology
+    refTable: Countries
+    semantics:
+    - SIO:000664
+    description: A country is a region legally identified as a distinct entity in political geography.
+  - name: city
+    semantics:
+    - SIO:000665
+    description: A city is a relatively large and permanent settlement.
+  - name: latitude
+    type: decimal
+    semantics:
+    - SIO:000319
+    description: "Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the\
+      \ equatorial plane. Can be considered as the Y-axis"
+  - name: longitude
+    type: decimal
+    semantics:
+    - SIO:000318
+    description: Longitude is a geographic position that refers to the angle east or west of a reference meridian between
+      the two geographical poles to another meridian that passes through an arbitrary point. Can be considered as the X-axis
+  - name: children
+    type: refback
+    refTable: Organisations
+    refBack: parent
