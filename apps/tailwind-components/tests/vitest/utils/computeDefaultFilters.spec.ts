@@ -3,7 +3,7 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 import { computeDefaultFilters } from "../../../app/utils/computeDefaultFilters";
 
 describe("computeDefaultFilters logic", () => {
-  it("returns first 5 ontology columns", () => {
+  it("returns all ontology columns", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
@@ -14,10 +14,10 @@ describe("computeDefaultFilters logic", () => {
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1", "ont2", "ont3", "ont4", "ont5"]);
+    expect(result).toEqual(["ont1", "ont2", "ont3", "ont4", "ont5", "ont6"]);
   });
 
-  it("fills with ref columns when < 5 ontology", () => {
+  it("returns all columns including ontology and ref types", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
@@ -52,6 +52,16 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1"]);
   });
 
+  it("excludes FILE columns", () => {
+    const columns: IColumn[] = [
+      { id: "file1", label: "File", columnType: "FILE" },
+      { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
+    ];
+
+    const result = computeDefaultFilters(columns);
+    expect(result).toEqual(["ont1"]);
+  });
+
   it("excludes mg_* columns", () => {
     const columns: IColumn[] = [
       { id: "mg_internal", label: "Internal", columnType: "ONTOLOGY" },
@@ -62,13 +72,28 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1"]);
   });
 
-  it("returns empty array when no suitable columns", () => {
+  it("excludes STRING columns from defaults", () => {
     const columns: IColumn[] = [
       { id: "str1", label: "String", columnType: "STRING" },
       { id: "int1", label: "Int", columnType: "INT" },
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual([]);
+    expect(result).toEqual(["int1"]);
+  });
+
+  it("excludes all string-like types (TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID)", () => {
+    const columns: IColumn[] = [
+      { id: "text1", label: "Text", columnType: "TEXT" },
+      { id: "email1", label: "Email", columnType: "EMAIL" },
+      { id: "link1", label: "Link", columnType: "HYPERLINK" },
+      { id: "uuid1", label: "UUID", columnType: "UUID" },
+      { id: "auto1", label: "Auto ID", columnType: "AUTO_ID" },
+      { id: "bool1", label: "Bool", columnType: "BOOL" },
+      { id: "int1", label: "Int", columnType: "INT" },
+    ];
+
+    const result = computeDefaultFilters(columns);
+    expect(result).toEqual(["bool1", "int1"]);
   });
 });

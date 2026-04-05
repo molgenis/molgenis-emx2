@@ -20,9 +20,11 @@ const props = withDefaults(
     label?: string;
     removable?: boolean;
     countFetcher?: ICountFetcher;
+    showLabel?: boolean;
   }>(),
   {
     removable: false,
+    showLabel: true,
   }
 );
 
@@ -144,28 +146,30 @@ function handleClear() {
 </script>
 
 <template>
-  <hr
-    class="mx-5 opacity-20"
-    style="border-color: var(--text-color-search-filter-group-title)"
-  />
-  <div class="flex items-center gap-1 px-5 pt-5 pb-2">
-    <h3
-      class="font-sans text-body-base font-bold text-search-filter-group-title"
-    >
-      {{ label }}
-    </h3>
-    <div
-      v-if="removable"
-      class="text-right grow flex gap-2 items-center justify-end"
-    >
-      <span
-        class="text-body-sm hover:underline hover:cursor-pointer text-search-filter-expand"
-        @click="emit('remove')"
+  <template v-if="showLabel">
+    <hr
+      class="mx-5 opacity-20"
+      style="border-color: var(--text-color-search-filter-group-title)"
+    />
+    <div class="flex items-center gap-0 px-5">
+      <h3
+        class="font-sans text-body-base font-bold text-search-filter-group-title"
       >
-        Remove
-      </span>
+        {{ label }}
+      </h3>
+      <div
+        v-if="removable"
+        class="text-right grow flex gap-2 items-center justify-end"
+      >
+        <span
+          class="text-body-sm hover:underline hover:cursor-pointer text-search-filter-expand"
+          @click="emit('remove')"
+        >
+          Remove
+        </span>
+      </div>
     </div>
-  </div>
+  </template>
   <div class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title">
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">
       <template #min="{ value, update, id }">

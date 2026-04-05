@@ -1600,4 +1600,114 @@ describe("OntologyInput", () => {
       expect(wrapper.html()).not.toContain("hidden by search");
     });
   });
+
+  describe("URL-hydrated selection sync", () => {
+    it("reflects URL-hydrated modelValue as checked checkbox after mount", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+        { name: "T3", parent: null, label: "Term 3" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      const checkbox = findCheckbox(wrapper, "T1");
+      expect(checkbox.exists()).toBe(true);
+      expect((checkbox.element as HTMLInputElement).checked).toBe(true);
+    });
+
+    it("round-trip of same modelValue is a no-op — no extra fetch, valueLabels stay populated", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.valueLabels["T1"]).toBeTruthy();
+
+      const fetchCallsBefore = mockFetch.mock.calls.length;
+
+      await wrapper.setProps({ modelValue: ["T1"] });
+      await nextTick();
+
+      expect(mockFetch.mock.calls.length).toBe(fetchCallsBefore);
+      expect(vm.valueLabels["T1"]).toBeTruthy();
+    });
+
+    it("concurrent modelValue updates — last value wins, no stale labels", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+        { name: "T3", parent: null, label: "Term 3" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ontologyPaths: [{ name: "T2", label: "Term 2" }],
+        })
+        .mockResolvedValueOnce({
+          ontologyPaths: [{ name: "T3", label: "Term 3" }],
+        });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      await wrapper.setProps({ modelValue: ["T2"] });
+      await wrapper.setProps({ modelValue: ["T3"] });
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.valueLabels["T3"]).toBeTruthy();
+      expect(vm.valueLabels["T2"]).toBeFalsy();
+    });
+  });
 });

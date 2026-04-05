@@ -104,7 +104,7 @@ watch(() => props.ontologyTableId, reset);
 watch(
   () => modelValue.value,
   () => {
-    applyModelValue();
+    syncSelectionFromModel();
   }
 );
 
@@ -169,6 +169,7 @@ async function reload() {
     await autoPageAfterPrune(rootNode.value);
   }
 
+  lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
   initLoading.value = false;
 }
 
@@ -319,6 +320,52 @@ async function applyModelValue(data: any = undefined): Promise<void> {
     valueLabels.value = {};
     intermediates.value = [];
   }
+  applySelectedStates();
+}
+
+let lastSyncedModelValueSignature = "";
+
+function modelValueSignature(
+  incoming: string[] | string | undefined | null
+): string {
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0))
+    return "";
+  const items = Array.isArray(incoming) ? incoming : [incoming];
+  return [...items].sort().join(",");
+}
+
+async function syncSelectionFromModel(): Promise<void> {
+  const incoming = modelValue.value;
+  const signature = modelValueSignature(incoming);
+
+  if (signature === lastSyncedModelValueSignature) return;
+  lastSyncedModelValueSignature = signature;
+
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0)) {
+    valueLabels.value = {};
+    intermediates.value = [];
+    applySelectedStates();
+    return;
+  }
+
+  const data = await fetchGraphql(
+    props.ontologySchemaId,
+    `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
+    { filter: { _match_any_including_parents: incoming } }
+  );
+
+  if (modelValueSignature(modelValue.value) !== signature) return;
+
+  const newValueLabels: Record<string, string> = {};
+  const newIntermediates: string[] = [];
+  if (data && data.ontologyPaths) {
+    for (const row of data.ontologyPaths) {
+      newValueLabels[row.name] = row.label || row.name;
+      newIntermediates.push(row.name);
+    }
+  }
+  valueLabels.value = newValueLabels;
+  intermediates.value = newIntermediates;
   applySelectedStates();
 }
 

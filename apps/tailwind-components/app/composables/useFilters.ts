@@ -17,6 +17,7 @@ import type {
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
 import { computeDefaultFilters } from "../utils/computeDefaultFilters";
+import { probeFilterColumns } from "../utils/probeFilterColumns";
 import { MAX_NESTING_DEPTH } from "../utils/filterConstants";
 import {
   createCountFetcher,
@@ -457,6 +458,26 @@ export function useFilters(
 
   const defaultFilterIds = computed(() => computeDefaultFilters(columns.value));
 
+  const columnsWithData = ref<Set<string> | null>(null);
+
+  async function runProbe() {
+    if (!schemaId || !tableId) return;
+    columnsWithData.value = await probeFilterColumns(
+      schemaId,
+      tableId,
+      visibleFilterIds.value
+    );
+  }
+
+  watch(
+    () => columns.value.length,
+    (newLength, oldLength) => {
+      if (newLength > 0 && oldLength === 0) {
+        runProbe();
+      }
+    }
+  );
+
   function getInitialVisibleFilters(): string[] {
     const urlParam = route?.query?.[MG_FILTERS_PARAM];
     if (typeof urlParam === "string" && urlParam.trim()) {
@@ -509,12 +530,7 @@ export function useFilters(
 
   function resetFilters() {
     const newDefaults = [...defaultFilterIds.value];
-    const removedIds = visibleFilterIds.value.filter(
-      (id) => !newDefaults.includes(id)
-    );
-    for (const id of removedIds) {
-      removeFilter(id);
-    }
+    actualFilterStates.value = new Map();
     userHasCustomized.value = false;
     visibleFilterIds.value = newDefaults;
   }
@@ -734,6 +750,10 @@ export function useFilters(
           label: labels.join(".") + "." + (column.label || column.id),
         });
       }
+    }
+
+    if (columnsWithData.value !== null) {
+      return result.filter((f) => columnsWithData.value!.has(f.fullPath));
     }
 
     return result;

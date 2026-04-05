@@ -126,6 +126,56 @@ Backend verification: `_agg` through nested array refs returns correct distinct 
 
 Files: `useFilters.ts`, `buildFilter.ts`, `createCountFetcher.ts`, `buildFilter.spec.ts`, `createCountFetcher.spec.ts`, `filterUrlCodec.spec.ts`
 
+### ✅ Completed — Task 5: Collapsible filter sections
+
+Replaced Accordion with lightweight catalogue-style collapsible. Chevron next to label, `<hr>` dividers, `p-5` padding, no "Remove" button, `v-show` keeps DOM mounted.
+
+**Final approach:** Custom collapsible in Sidebar.vue matching catalogue's `FilterContainer` pattern (not Accordion component). Collapsed state tracked via reactive `Set<string>`.
+
+Files: `Sidebar.vue`, `Column.vue` (added `showLabel` prop), `Sidebar.spec.ts`
+
+### ✅ Completed — Task 6: Show all filters (collapsed, lazy, data-driven)
+
+**6a: Show all filterable columns** — `computeDefaultFilters.ts` simplified to return ALL filterable column ids (excluding HEADING, SECTION, FILE, mg_*). No priority ordering or max-5 cap. FilterPicker still allows toggling.
+
+**6b: Lazy load filter content on expand** — `Sidebar.vue` changed `v-show` to `v-if`. FilterColumn only mounts when section is expanded, so options/counts only fetch on expand. Fixed collapsed Set reactivity (reassign instead of mutate). Sidebar.spec.ts updated: `expandAllSections()` helper called before asserting on FilterColumn.
+
+**6c: notNull probe — hide filters with no data** — New `probeFilterColumns.ts` utility batches `_agg(filter: {col: {_notNull: true}}) { count }` queries using GraphQL aliases. Returns `Set<string>` of columns with data. Wired into `useFilters.ts`: runs once when columns first load, filters `resolvedFilters` by result. Fails-open on error.
+
+Files: `computeDefaultFilters.ts`, `Sidebar.vue`, `useFilters.ts`, `probeFilterColumns.ts` (new), `computeDefaultFilters.spec.ts`, `Sidebar.spec.ts`, `probeFilterColumns.spec.ts` (new)
+
+### ✅ Completed — Regression fix: REF URL round-trip (partial key object)
+
+Bug: URL `type.name=Cohort+study` loaded but Ref.vue `init()` called `extractPrimaryKey` on the partial `{name: "Cohort study"}` object, which resolved to `undefined` (primary key not present), causing `fetchTableData` to return all rows instead of the selected one — `selectionMap` ended up with all options selected.
+
+Fix: `Ref.vue init()` detects single-field partial objects (URL-hydrated values) and builds a field-based filter `{name: {equals: [...]}}` directly, bypassing `extractPrimaryKey`. Full primary-key objects (multiple fields) still use the existing path.
+
+Red-green: 2 failing component tests confirmed the bug (`selectionMap` had 6 items instead of 1). 4 codec tests verified the URL round-trip was already correct (codec was not the issue). Fix made all 6 tests green. Total: 436 tests passing.
+
+Files: `Ref.vue`, `filterUrlCodec.spec.ts`, `Ref.spec.ts`, `filter-sidebar.md`
+
+## ✅ Completed — Task 7: Auto-expand sections with URL-set filters
+
+Sidebar `collapsed` Set initialization now filters out columns that have an active filter state on mount. Initial collapsed set excludes any `fullPath` present in `filterStates`, so those sections start expanded. User can still manually collapse them afterward — the set is only computed once at mount, no watch forces re-open on filter change.
+
+`expandAllSections` test helper updated to only click collapsed sections (caret has `rotate-180` class), preventing it from accidentally re-collapsing already-expanded sections.
+
+Red-green: 2 new tests failed before fix (disease section not visible), passed after. All 439 tests green.
+
+Files: `Sidebar.vue`, `Sidebar.spec.ts`, `filter-sidebar.md`, `tw-filters.md`
+
+## ✅ Completed — Regression fix: REF checkbox unchecked after URL hydration
+
+Partial regression: `Ref.vue init()` correctly populated `selectionMap` with full rows from `fetchTableData`, but those rows were stored as-is (full row objects). When user later selected an additional option, `select()` stored the primary key object from `extractPrimaryKey` — causing `Object.values(selectionMap)` to emit inconsistent shapes (`[fullRow, pkeyObj]`).
+
+Fix: `init()` now calls `extractPrimaryKey(row)` on each fetched row before storing in `selectionMap`, matching what `select()` already does. All selectionMap values are now primary key objects (`{name:"..."}` shape), matching the URL-codec contract.
+
+Also updated `fetchRowPrimaryKey` test mock to return `{name: row.name}` (proper primary key object shape) instead of `row.id` (string) — aligns with real `fetchRowPrimaryKey` return type `Record<string,string>`.
+
+Red-green: 3 new tests added to `Ref.spec.ts` — "renders the checkbox as checked for URL-hydrated partial ref object" passed immediately (existing init() fix from previous task was sufficient), "emits full object shape when user selects additional option after URL-hydration" failed (RED) due to inconsistent selectionMap values, "emits empty array when user removes the URL-hydrated selection" passed. Fix made all green. Total: 442 tests.
+
+Files: `Ref.vue`, `Ref.spec.ts`, `filter-sidebar.md`, `tw-filters.md`
+
 ## Future Work
 
 - **Type fetchGraphql responses** — `fetchGraphql` returns `Promise<any>`. Fix: add generic typing `fetchGraphql<T>()`, define response interfaces (`IGroupByResponse`, `IAggResponse`, `IOntologySizeProbe`), type test mock data. This catches code↔mock drift at compile time.

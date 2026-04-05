@@ -121,31 +121,126 @@ async function init() {
         ? modelValue.value.length > 0
         : modelValue.value)
     ) {
-      const keys = Array.isArray(modelValue.value)
-        ? await Promise.all(
-            (modelValue.value as []).map((row) => extractPrimaryKey(row))
-          )
-        : await extractPrimaryKey(modelValue.value as columnValueObject);
+      const items = Array.isArray(modelValue.value)
+        ? (modelValue.value as columnValueObject[])
+        : [modelValue.value as columnValueObject];
+      const firstItem = items[0];
+      const partialKeys =
+        firstItem &&
+        typeof firstItem === "object" &&
+        Object.keys(firstItem).length === 1
+          ? Object.keys(firstItem)
+          : null;
+
+      let selectionFilter: Record<string, unknown>;
+      if (partialKeys) {
+        const field = partialKeys[0]!;
+        const values = items.map(
+          (item) => (item as Record<string, unknown>)[field]
+        );
+        selectionFilter = { [field]: { equals: values } };
+      } else {
+        const keys = await Promise.all(
+          items.map((row) => extractPrimaryKey(row))
+        );
+        selectionFilter = { equals: keys };
+      }
+
       const data: ITableDataResponse = await fetchTableData(
         props.refSchemaId,
         props.refTableId,
-        { filter: { equals: keys }, expandLevel: 1 }
+        { filter: selectionFilter, expandLevel: 1 }
       );
       if (data.rows) {
         hasNoResults.value = false;
-        data.rows.forEach(
-          (row) =>
-            (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+        await Promise.all(
+          data.rows.map(async (row) => {
+            const label = applyTemplate(props.refLabel, row);
+            selectionMap.value[label] = await extractPrimaryKey(row);
+          })
         );
       }
     }
 
     await loadOptions({ limit: props.limit });
     initialCount.value = count.value;
+    lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
     isInitLoading.value = false;
   } finally {
     isInitializing.value = false;
   }
+}
+
+let lastSyncedModelValueSignature = "";
+
+async function syncSelectionFromModel() {
+  const incoming = modelValue.value;
+  const signature = modelValueSignature(incoming);
+
+  if (signature === lastSyncedModelValueSignature) return;
+  lastSyncedModelValueSignature = signature;
+
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0)) {
+    selectionMap.value = {};
+    return;
+  }
+
+  const items = Array.isArray(incoming)
+    ? (incoming as columnValueObject[])
+    : [incoming as columnValueObject];
+  const firstItem = items[0];
+  const partialKeys =
+    firstItem &&
+    typeof firstItem === "object" &&
+    Object.keys(firstItem).length === 1
+      ? Object.keys(firstItem)
+      : null;
+
+  let selectionFilter: Record<string, unknown>;
+  if (partialKeys) {
+    const field = partialKeys[0]!;
+    const values = items.map(
+      (item) => (item as Record<string, unknown>)[field]
+    );
+    selectionFilter = { [field]: { equals: values } };
+  } else {
+    const keys = await Promise.all(items.map((row) => extractPrimaryKey(row)));
+    selectionFilter = { equals: keys };
+  }
+
+  const data: ITableDataResponse = await fetchTableData(
+    props.refSchemaId,
+    props.refTableId,
+    { filter: selectionFilter, expandLevel: 1 }
+  );
+
+  if (modelValueSignature(modelValue.value) !== signature) return;
+
+  const newMap: recordValue = {};
+  if (data.rows) {
+    hasNoResults.value = false;
+    await Promise.all(
+      data.rows.map(async (row) => {
+        const label = applyTemplate(props.refLabel, row);
+        newMap[label] = await extractPrimaryKey(row);
+      })
+    );
+  }
+  selectionMap.value = newMap;
+}
+
+function modelValueSignature(
+  incoming: columnValueObject[] | columnValueObject | null | undefined
+): string {
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0))
+    return "";
+  const items = Array.isArray(incoming)
+    ? (incoming as columnValueObject[])
+    : [incoming as columnValueObject];
+  return items
+    .map((item) => JSON.stringify(item))
+    .sort()
+    .join(",");
 }
 
 watch(
@@ -159,7 +254,7 @@ watch(
 
 watch(
   () => modelValue.value,
-  () => init()
+  () => syncSelectionFromModel()
 );
 
 function applyTemplate(template: string, row: Record<string, any>): string {

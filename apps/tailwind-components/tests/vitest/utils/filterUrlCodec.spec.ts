@@ -422,6 +422,41 @@ describe("extractStringKey (via serializeFilterValue)", () => {
   });
 });
 
+describe("REF filter URL round-trip", () => {
+  const refColumn: IColumn = { id: "type", columnType: "REF" };
+  const columns: IColumn[] = [refColumn];
+
+  it("single REF value: URL → parse → serialize → same URL", () => {
+    const query = { "type.name": "Cohort study" };
+    const { filters } = parseFiltersFromUrl(query, columns);
+    const serialized = serializeFiltersToUrl(filters, "", columns);
+    expect(serialized).toEqual({ "type.name": "Cohort study" });
+  });
+
+  it("multiple REF values: URL → parse → serialize → same URL", () => {
+    const query = { "type.name": "Cohort study|Registry" };
+    const { filters } = parseFiltersFromUrl(query, columns);
+    const serialized = serializeFiltersToUrl(filters, "", columns);
+    expect(serialized).toEqual({ "type.name": "Cohort study|Registry" });
+  });
+
+  it("REF filter produces correct GraphQL filter", () => {
+    const query = { "type.name": "Cohort study" };
+    const { filters } = parseFiltersFromUrl(query, columns);
+    const gql = buildGraphQLFilter(filters, columns);
+    expect(gql).toEqual({ type: { name: { equals: ["Cohort study"] } } });
+  });
+
+  it("multiple REF values produce correct GraphQL filter", () => {
+    const query = { "type.name": "Cohort study|Registry" };
+    const { filters } = parseFiltersFromUrl(query, columns);
+    const gql = buildGraphQLFilter(filters, columns);
+    expect(gql).toEqual({
+      type: { name: { equals: ["Cohort study", "Registry"] } },
+    });
+  });
+});
+
 describe("string filter round-trip (type → URL → parse → buildFilter)", () => {
   const stringColumn: IColumn = {
     id: "name",

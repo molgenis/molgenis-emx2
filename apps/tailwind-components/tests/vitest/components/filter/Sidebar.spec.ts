@@ -153,6 +153,17 @@ function mountSidebar(
   return { wrapper, mockFilters };
 }
 
+async function expandAllSections(wrapper: any) {
+  const toggles = wrapper.findAll(".inline-flex.group.cursor-pointer");
+  for (const toggle of toggles) {
+    const caret = toggle.find(".rotate-180");
+    if (caret.exists()) {
+      await toggle.trigger("click");
+    }
+  }
+  await nextTick();
+}
+
 describe("Sidebar", () => {
   beforeEach(() => {
     mockRoute.query = {};
@@ -203,6 +214,7 @@ describe("Sidebar", () => {
       const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const initialCount = wrapper.findAllComponents({
         name: "FilterColumn",
@@ -221,6 +233,7 @@ describe("Sidebar", () => {
       const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const initialCount = wrapper.findAllComponents({
         name: "FilterColumn",
@@ -273,6 +286,7 @@ describe("Sidebar", () => {
 
       await flushPromises();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const nestedFilter = filterColumns.find(
@@ -322,6 +336,7 @@ describe("Sidebar", () => {
 
       await flushPromises();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const nestedFilter = filterColumns.find(
@@ -361,6 +376,7 @@ describe("Sidebar", () => {
 
       await flushPromises();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const nestedFilter = filterColumns.find(
@@ -378,6 +394,7 @@ describe("Sidebar", () => {
       const { wrapper } = mountSidebar();
       await nextTick();
       await nextTick();
+      await expandAllSections(wrapper);
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const topLevelFilters = filterColumns.filter(
         (f) => !f.props("column")?.id?.includes(".")
@@ -397,6 +414,7 @@ describe("Sidebar", () => {
       const { wrapper } = mountSidebar({}, initialFilterStates);
       await nextTick();
       await nextTick();
+      await expandAllSections(wrapper);
       const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
       const diseaseFilter = filterColumns.find(
         (f) => f.props("column")?.id === "disease"
@@ -408,14 +426,16 @@ describe("Sidebar", () => {
       });
     });
 
-    it("removes a filter when FilterColumn emits remove", async () => {
-      const { wrapper } = mountSidebar();
+    it("removes a filter when toggleFilter is called", async () => {
+      const { wrapper, mockFilters } = mountSidebar();
       await nextTick();
       await nextTick();
-      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
-      const initialCount = filterColumns.length;
+      await expandAllSections(wrapper);
+      const initialCount = wrapper.findAllComponents({
+        name: "FilterColumn",
+      }).length;
 
-      await filterColumns[0].vm.$emit("remove");
+      mockFilters.toggleFilter("disease");
       await nextTick();
 
       const newCount = wrapper.findAllComponents({
@@ -450,11 +470,68 @@ describe("Sidebar", () => {
 
       await nextTick();
       await nextTick();
+      await expandAllSections(wrapper);
 
       const filterColumns = wrapper.findAllComponents({
         name: "FilterColumn",
       }).length;
       expect(filterColumns).toBe(25);
+    });
+  });
+
+  describe("initial expanded state for URL-hydrated filters", () => {
+    it("expands sections that have an active filter value on initial load", async () => {
+      const initialFilterStates = new Map<string, IFilterValue>([
+        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
+      ]);
+      const { wrapper } = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const diseaseFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "disease"
+      );
+      expect(diseaseFilter).toBeDefined();
+    });
+
+    it("keeps sections without active filters collapsed on initial load", async () => {
+      const initialFilterStates = new Map<string, IFilterValue>([
+        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
+      ]);
+      const { wrapper } = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
+
+      const filterColumns = wrapper.findAllComponents({ name: "FilterColumn" });
+      const phenotypeFilter = filterColumns.find(
+        (f) => f.props("column")?.id === "phenotype"
+      );
+      expect(phenotypeFilter).toBeUndefined();
+    });
+
+    it("allows manual collapse of a section that has an active filter after initial load", async () => {
+      const initialFilterStates = new Map<string, IFilterValue>([
+        ["disease", { operator: "equals", value: [{ name: "Flu" }] }],
+      ]);
+      const { wrapper } = mountSidebar({}, initialFilterStates);
+      await nextTick();
+      await nextTick();
+
+      const diseaseFilterBefore = wrapper
+        .findAllComponents({ name: "FilterColumn" })
+        .find((f) => f.props("column")?.id === "disease");
+      expect(diseaseFilterBefore).toBeDefined();
+
+      const toggles = wrapper.findAll(".inline-flex.group.cursor-pointer");
+      const diseaseToggle = toggles[0];
+      await diseaseToggle!.trigger("click");
+      await nextTick();
+
+      const diseaseFilterAfter = wrapper
+        .findAllComponents({ name: "FilterColumn" })
+        .find((f) => f.props("column")?.id === "disease");
+      expect(diseaseFilterAfter).toBeUndefined();
     });
   });
 
