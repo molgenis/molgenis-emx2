@@ -1,16 +1,16 @@
 table: Variable mappings
-description: Mappings from collected or source variables to target or harmonised variables, optionally including ETL syntax
+description: Mappings from collected or source variables to target or harmonised variables, optionally
+  including ETL syntax
 subsets: [cohort_core, rwe_staging, study_staging]
-sections:
-- columns:
-  - name: source
+columns:
+  source:
     type: ref
     key: 1
     required: true
     refTable: Resources
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Id of the resource that contains the source variable(s)
-  - name: source dataset
+  source dataset:
     type: ref
     key: 1
     required: true
@@ -18,27 +18,28 @@ sections:
     refLink: source
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Name of the dataset that contains the source variable(s)
-  - name: source variables
+  source variables:
     type: ref_array
     refTable: Variables
     refLink: source dataset
     subsets: [cohort_core, rwe_staging, study_staging]
-    description: Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable
-      was not done and leave this field empty (match = not available)
-  - name: source variables other datasets
+    description: Optional, source variable that was mapped from. You may also indicate that a mapping
+      to a target variable was not done and leave this field empty (match = not available)
+  source variables other datasets:
     type: ref_array
     refTable: Variables
     refLink: source
     subsets: [cohort_core, rwe_staging, study_staging]
-    description: Optional, variables from other source datasets. Initially one may only define mapping between releases
-  - name: target
+    description: Optional, variables from other source datasets. Initially one may only define mapping
+      between releases
+  target:
     type: ref
     key: 1
     required: true
     refTable: Resources
     subsets: [umcg_cohorts_staging]
     description: Id of the resource that contains the target variable
-  - name: target dataset
+  target dataset:
     type: ref
     key: 1
     required: true
@@ -46,7 +47,7 @@ sections:
     refLink: target
     subsets: [umcg_cohorts_staging]
     description: Name of the dataset that contains the target variable
-  - name: target variable
+  target variable:
     type: ref
     key: 1
     required: true
@@ -54,29 +55,30 @@ sections:
     refLink: target dataset
     subsets: [umcg_cohorts_staging]
     description: Target variable that was mapped to
-  - name: repeats
+  repeats:
     type: text
     key: 1
     required: true
     defaultValue: NA
     subsets: [cohort_core, rwe_staging, study_staging]
-    validation: "if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or 1, 2, 3 or NA'"
+    validation: if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or
+      1, 2, 3 or NA'
     description: In case of mapping to a repeated variable, specify which repeats were mapped to
-  - name: match
+  match:
     type: ontology
     required: true
     refTable: Status details
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Harmonisation match, i.e., complete, partial, na
-  - name: description
+  description:
     type: text
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Human readible description of the mapping
-  - name: syntax
+  syntax:
     type: text
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Formal definition of the mapping, ideally in executable code
-  - name: comments
+  comments:
     type: text
     subsets: [cohort_core, rwe_staging, study_staging]
     description: Additional notes or comments

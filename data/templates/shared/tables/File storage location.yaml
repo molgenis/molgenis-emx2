@@ -1,37 +1,29 @@
 table: File storage location
 description: The storage location where a file is stored (e.g., server, building, filing cabinet, etc.)
 subsets: [patient_registry]
-semantics:
-- http://purl.obolibrary.org/obo/NGBO_6000399
-- http://purl.obolibrary.org/obo/OBI_0302893
-sections:
-- columns:
-  - name: name
+semantics: ['http://purl.obolibrary.org/obo/NGBO_6000399', 'http://purl.obolibrary.org/obo/OBI_0302893']
+columns:
+  name:
     key: 1
     required: true
-    semantics:
-    - http://purl.obolibrary.org/obo/NCIT_C42614
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C42614']
     description: The name that identifies the file storage location
-  - name: type
+  type:
     type: ontology
     refTable: File storage locations
-    semantics:
-    - http://purl.obolibrary.org/obo/NGBO_6000081
+    semantics: ['http://purl.obolibrary.org/obo/NGBO_6000081']
     description: The classification of a file storage location based on its physical or digital nature
-  - name: owner
+  owner:
     type: select
     refTable: Contacts
-    semantics:
-    - http://purl.obolibrary.org/obo/NCIT_C42704
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C42704']
     description: The person responsible of or primary contact for the file storage location
-  - name: organisation
+  organisation:
     type: select
     refTable: Organisations
-    semantics:
-    - http://purl.obolibrary.org/obo/OBI_0000245
+    semantics: ['http://purl.obolibrary.org/obo/OBI_0000245']
     description: The organisation where the the file storage is located
-  - name: access protocol
+  access protocol:
     type: text
-    semantics:
-    - http://purl.obolibrary.org/obo/NCIT_C51820
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C51820']
     description: The protocol used for accessing and retrieving files from the storage location

@@ -1,61 +1,60 @@
 table: Datasets
 description: Definition of a dataset
 subsets: [catalogue_core]
-sections:
-- columns:
-  - name: resource
+columns:
+  resource:
     type: ref
     key: 1
     required: true
     refTable: Resources
     subsets: [catalogue_core]
     description: Resource of which the dataset is part
-  - name: name
+  name:
     key: 1
     required: true
     subsets: [catalogue_core]
     description: Unique dataset name in the model
-  - name: label
+  label:
     subsets: [catalogue_core]
     description: Short human readable description
-  - name: dataset type
+  dataset type:
     type: ontology_array
     refTable: Dataset types
     subsets: [catalogue_core]
     description: Defines the type of dataset, e.g. genomic
-  - name: unit of observation
+  unit of observation:
     type: ontology
     refTable: Observation targets
     subsets: [catalogue_core]
     description: Defines what each record in this table describes
-  - name: keywords
+  keywords:
     type: ontology_array
     refTable: Keywords
     subsets: [catalogue_core]
     description: Enables grouping of table list by topic and to display tables in a tree
-  - name: description
+  description:
     type: text
     subsets: [catalogue_core]
     description: Description of the role/function of this table
-  - name: number of rows
+  number of rows:
     type: int
     subsets: [catalogue_core]
     description: Count of the number of records in this table
-  - name: mapped to
+  mapped to:
     type: refback
     refTable: Dataset mappings
     refBack: source dataset
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Common dataset models this dataset has been mapped into
-  - name: mapped from
+  mapped from:
     type: refback
     refTable: Dataset mappings
     refBack: target dataset
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Source datasets that have been mapped to this harmonised dataset
-  - name: since version
+  since version:
     subsets: [catalogue_core]
     description: When this dataset was introduced, if applicable
-  - name: until version
+  until version:
     subsets: [catalogue_core]
     description: When this dataset was removed, if applicable

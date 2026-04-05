@@ -1,131 +1,123 @@
----
-table: "Components"
-description: "Content to display in the frontend"
-extensions:
-- name: "Text elements"
-  description: "All text elements"
-- name: "Images"
-  description: "<img> elements"
-- name: "Ordered lists"
-  description: "<ol> elements"
-- name: "Unordered lists"
-  description: "<ul> elements"
-- name: "Navigation groups"
-  description: "<nav> elements"
-- name: "Navigation cards"
-- name: "Headings"
-  description: "<h*> elements"
-  inherits:
-  - "Text elements"
-- name: "Paragraphs"
-  description: "<p> elements"
-  inherits:
-  - "Text elements"
-sections:
-- columns:
-  - name: "Content"
-    type: "section"
-  - name: "Configuration"
-    type: "section"
-  - name: "Component connections"
-    type: "heading"
-    description: "Create links between components and blocks"
-  - name: "in block"
-    type: "multiselect"
-    refTable: "Blocks"
-    description: "A link to the block where the component is used"
-  - name: "Metadata"
-    type: "heading"
-  - name: "id"
-    type: "auto_id"
-    key: 1
-    required: "true"
-    description: "An auto ID used to generate UI elements"
-- name: "Text elements"
-  extension: "Text elements"
-  columns:
-  - name: "text"
-    type: "text"
-    description: "The content to display"
-- name: "Images"
-  extension: "Images"
-  columns:
-  - name: "display name"
-    description: "An optional name to display in place of the filename"
-  - name: "image"
-    type: "file"
-    description: "Select an image file"
-  - name: "alt"
-    description: "A description of the image for accessibility compliance"
-  - name: "width"
-    description: "The width of an image. Use CSS units: 10px, 50%, 5em, etc."
-  - name: "height"
-    description: "The height of an image. Use CSS units: 10px, 50%, 5em, etc."
-  - name: "image is centered"
-    type: "bool"
-    defaultValue: "false"
-    description: "If true, the image will be centered aligned"
-- name: "Ordered lists"
-  extension: "Ordered lists"
-  columns:
-  - name: "items"
-    type: "text_array"
-- name: "Unordered lists"
-  extension: "Unordered lists"
-  columns:
-  - name: "items"
-    type: "text_array"
-- name: "Navigation groups"
-  extension: "Navigation groups"
-  columns:
-  - name: "links"
-    type: "refback"
-    refTable: "Navigation cards"
-    refBack: "displayed in navigation group"
-    description: "A reference to one or more card that contains a link to another\
-      \ page"
-- name: "Navigation cards"
-  extension: "Navigation cards"
-  columns:
-  - name: "title"
-    description: "An optional title for the card"
-  - name: "description"
-    description: "An optional description that provides context for the link"
-  - name: "url"
-    type: "hyperlink"
-    description: "A link to an internal or external page"
-  - name: "url label"
-    description: "A label to display instead of the URL"
-  - name: "url is external"
-    type: "bool"
-    defaultValue: "false"
-    description: "If true, the link will be rendered as an external link"
-  - name: "displayed in navigation group"
-    type: "multiselect"
-    refTable: "Navigation groups"
-    description: "A reference to the navigation list"
-- name: "Headings"
-  extension: "Headings"
-  columns:
-  - name: "level"
-    type: "int"
-    validation: "if (level && (level < 1 || level > 6)) \"Level must corresponding\
-      \ to an HTML heading element. Use a level from 1 to 6.\""
-    description: "Enter an HTML Heading element level (1-6). Please note that heading\
-      \ levels corresponds to page hierarchy and it should not be used to style headings;\
-      \ this should be done elsewhere."
-  - name: "heading is centered"
-    type: "bool"
-    defaultValue: "false"
-    description: "If true, the heading will be center aligned"
-  - name: "heading is hidden"
-    type: "bool"
-    defaultValue: "false"
-    description: "If true, the heading will be visually hidden"
-- name: "Paragraphs"
-  extension: "Paragraphs"
-  columns:
-  - name: "paragraph is centered"
-    type: "bool"
-    defaultValue: "false"
-    description: "If true, the paragraph will be centered aligned"
+table: Components
+description: Content to display in the frontend
+subtypes:
+  Text elements:
+    description: All text elements
+  Images:
+    description: <img> elements
+  Ordered lists:
+    description: <ol> elements
+  Unordered lists:
+    description: <ul> elements
+  Navigation groups:
+    description: <nav> elements
+  Navigation cards:
+  Headings:
+    inherits: [Text elements]
+    description: <h*> elements
+  Paragraphs:
+    inherits: [Text elements]
+    description: <p> elements
+columns:
+  Content:
+    columns: {}
+  Configuration:
+    columns:
+      Component connections:
+        description: Create links between components and blocks
+        columns:
+          in block:
+            type: multiselect
+            refTable: Blocks
+            description: A link to the block where the component is used
+      Metadata:
+        columns:
+          id:
+            type: auto_id
+            key: 1
+            required: 'true'
+            description: An auto ID used to generate UI elements
+  items:
+    type: text_array
+  Text elements:
+    subtype: Text elements
+    columns:
+      text:
+        type: text
+        description: The content to display
+  Images:
+    subtype: Images
+    columns:
+      display name:
+        description: An optional name to display in place of the filename
+      image:
+        type: file
+        description: Select an image file
+      alt:
+        description: A description of the image for accessibility compliance
+      width:
+        description: 'The width of an image. Use CSS units: 10px, 50%, 5em, etc.'
+      height:
+        description: 'The height of an image. Use CSS units: 10px, 50%, 5em, etc.'
+      image is centered:
+        type: bool
+        defaultValue: 'false'
+        description: If true, the image will be centered aligned
+  Ordered lists:
+    subtype: Ordered lists
+    columns: {}
+  Unordered lists:
+    subtype: Unordered lists
+    columns: {}
+  Navigation groups:
+    subtype: Navigation groups
+    columns:
+      links:
+        type: refback
+        refTable: Navigation cards
+        refBack: displayed in navigation group
+        description: A reference to one or more card that contains a link to another page
+  Navigation cards:
+    subtype: Navigation cards
+    columns:
+      title:
+        description: An optional title for the card
+      description:
+        description: An optional description that provides context for the link
+      url:
+        type: hyperlink
+        description: A link to an internal or external page
+      url label:
+        description: A label to display instead of the URL
+      url is external:
+        type: bool
+        defaultValue: 'false'
+        description: If true, the link will be rendered as an external link
+      displayed in navigation group:
+        type: multiselect
+        refTable: Navigation groups
+        description: A reference to the navigation list
+  Headings:
+    subtype: Headings
+    columns:
+      level:
+        type: int
+        validation: if (level && (level < 1 || level > 6)) "Level must corresponding to an HTML heading element. Use a level
+          from 1 to 6."
+        description: Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy
+          and it should not be used to style headings; this should be done elsewhere.
+      heading is centered:
+        type: bool
+        defaultValue: 'false'
+        description: If true, the heading will be center aligned
+      heading is hidden:
+        type: bool
+        defaultValue: 'false'
+        description: If true, the heading will be visually hidden
+  Paragraphs:
+    subtype: Paragraphs
+    columns:
+      paragraph is centered:
+        type: bool
+        defaultValue: 'false'
+        description: If true, the paragraph will be centered aligned

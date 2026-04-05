@@ -1,29 +1,28 @@
 table: Profiles
 description: INTEGRATE
 subsets: [integrate]
-sections:
-- columns:
-  - name: DataCatalogueFlat
+columns:
+  DataCatalogueFlat:
     subsets: [catalogue_core]
     description: DataCatalogueFlat
-  - name: EMA
+  EMA:
     subsets: [ema]
     description: EMA
-  - name: RWEStaging
+  RWEStaging:
     subsets: [rwe_staging]
     description: RWEStaging
-  - name: CohortsStaging
+  CohortsStaging:
     subsets: [cohorts_staging]
     description: CohortsStaging
-  - name: UMCGCohortsStaging
+  UMCGCohortsStaging:
     subsets: [umcg_cohorts_staging]
     description: UMCGCohortsStaging
-  - name: NetworksStaging
+  NetworksStaging:
     subsets: [networks_staging]
     description: NetworksStaging
-  - name: UMCUCohorts
+  UMCUCohorts:
     subsets: [umcu_cohorts]
     description: UMCUCohorts
-  - name: INTEGRATE
+  INTEGRATE:
     subsets: [integrate]
     description: INTEGRATE

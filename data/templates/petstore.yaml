@@ -1,0 +1,320 @@
+name: Pet store
+description: Classic MOLGENIS pet store demo plus type-test tables — example of a single-file bundle form with 11 inline tables.
+
+tables:
+  Category:
+    columns:
+      name:
+        key: 1
+        required: 'true'
+
+  Pet:
+    description: My pet store example table
+    columns:
+      name:
+        key: 1
+        required: 'true'
+        semantics: ['http://example.com/petstore#hasName']
+        description: the name
+      category:
+        type: radio
+        required: 'true'
+        refTable: Category
+      photoUrls:
+        type: string_array
+      details:
+        description: Details
+        columns:
+          status:
+            semantics: ['http://example.com/petstore#hasStatus']
+          tags:
+            type: ontology_array
+            refTable: Tag
+            semantics: ['http://example.com/petstore#hasTags']
+          weight:
+            type: decimal
+            required: 'true'
+            semantics: ['http://example.com/petstore#hasWeight']
+      Heading2:
+        columns:
+          orders:
+            type: refback
+            refTable: Order
+            refBack: pet
+
+  Order:
+    columns:
+      orderId:
+        type: auto_id
+        key: 1
+        required: 'true'
+        computed: ORDER:${mg_autoid}
+      pet:
+        type: select
+        refTable: Pet
+      quantity:
+        type: long
+        validation: if(quantity < 1) 'quantity should be >= 1'
+      price:
+        type: decimal
+        validation: price >= 1
+      complete:
+        type: bool
+      status:
+        defaultValue: hallo
+
+  User:
+    semantics: ['foaf:Person']
+    columns:
+      username:
+        key: 1
+        required: 'true'
+        semantics: ['foaf:accountName']
+      firstName:
+        semantics: ['foaf:firstName']
+      lastName:
+        semantics: ['foaf:lastName']
+      picture:
+        type: file
+        semantics: ['foaf:img']
+      email:
+        type: email
+        semantics: ['foaf:mbox']
+      password:
+      phone:
+        semantics: ['foaf:phone']
+      userStatus:
+        type: int
+      pets:
+        type: multiselect
+        refTable: Pet
+        semantics: ['http://example.com/petstore#hasPets']
+      address:
+        columns:
+          street:
+            visible: lastName
+
+  Types:
+    description: A table containing a column for each column type
+    columns:
+      String types:
+        columns:
+          Simple string types:
+            columns:
+              string type:
+                key: 1
+                required: 'true'
+              string array type:
+                type: string_array
+              text type:
+                type: text
+              text array type:
+                type: text_array
+          Extended string types:
+            columns:
+              auto id type:
+                type: auto_id
+                key: 1
+                required: 'true'
+              json type:
+                type: json
+              email type:
+                type: email
+              email array type:
+                type: email_array
+              hyperlink type:
+                type: hyperlink
+              hyperlink array type:
+                type: hyperlink_array
+      Numeric types:
+        columns:
+          Simple numeric types:
+            columns:
+              int type:
+                type: int
+              int array type:
+                type: int_array
+              long type:
+                type: long
+              long array type:
+                type: long_array
+              decimal type:
+                type: decimal
+              decimal array type:
+                type: decimal_array
+          Extended numeric types:
+            columns:
+              non negative int type:
+                type: non_negative_int
+              non negative int array type:
+                type: non_negative_int_array
+      Primitive types:
+        columns:
+          bool type:
+            type: bool
+          bool array type:
+            type: bool_array
+          uuid type:
+            type: uuid
+          uuid array type:
+            type: uuid_array
+          file type:
+            type: file
+          Date types:
+            columns:
+              date type:
+                type: date
+              date array type:
+                type: date_array
+              datetime type:
+                type: datetime
+              datetime array type:
+                type: datetime_array
+              period type:
+                type: period
+              period array type:
+                type: period_array
+      Relationship types:
+        columns:
+          ref type:
+            type: ref
+            refTable: Options
+          select type:
+            type: select
+            refTable: Options
+          select type Label:
+            type: select
+            refTable: Options
+            refLabel: ${optionValue}
+          radio type:
+            type: radio
+            refTable: Options
+          radio type Label:
+            type: radio
+            refTable: Options
+            refLabel: ${optionValue}
+          ref array type:
+            type: ref_array
+            refTable: Options
+          checkbox type:
+            type: checkbox
+            refTable: Options
+          checkbox type Label:
+            type: checkbox
+            refTable: Options
+            refLabel: ${optionValue}
+          multiselect type:
+            type: multiselect
+            refTable: Options
+          multiselect type Label:
+            type: multiselect
+            refTable: Options
+            refLabel: ${optionValue}
+          ref back type:
+            type: ref
+            refTable: Options
+          ontology small type:
+            type: ontology
+            refTable: OntologySmall
+            refLabel: ${label}
+          ontology large type:
+            type: ontology
+            refTable: OntologyLarge
+            refLabel: ${label}
+          ontology small array type:
+            type: ontology_array
+            refTable: OntologySmall
+            refLabel: ${label}
+          ontology large array type:
+            type: ontology_array
+            refTable: OntologyLarge
+            refLabel: ${label}
+          ontology small tree type:
+            type: ontology
+            refTable: OntologySmallTree
+            refLabel: ${label}
+          ontology large tree type:
+            type: ontology
+            refTable: OntologyLargeTree
+            refLabel: ${label}
+          ontology small tree array type:
+            type: ontology_array
+            refTable: OntologySmallTree
+            refLabel: ${label}
+          ontology large tree array type:
+            type: ontology_array
+            refTable: OntologyLargeTree
+            refLabel: ${label}
+      Conditional required:
+        columns:
+          nameKnown:
+            type: bool
+            required: 'false'
+          nameRequiredIfNameKnownYes:
+            required: if(nameKnown) 'Name is required if name is known'
+          nameNoConditional:
+            required: 'false'
+      validationsVisible:
+        required: 'false'
+        label: Validation & visible expressions
+        columns:
+          year:
+            type: int
+            required: 'false'
+            validation: var CurrentDate =new Date().getFullYear() + 1; if (parseInt(year)>= CurrentDate || parseInt(year)<=1599)
+              "It appears you have entered a year that is not within the allowed range. Please enter a year between 1600 and the
+              current year."
+            label: Year of Birth (validation between 1600 and current year)
+          showVisibleExpressionVariable:
+            type: ontology
+            required: 'false'
+            refTable: YesNoUnknown
+            refLabel: ${label}
+            label: If put to yes the test visible expression variable will be shown
+          testVisible:
+            required: 'false'
+            visible: showVisibleExpressionVariable?.name === "yes"
+            label: Test visible expression (visible if stringKnown is yes)
+          code:
+            validation: if(code.length<4 || code.length>12)'Code should be 4-12 characters long'
+            label: What is the code? (validated min 4 - max 12 characters)
+          additionalInfo:
+            type: ontology
+            refTable: YesNoUnknown
+            refLabel: ${label}
+            label: Additional info, if yes a new header will appear.
+          additionalInfoHeader:
+            visible: additionalInfo?.name === "yes"
+            label: Additional Information (header visible if additional info known is yes)
+            columns:
+              dateStart:
+                type: date
+                validation: var today =new Date(); var dateFormat=today.toISOString().split('T')[0]; var minDate = new Date('1900-01-01');
+                  var minDateFormat=minDate.toISOString().split('T')[0]; if (dateStart>dateFormat || dateStart<minDateFormat)"It
+                  appears you have entered a date that is not within the allowed range. Please enter a date that is between 01-01-1900
+                  and today."
+                visible: additionalInfo?.name === "yes"
+                label: Date Start (validation between 01-01-1900 and today)
+
+  Options:
+    description: A table with options to test the ref/ref-array/radio/select/multiselect columns
+    columns:
+      option key:
+        key: 1
+        required: 'true'
+      option value:
+
+  OntologyLarge:
+    description: A table with options to test the large ontology like columns
+
+  OntologyLargeTree:
+    description: "A table with options and parents to test the large tree ontology like columns"
+
+  OntologySmall:
+    description: A table with limited options to test the small ontology like columns
+
+  OntologySmallTree:
+    description: "A table with options and parents to test the small tree ontology like columns"
+
+  YesNoUnknown:
+    description: "Yes, no, unknown"

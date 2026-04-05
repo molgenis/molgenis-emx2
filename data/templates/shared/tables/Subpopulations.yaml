@@ -1,193 +1,172 @@
 table: Subpopulations
 description: Subpopulations defined for this resource
 subsets: [cohort_core]
-sections:
-- columns:
-  - name: resource
+columns:
+  resource:
     type: ref
     key: 1
     required: true
     refTable: Resources
-    semantics:
-    - dcterms:source
+    semantics: ['dcterms:source']
     subsets: [cohort_core]
     description: Resource this subpopulation is part of
-  - name: name
+  name:
     key: 1
     required: true
-    semantics:
-    - dcterms:title
+    semantics: ['dcterms:title']
     subsets: [cohort_core]
-    description: "Subpopulation name, e.g. 'mothers in first trimester','newborns'"
-  - name: pid
-    semantics:
-    - dcterms:identifier
+    description: Subpopulation name, e.g. 'mothers in first trimester','newborns'
+  pid:
+    semantics: ['dcterms:identifier']
     subsets: [cohort_core]
     description: Persistent identifier for this subpopulation
-  - name: description
+  description:
     type: text
-    semantics:
-    - dcterms:description
+    semantics: ['dcterms:description']
     subsets: [cohort_core]
     description: Subpopulation description
-  - name: keywords
+  keywords:
     type: string_array
-    semantics:
-    - dcat:keyword
+    semantics: ['dcat:keyword']
     subsets: [cohort_core]
-    description: Keywords to increase findability of this subpopulation. Try to use words that are not used in the description.
-      Keywords are not displayed on the subpopulation page
-  - name: number of participants
+    description: Keywords to increase findability of this subpopulation. Try to use words that are not
+      used in the description. Keywords are not displayed on the subpopulation page
+  number of participants:
     type: non_negative_int
-    semantics:
-    - healthdcatap:numberOfUniqueIndividuals
+    semantics: ['healthdcatap:numberOfUniqueIndividuals']
     subsets: [cohort_core]
     description: Number of participants in this subpopulation
-  - name: counts
+  counts:
     type: refback
     refTable: Subpopulation counts
     refBack: subpopulation
     subsets: [cohort_core]
     description: Total number of unique individuals per age(group), gender and year
-  - name: inclusion start
+  inclusion start:
     type: int
-    semantics:
-    - dcat:startDate
+    semantics: ['dcat:startDate']
     subsets: [cohort_core]
     description: Year of first included participant
-  - name: inclusion end
+  inclusion end:
     type: int
-    semantics:
-    - dcat:endDate
+    semantics: ['dcat:endDate']
     subsets: [cohort_core]
     description: Year of last included participant. Leave empty if data collection is ongoing
-  - name: age groups
+  age groups:
     type: ontology_array
     refTable: Age groups
     subsets: [cohort_core]
     description: Age groups within this subpopulation
-  - name: age min
+  age min:
     type: non_negative_int
-    semantics:
-    - healthdcatap:minimumTypicalAge
+    semantics: ['healthdcatap:minimumTypicalAge']
     subsets: [cohort_core]
     description: Minimum age of participants within this subpopulation
-  - name: age max
+  age max:
     type: non_negative_int
-    semantics:
-    - healthdcatap:maximumTypicalAge
+    semantics: ['healthdcatap:maximumTypicalAge']
     subsets: [cohort_core]
     description: Maximum age of participants within this subpopulation
-  - name: main medical condition
+  main medical condition:
     type: ontology_array
     refTable: Diseases
     subsets: [cohort_core]
     description: Disease groups within this subpopulation, based on ICD-10 and ORPHA code classifications
-  - name: comorbidity
+  comorbidity:
     type: ontology_array
     refTable: Diseases
     subsets: [cohort_core]
     description: Comorbidity within this subpopulation, based on ICD-10 classification
-  - name: countries
+  countries:
     type: ontology_array
     refTable: Countries
-    semantics:
-    - dcterms:spatial
+    semantics: ['dcterms:spatial']
     subsets: [cohort_core]
     description: Countries where data from this subpopulation largely originate from
-  - name: regions
+  regions:
     type: ontology_array
     refTable: Regions
-    semantics:
-    - dcterms:coverage
+    semantics: ['dcterms:coverage']
     subsets: [cohort_core]
     description: Geographical regions where data from this subpopulation largely originate from
-  - name: inclusion criteria
+  inclusion criteria:
     type: ontology_array
     refTable: Inclusion Exclusion Criteria
     subsets: [cohort_core]
     description: Inclusion criteria applied to this subpopulation
-  - name: other inclusion criteria
+  other inclusion criteria:
     type: text
     subsets: [cohort_core]
     description: Other inclusion criteria applied to this subpopulation
-  - name: exclusion criteria
+  exclusion criteria:
     type: ontology_array
     refTable: Inclusion Exclusion Criteria
     subsets: [cohort_core]
     description: Exclusion criteria applied to this subpopulation
-  - name: other exclusion criteria
+  other exclusion criteria:
     type: text
     subsets: [cohort_core]
     description: Other exclusion criteria applied to this subpopulation
-  - name: contact point
+  contact point:
     type: ref
     refTable: Contacts
     refLink: resource
-    semantics:
-    - dcat:contactPoint
+    semantics: ['dcat:contactPoint']
     subsets: [catalogue_core]
     description: Contact point for this subpopulation. Value copied from Resources table
-  - name: publisher
+  publisher:
     type: ref
     refTable: Organisations
     refLink: resource
-    semantics:
-    - dcterms:publisher
+    semantics: ['dcterms:publisher']
     subsets: [catalogue_core]
     description: Organisation that published this subpopulation. Value copied from Resources table
-  - name: creator
+  creator:
     type: ref_array
     refTable: Organisations
     refLink: resource
-    semantics:
-    - dcterms:creator
+    semantics: ['dcterms:creator']
     subsets: [catalogue_core]
     description: Organisation(s) that created this subpopulation. Value copied from Resources table
-  - name: issued
+  issued:
     type: datetime
-    semantics:
-    - dcterms:issued
+    semantics: ['dcterms:issued']
     subsets: [cohort_core]
     description: When the data for this subpopulation was first published
-  - name: modified
+  modified:
     type: datetime
-    semantics:
-    - dcterms:modified
+    semantics: ['dcterms:modified']
     subsets: [cohort_core]
     description: When the data for this subpopulation was last modified
-  - name: theme
+  theme:
     type: ontology_array
-    defaultValue: "= [{name: 'Health'}]"
+    defaultValue: '= [{name: ''Health''}]'
     refTable: Themes
-    semantics:
-    - dcat:theme
+    semantics: ['dcat:theme']
     subsets: [cohort_core]
-    description: "A main category of the subpopulation. A subpopulation can have multiple themes, for health data theme must\
-      \ at least take the value 'Health', which is set as a default"
-  - name: access rights
+    description: A main category of the subpopulation. A subpopulation can have multiple themes, for health
+      data theme must at least take the value 'Health', which is set as a default
+  access rights:
     type: ontology
-    defaultValue: "= {name: 'Non public'}"
+    defaultValue: '= {name: ''Non public''}'
     refTable: Access rights
-    semantics:
-    - dcterms:accessRights
+    semantics: ['dcterms:accessRights']
     subsets: [cohort_core]
-    description: Information that indicates whether the resource is publicly accessible, has access restrictions or is not
-      public. A default is set for non-public access, because most health datasets contain sensitive information and rules
-      and licenses apply to get access
-  - name: applicable legislation
+    description: Information that indicates whether the resource is publicly accessible, has access restrictions
+      or is not public. A default is set for non-public access, because most health datasets contain sensitive
+      information and rules and licenses apply to get access
+  applicable legislation:
     type: ontology_array
-    defaultValue: "= [{name: 'Data Governance Act'}]"
+    defaultValue: '= [{name: ''Data Governance Act''}]'
     refTable: Legislations
-    semantics:
-    - dcatap:applicableLegislation
+    semantics: ['dcatap:applicableLegislation']
     subsets: [cohort_core]
-    description: "The legislation that mandates the creation or management of the subpopulation. For health datasets, the\
-      \ value must include the data governance act, which is set as a default. URI's to other legislations may be included"
-  - name: provenance statement
+    description: The legislation that mandates the creation or management of the subpopulation. For health
+      datasets, the value must include the data governance act, which is set as a default. URI's to other
+      legislations may be included
+  provenance statement:
     type: text
-    semantics:
-    - dct:provenance
+    semantics: ['dct:provenance']
     subsets: [ema]
-    description: A statement of any changes in ownership and custody of a resource since its creation that are significant
-      for its authenticity, integrity, and interpretation
+    description: A statement of any changes in ownership and custody of a resource since its creation
+      that are significant for its authenticity, integrity, and interpretation

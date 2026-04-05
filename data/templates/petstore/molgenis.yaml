@@ -1,5 +1,0 @@
-name: Pet store
-description: Classic pet store demo with categories, pets, orders, and users
-
-tables:
-  - import: tables/

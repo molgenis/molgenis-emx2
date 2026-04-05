@@ -1,42 +1,41 @@
 table: FORCE_NEN patients
 description: Resource counts for e.g. samples, clinical data
 subsets: [aggregate_core]
-sections:
-- columns:
-  - name: collection
+columns:
+  collection:
     type: ref
     key: 1
     required: true
     refTable: Collections
     description: Network collection id taken from catalogue Collections table
-  - name: research center
+  research center:
     type: ref
     key: 1
     required: true
     refTable: Collections
     description: Research center name to be displayed in aggregate dashboard
-  - name: primary tumor site
+  primary tumor site:
     type: ontology
     key: 1
     required: true
     refTable: ICDO topologies
-  - name: metastasis
+  metastasis:
     type: ontology
     key: 1
     required: true
     refTable: NoYesUnknown
     description: Distant metastasis at diagnosis
-  - name: year of diagnosis
+  year of diagnosis:
     type: ontology
     key: 1
     required: true
     refTable: Time periods
-  - name: sex
+  sex:
     type: ontology
     key: 1
     required: true
     refTable: Sex
-  - name: n
+  n:
     type: int
     required: true
     description: count

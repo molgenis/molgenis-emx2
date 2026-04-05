@@ -1,69 +1,66 @@
 name: MOLGENIS shared catalogue bundle
 description: Shared tables for all catalogue variants, cohorts, patient registries, and related deployments
-
-tables:
-  - import: tables/
-  - import: ontologies/tables/
-
+imports:
+- tables/
+- ontologies/tables/
 subsets:
-  - name: catalogue_core
+  catalogue_core:
     description: Core catalogue columns visible in all catalogue-family templates
-  - name: cohort_core
+  cohort_core:
     description: Cohort-specific columns shared by CohortsStaging, UMCGCohortsStaging, and UMCUCohorts
     includes: [catalogue_core]
-  - name: rwe_core
+  rwe_core:
     description: RWE columns also visible in EMA template
     includes: [rwe_staging]
-  - name: ema
+  ema:
     description: EMA-specific columns (drug study registry)
     includes: [rwe_core]
-  - name: integrate
+  integrate:
     description: INTEGRATE-specific columns
     includes: [catalogue_core]
-  - name: patient_core
+  patient_core:
     description: Shared patient registry and FAIR Genomes columns
-  - name: fair_genomes_metabolomics
+  fair_genomes_metabolomics:
     description: FAIR Genomes metabolomics extension
     includes: [patient_core]
-  - name: aggregate_core
+  aggregate_core:
     description: DataCatalogue aggregates columns
-
 templates:
-  - name: rwe_staging
+  rwe_staging:
     description: Real-world evidence staging workspace
     includes: [catalogue_core]
-  - name: study_staging
+  study_staging:
     description: Study registry staging workspace
     includes: [catalogue_core]
-  - name: networks_staging
+  networks_staging:
     description: Networks staging workspace
     includes: [catalogue_core]
-  - name: data_catalogue
+  data_catalogue:
     description: Standard MOLGENIS data catalogue (flat resource view)
     includes: [catalogue_core]
-  - name: cohorts_staging
+  cohorts_staging:
     description: Cohort registry staging workspace
     includes: [cohort_core]
-  - name: integrate_cohorts
+  integrate_cohorts:
     description: INTEGRATE cohort staging workspace
     includes: [integrate, cohort_core]
-  - name: umcg_cohorts_staging
+  umcg_cohorts_staging:
     description: UMCG cohorts staging workspace
     includes: [cohort_core]
-  - name: umcu_cohorts
+  umcu_cohorts:
     description: UMCU cohorts workspace
     includes: [cohort_core]
-  - name: patient_registry
+  patient_registry:
     description: Patient registry (includes catalogue resource view)
     includes: [patient_core, catalogue_core]
-  - name: fair_genomes
+  fair_genomes:
     description: FAIR Genomes patient registry
     includes: [patient_core]
-  - name: data_catalogue_aggregates
+  data_catalogue_aggregates:
     description: Data catalogue aggregate dashboard
     includes: [aggregate_core]
-  - name: fair_data_point
+  fair_data_point:
     description: FAIR Data Point deployment
     includes: [catalogue_core]
-  - name: beacon_v2
+  beacon_v2:
     description: Beacon v2 endpoint deployment

@@ -1,24 +1,22 @@
----
-table: "ophthalmologistFollowUp"
-description: "Ophthalmologist Follow up data"
-sections:
-- columns:
-  - name: "name"
-    label: "Name reference centre Follow up:"
-  - name: "ophthalmologist"
-    label: "Ophthalmologist Follow up:"
-  - name: "visitDate"
-    type: "int"
-    description: "YYYY"
-    label: "visit(s)/year"
-  - name: "title"
-    label: "Title"
-  - name: "firstName"
-    label: "First name"
-  - name: "lastName"
-    label: "Last name"
-  - name: "id"
-    type: "auto_id"
+table: ophthalmologistFollowUp
+description: Ophthalmologist Follow up data
+columns:
+  name:
+    label: 'Name reference centre Follow up:'
+  ophthalmologist:
+    label: 'Ophthalmologist Follow up:'
+  visitDate:
+    type: int
+    description: YYYY
+    label: visit(s)/year
+  title:
+    label: Title
+  firstName:
+    label: First name
+  lastName:
+    label: Last name
+  id:
+    type: auto_id
     key: 1
-    required: "true"
-    label: "Auto-identifier"
+    required: 'true'
+    label: Auto-identifier

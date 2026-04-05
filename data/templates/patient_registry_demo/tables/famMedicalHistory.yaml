@@ -1,29 +1,27 @@
----
-table: "famMedicalHistory"
-description: "Family medical history"
-sections:
-- columns:
-  - name: "label"
-    required: "false"
-    label: "Label"
-  - name: "belongsToSubject"
-    type: "ref"
-    required: "false"
-    refTable: "subject"
-    label: "Family medical historyt belongs to Patient"
-  - name: "condition"
-  - name: "familyMembers"
-    type: "ontology"
-    refTable: "familyMembers"
-  - name: "startDate"
-    type: "date"
-  - name: "stopDate"
-    type: "date"
-  - name: "ongoingBool"
-    type: "bool"
-  - name: "id"
-    type: "auto_id"
+table: famMedicalHistory
+description: Family medical history
+columns:
+  label:
+    required: 'false'
+    label: Label
+  belongsToSubject:
+    type: ref
+    required: 'false'
+    refTable: subject
+    label: Family medical historyt belongs to Patient
+  condition:
+  familyMembers:
+    type: ontology
+    refTable: familyMembers
+  startDate:
+    type: date
+  stopDate:
+    type: date
+  ongoingBool:
+    type: bool
+  id:
+    type: auto_id
     key: 1
-    required: "true"
-    computed: "${mg_autoid}"
-    label: "Auto-identifier"
+    required: 'true'
+    computed: ${mg_autoid}
+    label: Auto-identifier

@@ -1,16 +1,15 @@
 table: Dataset mappings
 description: Mappings from collected or source datasets to harmonised or target datasets
 subsets: [catalogue_core]
-sections:
-- columns:
-  - name: source
+columns:
+  source:
     type: ref
     key: 1
     required: true
     refTable: Resources
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Id of the resource being mapped from
-  - name: source dataset
+  source dataset:
     type: ref
     key: 1
     required: true
@@ -18,14 +17,14 @@ sections:
     refLink: source
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Name of the dataset being mapped from
-  - name: target
+  target:
     type: ref
     key: 1
     required: true
     refTable: Resources
     subsets: [cohorts_staging]
     description: Name of the variable being mapped to, or harmonised with
-  - name: target dataset
+  target dataset:
     type: ref
     key: 1
     required: true
@@ -33,15 +32,15 @@ sections:
     refLink: target
     subsets: [cohorts_staging]
     description: Name of the dataset being mapped to, or harmonised with
-  - name: order
+  order:
     type: int
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Order in which table ETLs should be executed for this source-target combination
-  - name: description
+  description:
     type: text
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Human readible description of the mapping
-  - name: syntax
+  syntax:
     type: text
     subsets: [cohorts_staging, rwe_staging, study_staging]
     description: Formal definition of the mapping, ideally in executable code

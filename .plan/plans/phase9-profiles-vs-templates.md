@@ -43,7 +43,7 @@ Design is locked. All 9 items below are decided. Java implementation is pending.
 
 ## Completed (Phase 9a)
 
-- `shared/` bundle rewritten with new `molgenis.yaml` format (formerly `shared2/`, promoted).
+- `shared/` bundle rewritten with new `molgenis.yaml` format.
 - Old 13 flat wrapper files removed.
 - Simple bundles (`petstore/`, `pages/`) converted to zero-config `molgenis.yaml`.
 - `Emx2Yaml.java` parser updated: subset registry, `includes:` resolution, unknown-name validation.
@@ -65,9 +65,18 @@ Design is locked. All 9 items below are decided. Java implementation is pending.
 | Schema-editor rule enforcement | Lock structural edits on bundle-backed schemas; route through mutations |
 | Custom-migrations directory hook | Detect `migrations/<subset_name>/` on activate; run once per schema |
 | Retire `activeProfiles`/`applyProfileFilter` | Remove after split mutations are in place and callers migrated |
-| **Accept single-file bundles** | Parser must accept `data/templates/<name>.yaml` as a bundle entry (no directory required) when the file contains a top-level `name:` and either inline `tables:` entries or `- import:` entries under `tables:`. Single-file bundles cannot have ontologies, demodata, settings, or migrations — only directory bundles can. |
+| **Accept single-file bundles** | Parser must accept `data/templates/<name>.yaml` as a bundle entry (no directory required) when the file contains a top-level `name:` and either inline `tables:` keyed map or `imports:` list. Single-file bundles cannot have ontologies, demodata, settings, or migrations — only directory bundles can. |
 | **Parse `namespaces:` at bundle root** | Merge with built-in prefix map when resolving short-form CURIEs in `semantics:`. Bundle-declared prefixes override built-in ones on conflict. |
-| **Rename `extension` → `subtype` (deferred, one cohesive pass)** | Rationale: `extension` collides with FHIR Extension (additive field) and openEHR CLUSTER extension (unmodelled content). `subtype` pairs naturally with the stable `inherit:` / `inheritNames` / `tableInherit` vocabulary already in master — `inherit:` is the relationship, `subtype` is the discriminator + the child-table terminology. Full scope when picked up: (1) `ColumnType.EXTENSION` / `EXTENSION_ARRAY` → `SUBTYPE` / `SUBTYPE_ARRAY` across parser, SQL, tests, plus a migration; (2) `extensions:` YAML key (the list of child-table definitions inside a table file) → `subtypes:`; (3) docs prose "extension" → "subtype"; (4) `TableType.INTERNAL` stays — it remains a flag on a subtype meaning "not user-selectable". Do NOT split across phases — rename all four together or not at all. Defer until after Phase 9b Java work stabilizes. |
+| **Rename `EXTENSION` → `SUBTYPE` in Java (YAML side done)** | Data files, docs, and spec have been renamed to use `subtypes:` / `subtype:` / `type: subtype` / `type: subtype_array`. Java-side rename remaining: `ColumnType.EXTENSION` / `EXTENSION_ARRAY` enum values → `SUBTYPE` / `SUBTYPE_ARRAY`; any `extensions:` YAML parser key recognition in `Emx2Yaml.java` → `subtypes:`; migration script to update persisted metadata; tests. Recommended as one atomic backend pass. |
+| **Accept keyed-map `subsets:`, `templates:`, `subtypes:`, `columns:` at all levels** | Parser must accept and emit keyed maps (not lists) for all four. |
+| **Accept `subtype:` attribute on column entries and on section/heading entries** | Attribute scopes the column or all nested columns to the named child table. |
+| **Implicit section detection** | Entry with nested `columns:` at level 0 under a table's `columns:` is a section — no `type: section` required. |
+| **Implicit heading detection** | Entry with nested `columns:` at level 1 (inside a section's `columns:`) is a heading — no `type: heading` required. |
+| **Enforce max nesting depth 2** | table → section → heading → columns. `columns:` key inside a heading is a parse error. |
+| **Enforce table-wide column name uniqueness** | Walk the full nested `columns:` tree on load; reject on first duplicate, naming the duplicate key and both locations. |
+| **Reject reserved name `columns`** | A column, section, or heading named literally `columns` is a parse error. |
+| **Section/heading `subtype:` and `subsets:` inherit into nested columns** | Nested column's own `subtype:` or `subsets:` declaration overrides the container default. |
+| **Reject `semantics:` on section/heading containers** | `semantics:` on an entry that resolves as a section or heading is a parse error; must be set per data column. |
 
 ---
 
@@ -82,6 +91,7 @@ Design is locked. All 9 items below are decided. Java implementation is pending.
 7. **Centralized bundle config** — ontologies, demodata, settings, permissions, fixedSchemas all in `molgenis.yaml`.
 8. **Subsets are structural (physical DDL), not visibility filters.** The active subset set determines which tables and columns exist in PostgreSQL.
 9. **Deactivate fails loud by default; ontology tables are dropped on deactivate only when no FK references remain across all schemas.**
+10. **`subtype` used consistently for all three contexts.** The word "subtype" is used for (a) the `subtypes:` declaration map (child table declarations), (b) the `subtype:` attribute on columns/sections (scoping to a child table), and (c) the `type: subtype` discriminator column type. YAML position disambiguates. Alternatives (`subtable`, `subclass`, `variant`) rejected — "subtype" matches biomedical vocabulary ("disease subtypes", "cell subtypes") and ER-modeling textbook terminology. Does not collide with FHIR Extension or openEHR CLUSTER extension — those are different concepts.
 
 ---
 

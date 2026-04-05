@@ -4,7 +4,7 @@
 >
 > - **Layer 0 — Orientation**: directory layout and the simplest possible bundle (one file, under 20 lines).
 > - **Layer 1 — Tables**: defining tables, columns, types, keys, refs. Enough for most simple data models.
-> - **Layer 2 — Extensions** *(optional)*: child tables with a subtype discriminator — model "this experiment is WGS or Imaging".
+> - **Layer 2 — Subtypes** *(optional)*: child tables with a subtype discriminator — model "this experiment is WGS or Imaging".
 > - **Layer 3 — Subsets** *(optional)*: tag columns with named subsets so one bundle can produce different DDL for different deployments.
 > - **Layer 4 — Templates** *(optional)*: named presets of subset activations, shown in the admin picker.
 > - **Layer 5 — Semantics** *(optional)*: attach vocabulary URIs for RDF export and cross-system integration.
@@ -25,7 +25,7 @@ Single file (simplest):
 Directory (for bigger bundles):
   data/templates/<bundle>/
   ├── molgenis.yaml        # REQUIRED bundle entry point
-  ├── tables/*.yaml        # one file per table (referenced via tables: - import: tables/)
+  ├── tables/*.yaml        # one file per table (referenced via imports: - tables/)
   ├── ontologies/          # optional ontology tables
   ├── demodata/            # optional seed data CSVs
   ├── settings/            # optional settings YAML files
@@ -39,52 +39,37 @@ Directory (for bigger bundles):
 name: Pets
 description: Minimal pet-store example
 tables:
-  - table: Pet
-    sections:
-      - columns:
-          - name: id
-            type: string
-            key: 1
-          - name: name
-            type: string
-            required: true
-          - name: category
-            type: ref
-            refTable: Category
-
-  - table: Category
-    sections:
-      - columns:
-          - name: name
-            type: string
-            key: 1
+  Pet:
+    columns:
+      id:
+        type: string
+        key: 1
+      name:
+        type: string
+        required: true
+      category:
+        type: ref
+        refTable: Category
+  Category:
+    columns:
+      name:
+        type: string
+        key: 1
 ```
 
 That is a complete working bundle in under 20 lines.
 
-When your bundle grows — more tables, auxiliary files (ontologies, demodata, settings), or multiple authors — split it into the directory form. Each `import:` entry under `tables:` names a file or directory to load:
+When your bundle grows — more tables, auxiliary files (ontologies, demodata, settings), or multiple authors — split it into the directory form. The `imports:` list under `molgenis.yaml` names files or directories to load:
 
 ```yaml
 # data/templates/petstore/molgenis.yaml
 name: Pet store
 description: Classic pet store demo
-tables:
-  - import: tables/
+imports:
+  - tables/
 ```
 
 Tables are loaded from `tables/`, one YAML file per table. This is the right form when a single file becomes unwieldy or when auxiliary files are needed. Most data models need nothing more than this.
-
-You can also mix inline definitions and imports in the same `tables:` list:
-
-```yaml
-tables:
-  - table: Pet          # inline definition
-    sections: ...
-  - import: tables/     # directory reference (all files inside)
-  - import: tables/Category.yaml   # single-file reference
-```
-
-The effective table set is the union of all entries.
 
 ### When to use which form
 
@@ -105,42 +90,21 @@ Layers 2–5 below are **optional** — each solves a specific problem. If you d
 
 A table definition has the same shape whether it lives inline under `tables:` in the bundle file or in its own file under `tables/`. The location differs; the structure is identical.
 
-Inline in a single-file bundle:
-
-```yaml
-# data/templates/pets.yaml
-name: Pets
-tables:
-  - table: Pet
-    sections:
-      - columns:
-          - name: id
-            type: string
-            key: 1
-          - name: name
-            type: string
-            required: true
-          - name: category
-            type: ref
-            refTable: Category
-```
-
 As a standalone file in a directory bundle:
 
 ```yaml
 # tables/Pet.yaml
 table: Pet
-sections:
-  - columns:
-      - name: id
-        type: string
-        key: 1
-      - name: name
-        type: string
-        required: true
-      - name: category
-        type: ref
-        refTable: Category
+columns:
+  id:
+    type: string
+    key: 1
+  name:
+    type: string
+    required: true
+  category:
+    type: ref
+    refTable: Category
 ```
 
 This produces:
@@ -155,7 +119,108 @@ CREATE TABLE "Pet store"."Pet" (
 CREATE INDEX ON "Pet store"."Pet" ("category");
 ```
 
-Every column has a `name` and a `type`. `key: 1` marks the primary key (use `key: 2`, `key: 3` for composite keys). `required: true` adds a NOT NULL constraint. `ref` columns become foreign keys; `refTable:` names the target.
+Every column is an entry in the `columns:` map — the key is the column name. Columns have a `type` and optional attributes. `key: 1` marks the primary key (use `key: 2`, `key: 3` for composite keys). `required: true` adds a NOT NULL constraint. `ref` columns become foreign keys; `refTable:` names the target.
+
+**Column name rules:**
+- Column names must be unique **table-wide**, across the root columns map and all nested sections and headings. Two columns in different sections cannot share a name.
+- The name `columns` is reserved — it would collide with the YAML key used for nesting. The parser rejects it as a column name.
+
+### Sections and headings
+
+Columns can be organized into **sections** and **headings** for UI display. No explicit `type:` is needed — the structure of the YAML map implies it.
+
+**Section** — an entry at the top level of a table's `columns:` map that itself has a `columns:` key. The entry name is the section label. All entries inside it are that section's columns:
+
+```yaml
+# tables/Pet.yaml
+table: Pet
+columns:
+  id:
+    type: string
+    key: 1
+  name:
+    type: string
+    required: true
+  Extended details:          # section — has nested columns: at level 0
+    columns:
+      weight:
+        type: decimal
+      favorite toy:
+        type: string
+```
+
+**Heading** — an entry inside a section's `columns:` map that itself has a `columns:` key. Same inference rule, one level deeper:
+
+```yaml
+columns:
+  Extended details:          # section (level 0 with nested columns:)
+    columns:
+      Physical:              # heading (level 1 with nested columns:)
+        columns:
+          weight:
+            type: decimal
+          length:
+            type: decimal
+      Preferences:           # heading
+        columns:
+          favorite toy:
+            type: string
+```
+
+**Max nesting depth is 2**: table → section → heading → columns. A heading cannot contain further sub-groupings. Anything deeper is a parse error.
+
+**Decorative heading** — a UI-only label row with no grouped columns beneath it. This is the only case where `type: heading` is required (because there are no nested `columns:` to trigger the inference):
+
+```yaml
+columns:
+  General Information:
+    type: heading            # decorative — no columns:, type: heading explicit
+  id:
+    type: string
+    key: 1
+```
+
+Summary of inference rules:
+
+| Entry has `columns:` key? | Depth | Resolved as |
+|---|---|---|
+| Yes | 0 (under table's `columns:`) | Section |
+| Yes | 1 (inside a section's `columns:`) | Heading |
+| No, and `type: heading` | any | Decorative heading |
+| No, and no `type: heading` | any | Data column |
+
+### Section and heading attribute hoisting
+
+Sections and headings can carry default attributes that are **inherited** by all their nested columns.
+
+**Inherited attributes:**
+- `subtype:` — all nested columns are scoped to this subtype (see Layer 2). A nested column can declare its own `subtype:` to override.
+- `subsets:` — all nested columns belong to these subsets (see Layer 3). A nested column can declare its own `subsets:` to override.
+
+**Never inherited:**
+- `semantics:` — must always be set per column. Declaring `semantics:` on a section or heading is a parse error.
+
+All other column-level attributes (`type:`, `description:`, `required:`, `key:`, `refTable:`, etc.) are per-entry and do not inherit.
+
+Example — `subsets:` hoisting saves repeating `subsets: [patient_core]` on every nested column:
+
+```yaml
+columns:
+  Individual consent fields:    # section
+    subtype: Individual consent  # all columns inside are scoped to this subtype
+    columns:
+      Consent header:
+        type: heading
+      consent form used:
+        type: select
+        refTable: Consent documents
+        semantics: ['http://purl.obolibrary.org/obo/IAO_0000136']
+        description: The informed consent form that was signed
+      signing date:
+        type: date
+        semantics: ['http://purl.obolibrary.org/obo/ICO_0000036']
+        description: Date this consent form was signed
+```
 
 ### Column types
 
@@ -201,10 +266,9 @@ All supported column types:
 | `radio` | UI variant of `ref` — same backend storage, radio-button widget |
 | `multiselect` | UI variant of `ref_array` — same backend storage, multi-select dropdown widget |
 | `checkbox` | UI variant of `ref_array` — same backend storage, checkbox-group widget |
-| `extension` | Subtype discriminator — holds the child-table name this row belongs to (see Layer 2) |
-| `extension_array` | Multi-valued subtype discriminator (see Layer 2) |
-| `heading` | UI-only section header inside a sections list — no DDL |
-| `section` | UI-only section grouping — no DDL |
+| `subtype` | Discriminator — holds the identifier of which subtype a row belongs to (see Layer 2) |
+| `subtype_array` | Multi-valued discriminator (see Layer 2) |
+| `heading` | Decorative UI-only label row — no DDL column |
 
 For full semantics and validation rules see `docs/molgenis/use_tables.md` and `docs/molgenis/CSV.md`.
 
@@ -224,59 +288,92 @@ A new bundle can ignore all of them.
 
 ---
 
-## Layer 2 — Extensions (optional)
+## Layer 2 — Subtypes (optional)
 
 **When you need this:** you have a base table and some rows belong to structurally distinct subtypes with different fields. You want a single query surface ("every row is an Experiment") with a discriminator saying which subtype each row is.
 
-### Why extensions?
+### Why subtypes?
 
-Imagine you have experiments. Some are whole-genome sequencing (WGS) — they have `coverage`, `read_length`, `library_prep`. Others are imaging — they have `modality`, `resolution`, `stain`. You could make one wide sparse table with many NULLs, or two unrelated tables. Neither is good. Extensions give you a third option: a base `Experiment` table with a discriminator column, and separate child tables (`WGS`, `Imaging`) that share the parent's primary key.
+Imagine you have experiments. Some are whole-genome sequencing (WGS) — they have `coverage`, `read_length`, `library_prep`. Others are imaging — they have `modality`, `resolution`, `stain`. You could make one wide sparse table with many NULLs, or two unrelated tables. Neither is good. Subtypes give you a third option: a base `Experiment` table with a discriminator column, and separate child tables (`WGS`, `Imaging`) that share the parent's primary key.
 
 Query the parent and you see all experiments. Join to the child table and you see the subtype-specific fields. The discriminator tells you which child applies.
 
-### Mechanism
+The word "subtype" appears in three related contexts — this is deliberate, not a naming collision:
 
-Declare child tables that `inherit:` from the parent. Add an `extension` column on the parent (a `extension_array` for multi-valued subtypes). Each child table shares the parent's primary key via a 1:1 FK with ON UPDATE/DELETE CASCADE.
+| Context | Example | Meaning |
+|---|---|---|
+| `subtypes:` map in a table file | `subtypes: { WGS: { inherits: Experiment } }` | Declares a child table |
+| `subtype:` attribute on a column or section | `subtype: WGS` | Scopes this column/section to the WGS child table |
+| `type: subtype` column type | `type: subtype` | Discriminator column holding the subtype identifier |
+
+YAML position makes these unambiguous. The word is consistent because the concept is consistent — "subtype" matches biomedical vocabulary ("disease subtypes", "cell subtypes") and ER-modeling textbook terminology.
+
+### Declaring subtypes in a table file
+
+Subtypes are declared in a `subtypes:` keyed map at the top level of a table file. Each entry has `inherits:`, `description:`, and optionally `internal: true`:
 
 ```yaml
 # tables/Experiment.yaml
 table: Experiment
-sections:
-  - columns:
-      - name: id
-        type: string
-        key: 1
-      - name: date
-        type: date
-      - name: type
-        type: extension
+columns:
+  id:
+    type: string
+    key: 1
+  date:
+    type: date
+  type:
+    type: subtype
 
-# tables/WGS.yaml
-table: WGS
-inherits: Experiment
-sections:
-  - columns:
-      - name: coverage
-        type: decimal
-      - name: read_length
-        type: int
-      - name: library_prep
-        type: string
-
-# tables/Imaging.yaml
-table: Imaging
-inherits: Experiment
-sections:
-  - columns:
-      - name: modality
-        type: string
-      - name: resolution
-        type: decimal
-      - name: stain
-        type: string
+subtypes:
+  WGS:
+    inherits: [Experiment]
+    description: Whole-genome sequencing experiment
+  Imaging:
+    inherits: [Experiment]
+    description: Imaging experiment
 ```
 
-A row in `Experiment` with `type = WGS` links to a row in the `WGS` table with the same primary key. The admin UI and import pipeline handle the join automatically.
+Subtype-specific columns live in the parent table's `columns:` map, inside a section that carries `subtype:` to scope them:
+
+```yaml
+# tables/Experiment.yaml
+table: Experiment
+columns:
+  id:
+    type: string
+    key: 1
+  date:
+    type: date
+  type:
+    type: subtype
+  WGS fields:
+    subtype: WGS
+    columns:
+      coverage:
+        type: decimal
+        description: Mean read depth
+      read length:
+        type: int
+      library prep:
+        type: string
+  Imaging fields:
+    subtype: Imaging
+    columns:
+      modality:
+        type: string
+      resolution:
+        type: decimal
+      stain:
+        type: string
+
+subtypes:
+  WGS:
+    inherits: [Experiment]
+    description: Whole-genome sequencing experiment
+  Imaging:
+    inherits: [Experiment]
+    description: Imaging experiment
+```
 
 ### What rows look like
 
@@ -285,7 +382,7 @@ A row in `Experiment` with `type = WGS` links to a row in the `WGS` table with t
 | EXP001 | 2024-01-10 | WGS |
 | EXP002 | 2024-02-15 | Imaging |
 
-| WGS.id | WGS.coverage | WGS.read_length | WGS.library_prep |
+| WGS.id | WGS.coverage | WGS.read length | WGS.library prep |
 |---|---|---|---|
 | EXP001 | 30.0 | 150 | PCR-free |
 
@@ -293,44 +390,50 @@ A row in `Experiment` with `type = WGS` links to a row in the `WGS` table with t
 |---|---|---|---|
 | EXP002 | MRI | 1.5 | — |
 
-### Internal extensions
+### Internal subtypes
 
-A child table marked `internal: true` is not shown in the extension selector dropdown. Use this when a table groups shared columns across multiple user-selectable extensions rather than being a selectable extension itself.
+A subtype entry with `internal: true` is not shown in the subtype selector dropdown. Use this when a table groups shared columns across multiple user-selectable subtypes rather than being a selectable subtype itself.
 
 ```yaml
-table: SequencingBase
-inherits: Experiment
-internal: true
-sections:
-  - columns:
-      - name: sequencer_model
-        type: string
+subtypes:
+  NGS sequencing:
+    inherits: [Experiment]
+    internal: true
+    description: Base for all NGS-type sequencing experiments
+  WGS:
+    inherits: [NGS sequencing]
+    description: Whole-genome sequencing experiment
+  RNA:
+    inherits: [NGS sequencing]
+    description: RNA sequencing experiment
 ```
 
-Then `WGS` and `RNASeq` can both `inherit: [Experiment, SequencingBase]` — they gain `sequencer_model` without users seeing `SequencingBase` in the dropdown.
+### Hoisting duplicate columns to a common ancestor
+
+When multiple sibling subtypes would have byte-identical column definitions, define the column once on their lowest common ancestor (LCA). The subtype-scoped section on the LCA then carries the column for all descendants.
+
+Example: `number of aliquots` is identical in `Experiments OGM`, `Experiments RNA`, and `Experiments lrGS`, which all inherit from `Experiments`. Define it once in the `Experiments fields:` section instead of repeating it in three sibling sections.
 
 ### Multiple inheritance
 
 A child can inherit from multiple parents, provided all parents share the same root table:
 
 ```yaml
-table: WGS
-inherits: [Experiment, SequencingBase]
+subtypes:
+  WGS:
+    inherits: [Experiment, SequencingBase]
+    description: Whole-genome sequencing experiment
 ```
 
 All parents must have the same root (they form a diamond, not a forest). Diamond inheritance is resolved via upsert.
 
 ### Relationship to subsets
 
-Extensions define the **structural shape** of your data — which child tables exist, which discriminator columns they use, how they relate. Subsets (Layer 3) gate which tables and columns are physically created per deployment. The two are independent:
+Subtypes define the **structural shape** of your data — which child tables exist, which discriminator columns they use, how they relate. Subsets (Layer 3) gate which tables and columns are physically created per deployment. The two are independent:
 
-- Extensions without subsets: structural modeling, all child tables always created.
-- Subsets without extensions: deployment filtering on a flat model.
+- Subtypes without subsets: structural modeling, all child tables always created.
+- Subsets without subtypes: deployment filtering on a flat model.
 - Both: structural modeling with per-deployment DDL filtering.
-
-### About the word "extension"
-
-> The `extension` / `extension_array` column type is a **subtype discriminator** — it tells the backend which child table a row belongs to. It has nothing to do with FHIR Extension (an additive resource field), openEHR CLUSTER extension (unmodelled content nodes), or any plugin/add-on concept. A future rename to `subtype` / `subtype_array` is under consideration; for now the YAML key is `extension`.
 
 ---
 
@@ -349,35 +452,39 @@ Take the `Pet.yaml` from Layer 1 and add one optional column:
 ```yaml
 # tables/Pet.yaml
 table: Pet
-sections:
-  - columns:
-      - name: id
-        type: string
-        key: 1
-      - name: name
-        type: string
-        required: true
-      - name: category
-        type: ref
-        refTable: Category
-      - name: favorite toy
-        type: string
-        subsets: [extended]
+columns:
+  id:
+    type: string
+    key: 1
+  name:
+    type: string
+    required: true
+  category:
+    type: ref
+    refTable: Category
+  favorite toy:
+    type: string
+    subsets: [extended]
 ```
 
 And declare the subset in `molgenis.yaml`:
 
 ```yaml
 name: Demo
-tables:
-  - import: tables/
+imports:
+  - tables/
 subsets:
-  - name: extended
+  extended:
+    description: Extended pet attributes
 templates:
-  - name: minimal
-  - name: full
+  minimal:
+    description: Core fields only
+  full:
+    description: All fields
     includes: [extended]
 ```
+
+Note: `subsets:` and `templates:` are **keyed maps** — the key is the identifier, the value is the entry. This matches the actual format in `data/templates/shared/molgenis.yaml`.
 
 Activating template `minimal` (no extra subsets) produces:
 
@@ -467,17 +574,17 @@ name: Pet store
 description: Classic pet store demo
 
 templates:
-  - name: pet_store
+  pet_store:
     description: Standard pet store deployment
 ```
 
-That entry is now visible to admins when they create a new schema and choose a starting template. The name is the identifier used internally; the description is shown in the picker.
+That entry is now visible to admins when they create a new schema and choose a starting template. The key (`pet_store`) is the identifier used internally; the `description` is shown in the picker.
 
 A template is a named bundle of subset activations: "for this deployment, turn on this set of subsets." The admin picks a template when creating a schema; the same bundle can power a slim "data catalogue" deployment and a richer "UMCG cohort staging" deployment from one source of truth — and each gets a different physical schema.
 
-Subsets and templates share **one identifier namespace** across `subsets:` and `templates:` in `molgenis.yaml`. Names must be unique across both sections. A template name can be used directly in `subsets:` on a column, and `includes:` in either section can reference names from either section.
+Subsets and templates share **one identifier namespace** across `subsets:` and `templates:` in `molgenis.yaml`. Identifiers must be unique across both sections. A template identifier can be used directly in `subsets:` on a column, and `includes:` in either section can reference identifiers from either section.
 
-Activating a template activates that template plus every subset or template named in its `includes:` list, transitively. A column tagged with any name in that active set is created.
+Activating a template activates that template plus every subset or template named in its `includes:` list, transitively. A column tagged with any identifier in that active set is created.
 
 ### Worked example: the catalogue family
 
@@ -487,39 +594,33 @@ The `data/templates/shared/molgenis.yaml` bundle has eight subsets and thirteen 
 name: MOLGENIS shared catalogue bundle
 description: Shared tables for all catalogue variants, cohorts, patient registries, and related deployments
 
-tables:
-  - import: tables/
-  - import: ontologies/tables/
+imports:
+  - tables/
+  - ontologies/tables/
 
 subsets:
-  - name: catalogue_core
+  catalogue_core:
     description: Core catalogue columns visible in all catalogue-family templates
-
-  - name: cohort_core
+  cohort_core:
     description: Cohort-specific columns shared by CohortsStaging, UMCGCohortsStaging, and UMCUCohorts
     includes: [catalogue_core]
-
-  - name: patient_core
+  patient_core:
     description: Shared patient registry and FAIR Genomes columns
 
 templates:
-  - name: data_catalogue
+  data_catalogue:
     description: Standard MOLGENIS data catalogue (flat resource view)
     includes: [catalogue_core]
-
-  - name: cohorts_staging
+  cohorts_staging:
     description: Cohort registry staging workspace
     includes: [cohort_core]
-
-  - name: umcg_cohorts_staging
+  umcg_cohorts_staging:
     description: UMCG cohorts staging workspace
     includes: [cohort_core]        # transitively activates catalogue_core too
-
-  - name: patient_registry
+  patient_registry:
     description: Patient registry (includes catalogue resource view)
     includes: [patient_core, catalogue_core]
-
-  - name: fair_genomes
+  fair_genomes:
     description: FAIR Genomes patient registry
     includes: [patient_core]
 ```
@@ -529,14 +630,13 @@ Now look at `tables/Datasets.yaml`. The table itself and most of its columns are
 ```yaml
 table: Datasets
 subsets: [catalogue_core]
-sections:
-- columns:
-  - name: name
+columns:
+  name:
     key: 1
     required: true
     subsets: [catalogue_core]
     description: Unique dataset name in the model
-  - name: mapped to
+  mapped to:
     type: refback
     refTable: Dataset mappings
     refBack: source dataset
@@ -551,12 +651,11 @@ Now look at `tables/Individuals.yaml`. That table is tagged `subsets: [patient_c
 ```yaml
 table: Individuals
 subsets: [patient_core]
-sections:
-- columns:
-  - name: year of birth
+columns:
+  year of birth:
     type: int
     subsets: [patient_core]       # created in patient_registry AND fair_genomes
-  - name: alternate ids
+  alternate ids:
     type: string_array
     subsets: [patient_registry]   # created only in patient_registry, not fair_genomes
 ```
@@ -588,15 +687,14 @@ Tag tables and columns with `semantics:` CURIEs to give them a machine-readable 
 ```yaml
 table: Datasets
 semantics: [dcat:Dataset]
-sections:
-  - columns:
-      - name: title
-        type: string
-        semantics: [dcterms:title]
-      - name: publisher
-        type: ref
-        refTable: Organisations
-        semantics: [dcterms:publisher, foaf:Organization]
+columns:
+  title:
+    type: string
+    semantics: [dcterms:title]
+  publisher:
+    type: ref
+    refTable: Organisations
+    semantics: [dcterms:publisher, foaf:Organization]
 ```
 
 - **CURIEs** (`dcterms:title`) are expanded via a built-in prefix map. The built-in map covers common biomedical and metadata vocabularies — see [semantics.md](semantics.md) for the full list.
@@ -605,6 +703,8 @@ sections:
 - The RDF exporter uses `semantics:` to emit typed triples. See [dev_rdf.md](dev_rdf.md) and [semantics.md](semantics.md) for the full mapping rules.
 
 **Common pitfall**: semantic URIs do NOT belong in `subsets:` arrays. Keep them in `semantics:`. Subset tags are internal identifiers (`[a-z][a-z0-9_]*`); semantic URIs are external vocabulary references.
+
+**`semantics:` on sections or headings is a parse error.** Semantic annotations must be set per column. They are not inherited through section or heading containers.
 
 ### Declaring custom namespaces
 
@@ -616,8 +716,8 @@ description: ...
 namespaces:
   myvocab: https://example.org/vocab/
   custom: https://example.com/custom#
-tables:
-  - import: tables/
+imports:
+  - tables/
 ```
 
 Then columns and tables can use the short prefix in `semantics:`:
@@ -654,9 +754,10 @@ Two deployments that activate the same subset get the same physical columns, and
 | `name` | string | yes | Bundle display name |
 | `description` | string | no | What this bundle deploys; shown in the admin UI |
 | `namespaces` | mapping | no | Custom prefix-to-URI mappings for CURIE expansion in `semantics:` annotations. Bundle-declared prefixes override built-in ones on conflict. |
-| `tables` | list | no* | Inline table definitions (`- table: X`) and/or file/directory imports (`- import: path/`). The effective table set is the union of all entries. *At least one of `tables:` or a populated import is required. |
-| `subsets` | list | no | Internal reusable DDL groupings — not shown in admin picker. Share one identifier namespace with `templates:`. |
-| `templates` | list | no | User-facing deployment presets — shown in admin picker. Share one identifier namespace with `subsets:`. |
+| `imports` | list | no* | File or directory paths to load tables from (e.g. `- tables/`). The effective table set is the union of all entries. *At least one of `tables:` or `imports:` is required. |
+| `tables` | mapping | no* | Inline table definitions keyed by table name. Can be combined with `imports:`. |
+| `subsets` | mapping | no | Internal reusable DDL groupings — not shown in admin picker. Share one identifier namespace with `templates:`. Keyed map: key is the identifier, value has `description:` and optional `includes:`. |
+| `templates` | mapping | no | User-facing deployment presets — shown in admin picker. Share one identifier namespace with `subsets:`. Same keyed map structure as `subsets:`. |
 | `ontologies` | path | no | Directory of ontology table files loaded as read-only lookup tables |
 | `demodata` | path | no | Directory of seed data CSVs loaded on first deploy |
 | `settings` | path | no | YAML file of schema settings (e.g. menu, theme) |
@@ -671,9 +772,8 @@ Both `subsets:` entries and `templates:` entries support the same properties:
 
 | Key | Type | Description |
 |---|---|---|
-| `name` | string | Identifier. Must be `[a-z][a-z0-9_]*`. Must be unique across both `subsets:` and `templates:`. Referenced by `includes:` and by `subsets:` on columns. |
 | `description` | string | Human-readable description shown in admin UI (for templates) or used as documentation |
-| `includes` | string list | Subsets or templates to activate transitively when this entry is activated. Can reference names from either list. |
+| `includes` | string list | Subsets or templates to activate transitively when this entry is activated. Can reference identifiers from either map. |
 | `settings` | path | Template-specific settings file, merged with bundle-level settings |
 | `permissions` | mapping | Template-specific default permissions, merged with bundle-level permissions |
 | `fixedSchemas` | list | Additional fixed-name schemas created when this template is activated |
@@ -686,25 +786,29 @@ Both `subsets:` entries and `templates:` entries support the same properties:
 
 **Tight pair** — `patient_core` is included by both `patient_registry` and `fair_genomes`. Columns shared by both carry `subsets: [patient_core]`; columns specific to the full registry carry `subsets: [patient_registry]`.
 
-**Singleton template** — `fair_data_point` has its own tables tagged `subsets: [fair_data_point]`. When a template has no shared columns with other templates, no separate subset is needed — the template name itself can be used in `subsets:` on columns.
+**Singleton template** — `fair_data_point` has its own tables tagged `subsets: [fair_data_point]`. When a template has no shared columns with other templates, no separate subset is needed — the template identifier itself can be used in `subsets:` on columns.
 
-**Zero-subsets bundle** — either a single-file bundle with inline `tables:` or a directory bundle with `name:` and `tables: [- import: tables/]`. No subsets, no templates, all columns always created. Suitable for any bundle where every deployment looks the same.
+**Zero-subsets bundle** — either a single-file bundle with inline `tables:` or a directory bundle with `name:` and `imports: [- tables/]`. No subsets, no templates, all columns always created. Suitable for any bundle where every deployment looks the same.
 
 ---
 
 ## Gotchas
 
-- Subset and template names share one namespace. A name used in `subsets:` on a column or table must exist in either `subsets:` or `templates:` in `molgenis.yaml`. An unknown name is a hard error at load time.
-- Names must be unique across both sections. Defining the same name in both `subsets:` and `templates:` is a hard error.
+- Subset and template identifiers share one namespace. An identifier used in `subsets:` on a column or table must exist in either `subsets:` or `templates:` in `molgenis.yaml`. An unknown identifier is a hard error at load time.
+- Identifiers must be unique across both sections. Defining the same identifier in both `subsets:` and `templates:` is a hard error.
 - `includes:` must be acyclic. A cycle (e.g. `a` includes `b` includes `a`) is a hard error.
 - Semantic URIs (`http://...`) belong in `semantics:` on the column, not in `subsets:`. Mixing them into `subsets:` was a bug in the old format.
-- Template names appear verbatim in the admin UI picker. Choose names that are readable to the people creating schemas (`UMCG cohorts staging workspace`, not `umcg_cohorts_staging` — note: the `description` field is what the UI shows; the `name` is the internal identifier).
-- Subset and template `name` values are `snake_case` only: lowercase letters, digits, underscores. No spaces, no camelCase, no hyphens.
+- Template identifiers appear as internal keys. The `description` field is what the UI shows; the key is the internal identifier. Choose keys that are `snake_case` and descriptive (`umcg_cohorts_staging`, not `ucs`).
+- Subset and template identifiers are `snake_case` only: lowercase letters, digits, underscores. No spaces, no camelCase, no hyphens.
 - Table-level `subsets:` gates the whole table. If you only want to gate individual columns, put `subsets:` on the columns, not on the table.
 - `includes:` is **additive union**, not specialization. Including a subset activates ITS columns too — readers familiar with OOP inheritance or openEHR archetype specialization often expect the opposite (narrowing). It doesn't narrow, it adds.
 - Deactivating a subset drops tables and columns in PostgreSQL. This is not reversible without re-activating the subset (and restoring any lost data separately). Never deactivate a subset on a production schema without a backup.
 - The schema editor and bundle YAML are mutually exclusive authoring paths — see the next gotcha.
-- `extension` / `extension_array` is a subtype discriminator column type — it tells the backend which child table a row belongs to. It is unrelated to FHIR Extension, openEHR CLUSTER extension, or plugins. A future rename to `subtype` / `subtype_array` is under consideration; for now the YAML key is `extension`.
+- Column names must be unique table-wide. Two columns in different sections or headings cannot share a name — the parser rejects on duplicate detection while walking the full nested `columns:` tree.
+- The name `columns` is reserved and cannot be used as a column, section, or heading name.
+- Maximum nesting depth is 2 (table → section → heading → columns). Nesting a `columns:` key inside a heading is a parse error.
+- `semantics:` on a section or heading container is a parse error. Set `semantics:` per column only.
+- The word "subtype" is used consistently in three contexts: the `subtypes:` declaration map, the `subtype:` attribute for scoping columns to a child table, and the `type: subtype` discriminator column. Context and YAML position disambiguate. This is intentional — "subtype" matches biomedical vocabulary ("disease subtypes", "cell subtypes") and ER-modeling textbook terminology. It does not collide with FHIR Extension (an additive resource field) or openEHR CLUSTER extension (unmodelled content).
 
 **Schema editor / bundle YAML tension**: the browser-based schema editor edits a PostgreSQL schema directly. If you use it on a schema backed by a `molgenis.yaml` bundle, your edits diverge from the YAML source of truth — the next activate/deactivate operation will not know about them. Either treat the editor as authoring-only (new bundles, before a bundle YAML exists), or as a live-edit tool on schemas without a bundle. Don't mix. On a schema whose source is a bundle YAML, subset activate/deactivate goes through the `activateSubset`/`deactivateSubset` mutations; the schema editor is read-only for structure.
 
@@ -726,7 +830,7 @@ Both `subsets:` entries and `templates:` entries support the same properties:
 Both are named DDL groupings — they share one identifier namespace so `includes:` and column `subsets:` tags work uniformly across both. The split into `subsets:` (internal, not shown in picker) and `templates:` (user-facing, shown in picker) makes the distinction clear at a glance without requiring a per-entry flag.
 
 **Can a template include another template?**
-Yes. `includes:` does not care whether the listed name is in `subsets:` or `templates:`. Templates can include templates.
+Yes. `includes:` does not care whether the listed identifier is in `subsets:` or `templates:`. Templates can include templates.
 
 **Can a bundle have zero subsets?**
 Yes. If the `subsets:` and `templates:` sections are omitted entirely, every column is always created and there is one implicit template (the bundle name). This is the recommended starting point — and the single-file bundle form naturally starts here.
@@ -739,3 +843,6 @@ Technically yes, but it is pointless — columns tagged with it would never be c
 
 **Is data portable between two deployments of the same bundle with different active templates?**
 Only if the column sets overlap. Columns present in both deployments can be migrated directly. Columns that exist in one deployment but not the other require either activating the missing subset first, or dropping those columns from the export.
+
+**What is the difference between `subtype:` on a section and `subtype:` on a column?**
+Same concept, different granularity. On a section, `subtype: WGS` scopes all columns inside that section to the `WGS` child table. On a single column, `subtype: WGS` scopes just that one column. Use section-level `subtype:` to avoid repeating the attribute on every column in the group.

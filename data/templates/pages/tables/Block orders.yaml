@@ -1,19 +1,17 @@
----
-table: "Block orders"
-description: "The order blocks (headers, sections, etc.) appear on a page"
-sections:
-- columns:
-  - name: "id"
-    type: "auto_id"
+table: Block orders
+description: The order blocks (headers, sections, etc.) appear on a page
+columns:
+  id:
+    type: auto_id
     key: 1
-  - name: "configurable page"
-    type: "select"
-    refTable: "Configurable pages"
-    description: "A configurable page where a block is used"
-  - name: "block"
-    type: "select"
-    refTable: "Blocks"
-    description: "The specific block you would like to order"
-  - name: "order"
-    type: "int"
-    description: "The order in which it appears on the page where 0 is the first item"
+  configurable page:
+    type: select
+    refTable: Configurable pages
+    description: A configurable page where a block is used
+  block:
+    type: select
+    refTable: Blocks
+    description: The specific block you would like to order
+  order:
+    type: int
+    description: The order in which it appears on the page where 0 is the first item

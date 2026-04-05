@@ -1,44 +1,43 @@
 table: Variable values
 description: Listing of categorical value+label definition in case of a categorical variable
 subsets: [catalogue_core]
-sections:
-- columns:
-  - name: resource
+columns:
+  resource:
     type: ref
     key: 1
     required: true
     refTable: Resources
     description: Resource the variable belongs to
-  - name: dataset
+  dataset:
     type: ref
     key: 1
     required: true
     refTable: Datasets
     refLink: resource
     description: Dataset the variable belongs to
-  - name: variable
+  variable:
     type: ref
     key: 1
     required: true
     refTable: Variables
     refLink: dataset
     description: Variable name
-  - name: value
+  value:
     key: 1
     required: true
-    description: "Variable value, e.g. '1'"
-  - name: label
+    description: Variable value, e.g. '1'
+  label:
     required: true
-    description: "Variable label, e.g. 'Yes'"
-  - name: order
+    description: Variable label, e.g. 'Yes'
+  order:
     type: int
     description: Order that the variable values should be displayed in
-  - name: is missing
+  is missing:
     type: bool
-    description: "Whether this variable value indicates that data is missing, e.g. '-1' for 'NA'"
-  - name: ontology term URI
+    description: Whether this variable value indicates that data is missing, e.g. '-1' for 'NA'
+  ontology term URI:
     description: Reference to ontology term that defines this categorical value
-  - name: since version
+  since version:
     description: When this variable value was introduced, if applicable
-  - name: until version
+  until version:
     description: When this variable value was removed, if applicable
