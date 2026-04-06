@@ -61,34 +61,16 @@ const showSearch = ref<boolean>(false);
 const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
 const showSelect = ref(false);
-const showAllOptions = ref(false);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
-//computed elements to translate to CheckboxGroup or
-const visibleByBaseCount = computed(() => {
-  if (baseCounts.value.size === 0) return null;
-  const visible = new Set<string>();
-  for (const label of Object.keys(optionMap.value)) {
-    const bc = baseCounts.value.get(label);
-    if (bc === undefined || bc > 0) visible.add(label);
-  }
-  return visible;
-});
-
 const listOptions = computed(() => {
-  return Object.keys(optionMap.value)
-    .filter((label) => {
-      if (searchTerms.value || showAllOptions.value) return true;
-      if (!visibleByBaseCount.value) return true;
-      return visibleByBaseCount.value.has(label);
-    })
-    .map((label) => {
-      return { value: label } as IValueLabel;
-    });
+  return Object.keys(optionMap.value).map((label) => {
+    return { value: label } as IValueLabel;
+  });
 });
 
 const selection = computed(() =>
@@ -295,15 +277,7 @@ async function loadOptions(filter: IQueryMetaData) {
       }
     }
     countsLoading.value = true;
-    const [counts, baseCountsResult] = await Promise.all([
-      props.countFetcher.fetchRefCounts(optMap),
-      props.countFetcher.fetchRefBaseCounts(optMap),
-    ]);
-    localFacetCounts.value = counts;
-    const newBaseCounts = new Map<string, number>(baseCounts.value);
-    for (const [label, count] of baseCountsResult)
-      newBaseCounts.set(label, count);
-    baseCounts.value = newBaseCounts;
+    localFacetCounts.value = await props.countFetcher.fetchRefCounts(optMap);
     countsLoading.value = false;
   }
 }
@@ -435,13 +409,7 @@ const onBlur = useDebounceFn(() => {
 }, 100);
 
 const localFacetCounts = ref<Map<string, number>>(new Map());
-const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
-
-const hiddenByBaseCount = computed(() => {
-  if (!visibleByBaseCount.value) return 0;
-  return Object.keys(optionMap.value).length - visibleByBaseCount.value.size;
-});
 
 const debouncedRefetchCounts = useDebounceFn(async () => {
   if (!props.countFetcher) return;
@@ -612,7 +580,6 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             :facet-counts="
               localFacetCounts.size > 0 ? localFacetCounts : undefined
             "
-            :base-facet-counts="baseCounts.size > 0 ? baseCounts : undefined"
             :counts-loading="countsLoading"
           />
           <InputRadioGroup
@@ -628,27 +595,6 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
-        <button
-          v-if="
-            countFetcher &&
-            hiddenByBaseCount > 0 &&
-            !isInitLoading &&
-            !searchTerms
-          "
-          class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
-          @click="showAllOptions = !showAllOptions"
-        >
-          <template v-if="showAllOptions">
-            Hide {{ hiddenByBaseCount }} empty option{{
-              hiddenByBaseCount !== 1 ? "s" : ""
-            }}
-          </template>
-          <template v-else>
-            Show {{ hiddenByBaseCount }} hidden option{{
-              hiddenByBaseCount !== 1 ? "s" : ""
-            }}
-          </template>
-        </button>
       </div>
     </InputGroupContainer>
   </div>

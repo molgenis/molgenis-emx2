@@ -29,7 +29,6 @@ const props = withDefaults(
     scrollContainer?: HTMLElement | null;
     enableAutoLoad?: boolean;
     facetCounts?: Map<string, number>;
-    baseFacetCounts?: Map<string, number>;
     countsLoading?: boolean;
   }>(),
   {
@@ -101,12 +100,6 @@ const nodes = computed(() => props.parentNode.children || []);
 
 const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
 
-const remainingTermsCount = computed(
-  () =>
-    (props.parentNode.loadMoreTotal || 0) -
-    (props.parentNode.children?.length || 0)
-);
-
 const isShowingAll = computed(() => isNodeShowingAll(props.parentNode));
 
 const canShowAll = computed(() => {
@@ -173,7 +166,7 @@ const combinedLoadMessage = computed(() => {
   if (hasMoreToLoad && hasHiddenBySearch) {
     return {
       show: true,
-      message: `${remainingTermsCount.value} more (${hiddenBySearchCount.value} hidden by filter)`,
+      message: `${hiddenBySearchCount.value} hidden by filter`,
       showLoadMore: true,
       showShowAll: true,
       showApplyFilter: false,
@@ -183,9 +176,7 @@ const combinedLoadMessage = computed(() => {
   if (hasMoreToLoad) {
     return {
       show: true,
-      message: `${remainingTermsCount.value} more term${
-        remainingTermsCount.value !== 1 ? "s" : ""
-      }`,
+      message: "",
       showLoadMore: true,
       showShowAll: false,
       showApplyFilter: false,
@@ -414,19 +405,7 @@ onUnmounted(() => {
           >
             {{ node.label || node.name
             }}<span v-if="facetCounts" class="shrink-0 ml-0.5">
-              <template
-                v-if="
-                  baseFacetCounts &&
-                  node.selected !== 'selected' &&
-                  baseFacetCounts.get(node.name) !== facetCounts.get(node.name)
-                "
-              >
-                ({{ facetCounts.get(node.name) ?? 0 }} /
-                {{ baseFacetCounts.get(node.name) ?? 0 }})
-              </template>
-              <template v-else>
-                ({{ facetCounts.get(node.name) ?? 0 }})
-              </template>
+              ({{ facetCounts.get(node.name) ?? 0 }})
             </span>
           </span>
         </InputLabel>
@@ -458,7 +437,6 @@ onUnmounted(() => {
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
           :facetCounts="facetCounts"
-          :baseFacetCounts="baseFacetCounts"
           :countsLoading="countsLoading"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
@@ -490,21 +468,21 @@ onUnmounted(() => {
             class="text-input underline"
             @click.stop="loadMore(parentNode)"
           >
-            (load more)
+            load more
           </ButtonText>
           <ButtonText
             v-if="combinedLoadMessage.showShowAll"
             class="text-input underline"
             @click.stop="showAllChildren(parentNode)"
           >
-            (show filtered)
+            show filtered
           </ButtonText>
           <ButtonText
             v-if="combinedLoadMessage.showApplyFilter"
             class="text-input underline"
             @click.stop="applyFilter(parentNode)"
           >
-            (apply filter)
+            apply filter
           </ButtonText>
         </div>
       </div>

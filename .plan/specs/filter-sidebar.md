@@ -52,25 +52,12 @@ Living spec. Updated when tasks complete. Single source of truth for expected be
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
-| Cross-filter counts shown per option (excludes current column) | Ref.vue, Ontology.vue | createCountFetcher.spec.ts | - |
+| Cross-filter counts shown per option as single number "(N)" | Ref.vue, Ontology.vue, CheckboxGroup.vue, TreeNode.vue | createCountFetcher.spec.ts | Check: counts like "(8)" shown, no dual "x/y" display |
 | Counts update in-place without full re-render | CheckboxGroup.vue, TreeNode.vue | - | Check: no flicker on count change |
 | `:key="option.value"` on v-for for stable DOM tracking | CheckboxGroup.vue | - | Check: options don't jump on count update |
 | No global loading spinner — counts appear instantly | CheckboxGroup.vue, TreeNode.vue | - | Check: no spinner on count refresh |
 | Nested paths use per-item `_agg` (not `_groupBy`) | createCountFetcher.ts | createCountFetcher.spec.ts (3 nested tests) | - |
 | Ontology nested counts use `_match_any_including_children` | createCountFetcher.ts | createCountFetcher.spec.ts | - |
-
-## Base Count Hiding
-
-| Behavior | Component | Test | Visual |
-|----------|-----------|------|--------|
-| Options with baseCount=0 hidden (not removed from DOM) | Ref.vue, Ontology.vue | Ref.spec.ts "hides options where baseCount is 0" | - |
-| Options with crossFilter count=0 but baseCount>0 remain visible | Ref.vue | Ref.spec.ts "shows options with baseCount>0 even when crossFilter count is 0" | - |
-| Ontology uses `visible=false` + `hiddenByCount` flag (no tree mutation) | Ontology.vue | Ontology.spec.ts "should show pruned nodes when clicking show hidden button" | - |
-| "Show X hidden options" button appears when options are hidden | Ref.vue, Ontology.vue | Ref.spec.ts "reveals hidden options", Ontology.spec.ts same | Check: button visible below options |
-| Clicking show/hide toggles instantly (no reload for Ontology) | Ontology.vue | Ontology.spec.ts "should re-hide nodes" | Check: no flicker on toggle |
-| "Show hidden" button hidden during search | Ref.vue, Ontology.vue | Ref.spec.ts "hides show-hidden button during search", Ontology.spec.ts same | - |
-| Search shows all matching options regardless of baseCount | Ref.vue, Ontology.vue | - | Check: search results include zero-count options |
-| TreeNode does NOT show "hidden by search" for count-hidden nodes | TreeNode.vue | Ontology.spec.ts "should not show hidden by search message" | - |
 
 ## URL Sync
 

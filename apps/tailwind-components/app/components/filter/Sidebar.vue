@@ -77,26 +77,33 @@ function getFilterValue(columnId: string) {
 
     <div v-for="filter in filters.resolvedFilters.value" :key="filter.fullPath">
       <hr class="mx-5 border-black opacity-10" />
-      <div class="flex items-center gap-1 px-5 pt-4 pb-2">
+      <div class="px-5 pt-4 pb-2">
         <div
-          class="inline-flex gap-1 group cursor-pointer"
+          class="inline-flex gap-1 group"
+          :aria-expanded="!collapsed.has(filter.fullPath)"
+          :aria-controls="`filter-section-${filter.fullPath}`"
           @click="toggleSection(filter.fullPath)"
         >
           <h3
-            class="font-sans text-body-base font-bold mr-[5px] group-hover:underline text-search-filter-group-title"
+            class="font-sans text-body-base font-bold mr-[5px] text-search-filter-group-title group-hover:underline group-hover:cursor-pointer"
           >
             {{ filter.label }}
           </h3>
           <span
-            class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle"
-            :class="{ 'rotate-180': collapsed.has(filter.fullPath) }"
+            class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer"
           >
-            <BaseIcon name="caret-up" :width="26" />
+            <BaseIcon
+              :name="
+                collapsed.has(filter.fullPath) ? 'caret-right' : 'caret-up'
+              "
+              :width="26"
+            />
           </span>
         </div>
       </div>
       <div
         v-if="!collapsed.has(filter.fullPath)"
+        :id="`filter-section-${filter.fullPath}`"
         class="mb-5 mx-5 text-search-filter-group-title"
       >
         <FilterColumn

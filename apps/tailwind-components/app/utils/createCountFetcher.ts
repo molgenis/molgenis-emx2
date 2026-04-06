@@ -5,13 +5,8 @@ export interface ICountFetcher {
   fetchRefCounts(
     options: Map<string, Record<string, unknown>>
   ): Promise<Map<string, number>>;
-  fetchRefBaseCounts(
-    options: Map<string, Record<string, unknown>>
-  ): Promise<Map<string, number>>;
   fetchOntologyLeafCounts(names: string[]): Promise<Map<string, number>>;
-  fetchOntologyLeafBaseCounts(names: string[]): Promise<Map<string, number>>;
   fetchOntologyParentCounts(names: string[]): Promise<Map<string, number>>;
-  fetchOntologyParentBaseCounts(names: string[]): Promise<Map<string, number>>;
   getCrossFilter(): IGraphQLFilter | undefined;
 }
 
@@ -277,12 +272,9 @@ export function createCountFetcher(config: {
     getCrossFilter: config.getCrossFilter,
     fetchRefCounts: (options) =>
       _fetchRefCounts(options, config.getCrossFilter()),
-    fetchRefBaseCounts: (options) => _fetchRefCounts(options),
     fetchOntologyLeafCounts: (names) =>
       _fetchOntologyLeafCounts(names, config.getCrossFilter()),
-    fetchOntologyLeafBaseCounts: (names) => _fetchOntologyLeafCounts(names),
     fetchOntologyParentCounts: (names) =>
       _fetchOntologyParentCounts(names, config.getCrossFilter()),
-    fetchOntologyParentBaseCounts: (names) => _fetchOntologyParentCounts(names),
   };
 }

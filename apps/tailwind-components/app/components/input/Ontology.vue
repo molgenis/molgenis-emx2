@@ -92,10 +92,6 @@ function reset() {
   totalCount.value = 0;
   rootCount.value = 0;
   loadingNodes.value.clear();
-  baseCounts.value = new Map();
-  prunedByBaseCount.value = 0;
-  prunedNodes.value.clear();
-  showAllHidden.value = false;
   reload();
 }
 
@@ -109,7 +105,6 @@ watch(
 );
 
 async function reload() {
-  prunedByBaseCount.value = 0;
   //goal is to have only one query to server as the network has most performance impact
   let query = "";
   const variables: any = {};
@@ -678,11 +673,7 @@ onMounted(() => {
 });
 
 const localFacetCounts = ref<Map<string, number>>(new Map());
-const baseCounts = ref<Map<string, number>>(new Map());
 const countsLoading = ref(false);
-const prunedByBaseCount = ref(0);
-const prunedNodes = ref<Set<string>>(new Set());
-const showAllHidden = ref(false);
 
 function collectVisibleNodeNames(node: ITreeNodeState): {
   leaves: string[];
@@ -709,21 +700,14 @@ async function fetchCountsForVisibleNodes() {
   const newCounts = new Map<string, number>(localFacetCounts.value);
   countsLoading.value = true;
 
-  const [leafCounts, parentCounts, baseLeafCounts, baseParentCounts] =
-    await Promise.all([
-      leaves.length > 0
-        ? props.countFetcher.fetchOntologyLeafCounts(leaves)
-        : Promise.resolve(new Map<string, number>()),
-      parents.length > 0
-        ? props.countFetcher.fetchOntologyParentCounts(parents)
-        : Promise.resolve(new Map<string, number>()),
-      leaves.length > 0
-        ? props.countFetcher.fetchOntologyLeafBaseCounts(leaves)
-        : Promise.resolve(new Map<string, number>()),
-      parents.length > 0
-        ? props.countFetcher.fetchOntologyParentBaseCounts(parents)
-        : Promise.resolve(new Map<string, number>()),
-    ]);
+  const [leafCounts, parentCounts] = await Promise.all([
+    leaves.length > 0
+      ? props.countFetcher.fetchOntologyLeafCounts(leaves)
+      : Promise.resolve(new Map<string, number>()),
+    parents.length > 0
+      ? props.countFetcher.fetchOntologyParentCounts(parents)
+      : Promise.resolve(new Map<string, number>()),
+  ]);
 
   for (const [name, count] of leafCounts) {
     newCounts.set(name, count);
@@ -732,74 +716,8 @@ async function fetchCountsForVisibleNodes() {
     newCounts.set(name, count);
   }
 
-  const newBaseCounts = new Map<string, number>(baseCounts.value);
-  for (const [name, count] of baseLeafCounts) newBaseCounts.set(name, count);
-  for (const [name, count] of baseParentCounts) newBaseCounts.set(name, count);
-  baseCounts.value = newBaseCounts;
-
   localFacetCounts.value = newCounts;
-
-  if (!searchTerms.value && !showAllHidden.value) {
-    prunedByBaseCount.value += hideByBaseCounts(
-      rootNode.value,
-      prunedNodes.value
-    );
-  }
-
   countsLoading.value = false;
-}
-
-function toggleShowAllHidden() {
-  showAllHidden.value = !showAllHidden.value;
-  setHiddenNodesVisibility(rootNode.value, showAllHidden.value);
-}
-
-function setHiddenNodesVisibility(node: ITreeNodeState, show: boolean) {
-  if (!node.children) return;
-  for (const child of node.children) {
-    const bc = baseCounts.value.get(child.name);
-    if (bc === 0) {
-      child.visible = show;
-      child.hiddenByCount = !show;
-    }
-    if (child.children && child.children.length > 0) {
-      setHiddenNodesVisibility(child, show);
-    }
-  }
-}
-
-function hideByBaseCounts(node: ITreeNodeState, seen: Set<string>): number {
-  let hidden = 0;
-  if (!node.children) return hidden;
-  for (const child of node.children) {
-    if (seen.has(child.name)) {
-      if (child.expanded && child.children && child.children.length > 0) {
-        hidden += hideByBaseCounts(child, seen);
-      }
-      continue;
-    }
-    seen.add(child.name);
-    const isExpandedParent =
-      child.expanded && child.children && child.children.length > 0;
-    if (isExpandedParent) {
-      hidden += hideByBaseCounts(child, seen);
-      const ownCount = baseCounts.value.get(child.name);
-      const visibleChildren = child.children.filter((c) => c.visible !== false);
-      if (visibleChildren.length === 0 && ownCount === 0) {
-        child.visible = false;
-        child.hiddenByCount = true;
-        hidden++;
-      }
-    } else {
-      const count = baseCounts.value.get(child.name);
-      if (count === 0) {
-        child.visible = false;
-        child.hiddenByCount = true;
-        hidden++;
-      }
-    }
-  }
-  return hidden;
 }
 
 const debouncedRefetchCounts = useDebounceFn(() => {
@@ -982,7 +900,6 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             :facet-counts="
               localFacetCounts.size > 0 ? localFacetCounts : undefined
             "
-            :base-facet-counts="baseCounts.size > 0 ? baseCounts : undefined"
             :counts-loading="countsLoading"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
@@ -994,27 +911,6 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
             aria-live="polite"
             aria-atomic="true"
           />
-          <button
-            v-if="
-              countFetcher &&
-              prunedByBaseCount > 0 &&
-              !initLoading &&
-              !searchTerms
-            "
-            class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
-            @click="toggleShowAllHidden"
-          >
-            <template v-if="showAllHidden">
-              Hide {{ prunedByBaseCount }} empty option{{
-                prunedByBaseCount !== 1 ? "s" : ""
-              }}
-            </template>
-            <template v-else>
-              Show {{ prunedByBaseCount }} hidden option{{
-                prunedByBaseCount !== 1 ? "s" : ""
-              }}
-            </template>
-          </button>
         </fieldset>
       </div>
     </InputGroupContainer>

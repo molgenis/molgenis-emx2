@@ -154,10 +154,9 @@ function mountSidebar(
 }
 
 async function expandAllSections(wrapper: any) {
-  const toggles = wrapper.findAll(".inline-flex.group.cursor-pointer");
+  const toggles = wrapper.findAll("[aria-expanded]");
   for (const toggle of toggles) {
-    const caret = toggle.find(".rotate-180");
-    if (caret.exists()) {
+    if (toggle.attributes("aria-expanded") === "false") {
       await toggle.trigger("click");
     }
   }
@@ -523,7 +522,7 @@ describe("Sidebar", () => {
         .find((f) => f.props("column")?.id === "disease");
       expect(diseaseFilterBefore).toBeDefined();
 
-      const toggles = wrapper.findAll(".inline-flex.group.cursor-pointer");
+      const toggles = wrapper.findAll("[aria-expanded]");
       const diseaseToggle = toggles[0];
       await diseaseToggle!.trigger("click");
       await nextTick();
