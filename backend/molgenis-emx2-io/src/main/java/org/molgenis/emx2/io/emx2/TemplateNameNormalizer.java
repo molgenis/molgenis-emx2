@@ -4,15 +4,15 @@ import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SubsetNameNormalizer {
+public class TemplateNameNormalizer {
 
-  private static final Logger log = LoggerFactory.getLogger(SubsetNameNormalizer.class);
+  private static final Logger log = LoggerFactory.getLogger(TemplateNameNormalizer.class);
 
-  private SubsetNameNormalizer() {}
+  private TemplateNameNormalizer() {}
 
-  static String normalize(String originalName) {
+  public static String normalize(String originalName) {
     if (originalName == null) {
-      throw new MolgenisException("Subset name must not be null");
+      throw new MolgenisException("Template name must not be null");
     }
 
     String result = originalName.toLowerCase();
@@ -22,7 +22,7 @@ class SubsetNameNormalizer {
 
     if (result.isEmpty()) {
       throw new MolgenisException(
-          "Subset name '" + originalName + "' normalized to an empty string");
+          "Template name '" + originalName + "' normalized to an empty string");
     }
 
     if (!Character.isLetter(result.charAt(0))) {
@@ -30,13 +30,13 @@ class SubsetNameNormalizer {
     }
 
     if (!result.equals(originalName)) {
-      log.info("normalized subset name '{}' -> '{}'", originalName, result);
+      log.info("normalized template name '{}' -> '{}'", originalName, result);
     }
 
     return result;
   }
 
-  static boolean isValidIdentifier(String name) {
+  public static boolean isValidIdentifier(String name) {
     return name != null && name.matches("[a-z][a-z0-9_]*");
   }
 }

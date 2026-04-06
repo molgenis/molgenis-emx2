@@ -18,7 +18,19 @@ export const schemaQuery = gql`
     }
     _schema {
       name
-      activeProfiles
+      activeSubsets
+      availableSubsets {
+        name
+        description
+        includes
+      }
+      availableTemplates {
+        name
+        description
+        includes
+      }
+      bundleName
+      bundleDescription
       tables {
         name
         tableType
@@ -32,7 +44,7 @@ export const schemaQuery = gql`
           value
         }
         semantics
-        profiles
+        subsets
         columns {
           name
           labels {
@@ -57,7 +69,7 @@ export const schemaQuery = gql`
             value
           }
           semantics
-          profiles
+          subsets
           validation
           visible
           computed
@@ -212,27 +224,27 @@ export function getLocalizedDescription(
   }
 }
 
-export function getAvailableProfiles(
+export function getAvailableTemplates(
   schema: any,
-  extraProfiles?: string[]
+  extraSubsets?: string[]
 ): string[] {
-  const profiles = new Set<string>();
-  if (extraProfiles) extraProfiles.forEach((p) => profiles.add(p));
+  const subsets = new Set<string>();
+  if (extraSubsets) extraSubsets.forEach((p) => subsets.add(p));
   const allTables = [...(schema.tables || []), ...(schema.ontologies || [])];
   for (const table of allTables) {
-    if (table.profiles) table.profiles.forEach((p: string) => profiles.add(p));
+    if (table.subsets) table.subsets.forEach((p: string) => subsets.add(p));
     if (table.subclasses) {
       for (const sub of table.subclasses) {
-        if (sub.profiles) sub.profiles.forEach((p: string) => profiles.add(p));
+        if (sub.subsets) sub.subsets.forEach((p: string) => subsets.add(p));
       }
     }
     if (table.columns) {
       for (const col of table.columns) {
-        if (col.profiles) col.profiles.forEach((p: string) => profiles.add(p));
+        if (col.subsets) col.subsets.forEach((p: string) => subsets.add(p));
       }
     }
   }
-  return [...profiles].sort();
+  return [...subsets].sort();
 }
 
 export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {

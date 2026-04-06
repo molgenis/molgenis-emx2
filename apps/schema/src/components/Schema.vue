@@ -42,18 +42,71 @@
           </MessageSuccess>
         </div>
       </div>
-      <div
-        class="profiles-checkboxes"
-        v-if="isManager && availableProfiles.length"
-      >
-        <InputCheckbox
-          id="schema_active_profiles"
-          v-model="activeProfiles"
-          :options="availableProfiles"
-          label="Active profiles"
-          :hideClearButton="true"
-          @update:modelValue="handleActiveProfilesChange"
-        />
+      <div class="subsets-panel" v-if="isManager && schema.bundleName">
+        <div class="subsets-panel__header">
+          <strong :title="schema.bundleDescription || undefined">{{
+            schema.bundleName
+          }}</strong>
+          <span class="subsets-panel__label ml-2 text-muted"
+            >Active templates</span
+          >
+        </div>
+        <div class="subsets-panel__list">
+          <template v-if="schema.availableTemplates?.length">
+            <span class="subsets-panel__group-label text-muted">Templates</span>
+            <div
+              v-for="item in schema.availableTemplates"
+              :key="item.name"
+              class="form-check form-check-inline"
+            >
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :id="`subset_${item.name}`"
+                :checked="schema.activeSubsets?.includes(item.name)"
+                @change="toggleSubset(item.name, $event.target.checked)"
+              />
+              <label
+                class="form-check-label"
+                :for="`subset_${item.name}`"
+                :title="item.description || undefined"
+                >{{ item.name
+                }}<small
+                  v-if="item.description"
+                  class="ml-1 text-muted d-block"
+                  >{{ item.description }}</small
+                ></label
+              >
+            </div>
+          </template>
+          <template v-if="schema.availableSubsets?.length">
+            <span class="subsets-panel__group-label text-muted">Subsets</span>
+            <div
+              v-for="item in schema.availableSubsets"
+              :key="item.name"
+              class="form-check form-check-inline"
+            >
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :id="`subset_${item.name}`"
+                :checked="schema.activeSubsets?.includes(item.name)"
+                @change="toggleSubset(item.name, $event.target.checked)"
+              />
+              <label
+                class="form-check-label"
+                :for="`subset_${item.name}`"
+                :title="item.description || undefined"
+                >{{ item.name
+                }}<small
+                  v-if="item.description"
+                  class="ml-1 text-muted d-block"
+                  >{{ item.description }}</small
+                ></label
+              >
+            </div>
+          </template>
+        </div>
       </div>
     </div>
     <Spinner v-if="loading === true" />
@@ -107,8 +160,18 @@ table {
   z-index: 998;
 }
 
-.profiles-checkboxes :deep(.form-check-inline) {
+.subsets-panel__list .form-check-inline {
   display: block;
+}
+
+.subsets-panel__group-label {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+.subsets-panel__header {
+  margin-bottom: 4px;
 }
 </style>
 
@@ -119,7 +182,6 @@ import SchemaToc from "./SchemaToc.vue";
 import SchemaDiagram from "./SchemaDiagram.vue";
 import {
   ButtonAction,
-  InputCheckbox,
   MessageError,
   MessageSuccess,
   MessageWarning,
@@ -132,14 +194,12 @@ import {
   schemaQuery,
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
-  getAvailableProfiles,
 } from "../utils.ts";
 import gql from "graphql-tag";
 
 export default {
   components: {
     InputBoolean,
-    InputCheckbox,
     SchemaView,
     ButtonAction,
     MessageError,
@@ -168,18 +228,22 @@ export default {
       dirty: false,
       key: Date.now(),
       isManager: false,
-      activeProfiles: [],
     };
   },
-  computed: {
-    availableProfiles() {
-      return getAvailableProfiles(this.schema);
-    },
-  },
   methods: {
-    handleActiveProfilesChange() {
-      this.dirty = true;
-      this.success = null;
+    async toggleSubset(name, activate) {
+      const mutation = activate
+        ? `mutation { activateSubset(name: "${name}") { message } }`
+        : `mutation { deactivateSubset(name: "${name}") { message } }`;
+      try {
+        await request("graphql", mutation);
+        await this.loadSchema();
+      } catch (error) {
+        this.error =
+          error?.response?.errors?.[0]?.message ||
+          `Failed to ${activate ? "activate" : "deactivate"} subset "${name}"`;
+        await this.loadSchema();
+      }
     },
     handleInput() {
       this.dirty = true;
@@ -238,18 +302,14 @@ export default {
       request(
         "graphql",
         gql`
-          mutation change(
-            $tables: [MolgenisTableInput]
-            $activeProfiles: [String]
-          ) {
-            change(tables: $tables, activeProfiles: $activeProfiles) {
+          mutation change($tables: [MolgenisTableInput]) {
+            change(tables: $tables) {
               message
             }
           }
         `,
         {
           tables: tables,
-          activeProfiles: this.activeProfiles,
         }
       )
         .then(() => {
@@ -283,7 +343,6 @@ export default {
           this.key = Date.now();
           this.dirty = false;
           this.isManager = data._session.roles?.includes("Manager");
-          this.activeProfiles = data._schema.activeProfiles || [];
         })
         .catch((error) => {
           if (error.response?.errors[0]?.message) {

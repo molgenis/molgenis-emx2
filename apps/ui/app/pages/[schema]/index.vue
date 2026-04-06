@@ -45,7 +45,7 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   key: "tables",
   method: "POST",
   body: {
-    query: `{_schema(applyProfileFilter:true){id,label,tables{id,label,tableType,description}}}`,
+    query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
   },
 });
 

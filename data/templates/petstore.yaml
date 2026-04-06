@@ -22,6 +22,7 @@ tables:
         refTable: Category
       photoUrls:
         type: string_array
+    sections:
       details:
         description: Details
         columns:
@@ -35,12 +36,13 @@ tables:
             type: decimal
             required: 'true'
             semantics: ['http://example.com/petstore#hasWeight']
-      Heading2:
-        columns:
-          orders:
-            type: refback
-            refTable: Order
-            refBack: pet
+        headings:
+          Heading2:
+            columns:
+              orders:
+                type: refback
+                refTable: Order
+                refBack: pet
 
   Order:
     columns:
@@ -89,6 +91,7 @@ tables:
         type: multiselect
         refTable: Pet
         semantics: ['http://example.com/petstore#hasPets']
+    sections:
       address:
         columns:
           street:
@@ -96,9 +99,9 @@ tables:
 
   Types:
     description: A table containing a column for each column type
-    columns:
+    sections:
       String types:
-        columns:
+        headings:
           Simple string types:
             columns:
               string type:
@@ -127,7 +130,7 @@ tables:
               hyperlink array type:
                 type: hyperlink_array
       Numeric types:
-        columns:
+        headings:
           Simple numeric types:
             columns:
               int type:
@@ -160,6 +163,7 @@ tables:
             type: uuid_array
           file type:
             type: file
+        headings:
           Date types:
             columns:
               date type:
@@ -255,7 +259,6 @@ tables:
           nameNoConditional:
             required: 'false'
       validationsVisible:
-        required: 'false'
         label: Validation & visible expressions
         columns:
           year:
@@ -283,9 +286,8 @@ tables:
             refTable: YesNoUnknown
             refLabel: ${label}
             label: Additional info, if yes a new header will appear.
+        headings:
           additionalInfoHeader:
-            visible: additionalInfo?.name === "yes"
-            label: Additional Information (header visible if additional info known is yes)
             columns:
               dateStart:
                 type: date

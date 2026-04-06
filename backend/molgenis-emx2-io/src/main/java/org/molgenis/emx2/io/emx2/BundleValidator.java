@@ -13,22 +13,15 @@ class BundleValidator {
   private BundleValidator() {}
 
   static void validate(
-      String bundleName,
-      Map<String, SubsetEntry> subsetRegistry,
-      Map<String, SubsetEntry> templateRegistry,
-      SchemaMetadata schema) {
+      String bundleName, Map<String, SubsetEntry> templateRegistry, SchemaMetadata schema) {
 
     List<String> errors = new ArrayList<>();
 
-    validateIdentifierFormats(subsetRegistry, templateRegistry, bundleName, errors);
-    validateNamespaceUniqueness(subsetRegistry, templateRegistry, errors);
-
-    Map<String, SubsetEntry> combined = combinedRegistry(subsetRegistry, templateRegistry);
-
-    validateIncludesResolution(combined, bundleName, errors);
-    validateIncludesAcyclicity(combined, errors);
-    validateSubsetReferencesOnTablesAndColumns(schema, combined, errors);
-    validateReferenceCompleteness(schema, combined, errors);
+    validateIdentifierFormats(templateRegistry, bundleName, errors);
+    validateIncludesResolution(templateRegistry, bundleName, errors);
+    validateIncludesAcyclicity(templateRegistry, errors);
+    validateSubsetReferencesOnTablesAndColumns(schema, templateRegistry, errors);
+    validateReferenceCompleteness(schema, templateRegistry, errors);
 
     if (!errors.isEmpty()) {
       throw new MolgenisException(
@@ -36,30 +29,10 @@ class BundleValidator {
     }
   }
 
-  private static Map<String, SubsetEntry> combinedRegistry(
-      Map<String, SubsetEntry> subsetRegistry, Map<String, SubsetEntry> templateRegistry) {
-    Map<String, SubsetEntry> combined = new LinkedHashMap<>(subsetRegistry);
-    combined.putAll(templateRegistry);
-    return combined;
-  }
-
   private static final String IDENTIFIER_PATTERN = "[a-z][a-z0-9_]*";
 
   private static void validateIdentifierFormats(
-      Map<String, SubsetEntry> subsetRegistry,
-      Map<String, SubsetEntry> templateRegistry,
-      String bundleName,
-      List<String> errors) {
-    for (String id : subsetRegistry.keySet()) {
-      if (!id.matches(IDENTIFIER_PATTERN)) {
-        errors.add(
-            "Bundle '"
-                + bundleName
-                + "': invalid subset identifier '"
-                + id
-                + "'; must match [a-z][a-z0-9_]*");
-      }
-    }
+      Map<String, SubsetEntry> templateRegistry, String bundleName, List<String> errors) {
     for (String id : templateRegistry.keySet()) {
       if (!id.matches(IDENTIFIER_PATTERN)) {
         errors.add(
@@ -68,20 +41,6 @@ class BundleValidator {
                 + "': invalid template identifier '"
                 + id
                 + "'; must match [a-z][a-z0-9_]*");
-      }
-    }
-  }
-
-  private static void validateNamespaceUniqueness(
-      Map<String, SubsetEntry> subsetRegistry,
-      Map<String, SubsetEntry> templateRegistry,
-      List<String> errors) {
-    for (String id : templateRegistry.keySet()) {
-      if (subsetRegistry.containsKey(id)) {
-        errors.add(
-            "Identifier '"
-                + id
-                + "' appears in both 'subsets:' and 'templates:'; names must be unique across both sections");
       }
     }
   }
@@ -234,10 +193,10 @@ class BundleValidator {
                   + refTableName
                   + "' (subsets: "
                   + sortedJoin(targetSubsets)
-                  + ") but no single template or subset in the registry covers both when activated. "
+                  + ") but no single template in the registry covers both when activated. "
                   + "Either make '"
                   + refTableName
-                  + "' always-on (no subsets tag) or add a template/subset whose transitive includes cover both.");
+                  + "' always-on (no templates tag) or add a template whose transitive includes cover both.");
         }
       }
     }

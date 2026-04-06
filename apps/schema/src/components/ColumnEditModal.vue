@@ -227,28 +227,28 @@
                 />
               </div>
               <div class="col-4">
-                <div class="profiles-checkboxes">
+                <div class="subsets-checkboxes">
                   <InputCheckbox
-                    id="column_profiles"
-                    v-model="column.profiles"
-                    :options="availableProfiles"
+                    id="column_subsets"
+                    v-model="column.subsets"
+                    :options="availableTemplates"
                     :hideClearButton="true"
-                    label="profiles"
+                    label="Templates"
                   />
                 </div>
                 <div class="d-flex align-items-end">
                   <InputString
-                    id="column_new_profile"
-                    v-model="newProfile"
-                    label="Add new profile"
+                    id="column_new_template"
+                    v-model="newTemplate"
+                    label="Add new template"
                     class="flex-grow-1"
                   />
                   <button
                     class="btn btn-outline-primary ml-2 mb-1"
                     type="button"
-                    @click="addNewProfile"
+                    @click="addNewTemplate"
                     :disabled="
-                      !newProfile || availableProfiles.includes(newProfile)
+                      !newTemplate || availableTemplates.includes(newTemplate)
                     "
                   >
                     <i class="fas fa-fw fa-plus"></i>
@@ -310,7 +310,7 @@
 </template>
 
 <style>
-.profiles-checkboxes .form-check-inline {
+.subsets-checkboxes .form-check-inline {
   display: block;
 }
 
@@ -347,7 +347,7 @@ import {
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import { addTableIdsLabelsDescription, getAvailableProfiles } from "../utils";
+import { addTableIdsLabelsDescription, getAvailableTemplates } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -425,12 +425,12 @@ export default {
       rowErrors: {} as Record<string, string>,
       columnTypes,
       AUTO_ID,
-      newProfile: "" as string,
+      newTemplate: "" as string,
     };
   },
   computed: {
-    availableProfiles(): string[] {
-      return getAvailableProfiles(this.schema, this.column.profiles);
+    availableTemplates(): string[] {
+      return getAvailableTemplates(this.schema, this.column.subsets);
     },
     //current table object unedited
     originalTable() {
@@ -530,14 +530,14 @@ export default {
     },
   },
   methods: {
-    addNewProfile() {
+    addNewTemplate() {
       if (
-        this.newProfile &&
-        !this.availableProfiles.includes(this.newProfile)
+        this.newTemplate &&
+        !this.availableTemplates.includes(this.newTemplate)
       ) {
-        if (!this.column.profiles) this.column.profiles = [];
-        this.column.profiles.push(this.newProfile);
-        this.newProfile = "";
+        if (!this.column.subsets) this.column.subsets = [];
+        this.column.subsets.push(this.newTemplate);
+        this.newTemplate = "";
       }
     },
     showModal() {

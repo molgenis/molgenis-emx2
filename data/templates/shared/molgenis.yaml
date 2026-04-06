@@ -3,29 +3,36 @@ description: Shared tables for all catalogue variants, cohorts, patient registri
 imports:
 - tables/
 - ontologies/tables/
-subsets:
+templates:
   catalogue_core:
     description: Core catalogue columns visible in all catalogue-family templates
+    internal: true
   cohort_core:
     description: Cohort-specific columns shared by CohortsStaging, UMCGCohortsStaging, and UMCUCohorts
     includes: [catalogue_core]
+    internal: true
   rwe_core:
     description: RWE columns also visible in EMA template
     includes: [rwe_staging]
+    internal: true
   ema:
     description: EMA-specific columns (drug study registry)
     includes: [rwe_core]
+    internal: true
   integrate:
     description: INTEGRATE-specific columns
     includes: [catalogue_core]
+    internal: true
   patient_core:
     description: Shared patient registry and FAIR Genomes columns
+    internal: true
   fair_genomes_metabolomics:
     description: FAIR Genomes metabolomics extension
     includes: [patient_core]
+    internal: true
   aggregate_core:
     description: DataCatalogue aggregates columns
-templates:
+    internal: true
   rwe_staging:
     description: Real-world evidence staging workspace
     includes: [catalogue_core]

@@ -76,6 +76,7 @@ export interface IColumn {
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];
+  subsets?: string[];
   validation?: string;
   visible?: string;
   table?: string;
@@ -94,6 +95,12 @@ export interface IRefColumn extends IColumn {
   refLinkId?: string;
 }
 
+export interface ITemplateInfo {
+  name: string;
+  description?: string;
+  includes?: string[];
+}
+
 export interface ITableMetaData {
   id: string;
   schemaId: string;
@@ -106,6 +113,7 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  subsets?: string[];
 }
 
 export interface ISchemaMetaData {
@@ -113,6 +121,11 @@ export interface ISchemaMetaData {
   label: string;
   description?: string;
   tables: ITableMetaData[];
+  activeSubsets?: string[];
+  availableSubsets?: ITemplateInfo[];
+  availableTemplates?: ITemplateInfo[];
+  bundleName?: string;
+  bundleDescription?: string;
 }
 
 export interface IFieldError {

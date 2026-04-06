@@ -46,27 +46,27 @@
         v-model="table.semantics"
         label="Semantics"
       />
-      <div class="profiles-checkboxes">
+      <div class="subsets-checkboxes">
         <InputCheckbox
-          id="table_profiles"
-          v-model="table.profiles"
-          :options="availableProfiles"
+          id="table_subsets"
+          v-model="table.subsets"
+          :options="availableTemplates"
           :hideClearButton="true"
-          label="Profiles"
+          label="Templates"
         />
       </div>
       <div class="d-flex align-items-end mb-3">
         <InputString
-          id="table_new_profile"
-          v-model="newProfile"
-          label="Add new profile"
+          id="table_new_template"
+          v-model="newTemplate"
+          label="Add new template"
           class="flex-grow-1"
         />
         <button
           class="btn btn-outline-primary ml-2 mb-1"
           type="button"
-          @click="addNewProfile"
-          :disabled="!newProfile || availableProfiles.includes(newProfile)"
+          @click="addNewTemplate"
+          :disabled="!newTemplate || availableTemplates.includes(newTemplate)"
         >
           <i class="fas fa-fw fa-plus"></i>
         </button>
@@ -88,7 +88,7 @@
 </template>
 
 <style scoped>
-.profiles-checkboxes :deep(.form-check-inline) {
+.subsets-checkboxes :deep(.form-check-inline) {
   display: block;
 }
 </style>
@@ -107,7 +107,7 @@ import {
   deepClone,
   InputTextLocalized,
 } from "molgenis-components";
-import { getAvailableProfiles } from "../utils.ts";
+import { getAvailableTemplates } from "../utils.ts";
 
 export default {
   components: {
@@ -157,12 +157,12 @@ export default {
       table: {},
       /** whether modal is visible */
       modalVisible: false,
-      newProfile: "",
+      newTemplate: "",
     };
   },
   computed: {
-    availableProfiles() {
-      return getAvailableProfiles(this.schema, this.table.profiles);
+    availableTemplates() {
+      return getAvailableTemplates(this.schema, this.table.subsets);
     },
     title() {
       return this.tableType === "ontology"
@@ -221,14 +221,14 @@ export default {
     },
   },
   methods: {
-    addNewProfile() {
+    addNewTemplate() {
       if (
-        this.newProfile &&
-        !this.availableProfiles.includes(this.newProfile)
+        this.newTemplate &&
+        !this.availableTemplates.includes(this.newTemplate)
       ) {
-        if (!this.table.profiles) this.table.profiles = [];
-        this.table.profiles.push(this.newProfile);
-        this.newProfile = "";
+        if (!this.table.subsets) this.table.subsets = [];
+        this.table.subsets.push(this.newTemplate);
+        this.newTemplate = "";
       }
     },
     showModal() {

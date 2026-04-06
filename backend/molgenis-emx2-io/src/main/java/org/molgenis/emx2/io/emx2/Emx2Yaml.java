@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.emx2.bundle.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,16 +53,12 @@ public class Emx2Yaml {
   private static final String ROLE_MANAGER = "Manager";
   private static final String ROLE_OWNER_VALUE = "Owner";
 
-  private static final String FIELD_SUBSETS = "subsets";
+  private static final String FIELD_TEMPLATES = "templates";
   private static final String FIELD_SUBTYPES = "subtypes";
   private static final String FIELD_SUBTYPE = "subtype";
   private static final String FIELD_TABLES = "tables";
   private static final String FIELD_NAMESPACES = "namespaces";
-  private static final String FIELD_TEMPLATES = "templates";
-  private static final String FIELD_INCLUDES = "includes";
   private static final String RESERVED_COLUMNS = "columns";
-  private static final String TYPE_SUBTYPE = "subtype";
-  private static final String TYPE_SUBTYPE_ARRAY = "subtype_array";
   private static final String TYPE_EXTENSION = "extension";
   private static final String TYPE_EXTENSION_ARRAY = "extension_array";
   private static final String MOLGENIS_YAML = "molgenis.yaml";
@@ -71,9 +68,7 @@ public class Emx2Yaml {
 
   private static final Logger log = LoggerFactory.getLogger(Emx2Yaml.class);
 
-  private Emx2Yaml() {
-    // hidden
-  }
+  private Emx2Yaml() {}
 
   public static BundleResult fromBundle(Path bundlePathOrFile) throws IOException {
     if (Files.isRegularFile(bundlePathOrFile)) {
@@ -85,7 +80,7 @@ public class Emx2Yaml {
       Path baseDir = bundlePathOrFile.getParent();
       Map<String, Object> yaml =
           ImportExpander.expandImports(rawYaml, baseDir, new LinkedHashSet<>());
-      return parseSingleFileBundle(yaml);
+      return parseSingleFileBundle(yaml, mapper);
     } else if (Files.isDirectory(bundlePathOrFile)) {
       return fromBundleDirectory(bundlePathOrFile);
     } else {
@@ -98,16 +93,15 @@ public class Emx2Yaml {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     Map<String, Object> rawYaml = mapper.readValue(inputStream, Map.class);
     ImportExpander.assertNoImports(rawYaml, "InputStream");
-    return parseSingleFileBundle(rawYaml);
+    return parseSingleFileBundle(rawYaml, mapper);
   }
 
   @SuppressWarnings("unchecked")
-  private static BundleResult parseSingleFileBundle(Map<String, Object> yaml) {
+  private static BundleResult parseSingleFileBundle(Map<String, Object> yaml, ObjectMapper mapper) {
     String name = (String) yaml.get(FIELD_NAME);
     if (name == null) {
       throw new MolgenisException("Bundle parse error: missing required 'name' field");
     }
-    String description = (String) yaml.get(FIELD_DESCRIPTION);
 
     for (String forbidden :
         List.of(
@@ -131,21 +125,16 @@ public class Emx2Yaml {
           "Bundle '" + name + "' must declare at least one table in 'tables:'");
     }
 
-    // TODO: parse namespaces: here (see phase9 plan roadmap)
-    Map<String, SubsetEntry> subsetRegistry = parseSubsetRegistry(yaml);
-    Map<String, SubsetEntry> templateRegistry = parseTemplateRegistry(yaml);
+    Bundle bundle = mapper.convertValue(yaml, Bundle.class);
+    Map<String, SubsetEntry> subsetRegistry = toSubsetEntryMap(bundle.templates(), true);
+    Map<String, SubsetEntry> templateRegistry = toSubsetEntryMap(bundle.templates(), false);
+    Map<String, SubsetEntry> combinedRegistry = toCombinedEntryMap(bundle.templates());
+    SchemaMetadata schema = bundleToSchemaMetadata(bundle);
 
-    SchemaMetadata schema = new SchemaMetadata();
-    for (Map.Entry<String, Object> tableEntry : rawTables.entrySet()) {
-      String tableName = tableEntry.getKey();
-      Map<String, Object> tableMap =
-          tableEntry.getValue() != null ? (Map<String, Object>) tableEntry.getValue() : Map.of();
-      parseNewFormatTableIntoSchema(tableName, tableMap, schema);
-    }
+    BundleValidator.validate(name, combinedRegistry, schema);
 
-    BundleValidator.validate(name, subsetRegistry, templateRegistry, schema);
-
-    return new BundleResult(name, description, schema, subsetRegistry, templateRegistry, Map.of());
+    return new BundleResult(
+        bundle.name(), bundle.description(), schema, subsetRegistry, templateRegistry, Map.of());
   }
 
   @SuppressWarnings("unchecked")
@@ -170,25 +159,18 @@ public class Emx2Yaml {
       throw new MolgenisException(
           "Bundle parse error: missing required 'name' field in " + molgenisYaml);
     }
-    String description = (String) yaml.get(FIELD_DESCRIPTION);
 
     Map<String, String> namespaces = parseNamespaces(yaml);
-    Map<String, SubsetEntry> subsetRegistry = parseSubsetRegistry(yaml);
-    Map<String, SubsetEntry> templateRegistry = parseTemplateRegistry(yaml);
+    Bundle bundle = mapper.convertValue(yaml, Bundle.class);
+    Map<String, SubsetEntry> subsetRegistry = toSubsetEntryMap(bundle.templates(), true);
+    Map<String, SubsetEntry> templateRegistry = toSubsetEntryMap(bundle.templates(), false);
+    Map<String, SubsetEntry> combinedRegistry = toCombinedEntryMap(bundle.templates());
+    SchemaMetadata schema = bundleToSchemaMetadata(bundle);
 
-    SchemaMetadata schema = new SchemaMetadata();
-    Map<String, Object> tablesMap = (Map<String, Object>) yaml.getOrDefault(FIELD_TABLES, Map.of());
-    for (Map.Entry<String, Object> tableEntry : tablesMap.entrySet()) {
-      String tableName = tableEntry.getKey();
-      Map<String, Object> tableMap =
-          tableEntry.getValue() != null ? (Map<String, Object>) tableEntry.getValue() : Map.of();
-      parseNewFormatTableIntoSchema(tableName, tableMap, schema);
-    }
-
-    BundleValidator.validate(name, subsetRegistry, templateRegistry, schema);
+    BundleValidator.validate(name, combinedRegistry, schema);
 
     return new BundleResult(
-        name, description, schema, subsetRegistry, templateRegistry, namespaces);
+        bundle.name(), bundle.description(), schema, subsetRegistry, templateRegistry, namespaces);
   }
 
   private static void loadTableFileIntoSchema(Path yamlFile, SchemaMetadata schema)
@@ -205,6 +187,286 @@ public class Emx2Yaml {
     parseNewFormatTableIntoSchema(tableName, yaml, schema);
   }
 
+  private static Map<String, SubsetEntry> toSubsetEntryMap(
+      Map<String, TemplateDef> templateMap, boolean internalOnly) {
+    Map<String, SubsetEntry> result = new LinkedHashMap<>();
+    for (Map.Entry<String, TemplateDef> entry : templateMap.entrySet()) {
+      boolean isInternal = Boolean.TRUE.equals(entry.getValue().internal());
+      if (isInternal == internalOnly) {
+        TemplateDef def = entry.getValue();
+        result.put(
+            entry.getKey(), new SubsetEntry(entry.getKey(), def.description(), def.includes()));
+      }
+    }
+    return result;
+  }
+
+  private static Map<String, SubsetEntry> toCombinedEntryMap(Map<String, TemplateDef> templateMap) {
+    Map<String, SubsetEntry> result = new LinkedHashMap<>();
+    for (Map.Entry<String, TemplateDef> entry : templateMap.entrySet()) {
+      TemplateDef def = entry.getValue();
+      result.put(
+          entry.getKey(), new SubsetEntry(entry.getKey(), def.description(), def.includes()));
+    }
+    return result;
+  }
+
+  private static SchemaMetadata bundleToSchemaMetadata(Bundle bundle) {
+    SchemaMetadata schema = new SchemaMetadata();
+    for (Map.Entry<String, TableDef> entry : bundle.tables().entrySet()) {
+      materializeTableDef(entry.getKey(), entry.getValue(), schema);
+    }
+    return schema;
+  }
+
+  private static void materializeTableDef(
+      String tableName, TableDef tableDef, SchemaMetadata schema) {
+    TableMetadata rootTable = new TableMetadata(tableName);
+
+    if (tableDef.description() != null) {
+      rootTable.setDescription(tableDef.description());
+    }
+    if (tableDef.semantics() != null && !tableDef.semantics().isEmpty()) {
+      rootTable.setSemantics(tableDef.semantics().toArray(new String[0]));
+    }
+    if (tableDef.label() != null) {
+      rootTable.setLabel(tableDef.label());
+    }
+    if (tableDef.oldName() != null) {
+      rootTable.setOldName(tableDef.oldName());
+    }
+    if (tableDef.importSchema() != null) {
+      rootTable.setImportSchema(tableDef.importSchema());
+    }
+    if (!tableDef.inherits().isEmpty()) {
+      rootTable.setInheritNames(tableDef.inherits().toArray(new String[0]));
+    }
+    if (tableDef.isInternal()) {
+      rootTable.setTableType(TableType.INTERNAL);
+    }
+    if (!tableDef.templates().isEmpty()) {
+      rootTable.setSubsets(tableDef.templates().toArray(new String[0]));
+    }
+
+    Map<String, TableMetadata> subtypeTablesByName = new LinkedHashMap<>();
+    for (Map.Entry<String, SubtypeDef> entry : tableDef.subtypes().entrySet()) {
+      String subtypeName = entry.getKey();
+      SubtypeDef subtypeDef = entry.getValue();
+      TableMetadata subtypeTable = new TableMetadata(subtypeName);
+      if (subtypeDef.inherits().isEmpty()) {
+        subtypeTable.setInheritNames(tableName);
+      } else {
+        subtypeTable.setInheritNames(subtypeDef.inherits().toArray(new String[0]));
+      }
+      if (subtypeDef.isInternal()) {
+        subtypeTable.setTableType(TableType.INTERNAL);
+      }
+      if (subtypeDef.description() != null) {
+        subtypeTable.setDescription(subtypeDef.description());
+      }
+      subtypeTablesByName.put(subtypeName, subtypeTable);
+    }
+
+    Set<String> seenColumnNames = new LinkedHashSet<>();
+    applyDataColumns(
+        tableDef.columns(), tableName, rootTable, subtypeTablesByName, null, null, seenColumnNames);
+    applySections(tableDef.sections(), tableName, rootTable, subtypeTablesByName, seenColumnNames);
+
+    createIfAbsent(schema, rootTable);
+    for (TableMetadata subtypeTable : subtypeTablesByName.values()) {
+      createIfAbsent(schema, subtypeTable);
+    }
+  }
+
+  private static void applyDataColumns(
+      Map<String, DataColumn> columns,
+      String tableName,
+      TableMetadata rootTable,
+      Map<String, TableMetadata> subtypeTablesByName,
+      String inheritedSubtype,
+      String[] inheritedSubsets,
+      Set<String> seenColumnNames) {
+
+    for (Map.Entry<String, DataColumn> entry : columns.entrySet()) {
+      DataColumn col = entry.getValue() != null ? entry.getValue() : emptyDataColumn();
+      applyDataColumn(
+          entry.getKey(),
+          col,
+          tableName,
+          rootTable,
+          subtypeTablesByName,
+          inheritedSubtype,
+          inheritedSubsets,
+          seenColumnNames);
+    }
+  }
+
+  private static void applySections(
+      Map<String, SectionDef> sections,
+      String tableName,
+      TableMetadata rootTable,
+      Map<String, TableMetadata> subtypeTablesByName,
+      Set<String> seenColumnNames) {
+
+    for (Map.Entry<String, SectionDef> entry : sections.entrySet()) {
+      SectionDef section = entry.getValue();
+      String[] sectionSubsets =
+          section.templates() != null && !section.templates().isEmpty()
+              ? section.templates().toArray(new String[0])
+              : null;
+      applyDataColumns(
+          section.columns(),
+          tableName,
+          rootTable,
+          subtypeTablesByName,
+          section.subtype(),
+          sectionSubsets,
+          seenColumnNames);
+      applyHeadings(
+          section.headings(),
+          tableName,
+          rootTable,
+          subtypeTablesByName,
+          section.subtype(),
+          sectionSubsets,
+          seenColumnNames);
+    }
+  }
+
+  private static void applyHeadings(
+      Map<String, HeadingDef> headings,
+      String tableName,
+      TableMetadata rootTable,
+      Map<String, TableMetadata> subtypeTablesByName,
+      String inheritedSubtype,
+      String[] inheritedSubsets,
+      Set<String> seenColumnNames) {
+
+    for (Map.Entry<String, HeadingDef> entry : headings.entrySet()) {
+      HeadingDef heading = entry.getValue();
+      String headingSubtype = heading.subtype() != null ? heading.subtype() : inheritedSubtype;
+      String[] headingSubsets =
+          heading.templates() != null && !heading.templates().isEmpty()
+              ? heading.templates().toArray(new String[0])
+              : inheritedSubsets;
+      applyDataColumns(
+          heading.columns(),
+          tableName,
+          rootTable,
+          subtypeTablesByName,
+          headingSubtype,
+          headingSubsets,
+          seenColumnNames);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void applyDataColumn(
+      String columnName,
+      DataColumn col,
+      String tableName,
+      TableMetadata rootTable,
+      Map<String, TableMetadata> subtypeTablesByName,
+      String inheritedSubtype,
+      String[] inheritedSubsets,
+      Set<String> seenColumnNames) {
+
+    if (RESERVED_COLUMNS.equals(columnName)) {
+      throw new MolgenisException(
+          "Table '"
+              + tableName
+              + "': 'columns' is a reserved name and cannot be used as a column, section, or heading name");
+    }
+
+    if (!seenColumnNames.add(columnName)) {
+      throw new MolgenisException(
+          "Table '"
+              + tableName
+              + "': duplicate column name '"
+              + columnName
+              + "' found in column map (column names must be unique across the full table including sections and headings)");
+    }
+
+    Column column = new Column(columnName);
+
+    if (col.type() != null) {
+      column.setType(resolveColumnType(col.type(), columnName, tableName));
+    }
+    if (col.key() != null) {
+      column.setKey(col.key());
+    }
+    if (col.required() != null) {
+      if (col.required() instanceof Boolean b) {
+        column.setRequired(b);
+      } else {
+        column.setRequired(col.required().toString());
+      }
+    }
+    if (col.defaultValue() != null) {
+      column.setDefaultValue(col.defaultValue());
+    }
+    if (col.refTable() != null) {
+      column.setRefTable(col.refTable());
+    }
+    if (col.refBack() != null) {
+      column.setRefBack(col.refBack());
+    }
+    if (col.refLink() != null) {
+      column.setRefLink(col.refLink());
+    }
+    if (col.refLabel() != null) {
+      column.setRefLabel(col.refLabel());
+    }
+    if (col.refSchema() != null) {
+      column.setRefSchemaName(col.refSchema());
+    }
+    if (col.computed() != null) {
+      column.setComputed(col.computed());
+    }
+    if (col.readonly() != null) {
+      column.setReadonly(col.readonly());
+    }
+    if (col.label() != null) {
+      column.setLabel(col.label());
+    }
+    if (col.position() != null) {
+      column.setPosition(col.position());
+    }
+    if (col.oldName() != null) {
+      column.setOldName(col.oldName());
+    }
+    if (Boolean.TRUE.equals(col.drop())) {
+      column.drop();
+    }
+    if (col.semantics() != null && !col.semantics().isEmpty()) {
+      column.setSemantics(col.semantics().toArray(new String[0]));
+    }
+    if (col.validation() != null) {
+      column.setValidation(col.validation());
+    }
+    if (col.visible() != null) {
+      column.setVisible(col.visible());
+    }
+    if (col.description() != null) {
+      column.setDescription(col.description());
+    }
+
+    String[] effectiveSubsets;
+    if (col.templates() != null) {
+      effectiveSubsets = col.templates().toArray(new String[0]);
+    } else {
+      effectiveSubsets = inheritedSubsets;
+    }
+    if (effectiveSubsets != null && effectiveSubsets.length > 0) {
+      column.setSubsets(effectiveSubsets);
+    }
+
+    String effectiveSubtype = col.subtype() != null ? col.subtype() : inheritedSubtype;
+    TableMetadata target =
+        resolveTargetTable(effectiveSubtype, rootTable, subtypeTablesByName, tableName, columnName);
+    target.add(column);
+  }
+
   @SuppressWarnings("unchecked")
   private static Map<String, String> parseNamespaces(Map<String, Object> yaml) {
     Object raw = yaml.get(FIELD_NAMESPACES);
@@ -215,44 +477,6 @@ public class Emx2Yaml {
     Map<String, String> result = new LinkedHashMap<>();
     for (Map.Entry<String, Object> entry : rawMap.entrySet()) {
       result.put(entry.getKey(), entry.getValue() != null ? entry.getValue().toString() : null);
-    }
-    return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Map<String, SubsetEntry> parseSubsetRegistry(Map<String, Object> yaml) {
-    Object raw = yaml.get(FIELD_SUBSETS);
-    if (raw == null) {
-      return new LinkedHashMap<>();
-    }
-    Map<String, Object> rawMap = (Map<String, Object>) raw;
-    Map<String, SubsetEntry> result = new LinkedHashMap<>();
-    for (Map.Entry<String, Object> entry : rawMap.entrySet()) {
-      String id = entry.getKey();
-      Map<String, Object> entryMap =
-          entry.getValue() != null ? (Map<String, Object>) entry.getValue() : Map.of();
-      String desc = (String) entryMap.get(FIELD_DESCRIPTION);
-      List<String> includes = (List<String>) entryMap.getOrDefault(FIELD_INCLUDES, List.of());
-      result.put(id, new SubsetEntry(id, desc, includes));
-    }
-    return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Map<String, SubsetEntry> parseTemplateRegistry(Map<String, Object> yaml) {
-    Object raw = yaml.get(FIELD_TEMPLATES);
-    if (raw == null) {
-      return new LinkedHashMap<>();
-    }
-    Map<String, Object> rawMap = (Map<String, Object>) raw;
-    Map<String, SubsetEntry> result = new LinkedHashMap<>();
-    for (Map.Entry<String, Object> entry : rawMap.entrySet()) {
-      String id = entry.getKey();
-      Map<String, Object> entryMap =
-          entry.getValue() != null ? (Map<String, Object>) entry.getValue() : Map.of();
-      String desc = (String) entryMap.get(FIELD_DESCRIPTION);
-      List<String> includes = (List<String>) entryMap.getOrDefault(FIELD_INCLUDES, List.of());
-      result.put(id, new SubsetEntry(id, desc, includes));
     }
     return result;
   }
@@ -369,10 +593,14 @@ public class Emx2Yaml {
             columnAttrs.containsKey(FIELD_SUBTYPE)
                 ? (String) columnAttrs.get(FIELD_SUBTYPE)
                 : inheritedSubtype;
-        String[] containerSubsets =
-            columnAttrs.containsKey(FIELD_SUBSETS)
-                ? toStringArray((List<String>) columnAttrs.get(FIELD_SUBSETS))
-                : inheritedSubsets;
+        String[] containerSubsets;
+        if (columnAttrs.containsKey(FIELD_TEMPLATES)) {
+          containerSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_TEMPLATES));
+        } else if (columnAttrs.containsKey("subsets")) {
+          containerSubsets = toStringArray((List<String>) columnAttrs.get("subsets"));
+        } else {
+          containerSubsets = inheritedSubsets;
+        }
 
         parseColumnsAtDepth(
             nestedColumns,
@@ -421,8 +649,10 @@ public class Emx2Yaml {
         applyCommonColumnAttributes(column, columnAttrs);
 
         String[] effectiveSubsets;
-        if (columnAttrs.containsKey(FIELD_SUBSETS)) {
-          effectiveSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_SUBSETS));
+        if (columnAttrs.containsKey(FIELD_TEMPLATES)) {
+          effectiveSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_TEMPLATES));
+        } else if (columnAttrs.containsKey("subsets")) {
+          effectiveSubsets = toStringArray((List<String>) columnAttrs.get("subsets"));
         } else {
           effectiveSubsets = inheritedSubsets;
         }
@@ -468,10 +698,10 @@ public class Emx2Yaml {
 
   private static ColumnType resolveColumnType(String typeStr, String columnKey, String tableName) {
     String normalized = typeStr.toLowerCase().replace(" ", "_");
-    if (TYPE_SUBTYPE.equals(normalized)) {
+    if (SchemaMetadataToBundle.TYPE_SUBTYPE.equals(normalized)) {
       return ColumnType.EXTENSION;
     }
-    if (TYPE_SUBTYPE_ARRAY.equals(normalized)) {
+    if (SchemaMetadataToBundle.TYPE_SUBTYPE_ARRAY.equals(normalized)) {
       return ColumnType.EXTENSION_ARRAY;
     }
     if (TYPE_EXTENSION.equals(normalized)) {
@@ -593,12 +823,19 @@ public class Emx2Yaml {
 
   @SuppressWarnings("unchecked")
   private static void applyTableSubsets(TableMetadata table, Map<String, Object> source) {
-    Object subsets = source.get(FIELD_SUBSETS);
+    Object subsets = source.get(FIELD_TEMPLATES);
+    if (subsets == null) {
+      subsets = source.get("subsets");
+    }
     if (subsets instanceof List) {
       table.setSubsets(((List<String>) subsets).toArray(new String[0]));
     } else if (subsets instanceof String) {
       table.setSubsets((String) subsets);
     }
+  }
+
+  private static DataColumn emptyDataColumn() {
+    return DataColumn.empty();
   }
 
   private static String[] toStringArray(List<String> list) {
@@ -666,301 +903,255 @@ public class Emx2Yaml {
     Path tablesDir = directory.resolve(TABLES_DIR);
     Files.createDirectories(tablesDir);
 
-    Map<String, Object> root = new LinkedHashMap<>();
-    root.put(FIELD_NAME, bundleName);
-    if (bundleDescription != null) {
-      root.put(FIELD_DESCRIPTION, bundleDescription);
-    }
-
-    Set<String> allSubsets = collectAllSubsetNames(schema);
-    if (!allSubsets.isEmpty()) {
-      Map<String, Object> subsetsMap = new LinkedHashMap<>();
-      for (String subset : allSubsets) {
-        subsetsMap.put(subset, Map.of());
-      }
-      root.put(FIELD_SUBSETS, subsetsMap);
-
-      Map<String, Object> templatesMap = new LinkedHashMap<>();
-      Map<String, Object> allTemplate = new LinkedHashMap<>();
-      allTemplate.put(FIELD_INCLUDES, List.copyOf(allSubsets));
-      templatesMap.put("all", allTemplate);
-      root.put(FIELD_TEMPLATES, templatesMap);
-    }
-
-    root.put(FIELD_IMPORTS, List.of(TABLES_DIR + "/"));
+    Bundle bundle =
+        SchemaMetadataToBundle.convertWithAutoRegistry(schema, bundleName, bundleDescription);
 
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    Files.writeString(directory.resolve(MOLGENIS_YAML), mapper.writeValueAsString(root));
 
-    for (TableMetadata table : schema.getTables()) {
-      Map<String, Object> tableDoc = buildNewFormatTableDocumentFlat(table);
-      String yaml = mapper.writeValueAsString(tableDoc);
-      Files.writeString(tablesDir.resolve(table.getTableName() + ".yaml"), yaml);
-    }
-  }
+    Map<String, Object> molgenisYamlDoc = buildMolgenisYamlDoc(bundle, TABLES_DIR + "/");
+    Files.writeString(directory.resolve(MOLGENIS_YAML), mapper.writeValueAsString(molgenisYamlDoc));
 
-  private static Set<String> collectAllSubsetNames(SchemaMetadata schema) {
-    Set<String> subsets = new LinkedHashSet<>();
-    for (TableMetadata table : schema.getTables()) {
-      if (table.getSubsets() != null) {
-        for (String subset : table.getSubsets()) {
-          subsets.add(SubsetNameNormalizer.normalize(subset));
-        }
-      }
-      for (Column column : table.getNonInheritedColumns()) {
-        if (column.getSubsets() != null) {
-          for (String subset : column.getSubsets()) {
-            subsets.add(SubsetNameNormalizer.normalize(subset));
-          }
-        }
-      }
+    for (Map.Entry<String, TableDef> entry : bundle.tables().entrySet()) {
+      Map<String, Object> tableDoc = buildTableDocument(entry.getKey(), entry.getValue());
+      Files.writeString(
+          tablesDir.resolve(entry.getKey() + ".yaml"), mapper.writeValueAsString(tableDoc));
     }
-    return subsets;
-  }
-
-  static boolean isValidSubsetIdentifier(String id) {
-    return SubsetNameNormalizer.isValidIdentifier(id);
-  }
-
-  private static List<String> normalizeSubsetIdentifiers(String[] subsets) {
-    if (subsets == null || subsets.length == 0) {
-      return List.of();
-    }
-    List<String> result = new ArrayList<>();
-    for (String subset : subsets) {
-      result.add(SubsetNameNormalizer.normalize(subset));
-    }
-    return result;
   }
 
   public static void toBundleSingleFile(
       SchemaMetadata schema, String bundleName, String bundleDescription, Path outputFile)
       throws IOException {
-    Map<String, Object> doc = new LinkedHashMap<>();
-    doc.put(FIELD_NAME, bundleName);
-    if (bundleDescription != null) {
-      doc.put(FIELD_DESCRIPTION, bundleDescription);
-    }
-
-    Map<String, Object> tablesMap = new LinkedHashMap<>();
-    for (TableMetadata table : schema.getTables()) {
-      if (isRootTable(table)) {
-        tablesMap.put(table.getTableName(), buildNewFormatTableEntry(schema, table));
-      }
-    }
-    doc.put(FIELD_TABLES, tablesMap);
-
+    Bundle bundle =
+        SchemaMetadataToBundle.convertWithAutoRegistry(schema, bundleName, bundleDescription);
+    Map<String, Object> doc = buildSingleFileDoc(bundle);
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     Files.writeString(outputFile, mapper.writeValueAsString(doc));
   }
 
-  private static Map<String, Object> buildNewFormatTableDocument(
-      SchemaMetadata schema, TableMetadata table) {
+  private static Map<String, Object> buildMolgenisYamlDoc(Bundle bundle, String tablesImportPath) {
     Map<String, Object> doc = new LinkedHashMap<>();
-    doc.put(FIELD_TABLE, table.getTableName());
-    Map<String, Object> tableBody = buildNewFormatTableEntry(schema, table);
-    doc.putAll(tableBody);
+    putIfNotNull(doc, FIELD_NAME, bundle.name());
+    putIfNotNull(doc, FIELD_DESCRIPTION, bundle.description());
+    if (!bundle.namespaces().isEmpty()) {
+      doc.put(FIELD_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
+    }
+    if (!bundle.templates().isEmpty()) {
+      doc.put(FIELD_TEMPLATES, buildTemplateDefMap(bundle.templates()));
+    }
+    doc.put("imports", List.of(tablesImportPath));
     return doc;
   }
 
-  private static Map<String, Object> buildNewFormatTableDocumentFlat(TableMetadata table) {
+  private static Map<String, Object> buildSingleFileDoc(Bundle bundle) {
     Map<String, Object> doc = new LinkedHashMap<>();
-    doc.put(FIELD_TABLE, table.getTableName());
-    if (table.getDescription() != null) {
-      doc.put(FIELD_DESCRIPTION, table.getDescription());
+    putIfNotNull(doc, FIELD_NAME, bundle.name());
+    putIfNotNull(doc, FIELD_DESCRIPTION, bundle.description());
+    if (!bundle.namespaces().isEmpty()) {
+      doc.put(FIELD_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
     }
-    String[] inheritNames = table.getInheritNames();
-    if (inheritNames != null && inheritNames.length > 0) {
-      doc.put(FIELD_INHERITS, Arrays.asList(inheritNames));
+    if (!bundle.templates().isEmpty()) {
+      doc.put(FIELD_TEMPLATES, buildTemplateDefMap(bundle.templates()));
     }
-    if (TableType.INTERNAL.equals(table.getTableType())) {
+    Map<String, Object> tablesMap = new LinkedHashMap<>();
+    for (Map.Entry<String, TableDef> entry : bundle.tables().entrySet()) {
+      tablesMap.put(entry.getKey(), buildTableEntry(entry.getValue()));
+    }
+    doc.put(FIELD_TABLES, tablesMap);
+    return doc;
+  }
+
+  private static Map<String, Object> buildTableDocument(String tableName, TableDef table) {
+    Map<String, Object> doc = new LinkedHashMap<>();
+    doc.put(FIELD_TABLE, tableName);
+    putIfNotNull(doc, FIELD_DESCRIPTION, table.description());
+    if (!table.inherits().isEmpty()) {
+      doc.put(FIELD_INHERITS, table.inherits());
+    }
+    if (table.isInternal()) {
       doc.put(FIELD_INTERNAL, true);
     }
-    List<String> normalizedSubsets = normalizeSubsetIdentifiers(table.getSubsets());
-    if (!normalizedSubsets.isEmpty()) {
-      doc.put(FIELD_SUBSETS, normalizedSubsets);
+    putIfNotNull(doc, FIELD_SEMANTICS, table.semantics());
+    putIfNotNull(doc, FIELD_LABEL, table.label());
+    putIfNotNull(doc, FIELD_OLD_NAME, table.oldName());
+    putIfNotNull(doc, "importSchema", table.importSchema());
+    if (!table.templates().isEmpty()) {
+      doc.put(FIELD_TEMPLATES, table.templates());
     }
-    if (table.getSemantics() != null && table.getSemantics().length > 0) {
-      doc.put(FIELD_SEMANTICS, Arrays.asList(table.getSemantics()));
+    if (!table.subtypes().isEmpty()) {
+      doc.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), tableName));
     }
-    Map<String, Object> columnsMap = buildNewFormatColumnsMap(table.getNonInheritedColumns());
-    doc.put(FIELD_COLUMNS, columnsMap);
+    if (!table.columns().isEmpty()) {
+      doc.put(FIELD_COLUMNS, buildDataColumnMap(table.columns()));
+    }
+    if (!table.sections().isEmpty()) {
+      doc.put("sections", buildSectionDefMap(table.sections()));
+    }
     return doc;
   }
 
-  private static Map<String, Object> buildNewFormatTableEntry(
-      SchemaMetadata schema, TableMetadata table) {
+  private static Map<String, Object> buildTableEntry(TableDef table) {
     Map<String, Object> entry = new LinkedHashMap<>();
-
-    if (table.getDescription() != null) {
-      entry.put(FIELD_DESCRIPTION, table.getDescription());
+    putIfNotNull(entry, FIELD_DESCRIPTION, table.description());
+    if (!table.inherits().isEmpty()) {
+      entry.put(FIELD_INHERITS, table.inherits());
     }
-    List<String> tableSubsets = normalizeSubsetIdentifiers(table.getSubsets());
-    if (!tableSubsets.isEmpty()) {
-      entry.put(FIELD_SUBSETS, tableSubsets);
-    }
-    if (table.getSemantics() != null && table.getSemantics().length > 0) {
-      entry.put(FIELD_SEMANTICS, Arrays.asList(table.getSemantics()));
-    }
-
-    List<TableMetadata> subtypes = findExtensionTables(schema, table.getTableName());
-    if (!subtypes.isEmpty()) {
-      Map<String, Object> subtypesMap = new LinkedHashMap<>();
-      for (TableMetadata subtype : subtypes) {
-        subtypesMap.put(subtype.getTableName(), buildSubtypeEntry(subtype, table.getTableName()));
-      }
-      entry.put(FIELD_SUBTYPES, subtypesMap);
-    }
-
-    Map<String, Object> columnsMap = buildNewFormatColumnsMap(table.getNonInheritedColumns());
-    if (!columnsMap.isEmpty()) {
-      entry.put(FIELD_COLUMNS, columnsMap);
-    }
-
-    return entry;
-  }
-
-  private static Map<String, Object> buildSubtypeEntry(
-      TableMetadata subtype, String defaultParent) {
-    Map<String, Object> entry = new LinkedHashMap<>();
-    if (subtype.getDescription() != null) {
-      entry.put(FIELD_DESCRIPTION, subtype.getDescription());
-    }
-    String[] inheritNames = subtype.getInheritNames();
-    if (inheritNames != null
-        && inheritNames.length > 0
-        && !(inheritNames.length == 1 && defaultParent.equals(inheritNames[0]))) {
-      entry.put(FIELD_INHERITS, Arrays.asList(inheritNames));
-    }
-    if (TableType.INTERNAL.equals(subtype.getTableType())) {
+    if (table.isInternal()) {
       entry.put(FIELD_INTERNAL, true);
     }
-    List<String> subtypeSubsets = normalizeSubsetIdentifiers(subtype.getSubsets());
-    if (!subtypeSubsets.isEmpty()) {
-      entry.put(FIELD_SUBSETS, subtypeSubsets);
+    putIfNotNull(entry, FIELD_SEMANTICS, table.semantics());
+    putIfNotNull(entry, FIELD_LABEL, table.label());
+    putIfNotNull(entry, FIELD_OLD_NAME, table.oldName());
+    putIfNotNull(entry, "importSchema", table.importSchema());
+    if (!table.templates().isEmpty()) {
+      entry.put(FIELD_TEMPLATES, table.templates());
     }
-    if (subtype.getSemantics() != null && subtype.getSemantics().length > 0) {
-      entry.put(FIELD_SEMANTICS, Arrays.asList(subtype.getSemantics()));
+    if (!table.subtypes().isEmpty()) {
+      entry.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), null));
+    }
+    if (!table.columns().isEmpty()) {
+      entry.put(FIELD_COLUMNS, buildDataColumnMap(table.columns()));
+    }
+    if (!table.sections().isEmpty()) {
+      entry.put("sections", buildSectionDefMap(table.sections()));
     }
     return entry;
   }
 
-  private static Map<String, Object> buildNewFormatColumnsMap(List<Column> columns) {
+  private static Map<String, Object> buildTemplateDefMap(Map<String, TemplateDef> defMap) {
     Map<String, Object> result = new LinkedHashMap<>();
-    for (Column col : columns) {
-      if (col.isSystemColumn()) {
-        continue;
+    for (Map.Entry<String, TemplateDef> entry : defMap.entrySet()) {
+      TemplateDef def = entry.getValue();
+      Map<String, Object> defDoc = new LinkedHashMap<>();
+      putIfNotNull(defDoc, FIELD_DESCRIPTION, def.description());
+      if (!def.includes().isEmpty()) {
+        defDoc.put("includes", def.includes());
       }
-      result.put(col.getName(), buildNewFormatColumnEntry(col));
+      if (Boolean.TRUE.equals(def.internal())) {
+        defDoc.put(FIELD_INTERNAL, true);
+      }
+      result.put(entry.getKey(), defDoc.isEmpty() ? null : defDoc);
     }
     return result;
   }
 
-  private static Map<String, Object> buildNewFormatColumnEntry(Column col) {
-    Map<String, Object> entry = new LinkedHashMap<>();
+  private static Map<String, Object> buildSubtypeDefMap(
+      Map<String, SubtypeDef> subtypes, String defaultParent) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<String, SubtypeDef> entry : subtypes.entrySet()) {
+      SubtypeDef def = entry.getValue();
+      Map<String, Object> defDoc = new LinkedHashMap<>();
+      putIfNotNull(defDoc, FIELD_DESCRIPTION, def.description());
+      if (!def.inherits().isEmpty()
+          && !(def.inherits().size() == 1 && entry.getKey().equals(defaultParent))) {
+        defDoc.put(FIELD_INHERITS, def.inherits());
+      }
+      if (def.isInternal()) {
+        defDoc.put(FIELD_INTERNAL, true);
+      }
+      result.put(entry.getKey(), defDoc.isEmpty() ? null : defDoc);
+    }
+    return result;
+  }
 
-    ColumnType colType = col.getColumnType();
-    if (colType != null && !ColumnType.STRING.equals(colType)) {
-      String typeStr = columnTypeToNewFormatString(colType);
-      entry.put(FIELD_TYPE, typeStr);
+  private static Map<String, Object> buildDataColumnMap(Map<String, DataColumn> columns) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<String, DataColumn> entry : columns.entrySet()) {
+      result.put(entry.getKey(), buildDataColumnEntry(entry.getValue()));
     }
-    if (col.getKey() > 0) {
-      entry.put(FIELD_KEY, col.getKey());
+    return result;
+  }
+
+  private static Map<String, Object> buildSectionDefMap(Map<String, SectionDef> sections) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<String, SectionDef> entry : sections.entrySet()) {
+      result.put(entry.getKey(), buildSectionEntry(entry.getValue()));
     }
-    if (col.getRequired() != null) {
-      entry.put(FIELD_REQUIRED, col.getRequired());
+    return result;
+  }
+
+  private static Map<String, Object> buildSectionEntry(SectionDef section) {
+    Map<String, Object> entry = new LinkedHashMap<>();
+    putIfNotNull(entry, FIELD_SUBTYPE, section.subtype());
+    if (!section.templates().isEmpty()) {
+      entry.put(FIELD_TEMPLATES, section.templates());
     }
-    if (col.getDefaultValue() != null) {
-      entry.put(FIELD_DEFAULT_VALUE, col.getDefaultValue());
+    if (!section.columns().isEmpty()) {
+      entry.put(FIELD_COLUMNS, buildDataColumnMap(section.columns()));
     }
-    if (col.getRefTableName() != null) {
-      entry.put(FIELD_REF_TABLE, col.getRefTableName());
+    if (!section.headings().isEmpty()) {
+      entry.put("headings", buildHeadingDefMap(section.headings()));
     }
-    if (col.getRefBack() != null) {
-      entry.put(FIELD_REF_BACK, col.getRefBack());
+    return entry;
+  }
+
+  private static Map<String, Object> buildHeadingDefMap(Map<String, HeadingDef> headings) {
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (Map.Entry<String, HeadingDef> entry : headings.entrySet()) {
+      result.put(entry.getKey(), buildHeadingEntry(entry.getValue()));
     }
-    if (col.getRefLink() != null) {
-      entry.put(FIELD_REF_LINK, col.getRefLink());
+    return result;
+  }
+
+  private static Map<String, Object> buildHeadingEntry(HeadingDef heading) {
+    Map<String, Object> entry = new LinkedHashMap<>();
+    putIfNotNull(entry, FIELD_SUBTYPE, heading.subtype());
+    if (!heading.templates().isEmpty()) {
+      entry.put(FIELD_TEMPLATES, heading.templates());
     }
-    if (col.getRefLabel() != null) {
-      entry.put(FIELD_REF_LABEL, col.getRefLabel());
+    if (!heading.columns().isEmpty()) {
+      entry.put(FIELD_COLUMNS, buildDataColumnMap(heading.columns()));
     }
-    String colDescription = col.getDescriptions().get("en");
-    if (colDescription != null) {
-      entry.put(FIELD_DESCRIPTION, colDescription);
+    return entry;
+  }
+
+  private static Map<String, Object> buildDataColumnEntry(DataColumn col) {
+    Map<String, Object> entry = new LinkedHashMap<>();
+    putIfNotNull(entry, FIELD_TYPE, col.type());
+    if (col.key() != null && col.key() > 0) {
+      entry.put(FIELD_KEY, col.key());
     }
-    if (col.getSemantics() != null && col.getSemantics().length > 0) {
-      entry.put(FIELD_SEMANTICS, Arrays.asList(col.getSemantics()));
+    if (col.required() != null) {
+      entry.put(FIELD_REQUIRED, col.required());
     }
-    List<String> colSubsets = normalizeSubsetIdentifiers(col.getSubsets());
-    if (!colSubsets.isEmpty()) {
-      entry.put(FIELD_SUBSETS, colSubsets);
+    putIfNotNull(entry, FIELD_DEFAULT_VALUE, col.defaultValue());
+    putIfNotNull(entry, FIELD_REF_TABLE, col.refTable());
+    putIfNotNull(entry, FIELD_REF_BACK, col.refBack());
+    putIfNotNull(entry, FIELD_REF_LINK, col.refLink());
+    putIfNotNull(entry, FIELD_REF_LABEL, col.refLabel());
+    putIfNotNull(entry, FIELD_REF_SCHEMA, col.refSchema());
+    putIfNotNull(entry, FIELD_DESCRIPTION, col.description());
+    if (col.semantics() != null && !col.semantics().isEmpty()) {
+      entry.put(FIELD_SEMANTICS, col.semantics());
     }
-    if (col.getValidation() != null) {
-      entry.put(FIELD_VALIDATION, col.getValidation());
+    if (col.templates() != null && !col.templates().isEmpty()) {
+      entry.put(FIELD_TEMPLATES, col.templates());
     }
-    if (col.getVisible() != null) {
-      entry.put(FIELD_VISIBLE, col.getVisible());
-    }
-    if (col.getComputed() != null) {
-      entry.put(FIELD_COMPUTED, col.getComputed());
-    }
-    if (Boolean.TRUE.equals(col.isReadonly())) {
+    putIfNotNull(entry, FIELD_VALIDATION, col.validation());
+    putIfNotNull(entry, FIELD_VISIBLE, col.visible());
+    putIfNotNull(entry, FIELD_COMPUTED, col.computed());
+    if (Boolean.TRUE.equals(col.readonly())) {
       entry.put(FIELD_READONLY, true);
     }
-    String colLabel = col.getLabel();
-    if (colLabel != null && !colLabel.equals(col.getName())) {
-      entry.put(FIELD_LABEL, colLabel);
+    putIfNotNull(entry, FIELD_LABEL, col.label());
+    putIfNotNull(entry, FIELD_SUBTYPE, col.subtype());
+    if (col.position() != null && col.position() > 0) {
+      entry.put(FIELD_POSITION, col.position());
+    }
+    putIfNotNull(entry, FIELD_OLD_NAME, col.oldName());
+    if (Boolean.TRUE.equals(col.drop())) {
+      entry.put(FIELD_DROP, true);
     }
     return entry;
   }
 
-  private static String columnTypeToNewFormatString(ColumnType colType) {
-    if (ColumnType.EXTENSION.equals(colType)) {
-      return TYPE_SUBTYPE;
+  private static void putIfNotNull(Map<String, Object> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value);
     }
-    if (ColumnType.EXTENSION_ARRAY.equals(colType)) {
-      return TYPE_SUBTYPE_ARRAY;
-    }
-    return colType.toString().toLowerCase();
   }
 
-  private static boolean isRootTable(TableMetadata table) {
-    if (TableType.INTERNAL.equals(table.getTableType())) {
-      return false;
-    }
-    String[] inheritNames = table.getInheritNames();
-    return inheritNames == null || inheritNames.length == 0;
-  }
-
-  private static List<TableMetadata> findExtensionTables(
-      SchemaMetadata schema, String rootTableName) {
-    List<TableMetadata> result = new ArrayList<>();
-    Set<String> visited = new HashSet<>();
-    Queue<String> queue = new LinkedList<>();
-    queue.add(rootTableName);
-    visited.add(rootTableName);
-
-    while (!queue.isEmpty()) {
-      String current = queue.poll();
-      for (TableMetadata table : schema.getTables()) {
-        if (visited.contains(table.getTableName())) {
-          continue;
-        }
-        String[] inheritNames = table.getInheritNames();
-        if (inheritNames != null) {
-          for (String parent : inheritNames) {
-            if (current.equals(parent)) {
-              result.add(table);
-              visited.add(table.getTableName());
-              queue.add(table.getTableName());
-              break;
-            }
-          }
-        }
-      }
-    }
-    return result;
+  static boolean isValidSubsetIdentifier(String id) {
+    return TemplateNameNormalizer.isValidIdentifier(id);
   }
 
   @SuppressWarnings("unchecked")

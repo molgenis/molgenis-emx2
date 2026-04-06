@@ -114,16 +114,16 @@ class Emx2YamlBundleTest {
 
     assertTrue(
         bundle.getSubsetRegistry().containsKey("catalogue_core"),
-        "catalogue_core subset must be registered");
+        "catalogue_core internal template must be in subsetRegistry");
     assertTrue(
         bundle.getSubsetRegistry().containsKey("patient_core"),
-        "patient_core subset must be registered");
+        "patient_core internal template must be in subsetRegistry");
     assertTrue(
         bundle.getTemplateRegistry().containsKey("data_catalogue"),
-        "data_catalogue template must be registered");
+        "data_catalogue template must be in templateRegistry");
     assertTrue(
         bundle.getTemplateRegistry().containsKey("patient_registry"),
-        "patient_registry template must be registered");
+        "patient_registry template must be in templateRegistry");
   }
 
   @Test
@@ -202,6 +202,7 @@ class Emx2YamlBundleTest {
             columns:
               foo:
                 type: string
+            sections:
               Section1:
                 columns:
                   foo:
@@ -239,57 +240,50 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void validationErrorNestingDepthExceeded() {
+  void validationErrorNestingDepthEnforced() throws IOException {
     String yaml =
         """
         name: Test
         tables:
           MyTable:
-            columns:
+            sections:
               Section1:
-                columns:
+                headings:
                   Heading1:
                     columns:
-                      TooDeep:
-                        columns:
-                          leaf:
-                            type: string
+                      leaf:
+                        type: string
         """;
-    MolgenisException ex =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                Emx2Yaml.fromBundle(
-                    new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))));
-    assertTrue(
-        ex.getMessage().toLowerCase().contains("depth")
-            || ex.getMessage().toLowerCase().contains("nesting"),
-        "Error must mention nesting/depth violation");
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    assertNotNull(table, "MyTable must be loaded");
+    assertNotNull(table.getColumn("leaf"), "leaf column in heading must be loaded");
   }
 
   @Test
-  void validationErrorSemanticsOnSection() {
+  void validationErrorSemanticsAllowedOnDataColumns() throws IOException {
     String yaml =
         """
         name: Test
         tables:
           MyTable:
-            columns:
+            sections:
               MySection:
-                semantics: ['http://example.com/thing']
                 columns:
                   leaf:
                     type: string
+                    semantics: ['http://example.com/thing']
         """;
-    MolgenisException ex =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                Emx2Yaml.fromBundle(
-                    new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))));
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    Column leaf = table.getColumn("leaf");
+    assertNotNull(leaf);
+    assertNotNull(leaf.getSemantics(), "semantics must be set on data column");
     assertTrue(
-        ex.getMessage().toLowerCase().contains("semantics"),
-        "Error must mention semantics violation");
+        List.of(leaf.getSemantics()).contains("http://example.com/thing"),
+        "semantics value must match");
   }
 
   @Test
@@ -297,22 +291,24 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           my_subset:
             description: section-level subset
+            internal: true
           other_subset:
             description: column-level override subset
+            internal: true
         tables:
           MyTable:
-            columns:
+            sections:
               MySection:
-                subsets: [my_subset]
+                templates: [my_subset]
                 columns:
                   col1:
                     type: string
                   col2:
                     type: int
-                    subsets: [other_subset]
+                    templates: [other_subset]
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
@@ -347,9 +343,9 @@ class Emx2YamlBundleTest {
             subtypes:
               ChildA:
                 description: first child
-            columns:
+            sections:
               MySection:
-                columns:
+                headings:
                   MyHeading:
                     subtype: ChildA
                     columns:
@@ -429,9 +425,10 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           BadName:
             description: starts with uppercase
+            internal: true
         tables:
           T:
             columns:
@@ -473,44 +470,47 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void validationErrorSubsetTemplateNamespaceCollision() {
+  void internalFlagRoutesTemplateToSubsetRegistry() throws IOException {
     String yaml =
         """
         name: Test
-        subsets:
-          shared_name:
-            description: defined as subset
         templates:
-          shared_name:
-            description: also defined as template - collision
+          internal_one:
+            description: goes to subsetRegistry
+            internal: true
+          user_facing:
+            description: goes to templateRegistry
+            includes: [internal_one]
         tables:
           T:
             columns:
               id:
                 key: 1
         """;
-    MolgenisException ex =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                Emx2Yaml.fromBundle(
-                    new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))));
-    assertTrue(
-        ex.getMessage().contains("shared_name"),
-        "Error must name the duplicate identifier 'shared_name'");
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    assertNotNull(
+        bundle.getSubsetRegistry().get("internal_one"),
+        "internal:true template must appear in subsetRegistry");
+    assertNotNull(
+        bundle.getTemplateRegistry().get("user_facing"),
+        "non-internal template must appear in templateRegistry");
+    assertNull(
+        bundle.getSubsetRegistry().get("user_facing"),
+        "non-internal template must not appear in subsetRegistry");
   }
 
   @Test
-  void validNoNamespaceCollisionSubsetAndTemplate() throws IOException {
+  void unifiedTemplatesAllowInternalAndUserFacingEntries() throws IOException {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           core:
             description: core subset
-        templates:
+            internal: true
           extended:
-            description: different name, no collision
+            description: user-facing template
             includes: [core]
         tables:
           T:
@@ -529,9 +529,10 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           my_subset:
             includes: [nonexistent_subset]
+            internal: true
         tables:
           T:
             columns:
@@ -555,12 +556,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           base:
             description: base subset
+            internal: true
           extended:
             includes: [base]
-        templates:
+            internal: true
           full:
             includes: [extended, base]
         tables:
@@ -582,11 +584,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           alpha:
             includes: [beta]
+            internal: true
           beta:
             includes: [alpha]
+            internal: true
         tables:
           T:
             columns:
@@ -609,13 +613,16 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           aaa:
             includes: [bbb]
+            internal: true
           bbb:
             includes: [ccc]
+            internal: true
           ccc:
             includes: [aaa]
+            internal: true
         tables:
           T:
             columns:
@@ -639,13 +646,16 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           base:
             description: base
+            internal: true
           mid:
             includes: [base]
+            internal: true
           top:
             includes: [mid, base]
+            internal: true
         tables:
           T:
             columns:
@@ -662,15 +672,16 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           known_subset:
             description: this one exists
+            internal: true
         tables:
           MyTable:
             columns:
               col1:
                 type: string
-                subsets: [known_subset, ghost_subset]
+                templates: [known_subset, ghost_subset]
         """;
     MolgenisException ex =
         assertThrows(
@@ -688,12 +699,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           real_subset:
             description: this one exists
+            internal: true
         tables:
           MyTable:
-            subsets: [phantom_subset]
+            templates: [phantom_subset]
             columns:
               id:
                 key: 1
@@ -714,16 +726,17 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           feature_x:
             description: a real subset
+            internal: true
         tables:
           MyTable:
-            subsets: [feature_x]
+            templates: [feature_x]
             columns:
               col1:
                 type: string
-                subsets: [feature_x]
+                templates: [feature_x]
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
@@ -736,14 +749,16 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           subset_a:
             description: subset A
+            internal: true
           subset_b:
             description: subset B - not related to A
+            internal: true
         tables:
           TableA:
-            subsets: [subset_a]
+            templates: [subset_a]
             columns:
               id:
                 key: 1
@@ -751,7 +766,7 @@ class Emx2YamlBundleTest {
                 type: ref
                 refTable: TableB
           TableB:
-            subsets: [subset_b]
+            templates: [subset_b]
             columns:
               id:
                 key: 1
@@ -772,12 +787,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           subset_a:
             description: subset A
+            internal: true
         tables:
           TableA:
-            subsets: [subset_a]
+            templates: [subset_a]
             columns:
               id:
                 key: 1
@@ -800,14 +816,16 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        subsets:
+        templates:
           base:
             description: base
+            internal: true
           extended:
             includes: [base]
+            internal: true
         tables:
           TableA:
-            subsets: [extended]
+            templates: [extended]
             columns:
               id:
                 key: 1
@@ -815,7 +833,7 @@ class Emx2YamlBundleTest {
                 type: ref
                 refTable: TableB
           TableB:
-            subsets: [base]
+            templates: [base]
             columns:
               id:
                 key: 1
@@ -1041,27 +1059,27 @@ class Emx2YamlBundleTest {
 
   @Test
   void normalizeSubsetNameLowercase() {
-    assertEquals("petstore", SubsetNameNormalizer.normalize("Petstore"));
+    assertEquals("petstore", TemplateNameNormalizer.normalize("Petstore"));
   }
 
   @Test
   void normalizeSubsetNameReplacesSpaces() {
-    assertEquals("data_catalogue", SubsetNameNormalizer.normalize("Data Catalogue"));
+    assertEquals("data_catalogue", TemplateNameNormalizer.normalize("Data Catalogue"));
   }
 
   @Test
   void normalizeSubsetNameCollapsesUnderscores() {
-    assertEquals("data_catalogue", SubsetNameNormalizer.normalize("Data  Catalogue"));
+    assertEquals("data_catalogue", TemplateNameNormalizer.normalize("Data  Catalogue"));
   }
 
   @Test
   void normalizeSubsetNameStripsPunctuation() {
-    assertEquals("fair_genomes", SubsetNameNormalizer.normalize("FAIR-Genomes!"));
+    assertEquals("fair_genomes", TemplateNameNormalizer.normalize("FAIR-Genomes!"));
   }
 
   @Test
   void normalizeSubsetNameLeadingDigit() {
-    assertEquals("s_3prime", SubsetNameNormalizer.normalize("3prime"));
+    assertEquals("s_3prime", TemplateNameNormalizer.normalize("3prime"));
   }
 
   @Test

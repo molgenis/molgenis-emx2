@@ -5,7 +5,7 @@ import gql from "graphql-tag";
  */
 export default gql`
   query {
-    _schema(applyProfileFilter: true) {
+    _schema {
       name
       tables {
         name
