@@ -48,14 +48,13 @@
             schema.bundleName
           }}</strong>
           <span class="subsets-panel__label ml-2 text-muted"
-            >Active templates</span
+            >Active profiles</span
           >
         </div>
         <div class="subsets-panel__list">
-          <template v-if="schema.availableTemplates?.length">
-            <span class="subsets-panel__group-label text-muted">Templates</span>
+          <template v-if="schema.availableProfiles?.length">
             <div
-              v-for="item in schema.availableTemplates"
+              v-for="item in schema.availableProfiles"
               :key="item.name"
               class="form-check form-check-inline"
             >
@@ -63,34 +62,7 @@
                 class="form-check-input"
                 type="checkbox"
                 :id="`subset_${item.name}`"
-                :checked="schema.activeSubsets?.includes(item.name)"
-                @change="toggleSubset(item.name, $event.target.checked)"
-              />
-              <label
-                class="form-check-label"
-                :for="`subset_${item.name}`"
-                :title="item.description || undefined"
-                >{{ item.name
-                }}<small
-                  v-if="item.description"
-                  class="ml-1 text-muted d-block"
-                  >{{ item.description }}</small
-                ></label
-              >
-            </div>
-          </template>
-          <template v-if="schema.availableSubsets?.length">
-            <span class="subsets-panel__group-label text-muted">Subsets</span>
-            <div
-              v-for="item in schema.availableSubsets"
-              :key="item.name"
-              class="form-check form-check-inline"
-            >
-              <input
-                class="form-check-input"
-                type="checkbox"
-                :id="`subset_${item.name}`"
-                :checked="schema.activeSubsets?.includes(item.name)"
+                :checked="schema.activeProfiles?.includes(item.name)"
                 @change="toggleSubset(item.name, $event.target.checked)"
               />
               <label
@@ -233,15 +205,15 @@ export default {
   methods: {
     async toggleSubset(name, activate) {
       const mutation = activate
-        ? `mutation { activateSubset(name: "${name}") { message } }`
-        : `mutation { deactivateSubset(name: "${name}") { message } }`;
+        ? `mutation { enableProfile(name: "${name}") { message } }`
+        : `mutation { disableProfile(name: "${name}") { message } }`;
       try {
         await request("graphql", mutation);
         await this.loadSchema();
       } catch (error) {
         this.error =
           error?.response?.errors?.[0]?.message ||
-          `Failed to ${activate ? "activate" : "deactivate"} subset "${name}"`;
+          `Failed to ${activate ? "enable" : "disable"} profile "${name}"`;
         await this.loadSchema();
       }
     },

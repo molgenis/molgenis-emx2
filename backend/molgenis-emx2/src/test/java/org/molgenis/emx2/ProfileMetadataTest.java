@@ -134,9 +134,9 @@ public class ProfileMetadataTest {
         table(
             "MyTable",
             column("id").setPkey(),
-            column("wgsOnly").setSubsets("wgs"),
+            column("wgsOnly").setProfiles("wgs"),
             column("always"));
-    List<Column> result = table.getColumnsForSubsets(null);
+    List<Column> result = table.getColumnsForProfiles(null);
     assertEquals(3, result.size());
   }
 
@@ -146,10 +146,10 @@ public class ProfileMetadataTest {
         table(
             "MyTable",
             column("id").setPkey(),
-            column("wgsOnly").setSubsets("wgs"),
-            column("rdmOnly").setSubsets("rdm"),
+            column("wgsOnly").setProfiles("wgs"),
+            column("rdmOnly").setProfiles("rdm"),
             column("always"));
-    List<Column> result = table.getColumnsForSubsets(new String[] {"wgs"});
+    List<Column> result = table.getColumnsForProfiles(new String[] {"wgs"});
     List<String> names = result.stream().map(Column::getName).toList();
     assertTrue(names.contains("id"));
     assertTrue(names.contains("wgsOnly"));
@@ -162,12 +162,13 @@ public class ProfileMetadataTest {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata base = table("Base", column("id").setPkey(), column("baseCol"));
     TableMetadata child =
-        table("Child", column("childWgs").setSubsets("wgs"), column("childRdm").setSubsets("rdm"));
+        table(
+            "Child", column("childWgs").setProfiles("wgs"), column("childRdm").setProfiles("rdm"));
     child.setInheritNames("Base");
     schema.create(base);
     schema.create(child);
 
-    List<Column> result = child.getNonInheritedColumnsForSubsets(new String[] {"wgs"});
+    List<Column> result = child.getNonInheritedColumnsForProfiles(new String[] {"wgs"});
     List<String> names = result.stream().map(Column::getName).toList();
     assertTrue(names.contains("childWgs"));
     assertFalse(names.contains("childRdm"));

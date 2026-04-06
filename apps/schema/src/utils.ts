@@ -18,13 +18,8 @@ export const schemaQuery = gql`
     }
     _schema {
       name
-      activeSubsets
-      availableSubsets {
-        name
-        description
-        includes
-      }
-      availableTemplates {
+      activeProfiles
+      availableProfiles {
         name
         description
         includes
@@ -44,7 +39,7 @@ export const schemaQuery = gql`
           value
         }
         semantics
-        subsets
+        profiles
         columns {
           name
           labels {
@@ -69,7 +64,7 @@ export const schemaQuery = gql`
             value
           }
           semantics
-          subsets
+          profiles
           validation
           visible
           computed
@@ -224,7 +219,7 @@ export function getLocalizedDescription(
   }
 }
 
-export function getAvailableTemplates(
+export function getAvailableProfiles(
   schema: any,
   extraSubsets?: string[]
 ): string[] {
@@ -232,15 +227,15 @@ export function getAvailableTemplates(
   if (extraSubsets) extraSubsets.forEach((p) => subsets.add(p));
   const allTables = [...(schema.tables || []), ...(schema.ontologies || [])];
   for (const table of allTables) {
-    if (table.subsets) table.subsets.forEach((p: string) => subsets.add(p));
+    if (table.profiles) table.profiles.forEach((p: string) => subsets.add(p));
     if (table.subclasses) {
       for (const sub of table.subclasses) {
-        if (sub.subsets) sub.subsets.forEach((p: string) => subsets.add(p));
+        if (sub.profiles) sub.profiles.forEach((p: string) => subsets.add(p));
       }
     }
     if (table.columns) {
       for (const col of table.columns) {
-        if (col.subsets) col.subsets.forEach((p: string) => subsets.add(p));
+        if (col.profiles) col.profiles.forEach((p: string) => subsets.add(p));
       }
     }
   }

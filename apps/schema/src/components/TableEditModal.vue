@@ -48,25 +48,25 @@
       />
       <div class="subsets-checkboxes">
         <InputCheckbox
-          id="table_subsets"
-          v-model="table.subsets"
-          :options="availableTemplates"
+          id="table_profiles"
+          v-model="table.profiles"
+          :options="availableProfiles"
           :hideClearButton="true"
-          label="Templates"
+          label="Profiles"
         />
       </div>
       <div class="d-flex align-items-end mb-3">
         <InputString
-          id="table_new_template"
-          v-model="newTemplate"
-          label="Add new template"
+          id="table_new_profile"
+          v-model="newProfile"
+          label="Add new profile"
           class="flex-grow-1"
         />
         <button
           class="btn btn-outline-primary ml-2 mb-1"
           type="button"
-          @click="addNewTemplate"
-          :disabled="!newTemplate || availableTemplates.includes(newTemplate)"
+          @click="addNewProfile"
+          :disabled="!newProfile || availableProfiles.includes(newProfile)"
         >
           <i class="fas fa-fw fa-plus"></i>
         </button>
@@ -107,7 +107,7 @@ import {
   deepClone,
   InputTextLocalized,
 } from "molgenis-components";
-import { getAvailableTemplates } from "../utils.ts";
+import { getAvailableProfiles } from "../utils.ts";
 
 export default {
   components: {
@@ -157,12 +157,12 @@ export default {
       table: {},
       /** whether modal is visible */
       modalVisible: false,
-      newTemplate: "",
+      newProfile: "",
     };
   },
   computed: {
-    availableTemplates() {
-      return getAvailableTemplates(this.schema, this.table.subsets);
+    availableProfiles() {
+      return getAvailableProfiles(this.schema, this.table.profiles);
     },
     title() {
       return this.tableType === "ontology"
@@ -221,14 +221,14 @@ export default {
     },
   },
   methods: {
-    addNewTemplate() {
+    addNewProfile() {
       if (
-        this.newTemplate &&
-        !this.availableTemplates.includes(this.newTemplate)
+        this.newProfile &&
+        !this.availableProfiles.includes(this.newProfile)
       ) {
-        if (!this.table.subsets) this.table.subsets = [];
-        this.table.subsets.push(this.newTemplate);
-        this.newTemplate = "";
+        if (!this.table.profiles) this.table.profiles = [];
+        this.table.profiles.push(this.newProfile);
+        this.newProfile = "";
       }
     },
     showModal() {

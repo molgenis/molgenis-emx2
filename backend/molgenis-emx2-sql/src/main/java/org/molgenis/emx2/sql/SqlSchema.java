@@ -204,7 +204,7 @@ public class SqlSchema implements Schema {
               + getName()
               + "' is bundle-backed (bundle: '"
               + getBundleContext().getBundleName()
-              + "') and bundle lock is enabled. Structural edits must go through activateSubset/deactivateSubset mutations.");
+              + "') and bundle lock is enabled. Structural edits must go through enableProfile/disableProfile mutations.");
     }
     tx(database -> migrateTransaction(getName(), mergeSchema, database));
     this.getMetadata().reload();
@@ -248,8 +248,8 @@ public class SqlSchema implements Schema {
         if (mergeTable.getImportSchema() != null) {
           table.setImportSchema(mergeTable.getImportSchema());
         }
-        if (mergeTable.getSubsets() != null) {
-          table.setSubsets(mergeTable.getSubsets());
+        if (mergeTable.getProfiles() != null) {
+          table.setProfiles(mergeTable.getProfiles());
         }
         table.setInheritNames(mergeTable.getInheritNames());
         TableMetadata newTable = targetSchema.create(table);
@@ -301,8 +301,8 @@ public class SqlSchema implements Schema {
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());
         }
-        if (mergeTable.getSubsets() != null) {
-          oldTable.setSubsets(mergeTable.getSubsets());
+        if (mergeTable.getProfiles() != null) {
+          oldTable.setProfiles(mergeTable.getProfiles());
         }
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
@@ -516,11 +516,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void activateSubset(String subsetName) {
+  public void enableProfile(String profileName) {
     if (bundleContext == null) {
       throw new MolgenisException(
-          "Cannot activate subset '"
-              + subsetName
+          "Cannot enable profile '"
+              + profileName
               + "': no bundle is attached to schema '"
               + getName()
               + "'. Call attachBundle first.");
@@ -530,39 +530,39 @@ public class SqlSchema implements Schema {
           SqlSchemaMetadata targetSchema =
               (SqlSchemaMetadata) database.getSchema(getName()).getMetadata();
 
-          Set<String> currentActive = getActiveSubsets();
-          Set<String> subsetClosure =
-              SubsetActivator.resolveTransitiveClosure(subsetName, bundleContext);
+          Set<String> currentActive = getActiveProfiles();
+          Set<String> profileClosure =
+              ProfileActivator.resolveTransitiveClosure(profileName, bundleContext);
 
           Set<String> newActive = new HashSet<>(currentActive);
-          newActive.addAll(subsetClosure);
+          newActive.addAll(profileClosure);
 
           SchemaMetadata projected =
-              SubsetActivator.projectSchemaMetadataToActiveSubsets(
+              ProfileActivator.projectSchemaMetadataToActiveProfiles(
                   bundleContext.getBundleSchema(), newActive);
           database.getSchema(getName()).migrate(projected);
 
-          targetSchema.saveActiveSubsets(newActive.toArray(new String[0]));
+          targetSchema.saveActiveProfiles(newActive.toArray(new String[0]));
         });
     this.getMetadata().reload();
     db.getListener().schemaChanged(getName());
   }
 
   @Override
-  public void deactivateSubset(String subsetName) {
-    Set<String> current = getActiveSubsets();
-    if (!current.contains(subsetName)) return;
+  public void disableProfile(String profileName) {
+    Set<String> current = getActiveProfiles();
+    if (!current.contains(profileName)) return;
 
     Set<String> updated = new HashSet<>(current);
-    updated.remove(subsetName);
-    getMetadata().saveActiveSubsets(updated.toArray(new String[0]));
+    updated.remove(profileName);
+    getMetadata().saveActiveProfiles(updated.toArray(new String[0]));
     db.getListener().schemaChanged(getName());
   }
 
   @Override
-  public Set<String> getActiveSubsets() {
-    String[] subsets = getMetadata().getActiveSubsets();
-    if (subsets == null) return new HashSet<>();
-    return new HashSet<>(Arrays.asList(subsets));
+  public Set<String> getActiveProfiles() {
+    String[] profiles = getMetadata().getActiveProfiles();
+    if (profiles == null) return new HashSet<>();
+    return new HashSet<>(Arrays.asList(profiles));
   }
 }

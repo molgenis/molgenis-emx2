@@ -8,10 +8,10 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record TemplateDef(String description, List<String> includes, Boolean internal) {
+public record ProfileDef(String description, List<String> includes, Boolean internal) {
 
   @JsonCreator
-  public TemplateDef(
+  public ProfileDef(
       @JsonProperty("description") String description,
       @JsonProperty("includes") List<String> includes,
       @JsonProperty("internal") Boolean internal) {

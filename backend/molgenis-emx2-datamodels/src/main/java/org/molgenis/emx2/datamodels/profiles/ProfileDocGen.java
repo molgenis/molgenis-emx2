@@ -63,8 +63,8 @@ public record ProfileDocGen(String outputFile) {
                         table.getSemantics() != null
                             ? (String.join(", ", table.getSemantics()))
                             : "n/a",
-                        table.getSubsets() != null
-                            ? (String.join(", ", table.getSubsets()))
+                        table.getProfiles() != null
+                            ? (String.join(", ", table.getProfiles()))
                             : "NO SUBSETS FOR TABLE",
                         table.getColumns().size())
                 + LE);
@@ -107,9 +107,9 @@ public record ProfileDocGen(String outputFile) {
   public int countAllTags(SchemaMetadata fullSchema) {
     int tags = 0;
     for (TableMetadata t : fullSchema.getTables()) {
-      if (t.getSubsets() != null) tags += t.getSubsets().length;
+      if (t.getProfiles() != null) tags += t.getProfiles().length;
       for (Column c : t.getColumns()) {
-        if (c.getSubsets() != null) tags += c.getSubsets().length;
+        if (c.getProfiles() != null) tags += c.getProfiles().length;
       }
     }
     return tags;
@@ -118,9 +118,9 @@ public record ProfileDocGen(String outputFile) {
   public Set<String> getAllTags(SchemaMetadata fullSchema) {
     Set<String> tags = new HashSet<>();
     for (TableMetadata t : fullSchema.getTables()) {
-      if (t.getSubsets() != null) tags.addAll(Arrays.asList(t.getSubsets()));
+      if (t.getProfiles() != null) tags.addAll(Arrays.asList(t.getProfiles()));
       for (Column c : t.getColumns()) {
-        if (c.getSubsets() != null) tags.addAll(Arrays.asList(c.getSubsets()));
+        if (c.getProfiles() != null) tags.addAll(Arrays.asList(c.getProfiles()));
       }
     }
     return tags;

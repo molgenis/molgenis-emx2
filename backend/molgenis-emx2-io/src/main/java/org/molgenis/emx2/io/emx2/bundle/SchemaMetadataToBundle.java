@@ -2,7 +2,7 @@ package org.molgenis.emx2.io.emx2.bundle;
 
 import java.util.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.emx2.TemplateNameNormalizer;
+import org.molgenis.emx2.io.emx2.ProfileNameNormalizer;
 
 public class SchemaMetadataToBundle {
 
@@ -15,7 +15,7 @@ public class SchemaMetadataToBundle {
       SchemaMetadata schema,
       String bundleName,
       String bundleDescription,
-      Map<String, TemplateDef> templates) {
+      Map<String, ProfileDef> profiles) {
 
     Map<String, TableDef> tables = new LinkedHashMap<>();
     for (TableMetadata table : schema.getTables()) {
@@ -25,21 +25,21 @@ public class SchemaMetadataToBundle {
       }
     }
 
-    return new Bundle(bundleName, bundleDescription, Map.of(), templates, tables);
+    return new Bundle(bundleName, bundleDescription, Map.of(), profiles, tables);
   }
 
   public static Bundle convertWithAutoRegistry(
       SchemaMetadata schema, String bundleName, String bundleDescription) {
-    Set<String> allTemplates = collectAllTemplateNames(schema);
-    Map<String, TemplateDef> templates = new LinkedHashMap<>();
-    for (String template : allTemplates) {
-      templates.put(template, new TemplateDef(null, List.of(), Boolean.TRUE));
+    Set<String> allProfiles = collectAllProfileNames(schema);
+    Map<String, ProfileDef> profiles = new LinkedHashMap<>();
+    for (String profile : allProfiles) {
+      profiles.put(profile, new ProfileDef(null, List.of(), Boolean.TRUE));
     }
-    if (!allTemplates.isEmpty()) {
-      templates.put("all", new TemplateDef(null, List.copyOf(allTemplates), null));
+    if (!allProfiles.isEmpty()) {
+      profiles.put("all", new ProfileDef(null, List.copyOf(allProfiles), null));
     }
 
-    return convert(schema, bundleName, bundleDescription, templates);
+    return convert(schema, bundleName, bundleDescription, profiles);
   }
 
   private static boolean isRootTable(TableMetadata table) {
@@ -54,7 +54,7 @@ public class SchemaMetadataToBundle {
     String description = table.getDescriptions().get("en");
     List<String> inherits =
         table.getInheritNames() != null ? Arrays.asList(table.getInheritNames()) : List.of();
-    List<String> tableTemplates = normalizeTemplates(table.getSubsets());
+    List<String> tableProfiles = normalizeProfiles(table.getProfiles());
     List<String> semantics =
         table.getSemantics() != null && table.getSemantics().length > 0
             ? Arrays.asList(table.getSemantics())
@@ -76,14 +76,14 @@ public class SchemaMetadataToBundle {
 
     Map<String, DataColumn> columns = convertColumns(table.getNonInheritedColumns());
 
-    List<String> templatesOrNull = tableTemplates.isEmpty() ? null : tableTemplates;
+    List<String> profilesOrNull = tableProfiles.isEmpty() ? null : tableProfiles;
     Map<String, SubtypeDef> subtypesOrNull = subtypes.isEmpty() ? null : subtypes;
     Map<String, DataColumn> columnsOrNull = columns.isEmpty() ? null : columns;
 
     return new TableDef(
         description,
         inherits.isEmpty() ? null : inherits,
-        templatesOrNull,
+        profilesOrNull,
         semantics,
         internal,
         label,
@@ -137,8 +137,8 @@ public class SchemaMetadataToBundle {
             ? Arrays.asList(col.getSemantics())
             : null;
 
-    List<String> templates = normalizeTemplates(col.getSubsets());
-    List<String> subsetsOrNull = templates.isEmpty() ? null : templates;
+    List<String> colProfiles = normalizeProfiles(col.getProfiles());
+    List<String> subsetsOrNull = colProfiles.isEmpty() ? null : colProfiles;
 
     String label =
         col.getLabel() != null && !col.getLabel().equals(col.getName()) ? col.getLabel() : null;
@@ -179,34 +179,34 @@ public class SchemaMetadataToBundle {
     return colType.toString().toLowerCase();
   }
 
-  private static List<String> normalizeTemplates(String[] templateNames) {
-    if (templateNames == null || templateNames.length == 0) {
+  private static List<String> normalizeProfiles(String[] profileNames) {
+    if (profileNames == null || profileNames.length == 0) {
       return List.of();
     }
     List<String> result = new ArrayList<>();
-    for (String template : templateNames) {
-      result.add(TemplateNameNormalizer.normalize(template));
+    for (String profile : profileNames) {
+      result.add(ProfileNameNormalizer.normalize(profile));
     }
     return result;
   }
 
-  private static Set<String> collectAllTemplateNames(SchemaMetadata schema) {
-    Set<String> allTemplates = new LinkedHashSet<>();
+  private static Set<String> collectAllProfileNames(SchemaMetadata schema) {
+    Set<String> allProfiles = new LinkedHashSet<>();
     for (TableMetadata table : schema.getTables()) {
-      if (table.getSubsets() != null) {
-        for (String template : table.getSubsets()) {
-          allTemplates.add(TemplateNameNormalizer.normalize(template));
+      if (table.getProfiles() != null) {
+        for (String profile : table.getProfiles()) {
+          allProfiles.add(ProfileNameNormalizer.normalize(profile));
         }
       }
       for (Column column : table.getNonInheritedColumns()) {
-        if (column.getSubsets() != null) {
-          for (String template : column.getSubsets()) {
-            allTemplates.add(TemplateNameNormalizer.normalize(template));
+        if (column.getProfiles() != null) {
+          for (String profile : column.getProfiles()) {
+            allProfiles.add(ProfileNameNormalizer.normalize(profile));
           }
         }
       }
     }
-    return allTemplates;
+    return allProfiles;
   }
 
   private static List<TableMetadata> findSubtypeTables(

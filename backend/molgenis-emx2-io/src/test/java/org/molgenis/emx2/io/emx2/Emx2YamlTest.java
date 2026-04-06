@@ -28,7 +28,7 @@ class Emx2YamlTest {
     assertNotNull(schema.getTableMetadata("Observations"));
     assertEquals(12, schema.getTables().size());
 
-    assertEquals(List.of("wgs", "rna"), result.getActiveSubsets());
+    assertEquals(List.of("wgs", "rna"), result.getActiveProfiles());
 
     assertEquals("Welcome to RD3", result.getSettings().get("landingPage"));
 
@@ -43,7 +43,7 @@ class Emx2YamlTest {
 
     assertEquals("Full", result.getName());
 
-    assertTrue(result.getActiveSubsets().isEmpty());
+    assertTrue(result.getActiveProfiles().isEmpty());
 
     assertEquals(12, result.getSchema().getTables().size());
   }

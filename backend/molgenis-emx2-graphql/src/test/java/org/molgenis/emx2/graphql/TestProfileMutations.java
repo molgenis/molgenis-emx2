@@ -18,14 +18,14 @@ import org.molgenis.emx2.sql.SqlSchema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-class TestSubsetMutations {
+class TestProfileMutations {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final Database DB = TestDatabaseFactory.getTestDatabase();
 
   private static final String BUNDLE_YAML =
       "name: test_graphql_bundle\n"
-          + "description: Bundle for GraphQL subset tests\n"
+          + "description: Bundle for GraphQL profile tests\n"
           + "subsets:\n"
           + "  subset_a:\n"
           + "    description: Subset A\n"
@@ -81,127 +81,107 @@ class TestSubsetMutations {
   }
 
   @Test
-  void activateSubsetCreatesColumns(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestActivateSubsetCreatesColumns", tempDir);
+  void enableProfileCreatesColumns(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestEnableProfileCreatesColumns", tempDir);
     GraphqlExecutor graphql = executorFor(schema);
 
     JsonNode result =
-        execute(graphql, "mutation{activateSubset(name:\"subset_a\"){message,status}}");
-    assertEquals("SUCCESS", result.at("/activateSubset/status").asText());
-    assertTrue(result.at("/activateSubset/message").asText().contains("subset_a"));
+        execute(graphql, "mutation{enableProfile(name:\"subset_a\"){message,status}}");
+    assertEquals("SUCCESS", result.at("/enableProfile/status").asText());
+    assertTrue(result.at("/enableProfile/message").asText().contains("subset_a"));
 
-    JsonNode schemaResult = execute(graphql, "{_schema{activeSubsets}}");
-    JsonNode activeSubsets = schemaResult.at("/_schema/activeSubsets");
-    assertTrue(activeSubsets.isArray());
+    JsonNode schemaResult = execute(graphql, "{_schema{activeProfiles}}");
+    JsonNode activeProfiles = schemaResult.at("/_schema/activeProfiles");
+    assertTrue(activeProfiles.isArray());
     boolean hasSubsetA = false;
-    for (JsonNode entry : activeSubsets) {
+    for (JsonNode entry : activeProfiles) {
       if ("subset_a".equals(entry.asText())) hasSubsetA = true;
     }
-    assertTrue(hasSubsetA, "subset_a should be in activeSubsets after activation");
+    assertTrue(hasSubsetA, "subset_a should be in activeProfiles after enabling");
   }
 
   @Test
-  void activateSubsetIdempotent(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestActivateSubsetIdempotent", tempDir);
+  void enableProfileIdempotent(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestEnableProfileIdempotent", tempDir);
     GraphqlExecutor graphql = executorFor(schema);
 
-    JsonNode first =
-        execute(graphql, "mutation{activateSubset(name:\"subset_a\"){message,status}}");
-    assertEquals("SUCCESS", first.at("/activateSubset/status").asText());
+    JsonNode first = execute(graphql, "mutation{enableProfile(name:\"subset_a\"){message,status}}");
+    assertEquals("SUCCESS", first.at("/enableProfile/status").asText());
 
     JsonNode second =
-        execute(graphql, "mutation{activateSubset(name:\"subset_a\"){message,status}}");
-    assertEquals("SUCCESS", second.at("/activateSubset/status").asText());
+        execute(graphql, "mutation{enableProfile(name:\"subset_a\"){message,status}}");
+    assertEquals("SUCCESS", second.at("/enableProfile/status").asText());
   }
 
   @Test
-  void activateSubsetUnknownName(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestActivateSubsetUnknownName", tempDir);
+  void enableProfileUnknownName(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestEnableProfileUnknownName", tempDir);
     GraphqlExecutor graphql = executorFor(schema);
 
     assertThrows(
         MolgenisException.class,
-        () ->
-            execute(graphql, "mutation{activateSubset(name:\"does_not_exist\"){message,status}}"));
+        () -> execute(graphql, "mutation{enableProfile(name:\"does_not_exist\"){message,status}}"));
   }
 
   @Test
-  void deactivateSubsetRemovesFromActive(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestDeactivateSubsetRemovesFromActive", tempDir);
+  void disableProfileRemovesFromActive(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestDisableProfileRemovesFromActive", tempDir);
     GraphqlExecutor graphql = executorFor(schema);
 
-    execute(graphql, "mutation{activateSubset(name:\"subset_a\"){message}}");
+    execute(graphql, "mutation{enableProfile(name:\"subset_a\"){message}}");
 
-    JsonNode beforeDeactivate = execute(graphql, "{_schema{activeSubsets}}");
+    JsonNode beforeDisable = execute(graphql, "{_schema{activeProfiles}}");
     boolean presentBefore = false;
-    for (JsonNode entry : beforeDeactivate.at("/_schema/activeSubsets")) {
+    for (JsonNode entry : beforeDisable.at("/_schema/activeProfiles")) {
       if ("subset_a".equals(entry.asText())) presentBefore = true;
     }
-    assertTrue(presentBefore, "subset_a should be active before deactivation");
+    assertTrue(presentBefore, "subset_a should be active before disabling");
 
-    JsonNode deactivateResult =
-        execute(graphql, "mutation{deactivateSubset(name:\"subset_a\"){message,status}}");
-    assertEquals("SUCCESS", deactivateResult.at("/deactivateSubset/status").asText());
+    JsonNode disableResult =
+        execute(graphql, "mutation{disableProfile(name:\"subset_a\"){message,status}}");
+    assertEquals("SUCCESS", disableResult.at("/disableProfile/status").asText());
 
-    JsonNode afterDeactivate = execute(graphql, "{_schema{activeSubsets}}");
+    JsonNode afterDisable = execute(graphql, "{_schema{activeProfiles}}");
     boolean presentAfter = false;
-    for (JsonNode entry : afterDeactivate.at("/_schema/activeSubsets")) {
+    for (JsonNode entry : afterDisable.at("/_schema/activeProfiles")) {
       if ("subset_a".equals(entry.asText())) presentAfter = true;
     }
-    assertFalse(presentAfter, "subset_a should not be active after deactivation");
+    assertFalse(presentAfter, "subset_a should not be active after disabling");
   }
 
   @Test
-  void deactivateSubsetIdempotent(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestDeactivateSubsetIdempotent", tempDir);
+  void disableProfileIdempotent(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestDisableProfileIdempotent", tempDir);
     GraphqlExecutor graphql = executorFor(schema);
 
     JsonNode result =
-        execute(graphql, "mutation{deactivateSubset(name:\"subset_a\"){message,status}}");
-    assertEquals("SUCCESS", result.at("/deactivateSubset/status").asText());
+        execute(graphql, "mutation{disableProfile(name:\"subset_a\"){message,status}}");
+    assertEquals("SUCCESS", result.at("/disableProfile/status").asText());
   }
 
   @Test
-  void schemaIntrospectionExposesAvailableSubsets(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestIntrospectAvailableSubsets", tempDir);
-    schema.activateSubset("subset_a");
+  void schemaIntrospectionExposesAvailableProfiles(@TempDir Path tempDir) throws IOException {
+    SqlSchema schema = createBundleSchema("TestIntrospectAvailableProfiles", tempDir);
+    schema.enableProfile("subset_a");
     GraphqlExecutor graphql = executorFor(schema);
 
     JsonNode result =
-        execute(graphql, "{_schema{availableSubsets{name description includes active}}}");
-    JsonNode availableSubsets = result.at("/_schema/availableSubsets");
-    assertNotNull(availableSubsets);
-    assertTrue(availableSubsets.isArray());
-    assertTrue(availableSubsets.size() >= 2);
+        execute(graphql, "{_schema{availableProfiles{name description includes active}}}");
+    JsonNode availableProfiles = result.at("/_schema/availableProfiles");
+    assertNotNull(availableProfiles);
+    assertTrue(availableProfiles.isArray());
+    assertTrue(availableProfiles.size() >= 2);
 
-    JsonNode subsetA = findByName(availableSubsets, "subset_a");
-    assertNotNull(subsetA, "subset_a should be in availableSubsets");
+    JsonNode subsetA = findByName(availableProfiles, "subset_a");
+    assertNotNull(subsetA, "subset_a should be in availableProfiles");
     assertEquals("Subset A", subsetA.get("description").asText());
     assertTrue(subsetA.get("active").asBoolean(), "subset_a should be active");
 
-    JsonNode subsetB = findByName(availableSubsets, "subset_b");
-    assertNotNull(subsetB, "subset_b should be in availableSubsets");
+    JsonNode subsetB = findByName(availableProfiles, "subset_b");
+    assertNotNull(subsetB, "subset_b should be in availableProfiles");
     assertFalse(subsetB.get("active").asBoolean(), "subset_b should not be active");
     assertTrue(subsetB.get("includes").isArray());
     assertEquals("subset_a", subsetB.get("includes").get(0).asText());
-  }
-
-  @Test
-  void schemaIntrospectionExposesAvailableTemplates(@TempDir Path tempDir) throws IOException {
-    SqlSchema schema = createBundleSchema("TestIntrospectAvailableTemplates", tempDir);
-    GraphqlExecutor graphql = executorFor(schema);
-
-    JsonNode result =
-        execute(graphql, "{_schema{availableTemplates{name description includes active}}}");
-    JsonNode availableTemplates = result.at("/_schema/availableTemplates");
-    assertNotNull(availableTemplates);
-    assertTrue(availableTemplates.isArray());
-
-    JsonNode templateX = findByName(availableTemplates, "template_x");
-    assertNotNull(templateX, "template_x should be in availableTemplates");
-    assertEquals("Template X", templateX.get("description").asText());
-    assertFalse(templateX.get("active").asBoolean());
-    assertEquals("subset_a", templateX.get("includes").get(0).asText());
   }
 
   @Test
@@ -212,7 +192,7 @@ class TestSubsetMutations {
     JsonNode result = execute(graphql, "{_schema{bundleName bundleDescription}}");
     assertEquals("test_graphql_bundle", result.at("/_schema/bundleName").asText());
     assertEquals(
-        "Bundle for GraphQL subset tests", result.at("/_schema/bundleDescription").asText());
+        "Bundle for GraphQL profile tests", result.at("/_schema/bundleDescription").asText());
   }
 
   @Test
@@ -223,13 +203,11 @@ class TestSubsetMutations {
     JsonNode result =
         execute(
             graphql,
-            "{_schema{activeSubsets availableSubsets{name} availableTemplates{name} bundleName bundleDescription}}");
-    assertTrue(result.at("/_schema/activeSubsets").isArray());
-    assertEquals(0, result.at("/_schema/activeSubsets").size());
-    assertTrue(result.at("/_schema/availableSubsets").isArray());
-    assertEquals(0, result.at("/_schema/availableSubsets").size());
-    assertTrue(result.at("/_schema/availableTemplates").isArray());
-    assertEquals(0, result.at("/_schema/availableTemplates").size());
+            "{_schema{activeProfiles availableProfiles{name} bundleName bundleDescription}}");
+    assertTrue(result.at("/_schema/activeProfiles").isArray());
+    assertEquals(0, result.at("/_schema/activeProfiles").size());
+    assertTrue(result.at("/_schema/availableProfiles").isArray());
+    assertEquals(0, result.at("/_schema/availableProfiles").size());
     JsonNode bundleName = result.at("/_schema/bundleName");
     assertTrue(bundleName.isNull() || bundleName.isMissingNode(), "bundleName should be null");
     JsonNode bundleDescription = result.at("/_schema/bundleDescription");

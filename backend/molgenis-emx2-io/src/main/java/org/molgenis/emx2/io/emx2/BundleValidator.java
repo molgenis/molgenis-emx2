@@ -4,8 +4,8 @@ import java.util.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.ProfileEntry;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.SubsetEntry;
 import org.molgenis.emx2.TableMetadata;
 
 class BundleValidator {
@@ -13,7 +13,7 @@ class BundleValidator {
   private BundleValidator() {}
 
   static void validate(
-      String bundleName, Map<String, SubsetEntry> templateRegistry, SchemaMetadata schema) {
+      String bundleName, Map<String, ProfileEntry> templateRegistry, SchemaMetadata schema) {
 
     List<String> errors = new ArrayList<>();
 
@@ -32,13 +32,13 @@ class BundleValidator {
   private static final String IDENTIFIER_PATTERN = "[a-z][a-z0-9_]*";
 
   private static void validateIdentifierFormats(
-      Map<String, SubsetEntry> templateRegistry, String bundleName, List<String> errors) {
+      Map<String, ProfileEntry> templateRegistry, String bundleName, List<String> errors) {
     for (String id : templateRegistry.keySet()) {
       if (!id.matches(IDENTIFIER_PATTERN)) {
         errors.add(
             "Bundle '"
                 + bundleName
-                + "': invalid template identifier '"
+                + "': invalid profile identifier '"
                 + id
                 + "'; must match [a-z][a-z0-9_]*");
       }
@@ -46,8 +46,8 @@ class BundleValidator {
   }
 
   private static void validateIncludesResolution(
-      Map<String, SubsetEntry> combined, String bundleName, List<String> errors) {
-    for (SubsetEntry entry : combined.values()) {
+      Map<String, ProfileEntry> combined, String bundleName, List<String> errors) {
+    for (ProfileEntry entry : combined.values()) {
       for (String includedName : entry.getIncludes()) {
         if (!combined.containsKey(includedName)) {
           errors.add(
@@ -64,7 +64,7 @@ class BundleValidator {
   }
 
   private static void validateIncludesAcyclicity(
-      Map<String, SubsetEntry> combined, List<String> errors) {
+      Map<String, ProfileEntry> combined, List<String> errors) {
     Set<String> permanentlyVisited = new HashSet<>();
     Set<String> inProgress = new LinkedHashSet<>();
 
@@ -77,14 +77,14 @@ class BundleValidator {
 
   private static void detectCycle(
       String node,
-      Map<String, SubsetEntry> combined,
+      Map<String, ProfileEntry> combined,
       Set<String> permanentlyVisited,
       Set<String> inProgress,
       List<String> errors) {
 
     inProgress.add(node);
 
-    SubsetEntry entry = combined.get(node);
+    ProfileEntry entry = combined.get(node);
     if (entry != null) {
       for (String neighbor : entry.getIncludes()) {
         if (!combined.containsKey(neighbor)) {
@@ -116,10 +116,10 @@ class BundleValidator {
   }
 
   private static void validateSubsetReferencesOnTablesAndColumns(
-      SchemaMetadata schema, Map<String, SubsetEntry> combined, List<String> errors) {
+      SchemaMetadata schema, Map<String, ProfileEntry> combined, List<String> errors) {
     for (TableMetadata table : schema.getTables()) {
-      if (table.getSubsets() != null) {
-        for (String subsetName : table.getSubsets()) {
+      if (table.getProfiles() != null) {
+        for (String subsetName : table.getProfiles()) {
           if (!combined.containsKey(subsetName)) {
             errors.add(
                 "Table '"
@@ -131,8 +131,8 @@ class BundleValidator {
         }
       }
       for (Column column : table.getNonInheritedColumns()) {
-        if (column.getSubsets() != null) {
-          for (String subsetName : column.getSubsets()) {
+        if (column.getProfiles() != null) {
+          for (String subsetName : column.getProfiles()) {
             if (!combined.containsKey(subsetName)) {
               errors.add(
                   "Table '"
@@ -150,7 +150,7 @@ class BundleValidator {
   }
 
   private static void validateReferenceCompleteness(
-      SchemaMetadata schema, Map<String, SubsetEntry> combined, List<String> errors) {
+      SchemaMetadata schema, Map<String, ProfileEntry> combined, List<String> errors) {
 
     if (combined.isEmpty()) {
       return;
@@ -193,10 +193,10 @@ class BundleValidator {
                   + refTableName
                   + "' (subsets: "
                   + sortedJoin(targetSubsets)
-                  + ") but no single template in the registry covers both when activated. "
+                  + ") but no single profile in the registry covers both when activated. "
                   + "Either make '"
                   + refTableName
-                  + "' always-on (no templates tag) or add a template whose transitive includes cover both.");
+                  + "' always-on (no profiles tag) or add a profile whose transitive includes cover both.");
         }
       }
     }
@@ -205,7 +205,7 @@ class BundleValidator {
   private static boolean existsActivationCoveringBoth(
       Set<String> sourceSubsets,
       Set<String> targetSubsets,
-      Map<String, SubsetEntry> combined,
+      Map<String, ProfileEntry> combined,
       Map<String, Set<String>> transitiveClosurePerEntry) {
 
     for (String entryId : combined.keySet()) {
@@ -223,7 +223,7 @@ class BundleValidator {
   }
 
   private static Map<String, Set<String>> buildTransitiveClosurePerEntry(
-      Map<String, SubsetEntry> combined) {
+      Map<String, ProfileEntry> combined) {
     Map<String, Set<String>> result = new HashMap<>();
     for (String id : combined.keySet()) {
       result.put(id, computeTransitiveIncludes(id, combined, new HashSet<>()));
@@ -239,21 +239,21 @@ class BundleValidator {
   private static Map<String, Set<String>> buildTableSubsetsMap(SchemaMetadata schema) {
     Map<String, Set<String>> result = new HashMap<>();
     for (TableMetadata table : schema.getTables()) {
-      if (table.getSubsets() != null && table.getSubsets().length > 0) {
-        result.put(table.getTableName(), new HashSet<>(Arrays.asList(table.getSubsets())));
+      if (table.getProfiles() != null && table.getProfiles().length > 0) {
+        result.put(table.getTableName(), new HashSet<>(Arrays.asList(table.getProfiles())));
       }
     }
     return result;
   }
 
   private static Set<String> computeTransitiveIncludes(
-      String id, Map<String, SubsetEntry> combined, Set<String> visiting) {
+      String id, Map<String, ProfileEntry> combined, Set<String> visiting) {
     if (visiting.contains(id)) {
       return Set.of();
     }
     visiting.add(id);
     Set<String> result = new HashSet<>();
-    SubsetEntry entry = combined.get(id);
+    ProfileEntry entry = combined.get(id);
     if (entry != null) {
       for (String included : entry.getIncludes()) {
         result.add(included);

@@ -67,7 +67,7 @@ public class Emx2 {
         schema.getTableMetadata(tableName).setInheritNames(row.getStringArray(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
-        schema.getTableMetadata(tableName).setSubsets(row.getStringArray(PROFILES, false));
+        schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
         if (row.getString(TABLE_TYPE) != null) {
           schema
               .getTableMetadata(tableName)
@@ -142,7 +142,7 @@ public class Emx2 {
           if (row.notNull(VISIBLE)) column.setVisible(row.getString(VISIBLE));
           if (row.notNull(COMPUTED)) column.setComputed(row.getString(COMPUTED));
           if (row.notNull(SEMANTICS)) column.setSemantics(row.getStringArray(SEMANTICS));
-          if (row.notNull(PROFILES)) column.setSubsets(row.getStringArray(PROFILES));
+          if (row.notNull(PROFILES)) column.setProfiles(row.getStringArray(PROFILES));
           if (row.notNull(REF_JS_TEMPLATE)) column.setRefLabel(row.getString(REF_JS_TEMPLATE));
           if (row.notNull(COLUMN_POSITION)) column.setPosition(row.getInteger(COLUMN_POSITION));
           if (row.notNull(OLD_NAME)) column.setOldName(row.getString(OLD_NAME));
@@ -273,7 +273,7 @@ public class Emx2 {
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
       if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemantics());
-      if (table.getSubsets() != null) row.setStringArray(SUBSETS, table.getSubsets());
+      if (table.getProfiles() != null) row.setStringArray(SUBSETS, table.getProfiles());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
@@ -324,7 +324,7 @@ public class Emx2 {
         if (column.getComputed() != null) row.set(COMPUTED, column.getComputed());
         if (column.getVisible() != null) row.set(VISIBLE, column.getVisible());
         if (column.getSemantics() != null) row.set(SEMANTICS, column.getSemantics());
-        if (column.getSubsets() != null) row.set(SUBSETS, column.getSubsets());
+        if (column.getProfiles() != null) row.set(SUBSETS, column.getProfiles());
         for (Map.Entry<String, String> label : column.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());

@@ -4,15 +4,15 @@ import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TemplateNameNormalizer {
+public class ProfileNameNormalizer {
 
-  private static final Logger log = LoggerFactory.getLogger(TemplateNameNormalizer.class);
+  private static final Logger log = LoggerFactory.getLogger(ProfileNameNormalizer.class);
 
-  private TemplateNameNormalizer() {}
+  private ProfileNameNormalizer() {}
 
   public static String normalize(String originalName) {
     if (originalName == null) {
-      throw new MolgenisException("Template name must not be null");
+      throw new MolgenisException("Profile name must not be null");
     }
 
     String result = originalName.toLowerCase();
@@ -22,7 +22,7 @@ public class TemplateNameNormalizer {
 
     if (result.isEmpty()) {
       throw new MolgenisException(
-          "Template name '" + originalName + "' normalized to an empty string");
+          "Profile name '" + originalName + "' normalized to an empty string");
     }
 
     if (!Character.isLetter(result.charAt(0))) {
@@ -30,7 +30,7 @@ public class TemplateNameNormalizer {
     }
 
     if (!result.equals(originalName)) {
-      log.info("normalized template name '{}' -> '{}'", originalName, result);
+      log.info("normalized profile name '{}' -> '{}'", originalName, result);
     }
 
     return result;

@@ -17,7 +17,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.ProfileUtils;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
 
-public class TestSubsetActivation {
+public class TestProfileActivation {
 
   private static Database db;
 
@@ -64,7 +64,7 @@ public class TestSubsetActivation {
   }
 
   @Test
-  void activateCreatesTaggedColumns(@TempDir Path tempDir) throws IOException {
+  void enableProfileCreatesTaggedColumns(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
@@ -85,18 +85,18 @@ public class TestSubsetActivation {
                 + "        subsets: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestActivateCreatesTaggedColumns");
+    SqlSchema schema = createSchema("TestEnableProfileCreatesTaggedColumns");
     schema.attachBundle(bundle.toBundleContext());
 
     assertFalse(
         columnExistsInPg(schema, "Animals", "weight"),
-        "weight column should not exist before activation");
+        "weight column should not exist before enabling");
 
-    schema.activateSubset("subset_a");
+    schema.enableProfile("subset_a");
 
     assertTrue(
         columnExistsInPg(schema, "Animals", "weight"),
-        "weight column should exist after activating subset_a");
+        "weight column should exist after enabling subset_a");
     assertTrue(
         columnExistsInPg(schema, "Animals", "id"), "id (always-on) column should always exist");
     assertTrue(
@@ -104,7 +104,7 @@ public class TestSubsetActivation {
   }
 
   @Test
-  void activateIsIdempotent(@TempDir Path tempDir) throws IOException {
+  void enableProfileIsIdempotent(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
@@ -123,18 +123,17 @@ public class TestSubsetActivation {
                 + "        subsets: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestActivateIsIdempotent");
+    SqlSchema schema = createSchema("TestEnableProfileIsIdempotent");
     schema.attachBundle(bundle.toBundleContext());
 
-    schema.activateSubset("subset_a");
-    assertDoesNotThrow(
-        () -> schema.activateSubset("subset_a"), "Second activation should not throw");
+    schema.enableProfile("subset_a");
+    assertDoesNotThrow(() -> schema.enableProfile("subset_a"), "Second enable should not throw");
 
     assertTrue(columnExistsInPg(schema, "Animals", "weight"), "weight should still exist");
   }
 
   @Test
-  void activateCreatesTaggedTables(@TempDir Path tempDir) throws IOException {
+  void enableProfileCreatesTaggedTables(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
@@ -158,30 +157,31 @@ public class TestSubsetActivation {
                 + "        type: int\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestActivateCreatesTaggedTables");
+    SqlSchema schema = createSchema("TestEnableProfileCreatesTaggedTables");
     schema.attachBundle(bundle.toBundleContext());
 
     assertFalse(
-        tableExistsInPg(schema, "Sequencing"), "Sequencing should not exist before activation");
+        tableExistsInPg(schema, "Sequencing"), "Sequencing should not exist before enabling");
 
-    schema.activateSubset("subset_b");
+    schema.enableProfile("subset_b");
 
-    assertTrue(tableExistsInPg(schema, "Sequencing"), "Sequencing should exist after activation");
+    assertTrue(tableExistsInPg(schema, "Sequencing"), "Sequencing should exist after enabling");
     assertTrue(tableExistsInPg(schema, "Experiments"), "Experiments (always-on) should exist");
   }
 
   @Test
-  void activateRunsIncludes(@TempDir Path tempDir) throws IOException {
+  void enableProfileRunsIncludes(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
+                + "profiles:\n"
                 + "  core:\n"
                 + "    description: Core\n"
+                + "    internal: true\n"
                 + "  extended:\n"
                 + "    description: Extended\n"
-                + "templates:\n"
+                + "    internal: true\n"
                 + "  full:\n"
                 + "    description: Full template\n"
                 + "    includes: [core, extended]\n"
@@ -193,27 +193,27 @@ public class TestSubsetActivation {
                 + "        key: 1\n"
                 + "      weight:\n"
                 + "        type: decimal\n"
-                + "        subsets: [core]\n"
+                + "        profiles: [core]\n"
                 + "      color:\n"
                 + "        type: string\n"
-                + "        subsets: [extended]\n");
+                + "        profiles: [extended]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestActivateRunsIncludes");
+    SqlSchema schema = createSchema("TestEnableProfileRunsIncludes");
     schema.attachBundle(bundle.toBundleContext());
 
-    schema.activateSubset("full");
+    schema.enableProfile("full");
 
     assertTrue(
         columnExistsInPg(schema, "Animals", "weight"),
-        "weight (core subset via full template) should be created");
+        "weight (core profile via full template) should be created");
     assertTrue(
         columnExistsInPg(schema, "Animals", "color"),
-        "color (extended subset via full template) should be created");
+        "color (extended profile via full template) should be created");
   }
 
   @Test
-  void deactivateLeavesColumnsInDb(@TempDir Path tempDir) throws IOException {
+  void disableProfileLeavesColumnsInDb(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
@@ -237,33 +237,33 @@ public class TestSubsetActivation {
                 + "        subsets: [subset_b]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestDeactivateLeavesColumns");
+    SqlSchema schema = createSchema("TestDisableProfileLeavesColumns");
     schema.attachBundle(bundle.toBundleContext());
 
-    schema.activateSubset("subset_a");
-    schema.activateSubset("subset_b");
-    assertTrue(columnExistsInPg(schema, "Animals", "weight"), "weight should exist after activate");
+    schema.enableProfile("subset_a");
+    schema.enableProfile("subset_b");
+    assertTrue(columnExistsInPg(schema, "Animals", "weight"), "weight should exist after enable");
 
-    schema.deactivateSubset("subset_a");
+    schema.disableProfile("subset_a");
 
     assertTrue(
         columnExistsInPg(schema, "Animals", "weight"),
-        "weight column must stay in Postgres after deactivate (DDL-free deactivation)");
+        "weight column must stay in Postgres after disable (DDL-free disable)");
 
-    Set<String> activeAfterDeactivate = schema.getActiveSubsets();
-    assertFalse(activeAfterDeactivate.contains("subset_a"), "subset_a should not be active");
-    assertTrue(activeAfterDeactivate.contains("subset_b"), "subset_b should still be active");
+    Set<String> activeAfterDisable = schema.getActiveProfiles();
+    assertFalse(activeAfterDisable.contains("subset_a"), "subset_a should not be active");
+    assertTrue(activeAfterDisable.contains("subset_b"), "subset_b should still be active");
 
-    String[] weightSubsets =
-        schema.getMetadata().getTableMetadata("Animals").getColumn("weight").getSubsets();
-    String[] activeArray = activeAfterDeactivate.toArray(new String[0]);
+    String[] weightProfiles =
+        schema.getMetadata().getTableMetadata("Animals").getColumn("weight").getProfiles();
+    String[] activeArray = activeAfterDisable.toArray(new String[0]);
     assertFalse(
-        ProfileUtils.matchesActiveProfiles(weightSubsets, activeArray),
-        "ProfileUtils should report weight as not visible when subset_a is deactivated and subset_b is active");
+        ProfileUtils.matchesActiveProfiles(weightProfiles, activeArray),
+        "ProfileUtils should report weight as not visible when subset_a is disabled and subset_b is active");
   }
 
   @Test
-  void deactivateThenReactivate(@TempDir Path tempDir) throws IOException {
+  void disableProfileThenReEnable(@TempDir Path tempDir) throws IOException {
     Path bundleDir =
         writeBundleYaml(
             tempDir,
@@ -282,16 +282,16 @@ public class TestSubsetActivation {
                 + "        subsets: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
-    SqlSchema schema = createSchema("TestDeactivateThenReactivate");
+    SqlSchema schema = createSchema("TestDisableProfileThenReEnable");
     schema.attachBundle(bundle.toBundleContext());
 
-    schema.activateSubset("subset_a");
-    schema.deactivateSubset("subset_a");
-    assertFalse(schema.getActiveSubsets().contains("subset_a"));
+    schema.enableProfile("subset_a");
+    schema.disableProfile("subset_a");
+    assertFalse(schema.getActiveProfiles().contains("subset_a"));
 
-    schema.activateSubset("subset_a");
-    assertTrue(schema.getActiveSubsets().contains("subset_a"));
+    schema.enableProfile("subset_a");
+    assertTrue(schema.getActiveProfiles().contains("subset_a"));
     assertTrue(
-        columnExistsInPg(schema, "Animals", "weight"), "weight should be present after reactivate");
+        columnExistsInPg(schema, "Animals", "weight"), "weight should be present after re-enable");
   }
 }

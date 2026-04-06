@@ -3,7 +3,7 @@ description: Shared tables for all catalogue variants, cohorts, patient registri
 imports:
 - tables/
 - ontologies/tables/
-templates:
+profiles:
   catalogue_core:
     description: Core catalogue columns visible in all catalogue-family templates
     internal: true

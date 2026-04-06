@@ -53,7 +53,7 @@ public class Emx2Yaml {
   private static final String ROLE_MANAGER = "Manager";
   private static final String ROLE_OWNER_VALUE = "Owner";
 
-  private static final String FIELD_TEMPLATES = "templates";
+  private static final String FIELD_PROFILES = "profiles";
   private static final String FIELD_SUBTYPES = "subtypes";
   private static final String FIELD_SUBTYPE = "subtype";
   private static final String FIELD_TABLES = "tables";
@@ -126,15 +126,15 @@ public class Emx2Yaml {
     }
 
     Bundle bundle = mapper.convertValue(yaml, Bundle.class);
-    Map<String, SubsetEntry> subsetRegistry = toSubsetEntryMap(bundle.templates(), true);
-    Map<String, SubsetEntry> templateRegistry = toSubsetEntryMap(bundle.templates(), false);
-    Map<String, SubsetEntry> combinedRegistry = toCombinedEntryMap(bundle.templates());
+    Map<String, ProfileEntry> subsetRegistry = toSubsetEntryMap(bundle.profiles(), true);
+    Map<String, ProfileEntry> profileRegistry = toSubsetEntryMap(bundle.profiles(), false);
+    Map<String, ProfileEntry> combinedRegistry = toCombinedEntryMap(bundle.profiles());
     SchemaMetadata schema = bundleToSchemaMetadata(bundle);
 
     BundleValidator.validate(name, combinedRegistry, schema);
 
     return new BundleResult(
-        bundle.name(), bundle.description(), schema, subsetRegistry, templateRegistry, Map.of());
+        bundle.name(), bundle.description(), schema, subsetRegistry, profileRegistry, Map.of());
   }
 
   @SuppressWarnings("unchecked")
@@ -162,15 +162,15 @@ public class Emx2Yaml {
 
     Map<String, String> namespaces = parseNamespaces(yaml);
     Bundle bundle = mapper.convertValue(yaml, Bundle.class);
-    Map<String, SubsetEntry> subsetRegistry = toSubsetEntryMap(bundle.templates(), true);
-    Map<String, SubsetEntry> templateRegistry = toSubsetEntryMap(bundle.templates(), false);
-    Map<String, SubsetEntry> combinedRegistry = toCombinedEntryMap(bundle.templates());
+    Map<String, ProfileEntry> subsetRegistry = toSubsetEntryMap(bundle.profiles(), true);
+    Map<String, ProfileEntry> profileRegistry = toSubsetEntryMap(bundle.profiles(), false);
+    Map<String, ProfileEntry> combinedRegistry = toCombinedEntryMap(bundle.profiles());
     SchemaMetadata schema = bundleToSchemaMetadata(bundle);
 
     BundleValidator.validate(name, combinedRegistry, schema);
 
     return new BundleResult(
-        bundle.name(), bundle.description(), schema, subsetRegistry, templateRegistry, namespaces);
+        bundle.name(), bundle.description(), schema, subsetRegistry, profileRegistry, namespaces);
   }
 
   private static void loadTableFileIntoSchema(Path yamlFile, SchemaMetadata schema)
@@ -187,26 +187,26 @@ public class Emx2Yaml {
     parseNewFormatTableIntoSchema(tableName, yaml, schema);
   }
 
-  private static Map<String, SubsetEntry> toSubsetEntryMap(
-      Map<String, TemplateDef> templateMap, boolean internalOnly) {
-    Map<String, SubsetEntry> result = new LinkedHashMap<>();
-    for (Map.Entry<String, TemplateDef> entry : templateMap.entrySet()) {
+  private static Map<String, ProfileEntry> toSubsetEntryMap(
+      Map<String, ProfileDef> profileMap, boolean internalOnly) {
+    Map<String, ProfileEntry> result = new LinkedHashMap<>();
+    for (Map.Entry<String, ProfileDef> entry : profileMap.entrySet()) {
       boolean isInternal = Boolean.TRUE.equals(entry.getValue().internal());
       if (isInternal == internalOnly) {
-        TemplateDef def = entry.getValue();
+        ProfileDef def = entry.getValue();
         result.put(
-            entry.getKey(), new SubsetEntry(entry.getKey(), def.description(), def.includes()));
+            entry.getKey(), new ProfileEntry(entry.getKey(), def.description(), def.includes()));
       }
     }
     return result;
   }
 
-  private static Map<String, SubsetEntry> toCombinedEntryMap(Map<String, TemplateDef> templateMap) {
-    Map<String, SubsetEntry> result = new LinkedHashMap<>();
-    for (Map.Entry<String, TemplateDef> entry : templateMap.entrySet()) {
-      TemplateDef def = entry.getValue();
+  private static Map<String, ProfileEntry> toCombinedEntryMap(Map<String, ProfileDef> profileMap) {
+    Map<String, ProfileEntry> result = new LinkedHashMap<>();
+    for (Map.Entry<String, ProfileDef> entry : profileMap.entrySet()) {
+      ProfileDef def = entry.getValue();
       result.put(
-          entry.getKey(), new SubsetEntry(entry.getKey(), def.description(), def.includes()));
+          entry.getKey(), new ProfileEntry(entry.getKey(), def.description(), def.includes()));
     }
     return result;
   }
@@ -244,8 +244,8 @@ public class Emx2Yaml {
     if (tableDef.isInternal()) {
       rootTable.setTableType(TableType.INTERNAL);
     }
-    if (!tableDef.templates().isEmpty()) {
-      rootTable.setSubsets(tableDef.templates().toArray(new String[0]));
+    if (!tableDef.profiles().isEmpty()) {
+      rootTable.setProfiles(tableDef.profiles().toArray(new String[0]));
     }
 
     Map<String, TableMetadata> subtypeTablesByName = new LinkedHashMap<>();
@@ -311,8 +311,8 @@ public class Emx2Yaml {
     for (Map.Entry<String, SectionDef> entry : sections.entrySet()) {
       SectionDef section = entry.getValue();
       String[] sectionSubsets =
-          section.templates() != null && !section.templates().isEmpty()
-              ? section.templates().toArray(new String[0])
+          section.profiles() != null && !section.profiles().isEmpty()
+              ? section.profiles().toArray(new String[0])
               : null;
       applyDataColumns(
           section.columns(),
@@ -346,8 +346,8 @@ public class Emx2Yaml {
       HeadingDef heading = entry.getValue();
       String headingSubtype = heading.subtype() != null ? heading.subtype() : inheritedSubtype;
       String[] headingSubsets =
-          heading.templates() != null && !heading.templates().isEmpty()
-              ? heading.templates().toArray(new String[0])
+          heading.profiles() != null && !heading.profiles().isEmpty()
+              ? heading.profiles().toArray(new String[0])
               : inheritedSubsets;
       applyDataColumns(
           heading.columns(),
@@ -452,13 +452,13 @@ public class Emx2Yaml {
     }
 
     String[] effectiveSubsets;
-    if (col.templates() != null) {
-      effectiveSubsets = col.templates().toArray(new String[0]);
+    if (col.profiles() != null) {
+      effectiveSubsets = col.profiles().toArray(new String[0]);
     } else {
       effectiveSubsets = inheritedSubsets;
     }
     if (effectiveSubsets != null && effectiveSubsets.length > 0) {
-      column.setSubsets(effectiveSubsets);
+      column.setProfiles(effectiveSubsets);
     }
 
     String effectiveSubtype = col.subtype() != null ? col.subtype() : inheritedSubtype;
@@ -594,8 +594,10 @@ public class Emx2Yaml {
                 ? (String) columnAttrs.get(FIELD_SUBTYPE)
                 : inheritedSubtype;
         String[] containerSubsets;
-        if (columnAttrs.containsKey(FIELD_TEMPLATES)) {
-          containerSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_TEMPLATES));
+        if (columnAttrs.containsKey(FIELD_PROFILES)) {
+          containerSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES));
+        } else if (columnAttrs.containsKey("templates")) {
+          containerSubsets = toStringArray((List<String>) columnAttrs.get("templates"));
         } else if (columnAttrs.containsKey("subsets")) {
           containerSubsets = toStringArray((List<String>) columnAttrs.get("subsets"));
         } else {
@@ -624,7 +626,7 @@ public class Emx2Yaml {
         headingCol.setType(ColumnType.HEADING);
         applyCommonColumnAttributes(headingCol, columnAttrs);
         if (inheritedSubsets != null) {
-          headingCol.setSubsets(inheritedSubsets);
+          headingCol.setProfiles(inheritedSubsets);
         }
         TableMetadata target =
             resolveTargetTable(
@@ -649,15 +651,17 @@ public class Emx2Yaml {
         applyCommonColumnAttributes(column, columnAttrs);
 
         String[] effectiveSubsets;
-        if (columnAttrs.containsKey(FIELD_TEMPLATES)) {
-          effectiveSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_TEMPLATES));
+        if (columnAttrs.containsKey(FIELD_PROFILES)) {
+          effectiveSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES));
+        } else if (columnAttrs.containsKey("templates")) {
+          effectiveSubsets = toStringArray((List<String>) columnAttrs.get("templates"));
         } else if (columnAttrs.containsKey("subsets")) {
           effectiveSubsets = toStringArray((List<String>) columnAttrs.get("subsets"));
         } else {
           effectiveSubsets = inheritedSubsets;
         }
         if (effectiveSubsets != null && effectiveSubsets.length > 0) {
-          column.setSubsets(effectiveSubsets);
+          column.setProfiles(effectiveSubsets);
         }
 
         String effectiveSubtype =
@@ -823,14 +827,17 @@ public class Emx2Yaml {
 
   @SuppressWarnings("unchecked")
   private static void applyTableSubsets(TableMetadata table, Map<String, Object> source) {
-    Object subsets = source.get(FIELD_TEMPLATES);
+    Object subsets = source.get(FIELD_PROFILES);
+    if (subsets == null) {
+      subsets = source.get("templates");
+    }
     if (subsets == null) {
       subsets = source.get("subsets");
     }
     if (subsets instanceof List) {
-      table.setSubsets(((List<String>) subsets).toArray(new String[0]));
+      table.setProfiles(((List<String>) subsets).toArray(new String[0]));
     } else if (subsets instanceof String) {
-      table.setSubsets((String) subsets);
+      table.setProfiles((String) subsets);
     }
   }
 
@@ -849,22 +856,22 @@ public class Emx2Yaml {
     private final String name;
     private final String description;
     private final SchemaMetadata schema;
-    private final Map<String, SubsetEntry> subsetRegistry;
-    private final Map<String, SubsetEntry> templateRegistry;
+    private final Map<String, ProfileEntry> subsetRegistry;
+    private final Map<String, ProfileEntry> profileRegistry;
     private final Map<String, String> namespaces;
 
     public BundleResult(
         String name,
         String description,
         SchemaMetadata schema,
-        Map<String, SubsetEntry> subsetRegistry,
-        Map<String, SubsetEntry> templateRegistry,
+        Map<String, ProfileEntry> subsetRegistry,
+        Map<String, ProfileEntry> profileRegistry,
         Map<String, String> namespaces) {
       this.name = name;
       this.description = description;
       this.schema = schema;
       this.subsetRegistry = subsetRegistry;
-      this.templateRegistry = templateRegistry;
+      this.profileRegistry = profileRegistry;
       this.namespaces = namespaces;
     }
 
@@ -880,12 +887,12 @@ public class Emx2Yaml {
       return schema;
     }
 
-    public Map<String, SubsetEntry> getSubsetRegistry() {
+    public Map<String, ProfileEntry> getProfileRegistry() {
       return subsetRegistry;
     }
 
-    public Map<String, SubsetEntry> getTemplateRegistry() {
-      return templateRegistry;
+    public Map<String, ProfileEntry> getTemplateRegistry() {
+      return profileRegistry;
     }
 
     public Map<String, String> getNamespaces() {
@@ -893,7 +900,7 @@ public class Emx2Yaml {
     }
 
     public BundleContext toBundleContext() {
-      return new BundleContext(name, description, schema, subsetRegistry, templateRegistry);
+      return new BundleContext(name, description, schema, subsetRegistry, profileRegistry);
     }
   }
 
@@ -935,8 +942,8 @@ public class Emx2Yaml {
     if (!bundle.namespaces().isEmpty()) {
       doc.put(FIELD_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
     }
-    if (!bundle.templates().isEmpty()) {
-      doc.put(FIELD_TEMPLATES, buildTemplateDefMap(bundle.templates()));
+    if (!bundle.profiles().isEmpty()) {
+      doc.put(FIELD_PROFILES, buildProfileDefMap(bundle.profiles()));
     }
     doc.put("imports", List.of(tablesImportPath));
     return doc;
@@ -949,8 +956,8 @@ public class Emx2Yaml {
     if (!bundle.namespaces().isEmpty()) {
       doc.put(FIELD_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
     }
-    if (!bundle.templates().isEmpty()) {
-      doc.put(FIELD_TEMPLATES, buildTemplateDefMap(bundle.templates()));
+    if (!bundle.profiles().isEmpty()) {
+      doc.put(FIELD_PROFILES, buildProfileDefMap(bundle.profiles()));
     }
     Map<String, Object> tablesMap = new LinkedHashMap<>();
     for (Map.Entry<String, TableDef> entry : bundle.tables().entrySet()) {
@@ -974,8 +981,8 @@ public class Emx2Yaml {
     putIfNotNull(doc, FIELD_LABEL, table.label());
     putIfNotNull(doc, FIELD_OLD_NAME, table.oldName());
     putIfNotNull(doc, "importSchema", table.importSchema());
-    if (!table.templates().isEmpty()) {
-      doc.put(FIELD_TEMPLATES, table.templates());
+    if (!table.profiles().isEmpty()) {
+      doc.put(FIELD_PROFILES, table.profiles());
     }
     if (!table.subtypes().isEmpty()) {
       doc.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), tableName));
@@ -1002,8 +1009,8 @@ public class Emx2Yaml {
     putIfNotNull(entry, FIELD_LABEL, table.label());
     putIfNotNull(entry, FIELD_OLD_NAME, table.oldName());
     putIfNotNull(entry, "importSchema", table.importSchema());
-    if (!table.templates().isEmpty()) {
-      entry.put(FIELD_TEMPLATES, table.templates());
+    if (!table.profiles().isEmpty()) {
+      entry.put(FIELD_PROFILES, table.profiles());
     }
     if (!table.subtypes().isEmpty()) {
       entry.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), null));
@@ -1017,10 +1024,10 @@ public class Emx2Yaml {
     return entry;
   }
 
-  private static Map<String, Object> buildTemplateDefMap(Map<String, TemplateDef> defMap) {
+  private static Map<String, Object> buildProfileDefMap(Map<String, ProfileDef> defMap) {
     Map<String, Object> result = new LinkedHashMap<>();
-    for (Map.Entry<String, TemplateDef> entry : defMap.entrySet()) {
-      TemplateDef def = entry.getValue();
+    for (Map.Entry<String, ProfileDef> entry : defMap.entrySet()) {
+      ProfileDef def = entry.getValue();
       Map<String, Object> defDoc = new LinkedHashMap<>();
       putIfNotNull(defDoc, FIELD_DESCRIPTION, def.description());
       if (!def.includes().isEmpty()) {
@@ -1072,8 +1079,8 @@ public class Emx2Yaml {
   private static Map<String, Object> buildSectionEntry(SectionDef section) {
     Map<String, Object> entry = new LinkedHashMap<>();
     putIfNotNull(entry, FIELD_SUBTYPE, section.subtype());
-    if (!section.templates().isEmpty()) {
-      entry.put(FIELD_TEMPLATES, section.templates());
+    if (!section.profiles().isEmpty()) {
+      entry.put(FIELD_PROFILES, section.profiles());
     }
     if (!section.columns().isEmpty()) {
       entry.put(FIELD_COLUMNS, buildDataColumnMap(section.columns()));
@@ -1095,8 +1102,8 @@ public class Emx2Yaml {
   private static Map<String, Object> buildHeadingEntry(HeadingDef heading) {
     Map<String, Object> entry = new LinkedHashMap<>();
     putIfNotNull(entry, FIELD_SUBTYPE, heading.subtype());
-    if (!heading.templates().isEmpty()) {
-      entry.put(FIELD_TEMPLATES, heading.templates());
+    if (!heading.profiles().isEmpty()) {
+      entry.put(FIELD_PROFILES, heading.profiles());
     }
     if (!heading.columns().isEmpty()) {
       entry.put(FIELD_COLUMNS, buildDataColumnMap(heading.columns()));
@@ -1123,8 +1130,8 @@ public class Emx2Yaml {
     if (col.semantics() != null && !col.semantics().isEmpty()) {
       entry.put(FIELD_SEMANTICS, col.semantics());
     }
-    if (col.templates() != null && !col.templates().isEmpty()) {
-      entry.put(FIELD_TEMPLATES, col.templates());
+    if (col.profiles() != null && !col.profiles().isEmpty()) {
+      entry.put(FIELD_PROFILES, col.profiles());
     }
     putIfNotNull(entry, FIELD_VALIDATION, col.validation());
     putIfNotNull(entry, FIELD_VISIBLE, col.visible());
@@ -1151,7 +1158,7 @@ public class Emx2Yaml {
   }
 
   static boolean isValidSubsetIdentifier(String id) {
-    return TemplateNameNormalizer.isValidIdentifier(id);
+    return ProfileNameNormalizer.isValidIdentifier(id);
   }
 
   @SuppressWarnings("unchecked")
@@ -1269,8 +1276,8 @@ public class Emx2Yaml {
     if (result.getDescription() != null) {
       doc.put(FIELD_DESCRIPTION, result.getDescription());
     }
-    if (!result.getActiveSubsets().isEmpty()) {
-      doc.put(FIELD_ACTIVE_SUBSETS, result.getActiveSubsets());
+    if (!result.getActiveProfiles().isEmpty()) {
+      doc.put(FIELD_ACTIVE_SUBSETS, result.getActiveProfiles());
     }
     if (!result.getSettings().isEmpty()) {
       doc.put(FIELD_SETTINGS, result.getSettings());
@@ -1359,7 +1366,7 @@ public class Emx2Yaml {
       return schema;
     }
 
-    public List<String> getActiveSubsets() {
+    public List<String> getActiveProfiles() {
       return activeSubsets;
     }
 

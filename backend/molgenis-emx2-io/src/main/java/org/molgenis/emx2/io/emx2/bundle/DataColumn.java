@@ -27,7 +27,7 @@ public record DataColumn(
     String description,
     List<String> semantics,
     String subtype,
-    List<String> templates,
+    List<String> profiles,
     String label,
     String oldName,
     Boolean drop) {
@@ -51,7 +51,7 @@ public record DataColumn(
       @JsonProperty("description") String description,
       @JsonProperty("semantics") List<String> semantics,
       @JsonProperty("subtype") String subtype,
-      @JsonProperty("templates") @JsonAlias("subsets") List<String> templates,
+      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
       @JsonProperty("drop") Boolean drop) {
@@ -72,7 +72,7 @@ public record DataColumn(
     this.description = description;
     this.semantics = semantics;
     this.subtype = subtype;
-    this.templates = templates;
+    this.profiles = profiles;
     this.label = label;
     this.oldName = oldName;
     this.drop = drop;

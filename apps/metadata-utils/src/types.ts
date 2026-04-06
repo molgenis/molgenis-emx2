@@ -50,9 +50,7 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT"
-  | "EXTENSION"
-  | "EXTENSION_ARRAY";
+  | "MULTISELECT";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -76,29 +74,21 @@ export interface IColumn {
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];
-  subsets?: string[];
   validation?: string;
   visible?: string;
   table?: string;
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
-  sourceTableId?: string;
   tags?: string[];
 }
 
 export interface IRefColumn extends IColumn {
   refTableId: string;
   refSchemaId: string;
-  refLabel?: string;
-  refLabelDefault?: string;
-  refLinkId?: string;
-}
-
-export interface ITemplateInfo {
-  name: string;
-  description?: string;
-  includes?: string[];
+  refLabel: string;
+  refLabelDefault: string;
+  refLinkId: string;
 }
 
 export interface ITableMetaData {
@@ -107,13 +97,10 @@ export interface ITableMetaData {
   name: string;
   label: string;
   description?: string;
-  tableType?: string;
-  inheritNames?: string[];
-  inheritIds?: string[];
+  tableType: string;
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
-  subsets?: string[];
 }
 
 export interface ISchemaMetaData {
@@ -121,11 +108,6 @@ export interface ISchemaMetaData {
   label: string;
   description?: string;
   tables: ITableMetaData[];
-  activeSubsets?: string[];
-  availableSubsets?: ITemplateInfo[];
-  availableTemplates?: ITemplateInfo[];
-  bundleName?: string;
-  bundleDescription?: string;
 }
 
 export interface IFieldError {

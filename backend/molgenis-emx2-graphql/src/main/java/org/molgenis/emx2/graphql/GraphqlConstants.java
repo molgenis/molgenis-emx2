@@ -100,9 +100,8 @@ public class GraphqlConstants {
   public static final String CAN_UPDATE = "canUpdate";
   public static final String CAN_DELETE = "canDelete";
   public static final String PROFILES = "profiles";
-  public static final String ACTIVE_SUBSETS = "activeSubsets";
-  public static final String AVAILABLE_SUBSETS = "availableSubsets";
-  public static final String AVAILABLE_TEMPLATES = "availableTemplates";
+  public static final String ACTIVE_PROFILES = "activeProfiles";
+  public static final String AVAILABLE_PROFILES = "availableProfiles";
   public static final String BUNDLE_NAME = "bundleName";
   public static final String BUNDLE_DESCRIPTION = "bundleDescription";
   public static final String INCLUDES = "includes";

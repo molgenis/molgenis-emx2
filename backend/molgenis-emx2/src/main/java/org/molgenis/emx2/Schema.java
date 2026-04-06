@@ -55,11 +55,11 @@ public interface Schema {
 
   void tx(Transaction transaction);
 
-  void activateSubset(String subsetName);
+  void enableProfile(String profileName);
 
-  void deactivateSubset(String subsetName);
+  void disableProfile(String profileName);
 
-  Set<String> getActiveSubsets();
+  Set<String> getActiveProfiles();
 
   void discard(SchemaMetadata schema);
 

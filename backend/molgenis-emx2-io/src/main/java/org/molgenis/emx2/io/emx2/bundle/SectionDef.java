@@ -12,18 +12,18 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SectionDef(
     String subtype,
-    List<String> templates,
+    List<String> profiles,
     Map<String, DataColumn> columns,
     Map<String, HeadingDef> headings) {
 
   @JsonCreator
   public SectionDef(
       @JsonProperty("subtype") String subtype,
-      @JsonProperty("templates") @JsonAlias("subsets") List<String> templates,
+      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("columns") Map<String, DataColumn> columns,
       @JsonProperty("headings") Map<String, HeadingDef> headings) {
     this.subtype = subtype;
-    this.templates = templates != null ? templates : List.of();
+    this.profiles = profiles != null ? profiles : List.of();
     this.columns = columns != null ? columns : Map.of();
     this.headings = headings != null ? headings : Map.of();
   }

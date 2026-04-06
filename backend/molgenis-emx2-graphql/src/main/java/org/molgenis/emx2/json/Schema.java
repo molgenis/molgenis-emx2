@@ -57,7 +57,7 @@ public class Schema {
       }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
-      tm.setSubsets(t.getProfiles());
+      tm.setProfiles(t.getProfiles());
       tm.setLabels(
           t.getLabels().stream()
               .filter(d -> d.value() != null)

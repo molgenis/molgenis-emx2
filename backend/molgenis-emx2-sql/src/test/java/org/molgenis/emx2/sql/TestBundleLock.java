@@ -73,15 +73,15 @@ public class TestBundleLock {
   }
 
   @Test
-  void activateSubsetStillWorksWhenLockOn(@TempDir Path tempDir) throws IOException {
+  void enableProfileStillWorksWhenLockOn(@TempDir Path tempDir) throws IOException {
     SqlSchema schema = createBundleSchema("TestBundleLockActivate", tempDir);
 
     schema.getMetadata().setSetting(Constants.BUNDLE_LOCK_FEATURE_FLAG, "true");
     assertTrue(schema.isBundleLocked());
 
     assertDoesNotThrow(
-        () -> schema.activateSubset("subset_a"),
-        "activateSubset should not be blocked by bundle lock");
+        () -> schema.enableProfile("subset_a"),
+        "enableProfile should not be blocked by bundle lock");
   }
 
   @Test

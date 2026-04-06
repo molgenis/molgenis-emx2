@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const SCHEMA_NAME = "TestSchemaTemplatesE2E";
+const SCHEMA_NAME = "TestSchemaProfilesE2E";
 
 async function signinViaRequest(request: any): Promise<void> {
   await request.post(`/api/graphql`, {
@@ -58,12 +58,12 @@ async function createTablesWithTemplates(request: any): Promise<void> {
               columns: [
                 {name: "id", columnType: "STRING", key: 1}
                 {name: "name", columnType: "STRING"}
-                {name: "wgs_field", columnType: "STRING", subsets: ["wgs"]}
+                {name: "wgs_field", columnType: "STRING", profiles: ["wgs"]}
               ]
             }
             {
               name: "WGS"
-              subsets: ["wgs"]
+              profiles: ["wgs"]
               columns: [
                 {name: "id", columnType: "STRING", key: 1}
                 {name: "coverage", columnType: "INT"}
@@ -71,7 +71,7 @@ async function createTablesWithTemplates(request: any): Promise<void> {
             }
             {
               name: "Imaging"
-              subsets: ["imaging"]
+              profiles: ["imaging"]
               columns: [
                 {name: "id", columnType: "STRING", key: 1}
                 {name: "modality", columnType: "STRING"}
@@ -119,7 +119,7 @@ async function navigateToSchemaEditor(page: any): Promise<void> {
   await expect(h4Headings.first()).toBeVisible({ timeout: 15000 });
 }
 
-test.describe("Schema Editor - Template Support", () => {
+test.describe("Schema Editor - Profile Support", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeAll(async ({ request }) => {
@@ -155,7 +155,7 @@ test.describe("Schema Editor - Template Support", () => {
                 columns: [
                   {name: "id", columnType: "STRING", key: 1}
                   {name: "name", columnType: "STRING"}
-                  {name: "wgs_field", columnType: "STRING", subsets: ["wgs"]}
+                  {name: "wgs_field", columnType: "STRING", profiles: ["wgs"]}
                 ]
               }
               {
@@ -194,7 +194,7 @@ test.describe("Schema Editor - Template Support", () => {
     await deleteTestSchema(request);
   });
 
-  test("should display templates on tables in schema editor", async ({
+  test("should display profiles on tables in schema editor", async ({
     page,
   }) => {
     await navigateToSchemaEditor(page);
@@ -216,7 +216,7 @@ test.describe("Schema Editor - Template Support", () => {
     await expect(samplesHeading).not.toContainText("[");
   });
 
-  test("should display templates on columns in schema editor", async ({
+  test("should display profiles on columns in schema editor", async ({
     page,
   }) => {
     await navigateToSchemaEditor(page);
@@ -229,7 +229,7 @@ test.describe("Schema Editor - Template Support", () => {
     await expect(wgsFieldCell).toContainText("[wgs]");
   });
 
-  test("should show template checkboxes in table edit modal", async ({
+  test("should show profile checkboxes in table edit modal", async ({
     page,
   }) => {
     await navigateToSchemaEditor(page);
@@ -241,11 +241,11 @@ test.describe("Schema Editor - Template Support", () => {
     const editButton = parentSection.locator("button.hoverIcon").first();
     await editButton.click({ force: true });
 
-    const templatesLabel = page
+    const profilesLabel = page
       .getByRole("dialog")
       .locator("label")
-      .filter({ hasText: /^Templates$/ });
-    await expect(templatesLabel).toBeVisible({ timeout: 5000 });
+      .filter({ hasText: /^Profiles$/ });
+    await expect(profilesLabel).toBeVisible({ timeout: 5000 });
 
     const dialog = page.getByRole("dialog");
 
@@ -265,7 +265,7 @@ test.describe("Schema Editor - Template Support", () => {
       .click();
   });
 
-  test("should show template checkboxes in column edit modal", async ({
+  test("should show profile checkboxes in column edit modal", async ({
     page,
   }) => {
     await navigateToSchemaEditor(page);
@@ -283,10 +283,10 @@ test.describe("Schema Editor - Template Support", () => {
     await editButton.click({ force: true });
 
     const dialog = page.getByRole("dialog");
-    const templatesLabel = dialog
+    const profilesLabel = dialog
       .locator("label")
-      .filter({ hasText: /[Tt]emplates/ });
-    await expect(templatesLabel).toBeVisible({ timeout: 5000 });
+      .filter({ hasText: /[Pp]rofiles/ });
+    await expect(profilesLabel).toBeVisible({ timeout: 5000 });
 
     const wgsCheckbox = dialog.locator('input[type="checkbox"][value="wgs"]');
     await expect(wgsCheckbox).toBeVisible();
@@ -298,7 +298,7 @@ test.describe("Schema Editor - Template Support", () => {
       .click();
   });
 
-  test("should manage template activation in schema header for bundle-backed schema", async ({
+  test("should manage profile activation in schema header for bundle-backed schema", async ({
     page,
     request,
   }) => {
@@ -370,10 +370,10 @@ tables:
     await expect(bundleNameLabel).toBeVisible({ timeout: 10000 });
     await expect(bundleNameLabel).toContainText("test-bundle");
 
-    const templatesLabel = page
+    const profilesLabel = page
       .locator(".subsets-panel__label")
-      .filter({ hasText: "Active templates" });
-    await expect(templatesLabel).toBeVisible();
+      .filter({ hasText: "Active profiles" });
+    await expect(profilesLabel).toBeVisible();
 
     const wgsCheckbox = page
       .locator('input[type="checkbox"]')

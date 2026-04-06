@@ -18,11 +18,11 @@ class Emx2CsvMigrationTest {
 
     assertArrayEquals(
         new String[] {"wgs"},
-        schema.getTableMetadata("MyTable").getSubsets(),
+        schema.getTableMetadata("MyTable").getProfiles(),
         "legacy CSV 'profiles' column on table row should map to subsets");
     assertArrayEquals(
         new String[] {"rna"},
-        schema.getTableMetadata("MyTable").getColumn("myCol").getSubsets(),
+        schema.getTableMetadata("MyTable").getColumn("myCol").getProfiles(),
         "legacy CSV 'profiles' column on column row should map to subsets");
   }
 }

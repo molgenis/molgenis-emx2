@@ -229,26 +229,26 @@
               <div class="col-4">
                 <div class="subsets-checkboxes">
                   <InputCheckbox
-                    id="column_subsets"
-                    v-model="column.subsets"
-                    :options="availableTemplates"
+                    id="column_profiles"
+                    v-model="column.profiles"
+                    :options="availableProfiles"
                     :hideClearButton="true"
-                    label="Templates"
+                    label="Profiles"
                   />
                 </div>
                 <div class="d-flex align-items-end">
                   <InputString
-                    id="column_new_template"
-                    v-model="newTemplate"
-                    label="Add new template"
+                    id="column_new_profile"
+                    v-model="newProfile"
+                    label="Add new profile"
                     class="flex-grow-1"
                   />
                   <button
                     class="btn btn-outline-primary ml-2 mb-1"
                     type="button"
-                    @click="addNewTemplate"
+                    @click="addNewProfile"
                     :disabled="
-                      !newTemplate || availableTemplates.includes(newTemplate)
+                      !newProfile || availableProfiles.includes(newProfile)
                     "
                   >
                     <i class="fas fa-fw fa-plus"></i>
@@ -347,7 +347,7 @@ import {
   getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
-import { addTableIdsLabelsDescription, getAvailableTemplates } from "../utils";
+import { addTableIdsLabelsDescription, getAvailableProfiles } from "../utils";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -425,12 +425,12 @@ export default {
       rowErrors: {} as Record<string, string>,
       columnTypes,
       AUTO_ID,
-      newTemplate: "" as string,
+      newProfile: "" as string,
     };
   },
   computed: {
-    availableTemplates(): string[] {
-      return getAvailableTemplates(this.schema, this.column.subsets);
+    availableProfiles(): string[] {
+      return getAvailableProfiles(this.schema, this.column.profiles);
     },
     //current table object unedited
     originalTable() {
@@ -530,14 +530,14 @@ export default {
     },
   },
   methods: {
-    addNewTemplate() {
+    addNewProfile() {
       if (
-        this.newTemplate &&
-        !this.availableTemplates.includes(this.newTemplate)
+        this.newProfile &&
+        !this.availableProfiles.includes(this.newProfile)
       ) {
-        if (!this.column.subsets) this.column.subsets = [];
-        this.column.subsets.push(this.newTemplate);
-        this.newTemplate = "";
+        if (!this.column.profiles) this.column.profiles = [];
+        this.column.profiles.push(this.newProfile);
+        this.newProfile = "";
       }
     },
     showModal() {

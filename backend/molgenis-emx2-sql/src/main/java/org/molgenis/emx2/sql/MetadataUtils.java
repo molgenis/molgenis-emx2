@@ -308,12 +308,12 @@ public class MetadataUtils {
       String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
       sql.insertInto(SCHEMA_METADATA)
           .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS, SCHEMA_PROFILES)
-          .values(schema.getName(), description, schema.getSettings(), schema.getActiveSubsets())
+          .values(schema.getName(), description, schema.getSettings(), schema.getActiveProfiles())
           .onConflict(TABLE_SCHEMA)
           .doUpdate()
           .set(SCHEMA_DESCRIPTION, schema.getDescription())
           .set(SETTINGS, schema.getSettings())
-          .set(SCHEMA_PROFILES, schema.getActiveSubsets())
+          .set(SCHEMA_PROFILES, schema.getActiveProfiles())
           .execute();
     } catch (Exception e) {
       throw new SqlMolgenisException("save of schema metadata failed", e);
@@ -344,7 +344,7 @@ public class MetadataUtils {
     } else {
       schema.setDescription(schemaRecord.get(SCHEMA_DESCRIPTION, String.class));
       schema.setSettingsWithoutReload(schemaRecord.get(SETTINGS, Map.class));
-      schema.setActiveSubsets(schemaRecord.get(SCHEMA_PROFILES, String[].class));
+      schema.setActiveProfiles(schemaRecord.get(SCHEMA_PROFILES, String[].class));
     }
     return schema;
   }
@@ -377,7 +377,7 @@ public class MetadataUtils {
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
               table.getSettings(),
-              table.getSubsets())
+              table.getProfiles())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
@@ -387,7 +387,7 @@ public class MetadataUtils {
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
           .set(SETTINGS, table.getSettings())
-          .set(TABLE_PROFILES, table.getSubsets())
+          .set(TABLE_PROFILES, table.getProfiles())
           .execute();
     } catch (Exception e) {
       throw new SqlMolgenisException("save of table metadata failed", e);
@@ -514,7 +514,7 @@ public class MetadataUtils {
     table.setDescriptions(
         r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
     table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
-    table.setSubsets(r.get(TABLE_PROFILES, String[].class));
+    table.setProfiles(r.get(TABLE_PROFILES, String[].class));
     table.setSettingsWithoutReload(
         r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
     if (r.get(TABLE_TYPE, String.class) != null) {
@@ -585,7 +585,7 @@ public class MetadataUtils {
             column.isReadonly(),
             column.getSemantics(),
             column.getDefaultValue(),
-            column.getSubsets(),
+            column.getProfiles(),
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
@@ -607,7 +607,7 @@ public class MetadataUtils {
         .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
-        .set(COLUMN_PROFILES, column.getSubsets())
+        .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
         .execute();
@@ -648,7 +648,7 @@ public class MetadataUtils {
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
     c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
-    c.setSubsets(col.get(COLUMN_PROFILES, String[].class));
+    c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
     return c;

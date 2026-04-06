@@ -13,7 +13,7 @@ import java.util.Map;
 public record TableDef(
     String description,
     List<String> inherits,
-    List<String> templates,
+    List<String> profiles,
     List<String> semantics,
     Boolean internal,
     String label,
@@ -27,7 +27,7 @@ public record TableDef(
   public TableDef(
       @JsonProperty("description") String description,
       @JsonProperty("inherits") List<String> inherits,
-      @JsonProperty("templates") @JsonAlias("subsets") List<String> templates,
+      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("semantics") List<String> semantics,
       @JsonProperty("internal") Boolean internal,
       @JsonProperty("label") String label,
@@ -38,7 +38,7 @@ public record TableDef(
       @JsonProperty("sections") Map<String, SectionDef> sections) {
     this.description = description;
     this.inherits = inherits != null ? inherits : List.of();
-    this.templates = templates != null ? templates : List.of();
+    this.profiles = profiles != null ? profiles : List.of();
     this.semantics = semantics;
     this.internal = internal;
     this.label = label;

@@ -1,6 +1,6 @@
-# Phase 9: Separate Profiles from Templates, unify in `molgenis.yaml`
+# Phase 9: Profile-based YAML bundles
 
-**Status**: Phase 9a complete. Phase 9b (physical subsetting) design locked, Java work pending.
+**Status**: Core implementation done (6c typed beans, 7 frontend, 7e terminology). Remaining: data file migration + parser feature completion.
 **Parent plan**: `yaml-profile-format-v8.md`
 **Spec**: `.plan/specs/new_naming.md`
 
@@ -66,9 +66,10 @@ Design is locked. All 9 items below are decided. Java implementation is pending.
 | Schema-editor rule enforcement | Slice 6 — DONE | `Schema.isBundleLocked()` flag; `BUNDLE_LOCK_FEATURE_FLAG` setting; dormant guard in `SqlSchema.migrate()`. Default off. |
 | Custom-migrations directory hook | Slice 4 — DONE (unwired) | `MigrationRunner` exists but is not wired into `activateSubset`. Awaiting Slice 6d design. TODO comment added to `MigrationRunner.java`. |
 | Retire `activeProfiles`/`applyProfileFilter` | Slice 6 — DONE | Removed `change(activeProfiles:)` mutation arg; removed `_schema.activeProfiles` field; removed `applyProfileFilter` and `profiles:` query args; deleted `TestProfileFiltering` legacy tests; `SchemaMetadata.getActiveProfiles` renamed to `getActiveSubsets`. |
-| Typed beans refactor | Slice 6c — DONE | 6c.1: records package `org.molgenis.emx2.io.emx2.bundle` (`Bundle`, `TableDef`, `SubtypeDef`, `SubsetDef`, sealed `ColumnEntry` → `DataColumn`/`SectionDef`/`HeadingDef`) + `MapToBundle` converter; `Emx2Yaml.fromBundle*` rewired via `bundleToSchemaMetadata`. 6c.1b Jackson-native evaluated and rejected (structural polymorphism + context-aware validation + error message quality would require a custom deserializer equivalent to MapToBundle). 6c.2: `SchemaMetadataToBundle` + `BundleToMap` converters; `toBundleDirectory`/`toBundleSingleFile` rewired; ~220 LOC of obsolete map-based emit helpers removed from `Emx2Yaml.java`; `SubsetNameNormalizer` made public. 136/136 io tests green. Stale `ProfileNameNormalizer.java` deletion staged. |
+| Typed beans refactor | Slice 6c — DONE | Jackson-native records in `bundle/` package (`Bundle`, `TableDef`, `SubtypeDef`, `ProfileDef`, `DataColumn`, `SectionDef`, `HeadingDef`, `SchemaMetadataToBundle`). Explicit `sections:`/`headings:` YAML keys replace implicit depth detection. `MapToBundle`/`BundleToMap`/sealed `ColumnEntry`/`SubsetDef` deleted. Jackson `ObjectMapper.convertValue` deserializes directly into records. 126/126 io tests green. |
 | Bundle versioning + migration integration | Slice 6d — DEFERRED | User skipped. |
-| Frontend subset UI | Slice 7 — DONE | 7a repair: removed `applyProfileFilter: true` from 5 apps (molgenis-viz, tailwind-components, molgenis-components, ui, tables); deleted `apps/ui/tests/e2e/profile-filtering.spec.ts` (scenario gone under physical DDL). 7a rename: `profiles` → `subsets` in schema app (`utils.ts` query + `getAvailableSubsets`; `TableEditModal.vue` / `ColumnEditModal.vue` bindings); `ISchemaMetaData` extended with `activeSubsets`/`availableSubsets`/`availableTemplates`/`bundleName`/`bundleDescription` + new `ISubsetInfo`; `ITableMetaData`/`IColumn` get `subsets`. 7b: `Schema.vue` header panel replaces `InputCheckbox`/`activeProfiles`; panel visible only when `bundleName` set; `toggleSubset` calls new `activateSubset`/`deactivateSubset` mutations then reloads `_schema`. 7c (bundle-locked read-only) deferred — backend flag dormant. 7d: deleted `profile-editing.spec.ts`, wrote `subset-editing.spec.ts` with 5 tests (table badges, column badges, table modal, column modal, bundle-backed header panel) — not yet run against live backend. |
+| Frontend subset UI | Slice 7 — DONE | 7a: removed `applyProfileFilter: true` from 5 apps; deleted `apps/ui/tests/e2e/profile-filtering.spec.ts`. 7b: `Schema.vue` header panel with profile enable/disable via `enableProfile`/`disableProfile` mutations; visible only when `bundleName` set. 7c (bundle-locked read-only) deferred. 7d: `profile-editing.spec.ts` with 5 e2e tests — not yet run against live backend. |
+| Terminology unification | Slice 7e — DONE | Full codebase rename: "subsets/templates" → "profiles" everywhere. YAML key: `profiles:` with `internal: true` for non-user-facing. Core: `SubsetEntry` → `ProfileEntry`, `SubsetActivator` → `ProfileActivator`. GraphQL: `activateSubset` → `enableProfile`, `deactivateSubset` → `disableProfile`, `activeSubsets` → `activeProfiles`, `availableSubsets`+`availableTemplates` merged → `availableProfiles`, `SubsetInfo` → `ProfileInfo`. Frontend: all queries/types/labels aligned. Per-table/column field: `profiles`. UI labels: "Enable profiles", "Active profiles". 45 files, full compile clean, 126 io + 306 sql tests green. |
 | **Accept single-file bundles** | Parser must accept `data/templates/<name>.yaml` as a bundle entry (no directory required) when the file contains a top-level `name:` and either inline `tables:` keyed map or `imports:` list. Single-file bundles cannot have ontologies, demodata, settings, or migrations — only directory bundles can. |
 | **Parse `namespaces:` at bundle root** | Merge with built-in prefix map when resolving short-form CURIEs in `semantics:`. Bundle-declared prefixes override built-in ones on conflict. |
 | **Rename `EXTENSION` → `SUBTYPE` in Java (YAML side done)** | Data files, docs, and spec have been renamed to use `subtypes:` / `subtype:` / `type: subtype` / `type: subtype_array`. Java-side rename remaining: `ColumnType.EXTENSION` / `EXTENSION_ARRAY` enum values → `SUBTYPE` / `SUBTYPE_ARRAY`; any `extensions:` YAML parser key recognition in `Emx2Yaml.java` → `subtypes:`; migration script to update persisted metadata; tests. Recommended as one atomic backend pass. |
@@ -142,9 +143,57 @@ without code changes. Legacy `profiles:` key in YAML templates throws a clear er
 
 ---
 
+## Remaining work (Phase 9c)
+
+### Step 1: Rename `data/templates/` → `profiles/` at repo root
+
+Move directory. Update all Java references:
+- `ImportProfileTask.java` — config location path
+- `DataModels.java` — bundle loading
+- Test files: `TestImportProfileTask`, `Emx2YamlBundleTest`, `Emx2YamlTest`, `CsvToYamlConverterTest`
+- Any `build.gradle` or resource references
+
+### Step 2: Convert data files — `subsets:` → `profiles:` + explicit sections
+
+| Directory | Files | Work |
+|---|---|---|
+| `profiles/shared/tables/*.yaml` | 39 | Rename `subsets:` → `profiles:` at table + column level (mechanical find-replace) |
+| `profiles/pages/tables/*.yaml` | 6 | Convert implicit nested `columns:` to explicit `sections:`/`headings:` keys |
+| `profiles/patient_registry_demo/tables/*.yaml` | ~9 | Check + apply same conversions |
+| `profiles/shared/molgenis.yaml` | 1 | Already done |
+| `profiles/petstore.yaml` | 1 | Already done |
+
+Total: ~54 table files. Mostly scriptable (subsets→profiles is find-replace; implicit→explicit sections needs parser awareness).
+
+### Step 3: BundleResult registry cleanup
+
+Currently `BundleResult` has two registries (`getProfileRegistry()` returns internal entries, `getTemplateRegistry()` returns non-internal). Confusingly named. Merge into one `Map<String, ProfileEntry>` with `internal` flag on `ProfileEntry`. Low priority — works correctly, just poorly named.
+
+### Step 4: Parser features (from phase9 plan, still pending)
+
+| Feature | Notes |
+|---|---|
+| `namespaces:` parsing in single-file bundles | Currently silently ignored |
+| Rename `EXTENSION` → `SUBTYPE` in Java | `ColumnType.EXTENSION`/`EXTENSION_ARRAY` → `SUBTYPE`/`SUBTYPE_ARRAY` + migration script |
+| Enforce table-wide column name uniqueness | Walk full nested tree, reject on duplicate |
+| Reject reserved name `columns`/`sections`/`headings` | Parse error |
+
+### Step 5: Delete legacy CSV models
+
+`data/_models/shared/*.csv` and `data/_models/specific/*.csv` are the originals that `data/templates/` was generated from. Delete once YAML is confirmed as source of truth (after merge to master). Keep `data/_ontologies/` — still active.
+
+### Step 6: Documentation
+
+- Update `docs/molgenis/yaml_format.md` with final terminology
+- Add intro: "Profiles define subsets of the core data model. Multiple profiles can be combined to support specific research use cases."
+- Document `sections:`/`headings:` explicit grammar
+- Document `enableProfile`/`disableProfile` GraphQL mutations
+- Document `internal: true` flag on profiles
+
+---
+
 ## Out of scope
 
 - Changing anything about extensions / multiple inheritance.
-- Frontend profile UI beyond existing checkbox wiring.
 - RDF/semantic URI cleanup beyond `semantics:` separation.
 - Profile-based validation (required/optional changes).

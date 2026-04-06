@@ -21,16 +21,16 @@ class MigrationRunner {
 
   private static final Logger log = LoggerFactory.getLogger(MigrationRunner.class);
   private static final String MIGRATIONS_TABLE = "_migrations";
-  private static final String COL_SUBSET = "subset";
+  private static final String COL_PROFILE = "subset";
   private static final String COL_SCRIPT = "script";
 
   private MigrationRunner() {}
 
-  static void runMigrationsForSubset(
-      DSLContext jooq, String schemaName, Path bundleSourceDir, String subsetName) {
+  static void runMigrationsForProfile(
+      DSLContext jooq, String schemaName, Path bundleSourceDir, String profileName) {
     if (bundleSourceDir == null) return;
 
-    Path migrationsDir = bundleSourceDir.resolve("migrations").resolve(subsetName);
+    Path migrationsDir = bundleSourceDir.resolve("migrations").resolve(profileName);
     if (!Files.isDirectory(migrationsDir)) return;
 
     ensureMigrationsTable(jooq, schemaName);
@@ -38,12 +38,12 @@ class MigrationRunner {
     List<Path> scripts = collectSortedSqlScripts(migrationsDir);
     for (Path script : scripts) {
       String scriptName = script.getFileName().toString();
-      if (hasRunMigration(jooq, schemaName, subsetName, scriptName)) {
-        log.debug("Migration already applied: {}/{}", subsetName, scriptName);
+      if (hasRunMigration(jooq, schemaName, profileName, scriptName)) {
+        log.debug("Migration already applied: {}/{}", profileName, scriptName);
         continue;
       }
-      runScript(jooq, schemaName, subsetName, scriptName, script);
-      recordMigration(jooq, schemaName, subsetName, scriptName);
+      runScript(jooq, schemaName, profileName, scriptName, script);
+      recordMigration(jooq, schemaName, profileName, scriptName);
     }
   }
 
@@ -67,46 +67,53 @@ class MigrationRunner {
             + "ran_at TIMESTAMPTZ NOT NULL DEFAULT now(), "
             + "PRIMARY KEY ({1}, {2})"
             + ")",
-        name(schemaName, MIGRATIONS_TABLE), name(COL_SUBSET), name(COL_SCRIPT));
+        name(schemaName, MIGRATIONS_TABLE), name(COL_PROFILE), name(COL_SCRIPT));
   }
 
   private static boolean hasRunMigration(
-      DSLContext jooq, String schemaName, String subsetName, String scriptName) {
+      DSLContext jooq, String schemaName, String profileName, String scriptName) {
     return 0
         < jooq.select(count())
             .from(table(name(schemaName, MIGRATIONS_TABLE)))
             .where(
-                field(name(COL_SUBSET)).eq(subsetName).and(field(name(COL_SCRIPT)).eq(scriptName)))
+                field(name(COL_PROFILE))
+                    .eq(profileName)
+                    .and(field(name(COL_SCRIPT)).eq(scriptName)))
             .fetchOne(0, Integer.class);
   }
 
   private static void runScript(
-      DSLContext jooq, String schemaName, String subsetName, String scriptName, Path scriptPath) {
+      DSLContext jooq, String schemaName, String profileName, String scriptName, Path scriptPath) {
     String sql;
     try {
       sql = Files.readString(scriptPath);
     } catch (IOException e) {
       throw new MolgenisException(
-          "Migration '" + subsetName + "/" + scriptName + "' could not be read: " + e.getMessage());
+          "Migration '"
+              + profileName
+              + "/"
+              + scriptName
+              + "' could not be read: "
+              + e.getMessage());
     }
-    log.info("Running migration {}/{} on schema '{}'", subsetName, scriptName, schemaName);
+    log.info("Running migration {}/{} on schema '{}'", profileName, scriptName, schemaName);
     try {
       jooq.execute("SET search_path TO {0}", name(schemaName));
       jooq.execute(sql);
     } catch (Exception e) {
       throw new MolgenisException(
-          "Migration '" + subsetName + "/" + scriptName + "' failed: " + e.getMessage());
+          "Migration '" + profileName + "/" + scriptName + "' failed: " + e.getMessage());
     }
   }
 
   private static void recordMigration(
-      DSLContext jooq, String schemaName, String subsetName, String scriptName) {
+      DSLContext jooq, String schemaName, String profileName, String scriptName) {
     jooq.execute(
         "INSERT INTO {0} ({1}, {2}) VALUES ({3}, {4})",
         name(schemaName, MIGRATIONS_TABLE),
-        name(COL_SUBSET),
+        name(COL_PROFILE),
         name(COL_SCRIPT),
-        subsetName,
+        profileName,
         scriptName);
   }
 }

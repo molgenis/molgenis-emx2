@@ -12,7 +12,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected String name;
   protected String description;
-  protected String[] activeSubsets;
+  protected String[] activeProfiles;
   protected Database database;
   protected String bundleSourcePath;
 
@@ -73,12 +73,12 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.description = description;
   }
 
-  public String[] getActiveSubsets() {
-    return activeSubsets;
+  public String[] getActiveProfiles() {
+    return activeProfiles;
   }
 
-  public SchemaMetadata setActiveSubsets(String... subsets) {
-    this.activeSubsets = subsets;
+  public SchemaMetadata setActiveProfiles(String... profiles) {
+    this.activeProfiles = profiles;
     return this;
   }
 

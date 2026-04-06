@@ -57,8 +57,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       // sync settings
       this.setSettingsWithoutReload(from.getSettings());
 
-      // sync active subsets
-      this.setActiveSubsets(from.getActiveSubsets());
+      // sync active profiles
+      this.setActiveProfiles(from.getActiveProfiles());
     }
   }
 
@@ -237,8 +237,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return super.getSettings();
   }
 
-  public void saveActiveSubsets(String... subsets) {
-    setActiveSubsets(subsets);
+  public void saveActiveProfiles(String... profiles) {
+    setActiveProfiles(profiles);
     MetadataUtils.saveSchemaMetadata(getDatabase().getJooq(), this);
   }
 

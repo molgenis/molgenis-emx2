@@ -109,21 +109,21 @@ class Emx2YamlBundleTest {
     assertEquals("MOLGENIS shared catalogue bundle", bundle.getName());
     assertNotNull(bundle.getDescription());
 
-    assertNotNull(bundle.getSubsetRegistry(), "subsetRegistry must not be null");
+    assertNotNull(bundle.getProfileRegistry(), "profileRegistry must not be null");
     assertNotNull(bundle.getTemplateRegistry(), "templateRegistry must not be null");
 
     assertTrue(
-        bundle.getSubsetRegistry().containsKey("catalogue_core"),
-        "catalogue_core internal template must be in subsetRegistry");
+        bundle.getProfileRegistry().containsKey("catalogue_core"),
+        "catalogue_core internal profile must be in profileRegistry");
     assertTrue(
-        bundle.getSubsetRegistry().containsKey("patient_core"),
-        "patient_core internal template must be in subsetRegistry");
+        bundle.getProfileRegistry().containsKey("patient_core"),
+        "patient_core internal profile must be in profileRegistry");
     assertTrue(
         bundle.getTemplateRegistry().containsKey("data_catalogue"),
-        "data_catalogue template must be in templateRegistry");
+        "data_catalogue profile must be in templateRegistry");
     assertTrue(
         bundle.getTemplateRegistry().containsKey("patient_registry"),
-        "patient_registry template must be in templateRegistry");
+        "patient_registry profile must be in templateRegistry");
   }
 
   @Test
@@ -131,13 +131,13 @@ class Emx2YamlBundleTest {
     Path sharedDir = DATA_TEMPLATES.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
-    SubsetEntry cohortCore = bundle.getSubsetRegistry().get("cohort_core");
+    ProfileEntry cohortCore = bundle.getProfileRegistry().get("cohort_core");
     assertNotNull(cohortCore);
     assertTrue(
         cohortCore.getIncludes().contains("catalogue_core"),
         "cohort_core should include catalogue_core");
 
-    SubsetEntry rweCore = bundle.getSubsetRegistry().get("rwe_core");
+    ProfileEntry rweCore = bundle.getProfileRegistry().get("rwe_core");
     assertNotNull(rweCore);
     assertTrue(
         rweCore.getIncludes().contains("rwe_staging"), "rwe_core should include rwe_staging");
@@ -186,9 +186,9 @@ class Emx2YamlBundleTest {
 
     Column idCol = processes.getColumn("id");
     assertNotNull(idCol);
-    assertNotNull(idCol.getSubsets(), "id column should have subsets");
+    assertNotNull(idCol.getProfiles(), "id column should have subsets");
     assertTrue(
-        List.of(idCol.getSubsets()).contains("patient_core"),
+        List.of(idCol.getProfiles()).contains("patient_core"),
         "id column should be in patient_core subset");
   }
 
@@ -291,7 +291,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           my_subset:
             description: section-level subset
             internal: true
@@ -302,13 +302,13 @@ class Emx2YamlBundleTest {
           MyTable:
             sections:
               MySection:
-                templates: [my_subset]
+                profiles: [my_subset]
                 columns:
                   col1:
                     type: string
                   col2:
                     type: int
-                    templates: [other_subset]
+                    profiles: [other_subset]
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
@@ -318,18 +318,18 @@ class Emx2YamlBundleTest {
 
     Column col1 = table.getColumn("col1");
     assertNotNull(col1);
-    assertNotNull(col1.getSubsets(), "col1 should inherit subset from section");
+    assertNotNull(col1.getProfiles(), "col1 should inherit subset from section");
     assertTrue(
-        List.of(col1.getSubsets()).contains("my_subset"),
+        List.of(col1.getProfiles()).contains("my_subset"),
         "col1 should inherit my_subset from MySection");
 
     Column col2 = table.getColumn("col2");
     assertNotNull(col2);
     assertFalse(
-        List.of(col2.getSubsets()).contains("my_subset"),
+        List.of(col2.getProfiles()).contains("my_subset"),
         "col2 overrides subsets, should not have my_subset");
     assertTrue(
-        List.of(col2.getSubsets()).contains("other_subset"),
+        List.of(col2.getProfiles()).contains("other_subset"),
         "col2 should have its own other_subset");
   }
 
@@ -425,7 +425,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           BadName:
             description: starts with uppercase
             internal: true
@@ -450,7 +450,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           123bad:
             description: starts with digit
         tables:
@@ -474,12 +474,12 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           internal_one:
             description: goes to subsetRegistry
             internal: true
           user_facing:
-            description: goes to templateRegistry
+            description: goes to profileRegistry
             includes: [internal_one]
         tables:
           T:
@@ -490,14 +490,14 @@ class Emx2YamlBundleTest {
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
     assertNotNull(
-        bundle.getSubsetRegistry().get("internal_one"),
+        bundle.getProfileRegistry().get("internal_one"),
         "internal:true template must appear in subsetRegistry");
     assertNotNull(
         bundle.getTemplateRegistry().get("user_facing"),
         "non-internal template must appear in templateRegistry");
     assertNull(
-        bundle.getSubsetRegistry().get("user_facing"),
-        "non-internal template must not appear in subsetRegistry");
+        bundle.getProfileRegistry().get("user_facing"),
+        "non-internal template must not appear in profileRegistry");
   }
 
   @Test
@@ -505,7 +505,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           core:
             description: core subset
             internal: true
@@ -520,7 +520,7 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getSubsetRegistry().get("core"));
+    assertNotNull(bundle.getProfileRegistry().get("core"));
     assertNotNull(bundle.getTemplateRegistry().get("extended"));
   }
 
@@ -529,7 +529,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           my_subset:
             includes: [nonexistent_subset]
             internal: true
@@ -556,7 +556,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           base:
             description: base subset
             internal: true
@@ -573,9 +573,9 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getSubsetRegistry().get("extended"));
+    assertNotNull(bundle.getProfileRegistry().get("extended"));
     assertTrue(
-        bundle.getSubsetRegistry().get("extended").getIncludes().contains("base"),
+        bundle.getProfileRegistry().get("extended").getIncludes().contains("base"),
         "extended must include base");
   }
 
@@ -584,7 +584,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           alpha:
             includes: [beta]
             internal: true
@@ -613,7 +613,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           aaa:
             includes: [bbb]
             internal: true
@@ -646,7 +646,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           base:
             description: base
             internal: true
@@ -664,7 +664,7 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getSubsetRegistry().get("top"));
+    assertNotNull(bundle.getProfileRegistry().get("top"));
   }
 
   @Test
@@ -672,7 +672,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           known_subset:
             description: this one exists
             internal: true
@@ -681,7 +681,7 @@ class Emx2YamlBundleTest {
             columns:
               col1:
                 type: string
-                templates: [known_subset, ghost_subset]
+                profiles: [known_subset, ghost_subset]
         """;
     MolgenisException ex =
         assertThrows(
@@ -699,13 +699,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           real_subset:
             description: this one exists
             internal: true
         tables:
           MyTable:
-            templates: [phantom_subset]
+            profiles: [phantom_subset]
             columns:
               id:
                 key: 1
@@ -726,17 +726,17 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           feature_x:
             description: a real subset
             internal: true
         tables:
           MyTable:
-            templates: [feature_x]
+            profiles: [feature_x]
             columns:
               col1:
                 type: string
-                templates: [feature_x]
+                profiles: [feature_x]
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
@@ -749,7 +749,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           subset_a:
             description: subset A
             internal: true
@@ -758,7 +758,7 @@ class Emx2YamlBundleTest {
             internal: true
         tables:
           TableA:
-            templates: [subset_a]
+            profiles: [subset_a]
             columns:
               id:
                 key: 1
@@ -766,7 +766,7 @@ class Emx2YamlBundleTest {
                 type: ref
                 refTable: TableB
           TableB:
-            templates: [subset_b]
+            profiles: [subset_b]
             columns:
               id:
                 key: 1
@@ -787,13 +787,13 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           subset_a:
             description: subset A
             internal: true
         tables:
           TableA:
-            templates: [subset_a]
+            profiles: [subset_a]
             columns:
               id:
                 key: 1
@@ -816,7 +816,7 @@ class Emx2YamlBundleTest {
     String yaml =
         """
         name: Test
-        templates:
+        profiles:
           base:
             description: base
             internal: true
@@ -825,7 +825,7 @@ class Emx2YamlBundleTest {
             internal: true
         tables:
           TableA:
-            templates: [extended]
+            profiles: [extended]
             columns:
               id:
                 key: 1
@@ -833,7 +833,7 @@ class Emx2YamlBundleTest {
                 type: ref
                 refTable: TableB
           TableB:
-            templates: [base]
+            profiles: [base]
             columns:
               id:
                 key: 1
@@ -849,7 +849,7 @@ class Emx2YamlBundleTest {
     Path sharedDir = DATA_TEMPLATES.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
     assertNotNull(bundle.getName());
-    assertFalse(bundle.getSubsetRegistry().isEmpty());
+    assertFalse(bundle.getProfileRegistry().isEmpty());
     assertFalse(bundle.getTemplateRegistry().isEmpty());
   }
 
@@ -1059,27 +1059,27 @@ class Emx2YamlBundleTest {
 
   @Test
   void normalizeSubsetNameLowercase() {
-    assertEquals("petstore", TemplateNameNormalizer.normalize("Petstore"));
+    assertEquals("petstore", ProfileNameNormalizer.normalize("Petstore"));
   }
 
   @Test
   void normalizeSubsetNameReplacesSpaces() {
-    assertEquals("data_catalogue", TemplateNameNormalizer.normalize("Data Catalogue"));
+    assertEquals("data_catalogue", ProfileNameNormalizer.normalize("Data Catalogue"));
   }
 
   @Test
   void normalizeSubsetNameCollapsesUnderscores() {
-    assertEquals("data_catalogue", TemplateNameNormalizer.normalize("Data  Catalogue"));
+    assertEquals("data_catalogue", ProfileNameNormalizer.normalize("Data  Catalogue"));
   }
 
   @Test
   void normalizeSubsetNameStripsPunctuation() {
-    assertEquals("fair_genomes", TemplateNameNormalizer.normalize("FAIR-Genomes!"));
+    assertEquals("fair_genomes", ProfileNameNormalizer.normalize("FAIR-Genomes!"));
   }
 
   @Test
   void normalizeSubsetNameLeadingDigit() {
-    assertEquals("s_3prime", TemplateNameNormalizer.normalize("3prime"));
+    assertEquals("s_3prime", ProfileNameNormalizer.normalize("3prime"));
   }
 
   @Test
