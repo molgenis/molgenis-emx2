@@ -1,0 +1,37 @@
+table: organisations
+tableType: ONTOLOGIES
+description: Information about organisations and where they are located
+semantics: http://purl.obolibrary.org/obo/NCIT_C25412
+columns:
+  city:
+    semantics: "NCIT_C25160 http://purl.obolibrary.org/obo/NCIT_C25160"
+    description: "A large and densely populated urban area; a city specified in an address."
+  country:
+    semantics: "NCIT_C25464 http://purl.obolibrary.org/obo/NCIT_C25464"
+    description: "A collective generic term that refers here to a wide variety of dependencies, areas of special sovereignty, uninhabited islands, and other entities in addition to the traditional countries or independent states."
+  latitude:
+    type: decimal
+    semantics: "NCIT_C68642 http://purl.obolibrary.org/obo/NCIT_C68642"
+    description: The angular distance north or south between an imaginary line around a heavenly body parallel to its equator and the equator itself.
+  longitude:
+    type: decimal
+    semantics: "NCIT_C68643 http://purl.obolibrary.org/obo/NCIT_C68643"
+    description: An imaginary great circle on the surface of a heavenly body passing through the poles at right angles to the equator.
+  organisationType:
+    semantics: http://purl.obolibrary.org/obo/NCIT_C25284
+    description: Something distinguishable as an identifiable class based on common qualities
+  providerInformation:
+    type: refback
+    refTable: dataproviders
+    refBack: organisation
+    semantics: http://purl.obolibrary.org/obo/OBI_0000947
+  image:
+    type: file
+    semantics: http://schema.org/ImageObject
+    description: An image image file.
+  hasSchema:
+    type: bool
+    description: Indication that a schema is available for this organisation
+  schemaName:
+    semantics: http://purl.obolibrary.org/obo/T4FS_0000138
+    description: Name of the corresponding schema

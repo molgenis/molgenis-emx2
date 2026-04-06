@@ -1,0 +1,25 @@
+table: inclusionCriteria
+description: An inclusion criterion (rule) is_a *eligibility criterion* which defines and states a condition which, if met, makes an entity suitable for a given task or participation in a given process. For instance, in a study protocol, inclusion criteria indicate the conditions that prospective subjects MUST meet to be eligible for participation in a study.
+semantics: http://purl.obolibrary.org/obo/OBI_0500027
+columns:
+  id:
+    key: 1
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C25364
+    description: A unique ID used to identify a group
+  name:
+    semantics: https://schema.org/name
+    description: A unique ID used to identify a group
+  criteria:
+    type: heading
+    semantics: http://purl.obolibrary.org/obo/NCIT_C25466
+    description: "That which constitutes a standard from which a judgment can be established, a reference point against which other things can be evaluated, or a basis for comparison."
+  type:
+    semantics: http://purl.obolibrary.org/obo/NCIT_C25284
+    description: Something distinguishable as an identifiable class based on common qualities
+  value:
+    semantics: http://www.w3.org/ns/prov#value
+    description: "values used to select rows (IDs, codes, etc.)"
+  label:
+    semantics: http://www.w3.org/2000/01/rdf-schema#label
+    description: additional context that describes the criteria

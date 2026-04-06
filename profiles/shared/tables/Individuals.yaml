@@ -1,0 +1,207 @@
+table: Individuals
+description: Data, facts or figures about an individual; the set of relevant items would depend on the
+  use case
+profiles: [patient_core]
+semantics: ['http://purl.obolibrary.org/obo/NCIT_C90492']
+columns:
+  id:
+    key: 1
+    required: true
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C164337']
+    profiles: [patient_core]
+    description: A unique proper name or character sequence that identifies this individual
+  alternate ids:
+    type: string_array
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C90353']
+    profiles: [patient_registry]
+    description: Additional identifiers that identify an individual
+  age group:
+    type: ontology
+    refTable: Age groups
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C20587']
+    profiles: [patient_registry]
+    description: A categorical value that groups this individual by age (e.g., "Adult", "18-24 years",
+      etc.)
+  year of birth:
+    type: int
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C83164']
+    profiles: [patient_core]
+    description: The year on which this individual was born
+  month of birth:
+    type: ontology
+    refTable: Month of the year
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C83090']
+    profiles: [patient_core]
+    description: The month on which this individual was born
+  date of birth:
+    type: date
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C68615']
+    profiles: [patient_registry]
+    description: The calendar date on which this individual was born
+  gender at birth:
+    type: ontology
+    refTable: Gender at birth
+    semantics: ['http://purl.obolibrary.org/obo/GSSO_009418']
+    profiles: [patient_core]
+    description: Assigned gender is this individual's gender which was assigned at birth, typically by
+      a medical and/or legal organization, and then later registered with other organizations. Such a
+      designation is typically based off of the superficial appearance of external genitalia present at
+      birth.
+  gender identity:
+    type: ontology
+    refTable: Gender identity
+    semantics: ['http://purl.bioontology.org/ontology/MESH/D005783']
+    profiles: [patient_core]
+    description: This individual's concept of self as being male and masculine or female and feminine,
+      or ambivalent, based in part on physical characteristics, parental responses, and psychological
+      and social pressures. It is the internal experience of gender role. For practical reasons the lookups
+      are limited to first and second-level entries, but can be expanded when needed. Note that 'Gender
+      at birth', 'Genotypic sex' and any (gender-related) hormone therapies in 'Medication' are usually
+      medically more relevant than this term.
+  administrative gender:
+    type: ontology
+    refTable: Gender identity
+    semantics: ['http://purl.obolibrary.org/obo/GSSO_009316']
+    profiles: [patient_core]
+    description: The gender of this individual used for administrative purposes
+  genotypic sex:
+    type: ontology
+    refTable: Genotypic sex
+    semantics: ['http://purl.obolibrary.org/obo/PATO_0020000']
+    profiles: [patient_core]
+    description: A biological sex quality inhering in an individual based upon genotypic composition of
+      sex chromosomes
+  country of birth:
+    type: ontology
+    refTable: Countries
+    semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001094']
+    profiles: [patient_core]
+    description: The country that this individual was born in
+  country of residence:
+    type: ontology
+    refTable: Countries
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C177579']
+    profiles: [patient_core]
+    description: The country that this individual reported as residing in at the time of enrollment
+  ancestry:
+    type: ontology_array
+    refTable: Ancestry
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C176763']
+    profiles: [patient_core]
+    description: An individual's descent or lineage, from another individual or from a population using
+      ancestry informative markers (AIMs) based on genetic/genomic data
+  age at enrolment:
+    type: period
+    semantics: ['http://snomed.info/id/709491003', 'http://purl.obolibrary.org/obo/NCIT_C25150']
+    profiles: [patient_registry]
+    description: The age of the individual at the time they enroll in the study (e.g., "P32Y6M1D")
+  date at enrolment:
+    type: date
+    semantics: ['http://snomed.info/id/709491003', 'http://purl.obolibrary.org/obo/NCIT_C25164']
+    profiles: [patient_registry]
+    description: The date of the enrolment of the individual in the study
+  processes:
+    type: refback
+    refTable: Processes
+    refBack: individuals
+    refLabel: ${mg_tableclass?.split('.')[1]}.${id}
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C29862']
+    profiles: [patient_registry]
+    description: A reference to an event (an experiment, an observation, etc.) relating to this individual
+  materials:
+    type: refback
+    refTable: Materials
+    refBack: individuals
+    refLabel: ${mg_tableclass?.split('.')[1]}.${id}
+    semantics: ['http://semanticscience.org/resource/SIO_000015']
+    profiles: [patient_registry]
+    description: A reference to materials (files, consent, etc) relating to this individual
+  consents:
+    type: refback
+    refTable: Individual consent
+    refBack: individuals
+    refLabel: Individual consent.${id}
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C16735']
+    profiles: [patient_core]
+    description: Consent given by a patient to a surgical or medical procedure or participation in a study,
+      examination or analysis after achieving an understanding of the relevant medical facts and the risks
+      involved.
+  individual status:
+    type: ontology
+    refTable: Individual status
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C71470']
+    profiles: [patient_core]
+    description: The status of an individual in relationship to participation in a given activty
+  age at death:
+    type: period
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C135383']
+    profiles: [patient_core]
+    description: The age at which death occurred
+  affiliated organisations:
+    type: multiselect
+    refTable: Organisations
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25412']
+    profiles: [patient_core]
+    description: One or more associations between the individual and an organisation.
+  providers of additional resources:
+    type: multiselect
+    refTable: Organisations
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C19012']
+    profiles: [patient_registry]
+    description: Information related to this individual that is not captured by this system, but is available
+      or provided by one or more organisations.
+  analyses:
+    type: refback
+    refTable: Analyses
+    refBack: individuals
+    semantics: ['http://purl.obolibrary.org/obo/FBcv_0003108']
+    profiles: [patient_registry]
+    description: Reference to one or more results that were produced from detailed examination of data
+      derived from this individual
+  pedigree:
+    type: multiselect
+    refTable: Pedigree
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C27957']
+    profiles: [patient_core]
+    description: A record of descent or ancestry, particularly of a specific condition or trait, indicating
+      individual family members, their relationships, and their status with respect to the trait or condition.
+  included in resources:
+    type: multiselect
+    refTable: Resources
+    semantics: ['http://purl.obolibrary.org/obo/HSO_0000370']
+    profiles: [patient_registry]
+    description: A reference to one or more resources that organises records in a meaningful way (e.g.,
+      data releases, subpopulations, cohorts, etc.)
+  data source:
+    type: select
+    refTable: Resources
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C16493']
+    profiles: [patient_registry]
+    description: The source or origin of the record. For example, an organisation, database, system, etc.
+  date created at source:
+    type: date
+    semantics: ['dcterms:created', 'http://purl.obolibrary.org/obo/NCIT_C16493']
+    profiles: [patient_registry]
+    description: The date the record was created at the source
+  created at source by:
+    type: select
+    refTable: Contacts
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C51820', 'http://purl.obolibrary.org/obo/NCIT_C16493']
+    profiles: [patient_registry]
+    description: The person who created the record at the source
+  date updated at source:
+    type: date
+    semantics: ['dcterms:modified', 'http://purl.obolibrary.org/obo/NCIT_C16493']
+    profiles: [patient_registry]
+    description: The date the record was updated at the source
+  updated at source by:
+    type: select
+    refTable: Contacts
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C51820', 'http://purl.obolibrary.org/obo/NCIT_C16493']
+    profiles: [patient_registry]
+    description: The person who updated the record at the source
+  comments:
+    type: text
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25393']
+    profiles: [patient_registry]
+    description: A written explanation, observation or criticism added to textual material.

@@ -1,0 +1,36 @@
+table: Pedigree members
+description: Any of the individuals who are descended from a common progenitor, related by marriage or
+  other legal tie, or by a feeling of closeness.
+profiles: [patient_core]
+semantics: ['http://purl.obolibrary.org/obo/NCIT_C41256']
+columns:
+  pedigree:
+    type: select
+    key: 1
+    required: true
+    refTable: Pedigree
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
+    description: Identifier of the family
+  individual:
+    type: select
+    key: 1
+    required: true
+    refTable: Individuals
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
+    description: The individual used as a starting point to define a relationship
+  relative:
+    type: select
+    key: 1
+    required: true
+    refTable: Individuals
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
+    description: The individual from which a relationship can be determined
+  relation:
+    type: ontology
+    refTable: Family relations
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C198996']
+    description: The relationship between two individuals (e.g., proband, mother, father, siblings, etc.)
+  affected:
+    type: bool
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C64917']
+    description: Is the individual affected by the disease in the pedigree?

@@ -1,7 +1,7 @@
 table: Observations
 description: "Clinical observations with additive extensions"
 
-subtypes:
+variants:
   Dermatology:
     description: "Skin examination findings"
     subsets: [cranio]
@@ -21,24 +21,24 @@ columns:
     type: ref
     refTable: Individuals
   observation types:
-    type: subtype_array
+    type: variant_array
     description: "Select one or more clinical domains"
   Dermatology:
-    subtype: Dermatology
+    variant: Dermatology
     columns:
       BSA percentage:
         type: decimal
         description: "Body surface area affected (%)"
       lesion type: {}
   Neurology:
-    subtype: Neurology
+    variant: Neurology
     columns:
       motor score:
         type: int
       cognitive score:
         type: int
   Questionnaire:
-    subtype: Questionnaire
+    variant: Questionnaire
     columns:
       instrument name: {}
       total score:

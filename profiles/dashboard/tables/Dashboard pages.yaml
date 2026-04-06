@@ -1,0 +1,19 @@
+table: Dashboard pages
+description: The user interfaces in the vue application and the charts are displayed in each view
+semantics: http://semanticscience.org/resource/SIO_000302
+columns:
+  name:
+    key: 1
+    required: true
+    semantics: http://schema.org/name
+    description: Name of the page
+  description:
+    type: text
+    semantics: http://schema.org/description
+    description: Text that describes the aim of the page
+  charts:
+    type: refback
+    refTable: Charts
+    refBack: dashboard page
+    semantics: http://edamontology.org/topic_0092
+    description: One or more charts displayed on a page

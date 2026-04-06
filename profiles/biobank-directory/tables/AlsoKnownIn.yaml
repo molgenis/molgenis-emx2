@@ -1,0 +1,33 @@
+table: AlsoKnownIn
+description: "Biobank, collection or network also exists in \u2026"
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    readonly: true
+    description: Unique ID.
+  name_system:
+    label: Name of the System
+    required: true
+    description: "Name of the source in which the biobank, collection or network also exists."
+  pid:
+    label: Persistent Identifier
+    description: "Persistent Identifier of the biobank, collection or network in the other source."
+  url:
+    label: URL
+    type: hyperlink
+    required: true
+    description: "Link to the biobank, collection or network in the other source."
+  national_node:
+    label: National Node
+    type: ref
+    required: true
+    refTable: NationalNodes
+    refLabel: ${description}
+    description: "The biobank, collection or network where this also known In refers to originates from this national node."
+  label:
+    label: Name of the System
+    readonly: true
+    computed: name_system
+    description: "Name of the source in which the biobank, collection or network also exists."

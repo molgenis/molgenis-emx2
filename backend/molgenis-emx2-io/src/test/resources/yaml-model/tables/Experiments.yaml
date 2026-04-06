@@ -1,7 +1,7 @@
 table: Experiments
 description: "Wet-lab and dry-lab experiments"
 
-subtypes:
+variants:
   WGS:
     description: "Whole genome sequencing"
     inherits: [sampling, sequencing]
@@ -25,7 +25,7 @@ columns:
   date:
     type: date
   experiment type:
-    type: subtype
+    type: variant
     required: true
     subsets: [-core]
     defaultValue: WGS
@@ -33,7 +33,7 @@ columns:
     type: ref
     refTable: Samples
   Sample collection:
-    subtype: sampling
+    variant: sampling
     columns:
       sample type:
         type: ontology
@@ -43,7 +43,7 @@ columns:
         type: ontology
         refTable: Tissue types
   Sequencing:
-    subtype: sequencing
+    variant: sequencing
     columns:
       library strategy:
         type: ontology
@@ -54,7 +54,7 @@ columns:
         type: ontology
         refTable: Platforms
   Imaging details:
-    subtype: Imaging
+    variant: Imaging
     columns:
       modality:
         type: ontology

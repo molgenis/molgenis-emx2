@@ -1,0 +1,39 @@
+table: QualityInfoServices
+description: Service Quality Information
+columns:
+  id:
+    label: ID
+    type: auto_id
+    key: 1
+    required: true
+    readonly: true
+    defaultValue: QIS-${mg_autoid}
+  service:
+    label: Service
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Services
+    refLabel: ${name}
+  qualityStandard:
+    label: Quality Standard
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: QualityStandards
+    refLabel: ${label}
+  assessmentLevel:
+    label: Assessment Level
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: AssessmentLevels
+    refLabel: ${label}
+  certificationNumber:
+    label: Certification Number
+  certificationReport:
+    label: Certification Report
+    type: hyperlink
+  certificationImageLink:
+    label: Certification Image
+    type: hyperlink

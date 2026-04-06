@@ -1,0 +1,128 @@
+table: Charts
+description: Visualisations that are displayed on page
+semantics: http://semanticscience.org/resource/SIO_000904
+columns:
+  chart id:
+    key: 1
+    required: true
+    semantics: http://semanticscience.org/resource/SIO_000115
+    description: "A unique value that identifies a visualisation, the associated settings and data points."
+  chart type:
+    type: ontology
+    refTable: Chart types
+    semantics: http://semanticscience.org/resource/SIO_000904
+    description: "The chart type (e.g., pie chart, table, bar, etc.)"
+  chart title:
+    semantics: http://semanticscience.org/resource/SIO_000473
+    description: A title to be displayed above a chart
+  chart subtitle:
+    semantics: http://semanticscience.org/resource/SIO_000474
+    description: A subtitle to be displayed below the title. This text provides additional context for the data points displayed in the chart.
+  x axis label:
+    semantics: "http://semanticscience.org/resource/SIO_000452,http://semanticscience.org/resource/SIO_000179,http://semanticscience.org/resource/SIO_001316"
+    description: Text to be displayed along the x-axis (horizontal axis)
+  x axis min value:
+    type: int
+    semantics: "http://semanticscience.org/resource/SIO_000452,http://semanticscience.org/resource/SIO_001113"
+    description: A value that indicates the minimum threshold to display on the x-axis (applies only to continuous variables)
+  x axis max value:
+    type: int
+    semantics: "http://semanticscience.org/resource/SIO_000452,http://semanticscience.org/resource/SIO_001114"
+    description: A value that indicates the minimum threshold to display on the x-axis (applies only to continuous variables)
+  x axis ticks:
+    type: int_array
+    semantics: "http://semanticscience.org/resource/SIO_000452,http://semanticscience.org/resource/SIO_000915"
+    description: An array of numbers that indicate the breakpoints on the x-axis
+  y axis label:
+    semantics: "http://semanticscience.org/resource/SIO_000453,http://semanticscience.org/resource/SIO_000179"
+    description: Text to be displayed along the y-axis (vertical axis)
+  y axis min value:
+    type: int
+    semantics: "http://semanticscience.org/resource/SIO_000453,http://semanticscience.org/resource/SIO_001113"
+    description: A value that indicates the minimum threshold to display on the y-axis (applies only to continuous variables)
+  y axis max value:
+    type: int
+    semantics: "http://semanticscience.org/resource/SIO_000453,http://semanticscience.org/resource/SIO_001114"
+    description: A value that indicates the minimum threshold to display on the y-axis (applies only to continuous variables)
+  y axis ticks:
+    type: int_array
+    semantics: "http://semanticscience.org/resource/SIO_000453,http://semanticscience.org/resource/SIO_000915,http://semanticscience.org/resource/SIO_001316"
+    description: An array of numbers that indicate the breakpoints on the y-axis
+  color palette:
+    type: refback
+    refTable: Chart palette
+    refBack: included in chart
+    semantics: http://purl.obolibrary.org/obo/PATO_0000014
+    description: Color palette for distinct groups in a dataset
+  top margin:
+    type: int
+    defaultValue: "15"
+    validation: |-
+      (function () {
+        if (topMargin !== null && topMargin < 0) {
+        return "The top margin cannot be less than 0"
+        }
+        if (topMargin !== null && topMargin > 250) {
+        return "The top margin cannot be more than 250"
+        }
+      })();
+    semantics: http://purl.obolibrary.org/obo/NCIT_C69210
+    description: A number that indicates the amount of white space to add to the top of the chart
+  right margin:
+    type: int
+    defaultValue: "15"
+    validation: |-
+      (function () {
+        if (rightMargin !== null && rightMargin < 0) {
+        return "The right margin cannot be less than 0"
+        }
+        if (rightMargin !== null && rightMargin > 250) {
+        return "The right margin cannot be more than 250"
+        }
+      })();
+    semantics: http://purl.obolibrary.org/obo/NCIT_C69201
+    description: A number that indicates the amount of white space to add to the right of the chart
+  bottom margin:
+    type: int
+    defaultValue: "60"
+    validation: |-
+      (function () {
+        if (bottomMargin !== null && bottomMargin < 0) {
+        return "The bottom margin cannot be less than 0"
+        }
+        if (bottomMargin !== null && bottomMargin > 250) {
+        return "The bottom margin cannot be more than 250"
+        }
+      })();
+    semantics: http://purl.obolibrary.org/obo/NCIT_C69210
+    description: A number that indicates the amount of white space to add to the bottom of the chart
+  left margin:
+    type: int
+    defaultValue: "80"
+    validation: |-
+      (function () {
+        if (leftMargin !== null && leftMargin < 0) {
+        return "The left margin cannot be less than 0"
+        }
+        if (leftMargin !== null && leftMargin > 250) {
+        return "The left margin cannot be more than 250"
+        }
+      })();
+    semantics: http://purl.obolibrary.org/obo/NCIT_C69201
+    description: A number that indicates the amount of white space to add to the left of the chart
+  legend position:
+    type: ontology
+    refTable: Legend positions
+    defaultValue: top
+    semantics: "http://semanticscience.org/resource/SIO_000468,http://semanticscience.org/resource/SIO_000056"
+    description: The position of the legend around the chart.
+  data points:
+    type: refback
+    refTable: Chart data
+    refBack: included in chart
+    semantics: http://semanticscience.org/resource/SIO_000546
+    description: Data that is prepared to be used in a chart
+  dashboard page:
+    type: ref
+    refTable: Dashboard pages
+    semantics: http://semanticscience.org/resource/SIO_000302

@@ -145,55 +145,82 @@ without code changes. Legacy `profiles:` key in YAML templates throws a clear er
 
 ## Remaining work (Phase 9c)
 
-### Step 1: Rename `data/templates/` → `profiles/` at repo root
+### Step 1: Rename `data/templates/` → `profiles/` at repo root — DONE
 
-Move directory. Update all Java references:
-- `ImportProfileTask.java` — config location path
-- `DataModels.java` — bundle loading
-- Test files: `TestImportProfileTask`, `Emx2YamlBundleTest`, `Emx2YamlTest`, `CsvToYamlConverterTest`
-- Any `build.gradle` or resource references
+Moved directory. Updated Java refs in `Emx2YamlBundleTest`, `CsvToYamlConverterTest`.
 
-### Step 2: Convert data files — `subsets:` → `profiles:` + explicit sections
+### Step 2: Convert data files — `subsets:` → `profiles:` + explicit sections — DONE
 
-| Directory | Files | Work |
-|---|---|---|
-| `profiles/shared/tables/*.yaml` | 39 | Rename `subsets:` → `profiles:` at table + column level (mechanical find-replace) |
-| `profiles/pages/tables/*.yaml` | 6 | Convert implicit nested `columns:` to explicit `sections:`/`headings:` keys |
-| `profiles/patient_registry_demo/tables/*.yaml` | ~9 | Check + apply same conversions |
-| `profiles/shared/molgenis.yaml` | 1 | Already done |
-| `profiles/petstore.yaml` | 1 | Already done |
+39 shared tables (subsets→profiles), 4 pages tables (implicit→explicit sections), patient_registry_demo (no changes needed). 3 standalone schemas (biobank-directory, dashboard, ui_dashboards) converted to YAML bundles under `profiles/`.
 
-Total: ~54 table files. Mostly scriptable (subsets→profiles is find-replace; implicit→explicit sections needs parser awareness).
+### Step 3: Rename subtypes/extensions → variants — PENDING
 
-### Step 3: BundleResult registry cleanup
+Full cross-cutting rename. Finalizes the YAML grammar before documentation and production wiring.
 
-Currently `BundleResult` has two registries (`getProfileRegistry()` returns internal entries, `getTemplateRegistry()` returns non-internal). Confusingly named. Merge into one `Map<String, ProfileEntry>` with `internal` flag on `ProfileEntry`. Low priority — works correctly, just poorly named.
+**Concept**: A variant is a composable, table-level configuration that adds columns for a specific use case. Variants can inherit from other variants, enabling diamond composition.
 
-### Step 4: Parser features (from phase9 plan, still pending)
+**YAML grammar changes:**
+- `subtypes:` → `variants:` (declaration map on table)
+- `subtype:` → `variant:` (scoping attribute on column/section/heading)
+- `type: subtype` → `type: variant` (discriminator column)
+- `type: subtype_array` → `type: variant_array`
+
+**Java changes:**
+- `ColumnType.EXTENSION` → `ColumnType.VARIANT`
+- `ColumnType.EXTENSION_ARRAY` → `ColumnType.VARIANT_ARRAY`
+- `SubtypeDef` record → `VariantDef`
+- Migration SQL to update persisted column type metadata
+- All related methods/variables/constants renamed
+- RDF mapper: `EXTENSION`/`EXTENSION_ARRAY` → `VARIANT`/`VARIANT_ARRAY`
+
+**Data files:** Update `profiles/` YAML files that use `subtypes:`/`subtype:`.
+
+**Frontend:** Column type dropdowns, schema editor display of variant types.
+
+### Step 4: Documentation — PENDING (after step 3)
+
+Write/update `docs/molgenis/yaml_format.md` with finalized terminology:
+- Intro: "Profiles define subsets of the core data model. Multiple profiles can be combined to support specific research use cases."
+- Full YAML grammar: `profiles:`, `variants:`, `sections:`/`headings:`, `columns:`
+- Variant concept: "A variant is a composable, table-level configuration that adds columns for a specific use case."
+- `enableProfile`/`disableProfile` GraphQL mutations
+- `internal: true` flag on profiles
+- Example bundles (petstore single-file, shared directory bundle)
+- Migration guide (CSV → YAML)
+
+### Step 5: Wire YAML bundles into schema creation — PENDING (after step 4)
+
+**Current flow**: `DataModels.java` has hardcoded `Profile` + `Regular` enums → `ImportProfileTask` loads old flat `_profiles/*.yaml` → frontend has hardcoded dropdown.
+
+**Target flow**: Dynamic discovery from `profiles/` directory + old loaders prefixed "Legacy: ".
+
+| Sub-step | What |
+|---|---|
+| 5a | **Dynamic bundle discovery** — Replace/supplement `Profile` enum with directory scanning of `profiles/`. Return name + description from each `molgenis.yaml`. |
+| 5b | **Bundle loader** — Wire `ImportProfileTask` to use `Emx2Yaml.fromBundle()` for new format. Resolve relative paths within bundle directory. |
+| 5c | **Demodata/ontology/fixedSchemas support** — Essential for real-world profiles. `molgenis.yaml` declares: `demodata: ./demodata/`, `ontologies: ./ontologies/`, `settings: ./settings/`, `permissions:`, `fixedSchemas:`. Wire into bundle loader. |
+| 5d | **GraphQL model listing** — Dynamic query returning available profiles (name, description) from both new bundles and legacy loaders. |
+| 5e | **Frontend: dynamic dropdown** — `SchemaCreateModal.vue` fetches from GraphQL. Legacy loaders shown with "Legacy: " prefix. |
+| 5f | **Prefix old loaders** — `DataModels.Profile` enum entries get "Legacy: " prefix in display name. `DataModels.Regular` entries kept as-is. Both remain functional. |
+
+### Step 6: Parser feature completion — PENDING (lower priority)
 
 | Feature | Notes |
 |---|---|
 | `namespaces:` parsing in single-file bundles | Currently silently ignored |
-| Rename `EXTENSION` → `SUBTYPE` in Java | `ColumnType.EXTENSION`/`EXTENSION_ARRAY` → `SUBTYPE`/`SUBTYPE_ARRAY` + migration script |
 | Enforce table-wide column name uniqueness | Walk full nested tree, reject on duplicate |
 | Reject reserved name `columns`/`sections`/`headings` | Parse error |
 
-### Step 5: Delete legacy CSV models
+### Step 7: Cleanup (deferred)
 
-`data/_models/shared/*.csv` and `data/_models/specific/*.csv` are the originals that `data/templates/` was generated from. Delete once YAML is confirmed as source of truth (after merge to master). Keep `data/_ontologies/` — still active.
-
-### Step 6: Documentation
-
-- Update `docs/molgenis/yaml_format.md` with final terminology
-- Add intro: "Profiles define subsets of the core data model. Multiple profiles can be combined to support specific research use cases."
-- Document `sections:`/`headings:` explicit grammar
-- Document `enableProfile`/`disableProfile` GraphQL mutations
-- Document `internal: true` flag on profiles
+- BundleResult dual registry → single unified registry with `internal` flag on `ProfileEntry`
+- Delete legacy CSV models (`data/_models/`, `data/_profiles/`) after merge confidence
+- Retire old `Profile` enum once all profiles migrated to YAML bundles
 
 ---
 
 ## Out of scope
 
-- Changing anything about extensions / multiple inheritance.
 - RDF/semantic URI cleanup beyond `semantics:` separation.
 - Profile-based validation (required/optional changes).
+- Converting remaining CSV models (projectmanager, datacatalogue variants, staging areas) — deferred.

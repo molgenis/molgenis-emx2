@@ -1,0 +1,76 @@
+table: studies
+description: Information for each study
+label: studies
+semantics: http://purl.obolibrary.org/obo/NCIT_C15206
+columns:
+  acronym:
+    key: 1
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C94108
+    description: Acronym
+    label: Acronym
+  title:
+    type: text
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C49802
+    description: Title of the study
+    label: Title of the study
+  condition:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C189194
+    description: Condition/Disease
+    label: Condition/Disease
+  coordinator:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C51880
+    description: Medical coordinator/Project mentor
+    label: Medical coordinator/Project mentor
+  objective:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C188823
+    description: Objective of the study
+    label: Objective of the study
+  patients:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C49692
+    description: Patients concerned
+    label: Patients concerned
+  dataUsed:
+    required: true
+    description: Data used
+    label: Data used
+  dataErras:
+    required: true
+    description: Data contained in ERRAS
+    label: Data contained in ERRAS
+  patientData:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C188811
+    description: Data collected from the patients
+    label: Data collected from the patients
+  dataOther:
+    required: true
+    description: Data collected from another database
+    label: Data collected from another database
+  registrationNr:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C165150
+    description: "Registered number of the study:\nhttps://clinicaltrials.gov/"
+    label: Registration number
+  status:
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C171103
+    description: Status of the study
+    label: Status
+  dateStart:
+    type: date
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C68616
+    description: Start date
+    label: Start date
+  dateEnd:
+    type: date
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C164472
+    description: End date
+    label: End date

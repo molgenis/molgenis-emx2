@@ -1,0 +1,66 @@
+table: CollectionFacts
+description: Collection Facts
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    readonly: true
+    description: Unique ID of the fact.
+  collection:
+    label: Collection ID
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Collections
+    refLabel: ${name}
+    description: ID of the collection where the fact belongs to.
+  sex:
+    label: Sex
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: SexTypes
+    refLabel: ${label}
+    description: "The sex of the individuals in the fact. Can be one of the following values: Male, Female, Unknown, Undifferrentiated, Not applicable."
+  age_range:
+    label: Age Range
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: AgeRanges
+    refLabel: ${label}
+    description: Age range of the sample donors at time of sample donation.
+  sample_type:
+    label: Sample Type
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: MaterialTypes
+    refLabel: ${label}
+    description: "The biospecimen saved from a biological entity for propagation e.g. testing, diagnostics, treatment or research purposes."
+  disease:
+    label: Disease
+    type: ref
+    refSchema: DirectoryOntologies
+    refTable: DiseaseTypes
+    refLabel: ${label}
+    description: "The disease or disease category of main interest in the fact, if any."
+  number_of_samples:
+    label: NumberOfSamples
+    type: int
+    description: Number of samples.
+  number_of_donors:
+    label: NumberOfDonors
+    type: int
+    description: Number of donors.
+  last_update:
+    label: Date of Last Update
+    type: date
+    required: true
+    description: The date the fact information was last updated in the source system.
+  national_node:
+    label: National Node
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: NationalNodes
+    refLabel: ${description}
+    description: The collection this fact belongs to originates from this national node.

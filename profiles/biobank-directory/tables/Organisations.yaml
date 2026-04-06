@@ -1,0 +1,35 @@
+table: Organisations
+description: Organisations which function as contact points
+semantics: vcard:Organization
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    description: Unique ID of the organisation
+  full_name:
+    label: Full name
+    required: true
+    description: The full name of the organisation
+    semantics: vcard:fn
+  email:
+    label: E-mail address
+    type: email
+    description: The e-mail address of the organisation
+    semantics: vcard:hasEmail
+  address:
+    label: Address
+    type: ref
+    refSchema: ""
+    refTable: Address
+    description: The address of the organisation
+    semantics: vcard:hasAddress
+  phone:
+    label: Phone number
+    description: The telephone number of the organisation
+    semantics: vcard:hasTelephone
+  url:
+    label: URL
+    type: hyperlink
+    description: The URL of a web page containing information about the organisation
+    semantics: vcard:hasURL

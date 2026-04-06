@@ -1,0 +1,394 @@
+table: Collections
+description: "Description of the data and samples collected within a biobank, collections may be divided in sub-collections."
+semantics: ejp:Biobank
+columns:
+  descriptives:
+    label: Descriptives
+    type: heading
+    description: Collection Descriptives
+  id:
+    label: ID
+    key: 1
+    required: true
+    readonly: true
+    description: "Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01."
+    semantics: dcterms:identifier
+  name:
+    label: Name
+    required: true
+    description: Collection name according to MIABIS 2.0 - MIABIS-2.0-03.
+    semantics: dcterms:title
+  acronym:
+    label: Acronym
+    description: Collection acronym according to MIABIS 2.0 - MIABIS-2.0-02.
+  description:
+    label: Description
+    type: text
+    required: true
+    description: Collection description according to MIABIS 2.0 - MIABIS-2.0-08.
+    semantics: dcterms:description
+  url:
+    label: URL
+    type: hyperlink
+    description: Collection URL - MIABIS-2.0-04.
+    semantics: dcat:landingPage
+  location:
+    label: Location
+    description: The city where the collection is located.
+  country:
+    label: Country
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: Countries
+    refLabel: ${label}
+    description: Country according to MIABIS 2.0 - MIABIS-2.0-07-H.
+    semantics: dcterms:spatial
+  latitude:
+    label: Latitude
+    description: "Latitude of the collection in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+  longitude:
+    label: Longitude
+    description: "Longitude of the collection in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+  head:
+    label: Head of the Collection
+    type: ref
+    refSchema: ""
+    refTable: Persons
+    refLabel: ${email}
+    description: Person in charge of the collection.
+  contact:
+    label: Contact Person
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Persons
+    refLabel: ${email}
+    description: Contact person of the collection.
+    semantics: dcat:contactPoint
+  national_node:
+    label: National Node
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: NationalNodes
+    refLabel: ${description}
+    description: The collection originates from this national node.
+  withdrawn:
+    label: Withdrawn
+    type: bool
+    required: true
+    defaultValue: "false"
+    description: This collection is withdrawn from the Directory.
+  belongs_to:
+    label: Belongs to
+    type: heading
+    description: "The collection belongs to ..."
+  parent_collection:
+    label: Parent Collection
+    type: ref
+    refSchema: ""
+    refTable: Collections
+    refLabel: ${name}
+    description: "Reference to a collection ID, refers to the superior collection."
+  sub_collections:
+    label: Sub Collections
+    type: refback
+    refSchema: ""
+    refTable: Collections
+    refBack: parent_collection
+    refLabel: ${name}
+    description: "Reference to a collection ID, refers to one or more sub-collections."
+  biobank:
+    label: Biobank
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Biobanks
+    refLabel: ${name}
+    description: "Reference to a biobank ID, to which the collection belongs."
+    semantics: obo:OBIB_0000735
+  biobank_label:
+    label: Biobank Label
+    required: true
+    description: "Name of the biobank, to which the collection belongs."
+  network:
+    label: Network
+    type: ref_array
+    refSchema: ""
+    refTable: Networks
+    refLabel: ${name}
+    description: "Reference to a network ID, to which the collection belongs."
+  also_known:
+    label: Also Known In
+    type: ref_array
+    refSchema: ""
+    refTable: AlsoKnownIn
+    refLabel: ${name_system}
+    description: "The collection also exists in \u2026"
+  studies:
+    label: Studies
+    type: ref_array
+    refSchema: ""
+    refTable: Studies
+    refLabel: ${title}
+    description: A link to studies during which the collection was generated
+  characteristics:
+    label: Characteristics
+    type: heading
+    description: Collection Characteristics
+  type:
+    label: Collection Types
+    type: ontology_array
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: CollectionTypes
+    refLabel: ${label}
+    description: Type(s) of the collection - MIABIS-2.0-19.
+  data_categories:
+    label: Data Categories
+    type: ontology_array
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: DataCategories
+    refLabel: ${label}
+    description: Denotes which types of data are available (MIABIS-2.0-13).
+  order_of_magnitude:
+    label: Order of Magnitude
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: SampleSizes
+    refLabel: ${label}
+    description: Size of the collection measured as 10n samples.
+  size:
+    label: Size
+    type: int
+    description: Exact size of the collection at the given date.
+  categories:
+    label: Collection Categories
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Categories
+    refLabel: ${label}
+    description: Collection categories.
+  timestamp:
+    label: Timestamp
+    type: datetime
+    description: "Date to which the size of the collection was valid, format: yyyy-mm-ddThh:mm:ss+nnnn, e.g. 2016-11-15T09:53:13+0100."
+  quality:
+    label: Quality Standards
+    type: refback
+    readonly: true
+    refSchema: ""
+    refTable: QualityInfoCollections
+    refBack: collection
+    refLabel: ${quality_standard.label}
+    description: The collection is marked with this/these quality standard(s).
+  combined_quality:
+    label: Combined Qualities
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: AssessmentLevels
+    refLabel: ${label}
+    description: "The direct or indirect collection's assessment level(s) (i.e., either the collection is explicitly marked with this assessment level or its biobank is)."
+  donor_data:
+    label: Donor Data
+    type: heading
+    description: Donor Data Characteristics
+  number_of_donors:
+    label: Number of Donors
+    type: int
+    description: Number of donors from who sample(s) were taken.
+  order_of_magnitude_donors:
+    label: Order of Magnitude Donors
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: SampleSizes
+    refLabel: ${label}
+    description: Size of the collection donors measured as 10n samples.
+  sex:
+    label: Sex Types
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: SexTypes
+    refLabel: ${label}
+    description: The sex type(s) of the individuals in the sample collection. - MIABIS-2.0-09.
+  diagnosis_available:
+    label: Available Diagnoses
+    type: ref_array
+    refSchema: DirectoryOntologies
+    refTable: DiseaseTypes
+    refLabel: ${label}
+    description: "Available diagnosi(e)s in the collection, with the ontology prefix, possibly using * and ? wildcards, and prefix notation to denote diagnosis nomenclature - so far urn:miriam:icd: prefix for ICD-10, and urn:miriam:snomedct: prefix for SNOMED CT (examples being urn:miriam:icd:C*, urn:miriam:snomedct:25*) - MIABIS-2.0-17, adapted."
+  age_low:
+    label: Age Low
+    type: int
+    description: Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.
+  age_high:
+    label: Age High
+    type: int
+    description: Age of oldest sample donor at time of sample donation - MIABIS-2.0-11.
+  age_unit:
+    label: Age Unit
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: AgeUnits
+    refLabel: ${label}
+    description: "Unit defining Age Low and Age High. Can be one of the following values: YEAR, MONTH, WEEK, DAY - MIABIS-2.0-08."
+  facts:
+    label: Facts
+    type: refback
+    refSchema: ""
+    refTable: CollectionFacts
+    refBack: collection
+    description: Collection facts.
+  sample_data:
+    label: Sample Data
+    type: heading
+    description: Sample Data Characteristics
+  materials:
+    label: Materials
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: MaterialTypes
+    refLabel: ${label}
+    description: Collection contains material(s) of this/these type(s) (MIABIS-2.0-14).
+  storage_temperatures:
+    label: Storage Temperatures
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: StorageTemperatureTypes
+    refLabel: ${label}
+    description: Sample storage temperature(s) - SPREC 2.0 (MIABIS-2.0-15).
+  imaging_data:
+    label: Imaging Data
+    type: heading
+    description: Imaging Data Characteristics
+  body_part_examined:
+    label: Body Parts Examined
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: BodyParts
+    refLabel: ${label}
+    description: The examined body part(s).
+  imaging_modality:
+    label: Imaging Modalities
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: ImagingModalities
+    refLabel: ${label}
+    description: Imaging modality/modalities.
+  image_dataset_type:
+    label: Image Dataset Types
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: ImageDatasetTypes
+    refLabel: ${label}
+    description: Type(s) of the imaging dataset.
+  policies:
+    label: Policies
+    type: heading
+    description: Policies belonging to the collection.
+  collaboration_commercial:
+    label: Commercial Collaboration
+    type: bool
+    description: The collection can be used for collaboration with commercial partners.
+  collaboration_non_for_profit:
+    label: Non-for-profit Collaboration
+    type: bool
+    description: The collection can be used for collaboration with non-for-profit partners.
+  data_use:
+    label: Data Use Ontologies
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: DataUseOntologies
+    refLabel: ${label}
+    description: Data Use Ontologies (DUO)
+  duc_profile:
+    label: DUC profile
+    type: hyperlink
+    description: Link to the Digital Use Conditions (DUC) profile
+  commercial_use:
+    label: Available for Commercial Use
+    type: bool
+    description: Can commercial users request access to samples and/or data?
+  access_fee:
+    label: Fee-based access to
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: AccessTypes
+    refLabel: ${label}
+    description: "Denotes whether access to samples, data or images may be obtained on fee-based basis."
+  access_joint_project:
+    label: Access via Join Projects to
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: AccessTypes
+    refLabel: ${label}
+    description: "Denotes whether access to samples, data or images may be obtained on joint project basis."
+  access_description:
+    label: Access Description
+    type: text
+    description: Short description of the access rules.
+  access_uri:
+    label: Access URI
+    type: hyperlink
+    description: URI describing the access policy.
+    semantics: dcterms:accessRights
+  sop:
+    label: PD/SOPs
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: SOPs
+    refLabel: ${label}
+    description: Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs).
+  rdf_helpers:
+    label: RDF helpers
+    type: heading
+    description: Helper attributes to make RDF output compliant with various standards.
+  catalog:
+    type: ref_array
+    refSchema: ""
+    refTable: Catalogs
+    description: The FDP catalog(s) to which this collection belongs.
+    semantics: ldp:membershipResource
+  license:
+    type: hyperlink
+    description: A legal document under which this catalogue record is made available.
+    semantics: dcterms:license
+  publisher:
+    type: ref
+    refSchema: ""
+    refTable: Publishers
+    description: An entity responsible for making the resource available.
+    semantics: dcterms:publisher
+  language:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Languages
+    description: The language(s) of the resource.
+    semantics: dcterms:language
+  keywords:
+    type: string_array
+    description: Keyword(s) describing the resource.
+    semantics: dcat:keyword
+  EJP_RD_personalData:
+    description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations."
+    semantics: ejp:personalData
+  EJP_RD_vpConnection:
+    type: hyperlink
+    description: This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.
+    semantics: ejp:vpConnection
+  issued:
+    type: datetime
+    required: true
+    computed: mg_insertedOn
+    description: When this resource was first published
+    semantics: "dcterms:issued,fdp-o:metadataIssued"
+  modified:
+    type: datetime
+    required: true
+    computed: mg_updatedOn
+    description: When this resource was last modified
+    semantics: "dcterms:modified,fdp-o:metadataModified"

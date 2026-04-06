@@ -6,8 +6,8 @@ import org.molgenis.emx2.io.emx2.ProfileNameNormalizer;
 
 public class SchemaMetadataToBundle {
 
-  public static final String TYPE_SUBTYPE = "subtype";
-  public static final String TYPE_SUBTYPE_ARRAY = "subtype_array";
+  public static final String TYPE_VARIANT = "variant";
+  public static final String TYPE_VARIANT_ARRAY = "variant_array";
 
   private SchemaMetadataToBundle() {}
 
@@ -67,17 +67,17 @@ public class SchemaMetadataToBundle {
     String oldName = table.getOldName();
     String importSchema = table.getImportSchema();
 
-    List<TableMetadata> subtypeTableList = findSubtypeTables(schema, table.getTableName());
-    Map<String, SubtypeDef> subtypes = new LinkedHashMap<>();
-    for (TableMetadata subtypeTable : subtypeTableList) {
-      subtypes.put(
-          subtypeTable.getTableName(), convertSubtypeDef(subtypeTable, table.getTableName()));
+    List<TableMetadata> variantTableList = findSubtypeTables(schema, table.getTableName());
+    Map<String, VariantDef> variants = new LinkedHashMap<>();
+    for (TableMetadata variantTable : variantTableList) {
+      variants.put(
+          variantTable.getTableName(), convertVariantDef(variantTable, table.getTableName()));
     }
 
     Map<String, DataColumn> columns = convertColumns(table.getNonInheritedColumns());
 
     List<String> profilesOrNull = tableProfiles.isEmpty() ? null : tableProfiles;
-    Map<String, SubtypeDef> subtypesOrNull = subtypes.isEmpty() ? null : subtypes;
+    Map<String, VariantDef> variantsOrNull = variants.isEmpty() ? null : variants;
     Map<String, DataColumn> columnsOrNull = columns.isEmpty() ? null : columns;
 
     return new TableDef(
@@ -89,13 +89,13 @@ public class SchemaMetadataToBundle {
         label,
         oldName,
         importSchema,
-        subtypesOrNull,
+        variantsOrNull,
         columnsOrNull,
         null);
   }
 
-  private static SubtypeDef convertSubtypeDef(TableMetadata subtypeTable, String defaultParent) {
-    String[] inheritNames = subtypeTable.getInheritNames();
+  private static VariantDef convertVariantDef(TableMetadata variantTable, String defaultParent) {
+    String[] inheritNames = variantTable.getInheritNames();
     List<String> inherits;
     if (inheritNames != null
         && inheritNames.length > 0
@@ -104,9 +104,9 @@ public class SchemaMetadataToBundle {
     } else {
       inherits = List.of();
     }
-    Boolean internal = TableType.INTERNAL.equals(subtypeTable.getTableType()) ? Boolean.TRUE : null;
-    String description = subtypeTable.getDescriptions().get("en");
-    return new SubtypeDef(inherits.isEmpty() ? null : inherits, description, internal);
+    Boolean internal = TableType.INTERNAL.equals(variantTable.getTableType()) ? Boolean.TRUE : null;
+    String description = variantTable.getDescriptions().get("en");
+    return new VariantDef(inherits.isEmpty() ? null : inherits, description, internal);
   }
 
   private static Map<String, DataColumn> convertColumns(List<Column> columns) {
@@ -170,11 +170,11 @@ public class SchemaMetadataToBundle {
   }
 
   private static String columnTypeToString(ColumnType colType) {
-    if (ColumnType.EXTENSION.equals(colType)) {
-      return TYPE_SUBTYPE;
+    if (ColumnType.VARIANT.equals(colType)) {
+      return TYPE_VARIANT;
     }
-    if (ColumnType.EXTENSION_ARRAY.equals(colType)) {
-      return TYPE_SUBTYPE_ARRAY;
+    if (ColumnType.VARIANT_ARRAY.equals(colType)) {
+      return TYPE_VARIANT_ARRAY;
     }
     return colType.toString().toLowerCase();
   }

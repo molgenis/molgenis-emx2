@@ -1,0 +1,46 @@
+table: Dataset mappings
+description: Mappings from collected or source datasets to harmonised or target datasets
+profiles: [catalogue_core]
+columns:
+  source:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Id of the resource being mapped from
+  source dataset:
+    type: ref
+    key: 1
+    required: true
+    refTable: Datasets
+    refLink: source
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Name of the dataset being mapped from
+  target:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [cohorts_staging]
+    description: Name of the variable being mapped to, or harmonised with
+  target dataset:
+    type: ref
+    key: 1
+    required: true
+    refTable: Datasets
+    refLink: target
+    profiles: [cohorts_staging]
+    description: Name of the dataset being mapped to, or harmonised with
+  order:
+    type: int
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Order in which table ETLs should be executed for this source-target combination
+  description:
+    type: text
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Human readible description of the mapping
+  syntax:
+    type: text
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Formal definition of the mapping, ideally in executable code

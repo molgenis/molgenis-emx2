@@ -49,7 +49,7 @@ public class TestTableQueriesWithInheritance {
         table("Experiments")
             .add(column("id").setPkey())
             .add(column("name"))
-            .add(column("experiment_type").setType(ColumnType.EXTENSION).setRequired(true)));
+            .add(column("experiment_type").setType(ColumnType.VARIANT).setRequired(true)));
     multiParentSchema.create(
         table("Sampling")
             .setTableType(TableType.INTERNAL)
@@ -148,7 +148,7 @@ public class TestTableQueriesWithInheritance {
     assertEquals(
         "WGS",
         rows.get(0).at("/experiment_type").asText(),
-        "experiment_type (EXTENSION column) should return the profile value");
+        "experiment_type (VARIANT column) should return the profile value");
   }
 
   @Test

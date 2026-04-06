@@ -19,7 +19,7 @@ public record TableDef(
     String label,
     String oldName,
     String importSchema,
-    Map<String, SubtypeDef> subtypes,
+    Map<String, VariantDef> variants,
     Map<String, DataColumn> columns,
     Map<String, SectionDef> sections) {
 
@@ -33,7 +33,7 @@ public record TableDef(
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
       @JsonProperty("importSchema") String importSchema,
-      @JsonProperty("subtypes") Map<String, SubtypeDef> subtypes,
+      @JsonProperty("variants") @JsonAlias("subtypes") Map<String, VariantDef> variants,
       @JsonProperty("columns") Map<String, DataColumn> columns,
       @JsonProperty("sections") Map<String, SectionDef> sections) {
     this.description = description;
@@ -44,7 +44,7 @@ public record TableDef(
     this.label = label;
     this.oldName = oldName;
     this.importSchema = importSchema;
-    this.subtypes = subtypes != null ? subtypes : Map.of();
+    this.variants = variants != null ? variants : Map.of();
     this.columns = columns != null ? columns : Map.of();
     this.sections = sections != null ? sections : Map.of();
   }

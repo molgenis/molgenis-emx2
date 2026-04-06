@@ -1,0 +1,15 @@
+table: publications
+description: Information about publications
+semantics: http://purl.obolibrary.org/obo/NCIT_C48471
+columns:
+  title:
+    type: text
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C183337
+    label: Title
+  doi:
+    type: hyperlink
+    key: 1
+    required: true
+    semantics: http://purl.obolibrary.org/obo/NCIT_C93638
+    label: DOI

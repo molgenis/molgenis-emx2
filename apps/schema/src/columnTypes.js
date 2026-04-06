@@ -25,8 +25,8 @@ export default [
   "ONTOLOGY_ARRAY",
   "PERIOD",
   "PERIOD_ARRAY",
-  "EXTENSION",
-  "EXTENSION_ARRAY",
+  "VARIANT",
+  "VARIANT_ARRAY",
   "REF", //deprecated
   "SELECT",
   "RADIO",

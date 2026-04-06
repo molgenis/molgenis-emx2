@@ -1,0 +1,143 @@
+table: Catalogs
+description: DCAT v2 catalog entry
+semantics: "dcat:Catalog,ldp:DirectContainer"
+columns:
+  id:
+    key: 1
+    required: true
+    description: Local database identifier of the catalog. Identifier of the metadata entry.
+    semantics: afr:AFR_0000919
+  title:
+    required: true
+    description: Name of the catalog..
+    semantics: "dcterms:title,rdfs:label"
+  url:
+    type: hyperlink
+    description: The URL of the catalog HTML version.
+    semantics: " foaf:homepage,dcat:landingPage"
+  has_version:
+    description: Version of the catalog.
+    semantics: "dcterms:hasVersion,dcat:version"
+  description:
+    description: Description of the catalog.
+    semantics: dcterms:description
+  logo:
+    type: hyperlink
+    description: Logo of the catalog
+    semantics: foaf:logo
+  contact:
+    type: ref
+    refSchema: ""
+    refTable: Organisations
+    description: Organisation that functions as the contact point for the catalog
+    semantics: dcat:contactPoint
+  publisher:
+    type: ref_array
+    refSchema: ""
+    refTable: Publishers
+    description: The entity or entities (person or organization) responsible for the catalog.
+    semantics: dcterms:publisher
+  endpoint_url:
+    type: hyperlink
+    description: "The root location or primary endpoint of the service (a web-resolvable IRI)."
+    semantics: dcat:endpointURL
+  referenced_by:
+    type: hyperlink_array
+    description: "A link to a related resource that references, cites, or otherwise points to the described resource"
+    semantics: dcterms:isReferencedBy
+  language:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Languages
+    description: The language(s) used in the catalog.
+    semantics: dcterms:language
+  license:
+    type: hyperlink
+    required: true
+    description: The reference to the usage license of the catalog.
+    semantics: dcterms:license
+  policy:
+    type: hyperlink
+    description: Information about the access policies of the catalog
+    semantics: odrl:hasPolicy
+  issued:
+    type: datetime
+    required: true
+    description: When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+    semantics: "dcterms:issued,fdp-o:metadataIssued"
+  modified:
+    type: datetime
+    required: true
+    description: When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+    semantics: "dcterms:modified,fdp-o:metadataModified"
+  conforms_to:
+    type: hyperlink
+    required: true
+    description: The specification of the catalog metadata schema.
+    semantics: dcterms:conformsTo
+  rights:
+    type: hyperlink_array
+    description: "Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights."
+    semantics: dcterms:rights
+  access_rights:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: AccessRights
+    description: "Information about who can access the resource or an indication of its security status. Access rights may include information regarding access or restrictions based on privacy, security, or other policies."
+    semantics: dcterms:accessRights
+  collections:
+    type: refback
+    refSchema: ""
+    refTable: Collections
+    refBack: catalog
+    description: The component collections of this catalog.
+    semantics: "ldp:contains,dcat:hasPart"
+  data_services:
+    type: refback
+    refSchema: ""
+    refTable: DataServices
+    refBack: part_of
+    description: The data services listed in this catalog.
+    semantics: "ldp:contains,dcat:service"
+  theme_taxonomy:
+    type: ontology_array
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: Themes
+    description: "A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar."
+    semantics: dcat:themeTaxonomy
+  theme:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Themes
+    description: A main category or concept relating to the resource. A resource can have multiple themes.
+    semantics: dcat:theme
+  keyword:
+    type: string_array
+    description: Keyword(s) describing the catalog
+    semantics: dcat:keyword
+  EJP_RD_personalData:
+    description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations."
+    semantics: ejp:personalData
+  EJP_RD_vpConnection:
+    type: hyperlink
+    description: This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.
+    semantics: ejp:vpConnection
+  ldp_membership_relation:
+    type: hyperlink_array
+    required: true
+    defaultValue: "=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']"
+    description: This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.
+    semantics: ldp:hasMemberRelation
+  ldp_membership_resource:
+    type: ref
+    refSchema: ""
+    refTable: Catalogs
+    description: This attribute points to the container containing all the members of the catalog.
+    semantics: ldp:membershipResource
+  fdp_metadata_identifier:
+    type: ref
+    refSchema: ""
+    refTable: Catalogs
+    description: This attribute points to the catalog itself so as to generate the fdp-o:metadataIdentifier.
+    semantics: fdp-o:metadataIdentifier

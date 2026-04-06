@@ -74,8 +74,8 @@ public enum ColumnType {
   RADIO(REF),
   MULTISELECT(REF_ARRAY),
   CHECKBOX(REF_ARRAY),
-  EXTENSION(STRING),
-  EXTENSION_ARRAY(STRING_ARRAY);
+  VARIANT(STRING),
+  VARIANT_ARRAY(STRING_ARRAY);
 
   private Class javaType;
   private ColumnType baseType;

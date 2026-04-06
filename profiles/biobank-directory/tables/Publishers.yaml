@@ -1,0 +1,28 @@
+table: Publishers
+description: "A publisher of a resource, catalog, endpoint, etc."
+semantics: foaf:Agent
+columns:
+  name:
+    key: 1
+    required: true
+    description: A name and identifier for this publisher.
+    semantics: foaf:name
+  description:
+    description: Description of the publisher.
+    semantics: dcterms:description
+  type:
+    type: hyperlink_array
+    description: This publisher is of the following foaf type(s) (e.g. http://xmlns.com/foaf/0.1/Person)
+    semantics: rdf:type
+  url:
+    type: hyperlink
+    description: The homepage of the publisher.
+    semantics: "foaf:homepage,dcat:landingPage"
+  logo:
+    type: hyperlink
+    description: The logo of the publisher.
+    semantics: foaf:logo
+  mbox:
+    type: email
+    description: E-mail address of the publisher.
+    semantics: foaf:mbox

@@ -1,0 +1,4 @@
+name: ui_dashboards
+description: UI dashboards schema with inclusion criteria, data providers, statistics, organisations, users, files and studies
+imports:
+  - tables/

@@ -1,0 +1,39 @@
+table: QualityInfoBiobanks
+description: Biobank Quality Information
+columns:
+  id:
+    label: ID
+    type: auto_id
+    key: 1
+    required: true
+    readonly: true
+    defaultValue: QIB-${mg_autoid}
+  biobank:
+    label: Biobank
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Biobanks
+    refLabel: ${name}
+  quality_standard:
+    label: Quality Standard
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: QualityStandards
+    refLabel: ${label}
+  assess_level_bio:
+    label: Assessment Level
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: AssessmentLevels
+    refLabel: ${label}
+  certification_number:
+    label: Certification Number
+  certification_report:
+    label: Certification Report
+    type: hyperlink
+  certification_image_link:
+    label: Certification Image
+    type: hyperlink

@@ -17,17 +17,17 @@ public class ProfileMetadataTest {
 
   @Test
   void testProfileColumnType() {
-    assertEquals(ColumnType.STRING, ColumnType.EXTENSION.getBaseType());
-    assertFalse(ColumnType.EXTENSION.isReference());
-    assertTrue(ColumnType.EXTENSION.isAtomicType());
-    assertFalse(ColumnType.EXTENSION.isArray());
+    assertEquals(ColumnType.STRING, ColumnType.VARIANT.getBaseType());
+    assertFalse(ColumnType.VARIANT.isReference());
+    assertTrue(ColumnType.VARIANT.isAtomicType());
+    assertFalse(ColumnType.VARIANT.isArray());
   }
 
   @Test
   void testProfilesColumnType() {
-    assertEquals(ColumnType.STRING_ARRAY, ColumnType.EXTENSION_ARRAY.getBaseType());
-    assertTrue(ColumnType.EXTENSION_ARRAY.isArray());
-    assertFalse(ColumnType.EXTENSION_ARRAY.isReference());
+    assertEquals(ColumnType.STRING_ARRAY, ColumnType.VARIANT_ARRAY.getBaseType());
+    assertTrue(ColumnType.VARIANT_ARRAY.isArray());
+    assertFalse(ColumnType.VARIANT_ARRAY.isReference());
   }
 
   @Test
@@ -110,7 +110,7 @@ public class ProfileMetadataTest {
   @Test
   void testGetProfileColumnWithProfileType() {
     TableMetadata tableWithProfile =
-        table("WithProfile", column("name"), column("myProfile").setType(ColumnType.EXTENSION));
+        table("WithProfile", column("name"), column("myProfile").setType(ColumnType.VARIANT));
     Column profileColumn = tableWithProfile.getProfileColumn();
     assertNotNull(profileColumn);
     assertEquals("myProfile", profileColumn.getName());
@@ -120,9 +120,7 @@ public class ProfileMetadataTest {
   void testGetProfileColumnWithProfilesType() {
     TableMetadata tableWithProfiles =
         table(
-            "WithProfiles",
-            column("name"),
-            column("myProfiles").setType(ColumnType.EXTENSION_ARRAY));
+            "WithProfiles", column("name"), column("myProfiles").setType(ColumnType.VARIANT_ARRAY));
     Column profileColumn = tableWithProfiles.getProfileColumn();
     assertNotNull(profileColumn);
     assertEquals("myProfiles", profileColumn.getName());

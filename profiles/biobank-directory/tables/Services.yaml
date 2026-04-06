@@ -1,0 +1,90 @@
+table: Services
+description: Biobank Capabilities and Services
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    description: "Unique ID of the service, prefixed with bbmri-eric:serviceID:"
+  name:
+    label: Service Name
+    key: 2
+    required: true
+    description: Name of the service (preferably in English).
+  serviceTypes:
+    label: Service Types
+    type: ref_array
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: ServiceTypes
+    refLabel: ${label}
+    description: Related service types
+  acronym:
+    label: Acronym
+    description: Short name in use for the service. If applicable.
+  description:
+    label: Description
+    required: true
+    description: Full description of the service (in English)
+  descriptionUrl:
+    label: Description URL
+    type: hyperlink
+    description: URL address of the service description if available.
+  device:
+    label: Device
+    description: Name of the device(s) if the service is provided with the use of them.
+  deviceSystem:
+    label: Device System
+    description: Name of a software system or platform if important for the device characteristics.
+  tRL:
+    label: Technology Readiness Level
+    type: ontology
+    refSchema: DirectoryOntologies
+    refTable: TRLs
+    refLabel: ${label}
+    description: Technology Readiness Level - a concept for self-assessment of the service maturity
+  accessDescription:
+    label: Access Description
+    required: true
+    description: Description of the access policy of the service.
+  accessDescriptionUrl:
+    label: Access Description URL
+    type: hyperlink
+    description: URL of the service access policy if available..
+  unitOfAccess:
+    label: Unit of Access
+    description: Information about a standard unit used in calculations of costs of service provision.
+  unitCost:
+    label: Unit Cost
+    description: Cost per unit.
+  qualityStandards:
+    label: Quality Standards
+    type: refback
+    readonly: true
+    refSchema: ""
+    refTable: QualityInfoServices
+    refBack: service
+    refLabel: ${qualityStandard.label}
+    description: The standards and/or technical specifications that the service is certified or accredited for.
+  contactInformation:
+    label: Contact Information
+    type: ref
+    refSchema: ""
+    refTable: Persons
+    description: Contact information for the contact person or responsible person of the service
+  national_node:
+    label: National Node
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: NationalNodes
+    refLabel: ${description}
+    description: The study originates from this national node.
+  biobank:
+    label: Biobank
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Biobanks
+    refLabel: ${name}
+    description: "Reference to a biobank ID, to which the service belongs."

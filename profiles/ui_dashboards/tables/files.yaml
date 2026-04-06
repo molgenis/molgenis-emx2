@@ -1,0 +1,9 @@
+table: files
+tableType: ONTOLOGIES
+description: "An electronic file is an information content entity which conforms to a specification or format and which is meant to hold data and information in digital form, accessible to software agents."
+semantics: "http://purl.obolibrary.org/obo/STATO_0000002,http://purl.obolibrary.org/obo/NCIT_C42883"
+columns:
+  file:
+    type: file
+    semantics: http://purl.obolibrary.org/obo/NCIT_C47922
+    description: "The specification of a node (file or directory) in a hierarchical file system, usually specified by listing the nodes top-down"

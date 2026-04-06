@@ -1,0 +1,70 @@
+table: Disease history
+description: History of diagnoses of an individual at a specific timepoints
+profiles: [patient_core]
+semantics: ['http://purl.obolibrary.org/obo/NCIT_C15607']
+columns:
+  part of clinical observation:
+    type: select
+    key: 1
+    required: true
+    refTable: Clinical observations
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C87853']
+    profiles: [patient_core]
+    description: A reference to a specific clinical observation (e.g., "Ind001_Phen001")
+  disease:
+    type: ontology
+    key: 1
+    required: true
+    refTable: Diseases
+    semantics: ['http://semanticscience.org/resource/SIO_001331']
+    profiles: [patient_core]
+    description: The diagnosis assigned for this particular observation (e.g., "Spinocerebellar ataxia
+      type 34")
+  age group at onset:
+    type: ontology
+    refTable: Age groups at onset
+    semantics: ['http://www.ebi.ac.uk/efo/EFO_0004847', 'http://purl.obolibrary.org/obo/NCIT_C20587']
+    profiles: [patient_core]
+    description: A categorical value that groups this individual's age of onset into groups (e.g., "Adult",
+      "18-24 years", etc.)
+  age at onset:
+    type: period
+    semantics: ['http://www.ebi.ac.uk/efo/EFO_0004847']
+    profiles: [patient_core]
+    description: The age at which manifestations of the disease first appeared (e.g., "P32Y6M1D")
+  age group at diagnosis:
+    type: ontology
+    refTable: Age groups
+    semantics: ['http://www.ebi.ac.uk/efo/EFO_0004918', 'http://purl.obolibrary.org/obo/NCIT_C20587']
+    profiles: [patient_core]
+    description: A categorical value that groups this individual's age at diagnosis into groups (e.g.,
+      "Adult", "18-24 years", etc.)
+  age at diagnosis:
+    type: period
+    semantics: ['http://www.ebi.ac.uk/efo/EFO_0004918']
+    profiles: [patient_core]
+    description: The age at which the diagnosis was made (e.g., "P32Y6M1D")
+  has family history:
+    type: bool
+    semantics: ['http://purl.obolibrary.org/obo/HP_0032316']
+    profiles: [patient_registry]
+    description: An indication if the diagnosis is present in one or more family members or other relatives
+  disease severity:
+    type: ontology
+    refTable: Severity
+    semantics: ['http://purl.obolibrary.org/obo/HP_0012824']
+    profiles: [patient_core]
+    description: A value that describes the intensity of the disease (e.g., "Profound")
+  disease stage:
+    type: ontology
+    refTable: Disease stage
+    semantics: ['http://purl.obolibrary.org/obo/OBI_0000278']
+    profiles: [patient_core]
+    description: A part of an occurrence of a disease process which is associated with position in the
+      normal progression of the disease (e.g., "acute onset")
+  disease status:
+    type: ontology
+    refTable: Disease status
+    semantics: ['http://purl.obolibrary.org/obo/OPMI_0000533']
+    profiles: [patient_registry]
+    description: The state or status at the point during the visit the diagnosis was given (e.g., "Suspected")

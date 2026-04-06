@@ -222,7 +222,7 @@ public class SqlTable implements Table {
             String[] targets = new String[] {tableName};
             if (row.notNull(discriminatorColumn)) {
               if (profileColumn != null
-                  && profileColumn.getColumnType() == ColumnType.EXTENSION_ARRAY) {
+                  && profileColumn.getColumnType() == ColumnType.VARIANT_ARRAY) {
                 String[] arr = row.getStringArray(discriminatorColumn);
                 if (arr != null) targets = arr;
               } else {

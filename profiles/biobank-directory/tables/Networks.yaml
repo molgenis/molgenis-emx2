@@ -1,0 +1,73 @@
+table: Networks
+description: "Description of the biobank and collection networks, like name, contact information and all kinds of common agreements (access policies, charters, sops)."
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    readonly: true
+    description: "Unique ID the network within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 +underscore + biobank national ID or name), prefixed with bbmri-eric:networkID: string; if biobank network is on European or higher level, EU_ prefix is to be used instead of country prefix."
+  name:
+    label: Name
+    required: true
+    description: Network name.
+  acronym:
+    label: Acronym
+    description: Network acronym.
+  description:
+    label: Description
+    type: text
+    required: true
+    description: Network description.
+  location:
+    label: Location
+    description: The city where the network is located.
+  latitude:
+    label: Latitude
+    description: "Latitude of the network in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+  longitude:
+    label: Longitude
+    description: "Longitude of the network in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+  also_known:
+    label: Also Known In
+    type: ref_array
+    refSchema: ""
+    refTable: AlsoKnownIn
+    refLabel: ${name_system}
+    description: "The network is also known in \u2026"
+  url:
+    label: URL
+    type: hyperlink
+    description: Network URL
+  juridical_person:
+    label: Juridical Person
+    description: Juristic person of the network to MIABIS 2.0 - MIABIS-2.0-05.
+  contact:
+    label: Contact Person
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: Persons
+    refLabel: ${email}
+    description: Contact person of the network.
+  common_network_elements:
+    label: Common Network Elements
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: CommonNetworkElements
+    refLabel: ${label}
+    description: Selection of elements that are the same for all biobanks/collections within the network.
+  national_node:
+    label: National Node
+    type: ref
+    required: true
+    refSchema: ""
+    refTable: NationalNodes
+    refLabel: ${description}
+    description: The network originates from this national node.
+  withdrawn:
+    label: Withdrawn
+    type: bool
+    required: true
+    defaultValue: "false"
+    description: The network is withdrawn from the Directory.

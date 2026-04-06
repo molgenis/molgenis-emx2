@@ -1,0 +1,41 @@
+table: NationalNodes
+description: National Node Information
+columns:
+  id:
+    label: ID
+    key: 1
+    required: true
+    readonly: true
+    description: Unique national node ID (in most of the cases a two letter country code).
+  description:
+    label: Description
+    key: 2
+    required: true
+    description: Description
+  dns:
+    label: External DNS
+    type: hyperlink
+    description: If applicable the DNS of the national node's own server.
+  contact_persons:
+    label: Contact Persons
+    type: ref_array
+    refSchema: ""
+    refTable: ContactPersonsNationalNodes
+    refLabel: ${first_name} ${last_name}
+    description: The contact person(s) with their roles
+  data_refresh:
+    label: Data Refresh
+    type: ontology
+    required: true
+    refSchema: DirectoryOntologies
+    refTable: DataRefreshTypes
+    refLabel: ${label}
+    description: How is the data updated?
+  date_start:
+    label: Date Start
+    type: date
+    description: The date the national node is included in the Directory.
+  date_end:
+    label: Date End
+    type: date
+    description: The date the national node is no longer included in the Directory.

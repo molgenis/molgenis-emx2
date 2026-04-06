@@ -27,8 +27,8 @@ class CsvToYamlConverterTest {
   private static final String SHARED_MODELS_DIR = "/_models/shared";
   private static final String SPECIFIC_MODELS_DIR = "/_models/specific";
 
-  private static final Path DATA_TEMPLATES_DIR =
-      Path.of(System.getProperty("user.dir")).resolve("../../data/templates");
+  private static final Path REPO_ROOT = Path.of(System.getProperty("user.dir")).resolve("../../");
+  private static final Path PROFILES_DIR = REPO_ROOT.resolve("profiles");
 
   @TempDir Path tempDir;
 
@@ -116,7 +116,7 @@ class CsvToYamlConverterTest {
 
   @Test
   void convertPatientRegistryDemo() throws Exception {
-    Path csvPath = DATA_TEMPLATES_DIR.resolve("../patient_registry_demo/molgenis.csv");
+    Path csvPath = REPO_ROOT.resolve("data/patient_registry_demo/molgenis.csv");
     List<Row> allRows = new ArrayList<>();
     try (InputStreamReader reader =
         new InputStreamReader(Files.newInputStream(csvPath), StandardCharsets.UTF_8)) {
@@ -145,7 +145,7 @@ class CsvToYamlConverterTest {
     assertRoundtripEqual(schema, outputDir);
   }
 
-  @Disabled("Manual regeneration only — run this locally to update data/templates reference files")
+  @Disabled("Manual regeneration only — run this locally to update profiles/ reference files")
   @Test
   void manualRegenerate_IGNORED() throws IOException, URISyntaxException {
     List<Row> allRows = new ArrayList<>();
@@ -162,7 +162,7 @@ class CsvToYamlConverterTest {
       }
     }
     SchemaMetadata schema = Emx2.fromRowList(allRows);
-    Path outputDir = DATA_TEMPLATES_DIR.resolve("shared");
+    Path outputDir = PROFILES_DIR.resolve("shared");
     Files.createDirectories(outputDir);
     Emx2Yaml.toBundleDirectory(schema, "shared", null, outputDir);
   }

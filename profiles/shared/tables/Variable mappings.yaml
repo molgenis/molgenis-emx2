@@ -1,0 +1,84 @@
+table: Variable mappings
+description: Mappings from collected or source variables to target or harmonised variables, optionally
+  including ETL syntax
+profiles: [cohort_core, rwe_staging, study_staging]
+columns:
+  source:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Id of the resource that contains the source variable(s)
+  source dataset:
+    type: ref
+    key: 1
+    required: true
+    refTable: Datasets
+    refLink: source
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Name of the dataset that contains the source variable(s)
+  source variables:
+    type: ref_array
+    refTable: Variables
+    refLink: source dataset
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Optional, source variable that was mapped from. You may also indicate that a mapping
+      to a target variable was not done and leave this field empty (match = not available)
+  source variables other datasets:
+    type: ref_array
+    refTable: Variables
+    refLink: source
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Optional, variables from other source datasets. Initially one may only define mapping
+      between releases
+  target:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [umcg_cohorts_staging]
+    description: Id of the resource that contains the target variable
+  target dataset:
+    type: ref
+    key: 1
+    required: true
+    refTable: Datasets
+    refLink: target
+    profiles: [umcg_cohorts_staging]
+    description: Name of the dataset that contains the target variable
+  target variable:
+    type: ref
+    key: 1
+    required: true
+    refTable: Variables
+    refLink: target dataset
+    profiles: [umcg_cohorts_staging]
+    description: Target variable that was mapped to
+  repeats:
+    type: text
+    key: 1
+    required: true
+    defaultValue: NA
+    profiles: [cohort_core, rwe_staging, study_staging]
+    validation: if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or
+      1, 2, 3 or NA'
+    description: In case of mapping to a repeated variable, specify which repeats were mapped to
+  match:
+    type: ontology
+    required: true
+    refTable: Status details
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Harmonisation match, i.e., complete, partial, na
+  description:
+    type: text
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Human readible description of the mapping
+  syntax:
+    type: text
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Formal definition of the mapping, ideally in executable code
+  comments:
+    type: text
+    profiles: [cohort_core, rwe_staging, study_staging]
+    description: Additional notes or comments

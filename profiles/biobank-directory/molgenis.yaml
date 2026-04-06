@@ -1,0 +1,4 @@
+name: biobank-directory
+description: BBMRI-ERIC Biobank Directory schema including biobanks, collections, networks, persons, quality standards and DCAT/FDP metadata
+imports:
+  - tables/

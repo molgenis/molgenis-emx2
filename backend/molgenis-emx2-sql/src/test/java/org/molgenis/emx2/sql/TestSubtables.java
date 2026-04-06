@@ -41,7 +41,7 @@ public class TestSubtables {
             .add(column("experiment id").setType(STRING).setPkey())
             .add(column("name").setType(STRING))
             .add(column("date").setType(DATE))
-            .add(column("experiment type").setType(EXTENSION)));
+            .add(column("experiment type").setType(VARIANT)));
 
     schema.create(
         table("sampling")
@@ -83,7 +83,7 @@ public class TestSubtables {
         table("Observations")
             .add(column("obs id").setType(STRING).setPkey())
             .add(column("date").setType(DATE))
-            .add(column("observation types").setType(EXTENSION_ARRAY)));
+            .add(column("observation types").setType(VARIANT_ARRAY)));
 
     schema.create(
         table("Dermatology")
@@ -125,11 +125,11 @@ public class TestSubtables {
     TableMetadata wgsMeta = schema.getTable("WGS").getMetadata();
     assertNull(wgsMeta.getColumn(MG_TABLECLASS), "WGS should not have mg_tableclass");
 
-    assertNotNull(experimentsMeta.getColumn("experiment type"), "EXTENSION column should exist");
+    assertNotNull(experimentsMeta.getColumn("experiment type"), "VARIANT column should exist");
     assertEquals(
-        EXTENSION,
+        VARIANT,
         experimentsMeta.getColumn("experiment type").getColumnType(),
-        "experiment type should be EXTENSION type");
+        "experiment type should be VARIANT type");
 
     assertTrue(
         ((SqlSchema) schema)
@@ -163,11 +163,11 @@ public class TestSubtables {
 
     TableMetadata observationsMeta = schema.getTable("Observations").getMetadata();
     assertNotNull(
-        observationsMeta.getColumn("observation types"), "EXTENSION_ARRAY column should exist");
+        observationsMeta.getColumn("observation types"), "VARIANT_ARRAY column should exist");
     assertEquals(
-        EXTENSION_ARRAY,
+        VARIANT_ARRAY,
         observationsMeta.getColumn("observation types").getColumnType(),
-        "observation types should be EXTENSION_ARRAY type");
+        "observation types should be VARIANT_ARRAY type");
 
     assertNull(
         schema.getTable("Dermatology").getMetadata().getColumn(MG_TABLECLASS),

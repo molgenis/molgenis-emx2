@@ -26,7 +26,7 @@ public record DataColumn(
     Integer position,
     String description,
     List<String> semantics,
-    String subtype,
+    String variant,
     List<String> profiles,
     String label,
     String oldName,
@@ -50,7 +50,7 @@ public record DataColumn(
       @JsonProperty("position") Integer position,
       @JsonProperty("description") String description,
       @JsonProperty("semantics") List<String> semantics,
-      @JsonProperty("subtype") String subtype,
+      @JsonProperty("variant") @JsonAlias("subtype") String variant,
       @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
@@ -71,7 +71,7 @@ public record DataColumn(
     this.position = position;
     this.description = description;
     this.semantics = semantics;
-    this.subtype = subtype;
+    this.variant = variant;
     this.profiles = profiles;
     this.label = label;
     this.oldName = oldName;

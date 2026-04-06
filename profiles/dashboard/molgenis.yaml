@@ -1,0 +1,4 @@
+name: dashboard
+description: Dashboard schema with pages, charts, data points and color palettes
+imports:
+  - tables/

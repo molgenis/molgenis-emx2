@@ -1,0 +1,60 @@
+table: Datasets
+description: Definition of a dataset
+profiles: [catalogue_core]
+columns:
+  resource:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [catalogue_core]
+    description: Resource of which the dataset is part
+  name:
+    key: 1
+    required: true
+    profiles: [catalogue_core]
+    description: Unique dataset name in the model
+  label:
+    profiles: [catalogue_core]
+    description: Short human readable description
+  dataset type:
+    type: ontology_array
+    refTable: Dataset types
+    profiles: [catalogue_core]
+    description: Defines the type of dataset, e.g. genomic
+  unit of observation:
+    type: ontology
+    refTable: Observation targets
+    profiles: [catalogue_core]
+    description: Defines what each record in this table describes
+  keywords:
+    type: ontology_array
+    refTable: Keywords
+    profiles: [catalogue_core]
+    description: Enables grouping of table list by topic and to display tables in a tree
+  description:
+    type: text
+    profiles: [catalogue_core]
+    description: Description of the role/function of this table
+  number of rows:
+    type: int
+    profiles: [catalogue_core]
+    description: Count of the number of records in this table
+  mapped to:
+    type: refback
+    refTable: Dataset mappings
+    refBack: source dataset
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Common dataset models this dataset has been mapped into
+  mapped from:
+    type: refback
+    refTable: Dataset mappings
+    refBack: target dataset
+    profiles: [cohorts_staging, rwe_staging, study_staging]
+    description: Source datasets that have been mapped to this harmonised dataset
+  since version:
+    profiles: [catalogue_core]
+    description: When this dataset was introduced, if applicable
+  until version:
+    profiles: [catalogue_core]
+    description: When this dataset was removed, if applicable

@@ -11,18 +11,18 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SectionDef(
-    String subtype,
+    String variant,
     List<String> profiles,
     Map<String, DataColumn> columns,
     Map<String, HeadingDef> headings) {
 
   @JsonCreator
   public SectionDef(
-      @JsonProperty("subtype") String subtype,
+      @JsonProperty("variant") @JsonAlias("subtype") String variant,
       @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("columns") Map<String, DataColumn> columns,
       @JsonProperty("headings") Map<String, HeadingDef> headings) {
-    this.subtype = subtype;
+    this.variant = variant;
     this.profiles = profiles != null ? profiles : List.of();
     this.columns = columns != null ? columns : Map.of();
     this.headings = headings != null ? headings : Map.of();

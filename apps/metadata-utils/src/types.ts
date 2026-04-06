@@ -50,7 +50,9 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT";
+  | "MULTISELECT"
+  | "VARIANT"
+  | "VARIANT_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {

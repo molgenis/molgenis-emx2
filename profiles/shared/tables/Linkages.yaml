@@ -1,0 +1,44 @@
+table: Linkages
+description: Links between resources, e.g. data source and databank
+profiles: [catalogue_core]
+columns:
+  resource:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [rwe_core]
+    description: Main resource for this linkage
+  linked resource:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    profiles: [rwe_core]
+    description: Linked resource
+  other linked resource:
+    profiles: [ema]
+    description: If other linked resource, enter the name of the data source (default = not applicable)
+  linkage strategy:
+    type: ontology
+    refTable: Linkage strategies
+    profiles: [rwe_core]
+    description: The linkage method that was used to link resources
+  linkage variable:
+    type: text
+    profiles: [rwe_core]
+    description: If a single variable (or linkage key) is used to link resources, provide a name and description
+      of the variable
+  linkage variable unique:
+    type: bool
+    profiles: [rwe_staging]
+    description: If a single variable is used to link resources, is the variable a unique identifier?
+  linkage completeness:
+    type: text
+    profiles: [rwe_core]
+    description: Provide a high-level description of the completeness of linkages that are currently available
+      between resources (max 100 words)
+  pre linked:
+    type: bool
+    profiles: [rwe_core]
+    description: Does the data source constitute of linked data sources?

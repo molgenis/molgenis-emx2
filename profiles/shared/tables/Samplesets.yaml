@@ -1,0 +1,18 @@
+table: Samplesets
+description: Definition of a sample set
+profiles: [catalogue_core]
+columns:
+  resource:
+    type: ref
+    key: 1
+    required: true
+    refTable: Resources
+    description: Resouce that these samples are part of
+  name:
+    key: 1
+    required: true
+    description: Sample set name
+  sample types:
+    type: ontology_array
+    refTable: Sample types
+    description: Defines the types of samples in the sample set

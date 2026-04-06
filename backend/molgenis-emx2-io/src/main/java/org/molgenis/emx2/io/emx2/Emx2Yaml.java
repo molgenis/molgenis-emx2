@@ -54,13 +54,17 @@ public class Emx2Yaml {
   private static final String ROLE_OWNER_VALUE = "Owner";
 
   private static final String FIELD_PROFILES = "profiles";
-  private static final String FIELD_SUBTYPES = "subtypes";
-  private static final String FIELD_SUBTYPE = "subtype";
+  private static final String FIELD_VARIANTS = "variants";
+  private static final String FIELD_VARIANT = "variant";
   private static final String FIELD_TABLES = "tables";
   private static final String FIELD_NAMESPACES = "namespaces";
   private static final String RESERVED_COLUMNS = "columns";
+  private static final String TYPE_VARIANT = "variant";
+  private static final String TYPE_VARIANT_ARRAY = "variant_array";
   private static final String TYPE_EXTENSION = "extension";
   private static final String TYPE_EXTENSION_ARRAY = "extension_array";
+  private static final String TYPE_SUBTYPE = "subtype";
+  private static final String TYPE_SUBTYPE_ARRAY = "subtype_array";
   private static final String MOLGENIS_YAML = "molgenis.yaml";
   private static final String SINGLE_FILE_FORBIDDEN_ONTOLOGIES = "ontologies";
   private static final String SINGLE_FILE_FORBIDDEN_DEMODATA = "demodata";
@@ -248,33 +252,33 @@ public class Emx2Yaml {
       rootTable.setProfiles(tableDef.profiles().toArray(new String[0]));
     }
 
-    Map<String, TableMetadata> subtypeTablesByName = new LinkedHashMap<>();
-    for (Map.Entry<String, SubtypeDef> entry : tableDef.subtypes().entrySet()) {
-      String subtypeName = entry.getKey();
-      SubtypeDef subtypeDef = entry.getValue();
-      TableMetadata subtypeTable = new TableMetadata(subtypeName);
-      if (subtypeDef.inherits().isEmpty()) {
-        subtypeTable.setInheritNames(tableName);
+    Map<String, TableMetadata> variantTablesByName = new LinkedHashMap<>();
+    for (Map.Entry<String, VariantDef> entry : tableDef.variants().entrySet()) {
+      String variantName = entry.getKey();
+      VariantDef variantDef = entry.getValue();
+      TableMetadata variantTable = new TableMetadata(variantName);
+      if (variantDef.inherits().isEmpty()) {
+        variantTable.setInheritNames(tableName);
       } else {
-        subtypeTable.setInheritNames(subtypeDef.inherits().toArray(new String[0]));
+        variantTable.setInheritNames(variantDef.inherits().toArray(new String[0]));
       }
-      if (subtypeDef.isInternal()) {
-        subtypeTable.setTableType(TableType.INTERNAL);
+      if (variantDef.isInternal()) {
+        variantTable.setTableType(TableType.INTERNAL);
       }
-      if (subtypeDef.description() != null) {
-        subtypeTable.setDescription(subtypeDef.description());
+      if (variantDef.description() != null) {
+        variantTable.setDescription(variantDef.description());
       }
-      subtypeTablesByName.put(subtypeName, subtypeTable);
+      variantTablesByName.put(variantName, variantTable);
     }
 
     Set<String> seenColumnNames = new LinkedHashSet<>();
     applyDataColumns(
-        tableDef.columns(), tableName, rootTable, subtypeTablesByName, null, null, seenColumnNames);
-    applySections(tableDef.sections(), tableName, rootTable, subtypeTablesByName, seenColumnNames);
+        tableDef.columns(), tableName, rootTable, variantTablesByName, null, null, seenColumnNames);
+    applySections(tableDef.sections(), tableName, rootTable, variantTablesByName, seenColumnNames);
 
     createIfAbsent(schema, rootTable);
-    for (TableMetadata subtypeTable : subtypeTablesByName.values()) {
-      createIfAbsent(schema, subtypeTable);
+    for (TableMetadata variantTable : variantTablesByName.values()) {
+      createIfAbsent(schema, variantTable);
     }
   }
 
@@ -282,7 +286,7 @@ public class Emx2Yaml {
       Map<String, DataColumn> columns,
       String tableName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       String inheritedSubtype,
       String[] inheritedSubsets,
       Set<String> seenColumnNames) {
@@ -294,7 +298,7 @@ public class Emx2Yaml {
           col,
           tableName,
           rootTable,
-          subtypeTablesByName,
+          variantTablesByName,
           inheritedSubtype,
           inheritedSubsets,
           seenColumnNames);
@@ -305,7 +309,7 @@ public class Emx2Yaml {
       Map<String, SectionDef> sections,
       String tableName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       Set<String> seenColumnNames) {
 
     for (Map.Entry<String, SectionDef> entry : sections.entrySet()) {
@@ -318,16 +322,16 @@ public class Emx2Yaml {
           section.columns(),
           tableName,
           rootTable,
-          subtypeTablesByName,
-          section.subtype(),
+          variantTablesByName,
+          section.variant(),
           sectionSubsets,
           seenColumnNames);
       applyHeadings(
           section.headings(),
           tableName,
           rootTable,
-          subtypeTablesByName,
-          section.subtype(),
+          variantTablesByName,
+          section.variant(),
           sectionSubsets,
           seenColumnNames);
     }
@@ -337,14 +341,14 @@ public class Emx2Yaml {
       Map<String, HeadingDef> headings,
       String tableName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       String inheritedSubtype,
       String[] inheritedSubsets,
       Set<String> seenColumnNames) {
 
     for (Map.Entry<String, HeadingDef> entry : headings.entrySet()) {
       HeadingDef heading = entry.getValue();
-      String headingSubtype = heading.subtype() != null ? heading.subtype() : inheritedSubtype;
+      String headingSubtype = heading.variant() != null ? heading.variant() : inheritedSubtype;
       String[] headingSubsets =
           heading.profiles() != null && !heading.profiles().isEmpty()
               ? heading.profiles().toArray(new String[0])
@@ -353,7 +357,7 @@ public class Emx2Yaml {
           heading.columns(),
           tableName,
           rootTable,
-          subtypeTablesByName,
+          variantTablesByName,
           headingSubtype,
           headingSubsets,
           seenColumnNames);
@@ -366,7 +370,7 @@ public class Emx2Yaml {
       DataColumn col,
       String tableName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       String inheritedSubtype,
       String[] inheritedSubsets,
       Set<String> seenColumnNames) {
@@ -461,9 +465,9 @@ public class Emx2Yaml {
       column.setProfiles(effectiveSubsets);
     }
 
-    String effectiveSubtype = col.subtype() != null ? col.subtype() : inheritedSubtype;
+    String effectiveSubtype = col.variant() != null ? col.variant() : inheritedSubtype;
     TableMetadata target =
-        resolveTargetTable(effectiveSubtype, rootTable, subtypeTablesByName, tableName, columnName);
+        resolveTargetTable(effectiveSubtype, rootTable, variantTablesByName, tableName, columnName);
     target.add(column);
   }
 
@@ -497,28 +501,31 @@ public class Emx2Yaml {
       rootTable.setTableType(TableType.INTERNAL);
     }
 
-    Map<String, TableMetadata> subtypeTablesByName = new LinkedHashMap<>();
-    Map<String, Object> rawSubtypes =
-        (Map<String, Object>) tableMap.getOrDefault(FIELD_SUBTYPES, Map.of());
-    for (Map.Entry<String, Object> subtypeEntry : rawSubtypes.entrySet()) {
-      String subtypeName = subtypeEntry.getKey();
-      Map<String, Object> subtypeMap =
-          subtypeEntry.getValue() != null
-              ? (Map<String, Object>) subtypeEntry.getValue()
+    Map<String, TableMetadata> variantTablesByName = new LinkedHashMap<>();
+    Map<String, Object> rawVariants =
+        (Map<String, Object>) tableMap.getOrDefault(FIELD_VARIANTS, Map.of());
+    if (rawVariants.isEmpty()) {
+      rawVariants = (Map<String, Object>) tableMap.getOrDefault("subtypes", Map.of());
+    }
+    for (Map.Entry<String, Object> variantEntry : rawVariants.entrySet()) {
+      String variantName = variantEntry.getKey();
+      Map<String, Object> variantMap =
+          variantEntry.getValue() != null
+              ? (Map<String, Object>) variantEntry.getValue()
               : Map.of();
-      TableMetadata subtypeTable = new TableMetadata(subtypeName);
-      List<String> inherits = (List<String>) subtypeMap.getOrDefault(FIELD_INHERITS, List.of());
+      TableMetadata variantTable = new TableMetadata(variantName);
+      List<String> inherits = (List<String>) variantMap.getOrDefault(FIELD_INHERITS, List.of());
       if (inherits.isEmpty()) {
-        subtypeTable.setInheritNames(tableName);
+        variantTable.setInheritNames(tableName);
       } else {
-        subtypeTable.setInheritNames(inherits.toArray(new String[0]));
+        variantTable.setInheritNames(inherits.toArray(new String[0]));
       }
-      if (Boolean.TRUE.equals(subtypeMap.get(FIELD_INTERNAL))) {
-        subtypeTable.setTableType(TableType.INTERNAL);
+      if (Boolean.TRUE.equals(variantMap.get(FIELD_INTERNAL))) {
+        variantTable.setTableType(TableType.INTERNAL);
       }
-      applyTableDescription(subtypeTable, subtypeMap);
-      applyTableSubsets(subtypeTable, subtypeMap);
-      subtypeTablesByName.put(subtypeName, subtypeTable);
+      applyTableDescription(variantTable, variantMap);
+      applyTableSubsets(variantTable, variantMap);
+      variantTablesByName.put(variantName, variantTable);
     }
 
     Map<String, Object> columnsMap =
@@ -526,11 +533,11 @@ public class Emx2Yaml {
 
     Set<String> seenColumnNames = new LinkedHashSet<>();
     parseColumnsAtDepth(
-        columnsMap, 0, tableName, rootTable, subtypeTablesByName, null, null, seenColumnNames);
+        columnsMap, 0, tableName, rootTable, variantTablesByName, null, null, seenColumnNames);
 
     createIfAbsent(schema, rootTable);
-    for (TableMetadata subtypeTable : subtypeTablesByName.values()) {
-      createIfAbsent(schema, subtypeTable);
+    for (TableMetadata variantTable : variantTablesByName.values()) {
+      createIfAbsent(schema, variantTable);
     }
   }
 
@@ -546,7 +553,7 @@ public class Emx2Yaml {
       int depth,
       String tableName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       String inheritedSubtype,
       String[] inheritedSubsets,
       Set<String> seenColumnNames) {
@@ -590,9 +597,11 @@ public class Emx2Yaml {
         }
 
         String containerSubtype =
-            columnAttrs.containsKey(FIELD_SUBTYPE)
-                ? (String) columnAttrs.get(FIELD_SUBTYPE)
-                : inheritedSubtype;
+            columnAttrs.containsKey(FIELD_VARIANT)
+                ? (String) columnAttrs.get(FIELD_VARIANT)
+                : columnAttrs.containsKey("subtype")
+                    ? (String) columnAttrs.get("subtype")
+                    : inheritedSubtype;
         String[] containerSubsets;
         if (columnAttrs.containsKey(FIELD_PROFILES)) {
           containerSubsets = toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES));
@@ -609,7 +618,7 @@ public class Emx2Yaml {
             depth + 1,
             tableName,
             rootTable,
-            subtypeTablesByName,
+            variantTablesByName,
             containerSubtype,
             containerSubsets,
             seenColumnNames);
@@ -630,7 +639,7 @@ public class Emx2Yaml {
         }
         TableMetadata target =
             resolveTargetTable(
-                inheritedSubtype, rootTable, subtypeTablesByName, tableName, columnKey);
+                inheritedSubtype, rootTable, variantTablesByName, tableName, columnKey);
         target.add(headingCol);
       } else {
         if (!seenColumnNames.add(columnKey)) {
@@ -665,36 +674,38 @@ public class Emx2Yaml {
         }
 
         String effectiveSubtype =
-            columnAttrs.containsKey(FIELD_SUBTYPE)
-                ? (String) columnAttrs.get(FIELD_SUBTYPE)
-                : inheritedSubtype;
+            columnAttrs.containsKey(FIELD_VARIANT)
+                ? (String) columnAttrs.get(FIELD_VARIANT)
+                : columnAttrs.containsKey("subtype")
+                    ? (String) columnAttrs.get("subtype")
+                    : inheritedSubtype;
 
         TableMetadata target =
             resolveTargetTable(
-                effectiveSubtype, rootTable, subtypeTablesByName, tableName, columnKey);
+                effectiveSubtype, rootTable, variantTablesByName, tableName, columnKey);
         target.add(column);
       }
     }
   }
 
   private static TableMetadata resolveTargetTable(
-      String subtypeName,
+      String variantName,
       TableMetadata rootTable,
-      Map<String, TableMetadata> subtypeTablesByName,
+      Map<String, TableMetadata> variantTablesByName,
       String tableName,
       String columnKey) {
-    if (subtypeName == null) {
+    if (variantName == null) {
       return rootTable;
     }
-    TableMetadata target = subtypeTablesByName.get(subtypeName);
+    TableMetadata target = variantTablesByName.get(variantName);
     if (target == null) {
       throw new MolgenisException(
           "Table '"
               + tableName
               + "', column '"
               + columnKey
-              + "': references unknown subtype '"
-              + subtypeName
+              + "': references unknown variant '"
+              + variantName
               + "'");
     }
     return target;
@@ -702,17 +713,15 @@ public class Emx2Yaml {
 
   private static ColumnType resolveColumnType(String typeStr, String columnKey, String tableName) {
     String normalized = typeStr.toLowerCase().replace(" ", "_");
-    if (SchemaMetadataToBundle.TYPE_SUBTYPE.equals(normalized)) {
-      return ColumnType.EXTENSION;
+    if (TYPE_VARIANT.equals(normalized)
+        || TYPE_SUBTYPE.equals(normalized)
+        || TYPE_EXTENSION.equals(normalized)) {
+      return ColumnType.VARIANT;
     }
-    if (SchemaMetadataToBundle.TYPE_SUBTYPE_ARRAY.equals(normalized)) {
-      return ColumnType.EXTENSION_ARRAY;
-    }
-    if (TYPE_EXTENSION.equals(normalized)) {
-      return ColumnType.EXTENSION;
-    }
-    if (TYPE_EXTENSION_ARRAY.equals(normalized)) {
-      return ColumnType.EXTENSION_ARRAY;
+    if (TYPE_VARIANT_ARRAY.equals(normalized)
+        || TYPE_SUBTYPE_ARRAY.equals(normalized)
+        || TYPE_EXTENSION_ARRAY.equals(normalized)) {
+      return ColumnType.VARIANT_ARRAY;
     }
     try {
       return ColumnType.valueOf(normalized.toUpperCase());
@@ -984,8 +993,8 @@ public class Emx2Yaml {
     if (!table.profiles().isEmpty()) {
       doc.put(FIELD_PROFILES, table.profiles());
     }
-    if (!table.subtypes().isEmpty()) {
-      doc.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), tableName));
+    if (!table.variants().isEmpty()) {
+      doc.put(FIELD_VARIANTS, buildVariantDefMap(table.variants(), tableName));
     }
     if (!table.columns().isEmpty()) {
       doc.put(FIELD_COLUMNS, buildDataColumnMap(table.columns()));
@@ -1012,8 +1021,8 @@ public class Emx2Yaml {
     if (!table.profiles().isEmpty()) {
       entry.put(FIELD_PROFILES, table.profiles());
     }
-    if (!table.subtypes().isEmpty()) {
-      entry.put(FIELD_SUBTYPES, buildSubtypeDefMap(table.subtypes(), null));
+    if (!table.variants().isEmpty()) {
+      entry.put(FIELD_VARIANTS, buildVariantDefMap(table.variants(), null));
     }
     if (!table.columns().isEmpty()) {
       entry.put(FIELD_COLUMNS, buildDataColumnMap(table.columns()));
@@ -1041,11 +1050,11 @@ public class Emx2Yaml {
     return result;
   }
 
-  private static Map<String, Object> buildSubtypeDefMap(
-      Map<String, SubtypeDef> subtypes, String defaultParent) {
+  private static Map<String, Object> buildVariantDefMap(
+      Map<String, VariantDef> variants, String defaultParent) {
     Map<String, Object> result = new LinkedHashMap<>();
-    for (Map.Entry<String, SubtypeDef> entry : subtypes.entrySet()) {
-      SubtypeDef def = entry.getValue();
+    for (Map.Entry<String, VariantDef> entry : variants.entrySet()) {
+      VariantDef def = entry.getValue();
       Map<String, Object> defDoc = new LinkedHashMap<>();
       putIfNotNull(defDoc, FIELD_DESCRIPTION, def.description());
       if (!def.inherits().isEmpty()
@@ -1078,7 +1087,7 @@ public class Emx2Yaml {
 
   private static Map<String, Object> buildSectionEntry(SectionDef section) {
     Map<String, Object> entry = new LinkedHashMap<>();
-    putIfNotNull(entry, FIELD_SUBTYPE, section.subtype());
+    putIfNotNull(entry, FIELD_VARIANT, section.variant());
     if (!section.profiles().isEmpty()) {
       entry.put(FIELD_PROFILES, section.profiles());
     }
@@ -1101,7 +1110,7 @@ public class Emx2Yaml {
 
   private static Map<String, Object> buildHeadingEntry(HeadingDef heading) {
     Map<String, Object> entry = new LinkedHashMap<>();
-    putIfNotNull(entry, FIELD_SUBTYPE, heading.subtype());
+    putIfNotNull(entry, FIELD_VARIANT, heading.variant());
     if (!heading.profiles().isEmpty()) {
       entry.put(FIELD_PROFILES, heading.profiles());
     }
@@ -1140,7 +1149,7 @@ public class Emx2Yaml {
       entry.put(FIELD_READONLY, true);
     }
     putIfNotNull(entry, FIELD_LABEL, col.label());
-    putIfNotNull(entry, FIELD_SUBTYPE, col.subtype());
+    putIfNotNull(entry, FIELD_VARIANT, col.variant());
     if (col.position() != null && col.position() > 0) {
       entry.put(FIELD_POSITION, col.position());
     }

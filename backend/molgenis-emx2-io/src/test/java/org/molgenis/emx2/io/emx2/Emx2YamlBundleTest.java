@@ -14,24 +14,24 @@ import org.molgenis.emx2.*;
 
 class Emx2YamlBundleTest {
 
-  private static final Path DATA_TEMPLATES = findDataTemplatesPath();
+  private static final Path PROFILES_DIR = findProfilesPath();
 
-  private static Path findDataTemplatesPath() {
+  private static Path findProfilesPath() {
     Path current = Path.of("").toAbsolutePath();
     while (current != null) {
-      Path candidate = current.resolve("data/templates");
+      Path candidate = current.resolve("profiles");
       if (candidate.toFile().isDirectory()) {
         return candidate;
       }
       current = current.getParent();
     }
     throw new IllegalStateException(
-        "Could not find data/templates directory from: " + Path.of("").toAbsolutePath());
+        "Could not find profiles directory from: " + Path.of("").toAbsolutePath());
   }
 
   @Test
   void loadPetstoreSingleFileBundle() throws IOException {
-    Path petstoreYaml = DATA_TEMPLATES.resolve("petstore.yaml");
+    Path petstoreYaml = PROFILES_DIR.resolve("petstore.yaml");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(petstoreYaml);
 
     assertEquals("Pet store", bundle.getName());
@@ -68,7 +68,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadPetstoreSectionAndHeadingColumns() throws IOException {
-    Path petstoreYaml = DATA_TEMPLATES.resolve("petstore.yaml");
+    Path petstoreYaml = PROFILES_DIR.resolve("petstore.yaml");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(petstoreYaml);
 
     SchemaMetadata schema = bundle.getSchema();
@@ -91,7 +91,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadPetstoreUserSectionColumns() throws IOException {
-    Path petstoreYaml = DATA_TEMPLATES.resolve("petstore.yaml");
+    Path petstoreYaml = PROFILES_DIR.resolve("petstore.yaml");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(petstoreYaml);
 
     TableMetadata user = bundle.getSchema().getTableMetadata("User");
@@ -103,7 +103,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadSharedDirectoryBundle() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
     assertEquals("MOLGENIS shared catalogue bundle", bundle.getName());
@@ -128,7 +128,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadSharedBundleSubsetIncludes() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
     ProfileEntry cohortCore = bundle.getProfileRegistry().get("cohort_core");
@@ -145,7 +145,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadSharedBundleProcessesTableSubtypes() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
     SchemaMetadata schema = bundle.getSchema();
@@ -164,7 +164,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadSharedBundleProcessesTableColumns() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
     TableMetadata processes = bundle.getSchema().getTableMetadata("Processes");
@@ -178,7 +178,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void loadSharedBundleColumnSubsets() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
     TableMetadata processes = bundle.getSchema().getTableMetadata("Processes");
@@ -846,7 +846,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void sharedBundlePassesAllValidationRules() throws IOException {
-    Path sharedDir = DATA_TEMPLATES.resolve("shared");
+    Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
     assertNotNull(bundle.getName());
     assertFalse(bundle.getProfileRegistry().isEmpty());
@@ -855,7 +855,7 @@ class Emx2YamlBundleTest {
 
   @Test
   void petstoreBundlePassesAllValidationRules() throws IOException {
-    Path petstoreYaml = DATA_TEMPLATES.resolve("petstore.yaml");
+    Path petstoreYaml = PROFILES_DIR.resolve("petstore.yaml");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(petstoreYaml);
     assertNotNull(bundle.getName());
   }
@@ -1083,22 +1083,22 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void subtypeColumnTypeMapping() throws IOException {
+  void variantColumnTypeMapping() throws IOException {
     String yaml =
         """
         name: Test
         tables:
           MyTable:
-            subtypes:
+            variants:
               ChildA:
                 description: child
             columns:
               id:
                 key: 1
               kind:
-                type: subtype
+                type: variant
               kinds:
-                type: subtype_array
+                type: variant_array
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
@@ -1109,16 +1109,14 @@ class Emx2YamlBundleTest {
     Column kind = table.getColumn("kind");
     assertNotNull(kind);
     assertEquals(
-        ColumnType.EXTENSION,
-        kind.getColumnType(),
-        "type: subtype must map to ColumnType.EXTENSION");
+        ColumnType.VARIANT, kind.getColumnType(), "type: variant must map to ColumnType.VARIANT");
 
     Column kinds = table.getColumn("kinds");
     assertNotNull(kinds);
     assertEquals(
-        ColumnType.EXTENSION_ARRAY,
+        ColumnType.VARIANT_ARRAY,
         kinds.getColumnType(),
-        "type: subtype_array must map to ColumnType.EXTENSION_ARRAY");
+        "type: variant_array must map to ColumnType.VARIANT_ARRAY");
   }
 
   @Test

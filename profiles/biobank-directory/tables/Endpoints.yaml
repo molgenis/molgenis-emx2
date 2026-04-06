@@ -1,0 +1,145 @@
+table: Endpoints
+description: General information describing an endpoint
+semantics: ldp:DirectContainer
+columns:
+  id:
+    key: 1
+    required: true
+    description: Identifier of the metadata entry.
+    semantics: schema:identifier
+  type:
+    type: hyperlink_array
+    required: true
+    description: This row is an instance of one or more of these class(es) other than the Endpoints table.
+    semantics: rdf:type
+  name:
+    type: string_array
+    required: true
+    description: A name given to the endpoint.
+    semantics: dcterms:title
+  description:
+    type: text
+    description: A description of the endpoint.
+    semantics: dcterms:description
+  url:
+    type: hyperlink
+    description: "The root location or primary endpoint of the service (a web-resolvable IRI)."
+    semantics: dcat:endpointURL
+  metadata_catalog:
+    type: ref_array
+    required: true
+    refSchema: ""
+    refTable: Catalogs
+    description: "With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate."
+    semantics: "fdp-o:metadataCatalog,ldp:contains"
+  publisher:
+    type: ref_array
+    required: true
+    refSchema: ""
+    refTable: Publishers
+    description: The entity (person or organisation) or entities responsible for making the endpoint available.
+    semantics: dcterms:publisher
+  language:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Languages
+    description: The language(s) used in the metadata record(s).
+    semantics: dcterms:language
+  license:
+    type: hyperlink
+    required: true
+    description: A reference to the usage license of the endpoint.
+    semantics: dcterms:license
+  conforms_to:
+    type: hyperlink
+    required: true
+    description: A reference to an established standard to which the endpoint conforms.
+    semantics: dcterms:conformsTo
+  rights:
+    type: hyperlink_array
+    description: "Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights."
+    semantics: dcterms:rights
+  access_rights:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: AccessRights
+    description: "Information about who can access the endpoint or an indication of its security status. Access rights may include information regarding access or restrictions based on privacy, security, or other policies."
+    semantics: dcterms:accessRights
+  contact:
+    type: ref
+    refSchema: ""
+    refTable: Organisations
+    description: Relevant contact information for the endpoint.
+    semantics: dcat:contactPoint
+  keyword:
+    type: string_array
+    description: Keyword(s) describing the endpoint.
+    semantics: dcat:keyword
+  theme:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Themes
+    description: A main category or concept relating to the resource. A resource can have multiple themes.
+    semantics: dcat:theme
+  end_point_description:
+    type: hyperlink_array
+    description: "The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description."
+    semantics: dcat:endpointDescription
+  issued:
+    type: datetime
+    required: true
+    description: When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+    semantics: "dcterms:issued,fdp-o:metadataIssued"
+  modified:
+    type: datetime
+    required: true
+    description: When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+    semantics: "dcterms:modified,fdp-o:metadataModified"
+  start_date:
+    type: date
+    description: Date when the metadata service started its operations.
+    semantics: fdp-o:startDate
+  end_date:
+    type: date
+    description: Date when the metadata service ended its operations.
+    semantics: fdp-o:endDate
+  ui_language:
+    type: ontology_array
+    refSchema: DirectoryOntologies
+    refTable: Languages
+    description: "The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record."
+    semantics: fdp-o:uiLanguage
+  version:
+    type: text
+    description: Version of the metadata service software which exposes the endpoint.
+    semantics: "fdp-o:hasSoftwareVersion,dcterms:hasVersion"
+  conforms_to_FDP_spec:
+    type: hyperlink
+    required: true
+    description: The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.
+    semantics: fdp-o:conformsToFdpSpec
+  EJP_RD_personalData:
+    description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations."
+    semantics: ejp:personalData
+  EJP_RD_vpConnection:
+    type: hyperlink
+    description: This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.
+    semantics: ejp:vpConnection
+  ldp_membership_relation:
+    type: hyperlink
+    required: true
+    defaultValue: https://w3id.org/fdp/fdp-o#metadataCatalog
+    description: This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.
+    semantics: ldp:hasMemberRelation
+  ldp_membership_resource:
+    type: ref
+    refSchema: ""
+    refTable: Endpoints
+    description: This attribute points to the container containing all the members of the endpoint.
+    semantics: ldp:membershipResource
+  fdp_metadata_identifier:
+    type: ref
+    refSchema: ""
+    refTable: Endpoints
+    description: This attribute points to the endpoint itself so as to generate the fdp-o:metadataIdentifier.
+    semantics: fdp-o:metadataIdentifier

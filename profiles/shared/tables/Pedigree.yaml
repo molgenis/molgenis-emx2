@@ -1,0 +1,33 @@
+table: Pedigree
+description: Pedigree studies in which the individual is part of.
+profiles: [patient_core]
+semantics: ['http://purl.obolibrary.org/obo/NCIT_C27957']
+columns:
+  id:
+    key: 1
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C204540']
+    profiles: [patient_core]
+    description: An identifier that is used to identify related pedigree members
+  alternate ids:
+    type: string_array
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C90353']
+    profiles: [patient_core]
+    description: Additional identifiers that identify a pedigree
+  disease:
+    type: ontology_array
+    refTable: Diseases
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25209']
+    profiles: [patient_core]
+  members:
+    type: refback
+    refTable: Pedigree members
+    refBack: pedigree
+    refLabel: ${individual.id}
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C41256']
+    profiles: [patient_core]
+    description: List of the family members in the pedigree
+  others affected:
+    type: bool
+    semantics: ['http://purl.obolibrary.org/obo/NCIT_C64917']
+    profiles: [patient_registry]
+    description: Are there family members, other than the proband, affected by the disease?

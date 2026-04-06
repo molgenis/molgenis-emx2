@@ -259,8 +259,8 @@ public class SqlSchema implements Schema {
               .filter(
                   c ->
                       c.isPrimaryKey()
-                          || c.getColumnType() == ColumnType.EXTENSION
-                          || c.getColumnType() == ColumnType.EXTENSION_ARRAY)
+                          || c.getColumnType() == ColumnType.VARIANT
+                          || c.getColumnType() == ColumnType.VARIANT_ARRAY)
               .forEach(newTable::add);
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {

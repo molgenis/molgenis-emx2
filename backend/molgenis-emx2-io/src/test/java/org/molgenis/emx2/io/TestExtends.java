@@ -245,9 +245,9 @@ public class TestExtends {
         sm.getTableMetadata("Experiments").getColumn("experiment_type"),
         "experiment_type column should exist");
     assertEquals(
-        ColumnType.EXTENSION,
+        ColumnType.VARIANT,
         sm.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType(),
-        "experiment_type should have EXTENSION column type");
+        "experiment_type should have VARIANT column type");
 
     List<Row> exported = Emx2.toRowList(sm);
     SchemaMetadata reimported = Emx2.fromRowList(exported);
@@ -258,7 +258,7 @@ public class TestExtends {
         new String[] {"Sampling", "Sequencing"},
         reimported.getTableMetadata("WGS").getInheritNames());
     assertEquals(
-        ColumnType.EXTENSION,
+        ColumnType.VARIANT,
         reimported.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType());
   }
 
@@ -268,7 +268,7 @@ public class TestExtends {
         """
         tableName,tableType,tableExtends,columnName,columnType,key,required
         Experiments,,,id,STRING,1,TRUE
-        Experiments,,,experiment_type,EXTENSION,,
+        Experiments,,,experiment_type,VARIANT,,
         sampling,INTERNAL,Experiments,tissue_type,STRING,,
         sequencing,INTERNAL,Experiments,read_length,INT,,
         WGS,,"sampling,sequencing",coverage,DECIMAL,,
@@ -282,9 +282,9 @@ public class TestExtends {
         sm.getTableMetadata("WGS").getInheritNames(),
         "WGS should inherit from both sampling and sequencing in memory");
     assertEquals(
-        ColumnType.EXTENSION,
+        ColumnType.VARIANT,
         sm.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType(),
-        "Experiments should have a EXTENSION column in memory");
+        "Experiments should have a VARIANT column in memory");
     assertEquals(
         TableType.INTERNAL,
         sm.getTableMetadata("sampling").getTableType(),
@@ -301,13 +301,13 @@ public class TestExtends {
           oneStepSchema.getMetadata().getTableMetadata("WGS").getInheritNames(),
           "WGS should inherit from both sampling and sequencing after DB migrate");
       assertEquals(
-          ColumnType.EXTENSION,
+          ColumnType.VARIANT,
           oneStepSchema
               .getMetadata()
               .getTableMetadata("Experiments")
               .getColumn("experiment_type")
               .getColumnType(),
-          "Experiments should have a EXTENSION column after DB migrate");
+          "Experiments should have a VARIANT column after DB migrate");
       assertEquals(
           TableType.INTERNAL,
           oneStepSchema.getMetadata().getTableMetadata("sampling").getTableType(),
