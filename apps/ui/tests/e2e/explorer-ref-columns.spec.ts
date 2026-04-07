@@ -10,8 +10,8 @@ test("View ref details", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Order");
 
   // open the ref
-  await page.getByText("pooky").first().click();
+  await page.locator("table").getByText("pooky").first().click();
   await page.waitForLoadState("networkidle");
   // verify the ref details
-  await expect(page.locator("h2")).toContainText("pet");
+  await expect(page.locator("#modal-title")).toContainText("pet");
 });

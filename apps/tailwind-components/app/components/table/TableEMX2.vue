@@ -1,6 +1,7 @@
 <template>
   <div class="flex pb-[30px] justify-between">
     <InputSearch
+      v-if="!hideSearch"
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       v-model="settings.search"
       @update:modelValue="handleSearchRequest"
@@ -24,6 +25,8 @@
       />
     </div>
   </div>
+
+  <slot name="below-toolbar" />
 
   <div
     ref="tableContainer"
@@ -279,9 +282,12 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    filter?: Record<string, any>;
+    hideSearch?: boolean;
   }>(),
   {
     isEditable: () => false,
+    hideSearch: false,
   }
 );
 
@@ -327,6 +333,7 @@ const { data, refresh } = useAsyncData(
         ? { [settings.value.orderby.column]: settings.value.orderby.direction }
         : {},
       searchTerms: settings.value.search,
+      filter: props.filter,
     });
 
     return {
@@ -385,6 +392,15 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.filter,
+  () => {
+    settings.value.page = 1;
+    refresh();
+  },
+  { deep: true }
 );
 
 const sortedVisibleColumns = computed(() => {

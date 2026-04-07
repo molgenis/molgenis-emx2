@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { defineComponent, h, Suspense } from "vue";
 import Form from "../../../../app/components/form/Form.vue";
 
-vi.mock("../Fields.vue", () => ({
+vi.mock("../../../../app/components/form/Fields.vue", () => ({
   default: defineComponent({
     name: "FormFields",
     template: "<div />",

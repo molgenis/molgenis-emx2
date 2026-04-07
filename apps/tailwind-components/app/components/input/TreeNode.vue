@@ -27,7 +27,9 @@ const props = withDefaults(
     disabled?: boolean;
     isSearching?: boolean;
     scrollContainer?: HTMLElement | null;
-    enableAutoLoad?: boolean; // Whether to enable IntersectionObserver auto-loading
+    enableAutoLoad?: boolean;
+    facetCounts?: Map<string, number>;
+    countsLoading?: boolean;
   }>(),
   {
     inverted: false,
@@ -35,7 +37,8 @@ const props = withDefaults(
     multiselect: true,
     isSearching: false,
     scrollContainer: null,
-    enableAutoLoad: true, // Default to enabled for backward compatibility
+    enableAutoLoad: true,
+    countsLoading: false,
   }
 );
 const emit = defineEmits([
@@ -78,26 +81,24 @@ const hasChildren = computed(
 
 const hiddenNodesCount = computed(
   () =>
-    props.parentNode.children?.filter((child) => child.visible === false)
-      .length || 0
+    props.parentNode.children?.filter(
+      (child) => child.visible === false && !child.hiddenByCount
+    ).length || 0
 );
 
 const hiddenSelectedCount = computed(
   () =>
     props.parentNode.children?.filter(
-      (node) => node.visible === false && node.selected === "selected"
+      (node) =>
+        node.visible === false &&
+        !node.hiddenByCount &&
+        node.selected === "selected"
     ).length || 0
 );
 
 const nodes = computed(() => props.parentNode.children || []);
 
 const hasMoreTerms = computed(() => props.parentNode.loadMoreHasMore || false);
-
-const remainingTermsCount = computed(
-  () =>
-    (props.parentNode.loadMoreTotal || 0) -
-    (props.parentNode.children?.length || 0)
-);
 
 const isShowingAll = computed(() => isNodeShowingAll(props.parentNode));
 
@@ -165,7 +166,7 @@ const combinedLoadMessage = computed(() => {
   if (hasMoreToLoad && hasHiddenBySearch) {
     return {
       show: true,
-      message: `${remainingTermsCount.value} more (${hiddenBySearchCount.value} hidden by filter)`,
+      message: `${hiddenBySearchCount.value} hidden by filter`,
       showLoadMore: true,
       showShowAll: true,
       showApplyFilter: false,
@@ -175,9 +176,7 @@ const combinedLoadMessage = computed(() => {
   if (hasMoreToLoad) {
     return {
       show: true,
-      message: `${remainingTermsCount.value} more term${
-        remainingTermsCount.value !== 1 ? "s" : ""
-      }`,
+      message: "",
       showLoadMore: true,
       showShowAll: false,
       showApplyFilter: false,
@@ -363,7 +362,7 @@ onUnmounted(() => {
           class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
-            'text-title cursor-pointer ': !disabled,
+            'text-title-contrast cursor-pointer': !disabled,
           }"
         >
           <input
@@ -402,9 +401,12 @@ onUnmounted(() => {
           />
           <span
             class="block text-body-sm leading-normal pl-1"
-            :class="inverted ? 'text-title-contrast' : 'text-title'"
+            :class="'text-title-contrast'"
           >
-            {{ node.label || node.name }}
+            {{ node.label || node.name
+            }}<span v-if="facetCounts" class="shrink-0 ml-0.5">
+              ({{ facetCounts.get(node.name) ?? 0 }})
+            </span>
           </span>
         </InputLabel>
         <div
@@ -434,6 +436,8 @@ onUnmounted(() => {
           :isSearching="isSearching"
           :scrollContainer="scrollContainer"
           :enableAutoLoad="enableAutoLoad"
+          :facetCounts="facetCounts"
+          :countsLoading="countsLoading"
           @toggleSelect="toggleSelect"
           @toggleExpand="toggleExpand"
           @loadMore="loadMore"
@@ -464,21 +468,21 @@ onUnmounted(() => {
             class="text-input underline"
             @click.stop="loadMore(parentNode)"
           >
-            (load more)
+            load more
           </ButtonText>
           <ButtonText
             v-if="combinedLoadMessage.showShowAll"
             class="text-input underline"
             @click.stop="showAllChildren(parentNode)"
           >
-            (show filtered)
+            show filtered
           </ButtonText>
           <ButtonText
             v-if="combinedLoadMessage.showApplyFilter"
             class="text-input underline"
             @click.stop="applyFilter(parentNode)"
           >
-            (apply filter)
+            apply filter
           </ButtonText>
         </div>
       </div>
@@ -493,16 +497,6 @@ onUnmounted(() => {
           />
         </template>
         <div class="ml-6 flex items-center gap-1">
-          <span class="text-body-sm italic text-input-description">
-            {{ hiddenNodesCount }} term{{
-              hiddenNodesCount !== 1 ? "s" : ""
-            }}
-            hidden by search{{
-              hiddenSelectedCount > 0
-                ? ` (including ${hiddenSelectedCount} selected)`
-                : ""
-            }}
-          </span>
           <ButtonText
             class="text-input underline"
             @click.stop="
@@ -510,7 +504,14 @@ onUnmounted(() => {
               emit('showOutsideResults');
             "
           >
-            (show)
+            show {{ hiddenNodesCount }} hidden item{{
+              hiddenNodesCount !== 1 ? "s" : ""
+            }}
+            {{
+              hiddenSelectedCount > 0
+                ? ` (including ${hiddenSelectedCount} selected)`
+                : ""
+            }}
           </ButtonText>
         </div>
       </div>

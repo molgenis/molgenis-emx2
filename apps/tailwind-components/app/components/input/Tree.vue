@@ -19,12 +19,15 @@ const props = withDefaults(
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
     emitSelectedChildren?: boolean;
+    /* whether to show the built-in search for options button */
+    showSearch?: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
     inverted: false,
     emitSelectedChildren: true,
+    showSearch: true,
   }
 );
 
@@ -38,6 +41,7 @@ watch(
   (newValue) => {
     nodeMap.value = {};
     createNodeMap(newValue);
+    applyModelValueChangeToSelection(props.modelValue);
   }
 );
 
@@ -48,14 +52,16 @@ function createNodeMap(nodes: ITreeNode[]) {
 }
 
 function clone(node: ITreeNode): ITreeNodeState {
+  const input = node as ITreeNodeState;
   const result = {
     name: node.name,
+    label: node.label,
     description: node.description,
-    visible: true,
+    visible: input.visible ?? true,
     children: [] as ITreeNodeState[],
     selection: "unselected",
-    expanded: false,
-    selectable: true,
+    expanded: input.expanded ?? false,
+    selectable: input.selectable ?? true,
   };
   node.children?.forEach((child) => {
     const copy = clone(child);
@@ -256,10 +262,13 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
   expanded: true,
   selectable: false,
 }));
+
+defineExpose({ nodeMap });
 </script>
 
 <template>
   <ButtonText
+    v-if="showSearch"
     :id="`${id}-tree-search-button-toggle`"
     icon="Search"
     @click="toggleSearch"
@@ -271,7 +280,10 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
       >Search for options</span
     >
   </ButtonText>
-  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
+  <div
+    v-if="showSearch && showOptionsSearch"
+    :id="`${id}-tree-search-input-container`"
+  >
     <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
     <InputSearch
       :id="`${id}-tree-search-input`"

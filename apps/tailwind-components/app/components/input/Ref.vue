@@ -10,6 +10,7 @@ import type { ITableDataResponse } from "../../composables/fetchTableData";
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
@@ -21,6 +22,7 @@ import InputGroupContainer from "../input/InputGroupContainer.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
 import InputRadioGroup from "./RadioGroup.vue";
+import InputSearch from "./Search.vue";
 
 const props = withDefaults(
   defineProps<
@@ -31,15 +33,19 @@ const props = withDefaults(
       //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
+      showClear?: boolean;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
     isArray: true,
     limit: 20,
+    showClear: true,
   }
 );
 
 const isInitLoading = ref(true);
+const isInitializing = ref(false);
 const modelValue = defineModel<
   columnValueObject[] | columnValueObject | null
 >();
@@ -55,17 +61,33 @@ const showSearch = ref<boolean>(false);
 const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
 const showSelect = ref(false);
+const showAllOptions = ref(false);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
-//computed elements to translate to CheckboxGroup or
+const visibleByBaseCount = computed(() => {
+  if (baseCounts.value.size === 0) return null;
+  const visible = new Set<string>();
+  for (const label of Object.keys(optionMap.value)) {
+    const bc = baseCounts.value.get(label);
+    if (bc === undefined || bc > 0) visible.add(label);
+  }
+  return visible;
+});
+
 const listOptions = computed(() => {
-  return Object.keys(optionMap.value).map((label) => {
-    return { value: label } as IValueLabel;
-  });
+  return Object.keys(optionMap.value)
+    .filter((label) => {
+      if (searchTerms.value || showAllOptions.value) return true;
+      if (!visibleByBaseCount.value) return true;
+      return visibleByBaseCount.value.has(label);
+    })
+    .map((label) => {
+      return { value: label } as IValueLabel;
+    });
 });
 
 const selection = computed(() =>
@@ -76,59 +98,163 @@ const selection = computed(() =>
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
 
-watch(
-  () => props.refSchemaId,
-  () => init
-);
-watch(
-  () => props.refTableId,
-  () => init
-);
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-watch(
-  () => modelValue.value,
-  () => init
-);
-
 onMounted(() => {
   init();
 });
 
 async function init() {
-  tableMetadata.value = await fetchTableMetadata(
-    props.refSchemaId,
-    props.refTableId
-  );
+  if (isInitializing.value) return;
+  isInitializing.value = true;
 
-  if (
-    modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
-  ) {
-    const keys = Array.isArray(modelValue.value)
-      ? await Promise.all(
-          (modelValue.value as []).map((row) => extractPrimaryKey(row))
-        )
-      : await extractPrimaryKey(modelValue.value as columnValueObject);
-    const data: ITableDataResponse = await fetchTableData(
+  try {
+    tableMetadata.value = await fetchTableMetadata(
       props.refSchemaId,
-      props.refTableId,
-      { filter: { equals: keys }, expandLevel: 1 }
+      props.refTableId
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+
+    selectionMap.value = {};
+
+    if (
+      modelValue.value &&
+      (Array.isArray(modelValue.value)
+        ? modelValue.value.length > 0
+        : modelValue.value)
+    ) {
+      const items = Array.isArray(modelValue.value)
+        ? (modelValue.value as columnValueObject[])
+        : [modelValue.value as columnValueObject];
+      const firstItem = items[0];
+      const partialKeys =
+        firstItem &&
+        typeof firstItem === "object" &&
+        Object.keys(firstItem).length === 1
+          ? Object.keys(firstItem)
+          : null;
+
+      let selectionFilter: Record<string, unknown>;
+      if (partialKeys) {
+        const field = partialKeys[0]!;
+        const values = items.map(
+          (item) => (item as Record<string, unknown>)[field]
+        );
+        selectionFilter = { [field]: { equals: values } };
+      } else {
+        const keys = await Promise.all(
+          items.map((row) => extractPrimaryKey(row))
+        );
+        selectionFilter = { equals: keys };
+      }
+
+      const data: ITableDataResponse = await fetchTableData(
+        props.refSchemaId,
+        props.refTableId,
+        { filter: selectionFilter, expandLevel: 1 }
       );
+      if (data.rows) {
+        hasNoResults.value = false;
+        await Promise.all(
+          data.rows.map(async (row) => {
+            const label = applyTemplate(props.refLabel, row);
+            selectionMap.value[label] = await extractPrimaryKey(row);
+          })
+        );
+      }
     }
+
+    await loadOptions({ limit: props.limit });
+    initialCount.value = count.value;
+    lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
+    isInitLoading.value = false;
+  } finally {
+    isInitializing.value = false;
+  }
+}
+
+let lastSyncedModelValueSignature = "";
+
+async function syncSelectionFromModel() {
+  const incoming = modelValue.value;
+  const signature = modelValueSignature(incoming);
+
+  if (signature === lastSyncedModelValueSignature) return;
+  lastSyncedModelValueSignature = signature;
+
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0)) {
+    selectionMap.value = {};
+    return;
   }
 
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
-  isInitLoading.value = false;
+  const items = Array.isArray(incoming)
+    ? (incoming as columnValueObject[])
+    : [incoming as columnValueObject];
+  const firstItem = items[0];
+  const partialKeys =
+    firstItem &&
+    typeof firstItem === "object" &&
+    Object.keys(firstItem).length === 1
+      ? Object.keys(firstItem)
+      : null;
+
+  let selectionFilter: Record<string, unknown>;
+  if (partialKeys) {
+    const field = partialKeys[0]!;
+    const values = items.map(
+      (item) => (item as Record<string, unknown>)[field]
+    );
+    selectionFilter = { [field]: { equals: values } };
+  } else {
+    const keys = await Promise.all(items.map((row) => extractPrimaryKey(row)));
+    selectionFilter = { equals: keys };
+  }
+
+  const data: ITableDataResponse = await fetchTableData(
+    props.refSchemaId,
+    props.refTableId,
+    { filter: selectionFilter, expandLevel: 1 }
+  );
+
+  if (modelValueSignature(modelValue.value) !== signature) return;
+
+  const newMap: recordValue = {};
+  if (data.rows) {
+    hasNoResults.value = false;
+    await Promise.all(
+      data.rows.map(async (row) => {
+        const label = applyTemplate(props.refLabel, row);
+        newMap[label] = await extractPrimaryKey(row);
+      })
+    );
+  }
+  selectionMap.value = newMap;
 }
+
+function modelValueSignature(
+  incoming: columnValueObject[] | columnValueObject | null | undefined
+): string {
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0))
+    return "";
+  const items = Array.isArray(incoming)
+    ? (incoming as columnValueObject[])
+    : [incoming as columnValueObject];
+  return items
+    .map((item) => JSON.stringify(item))
+    .sort()
+    .join(",");
+}
+
+watch(
+  () => props.refSchemaId,
+  () => init()
+);
+watch(
+  () => props.refTableId,
+  () => init()
+);
+
+watch(
+  () => modelValue.value,
+  () => syncSelectionFromModel()
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -159,6 +285,26 @@ async function loadOptions(filter: IQueryMetaData) {
     hasNoResults.value = true;
   }
   logger.debug("loaded options for " + props.id);
+
+  if (props.countFetcher) {
+    const optMap = new Map<string, Record<string, unknown>>();
+    for (const [label, row] of Object.entries(optionMap.value)) {
+      if (row && typeof row === "object" && !Array.isArray(row)) {
+        optMap.set(label, row as Record<string, unknown>);
+      }
+    }
+    countsLoading.value = true;
+    const [counts, baseCountsResult] = await Promise.all([
+      props.countFetcher.fetchRefCounts(optMap),
+      props.countFetcher.fetchRefBaseCounts(optMap),
+    ]);
+    localFacetCounts.value = counts;
+    const newBaseCounts = new Map<string, number>(baseCounts.value);
+    for (const [label, count] of baseCountsResult)
+      newBaseCounts.set(label, count);
+    baseCounts.value = newBaseCounts;
+    countsLoading.value = false;
+  }
 }
 
 function toggleSearch() {
@@ -286,6 +432,35 @@ function loadMore() {
 const onBlur = useDebounceFn(() => {
   emit("blur");
 }, 100);
+
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const baseCounts = ref<Map<string, number>>(new Map());
+const countsLoading = ref(false);
+
+const hiddenByBaseCount = computed(() => {
+  if (!visibleByBaseCount.value) return 0;
+  return Object.keys(optionMap.value).length - visibleByBaseCount.value.size;
+});
+
+const debouncedRefetchCounts = useDebounceFn(async () => {
+  if (!props.countFetcher) return;
+  const optMap = new Map<string, Record<string, unknown>>();
+  for (const [label, row] of Object.entries(optionMap.value)) {
+    if (row && typeof row === "object" && !Array.isArray(row)) {
+      optMap.set(label, row as Record<string, unknown>);
+    }
+  }
+  if (optMap.size > 0) {
+    countsLoading.value = true;
+    const counts = await props.countFetcher.fetchRefCounts(optMap);
+    localFacetCounts.value = counts;
+    countsLoading.value = false;
+  }
+}, 300);
+
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -399,7 +574,29 @@ const onBlur = useDebounceFn(() => {
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
       >
-        <fieldset>
+        <div
+          v-if="!displayAsSelect && !disabled"
+          class="w-full flex items-center gap-2 px-2 py-2"
+        >
+          <Button
+            icon="Search"
+            type="text"
+            size="tiny"
+            @click.stop="toggleSearch"
+          >
+            {{ showSearch ? "Hide" : "Show" }} search
+          </Button>
+          <InputSearch
+            :id="`${id}-search-list`"
+            v-if="showSearch"
+            size="tiny"
+            v-model="searchTerms"
+            @update:model-value="updateSearch($event as string)"
+            placeholder="Type to search..."
+            class="flex-1"
+          />
+        </div>
+        <fieldset class="min-w-0 overflow-hidden">
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
             v-if="isArray"
@@ -411,6 +608,10 @@ const onBlur = useDebounceFn(() => {
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
+            :counts-loading="countsLoading"
           />
           <InputRadioGroup
             v-else
@@ -425,7 +626,27 @@ const onBlur = useDebounceFn(() => {
           />
         </fieldset>
         <div ref="sentinel" class="h-1"></div>
-        <div v-if="!listOptions?.length">No options found</div>
+        <button
+          v-if="
+            countFetcher &&
+            hiddenByBaseCount > 0 &&
+            !isInitLoading &&
+            !searchTerms
+          "
+          class="text-body-sm text-gray-500 italic px-2 py-1 hover:text-link cursor-pointer"
+          @click="showAllOptions = !showAllOptions"
+        >
+          <template v-if="showAllOptions">
+            Hide {{ hiddenByBaseCount }} empty option{{
+              hiddenByBaseCount !== 1 ? "s" : ""
+            }}
+          </template>
+          <template v-else>
+            Show {{ hiddenByBaseCount }} hidden option{{
+              hiddenByBaseCount !== 1 ? "s" : ""
+            }}
+          </template>
+        </button>
       </div>
     </InputGroupContainer>
   </div>
@@ -436,7 +657,7 @@ const onBlur = useDebounceFn(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="showClear && (isArray ? selection.length : selection)"
     @click="clearSelection"
     type="text"
     size="tiny"

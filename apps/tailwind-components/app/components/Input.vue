@@ -33,6 +33,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :show-clear="showClear"
     :errorMessage="errorMessage"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -101,6 +102,7 @@
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
     :align="align"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -126,6 +128,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
@@ -140,6 +143,7 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options"
+    :show-clear-button="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -156,9 +160,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -173,9 +179,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -190,9 +198,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :count-fetcher="countFetcher"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
@@ -208,9 +218,11 @@
     :refSchemaId="refSchemaId!"
     :refTableId="refTableId!"
     :refLabel="refLabel!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
+    :count-fetcher="countFetcher"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
@@ -237,10 +249,13 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
     :limit="10"
+    :count-fetcher="countFetcher"
+    :force-list="forceList"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
@@ -261,9 +276,12 @@
     :placeholder="placeholder"
     :ontologySchemaId="refSchemaId!"
     :ontologyTableId="refTableId!"
+    :show-clear="showClear"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :limit="10"
+    :count-fetcher="countFetcher"
+    :force-list="forceList"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -313,6 +331,7 @@ import type {
   DateValue,
 } from "../../../metadata-utils/src/types";
 import type { IFile, IInputProps, IValueLabel } from "../../types/types";
+import type { ICountFetcher } from "../utils/createCountFetcher";
 import { getOntologyArrayValues } from "../utils/typeUtils";
 import InputArray from "./input/Array.vue";
 import InputBoolean from "./input/Boolean.vue";
@@ -346,11 +365,16 @@ const props = withDefaults(
       falseLabel?: string;
       align?: "horizontal" | "vertical";
       limit?: number;
+      showClear?: boolean;
+      countFetcher?: ICountFetcher;
+      forceList?: boolean;
       errorMessage?: string | null;
     }
   >(),
   {
     limit: 25,
+    showClear: true,
+    forceList: false,
   }
 );
 const emit = defineEmits(["focus", "blur"]);

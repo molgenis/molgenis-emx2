@@ -26,6 +26,7 @@ export interface IValueLabel {
 
 export interface ITreeNode extends INode {
   parent?: string;
+  label?: string;
   children: ITreeNode[];
 }
 
@@ -61,6 +62,7 @@ export interface ITreeNodeState extends ITreeNode {
   /* whether this node is showing all children (bypassing search filter) */
   showingAll?: boolean;
   unfilteredTotal?: number;
+  hiddenByCount?: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -177,4 +179,16 @@ export interface Section {
 export interface Crumb {
   url: string;
   label: string;
+}
+
+export interface IOntologyItem {
+  order?: number;
+  name: string;
+  label?: string;
+  parent?: IOntologyItem;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IOntologyItem[];
 }

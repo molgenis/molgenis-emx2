@@ -123,6 +123,9 @@
   --background-color-label-draft: var(--color-stroke-light);
   --text-color-label-draft: var(--color-white);
 
+  --text-color-search-filter-expand: var(--color-green-500);
+  --text-color-search-filter-group-title: var(--color-white);
+
   /* visualisations: need css and svg defintions */
   --chart-text: var(--color-white);
   --chart-paths: var(--color-gray-100);

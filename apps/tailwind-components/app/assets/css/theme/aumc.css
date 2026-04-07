@@ -42,11 +42,12 @@
   --text-color-button-text: var(--color-white);
   --text-color-title: var(--color-white);
   --text-color-title-contrast: var(--color-black);
-  --text-color-form-header: var(--text-color-title);
+  --text-color-form-header: var(--text-color-title-contrast);
   --text-color-breadcrumb: var(--text-color-title);
   --text-color-breadcrumb-arrow: var(--text-color-title);
   --text-color-search-results-view-tabs: var(--color-blue-300);
   --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+  --text-color-search-filter-expand: var(--color-white);
   --text-color-search-filter-group-title: var(--text-color-title);
   --text-color-pagination: var(--text-color-title);
   --text-color-pagination-input: var(--color-blue-800);

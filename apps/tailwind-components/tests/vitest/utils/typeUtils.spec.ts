@@ -120,6 +120,25 @@ describe("getOntologyArrayValues", () => {
     const expectedResult: string[] = [];
     expect(result).toEqual(expectedResult);
   });
+
+  it("passes through plain string items (filter path shape)", () => {
+    const result = getOntologyArrayValues(["Clinical trial", "Catalogue"]);
+    expect(result).toEqual(["Clinical trial", "Catalogue"]);
+  });
+
+  it("handles mixed shapes — strings and objects together", () => {
+    const result = getOntologyArrayValues([
+      "Clinical trial",
+      { name: "Catalogue" },
+      null,
+    ]);
+    expect(result).toEqual(["Clinical trial", "Catalogue"]);
+  });
+
+  it("skips null and undefined items in string arrays", () => {
+    const result = getOntologyArrayValues(["A", null, undefined, "B"]);
+    expect(result).toEqual(["A", "B"]);
+  });
 });
 
 describe("assertStringValue", () => {

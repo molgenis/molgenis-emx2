@@ -193,7 +193,7 @@ describe("OntologyInput", () => {
       const labels = getNodeLabels(wrapper);
       expect(labels.length).toBe(5);
 
-      const loadMoreBtn = findButtonByText(wrapper, "(load more)");
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
       expect(loadMoreBtn).not.toBeNull();
     });
   });
@@ -218,9 +218,7 @@ describe("OntologyInput", () => {
       const labels = getNodeLabels(wrapper);
       expect(labels.length).toBe(20);
 
-      const messages = findMessageSpan(wrapper);
-      const loadMsg = messages.find((m) => m.text().includes("more term"));
-      expect(loadMsg).toBeDefined();
+      expect(findButtonByText(wrapper, "load more")).not.toBeNull();
     });
 
     it("should load more terms when clicking load more", async () => {
@@ -244,7 +242,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(20, 20), 100)
       );
 
-      const loadMoreBtn = findButtonByText(wrapper, "(load more)");
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
       expect(loadMoreBtn).not.toBeNull();
       await loadMoreBtn!.trigger("click");
       await flushPromises();
@@ -271,12 +269,12 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(20, 5), 25)
       );
 
-      const loadMoreBtn = findButtonByText(wrapper, "(load more)");
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
       await loadMoreBtn!.trigger("click");
       await flushPromises();
 
       expect(getNodeLabels(wrapper).length).toBe(25);
-      expect(findButtonByText(wrapper, "(load more)")).toBeNull();
+      expect(findButtonByText(wrapper, "load more")).toBeNull();
     });
   });
 
@@ -306,13 +304,11 @@ describe("OntologyInput", () => {
       expect(labels.length).toBe(20);
       expect(labels[0]).toContain("Match");
 
-      const loadMoreBtn = findButtonByText(wrapper, "(load more)");
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
       expect(loadMoreBtn).not.toBeNull();
     });
 
     it("should debounce search input and only search once", async () => {
-      vi.useFakeTimers();
-
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -354,8 +350,6 @@ describe("OntologyInput", () => {
 
       const callCountAfter = mockFetch.mock.calls.length;
       expect(callCountAfter - callCountBefore).toBe(1);
-
-      vi.useRealTimers();
     });
 
     it("should work in forceList mode with toggle search", async () => {
@@ -390,7 +384,7 @@ describe("OntologyInput", () => {
       expect(wrapper.find(`#${ID}-search-list`).exists()).toBe(false);
     });
 
-    it("should show (show filtered) when expanding node with hidden children", async () => {
+    it("should show show filtered when expanding node with hidden children", async () => {
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -428,7 +422,7 @@ describe("OntologyInput", () => {
       );
       expect(filterMsg).toBeDefined();
 
-      const showFilteredBtn = findButtonByText(wrapper, "(show filtered)");
+      const showFilteredBtn = findButtonByText(wrapper, "show filtered");
       expect(showFilteredBtn).not.toBeNull();
     });
 
@@ -468,7 +462,7 @@ describe("OntologyInput", () => {
       expect(hiddenMsg).toBeDefined();
     });
 
-    it("should bypass filter when clicking (show filtered)", async () => {
+    it("should bypass filter when clicking show filtered", async () => {
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -499,7 +493,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(0, 10, "AllChild"), 10, 10)
       );
 
-      const showFilteredBtn = findButtonByText(wrapper, "(show filtered)");
+      const showFilteredBtn = findButtonByText(wrapper, "show filtered");
       expect(showFilteredBtn).not.toBeNull();
       await showFilteredBtn!.trigger("click");
       await waitForMacroTask();
@@ -507,11 +501,11 @@ describe("OntologyInput", () => {
       const childLabels = getNodeLabels(wrapper);
       expect(childLabels.some((l) => l.includes("AllChild"))).toBe(true);
 
-      const applyFilterBtn = findButtonByText(wrapper, "(apply filter)");
+      const applyFilterBtn = findButtonByText(wrapper, "apply filter");
       expect(applyFilterBtn).not.toBeNull();
     });
 
-    it("should reapply filter when clicking (apply filter)", async () => {
+    it("should reapply filter when clicking apply filter", async () => {
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -544,7 +538,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(0, 25, "AllChild"), 25, 25)
       );
 
-      const showFilteredBtn = findButtonByText(wrapper, "(show filtered)");
+      const showFilteredBtn = findButtonByText(wrapper, "show filtered");
       expect(showFilteredBtn).not.toBeNull();
       await showFilteredBtn!.trigger("click");
       await waitForMacroTask();
@@ -556,16 +550,16 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(0, 5, "ChildMatch"), 5, 25)
       );
 
-      const applyFilterBtn = findButtonByText(wrapper, "(apply filter)");
+      const applyFilterBtn = findButtonByText(wrapper, "apply filter");
       expect(applyFilterBtn).not.toBeNull();
       await applyFilterBtn!.trigger("click");
       await waitForMacroTask();
 
-      expect(findButtonByText(wrapper, "(apply filter)")).toBeNull();
-      expect(findButtonByText(wrapper, "(show filtered)")).not.toBeNull();
+      expect(findButtonByText(wrapper, "apply filter")).toBeNull();
+      expect(findButtonByText(wrapper, "show filtered")).not.toBeNull();
     });
 
-    it("should not add (show filtered) when all children match filter", async () => {
+    it("should not add show filtered when all children match filter", async () => {
       mockFetch.mockResolvedValueOnce({
         totalCount: { count: 100 },
         rootCount: { count: 100 },
@@ -587,7 +581,7 @@ describe("OntologyInput", () => {
 
       const showFilteredCountBefore = wrapper
         .findAll("button")
-        .filter((b) => b.text().includes("(show filtered)")).length;
+        .filter((b) => b.text().includes("show filtered")).length;
 
       mockFetch.mockResolvedValueOnce(
         createLoadPageResponse(createMockTerms(0, 15, "ChildMatch"), 15, 15)
@@ -600,7 +594,7 @@ describe("OntologyInput", () => {
 
       const showFilteredCountAfter = wrapper
         .findAll("button")
-        .filter((b) => b.text().includes("(show filtered)")).length;
+        .filter((b) => b.text().includes("show filtered")).length;
 
       expect(showFilteredCountAfter).toBe(showFilteredCountBefore);
     });
@@ -635,14 +629,13 @@ describe("OntologyInput", () => {
       await flushPromises();
 
       const messages = findMessageSpan(wrapper);
-      const combinedMsg = messages.find(
-        (m) =>
-          m.text().includes("more") && m.text().includes("hidden by filter")
+      const combinedMsg = messages.find((m) =>
+        m.text().includes("hidden by filter")
       );
       expect(combinedMsg).toBeDefined();
 
-      expect(findButtonByText(wrapper, "(load more)")).not.toBeNull();
-      expect(findButtonByText(wrapper, "(show filtered)")).not.toBeNull();
+      expect(findButtonByText(wrapper, "load more")).not.toBeNull();
+      expect(findButtonByText(wrapper, "show filtered")).not.toBeNull();
     });
 
     it("should show apply filter message with correct filtered count", async () => {
@@ -678,7 +671,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(0, 20, "AllChild"), 20, 20)
       );
 
-      const showFilteredBtn = findButtonByText(wrapper, "(show filtered)");
+      const showFilteredBtn = findButtonByText(wrapper, "show filtered");
       expect(showFilteredBtn).not.toBeNull();
       await showFilteredBtn!.trigger("click");
       await waitForMacroTask();
@@ -721,9 +714,8 @@ describe("OntologyInput", () => {
       const labels = getNodeLabels(wrapper);
       expect(labels.some((l) => l.includes("Child"))).toBe(true);
 
-      const messages = findMessageSpan(wrapper);
-      const moreMsg = messages.find((m) => m.text().includes("more"));
-      expect(moreMsg).toBeDefined();
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
+      expect(loadMoreBtn).not.toBeNull();
     });
 
     it("should show hidden count when expanding during search", async () => {
@@ -817,7 +809,7 @@ describe("OntologyInput", () => {
         createLoadPageResponse(createMockTerms(20, 20), 50)
       );
 
-      const loadMoreBtn = findButtonByText(wrapper, "(load more)");
+      const loadMoreBtn = findButtonByText(wrapper, "load more");
       await loadMoreBtn!.trigger("click");
       await flushPromises();
 
@@ -987,6 +979,208 @@ describe("OntologyInput", () => {
     });
   });
 
+  describe("facet count fetching", () => {
+    it("fetches leaf counts via _groupBy after loading page", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        terms: createMockTerms(0, 5),
+      });
+
+      mockFetch.mockResolvedValue({ test_table_groupBy: [] });
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test_table",
+        columnPath: "disease",
+        getCrossFilter: () => ({ age: { between: [1, 10] } }),
+      });
+      countFetcher.fetchAllOntologyBaseCounts = vi
+        .fn()
+        .mockResolvedValue(
+          new Map(createMockTerms(0, 5).map((t) => [t.name, 1]))
+        );
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          forceList: true,
+          countFetcher,
+        },
+      });
+      await flushPromises();
+
+      const groupByCallWithFilter = mockFetch.mock.calls.find(
+        (call) =>
+          String(call[1]).includes("_groupBy") &&
+          call[2]?.filter?.age !== undefined
+      );
+      expect(groupByCallWithFilter).toBeDefined();
+      expect(groupByCallWithFilter![0]).toBe("test-schema");
+      expect(groupByCallWithFilter![2]).toEqual(
+        expect.objectContaining({
+          filter: expect.objectContaining({
+            age: { between: [1, 10] },
+          }),
+        })
+      );
+    });
+  });
+
+  describe("base counts fetching", () => {
+    it("fetches base counts once on mount via fetchAllOntologyBaseCounts", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const fetchAllOntologyBaseCountsMock = vi
+        .fn()
+        .mockResolvedValue(new Map());
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => ({}),
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchAllOntologyBaseCounts = fetchAllOntologyBaseCountsMock;
+
+      mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+
+      expect(fetchAllOntologyBaseCountsMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not re-fetch base counts when crossFilter changes", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      mockFetch.mockResolvedValueOnce(
+        createLoadPageResponse(createMockTerms(0, 5), 20)
+      );
+
+      const fetchAllOntologyBaseCountsMock = vi
+        .fn()
+        .mockResolvedValue(new Map());
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      let currentFilter: Record<string, unknown> = {};
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => currentFilter,
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchAllOntologyBaseCounts = fetchAllOntologyBaseCountsMock;
+
+      mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+      expect(fetchAllOntologyBaseCountsMock).toHaveBeenCalledTimes(1);
+
+      mockFetch.mockResolvedValueOnce(new Map());
+      currentFilter = { age: { equals: 5 } };
+      await nextTick();
+      vi.advanceTimersByTime(400);
+      await flushPromises();
+
+      expect(fetchAllOntologyBaseCountsMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("forceList path loads only terms present in baseCounts (terms with records)", async () => {
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 100 },
+        rootCount: { count: 20 },
+      });
+
+      const baseCountsMap = new Map([
+        ["Term1", 4],
+        ["Term3", 2],
+        ["Term5", 1],
+      ]);
+
+      mockFetch.mockResolvedValueOnce({
+        terms: ["Term1", "Term3", "Term5"].map((name, i) => ({
+          name,
+          parent: null,
+          label: `Term ${i * 2 + 1}`,
+          definition: "",
+          code: "",
+          codesystem: "",
+          ontologyTermURI: "",
+          children: [],
+        })),
+      });
+
+      const { createCountFetcher } = await import(
+        "../../../../app/utils/createCountFetcher"
+      );
+      const countFetcher = createCountFetcher({
+        schemaId: "test-schema",
+        tableId: "test-table",
+        columnPath: "disease",
+        getCrossFilter: () => ({}),
+      });
+      countFetcher.fetchOntologyLeafCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchOntologyParentCounts = vi
+        .fn()
+        .mockResolvedValue(new Map());
+      countFetcher.fetchAllOntologyBaseCounts = vi
+        .fn()
+        .mockResolvedValue(baseCountsMap);
+
+      const wrapper = mount(OntologyInput, {
+        props: { ...defaultProps, forceList: true, countFetcher },
+      });
+
+      await flushPromises();
+
+      const treeNode = wrapper.findComponent(TreeNode);
+      expect(treeNode.exists()).toBe(true);
+
+      const vm = wrapper.vm as any;
+      const childNames = vm.rootNode.children.map((c: any) => c.name);
+      expect(childNames).toEqual(["Term1", "Term3", "Term5"]);
+    });
+  });
+
   describe("Prevent Duplicate Loads", () => {
     it("should only fetch once for simultaneous load more calls", async () => {
       mockFetch.mockResolvedValueOnce({
@@ -1018,6 +1212,116 @@ describe("OntologyInput", () => {
 
       expect(getNodeLabels(wrapper).length).toBe(40);
       expect(mockFetch.mock.calls.length - callCountBefore).toBe(1);
+    });
+  });
+
+  describe("URL-hydrated selection sync", () => {
+    it("reflects URL-hydrated modelValue as checked checkbox after mount", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+        { name: "T3", parent: null, label: "Term 3" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      const checkbox = findCheckbox(wrapper, "T1");
+      expect(checkbox.exists()).toBe(true);
+      expect((checkbox.element as HTMLInputElement).checked).toBe(true);
+    });
+
+    it("round-trip of same modelValue is a no-op — no extra fetch, valueLabels stay populated", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.valueLabels["T1"]).toBeTruthy();
+
+      const fetchCallsBefore = mockFetch.mock.calls.length;
+
+      await wrapper.setProps({ modelValue: ["T1"] });
+      await nextTick();
+
+      expect(mockFetch.mock.calls.length).toBe(fetchCallsBefore);
+      expect(vm.valueLabels["T1"]).toBeTruthy();
+    });
+
+    it("concurrent modelValue updates — last value wins, no stale labels", async () => {
+      const allTerms = [
+        { name: "T1", parent: null, label: "Term 1" },
+        { name: "T2", parent: null, label: "Term 2" },
+        { name: "T3", parent: null, label: "Term 3" },
+      ];
+
+      mockFetch.mockResolvedValueOnce({
+        totalCount: { count: 5 },
+        rootCount: { count: 5 },
+        ontologyPaths: [{ name: "T1", label: "Term 1" }],
+      });
+
+      mockFetch.mockResolvedValueOnce({ allTerms });
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ontologyPaths: [{ name: "T2", label: "Term 2" }],
+        })
+        .mockResolvedValueOnce({
+          ontologyPaths: [{ name: "T3", label: "Term 3" }],
+        });
+
+      const wrapper = mount(OntologyInput, {
+        props: {
+          ...defaultProps,
+          modelValue: ["T1"],
+          selectCutOff: 25,
+        },
+      });
+
+      await flushPromises();
+
+      await wrapper.setProps({ modelValue: ["T2"] });
+      await wrapper.setProps({ modelValue: ["T3"] });
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.valueLabels["T3"]).toBeTruthy();
+      expect(vm.valueLabels["T2"]).toBeFalsy();
     });
   });
 });

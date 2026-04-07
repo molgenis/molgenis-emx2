@@ -8,7 +8,9 @@ import {
   onMounted,
   nextTick,
 } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
+import type { ICountFetcher } from "../../utils/createCountFetcher";
 import TreeNode from "../../components/input/TreeNode.vue";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
@@ -27,13 +29,16 @@ const props = withDefaults(
       ontologyTableId: string;
       limit?: number;
       selectCutOff?: number;
-      forceList?: boolean; // Force list display (no select dropdown) with manual load more only
+      forceList?: boolean;
+      showClear?: boolean;
+      countFetcher?: ICountFetcher;
     }
   >(),
   {
     limit: 20,
     selectCutOff: 25,
     forceList: false,
+    showClear: true,
   }
 );
 
@@ -87,6 +92,8 @@ function reset() {
   totalCount.value = 0;
   rootCount.value = 0;
   loadingNodes.value.clear();
+  baseCounts.value = new Map();
+  baseCountsFetched = false;
   reload();
 }
 
@@ -95,7 +102,7 @@ watch(() => props.ontologyTableId, reset);
 watch(
   () => modelValue.value,
   () => {
-    applyModelValue();
+    syncSelectionFromModel();
   }
 );
 
@@ -124,17 +131,44 @@ async function reload() {
     query += `rootCount:  ${props.ontologyTableId}_agg(filter: {parent: { _is_null: true } }){count}`;
   }
 
-  query = reloadSelectionLabels
-    ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
-    : `query myquery{${query}}`;
-  const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  if (query) {
+    query = reloadSelectionLabels
+      ? `query myquery($pathFilter:${props.ontologyTableId}Filter){${query}}`
+      : `query myquery{${query}}`;
+    const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  // update new counts if there
-  totalCount.value = data.totalCount?.count || totalCount.value;
-  rootCount.value = data.rootCount?.count || rootCount.value;
+    totalCount.value = data.totalCount?.count || totalCount.value;
+    rootCount.value = data.rootCount?.count || rootCount.value;
 
-  if (reloadSelectionLabels) {
-    await applyModelValue(data);
+    if (reloadSelectionLabels) {
+      await applyModelValue(data);
+    }
+  }
+
+  await fetchBaseCounts();
+
+  if (props.forceList && baseCountsFetched) {
+    if (baseCounts.value.size > 0) {
+      const termNames = [...baseCounts.value.keys()];
+      const query = `query($filter: ${props.ontologyTableId}Filter) {
+        terms: ${props.ontologyTableId}(filter: $filter, limit: ${termNames.length}, orderby:[{order:ASC},{name:ASC}]){
+          name,parent{name},label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}
+        }
+      }`;
+      const data = await fetchGraphql(props.ontologySchemaId, query, {
+        filter: { name: { equals: termNames } },
+      });
+      rootNode.value.children = assembleTree(data.terms || []);
+      rootNode.value.loadMoreHasMore = false;
+      applySelectedStates();
+      await fetchCountsForVisibleNodes();
+    } else {
+      rootNode.value.children = [];
+      rootNode.value.loadMoreHasMore = false;
+    }
+    lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
+    initLoading.value = false;
+    return;
   }
 
   if (
@@ -152,10 +186,12 @@ async function reload() {
     const allData = await fetchGraphql(props.ontologySchemaId, query, {});
     rootNode.value.children = assembleTree(allData.allTerms || []);
     applySelectedStates();
+    await fetchCountsForVisibleNodes();
   } else {
     await loadPage(rootNode.value, 0);
   }
 
+  lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
   initLoading.value = false;
 }
 
@@ -279,6 +315,8 @@ async function loadPage(
     // For nested nodes, apply to this node (which recursively applies to its children)
     applyStateToNode(node);
   }
+
+  await fetchCountsForVisibleNodes();
 }
 
 async function applyModelValue(data: any = undefined): Promise<void> {
@@ -304,6 +342,52 @@ async function applyModelValue(data: any = undefined): Promise<void> {
     valueLabels.value = {};
     intermediates.value = [];
   }
+  applySelectedStates();
+}
+
+let lastSyncedModelValueSignature = "";
+
+function modelValueSignature(
+  incoming: string[] | string | undefined | null
+): string {
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0))
+    return "";
+  const items = Array.isArray(incoming) ? incoming : [incoming];
+  return [...items].sort().join(",");
+}
+
+async function syncSelectionFromModel(): Promise<void> {
+  const incoming = modelValue.value;
+  const signature = modelValueSignature(incoming);
+
+  if (signature === lastSyncedModelValueSignature) return;
+  lastSyncedModelValueSignature = signature;
+
+  if (!incoming || (Array.isArray(incoming) && incoming.length === 0)) {
+    valueLabels.value = {};
+    intermediates.value = [];
+    applySelectedStates();
+    return;
+  }
+
+  const data = await fetchGraphql(
+    props.ontologySchemaId,
+    `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
+    { filter: { _match_any_including_parents: incoming } }
+  );
+
+  if (modelValueSignature(modelValue.value) !== signature) return;
+
+  const newValueLabels: Record<string, string> = {};
+  const newIntermediates: string[] = [];
+  if (data && data.ontologyPaths) {
+    for (const row of data.ontologyPaths) {
+      newValueLabels[row.name] = row.label || row.name;
+      newIntermediates.push(row.name);
+    }
+  }
+  valueLabels.value = newValueLabels;
+  intermediates.value = newIntermediates;
   applySelectedStates();
 }
 
@@ -418,10 +502,8 @@ async function toggleTermExpand(
 ) {
   if (!node.expanded) {
     node.showingAll = showAll;
-
-    await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
-
     node.expanded = true;
+    await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
   } else {
     node.expanded = false;
   }
@@ -595,6 +677,71 @@ const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
 onMounted(() => {
   reload();
 });
+
+const localFacetCounts = ref<Map<string, number>>(new Map());
+const baseCounts = ref<Map<string, number>>(new Map());
+let baseCountsFetched = false;
+const countsLoading = ref(false);
+
+function collectVisibleNodeNames(node: ITreeNodeState): {
+  leaves: string[];
+  parents: string[];
+} {
+  const leaves: string[] = [];
+  const parents: string[] = [];
+  for (const child of node.children || []) {
+    if (child.children && child.children.length > 0) {
+      parents.push(child.name);
+      const sub = collectVisibleNodeNames(child);
+      leaves.push(...sub.leaves);
+      parents.push(...sub.parents);
+    } else {
+      leaves.push(child.name);
+    }
+  }
+  return { leaves, parents };
+}
+
+async function fetchCountsForVisibleNodes() {
+  if (!props.countFetcher) return;
+  const { leaves, parents } = collectVisibleNodeNames(rootNode.value);
+  const newCounts = new Map<string, number>(localFacetCounts.value);
+  countsLoading.value = true;
+
+  const [leafCounts, parentCounts] = await Promise.all([
+    leaves.length > 0
+      ? props.countFetcher.fetchOntologyLeafCounts(leaves)
+      : Promise.resolve(new Map<string, number>()),
+    parents.length > 0
+      ? props.countFetcher.fetchOntologyParentCounts(parents)
+      : Promise.resolve(new Map<string, number>()),
+  ]);
+
+  for (const [name, count] of leafCounts) {
+    newCounts.set(name, count);
+  }
+  for (const [name, count] of parentCounts) {
+    newCounts.set(name, count);
+  }
+
+  localFacetCounts.value = newCounts;
+
+  countsLoading.value = false;
+}
+
+async function fetchBaseCounts() {
+  if (baseCountsFetched || !props.countFetcher) return;
+  baseCountsFetched = true;
+  baseCounts.value = await props.countFetcher.fetchAllOntologyBaseCounts();
+}
+
+const debouncedRefetchCounts = useDebounceFn(() => {
+  fetchCountsForVisibleNodes();
+}, 300);
+
+watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
+  deep: true,
+});
 </script>
 
 <template>
@@ -620,7 +767,10 @@ onMounted(() => {
     }"
   >
     <template v-if="forceList">
-      <div class="w-full flex items-center gap-2 px-2 py-2">
+      <div
+        v-if="totalCount >= selectCutOff"
+        class="w-full flex items-center gap-2 px-2 py-2"
+      >
         <Button
           icon="Search"
           type="text"
@@ -748,8 +898,14 @@ onMounted(() => {
         }"
         v-show="showSelect || !displayAsSelect"
       >
-        <fieldset ref="treeContainer" class="pl-4">
+        <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
+          <span
+            v-if="forceList && !ontologyTree.length && !initLoading"
+            class="text-body-sm italic text-input-description px-2 py-1"
+          >
+            No matching options
+          </span>
           <TreeNode
             :id="id"
             ref="tree"
@@ -762,6 +918,10 @@ onMounted(() => {
             :isSearching="!!searchTerms"
             :scrollContainer="scrollContainerRef"
             :enableAutoLoad="enableAutoLoad"
+            :facet-counts="
+              localFacetCounts.size > 0 ? localFacetCounts : undefined
+            "
+            :counts-loading="countsLoading"
             @toggleExpand="toggleTermExpand"
             @toggleSelect="toggleTermSelect"
             @loadMore="loadMoreTerms"
@@ -785,7 +945,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="showClear && (isArray ? (modelValue || []).length > 0 : modelValue)"
     @click="clearSelection"
     type="text"
     size="tiny"

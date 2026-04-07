@@ -47,11 +47,12 @@ function getBooleanValue(value: any): boolean | undefined {
 }
 
 export function getOntologyArrayValues(val: any): string[] {
-  return Array.isArray(val)
-    ? val
-        .filter((value: columnValueObject) => value)
-        .map((value: columnValueObject) => value["name"] as string)
-    : [];
+  if (!Array.isArray(val)) return [];
+  return val
+    .filter((item: any) => item != null)
+    .map((item: any) =>
+      typeof item === "string" ? item : (item["name"] as string)
+    );
 }
 
 export function assertStringValue(
