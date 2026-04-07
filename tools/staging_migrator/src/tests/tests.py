@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 
 from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE = 'UMCG'
-STAGING_AREA = 'testUMCGCohort'
+CATALOGUE = 'catalogue'
+STAGING_AREA = 'testCohort'
 
 log = logging.getLogger('publisher')
 
@@ -33,6 +33,9 @@ async def test_migration():
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
 
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
+
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
         migrator.migrate(keep_zips=True)
@@ -46,6 +49,9 @@ async def test_delete_resource():
 
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
+
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
@@ -64,6 +70,9 @@ def test_process_organisations():
     orgs_df = pd.read_csv(io.StringIO(orgs_csv), sep=",")
 
     server_url = os.environ.get('MG_URL')
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
+
     with StagingMigrator(url=server_url) as migrator:
         processed_orgs = migrator.process_organisations(orgs_df)
     assert processed_orgs["organisation name"].values.tolist() == ['Leiden University Medical Center', 'University Medical Center Groningen', 'Hanze', np.nan]
@@ -75,6 +84,9 @@ def test_add_resource():
     """Tests the `add_resource` method."""
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
+
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
