@@ -2,19 +2,15 @@
 
 MOLGENIS EMX2 is an open source platform built on FAIR data principles (Findability, Accessibility, Interoperability, and Reusability). We are dedicated to building and maintaining EMX2 to support the wider scientific community, and we welcome contributions from anyone. Whether you would like to report a bug or add a new feature, contributing to EMX2 can happen in a number of ways. Use this guide to get started.
 
-## Licensing of Contributions
+## Contribution Terms 
 
-By submitting a pull request to this repository, you agree to grant the maintainers of this project a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable license to:
-* Use, reproduce, modify, adapt, create derivative work of, and distribute your contribution and such derivative works.
-* Incorporate your contribution into MOLGENIS EMX2 and other works
-* Sublicense your contribution as part of MOLGENIS EMX2 and other works
-* Re-license your contribution as part of MOLGENIS EMX2 and other works under any license compatible with [LGPLv3](https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE) or compatible with later versions of LGPL
+By contributing to this repository, you confirm that:
 
-You are free to use your contribution elsewhere, as long as it does not conflict with any rights given as described in this document.
+* You have the legal rights to submit the contribution, or where applicable, have permission to do so.
+* The contribution does not infringe on the rights of any third party.
+* Agree the contribution will be licensed under the GNU Lesser General Public License v3.0 (LGPLv3).
 
-Furthermore, you acknowledge that:
-* You have the legal rights to grant this license
-* Your contribution does not infringe on the rights of any third party
+In case the contribution involves work that can be shared due to a permission (such as a third party agreeing to it or the license allowing it to be re-licensed under LGPLv3), ensure the source code clearly contains where it is originally from.
 
 ## How to contribute
 
