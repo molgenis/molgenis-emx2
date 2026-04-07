@@ -25,7 +25,20 @@ public class SchemaMetadataToBundle {
       }
     }
 
-    return new Bundle(bundleName, bundleDescription, Map.of(), profiles, tables);
+    return new Bundle(
+        bundleName,
+        bundleDescription,
+        Map.of(),
+        profiles,
+        tables,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null);
   }
 
   public static Bundle convertWithAutoRegistry(

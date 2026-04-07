@@ -32,6 +32,7 @@ public class GraphqlFactory {
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.availableModelsQuery());
     if (database.isAdmin()) {
       queryBuilder.field(db.lastUpdateQuery(database));
     }

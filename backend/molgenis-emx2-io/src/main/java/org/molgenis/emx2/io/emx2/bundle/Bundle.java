@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,7 +15,15 @@ public record Bundle(
     String description,
     Map<String, String> namespaces,
     Map<String, ProfileDef> profiles,
-    Map<String, TableDef> tables) {
+    Map<String, TableDef> tables,
+    List<String> demodata,
+    List<String> ontologies,
+    List<String> settings,
+    String viewPermission,
+    String editPermission,
+    String ontologiesToFixedSchema,
+    String fixedSchemaViewPermission,
+    String additionalFixedSchemaModel) {
 
   @JsonCreator
   public Bundle(
@@ -23,11 +32,27 @@ public record Bundle(
       @JsonProperty("namespaces") Map<String, String> namespaces,
       @JsonProperty("profiles") @JsonAlias({"subsets", "templates"})
           Map<String, ProfileDef> profiles,
-      @JsonProperty("tables") Map<String, TableDef> tables) {
+      @JsonProperty("tables") Map<String, TableDef> tables,
+      @JsonProperty("demodata") List<String> demodata,
+      @JsonProperty("ontologies") List<String> ontologies,
+      @JsonProperty("settings") List<String> settings,
+      @JsonProperty("viewPermission") String viewPermission,
+      @JsonProperty("editPermission") String editPermission,
+      @JsonProperty("ontologiesToFixedSchema") String ontologiesToFixedSchema,
+      @JsonProperty("fixedSchemaViewPermission") String fixedSchemaViewPermission,
+      @JsonProperty("additionalFixedSchemaModel") String additionalFixedSchemaModel) {
     this.name = name;
     this.description = description;
     this.namespaces = namespaces != null ? namespaces : Map.of();
     this.profiles = profiles != null ? profiles : Map.of();
     this.tables = tables != null ? tables : Map.of();
+    this.demodata = demodata;
+    this.ontologies = ontologies;
+    this.settings = settings;
+    this.viewPermission = viewPermission;
+    this.editPermission = editPermission;
+    this.ontologiesToFixedSchema = ontologiesToFixedSchema;
+    this.fixedSchemaViewPermission = fixedSchemaViewPermission;
+    this.additionalFixedSchemaModel = additionalFixedSchemaModel;
   }
 }

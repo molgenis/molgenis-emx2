@@ -58,6 +58,7 @@
               description="Load existing database template"
               v-model="template"
               :options="templates"
+              :disabled="loadingTemplates"
             />
             <InputBoolean
               id="schema-create-sample-data"
@@ -128,6 +129,7 @@ export default {
     return {
       key: 0,
       loading: false,
+      loadingTemplates: false,
       graphqlError: null,
       taskId: null,
       taskDone: null,
@@ -135,29 +137,26 @@ export default {
       schemaName: null,
       schemaDescription: null,
       template: null,
-      templates: [
-        "PET_STORE",
-        "MG_CMS",
-        "DATA_CATALOGUE",
-        "DATA_CATALOGUE_COHORT_STAGING",
-        "DATA_CATALOGUE_NETWORK_STAGING",
-        "UMCG_COHORT_STAGING",
-        "UMCU_COHORTS_STAGING",
-        "INTEGRATE_COHORTS_STAGING",
-        "PATIENT_REGISTRY",
-        "FAIR_GENOMES",
-        "ERN_DASHBOARD",
-        "UI_DASHBOARD",
-        "BIOBANK_DIRECTORY",
-        "BIOBANK_DIRECTORY_STAGING",
-        "SHARED_STAGING",
-        "PROJECTMANAGER",
-        "DATA_CATALOGUE_AGGREGATES",
-        "TYPE_TEST",
-        "PATIENT_REGISTRY_DEMO",
-      ],
+      templates: [],
       includeDemoData: false,
     };
+  },
+  async created() {
+    this.loadingTemplates = true;
+    try {
+      const data = await request(
+        this.endpoint,
+        `{ _availableModels { id name } }`
+      );
+      this.templates = (data._availableModels || []).map((m) => ({
+        value: m.id,
+        label: m.name,
+      }));
+    } catch {
+      this.templates = [];
+    } finally {
+      this.loadingTemplates = false;
+    }
   },
   computed: {
     title() {

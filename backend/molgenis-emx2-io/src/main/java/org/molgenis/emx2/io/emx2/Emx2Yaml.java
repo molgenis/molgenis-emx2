@@ -3,6 +3,8 @@ package org.molgenis.emx2.io.emx2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.*;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import org.molgenis.emx2.*;
@@ -92,6 +94,66 @@ public class Emx2Yaml {
     }
   }
 
+  public static BundleResult fromBundleClasspath(String classpathDir) throws IOException {
+    String normalised = classpathDir.endsWith("/") ? classpathDir : classpathDir + "/";
+    String molgenisYamlPath = "/" + normalised + MOLGENIS_YAML;
+    URL molgenisYamlUrl = Emx2Yaml.class.getResource(molgenisYamlPath);
+    if (molgenisYamlUrl == null) {
+      throw new MolgenisException("Bundle not found on classpath: " + molgenisYamlPath);
+    }
+    try {
+      URI uri = molgenisYamlUrl.toURI().resolve(".");
+      if ("jar".equals(uri.getScheme())) {
+        Path tempDir = extractClasspathBundleToTemp(normalised, uri);
+        try {
+          return fromBundleDirectory(tempDir);
+        } finally {
+          deleteDirectory(tempDir);
+        }
+      } else {
+        return fromBundleDirectory(Path.of(uri));
+      }
+    } catch (java.net.URISyntaxException e) {
+      throw new IOException("Invalid classpath URL for bundle: " + molgenisYamlPath, e);
+    }
+  }
+
+  private static Path extractClasspathBundleToTemp(String classpathDir, URI jarUri)
+      throws IOException {
+    Path tempDir = Files.createTempDirectory("molgenis_bundle_");
+    String jarPath = jarUri.getSchemeSpecificPart();
+    String jarFilePath = jarPath.substring(0, jarPath.indexOf('!'));
+    String entryPrefix = jarPath.substring(jarPath.indexOf('!') + 2);
+    URI fileUri = URI.create("jar:" + jarFilePath);
+    try (FileSystem jarFs = FileSystems.newFileSystem(fileUri, Map.of())) {
+      Path root = jarFs.getPath(entryPrefix);
+      if (!Files.exists(root)) {
+        throw new MolgenisException("Bundle directory not found in jar: " + entryPrefix);
+      }
+      try (var stream = Files.walk(root)) {
+        for (Path source : (Iterable<Path>) stream::iterator) {
+          Path relative = root.relativize(source);
+          Path target = tempDir.resolve(relative.toString());
+          if (Files.isDirectory(source)) {
+            Files.createDirectories(target);
+          } else {
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+          }
+        }
+      }
+    }
+    return tempDir;
+  }
+
+  private static void deleteDirectory(Path dir) throws IOException {
+    try (var stream = Files.walk(dir)) {
+      List<Path> paths = stream.sorted(Comparator.reverseOrder()).toList();
+      for (Path path : paths) {
+        Files.deleteIfExists(path);
+      }
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public static BundleResult fromBundle(InputStream inputStream) throws IOException {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -137,8 +199,7 @@ public class Emx2Yaml {
 
     BundleValidator.validate(name, combinedRegistry, schema);
 
-    return new BundleResult(
-        bundle.name(), bundle.description(), schema, subsetRegistry, profileRegistry, Map.of());
+    return new BundleResult(bundle, schema, subsetRegistry, profileRegistry, Map.of());
   }
 
   @SuppressWarnings("unchecked")
@@ -173,8 +234,7 @@ public class Emx2Yaml {
 
     BundleValidator.validate(name, combinedRegistry, schema);
 
-    return new BundleResult(
-        bundle.name(), bundle.description(), schema, subsetRegistry, profileRegistry, namespaces);
+    return new BundleResult(bundle, schema, subsetRegistry, profileRegistry, namespaces);
   }
 
   private static void loadTableFileIntoSchema(Path yamlFile, SchemaMetadata schema)
@@ -862,34 +922,35 @@ public class Emx2Yaml {
   }
 
   public static class BundleResult {
-    private final String name;
-    private final String description;
+    private final Bundle bundle;
     private final SchemaMetadata schema;
     private final Map<String, ProfileEntry> subsetRegistry;
     private final Map<String, ProfileEntry> profileRegistry;
     private final Map<String, String> namespaces;
 
     public BundleResult(
-        String name,
-        String description,
+        Bundle bundle,
         SchemaMetadata schema,
         Map<String, ProfileEntry> subsetRegistry,
         Map<String, ProfileEntry> profileRegistry,
         Map<String, String> namespaces) {
-      this.name = name;
-      this.description = description;
+      this.bundle = bundle;
       this.schema = schema;
       this.subsetRegistry = subsetRegistry;
       this.profileRegistry = profileRegistry;
       this.namespaces = namespaces;
     }
 
+    public Bundle getBundle() {
+      return bundle;
+    }
+
     public String getName() {
-      return name;
+      return bundle.name();
     }
 
     public String getDescription() {
-      return description;
+      return bundle.description();
     }
 
     public SchemaMetadata getSchema() {
@@ -909,7 +970,8 @@ public class Emx2Yaml {
     }
 
     public BundleContext toBundleContext() {
-      return new BundleContext(name, description, schema, subsetRegistry, profileRegistry);
+      return new BundleContext(
+          bundle.name(), bundle.description(), schema, subsetRegistry, profileRegistry);
     }
   }
 

@@ -14,7 +14,8 @@ sourceSets {
     main {
         resources {
             srcDirs += [
-                    "$rootDir/data"
+                    "$rootDir/data",
+                    "$rootDir/profiles"
             ]
             exclude "_shacl/"
         }

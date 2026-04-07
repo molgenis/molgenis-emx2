@@ -53,8 +53,39 @@ public class GraphqlDatabaseFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
+  static final GraphQLObjectType availableModelType =
+      GraphQLObjectType.newObject()
+          .name("AvailableModel")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .build();
+
   public GraphqlDatabaseFieldFactory() {
     // no instances
+  }
+
+  public GraphQLFieldDefinition.Builder availableModelsQuery() {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_availableModels")
+        .type(GraphQLList.list(availableModelType))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              List<Map<String, String>> result = new ArrayList<>();
+              for (DataModels.BundleInfo info : DataModels.listAllModels()) {
+                Map<String, String> entry = new HashMap<>();
+                entry.put(ID, info.id());
+                entry.put(NAME, info.name());
+                if (info.description() != null) {
+                  entry.put(DESCRIPTION, info.description());
+                }
+                result.add(entry);
+              }
+              return result;
+            });
   }
 
   public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
