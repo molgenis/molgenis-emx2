@@ -72,7 +72,7 @@ def process_contacts(contacts: pd.DataFrame, resources: pd.DataFrame) -> pd.Data
     r_contacts["key"] = r_contacts[r_cols].apply(lambda row: '(' + ', '.join(row.values.astype(str)) + ')', axis=1)
     contacts["key"] = contacts[c_cols].apply(lambda row: '(' + ', '.join(row.values.astype(str)) + ')', axis=1)
 
-    r_contacts["mg_delete"] = r_contacts["key"].map(contacts.set_index("key")["mg_delete"].to_dict())
+    r_contacts["mg_delete"] = r_contacts["key"].map(contacts.set_index("key")["mg_delete"].to_dict()).replace({np.nan: False})
     if any(r_contacts["mg_delete"]):
         missing = r_contacts.loc[r_contacts["mg_delete"]]
         values = ', '.join(missing["key"].values)
