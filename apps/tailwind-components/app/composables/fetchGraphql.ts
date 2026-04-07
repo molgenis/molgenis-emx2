@@ -5,7 +5,7 @@ export default async (
   query: string,
   variables: any
 ): Promise<any> => {
-  const { data } = await $fetch(`/${schemaId}/graphql`, {
+  const { data } = await $fetch(`/${encodeURIComponent(schemaId)}/graphql`, {
     method: "POST",
     body: {
       query,

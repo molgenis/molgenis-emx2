@@ -1,6 +1,7 @@
 <template>
   <div class="flex pb-[30px] justify-between">
     <InputSearch
+      v-if="!props.hideSearch"
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       v-model="settings.search"
       @update:modelValue="handleSearchRequest"
@@ -9,6 +10,8 @@
     />
 
     <div class="flex gap-[10px]">
+      <slot name="toolbar-end" />
+
       <Button
         v-if="props.isEditable && data?.tableMetadata"
         type="primary"
@@ -24,6 +27,8 @@
       />
     </div>
   </div>
+
+  <slot name="below-toolbar" />
 
   <div
     ref="tableContainer"
@@ -279,9 +284,13 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    filter?: Record<string, unknown>;
+    hideSearch?: boolean;
   }>(),
   {
     isEditable: () => false,
+    filter: () => ({}),
+    hideSearch: false,
   }
 );
 
@@ -327,6 +336,7 @@ const { data, refresh } = useAsyncData(
         ? { [settings.value.orderby.column]: settings.value.orderby.direction }
         : {},
       searchTerms: settings.value.search,
+      filter: props.filter,
     });
 
     return {
@@ -372,6 +382,14 @@ const primaryKeys = computed(() => {
     })
     .filter((value: any) => value);
 });
+
+watch(
+  () => JSON.stringify(props.filter),
+  () => {
+    settings.value.page = 1;
+    refresh();
+  }
+);
 
 watch(
   () => data.value?.tableMetadata,

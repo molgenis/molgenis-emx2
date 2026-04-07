@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import type {
   Crumb,
   ITableSettings,
@@ -8,9 +8,11 @@ import type {
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
-import { watch } from "vue";
+import { useFilters } from "../../../../../tailwind-components/app/composables/useFilters";
 import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
+import FilterSidebar from "../../../../../tailwind-components/app/components/filter/Sidebar.vue";
+import ActiveFilters from "../../../../../tailwind-components/app/components/filter/ActiveFilters.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import type { IRow } from "../../../../../metadata-utils/src/types";
@@ -37,8 +39,6 @@ const orderbyDirection = computed(() =>
   route.query.order ? (route.query.order as sortDirection) : "ASC"
 );
 
-const search = computed(() => route.query.search as string);
-
 const tableSettings = ref<ITableSettings>({
   page: currentPage.value,
   pageSize: 10,
@@ -46,10 +46,44 @@ const tableSettings = ref<ITableSettings>({
     column: orderbyColumn.value,
     direction: orderbyDirection.value,
   },
-  search: search.value || "",
+  search: (route.query.search as string) || "",
 });
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
+
+const filterColumns = computed(
+  () =>
+    tableMetadata?.columns
+      ?.filter(
+        (c: any) =>
+          !c.id.startsWith("mg_") &&
+          !["HEADING", "SECTION", "FILE"].includes(c.columnType)
+      )
+      .map((c: any) => ({
+        id: c.id,
+        columnType: c.columnType,
+        label: c.label,
+        description: c.description,
+        refTableId: c.refTableId,
+        refSchemaId: c.refSchemaId,
+      })) ?? []
+);
+
+const filters = useFilters(filterColumns, {
+  urlSync: true,
+  route,
+  router,
+  schemaId,
+  tableId,
+});
+
+watch(
+  () => filters.searchValue.value,
+  (value) => {
+    tableSettings.value.search = value ?? "";
+    tableSettings.value.page = 1;
+  }
+);
 
 function handleSettingsUpdate() {
   const query = {
@@ -91,11 +125,12 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+
+const sidebarVisible = ref(true);
 </script>
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"
@@ -105,23 +140,55 @@ const { isAdmin, session } = await useSession(schemaId);
       </template>
     </PageHeader>
 
-    <TableEMX2
-      :schemaId="schemaId"
-      :tableId="tableId"
-      v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-    >
-      <template #additional-row-actions="{ row }">
-        <Button
-          :id="useId()"
-          :icon-only="true"
-          type="inline"
-          icon="info"
-          size="small"
-          label="view row details"
-          @click="handleViewRowRequest(row)"
-        />
-      </template>
-    </TableEMX2>
+    <div class="flex gap-6">
+      <FilterSidebar
+        v-show="sidebarVisible"
+        :filters="filters"
+        :columns="filterColumns"
+        :schemaId="schemaId"
+        :tableId="tableId"
+        class="w-[30rem] shrink-0"
+      />
+      <div class="flex-1 min-w-0">
+        <TableEMX2
+          :schemaId="schemaId"
+          :tableId="tableId"
+          v-model:settings="tableSettings"
+          :isEditable="
+            session?.roles?.[schemaId]?.includes('Editor') || isAdmin
+          "
+          :filter="filters.gqlFilter.value"
+          :hide-search="true"
+        >
+          <template #toolbar-end>
+            <Button
+              type="outline"
+              icon="filter-alt"
+              @click="sidebarVisible = !sidebarVisible"
+            >
+              {{ sidebarVisible ? "Hide filters" : "Show filters" }}
+            </Button>
+          </template>
+          <template #below-toolbar>
+            <ActiveFilters
+              :filters="filters.activeFilters.value"
+              @remove="filters.removeFilter"
+              @clear-all="filters.clearFilters"
+            />
+          </template>
+          <template #additional-row-actions="{ row }">
+            <Button
+              :id="useId()"
+              :icon-only="true"
+              type="inline"
+              icon="info"
+              size="small"
+              label="view row details"
+              @click="handleViewRowRequest(row)"
+            />
+          </template>
+        </TableEMX2>
+      </div>
+    </div>
   </div>
 </template>

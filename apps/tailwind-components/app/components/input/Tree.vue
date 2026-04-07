@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { ITreeNode, ITreeNodeState } from "../../../types/types";
+import type {
+  ITreeNode,
+  ITreeNodeState,
+  SelectionState,
+} from "../../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
@@ -38,6 +42,7 @@ watch(
   (newValue) => {
     nodeMap.value = {};
     createNodeMap(newValue);
+    applyModelValueChangeToSelection(props.modelValue);
   }
 );
 
@@ -50,10 +55,11 @@ function createNodeMap(nodes: ITreeNode[]) {
 function clone(node: ITreeNode): ITreeNodeState {
   const result = {
     name: node.name,
+    label: node.label,
     description: node.description,
     visible: true,
     children: [] as ITreeNodeState[],
-    selection: "unselected",
+    selected: "unselected" as SelectionState,
     expanded: false,
     selectable: true,
   };
