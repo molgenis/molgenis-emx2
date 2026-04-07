@@ -74,7 +74,7 @@ export function createMockUseFilters(
   const searchValueRef = ref("");
   const columnsRef = ref<IColumn[]>(initialColumns);
   const visibleFilterIdsRef = ref<string[]>(initialVisibleIds ?? []);
-  const refColumnsCache = new Map<string, IColumn[]>();
+  const refColumnsCacheMap = new Map<string, IColumn[]>();
   const effectiveDefaultIds = defaultVisibleIds;
 
   const resolvedFilters = computed(() => {
@@ -163,7 +163,7 @@ export function createMockUseFilters(
       }
     },
     loadRefColumns: vi.fn(),
-    getRefColumns: (path: string) => refColumnsCache.get(path) ?? [],
+    getRefColumns: (path: string) => refColumnsCacheMap.get(path) ?? [],
     resolvedFilters,
     setFilterValue: async (
       columnId: string,

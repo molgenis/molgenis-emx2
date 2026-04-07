@@ -497,16 +497,6 @@ onUnmounted(() => {
           />
         </template>
         <div class="ml-6 flex items-center gap-1">
-          <span class="text-body-sm italic text-input-description">
-            {{ hiddenNodesCount }} term{{
-              hiddenNodesCount !== 1 ? "s" : ""
-            }}
-            hidden by search{{
-              hiddenSelectedCount > 0
-                ? ` (including ${hiddenSelectedCount} selected)`
-                : ""
-            }}
-          </span>
           <ButtonText
             class="text-input underline"
             @click.stop="
@@ -514,7 +504,14 @@ onUnmounted(() => {
               emit('showOutsideResults');
             "
           >
-            (show)
+            show {{ hiddenNodesCount }} hidden item{{
+              hiddenNodesCount !== 1 ? "s" : ""
+            }}
+            {{
+              hiddenSelectedCount > 0
+                ? ` (including ${hiddenSelectedCount} selected)`
+                : ""
+            }}
           </ButtonText>
         </div>
       </div>

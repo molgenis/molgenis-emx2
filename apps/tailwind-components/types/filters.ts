@@ -92,4 +92,5 @@ export interface UseFilters {
     value: IFilterValue | null | undefined
   ) => Promise<void>;
   getCountFetcher: (columnPath: string) => ICountFetcher;
+  schemaId: string;
 }

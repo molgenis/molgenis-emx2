@@ -284,6 +284,69 @@ describe("createCountFetcher", () => {
     });
   });
 
+  describe("fetchAllOntologyBaseCounts", () => {
+    it("returns all term counts via _groupBy without filter", async () => {
+      mockFetchGraphql.mockResolvedValueOnce({
+        Patient_groupBy: [
+          { count: 7, species: { name: "Dog" } },
+          { count: 2, species: { name: "Cat" } },
+        ],
+      });
+
+      const fetcher = createCountFetcher({
+        schemaId: "mySchema",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({ _search: "ignored" }),
+      });
+
+      const counts = await fetcher.fetchAllOntologyBaseCounts();
+
+      const [schema, query, variables] = mockFetchGraphql.mock.calls[0];
+      expect(schema).toBe("mySchema");
+      expect(query).toContain("Patient_groupBy");
+      expect(query).not.toContain("filter");
+      expect(variables).toEqual({});
+
+      expect(counts.get("Dog")).toBe(7);
+      expect(counts.get("Cat")).toBe(2);
+    });
+
+    it("returns empty map for nested dotted column path", async () => {
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Resources",
+        columnPath: "organisation.country",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchAllOntologyBaseCounts();
+
+      expect(mockFetchGraphql).not.toHaveBeenCalled();
+      expect(counts.size).toBe(0);
+    });
+
+    it("returns empty map on fetch error", async () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      mockFetchGraphql.mockRejectedValueOnce(new Error("Network error"));
+
+      const fetcher = createCountFetcher({
+        schemaId: "s",
+        tableId: "Patient",
+        columnPath: "species",
+        getCrossFilter: () => ({}),
+      });
+
+      const counts = await fetcher.fetchAllOntologyBaseCounts();
+
+      expect(counts.size).toBe(0);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+  });
+
   describe("fetchOntologyParentCounts", () => {
     it("returns counts by name using aliased _agg queries with _match_any_including_children", async () => {
       mockFetchGraphql.mockResolvedValueOnce({

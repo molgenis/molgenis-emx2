@@ -1,171 +1,248 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import { ref, useId, watch, computed } from "vue";
 import type { UseFilters } from "../../../types/filters";
-import Button from "../Button.vue";
+import type { ITreeNodeState } from "../../../types/types";
+import Modal from "../Modal.vue";
 import BaseIcon from "../BaseIcon.vue";
 import InputSearch from "../input/Search.vue";
-import InputCheckboxIcon from "../input/CheckboxIcon.vue";
+import Button from "../Button.vue";
+import Tree from "../input/Tree.vue";
+import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 import {
-  MAX_NESTING_DEPTH,
-  REF_EXPANDABLE_TYPES,
-} from "../../utils/filterConstants";
-
-function columnTooltip(col: IColumn): string {
-  const parts = [`${col.label} (${col.id})`, col.columnType];
-  if (col.refTableId) parts.push(`→ ${col.refTableId}`);
-  if (col.description) parts.push(col.description);
-  return parts.join("\n");
-}
+  isRefExpandable,
+  isSelectableFilterType,
+  isStringFilterType,
+  isExcludedColumn,
+  shouldExcludeSelfRef,
+} from "../../utils/filterTreeUtils";
+import {
+  pruneTree,
+  pruneStringNodes,
+  setAllNodesVisible,
+} from "../../utils/pruneFilterTree";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const props = defineProps<{
   filters: UseFilters;
 }>();
 
+const open = ref(false);
 const searchQuery = ref("");
-const searchInputId = useId();
-const expandedPaths = ref<Set<string>>(new Set());
+const showAllFilters = ref(false);
+const treeId = useId();
+const localSelection = ref<string[]>([]);
+const isBuilding = ref(false);
 
-const EXCLUDED_TYPES = ["HEADING", "SECTION", "FILE"];
+const allTreeNodes = ref<ITreeNodeState[]>([]);
 
-const sortedColumns = computed(() => {
-  let cols = props.filters.columns.value.filter(
-    (col) =>
-      !EXCLUDED_TYPES.includes(col.columnType) && !col.id.startsWith("mg_")
-  );
-  if (searchQuery.value) {
-    const searchLower = searchQuery.value.toLowerCase();
-    cols = cols.filter((col) => col.label.toLowerCase().includes(searchLower));
-  }
-  return cols.sort((a, b) =>
-    a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-  );
-});
+function buildNodes(
+  cols: IColumn[],
+  parentTableId: string,
+  parentPath: string
+): ITreeNodeState[] {
+  const nodes: ITreeNodeState[] = [];
+  for (const col of cols) {
+    if (isExcludedColumn(col)) continue;
+    if (shouldExcludeSelfRef(col, parentTableId)) continue;
 
-function isVisible(columnId: string): boolean {
-  return props.filters.visibleFilterIds.value.includes(columnId);
-}
+    const path = parentPath ? `${parentPath}.${col.id}` : col.id;
+    const label = col.label || col.id;
 
-function toggleRefExpand(parentPath: string, column: IColumn) {
-  const newSet = new Set(expandedPaths.value);
-  if (newSet.has(parentPath)) {
-    newSet.delete(parentPath);
-    for (const path of newSet) {
-      if (path.startsWith(parentPath + ".")) {
-        newSet.delete(path);
-      }
-    }
-  } else {
-    newSet.add(parentPath);
-    props.filters.loadRefColumns(parentPath, column);
-  }
-  expandedPaths.value = newSet;
-}
-
-interface FlatPickerRow {
-  path: string;
-  column: IColumn;
-  depth: number;
-  isRefExpandable: boolean;
-}
-
-const flatRows = computed<FlatPickerRow[]>(() => {
-  const rows: FlatPickerRow[] = [];
-
-  function walk(cols: IColumn[], parentPath: string, depth: number) {
-    for (const col of cols) {
-      const path = parentPath ? `${parentPath}.${col.id}` : col.id;
-      const isRef =
-        REF_EXPANDABLE_TYPES.includes(col.columnType) && !!col.refTableId;
-      rows.push({
-        path,
-        column: col,
-        depth,
-        isRefExpandable: isRef && depth < MAX_NESTING_DEPTH,
+    if (isRefExpandable(col.columnType) && col.refTableId) {
+      const childCols = props.filters.getRefColumns(path);
+      const children = buildNodes(childCols, col.refTableId, path);
+      nodes.push({
+        name: path,
+        label,
+        description: col.description,
+        children,
+        selectable: false,
+        visible: true,
+        expanded: false,
       });
-      if (isRef && expandedPaths.value.has(path) && depth < MAX_NESTING_DEPTH) {
-        const children = props.filters.getRefColumns(path);
-        if (children.length) {
-          walk(children, path, depth + 1);
-        }
-      }
+    } else if (
+      isSelectableFilterType(col.columnType) ||
+      isStringFilterType(col.columnType)
+    ) {
+      nodes.push({
+        name: path,
+        label,
+        description: col.description,
+        children: [],
+        selectable: true,
+        visible: !isStringFilterType(col.columnType),
+        expanded: false,
+      });
     }
   }
+  return nodes;
+}
 
-  walk(sortedColumns.value, "", 0);
-  return rows;
+async function buildTree() {
+  if (isBuilding.value) return;
+  isBuilding.value = true;
+  try {
+    const rootCols = props.filters.columns.value;
+    const parentTableId = rootCols[0]?.table ?? "";
+
+    const refRootCols = rootCols.filter(
+      (c) => isRefExpandable(c.columnType) && c.refTableId
+    );
+    await Promise.all(
+      refRootCols.map((c) => props.filters.loadRefColumns(c.id, c))
+    );
+
+    const layer2Loads: Promise<void>[] = [];
+    for (const rootCol of refRootCols) {
+      const childCols = props.filters.getRefColumns(rootCol.id);
+      for (const c of childCols.filter(
+        (c) => isRefExpandable(c.columnType) && c.refTableId
+      )) {
+        layer2Loads.push(
+          props.filters.loadRefColumns(`${rootCol.id}.${c.id}`, c)
+        );
+      }
+    }
+    await Promise.all(layer2Loads);
+
+    allTreeNodes.value = buildNodes(rootCols, parentTableId, "");
+  } finally {
+    isBuilding.value = false;
+  }
+}
+
+watch(open, (isOpen) => {
+  if (isOpen) {
+    localSelection.value = [...props.filters.visibleFilterIds.value];
+    buildTree();
+  } else {
+    searchQuery.value = "";
+    showAllFilters.value = false;
+  }
 });
+
+const displayedNodes = computed<ITreeNodeState[]>(() => {
+  if (searchQuery.value.trim()) {
+    return pruneTree(allTreeNodes.value, searchQuery.value);
+  }
+
+  if (showAllFilters.value) {
+    return allTreeNodes.value.map(setAllNodesVisible);
+  }
+
+  return pruneStringNodes(allTreeNodes.value);
+});
+
+const hasNoResults = computed(
+  () =>
+    searchQuery.value.trim().length > 0 &&
+    allTreeNodes.value.length > 0 &&
+    displayedNodes.value.length === 0
+);
+
+function save(hide: () => void) {
+  const currentIds = new Set(props.filters.visibleFilterIds.value);
+  const newIds = new Set(localSelection.value);
+
+  for (const id of currentIds) {
+    if (!newIds.has(id)) {
+      props.filters.toggleFilter(id);
+    }
+  }
+  for (const id of newIds) {
+    if (!currentIds.has(id)) {
+      props.filters.toggleFilter(id);
+    }
+  }
+  hide();
+}
+
+function cancel(hide: () => void) {
+  hide();
+}
+
+function clearSelection() {
+  localSelection.value = [];
+}
+
+function resetToDefaults() {
+  localSelection.value = computeDefaultFilters(props.filters.columns.value);
+}
 </script>
 
 <template>
-  <VDropdown placement="bottom-start" :distance="4">
-    <button
-      class="flex items-center gap-2 h-8 p-2 text-heading-sm text-search-filter-expand hover:underline cursor-pointer"
-    >
-      <BaseIcon name="plus" :width="12" />
-      <span>Add filter</span>
-    </button>
-    <template #popper="{ hide }">
-      <div
-        class="bg-modal border border-black/10 rounded-lg shadow-lg w-96"
-        @keydown.escape="hide"
+  <button
+    class="flex items-center gap-1.5 h-8 px-2 text-heading-sm text-search-filter-expand hover:underline cursor-pointer"
+    @click="open = true"
+    aria-haspopup="dialog"
+  >
+    <BaseIcon name="filter" :width="16" />
+    <span>Customize</span>
+  </button>
+
+  <Modal v-model:visible="open" title="Customize filters" max-width="max-w-2xl">
+    <div class="flex flex-col gap-4 p-6">
+      <InputSearch
+        :id="`${treeId}-search`"
+        v-model="searchQuery"
+        placeholder="Search columns..."
+      />
+
+      <label
+        class="flex items-center gap-2 text-body-sm text-title-contrast cursor-pointer"
       >
-        <div class="p-3 border-b border-black/10">
-          <InputSearch
-            :id="searchInputId"
-            v-model="searchQuery"
-            placeholder="Search filters..."
-            size="tiny"
-          />
-        </div>
+        <input
+          :id="`${treeId}-show-all`"
+          type="checkbox"
+          v-model="showAllFilters"
+          class="rounded"
+        />
+        Show all column types
+      </label>
 
-        <div class="max-h-80 overflow-y-auto">
-          <div v-for="row in flatRows" :key="row.path">
-            <button
-              @click="filters.toggleFilter(row.path)"
-              v-tooltip.right="columnTooltip(row.column)"
-              class="w-full py-1.5 flex items-center gap-2 hover:bg-tab-hover text-left transition-colors"
-              :style="{
-                paddingLeft: `${16 + row.depth * 24}px`,
-                paddingRight: '16px',
-              }"
-            >
-              <InputCheckboxIcon
-                :checked="isVisible(row.path)"
-                class="min-w-[20px] shrink-0"
-              />
-              <span
-                class="text-body-sm leading-normal flex-1 truncate text-title"
-              >
-                {{ row.column.label }}
-              </span>
-              <span
-                v-if="row.isRefExpandable"
-                @click.stop="toggleRefExpand(row.path, row.column)"
-                class="rounded-full h-5 w-5 flex items-center justify-center shrink-0 text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
-              >
-                <BaseIcon
-                  :name="
-                    expandedPaths.has(row.path) ? 'caret-up' : 'caret-down'
-                  "
-                  :width="16"
-                />
-              </span>
-            </button>
-          </div>
-        </div>
+      <div class="overflow-y-auto px-4">
+        <Tree
+          :id="treeId"
+          v-model="localSelection"
+          :nodes="displayedNodes"
+          is-multi-select
+          :show-search="false"
+          :emit-selected-children="false"
+        />
 
-        <div class="border-t border-black/10 p-2">
+        <div
+          v-if="hasNoResults"
+          class="py-4 text-center text-body-sm text-disabled"
+        >
+          No columns match your search
+        </div>
+      </div>
+    </div>
+
+    <template #footer="{ hide }">
+      <div class="py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <Button type="text" size="tiny" @click="clearSelection">
+            Clear
+          </Button>
           <Button
             type="text"
             size="tiny"
             icon="restart-alt"
-            @click="filters.resetFilters"
-            class="w-full justify-start"
-            >Reset to defaults</Button
+            @click="resetToDefaults"
           >
+            Reset to defaults
+          </Button>
+        </div>
+        <div class="flex items-center gap-2">
+          <Button type="secondary" size="small" @click="cancel(hide)">
+            Cancel
+          </Button>
+          <Button type="primary" size="small" @click="save(hide)">
+            Save
+          </Button>
         </div>
       </div>
     </template>
-  </VDropdown>
+  </Modal>
 </template>

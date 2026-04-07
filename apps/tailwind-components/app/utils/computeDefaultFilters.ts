@@ -1,30 +1,19 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
+import { isExcludedColumn } from "./filterTreeUtils";
 
-const EXCLUDED_TYPES = [
-  "HEADING",
-  "SECTION",
-  "FILE",
-  "STRING",
-  "STRING_ARRAY",
-  "TEXT",
-  "TEXT_ARRAY",
-  "EMAIL",
-  "EMAIL_ARRAY",
-  "HYPERLINK",
-  "HYPERLINK_ARRAY",
-  "UUID",
-  "UUID_ARRAY",
-  "AUTO_ID",
-  "JSON",
-  "PERIOD",
-  "PERIOD_ARRAY",
-];
+const DEFAULT_FILTER_TYPES = new Set([
+  "ONTOLOGY",
+  "ONTOLOGY_ARRAY",
+  "BOOL",
+  "CHECKBOX",
+  "RADIO",
+]);
 
 export function computeDefaultFilters(columns: IColumn[]): string[] {
   return columns
     .filter(
       (col) =>
-        !EXCLUDED_TYPES.includes(col.columnType) && !col.id.startsWith("mg_")
+        !isExcludedColumn(col) && DEFAULT_FILTER_TYPES.has(col.columnType)
     )
     .map((col) => col.id);
 }

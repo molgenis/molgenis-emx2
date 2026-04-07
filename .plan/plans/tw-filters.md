@@ -21,6 +21,24 @@ New filter system for the tailwind-components library: composable-driven, URL-sy
 - [ ] Serialization round-trip: filter state → URL string → parse → GraphQL filter
 - [ ] Tests: `composables/useFilters.spec.ts` (~33 composable tests, incl. toggleFilter/removeFilter/resetFilters removal paths) + `utils/filterUrlCodec.spec.ts` (51 pure-function tests, incl. ontology URL round-trip tests)
 
+## Task: Customize Filter Dialog (in progress)
+
+Overhaul FilterPicker into a large Dialog with a 3-layer-deep column tree.
+
+**New utilities:**
+- `filterTreeUtils.ts` — pure: `isSelectableFilterType`, `isStringFilterType`, `isRefExpandable`, `navDepth`, `shouldExcludeSelfRef`
+- `buildFilterColumnTree.ts` — async: builds `ITreeNode[]` from columns + fetchRefColumns
+
+**Component changes:**
+- `FilterPicker.vue` — replace VDropdown with Dialog + Tree.vue; search surfaces STRING columns; (i) tooltips; Reset → computeDefaultFilters
+- `Sidebar.vue` — Customize button inline-right of Filters h2 (filter icon, label styling)
+
+**Selectable:** ONTOLOGY, ONTOLOGY_ARRAY, BOOLEAN, RADIO, CHECKBOX, DATE*, INT*, DECIMAL*, LONG, NON_NEGATIVE_INT*
+**Expandable:** REF (2 deep), SELECT (2 deep), REF_ARRAY (1 deep), REFBACK (1 deep), MULTISELECT (1 deep)
+**String (search only):** STRING, STRING_ARRAY, TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID
+
+---
+
 ### Filter components (`app/components/filter/`)
 - [ ] **Sidebar.vue** (~30 lines) — pure display wrapper, receives `UseFilters` prop
 - [ ] **FilterPicker.vue** — column toggle dropdown, excludes HEADING/SECTION/FILE/mg_* columns

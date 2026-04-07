@@ -43,13 +43,14 @@ const isRangeType = computed(() =>
     "LONG",
     "NON_NEGATIVE_INT",
     "DATE",
+    "DATE_ARRAY",
     "DATETIME",
+    "DATETIME_ARRAY",
     "INT_ARRAY",
     "DECIMAL_ARRAY",
     "LONG_ARRAY",
     "DATE_ARRAY",
     "NON_NEGATIVE_INT_ARRAY",
-    "DATETIME_ARRAY",
   ].includes(props.column.columnType)
 );
 
@@ -170,7 +171,7 @@ function handleClear() {
       </div>
     </div>
   </template>
-  <div class="mb-5 ml-5 mr-5 overflow-hidden text-search-filter-group-title">
+  <div class="mb-5 ml-5 mr-5 text-search-filter-group-title">
     <FilterRange v-if="isRangeType" v-model="rangeValue" :id="column.id">
       <template #min="{ value, update, id }">
         <Input

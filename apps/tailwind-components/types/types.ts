@@ -26,6 +26,7 @@ export interface IValueLabel {
 
 export interface ITreeNode extends INode {
   parent?: string;
+  label?: string;
   children: ITreeNode[];
 }
 

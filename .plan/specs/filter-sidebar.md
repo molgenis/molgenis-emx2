@@ -38,24 +38,40 @@ Living spec. Updated when tasks complete. Single source of truth for expected be
 | String-like columns still available in FilterPicker for manual addition | FilterPicker.vue | - | Check: string columns appear in FilterPicker dropdown |
 | FilterPicker still allows toggling individual filters on/off | FilterPicker.vue | Sidebar.spec.ts "re-renders when filters.visibleFilterIds changes" | - |
 
-## notNull Probe (hide empty filters)
+## Probe: Hide Empty Filters on Init
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
-| Batch `_agg(filter: {col: {_notNull: true}}) { count }` probe on load | probeFilterColumns.ts | probeFilterColumns.spec.ts (6 tests) | - |
-| Filters with count=0 hidden from resolvedFilters | useFilters.ts | probeFilterColumns.spec.ts | Check: empty-data filters not shown |
-| Probe runs once when columns first load (not per cross-filter update) | useFilters.ts | - | - |
-| Fail-open: on GraphQL error, all filters shown | probeFilterColumns.ts | probeFilterColumns.spec.ts "returns all columns on GraphQL error" | - |
+| Non-ontology columns: batch `_agg(filter: {col: {_notNull: true}})` probe | probeFilterColumns.ts | probeFilterColumns.spec.ts | - |
+| Ontology columns: probe via `fetchAllOntologyBaseCounts` (reuses count fetcher cache) | probeFilterColumns.ts | probeFilterColumns.spec.ts "ontology column probing via count fetcher" | - |
+| Ontology probe uses `_groupBy` without name/crossFilter — returns all terms with records | createCountFetcher.ts | createCountFetcher.spec.ts | - |
+| `_groupBy` result cached in count fetcher — Ontology component reuses on expand (no duplicate query) | createCountFetcher.ts | - | Check: network tab shows single `_groupBy` per column |
+| Probe runs once on init (after all dependencies defined) | useFilters.ts | - | - |
+| Empty columns removed from `visibleFilterIds` (unchecked in Customize dialog) | useFilters.ts | - | Check: empty columns not checked in Customize |
+| Only auto-removes when user hasn't customized (`userHasCustomized` guard) | useFilters.ts | - | - |
+| User can re-add empty column via Customize — filter section appears with "No matching options" | useFilters.ts, Ontology.vue | - | Check: re-added empty filter shows message |
+| Fail-open: on probe error, columns remain visible | probeFilterColumns.ts | probeFilterColumns.spec.ts "returns all columns on GraphQL error" | - |
 | Nested paths produce correct nested notNull filter | probeFilterColumns.ts | probeFilterColumns.spec.ts "builds correct notNull filter for nested paths" | - |
 
-## Filter Option Counts
+## Ontology Filter: Base Counts & Smart Loading
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
-| Cross-filter counts shown per option as single number "(N)" | Ref.vue, Ontology.vue, CheckboxGroup.vue, TreeNode.vue | createCountFetcher.spec.ts | Check: counts like "(8)" shown, no dual "x/y" display |
+| `fetchAllOntologyBaseCounts`: single `_groupBy` discovers all terms with records | createCountFetcher.ts | createCountFetcher.spec.ts | - |
+| In sidebar (`forceList`): load ONLY terms present in baseCounts from ontology | Ontology.vue | Ontology.spec.ts "forceList path loads only terms present in baseCounts" | Check: only terms with records shown |
+| In sidebar: no page-by-page loading, no autoPageAfterPrune | Ontology.vue | - | - |
+| Without countFetcher (standalone): load all terms page-by-page as before | Ontology.vue | Ontology.spec.ts (pagination tests) | - |
+| When baseCounts empty + forceList: show "No matching options" | Ontology.vue | - | Check: message shown for empty ontology filter |
+| Search still works (loads matching terms from ontology regardless of baseCounts) | Ontology.vue | Ontology.spec.ts (search tests) | Check: search finds terms |
+
+## Filter Option Counts (Cross-Filter)
+
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| Cross-filter counts shown per option as single number "(N)" | Ref.vue, Ontology.vue, CheckboxGroup.vue, TreeNode.vue | createCountFetcher.spec.ts | Check: counts like "(8)" shown |
+| Counts update when other filters change (debounced 300ms) | Ontology.vue, Ref.vue | - | Check: counts refresh on filter change |
 | Counts update in-place without full re-render | CheckboxGroup.vue, TreeNode.vue | - | Check: no flicker on count change |
 | `:key="option.value"` on v-for for stable DOM tracking | CheckboxGroup.vue | - | Check: options don't jump on count update |
-| No global loading spinner — counts appear instantly | CheckboxGroup.vue, TreeNode.vue | - | Check: no spinner on count refresh |
 | Nested paths use per-item `_agg` (not `_groupBy`) | createCountFetcher.ts | createCountFetcher.spec.ts (3 nested tests) | - |
 | Ontology nested counts use `_match_any_including_children` | createCountFetcher.ts | createCountFetcher.spec.ts | - |
 
@@ -95,6 +111,41 @@ Living spec. Updated when tasks complete. Single source of truth for expected be
 | `toggleFilter` removes filter and clears state + gqlFilter | useFilters.ts | useFilters.spec.ts (4 removal tests) | - |
 | `resetFilters` clears all non-default filter state | useFilters.ts | useFilters.spec.ts "resetFilters clears all" | - |
 | URL updates after filter removal | useFilters.ts | useFilters.spec.ts "toggleFilter with URL sync" | - |
+
+## Customize Filter Dialog
+
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| `isSelectableFilterType(ct)` returns true for ONTOLOGY, ONTOLOGY_ARRAY, BOOLEAN, RADIO, CHECKBOX, DATE, DATE_ARRAY, INT, INT_ARRAY, DECIMAL, DECIMAL_ARRAY, LONG, NON_NEGATIVE_INT, NON_NEGATIVE_INT_ARRAY | filterTreeUtils.ts | filterTreeUtils.spec.ts | - |
+| `isStringFilterType(ct)` returns true for STRING, STRING_ARRAY, TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID and variants | filterTreeUtils.ts | filterTreeUtils.spec.ts | - |
+| `isRefExpandable(ct)` returns true for REF, REF_ARRAY, REFBACK, SELECT, MULTISELECT | filterTreeUtils.ts | filterTreeUtils.spec.ts | - |
+| `navDepth(ct)` returns 2 for REF/SELECT, 1 for REF_ARRAY/REFBACK/MULTISELECT | filterTreeUtils.ts | filterTreeUtils.spec.ts | - |
+| `shouldExcludeSelfRef(col, parentTableId)` returns true when col.refTableId === parentTableId | filterTreeUtils.ts | filterTreeUtils.spec.ts | - |
+| `filterTreeNodes(nodes, query)` returns all nodes for empty query | filterTreeUtils.ts | filterTreeUtils.spec.ts "returns all nodes when query is empty" | - |
+| `filterTreeNodes` matches nodes by label or description (case-insensitive) | filterTreeUtils.ts | filterTreeUtils.spec.ts "returns node whose label matches" / "matches by description" / "match is case-insensitive" | - |
+| `filterTreeNodes` includes parent with only matching children when parent doesn't match | filterTreeUtils.ts | filterTreeUtils.spec.ts "includes parent when a child label matches" | - |
+| `filterTreeNodes` excludes parent when neither it nor descendants match | filterTreeUtils.ts | filterTreeUtils.spec.ts "excludes parent when neither it nor any descendant matches" | - |
+| `filterTreeNodes` recursively filters deeply nested children | filterTreeUtils.ts | filterTreeUtils.spec.ts "recursively filters deeply nested children" | - |
+| `buildFilterColumnTree` returns selectable nodes for selectable types, expandable nodes for ref types, hidden string nodes | buildFilterColumnTree.ts | buildFilterColumnTree.spec.ts | - |
+| `buildFilterColumnTree` respects navDepth: REF 2 levels, REF_ARRAY/REFBACK 1 level | buildFilterColumnTree.ts | buildFilterColumnTree.spec.ts | - |
+| `buildFilterColumnTree` excludes self-referencing sub-columns | buildFilterColumnTree.ts | buildFilterColumnTree.spec.ts | - |
+| `buildFilterColumnTree` excludes HEADING, SECTION, FILE, mg_* columns | buildFilterColumnTree.ts | buildFilterColumnTree.spec.ts | - |
+| Customize button inline-right of Filters h2, uses filter icon + "Customize" label, label styling | Sidebar.vue | - | Check: button appears on same line as Filters heading |
+| Customize button opens large Dialog (not dropdown) | FilterPicker.vue | - | Check: dialog large enough to navigate tree |
+| Dialog opens with localSelection initialized from current visibleFilterIds | FilterPicker.vue | FilterPicker.spec.ts "initializes localSelection from visibleFilterIds on open" | Check: pre-checked filters match sidebar |
+| Tree v-model bound to localSelection (not live visibleFilterIds) | FilterPicker.vue | FilterPicker.spec.ts "does not call toggleFilter when Tree emits changes" | - |
+| Save button applies localSelection diff to visibleFilterIds and closes dialog | FilterPicker.vue | FilterPicker.spec.ts "calls toggleFilter for added/removed ids on Save" | Check: sidebar updates after Save |
+| Cancel button discards localSelection without calling toggleFilter | FilterPicker.vue | FilterPicker.spec.ts "does not call toggleFilter on Cancel" | Check: sidebar unchanged after Cancel |
+| Clear button sets localSelection to [] without applying immediately | FilterPicker.vue | FilterPicker.spec.ts "sets local selection to empty array" / "does not apply clear until Save" | Check: all unchecked after Clear; Save required to apply |
+| Reset to defaults sets localSelection to computeDefaultFilters result without applying immediately | FilterPicker.vue | FilterPicker.spec.ts "sets localSelection to computeDefaultFilters result" / "does not apply reset until Save" | Check: defaults restored in tree; Save required to apply |
+| Footer layout: [Clear] [Reset to defaults] on left, [Cancel] [Save] on right | FilterPicker.vue | FilterPicker.spec.ts "shows Save and Cancel" / "shows Clear and Reset" | Check: button layout correct |
+| String columns hidden by default (showAll off, no search); revealed by search or showAll toggle | FilterPicker.vue | FilterPicker.spec.ts "hides STRING columns" / "shows STRING columns when showAll toggle is enabled" / "includes string columns when search matches" | Check: search and toggle reveal string columns |
+| "Show all filter types" checkbox when checked reveals all column types including strings | FilterPicker.vue | FilterPicker.spec.ts "shows STRING columns when showAll toggle is enabled" | Check: toggle shows more columns |
+| Search uses filterTreeNodes — recursive, matches label/description, hides non-matching parent when only child matches | FilterPicker.vue | FilterPicker.spec.ts "filters tree nodes to matching columns" | Check: search narrows tree correctly |
+| Tree scrollable only when content overflows (max-h-[60vh] on tree wrapper, not dialog) | FilterPicker.vue | - | Check: no unnecessary scrollbar when tree is short |
+| REF/REF_ARRAY/REFBACK/SELECT/MULTISELECT shown as expandable (+) node, not directly checkable | FilterPicker.vue | - | Check: ref columns show + expand button |
+| Expanding ref node loads sub-columns; self-refs excluded | FilterPicker.vue | - | Check: no circular refs in tree |
+| Sub-columns filtered by navDepth (REF 2 levels, REF_ARRAY/REFBACK 1 level) | FilterPicker.vue | - | Check: cannot navigate deeper than allowed |
 
 ## Active Filters Bar
 

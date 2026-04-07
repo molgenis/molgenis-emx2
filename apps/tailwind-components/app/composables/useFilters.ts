@@ -465,18 +465,18 @@ export function useFilters(
     columnsWithData.value = await probeFilterColumns(
       schemaId,
       tableId,
-      visibleFilterIds.value
+      visibleFilterIds.value,
+      columnTypeMap.value,
+      getCountFetcher
     );
+    if (columnsWithData.value !== null && !userHasCustomized.value) {
+      visibleFilterIds.value = visibleFilterIds.value.filter((id) =>
+        columnsWithData.value!.has(id)
+      );
+    }
   }
 
-  watch(
-    () => columns.value.length,
-    (newLength, oldLength) => {
-      if (newLength > 0 && oldLength === 0) {
-        runProbe();
-      }
-    }
-  );
+  // Probe watch is registered after all dependencies are defined (see below)
 
   function getInitialVisibleFilters(): string[] {
     const urlParam = route?.query?.[MG_FILTERS_PARAM];
@@ -538,32 +538,33 @@ export function useFilters(
   // --- Ref column resolution ---
 
   const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
-  const refLoadingKeys = ref<Set<string>>(new Set());
+  const refLoadingKeys = new Map<string, Promise<void>>();
 
-  async function loadRefColumns(parentPath: string, column: IColumn) {
-    if (
-      refColumnsCache.value.has(parentPath) ||
-      refLoadingKeys.value.has(parentPath)
-    )
-      return;
-    if (!column.refTableId) return;
+  function loadRefColumns(parentPath: string, column: IColumn): Promise<void> {
+    if (refColumnsCache.value.has(parentPath)) return Promise.resolve();
+    const existing = refLoadingKeys.get(parentPath);
+    if (existing) return existing;
+    if (!column.refTableId) return Promise.resolve();
 
-    refLoadingKeys.value.add(parentPath);
     const refSchemaId = column.refSchemaId || schemaId;
-    try {
-      const meta = await fetchTableMetadata(refSchemaId, column.refTableId);
-      refColumnsCache.value.set(
-        parentPath,
-        meta.columns.filter(
-          (c) =>
-            !c.id.startsWith("mg_") &&
-            !REF_COLUMN_UNFILTERABLE.includes(c.columnType)
-        )
-      );
-    } catch {
-    } finally {
-      refLoadingKeys.value.delete(parentPath);
-    }
+    const promise = fetchTableMetadata(refSchemaId, column.refTableId)
+      .then((meta) => {
+        refColumnsCache.value.set(
+          parentPath,
+          meta.columns.filter(
+            (c) =>
+              !c.id.startsWith("mg_") &&
+              !REF_COLUMN_UNFILTERABLE.includes(c.columnType)
+          )
+        );
+      })
+      .catch(() => {})
+      .finally(() => {
+        refLoadingKeys.delete(parentPath);
+      });
+
+    refLoadingKeys.set(parentPath, promise);
+    return promise;
   }
 
   async function loadRefColumnsForPath(fullPath: string) {
@@ -659,6 +660,15 @@ export function useFilters(
     return map;
   });
 
+  watch(
+    () => columns.value.length,
+    (newLength, oldLength) => {
+      if (newLength > 0 && oldLength === 0) {
+        runProbe();
+      }
+    }
+  );
+
   const _gqlFilter = computed(() =>
     buildGraphQLFilter(
       actualFilterStates.value,
@@ -752,10 +762,6 @@ export function useFilters(
       }
     }
 
-    if (columnsWithData.value !== null) {
-      return result.filter((f) => columnsWithData.value!.has(f.fullPath));
-    }
-
     return result;
   });
 
@@ -841,6 +847,10 @@ export function useFilters(
     return fetcher;
   }
 
+  if (columns.value.length > 0) {
+    runProbe();
+  }
+
   const result: UseFilters = {
     filterStates: actualFilterStates,
     searchValue: actualSearchValue,
@@ -859,6 +869,7 @@ export function useFilters(
     resolvedFilters,
     setFilterValue,
     getCountFetcher,
+    schemaId,
   };
 
   return result;

@@ -136,7 +136,7 @@ describe("FilterRange", () => {
     const wrapper = mount(FilterRange, {
       props: { id: "test-range" },
     });
-    expect(wrapper.find("fieldset.space-y-2").exists()).toBe(true);
+    expect(wrapper.find("fieldset.flex").exists()).toBe(true);
   });
 
   it("renders labels with for attributes matching slot ids", () => {

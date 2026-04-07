@@ -92,6 +92,8 @@ function reset() {
   totalCount.value = 0;
   rootCount.value = 0;
   loadingNodes.value.clear();
+  baseCounts.value = new Map();
+  baseCountsFetched = false;
   reload();
 }
 
@@ -143,6 +145,32 @@ async function reload() {
     }
   }
 
+  await fetchBaseCounts();
+
+  if (props.forceList && baseCountsFetched) {
+    if (baseCounts.value.size > 0) {
+      const termNames = [...baseCounts.value.keys()];
+      const query = `query($filter: ${props.ontologyTableId}Filter) {
+        terms: ${props.ontologyTableId}(filter: $filter, limit: ${termNames.length}, orderby:[{order:ASC},{name:ASC}]){
+          name,parent{name},label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}
+        }
+      }`;
+      const data = await fetchGraphql(props.ontologySchemaId, query, {
+        filter: { name: { equals: termNames } },
+      });
+      rootNode.value.children = assembleTree(data.terms || []);
+      rootNode.value.loadMoreHasMore = false;
+      applySelectedStates();
+      await fetchCountsForVisibleNodes();
+    } else {
+      rootNode.value.children = [];
+      rootNode.value.loadMoreHasMore = false;
+    }
+    lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
+    initLoading.value = false;
+    return;
+  }
+
   if (
     totalCount.value < props.selectCutOff &&
     !props.forceList &&
@@ -161,7 +189,6 @@ async function reload() {
     await fetchCountsForVisibleNodes();
   } else {
     await loadPage(rootNode.value, 0);
-    await autoPageAfterPrune(rootNode.value);
   }
 
   lastSyncedModelValueSignature = modelValueSignature(modelValue.value);
@@ -477,9 +504,6 @@ async function toggleTermExpand(
     node.showingAll = showAll;
     node.expanded = true;
     await loadPage(node, 0, showAll ? undefined : searchTerms.value, showAll);
-    if (!showAll) {
-      await autoPageAfterPrune(node);
-    }
   } else {
     node.expanded = false;
   }
@@ -510,21 +534,6 @@ async function applyFilterToNode(node: ITreeNodeState) {
   await toggleTermExpand(node, false);
 }
 
-async function autoPageAfterPrune(node: ITreeNodeState) {
-  if (!props.countFetcher || searchTerms.value) return;
-  const minVisible = Math.min(props.selectCutOff || 25, props.limit || 20);
-  let safetyCounter = 0;
-  while (
-    (node.children?.filter((c) => c.visible !== false).length || 0) <
-      minVisible &&
-    node.loadMoreHasMore &&
-    safetyCounter < 10
-  ) {
-    safetyCounter++;
-    await loadPage(node, node.loadMoreOffset || 0);
-  }
-}
-
 async function loadMoreTerms(node: ITreeNodeState) {
   const nodeKey = node.name || "__root__";
   if (loadingNodes.value.has(nodeKey)) {
@@ -539,9 +548,6 @@ async function loadMoreTerms(node: ITreeNodeState) {
     const showingAll = node.showingAll || false;
     const searchValue = showingAll ? undefined : searchTerms.value || undefined;
     await loadPage(node, node.loadMoreOffset || 0, searchValue, showingAll);
-    if (!showingAll) {
-      await autoPageAfterPrune(node);
-    }
   } finally {
     loadingNodes.value.delete(nodeKey);
   }
@@ -673,6 +679,8 @@ onMounted(() => {
 });
 
 const localFacetCounts = ref<Map<string, number>>(new Map());
+const baseCounts = ref<Map<string, number>>(new Map());
+let baseCountsFetched = false;
 const countsLoading = ref(false);
 
 function collectVisibleNodeNames(node: ITreeNodeState): {
@@ -717,7 +725,14 @@ async function fetchCountsForVisibleNodes() {
   }
 
   localFacetCounts.value = newCounts;
+
   countsLoading.value = false;
+}
+
+async function fetchBaseCounts() {
+  if (baseCountsFetched || !props.countFetcher) return;
+  baseCountsFetched = true;
+  baseCounts.value = await props.countFetcher.fetchAllOntologyBaseCounts();
 }
 
 const debouncedRefetchCounts = useDebounceFn(() => {
@@ -885,6 +900,12 @@ watch(() => props.countFetcher?.getCrossFilter(), debouncedRefetchCounts, {
       >
         <fieldset ref="treeContainer" class="pl-4 min-w-0 overflow-hidden">
           <legend class="sr-only">select ontology terms</legend>
+          <span
+            v-if="forceList && !ontologyTree.length && !initLoading"
+            class="text-body-sm italic text-input-description px-2 py-1"
+          >
+            No matching options
+          </span>
           <TreeNode
             :id="id"
             ref="tree"

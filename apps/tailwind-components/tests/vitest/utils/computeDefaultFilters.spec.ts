@@ -17,20 +17,22 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1", "ont2", "ont3", "ont4", "ont5", "ont6"]);
   });
 
-  it("returns all columns including ontology and ref types", () => {
+  it("returns BOOL, CHECKBOX, RADIO but not REF types", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
       { id: "ref1", label: "Ref 1", columnType: "REF" },
       { id: "ref2", label: "Ref 2", columnType: "REF_ARRAY" },
-      { id: "ref3", label: "Ref 3", columnType: "REF" },
+      { id: "bool1", label: "Bool 1", columnType: "BOOL" },
+      { id: "cb1", label: "Checkbox 1", columnType: "CHECKBOX" },
+      { id: "radio1", label: "Radio 1", columnType: "RADIO" },
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1", "ont2", "ref1", "ref2", "ref3"]);
+    expect(result).toEqual(["ont1", "ont2", "bool1", "cb1", "radio1"]);
   });
 
-  it("includes SELECT columns as default filters", () => {
+  it("does not include SELECT columns as default filters", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "sel1", label: "Select 1", columnType: "SELECT" },
@@ -38,7 +40,7 @@ describe("computeDefaultFilters logic", () => {
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1", "sel1", "sel2"]);
+    expect(result).toEqual(["ont1"]);
   });
 
   it("excludes HEADING and SECTION columns", () => {
@@ -72,17 +74,18 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1"]);
   });
 
-  it("excludes STRING columns from defaults", () => {
+  it("excludes STRING, INT, DATE and other non-default types", () => {
     const columns: IColumn[] = [
       { id: "str1", label: "String", columnType: "STRING" },
       { id: "int1", label: "Int", columnType: "INT" },
+      { id: "date1", label: "Date", columnType: "DATE" },
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["int1"]);
+    expect(result).toEqual([]);
   });
 
-  it("excludes all string-like types (TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID)", () => {
+  it("excludes all string-like types (TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID) and includes only BOOL from mixed list", () => {
     const columns: IColumn[] = [
       { id: "text1", label: "Text", columnType: "TEXT" },
       { id: "email1", label: "Email", columnType: "EMAIL" },
@@ -94,6 +97,6 @@ describe("computeDefaultFilters logic", () => {
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["bool1", "int1"]);
+    expect(result).toEqual(["bool1"]);
   });
 });

@@ -56,14 +56,12 @@ function getFilterValue(columnId: string) {
   <div
     class="filter-sidebar-context rounded-t-3px rounded-b-50px pb-8 bg-sidebar-gradient"
   >
-    <div class="p-5">
+    <div class="px-5 pt-5 pb-3 flex items-center justify-between">
       <h2
         class="uppercase font-display text-heading-3xl text-search-filter-title"
       >
         {{ title }}
       </h2>
-    </div>
-    <div class="px-5 pb-3 flex justify-end">
       <FilterPicker :filters="filters" />
     </div>
 

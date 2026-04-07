@@ -24,39 +24,35 @@ function updateMax(val: any) {
 </script>
 
 <template>
-  <fieldset class="space-y-2">
+  <fieldset class="flex items-center gap-1">
     <legend v-if="legend" class="sr-only">{{ legend }}</legend>
-    <div class="flex items-center gap-2">
-      <label
-        :for="`${id}-min`"
-        class="text-body-xs w-10 cursor-pointer opacity-70"
-      >
-        {{ minLabel }}
-      </label>
-      <div class="flex-1">
-        <slot
-          name="min"
-          :value="modelValue[0]"
-          :update="updateMin"
-          :id="`${id}-min`"
-        />
-      </div>
+    <label
+      :for="`${id}-min`"
+      class="text-body-xs shrink-0 cursor-pointer opacity-70"
+    >
+      {{ minLabel }}
+    </label>
+    <div class="min-w-0 flex-1">
+      <slot
+        name="min"
+        :value="modelValue[0]"
+        :update="updateMin"
+        :id="`${id}-min`"
+      />
     </div>
-    <div class="flex items-center gap-2">
-      <label
-        :for="`${id}-max`"
-        class="text-body-xs w-10 cursor-pointer opacity-70"
-      >
-        {{ maxLabel }}
-      </label>
-      <div class="flex-1">
-        <slot
-          name="max"
-          :value="modelValue[1]"
-          :update="updateMax"
-          :id="`${id}-max`"
-        />
-      </div>
+    <label
+      :for="`${id}-max`"
+      class="text-body-xs shrink-0 cursor-pointer opacity-70"
+    >
+      {{ maxLabel }}
+    </label>
+    <div class="min-w-0 flex-1">
+      <slot
+        name="max"
+        :value="modelValue[1]"
+        :update="updateMax"
+        :id="`${id}-max`"
+      />
     </div>
   </fieldset>
 </template>

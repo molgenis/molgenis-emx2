@@ -5,8 +5,14 @@ export interface ICountFetcher {
   fetchRefCounts(
     options: Map<string, Record<string, unknown>>
   ): Promise<Map<string, number>>;
+  fetchRefBaseCounts(
+    options: Map<string, Record<string, unknown>>
+  ): Promise<Map<string, number>>;
   fetchOntologyLeafCounts(names: string[]): Promise<Map<string, number>>;
+  fetchOntologyLeafBaseCounts(names: string[]): Promise<Map<string, number>>;
   fetchOntologyParentCounts(names: string[]): Promise<Map<string, number>>;
+  fetchOntologyParentBaseCounts(names: string[]): Promise<Map<string, number>>;
+  fetchAllOntologyBaseCounts(): Promise<Map<string, number>>;
   getCrossFilter(): IGraphQLFilter | undefined;
 }
 
@@ -268,13 +274,61 @@ export function createCountFetcher(config: {
     }
   }
 
+  let allBaseCountsCache: Map<string, number> | null = null;
+
+  async function _fetchAllOntologyBaseCounts(): Promise<Map<string, number>> {
+    if (allBaseCountsCache !== null) return allBaseCountsCache;
+
+    if (config.columnPath.includes(".")) {
+      allBaseCountsCache = new Map();
+      return allBaseCountsCache;
+    }
+
+    const fieldSelector = buildNestedFieldSelector(config.columnPath, "name");
+
+    const query = `
+      query {
+        ${config.tableId}_groupBy {
+          count
+          ${fieldSelector}
+        }
+      }
+    `;
+
+    try {
+      const result = await fetchGraphql(config.schemaId, query, {});
+      const counts = new Map<string, number>();
+      const groupByResults = result[`${config.tableId}_groupBy`];
+      if (Array.isArray(groupByResults)) {
+        for (const item of groupByResults) {
+          const termObj = extractNestedValue(item, config.columnPath);
+          if (termObj?.name) {
+            counts.set(termObj.name, item.count || 0);
+          }
+        }
+      }
+      allBaseCountsCache = counts;
+      return counts;
+    } catch (error) {
+      console.warn(
+        `Failed to fetch all ontology base counts for ${config.columnPath}:`,
+        error
+      );
+      return new Map();
+    }
+  }
+
   return {
     getCrossFilter: config.getCrossFilter,
     fetchRefCounts: (options) =>
       _fetchRefCounts(options, config.getCrossFilter()),
+    fetchRefBaseCounts: (options) => _fetchRefCounts(options),
     fetchOntologyLeafCounts: (names) =>
       _fetchOntologyLeafCounts(names, config.getCrossFilter()),
+    fetchOntologyLeafBaseCounts: (names) => _fetchOntologyLeafCounts(names),
     fetchOntologyParentCounts: (names) =>
       _fetchOntologyParentCounts(names, config.getCrossFilter()),
+    fetchOntologyParentBaseCounts: (names) => _fetchOntologyParentCounts(names),
+    fetchAllOntologyBaseCounts: () => _fetchAllOntologyBaseCounts(),
   };
 }
