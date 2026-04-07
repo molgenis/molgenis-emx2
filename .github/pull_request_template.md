@@ -8,7 +8,6 @@ IMPORTANT: This section is for convenience only. In case of discrepancies, [CONT
 By contributing to this repository, you confirm that:
 
 * You have the legal rights to submit the contribution, or where applicable, have permission to do so.
-* The contribution does not infringe on the rights of any third party.
 * Agree the contribution will be licensed under the GNU Lesser General Public License v3.0 (LGPLv3).
 
 In case the contribution involves work that can be shared due to a permission (such as a third party agreeing to it or the license allowing it to be re-licensed under LGPLv3), ensure the source code clearly contains where it is originally from.
