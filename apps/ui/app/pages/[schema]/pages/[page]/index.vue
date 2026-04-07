@@ -8,7 +8,10 @@ import DeveloperPage from "../../../../../../tailwind-components/app/components/
 import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
 import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
 import type { Crumb } from "../../../../../../tailwind-components/types/types";
-import type { IConfigurablePages } from "../../../../../../tailwind-components/types/cms";
+import type {
+  IConfigurablePages,
+  IDeveloperPages,
+} from "../../../../../../tailwind-components/types/cms";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -18,7 +21,8 @@ const page = route.params.page as string;
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
-const container = await getPage(schema as string, page);
+const pageData = await getPage(schema as string, page);
+const pageContent = await pageData.page;
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
@@ -32,8 +36,13 @@ const crumbs: Crumb[] = [
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
   <DeveloperPage
-    v-if="container.mg_tableclass === 'cms.Developer pages'"
-    :content="container"
+    v-if="pageContent.mg_tableclass === 'cms.Developer pages'"
+    :content="(pageData.page as IDeveloperPages)"
   />
-  <ConfigurablePage v-else :content="(container as IConfigurablePages)" />
+  <ConfigurablePage
+    v-else
+    :content="(pageData.page as IConfigurablePages)"
+    :metadata="pageData.metadata"
+    :is-editable="true"
+  />
 </template>

@@ -29,5 +29,6 @@ withDefaults(defineProps<INavigationCards>(), {
         <ExternalLink class="w-6 h-6" />
       </template>
     </a>
+    <slot></slot>
   </div>
 </template>

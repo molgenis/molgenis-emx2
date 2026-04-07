@@ -30,4 +30,5 @@ if (props.height) {
     :alt="alt"
     :style="style"
   />
+  <slot></slot>
 </template>

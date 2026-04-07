@@ -11,6 +11,7 @@ withDefaults(defineProps<IParagraphs>(), {
     class="text-title-contrast"
     :class="{ 'text-center': paragraphIsCentered }"
   >
+    {{ text }}
     <slot />
   </p>
 </template>

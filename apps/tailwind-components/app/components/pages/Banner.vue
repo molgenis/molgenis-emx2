@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IHeaders } from "../../../types/cms";
 
-withDefaults(defineProps<IHeaders>(), {
+withDefaults(defineProps<IHeaders & { isEditable: boolean }>(), {
   enableFullScreenWidth: false,
 });
 </script>
@@ -31,5 +31,6 @@ withDefaults(defineProps<IHeaders>(), {
       v-if="backgroundImage"
       class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60"
     />
+    <slot></slot>
   </header>
 </template>
