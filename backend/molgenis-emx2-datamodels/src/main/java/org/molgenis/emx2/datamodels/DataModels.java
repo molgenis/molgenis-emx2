@@ -24,8 +24,13 @@ public class DataModels {
 
   private static final Logger log = LoggerFactory.getLogger(DataModels.class);
   private static final String MOLGENIS_YAML = "molgenis.yaml";
+  private static List<BundleInfo> cachedBundles = null;
 
   private DataModels() {}
+
+  public static void clearBundleCache() {
+    cachedBundles = null;
+  }
 
   public record BundleInfo(String id, String name, String description, String path) {}
 
@@ -107,6 +112,9 @@ public class DataModels {
   }
 
   public static List<BundleInfo> discoverBundles() {
+    if (cachedBundles != null) {
+      return cachedBundles;
+    }
     List<BundleInfo> result = new ArrayList<>();
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     ClassLoader classLoader = DataModels.class.getClassLoader();
@@ -126,6 +134,7 @@ public class DataModels {
     } catch (IOException e) {
       log.warn("Failed to discover bundles: {}", e.getMessage());
     }
+    cachedBundles = result;
     return result;
   }
 

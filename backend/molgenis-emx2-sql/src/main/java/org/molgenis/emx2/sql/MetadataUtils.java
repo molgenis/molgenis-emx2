@@ -46,7 +46,9 @@ public class MetadataUtils {
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
-  private static final Field<String[]> TABLE_INHERITS =
+  private static final Field<String[]> TABLE_EXTENDS =
+      field(name("table_extends"), VARCHAR.getArrayDataType().nullable(true));
+  private static final Field<String[]> TABLE_INHERITS_INIT =
       field(name("table_inherits"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_IMPORT_SCHEMA =
       field(name("import_schema"), VARCHAR.nullable(true));
@@ -215,7 +217,7 @@ public class MetadataUtils {
                 t.columns(
                         TABLE_SCHEMA,
                         TABLE_NAME,
-                        TABLE_INHERITS,
+                        TABLE_INHERITS_INIT,
                         TABLE_IMPORT_SCHEMA,
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
@@ -360,7 +362,7 @@ public class MetadataUtils {
               TABLE_SCHEMA,
               TABLE_NAME,
               TABLE_LABEL,
-              TABLE_INHERITS,
+              TABLE_EXTENDS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
@@ -371,7 +373,7 @@ public class MetadataUtils {
               table.getSchema().getName(),
               table.getTableName(),
               table.getLabels(),
-              table.getInheritNames(),
+              table.getExtendNames(),
               table.getImportSchema(),
               table.getDescriptions(),
               table.getSemantics(),
@@ -381,7 +383,7 @@ public class MetadataUtils {
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
-          .set(TABLE_INHERITS, table.getInheritNames())
+          .set(TABLE_EXTENDS, table.getExtendNames())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
@@ -505,9 +507,9 @@ public class MetadataUtils {
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    String[] inheritNames = r.get(TABLE_INHERITS, String[].class);
-    if (inheritNames != null) {
-      table.setInheritNames(inheritNames);
+    String[] extendNames = r.get(TABLE_EXTENDS, String[].class);
+    if (extendNames != null) {
+      table.setExtendNames(extendNames);
     }
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());

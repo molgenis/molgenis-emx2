@@ -51,7 +51,7 @@ class ProfileActivator {
       TableMetadata projectedTable =
           new TableMetadata(bundleTable.getTableName())
               .setTableType(bundleTable.getTableType())
-              .setInheritNames(bundleTable.getInheritNames())
+              .setExtendNames(bundleTable.getExtendNames())
               .setProfiles(bundleTable.getProfiles())
               .setSemantics(bundleTable.getSemantics());
 

@@ -19,7 +19,7 @@ public class Emx2Yaml {
   private static final String FIELD_ACTIVE_SUBSETS = "activeSubsets";
   private static final String FIELD_COLUMNS = "columns";
   private static final String FIELD_NAME = "name";
-  private static final String FIELD_INHERITS = "inherits";
+  private static final String FIELD_EXTENDS = "extends";
   private static final String FIELD_INTERNAL = "internal";
   private static final String FIELD_TYPE = "type";
   private static final String FIELD_KEY = "key";
@@ -69,7 +69,6 @@ public class Emx2Yaml {
   private static final String TYPE_SUBTYPE_ARRAY = "subtype_array";
   private static final String MOLGENIS_YAML = "molgenis.yaml";
   private static final String SINGLE_FILE_FORBIDDEN_ONTOLOGIES = "ontologies";
-  private static final String SINGLE_FILE_FORBIDDEN_DEMODATA = "demodata";
   private static final String SINGLE_FILE_FORBIDDEN_MIGRATIONS = "migrations";
 
   private static final Logger log = LoggerFactory.getLogger(Emx2Yaml.class);
@@ -121,26 +120,32 @@ public class Emx2Yaml {
   private static Path extractClasspathBundleToTemp(String classpathDir, URI jarUri)
       throws IOException {
     Path tempDir = Files.createTempDirectory("molgenis_bundle_");
-    String jarPath = jarUri.getSchemeSpecificPart();
-    String jarFilePath = jarPath.substring(0, jarPath.indexOf('!'));
-    String entryPrefix = jarPath.substring(jarPath.indexOf('!') + 2);
-    URI fileUri = URI.create("jar:" + jarFilePath);
-    try (FileSystem jarFs = FileSystems.newFileSystem(fileUri, Map.of())) {
-      Path root = jarFs.getPath(entryPrefix);
-      if (!Files.exists(root)) {
-        throw new MolgenisException("Bundle directory not found in jar: " + entryPrefix);
-      }
-      try (var stream = Files.walk(root)) {
-        for (Path source : (Iterable<Path>) stream::iterator) {
-          Path relative = root.relativize(source);
-          Path target = tempDir.resolve(relative.toString());
-          if (Files.isDirectory(source)) {
-            Files.createDirectories(target);
-          } else {
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    try {
+      String jarPath = jarUri.getSchemeSpecificPart();
+      String jarFilePath = jarPath.substring(0, jarPath.indexOf('!'));
+      String entryPrefix = jarPath.substring(jarPath.indexOf('!') + 2);
+      URI fileUri = URI.create("jar:" + jarFilePath);
+      try (FileSystem jarFs = FileSystems.newFileSystem(fileUri, Map.of())) {
+        Path root = jarFs.getPath(entryPrefix);
+        if (!Files.exists(root)) {
+          throw new MolgenisException("Bundle directory not found in jar: " + entryPrefix);
+        }
+        try (var stream = Files.walk(root)) {
+          for (Path source : (Iterable<Path>) stream::iterator) {
+            Path relative = root.relativize(source);
+            Path target = tempDir.resolve(relative.toString());
+            if (Files.isDirectory(source)) {
+              Files.createDirectories(target);
+            } else {
+              Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            }
           }
         }
       }
+    } catch (Exception e) {
+      deleteDirectory(tempDir);
+      if (e instanceof IOException ioEx) throw ioEx;
+      throw new IOException("Failed to extract bundle from jar", e);
     }
     return tempDir;
   }
@@ -170,11 +175,7 @@ public class Emx2Yaml {
     }
 
     for (String forbidden :
-        List.of(
-            SINGLE_FILE_FORBIDDEN_ONTOLOGIES,
-            SINGLE_FILE_FORBIDDEN_DEMODATA,
-            SINGLE_FILE_FORBIDDEN_MIGRATIONS,
-            FIELD_SETTINGS)) {
+        List.of(SINGLE_FILE_FORBIDDEN_ONTOLOGIES, SINGLE_FILE_FORBIDDEN_MIGRATIONS)) {
       if (yaml.containsKey(forbidden)) {
         throw new MolgenisException(
             "Single-file bundle '"
@@ -302,8 +303,8 @@ public class Emx2Yaml {
     if (tableDef.importSchema() != null) {
       rootTable.setImportSchema(tableDef.importSchema());
     }
-    if (!tableDef.inherits().isEmpty()) {
-      rootTable.setInheritNames(tableDef.inherits().toArray(new String[0]));
+    if (!tableDef.extendNames().isEmpty()) {
+      rootTable.setExtendNames(tableDef.extendNames().toArray(new String[0]));
     }
     if (tableDef.isInternal()) {
       rootTable.setTableType(TableType.INTERNAL);
@@ -315,12 +316,13 @@ public class Emx2Yaml {
     Map<String, TableMetadata> variantTablesByName = new LinkedHashMap<>();
     for (Map.Entry<String, VariantDef> entry : tableDef.variants().entrySet()) {
       String variantName = entry.getKey();
-      VariantDef variantDef = entry.getValue();
+      VariantDef variantDef =
+          entry.getValue() != null ? entry.getValue() : new VariantDef(null, null, null);
       TableMetadata variantTable = new TableMetadata(variantName);
-      if (variantDef.inherits().isEmpty()) {
-        variantTable.setInheritNames(tableName);
+      if (variantDef.extendNames().isEmpty()) {
+        variantTable.setExtendNames(tableName);
       } else {
-        variantTable.setInheritNames(variantDef.inherits().toArray(new String[0]));
+        variantTable.setExtendNames(variantDef.extendNames().toArray(new String[0]));
       }
       if (variantDef.isInternal()) {
         variantTable.setTableType(TableType.INTERNAL);
@@ -553,9 +555,9 @@ public class Emx2Yaml {
     applyTableDescription(rootTable, tableMap);
     applyTableSubsets(rootTable, tableMap);
 
-    List<String> topLevelInherits = (List<String>) tableMap.getOrDefault(FIELD_INHERITS, List.of());
+    List<String> topLevelInherits = (List<String>) tableMap.getOrDefault(FIELD_EXTENDS, List.of());
     if (!topLevelInherits.isEmpty()) {
-      rootTable.setInheritNames(topLevelInherits.toArray(new String[0]));
+      rootTable.setExtendNames(topLevelInherits.toArray(new String[0]));
     }
     if (Boolean.TRUE.equals(tableMap.get(FIELD_INTERNAL))) {
       rootTable.setTableType(TableType.INTERNAL);
@@ -574,11 +576,11 @@ public class Emx2Yaml {
               ? (Map<String, Object>) variantEntry.getValue()
               : Map.of();
       TableMetadata variantTable = new TableMetadata(variantName);
-      List<String> inherits = (List<String>) variantMap.getOrDefault(FIELD_INHERITS, List.of());
-      if (inherits.isEmpty()) {
-        variantTable.setInheritNames(tableName);
+      List<String> includes = (List<String>) variantMap.getOrDefault("includes", List.of());
+      if (includes.isEmpty()) {
+        variantTable.setExtendNames(tableName);
       } else {
-        variantTable.setInheritNames(inherits.toArray(new String[0]));
+        variantTable.setExtendNames(includes.toArray(new String[0]));
       }
       if (Boolean.TRUE.equals(variantMap.get(FIELD_INTERNAL))) {
         variantTable.setTableType(TableType.INTERNAL);
@@ -1042,8 +1044,8 @@ public class Emx2Yaml {
     Map<String, Object> doc = new LinkedHashMap<>();
     doc.put(FIELD_TABLE, tableName);
     putIfNotNull(doc, FIELD_DESCRIPTION, table.description());
-    if (!table.inherits().isEmpty()) {
-      doc.put(FIELD_INHERITS, table.inherits());
+    if (!table.extendNames().isEmpty()) {
+      doc.put(FIELD_EXTENDS, table.extendNames());
     }
     if (table.isInternal()) {
       doc.put(FIELD_INTERNAL, true);
@@ -1070,8 +1072,8 @@ public class Emx2Yaml {
   private static Map<String, Object> buildTableEntry(TableDef table) {
     Map<String, Object> entry = new LinkedHashMap<>();
     putIfNotNull(entry, FIELD_DESCRIPTION, table.description());
-    if (!table.inherits().isEmpty()) {
-      entry.put(FIELD_INHERITS, table.inherits());
+    if (!table.extendNames().isEmpty()) {
+      entry.put(FIELD_EXTENDS, table.extendNames());
     }
     if (table.isInternal()) {
       entry.put(FIELD_INTERNAL, true);
@@ -1119,9 +1121,9 @@ public class Emx2Yaml {
       VariantDef def = entry.getValue();
       Map<String, Object> defDoc = new LinkedHashMap<>();
       putIfNotNull(defDoc, FIELD_DESCRIPTION, def.description());
-      if (!def.inherits().isEmpty()
-          && !(def.inherits().size() == 1 && entry.getKey().equals(defaultParent))) {
-        defDoc.put(FIELD_INHERITS, def.inherits());
+      if (!def.extendNames().isEmpty()
+          && !(def.extendNames().size() == 1 && entry.getKey().equals(defaultParent))) {
+        defDoc.put(FIELD_EXTENDS, def.extendNames());
       }
       if (def.isInternal()) {
         defDoc.put(FIELD_INTERNAL, true);

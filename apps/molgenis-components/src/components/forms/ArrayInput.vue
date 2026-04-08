@@ -12,6 +12,7 @@
         :id="id + '-' + index"
         :modelValue="values[index]"
         :showAddButton="index === values.length"
+        :options="options"
         @update:modelValue="handleUpdate($event, index)"
       >
         <template v-slot:append>
@@ -46,6 +47,7 @@ import InputEmail from "./InputEmail.vue";
 import InputHyperlink from "./InputHyperlink.vue";
 import InputInt from "./InputInt.vue";
 import InputLong from "./InputLong.vue";
+import InputSelect from "./InputSelect.vue";
 import InputString from "./InputString.vue";
 import InputText from "./InputText.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
@@ -63,6 +65,11 @@ export default {
       type: String,
       required: true,
     },
+    options: {
+      type: Array,
+      required: false,
+      default: () => null,
+    },
   },
   computed: {
     inputType() {
@@ -78,7 +85,7 @@ export default {
         NON_NEGATIVE_INT_ARRAY: InputNonNegativeInt,
         LONG_ARRAY: InputLong,
         STRING_ARRAY: InputString,
-        PROFILES: InputString,
+        VARIANT_ARRAY: InputSelect,
         TEXT_ARRAY: InputText,
         UUID_ARRAY: InputString,
       }[this.columnType];

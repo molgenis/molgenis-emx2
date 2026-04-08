@@ -4,7 +4,7 @@
       <span v-if="schema.tables && schema.tables?.length > 0">
         <span v-for="(table, index) in schema.tables" :key="index">
           <TableView
-            v-if="!table.inheritNames?.length"
+            v-if="!table.extends?.length"
             v-model="schema.tables[index]"
             :schema="schema"
             :schemaNames="schemaNames"

@@ -114,7 +114,7 @@ direction TB
     }
     if (table.subclasses) {
       table.subclasses.forEach((subclass) => {
-        const parents = subclass.inheritNames ?? [];
+        const parents = subclass.extends ?? [];
         parents.forEach((parent) => {
           graph += ` \`${parent}\` <|-- \`${subclass.name}\` \n`;
         });

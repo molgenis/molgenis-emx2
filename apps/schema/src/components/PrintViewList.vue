@@ -70,7 +70,7 @@
           <br />
           <div>
             <b>{{ subclass.name }}</b> (extends:
-            {{ (subclass.inheritNames ?? []).join(", ") }})
+            {{ (subclass.extends ?? []).join(", ") }})
             <span v-if="getDescription(subclass)">
               <i> - {{ getDescription(subclass) }}</i>
             </span>

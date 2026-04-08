@@ -34,11 +34,8 @@ public class SchemaMetadataToBundle {
         null,
         null,
         null,
-        null,
-        null,
-        null,
-        null,
-        null);
+        Map.of(),
+        Map.of());
   }
 
   public static Bundle convertWithAutoRegistry(
@@ -46,10 +43,10 @@ public class SchemaMetadataToBundle {
     Set<String> allProfiles = collectAllProfileNames(schema);
     Map<String, ProfileDef> profiles = new LinkedHashMap<>();
     for (String profile : allProfiles) {
-      profiles.put(profile, new ProfileDef(null, List.of(), Boolean.TRUE));
+      profiles.put(profile, new ProfileDef(null, List.of(), Boolean.TRUE, List.of()));
     }
     if (!allProfiles.isEmpty()) {
-      profiles.put("all", new ProfileDef(null, List.copyOf(allProfiles), null));
+      profiles.put("all", new ProfileDef(null, List.copyOf(allProfiles), null, List.of()));
     }
 
     return convert(schema, bundleName, bundleDescription, profiles);
@@ -59,14 +56,14 @@ public class SchemaMetadataToBundle {
     if (TableType.INTERNAL.equals(table.getTableType())) {
       return false;
     }
-    String[] inheritNames = table.getInheritNames();
+    String[] inheritNames = table.getExtendNames();
     return inheritNames == null || inheritNames.length == 0;
   }
 
   private static TableDef convertRootTable(SchemaMetadata schema, TableMetadata table) {
     String description = table.getDescriptions().get("en");
     List<String> inherits =
-        table.getInheritNames() != null ? Arrays.asList(table.getInheritNames()) : List.of();
+        table.getExtendNames() != null ? Arrays.asList(table.getExtendNames()) : List.of();
     List<String> tableProfiles = normalizeProfiles(table.getProfiles());
     List<String> semantics =
         table.getSemantics() != null && table.getSemantics().length > 0
@@ -108,7 +105,7 @@ public class SchemaMetadataToBundle {
   }
 
   private static VariantDef convertVariantDef(TableMetadata variantTable, String defaultParent) {
-    String[] inheritNames = variantTable.getInheritNames();
+    String[] inheritNames = variantTable.getExtendNames();
     List<String> inherits;
     if (inheritNames != null
         && inheritNames.length > 0
@@ -236,7 +233,7 @@ public class SchemaMetadataToBundle {
         if (visited.contains(table.getTableName())) {
           continue;
         }
-        String[] inheritNames = table.getInheritNames();
+        String[] inheritNames = table.getExtendNames();
         if (inheritNames != null) {
           for (String parent : inheritNames) {
             if (current.equals(parent)) {

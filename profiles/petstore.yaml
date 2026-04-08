@@ -1,6 +1,11 @@
 name: Pet store
 description: Classic MOLGENIS pet store demo plus type-test tables — example of a single-file bundle form with 11 inline tables.
 
+demodata: [_demodata/applications/petstore]
+settings: [_settings/petstore]
+permissions:
+  view: anonymous
+
 tables:
   Category:
     columns:

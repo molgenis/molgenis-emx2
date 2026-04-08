@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,7 +50,8 @@ public record DataColumn(
       @JsonProperty("refSchema") String refSchema,
       @JsonProperty("position") Integer position,
       @JsonProperty("description") String description,
-      @JsonProperty("semantics") List<String> semantics,
+      @JsonProperty("semantics") @JsonDeserialize(using = StringOrListDeserializer.class)
+          List<String> semantics,
       @JsonProperty("variant") @JsonAlias("subtype") String variant,
       @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
       @JsonProperty("label") String label,

@@ -83,22 +83,22 @@ async function configureTableInheritance(request: any): Promise<void> {
         ]) {
           message
         }
-        updateTable(name: "sampling", tableType: INTERNAL, inheritNames: ["Experiments"], columns: [
+        updateTable(name: "sampling", tableType: INTERNAL, extends: ["Experiments"], columns: [
           {name: "tissue_type", columnType: "STRING"}
         ]) {
           message
         }
-        updateTable(name: "sequencing", tableType: INTERNAL, inheritNames: ["Experiments"], columns: [
+        updateTable(name: "sequencing", tableType: INTERNAL, extends: ["Experiments"], columns: [
           {name: "read_length", columnType: "INT"}
         ]) {
           message
         }
-        updateTable(name: "WGS", inheritNames: ["sampling", "sequencing"], columns: [
+        updateTable(name: "WGS", extends: ["sampling", "sequencing"], columns: [
           {name: "coverage", columnType: "DECIMAL"}
         ]) {
           message
         }
-        updateTable(name: "Imaging", inheritNames: ["Experiments"], columns: [
+        updateTable(name: "Imaging", extends: ["Experiments"], columns: [
           {name: "modality", columnType: "STRING"}
         ]) {
           message
@@ -131,7 +131,7 @@ async function verifySchemaViaAPI(request: any): Promise<void> {
             tables {
               name
               tableType
-              inheritNames
+              extends
               columns {
                 name
                 columnType
@@ -159,21 +159,21 @@ async function verifySchemaViaAPI(request: any): Promise<void> {
   const samplingTable = tables.find((t: any) => t.name === "sampling");
   expect(samplingTable).toBeDefined();
   expect(samplingTable.tableType).toBe("INTERNAL");
-  expect(samplingTable.inheritNames).toContain("Experiments");
+  expect(samplingTable.extends).toContain("Experiments");
 
   const sequencingTable = tables.find((t: any) => t.name === "sequencing");
   expect(sequencingTable).toBeDefined();
   expect(sequencingTable.tableType).toBe("INTERNAL");
-  expect(sequencingTable.inheritNames).toContain("Experiments");
+  expect(sequencingTable.extends).toContain("Experiments");
 
   const wgsTable = tables.find((t: any) => t.name === "WGS");
   expect(wgsTable).toBeDefined();
-  expect(wgsTable.inheritNames).toContain("sampling");
-  expect(wgsTable.inheritNames).toContain("sequencing");
+  expect(wgsTable.extends).toContain("sampling");
+  expect(wgsTable.extends).toContain("sequencing");
 
   const imagingTable = tables.find((t: any) => t.name === "Imaging");
   expect(imagingTable).toBeDefined();
-  expect(imagingTable.inheritNames).toContain("Experiments");
+  expect(imagingTable.extends).toContain("Experiments");
 
   expect(experimentsTable.columns.find((c: any) => c.name === "experiment_type").columnType).toBe("EXTENSION");
 }

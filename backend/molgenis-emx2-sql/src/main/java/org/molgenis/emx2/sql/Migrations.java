@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 37;
+  private static final int SOFTWARE_DATABASE_VERSION = 33;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -199,31 +199,7 @@ public class Migrations {
             executeMigrationFile(
                 tdb,
                 "migration32.sql",
-                "convert table_inherits from varchar to varchar[] for multi-inheritance support");
-          }
-
-          if (version < 34) {
-            executeMigrationFile(
-                tdb, "migration33.sql", "rename table_type BLOCK to INTERNAL in table_metadata");
-          }
-
-          if (version < 35) {
-            executeMigrationFile(
-                tdb,
-                "migration34.sql",
-                "rename column_type PROFILE to EXTENSION and PROFILES to EXTENSION_ARRAY");
-          }
-
-          if (version < 36) {
-            executeMigrationFile(
-                tdb, "migration35.sql", "database migration: add table and schema profiles");
-          }
-
-          if (version < 37) {
-            executeMigrationFile(
-                tdb,
-                "migration36.sql",
-                "database migration: rename column_type EXTENSION to VARIANT and EXTENSION_ARRAY to VARIANT_ARRAY");
+                "multi-inheritance (varchar[]), BLOCK→INTERNAL, PROFILE→VARIANT column types, add profile columns");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

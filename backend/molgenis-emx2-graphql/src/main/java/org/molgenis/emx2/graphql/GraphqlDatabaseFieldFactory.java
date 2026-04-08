@@ -131,7 +131,11 @@ public class GraphqlDatabaseFieldFactory {
               if (template != null) {
                 Task task =
                     DataModels.getImportTask(
-                        database, name, description, template, includeDemoData);
+                        database,
+                        name,
+                        description,
+                        template,
+                        Boolean.TRUE.equals(includeDemoData));
                 if (parentTaskId != null) {
                   Task parentTask = taskService.getTask(parentTaskId);
                   task.setParentTask(parentTask);

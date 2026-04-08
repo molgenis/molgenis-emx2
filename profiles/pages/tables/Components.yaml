@@ -13,10 +13,10 @@ variants:
     description: <nav> elements
   Navigation cards:
   Headings:
-    inherits: [Text elements]
+    extends: [Text elements]
     description: <h*> elements
   Paragraphs:
-    inherits: [Text elements]
+    extends: [Text elements]
     description: <p> elements
 columns:
   items:

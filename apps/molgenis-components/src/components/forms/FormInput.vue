@@ -8,7 +8,7 @@
       v-if="typeToInput"
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
-      v-bind="$props"
+      v-bind="computedProps"
       @update:modelValue="handleUpdate"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
@@ -29,6 +29,7 @@ import InputLong from "../forms/InputLong.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRefBack from "../forms/InputRefBack.vue";
 import InputRefSelect from "../forms/InputRefSelect.vue";
+import InputSelect from "../forms/InputSelect.vue";
 import InputString from "../forms/InputString.vue";
 import InputText from "../forms/InputText.vue";
 import BaseInput from "../forms/baseInputs/BaseInput.vue";
@@ -45,7 +46,7 @@ const typeToInputMap = {
   EMAIL: InputEmail,
   HYPERLINK: InputHyperlink,
   STRING: InputString,
-  PROFILE: InputString,
+  VARIANT: InputSelect,
   TEXT: InputText,
   JSON: InputJson,
   INT: InputInt,
@@ -79,7 +80,7 @@ const typeToInputMap = {
   CHECKBOX: InputRefList,
   MULTISELECT: InputRefList,
   STRING_ARRAY: ArrayInput,
-  PROFILES: ArrayInput,
+  VARIANT_ARRAY: ArrayInput,
   TEXT_ARRAY: ArrayInput,
 };
 
@@ -147,10 +148,16 @@ export default {
       required: false,
       default: () => [],
     },
+    variantOptions: {
+      type: Array,
+      required: false,
+      default: () => null,
+    },
   },
   components: {
     InlineInput,
     ArrayInput,
+    InputSelect,
     InputString,
     InputInt,
     InputNonNegativeInt,
@@ -169,6 +176,13 @@ export default {
   computed: {
     typeToInput() {
       return typeToInputMap[this.columnType];
+    },
+    computedProps() {
+      const isVariant =
+        this.columnType === "VARIANT" || this.columnType === "VARIANT_ARRAY";
+      return isVariant
+        ? { ...this.$props, options: this.variantOptions ?? [] }
+        : this.$props;
     },
   },
   methods: {

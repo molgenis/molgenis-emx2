@@ -21,6 +21,7 @@
       :refLabel="column.refLabel || column.refLabelDefault"
       :required="column.required"
       :tableId="column.refTableId"
+      :variantOptions="variantOptionsForColumn(column)"
       :canEdit="canEdit"
       :tablePermissions="tablePermissions"
       :filter="refFilter[column.id]"
@@ -127,6 +128,25 @@ export default {
     },
   },
   methods: {
+    variantOptionsForColumn(column: IColumn): string[] | null {
+      if (
+        column.columnType !== "VARIANT" &&
+        column.columnType !== "VARIANT_ARRAY"
+      ) {
+        return null;
+      }
+      const rootTableId = column.refTableId;
+      if (!rootTableId || !this.schemaMetaData?.tables) {
+        return null;
+      }
+      return this.schemaMetaData.tables
+        .filter(
+          (table: ITableMetaData) =>
+            table.extends?.includes(rootTableId) &&
+            table.tableType !== "INTERNAL"
+        )
+        .map((table: ITableMetaData) => table.name);
+    },
     showColumn(column: IColumn) {
       if (column.refLinkId) {
         return this.internalValues[column.refLinkId];

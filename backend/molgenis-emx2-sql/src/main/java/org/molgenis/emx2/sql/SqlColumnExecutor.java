@@ -99,16 +99,16 @@ public class SqlColumnExecutor {
                 .fetch(
                     """
                       WITH RECURSIVE RecursiveCTE AS (
-                          SELECT table_schema,table_name,table_inherits
+                          SELECT table_schema,table_name,table_extends
                           FROM "MOLGENIS"."table_metadata"
                           WHERE table_schema={0} AND table_name={1}
                           UNION ALL
-                          SELECT t.table_schema,t.table_name,t.table_inherits
+                          SELECT t.table_schema,t.table_name,t.table_extends
                           FROM "MOLGENIS"."table_metadata" t
-                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND r.table_name = ANY(t.table_inherits)
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND r.table_name = ANY(t.table_extends)
                       )
                       SELECT *
-                      FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
+                      FROM RecursiveCTE WHERE table_extends IS NOT NULL;
                     """,
                     rootTable.getSchemaName(), rootTable.getTableName())
                 .stream()

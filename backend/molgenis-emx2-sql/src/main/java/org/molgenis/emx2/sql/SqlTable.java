@@ -462,9 +462,9 @@ public class SqlTable implements Table {
 
   private int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritNames() != null;
+    boolean extend = table.getMetadata().getExtendNames() != null;
     int count = 0;
-    if (inherit) {
+    if (extend) {
       for (SqlTable inheritedTable : table.getInheritedTables()) {
         // use upsert (updateOnConflict=true) for all parent inserts to handle diamond inheritance
         count = inheritedTable.insertBatch(inheritedTable, rows, true, updateColumns);
@@ -483,7 +483,7 @@ public class SqlTable implements Table {
     for (Row row : rows) {
       // get values
       Map values = getSelectedRowValues(columns, row);
-      if (!inherit) {
+      if (!extend) {
         values.put(MG_INSERTEDBY, getActiveUser(table));
         values.put(MG_INSERTEDON, now);
         values.put(MG_UPDATEDBY, getActiveUser(table));
@@ -507,7 +507,7 @@ public class SqlTable implements Table {
             column.getJooqField(),
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
       }
-      if (!inherit) {
+      if (!extend) {
         step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
         step2.set(field(name(MG_UPDATEDON)), now);
       }
@@ -525,9 +525,9 @@ public class SqlTable implements Table {
   }
 
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritNames() != null;
+    boolean extend = table.getMetadata().getExtendNames() != null;
     int count = 0;
-    if (inherit) {
+    if (extend) {
       for (SqlTable inheritedTable : table.getInheritedTables()) {
         count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
       }
@@ -542,7 +542,7 @@ public class SqlTable implements Table {
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       Map values = getSelectedRowValues(columns, row);
-      if (!inherit) {
+      if (!extend) {
         values.put(MG_UPDATEDBY, getActiveUser(table));
         values.put(MG_UPDATEDON, now);
       }
@@ -623,7 +623,7 @@ public class SqlTable implements Table {
             deleteBatch(table, batch);
 
             // finally delete in superclass tables
-            if (table.getMetadata().getInheritNames() != null) {
+            if (table.getMetadata().getExtendNames() != null) {
               for (SqlTable inheritedTable : table.getInheritedTables()) {
                 inheritedTable.delete(rows);
               }
@@ -770,7 +770,7 @@ public class SqlTable implements Table {
 
   @Override
   public SqlTable getInheritedTable() {
-    if (getMetadata().getInheritNames() == null || getMetadata().getInheritNames().length == 0) {
+    if (getMetadata().getExtendNames() == null || getMetadata().getExtendNames().length == 0) {
       return null;
     }
     if (getMetadata().getImportSchema() != null) {
@@ -778,9 +778,9 @@ public class SqlTable implements Table {
           getSchema()
               .getDatabase()
               .getSchema(getMetadata().getImportSchema())
-              .getTable(getMetadata().getInheritNames()[0]);
+              .getTable(getMetadata().getExtendNames()[0]);
     } else {
-      return (SqlTable) getSchema().getTable(getMetadata().getInheritNames()[0]);
+      return (SqlTable) getSchema().getTable(getMetadata().getExtendNames()[0]);
     }
   }
 
@@ -788,8 +788,8 @@ public class SqlTable implements Table {
   // tables.
   public List<SqlTable> getInheritedTables() {
     List<SqlTable> result = new ArrayList<>();
-    if (getMetadata().getInheritNames() != null) {
-      for (String name : getMetadata().getInheritNames()) {
+    if (getMetadata().getExtendNames() != null) {
+      for (String name : getMetadata().getExtendNames()) {
         if (getMetadata().getImportSchema() != null) {
           result.add(
               (SqlTable)

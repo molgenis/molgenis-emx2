@@ -39,7 +39,7 @@ public class TestTableQueriesWithInheritance {
     schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
-        table("Employee", column("salary").setType(ColumnType.INT)).setInheritNames("Person"));
+        table("Employee", column("salary").setType(ColumnType.INT)).setExtendNames("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(schema, taskService);
@@ -53,16 +53,16 @@ public class TestTableQueriesWithInheritance {
     multiParentSchema.create(
         table("Sampling")
             .setTableType(TableType.INTERNAL)
-            .setInheritNames("Experiments")
+            .setExtendNames("Experiments")
             .add(column("sample_type")));
     multiParentSchema.create(
         table("Sequencing")
             .setTableType(TableType.INTERNAL)
-            .setInheritNames("Experiments")
+            .setExtendNames("Experiments")
             .add(column("library_strategy")));
     multiParentSchema.create(
         table("WGS")
-            .setInheritNames("Sampling", "Sequencing")
+            .setExtendNames("Sampling", "Sequencing")
             .add(column("coverage").setType(ColumnType.INT)));
     multiParentSchema
         .getTable("Experiments")
@@ -88,20 +88,20 @@ public class TestTableQueriesWithInheritance {
 
   @Test
   public void testMultiParentInheritanceSchemaMetadata() throws IOException {
-    JsonNode result = execute(multiParentGrapql, "{_schema{tables{name,inheritNames}}}");
+    JsonNode result = execute(multiParentGrapql, "{_schema{tables{name,extends}}}");
     JsonNode tables = result.at("/_schema/tables");
     assertFalse(tables.isMissingNode(), "tables should be present in schema");
 
     JsonNode wgsTable = findTableByName(tables, "WGS");
     assertNotNull(wgsTable, "WGS table should be present");
-    JsonNode inheritNames = wgsTable.get("inheritNames");
-    assertNotNull(inheritNames, "inheritNames should not be null");
-    assertTrue(inheritNames.isArray(), "inheritNames should be an array");
-    assertEquals(2, inheritNames.size(), "WGS should have 2 parents");
+    JsonNode extendNames = wgsTable.get("extends");
+    assertNotNull(extendNames, "extends should not be null");
+    assertTrue(extendNames.isArray(), "extends should be an array");
+    assertEquals(2, extendNames.size(), "WGS should have 2 parents");
 
     boolean hasSampling = false;
     boolean hasSequencing = false;
-    for (JsonNode name : inheritNames) {
+    for (JsonNode name : extendNames) {
       if ("Sampling".equals(name.asText())) hasSampling = true;
       if ("Sequencing".equals(name.asText())) hasSequencing = true;
     }

@@ -29,7 +29,7 @@ export const schemaQuery = gql`
       tables {
         name
         tableType
-        inheritNames
+        extends
         labels {
           locale
           value
@@ -116,7 +116,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (!table.inheritNames?.length) {
+    if (!table.extends?.length) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -135,13 +135,13 @@ export function convertToSubclassTables(rawSchema: any) {
     table.columns.sort((a, b) => a.position - b.position);
   });
   //remove the subclass tables
-  schema.tables = schema.tables.filter((table) => !table.inheritNames?.length);
+  schema.tables = schema.tables.filter((table) => !table.extends?.length);
   return schema;
 }
 
 export function getSubclassTables(schema, tableName) {
   const subclasses = schema.tables.filter((table) =>
-    table.inheritNames?.includes(tableName)
+    table.extends?.includes(tableName)
   );
   const all = subclasses.concat(
     subclasses
@@ -247,7 +247,7 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.id = convertToPascalCase(table.name);
   table.label = getLocalizedLabel(table);
   table.description = getLocalizedDescription(table, "en");
-  table.inheritIds = (table.inheritNames ?? []).map(convertToPascalCase);
+  table.inheritIds = (table.extends ?? []).map(convertToPascalCase);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);
     column.label = getLocalizedLabel(column, "en") || column.name;

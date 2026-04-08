@@ -156,9 +156,9 @@ class Emx2YamlBundleTest {
         schema.getTableMetadata("NGS sequencing"), "NGS sequencing subtype must be loaded");
 
     TableMetadata analyses = schema.getTableMetadata("Analyses");
-    assertNotNull(analyses.getInheritNames(), "Analyses must inherit from Processes");
+    assertNotNull(analyses.getExtendNames(), "Analyses must inherit from Processes");
     assertTrue(
-        List.of(analyses.getInheritNames()).contains("Processes"),
+        List.of(analyses.getExtendNames()).contains("Processes"),
         "Analyses must inherit Processes");
   }
 
@@ -340,14 +340,14 @@ class Emx2YamlBundleTest {
         name: Test
         tables:
           MyTable:
-            subtypes:
+            variants:
               ChildA:
                 description: first child
             sections:
               MySection:
                 headings:
                   MyHeading:
-                    subtype: ChildA
+                    variant: ChildA
                     columns:
                       col1:
                         type: string
@@ -371,12 +371,12 @@ class Emx2YamlBundleTest {
         name: Test
         tables:
           MyTable:
-            subtypes:
+            variants:
               ChildA:
-                description: inherits parent
+                description: extends parent
               ChildB:
-                inherits: [ChildA]
-                description: multi inherit
+                extends: [ChildA]
+                description: multi extend
             columns:
               id:
                 key: 1
@@ -387,12 +387,11 @@ class Emx2YamlBundleTest {
     SchemaMetadata schema = bundle.getSchema();
     TableMetadata childA = schema.getTableMetadata("ChildA");
     assertNotNull(childA);
-    assertTrue(
-        List.of(childA.getInheritNames()).contains("MyTable"), "ChildA must inherit MyTable");
+    assertTrue(List.of(childA.getExtendNames()).contains("MyTable"), "ChildA must inherit MyTable");
 
     TableMetadata childB = schema.getTableMetadata("ChildB");
     assertNotNull(childB);
-    assertTrue(List.of(childB.getInheritNames()).contains("ChildA"), "ChildB must inherit ChildA");
+    assertTrue(List.of(childB.getExtendNames()).contains("ChildA"), "ChildB must inherit ChildA");
   }
 
   @Test

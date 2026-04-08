@@ -139,7 +139,7 @@ public class TestExtends {
 
     assertArrayEquals(
         new String[] {"sampling", "sequencing"},
-        sm.getTableMetadata("WGS").getInheritNames(),
+        sm.getTableMetadata("WGS").getExtendNames(),
         "WGS should inherit from both sampling and sequencing after import");
 
     List<Row> exported = Emx2.toRowList(sm);
@@ -161,7 +161,7 @@ public class TestExtends {
 
     assertArrayEquals(
         new String[] {"sampling", "sequencing"},
-        reimported.getTableMetadata("WGS").getInheritNames(),
+        reimported.getTableMetadata("WGS").getExtendNames(),
         "WGS should still inherit from both sampling and sequencing after re-import");
   }
 
@@ -239,7 +239,7 @@ public class TestExtends {
     assertEquals(TableType.INTERNAL, sm.getTableMetadata("Sampling").getTableType());
     assertEquals(TableType.INTERNAL, sm.getTableMetadata("Sequencing").getTableType());
     assertArrayEquals(
-        new String[] {"Sampling", "Sequencing"}, sm.getTableMetadata("WGS").getInheritNames());
+        new String[] {"Sampling", "Sequencing"}, sm.getTableMetadata("WGS").getExtendNames());
 
     assertNotNull(
         sm.getTableMetadata("Experiments").getColumn("experiment_type"),
@@ -256,7 +256,7 @@ public class TestExtends {
     assertEquals(TableType.INTERNAL, reimported.getTableMetadata("Sequencing").getTableType());
     assertArrayEquals(
         new String[] {"Sampling", "Sequencing"},
-        reimported.getTableMetadata("WGS").getInheritNames());
+        reimported.getTableMetadata("WGS").getExtendNames());
     assertEquals(
         ColumnType.VARIANT,
         reimported.getTableMetadata("Experiments").getColumn("experiment_type").getColumnType());
@@ -279,7 +279,7 @@ public class TestExtends {
 
     assertArrayEquals(
         new String[] {"sampling", "sequencing"},
-        sm.getTableMetadata("WGS").getInheritNames(),
+        sm.getTableMetadata("WGS").getExtendNames(),
         "WGS should inherit from both sampling and sequencing in memory");
     assertEquals(
         ColumnType.VARIANT,
@@ -298,7 +298,7 @@ public class TestExtends {
 
       assertArrayEquals(
           new String[] {"sampling", "sequencing"},
-          oneStepSchema.getMetadata().getTableMetadata("WGS").getInheritNames(),
+          oneStepSchema.getMetadata().getTableMetadata("WGS").getExtendNames(),
           "WGS should inherit from both sampling and sequencing after DB migrate");
       assertEquals(
           ColumnType.VARIANT,

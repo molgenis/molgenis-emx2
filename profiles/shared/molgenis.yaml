@@ -3,6 +3,17 @@ description: Shared tables for all catalogue variants, cohorts, patient registri
 imports:
 - tables/
 - ontologies/tables/
+
+demodata: [_demodata/applications/datacatalogue]
+settings: [_settings/datacatalogue]
+permissions:
+  view: anonymous
+additionalSchemas:
+  CatalogueOntologies:
+    model: catalogue-ontologies/molgenis.yaml
+    permissions:
+      view: anonymous
+
 profiles:
   catalogue_core:
     description: Core catalogue columns visible in all catalogue-family templates
@@ -48,6 +59,7 @@ profiles:
   cohorts_staging:
     description: Cohort registry staging workspace
     includes: [cohort_core]
+    settings: [_settings/datacatalogue_sharedstaging]
   integrate_cohorts:
     description: INTEGRATE cohort staging workspace
     includes: [integrate, cohort_core]
@@ -60,6 +72,7 @@ profiles:
   patient_registry:
     description: Patient registry (includes catalogue resource view)
     includes: [patient_core, catalogue_core]
+    settings: [_settings/patient_registry]
   fair_genomes:
     description: FAIR Genomes patient registry
     includes: [patient_core]

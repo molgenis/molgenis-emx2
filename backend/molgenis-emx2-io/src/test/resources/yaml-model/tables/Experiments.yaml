@@ -4,15 +4,15 @@ description: "Wet-lab and dry-lab experiments"
 variants:
   WGS:
     description: "Whole genome sequencing"
-    inherits: [sampling, sequencing]
-    subsets: [wgs]
+    extends: [sampling, sequencing]
+    profiles: [wgs]
   RNA_seq:
     description: "Transcriptome sequencing"
-    inherits: [sampling, sequencing]
-    subsets: [rna]
+    extends: [sampling, sequencing]
+    profiles: [rna]
   Imaging:
     description: "Medical imaging"
-    subsets: [imaging]
+    profiles: [imaging]
   sampling:
     internal: true
   sequencing:
@@ -27,7 +27,7 @@ columns:
   experiment type:
     type: variant
     required: true
-    subsets: [-core]
+    profiles: [-core]
     defaultValue: WGS
   sample:
     type: ref

@@ -1,0 +1,4 @@
+name: CatalogueOntologies
+description: Shared ontology schema for catalogue profiles
+imports:
+  - tables/

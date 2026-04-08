@@ -8,14 +8,14 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record VariantDef(List<String> inherits, String description, Boolean internal) {
+public record VariantDef(List<String> extendNames, String description, Boolean internal) {
 
   @JsonCreator
   public VariantDef(
-      @JsonProperty("inherits") List<String> inherits,
+      @JsonProperty("extends") List<String> extendNames,
       @JsonProperty("description") String description,
       @JsonProperty("internal") Boolean internal) {
-    this.inherits = inherits != null ? inherits : List.of();
+    this.extendNames = extendNames != null ? extendNames : List.of();
     this.description = description;
     this.internal = internal;
   }

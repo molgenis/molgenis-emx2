@@ -1,5 +1,15 @@
 name: Patient Registry Demo
 description: Patient registry demo with disease group extensions
 
-tables:
-  - import: tables/
+demodata: [_demodata/applications/patient_registry]
+settings: [_settings/patient_registry]
+permissions:
+  view: anonymous
+additionalSchemas:
+  CatalogueOntologies:
+    model: catalogue-ontologies/molgenis.yaml
+    permissions:
+      view: anonymous
+
+imports:
+  - tables/

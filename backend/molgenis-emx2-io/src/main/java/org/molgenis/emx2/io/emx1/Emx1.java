@@ -99,7 +99,7 @@ public class Emx1 {
         if (entity.getExtends() != null) {
           schema
               .getTableMetadata(entity.getName())
-              .setInheritNames(entities.get(entity.getExtends()).getName());
+              .setExtendNames(entities.get(entity.getExtends()).getName());
         }
         line++;
       }

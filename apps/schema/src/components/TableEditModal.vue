@@ -28,7 +28,7 @@
         <InputCheckbox
           v-if="table.oldName === undefined"
           id="table_extends"
-          v-model="table.inheritNames"
+          v-model="table.extends"
           :options="inheritOptions"
           :errorMessage="subclassInvalid"
           label="Extends table(s) (can not be edited after creation)"
@@ -37,7 +37,7 @@
           <label class="form-label"
             >Extends table(s) (can not be edited after creation)</label
           >
-          <div>{{ table.inheritNames?.join(", ") }}</div>
+          <div>{{ table.extends?.join(", ") }}</div>
         </div>
       </template>
       <ArrayInput
@@ -212,7 +212,7 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && !this.table.inheritNames?.length
+      return this.inheritOptions && !this.table.extends?.length
         ? "Extends is required in case of subclass"
         : null;
     },

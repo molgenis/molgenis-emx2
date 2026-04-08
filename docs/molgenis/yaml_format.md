@@ -219,12 +219,37 @@ A **variant** is a composable, table-level configuration that adds columns for a
 
 ### Declaring variants
 
-Variants are declared in a `variants:` keyed map at the top of a table file. Each entry has an optional `description:`. From `backend/molgenis-emx2-io/src/test/resources/yaml-model/tables/Observations.yaml`:
+Variants are declared in a `variants:` keyed map at the top of a table file. Each entry supports:
+
+| Attribute | Description |
+|-----------|-------------|
+| `description:` | Human-readable description |
+| `extends:` | List of parent variants this variant extends (IS-A relationship, inherits all columns) |
+| `internal:` | If `true`, the variant is not shown in the user-facing variant selector but can be used as an `extends:` target |
 
 ```yaml
-table: Observations
-description: "Clinical observations with additive extensions"
+table: Experiments
+description: "Research experiments with composable protocol modules"
 
+variants:
+  sampling:
+    description: "Sample collection protocol"
+    internal: true
+  sequencing:
+    description: "Sequencing protocol"
+    internal: true
+  WGS:
+    description: "Whole genome sequencing"
+    extends: [sampling, sequencing]
+  Imaging:
+    description: "Medical imaging"
+```
+
+In this example, `sampling` and `sequencing` are internal variants — they group shared columns but users don't select them directly. `WGS` extends both, so enabling WGS automatically includes all columns from `sampling` and `sequencing`.
+
+Simple variants without `extends:` or `internal:` flag:
+
+```yaml
 variants:
   Dermatology:
     description: "Skin examination findings"
@@ -308,7 +333,23 @@ sections:
 
 ### Diamond inheritance
 
-A row with multiple active variants gets columns from all of them. Variant columns are additive — enabling two variants adds all columns from both. There is no conflict: each variant's columns are distinct.
+Variants can form a diamond when two variants extend the same parent:
+
+```
+Experiments (root table)
+├── sampling (internal, columns: sample_type, tissue_type)
+├── sequencing (internal, columns: library_strategy, read_length)
+├── WGS (extends: [sampling, sequencing], columns: coverage)
+└── Imaging (columns: modality, body_part)
+```
+
+When a user selects `WGS`, the row gets columns from `WGS` + `sampling` + `sequencing` — all merged into the same physical table row. If another variant also extends `sampling`, those shared columns are not duplicated.
+
+Key rules:
+- Variant columns are **additive** — enabling two variants adds all columns from both
+- **Internal variants** (`internal: true`) group shared columns but don't appear in the user-facing selector
+- A variant with `extends:` transitively inherits all columns from its parents
+- All variants in a table must share the same root table — the `extends:` chain cannot cross table boundaries
 
 ---
 
@@ -349,6 +390,7 @@ profiles:
 | `description` | string | Human-readable description |
 | `includes` | string list | Profiles to activate transitively |
 | `internal` | bool | If `true`, not shown in user picker |
+| `settings` | list | YAML settings file paths applied when this profile is active |
 
 ### Tagging tables and columns
 
@@ -473,9 +515,11 @@ Key differences:
 | `tables` | mapping | Inline table definitions keyed by table name |
 | `profiles` | mapping | Profile declarations (see Profiles section) |
 | `namespaces` | mapping | Custom prefix-to-URI mappings for CURIE expansion |
-| `ontologies` | path | Directory of ontology table files |
-| `demodata` | path | Directory of seed data CSVs |
-| `settings` | path | YAML file of schema settings |
+| `ontologies` | list | Ontology table file paths (e.g. `[_demodata/applications/petstore]`) |
+| `demodata` | list | Seed data CSV paths (e.g. `[_demodata/applications/petstore]`) |
+| `settings` | list | YAML settings file paths (e.g. `[_demodata/applications/petstore]`) |
+| `permissions` | mapping | Role-based access: `view: anonymous`, `edit: user` |
+| `additionalSchemas` | mapping | Additional schemas to create (e.g., shared ontology schemas). Each entry has `model`, `permissions`, `demodata`, etc. |
 
 ---
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TableDef(
     String description,
-    List<String> inherits,
+    List<String> extendNames,
     List<String> profiles,
     List<String> semantics,
     Boolean internal,
@@ -26,9 +27,10 @@ public record TableDef(
   @JsonCreator
   public TableDef(
       @JsonProperty("description") String description,
-      @JsonProperty("inherits") List<String> inherits,
+      @JsonProperty("extends") @JsonAlias("inherits") List<String> extendNames,
       @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
-      @JsonProperty("semantics") List<String> semantics,
+      @JsonProperty("semantics") @JsonDeserialize(using = StringOrListDeserializer.class)
+          List<String> semantics,
       @JsonProperty("internal") Boolean internal,
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
@@ -37,7 +39,7 @@ public record TableDef(
       @JsonProperty("columns") Map<String, DataColumn> columns,
       @JsonProperty("sections") Map<String, SectionDef> sections) {
     this.description = description;
-    this.inherits = inherits != null ? inherits : List.of();
+    this.extendNames = extendNames != null ? extendNames : List.of();
     this.profiles = profiles != null ? profiles : List.of();
     this.semantics = semantics;
     this.internal = internal;

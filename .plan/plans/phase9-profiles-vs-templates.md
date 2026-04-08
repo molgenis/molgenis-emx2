@@ -124,22 +124,30 @@ Open questions to resolve in Slice 6d design:
 
 ## Decisions (resolved)
 
-**Decision — legacy `profiles` field**: Removed entirely from YAML (both bundle and template formats).
-In CSV, the `profiles` column is still accepted on READ as a one-way migration input; on write,
-CSV emits the new `subsets` column name. Users migrating old CSV models get transparent upgrade
-without code changes. Legacy `profiles:` key in YAML templates throws a clear error naming
-`activeSubsets` as the replacement.
+### Terminology (final)
 
-1. **`includes:` depth** — arbitrary depth; cycles are a hard error.
+| Term | YAML key | What it means |
+|---|---|---|
+| **Profile** | `profiles:` at bundle root | Tagged subset of the core data model. `internal: true` = not in user picker. `includes:` for transitive composition. |
+| **Variant** | `variants:` on table | Composable table-level config adding columns. `includes:` for inheritance. `internal: true` = not in variant selector but usable as include target. |
+| **Section** | `sections:` on table | Named visual grouping. Contains `columns:` + `headings:`. |
+| **Heading** | `headings:` in section | Sub-grouping. Contains `columns:` only. Max depth: table → section → heading → columns. |
+| **Bundle** | `molgenis.yaml` or `<name>.yaml` | YAML package: single file or directory with tables/, demodata, ontologies, settings. |
+
+### Decisions (resolved)
+
+1. **`includes:` depth** — arbitrary depth; cycles are a hard error. Used by both profiles and variants.
 2. **Identifier style** — snake_case (`[a-z][a-z0-9_]*`). No camelCase, no spaces.
-3. **Bundle entry** — either a single YAML file (`data/templates/<name>.yaml`) with `name:` + inline `tables:`, or a directory with `molgenis.yaml` where the simplest form is `name:` + `imports:`. Both forms MUST declare `name:`. A bundle needs at least one of `tables:` or `imports:`.
-4. **Semantic URIs** — live in `semantics:` on the column, never in `subsets:`.
-5. **Profiles + templates unified** — one namespace; `subsets:` = internal, `templates:` = user-facing picker.
+3. **Bundle entry** — either a single YAML file (`profiles/<name>.yaml`) with `name:` + inline `tables:`, or a directory with `molgenis.yaml` where the simplest form is `name:` + `imports:`. Both forms MUST declare `name:`. A bundle needs at least one of `tables:` or `imports:`.
+4. **Semantic URIs** — live in `semantics:` on the column, not on profiles or variants.
+5. **`columns:` key reused at every level** — `columns:` always means `DataColumn` at table level, inside sections, and inside headings. No `sectionColumns:`/`headingColumns:` needed because `sections:` and `headings:` are separate sibling keys, not polymorphic entries in `columns:`. Jackson deserializes each record type natively without custom deserializers.
 6. **No back-compat for old flat format** — feature branch; nothing in production depends on it.
-7. **Centralized bundle config** — ontologies, demodata, settings, permissions, fixedSchemas all in `molgenis.yaml`.
-8. **Subsets are structural (physical DDL), not visibility filters.** The active subset set determines which tables and columns exist in PostgreSQL.
-9. **Deactivate is DDL-free.** Columns stay in the database. The middleware stops exposing them in the active model. No confirmation needed. Ontology tables are never dropped on deactivate. Only `activate` writes DDL.
-10. **`subtype` used consistently for all three contexts.** The word "subtype" is used for (a) the `subtypes:` declaration map (child table declarations), (b) the `subtype:` attribute on columns/sections (scoping to a child table), and (c) the `type: subtype` discriminator column type. YAML position disambiguates. Alternatives (`subtable`, `subclass`, `variant`) rejected — "subtype" matches biomedical vocabulary ("disease subtypes", "cell subtypes") and ER-modeling textbook terminology. Does not collide with FHIR Extension or openEHR CLUSTER extension — those are different concepts.
+7. **Centralized bundle config** — `molgenis.yaml` declares: `demodata`, `ontologies`, `settings`, `permissions` (map), `additionalSchemas` (map with `model`, `permissions`, etc.). Profile-level `settings` applied on `enableProfile`.
+8. **Profiles are structural (physical DDL), not visibility filters.** The active profile set determines which tables and columns exist in PostgreSQL.
+9. **Disable is DDL-free.** Columns stay in the database. The middleware stops exposing them. No confirmation needed. Only `enable` writes DDL.
+10. **`variant` used consistently** for (a) `variants:` declaration map, (b) `variant:` scoping attribute, (c) `type: variant`/`variant_array` discriminator columns. Replaces earlier "extension"/"subtype" terminology.
+11. **`includes:` unifies composition** — both profiles and variants use `includes:` to reference parents. No `inherits:` — one keyword for composition at all levels.
+12. **`internal: true` on variants** — internal variants don't appear in the user-facing variant selector but can be used as `includes:` targets. Mirrors `internal: true` on profiles (not in profile picker).
 
 ---
 

@@ -91,7 +91,7 @@ export default {
               res += `[<table> ${subclass.name}`;
               res += this.nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
-              const parents = subclass.inheritNames ?? [];
+              const parents = subclass.extends ?? [];
               parents.forEach((parent) => {
                 res += `[<table>${parent}]<:-[<table>${subclass.name}]\n`;
               });

@@ -122,7 +122,7 @@
                   </td>
                   <td>
                     extends
-                    {{ (subclass.inheritNames ?? []).join(", ") }}
+                    {{ (subclass.extends ?? []).join(", ") }}
                   </td>
                   <td>
                     {{ subclass.description }}

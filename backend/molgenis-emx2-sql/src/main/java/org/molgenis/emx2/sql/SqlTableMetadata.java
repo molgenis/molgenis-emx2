@@ -47,7 +47,7 @@ class SqlTableMetadata extends TableMetadata {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInheritNames() != null
+        if (tm.getExtendNames() != null
             && tm.hasColumnInParent(c.getName())
             // this column is replicated in all subclass tables
             && !c.getName().equals(MG_TABLECLASS)) {
@@ -57,7 +57,7 @@ class SqlTableMetadata extends TableMetadata {
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + String.join(",", tm.getInheritNames()));
+                  + String.join(",", tm.getExtendNames()));
         }
         checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
 
@@ -187,16 +187,16 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInheritNames() != null && hasColumnInParent(columnName)) {
+    if (getExtendNames() != null && hasColumnInParent(columnName)) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + String.join(",", getInheritNames()));
+              + String.join(",", getExtendNames()));
     }
-    if (getInheritNames() != null && hasColumnInParent(column.getName())) {
+    if (getExtendNames() != null && hasColumnInParent(column.getName())) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -209,7 +209,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + String.join(",", getInheritNames()));
+              + String.join(",", getExtendNames()));
     }
     getDatabase()
         .tx(
@@ -341,20 +341,20 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setInheritNames(String... otherTable) {
+  public TableMetadata setExtendNames(String... otherTable) {
     long start = System.currentTimeMillis();
     if (otherTable == null || otherTable.length == 0) {
       return this;
     }
-    if (getInheritNames() != null) {
-      if (Arrays.equals(getInheritNames(), otherTable)) {
+    if (getExtendNames() != null) {
+      if (Arrays.equals(getExtendNames(), otherTable)) {
         return this;
       }
       throw new MolgenisException(
           "Table '"
               + getTableName()
               + "' already has inheritance set to '"
-              + String.join(",", getInheritNames())
+              + String.join(",", getExtendNames())
               + "'. Cannot change to '"
               + String.join(",", otherTable)
               + "'");
@@ -426,25 +426,25 @@ class SqlTableMetadata extends TableMetadata {
         .tx(
             tdb ->
                 sync(
-                    setInheritTransaction(
+                    setExtendTransaction(
                         tdb, getSchemaName(), getTableName(), otherTable, isSubtableStyle)));
-    log(start, "set inherit on ");
-    super.setInheritNames(otherTable);
+    log(start, "set extend on ");
+    super.setExtendNames(otherTable);
     return this;
   }
 
   // static function to ensure this is not altered until end of transaction
-  private static SqlTableMetadata setInheritTransaction(
+  private static SqlTableMetadata setExtendTransaction(
       Database db,
       String schemaName,
       String tableName,
-      String[] inheritNames,
+      String[] extendNames,
       boolean isSubtableStyle) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlTableMetadata tm =
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-    tm.setInheritNames(inheritNames);
-    List<TableMetadata> parents = tm.getInheritedTables();
+    tm.setExtendNames(extendNames);
+    List<TableMetadata> parents = tm.getExtendedTables();
     executeSetInherit(jooq, tm, parents, !isSubtableStyle);
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;

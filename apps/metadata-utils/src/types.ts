@@ -100,6 +100,7 @@ export interface ITableMetaData {
   label: string;
   description?: string;
   tableType: string;
+  extends?: string[];
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];

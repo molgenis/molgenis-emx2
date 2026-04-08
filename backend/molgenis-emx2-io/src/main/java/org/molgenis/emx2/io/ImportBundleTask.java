@@ -2,11 +2,13 @@ package org.molgenis.emx2.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
+import org.molgenis.emx2.io.emx2.bundle.AdditionalSchemaDef;
 import org.molgenis.emx2.io.emx2.bundle.Bundle;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
 import org.molgenis.emx2.tasks.Task;
@@ -56,22 +58,20 @@ public class ImportBundleTask extends Task {
             Schema schema = db.createSchema(schemaName, description);
             schema.migrate(result.getSchema());
 
-            applyPermissions(schema, bundle);
+            applyPermissions(schema, bundle.permissions());
             applySettings(schema, bundle, schemaTask);
-
-            Schema ontologySchema = resolveOntologySchema(schema, db, bundle, schemaTask);
-            applyOntologySchemaPermissions(ontologySchema, bundle);
+            applyAdditionalSchemas(db, bundle, schemaTask);
 
             if (includeDemoData) {
               loadDemoData(schema, bundle, schemaTask);
             }
 
             schemaTask.addSubTask(commitTask);
+            commitTask.complete();
           } catch (IOException e) {
             throw new MolgenisException("Failed to load bundle: " + e.getMessage(), e);
           }
         });
-    commitTask.complete();
     schemaTask.complete();
   }
 
@@ -90,17 +90,17 @@ public class ImportBundleTask extends Task {
     }
   }
 
-  private void applyPermissions(Schema schema, Bundle bundle) {
-    if (bundle.viewPermission() != null) {
-      schema.addMember(bundle.viewPermission(), Privileges.VIEWER.toString());
-    }
-    if (bundle.editPermission() != null) {
-      schema.addMember(bundle.editPermission(), Privileges.EDITOR.toString());
+  private void applyPermissions(Schema schema, Map<String, String> permissions) {
+    for (Map.Entry<String, String> perm : permissions.entrySet()) {
+      if ("view".equals(perm.getKey())) {
+        schema.addMember(perm.getValue(), Privileges.VIEWER.toString());
+      } else if ("edit".equals(perm.getKey())) {
+        schema.addMember(perm.getValue(), Privileges.EDITOR.toString());
+      }
     }
   }
 
   private void applySettings(Schema schema, Bundle bundle, Task parentTask) {
-    if (bundle.settings() == null) return;
     for (String settingsPath : bundle.settings()) {
       String resolved = resolveRelativePath(settingsPath);
       MolgenisIO.fromClasspathDirectory(resolved, schema, false);
@@ -108,35 +108,55 @@ public class ImportBundleTask extends Task {
     }
   }
 
-  private Schema resolveOntologySchema(Schema schema, Database db, Bundle bundle, Task parentTask) {
-    if (bundle.ontologiesToFixedSchema() == null) {
-      return schema;
+  private void applyAdditionalSchemas(Database db, Bundle bundle, Task parentTask) {
+    for (Map.Entry<String, AdditionalSchemaDef> entry : bundle.additionalSchemas().entrySet()) {
+      String addSchemaName = entry.getKey();
+      AdditionalSchemaDef def = entry.getValue();
+      Schema addSchema = db.getSchema(addSchemaName);
+      if (addSchema == null) {
+        addSchema = db.createSchema(addSchemaName);
+      }
+      if (def.model() != null) {
+        String modelPath = resolveRelativePath(def.model());
+        if (isYamlBundle(modelPath)) {
+          try {
+            Emx2Yaml.BundleResult bundleResult = Emx2Yaml.fromBundleClasspath(modelPath);
+            addSchema.migrate(bundleResult.getSchema());
+            parentTask.addSubTask("Imported YAML bundle model into: " + addSchemaName).complete();
+          } catch (IOException e) {
+            throw new MolgenisException("Failed to load YAML bundle: " + modelPath, e);
+          }
+        } else {
+          Task importSchemaTask =
+              new ImportSchemaTask(new TableStoreForCsvFilesClasspath(modelPath), addSchema, false);
+          importSchemaTask.setDescription("Import CSV model into: " + addSchemaName);
+          parentTask.addSubTask(importSchemaTask);
+          importSchemaTask.run();
+        }
+      }
+      applySettings(addSchema, def, parentTask);
+      applyPermissions(addSchema, def.permissions());
+      if (includeDemoData) {
+        loadDemodataList(addSchema, def.demodata(), parentTask);
+      }
     }
-    Schema ontologySchema = db.getSchema(bundle.ontologiesToFixedSchema());
-    if (ontologySchema == null) {
-      ontologySchema = db.createSchema(bundle.ontologiesToFixedSchema());
-    }
-    if (bundle.additionalFixedSchemaModel() != null) {
-      String modelPath = resolveRelativePath(bundle.additionalFixedSchemaModel());
-      Task importSchemaTask =
-          new ImportSchemaTask(
-              new TableStoreForCsvFilesClasspath(modelPath), ontologySchema, false);
-      importSchemaTask.setDescription("Import additional model into ontology schema");
-      parentTask.addSubTask(importSchemaTask);
-      importSchemaTask.run();
-    }
-    return ontologySchema;
   }
 
-  private void applyOntologySchemaPermissions(Schema ontologySchema, Bundle bundle) {
-    if (bundle.fixedSchemaViewPermission() != null) {
-      ontologySchema.addMember(bundle.fixedSchemaViewPermission(), Privileges.VIEWER.toString());
+  private void applySettings(Schema schema, AdditionalSchemaDef def, Task parentTask) {
+    for (String settingsPath : def.settings()) {
+      String resolved = resolveRelativePath(settingsPath);
+      MolgenisIO.fromClasspathDirectory(resolved, schema, false);
+      parentTask.addSubTask("Loaded settings from: " + resolved).complete();
     }
   }
 
   private void loadDemoData(Schema schema, Bundle bundle, Task parentTask) {
-    if (bundle.demodata() == null) return;
-    for (String demodataPath : bundle.demodata()) {
+    loadDemodataList(schema, bundle.demodata(), parentTask);
+  }
+
+  private void loadDemodataList(
+      Schema schema, java.util.List<String> demodataPaths, Task parentTask) {
+    for (String demodataPath : demodataPaths) {
       String resolved = resolveRelativePath(demodataPath);
       Task demoTask =
           new ImportDataTask(schema, new TableStoreForCsvFilesClasspath(resolved), false)
@@ -144,6 +164,15 @@ public class ImportBundleTask extends Task {
       parentTask.addSubTask(demoTask);
       demoTask.run();
     }
+  }
+
+  private boolean isYamlBundle(String modelPath) {
+    if (modelPath.endsWith(".yaml") || modelPath.endsWith(".yml")) {
+      return true;
+    }
+    String directoryYaml =
+        (modelPath.endsWith("/") ? modelPath : modelPath + "/") + "molgenis.yaml";
+    return getClass().getResource("/" + directoryYaml) != null;
   }
 
   private String resolveRelativePath(String relativePath) {

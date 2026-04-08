@@ -4,10 +4,10 @@ description: "Clinical observations with additive extensions"
 variants:
   Dermatology:
     description: "Skin examination findings"
-    subsets: [cranio]
+    profiles: [cranio]
   Neurology:
     description: "Neurological assessment"
-    subsets: [neuro]
+    profiles: [neuro]
   Questionnaire:
     description: "Validated instruments and scores"
 

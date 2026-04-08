@@ -1,5 +1,6 @@
 package org.molgenis.emx2.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +17,8 @@ public class Table {
   private String oldName;
   private boolean drop;
   private String[] pkey;
-  private String[] inheritIds;
-  private String[] inheritNames;
+  private String[] extendIds;
+  private String[] extendNames;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -49,10 +50,10 @@ public class Table {
     this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
-    if (tableMetadata.getInheritNames() != null) {
-      this.inheritNames = tableMetadata.getInheritNames();
+    if (tableMetadata.getExtendNames() != null) {
+      this.extendNames = tableMetadata.getExtendNames();
       if (!tableMetadata.getInheritedTables().isEmpty()) {
-        this.inheritIds =
+        this.extendIds =
             tableMetadata.getInheritedTables().stream()
                 .map(TableMetadata::getIdentifier)
                 .toArray(String[]::new);
@@ -138,12 +139,13 @@ public class Table {
     this.pkey = pkey;
   }
 
-  public String[] getInheritIds() {
-    return inheritIds;
+  @JsonProperty("extendIds")
+  public String[] getExtendIds() {
+    return extendIds;
   }
 
-  public void setInheritIds(String[] inheritIds) {
-    this.inheritIds = inheritIds;
+  public void setExtendIds(String[] extendIds) {
+    this.extendIds = extendIds;
   }
 
   public List<LanguageValue> getDescriptions() {
@@ -202,12 +204,14 @@ public class Table {
     this.labels = labels;
   }
 
-  public String[] getInheritNames() {
-    return inheritNames;
+  @JsonProperty("extends")
+  public String[] getExtendNames() {
+    return extendNames;
   }
 
-  public void setInheritNames(String[] inheritNames) {
-    this.inheritNames = inheritNames;
+  @JsonProperty("extends")
+  public void setExtendNames(String[] extendNames) {
+    this.extendNames = extendNames;
   }
 
   public String getLabel() {

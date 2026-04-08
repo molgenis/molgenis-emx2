@@ -19,11 +19,8 @@ public record Bundle(
     List<String> demodata,
     List<String> ontologies,
     List<String> settings,
-    String viewPermission,
-    String editPermission,
-    String ontologiesToFixedSchema,
-    String fixedSchemaViewPermission,
-    String additionalFixedSchemaModel) {
+    Map<String, String> permissions,
+    Map<String, AdditionalSchemaDef> additionalSchemas) {
 
   @JsonCreator
   public Bundle(
@@ -36,23 +33,17 @@ public record Bundle(
       @JsonProperty("demodata") List<String> demodata,
       @JsonProperty("ontologies") List<String> ontologies,
       @JsonProperty("settings") List<String> settings,
-      @JsonProperty("viewPermission") String viewPermission,
-      @JsonProperty("editPermission") String editPermission,
-      @JsonProperty("ontologiesToFixedSchema") String ontologiesToFixedSchema,
-      @JsonProperty("fixedSchemaViewPermission") String fixedSchemaViewPermission,
-      @JsonProperty("additionalFixedSchemaModel") String additionalFixedSchemaModel) {
+      @JsonProperty("permissions") Map<String, String> permissions,
+      @JsonProperty("additionalSchemas") Map<String, AdditionalSchemaDef> additionalSchemas) {
     this.name = name;
     this.description = description;
     this.namespaces = namespaces != null ? namespaces : Map.of();
     this.profiles = profiles != null ? profiles : Map.of();
     this.tables = tables != null ? tables : Map.of();
-    this.demodata = demodata;
-    this.ontologies = ontologies;
-    this.settings = settings;
-    this.viewPermission = viewPermission;
-    this.editPermission = editPermission;
-    this.ontologiesToFixedSchema = ontologiesToFixedSchema;
-    this.fixedSchemaViewPermission = fixedSchemaViewPermission;
-    this.additionalFixedSchemaModel = additionalFixedSchemaModel;
+    this.demodata = demodata != null ? demodata : List.of();
+    this.ontologies = ontologies != null ? ontologies : List.of();
+    this.settings = settings != null ? settings : List.of();
+    this.permissions = permissions != null ? permissions : Map.of();
+    this.additionalSchemas = additionalSchemas != null ? additionalSchemas : Map.of();
   }
 }

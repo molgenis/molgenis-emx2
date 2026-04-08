@@ -64,7 +64,7 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (row.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInheritNames(row.getStringArray(TABLE_EXTENDS));
+        schema.getTableMetadata(tableName).setExtendNames(row.getStringArray(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
         schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
@@ -108,7 +108,7 @@ public class Emx2 {
       else {
         try {
           if (row.getString(TABLE_EXTENDS) != null) {
-            schema.getTableMetadata(tableName).setInheritNames(row.getStringArray(TABLE_EXTENDS));
+            schema.getTableMetadata(tableName).setExtendNames(row.getStringArray(TABLE_EXTENDS));
           }
           if (row.getString(TABLE_TYPE) != null) {
             schema
@@ -255,10 +255,10 @@ public class Emx2 {
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, table.getTableName());
-      String[] tableInheritNames = table.getInheritNames();
+      String[] tableExtendNames = table.getExtendNames();
       row.setStringArray(
           TABLE_EXTENDS,
-          (tableInheritNames != null && tableInheritNames.length > 0) ? tableInheritNames : null);
+          (tableExtendNames != null && tableExtendNames.length > 0) ? tableExtendNames : null);
       row.setString(
           TABLE_TYPE,
           table.getTableType() == TableType.DATA ? null : table.getTableType().toString());

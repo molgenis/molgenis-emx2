@@ -33,38 +33,38 @@ variants:
     semantics: ['http://edamontology.org/data_0949']
   Variant interpretation analyses:
     description: Analyses relating to specific individuals
-    inherits: [Analyses]
+    extends: [Analyses]
     profiles: [patient_registry]
     semantics: ['http://purl.obolibrary.org/obo/NCIT_C25391']
   Clinical observations:
     description: This table extends observations with clinical details compatible with phenopacket
-    inherits: [Observations]
+    extends: [Observations]
     profiles: [patient_core]
     semantics: ['http://purl.obolibrary.org/obo/NCIT_C87853']
   NGS sequencing:
     description: Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands
       or segments of DNA or RNA
-    inherits: [Experiments]
+    extends: [Experiments]
     profiles: [patient_core]
     semantics: ['http://purl.obolibrary.org/obo/NCIT_C101293']
   Experiments OGM:
     description: An Optical Genome Mapping (OGM) experiment
-    inherits: [Experiments]
+    extends: [Experiments]
     profiles: [patient_registry]
     semantics: ['http://purl.obolibrary.org/obo/NCIT_C116162']
   Experiments RNA:
     description: An RNA sequencing experiment
-    inherits: [NGS sequencing]
+    extends: [NGS sequencing]
     profiles: [patient_registry]
     semantics: ['http://purl.obolibrary.org/obo/OBI_0001177']
   Experiments lrGS:
     description: A long-read Genome Sequencing (lrGS) experiment
-    inherits: [NGS sequencing]
+    extends: [NGS sequencing]
     profiles: [patient_registry]
     semantics: ['http://edamontology.org/topic_4056']
   Experiments srDNA:
     description: A short-read DNA sequencing experiment
-    inherits: [NGS sequencing]
+    extends: [NGS sequencing]
     profiles: [patient_registry]
     semantics: ['http://purl.obolibrary.org/obo/NCIT_C153598', 'http://edamontology.org/operation_3198']
 columns:

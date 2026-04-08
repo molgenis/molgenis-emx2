@@ -390,11 +390,11 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT_NAMES)
+                  .name(GraphqlConstants.EXTEND_NAMES)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.INHERIT_IDS)
+                  .name(GraphqlConstants.EXTEND_IDS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -546,7 +546,7 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(INHERIT_NAMES)
+                  .name(EXTEND_NAMES)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -1112,6 +1112,7 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             env -> {
               String name = env.getArgument(GraphqlConstants.NAME);
+              validateProfileName(schema, name);
               schema.disableProfile(name);
               return new GraphqlApiMutationResult(SUCCESS, "Disabled profile '%s'", name);
             })

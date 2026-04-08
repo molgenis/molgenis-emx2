@@ -18,7 +18,7 @@ public class TestTableMetadata {
             .create(
                 table("Person", column("name")),
                 table("Employee", column("details").setType(ColumnType.HEADING), column("salary"))
-                    .setInheritNames("Person"));
+                    .setExtendNames("Person"));
 
     List<Column> result = s.getTableMetadata("Person").getColumnsIncludingSubclasses();
     assertEquals(3, result.size());

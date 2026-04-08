@@ -1,5 +1,7 @@
 name: Pages
 description: CMS pages data model with blocks, components, and containers
 
-tables:
-  - import: tables/*
+demodata: [_demodata/applications/pages]
+
+imports:
+  - tables/*

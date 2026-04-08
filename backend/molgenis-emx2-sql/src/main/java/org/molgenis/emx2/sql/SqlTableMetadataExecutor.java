@@ -57,14 +57,14 @@ class SqlTableMetadataExecutor {
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
 
     // create columns from primary key of superclass
-    if (table.getInheritNames() != null) {
-      List<TableMetadata> parents = table.getInheritedTables();
+    if (table.getExtendNames() != null) {
+      List<TableMetadata> parents = table.getExtendedTables();
       if (parents.isEmpty()) {
         throw new MolgenisException(
-            "Cannot inherit "
+            "Cannot extend "
                 + table.getImportSchema()
                 + "."
-                + String.join(",", table.getInheritNames())
+                + String.join(",", table.getExtendNames())
                 + ": not found");
       }
       boolean addMgTableclass = parents.get(0).getRootTable().getProfileColumn() == null;
@@ -97,7 +97,7 @@ class SqlTableMetadataExecutor {
     executeEnableSearch(jooq, table);
 
     // add meta columns (only superclass table)
-    if (table.getInheritNames() == null || table.getInheritNames().length == 0) {
+    if (table.getExtendNames() == null || table.getExtendNames().length == 0) {
       executeAddMetaColumns(table);
     }
 
@@ -160,8 +160,7 @@ class SqlTableMetadataExecutor {
     executeRemoveMetaColumns(jooq, table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
-    copyTm.setInheritNames(
-        parents.stream().map(TableMetadata::getTableName).toArray(String[]::new));
+    copyTm.setExtendNames(parents.stream().map(TableMetadata::getTableName).toArray(String[]::new));
     for (Field pkey : firstParent.getPrimaryKeyFields()) {
       jooq.alterTable(table.getJooqTable()).addColumn(pkey).execute();
     }
@@ -444,7 +443,7 @@ SELECT\s
   a.position,
   a.key,
   b.import_schema,
-  b.table_inherits
+  b.table_extends
   FROM "MOLGENIS".column_metadata a, "MOLGENIS".table_metadata b
   WHERE a.table_schema = b.table_schema
   AND a.table_name=b.table_name
@@ -458,9 +457,9 @@ SELECT
   a.key,
   a.position,
   b.import_schema,
-  b.table_inherits
+  b.table_extends
   FROM "MOLGENIS".column_metadata a, "MOLGENIS".table_metadata b,  inherited_columns c
-  WHERE c.table_name = ANY(b.table_inherits)
+  WHERE c.table_name = ANY(b.table_extends)
   AND (b.import_schema IS NULL AND b.table_schema = c.table_schema OR b.import_schema = c.table_schema)
   AND a.table_schema = b.table_schema
   AND a.table_name=b.table_name

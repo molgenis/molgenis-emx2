@@ -1,4 +1,8 @@
 name: ui_dashboards
 description: UI dashboards schema with inclusion criteria, data providers, statistics, organisations, users, files and studies
+
+demodata: [ui_dashboards/demodata]
+ontologies: [ui_dashboards/ontologies]
+
 imports:
   - tables/

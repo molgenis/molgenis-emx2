@@ -187,9 +187,10 @@ const metadataQuery = `{
     tables {
       id,
       name,
-      label, 
+      label,
       description,
       tableType,
+      extends,
       semantics,
       columns {
         id,

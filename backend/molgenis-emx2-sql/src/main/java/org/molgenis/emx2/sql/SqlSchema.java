@@ -251,10 +251,10 @@ public class SqlSchema implements Schema {
         if (mergeTable.getProfiles() != null) {
           table.setProfiles(mergeTable.getProfiles());
         }
-        table.setInheritNames(mergeTable.getInheritNames());
+        table.setExtendNames(mergeTable.getExtendNames());
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
-        if (mergeTable.getInheritNames() == null) {
+        if (mergeTable.getExtendNames() == null) {
           mergeTable.getColumns().stream()
               .filter(
                   c ->
@@ -279,13 +279,13 @@ public class SqlSchema implements Schema {
         TableMetadata oldTable = targetSchema.getTableMetadata(mergeTable.getTableName());
 
         // set inheritance
-        if (mergeTable.getInheritNames() != null) {
+        if (mergeTable.getExtendNames() != null) {
           if (mergeTable.getImportSchema() != null) {
             oldTable.setImportSchema(mergeTable.getImportSchema());
           }
-          oldTable.setInheritNames(mergeTable.getInheritNames());
-        } else if (oldTable.getInheritNames() != null) {
-          oldTable.removeInheritNames();
+          oldTable.setExtendNames(mergeTable.getExtendNames());
+        } else if (oldTable.getExtendNames() != null) {
+          oldTable.removeExtendNames();
         }
 
         // update table settings

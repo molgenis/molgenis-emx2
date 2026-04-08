@@ -31,38 +31,38 @@ public class ProfileMetadataTest {
   }
 
   @Test
-  void testSetInheritNameVarargs() {
+  void testSetExtendNameVarargs() {
     TableMetadata table = table("MyTable");
-    table.setInheritNames("sampling", "sequencing");
-    assertArrayEquals(new String[] {"sampling", "sequencing"}, table.getInheritNames());
+    table.setExtendNames("sampling", "sequencing");
+    assertArrayEquals(new String[] {"sampling", "sequencing"}, table.getExtendNames());
   }
 
   @Test
-  void testSetInheritNameSingleWraps() {
+  void testSetExtendNameSingleWraps() {
     TableMetadata table = table("MyTable");
-    table.setInheritNames("Person");
-    assertArrayEquals(new String[] {"Person"}, table.getInheritNames());
+    table.setExtendNames("Person");
+    assertArrayEquals(new String[] {"Person"}, table.getExtendNames());
   }
 
   @Test
-  void testSetInheritNameNull() {
+  void testSetExtendNameNull() {
     TableMetadata table = table("MyTable");
-    assertNull(table.getInheritNames());
+    assertNull(table.getExtendNames());
   }
 
   @Test
-  void testGetInheritedTablesReturnsAllDirectParents() {
+  void testGetExtendedTablesReturnsAllDirectParents() {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());
     TableMetadata sampling =
-        table("sampling").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
-    TableMetadata wgs = table("WGS").setInheritNames("sampling");
+        table("sampling").setTableType(TableType.INTERNAL).setExtendNames("Experiments");
+    TableMetadata wgs = table("WGS").setExtendNames("sampling");
 
     schema.create(experiments);
     schema.create(sampling);
     schema.create(wgs);
 
-    List<TableMetadata> parents = wgs.getInheritedTables();
+    List<TableMetadata> parents = wgs.getExtendedTables();
     assertNotNull(parents);
     assertEquals(1, parents.size());
     assertEquals("sampling", parents.get(0).getTableName());
@@ -73,11 +73,11 @@ public class ProfileMetadataTest {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());
     TableMetadata sampling =
-        table("sampling").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
+        table("sampling").setTableType(TableType.INTERNAL).setExtendNames("Experiments");
     TableMetadata sequencing =
-        table("sequencing").setTableType(TableType.INTERNAL).setInheritNames("Experiments");
-    TableMetadata wgs = table("WGS").setInheritNames("sampling", "sequencing");
-    TableMetadata imaging = table("Imaging").setInheritNames("Experiments");
+        table("sequencing").setTableType(TableType.INTERNAL).setExtendNames("Experiments");
+    TableMetadata wgs = table("WGS").setExtendNames("sampling", "sequencing");
+    TableMetadata imaging = table("Imaging").setExtendNames("Experiments");
 
     schema.create(experiments);
     schema.create(sampling);
@@ -162,7 +162,7 @@ public class ProfileMetadataTest {
     TableMetadata child =
         table(
             "Child", column("childWgs").setProfiles("wgs"), column("childRdm").setProfiles("rdm"));
-    child.setInheritNames("Base");
+    child.setExtendNames("Base");
     schema.create(base);
     schema.create(child);
 
@@ -178,9 +178,9 @@ public class ProfileMetadataTest {
   void testGetAllInheritNamesIncludesAllParentChains() {
     SchemaMetadata schema = new SchemaMetadata("test");
     TableMetadata experiments = table("Experiments", column("id").setPkey());
-    TableMetadata sampling = table("sampling").setInheritNames("Experiments");
-    TableMetadata sequencing = table("sequencing").setInheritNames("Experiments");
-    TableMetadata wgs = table("WGS").setInheritNames("sampling", "sequencing");
+    TableMetadata sampling = table("sampling").setExtendNames("Experiments");
+    TableMetadata sequencing = table("sequencing").setExtendNames("Experiments");
+    TableMetadata wgs = table("WGS").setExtendNames("sampling", "sequencing");
 
     schema.create(experiments);
     schema.create(sampling);

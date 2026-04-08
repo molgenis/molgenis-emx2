@@ -289,9 +289,10 @@ export default {
           this.loadSchema();
           this.warning = null;
           this.success = `Schema saved`;
+          this.loading = false;
         })
         .catch((error) => {
-          if (error.response.status === "403") {
+          if (error.response.status === 403) {
             this.error = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
@@ -300,7 +301,6 @@ export default {
           this.warning = null;
           this.loading = false;
         });
-      this.loading = false;
     },
     loadSchema() {
       this.error = null;
