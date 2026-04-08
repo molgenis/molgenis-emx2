@@ -1,0 +1,41 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "emx2.fullname" . }}-scaler
+  labels:
+    {{- include "emx2.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "emx2.fullname" . }}
+  
+  # Scale between 0 and 1 replica for preview environments
+  minReplicaCount: {{ .Values.autoscaling.minReplicas | default 0 }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicas | default 1 }}
+  
+  # Check every 10 seconds for scale-up triggers
+  pollingInterval: {{ .Values.autoscaling.pollingInterval | default 10 }}
+  
+  # Wait 5 minutes (300s) of idle before scaling down to 0
+  cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod | default 300 }}
+  
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: {{ .Values.autoscaling.prometheus.serverAddress | default "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090" }}
+      
+      # CRITICAL: Use exported_namespace, not namespace!
+      # CRITICAL: No quotes around time window (1m not "1m")!
+      query: |
+      query: |
+        sum(irate(nginx_ingress_controller_requests{
+          exported_namespace="{{ .Release.Namespace }}",
+          ingress="{{ include "emx2.fullname" . }}"
+        }[{{ .Values.autoscaling.prometheus.timeWindow | default "1m" }}])) OR on() vector(0)
+      
+      # Threshold: scale up if > 0.001 req/sec (roughly 1 req per 15 min)
+      threshold: {{ .Values.autoscaling.prometheus.threshold | default "0.001" | quote }}
+      
+      # Activation threshold: triggers scale from 0→1
+      activationThreshold: {{ .Values.autoscaling.prometheus.activationThreshold | default "0.001" | quote }}
+{{- end }}
