@@ -4,19 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.common.exception.ValidationException;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
+import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.*;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
@@ -25,17 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ShaclResultWriter extends RdfWriter {
-  public static final byte[] SHACL_SUCCEED =
-      """
-    @prefix sh: <http://www.w3.org/ns/shacl#> .
-
-    [] a sh:ValidationReport;
-      sh:conforms true.
-    """
-          .getBytes();
-
   private static final Logger logger = LoggerFactory.getLogger(ShaclResultWriter.class);
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
+  private static final Model succeedModel;
+
+  static {
+    ModelBuilder builder = new ModelBuilder();
+    builder.setNamespace(SHACL.NS);
+    BNode bNode = valueFactory.createBNode("");
+    builder.add(bNode, RDF.TYPE, SHACL.VALIDATION_REPORT);
+    builder.add(bNode, SHACL.CONFORMS, valueFactory.createLiteral(true));
+    succeedModel = builder.build();
+  }
 
   private final SailRepository repository;
   private final SailRepositoryConnection connection;
@@ -83,8 +81,8 @@ public class ShaclResultWriter extends RdfWriter {
     try {
       connection.commit();
       try {
-        getOutputStream().write(SHACL_SUCCEED);
-      } catch (IOException e) {
+        Rio.write(succeedModel, getOutputStream(), getFormat());
+      } catch (RDFHandlerException e) {
         throw new MolgenisException("An error occurred while writing the SHACL results");
       }
     } catch (RepositoryException e) {
