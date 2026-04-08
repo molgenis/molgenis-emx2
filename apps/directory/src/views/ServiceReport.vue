@@ -6,10 +6,11 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              ['Back to catalogue']: '/',
-              [service.biobank.name]: `#/biobank/${service.biobank.id}`,
-              [service.name]: `#/service/${service.id}`,
+              ['Back to catalogue']: '../',
+              [service.biobank.name]: `../biobank/${service.biobank.id}`,
+              [service.name]: `../service/${service.id}`,
             }"
+            useRouterLink
           />
           <check-out class="ml-auto" :bookmark="false" />
         </div>

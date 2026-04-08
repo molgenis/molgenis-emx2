@@ -15,6 +15,7 @@
               [uiText['home']]: '/',
               [study.title]: '/',
             }"
+            useRouterLink
           />
         </div>
       </div>
