@@ -15,44 +15,46 @@ const error = ref("");
 const loading = ref(false);
 
 type SigninResponse = {
-	data: {
-		signin: {
-			status: "SUCCESS" | string;
-			message: string;
-		};
-	};
+  data: {
+    signin: {
+      status: "SUCCESS" | string;
+      message: string;
+    };
+  };
 };
 
 async function signin() {
-	if (!username.value || !password.value) {
-		error.value = "Email and password should be filled in";
-		return;
-	}
+  if (!username.value || !password.value) {
+    error.value = "Email and password should be filled in";
+    return;
+  }
 
-	error.value = "";
-	loading.value = true;
+  error.value = "";
+  loading.value = true;
 
-	const signinResp = await $fetch<SigninResponse>("/api/graphql", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			query: `mutation{signin(email:${gqlString(username.value)},password:${gqlString(password.value)}){status,message}}`,
-		}),
-	}).catch((err) => {
-		error.value = `Sign in failed: ${err}`;
-		loading.value = false;
-	});
+  const signinResp = await $fetch<SigninResponse>("/api/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `mutation{signin(email:${gqlString(
+        username.value
+      )},password:${gqlString(password.value)}){status,message}}`,
+    }),
+  }).catch((err) => {
+    error.value = `Sign in failed: ${err}`;
+    loading.value = false;
+  });
 
-	loading.value = false;
+  loading.value = false;
 
-	if (signinResp?.data.signin.status === "SUCCESS") {
-		await (await useSession()).reload();
-		navigateTo({ path: "/", replace: true });
-	} else {
-		error.value = signinResp?.data.signin.message || "Unknown error";
-	}
+  if (signinResp?.data.signin.status === "SUCCESS") {
+    await (await useSession()).reload();
+    navigateTo({ path: "/", replace: true });
+  } else {
+    error.value = signinResp?.data.signin.message || "Unknown error";
+  }
 }
 </script>
 

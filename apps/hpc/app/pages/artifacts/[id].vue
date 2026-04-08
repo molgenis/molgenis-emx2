@@ -142,7 +142,9 @@
               >
                 <code>{{ shortId(provenance.job_id) }}</code>
               </NuxtLink>
-              <span v-if="provenance.artifact_role" class="text-definition-list-term ml-1"
+              <span
+                v-if="provenance.artifact_role"
+                class="text-definition-list-term ml-1"
                 >({{ provenance.artifact_role }})</span
               >
             </span>
@@ -154,9 +156,7 @@
             >
             <span class="block text-sm text-title"
               >{{ provenance.processor
-              }}{{
-                provenance.profile ? ` / ${provenance.profile}` : ""
-              }}</span
+              }}{{ provenance.profile ? ` / ${provenance.profile}` : "" }}</span
             >
           </div>
           <div v-if="provenance.worker_id" class="space-y-1">
@@ -183,20 +183,15 @@
               >Parameters Hash</span
             >
             <span class="block text-sm text-title"
-              ><code>{{
-                provenance.parameters_hash.substring(0, 16)
-              }}...</code></span
+              ><code
+                >{{ provenance.parameters_hash.substring(0, 16) }}...</code
+              ></span
             >
           </div>
         </div>
 
-        <div
-          v-if="provenance.input_artifact_ids?.length"
-          class="mt-6"
-        >
-          <p class="text-sm font-semibold text-title mb-1">
-            Input Artifacts
-          </p>
+        <div v-if="provenance.input_artifact_ids?.length" class="mt-6">
+          <p class="text-sm font-semibold text-title mb-1">Input Artifacts</p>
           <p class="text-xs text-definition-list-term mb-2">
             Artifacts used as input to the producing job.
           </p>
@@ -208,7 +203,8 @@
               <HpcPill :to="`/artifacts/${inputArtifact.id}`">
                 <template v-if="inputArtifact.name && inputArtifact.id">
                   <span>{{ inputArtifact.name }}</span>
-                  <code class="font-mono text-[0.85em] text-definition-list-term"
+                  <code
+                    class="font-mono text-[0.85em] text-definition-list-term"
                     >[{{ shortId(inputArtifact.id) }}]</code
                   >
                 </template>
@@ -246,25 +242,37 @@
               Content files stored in this artifact.
             </p>
           </div>
-          <span class="text-xs text-definition-list-term">{{ files.length }} files</span>
+          <span class="text-xs text-definition-list-term"
+            >{{ files.length }} files</span
+          >
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-table-row">
             <thead>
               <tr class="border-b border-color-theme">
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Path
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   SHA-256
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Size
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider">
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                >
                   Content-Type
                 </th>
-                <th class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"></th>
+                <th
+                  class="px-4 py-2 text-left text-xs font-semibold text-table-column-header uppercase tracking-wider"
+                ></th>
               </tr>
             </thead>
             <tbody>
@@ -305,7 +313,10 @@
                 </td>
               </tr>
               <tr v-if="!files.length">
-                <td colspan="5" class="px-4 py-8 text-center text-definition-list-term">
+                <td
+                  colspan="5"
+                  class="px-4 py-8 text-center text-definition-list-term"
+                >
                   No files
                 </td>
               </tr>
@@ -330,15 +341,15 @@ import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Message from "../../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../../components/HpcPill.vue";
 import type {
-	ArtifactFileRow,
-	ArtifactSummary,
-	NormalizedArtifact,
+  ArtifactFileRow,
+  ArtifactSummary,
+  NormalizedArtifact,
 } from "../../composables/useArtifactsApi";
 import {
-	deleteArtifact,
-	downloadArtifactFile,
-	fetchArtifactDetail,
-	fetchArtifactSummary,
+  deleteArtifact,
+  downloadArtifactFile,
+  fetchArtifactDetail,
+  fetchArtifactSummary,
 } from "../../composables/useHpcApi";
 import { formatDate } from "../../utils/jobs";
 
@@ -353,122 +364,122 @@ const error = ref<string | null>(null);
 const deleting = ref(false);
 
 const PROVENANCE_KEYS = new Set([
-	"job_id",
-	"processor",
-	"profile",
-	"worker_id",
-	"artifact_role",
-	"created_by",
-	"input_artifact_ids",
-	"parameters_hash",
+  "job_id",
+  "processor",
+  "profile",
+  "worker_id",
+  "artifact_role",
+  "created_by",
+  "input_artifact_ids",
+  "parameters_hash",
 ]);
 
 function toErrorMessage(error: unknown): string {
-	return error instanceof Error
-		? error.message
-		: String(error ?? "Unknown error");
+  return error instanceof Error
+    ? error.message
+    : String(error ?? "Unknown error");
 }
 
 const provenance = computed(() => {
-	const meta = artifact.value?.metadata;
-	if (!meta || typeof meta !== "object" || !meta.job_id) return null;
-	return meta;
+  const meta = artifact.value?.metadata;
+  if (!meta || typeof meta !== "object" || !meta.job_id) return null;
+  return meta;
 });
 
 const extraMetadata = computed(() => {
-	const meta = artifact.value?.metadata;
-	if (!meta || typeof meta !== "object") return meta;
-	const extra: Record<string, unknown> = {};
-	for (const [k, v] of Object.entries(meta)) {
-		if (!PROVENANCE_KEYS.has(k)) extra[k] = v;
-	}
-	return extra;
+  const meta = artifact.value?.metadata;
+  if (!meta || typeof meta !== "object") return meta;
+  const extra: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(meta)) {
+    if (!PROVENANCE_KEYS.has(k)) extra[k] = v;
+  }
+  return extra;
 });
 
 const hasExtraMetadata = computed(() => {
-	const extra = extraMetadata.value;
-	if (!extra) return false;
-	if (typeof extra === "object") return Object.keys(extra).length > 0;
-	return true;
+  const extra = extraMetadata.value;
+  if (!extra) return false;
+  if (typeof extra === "object") return Object.keys(extra).length > 0;
+  return true;
 });
 
 function shortId(idVal: string): string {
-	return idVal?.substring?.(0, 8) || idVal || "-";
+  return idVal?.substring?.(0, 8) || idVal || "-";
 }
 
 function inputArtifactChipLabel(input: ArtifactSummary | null): string {
-	if (!input) return "-";
-	if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
-	if (input.name) return input.name;
-	if (input.id) return shortId(input.id);
-	return "-";
+  if (!input) return "-";
+  if (input.name && input.id) return `${input.name} [${shortId(input.id)}]`;
+  if (input.name) return input.name;
+  if (input.id) return shortId(input.id);
+  return "-";
 }
 
 function formatSize(bytes: number | null | undefined): string {
-	if (bytes == null) return "-";
-	const n = Number(bytes);
-	if (n < 1024) return `${n} B`;
-	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-	return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes == null) return "-";
+  const n = Number(bytes);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function formatJson(val: unknown): string {
-	if (!val) return "";
-	if (typeof val === "string") {
-		try {
-			return JSON.stringify(JSON.parse(val), null, 2);
-		} catch {
-			return val;
-		}
-	}
-	return JSON.stringify(val, null, 2);
+  if (!val) return "";
+  if (typeof val === "string") {
+    try {
+      return JSON.stringify(JSON.parse(val), null, 2);
+    } catch {
+      return val;
+    }
+  }
+  return JSON.stringify(val, null, 2);
 }
 
 async function onDownload(filePath: string) {
-	try {
-		await downloadArtifactFile(id.value, filePath);
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	}
+  try {
+    await downloadArtifactFile(id.value, filePath);
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  }
 }
 
 async function onDelete() {
-	if (!confirm(`Delete artifact ${id.value}?`)) return;
-	deleting.value = true;
-	try {
-		await deleteArtifact(id.value);
-		navigateTo("/artifacts");
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		deleting.value = false;
-	}
+  if (!confirm(`Delete artifact ${id.value}?`)) return;
+  deleting.value = true;
+  try {
+    await deleteArtifact(id.value);
+    navigateTo("/artifacts");
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    deleting.value = false;
+  }
 }
 
 onMounted(async () => {
-	try {
-		const result = await fetchArtifactDetail(id.value);
-		artifact.value = result.artifact;
-		files.value = result.files;
+  try {
+    const result = await fetchArtifactDetail(id.value);
+    artifact.value = result.artifact;
+    files.value = result.files;
 
-		const inputIds = Array.isArray(
-			result.artifact?.metadata?.input_artifact_ids,
-		)
-			? result.artifact.metadata.input_artifact_ids.filter(
-					(value: unknown): value is string =>
-						typeof value === "string" && value.trim().length > 0,
-				)
-			: [];
-		provenanceInputArtifacts.value = await Promise.all(
-			inputIds.map(
-				async (inputId) =>
-					(await fetchArtifactSummary(inputId)) ?? { id: inputId },
-			),
-		);
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		loading.value = false;
-	}
+    const inputIds = Array.isArray(
+      result.artifact?.metadata?.input_artifact_ids
+    )
+      ? result.artifact.metadata.input_artifact_ids.filter(
+          (value: unknown): value is string =>
+            typeof value === "string" && value.trim().length > 0
+        )
+      : [];
+    provenanceInputArtifacts.value = await Promise.all(
+      inputIds.map(
+        async (inputId) =>
+          (await fetchArtifactSummary(inputId)) ?? { id: inputId }
+      )
+    );
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    loading.value = false;
+  }
 });
 </script>

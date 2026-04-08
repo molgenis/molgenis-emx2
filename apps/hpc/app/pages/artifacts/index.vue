@@ -23,11 +23,7 @@
               placeholder="All Statuses"
             />
           </div>
-          <Button
-            type="primary"
-            size="small"
-            @click="showForm = !showForm"
-          >
+          <Button type="primary" size="small" @click="showForm = !showForm">
             {{ showForm ? "Hide Form" : "+ New Artifact" }}
           </Button>
         </div>
@@ -305,294 +301,294 @@ const selectAllMatching = ref(false);
 const pageSelectCheckbox = ref<HTMLInputElement | null>(null);
 const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1);
 const totalPages = computed(() =>
-	Math.max(1, Math.ceil(totalCount.value / limit.value)),
+  Math.max(1, Math.ceil(totalCount.value / limit.value))
 );
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
 function toErrorMessage(error: unknown): string {
-	return error instanceof Error
-		? error.message
-		: String(error ?? "Unknown error");
+  return error instanceof Error
+    ? error.message
+    : String(error ?? "Unknown error");
 }
 
 function mergeArtifacts(nextItems: NormalizedArtifact[]) {
-	const previousById = new Map(items.value.map((a) => [a.id, a]));
-	items.value = nextItems.map((next) => {
-		const previous = previousById.get(next.id);
-		if (!previous) return next;
-		return { ...previous, ...next };
-	});
+  const previousById = new Map(items.value.map((a) => [a.id, a]));
+  items.value = nextItems.map((next) => {
+    const previous = previousById.get(next.id);
+    if (!previous) return next;
+    return { ...previous, ...next };
+  });
 }
 
 const pageIds = computed(() =>
-	items.value.map((a) => String(a?.id || "")).filter(Boolean),
+  items.value.map((a) => String(a?.id || "")).filter(Boolean)
 );
 
 const selectedCount = computed(() => {
-	if (selectAllMatching.value) {
-		return Math.max(0, totalCount.value - excludedIds.value.size);
-	}
-	return selectedIds.value.size;
+  if (selectAllMatching.value) {
+    return Math.max(0, totalCount.value - excludedIds.value.size);
+  }
+  return selectedIds.value.size;
 });
 
 const hasSelection = computed(() => selectedCount.value > 0);
 
 const scopeLabel = computed(() =>
-	statusFilter.value ? `status=${statusFilter.value}` : "all statuses",
+  statusFilter.value ? `status=${statusFilter.value}` : "all statuses"
 );
 
 const allPageSelected = computed(() => {
-	if (!pageIds.value.length) return false;
-	return pageIds.value.every((id) => isArtifactSelected(id));
+  if (!pageIds.value.length) return false;
+  return pageIds.value.every((id) => isArtifactSelected(id));
 });
 
 const somePageSelected = computed(() => {
-	if (!pageIds.value.length) return false;
-	const selectedOnPage = pageIds.value.filter((id) =>
-		isArtifactSelected(id),
-	).length;
-	return selectedOnPage > 0 && selectedOnPage < pageIds.value.length;
+  if (!pageIds.value.length) return false;
+  const selectedOnPage = pageIds.value.filter((id) =>
+    isArtifactSelected(id)
+  ).length;
+  return selectedOnPage > 0 && selectedOnPage < pageIds.value.length;
 });
 
 const showSelectMoreBanner = computed(
-	() =>
-		!selectAllMatching.value &&
-		allPageSelected.value &&
-		totalCount.value > pageIds.value.length,
+  () =>
+    !selectAllMatching.value &&
+    allPageSelected.value &&
+    totalCount.value > pageIds.value.length
 );
 
 function formatSize(bytes: number | null | undefined): string {
-	if (bytes == null) return "-";
-	const n = Number(bytes);
-	if (n < 1024) return `${n} B`;
-	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-	return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes == null) return "-";
+  const n = Number(bytes);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function isArtifactSelected(id: string): boolean {
-	if (selectAllMatching.value) return !excludedIds.value.has(id);
-	return selectedIds.value.has(id);
+  if (selectAllMatching.value) return !excludedIds.value.has(id);
+  return selectedIds.value.has(id);
 }
 
 function toggleArtifactSelection(id: string, checked: boolean) {
-	if (selectAllMatching.value) {
-		const nextExcluded = new Set(excludedIds.value);
-		if (checked) nextExcluded.delete(id);
-		else nextExcluded.add(id);
-		excludedIds.value = nextExcluded;
-		return;
-	}
-	const nextSelected = new Set(selectedIds.value);
-	if (checked) nextSelected.add(id);
-	else nextSelected.delete(id);
-	selectedIds.value = nextSelected;
+  if (selectAllMatching.value) {
+    const nextExcluded = new Set(excludedIds.value);
+    if (checked) nextExcluded.delete(id);
+    else nextExcluded.add(id);
+    excludedIds.value = nextExcluded;
+    return;
+  }
+  const nextSelected = new Set(selectedIds.value);
+  if (checked) nextSelected.add(id);
+  else nextSelected.delete(id);
+  selectedIds.value = nextSelected;
 }
 
 function togglePageSelection(checked: boolean) {
-	if (selectAllMatching.value) {
-		const nextExcluded = new Set(excludedIds.value);
-		for (const id of pageIds.value) {
-			if (checked) nextExcluded.delete(id);
-			else nextExcluded.add(id);
-		}
-		excludedIds.value = nextExcluded;
-		return;
-	}
-	const nextSelected = new Set(selectedIds.value);
-	for (const id of pageIds.value) {
-		if (checked) nextSelected.add(id);
-		else nextSelected.delete(id);
-	}
-	selectedIds.value = nextSelected;
+  if (selectAllMatching.value) {
+    const nextExcluded = new Set(excludedIds.value);
+    for (const id of pageIds.value) {
+      if (checked) nextExcluded.delete(id);
+      else nextExcluded.add(id);
+    }
+    excludedIds.value = nextExcluded;
+    return;
+  }
+  const nextSelected = new Set(selectedIds.value);
+  for (const id of pageIds.value) {
+    if (checked) nextSelected.add(id);
+    else nextSelected.delete(id);
+  }
+  selectedIds.value = nextSelected;
 }
 
 function selectAllMatchingResults() {
-	selectAllMatching.value = true;
-	selectedIds.value = new Set();
-	excludedIds.value = new Set();
+  selectAllMatching.value = true;
+  selectedIds.value = new Set();
+  excludedIds.value = new Set();
 }
 
 function clearSelection() {
-	selectedIds.value = new Set();
-	excludedIds.value = new Set();
-	selectAllMatching.value = false;
+  selectedIds.value = new Set();
+  excludedIds.value = new Set();
+  selectAllMatching.value = false;
 }
 
 async function collectAllMatchingArtifactIds(): Promise<string[]> {
-	const ids: string[] = [];
-	const pageSize = 200;
-	let cursor = 0;
-	while (true) {
-		const result = await fetchArtifacts({
-			status: statusFilter.value || undefined,
-			limit: pageSize,
-			offset: cursor,
-		});
-		if (!result.items.length) break;
-		for (const artifact of result.items) {
-			const id = String(artifact?.id || "");
-			if (!id) continue;
-			if (excludedIds.value.has(id)) continue;
-			ids.push(id);
-		}
-		cursor += pageSize;
-		if (cursor >= result.totalCount) break;
-	}
-	return ids;
+  const ids: string[] = [];
+  const pageSize = 200;
+  let cursor = 0;
+  while (true) {
+    const result = await fetchArtifacts({
+      status: statusFilter.value || undefined,
+      limit: pageSize,
+      offset: cursor,
+    });
+    if (!result.items.length) break;
+    for (const artifact of result.items) {
+      const id = String(artifact?.id || "");
+      if (!id) continue;
+      if (excludedIds.value.has(id)) continue;
+      ids.push(id);
+    }
+    cursor += pageSize;
+    if (cursor >= result.totalCount) break;
+  }
+  return ids;
 }
 
 async function deleteInBatches(
-	ids: string[],
-	batchSize = 8,
+  ids: string[],
+  batchSize = 8
 ): Promise<string[]> {
-	const failedIds: string[] = [];
-	bulkTotalCount.value = ids.length;
-	bulkDeletedCount.value = 0;
+  const failedIds: string[] = [];
+  bulkTotalCount.value = ids.length;
+  bulkDeletedCount.value = 0;
 
-	for (let i = 0; i < ids.length; i += batchSize) {
-		const batch = ids.slice(i, i + batchSize);
-		const results = await Promise.allSettled(
-			batch.map((id) => deleteArtifact(id)),
-		);
-		results.forEach((result, index) => {
-			if (result.status === "fulfilled") {
-				bulkDeletedCount.value += 1;
-			} else {
-				failedIds.push(batch[index]);
-			}
-		});
-	}
-	return failedIds;
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize);
+    const results = await Promise.allSettled(
+      batch.map((id) => deleteArtifact(id))
+    );
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        bulkDeletedCount.value += 1;
+      } else {
+        failedIds.push(batch[index]);
+      }
+    });
+  }
+  return failedIds;
 }
 
 async function loadArtifacts({
-	background = false,
+  background = false,
 }: {
-	background?: boolean;
+  background?: boolean;
 } = {}) {
-	if (!initialLoadDone && !background) loading.value = true;
-	if (!background) error.value = null;
-	try {
-		const result = await fetchArtifacts({
-			status: statusFilter.value || undefined,
-			limit: limit.value,
-			offset: offset.value,
-		});
-		if (background) {
-			mergeArtifacts(result.items);
-		} else {
-			items.value = result.items;
-		}
-		totalCount.value = result.totalCount;
-	} catch (e: unknown) {
-		if (!background) error.value = toErrorMessage(e);
-	} finally {
-		if (!initialLoadDone) {
-			loading.value = false;
-			initialLoadDone = true;
-		}
-	}
+  if (!initialLoadDone && !background) loading.value = true;
+  if (!background) error.value = null;
+  try {
+    const result = await fetchArtifacts({
+      status: statusFilter.value || undefined,
+      limit: limit.value,
+      offset: offset.value,
+    });
+    if (background) {
+      mergeArtifacts(result.items);
+    } else {
+      items.value = result.items;
+    }
+    totalCount.value = result.totalCount;
+  } catch (e: unknown) {
+    if (!background) error.value = toErrorMessage(e);
+  } finally {
+    if (!initialLoadDone) {
+      loading.value = false;
+      initialLoadDone = true;
+    }
+  }
 }
 
 async function onDeleteSelected() {
-	if (!selectedCount.value) return;
+  if (!selectedCount.value) return;
 
-	const label = selectAllMatching.value
-		? `${selectedCount.value} matching artifact(s)`
-		: `${selectedCount.value} selected artifact(s)`;
+  const label = selectAllMatching.value
+    ? `${selectedCount.value} matching artifact(s)`
+    : `${selectedCount.value} selected artifact(s)`;
 
-	if (selectAllMatching.value) {
-		const token = `DELETE ${selectedCount.value}`;
-		const typed = prompt(
-			`Dangerous action: delete ${label} in ${scopeLabel.value}.\nType "${token}" to confirm.`,
-		);
-		if (typed !== token) return;
-	} else if (!confirm(`Delete ${label}? This cannot be undone.`)) {
-		return;
-	}
+  if (selectAllMatching.value) {
+    const token = `DELETE ${selectedCount.value}`;
+    const typed = prompt(
+      `Dangerous action: delete ${label} in ${scopeLabel.value}.\nType "${token}" to confirm.`
+    );
+    if (typed !== token) return;
+  } else if (!confirm(`Delete ${label}? This cannot be undone.`)) {
+    return;
+  }
 
-	bulkDeleting.value = true;
-	error.value = null;
-	notice.value = null;
-	try {
-		const targetIds = selectAllMatching.value
-			? await collectAllMatchingArtifactIds()
-			: Array.from(selectedIds.value);
-		const failedIds = await deleteInBatches(targetIds);
+  bulkDeleting.value = true;
+  error.value = null;
+  notice.value = null;
+  try {
+    const targetIds = selectAllMatching.value
+      ? await collectAllMatchingArtifactIds()
+      : Array.from(selectedIds.value);
+    const failedIds = await deleteInBatches(targetIds);
 
-		if (failedIds.length) {
-			const preview = failedIds.slice(0, 5).join(", ");
-			error.value =
-				`Deleted ${targetIds.length - failedIds.length}/${
-					targetIds.length
-				} artifacts. ` +
-				`Failed: ${failedIds.length}${preview ? ` (e.g. ${preview})` : ""}`;
-		} else {
-			notice.value = `Deleted ${targetIds.length} artifact(s).`;
-		}
-		clearSelection();
-		await loadArtifacts();
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		bulkDeleting.value = false;
-		bulkDeletedCount.value = 0;
-		bulkTotalCount.value = 0;
-	}
+    if (failedIds.length) {
+      const preview = failedIds.slice(0, 5).join(", ");
+      error.value =
+        `Deleted ${targetIds.length - failedIds.length}/${
+          targetIds.length
+        } artifacts. ` +
+        `Failed: ${failedIds.length}${preview ? ` (e.g. ${preview})` : ""}`;
+    } else {
+      notice.value = `Deleted ${targetIds.length} artifact(s).`;
+    }
+    clearSelection();
+    await loadArtifacts();
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    bulkDeleting.value = false;
+    bulkDeletedCount.value = 0;
+    bulkTotalCount.value = 0;
+  }
 }
 
 async function onDelete(artifact: NormalizedArtifact) {
-	if (!confirm(`Delete artifact ${artifact.id?.substring(0, 8)}...?`)) return;
-	deleting.value = true;
-	notice.value = null;
-	try {
-		await deleteArtifact(artifact.id);
-		clearSelection();
-		await loadArtifacts();
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		deleting.value = false;
-	}
+  if (!confirm(`Delete artifact ${artifact.id?.substring(0, 8)}...?`)) return;
+  deleting.value = true;
+  notice.value = null;
+  try {
+    await deleteArtifact(artifact.id);
+    clearSelection();
+    await loadArtifacts();
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    deleting.value = false;
+  }
 }
 
 function onArtifactCreated() {
-	showForm.value = false;
-	notice.value = null;
-	loadArtifacts();
+  showForm.value = false;
+  notice.value = null;
+  loadArtifacts();
 }
 
 function onPageUpdate(page: number) {
-	offset.value = Math.max(0, (page - 1) * limit.value);
+  offset.value = Math.max(0, (page - 1) * limit.value);
 }
 
 watch([statusFilter], () => {
-	clearSelection();
-	notice.value = null;
-	offset.value = 0;
-	loadArtifacts();
+  clearSelection();
+  notice.value = null;
+  offset.value = 0;
+  loadArtifacts();
 });
 
 watch(offset, loadArtifacts);
 
 watch([allPageSelected, somePageSelected], () => {
-	nextTick(() => {
-		if (!pageSelectCheckbox.value) return;
-		pageSelectCheckbox.value.indeterminate = somePageSelected.value;
-	});
+  nextTick(() => {
+    if (!pageSelectCheckbox.value) return;
+    pageSelectCheckbox.value.indeterminate = somePageSelected.value;
+  });
 });
 
 onMounted(() => {
-	loadArtifacts();
-	refreshInterval = setInterval(() => {
-		if (bulkDeleting.value) return;
-		loadArtifacts({ background: true });
-	}, 10000);
+  loadArtifacts();
+  refreshInterval = setInterval(() => {
+    if (bulkDeleting.value) return;
+    loadArtifacts({ background: true });
+  }, 10000);
 });
 
 onUnmounted(() => {
-	if (refreshInterval) clearInterval(refreshInterval);
+  if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>

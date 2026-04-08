@@ -53,7 +53,8 @@
             </div>
             <pre
               class="text-xs whitespace-pre-wrap break-all leading-relaxed"
-            >{{ secretWriteSnippet(revealedSecret.secret) }}</pre>
+              >{{ secretWriteSnippet(revealedSecret.secret) }}</pre
+            >
           </div>
 
           <div class="rounded-md border border-color-theme bg-content p-3">
@@ -69,7 +70,8 @@
             </div>
             <pre
               class="text-xs whitespace-pre-wrap break-all leading-relaxed"
-            >{{ daemonConfigSnippet(workerId) }}</pre>
+              >{{ daemonConfigSnippet(workerId) }}</pre
+            >
           </div>
         </div>
       </div>
@@ -125,9 +127,7 @@
             v-for="cred in credentials"
             :key="cred.id"
             class="flex items-center justify-between gap-3 rounded-md border border-color-theme px-3 py-2"
-            :class="
-              cred.status === 'ACTIVE' ? 'bg-green-500/5' : 'bg-content'
-            "
+            :class="cred.status === 'ACTIVE' ? 'bg-green-500/5' : 'bg-content'"
           >
             <div class="flex items-center gap-3 min-w-0">
               <span
@@ -143,7 +143,9 @@
                 {{ shortCredentialId(cred.id) }}
               </code>
             </div>
-            <div class="flex items-center gap-3 text-xs text-definition-list-term shrink-0">
+            <div
+              class="flex items-center gap-3 text-xs text-definition-list-term shrink-0"
+            >
               <span>{{ formatDate(cred.created_at) }}</span>
               <Button
                 v-if="cred.status === 'ACTIVE'"
@@ -221,7 +223,7 @@ const revealedSecret = ref<{ secret: string } | null>(null);
 const copyState = ref<"secret" | "write" | "config" | null>(null);
 
 const hasActive = computed(() =>
-  credentials.value.some((c) => c.status === "ACTIVE"),
+  credentials.value.some((c) => c.status === "ACTIVE")
 );
 
 async function loadCredentials() {
@@ -243,7 +245,8 @@ async function onIssue() {
     revealedSecret.value = { secret: result.secret };
     await loadCredentials();
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : "Failed to issue credential.";
+    error.value =
+      e instanceof Error ? e.message : "Failed to issue credential.";
   } finally {
     actionBusy.value = false;
   }
@@ -339,6 +342,6 @@ watch(
       copyState.value = null;
       loadCredentials();
     }
-  },
+  }
 );
 </script>

@@ -1,5 +1,10 @@
 <template>
-  <component :is="embedded ? 'div' : 'section'" :class="embedded ? '' : 'bg-form rounded-lg border border-color-theme p-6 mb-3'">
+  <component
+    :is="embedded ? 'div' : 'section'"
+    :class="
+      embedded ? '' : 'bg-form rounded-lg border border-color-theme p-6 mb-3'
+    "
+  >
     <div v-if="!embedded" class="flex items-start justify-between mb-4">
       <div>
         <p class="text-lg font-semibold text-title">Upload New Artifact</p>
@@ -92,12 +97,18 @@
         <div class="flex items-start justify-between mb-3">
           <div>
             <p class="text-sm font-semibold text-title">
-              {{ uploadPhase === "committing" ? "Committing artifact..." : "Uploading" }}
+              {{
+                uploadPhase === "committing"
+                  ? "Committing artifact..."
+                  : "Uploading"
+              }}
             </p>
             <p class="text-xs text-definition-list-term">
-              {{ uploadPhase === "committing"
-                ? "Finalizing artifact with integrity verification."
-                : "Sending files sequentially and committing when all uploads complete." }}
+              {{
+                uploadPhase === "committing"
+                  ? "Finalizing artifact with integrity verification."
+                  : "Sending files sequentially and committing when all uploads complete."
+              }}
             </p>
           </div>
           <Button
@@ -114,8 +125,11 @@
         <div class="mb-4">
           <div class="flex justify-between text-sm text-record-label mb-1">
             <span>
-              Overall: {{ completedFileCount }} / {{ selectedFiles.length }} files
-              ({{ formatSize(overallBytesLoaded) }} / {{ formatSize(overallBytesTotal) }})
+              Overall: {{ completedFileCount }} /
+              {{ selectedFiles.length }} files ({{
+                formatSize(overallBytesLoaded)
+              }}
+              / {{ formatSize(overallBytesTotal) }})
             </span>
             <strong>{{ overallPercent }}%</strong>
           </div>
@@ -143,26 +157,25 @@
           >
             <div class="flex justify-between text-record-label mb-0.5">
               <span class="truncate mr-2">
-                <span
-                  v-if="fs.status === 'done'"
-                  class="text-valid font-medium"
-                >done</span>
+                <span v-if="fs.status === 'done'" class="text-valid font-medium"
+                  >done</span
+                >
                 <span
                   v-else-if="fs.status === 'uploading'"
                   class="text-blue-500 font-medium"
-                >uploading</span>
+                  >uploading</span
+                >
                 <span
                   v-else-if="fs.status === 'retrying'"
                   class="text-yellow-500 font-medium"
-                >retry {{ fs.attempt }}/3</span>
+                  >retry {{ fs.attempt }}/3</span
+                >
                 <span
                   v-else-if="fs.status === 'failed'"
                   class="text-invalid font-medium"
-                >failed</span>
-                <span
-                  v-else
-                  class="text-definition-list-term"
-                >pending</span>
+                  >failed</span
+                >
+                <span v-else class="text-definition-list-term">pending</span>
                 &mdash; {{ fs.name }}
               </span>
               <span class="whitespace-nowrap">
@@ -182,10 +195,7 @@
                 :style="{ width: fs.percent + '%' }"
               ></div>
             </div>
-            <p
-              v-if="fs.error"
-              class="text-xs text-invalid mt-0.5"
-            >
+            <p v-if="fs.error" class="text-xs text-invalid mt-0.5">
               {{ fs.error }}
             </p>
           </li>
@@ -205,7 +215,11 @@
         </Message>
       </section>
       <div v-if="!embedded" class="flex justify-end">
-        <Button type="outline" size="small" @click="$emit('created', artifactId)">
+        <Button
+          type="outline"
+          size="small"
+          @click="$emit('created', artifactId)"
+        >
           Close
         </Button>
       </div>
@@ -221,30 +235,30 @@ import InputString from "../../../tailwind-components/app/components/input/Strin
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import type { UploadHandle } from "../composables/useHpcApi";
 import {
-	commitArtifact,
-	computeTreeHash,
-	createArtifact,
-	uploadArtifactFileWithRetry,
+  commitArtifact,
+  computeTreeHash,
+  createArtifact,
+  uploadArtifactFileWithRetry,
 } from "../composables/useHpcApi";
 
 const props = defineProps<{
-	embedded?: boolean;
+  embedded?: boolean;
 }>();
 
 const emit = defineEmits<{
-	(e: "created", artifactId: string | null): void;
-	(e: "close"): void;
+  (e: "created", artifactId: string | null): void;
+  (e: "close"): void;
 }>();
 
 interface FileUploadState {
-	name: string;
-	total: number;
-	loaded: number;
-	percent: number;
-	status: "pending" | "uploading" | "retrying" | "done" | "failed";
-	attempt: number;
-	sha256: string | null;
-	error: string | null;
+  name: string;
+  total: number;
+  loaded: number;
+  percent: number;
+  status: "pending" | "uploading" | "retrying" | "done" | "failed";
+  attempt: number;
+  sha256: string | null;
+  error: string | null;
 }
 
 const form = reactive({ name: "", type: "" });
@@ -257,9 +271,9 @@ const fileStates = ref<FileUploadState[]>([]);
 
 // When embedded in a modal, auto-emit created when upload completes
 watch(step, (val) => {
-	if (val === "done" && props.embedded) {
-		emit("created", artifactId.value);
-	}
+  if (val === "done" && props.embedded) {
+    emit("created", artifactId.value);
+  }
 });
 
 // Speed / ETA tracking
@@ -271,181 +285,181 @@ let activeHandle: UploadHandle | null = null;
 let cancelled = false;
 
 const completedFileCount = computed(
-	() => fileStates.value.filter((f) => f.status === "done").length,
+  () => fileStates.value.filter((f) => f.status === "done").length
 );
 
 const overallBytesTotal = computed(() =>
-	fileStates.value.reduce((sum, f) => sum + f.total, 0),
+  fileStates.value.reduce((sum, f) => sum + f.total, 0)
 );
 
 const overallBytesLoaded = computed(() =>
-	fileStates.value.reduce((sum, f) => sum + f.loaded, 0),
+  fileStates.value.reduce((sum, f) => sum + f.loaded, 0)
 );
 
 const overallPercent = computed(() => {
-	if (overallBytesTotal.value === 0) return 0;
-	return Math.round((overallBytesLoaded.value / overallBytesTotal.value) * 100);
+  if (overallBytesTotal.value === 0) return 0;
+  return Math.round((overallBytesLoaded.value / overallBytesTotal.value) * 100);
 });
 
 const estimatedSecondsRemaining = computed(() => {
-	if (uploadSpeed.value <= 0) return Infinity;
-	const remaining = overallBytesTotal.value - overallBytesLoaded.value;
-	return remaining / uploadSpeed.value;
+  if (uploadSpeed.value <= 0) return Infinity;
+  const remaining = overallBytesTotal.value - overallBytesLoaded.value;
+  return remaining / uploadSpeed.value;
 });
 
 const canSubmit = computed(
-	() => form.name.trim() && selectedFiles.value.length > 0,
+  () => form.name.trim() && selectedFiles.value.length > 0
 );
 
 function formatSize(bytes: number): string {
-	const n = Number(bytes || 0);
-	if (n < 1024) return `${n} B`;
-	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-	if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-	return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  const n = Number(bytes || 0);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 function formatSpeed(bytesPerSec: number): string {
-	return `${formatSize(bytesPerSec)}/s`;
+  return `${formatSize(bytesPerSec)}/s`;
 }
 
 function formatEta(seconds: number): string {
-	if (!Number.isFinite(seconds) || seconds < 0) return "--";
-	if (seconds < 60) return `${Math.ceil(seconds)}s`;
-	if (seconds < 3600)
-		return `${Math.floor(seconds / 60)}m ${Math.ceil(seconds % 60)}s`;
-	const h = Math.floor(seconds / 3600);
-	const m = Math.ceil((seconds % 3600) / 60);
-	return `${h}h ${m}m`;
+  if (!Number.isFinite(seconds) || seconds < 0) return "--";
+  if (seconds < 60) return `${Math.ceil(seconds)}s`;
+  if (seconds < 3600)
+    return `${Math.floor(seconds / 60)}m ${Math.ceil(seconds % 60)}s`;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.ceil((seconds % 3600) / 60);
+  return `${h}h ${m}m`;
 }
 
 function updateSpeed(loaded: number) {
-	const now = Date.now();
-	speedSamples.value.push({ time: now, bytes: loaded });
-	// Keep only samples from the last 3 seconds for a rolling average
-	const cutoff = now - 3000;
-	speedSamples.value = speedSamples.value.filter((s) => s.time >= cutoff);
-	if (speedSamples.value.length >= 2) {
-		const oldest = speedSamples.value[0];
-		const newest = speedSamples.value[speedSamples.value.length - 1];
-		const dt = (newest.time - oldest.time) / 1000;
-		if (dt > 0) {
-			uploadSpeed.value = (newest.bytes - oldest.bytes) / dt;
-		}
-	}
+  const now = Date.now();
+  speedSamples.value.push({ time: now, bytes: loaded });
+  // Keep only samples from the last 3 seconds for a rolling average
+  const cutoff = now - 3000;
+  speedSamples.value = speedSamples.value.filter((s) => s.time >= cutoff);
+  if (speedSamples.value.length >= 2) {
+    const oldest = speedSamples.value[0];
+    const newest = speedSamples.value[speedSamples.value.length - 1];
+    const dt = (newest.time - oldest.time) / 1000;
+    if (dt > 0) {
+      uploadSpeed.value = (newest.bytes - oldest.bytes) / dt;
+    }
+  }
 }
 
 function cancelUpload() {
-	cancelled = true;
-	activeHandle?.abort();
-	error.value = "Upload cancelled.";
-	step.value = "metadata";
+  cancelled = true;
+  activeHandle?.abort();
+  error.value = "Upload cancelled.";
+  step.value = "metadata";
 }
 
 async function startUpload() {
-	error.value = null;
-	cancelled = false;
-	activeHandle = null;
-	speedSamples.value = [];
-	uploadSpeed.value = 0;
+  error.value = null;
+  cancelled = false;
+  activeHandle = null;
+  speedSamples.value = [];
+  uploadSpeed.value = 0;
 
-	const files = selectedFiles.value;
-	fileStates.value = files.map((f) => ({
-		name: f.name,
-		total: f.size,
-		loaded: 0,
-		percent: 0,
-		status: "pending",
-		attempt: 0,
-		sha256: null,
-		error: null,
-	}));
+  const files = selectedFiles.value;
+  fileStates.value = files.map((f) => ({
+    name: f.name,
+    total: f.size,
+    loaded: 0,
+    percent: 0,
+    status: "pending",
+    attempt: 0,
+    sha256: null,
+    error: null,
+  }));
 
-	try {
-		step.value = "uploading";
-		uploadPhase.value = "uploading";
+  try {
+    step.value = "uploading";
+    uploadPhase.value = "uploading";
 
-		// Create the artifact record on the server
-		const result = await createArtifact({
-			name: form.name.trim(),
-			type: form.type.trim() || undefined,
-		});
-		artifactId.value = result.id;
-		const createdArtifactId = artifactId.value;
-		if (cancelled) return;
+    // Create the artifact record on the server
+    const result = await createArtifact({
+      name: form.name.trim(),
+      type: form.type.trim() || undefined,
+    });
+    artifactId.value = result.id;
+    const createdArtifactId = artifactId.value;
+    if (cancelled) return;
 
-		// Upload files sequentially with XHR progress + retry.
-		// Each file's SHA-256 is computed internally by the upload function
-		// (for the Content-SHA256 header) and returned for tree hash computation.
-		const fileHashes: Array<{ path: string; sha256: string }> = [];
-		let cumulativeBytesCompleted = 0;
+    // Upload files sequentially with XHR progress + retry.
+    // Each file's SHA-256 is computed internally by the upload function
+    // (for the Content-SHA256 header) and returned for tree hash computation.
+    const fileHashes: Array<{ path: string; sha256: string }> = [];
+    let cumulativeBytesCompleted = 0;
 
-		for (let i = 0; i < files.length; i++) {
-			if (cancelled) return;
+    for (let i = 0; i < files.length; i++) {
+      if (cancelled) return;
 
-			const file = files[i];
-			const fs = fileStates.value[i];
-			const filePath = file.name;
+      const file = files[i];
+      const fs = fileStates.value[i];
+      const filePath = file.name;
 
-			fs.status = "uploading";
-			fs.attempt = 1;
+      fs.status = "uploading";
+      fs.attempt = 1;
 
-			const handle = uploadArtifactFileWithRetry(
-				createdArtifactId,
-				file,
-				filePath,
-				(progress) => {
-					fs.loaded = progress.loaded;
-					fs.total = progress.total;
-					fs.percent =
-						progress.total > 0
-							? Math.round((progress.loaded / progress.total) * 100)
-							: 0;
-					updateSpeed(cumulativeBytesCompleted + progress.loaded);
-				},
-				3, // maxAttempts
-			);
-			activeHandle = handle;
+      const handle = uploadArtifactFileWithRetry(
+        createdArtifactId,
+        file,
+        filePath,
+        (progress) => {
+          fs.loaded = progress.loaded;
+          fs.total = progress.total;
+          fs.percent =
+            progress.total > 0
+              ? Math.round((progress.loaded / progress.total) * 100)
+              : 0;
+          updateSpeed(cumulativeBytesCompleted + progress.loaded);
+        },
+        3 // maxAttempts
+      );
+      activeHandle = handle;
 
-			try {
-				const { sha256 } = await handle.promise;
-				fs.status = "done";
-				fs.loaded = fs.total;
-				fs.percent = 100;
-				fs.sha256 = sha256;
-				fileHashes.push({ path: filePath, sha256 });
-				cumulativeBytesCompleted += file.size;
-			} catch (err: unknown) {
-				if (err instanceof DOMException && err.name === "AbortError") {
-					// Cancelled — don't set error per file, cancelUpload() handles it
-					return;
-				}
-				const message = err instanceof Error ? err.message : "Upload failed";
-				fs.status = "failed";
-				fs.error = message;
-				throw new Error(`Failed to upload ${file.name}: ${fs.error}`);
-			}
-		}
+      try {
+        const { sha256 } = await handle.promise;
+        fs.status = "done";
+        fs.loaded = fs.total;
+        fs.percent = 100;
+        fs.sha256 = sha256;
+        fileHashes.push({ path: filePath, sha256 });
+        cumulativeBytesCompleted += file.size;
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // Cancelled — don't set error per file, cancelUpload() handles it
+          return;
+        }
+        const message = err instanceof Error ? err.message : "Upload failed";
+        fs.status = "failed";
+        fs.error = message;
+        throw new Error(`Failed to upload ${file.name}: ${fs.error}`);
+      }
+    }
 
-		if (cancelled) return;
+    if (cancelled) return;
 
-		// Phase 3: Compute tree hash from per-file hashes and commit
-		uploadPhase.value = "committing";
-		const treeHash = await computeTreeHash(fileHashes);
-		const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+    // Phase 3: Compute tree hash from per-file hashes and commit
+    uploadPhase.value = "committing";
+    const treeHash = await computeTreeHash(fileHashes);
+    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
 
-		await commitArtifact(createdArtifactId, {
-			sha256: treeHash,
-			size_bytes: totalSize,
-		});
+    await commitArtifact(createdArtifactId, {
+      sha256: treeHash,
+      size_bytes: totalSize,
+    });
 
-		step.value = "done";
-	} catch (e: unknown) {
-		if (!cancelled) {
-			error.value = e instanceof Error ? e.message : "Upload failed.";
-			step.value = "metadata";
-		}
-	}
+    step.value = "done";
+  } catch (e: unknown) {
+    if (!cancelled) {
+      error.value = e instanceof Error ? e.message : "Upload failed.";
+      step.value = "metadata";
+    }
+  }
 }
 
 defineExpose({ canSubmit, startUpload, step });

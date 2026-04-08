@@ -183,7 +183,7 @@ Not all workloads fit the "run one in-container executable" model. Multi-process
 
 When `host_entrypoint` is set, the batch script exports well-defined environment variables and `exec`s the script directly on the host:
 
-```yaml
+````yaml
 profiles:
   vtm-pipeline:gpu-large:
     host_entrypoint: /nfs/scripts/vtm-pipeline.sh
@@ -208,7 +208,7 @@ profiles:
     cpus: 8
     memory: 64G
     time: "04:00:00"
-```
+````
 
 The host-entrypoint contract defines these environment variables:
 
@@ -408,6 +408,7 @@ The canonical protocol contract is:
 - `protocol/hpc-protocol.json`
 
 This JSON Schema is normative for cross-stack protocol constants and shape contracts, including:
+
 - API version
 - job/artifact enum values
 - transition matrix
@@ -417,6 +418,7 @@ This JSON Schema is normative for cross-stack protocol constants and shape contr
 - cross-language HMAC fixture vectors
 
 Generated files derived from this schema:
+
 - `tools/hpc-daemon/src/emx2_hpc_daemon/_generated.py`
 - `apps/hpc/app/utils/protocol.ts`
 
@@ -427,6 +429,7 @@ uv run python protocol/generate.py
 ```
 
 Required change workflow for protocol edits:
+
 1. Edit `protocol/hpc-protocol.json`.
 2. Regenerate derived files with `protocol/generate.py`.
 3. Run contract/conformance tests:
@@ -443,16 +446,16 @@ The API SHOULD be versioned via the `X-EMX2-API-Version` request header rather t
 
 Every request from a worker or runtime MUST include a standard set of headers:
 
-| Header               | Required          | Purpose                                                                                                                                        |
-| -------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-EMX2-API-Version` | Yes               | Protocol version (date-based, e.g. `2025-01`).                                                                                                 |
-| `X-Request-Id`       | Yes               | Unique per-request identifier (UUID v4).                                                                                                       |
-| `X-Timestamp`        | Yes               | Request creation time; used for HMAC verification and replay prevention.                                                                       |
-| `X-Nonce`            | When HMAC enabled | Cryptographically random single-use value; replay prevention.                                                                                  |
-| `X-Trace-Id`         | No                | Identifier spanning a logical operation, e.g. an entire job lifecycle.                                                                         |
+| Header               | Required               | Purpose                                                                                                                                                      |
+| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `X-EMX2-API-Version` | Yes                    | Protocol version (date-based, e.g. `2025-01`).                                                                                                               |
+| `X-Request-Id`       | Yes                    | Unique per-request identifier (UUID v4).                                                                                                                     |
+| `X-Timestamp`        | Yes                    | Request creation time; used for HMAC verification and replay prevention.                                                                                     |
+| `X-Nonce`            | When HMAC enabled      | Cryptographically random single-use value; replay prevention.                                                                                                |
+| `X-Trace-Id`         | No                     | Identifier spanning a logical operation, e.g. an entire job lifecycle.                                                                                       |
 | `X-Worker-Id`        | Worker write endpoints | Worker identifier; REQUIRED for worker-origin lifecycle endpoints (register, heartbeat, claim, transition, complete). Must match path/body where applicable. |
-| `Authorization`      | When HMAC enabled | `HMAC-SHA256 <hex-signature>` (see Authentication and Trust).                                                                                  |
-| `Content-SHA256`     | Non-JSON bodies   | Hex-encoded SHA-256 of the request body. Required for all binary uploads; when HMAC is enabled it is also used as the body hash in the canonical string. |
+| `Authorization`      | When HMAC enabled      | `HMAC-SHA256 <hex-signature>` (see Authentication and Trust).                                                                                                |
+| `Content-SHA256`     | Non-JSON bodies        | Hex-encoded SHA-256 of the request body. Required for all binary uploads; when HMAC is enabled it is also used as the body hash in the canonical string.     |
 
 EMX2 MUST echo `X-Request-Id` in error responses for traceability.
 
@@ -599,25 +602,25 @@ Authorization is explicit and role-based on `_SYSTEM_`. No role means no HPC acc
 
 ### Role Semantics
 
-| Role on `_SYSTEM_` | Capability |
-| ------------------ | ---------- |
-| `Viewer`           | Read-only HPC data (jobs, transitions, workers, artifacts, files metadata/download). |
-| `Editor`           | Submitter role: create jobs, create/upload/commit artifacts, cancel/delete own jobs only. |
+| Role on `_SYSTEM_` | Capability                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `Viewer`           | Read-only HPC data (jobs, transitions, workers, artifacts, files metadata/download).                           |
+| `Editor`           | Submitter role: create jobs, create/upload/commit artifacts, cancel/delete own jobs only.                      |
 | `Manager`          | Operator role: full lifecycle control, including worker credential management and cancelling/deleting any job. |
-| `Owner` / admin    | Same or higher than `Manager`. |
+| `Owner` / admin    | Same or higher than `Manager`.                                                                                 |
 
 ### Endpoint Policy Matrix
 
-| Endpoint class | Viewer | Editor | Manager | HMAC daemon |
-| -------------- | ------ | ------ | ------- | ----------- |
-| GET `/api/hpc/jobs*`, `/artifacts*`, `/workers*` | Yes | Yes | Yes | Yes |
-| POST `/api/hpc/jobs` | No | Yes | Yes | Yes |
-| POST `/api/hpc/jobs/{id}/cancel` | No | Own jobs only | Any job | Yes |
-| DELETE `/api/hpc/jobs/{id}` | No | Own jobs only (terminal only) | Any job (terminal only) | Yes |
-| Worker lifecycle (`/workers/register`, `/workers/{id}/heartbeat`, `/jobs/{id}/claim`, `/jobs/{id}/transition`, `/jobs/{id}/complete`) | No | No | Yes | Yes |
-| DELETE `/api/hpc/workers/{id}` | No | No | Yes (user principal only) | No |
-| Worker credential management (`/workers/{id}/credentials*`) | No | No | Yes | No |
-| Artifact destructive ops (`DELETE /artifacts/{id}`, `DELETE /artifacts/{id}/files/{path}`) | No | No | Yes | Yes |
+| Endpoint class                                                                                                                        | Viewer | Editor                        | Manager                   | HMAC daemon |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------- | ------------------------- | ----------- |
+| GET `/api/hpc/jobs*`, `/artifacts*`, `/workers*`                                                                                      | Yes    | Yes                           | Yes                       | Yes         |
+| POST `/api/hpc/jobs`                                                                                                                  | No     | Yes                           | Yes                       | Yes         |
+| POST `/api/hpc/jobs/{id}/cancel`                                                                                                      | No     | Own jobs only                 | Any job                   | Yes         |
+| DELETE `/api/hpc/jobs/{id}`                                                                                                           | No     | Own jobs only (terminal only) | Any job (terminal only)   | Yes         |
+| Worker lifecycle (`/workers/register`, `/workers/{id}/heartbeat`, `/jobs/{id}/claim`, `/jobs/{id}/transition`, `/jobs/{id}/complete`) | No     | No                            | Yes                       | Yes         |
+| DELETE `/api/hpc/workers/{id}`                                                                                                        | No     | No                            | Yes (user principal only) | No          |
+| Worker credential management (`/workers/{id}/credentials*`)                                                                           | No     | No                            | Yes                       | No          |
+| Artifact destructive ops (`DELETE /artifacts/{id}`, `DELETE /artifacts/{id}/files/{path}`)                                            | No     | No                            | Yes                       | Yes         |
 
 ### Ownership Rules
 
@@ -776,7 +779,10 @@ If the `worker_id` does not yet exist in `HpcWorkers`, it is still considered re
       "href": "/api/hpc/workers/hpc-headnode-01/credentials/f7632056-1a2b-4727-b0c7-3bdf18aa75dd",
       "method": "GET"
     },
-    "list": { "href": "/api/hpc/workers/hpc-headnode-01/credentials", "method": "GET" },
+    "list": {
+      "href": "/api/hpc/workers/hpc-headnode-01/credentials",
+      "method": "GET"
+    },
     "revoke": {
       "href": "/api/hpc/workers/hpc-headnode-01/credentials/f7632056-1a2b-4727-b0c7-3bdf18aa75dd/revoke",
       "method": "POST"
@@ -840,7 +846,10 @@ Lists credential metadata for a worker. Secrets are never returned.
   ],
   "count": 1,
   "_links": {
-    "self": { "href": "/api/hpc/workers/hpc-headnode-01/credentials", "method": "GET" }
+    "self": {
+      "href": "/api/hpc/workers/hpc-headnode-01/credentials",
+      "method": "GET"
+    }
   }
 }
 ```

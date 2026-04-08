@@ -9,7 +9,9 @@
               Monitor worker availability and manage worker credentials.
             </span>
             <span class="text-[11px] tracking-wide opacity-70">
-              {{ refreshing ? "Refreshing now" : "Auto-refresh every 15 seconds" }}
+              {{
+                refreshing ? "Refreshing now" : "Auto-refresh every 15 seconds"
+              }}
             </span>
           </p>
         </div>
@@ -235,10 +237,10 @@ import Message from "../../../tailwind-components/app/components/Message.vue";
 import HpcPill from "../components/HpcPill.vue";
 import WorkerManageModal from "../components/WorkerManageModal.vue";
 import {
-	deleteWorker,
-	fetchWorkers,
-	issueWorkerCredential,
-	type WorkerSummary,
+  deleteWorker,
+  fetchWorkers,
+  issueWorkerCredential,
+  type WorkerSummary,
 } from "../composables/useHpcApi";
 import { formatDate } from "../utils/jobs";
 
@@ -270,147 +272,147 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let initialLoadDone = false;
 
 function toErrorMessage(e: unknown): string {
-	const errorLike = e as {
-		data?: { detail?: string; title?: string };
-		response?: {
-			_data?: { detail?: string; title?: string; status?: number };
-			data?: { detail?: string; title?: string };
-			status?: number;
-		};
-		statusCode?: number;
-		status?: number;
-		message?: string;
-	};
-	const detail =
-		errorLike?.data?.detail ||
-		errorLike?.response?._data?.detail ||
-		errorLike?.response?.data?.detail;
-	const title =
-		errorLike?.data?.title ||
-		errorLike?.response?._data?.title ||
-		errorLike?.response?.data?.title;
-	const status =
-		errorLike?.statusCode ??
-		errorLike?.status ??
-		errorLike?.response?.status ??
-		errorLike?.response?._data?.status;
+  const errorLike = e as {
+    data?: { detail?: string; title?: string };
+    response?: {
+      _data?: { detail?: string; title?: string; status?: number };
+      data?: { detail?: string; title?: string };
+      status?: number;
+    };
+    statusCode?: number;
+    status?: number;
+    message?: string;
+  };
+  const detail =
+    errorLike?.data?.detail ||
+    errorLike?.response?._data?.detail ||
+    errorLike?.response?.data?.detail;
+  const title =
+    errorLike?.data?.title ||
+    errorLike?.response?._data?.title ||
+    errorLike?.response?.data?.title;
+  const status =
+    errorLike?.statusCode ??
+    errorLike?.status ??
+    errorLike?.response?.status ??
+    errorLike?.response?._data?.status;
 
-	if (detail) {
-		return status ? `${status}${title ? ` ${title}` : ""}: ${detail}` : detail;
-	}
-	if (errorLike?.message) return errorLike.message;
-	return "Request failed";
+  if (detail) {
+    return status ? `${status}${title ? ` ${title}` : ""}: ${detail}` : detail;
+  }
+  if (errorLike?.message) return errorLike.message;
+  return "Request failed";
 }
 
 function heartbeatAgeMs(ts: string | null): number {
-	if (!ts) return Number.POSITIVE_INFINITY;
-	const parsed = new Date(ts).getTime();
-	if (Number.isNaN(parsed)) return Number.POSITIVE_INFINITY;
-	return Date.now() - parsed;
+  if (!ts) return Number.POSITIVE_INFINITY;
+  const parsed = new Date(ts).getTime();
+  if (Number.isNaN(parsed)) return Number.POSITIVE_INFINITY;
+  return Date.now() - parsed;
 }
 
 function heartbeatDotClass(ts: string | null): string {
-	return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "bg-red-500" : "bg-green-500";
+  return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "bg-red-500" : "bg-green-500";
 }
 
 function heartbeatTextClass(ts: string | null): string {
-	if (!ts) return "text-definition-list-term";
-	return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "text-red-700" : "text-green-600";
+  if (!ts) return "text-definition-list-term";
+  return heartbeatAgeMs(ts) > 5 * 60 * 1000 ? "text-red-700" : "text-green-600";
 }
 
 function mergeWorkers(nextWorkers: WorkerSummary[]) {
-	const previousById = new Map(
-		workers.value.map((worker) => [worker.worker_id, worker]),
-	);
-	workers.value = nextWorkers.map((nextWorker) => {
-		const previous = previousById.get(nextWorker.worker_id);
-		if (!previous) return nextWorker;
-		return { ...previous, ...nextWorker };
-	});
+  const previousById = new Map(
+    workers.value.map((worker) => [worker.worker_id, worker])
+  );
+  workers.value = nextWorkers.map((nextWorker) => {
+    const previous = previousById.get(nextWorker.worker_id);
+    if (!previous) return nextWorker;
+    return { ...previous, ...nextWorker };
+  });
 }
 
 function normalizeOptional(value: string): string | undefined {
-	const trimmed = value.trim();
-	return trimmed ? trimmed : undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
 }
 
 async function runBootstrapIssue() {
-	const workerId = bootstrapWorkerId.value.trim();
-	if (!workerId) {
-		error.value = "Worker ID is required to issue a credential.";
-		return;
-	}
+  const workerId = bootstrapWorkerId.value.trim();
+  if (!workerId) {
+    error.value = "Worker ID is required to issue a credential.";
+    return;
+  }
 
-	bootstrapBusy.value = true;
-	try {
-		const label = normalizeOptional(bootstrapLabel.value);
-		await issueWorkerCredential(workerId, { label });
-		showBootstrap.value = false;
-		await loadWorkers({ background: true });
-		// Open manage modal so user can see the credential
-		managingWorkerId.value = workerId;
-		managingWorkerJobs.value = [];
-		showManageModal.value = true;
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		bootstrapBusy.value = false;
-	}
+  bootstrapBusy.value = true;
+  try {
+    const label = normalizeOptional(bootstrapLabel.value);
+    await issueWorkerCredential(workerId, { label });
+    showBootstrap.value = false;
+    await loadWorkers({ background: true });
+    // Open manage modal so user can see the credential
+    managingWorkerId.value = workerId;
+    managingWorkerJobs.value = [];
+    showManageModal.value = true;
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    bootstrapBusy.value = false;
+  }
 }
 
 async function onBootstrapIssue() {
-	await runBootstrapIssue();
+  await runBootstrapIssue();
 }
 
 async function onDeleteWorker(workerId: string) {
-	if (
-		!confirm(
-			`Remove worker "${workerId}"? Jobs assigned to this worker will retain their history.`,
-		)
-	) {
-		return;
-	}
+  if (
+    !confirm(
+      `Remove worker "${workerId}"? Jobs assigned to this worker will retain their history.`
+    )
+  ) {
+    return;
+  }
 
-	deletingWorker.value = workerId;
-	try {
-		await deleteWorker(workerId);
-		await loadWorkers();
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		deletingWorker.value = null;
-	}
+  deletingWorker.value = workerId;
+  try {
+    await deleteWorker(workerId);
+    await loadWorkers();
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    deletingWorker.value = null;
+  }
 }
 
 async function loadWorkers({
-	background = false,
+  background = false,
 }: {
-	background?: boolean;
+  background?: boolean;
 } = {}) {
-	if (!initialLoadDone && !background) loading.value = true;
-	if (background) refreshing.value = true;
-	if (!background) error.value = null;
+  if (!initialLoadDone && !background) loading.value = true;
+  if (background) refreshing.value = true;
+  if (!background) error.value = null;
 
-	try {
-		const fetched = await fetchWorkers();
-		mergeWorkers(fetched);
-	} catch (e: unknown) {
-		error.value = toErrorMessage(e);
-	} finally {
-		if (!initialLoadDone) {
-			loading.value = false;
-			initialLoadDone = true;
-		}
-		if (background) refreshing.value = false;
-	}
+  try {
+    const fetched = await fetchWorkers();
+    mergeWorkers(fetched);
+  } catch (e: unknown) {
+    error.value = toErrorMessage(e);
+  } finally {
+    if (!initialLoadDone) {
+      loading.value = false;
+      initialLoadDone = true;
+    }
+    if (background) refreshing.value = false;
+  }
 }
 
 onMounted(() => {
-	loadWorkers();
-	refreshInterval = setInterval(() => loadWorkers({ background: true }), 15000);
+  loadWorkers();
+  refreshInterval = setInterval(() => loadWorkers({ background: true }), 15000);
 });
 
 onUnmounted(() => {
-	if (refreshInterval) clearInterval(refreshInterval);
+  if (refreshInterval) clearInterval(refreshInterval);
 });
 </script>

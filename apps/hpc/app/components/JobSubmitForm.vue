@@ -55,7 +55,9 @@
               :options="profiles"
               :disabled="!form.processor"
               :placeholder="
-                form.processor ? 'Select a profile...' : 'Select processor first'
+                form.processor
+                  ? 'Select a profile...'
+                  : 'Select processor first'
               "
             />
             <InputString
@@ -188,167 +190,167 @@ import InputTextArea from "../../../tailwind-components/app/components/input/Tex
 import Message from "../../../tailwind-components/app/components/Message.vue";
 import type { NormalizedArtifact } from "../composables/useArtifactsApi";
 import {
-	fetchArtifacts,
-	fetchCapabilities,
-	submitJob,
+  fetchArtifacts,
+  fetchCapabilities,
+  submitJob,
 } from "../composables/useHpcApi";
 import ArtifactPickerModal from "./ArtifactPickerModal.vue";
 
 const emit = defineEmits(["submitted", "close"]);
 
 const form = reactive({
-	processor: "",
-	profile: "",
-	parametersJson: "",
-	timeoutSeconds: null as number | null,
-	inputs: [] as string[],
+  processor: "",
+  profile: "",
+  parametersJson: "",
+  timeoutSeconds: null as number | null,
+  inputs: [] as string[],
 });
 const error = ref<string | null>(null);
 const submitting = ref(false);
 const showArtifactPicker = ref(false);
 type SubmitJobPayload = {
-	processor: string;
-	profile?: string;
-	parameters: unknown;
-	inputs?: string[];
-	timeout_seconds?: number;
+  processor: string;
+  profile?: string;
+  parameters: unknown;
+  inputs?: string[];
+  timeout_seconds?: number;
 };
 
 const availableArtifacts = ref<NormalizedArtifact[]>([]);
 const capabilities = ref<{ processor: string; profile: string }[]>([]);
 
 const processors = computed(() => [
-	...new Set(capabilities.value.map((c) => c.processor)),
+  ...new Set(capabilities.value.map((c) => c.processor)),
 ]);
 const profiles = computed(() => {
-	if (!form.processor) return [];
-	return [
-		...new Set(
-			capabilities.value
-				.filter((c) => c.processor === form.processor)
-				.map((c) => c.profile),
-		),
-	];
+  if (!form.processor) return [];
+  return [
+    ...new Set(
+      capabilities.value
+        .filter((c) => c.processor === form.processor)
+        .map((c) => c.profile)
+    ),
+  ];
 });
 
 const timeoutSecondsStr = computed({
-	get: () => (form.timeoutSeconds != null ? String(form.timeoutSeconds) : ""),
-	set: (val: string) => {
-		const trimmed = val.trim();
-		if (!trimmed) {
-			form.timeoutSeconds = null;
-		} else {
-			const n = parseInt(trimmed, 10);
-			form.timeoutSeconds = Number.isNaN(n) ? null : n;
-		}
-	},
+  get: () => (form.timeoutSeconds != null ? String(form.timeoutSeconds) : ""),
+  set: (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) {
+      form.timeoutSeconds = null;
+    } else {
+      const n = parseInt(trimmed, 10);
+      form.timeoutSeconds = Number.isNaN(n) ? null : n;
+    }
+  },
 });
 
 function onArtifactsConfirmed(artifacts: NormalizedArtifact[]) {
-	for (const a of artifacts) {
-		if (!form.inputs.includes(a.id)) {
-			form.inputs.push(a.id);
-		}
-		if (!availableArtifacts.value.find((x) => x.id === a.id)) {
-			availableArtifacts.value.push(a);
-		}
-	}
-	showArtifactPicker.value = false;
+  for (const a of artifacts) {
+    if (!form.inputs.includes(a.id)) {
+      form.inputs.push(a.id);
+    }
+    if (!availableArtifacts.value.find((x) => x.id === a.id)) {
+      availableArtifacts.value.push(a);
+    }
+  }
+  showArtifactPicker.value = false;
 }
 
 function artifactDisplayName(id: string): string {
-	const a = availableArtifacts.value.find((x) => x.id === id);
-	return a?.name || id.substring(0, 8);
+  const a = availableArtifacts.value.find((x) => x.id === id);
+  return a?.name || id.substring(0, 8);
 }
 
 function artifactDisplayMeta(id: string): string {
-	const a = availableArtifacts.value.find((x) => x.id === id);
-	if (!a) return "";
-	const parts: string[] = [];
-	if (a.type) parts.push(a.type);
-	if (a.size_bytes) parts.push(formatSize(Number(a.size_bytes)));
-	if (a.committed_at) parts.push(new Date(a.committed_at).toLocaleDateString());
-	return parts.join(" \u00b7 ");
+  const a = availableArtifacts.value.find((x) => x.id === id);
+  if (!a) return "";
+  const parts: string[] = [];
+  if (a.type) parts.push(a.type);
+  if (a.size_bytes) parts.push(formatSize(Number(a.size_bytes)));
+  if (a.committed_at) parts.push(new Date(a.committed_at).toLocaleDateString());
+  return parts.join(" \u00b7 ");
 }
 
 function formatSize(bytes: number): string {
-	const n = Number(bytes || 0);
-	if (n < 1024) return `${n} B`;
-	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-	if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-	return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  const n = Number(bytes || 0);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 watch(
-	() => form.processor,
-	() => {
-		if (profiles.value.length && !profiles.value.includes(form.profile)) {
-			form.profile = "";
-		}
-	},
+  () => form.processor,
+  () => {
+    if (profiles.value.length && !profiles.value.includes(form.profile)) {
+      form.profile = "";
+    }
+  }
 );
 
 async function loadArtifacts() {
-	try {
-		const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
-		availableArtifacts.value = result.items;
-	} catch {
-		// silently ignore — artifact selection is optional
-	}
+  try {
+    const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
+    availableArtifacts.value = result.items;
+  } catch {
+    // silently ignore — artifact selection is optional
+  }
 }
 
 async function loadCapabilities() {
-	try {
-		capabilities.value = await fetchCapabilities();
-	} catch {
-		// silently ignore — falls back to free-text inputs
-	}
+  try {
+    capabilities.value = await fetchCapabilities();
+  } catch {
+    // silently ignore — falls back to free-text inputs
+  }
 }
 
 async function handleSubmit() {
-	error.value = null;
-	if (!form.processor.trim()) {
-		error.value = "Processor is required.";
-		return;
-	}
-	let parameters = null;
-	if (form.parametersJson.trim()) {
-		try {
-			parameters = JSON.parse(form.parametersJson);
-		} catch {
-			error.value = "Parameters must be valid JSON.";
-			return;
-		}
-	}
-	submitting.value = true;
-	try {
-		const payload: SubmitJobPayload = {
-			processor: form.processor,
-			profile: form.profile || undefined,
-			parameters,
-		};
-		if (form.inputs.length) {
-			payload.inputs = form.inputs;
-		}
-		if (form.timeoutSeconds != null && form.timeoutSeconds > 0) {
-			payload.timeout_seconds = form.timeoutSeconds;
-		}
-		await submitJob(payload);
-		form.processor = "";
-		form.profile = "";
-		form.parametersJson = "";
-		form.timeoutSeconds = null;
-		form.inputs = [];
-		emit("submitted");
-	} catch (e: unknown) {
-		error.value = e instanceof Error ? e.message : "Job submission failed.";
-	} finally {
-		submitting.value = false;
-	}
+  error.value = null;
+  if (!form.processor.trim()) {
+    error.value = "Processor is required.";
+    return;
+  }
+  let parameters = null;
+  if (form.parametersJson.trim()) {
+    try {
+      parameters = JSON.parse(form.parametersJson);
+    } catch {
+      error.value = "Parameters must be valid JSON.";
+      return;
+    }
+  }
+  submitting.value = true;
+  try {
+    const payload: SubmitJobPayload = {
+      processor: form.processor,
+      profile: form.profile || undefined,
+      parameters,
+    };
+    if (form.inputs.length) {
+      payload.inputs = form.inputs;
+    }
+    if (form.timeoutSeconds != null && form.timeoutSeconds > 0) {
+      payload.timeout_seconds = form.timeoutSeconds;
+    }
+    await submitJob(payload);
+    form.processor = "";
+    form.profile = "";
+    form.parametersJson = "";
+    form.timeoutSeconds = null;
+    form.inputs = [];
+    emit("submitted");
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : "Job submission failed.";
+  } finally {
+    submitting.value = false;
+  }
 }
 
 onMounted(() => {
-	loadArtifacts();
-	loadCapabilities();
+  loadArtifacts();
+  loadCapabilities();
 });
 </script>

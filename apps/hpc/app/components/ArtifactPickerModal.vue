@@ -9,18 +9,22 @@
       <div class="flex gap-1 border-b border-color-theme mb-4">
         <button
           class="px-4 py-2 text-sm font-medium -mb-px"
-          :class="activeTab === 'upload'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-definition-list-term hover:text-title'"
+          :class="
+            activeTab === 'upload'
+              ? 'border-b-2 border-blue-500 text-blue-600'
+              : 'text-definition-list-term hover:text-title'
+          "
           @click="activeTab = 'upload'"
         >
           Upload New
         </button>
         <button
           class="px-4 py-2 text-sm font-medium -mb-px"
-          :class="activeTab === 'select'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-definition-list-term hover:text-title'"
+          :class="
+            activeTab === 'select'
+              ? 'border-b-2 border-blue-500 text-blue-600'
+              : 'text-definition-list-term hover:text-title'
+          "
           @click="activeTab = 'select'"
         >
           Select Existing
@@ -37,7 +41,10 @@
           class="mb-3"
         />
 
-        <p v-if="loading" class="text-sm text-definition-list-term py-4 text-center">
+        <p
+          v-if="loading"
+          class="text-sm text-definition-list-term py-4 text-center"
+        >
           Loading artifacts...
         </p>
 
@@ -52,14 +59,19 @@
             :class="{
               'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700':
                 pendingSelections.has(artifact.id),
-              'opacity-50 cursor-default': alreadySelected.includes(artifact.id),
+              'opacity-50 cursor-default': alreadySelected.includes(
+                artifact.id
+              ),
               'hover:bg-content': !alreadySelected.includes(artifact.id),
             }"
             @click="toggleSelection(artifact.id)"
           >
             <input
               type="checkbox"
-              :checked="pendingSelections.has(artifact.id) || alreadySelected.includes(artifact.id)"
+              :checked="
+                pendingSelections.has(artifact.id) ||
+                alreadySelected.includes(artifact.id)
+              "
               :disabled="alreadySelected.includes(artifact.id)"
               class="h-4 w-4 rounded border-gray-300 accent-blue-500"
               @click.stop
@@ -71,8 +83,8 @@
               </p>
               <p class="text-xs text-definition-list-term">
                 {{ artifact.type || "no type" }}
-                · {{ formatSize(Number(artifact.size_bytes || 0)) }}
-                · {{ formatDate(artifact.committed_at) }}
+                · {{ formatSize(Number(artifact.size_bytes || 0)) }} ·
+                {{ formatDate(artifact.committed_at) }}
               </p>
             </div>
             <span
@@ -84,10 +96,7 @@
           </li>
         </ul>
 
-        <p
-          v-else
-          class="text-sm text-definition-list-term py-4 text-center"
-        >
+        <p v-else class="text-sm text-definition-list-term py-4 text-center">
           No matching committed artifacts found.
         </p>
       </div>
@@ -121,7 +130,9 @@
           size="small"
           @click="confirmSelection"
         >
-          Add {{ newSelections.length }} Artifact{{ newSelections.length !== 1 ? "s" : "" }}
+          Add {{ newSelections.length }} Artifact{{
+            newSelections.length !== 1 ? "s" : ""
+          }}
         </Button>
       </div>
     </template>
@@ -138,13 +149,13 @@ import { fetchArtifacts } from "../composables/useHpcApi";
 import ArtifactUploadForm from "./ArtifactUploadForm.vue";
 
 const props = defineProps<{
-	visible: boolean;
-	alreadySelected: string[];
+  visible: boolean;
+  alreadySelected: string[];
 }>();
 
 const emit = defineEmits<{
-	(e: "update:visible", value: boolean): void;
-	(e: "confirm", artifacts: NormalizedArtifact[]): void;
+  (e: "update:visible", value: boolean): void;
+  (e: "confirm", artifacts: NormalizedArtifact[]): void;
 }>();
 
 const uploadFormRef = ref<ComponentPublicInstance<{
@@ -154,8 +165,8 @@ const uploadFormRef = ref<ComponentPublicInstance<{
 }> | null>(null);
 
 const visibleModel = computed({
-	get: () => props.visible,
-	set: (val: boolean) => emit("update:visible", val),
+  get: () => props.visible,
+  set: (val: boolean) => emit("update:visible", val),
 });
 
 const activeTab = ref<"select" | "upload">("upload");
@@ -165,87 +176,86 @@ const allArtifacts = ref<NormalizedArtifact[]>([]);
 const pendingSelections = ref(new Set<string>());
 
 const filteredArtifacts = computed(() => {
-	const q = searchQuery.value.toLowerCase().trim();
-	if (!q) return allArtifacts.value;
-	return allArtifacts.value.filter((a) => {
-		const name = (a.name || "").toLowerCase();
-		const type = (a.type || "").toLowerCase();
-		return name.includes(q) || type.includes(q);
-	});
+  const q = searchQuery.value.toLowerCase().trim();
+  if (!q) return allArtifacts.value;
+  return allArtifacts.value.filter((a) => {
+    const name = (a.name || "").toLowerCase();
+    const type = (a.type || "").toLowerCase();
+    return name.includes(q) || type.includes(q);
+  });
 });
 
 const newSelections = computed(() =>
-	allArtifacts.value.filter(
-		(a) =>
-			pendingSelections.value.has(a.id) &&
-			!props.alreadySelected.includes(a.id),
-	),
+  allArtifacts.value.filter(
+    (a) =>
+      pendingSelections.value.has(a.id) && !props.alreadySelected.includes(a.id)
+  )
 );
 
 function toggleSelection(id: string) {
-	if (props.alreadySelected.includes(id)) return;
-	const next = new Set(pendingSelections.value);
-	if (next.has(id)) {
-		next.delete(id);
-	} else {
-		next.add(id);
-	}
-	pendingSelections.value = next;
+  if (props.alreadySelected.includes(id)) return;
+  const next = new Set(pendingSelections.value);
+  if (next.has(id)) {
+    next.delete(id);
+  } else {
+    next.add(id);
+  }
+  pendingSelections.value = next;
 }
 
 async function loadArtifacts() {
-	loading.value = true;
-	try {
-		const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
-		allArtifacts.value = result.items;
-	} catch {
-		allArtifacts.value = [];
-	} finally {
-		loading.value = false;
-	}
+  loading.value = true;
+  try {
+    const result = await fetchArtifacts({ status: "COMMITTED", limit: 100 });
+    allArtifacts.value = result.items;
+  } catch {
+    allArtifacts.value = [];
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function onArtifactUploaded(artifactId: string | null) {
-	await loadArtifacts();
-	if (artifactId) {
-		const uploaded = allArtifacts.value.find((a) => a.id === artifactId);
-		if (uploaded) {
-			emit("confirm", [uploaded]);
-			visibleModel.value = false;
-			return;
-		}
-	}
-	activeTab.value = "select";
+  await loadArtifacts();
+  if (artifactId) {
+    const uploaded = allArtifacts.value.find((a) => a.id === artifactId);
+    if (uploaded) {
+      emit("confirm", [uploaded]);
+      visibleModel.value = false;
+      return;
+    }
+  }
+  activeTab.value = "select";
 }
 
 function confirmSelection() {
-	emit("confirm", newSelections.value);
-	visibleModel.value = false;
+  emit("confirm", newSelections.value);
+  visibleModel.value = false;
 }
 
 function formatSize(bytes: number): string {
-	const n = Number(bytes || 0);
-	if (n < 1024) return `${n} B`;
-	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-	if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-	return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  const n = Number(bytes || 0);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 function formatDate(dateStr: string | null | undefined): string {
-	if (!dateStr) return "-";
-	return new Date(dateStr).toLocaleDateString();
+  if (!dateStr) return "-";
+  return new Date(dateStr).toLocaleDateString();
 }
 
 // Reload artifacts and reset state when modal opens
 watch(
-	() => props.visible,
-	(open) => {
-		if (open) {
-			pendingSelections.value = new Set();
-			searchQuery.value = "";
-			activeTab.value = "upload";
-			loadArtifacts();
-		}
-	},
+  () => props.visible,
+  (open) => {
+    if (open) {
+      pendingSelections.value = new Set();
+      searchQuery.value = "";
+      activeTab.value = "upload";
+      loadArtifacts();
+    }
+  }
 );
 </script>

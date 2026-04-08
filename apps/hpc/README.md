@@ -3,6 +3,7 @@
 This is the canonical onboarding guide for the EMX2 HPC bridge.
 
 It covers the operational flow end-to-end:
+
 1. Configure EMX2 HPC settings.
 2. Issue a worker credential.
 3. Start the daemon.
@@ -13,6 +14,7 @@ Use this README first. Other docs are reference material.
 ## What You Get
 
 The HPC app provides three operational views:
+
 - **Jobs**: submit jobs, inspect lifecycle transitions, and review outputs.
 - **Workers**: monitor worker heartbeat/capabilities and manage credentials.
 - **Artifacts**: upload/manage input/output data files.
@@ -29,6 +31,7 @@ The HPC app provides three operational views:
 ## 1) Enable HPC in EMX2
 
 HPC requires two `_SYSTEM_` settings:
+
 - `MOLGENIS_HPC_ENABLED=true`
 - `MOLGENIS_HPC_CREDENTIALS_KEY=<strong-random-key>`
 
@@ -75,6 +78,7 @@ Open the app and sign in (usually `http://localhost:3000`).
 ## 3) Add Worker Credential (UI)
 
 In **Workers**:
+
 1. Click **+ Add Worker**.
 2. Enter your daemon `worker_id`.
 3. Click **Issue** to create the first credential.
@@ -87,6 +91,7 @@ printf '%s' '<paste-secret>' > .secret && chmod 600 .secret
 ```
 
 Behavior summary:
+
 - **Issue**: creates the first active credential; returns `409` if one is already active.
 - **Rotate**: use **Manage** on an existing worker; revokes the active credential immediately and creates a new one.
 - **Revoke**: invalidates that credential immediately.
@@ -131,6 +136,7 @@ This is the fastest full proof that the bridge is wired correctly.
 ### 5.1 Submit a job
 
 The demo config advertises one capability:
+
 - `processor=test`
 - `profile=test`
 
@@ -174,12 +180,14 @@ watch -n 2 "curl -sS -b /tmp/emx2.cookies \
 ### 5.3 Verify outputs
 
 Once the job is `COMPLETED`, verify:
+
 1. `slurm_job_id` is present
 2. output artifact is linked
 3. log artifact is linked
 4. transition history shows the full lifecycle
 
 This simulated path proves:
+
 - EMX2 settings are correct
 - worker auth works
 - daemon polling/claim/report works
@@ -188,6 +196,7 @@ This simulated path proves:
 ## 6) First Real Slurm / Apptainer Run
 
 The repo includes a real-Slurm VM harness that provisions:
+
 - Slurm controller + node
 - accounting database
 - daemon
@@ -201,6 +210,7 @@ make e2e
 ```
 
 That suite is the system-truth layer for:
+
 - entrypoint-based Slurm execution
 - Apptainer-backed execution
 - managed and posix artifacts
@@ -211,11 +221,13 @@ That suite is the system-truth layer for:
 ## 7) Submit and Verify a Job in the UI
 
 In **Jobs**:
+
 1. Submit a job with a processor/profile your worker advertises.
 2. Observe transitions (for example `PENDING -> CLAIMED -> SUBMITTED -> STARTED -> COMPLETED`).
 3. Open job details and verify output/log artifact links.
 
 In **Workers**:
+
 1. Confirm heartbeat updates.
 2. Confirm capabilities shown are the worker-advertised set.
 
@@ -226,6 +238,7 @@ The HPC bridge has a protocol contract with one source of truth:
 - `protocol/hpc-protocol.json`
 
 This JSON Schema file defines shared protocol constants and contracts across Java, Python, and Vue:
+
 - API version
 - job/artifact status enums
 - allowed job transitions
@@ -235,6 +248,7 @@ This JSON Schema file defines shared protocol constants and contracts across Jav
 - cross-language HMAC vectors
 
 Generated artifacts from that schema:
+
 - `tools/hpc-daemon/src/emx2_hpc_daemon/_generated.py`
 - `apps/hpc/app/utils/protocol.ts`
 
