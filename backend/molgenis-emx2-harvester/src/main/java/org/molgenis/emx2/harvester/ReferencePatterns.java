@@ -16,14 +16,14 @@ import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.*;
 
-public class ReferenceQueryParts {
+public class ReferencePatterns {
 
   private final Variable startingPoint;
   private final Column relatedColumn;
   private final TableMetadata relatedTable;
   private final boolean referenceRequired;
 
-  public ReferenceQueryParts(Variable startingPoint, Reference reference, SchemaMetadata schema) {
+  public ReferencePatterns(Variable startingPoint, Reference reference, SchemaMetadata schema) {
     this.startingPoint = startingPoint;
     this.relatedTable = schema.getTableMetadata(reference.getTargetTable());
     this.relatedColumn = relatedTable.getColumn(reference.getTargetColumn());
@@ -43,19 +43,24 @@ public class ReferenceQueryParts {
     List<GraphPattern> patterns = new ArrayList<>();
 
     for (Column pkey : relatedTable.getPrimaryKeyColumns()) {
-      GraphPattern predicate = predicateForKey(startingPoint, pkey);
-      patterns.add(predicate);
+      List<GraphPattern> predicate = predicateForKey(startingPoint, pkey);
+      patterns.addAll(predicate);
     }
 
     return patterns;
   }
 
-  private GraphPattern predicateForKey(Variable variable, Column column) {
+  private List<GraphPattern> predicateForKey(Variable variable, Column column) {
     if (column.getSemantics().length == 1) {
       String semantic = column.getSemantics()[0];
       Variable alias = SparqlBuilder.var(alias(column.getName()).getQueryString());
-      TriplePattern pattern = variable.has(predicate(semantic), alias);
-      return pattern.optional(referenceRequired);
+      TriplePattern pattern = GraphPatterns.tp(variable, predicate(semantic), alias);
+
+      if (referenceRequired) {
+        return List.of(pattern);
+      } else {
+        return List.of(pattern.optional());
+      }
     }
 
     List<GraphPattern> patterns = new ArrayList<>();
@@ -72,14 +77,13 @@ public class ReferenceQueryParts {
 
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     patterns.add(Expressions.bind(coalesce, columnVariable));
-    GraphPattern pattern = GraphPatterns.and(patterns.toArray(new GraphPattern[0]));
 
     if (referenceRequired) {
       Expression<?> bound = Expressions.bound(columnVariable);
-      pattern.filter(bound);
+      patterns.add(() -> "FILTER ( " + bound.getQueryString() + " )");
     }
 
-    return pattern;
+    return patterns;
   }
 
   public RdfObject alias(String name) {

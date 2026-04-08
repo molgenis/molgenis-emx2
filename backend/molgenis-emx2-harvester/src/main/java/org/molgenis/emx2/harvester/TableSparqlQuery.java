@@ -53,13 +53,21 @@ public class TableSparqlQuery {
       Variable columnVar = SparqlBuilder.var(column.getName());
       String semantic = Arrays.stream(column.getSemantics()).findFirst().orElseThrow();
 
-      if (column.isReference()) {
-        optionalPatterns.add(getReferenceTriplePattern(column, columnVar, semantic));
-      } else if (column.isRequired()) {
+      if (column.isRequired()) {
         addToMainPattern(semantic, columnVar);
       } else {
         TriplePattern triple = mainVar.has(predicate(semantic), columnVar);
         optionalPatterns.add(GraphPatterns.optional(triple));
+      }
+
+      if (column.isReference()) {
+        Reference reference = column.getReferences().getFirst();
+        ReferencePatterns query = new ReferencePatterns(columnVar, reference, schema);
+        if (column.isRequired()) {
+          query.getPattern().forEach(mainPattern::and);
+        } else {
+          optionalPatterns.addAll(query.getPattern());
+        }
       }
 
       select.select(columnVar);
