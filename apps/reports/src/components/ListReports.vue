@@ -1,12 +1,6 @@
 <template>
   <Spinner v-if="!session" />
-  <MessageWarning
-    v-else-if="
-      !session ||
-      !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
-    "
-  >
+  <MessageWarning v-else-if="!session?.roles?.includes('Viewer')">
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
   </MessageWarning>
@@ -124,7 +118,9 @@ export default {
     },
     async deleteSelected() {
       this.error = null;
-      this.selection.forEach((id) => this.reports.splice(id, 1));
+      this.reports = this.reports.filter(
+        (report) => !this.selection.includes(report.id)
+      );
       await this.client
         .saveSetting("reports", this.reports)
         .catch((error) => (this.error = error));

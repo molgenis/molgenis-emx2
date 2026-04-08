@@ -33,8 +33,8 @@ const menu = [
         link: `/all/networks`,
       },
   {
-    label: "Upload data",
-    link: "/apps/central/#/",
+    label: "Add data",
+    link: "/" + config.public.schema + "/pages/#/data-manager-portal",
   },
   {
     label: "Manuals",
@@ -44,6 +44,9 @@ const menu = [
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
+  config.public.cohortOnly
+    ? { label: "Introduction", link: `/all/introduction` }
+    : undefined,
   config.public.cohortOnly
     ? { label: "About", link: `/all/about` }
     : {

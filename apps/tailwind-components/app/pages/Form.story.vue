@@ -4,13 +4,11 @@ import type {
   ISchemaMetaData,
 } from "../../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
-import Legend from "../components/form/Legend.vue";
 import Button from "../components/Button.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
 import useForm from "../composables/useForm";
-import fetchRowPrimaryKey from "../composables/fetchRowPrimaryKey";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -24,15 +22,8 @@ interface Schema {
 
 const route = useRoute();
 const router = useRouter();
-const schemaId = ref((route.query.schema as string) ?? "pet store");
-const tableId = ref((route.query.table as string) ?? "Category");
-const rowIndex = ref<null | number>(null);
-if (route.query.rowIndex) {
-  rowIndex.value = parseInt(route.query.rowIndex as string);
-}
 
-const numberOfRows = ref(0);
-const formValues = ref<Record<string, columnValue>>({});
+const schemaId = ref((route.query.schema as string) ?? "pet store");
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -40,21 +31,31 @@ const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
-const schemaIds = computed(() =>
-  (schemas.value?.data?._schemas ?? [])
-    .sort((a, b) => a.label.localeCompare(b.label))
-    .map((s) => s.id)
-);
-
-const { data: schemaMeta, refresh } = await useAsyncData(
+const { data: schemaMeta, refresh: refreshSchemaMeta } = await useAsyncData(
   schemaId.value + " form data",
   () => fetchMetadata(schemaId.value)
 );
 
-const rowKey = ref<Record<string, columnValue>>();
+const schemaTablesIds = computed(() =>
+  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
+);
 
-async function getNumberOfRows() {
-  const resp = await $fetch(`/${schemaId.value}/graphql`, {
+const tableId = ref((route.query.table as string) ?? schemaTablesIds.value[0]);
+const metadata = computed(() => {
+  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    (table) => table.id === tableId.value
+  );
+  return tableMetadata ?? schemaMeta.value?.tables[0]!;
+});
+
+const rowIndex = ref(
+  route.query.rowIndex ? parseInt(route.query.rowIndex as string) : undefined
+);
+const formValues = ref<Record<string, columnValue>>({});
+const numberOfRows = ref(0);
+
+async function fetchRows() {
+  const sizeResp = await $fetch(`/${schemaId.value}/graphql`, {
     method: "POST",
     body: {
       query: `query ${tableId.value} {
@@ -64,173 +65,86 @@ async function getNumberOfRows() {
         }`,
     },
   });
-  numberOfRows.value = resp.data[tableId.value + "_agg"].count;
-}
+  numberOfRows.value = sizeResp.data[tableId.value + "_agg"].count;
 
-async function fetchRow(rowNumber: number) {
-  const resp = await fetchTableData(schemaId.value, tableId.value, {
-    limit: 1,
-    offset: rowNumber,
-  });
+  // Only fetch row data if rowIndex is provided
+  if (rowIndex.value !== undefined) {
+    const valuesResp = await fetchTableData(schemaId.value, tableId.value, {
+      limit: 1,
+      offset: rowIndex.value - 1, // adjust for 0-based index
+    });
 
-  formValues.value = resp.rows[0] ?? {};
-}
-
-const schemaTablesIds = computed(() =>
-  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
-);
-
-const metadata = computed(() => {
-  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
-    (table) => table.id === tableId.value
-  );
-  if (!tableMetadata) {
-    throw new Error(
-      `Table ${tableId.value} not found in schema ${schemaId.value}`
-    );
-  }
-  return tableMetadata;
-});
-
-watch(
-  () => schemaId.value,
-  async () => {
-    if (schemaMeta.value) {
-      await refresh();
-      tableId.value = schemaMeta.value?.tables?.[0]?.id ?? "";
-      router.push({
-        query: {
-          schema: schemaId.value,
-        },
-      });
-    }
-  }
-);
-
-watch(
-  () => tableId.value,
-  async (newTableId, oldTableId) => {
-    if (oldTableId !== newTableId && oldTableId !== undefined) {
-      rowIndex.value = null;
-    }
-    const query: { schema: string; table: string; rowIndex?: number } = {
-      schema: schemaId.value,
-      table: tableId.value,
-    };
-    if (rowIndex.value !== null) {
-      query.rowIndex = rowIndex.value;
-    }
-
-    router.push({ query });
-    getNumberOfRows();
+    formValues.value = valuesResp.rows[0] ?? {};
+  } else {
+    // If no rowIndex, reset form values to empty for insert mode
     formValues.value = {};
-  },
-  { immediate: true }
-);
-
-async function updateRowKey() {
-  rowKey.value = await fetchRowPrimaryKey(
-    formValues.value,
-    tableId.value,
-    schemaId.value
-  );
+  }
 }
 
-watch(
-  () => rowIndex.value,
-  async () => {
-    formValues.value = {};
+await fetchRows();
+let form = useForm(metadata, formValues);
 
-    const query: { schema: string; table: string; rowIndex?: number } = {
-      schema: schemaId.value,
-      table: tableId.value,
-    };
-    if (rowIndex.value !== null) {
-      query.rowIndex = rowIndex.value;
-    }
-    router.push({ query });
-
-    if (rowIndex.value !== null) {
-      await fetchRow(rowIndex.value - 1);
-      updateRowKey();
-    }
-  },
-  { immediate: true }
+const schemaIds = computed(() =>
+  (schemas.value?.data?._schemas ?? [])
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .map((s) => s.id)
 );
-
-const {
-  sections,
-  previousSection,
-  nextSection,
-  visibleColumns,
-  visibleColumnErrors,
-  gotoSection,
-  validateAllColumns,
-  onUpdateColumn,
-  onBlurColumn,
-  onViewColumn,
-  requiredMap,
-} = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
   () =>
-    Object.values(visibleColumnErrors.value).filter((error) => error.length > 0)
-      .length
+    Object.values(form.visibleColumnErrors.value).filter(
+      (error) => error.length > 0
+    ).length
+);
+
+async function resetForm() {
+  await refreshSchemaMeta();
+  schemaId.value = (route.query.schema as string) ?? schemaIds.value[0];
+  tableId.value = (route.query.table as string) ?? schemaTablesIds.value[0];
+  rowIndex.value = route.query.rowIndex
+    ? parseInt(route.query.rowIndex as string)
+    : undefined;
+  await fetchRows();
+  console.log(
+    "schemaMeta refreshed: ",
+    schemaId.value,
+    ", ",
+    tableId.value,
+    " rowIndex: ",
+    rowIndex.value
+  );
+  form = useForm(metadata, formValues);
+}
+
+watch(
+  () => route.query,
+  async () => {
+    await resetForm();
+  },
+  { deep: true }
 );
 </script>
 
 <template>
   <client-only>
-    <div class="flex flex-row">
-      <div class="grid grid-cols-4 gap-1">
-        <Legend
-          v-if="sections?.length"
-          :sections="sections"
-          @goToSection="gotoSection"
-          class="col-span-1 overflow-y-auto max-h-[calc(95vh-232px)]"
-        />
+    <div class="flex w-full justify-between">
+      <div class="flex-1 grow grid grid-cols-4 gap-1 border-theme">
         <div
           id="forms-story-fields-container"
           class="bg-form p-4"
-          :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
+          :class="form.sections.value.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
-          <Button
-            v-if="previousSection"
-            type="text"
-            size="small"
-            icon="arrow-left"
-            icon-position="left"
-            class="pb-4"
-            @click="gotoSection(previousSection.id)"
-          >
-            previous section '{{ previousSection.label }}'
-          </Button>
-          <FormFields
-            class="grow"
-            :columns="visibleColumns"
-            :visibleColumnErrors="visibleColumnErrors"
-            :requiredFields="requiredMap"
-            :row-key="rowKey"
-            v-model="formValues"
-            @update="onUpdateColumn"
-            @blur="onBlurColumn"
-            @view="onViewColumn"
+          <Form
+            :key="`${route.query.schema}-${route.query.table}-${route.query.rowIndex}`"
+            :form="form"
+            :initializeAsInsert="rowIndex === undefined"
           />
-          <Button
-            v-if="nextSection"
-            type="text"
-            size="small"
-            iconPosition="right"
-            icon="arrow-right"
-            class="pb-4 justify-self-end"
-            @click="gotoSection(nextSection.id)"
-          >
-            next section '{{ nextSection.label }}'
-          </Button>
         </div>
       </div>
-      <div class="ml-2 h-screen max-w-[325px]">
-        <h2>Demo controls, settings and status</h2>
+      <div class="w-full max-w-[33.333%] ml-6 h-screen">
+        <h2 class="text-heading-1xl py-2">
+          Demo controls, settings and status
+        </h2>
         <div class="p-4 border-2 mb-2 flex flex-col gap-4">
           <div class="flex flex-col">
             <label for="table-select" class="text-title font-bold"
@@ -240,8 +154,17 @@ const numberOfFieldsWithErrors = computed(
               id="table-select"
               v-model="schemaId"
               class="border border-black"
+              @change="
+                router.push({
+                  query: {
+                    schema: schemaId,
+                    table: undefined,
+                    rowIndex: undefined,
+                  },
+                })
+              "
             >
-              <option v-for="schemaId in schemaIds" :value="schemaId">
+              <option v-for="schemaId in schemaIds">
                 {{ schemaId }}
               </option>
             </select>
@@ -255,8 +178,17 @@ const numberOfFieldsWithErrors = computed(
               id="table-select"
               v-model="tableId"
               class="border border-black"
+              @change="
+                router.push({
+                  query: {
+                    schema: schemaId,
+                    table: tableId,
+                    rowIndex: undefined,
+                  },
+                })
+              "
             >
-              <option v-for="tableId in schemaTablesIds" :value="tableId">
+              <option v-for="tableId in schemaTablesIds">
                 {{ tableId }}
               </option>
             </select>
@@ -272,12 +204,27 @@ const numberOfFieldsWithErrors = computed(
                 id="row-select"
                 v-model="rowIndex"
                 class="border border-black"
+                @change="
+                  router.push({
+                    query: {
+                      schema: schemaId,
+                      table: tableId,
+                      rowIndex: rowIndex ? rowIndex : undefined,
+                    },
+                  })
+                "
               >
-                <option :value="null">none</option>
+                <option :value="undefined">none</option>
                 <option v-for="index in numberOfRows" :value="index">
                   {{ index }}
                 </option>
               </select>
+              initialize form as
+              {{ rowIndex === undefined ? "insert" : "edit" }} mode, current
+              rowKey:
+              {{
+                form.rowKey.value ? JSON.stringify(form.rowKey.value) : "none"
+              }}
             </div>
           </div>
 
@@ -296,20 +243,23 @@ const numberOfFieldsWithErrors = computed(
             <div>
               <div>number of error: {{ numberOfFieldsWithErrors }}</div>
             </div>
-            <div v-if="Object.keys(visibleColumnErrors).length">
+            <div v-if="Object.keys(form.visibleColumnErrors).length">
               <h3 class="text-label">Errors</h3>
-
+              {{ form.visibleColumnErrors }}
               <dl class="flex flex-col">
-                <template v-for="(value, key) in visibleColumnErrors">
+                <template
+                  v-for="(value, key) in form.visibleColumnErrors.value"
+                >
                   <dt class="font-bold">{{ key }}:</dt>
-                  <dd v-if="value.length" class="ml-1">{{ value }}</dd>
+                  <dd v-if="value" class="ml-1">{{ value }}</dd>
                 </template>
               </dl>
             </div>
           </div>
+
           <Button
             type="outline"
-            @click="validateAllColumns"
+            @click="form.validateAllColumns"
             class="blue"
             size="small"
             >validate all fields</Button

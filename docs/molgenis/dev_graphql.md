@@ -119,6 +119,37 @@ system.
 }
 ```
 
+The `roles` field returns the names of the roles assigned to the current user as a plain list of strings (e.g.
+`["Viewer", "Editor"]`). Use this for schema-level role checks such as `Manager` or `Editor`.
+
+To retrieve computed per-table permissions for the current user, use `tablePermissions`:
+
+```graphql
+{
+  _session {
+    email
+    admin
+    roles
+    tablePermissions {
+      name
+      canView
+      canInsert
+      canUpdate
+      canDelete
+    }
+    schemas
+  }
+}
+```
+
+- `roles` — list of role name strings for the current user. Use for schema-level checks (e.g. `roles.includes("Manager")`).
+- `tablePermissions` — effective permissions per table, computed from all inherited roles. Each entry contains:
+  - `name` — table name
+  - `canView` — user can read rows from this table
+  - `canInsert` — user can insert rows into this table
+  - `canUpdate` — user can update rows in this table
+  - `canDelete` — user can delete rows from this table
+
 ### settings
 
 MOLGENIS has a generic key/value settings query for storing settings on database level
@@ -270,6 +301,125 @@ mutation {
 > **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
 > schema.
 
+## Table-level permissions API
+
+Custom roles with per-table grants can be managed through GraphQL. This is distinct from the standard
+schema-wide roles (Viewer, Editor, Manager, etc.) — it allows a role to have access to only specific
+tables, with independent SELECT / INSERT / UPDATE / DELETE control.
+
+### Query roles and their permissions
+
+The `roles` field in `_schema` returns all roles — both system roles and custom roles — with their
+effective permissions.
+
+```graphql
+{
+  _schema {
+    roles {
+      name
+      system
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+      }
+    }
+  }
+}
+```
+
+- `system: true` — built-in role (Viewer, Editor, Manager, …). Its permissions apply to all tables (`table: "*"`).
+- `system: false` — custom role. Each entry in `permissions` targets a specific table.
+- `select` — `true` when SELECT is granted, `null` when not.
+- `insert` / `update` / `delete` — `true` when granted, `null` when not.
+
+### Create a custom role and grant permissions
+
+Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
+listed permissions are applied per field:
+
+| Field value | Effect |
+|---|---|
+| `true` | Grant the privilege |
+| `false` | Revoke the privilege |
+| `null` / omitted | Leave the existing grant unchanged |
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+Grant write access to a second table on an existing role:
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableB", select: true, insert: true, update: true, delete: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+### Revoke individual privileges
+
+Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: false, insert: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
+
+### Delete a custom role
+
+```graphql
+mutation {
+  drop(
+    roles: ["TableAViewer"]
+  ) {
+    message
+  }
+}
+```
+
+> **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
+> System roles cannot be created or deleted through this API.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
@@ -394,6 +544,37 @@ In this case, `not_equals` compares primary keys, `name` for Pet.
   }
 }
 ```
+
+### Fragments
+
+To simplify common queries, the API provides GraphQL fragments for each table. These fragments automatically expand to include all fields of the table.
+
+For columns of type `ref`, `ref_array`, `ontology`, or `ontology_array`, the fragment also includes the primary key (i.e., key=1) of the referenced table. This allows you to seamlessly query related tables without manually specifying nested fields.
+
+Note: these fragments are a server-side extension. GraphQL editors like GraphiQL may show validation warnings for unknown fragments, but the queries will execute correctly.
+
+#### Example 1: Basic usage
+```graphql
+{
+  Pet (filter: { not_equals: { name: "pooky" } }) {
+    ...PetAllFields
+  }
+}
+```
+
+#### Example 2: Querying nested references
+```graphql
+{
+  Order(filter: { equals: { orderId: "ORDER:..." } }) {
+    ...OrderAllFields2
+  }
+}
+```
+
+Depth variants are available for each table:
+- `...{Table}AllFields` - all fields, references include primary key only (depth 1)
+- `...{Table}AllFields2` - references expanded to depth 2
+- `...{Table}AllFields3` - references expanded to depth 3
 
 ### mutation example
 

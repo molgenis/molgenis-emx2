@@ -3,10 +3,14 @@ package org.molgenis.emx2.rdf.writers;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum WriterFactory {
   MODEL(RdfModelWriter.class),
   STREAM(RdfStreamWriter.class);
+
+  private static Logger logger = LoggerFactory.getLogger(WriterFactory.class);
 
   private final Class<? extends RdfWriter> rdfWriterClass;
 
@@ -24,7 +28,9 @@ public enum WriterFactory {
         | InvocationTargetException
         | NoSuchMethodException e) {
       // Any exceptions thrown should purely be due to bugs in this specific code.
-      throw new RuntimeException("An error occurred while trying to run WriterFactory: " + e);
+      String errMsg = "Failed to set up the correct RdfWriter: ";
+      logger.error(errMsg, e);
+      throw new RuntimeException(errMsg + e);
     }
   }
 }

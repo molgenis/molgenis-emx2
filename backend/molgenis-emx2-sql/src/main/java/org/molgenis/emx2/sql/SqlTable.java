@@ -19,6 +19,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -376,7 +377,7 @@ public class SqlTable implements Table {
     return this.tableListener;
   }
 
-  private static int insertBatch(
+  private int insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
@@ -438,7 +439,7 @@ public class SqlTable implements Table {
     return user;
   }
 
-  private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
+  private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
     if (inherit) {
@@ -481,9 +482,18 @@ public class SqlTable implements Table {
     return expandedColumns;
   }
 
-  private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
+  private Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
-    selection.forEach(c -> selectedValues.put(c.getName(), getTypedValue(c, row)));
+    for (Column column : selection) {
+      if (AUTO_ID.equals(column.getColumnType())
+          && !metadata.getColumn(column.getName()).isReference()
+          && row.isNull(column.getName(), column.getPrimitiveColumnType())) {
+        selectedValues.put(column.getName(), new IdGeneratorService().generateIdForColumn(column));
+      } else {
+        selectedValues.put(column.getName(), getTypedValue(column, row));
+      }
+    }
+
     return selectedValues;
   }
 

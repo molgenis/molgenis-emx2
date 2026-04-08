@@ -39,6 +39,8 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
   private static final List<MediaType> acceptedMediaTypes = new ArrayList<>(); // order of priority
+  public static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   static {
     // Defines order of priority!
@@ -145,7 +147,7 @@ public class RDFApi {
     headerShaclSets(ctx);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
+    if (APPLICATION_CACHE.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 
@@ -167,7 +169,7 @@ public class RDFApi {
   private static void databaseRdfGet(Context ctx, RDFFormat format) throws IOException {
     headerRdfAndValidation(ctx, format);
 
-    Database db = applicationCache.getDatabaseForUser(ctx);
+    Database db = APPLICATION_CACHE.getDatabaseForUser(ctx);
     Collection<String> availableSchemas = getSchemaNames(ctx);
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {
@@ -295,8 +297,9 @@ public class RDFApi {
         | InstantiationException
         | NoSuchMethodException e) {
       // Any exceptions thrown should purely be due to bugs in this specific code.
-      throw new RuntimeException(
-          "An error occurred while trying to run the RDF API: " + e.getCause());
+      String errMsg = "Failed to set up the correct RdfService: ";
+      logger.error(errMsg, e);
+      throw new RuntimeException(errMsg + e.getCause());
     }
   }
 

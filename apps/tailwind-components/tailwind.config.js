@@ -89,6 +89,7 @@ module.exports = {
     extend: {
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
+        "no-background-modal": "var(--box-shadow-no-background-modal)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
@@ -339,6 +340,7 @@ module.exports = {
         "label-draft": "var(--text-color-label-draft)",
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
+        "chart-text": "var(--chart-text)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
@@ -389,6 +391,9 @@ module.exports = {
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
         "check-border": "var(--border-color-button-primary)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
+        "chart-gridlines": "var(--chart-gridlines)",
       }),
       fill: () => ({
         input: "var(--background-color-input)",
@@ -403,6 +408,8 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
       }),
       borderRadius: {
         theme: "var(--border-radius-theme)",

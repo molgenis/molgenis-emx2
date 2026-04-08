@@ -1,6 +1,6 @@
 import { createError } from "#app";
 import { fetchMetadata } from "#imports";
-import type { columnValue } from "../../../metadata-utils/src/types";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 
 export interface ITableDataResponse {
@@ -23,8 +23,13 @@ export default async (
     ? ',search:"' + properties?.searchTerms.trim() + '"'
     : "";
 
-  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
-  const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const columnIds: string = await getColumnIds(
+    schemaId,
+    tableId,
+    expandLevel,
+    properties?.columns
+  );
+  const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 
@@ -40,7 +45,7 @@ export default async (
         }`;
 
   const filter = properties?.filter ? properties?.filter : {};
-  const orderby = properties?.orderby ? properties?.orderby : {};
+  const orderby = properties?.orderby ? [properties?.orderby] : [];
 
   const { data } = await $fetch(`/${schemaId}/graphql`, {
     method: "POST",
@@ -57,8 +62,6 @@ export default async (
     });
   });
 
-  console.log(`Fetching data for table ${tableId} schema ${schemaId}`);
-
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
@@ -67,13 +70,14 @@ export const getColumnIds = async (
   tableId: string,
   //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
-  //rootLevel
+  columnFilter: IColumn[] = [],
   rootLevel = true
 ) => {
   const metadata = await fetchMetadata(schemaId);
 
-  const columns =
-    metadata.tables.find((table) => table.id === tableId)?.columns || [];
+  const columns = columnFilter?.length
+    ? columnFilter
+    : metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
   for (const col of columns) {
@@ -111,6 +115,7 @@ export const getColumnIds = async (
             col.refTableId || tableId,
             //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             expandLevel - 1,
+            [],
             false
           )) +
           " }";

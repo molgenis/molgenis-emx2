@@ -58,6 +58,9 @@ export interface ITreeNodeState extends ITreeNode {
   loadMoreTotal?: number;
   /* pagination: whether there are more children to load */
   loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -135,18 +138,32 @@ export interface IInputProps {
   disabled?: boolean | undefined;
 }
 
+export type schemaId = string;
+
 export interface ISession {
   email: string;
   admin: boolean;
-  roles?: string[];
+  roles: Record<schemaId, string[]>;
   schemas?: string[];
   token?: string;
 }
 
 export interface RefPayload {
   metadata: IRefColumn;
-  data: IRow;
+  data: columnValue;
 }
+
+export interface ColumnPayload {
+  metadata: IColumn;
+  data: columnValue;
+}
+
+export interface ListPayload {
+  metadata: IColumn;
+  data: columnValue[];
+}
+
+export type cellPayload = ColumnPayload | RefPayload | ListPayload;
 
 export interface Section {
   heading: string;

@@ -209,7 +209,8 @@
             :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
-            :canEdit="canEdit"
+            :canUpdate="canUpdate"
+            :canDelete="canDelete"
             :template="cardTemplate"
             @click="$emit('rowClick', $event)"
             @reload="reload"
@@ -266,7 +267,7 @@
             </template>
             <template v-slot:rowcolheader>
               <RowButton
-                v-if="canEdit"
+                v-if="canInsert"
                 type="add"
                 :tableId="tableId"
                 :schemaId="schemaId"
@@ -284,7 +285,7 @@
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButton
-                v-if="canEdit"
+                v-if="canUpdate"
                 type="edit"
                 @edit="
                   handleRowAction(
@@ -298,7 +299,7 @@
                 "
               />
               <RowButton
-                v-if="canEdit"
+                v-if="canInsert"
                 type="clone"
                 @clone="
                   handleRowAction(
@@ -312,7 +313,7 @@
                 "
               />
               <RowButton
-                v-if="canEdit"
+                v-if="canDelete"
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
@@ -352,6 +353,7 @@
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
       :schemaId="schemaId"
+      :tablePermissions="tablePermissions"
       @close="handleModalClose"
       :apply-default-values="editMode === 'add'"
     />
@@ -417,7 +419,7 @@
 </style>
 
 <script lang="ts">
-import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils/src";
 import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
@@ -425,19 +427,17 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import EditModal from "../forms/EditModal.vue";
+import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import {
-  applyComputed,
-  convertRowToPrimaryKey,
-  deepClone,
-  isRefType,
-} from "../utils";
+import Task from "../task/Task.vue";
+import { applyComputed, convertRowToPrimaryKey, isRefType } from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -446,9 +446,6 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
-import Task from "../task/Task.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -510,7 +507,7 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: undefined,
       graphqlError: "",
-      taskId: String,
+      taskId: "",
       taskDone: false,
       success: false,
       isDeleteAllModalShown: false,
@@ -591,9 +588,25 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    canInsert: {
+      type: Boolean,
+      default: () => false,
+    },
+    canUpdate: {
+      type: Boolean,
+      default: () => false,
+    },
+    canDelete: {
+      type: Boolean,
+      default: () => false,
+    },
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    tablePermissions: {
+      type: Array,
+      default: () => [],
     },
   },
   computed: {
@@ -744,7 +757,13 @@ export default {
     },
     handleError(error: any) {
       if (Array.isArray(error?.response?.data?.errors)) {
-        this.graphqlError = error.response.data.errors[0].message;
+        const message = error.response.data.errors[0].message;
+        if (message.includes("FieldUndefined")) {
+          this.graphqlError =
+            "This table contains a reference to data you don't have permission to view. Contact your administrator to request access.";
+        } else {
+          this.graphqlError = message;
+        }
       } else {
         this.graphqlError = error;
       }
@@ -787,6 +806,7 @@ export default {
       }
     },
     async reload() {
+      if (!this.canView) return;
       this.loading = true;
       this.graphqlError = "";
       const offset = this.limit * (this.page - 1);
@@ -827,17 +847,15 @@ function getColumnIds(
   columns: IColumn[],
   property: "showColumn" | "showFilter"
 ) {
-  return (
-    columns
-      //@ts-ignore TODO: remove column input modification in TableMolgenis
-      .filter(
-        (column) =>
-          column[property] &&
-          column.columnType !== "HEADING" &&
-          column.columnType !== "SECTION"
-      )
-      .map((column) => column.id)
-  );
+  return columns
+    .filter(
+      (column) =>
+        //@ts-ignore TODO: remove column input modification in TableMolgenis
+        column[property] &&
+        column.columnType !== "HEADING" &&
+        column.columnType !== "SECTION"
+    )
+    .map((column) => column.id);
 }
 
 function getCondition(columnType: string, condition: string) {

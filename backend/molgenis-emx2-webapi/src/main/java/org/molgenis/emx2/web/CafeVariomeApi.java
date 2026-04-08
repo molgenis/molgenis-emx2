@@ -4,7 +4,6 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.web.Constants.ACCEPT_FORM_URL_ENC;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
-import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +40,8 @@ public class CafeVariomeApi {
               Constants.CV_INTROSPECT_URI,
               "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect",
               STRING);
+  public static final ApplicationCachePerUser APPLICATION_CACHE =
+      ApplicationCachePerUser.getInstance();
 
   public static void create(Javalin app) {
     app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkAuth);
@@ -50,7 +51,7 @@ public class CafeVariomeApi {
   }
 
   private static void checkAuth(Context ctx) throws IOException, InterruptedException {
-    Database database = applicationCache.getDatabaseForUser(ctx);
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     if (!database.isAnonymous()) {
       return;
     }
@@ -102,7 +103,7 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-    Database database = applicationCache.getDatabaseForUser(ctx);
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     ctx.json(QueryRecord.getRecordIndex(database, schema));
   }
 }

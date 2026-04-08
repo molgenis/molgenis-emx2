@@ -7,6 +7,7 @@
       :disabled="disabled"
       :data-valid="valid"
       :data-invalid="invalid"
+      :year-range="[432, 2060]"
       type="Date"
       v-model:="formatedInternalValue"
       @update:modelValue="handleUpdate"

@@ -27,10 +27,7 @@ const emit = defineEmits<{
 }>();
 </script>
 <template>
-  <div
-    class="flex justify-start items-center gap-1 hover:cursor-pointer"
-    @click="emit('sort-requested', column.id)"
-  >
+  <div class="flex justify-start items-center gap-1">
     <button
       :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
       type="button"
@@ -42,7 +39,11 @@ const emit = defineEmits<{
           : 'none'
       "
     >
-      <span>{{ column.label }}</span>
+      <span
+        @click="emit('sort-requested', column.id)"
+        class="hover:cursor-pointer"
+        >{{ column.label }}</span
+      >
     </button>
     <ArrowUp
       v-if="

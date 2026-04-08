@@ -23,9 +23,7 @@ test.beforeEach(async ({ page }) => {
 test("the row should be removed from the table after deletion", async ({
   page,
 }) => {
-  await page.getByRole("link", { name: "TableEMX2" }).click();
-  await page.getByLabel("Is Editable:").check();
-  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
+  await page.getByText("Is Editable:").click();
   // add
   await expect(
     page.getByRole("button", { name: "Add Category" })
