@@ -23,9 +23,23 @@ test("Can hide and show columns", async ({ page }) => {
 test("Can change order of columns", async ({ page }) => {
   await page.goto(`${route}pet%20store/Pet`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Pet");
-  await expect(page.locator('table.table-fixed tr').first().getByRole("columnheader").first()).toHaveText("name");
+  await expect(
+    page
+      .locator("table.table-fixed tr")
+      .first()
+      .getByRole("columnheader")
+      .first()
+  ).toHaveText("name");
   await page.getByRole("button", { name: "Columns" }).click();
-  await page.locator('label:has-text("name")').dragTo(page.locator('label:has-text("tags")'));
+  await page
+    .locator('label:has-text("name")')
+    .dragTo(page.locator('label:has-text("tags")'));
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.locator('table.table-fixed tr').first().getByRole("columnheader").first()).toHaveText("category");
+  await expect(
+    page
+      .locator("table.table-fixed tr")
+      .first()
+      .getByRole("columnheader")
+      .first()
+  ).toHaveText("category");
 });
