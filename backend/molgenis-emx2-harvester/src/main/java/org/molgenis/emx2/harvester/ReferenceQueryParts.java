@@ -11,6 +11,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
+import org.eclipse.rdf4j.sparqlbuilder.graphpattern.TriplePattern;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.*;
@@ -33,7 +34,7 @@ public class ReferenceQueryParts {
     return Collections.emptyList();
   }
 
-  public GraphPattern getPattern() {
+  public List<GraphPattern> getPattern() {
     if (relatedColumn.getSemantics() == null) {
       throw new MolgenisException(
           "Unable to resolve reference semantics for " + relatedColumn.getName());
@@ -46,12 +47,15 @@ public class ReferenceQueryParts {
       patterns.add(predicate);
     }
 
-    return GraphPatterns.and(patterns.toArray(new GraphPattern[0]));
+    return patterns;
   }
 
   private GraphPattern predicateForKey(Variable variable, Column column) {
     if (column.getSemantics().length == 1) {
-      return variable.has(predicate(column.getSemantics()[0]), alias(column.getName()));
+      String semantic = column.getSemantics()[0];
+      Variable alias = SparqlBuilder.var(alias(column.getName()).getQueryString());
+      TriplePattern pattern = variable.has(predicate(semantic), alias);
+      return pattern.optional(referenceRequired);
     }
 
     List<GraphPattern> patterns = new ArrayList<>();
