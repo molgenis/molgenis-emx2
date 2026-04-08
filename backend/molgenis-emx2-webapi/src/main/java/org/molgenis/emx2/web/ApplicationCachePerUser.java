@@ -226,9 +226,6 @@ public class ApplicationCachePerUser {
     return null;
   }
 
-  /**
-   * this method is used to reset cache of all sessions, necessary when for example metadata changes
-   */
   public void clearAllCaches() {
     oidcController.reloadConfig();
     databaseCache.invalidateAll();

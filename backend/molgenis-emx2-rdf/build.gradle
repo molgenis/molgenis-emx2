@@ -1,6 +1,5 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
-    implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-io')
     testImplementation project(':backend:molgenis-emx2-tasks')
