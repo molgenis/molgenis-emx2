@@ -21,9 +21,16 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
-import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 
 public abstract class CustomAssertions {
+  public static final String SHACL_TURTLE_SUCCEED =
+      """
+    @prefix sh: <http://www.w3.org/ns/shacl#> .
+
+    [] a sh:ValidationReport;
+      sh:conforms true.
+    """;
+
   public static void equals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
     AssertionFailureBuilder failureBuilder = assertionFailure();
 
@@ -75,6 +82,6 @@ public abstract class CustomAssertions {
     }
     outputStream.flush();
     outputStream.close();
-    assertEquals(new String(ShaclResultWriter.SHACL_SUCCEED), outputStream.toString());
+    assertEquals(SHACL_TURTLE_SUCCEED, outputStream.toString());
   }
 }
