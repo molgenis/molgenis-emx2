@@ -22,7 +22,7 @@
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <Breadcrumb
             class="directory-nav"
-          :crumbs="{
+            :crumbs="{
               [uiText['home']]: '../',
               [biobank.name]: '/',
             }"
