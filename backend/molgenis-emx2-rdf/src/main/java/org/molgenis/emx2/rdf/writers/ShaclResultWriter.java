@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.writers;
 
+import static org.eclipse.rdf4j.rio.helpers.BasicWriterSettings.INLINE_BLANK_NODES;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +27,7 @@ public class ShaclResultWriter extends RdfWriter {
   private static final Logger logger = LoggerFactory.getLogger(ShaclResultWriter.class);
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
   private static final Model succeedModel;
+  private static final WriterConfig succeedWriterConfig = new WriterConfig();
 
   static {
     ModelBuilder builder = new ModelBuilder();
@@ -33,6 +36,8 @@ public class ShaclResultWriter extends RdfWriter {
     builder.add(bNode, RDF.TYPE, SHACL.VALIDATION_REPORT);
     builder.add(bNode, SHACL.CONFORMS, valueFactory.createLiteral(true));
     succeedModel = builder.build();
+
+    succeedWriterConfig.set(INLINE_BLANK_NODES, true);
   }
 
   private final SailRepository repository;
@@ -81,7 +86,7 @@ public class ShaclResultWriter extends RdfWriter {
     try {
       connection.commit();
       try {
-        Rio.write(succeedModel, getOutputStream(), getFormat());
+        Rio.write(succeedModel, getOutputStream(), getFormat(), succeedWriterConfig);
       } catch (RDFHandlerException e) {
         throw new MolgenisException("An error occurred while writing the SHACL results");
       }
