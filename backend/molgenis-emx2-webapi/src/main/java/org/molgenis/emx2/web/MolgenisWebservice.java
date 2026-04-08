@@ -23,6 +23,7 @@ import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.controllers.RagController;
 import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +134,10 @@ public class MolgenisWebservice {
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
     PodiumApi.create(app);
+
+    RagController ragController = new RagController();
+    app.get("/api/rag", ragController::handleRequest);
+    app.get("/apps/ui/api/rag", ragController::handleRequest);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);

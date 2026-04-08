@@ -2,7 +2,7 @@
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import BaseIcon from "../BaseIcon.vue";
 defineProps<{
-  metadata: IColumn;
+  metadata?: IColumn;
   data?: string | null;
 }>();
 </script>
