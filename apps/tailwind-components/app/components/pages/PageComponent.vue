@@ -9,6 +9,7 @@ import Image from "../pages/Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
 import NavigationCards from "./Navigation/NavigationCards.vue";
 
+import EditModal from "../form/EditModal.vue";
 import Button from "../Button.vue";
 
 import { parsePageText } from "../../utils/cms";
@@ -21,6 +22,8 @@ const props = defineProps<{
   metadata?: ITableMetaData[];
   isEditable?: boolean;
 }>();
+
+const showEditModal = ref<boolean>(false);
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
@@ -53,6 +56,7 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
       type="secondary"
       label="Edit header"
       size="small"
+      @click="showEditModal = true"
     />
   </Banner>
   <Section
@@ -81,6 +85,7 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
       type="secondary"
       label="Edit heading"
       size="small"
+      @click="showEditModal = true"
     />
   </Heading>
   <Paragraph
@@ -101,6 +106,7 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
       type="secondary"
       label="Edit paragraph"
       size="small"
+      @click="showEditModal = true"
     />
   </Paragraph>
   <Image
@@ -120,6 +126,7 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
       type="secondary"
       label="Edit image"
       size="small"
+      @click="showEditModal = true"
     />
   </Image>
   <NavigationGroups
@@ -149,6 +156,7 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
           type="secondary"
           label="Edit card"
           size="small"
+          @click="showEditModal = true"
         />
       </NavigationCards>
     </template>
@@ -156,4 +164,15 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
   <Paragraph v-else id="component-does-not-exist-message">
     Component {{ mg_tableclass }} is not yet supported
   </Paragraph>
+
+  <EditModal
+    v-if="componentMetadata && showEditModal"
+    :key="`edit-modal-${componentMetadata.id}`"
+    :showButton="false"
+    :schemaId="componentMetadata.schemaId"
+    :metadata="componentMetadata"
+    :formValues="(component as Record<string,any>)"
+    :isInsert="false"
+    v-model:visible="showEditModal"
+  />
 </template>
