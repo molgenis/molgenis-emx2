@@ -57,7 +57,8 @@ public class ServeStaticFile {
   private static boolean tryServeJarApp(Context ctx, String potentialFile) {
     String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
 
-    try (InputStream in = ServeStaticFile.class.getResourceAsStream(potentialFile)) {
+    try (InputStream in =
+        ServeStaticFile.class.getResourceAsStream(potentialFile.replace("\\", "/"))) {
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(potentialFile));
       }
@@ -130,10 +131,13 @@ public class ServeStaticFile {
     }
 
     Path internalAppsDirectory = Paths.get(INTERNAL_APP_FOLDER);
-    String requestedInternalFilePath =
-        internalAppsDirectory.resolve(path).toAbsolutePath().normalize().toString();
+    String requestedInternalFilePath = internalAppsDirectory.resolve(path).normalize().toString();
     String internalFallbackFile =
-        internalAppsDirectory.resolve(fallbackFileBase).toAbsolutePath().normalize().toString();
+        internalAppsDirectory.resolve(fallbackFileBase).normalize().toString();
+
+    if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
+      ctx.status(403).result("Forbidden");
+    }
 
     if (isFile) {
       boolean internalRequestFound = tryServeJarApp(ctx, requestedInternalFilePath);
