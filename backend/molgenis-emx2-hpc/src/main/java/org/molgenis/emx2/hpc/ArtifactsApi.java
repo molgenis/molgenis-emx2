@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -57,14 +59,35 @@ public class ArtifactsApi {
   /** Buffer size for streaming uploads to temp files. */
   private static final int STREAM_BUFFER_SIZE = 65_536;
 
+  private static final String CONTENT_URL = "content_url";
+  private static final String ARTIFACT_PREFIX = "Artifact ";
+  private static final String NOT_FOUND_SUFFIX = " not found";
+  private static final String SHA256 = "sha256";
+  private static final String SIZE_BYTES = "size_bytes";
+  private static final String CONTENT_TYPE_FIELD = "content_type";
+  private static final String CONTENT_TYPE_HEADER = "Content-Type";
+  private static final String OCTET_STREAM = "application/octet-stream";
+  private static final String CONTENT_LENGTH_HEADER = "Content-Length";
+  private static final String FILE_PREFIX = "File ";
+
   private final ArtifactService artifactService;
   private final SqlDatabase database;
   private final ArtifactResponseMapper mapper;
+  private final Path secureTempDir;
 
   public ArtifactsApi(ArtifactService artifactService, SqlDatabase database) {
     this.artifactService = artifactService;
     this.database = database;
     this.mapper = new ArtifactResponseMapper();
+    try {
+      this.secureTempDir =
+          Files.createTempDirectory(
+              "hpc_uploads_",
+              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+      this.secureTempDir.toFile().deleteOnExit();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create secure temp directory", e);
+    }
   }
 
   /** POST /api/hpc/artifacts — create a new artifact. */
@@ -74,7 +97,7 @@ public class ArtifactsApi {
     String name = (String) body.get("name");
     String type = (String) body.get("type");
     String residence = (String) body.get("residence");
-    String contentUrl = (String) body.get("content_url");
+    String contentUrl = (String) body.get(CONTENT_URL);
     Object metadata =
         body.get("metadata") != null ? MAPPER.valueToTree(body.get("metadata")) : null;
 
@@ -103,7 +126,7 @@ public class ArtifactsApi {
 
     Row deleted = artifactService.deleteArtifact(artifactId);
     if (deleted == null) {
-      throw HpcException.notFound("Artifact " + artifactId + " not found", requestId(ctx));
+      throw HpcException.notFound(ARTIFACT_PREFIX + artifactId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     ctx.status(204);
   }
@@ -115,7 +138,7 @@ public class ArtifactsApi {
 
     Row artifact = artifactService.getArtifact(artifactId);
     if (artifact == null) {
-      throw HpcException.notFound("Artifact " + artifactId + " not found", requestId(ctx));
+      throw HpcException.notFound(ARTIFACT_PREFIX + artifactId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     ctx.json(mapper.artifactToResponse(artifact));
   }
@@ -139,9 +162,9 @@ public class ArtifactsApi {
                   Map<String, Object> m = new LinkedHashMap<>();
                   m.put("id", f.getString("id"));
                   m.put("path", f.getString("path"));
-                  m.put("sha256", f.getString("sha256"));
-                  m.put("size_bytes", f.getString("size_bytes"));
-                  m.put("content_type", f.getString("content_type"));
+                  m.put(SHA256, f.getString(SHA256));
+                  m.put(SIZE_BYTES, f.getString(SIZE_BYTES));
+                  m.put(CONTENT_TYPE_FIELD, f.getString(CONTENT_TYPE_FIELD));
                   m.put(
                       "_links",
                       Map.of(
@@ -164,6 +187,10 @@ public class ArtifactsApi {
     ctx.header("X-Total-Count", String.valueOf(totalCount));
     ctx.json(response);
   }
+
+  /** Holder for the result of an upload operation. */
+  private record UploadResult(
+      String sha256, long sizeBytes, String contentType, BinaryFileWrapper content) {}
 
   /**
    * PUT /api/hpc/artifacts/{id}/files/{path} — upload file by path.
@@ -192,110 +219,36 @@ public class ArtifactsApi {
 
     File tempFile = null;
     try {
-      String ct = ctx.header("Content-Type");
+      String ct = ctx.header(CONTENT_TYPE_HEADER);
       boolean isMultipart = ct != null && ct.startsWith("multipart/form-data");
       boolean isJson = ct != null && ct.startsWith("application/json");
 
-      String sha256;
-      long sizeBytes;
-      String contentType;
-      BinaryFileWrapper content;
-
+      UploadResult result;
       if (isJson) {
-        // JSON metadata-only mode (no binary upload)
-        Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-        sha256 = (String) body.get("sha256");
-        sizeBytes =
-            body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : 0;
-        contentType = (String) body.get("content_type");
-        if (contentType == null || contentType.isBlank()) {
-          contentType = "application/octet-stream";
-        }
-        content = null;
+        result = handleJsonMetadataUpload(ctx);
       } else if (isMultipart) {
-        long maxBytes = getMaxUploadBytes();
-        enforceContentLengthLimit(ctx, maxBytes);
-
-        tempFile = File.createTempFile("hpc_upload_", ".tmp");
-        ctx.attribute(
-            "org.eclipse.jetty.multipartConfig",
-            new MultipartConfigElement(tempFile.getAbsolutePath()));
-        Part filePart = ctx.req().getPart("file");
-        if (filePart == null) {
-          throw HpcException.badRequest("Multipart 'file' part is required", requestId(ctx));
-        }
-
-        // Stream multipart content to temp file with incremental SHA-256
-        File multipartTemp = File.createTempFile("hpc_mp_upload_", ".tmp");
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        try (InputStream input = filePart.getInputStream()) {
-          sizeBytes = streamToFile(input, multipartTemp, digest, maxBytes, requestId(ctx));
-        } catch (HpcException e) {
-          multipartTemp.delete();
-          throw e;
-        }
-        // Replace tempFile reference so both get cleaned up
-        tempFile.delete();
-        tempFile = multipartTemp;
-
-        sha256 = HexFormat.of().formatHex(digest.digest());
-
-        contentType = ctx.formParam("content_type");
-        if (contentType == null) {
-          contentType = filePart.getContentType();
-        }
-
-        String guessed = URLConnection.guessContentTypeFromName(filePath);
-        if (guessed != null) {
-          contentType = guessed;
-        } else if (contentType == null || contentType.isBlank()) {
-          contentType = "application/octet-stream";
-        }
-
-        verifyContentSha256(ctx, sha256);
-        content =
-            new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(tempFile.toPath()));
+        tempFile = createSecureTempFile("hpc_upload_", ".tmp");
+        result = handleMultipartUpload(ctx, filePath, tempFile);
       } else {
-        // Raw binary upload — stream to temp file with incremental SHA-256
-        long maxBytes = getMaxUploadBytes();
-        enforceContentLengthLimit(ctx, maxBytes);
-
-        tempFile = File.createTempFile("hpc_upload_", ".tmp");
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        try (InputStream input = ctx.req().getInputStream()) {
-          sizeBytes = streamToFile(input, tempFile, digest, maxBytes, requestId(ctx));
-        } catch (HpcException e) {
-          throw e;
-        }
-
-        sha256 = HexFormat.of().formatHex(digest.digest());
-        contentType = ct;
-
-        String guessed = URLConnection.guessContentTypeFromName(filePath);
-        if (guessed != null) {
-          contentType = guessed;
-        } else if (contentType == null || contentType.isBlank()) {
-          contentType = "application/octet-stream";
-        }
-
-        verifyContentSha256(ctx, sha256);
-
-        // Read from temp file into BinaryFileWrapper — request body stream is already closed
-        // so we only hold one copy of the bytes at a time (temp file contents).
-        content =
-            new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(tempFile.toPath()));
+        tempFile = createSecureTempFile("hpc_upload_", ".tmp");
+        result = handleBinaryUpload(ctx, filePath, ct, tempFile);
       }
 
       String fileId =
           artifactService.uploadFileByPath(
-              artifactId, filePath, sha256, sizeBytes, contentType, content);
+              artifactId,
+              filePath,
+              result.sha256(),
+              result.sizeBytes(),
+              result.contentType(),
+              result.content());
 
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("id", fileId);
       response.put("artifact_id", artifactId);
       response.put("path", filePath);
-      response.put("sha256", sha256);
-      response.put("size_bytes", sizeBytes);
+      response.put(SHA256, result.sha256());
+      response.put(SIZE_BYTES, result.sizeBytes());
 
       ctx.status(201);
       ctx.json(response);
@@ -315,6 +268,104 @@ public class ArtifactsApi {
         }
       }
     }
+  }
+
+  /** Creates a temp file inside the secure private temp directory. */
+  private File createSecureTempFile(String prefix, String suffix) throws IOException {
+    return Files.createTempFile(secureTempDir, prefix, suffix).toFile();
+  }
+
+  /** Handles JSON metadata-only upload (no binary content). */
+  @SuppressWarnings("unchecked")
+  private UploadResult handleJsonMetadataUpload(Context ctx) throws IOException {
+    Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
+    String sha256 = (String) body.get(SHA256);
+    long sizeBytes = body.get(SIZE_BYTES) != null ? ((Number) body.get(SIZE_BYTES)).longValue() : 0;
+    String contentType = (String) body.get(CONTENT_TYPE_FIELD);
+    if (contentType == null || contentType.isBlank()) {
+      contentType = OCTET_STREAM;
+    }
+    return new UploadResult(sha256, sizeBytes, contentType, null);
+  }
+
+  /** Handles multipart file upload, streaming to a temp file with SHA-256 computation. */
+  private UploadResult handleMultipartUpload(Context ctx, String filePath, File tempFile)
+      throws Exception {
+    long maxBytes = getMaxUploadBytes();
+    enforceContentLengthLimit(ctx, maxBytes);
+
+    ctx.attribute(
+        "org.eclipse.jetty.multipartConfig",
+        new MultipartConfigElement(tempFile.getAbsolutePath()));
+    Part filePart = ctx.req().getPart("file");
+    if (filePart == null) {
+      throw HpcException.badRequest("Multipart 'file' part is required", requestId(ctx));
+    }
+
+    File multipartTemp = createSecureTempFile("hpc_mp_upload_", ".tmp");
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    long sizeBytes;
+    try (InputStream input = filePart.getInputStream()) {
+      sizeBytes = streamToFile(input, multipartTemp, digest, maxBytes, requestId(ctx));
+    } catch (HpcException e) {
+      multipartTemp.delete();
+      throw e;
+    }
+    // Replace tempFile reference so both get cleaned up
+    tempFile.delete();
+
+    String sha256 = HexFormat.of().formatHex(digest.digest());
+    String contentType = ctx.formParam(CONTENT_TYPE_FIELD);
+    if (contentType == null) {
+      contentType = filePart.getContentType();
+    }
+    contentType = resolveContentType(filePath, contentType);
+
+    verifyContentSha256(ctx, sha256);
+    BinaryFileWrapper content =
+        new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(multipartTemp.toPath()));
+    multipartTemp.delete();
+
+    return new UploadResult(sha256, sizeBytes, contentType, content);
+  }
+
+  /** Handles raw binary upload, streaming to a temp file with SHA-256 computation. */
+  private UploadResult handleBinaryUpload(
+      Context ctx, String filePath, String declaredType, File tempFile) throws Exception {
+    long maxBytes = getMaxUploadBytes();
+    enforceContentLengthLimit(ctx, maxBytes);
+
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    long sizeBytes;
+    try (InputStream input = ctx.req().getInputStream()) {
+      sizeBytes = streamToFile(input, tempFile, digest, maxBytes, requestId(ctx));
+    } catch (HpcException e) {
+      throw e;
+    }
+
+    String sha256 = HexFormat.of().formatHex(digest.digest());
+    String contentType = resolveContentType(filePath, declaredType);
+
+    verifyContentSha256(ctx, sha256);
+    BinaryFileWrapper content =
+        new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(tempFile.toPath()));
+
+    return new UploadResult(sha256, sizeBytes, contentType, content);
+  }
+
+  /**
+   * Resolves the content type for a file. Guesses from the file name first; falls back to the
+   * declared type or {@code application/octet-stream}.
+   */
+  private static String resolveContentType(String filePath, String declaredType) {
+    String guessed = URLConnection.guessContentTypeFromName(filePath);
+    if (guessed != null) {
+      return guessed;
+    }
+    if (declaredType != null && !declaredType.isBlank()) {
+      return declaredType;
+    }
+    return OCTET_STREAM;
   }
 
   /**
@@ -345,7 +396,7 @@ public class ArtifactsApi {
    * before reading the body when the declared size exceeds the limit.
    */
   private static void enforceContentLengthLimit(Context ctx, long maxBytes) {
-    String contentLengthHeader = ctx.header("Content-Length");
+    String contentLengthHeader = ctx.header(CONTENT_LENGTH_HEADER);
     if (contentLengthHeader != null) {
       try {
         long declaredSize = Long.parseLong(contentLengthHeader.trim());
@@ -401,40 +452,40 @@ public class ArtifactsApi {
     if (file == null) {
       // Check if parent artifact has a content_url for redirect
       Row artifact = artifactService.getArtifact(artifactId);
-      if (artifact != null && artifact.getString("content_url") != null) {
-        ctx.redirect(artifact.getString("content_url") + "/" + filePath);
+      if (artifact != null && artifact.getString(CONTENT_URL) != null) {
+        ctx.redirect(artifact.getString(CONTENT_URL) + "/" + filePath);
         return;
       }
       throw HpcException.notFound(
-          "File " + filePath + " not found in artifact " + artifactId, requestId(ctx));
+          FILE_PREFIX + filePath + " not found in artifact " + artifactId, requestId(ctx));
     }
 
     byte[] bytes = file.getBinary("content_contents");
     if (bytes == null) {
       // Metadata-only file — check parent artifact for content_url
       Row artifact = artifactService.getArtifact(artifactId);
-      if (artifact != null && artifact.getString("content_url") != null) {
-        ctx.redirect(artifact.getString("content_url") + "/" + filePath);
+      if (artifact != null && artifact.getString(CONTENT_URL) != null) {
+        ctx.redirect(artifact.getString(CONTENT_URL) + "/" + filePath);
         return;
       }
-      throw HpcException.notFound("File " + filePath + " has no content", requestId(ctx));
+      throw HpcException.notFound(FILE_PREFIX + filePath + " has no content", requestId(ctx));
     }
 
     String contentType = file.getString("content_mimetype");
     if (contentType == null) {
-      contentType = file.getString("content_type");
+      contentType = file.getString(CONTENT_TYPE_FIELD);
     }
     if (contentType == null) {
-      contentType = "application/octet-stream";
+      contentType = OCTET_STREAM;
     }
 
     String downloadFileName = sanitizeDownloadFileName(filePath);
-    ctx.header("Content-Type", contentType);
+    ctx.header(CONTENT_TYPE_HEADER, contentType);
     ctx.header("Content-Disposition", HpcApiUtils.buildContentDispositionHeader(downloadFileName));
-    if (file.getString("sha256") != null) {
-      ctx.header("X-Content-SHA256", file.getString("sha256"));
+    if (file.getString(SHA256) != null) {
+      ctx.header("X-Content-SHA256", file.getString(SHA256));
     }
-    ctx.header("Content-Length", String.valueOf(bytes.length));
+    ctx.header(CONTENT_LENGTH_HEADER, String.valueOf(bytes.length));
     ctx.result(bytes);
   }
 
@@ -449,14 +500,14 @@ public class ArtifactsApi {
       ctx.status(404);
       return;
     }
-    if (file.getString("sha256") != null) {
-      ctx.header("X-Content-SHA256", file.getString("sha256"));
+    if (file.getString(SHA256) != null) {
+      ctx.header("X-Content-SHA256", file.getString(SHA256));
     }
-    if (file.getString("size_bytes") != null) {
-      ctx.header("Content-Length", file.getString("size_bytes"));
+    if (file.getString(SIZE_BYTES) != null) {
+      ctx.header(CONTENT_LENGTH_HEADER, file.getString(SIZE_BYTES));
     }
-    if (file.getString("content_type") != null) {
-      ctx.header("Content-Type", file.getString("content_type"));
+    if (file.getString(CONTENT_TYPE_FIELD) != null) {
+      ctx.header(CONTENT_TYPE_HEADER, file.getString(CONTENT_TYPE_FIELD));
     }
     ctx.status(200);
   }
@@ -471,7 +522,7 @@ public class ArtifactsApi {
       boolean deleted = artifactService.deleteFile(artifactId, filePath);
       if (!deleted) {
         throw HpcException.notFound(
-            "File " + filePath + " not found in artifact " + artifactId, requestId(ctx));
+            FILE_PREFIX + filePath + " not found in artifact " + artifactId, requestId(ctx));
       }
       ctx.status(204);
     } catch (HpcException e) {
@@ -495,13 +546,13 @@ public class ArtifactsApi {
     InputValidator.requireUuid(artifactId, "id");
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String sha256 = (String) body.get("sha256");
+    String sha256 = (String) body.get(SHA256);
     Long sizeBytes =
-        body.get("size_bytes") != null ? ((Number) body.get("size_bytes")).longValue() : null;
+        body.get(SIZE_BYTES) != null ? ((Number) body.get(SIZE_BYTES)).longValue() : null;
 
     CommitResult commitResult = artifactService.commitArtifact(artifactId, sha256, sizeBytes);
     if (commitResult == null) {
-      throw HpcException.notFound("Artifact " + artifactId + " not found", requestId(ctx));
+      throw HpcException.notFound(ARTIFACT_PREFIX + artifactId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     if (!commitResult.isSuccess()) {
       String title = commitResult.isHashMismatch() ? "Hash Mismatch" : "Conflict";

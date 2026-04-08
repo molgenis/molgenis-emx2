@@ -35,6 +35,13 @@ class HpcAuth {
 
   static final String HPC_ENABLED_SETTING = "MOLGENIS_HPC_ENABLED";
   static final String HPC_CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
+
+  // Attribute keys shared between HpcAuth and HpcApi
+  static final String HPC_CONTEXT_ATTR = "hpcContext";
+  static final String HPC_AUTH_METHOD_ATTR = "hpcAuthMethod";
+  static final String HPC_AUTH_USER_ATTR = "hpcAuthUser";
+  static final String HPC_PRIVILEGE_ATTR = "hpcPrivilege";
+
   private static final long SETTINGS_CACHE_TTL_MILLIS = 5000;
   private static final SettingsProvider SETTINGS_PROVIDER =
       new SettingsProvider(SETTINGS_CACHE_TTL_MILLIS);
@@ -182,10 +189,10 @@ class HpcAuth {
    * if the check fails.
    */
   static void requireHpcPrivilege(Context ctx, Privileges required) {
-    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
+    if ("HMAC".equals(ctx.attribute(HPC_AUTH_METHOD_ATTR))) {
       return;
     }
-    Privileges effective = ctx.attribute("hpcPrivilege");
+    Privileges effective = ctx.attribute(HPC_PRIVILEGE_ATTR);
     if (effective != null && effective.ordinal() >= required.ordinal()) {
       return;
     }
@@ -199,7 +206,7 @@ class HpcAuth {
    * <p>Used for credential-management endpoints which workers are not allowed to call.
    */
   static void requireUserHpcPrivilege(Context ctx, Privileges required) {
-    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
+    if ("HMAC".equals(ctx.attribute(HPC_AUTH_METHOD_ATTR))) {
       throw HpcException.forbidden(
           "Worker principal is not allowed on credential-management endpoints",
           ctx.header(HpcHeaders.REQUEST_ID));
@@ -220,29 +227,39 @@ class HpcAuth {
     database.tx(
         db -> {
           db.setActiveUser(username);
-          if (db.isAdmin()) {
-            result[0] = Privileges.OWNER;
-            return;
-          }
-          try {
-            Schema schema = db.getSchema(SYSTEM_SCHEMA);
-            if (schema != null) {
-              String role = schema.getRoleForActiveUser();
-              if (role != null) {
-                for (Privileges p : Privileges.values()) {
-                  if (p.toString().equalsIgnoreCase(role)) {
-                    result[0] = p;
-                    return;
-                  }
-                }
-              }
-            }
-          } catch (Exception e) {
-            // User has no access to system schema.
-            logger.debug("Could not resolve role for user '{}': {}", username, e.getMessage());
-          }
+          result[0] = resolvePrivilegeInTransaction(db, username);
         });
     return result[0];
+  }
+
+  private static Privileges resolvePrivilegeInTransaction(
+      org.molgenis.emx2.Database db, String username) {
+    if (db.isAdmin()) {
+      return Privileges.OWNER;
+    }
+    try {
+      Schema schema = db.getSchema(SYSTEM_SCHEMA);
+      if (schema == null) {
+        return null;
+      }
+      String role = schema.getRoleForActiveUser();
+      if (role == null) {
+        return null;
+      }
+      return mapRoleToPrivilege(role);
+    } catch (Exception e) {
+      logger.debug("Could not resolve role for user '{}': {}", username, e.getMessage());
+      return null;
+    }
+  }
+
+  private static Privileges mapRoleToPrivilege(String role) {
+    for (Privileges p : Privileges.values()) {
+      if (p.toString().equalsIgnoreCase(role)) {
+        return p;
+      }
+    }
+    return null;
   }
 
   static void healthCheck(
@@ -300,38 +317,48 @@ class HpcAuth {
       } catch (JacksonException e) {
         throw HpcException.badRequest("Invalid request body: " + e.getOriginalMessage(), requestId);
       } catch (MolgenisException e) {
-        if (isCredentialsKeyMissing(e)) {
-          throw HpcException.serviceUnavailable(rootMessage(e), requestId);
-        }
-        logger.error(
-            "HPC backend exception on {} {} [request_id={}, trace_id={}]",
-            ctx.method().name(),
-            ctx.path(),
-            requestId,
-            traceId,
-            e);
-        if (e.getMessage() != null && e.getMessage().toLowerCase().contains("not found")) {
-          throw HpcException.notFound(e.getMessage(), requestId);
-        }
-        throw HpcException.internal(
-            "Internal error processing request; check server logs with request id " + requestId,
-            requestId);
+        throw handleMolgenisException(e, ctx, requestId, traceId);
       } catch (Exception e) {
-        if (isCredentialsKeyMissing(e)) {
-          throw HpcException.serviceUnavailable(rootMessage(e), requestId);
-        }
-        logger.error(
-            "Unhandled HPC exception on {} {} [request_id={}, trace_id={}]",
-            ctx.method().name(),
-            ctx.path(),
-            requestId,
-            traceId,
-            e);
-        throw HpcException.internal(
-            "Internal error processing request; check server logs with request id " + requestId,
-            requestId);
+        throw handleUnexpectedException(e, ctx, requestId, traceId);
       }
     };
+  }
+
+  private static HpcException handleMolgenisException(
+      MolgenisException e, Context ctx, String requestId, String traceId) {
+    if (isCredentialsKeyMissing(e)) {
+      return HpcException.serviceUnavailable(rootMessage(e), requestId);
+    }
+    logger.error(
+        "HPC backend exception on {} {} [request_id={}, trace_id={}]",
+        ctx.method().name(),
+        ctx.path(),
+        requestId,
+        traceId,
+        e);
+    if (e.getMessage() != null && e.getMessage().toLowerCase().contains("not found")) {
+      return HpcException.notFound(e.getMessage(), requestId);
+    }
+    return HpcException.internal(
+        "Internal error processing request; check server logs with request id " + requestId,
+        requestId);
+  }
+
+  private static HpcException handleUnexpectedException(
+      Exception e, Context ctx, String requestId, String traceId) {
+    if (isCredentialsKeyMissing(e)) {
+      return HpcException.serviceUnavailable(rootMessage(e), requestId);
+    }
+    logger.error(
+        "Unhandled HPC exception on {} {} [request_id={}, trace_id={}]",
+        ctx.method().name(),
+        ctx.path(),
+        requestId,
+        traceId,
+        e);
+    return HpcException.internal(
+        "Internal error processing request; check server logs with request id " + requestId,
+        requestId);
   }
 
   private static String errorMessage(Throwable e) {

@@ -21,6 +21,12 @@ import org.molgenis.emx2.hpc.service.ArtifactService;
  */
 class JobResponseMapper {
 
+  private static final String STATUS = "status";
+  private static final String SUBMIT_USER = "submit_user";
+  private static final String PARAMETERS = "parameters";
+  private static final String INPUTS = "inputs";
+  private static final String PROCESSOR = "processor";
+
   private static final int MAX_PROGRESS_PHASE_LENGTH = 100;
   private static final int MAX_PROGRESS_MESSAGE_LENGTH = 500;
 
@@ -34,23 +40,23 @@ class JobResponseMapper {
   Map<String, Object> jobToResponse(Row job) {
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("id", job.getString("id"));
-    response.put("processor", job.getString("processor"));
+    response.put(PROCESSOR, job.getString(PROCESSOR));
     response.put("profile", job.getString("profile"));
-    response.put("status", job.getString("status"));
+    response.put(STATUS, job.getString(STATUS));
     response.put("worker_id", job.getString("worker_id"));
     response.put("slurm_job_id", job.getString("slurm_job_id"));
-    response.put("submit_user", job.getString("submit_user"));
+    response.put(SUBMIT_USER, job.getString(SUBMIT_USER));
 
-    JSONB parametersJson = job.getJsonb("parameters");
+    JSONB parametersJson = job.getJsonb(PARAMETERS);
     if (parametersJson != null) {
-      response.put("parameters", parseJsonb(parametersJson, "parameters"));
+      response.put(PARAMETERS, parseJsonb(parametersJson, PARAMETERS));
     }
 
-    Object parsedInputs = parseJsonb(job.getJsonb("inputs"), "inputs");
+    Object parsedInputs = parseJsonb(job.getJsonb(INPUTS), INPUTS);
     if (parsedInputs instanceof List<?> inputList) {
-      response.put("inputs", inputList.stream().map(this::enrichInputRef).toList());
+      response.put(INPUTS, inputList.stream().map(this::enrichInputRef).toList());
     } else if (parsedInputs != null) {
-      response.put("inputs", parsedInputs);
+      response.put(INPUTS, parsedInputs);
     }
 
     // Enrich output artifact
@@ -78,7 +84,7 @@ class JobResponseMapper {
 
     HpcJobStatus status;
     try {
-      status = HpcJobStatus.valueOf(job.getString("status"));
+      status = HpcJobStatus.valueOf(job.getString(STATUS));
     } catch (Exception e) {
       status = HpcJobStatus.PENDING;
     }
@@ -107,7 +113,7 @@ class JobResponseMapper {
       if (artifact != null) {
         ref.put("name", artifact.getString("name"));
         ref.put("type", artifact.getString("type"));
-        ref.put("status", artifact.getString("status"));
+        ref.put(STATUS, artifact.getString(STATUS));
       }
     } catch (Exception e) {
       // If artifact lookup fails, return minimal ref
@@ -182,7 +188,7 @@ class JobResponseMapper {
 
   /** Verify that the caller is the job submitter or has MANAGER+ privilege. */
   static void requireSubmitterOrManager(Context ctx, Row job, String action) {
-    if ("HMAC".equals(ctx.attribute("hpcAuthMethod"))) {
+    if ("HMAC".equals(ctx.attribute(HpcAuth.HPC_AUTH_METHOD_ATTR))) {
       return;
     }
 
@@ -191,8 +197,8 @@ class JobResponseMapper {
       return;
     }
 
-    String authUser = ctx.attribute("hpcAuthUser");
-    String submitUser = job.getString("submit_user");
+    String authUser = ctx.attribute(HpcAuth.HPC_AUTH_USER_ATTR);
+    String submitUser = job.getString(SUBMIT_USER);
     if (authUser != null && authUser.equals(submitUser)) {
       return;
     }

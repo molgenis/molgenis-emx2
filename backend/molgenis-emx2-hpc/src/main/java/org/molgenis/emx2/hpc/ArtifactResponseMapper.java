@@ -13,6 +13,9 @@ import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 /** Serialization helpers for artifact responses. */
 class ArtifactResponseMapper {
 
+  private static final String STATUS = "status";
+  private static final String METADATA = "metadata";
+
   ArtifactResponseMapper() {}
 
   /** Build a full JSON-ready response map for an artifact row. */
@@ -23,21 +26,21 @@ class ArtifactResponseMapper {
     response.put("name", artifact.getString("name"));
     response.put("type", artifact.getString("type"));
     response.put("residence", artifact.getString("residence"));
-    response.put("status", artifact.getString("status"));
+    response.put(STATUS, artifact.getString(STATUS));
     response.put("sha256", artifact.getString("sha256"));
     response.put("size_bytes", artifact.getString("size_bytes"));
     response.put("content_url", artifact.getString("content_url"));
     response.put("created_at", artifact.getString("created_at"));
     response.put("committed_at", artifact.getString("committed_at"));
 
-    JSONB metadataJson = artifact.getJsonb("metadata");
+    JSONB metadataJson = artifact.getJsonb(METADATA);
     if (metadataJson != null) {
-      response.put("metadata", parseJsonb(metadataJson, "metadata"));
+      response.put(METADATA, parseJsonb(metadataJson, METADATA));
     }
 
     ArtifactStatus status;
     try {
-      status = ArtifactStatus.valueOf(artifact.getString("status"));
+      status = ArtifactStatus.valueOf(artifact.getString(STATUS));
     } catch (Exception e) {
       status = ArtifactStatus.CREATED;
     }
