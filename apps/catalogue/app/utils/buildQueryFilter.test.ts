@@ -70,13 +70,7 @@ describe("buildQueryFilter", () => {
     expect(expectedFilter).toEqual(filterString);
   });
 
-  it("should match both Resources.areasOfInformation and collectionEvents.areasOfInformation (issue #6085)", () => {
-    // Issue #6085: filtering on 'areas of information' in the Collections
-    // overview ignored Resources.areasOfInformation and only matched
-    // CollectionEvents.areasOfInformation. The expected behavior is that
-    // BOTH paths are searched, combined with OR. This mirrors the
-    // buildFilterFunction config used in
-    // apps/catalogue/app/pages/[catalogue]/[resourceType]/index.vue.
+  it("should match both Resources.areasOfInformation and collectionEvents.areasOfInformation", () => {
     const areasFilter: IFilter[] = [
       {
         id: "areasOfInformation",
@@ -128,11 +122,7 @@ describe("buildQueryFilter", () => {
     });
   });
 
-  it("should compose areasOfInformation filter with a SEARCH filter without clobbering (issue #6085)", () => {
-    // Regression test for the composition edge case flagged in review:
-    // when a SEARCH filter with searchTables writes `_or` at the top level
-    // after buildFilterVariables runs, the areasOfInformation filter must
-    // survive — hence the `_and` wrapper in the buildFilterFunction.
+  it("should compose areasOfInformation filter with a SEARCH filter without clobbering", () => {
     const combined: IFilter[] = [
       {
         id: "search",
@@ -178,7 +168,6 @@ describe("buildQueryFilter", () => {
     ];
 
     const result: any = buildQueryFilter(combined);
-    // Both the SEARCH `_or` and the areasOfInformation `_and` must be present.
     expect(result._or).toBeDefined();
     expect(result._and).toBeDefined();
     expect(JSON.stringify(result._and)).toContain("Tobacco");
