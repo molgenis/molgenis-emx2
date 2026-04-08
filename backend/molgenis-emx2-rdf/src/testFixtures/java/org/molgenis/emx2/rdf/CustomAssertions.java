@@ -28,7 +28,7 @@ public abstract class CustomAssertions {
     @prefix sh: <http://www.w3.org/ns/shacl#> .
 
     [] a sh:ValidationReport;
-      sh:conforms true.
+      sh:conforms true .
     """;
 
   public static void equals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
