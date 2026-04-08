@@ -1934,4 +1934,23 @@ class WebApiSmokeTests extends ApiTestBase {
         .when()
         .get(MetricsController.METRICS_PATH);
   }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+  }
 }
