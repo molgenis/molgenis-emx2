@@ -9,6 +9,7 @@ import {
 } from "#app";
 import type {
   IFilter,
+  IFilterCondition,
   IMgError,
   activeTabType,
 } from "../../../../interfaces/types";
@@ -170,7 +171,29 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
       columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      // Issue #6085: match both Resources.areasOfInformation and
+      // collectionEvents.areasOfInformation, combined with OR. Wrapped in
+      // an `_and` so this composes cleanly with a top-level SEARCH `_or`
+      // written later in buildQueryFilter.
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => ({
+        ...filterBuilder,
+        _and: [
+          ...(Array.isArray(filterBuilder._and) ? filterBuilder._and : []),
+          {
+            _or: [
+              { areasOfInformation: { equals: conditions } },
+              {
+                collectionEvents: {
+                  areasOfInformation: { equals: conditions },
+                },
+              },
+            ],
+          },
+        ],
+      }),
     },
     conditions: [],
   },

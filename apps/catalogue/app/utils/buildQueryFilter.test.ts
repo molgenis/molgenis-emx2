@@ -70,7 +70,127 @@ describe("buildQueryFilter", () => {
     expect(expectedFilter).toEqual(filterString);
   });
 
-  it("should use the buildFilterFunction to build the filter confition(s) if it is set on the filter config", () => {
+  it("should match both Resources.areasOfInformation and collectionEvents.areasOfInformation (issue #6085)", () => {
+    // Issue #6085: filtering on 'areas of information' in the Collections
+    // overview ignored Resources.areasOfInformation and only matched
+    // CollectionEvents.areasOfInformation. The expected behavior is that
+    // BOTH paths are searched, combined with OR. This mirrors the
+    // buildFilterFunction config used in
+    // apps/catalogue/app/pages/[catalogue]/[resourceType]/index.vue.
+    const areasFilter: IFilter[] = [
+      {
+        id: "areasOfInformation",
+        config: {
+          label: "Areas of information",
+          type: "ONTOLOGY",
+          ontologyTableId: "AreasOfInformationCohorts",
+          ontologySchema: "CatalogueOntologies",
+          columnId: "areasOfInformation",
+          buildFilterFunction: (
+            filterBuilder: Record<string, Record<string, any>>,
+            conditions: IFilterCondition[]
+          ) => ({
+            ...filterBuilder,
+            _and: [
+              ...(Array.isArray(filterBuilder._and)
+                ? filterBuilder._and
+                : []),
+              {
+                _or: [
+                  { areasOfInformation: { equals: conditions } },
+                  {
+                    collectionEvents: {
+                      areasOfInformation: { equals: conditions },
+                    },
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+        conditions: [{ name: "Tobacco" }],
+      },
+    ];
+
+    expect(buildQueryFilter(areasFilter)).toEqual({
+      _and: [
+        {
+          _or: [
+            { areasOfInformation: { equals: [{ name: "Tobacco" }] } },
+            {
+              collectionEvents: {
+                areasOfInformation: { equals: [{ name: "Tobacco" }] },
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("should compose areasOfInformation filter with a SEARCH filter without clobbering (issue #6085)", () => {
+    // Regression test for the composition edge case flagged in review:
+    // when a SEARCH filter with searchTables writes `_or` at the top level
+    // after buildFilterVariables runs, the areasOfInformation filter must
+    // survive — hence the `_and` wrapper in the buildFilterFunction.
+    const combined: IFilter[] = [
+      {
+        id: "search",
+        config: {
+          label: "Search in collections",
+          type: "SEARCH",
+          searchTables: ["collectionEvents", "subpopulations"],
+        },
+        search: "cancer",
+      },
+      {
+        id: "areasOfInformation",
+        config: {
+          label: "Areas of information",
+          type: "ONTOLOGY",
+          ontologyTableId: "AreasOfInformationCohorts",
+          ontologySchema: "CatalogueOntologies",
+          columnId: "areasOfInformation",
+          buildFilterFunction: (
+            filterBuilder: Record<string, Record<string, any>>,
+            conditions: IFilterCondition[]
+          ) => ({
+            ...filterBuilder,
+            _and: [
+              ...(Array.isArray(filterBuilder._and)
+                ? filterBuilder._and
+                : []),
+              {
+                _or: [
+                  { areasOfInformation: { equals: conditions } },
+                  {
+                    collectionEvents: {
+                      areasOfInformation: { equals: conditions },
+                    },
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+        conditions: [{ name: "Tobacco" }],
+      },
+    ];
+
+    const result: any = buildQueryFilter(combined);
+    // Both the SEARCH `_or` and the areasOfInformation `_and` must be present.
+    expect(result._or).toBeDefined();
+    expect(result._and).toBeDefined();
+    expect(JSON.stringify(result._and)).toContain("Tobacco");
+    expect(
+      JSON.stringify(result._and).replace(
+        /"collectionEvents":\s*\{[^}]*\}/,
+        ""
+      )
+    ).toContain("areasOfInformation");
+  });
+
+it("should use the buildFilterFunction to build the filter confition(s) if it is set on the filter config", () => {
     const filtersWithFunction: IFilter[] = [
       {
         id: "cohorts",
