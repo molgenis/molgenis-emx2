@@ -97,6 +97,7 @@
       v-model:visible="showManageModal"
       :worker-id="managingWorkerId"
       :active-jobs="managingWorkerJobs"
+      :initial-secret="managingWorkerSecret"
     />
 
     <div
@@ -258,6 +259,7 @@ const bootstrapBusy = ref(false);
 const showManageModal = ref(false);
 const managingWorkerId = ref<string | null>(null);
 const managingWorkerJobs = ref<Array<{ id: string; status: string }>>([]);
+const managingWorkerSecret = ref<string | null>(null);
 
 function openManageModal(worker: WorkerSummary) {
   managingWorkerId.value = worker.worker_id;
@@ -265,6 +267,7 @@ function openManageModal(worker: WorkerSummary) {
     id: j.id,
     status: j.status,
   }));
+  managingWorkerSecret.value = null;
   showManageModal.value = true;
 }
 
@@ -346,12 +349,13 @@ async function runBootstrapIssue() {
   bootstrapBusy.value = true;
   try {
     const label = normalizeOptional(bootstrapLabel.value);
-    await issueWorkerCredential(workerId, { label });
+    const result = await issueWorkerCredential(workerId, { label });
     showBootstrap.value = false;
     await loadWorkers({ background: true });
-    // Open manage modal so user can see the credential
+    // Open manage modal with the secret so the user can copy it
     managingWorkerId.value = workerId;
     managingWorkerJobs.value = [];
+    managingWorkerSecret.value = result.secret;
     showManageModal.value = true;
   } catch (e: unknown) {
     error.value = toErrorMessage(e);

@@ -204,6 +204,7 @@ const props = defineProps<{
   visible: boolean;
   workerId: string;
   activeJobs: Array<{ id: string; status: string }>;
+  initialSecret?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -338,10 +339,13 @@ watch(
   (open) => {
     if (open) {
       error.value = null;
-      revealedSecret.value = null;
+      revealedSecret.value = props.initialSecret
+        ? { secret: props.initialSecret }
+        : null;
       copyState.value = null;
       loadCredentials();
     }
-  }
+  },
+  { immediate: true }
 );
 </script>
