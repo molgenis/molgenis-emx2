@@ -42,7 +42,8 @@ function optionLabel(option: SelectOption): string {
       :class="{
         'bg-input border-valid text-valid': valid && !disabled,
         'bg-input border-invalid text-invalid': invalid && !disabled,
-        'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+        'border-disabled text-disabled bg-disabled cursor-not-allowed':
+          disabled,
         'bg-disabled border-valid text-valid cursor-not-allowed':
           valid && disabled,
         'bg-disabled border-invalid text-invalid cursor-not-allowed':
