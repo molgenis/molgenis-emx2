@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-10">
     <ButtonDropdown label="basic">
-      <section class="flex bg-white p-4 w-52">
+      <section class="flex bg-form p-4 w-52 border border-theme rounded-theme">
         <p>
           Behind every exquisite thing that existed, there was something tragic.
         </p>
@@ -11,7 +11,7 @@
     <hr />
 
     <ButtonDropdown label="list">
-      <section class="flex bg-white p-4 w-52">
+      <section class="flex bg-form p-4 w-52 border border-theme rounded-theme">
         <InputList
           id="dropdown-list"
           :nodes="[
