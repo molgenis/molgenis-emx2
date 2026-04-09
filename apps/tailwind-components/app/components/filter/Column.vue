@@ -11,6 +11,17 @@ import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import Input from "../Input.vue";
 
+const props = defineProps<{
+  column: IColumn;
+  options: CountedOption[];
+  modelValue: IFilterValue | undefined;
+  loading: boolean;
+}>();
+
+const emit = defineEmits<{
+  "update:modelValue": [value: IFilterValue | undefined];
+}>();
+
 const COUNTABLE_TYPES = new Set([
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
@@ -34,17 +45,6 @@ const RANGE_TYPES = new Set([
   "DATETIME_ARRAY",
 ]);
 
-const props = defineProps<{
-  column: IColumn;
-  options: CountedOption[];
-  modelValue: IFilterValue | undefined;
-  loading: boolean;
-}>();
-
-const emit = defineEmits<{
-  "update:modelValue": [value: IFilterValue | undefined];
-}>();
-
 const isCountable = computed(() =>
   COUNTABLE_TYPES.has(props.column.columnType)
 );
@@ -54,12 +54,11 @@ const rangeInputType = computed(
 );
 
 function countedOptionToTreeNode(opt: CountedOption): ITreeNode {
-  const label = opt.label
-    ? `${opt.label} (${opt.count})`
-    : `${opt.name} (${opt.count})`;
   return {
-    name: opt.name,
-    label,
+    ...opt,
+    label: opt.label
+      ? `${opt.label} (${opt.count})`
+      : `${opt.name} (${opt.count})`,
     children: opt.children?.map(countedOptionToTreeNode) ?? [],
   };
 }

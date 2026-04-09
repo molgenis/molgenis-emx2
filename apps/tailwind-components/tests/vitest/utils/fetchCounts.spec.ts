@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchCounts, ontologyTreeCache } from "../../../app/utils/fetchCounts";
+import { describe, it, expect, vi } from "vitest";
+import { fetchCounts } from "../../../app/utils/fetchCounts";
 
 function makeFetcher(rows: any[], tableId: string) {
   return vi.fn().mockResolvedValue({ [`${tableId}_groupBy`]: rows });
@@ -177,12 +177,8 @@ describe("fetchCounts - BOOL", () => {
 });
 
 describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
-  beforeEach(() => {
-    ontologyTreeCache.clear();
-  });
-
   function makeHierarchicalFetcher(
-    ontologyTerms: Array<{
+    ancestorTerms: Array<{
       name: string;
       label?: string;
       parent?: { name: string } | null;
@@ -191,8 +187,8 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     aggCountsByParent: Record<string, number>
   ) {
     return vi.fn().mockImplementation((_schemaId: string, query: string) => {
-      if (query.includes("OntologyTable {")) {
-        return Promise.resolve({ OntologyTable: ontologyTerms });
+      if (query.includes("_match_any_including_parents")) {
+        return Promise.resolve({ OntologyTable: ancestorTerms });
       }
       if (query.includes("_groupBy")) {
         return Promise.resolve({ Patient_groupBy: groupByRows });
@@ -209,16 +205,52 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     });
   }
 
-  it("fetches full ontology tree and applies leaf counts", async () => {
-    const ontologyTerms = [
+  it("uses two queries: _groupBy then _match_any_including_parents", async () => {
+    const groupByRows = [
+      {
+        count: 3,
+        disease: { name: "child1", label: "Child 1", parent: { name: "root" } },
+      },
+    ];
+    const ancestorTerms = [
       { name: "root", label: "Root", parent: null },
       { name: "child1", label: "Child 1", parent: { name: "root" } },
-      { name: "child2", label: "Child 2", parent: { name: "root" } },
     ];
-    const groupByRows = [{ count: 3, disease: { name: "child1" } }];
-    const fetcher = makeHierarchicalFetcher(ontologyTerms, groupByRows, {
-      root: 3,
-    });
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
+
+    await fetchCounts(
+      "mySchema",
+      "Patient",
+      "disease",
+      "ONTOLOGY",
+      {},
+      fetcher,
+      "OntologyTable",
+      null
+    );
+
+    const queries: string[] = fetcher.mock.calls.map(
+      ([_s, q]: [string, string]) => q
+    );
+    expect(queries.some((q) => q.includes("_groupBy"))).toBe(true);
+    expect(
+      queries.some((q) => q.includes("_match_any_including_parents"))
+    ).toBe(true);
+    expect(queries.some((q) => q.includes("_agg"))).toBe(false);
+  });
+
+  it("fetches only counted terms and their ancestors, applies leaf counts", async () => {
+    const groupByRows = [
+      {
+        count: 3,
+        disease: { name: "child1", label: "Child 1", parent: { name: "root" } },
+      },
+    ];
+    const ancestorTerms = [
+      { name: "root", label: "Root", parent: null },
+      { name: "child1", label: "Child 1", parent: { name: "root" } },
+    ];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
 
     const result = await fetchCounts(
       "mySchema",
@@ -239,19 +271,32 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     expect(result[0].children![0].count).toBe(3);
   });
 
-  it("prunes branches with no counts", async () => {
-    const ontologyTerms = [
-      { name: "root", label: "Root", parent: null },
-      { name: "branchA", label: "Branch A", parent: { name: "root" } },
-      { name: "branchB", label: "Branch B", parent: { name: "root" } },
-      { name: "leafA1", label: "Leaf A1", parent: { name: "branchA" } },
+  it("rolls up counts from children for ONTOLOGY (non-array) — no _agg needed", async () => {
+    const groupByRows = [
+      {
+        count: 4,
+        disease: {
+          name: "leafA",
+          label: "Leaf A",
+          parent: { name: "branch" },
+        },
+      },
+      {
+        count: 2,
+        disease: {
+          name: "leafB",
+          label: "Leaf B",
+          parent: { name: "branch" },
+        },
+      },
     ];
-    const groupByRows = [{ count: 5, disease: { name: "leafA1" } }];
-    const fetcher = makeHierarchicalFetcher(ontologyTerms, groupByRows, {
-      root: 5,
-      branchA: 5,
-      branchB: 0,
-    });
+    const ancestorTerms = [
+      { name: "branch", label: "Branch", parent: { name: "root" } },
+      { name: "root", label: "Root", parent: null },
+      { name: "leafA", label: "Leaf A", parent: { name: "branch" } },
+      { name: "leafB", label: "Leaf B", parent: { name: "branch" } },
+    ];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
 
     const result = await fetchCounts(
       "mySchema",
@@ -266,16 +311,108 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe("root");
-    const children = result[0].children!;
-    expect(children).toHaveLength(1);
-    expect(children[0].name).toBe("branchA");
-    expect(children[0].children![0].name).toBe("leafA1");
+    expect(result[0].count).toBe(6);
+    expect(result[0].children![0].name).toBe("branch");
+    expect(result[0].children![0].count).toBe(6);
+
+    const aggCalls = fetcher.mock.calls.filter(([_s, q]: [string, string]) =>
+      q.includes("_agg")
+    );
+    expect(aggCalls).toHaveLength(0);
   });
 
-  it("uses cache on second call — fetcher only called once for ontology tree", async () => {
-    const ontologyTerms = [{ name: "termA", label: "Term A", parent: null }];
-    const groupByRows = [{ count: 2, disease: { name: "termA" } }];
-    const fetcher = makeHierarchicalFetcher(ontologyTerms, groupByRows, {});
+  it("uses _agg queries for parent counts with ONTOLOGY_ARRAY", async () => {
+    const groupByRows = [
+      {
+        count: 3,
+        disease: {
+          name: "child1",
+          label: "Child 1",
+          parent: { name: "root" },
+        },
+      },
+    ];
+    const ancestorTerms = [
+      { name: "root", label: "Root", parent: null },
+      { name: "child1", label: "Child 1", parent: { name: "root" } },
+    ];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {
+      root: 3,
+    });
+
+    const result = await fetchCounts(
+      "mySchema",
+      "Patient",
+      "disease",
+      "ONTOLOGY_ARRAY",
+      {},
+      fetcher,
+      "OntologyTable",
+      null
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("root");
+    expect(result[0].count).toBe(3);
+
+    const aggCalls = fetcher.mock.calls.filter(([_s, q]: [string, string]) =>
+      q.includes("_agg")
+    );
+    expect(aggCalls.length).toBeGreaterThan(0);
+  });
+
+  it("handles multiple ancestor levels returned in one query", async () => {
+    const groupByRows = [
+      {
+        count: 2,
+        disease: {
+          name: "leaf",
+          label: "Leaf",
+          parent: { name: "mid" },
+        },
+      },
+    ];
+    const ancestorTerms = [
+      { name: "root", label: "Root", parent: null },
+      { name: "mid", label: "Mid", parent: { name: "root" } },
+      { name: "leaf", label: "Leaf", parent: { name: "mid" } },
+    ];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
+
+    const result = await fetchCounts(
+      "mySchema",
+      "Patient",
+      "disease",
+      "ONTOLOGY",
+      {},
+      fetcher,
+      "OntologyTable",
+      null
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("root");
+    expect(result[0].children![0].name).toBe("mid");
+    expect(result[0].children![0].children![0].name).toBe("leaf");
+
+    const ancestorQueryCalls = fetcher.mock.calls.filter(
+      ([_s, q]: [string, string]) => q.includes("_match_any_including_parents")
+    );
+    expect(ancestorQueryCalls).toHaveLength(1);
+  });
+
+  it("does NOT fetch entire ontology table — uses filtered ancestor queries", async () => {
+    const groupByRows = [
+      {
+        count: 1,
+        disease: { name: "leaf", label: "Leaf", parent: { name: "root" } },
+      },
+    ];
+    const ancestorTerms = [
+      { name: "root", label: "Root", parent: null },
+      { name: "leaf", label: "Leaf", parent: { name: "root" } },
+    ];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
 
     await fetchCounts(
       "mySchema",
@@ -285,29 +422,22 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       {},
       fetcher,
       "OntologyTable",
-      "mySchema"
-    );
-    await fetchCounts(
-      "mySchema",
-      "Patient",
-      "disease",
-      "ONTOLOGY",
-      {},
-      fetcher,
-      "OntologyTable",
-      "mySchema"
+      null
     );
 
-    const ontologyFetchCalls = fetcher.mock.calls.filter(
-      ([_schema, query]: [string, string]) => query.includes("OntologyTable {")
+    const unfilteredTreeFetch = fetcher.mock.calls.find(
+      ([_schema, query]: [string, string]) =>
+        query.includes("OntologyTable {") && !query.includes("filter:")
     );
-    expect(ontologyFetchCalls).toHaveLength(1);
+    expect(unfilteredTreeFetch).toBeUndefined();
   });
 
-  it("uses refSchemaId for ontology tree fetch", async () => {
-    const ontologyTerms = [{ name: "termX", label: "Term X", parent: null }];
-    const groupByRows = [{ count: 1, disease: { name: "termX" } }];
-    const fetcher = makeHierarchicalFetcher(ontologyTerms, groupByRows, {});
+  it("uses refSchemaId for ancestor fetch queries", async () => {
+    const groupByRows = [
+      { count: 1, disease: { name: "termX", label: "Term X", parent: null } },
+    ];
+    const ancestorTerms = [{ name: "termX", label: "Term X", parent: null }];
+    const fetcher = makeHierarchicalFetcher(ancestorTerms, groupByRows, {});
 
     await fetchCounts(
       "mainSchema",
@@ -320,11 +450,12 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       "sharedSchema"
     );
 
-    const ontologyFetchCall = fetcher.mock.calls.find(
-      ([_schema, query]: [string, string]) => query.includes("OntologyTable {")
+    const ancestorFetchCall = fetcher.mock.calls.find(
+      ([_schema, query]: [string, string]) =>
+        query.includes("_match_any_including_parents")
     );
-    expect(ontologyFetchCall).toBeDefined();
-    expect(ontologyFetchCall![0]).toBe("sharedSchema");
+    expect(ancestorFetchCall).toBeDefined();
+    expect(ancestorFetchCall![0]).toBe("sharedSchema");
   });
 
   it("falls back to groupBy when refTableId is not provided", async () => {
@@ -348,20 +479,29 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     expect(result[0].count).toBe(5);
   });
 
-  it("applies cross-filter to _agg parent count queries", async () => {
-    const ontologyTerms = [
+  it("applies cross-filter to _agg parent count queries for ONTOLOGY_ARRAY", async () => {
+    const groupByRows = [
+      {
+        count: 2,
+        disease: {
+          name: "child1",
+          label: "Child 1",
+          parent: { name: "parent1" },
+        },
+      },
+    ];
+    const ancestorTerms = [
       { name: "parent1", label: "Parent 1", parent: null },
       { name: "child1", label: "Child 1", parent: { name: "parent1" } },
     ];
-    const groupByRows = [{ count: 2, disease: { name: "child1" } }];
     const crossFilter = { status: { equals: "active" } };
     const capturedAggQueries: string[] = [];
 
     const fetcher = vi
       .fn()
       .mockImplementation((_schemaId: string, query: string) => {
-        if (query.includes("OntologyTable {")) {
-          return Promise.resolve({ OntologyTable: ontologyTerms });
+        if (query.includes("_match_any_including_parents")) {
+          return Promise.resolve({ OntologyTable: ancestorTerms });
         }
         if (query.includes("_groupBy")) {
           return Promise.resolve({ Patient_groupBy: groupByRows });
@@ -377,7 +517,7 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       "mySchema",
       "Patient",
       "disease",
-      "ONTOLOGY",
+      "ONTOLOGY_ARRAY",
       crossFilter,
       fetcher,
       "OntologyTable",
@@ -389,10 +529,32 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     expect(capturedAggQueries[0]).toContain("_match_any_including_children");
   });
 
-  it("returns empty array when ontology tree fetch fails", async () => {
+  it("returns empty array when groupBy fetch fails", async () => {
     const fetcher = vi.fn().mockImplementation((_s: string, query: string) => {
-      if (query.includes("OntologyTable {")) {
+      if (query.includes("_groupBy")) {
         return Promise.reject(new Error("network error"));
+      }
+      return Promise.resolve({});
+    });
+
+    const result = await fetchCounts(
+      "mySchema",
+      "Patient",
+      "disease",
+      "ONTOLOGY",
+      {},
+      fetcher,
+      "OntologyTable",
+      null
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty array when groupBy returns no rows", async () => {
+    const fetcher = vi.fn().mockImplementation((_s: string, query: string) => {
+      if (query.includes("_groupBy")) {
+        return Promise.resolve({ Patient_groupBy: [] });
       }
       return Promise.resolve({});
     });

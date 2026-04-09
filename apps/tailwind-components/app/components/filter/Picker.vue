@@ -13,6 +13,7 @@ import {
   shouldExcludeSelfRef,
   navDepth,
 } from "../../utils/filterTreeUtils";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 interface PickerNode {
   id: string;
@@ -86,22 +87,8 @@ async function loadRefColumns(col: IColumn, path: string): Promise<void> {
 
   loadingRefs.value = new Set([...loadingRefs.value, path]);
   try {
-    const response = await $fetch<{
-      data: {
-        _schema: { tables: Array<{ name: string; columns: IColumn[] }> };
-      };
-    }>(`/${encodeURIComponent(targetSchemaId)}/graphql`, {
-      method: "POST",
-      body: {
-        query: `{ _schema { tables { name columns { id name columnType description refTableId refSchemaId refLinkId } } } }`,
-      },
-    });
-
-    const tables = response?.data?._schema?.tables ?? [];
-    const table = tables.find(
-      (t: { name: string }) => t.name === targetTableId
-    );
-    const cols = table?.columns ?? [];
+    const meta = await fetchTableMetadata(targetSchemaId, targetTableId);
+    const cols = meta.columns ?? [];
 
     const newCache = new Map(refColumnsCache.value);
     newCache.set(path, cols);
