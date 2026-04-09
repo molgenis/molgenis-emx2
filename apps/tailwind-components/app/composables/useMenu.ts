@@ -37,9 +37,7 @@ async function fetchMenu() {
 }
 
 export const useMenu = async () => {
-  console.log("Initializing menu...");
   const menu = ref<Menu>([]);
-  const route = useRoute();
 
   watch(
     () => route.params.schema,
@@ -47,10 +45,8 @@ export const useMenu = async () => {
       if (newSchema) {
         const newMenu = await fetchMenu();
         menu.value = newMenu;
-        console.log("Menu updated based on schema change:", menu.value);
       } else {
         menu.value = [];
-        console.log("No schema found, use top menu ?");
       }
     }
   );
