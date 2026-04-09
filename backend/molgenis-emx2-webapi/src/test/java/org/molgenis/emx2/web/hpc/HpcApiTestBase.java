@@ -292,14 +292,17 @@ abstract class HpcApiTestBase extends ApiTestBase {
     }
     trackedWorkerIds.clear();
 
-    // Restore settings
+    // Restore settings — use setSetting with "false"/"" rather than removeSetting,
+    // because removeSetting calls setSettings(map) which overwrites ALL database settings
+    // from this instance's potentially stale in-memory snapshot, which can wipe settings
+    // (like MOLGENIS_JWT_SHARED_SECRET) that were set by a different SqlDatabase instance.
     if (previousHpcEnabled == null || previousHpcEnabled.isBlank()) {
-      database.removeSetting(HPC_ENABLED_SETTING);
+      database.setSetting(HPC_ENABLED_SETTING, "false");
     } else {
       database.setSetting(HPC_ENABLED_SETTING, previousHpcEnabled);
     }
     if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
-      database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
+      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, "");
     } else {
       database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
     }
