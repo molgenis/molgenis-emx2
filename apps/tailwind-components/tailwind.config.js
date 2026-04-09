@@ -308,6 +308,7 @@ module.exports = {
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
+        border: "var(--border-color-input)",
         "input-description": "var(--text-color-input-description)",
 
         required: "var(--text-color-required)",

@@ -1,9 +1,5 @@
 <template>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 -960 960 960"
-    fill="currentColor"
-  >
-    <path d="M160-280v-120h640v120H160Zm0-280v-120h640v120H160Z" />
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 5.5V4H15V5.5H0ZM0 1.5V0H15V1.5H0Z" fill="currentColor" />
   </svg>
 </template>
