@@ -180,6 +180,8 @@ class HpcAuth {
     try {
       return Long.parseLong(contentLength) > 0;
     } catch (NumberFormatException e) {
+      // Unparseable Content-Length — assume body is present to be safe
+      logger.debug("Unparseable Content-Length header: {}", contentLength, e);
       return true;
     }
   }
@@ -315,9 +317,10 @@ class HpcAuth {
         }
         throw e;
       } catch (IllegalArgumentException e) {
-        throw HpcException.badRequest(errorMessage(e), requestId);
+        throw HpcException.badRequest(errorMessage(e), requestId, e);
       } catch (JacksonException e) {
-        throw HpcException.badRequest("Invalid request body: " + e.getOriginalMessage(), requestId);
+        throw HpcException.badRequest(
+            "Invalid request body: " + e.getOriginalMessage(), requestId, e);
       } catch (MolgenisException e) {
         throw handleMolgenisException(e, ctx, requestId, traceId);
       } catch (Exception e) {

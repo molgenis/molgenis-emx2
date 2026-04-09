@@ -58,6 +58,10 @@ public class HpcException extends RuntimeException {
     return new HpcException(400, "Bad Request", detail, requestId);
   }
 
+  public static HpcException badRequest(String detail, String requestId, Throwable cause) {
+    return new HpcException(400, "Bad Request", detail, requestId, cause);
+  }
+
   public static HpcException unauthorized(String detail, String requestId) {
     return new HpcException(401, "Unauthorized", detail, requestId);
   }
