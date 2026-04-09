@@ -35,7 +35,7 @@ const subButtons = computed(() =>
       <NuxtLink
         v-if="button.isSpaLink"
         :to="button.link"
-        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
+        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
         :class="invert ? 'text-sub-menu' : 'text-menu'"
       >
         {{ button.label }}
@@ -43,7 +43,7 @@ const subButtons = computed(() =>
       <a
         v-else
         :href="basePath + button.link"
-        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
+        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
         :class="invert ? 'text-sub-menu' : 'text-menu'"
       >
         {{ button.label }}
@@ -65,20 +65,20 @@ const subButtons = computed(() =>
 
       <template #popper>
         <ol
-          class="flex flex-col gap-1.5 bg-white text-body-base rounded-3px rounded-tr-none shadow-xl p-6"
+          class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
         >
           <li v-for="button in subButtons">
             <NuxtLink
               v-if="button.isSpaLink"
               :to="button.link"
-              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline"
+              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
             >
               {{ button.label }}
             </NuxtLink>
             <a
               v-else
               :href="basePath + button.link"
-              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline"
+              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
             >
               {{ button.label }}
             </a>
