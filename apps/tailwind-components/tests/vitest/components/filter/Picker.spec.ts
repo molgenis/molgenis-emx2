@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
-import FilterPicker from "../../../../app/components/filter/FilterPicker.vue";
+import Picker from "../../../../app/components/filter/Picker.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
 vi.mock("#app", () => ({
@@ -73,7 +73,7 @@ function mountPicker(
     visibleFilterIds?: Set<string>;
   } = {}
 ) {
-  return mount(FilterPicker, {
+  return mount(Picker, {
     props: {
       modelValue: overrides.modelValue ?? true,
       columns: overrides.columns ?? allColumns,
@@ -85,7 +85,7 @@ function mountPicker(
   });
 }
 
-describe("FilterPicker", () => {
+describe("Picker", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
   });
@@ -113,11 +113,11 @@ describe("FilterPicker", () => {
     wrapper.unmount();
   });
 
-  it("hides STRING columns by default", async () => {
+  it("shows STRING columns by default", async () => {
     const wrapper = mountPicker({ modelValue: true });
     await nextTick();
     const html = document.body.innerHTML;
-    expect(html).not.toContain("Notes");
+    expect(html).toContain("Notes");
     wrapper.unmount();
   });
 

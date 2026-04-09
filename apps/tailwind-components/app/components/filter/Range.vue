@@ -28,7 +28,7 @@ function updateMax(val: any) {
     <legend v-if="legend" class="sr-only">{{ legend }}</legend>
     <label
       :for="`${id}-min`"
-      class="text-body-xs shrink-0 cursor-pointer opacity-70"
+      class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
     >
       {{ minLabel }}
     </label>
@@ -42,7 +42,7 @@ function updateMax(val: any) {
     </div>
     <label
       :for="`${id}-max`"
-      class="text-body-xs shrink-0 cursor-pointer opacity-70"
+      class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
     >
       {{ maxLabel }}
     </label>

@@ -9,8 +9,6 @@ import BaseIcon from "../BaseIcon.vue";
 import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 import {
   isRefExpandable,
-  isSelectableFilterType,
-  isStringFilterType,
   isExcludedColumn,
   shouldExcludeSelfRef,
   navDepth,
@@ -23,6 +21,7 @@ interface PickerNode {
   selectable: boolean;
   depth: number;
   refTableId?: string | null;
+  refSchemaId?: string | null;
   columnType: string;
 }
 
@@ -38,7 +37,15 @@ const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   apply: [
     selectedIds: Set<string>,
-    nestedMeta: Map<string, { label: string; columnType: string }>
+    nestedMeta: Map<
+      string,
+      {
+        label: string;
+        columnType: string;
+        refTableId?: string | null;
+        refSchemaId?: string | null;
+      }
+    >
   ];
   cancel: [];
 }>();
@@ -144,6 +151,7 @@ function buildNodes(
           selectable: false,
           depth,
           refTableId: col.refTableId,
+          refSchemaId: col.refSchemaId ?? null,
           columnType: col.columnType,
         });
 
@@ -158,16 +166,15 @@ function buildNodes(
           nodes.push(...childNodes);
         }
       }
-    } else if (
-      isSelectableFilterType(col.columnType) ||
-      isStringFilterType(col.columnType)
-    ) {
+    } else {
       nodes.push({
         id: path,
         label: col.label || col.id,
         description: col.description,
         selectable: true,
         depth,
+        refTableId: col.refTableId ?? null,
+        refSchemaId: col.refSchemaId ?? null,
         columnType: col.columnType,
       });
     }
@@ -191,7 +198,6 @@ const allNodes = computed<PickerNode[]>(() => {
   return buildNodes(props.columns, parentTableId.value, "", 0);
 });
 
-const isStringType = (ct: string) => isStringFilterType(ct);
 const isMgCol = (id: string) => id.startsWith("mg_");
 
 const displayedNodes = computed<PickerNode[]>(() => {
@@ -211,9 +217,7 @@ const displayedNodes = computed<PickerNode[]>(() => {
     });
   }
   return allNodes.value.filter(
-    (node) =>
-      !isStringType(node.columnType) &&
-      !isMgCol(node.id.split(".")[0] ?? node.id)
+    (node) => !isMgCol(node.id.split(".")[0] ?? node.id)
   );
 });
 
@@ -227,9 +231,25 @@ function toggleSelection(id: string) {
   localSelection.value = next;
 }
 
-function buildNestedMeta(): Map<string, { label: string; columnType: string }> {
+function buildNestedMeta(): Map<
+  string,
+  {
+    label: string;
+    columnType: string;
+    refTableId?: string | null;
+    refSchemaId?: string | null;
+  }
+> {
   const nodeById = new Map(allNodes.value.map((n) => [n.id, n]));
-  const meta = new Map<string, { label: string; columnType: string }>();
+  const meta = new Map<
+    string,
+    {
+      label: string;
+      columnType: string;
+      refTableId?: string | null;
+      refSchemaId?: string | null;
+    }
+  >();
   for (const id of localSelection.value) {
     if (!id.includes(".")) continue;
     const node = nodeById.get(id);
@@ -242,6 +262,8 @@ function buildNestedMeta(): Map<string, { label: string; columnType: string }> {
     meta.set(id, {
       label: labelParts.join(" → "),
       columnType: node.columnType,
+      refTableId: node.refTableId,
+      refSchemaId: node.refSchemaId,
     });
   }
   return meta;

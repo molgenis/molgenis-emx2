@@ -51,31 +51,16 @@ const tableSettings = ref<ITableSettings>({
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
-const filterColumns = computed(
-  () =>
-    tableMetadata?.columns
-      ?.filter(
-        (c: any) =>
-          !c.id.startsWith("mg_") &&
-          !["HEADING", "SECTION", "FILE"].includes(c.columnType)
-      )
-      .map((c: any) => ({
-        id: c.id,
-        columnType: c.columnType,
-        label: c.label,
-        description: c.description,
-        refTableId: c.refTableId,
-        refSchemaId: c.refSchemaId,
-      })) ?? []
+const filters = useFilters(
+  computed(() => tableMetadata?.columns ?? []),
+  {
+    urlSync: true,
+    route,
+    router,
+    schemaId,
+    tableId,
+  }
 );
-
-const filters = useFilters(filterColumns, {
-  urlSync: true,
-  route,
-  router,
-  schemaId,
-  tableId,
-});
 
 watch(
   () => filters.searchValue.value,
@@ -144,10 +129,10 @@ const sidebarVisible = ref(true);
       <FilterSidebar
         v-show="sidebarVisible"
         :filters="filters"
-        :columns="filterColumns"
+        :columns="filters.columns.value"
         :schemaId="schemaId"
         :tableId="tableId"
-        class="w-[30rem] shrink-0"
+        class="w-[34rem] shrink-0"
       />
       <div class="flex-1 min-w-0">
         <TableEMX2

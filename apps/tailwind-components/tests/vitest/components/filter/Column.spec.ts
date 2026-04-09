@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { CountedOption } from "../../../../app/utils/fetchCounts";
 import type { IFilterValue } from "../../../../types/filters";
-import FilterOptions from "../../../../app/components/filter/FilterOptions.vue";
+import Column from "../../../../app/components/filter/Column.vue";
 import Tree from "../../../../app/components/input/Tree.vue";
 import FilterRange from "../../../../app/components/filter/Range.vue";
 import GenericInput from "../../../../app/components/Input.vue";
@@ -81,27 +81,27 @@ const sampleOptions: CountedOption[] = [
   { name: "cats", label: "Cats", count: 5 },
 ];
 
-function mountFilterOptions(
+function mountColumn(
   column: IColumn,
   options: CountedOption[] = [],
   modelValue: IFilterValue | undefined = undefined,
   loading = false
 ) {
-  return mount(FilterOptions, {
+  return mount(Column, {
     props: { column, options, modelValue, loading },
   });
 }
 
-describe("FilterOptions", () => {
+describe("Column", () => {
   describe("countable types", () => {
     it("renders Tree for ONTOLOGY column type", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions);
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       const tree = wrapper.findComponent(Tree);
       expect(tree.exists()).toBe(true);
     });
 
     it("renders Tree for BOOL column type", () => {
-      const wrapper = mountFilterOptions(boolColumn(), [
+      const wrapper = mountColumn(boolColumn(), [
         { name: "true", count: 3 },
         { name: "false", count: 2 },
       ]);
@@ -110,7 +110,7 @@ describe("FilterOptions", () => {
     });
 
     it("passes tree nodes with labels and counts to Tree", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions);
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       const tree = wrapper.findComponent(Tree);
       const nodes = tree.props("nodes") as any[];
       expect(nodes).toHaveLength(2);
@@ -120,7 +120,7 @@ describe("FilterOptions", () => {
     });
 
     it("maps modelValue equals array to treeSelection", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions, {
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions, {
         operator: "equals",
         value: ["dogs"],
       });
@@ -129,13 +129,13 @@ describe("FilterOptions", () => {
     });
 
     it("passes empty array to Tree when no modelValue", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions);
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       const tree = wrapper.findComponent(Tree);
       expect(tree.props("modelValue")).toEqual([]);
     });
 
     it("emits update:modelValue with equals operator on Tree selection change", async () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions);
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       const tree = wrapper.findComponent(Tree);
       await tree.vm.$emit("update:modelValue", ["dogs", "cats"]);
       const emitted = wrapper.emitted("update:modelValue");
@@ -147,7 +147,7 @@ describe("FilterOptions", () => {
     });
 
     it("emits undefined when Tree selection is cleared", async () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions, {
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions, {
         operator: "equals",
         value: ["dogs"],
       });
@@ -159,7 +159,7 @@ describe("FilterOptions", () => {
     });
 
     it("does not render Range or text input for countable types", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), sampleOptions);
+      const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
       expect(wrapper.find('input[type="text"]').exists()).toBe(false);
     });
@@ -173,7 +173,7 @@ describe("FilterOptions", () => {
           children: [{ name: "dogs", label: "Dogs", count: 10 }],
         },
       ];
-      const wrapper = mountFilterOptions(ontologyColumn(), nested);
+      const wrapper = mountColumn(ontologyColumn(), nested);
       const tree = wrapper.findComponent(Tree);
       const nodes = tree.props("nodes") as any[];
       expect(nodes[0].children).toHaveLength(1);
@@ -183,19 +183,19 @@ describe("FilterOptions", () => {
 
   describe("range types", () => {
     it("renders FilterRange for INT column type", () => {
-      const wrapper = mountFilterOptions(intColumn());
+      const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
       expect(range.exists()).toBe(true);
     });
 
     it("does not render Tree or text input for range types", () => {
-      const wrapper = mountFilterOptions(intColumn());
+      const wrapper = mountColumn(intColumn());
       expect(wrapper.findComponent(Tree).exists()).toBe(false);
       expect(wrapper.find('input[type="text"]').exists()).toBe(false);
     });
 
     it("passes range values from modelValue between operator", () => {
-      const wrapper = mountFilterOptions(intColumn(), [], {
+      const wrapper = mountColumn(intColumn(), [], {
         operator: "between",
         value: [10, 50],
       });
@@ -204,27 +204,27 @@ describe("FilterOptions", () => {
     });
 
     it("passes [null, null] to FilterRange when no modelValue", () => {
-      const wrapper = mountFilterOptions(intColumn());
+      const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
       expect(range.props("modelValue")).toEqual([null, null]);
     });
 
     it("renders generic Input with DATE type for DATE column range", () => {
-      const wrapper = mountFilterOptions(dateColumn());
+      const wrapper = mountColumn(dateColumn());
       const inputs = wrapper.findAllComponents(GenericInput);
       expect(inputs.length).toBeGreaterThan(0);
       expect(inputs[0].props("type")).toBe("DATE");
     });
 
     it("renders generic Input with DATETIME type for DATETIME column range", () => {
-      const wrapper = mountFilterOptions(datetimeColumn());
+      const wrapper = mountColumn(datetimeColumn());
       const inputs = wrapper.findAllComponents(GenericInput);
       expect(inputs.length).toBeGreaterThan(0);
       expect(inputs[0].props("type")).toBe("DATETIME");
     });
 
     it("renders generic Input with INT type for INT column range", () => {
-      const wrapper = mountFilterOptions(intColumn());
+      const wrapper = mountColumn(intColumn());
       const inputs = wrapper.findAllComponents(GenericInput);
       expect(inputs.length).toBeGreaterThan(0);
       expect(inputs[0].props("type")).toBe("INT");
@@ -233,13 +233,13 @@ describe("FilterOptions", () => {
 
   describe("string-like types", () => {
     it("renders text input for STRING column type", () => {
-      const wrapper = mountFilterOptions(stringColumn());
+      const wrapper = mountColumn(stringColumn());
       const input = wrapper.find('input[type="text"]');
       expect(input.exists()).toBe(true);
     });
 
     it("does not render Tree or FilterRange for string types", () => {
-      const wrapper = mountFilterOptions(stringColumn());
+      const wrapper = mountColumn(stringColumn());
       expect(wrapper.findComponent({ name: "Tree" }).exists()).toBe(false);
       expect(wrapper.findComponent({ name: "FilterRange" }).exists()).toBe(
         false
@@ -247,7 +247,7 @@ describe("FilterOptions", () => {
     });
 
     it("text input shows current like filter value", () => {
-      const wrapper = mountFilterOptions(stringColumn(), [], {
+      const wrapper = mountColumn(stringColumn(), [], {
         operator: "like",
         value: "fluffy",
       });
@@ -256,7 +256,7 @@ describe("FilterOptions", () => {
     });
 
     it("has sr-only label for accessibility", () => {
-      const wrapper = mountFilterOptions(stringColumn());
+      const wrapper = mountColumn(stringColumn());
       const label = wrapper.find("label.sr-only");
       expect(label.exists()).toBe(true);
       expect(label.text()).toContain("Name");
@@ -264,7 +264,7 @@ describe("FilterOptions", () => {
 
     it("emits like filter on text input after debounce", async () => {
       vi.useFakeTimers();
-      const wrapper = mountFilterOptions(stringColumn());
+      const wrapper = mountColumn(stringColumn());
       const input = wrapper.find('input[type="text"]');
       const el = input.element as HTMLInputElement;
       el.value = "hello";
@@ -278,7 +278,7 @@ describe("FilterOptions", () => {
 
     it("emits undefined when text input is cleared", async () => {
       vi.useFakeTimers();
-      const wrapper = mountFilterOptions(stringColumn(), [], {
+      const wrapper = mountColumn(stringColumn(), [], {
         operator: "like",
         value: "hello",
       });
@@ -296,13 +296,13 @@ describe("FilterOptions", () => {
 
   describe("loading state", () => {
     it("shows loading skeleton when loading is true and no options yet", () => {
-      const wrapper = mountFilterOptions(ontologyColumn(), [], undefined, true);
+      const wrapper = mountColumn(ontologyColumn(), [], undefined, true);
       const skeletons = wrapper.findAll('[role="status"]');
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
     it("does not show loading skeleton when options are present even if loading", () => {
-      const wrapper = mountFilterOptions(
+      const wrapper = mountColumn(
         ontologyColumn(),
         sampleOptions,
         undefined,
@@ -313,18 +313,13 @@ describe("FilterOptions", () => {
     });
 
     it("does not show loading skeleton when not loading", () => {
-      const wrapper = mountFilterOptions(
-        ontologyColumn(),
-        [],
-        undefined,
-        false
-      );
+      const wrapper = mountColumn(ontologyColumn(), [], undefined, false);
       const skeletons = wrapper.findAll('[role="status"]');
       expect(skeletons.length).toBe(0);
     });
 
     it("renders Tree (not loading skeleton) once options arrive", () => {
-      const wrapper = mountFilterOptions(
+      const wrapper = mountColumn(
         ontologyColumn(),
         sampleOptions,
         undefined,

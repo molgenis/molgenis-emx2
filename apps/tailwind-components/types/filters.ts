@@ -43,11 +43,16 @@ export interface IGraphQLFilterNull {
   isNull?: boolean;
 }
 
+export interface IGraphQLFilterMatchAnyIncludingChildren {
+  _match_any_including_children: string[];
+}
+
 export type IGraphQLFilterValue =
   | IGraphQLFilterEquals
   | IGraphQLFilterLike
   | IGraphQLFilterBetween
-  | IGraphQLFilterNull;
+  | IGraphQLFilterNull
+  | IGraphQLFilterMatchAnyIncludingChildren;
 
 export interface IGraphQLFilter {
   _search?: string;
@@ -79,10 +84,25 @@ export interface UseFilters {
   resetFilters: () => void;
   getCountedOptions: (columnId: string) => ComputedRef<CountedOption[]>;
   isCountLoading: (columnId: string) => ComputedRef<boolean>;
-  nestedColumnMeta: Ref<Map<string, { label: string; columnType: string }>>;
+  nestedColumnMeta: Ref<
+    Map<
+      string,
+      {
+        label: string;
+        columnType: string;
+        refTableId?: string | null;
+        refSchemaId?: string | null;
+      }
+    >
+  >;
   registerNestedColumn: (
     id: string,
-    meta: { label: string; columnType: string }
+    meta: {
+      label: string;
+      columnType: string;
+      refTableId?: string | null;
+      refSchemaId?: string | null;
+    }
   ) => void;
   schemaId: string;
   tableId: string;

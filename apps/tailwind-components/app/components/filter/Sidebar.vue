@@ -1,30 +1,160 @@
+<script lang="ts">
+export const MG_COLLAPSED_PARAM = "mg_collapsed";
+</script>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
 import InputSearch from "../input/Search.vue";
-import FilterOptions from "./FilterOptions.vue";
-import FilterPicker from "./FilterPicker.vue";
+import FilterOptions from "./Column.vue";
+import FilterPicker from "./Picker.vue";
+
+type RouteQuery = Record<
+  string,
+  string | string[] | (string | null)[] | null | undefined
+>;
 
 const props = defineProps<{
   filters: UseFilters;
   columns: IColumn[];
   schemaId: string;
   tableId: string;
+  route?: { query: RouteQuery };
+  router?: { replace: (opts: Record<string, unknown>) => void };
 }>();
+
+function resolveRouteRouter(): {
+  route: { query: RouteQuery } | null;
+  router: { replace: (opts: Record<string, unknown>) => void } | null;
+} {
+  if (props.route && props.router) {
+    return { route: props.route, router: props.router };
+  }
+  try {
+    const { useRoute, useRouter } = require("#app/composables/router");
+    return { route: useRoute(), router: useRouter() };
+  } catch {
+    return { route: null, router: null };
+  }
+}
+
+const { route, router } = resolveRouteRouter();
 
 const searchInputId = useId();
 const collapsed = ref(new Set<string>());
 const pickerOpen = ref(false);
 
-onMounted(() => {
+async function fetchTableColumns(
+  schemaId: string,
+  tableId: string
+): Promise<IColumn[]> {
+  try {
+    const response = await $fetch<{
+      data: {
+        _schema: { tables: Array<{ name: string; columns: IColumn[] }> };
+      };
+    }>(`/${encodeURIComponent(schemaId)}/graphql`, {
+      method: "POST",
+      body: {
+        query: `{ _schema { tables { name columns { id name label columnType description refTableId refSchemaId } } } }`,
+      },
+    });
+    const tables = response?.data?._schema?.tables ?? [];
+    const table = tables.find((t) => t.name === tableId);
+    return table?.columns ?? [];
+  } catch {
+    return [];
+  }
+}
+
+async function resolveNestedMeta() {
+  const visibleIds = props.filters.visibleFilterIds.value;
+  const alreadyKnown = props.filters.nestedColumnMeta.value;
+
+  const dottedIds = visibleIds.filter(
+    (id) => id.includes(".") && !alreadyKnown.has(id)
+  );
+  if (dottedIds.length === 0) return;
+
+  const columnCache = new Map<string, IColumn[]>();
+
+  for (const id of dottedIds) {
+    const segments = id.split(".");
+    let currentCols: IColumn[] = props.columns;
+    let currentSchemaId = props.schemaId;
+    const labelParts: string[] = [];
+    let resolved = true;
+
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]!;
+      const col = currentCols.find((c) => c.id === seg);
+      if (!col) {
+        resolved = false;
+        break;
+      }
+      labelParts.push(col.label || col.id);
+
+      if (i < segments.length - 1) {
+        if (!col.refTableId) {
+          resolved = false;
+          break;
+        }
+        const nextSchemaId = col.refSchemaId || currentSchemaId;
+        const cacheKey = `${nextSchemaId}.${col.refTableId}`;
+        if (!columnCache.has(cacheKey)) {
+          const cols = await fetchTableColumns(nextSchemaId, col.refTableId);
+          columnCache.set(cacheKey, cols);
+        }
+        currentCols = columnCache.get(cacheKey)!;
+        currentSchemaId = nextSchemaId;
+      } else if (resolved) {
+        props.filters.registerNestedColumn(id, {
+          label: labelParts.join(" → "),
+          columnType: col.columnType,
+          refTableId: col.refTableId ?? null,
+          refSchemaId: col.refSchemaId ?? null,
+        });
+      }
+    }
+  }
+}
+
+function applyDefaultCollapse() {
   const visibleIds = [...props.filters.visibleFilterIds.value];
+  const next = new Set<string>();
   visibleIds.forEach((id, index) => {
     if (index >= 5 && !props.filters.filterStates.value.has(id)) {
-      collapsed.value.add(id);
+      next.add(id);
     }
   });
+  collapsed.value = next;
+}
+
+function persistCollapsed(next: Set<string>) {
+  if (!route || !router) return;
+  const currentQuery = { ...(route.query as Record<string, unknown>) };
+  if (next.size === 0) {
+    delete currentQuery[MG_COLLAPSED_PARAM];
+  } else {
+    currentQuery[MG_COLLAPSED_PARAM] = [...next].join(",");
+  }
+  router.replace({ query: currentQuery });
+}
+
+onMounted(async () => {
+  const urlParam = route?.query[MG_COLLAPSED_PARAM];
+  if (typeof urlParam === "string" && urlParam.trim()) {
+    const ids = urlParam
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    collapsed.value = new Set(ids);
+  } else {
+    applyDefaultCollapse();
+  }
+  await resolveNestedMeta();
 });
 
 function toggleSection(columnId: string) {
@@ -35,6 +165,7 @@ function toggleSection(columnId: string) {
     next.add(columnId);
   }
   collapsed.value = next;
+  persistCollapsed(next);
 }
 
 function isCollapsed(columnId: string): boolean {
@@ -71,7 +202,15 @@ const visibleFilterIdsSet = computed(
 
 function handlePickerApply(
   selectedIds: Set<string>,
-  nestedMeta: Map<string, { label: string; columnType: string }>
+  nestedMeta: Map<
+    string,
+    {
+      label: string;
+      columnType: string;
+      refTableId?: string | null;
+      refSchemaId?: string | null;
+    }
+  >
 ) {
   for (const [id, meta] of nestedMeta) {
     props.filters.registerNestedColumn(id, meta);
@@ -90,7 +229,7 @@ function handlePickerApply(
   <div>
     <div
       id="filter-sidebar-content"
-      class="rounded-t-[3px] rounded-b-[50px] bg-sidebar-gradient"
+      class="rounded-t-[3px] rounded-b-[50px] bg-sidebar-gradient pb-8"
     >
       <div class="px-5 pt-5 pb-3 flex items-center justify-between">
         <h2
@@ -119,26 +258,26 @@ function handlePickerApply(
 
       <template v-for="(column, index) in visibleColumns" :key="column.id">
         <hr class="border-black opacity-10 mx-5" />
-        <div class="px-5 pt-3 pb-1">
-          <button
-            type="button"
-            class="flex items-center justify-between w-full text-left group"
-            :aria-expanded="!isCollapsed(column.id)"
-            :aria-controls="`filter-section-${column.id}`"
-            @click="toggleSection(column.id)"
+        <div
+          class="p-5 flex items-center justify-between cursor-pointer group"
+          role="button"
+          tabindex="0"
+          :aria-expanded="!isCollapsed(column.id)"
+          :aria-controls="`filter-section-${column.id}`"
+          @click="toggleSection(column.id)"
+          @keydown.enter.space.prevent="toggleSection(column.id)"
+        >
+          <h3
+            class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline"
           >
-            <span
-              class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline"
-            >
-              {{ column.label || column.id }}
-            </span>
-            <span
-              class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform"
-              :class="{ 'rotate-180': !isCollapsed(column.id) }"
-            >
-              <BaseIcon name="caret-down" :width="26" />
-            </span>
-          </button>
+            {{ column.label || column.id }}
+          </h3>
+          <span
+            class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform"
+            :class="{ 'rotate-180': isCollapsed(column.id) }"
+          >
+            <BaseIcon name="caret-up" :width="26" />
+          </span>
         </div>
 
         <div

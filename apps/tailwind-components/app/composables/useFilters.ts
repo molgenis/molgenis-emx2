@@ -87,11 +87,21 @@ function resolveRouteRouter(options: UseFiltersOptions): {
   }
 }
 
+const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
+
+function filterColumns(rawColumns: IColumn[]): IColumn[] {
+  return rawColumns.filter(
+    (c) => !c.id.startsWith("mg_") && !EXCLUDED_COLUMN_TYPES.has(c.columnType)
+  );
+}
+
 export function useFilters(
-  columns: Ref<IColumn[]>,
+  rawColumns: Ref<IColumn[]>,
   options: UseFiltersOptions
 ) {
   const { schemaId, tableId, debounceMs = 300 } = options;
+
+  const columns = computed(() => filterColumns(rawColumns.value));
   const urlSync = options.urlSync ?? false;
 
   const { route, router } = urlSync
@@ -265,12 +275,25 @@ export function useFilters(
   }
 
   const nestedColumnMeta = ref<
-    Map<string, { label: string; columnType: string }>
+    Map<
+      string,
+      {
+        label: string;
+        columnType: string;
+        refTableId?: string | null;
+        refSchemaId?: string | null;
+      }
+    >
   >(new Map());
 
   function registerNestedColumn(
     id: string,
-    meta: { label: string; columnType: string }
+    meta: {
+      label: string;
+      columnType: string;
+      refTableId?: string | null;
+      refSchemaId?: string | null;
+    }
   ) {
     const next = new Map(nestedColumnMeta.value);
     next.set(id, meta);
@@ -309,9 +332,34 @@ export function useFilters(
     return buildGraphQLFilter(crossStates, columns.value, searchValue.value);
   }
 
+  function resolveColumnType(columnId: string): string | null {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) return direct.columnType;
+    const nested = nestedColumnMeta.value.get(columnId);
+    return nested?.columnType ?? null;
+  }
+
+  function resolveColumnRefInfo(columnId: string): {
+    refTableId: string | null;
+    refSchemaId: string | null;
+  } {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) {
+      return {
+        refTableId: direct.refTableId ?? null,
+        refSchemaId: direct.refSchemaId ?? null,
+      };
+    }
+    const nested = nestedColumnMeta.value.get(columnId);
+    return {
+      refTableId: nested?.refTableId ?? null,
+      refSchemaId: nested?.refSchemaId ?? null,
+    };
+  }
+
   async function fetchColumnCounts(columnId: string, useBase = false) {
-    const column = columns.value.find((c) => c.id === columnId);
-    if (!column || !isCountableType(column.columnType)) return;
+    const columnType = resolveColumnType(columnId);
+    if (!columnType || !isCountableType(columnType)) return;
 
     const newLoading = new Set(loadingSet.value);
     newLoading.add(columnId);
@@ -319,13 +367,16 @@ export function useFilters(
 
     try {
       const crossFilter = useBase ? {} : buildCrossFilter(columnId);
+      const { refTableId, refSchemaId } = resolveColumnRefInfo(columnId);
       const results = await fetchCounts(
         schemaId,
         tableId,
         columnId,
-        column.columnType,
+        columnType,
         crossFilter,
-        fetchGraphql
+        fetchGraphql,
+        refTableId,
+        refSchemaId
       );
 
       let merged = results;
@@ -354,16 +405,16 @@ export function useFilters(
 
   async function fetchAllBaseCounts() {
     const countableIds = visibleFilterIds.value.filter((id) => {
-      const col = columns.value.find((c) => c.id === id);
-      return col && isCountableType(col.columnType);
+      const colType = resolveColumnType(id);
+      return colType && isCountableType(colType);
     });
 
     await Promise.all(countableIds.map((id) => fetchColumnCounts(id, true)));
 
     if (!userHasCustomized.value) {
       visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
-        const col = columns.value.find((c) => c.id === id);
-        if (!col || !isCountableType(col.columnType)) return true;
+        const colType = resolveColumnType(id);
+        if (!colType || !isCountableType(colType)) return true;
         const base = baseCounts.value.get(id);
         if (!base) return true;
         const totalCount = base.reduce((sum, opt) => sum + opt.count, 0);
@@ -374,8 +425,8 @@ export function useFilters(
 
   const debouncedRefetchCounts = useDebounceFn(async () => {
     const countableIds = visibleFilterIds.value.filter((id) => {
-      const col = columns.value.find((c) => c.id === id);
-      return col && isCountableType(col.columnType);
+      const colType = resolveColumnType(id);
+      return colType && isCountableType(colType);
     });
     await Promise.all(countableIds.map((id) => fetchColumnCounts(id, false)));
   }, debounceMs);
@@ -399,6 +450,22 @@ export function useFilters(
   watch(searchValue, () => {
     if (baseCounts.value.size > 0) {
       debouncedRefetchCounts();
+    }
+  });
+
+  watch(nestedColumnMeta, async (meta) => {
+    const newCountable: string[] = [];
+    for (const [id, m] of meta) {
+      if (
+        isCountableType(m.columnType) &&
+        !baseCounts.value.has(id) &&
+        visibleFilterIds.value.includes(id)
+      ) {
+        newCountable.push(id);
+      }
+    }
+    if (newCountable.length > 0) {
+      await Promise.all(newCountable.map((id) => fetchColumnCounts(id, true)));
     }
   });
 

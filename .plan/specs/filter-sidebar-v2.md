@@ -46,7 +46,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Sidebar visibility controlled by parent via v-show (no internal toggle) | Sidebar.vue | - | - |
 | Table expands to full width when sidebar hidden | [table]/index.vue | - | visual check |
 | Visible filter set persisted in URL via `mg_filters` param | useFilters.ts | useFilters.spec.ts | - |
-| Collapse state NOT in URL (first-5 rule reapplied on load, active filters override) | Sidebar.vue | - | - |
+| Collapse state persisted in URL via `mg_collapsed` param (comma-separated IDs); first-5 rule applied when param absent | Sidebar.vue | Sidebar.spec.ts | - |
 | Styling matches catalogue: bg-sidebar-gradient, rounded-t-[3px] rounded-b-[50px], semantic filter colors | Sidebar.vue | - | visual check |
 | Sidebar wide enough to fit date-time range inputs side by side (~400-500px) | [table]/index.vue | - | visual check |
 | DateTime input width 14em (Date stays 10em) | DateTime.vue | - | visual check |

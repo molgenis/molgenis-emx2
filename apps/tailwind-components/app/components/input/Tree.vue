@@ -7,7 +7,6 @@ import type {
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
-import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -178,7 +177,6 @@ function toggleExpand(node: ITreeNodeState) {
 }
 
 /* manage search */
-const showOptionsSearch = ref(false); //if the search for options input should be shown
 const optionsSearch = ref(""); //to store the value of the search
 watch(optionsSearch, (newValue, oldValue) => {
   if (newValue !== oldValue) {
@@ -203,7 +201,6 @@ watch(optionsSearch, (newValue, oldValue) => {
         });
       });
     } else {
-      showOptionsSearch.value = false;
       Object.values(nodeMap.value).forEach((node) => {
         node.visible = true;
         node.expanded = false;
@@ -236,10 +233,6 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
   }
 }
 
-function toggleSearch() {
-  showOptionsSearch.value = !showOptionsSearch.value;
-}
-
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
 function handleSearchInput(input: string) {
   clearTimeout(timeoutID);
@@ -262,32 +255,41 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
   expanded: true,
   selectable: false,
 }));
+
+function countAllNodes(nodes: ITreeNode[]): number {
+  return nodes.reduce(
+    (sum, node) => sum + 1 + countAllNodes(node.children ?? []),
+    0
+  );
+}
+
+function hasAnyChildren(nodes: ITreeNode[]): boolean {
+  return nodes.some((node) => (node.children?.length ?? 0) > 0);
+}
+
+const showSearch = computed(
+  () => countAllNodes(props.nodes) > 25 || hasAnyChildren(props.nodes)
+);
 </script>
 
 <template>
-  <ButtonText
-    :id="`${id}-tree-search-button-toggle`"
-    icon="Search"
-    @click="toggleSearch"
-    :aria-controls="`${id}-tree-search-input-container`"
-    :aria-expanded="showOptionsSearch"
-    :class="inverted ? 'text-title-contrast' : 'text-title'"
-  >
-    <span :class="inverted ? 'text-title-contrast' : 'text-title'"
-      >Search for options</span
+  <div v-if="showSearch" :id="`${id}-tree-search-input-container`">
+    <label :for="`${id}-tree-search-input`" class="sr-only"
+      >Search options</label
     >
-  </ButtonText>
-  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
-    <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
     <InputSearch
       :id="`${id}-tree-search-input`"
       :modelValue="optionsSearch"
       @update:modelValue="handleSearchInput"
-      placeholder="Type to search in options..."
+      placeholder="Search..."
       :describedby="`${id}-tree-search-input-message`"
     />
     <div :id="`${id}-tree-search-input-message`">
-      <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+      <span
+        v-if="
+          optionsSearch && rootNodes.filter((node) => node.visible).length === 0
+        "
+      >
         no results found
       </span>
     </div>
