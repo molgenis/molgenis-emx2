@@ -26,21 +26,6 @@ public class WorkersApi {
     this.workerService = workerService;
   }
 
-  /**
-   * POST /api/hpc/workers/register
-   *
-   * <p>Request body:
-   *
-   * <pre>
-   * {
-   *   "worker_id": "hpc-cluster-01",
-   *   "hostname": "login-node.cluster.local",
-   *   "capabilities": [
-   *     {"processor": "text-embedding", "profile": "gpu-medium", "max_concurrent_jobs": 4}
-   *   ]
-   * }
-   * </pre>
-   */
   @SuppressWarnings("unchecked")
   public void register(Context ctx) throws JsonProcessingException {
     String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
@@ -68,10 +53,9 @@ public class WorkersApi {
     response.put(
         LINKS,
         Map.of(
-            "self", Map.of("href", "/api/hpc/workers/" + workerId, "method", "GET"),
-            "heartbeat",
-                Map.of("href", "/api/hpc/workers/" + workerId + "/heartbeat", "method", "POST"),
-            "jobs", Map.of("href", "/api/hpc/jobs?status=PENDING", "method", "GET")));
+            "self", Map.of("href", WORKERS_PATH + workerId, METHOD, "GET"),
+            "heartbeat", Map.of("href", WORKERS_PATH + workerId + "/heartbeat", METHOD, "POST"),
+            "jobs", Map.of("href", "/api/hpc/jobs?status=PENDING", METHOD, "GET")));
 
     ctx.status(200);
     ctx.json(response);
@@ -80,14 +64,14 @@ public class WorkersApi {
   /** DELETE /api/hpc/workers/{id} — remove a worker, capabilities, and credentials. */
   public void deleteWorker(Context ctx) {
     String workerId = ctx.pathParam(ID);
-    if (workerId == null || workerId.isBlank()) {
+    if (workerId.isBlank()) {
       throw HpcException.badRequest("worker id is required", ctx.header(HpcHeaders.REQUEST_ID));
     }
 
     Row deleted = workerService.deleteWorker(workerId);
     if (deleted == null) {
       throw HpcException.notFound(
-          "Worker " + workerId + " not found", ctx.header(HpcHeaders.REQUEST_ID));
+          "Worker " + workerId + NOT_FOUND_SUFFIX, ctx.header(HpcHeaders.REQUEST_ID));
     }
     ctx.status(204);
   }

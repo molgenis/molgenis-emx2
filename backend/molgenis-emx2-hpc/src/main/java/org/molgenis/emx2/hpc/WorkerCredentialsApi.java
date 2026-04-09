@@ -54,23 +54,13 @@ public class WorkerCredentialsApi {
     response.put(CREATED_AT, issued.createdAt());
     response.put(EXPIRES_AT, issued.expiresAt());
     response.put("secret", issued.secret());
+    String credPath = WORKERS_PATH + workerId + CREDENTIALS_PATH;
     response.put(
         LINKS,
         Map.of(
-            "self",
-            Map.of(
-                "href",
-                "/api/hpc/workers/" + workerId + "/credentials/" + issued.id(),
-                "method",
-                "GET"),
-            "list",
-            Map.of("href", "/api/hpc/workers/" + workerId + "/credentials", "method", "GET"),
-            "revoke",
-            Map.of(
-                "href",
-                "/api/hpc/workers/" + workerId + "/credentials/" + issued.id() + "/revoke",
-                "method",
-                "POST")));
+            "self", Map.of("href", credPath + "/" + issued.id(), METHOD, "GET"),
+            "list", Map.of("href", credPath, METHOD, "GET"),
+            "revoke", Map.of("href", credPath + "/" + issued.id() + "/revoke", METHOD, "POST")));
     ctx.status(201);
     ctx.json(response);
   }
@@ -106,9 +96,7 @@ public class WorkerCredentialsApi {
     response.put("secret", issued.secret());
     response.put(
         LINKS,
-        Map.of(
-            "list",
-            Map.of("href", "/api/hpc/workers/" + workerId + "/credentials", "method", "GET")));
+        Map.of("list", Map.of("href", WORKERS_PATH + workerId + CREDENTIALS_PATH, METHOD, "GET")));
     ctx.status(200);
     ctx.json(response);
   }
@@ -123,7 +111,8 @@ public class WorkerCredentialsApi {
     Row revoked = credentialService.revokeCredential(workerId, credentialId);
     if (revoked == null) {
       throw HpcException.notFound(
-          "Credential " + credentialId + " for worker " + workerId + " not found", requestId(ctx));
+          "Credential " + credentialId + " for worker " + workerId + NOT_FOUND_SUFFIX,
+          requestId(ctx));
     }
     ctx.status(200);
     ctx.json(WorkerCredentialService.toMetadata(revoked));
@@ -140,9 +129,7 @@ public class WorkerCredentialsApi {
     response.put("count", items.size());
     response.put(
         LINKS,
-        Map.of(
-            "self",
-            Map.of("href", "/api/hpc/workers/" + workerId + "/credentials", "method", "GET")));
+        Map.of("self", Map.of("href", WORKERS_PATH + workerId + CREDENTIALS_PATH, METHOD, "GET")));
     ctx.status(200);
     ctx.json(response);
   }

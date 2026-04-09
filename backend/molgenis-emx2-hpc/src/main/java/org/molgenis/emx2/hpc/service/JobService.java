@@ -289,20 +289,7 @@ public class JobService {
 
           // Same-state transition: idempotent retry detection or progress update
           if (currentStatus == targetStatus) {
-            if (isIdenticalTransitionRecorded(schema, jobId, targetStatus, params)) {
-              logger.debug(
-                  "Idempotent duplicate transition for job={} status={}", jobId, targetStatus);
-              return job;
-            }
-            if ((params.detail() != null && !params.detail().isBlank())
-                || params.phase() != null
-                || params.message() != null
-                || params.progress() != null) {
-              applyProgressSnapshot(job, params);
-              jobsTable.update(job);
-              recordTransition(schema, jobId, currentStatus, targetStatus, params);
-            }
-            return job;
+            return handleSameStateTransition(schema, jobId, job, jobsTable, targetStatus, params);
           }
 
           // Validate transition
@@ -313,30 +300,7 @@ public class JobService {
           }
 
           // Apply transition
-          job.set(STATUS, targetStatus.name());
-          if (params.workerId() != null) {
-            job.set(WORKER_ID, params.workerId());
-          }
-          if (params.slurmJobId() != null) {
-            job.set(SLURM_JOB_ID, params.slurmJobId());
-          }
-          if (params.outputArtifactId() != null) {
-            job.set(OUTPUT_ARTIFACT_ID, params.outputArtifactId());
-          }
-          if (params.logArtifactId() != null) {
-            job.set(LOG_ARTIFACT_ID, params.logArtifactId());
-          }
-          applyProgressSnapshot(job, params);
-
-          // Set timestamp fields based on target status
-          LocalDateTime now = LocalDateTime.now();
-          switch (targetStatus) {
-            case SUBMITTED -> job.set(SUBMITTED_AT, now);
-            case STARTED -> job.set(STARTED_AT, now);
-            case COMPLETED, FAILED, CANCELLED -> job.set(COMPLETED_AT, now);
-            default -> {}
-          }
-
+          applyTransitionFields(job, targetStatus, params);
           jobsTable.update(job);
           recordTransition(schema, jobId, currentStatus, targetStatus, params);
           logger.info(
@@ -363,6 +327,58 @@ public class JobService {
     }
 
     return assignedWorkerId.equals(workerId);
+  }
+
+  private static Row handleSameStateTransition(
+      Schema schema,
+      String jobId,
+      Row job,
+      Table jobsTable,
+      HpcJobStatus targetStatus,
+      TransitionParams params) {
+    if (isIdenticalTransitionRecorded(schema, jobId, targetStatus, params)) {
+      logger.debug("Idempotent duplicate transition for job={} status={}", jobId, targetStatus);
+      return job;
+    }
+    boolean hasProgressData =
+        (params.detail() != null && !params.detail().isBlank())
+            || params.phase() != null
+            || params.message() != null
+            || params.progress() != null;
+    if (hasProgressData) {
+      applyProgressSnapshot(job, params);
+      jobsTable.update(job);
+      recordTransition(schema, jobId, targetStatus, targetStatus, params);
+    }
+    return job;
+  }
+
+  private static void applyTransitionFields(
+      Row job, HpcJobStatus targetStatus, TransitionParams params) {
+    job.set(STATUS, targetStatus.name());
+    if (params.workerId() != null) {
+      job.set(WORKER_ID, params.workerId());
+    }
+    if (params.slurmJobId() != null) {
+      job.set(SLURM_JOB_ID, params.slurmJobId());
+    }
+    if (params.outputArtifactId() != null) {
+      job.set(OUTPUT_ARTIFACT_ID, params.outputArtifactId());
+    }
+    if (params.logArtifactId() != null) {
+      job.set(LOG_ARTIFACT_ID, params.logArtifactId());
+    }
+    applyProgressSnapshot(job, params);
+
+    LocalDateTime now = LocalDateTime.now();
+    switch (targetStatus) {
+      case SUBMITTED -> job.set(SUBMITTED_AT, now);
+      case STARTED -> job.set(STARTED_AT, now);
+      case COMPLETED, FAILED, CANCELLED -> job.set(COMPLETED_AT, now);
+      default -> {
+        // PENDING/CLAIMED don't set additional timestamps
+      }
+    }
   }
 
   /**
@@ -570,29 +586,39 @@ public class JobService {
         return ids;
       }
       if (node.isArray()) {
-        for (JsonNode element : node) {
-          if (element.isTextual()) {
-            ids.add(element.asText());
-          } else if (element.isObject() && element.has(ARTIFACT_ID)) {
-            ids.add(element.get(ARTIFACT_ID).asText());
-          }
-        }
+        extractFromArray(node, ids);
       } else if (node.isObject()) {
-        node.fields()
-            .forEachRemaining(
-                entry -> {
-                  if (entry.getValue().isTextual()) {
-                    ids.add(entry.getValue().asText());
-                  }
-                });
+        extractFromObject(node, ids);
       }
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
+      String typeName = inputsValue != null ? inputsValue.getClass().getSimpleName() : "null";
       logger.warn(
           "Could not parse inputs JSON for artifact validation (type={}): {}",
-          inputsValue != null ? inputsValue.getClass().getSimpleName() : "null",
+          typeName,
           e.getMessage());
     }
     return ids;
+  }
+
+  private static void extractFromArray(JsonNode arrayNode, List<String> ids) {
+    for (JsonNode element : arrayNode) {
+      if (element.isTextual()) {
+        ids.add(element.asText());
+      } else if (element.isObject() && element.has(ARTIFACT_ID)) {
+        ids.add(element.get(ARTIFACT_ID).asText());
+      }
+    }
+  }
+
+  private static void extractFromObject(JsonNode objectNode, List<String> ids) {
+    objectNode
+        .fields()
+        .forEachRemaining(
+            entry -> {
+              if (entry.getValue().isTextual()) {
+                ids.add(entry.getValue().asText());
+              }
+            });
   }
 
   private static JsonNode toJsonNode(Object value) throws IllegalArgumentException {

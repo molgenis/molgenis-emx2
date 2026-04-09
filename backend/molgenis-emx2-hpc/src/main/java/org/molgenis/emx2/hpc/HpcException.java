@@ -22,6 +22,13 @@ public class HpcException extends RuntimeException {
     this.requestId = requestId;
   }
 
+  public HpcException(int status, String title, String detail, String requestId, Throwable cause) {
+    super(detail, cause);
+    this.status = status;
+    this.title = title;
+    this.requestId = requestId;
+  }
+
   public int getStatus() {
     return status;
   }
@@ -55,6 +62,10 @@ public class HpcException extends RuntimeException {
     return new HpcException(401, "Unauthorized", detail, requestId);
   }
 
+  public static HpcException unauthorized(String detail, String requestId, Throwable cause) {
+    return new HpcException(401, "Unauthorized", detail, requestId, cause);
+  }
+
   public static HpcException forbidden(String detail, String requestId) {
     return new HpcException(403, "Forbidden", detail, requestId);
   }
@@ -77,5 +88,9 @@ public class HpcException extends RuntimeException {
 
   public static HpcException serviceUnavailable(String detail, String requestId) {
     return new HpcException(503, "Service Unavailable", detail, requestId);
+  }
+
+  public static HpcException serviceUnavailable(String detail, String requestId, Throwable cause) {
+    return new HpcException(503, "Service Unavailable", detail, requestId, cause);
   }
 }

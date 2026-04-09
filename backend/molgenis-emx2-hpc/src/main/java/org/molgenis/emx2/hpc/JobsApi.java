@@ -81,7 +81,7 @@ public class JobsApi {
     InputValidator.requireUuid(jobId, ID);
     Row job = jobService.getJob(jobId);
     if (job == null) {
-      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     ctx.json(mapper.jobToResponse(job));
   }
@@ -151,7 +151,7 @@ public class JobsApi {
     // NOT_PENDING: either not found or already claimed
     Row existing = jobService.getJob(jobId);
     if (existing == null) {
-      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     throw HpcException.conflict(
         "Job " + jobId + " is not in PENDING status (current: " + existing.getString(STATUS) + ")",
@@ -187,7 +187,7 @@ public class JobsApi {
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
-        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+        throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
       }
       throw HpcException.conflict(
           "Cannot transition job "
@@ -241,7 +241,7 @@ public class JobsApi {
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
-        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+        throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
       }
       throw HpcException.conflict(
           "Cannot complete job "
@@ -263,7 +263,7 @@ public class JobsApi {
     InputValidator.requireUuid(jobId, ID);
     Row existing = jobService.getJob(jobId);
     if (existing == null) {
-      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     requireSubmitterOrManager(ctx, existing, "cancel");
 
@@ -291,14 +291,14 @@ public class JobsApi {
     InputValidator.requireUuid(jobId, ID);
     Row existing = jobService.getJob(jobId);
     if (existing == null) {
-      throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+      throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
     }
     requireSubmitterOrManager(ctx, existing, "delete");
 
     try {
       Row deleted = jobService.deleteJob(jobId);
       if (deleted == null) {
-        throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
+        throw HpcException.notFound("Job " + jobId + NOT_FOUND_SUFFIX, requestId(ctx));
       }
     } catch (MolgenisException e) {
       throw HpcException.conflict(e.getMessage(), requestId(ctx));
