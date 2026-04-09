@@ -107,7 +107,7 @@ class HpcAuth {
     } catch (MolgenisException e) {
       logger.warn(
           "HPC JWT auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip(), e);
-      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID), e);
     }
   }
 
@@ -156,10 +156,10 @@ class HpcAuth {
       workerCredentialService.markCredentialUsed(credential.id());
     } catch (IllegalStateException e) {
       logger.warn("HPC HMAC auth unavailable: {}", e.getMessage(), e);
-      throw HpcException.serviceUnavailable(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      throw HpcException.serviceUnavailable(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID), e);
     } catch (SecurityException e) {
       logger.warn("HPC auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip(), e);
-      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
+      throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID), e);
     }
   }
 

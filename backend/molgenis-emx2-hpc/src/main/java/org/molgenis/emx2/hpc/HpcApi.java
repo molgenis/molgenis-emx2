@@ -126,43 +126,47 @@ public class HpcApi {
             throw HpcException.badRequest(e.getMessage(), null);
           }
 
-          // Authentication: try HMAC first, then JWT token, then session cookie, then reject
-          String authHeader = ctx.header("Authorization");
-          String tokenHeader = ctx.header("x-molgenis-token");
-          if (authHeader != null && !authHeader.isBlank()) {
-            // Worker HMAC authentication using per-worker credentials.
-            verifyHmac(ctx, hpc.workerCredentialService());
-            ctx.attribute(HPC_AUTH_METHOD_ATTR, "HMAC");
-          } else if (tokenHeader != null && !tokenHeader.isBlank()) {
-            // JWT token authentication
-            String user = verifyToken(ctx, database, tokenHeader);
-            ctx.attribute(HPC_AUTH_METHOD_ATTR, "USER");
-            ctx.attribute(HPC_AUTH_USER_ATTR, user);
-          } else {
-            // Session-based authentication (browser UI)
-            String sessionUser = null;
-            jakarta.servlet.http.HttpSession session = ctx.req().getSession(false);
-            if (session != null) {
-              sessionUser = (String) session.getAttribute("username");
-            }
-            if (sessionUser == null || sessionUser.isBlank()) {
-              throw HpcException.unauthorized(
-                  "Missing authentication: provide Authorization (HMAC), x-molgenis-token, or"
-                      + " sign in",
-                  ctx.header(HpcHeaders.REQUEST_ID));
-            }
-            ctx.attribute(HPC_AUTH_METHOD_ATTR, "USER");
-            ctx.attribute(HPC_AUTH_USER_ATTR, sessionUser);
-            logger.debug("HPC session auth: user '{}'", sessionUser);
-          }
-
-          // Resolve effective privilege for user-authenticated requests
-          if ("USER".equals(ctx.attribute(HPC_AUTH_METHOD_ATTR))) {
-            String username = ctx.attribute(HPC_AUTH_USER_ATTR);
-            Privileges privilege = resolveEffectivePrivilege(database, username);
-            ctx.attribute(HPC_PRIVILEGE_ATTR, privilege);
-          }
+          // Authentication and privilege resolution
+          authenticateRequest(ctx, hpc, database);
         });
+  }
+
+  private static void authenticateRequest(
+      io.javalin.http.Context ctx, HpcContext hpc, SqlDatabase database) {
+    String authHeader = ctx.header("Authorization");
+    String tokenHeader = ctx.header("x-molgenis-token");
+    if (authHeader != null && !authHeader.isBlank()) {
+      verifyHmac(ctx, hpc.workerCredentialService());
+      ctx.attribute(HPC_AUTH_METHOD_ATTR, "HMAC");
+    } else if (tokenHeader != null && !tokenHeader.isBlank()) {
+      String user = verifyToken(ctx, database, tokenHeader);
+      ctx.attribute(HPC_AUTH_METHOD_ATTR, "USER");
+      ctx.attribute(HPC_AUTH_USER_ATTR, user);
+    } else {
+      authenticateViaSession(ctx);
+    }
+
+    if ("USER".equals(ctx.attribute(HPC_AUTH_METHOD_ATTR))) {
+      String username = ctx.attribute(HPC_AUTH_USER_ATTR);
+      Privileges privilege = resolveEffectivePrivilege(database, username);
+      ctx.attribute(HPC_PRIVILEGE_ATTR, privilege);
+    }
+  }
+
+  private static void authenticateViaSession(io.javalin.http.Context ctx) {
+    String sessionUser = null;
+    jakarta.servlet.http.HttpSession session = ctx.req().getSession(false);
+    if (session != null) {
+      sessionUser = (String) session.getAttribute("username");
+    }
+    if (sessionUser == null || sessionUser.isBlank()) {
+      throw HpcException.unauthorized(
+          "Missing authentication: provide Authorization (HMAC), x-molgenis-token, or sign in",
+          ctx.header(HpcHeaders.REQUEST_ID));
+    }
+    ctx.attribute(HPC_AUTH_METHOD_ATTR, "USER");
+    ctx.attribute(HPC_AUTH_USER_ATTR, sessionUser);
+    logger.debug("HPC session auth: user '{}'", sessionUser);
   }
 
   private static void registerWorkerRoutes(Javalin app) {

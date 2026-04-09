@@ -177,54 +177,63 @@ public class WorkerCredentialService {
     requireWorkerId(workerId);
     try {
       AuthenticatedCredential credential =
-          tx.txResult(
-              db -> {
-                Table table = credentialsTable(db);
-                LocalDateTime now = LocalDateTime.now();
-                expireOverdueCredentials(table, workerId, now);
-
-                List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
-                Row active = null;
-                for (Row row : rows) {
-                  if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
-                    continue;
-                  }
-                  if (active == null) {
-                    active = row;
-                    continue;
-                  }
-                  LocalDateTime activeTs = DateTimeUtil.parse(active.getString(CREATED_AT));
-                  LocalDateTime rowTs = DateTimeUtil.parse(row.getString(CREATED_AT));
-                  if (rowTs != null && (activeTs == null || rowTs.isAfter(activeTs))) {
-                    active = row;
-                  }
-                }
-                if (active == null) {
-                  return null;
-                }
-
-                String keyMaterial = requireCredentialsKey(db);
-                String encrypted = active.getString(SECRET_ENCRYPTED);
-                String secret = decrypt(encrypted, keyMaterial);
-                return new AuthenticatedCredential(active.getString(ID), secret);
-              });
+          tx.txResult(db -> resolveCredentialInTransaction(db, workerId));
       if (credential == null) {
         throw new SecurityException("No active credential for worker " + workerId);
       }
       return credential;
     } catch (RuntimeException e) {
-      Throwable root = e;
-      while (root.getCause() != null) {
-        root = root.getCause();
-      }
-      if (root instanceof SecurityException securityException) {
-        throw securityException;
-      }
-      if (root instanceof IllegalStateException illegalStateException) {
-        throw illegalStateException;
-      }
-      throw e;
+      throw unwrapKnownException(e);
     }
+  }
+
+  private AuthenticatedCredential resolveCredentialInTransaction(
+      org.molgenis.emx2.Database db, String workerId) {
+    Table table = credentialsTable(db);
+    expireOverdueCredentials(table, workerId, LocalDateTime.now());
+
+    List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
+    Row active = findMostRecentActive(rows);
+    if (active == null) {
+      return null;
+    }
+
+    String keyMaterial = requireCredentialsKey(db);
+    String secret = decrypt(active.getString(SECRET_ENCRYPTED), keyMaterial);
+    return new AuthenticatedCredential(active.getString(ID), secret);
+  }
+
+  private static Row findMostRecentActive(List<Row> rows) {
+    Row active = null;
+    for (Row row : rows) {
+      if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
+        continue;
+      }
+      if (active == null) {
+        active = row;
+        continue;
+      }
+      LocalDateTime activeTs = DateTimeUtil.parse(active.getString(CREATED_AT));
+      LocalDateTime rowTs = DateTimeUtil.parse(row.getString(CREATED_AT));
+      if (rowTs != null && (activeTs == null || rowTs.isAfter(activeTs))) {
+        active = row;
+      }
+    }
+    return active;
+  }
+
+  private static RuntimeException unwrapKnownException(RuntimeException e) {
+    Throwable root = e;
+    while (root.getCause() != null) {
+      root = root.getCause();
+    }
+    if (root instanceof SecurityException securityException) {
+      throw securityException;
+    }
+    if (root instanceof IllegalStateException illegalStateException) {
+      throw illegalStateException;
+    }
+    throw e;
   }
 
   /** Touches credential usage metadata on successful authentication. */

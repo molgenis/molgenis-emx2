@@ -42,9 +42,11 @@ public class ArtifactService {
 
   private static final Logger logger = LoggerFactory.getLogger(ArtifactService.class);
 
+  private static final String CONTENT = "content";
+
   /** Explicit FILE column selection to load binary data. */
   private static final SelectColumn FILE_CONTENT_SELECT =
-      s("content", s("contents"), s("mimetype"), s("filename"));
+      s(CONTENT, s("contents"), s("mimetype"), s("filename"));
 
   private final TxHelper tx;
   private final String systemSchemaName;
@@ -184,7 +186,7 @@ public class ArtifactService {
       byte[] hash = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
       return HexFormat.of().formatHex(hash);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("SHA-256 not available", e);
+      throw new IllegalStateException("SHA-256 not available", e);
     }
   }
 
@@ -383,7 +385,7 @@ public class ArtifactService {
             fileRow.set(SIZE_BYTES, sizeBytes);
             fileRow.set(CONTENT_TYPE, contentType);
             if (content != null) {
-              fileRow.set("content", content);
+              fileRow.set(CONTENT, content);
             }
             filesTable.update(fileRow);
             return fileRow.getString(ID);
@@ -399,7 +401,7 @@ public class ArtifactService {
                     SIZE_BYTES, sizeBytes,
                     CONTENT_TYPE, contentType);
             if (content != null) {
-              fileRow.set("content", content);
+              fileRow.set(CONTENT, content);
             }
             filesTable.insert(fileRow);
             return newId;

@@ -69,5 +69,13 @@ public final class HpcFields {
   // --- JSON response keys ---
   public static final String LINKS = "_links";
 
+  // --- Common message fragments ---
+  public static final String NOT_FOUND_SUFFIX = " not found";
+
+  // --- HATEOAS link building ---
+  public static final String METHOD = "method";
+  public static final String WORKERS_PATH = "/api/hpc/workers/";
+  public static final String CREDENTIALS_PATH = "/credentials";
+
   private HpcFields() {}
 }
