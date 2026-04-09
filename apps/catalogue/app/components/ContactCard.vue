@@ -40,6 +40,9 @@ defineProps<{
         class="text-link block hover:underline"
         v-if="contact?.email"
         :href="`mailto:${contact?.email}`"
+        data-track-category="CTA"
+        data-track-action="click"
+        data-track-name="contact-card-link"
       >
         {{ contact?.email }}
       </a>

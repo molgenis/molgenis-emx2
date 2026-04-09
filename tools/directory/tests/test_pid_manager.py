@@ -3,18 +3,18 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from molgenis_emx2.directory_client.model import Table, TableType
-from molgenis_emx2.directory_client.pid_manager import (
+from src.molgenis_emx2.directory_client.model import Table, TableType
+from src.molgenis_emx2.directory_client.pid_manager import (
     NoOpPidManager,
     PidManager,
     PidManagerFactory,
 )
-from molgenis_emx2.directory_client.pid_service import (
+from src.molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
     NoOpPidService,
     Status,
 )
-from molgenis_emx2.directory_client.printer import Printer
+from src.molgenis_emx2.directory_client.printer import Printer
 
 
 @pytest.fixture

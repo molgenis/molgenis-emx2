@@ -16,7 +16,7 @@ public class RdfConfig {
   private final WriterFactory writerFactory = WriterFactory.STREAM;
 
   @JsonProperty("generator")
-  private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.EMX2;
+  private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.SEMANTIC;
 
   private RdfConfig() {}
 

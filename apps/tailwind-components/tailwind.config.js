@@ -89,6 +89,7 @@ module.exports = {
     extend: {
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
+        "no-background-modal": "var(--box-shadow-no-background-modal)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
@@ -307,6 +308,7 @@ module.exports = {
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
+        border: "var(--border-color-input)",
         "input-description": "var(--text-color-input-description)",
 
         required: "var(--text-color-required)",
