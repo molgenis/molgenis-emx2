@@ -195,7 +195,7 @@ export function assertMenu(menu: unknown): asserts menu is Menu {
       );
     }
     if (item.submenu) {
-      item.submenu.forEach(assertMenu);
+      assertMenu(item.submenu);
     }
   });
 }
