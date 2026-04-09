@@ -1,5 +1,6 @@
 package org.molgenis.emx2.hpc;
 
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import io.javalin.http.Context;
@@ -21,12 +22,6 @@ import org.molgenis.emx2.hpc.service.ArtifactService;
  */
 class JobResponseMapper {
 
-  private static final String STATUS = "status";
-  private static final String SUBMIT_USER = "submit_user";
-  private static final String PARAMETERS = "parameters";
-  private static final String INPUTS = "inputs";
-  private static final String PROCESSOR = "processor";
-
   private static final int MAX_PROGRESS_PHASE_LENGTH = 100;
   private static final int MAX_PROGRESS_MESSAGE_LENGTH = 500;
 
@@ -39,12 +34,12 @@ class JobResponseMapper {
   /** Build a full JSON-ready response map for a job row, including enriched artifact refs. */
   Map<String, Object> jobToResponse(Row job) {
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", job.getString("id"));
+    response.put(ID, job.getString(ID));
     response.put(PROCESSOR, job.getString(PROCESSOR));
-    response.put("profile", job.getString("profile"));
+    response.put(PROFILE, job.getString(PROFILE));
     response.put(STATUS, job.getString(STATUS));
-    response.put("worker_id", job.getString("worker_id"));
-    response.put("slurm_job_id", job.getString("slurm_job_id"));
+    response.put(WORKER_ID, job.getString(WORKER_ID));
+    response.put(SLURM_JOB_ID, job.getString(SLURM_JOB_ID));
     response.put(SUBMIT_USER, job.getString(SUBMIT_USER));
 
     JSONB parametersJson = job.getJsonb(PARAMETERS);
@@ -60,27 +55,27 @@ class JobResponseMapper {
     }
 
     // Enrich output artifact
-    String outputArtifactId = job.getString("output_artifact_id");
+    String outputArtifactId = job.getString(OUTPUT_ARTIFACT_ID);
     if (outputArtifactId != null) {
       response.put("output_artifact", enrichArtifactRef(outputArtifactId));
     }
-    response.put("output_artifact_id", outputArtifactId);
+    response.put(OUTPUT_ARTIFACT_ID, outputArtifactId);
 
     // Enrich log artifact
-    String logArtifactId = job.getString("log_artifact_id");
+    String logArtifactId = job.getString(LOG_ARTIFACT_ID);
     if (logArtifactId != null) {
       response.put("log_artifact", enrichArtifactRef(logArtifactId));
     }
-    response.put("log_artifact_id", logArtifactId);
-    response.put("timeout_seconds", job.getInteger("timeout_seconds"));
-    response.put("created_at", job.getString("created_at"));
-    response.put("claimed_at", job.getString("claimed_at"));
-    response.put("submitted_at", job.getString("submitted_at"));
-    response.put("started_at", job.getString("started_at"));
-    response.put("completed_at", job.getString("completed_at"));
-    response.put("phase", job.getString("phase"));
-    response.put("message", job.getString("message"));
-    response.put("progress", job.getDecimal("progress"));
+    response.put(LOG_ARTIFACT_ID, logArtifactId);
+    response.put(TIMEOUT_SECONDS, job.getInteger(TIMEOUT_SECONDS));
+    response.put(CREATED_AT, job.getString(CREATED_AT));
+    response.put(CLAIMED_AT, job.getString(CLAIMED_AT));
+    response.put(SUBMITTED_AT, job.getString(SUBMITTED_AT));
+    response.put(STARTED_AT, job.getString(STARTED_AT));
+    response.put(COMPLETED_AT, job.getString(COMPLETED_AT));
+    response.put(PHASE, job.getString(PHASE));
+    response.put(MESSAGE, job.getString(MESSAGE));
+    response.put(PROGRESS, job.getDecimal(PROGRESS));
 
     HpcJobStatus status;
     try {
@@ -88,7 +83,7 @@ class JobResponseMapper {
     } catch (Exception e) {
       status = HpcJobStatus.PENDING;
     }
-    response.put("_links", LinkBuilder.forJob(job.getString("id"), status));
+    response.put(LINKS, LinkBuilder.forJob(job.getString(ID), status));
 
     return response;
   }
@@ -107,12 +102,12 @@ class JobResponseMapper {
   /** Enrich an artifact reference with name, type, and status from the artifact service. */
   Map<String, Object> enrichArtifactRef(String artifactId) {
     Map<String, Object> ref = new LinkedHashMap<>();
-    ref.put("id", artifactId);
+    ref.put(ID, artifactId);
     try {
       Row artifact = artifactService.getArtifact(artifactId);
       if (artifact != null) {
-        ref.put("name", artifact.getString("name"));
-        ref.put("type", artifact.getString("type"));
+        ref.put(NAME, artifact.getString(NAME));
+        ref.put(TYPE, artifact.getString(TYPE));
         ref.put(STATUS, artifact.getString(STATUS));
       }
     } catch (Exception e) {
@@ -127,15 +122,15 @@ class JobResponseMapper {
       return enrichArtifactRef(artifactId);
     }
     if (inputRef instanceof Map<?, ?> map) {
-      Object artifactIdValue = map.get("artifact_id");
+      Object artifactIdValue = map.get(ARTIFACT_ID);
       if (!(artifactIdValue instanceof String)) {
-        artifactIdValue = map.get("id");
+        artifactIdValue = map.get(ID);
       }
       if (artifactIdValue instanceof String artifactId) {
         Map<String, Object> enriched = new LinkedHashMap<>((Map<String, Object>) map);
         Map<String, Object> artifact = enrichArtifactRef(artifactId);
-        enriched.putIfAbsent("id", artifactId);
-        enriched.putIfAbsent("artifact_id", artifactId);
+        enriched.putIfAbsent(ID, artifactId);
+        enriched.putIfAbsent(ARTIFACT_ID, artifactId);
         artifact.forEach(enriched::putIfAbsent);
         return enriched;
       }

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.hpc;
 
 import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.JobResponseMapper.parseOptionalBoundedString;
 import static org.molgenis.emx2.hpc.JobResponseMapper.parseOptionalProgress;
 import static org.molgenis.emx2.hpc.JobResponseMapper.requireSubmitterOrManager;
@@ -48,27 +49,25 @@ public class JobsApi {
   @SuppressWarnings("unchecked")
   public void createJob(Context ctx) throws Exception {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String processor = (String) body.get("processor");
-    String profile = (String) body.get("profile");
+    String processor = (String) body.get(PROCESSOR);
+    String profile = (String) body.get(PROFILE);
     Object parameters =
-        body.get("parameters") != null ? MAPPER.valueToTree(body.get("parameters")) : null;
-    Object inputs = body.get("inputs") != null ? MAPPER.valueToTree(body.get("inputs")) : null;
+        body.get(PARAMETERS) != null ? MAPPER.valueToTree(body.get(PARAMETERS)) : null;
+    Object inputs = body.get(INPUTS) != null ? MAPPER.valueToTree(body.get(INPUTS)) : null;
     String submitUser =
         "USER".equals(ctx.attribute("hpcAuthMethod")) ? ctx.attribute("hpcAuthUser") : null;
     Integer timeoutSeconds =
-        body.get("timeout_seconds") != null
-            ? ((Number) body.get("timeout_seconds")).intValue()
-            : null;
+        body.get(TIMEOUT_SECONDS) != null ? ((Number) body.get(TIMEOUT_SECONDS)).intValue() : null;
 
-    InputValidator.requireString(processor, "processor");
-    InputValidator.optionalString(profile, "profile");
+    InputValidator.requireString(processor, PROCESSOR);
+    InputValidator.optionalString(profile, PROFILE);
 
     String jobId =
         jobService.createJob(processor, profile, parameters, inputs, submitUser, timeoutSeconds);
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", jobId);
-    response.put("status", HpcJobStatus.PENDING.name());
-    response.put("_links", LinkBuilder.forJob(jobId, HpcJobStatus.PENDING));
+    response.put(ID, jobId);
+    response.put(STATUS, HpcJobStatus.PENDING.name());
+    response.put(LINKS, LinkBuilder.forJob(jobId, HpcJobStatus.PENDING));
 
     ctx.status(201);
     ctx.json(response);
@@ -76,8 +75,8 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs/{id} — get job details with HATEOAS links. */
   public void getJob(Context ctx) {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
     Row job = jobService.getJob(jobId);
     if (job == null) {
       throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
@@ -87,9 +86,9 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs — list jobs with optional filtering and pagination. */
   public void listJobs(Context ctx) {
-    String status = ctx.queryParam("status");
-    String processor = ctx.queryParam("processor");
-    String profile = ctx.queryParam("profile");
+    String status = ctx.queryParam(STATUS);
+    String processor = ctx.queryParam(PROCESSOR);
+    String profile = ctx.queryParam(PROFILE);
     int limit = parseIntParam(ctx.queryParam("limit"), 100);
     int offset = parseIntParam(ctx.queryParam("offset"), 0);
 
@@ -103,7 +102,7 @@ public class JobsApi {
     response.put("total_count", totalCount);
     response.put("limit", limit);
     response.put("offset", offset);
-    response.put("_links", Map.of("self", Map.of("href", "/api/hpc/jobs", "method", "GET")));
+    response.put(LINKS, Map.of("self", Map.of("href", "/api/hpc/jobs", "method", "GET")));
 
     ctx.header("X-Total-Count", String.valueOf(totalCount));
     ctx.json(response);
@@ -115,11 +114,11 @@ public class JobsApi {
    */
   @SuppressWarnings("unchecked")
   public void claimJob(Context ctx) throws Exception {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
+    String workerId = resolveWorkerId(ctx, (String) body.get(WORKER_ID));
 
     ClaimResult result = jobService.claimJob(jobId, workerId);
     if (result.isSuccess()) {
@@ -130,8 +129,8 @@ public class JobsApi {
 
     if (result.outcome() == ClaimResult.ClaimOutcome.CAPABILITY_MISMATCH) {
       Row existing = jobService.getJob(jobId);
-      String processor = existing != null ? existing.getString("processor") : "?";
-      String profile = existing != null ? existing.getString("profile") : "?";
+      String processor = existing != null ? existing.getString(PROCESSOR) : "?";
+      String profile = existing != null ? existing.getString(PROFILE) : "?";
       throw HpcException.conflict(
           "Worker "
               + workerId
@@ -153,11 +152,7 @@ public class JobsApi {
       throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
     }
     throw HpcException.conflict(
-        "Job "
-            + jobId
-            + " is not in PENDING status (current: "
-            + existing.getString("status")
-            + ")",
+        "Job " + jobId + " is not in PENDING status (current: " + existing.getString(STATUS) + ")",
         requestId(ctx));
   }
 
@@ -169,20 +164,20 @@ public class JobsApi {
    */
   @SuppressWarnings("unchecked")
   public void transitionJob(Context ctx) throws Exception {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String targetStatusStr = (String) body.get("status");
-    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
-    String detail = (String) body.get("detail");
+    String targetStatusStr = (String) body.get(STATUS);
+    String workerId = resolveWorkerId(ctx, (String) body.get(WORKER_ID));
+    String detail = (String) body.get(DETAIL);
     String phase =
         parseOptionalBoundedString(
-            body.get("phase"), "phase", JobResponseMapper.maxProgressPhaseLength());
+            body.get(PHASE), PHASE, JobResponseMapper.maxProgressPhaseLength());
     String message =
         parseOptionalBoundedString(
-            body.get("message"), "message", JobResponseMapper.maxProgressMessageLength());
-    Double progress = parseOptionalProgress(body.get("progress"));
+            body.get(MESSAGE), MESSAGE, JobResponseMapper.maxProgressMessageLength());
+    Double progress = parseOptionalProgress(body.get(PROGRESS));
 
     if (targetStatusStr == null) {
       throw HpcException.badRequest("status is required", requestId(ctx));
@@ -195,9 +190,9 @@ public class JobsApi {
       throw HpcException.badRequest("Invalid status: " + targetStatusStr, requestId(ctx));
     }
 
-    String slurmJobId = (String) body.get("slurm_job_id");
-    String outputArtifactId = (String) body.get("output_artifact_id");
-    String logArtifactId = (String) body.get("log_artifact_id");
+    String slurmJobId = (String) body.get(SLURM_JOB_ID);
+    String outputArtifactId = (String) body.get(OUTPUT_ARTIFACT_ID);
+    String logArtifactId = (String) body.get(LOG_ARTIFACT_ID);
     Row result =
         jobService.transitionJob(
             jobId,
@@ -219,7 +214,7 @@ public class JobsApi {
           "Cannot transition job "
               + jobId
               + " from "
-              + existing.getString("status")
+              + existing.getString(STATUS)
               + " to "
               + targetStatusStr,
           requestId(ctx));
@@ -239,23 +234,23 @@ public class JobsApi {
    */
   @SuppressWarnings("unchecked")
   public void completeJob(Context ctx) throws Exception {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String targetStatusStr = (String) body.get("status");
-    String workerId = resolveWorkerId(ctx, (String) body.get("worker_id"));
-    String detail = (String) body.get("detail");
+    String targetStatusStr = (String) body.get(STATUS);
+    String workerId = resolveWorkerId(ctx, (String) body.get(WORKER_ID));
+    String detail = (String) body.get(DETAIL);
     String phase =
         parseOptionalBoundedString(
-            body.get("phase"), "phase", JobResponseMapper.maxProgressPhaseLength());
+            body.get(PHASE), PHASE, JobResponseMapper.maxProgressPhaseLength());
     String message =
         parseOptionalBoundedString(
-            body.get("message"), "message", JobResponseMapper.maxProgressMessageLength());
-    Double progress = parseOptionalProgress(body.get("progress"));
-    String slurmJobId = (String) body.get("slurm_job_id");
-    String outputArtifactId = (String) body.get("output_artifact_id");
-    String logArtifactId = (String) body.get("log_artifact_id");
+            body.get(MESSAGE), MESSAGE, JobResponseMapper.maxProgressMessageLength());
+    Double progress = parseOptionalProgress(body.get(PROGRESS));
+    String slurmJobId = (String) body.get(SLURM_JOB_ID);
+    String outputArtifactId = (String) body.get(OUTPUT_ARTIFACT_ID);
+    String logArtifactId = (String) body.get(LOG_ARTIFACT_ID);
 
     if (targetStatusStr == null) {
       throw HpcException.badRequest("status is required", requestId(ctx));
@@ -296,7 +291,7 @@ public class JobsApi {
           "Cannot complete job "
               + jobId
               + " from "
-              + existing.getString("status")
+              + existing.getString(STATUS)
               + " to "
               + targetStatusStr,
           requestId(ctx));
@@ -308,8 +303,8 @@ public class JobsApi {
 
   /** POST /api/hpc/jobs/{id}/cancel — convenience endpoint for cancellation. */
   public void cancelJob(Context ctx) {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
     Row existing = jobService.getJob(jobId);
     if (existing == null) {
       throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
@@ -332,7 +327,7 @@ public class JobsApi {
             null);
     if (result == null) {
       throw HpcException.conflict(
-          "Cannot cancel job " + jobId + " in status " + existing.getString("status"),
+          "Cannot cancel job " + jobId + " in status " + existing.getString(STATUS),
           requestId(ctx));
     }
 
@@ -345,8 +340,8 @@ public class JobsApi {
    * state; returns 409 if not.
    */
   public void deleteJob(Context ctx) {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
     Row existing = jobService.getJob(jobId);
     if (existing == null) {
       throw HpcException.notFound("Job " + jobId + " not found", requestId(ctx));
@@ -367,8 +362,8 @@ public class JobsApi {
 
   /** GET /api/hpc/jobs/{id}/transitions — audit trail. */
   public void getTransitions(Context ctx) {
-    String jobId = ctx.pathParam("id");
-    InputValidator.requireUuid(jobId, "id");
+    String jobId = ctx.pathParam(ID);
+    InputValidator.requireUuid(jobId, ID);
 
     List<Row> transitions = jobService.getTransitions(jobId);
 
@@ -377,16 +372,16 @@ public class JobsApi {
             .map(
                 t -> {
                   Map<String, Object> m = new LinkedHashMap<>();
-                  m.put("id", t.getString("id"));
-                  m.put("job_id", t.getString("job_id"));
-                  m.put("from_status", t.getString("from_status"));
-                  m.put("to_status", t.getString("to_status"));
-                  m.put("timestamp", t.getString("timestamp"));
-                  m.put("worker_id", t.getString("worker_id"));
-                  m.put("detail", t.getString("detail"));
-                  m.put("phase", t.getString("phase"));
-                  m.put("message", t.getString("message"));
-                  m.put("progress", t.getDecimal("progress"));
+                  m.put(ID, t.getString(ID));
+                  m.put(JOB_ID, t.getString(JOB_ID));
+                  m.put(FROM_STATUS, t.getString(FROM_STATUS));
+                  m.put(TO_STATUS, t.getString(TO_STATUS));
+                  m.put(TIMESTAMP, t.getString(TIMESTAMP));
+                  m.put(WORKER_ID, t.getString(WORKER_ID));
+                  m.put(DETAIL, t.getString(DETAIL));
+                  m.put(PHASE, t.getString(PHASE));
+                  m.put(MESSAGE, t.getString(MESSAGE));
+                  m.put(PROGRESS, t.getDecimal(PROGRESS));
                   return m;
                 })
             .toList();

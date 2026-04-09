@@ -3,9 +3,11 @@ package org.molgenis.emx2.hpc.service;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 
 import java.util.Arrays;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.HpcTables;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -35,7 +37,7 @@ public final class HpcSchemaInitializer {
           }
 
           // Existing deployment: apply additive schema upgrades in place.
-          if (schema.getTableNames().contains("HpcJobs")) {
+          if (schema.getTableNames().contains(HpcTables.JOBS)) {
             applySchemaUpgrades(schema);
             return;
           }
@@ -43,203 +45,206 @@ public final class HpcSchemaInitializer {
           // --- Ontology tables ---
 
           Table jobStatusTable =
-              schema.create(table("HpcJobStatus").setTableType(TableType.ONTOLOGIES));
+              schema.create(table(HpcTables.JOB_STATUS).setTableType(TableType.ONTOLOGIES));
           jobStatusTable.insert(
-              Arrays.stream(HpcJobStatus.values()).map(s -> row("name", s.name())).toList());
+              Arrays.stream(HpcJobStatus.values()).map(s -> row(NAME, s.name())).toList());
 
           Table artifactStatusTable =
-              schema.create(table("HpcArtifactStatus").setTableType(TableType.ONTOLOGIES));
+              schema.create(table(HpcTables.ARTIFACT_STATUS).setTableType(TableType.ONTOLOGIES));
           artifactStatusTable.insert(
-              Arrays.stream(ArtifactStatus.values()).map(s -> row("name", s.name())).toList());
+              Arrays.stream(ArtifactStatus.values()).map(s -> row(NAME, s.name())).toList());
 
           Table artifactResidenceTable =
-              schema.create(table("HpcArtifactResidence").setTableType(TableType.ONTOLOGIES));
+              schema.create(table(HpcTables.ARTIFACT_RESIDENCE).setTableType(TableType.ONTOLOGIES));
           artifactResidenceTable.insert(
-              row("name", "managed"),
-              row("name", "posix"),
-              row("name", "s3"),
-              row("name", "http"),
-              row("name", "reference"));
+              row(NAME, "managed"),
+              row(NAME, "posix"),
+              row(NAME, "s3"),
+              row(NAME, "http"),
+              row(NAME, "reference"));
 
           // --- Data tables ---
 
           schema.create(
               table(
-                  "HpcWorkers",
-                  column("worker_id").setPkey(),
-                  column("hostname"),
-                  column("registered_at").setType(ColumnType.DATETIME),
-                  column("last_heartbeat_at").setType(ColumnType.DATETIME)));
+                  HpcTables.WORKERS,
+                  column(WORKER_ID).setPkey(),
+                  column(HOSTNAME),
+                  column(REGISTERED_AT).setType(ColumnType.DATETIME),
+                  column(LAST_HEARTBEAT_AT).setType(ColumnType.DATETIME)));
 
           schema.create(
               table(
-                  "HpcWorkerCapabilities",
-                  column("id").setPkey(),
-                  column("worker_id")
+                  HpcTables.WORKER_CAPABILITIES,
+                  column(ID).setPkey(),
+                  column(WORKER_ID)
                       .setType(ColumnType.REF)
-                      .setRefTable("HpcWorkers")
+                      .setRefTable(HpcTables.WORKERS)
                       .setRequired(true),
-                  column("processor").setRequired(true),
-                  column("profile").setRequired(true),
-                  column("max_concurrent_jobs").setType(ColumnType.INT)));
+                  column(PROCESSOR).setRequired(true),
+                  column(PROFILE).setRequired(true),
+                  column(MAX_CONCURRENT_JOBS).setType(ColumnType.INT)));
 
           createCredentialStatusOntologyIfMissing(schema);
           createWorkerCredentialsTableIfMissing(schema);
 
           schema.create(
               table(
-                  "HpcJobs",
-                  column("id").setPkey(),
-                  column("processor").setRequired(true),
-                  column("profile"),
-                  column("parameters").setType(ColumnType.JSON),
-                  column("status")
+                  HpcTables.JOBS,
+                  column(ID).setPkey(),
+                  column(PROCESSOR).setRequired(true),
+                  column(PROFILE),
+                  column(PARAMETERS).setType(ColumnType.JSON),
+                  column(STATUS)
                       .setType(ColumnType.ONTOLOGY)
-                      .setRefTable("HpcJobStatus")
+                      .setRefTable(HpcTables.JOB_STATUS)
                       .setRequired(true),
-                  column("worker_id").setType(ColumnType.REF).setRefTable("HpcWorkers"),
-                  column("inputs").setType(ColumnType.JSON),
-                  column("slurm_job_id"),
-                  column("submit_user"),
-                  column("created_at").setType(ColumnType.DATETIME),
-                  column("claimed_at").setType(ColumnType.DATETIME),
-                  column("submitted_at").setType(ColumnType.DATETIME),
-                  column("started_at").setType(ColumnType.DATETIME),
-                  column("completed_at").setType(ColumnType.DATETIME),
-                  column("phase"),
-                  column("message").setType(ColumnType.TEXT),
-                  column("progress").setType(ColumnType.DECIMAL),
-                  column("timeout_seconds").setType(ColumnType.INT)));
+                  column(WORKER_ID).setType(ColumnType.REF).setRefTable(HpcTables.WORKERS),
+                  column(INPUTS).setType(ColumnType.JSON),
+                  column(SLURM_JOB_ID),
+                  column(SUBMIT_USER),
+                  column(CREATED_AT).setType(ColumnType.DATETIME),
+                  column(CLAIMED_AT).setType(ColumnType.DATETIME),
+                  column(SUBMITTED_AT).setType(ColumnType.DATETIME),
+                  column(STARTED_AT).setType(ColumnType.DATETIME),
+                  column(COMPLETED_AT).setType(ColumnType.DATETIME),
+                  column(PHASE),
+                  column(MESSAGE).setType(ColumnType.TEXT),
+                  column(PROGRESS).setType(ColumnType.DECIMAL),
+                  column(TIMEOUT_SECONDS).setType(ColumnType.INT)));
 
           schema.create(
               table(
-                  "HpcJobTransitions",
-                  column("id").setPkey(),
-                  column("job_id").setType(ColumnType.REF).setRefTable("HpcJobs").setRequired(true),
-                  column("from_status"),
-                  column("to_status").setRequired(true),
-                  column("timestamp").setType(ColumnType.DATETIME).setRequired(true),
-                  column("worker_id"),
-                  column("detail").setType(ColumnType.TEXT),
-                  column("phase"),
-                  column("message").setType(ColumnType.TEXT),
-                  column("progress").setType(ColumnType.DECIMAL)));
-
-          schema.create(
-              table(
-                  "HpcArtifacts",
-                  column("id").setPkey(),
-                  column("name"),
-                  column("type"),
-                  column("residence")
-                      .setType(ColumnType.ONTOLOGY)
-                      .setRefTable("HpcArtifactResidence"),
-                  column("status")
-                      .setType(ColumnType.ONTOLOGY)
-                      .setRefTable("HpcArtifactStatus")
-                      .setRequired(true),
-                  column("sha256"),
-                  column("size_bytes").setType(ColumnType.LONG),
-                  column("content_url"),
-                  column("metadata").setType(ColumnType.JSON),
-                  column("schema_info").setType(ColumnType.JSON),
-                  column("created_at").setType(ColumnType.DATETIME),
-                  column("committed_at").setType(ColumnType.DATETIME)));
-
-          schema.create(
-              table(
-                  "HpcArtifactFiles",
-                  column("id").setPkey(),
-                  column("artifact_id")
+                  HpcTables.JOB_TRANSITIONS,
+                  column(ID).setPkey(),
+                  column(JOB_ID)
                       .setType(ColumnType.REF)
-                      .setRefTable("HpcArtifacts")
+                      .setRefTable(HpcTables.JOBS)
                       .setRequired(true),
-                  column("path").setRequired(true),
-                  column("sha256"),
-                  column("size_bytes").setType(ColumnType.LONG),
+                  column(FROM_STATUS),
+                  column(TO_STATUS).setRequired(true),
+                  column(TIMESTAMP).setType(ColumnType.DATETIME).setRequired(true),
+                  column(WORKER_ID),
+                  column(DETAIL).setType(ColumnType.TEXT),
+                  column(PHASE),
+                  column(MESSAGE).setType(ColumnType.TEXT),
+                  column(PROGRESS).setType(ColumnType.DECIMAL)));
+
+          schema.create(
+              table(
+                  HpcTables.ARTIFACTS,
+                  column(ID).setPkey(),
+                  column(NAME),
+                  column(TYPE),
+                  column(RESIDENCE)
+                      .setType(ColumnType.ONTOLOGY)
+                      .setRefTable(HpcTables.ARTIFACT_RESIDENCE),
+                  column(STATUS)
+                      .setType(ColumnType.ONTOLOGY)
+                      .setRefTable(HpcTables.ARTIFACT_STATUS)
+                      .setRequired(true),
+                  column(SHA256),
+                  column(SIZE_BYTES).setType(ColumnType.LONG),
+                  column(CONTENT_URL),
+                  column(METADATA).setType(ColumnType.JSON),
+                  column("schema_info").setType(ColumnType.JSON),
+                  column(CREATED_AT).setType(ColumnType.DATETIME),
+                  column(COMMITTED_AT).setType(ColumnType.DATETIME)));
+
+          schema.create(
+              table(
+                  HpcTables.ARTIFACT_FILES,
+                  column(ID).setPkey(),
+                  column(ARTIFACT_ID)
+                      .setType(ColumnType.REF)
+                      .setRefTable(HpcTables.ARTIFACTS)
+                      .setRequired(true),
+                  column(PATH).setRequired(true),
+                  column(SHA256),
+                  column(SIZE_BYTES).setType(ColumnType.LONG),
                   column("content").setType(ColumnType.FILE),
-                  column("content_type")));
+                  column(CONTENT_TYPE)));
 
           applySchemaUpgrades(schema);
         });
   }
 
   private static void applySchemaUpgrades(Schema schema) {
-    if (!schema.getTableNames().contains("HpcJobs")) {
+    if (!schema.getTableNames().contains(HpcTables.JOBS)) {
       return;
     }
     createCredentialStatusOntologyIfMissing(schema);
     createWorkerCredentialsTableIfMissing(schema);
 
-    if (schema.getTableNames().contains("HpcWorkerCredentials")) {
-      Table credentials = schema.getTable("HpcWorkerCredentials");
-      addColumnIfMissing(credentials, column("worker_id").setRequired(true));
-      addColumnIfMissing(credentials, column("secret_encrypted").setType(ColumnType.TEXT));
+    if (schema.getTableNames().contains(HpcTables.WORKER_CREDENTIALS)) {
+      Table credentials = schema.getTable(HpcTables.WORKER_CREDENTIALS);
+      addColumnIfMissing(credentials, column(WORKER_ID).setRequired(true));
+      addColumnIfMissing(credentials, column(SECRET_ENCRYPTED).setType(ColumnType.TEXT));
       addColumnIfMissing(
           credentials,
-          column("status")
+          column(STATUS)
               .setType(ColumnType.ONTOLOGY)
-              .setRefTable("HpcWorkerCredentialStatus")
+              .setRefTable(HpcTables.WORKER_CREDENTIAL_STATUS)
               .setRequired(true));
-      addColumnIfMissing(credentials, column("label"));
-      addColumnIfMissing(credentials, column("created_at").setType(ColumnType.DATETIME));
-      addColumnIfMissing(credentials, column("created_by"));
-      addColumnIfMissing(credentials, column("last_used_at").setType(ColumnType.DATETIME));
-      addColumnIfMissing(credentials, column("revoked_at").setType(ColumnType.DATETIME));
-      addColumnIfMissing(credentials, column("expires_at").setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column(LABEL));
+      addColumnIfMissing(credentials, column(CREATED_AT).setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column(CREATED_BY));
+      addColumnIfMissing(credentials, column(LAST_USED_AT).setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column(REVOKED_AT).setType(ColumnType.DATETIME));
+      addColumnIfMissing(credentials, column(EXPIRES_AT).setType(ColumnType.DATETIME));
     }
 
-    if (schema.getTableNames().contains("HpcArtifacts")) {
+    if (schema.getTableNames().contains(HpcTables.ARTIFACTS)) {
       addColumnIfMissing(
-          schema.getTable("HpcJobs"),
-          column("output_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
+          schema.getTable(HpcTables.JOBS),
+          column(OUTPUT_ARTIFACT_ID).setType(ColumnType.REF).setRefTable(HpcTables.ARTIFACTS));
       addColumnIfMissing(
-          schema.getTable("HpcJobs"),
-          column("log_artifact_id").setType(ColumnType.REF).setRefTable("HpcArtifacts"));
+          schema.getTable(HpcTables.JOBS),
+          column(LOG_ARTIFACT_ID).setType(ColumnType.REF).setRefTable(HpcTables.ARTIFACTS));
     }
-    addColumnIfMissing(schema.getTable("HpcJobs"), column("phase"));
-    addColumnIfMissing(schema.getTable("HpcJobs"), column("message").setType(ColumnType.TEXT));
-    addColumnIfMissing(schema.getTable("HpcJobs"), column("progress").setType(ColumnType.DECIMAL));
+    addColumnIfMissing(schema.getTable(HpcTables.JOBS), column(PHASE));
+    addColumnIfMissing(schema.getTable(HpcTables.JOBS), column(MESSAGE).setType(ColumnType.TEXT));
+    addColumnIfMissing(
+        schema.getTable(HpcTables.JOBS), column(PROGRESS).setType(ColumnType.DECIMAL));
 
-    if (schema.getTableNames().contains("HpcJobTransitions")) {
-      addColumnIfMissing(schema.getTable("HpcJobTransitions"), column("phase"));
+    if (schema.getTableNames().contains(HpcTables.JOB_TRANSITIONS)) {
+      addColumnIfMissing(schema.getTable(HpcTables.JOB_TRANSITIONS), column(PHASE));
       addColumnIfMissing(
-          schema.getTable("HpcJobTransitions"), column("message").setType(ColumnType.TEXT));
+          schema.getTable(HpcTables.JOB_TRANSITIONS), column(MESSAGE).setType(ColumnType.TEXT));
       addColumnIfMissing(
-          schema.getTable("HpcJobTransitions"), column("progress").setType(ColumnType.DECIMAL));
+          schema.getTable(HpcTables.JOB_TRANSITIONS), column(PROGRESS).setType(ColumnType.DECIMAL));
     }
   }
 
   private static void createCredentialStatusOntologyIfMissing(Schema schema) {
-    if (schema.getTableNames().contains("HpcWorkerCredentialStatus")) {
+    if (schema.getTableNames().contains(HpcTables.WORKER_CREDENTIAL_STATUS)) {
       return;
     }
     Table credentialStatusTable =
-        schema.create(table("HpcWorkerCredentialStatus").setTableType(TableType.ONTOLOGIES));
-    credentialStatusTable.insert(
-        row("name", "ACTIVE"), row("name", "REVOKED"), row("name", "EXPIRED"));
+        schema.create(table(HpcTables.WORKER_CREDENTIAL_STATUS).setTableType(TableType.ONTOLOGIES));
+    credentialStatusTable.insert(row(NAME, "ACTIVE"), row(NAME, "REVOKED"), row(NAME, "EXPIRED"));
   }
 
   private static void createWorkerCredentialsTableIfMissing(Schema schema) {
-    if (schema.getTableNames().contains("HpcWorkerCredentials")) {
+    if (schema.getTableNames().contains(HpcTables.WORKER_CREDENTIALS)) {
       return;
     }
     schema.create(
         table(
-            "HpcWorkerCredentials",
-            column("id").setPkey(),
-            column("worker_id").setRequired(true),
-            column("secret_encrypted").setType(ColumnType.TEXT),
-            column("status")
+            HpcTables.WORKER_CREDENTIALS,
+            column(ID).setPkey(),
+            column(WORKER_ID).setRequired(true),
+            column(SECRET_ENCRYPTED).setType(ColumnType.TEXT),
+            column(STATUS)
                 .setType(ColumnType.ONTOLOGY)
-                .setRefTable("HpcWorkerCredentialStatus")
+                .setRefTable(HpcTables.WORKER_CREDENTIAL_STATUS)
                 .setRequired(true),
-            column("label"),
-            column("created_at").setType(ColumnType.DATETIME),
-            column("created_by"),
-            column("last_used_at").setType(ColumnType.DATETIME),
-            column("revoked_at").setType(ColumnType.DATETIME),
-            column("expires_at").setType(ColumnType.DATETIME)));
+            column(LABEL),
+            column(CREATED_AT).setType(ColumnType.DATETIME),
+            column(CREATED_BY),
+            column(LAST_USED_AT).setType(ColumnType.DATETIME),
+            column(REVOKED_AT).setType(ColumnType.DATETIME),
+            column(EXPIRES_AT).setType(ColumnType.DATETIME)));
   }
 
   private static void addColumnIfMissing(Table table, Column column) {

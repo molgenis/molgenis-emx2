@@ -1,6 +1,7 @@
 package org.molgenis.emx2.hpc;
 
 import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import io.javalin.http.Context;
@@ -27,8 +28,8 @@ public class WorkerCredentialsApi {
         ctx.body() == null || ctx.body().isBlank()
             ? Map.of()
             : MAPPER.readValue(ctx.body(), Map.class);
-    String label = optionalString(body.get("label"));
-    LocalDateTime expiresAt = parseOptionalDateTime(body.get("expires_at"), "expires_at", ctx);
+    String label = optionalString(body.get(LABEL));
+    LocalDateTime expiresAt = parseOptionalDateTime(body.get(EXPIRES_AT), EXPIRES_AT, ctx);
     String createdBy =
         "USER".equals(ctx.attribute("hpcAuthMethod")) ? ctx.attribute("hpcAuthUser") : null;
 
@@ -47,15 +48,15 @@ public class WorkerCredentialsApi {
     }
 
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", issued.id());
-    response.put("worker_id", issued.workerId());
-    response.put("status", issued.status());
-    response.put("label", issued.label());
-    response.put("created_at", issued.createdAt());
-    response.put("expires_at", issued.expiresAt());
+    response.put(ID, issued.id());
+    response.put(WORKER_ID, issued.workerId());
+    response.put(STATUS, issued.status());
+    response.put(LABEL, issued.label());
+    response.put(CREATED_AT, issued.createdAt());
+    response.put(EXPIRES_AT, issued.expiresAt());
     response.put("secret", issued.secret());
     response.put(
-        "_links",
+        LINKS,
         Map.of(
             "self",
             Map.of(
@@ -82,8 +83,8 @@ public class WorkerCredentialsApi {
         ctx.body() == null || ctx.body().isBlank()
             ? Map.of()
             : MAPPER.readValue(ctx.body(), Map.class);
-    String label = optionalString(body.get("label"));
-    LocalDateTime expiresAt = parseOptionalDateTime(body.get("expires_at"), "expires_at", ctx);
+    String label = optionalString(body.get(LABEL));
+    LocalDateTime expiresAt = parseOptionalDateTime(body.get(EXPIRES_AT), EXPIRES_AT, ctx);
     String createdBy =
         "USER".equals(ctx.attribute("hpcAuthMethod")) ? ctx.attribute("hpcAuthUser") : null;
 
@@ -99,15 +100,15 @@ public class WorkerCredentialsApi {
     }
 
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", issued.id());
-    response.put("worker_id", issued.workerId());
-    response.put("status", issued.status());
-    response.put("label", issued.label());
-    response.put("created_at", issued.createdAt());
-    response.put("expires_at", issued.expiresAt());
+    response.put(ID, issued.id());
+    response.put(WORKER_ID, issued.workerId());
+    response.put(STATUS, issued.status());
+    response.put(LABEL, issued.label());
+    response.put(CREATED_AT, issued.createdAt());
+    response.put(EXPIRES_AT, issued.expiresAt());
     response.put("secret", issued.secret());
     response.put(
-        "_links",
+        LINKS,
         Map.of(
             "list",
             Map.of("href", "/api/hpc/workers/" + workerId + "/credentials", "method", "GET")));
@@ -141,7 +142,7 @@ public class WorkerCredentialsApi {
     response.put("items", items);
     response.put("count", items.size());
     response.put(
-        "_links",
+        LINKS,
         Map.of(
             "self",
             Map.of("href", "/api/hpc/workers/" + workerId + "/credentials", "method", "GET")));
@@ -150,7 +151,7 @@ public class WorkerCredentialsApi {
   }
 
   private static String requirePathWorkerId(Context ctx) {
-    String workerId = ctx.pathParam("id");
+    String workerId = ctx.pathParam(ID);
     if (workerId == null || workerId.isBlank()) {
       throw HpcException.badRequest("worker id is required", requestId(ctx));
     }

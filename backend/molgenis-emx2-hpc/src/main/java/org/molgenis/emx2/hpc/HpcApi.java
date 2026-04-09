@@ -202,7 +202,7 @@ public class HpcApi {
                 throw HpcException.notFound(
                     "Worker " + wid + " not found", ctx.header(HpcHeaders.REQUEST_ID));
               }
-              ctx.json(Map.of("worker_id", wid, "status", "ok"));
+              ctx.json(Map.of(HpcFields.WORKER_ID, wid, HpcFields.STATUS, "ok"));
             }));
     app.post(
         "/api/hpc/workers/{id}/credentials/issue",

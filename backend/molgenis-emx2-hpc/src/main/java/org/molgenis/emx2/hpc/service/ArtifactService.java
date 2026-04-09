@@ -8,6 +8,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Operator.LIKE;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.HpcTables;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.protocol.InputValidator;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -70,17 +72,17 @@ public class ArtifactService {
     tx.tx(
         db ->
             db.getSchema(systemSchemaName)
-                .getTable("HpcArtifacts")
+                .getTable(HpcTables.ARTIFACTS)
                 .insert(
                     row(
-                        "id", artifactId,
-                        "name", name,
-                        "type", type,
-                        "residence", residence != null ? residence : "managed",
-                        "status", initialStatus.name(),
-                        "content_url", contentUrl,
-                        "metadata", metadata,
-                        "created_at", LocalDateTime.now())));
+                        ID, artifactId,
+                        NAME, name,
+                        TYPE, type,
+                        RESIDENCE, residence != null ? residence : "managed",
+                        STATUS, initialStatus.name(),
+                        CONTENT_URL, contentUrl,
+                        METADATA, metadata,
+                        CREATED_AT, LocalDateTime.now())));
     return artifactId;
   }
 
@@ -113,14 +115,14 @@ public class ArtifactService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table artifactsTable = schema.getTable("HpcArtifacts");
+          Table artifactsTable = schema.getTable(HpcTables.ARTIFACTS);
 
-          List<Row> rows = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+          List<Row> rows = artifactsTable.where(f(ID, EQUALS, artifactId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row artifact = rows.getFirst();
-          ArtifactStatus current = ArtifactStatus.valueOf(artifact.getString("status"));
+          ArtifactStatus current = ArtifactStatus.valueOf(artifact.getString(STATUS));
           if (!current.canTransitionTo(ArtifactStatus.COMMITTED)) {
             return CommitResult.wrongState(
                 "Artifact " + artifactId + " cannot be committed from status " + current.name());
@@ -129,13 +131,13 @@ public class ArtifactService {
           // Compute tree hash from stored files
           List<Row> files =
               schema
-                  .getTable("HpcArtifactFiles")
-                  .where(f("artifact_id", EQUALS, artifactId))
+                  .getTable(HpcTables.ARTIFACT_FILES)
+                  .where(f(ARTIFACT_ID, EQUALS, artifactId))
                   .retrieveRows();
 
           String computedHash = computeTreeHash(files);
           long computedSize =
-              files.stream().mapToLong(f -> parseLong(f.getString("size_bytes"))).sum();
+              files.stream().mapToLong(f -> parseLong(f.getString(SIZE_BYTES))).sum();
 
           // Verify client-provided hash if present
           if (sha256 != null && computedHash != null && !sha256.equals(computedHash)) {
@@ -146,10 +148,10 @@ public class ArtifactService {
           String finalHash = sha256 != null ? sha256 : computedHash;
           long finalSize = sizeBytes != null ? sizeBytes : computedSize;
 
-          artifact.set("status", ArtifactStatus.COMMITTED.name());
-          artifact.set("sha256", finalHash);
-          artifact.set("size_bytes", finalSize);
-          artifact.set("committed_at", LocalDateTime.now());
+          artifact.set(STATUS, ArtifactStatus.COMMITTED.name());
+          artifact.set(SHA256, finalHash);
+          artifact.set(SIZE_BYTES, finalSize);
+          artifact.set(COMMITTED_AT, LocalDateTime.now());
           artifactsTable.update(artifact);
           return CommitResult.success(artifact);
         });
@@ -164,18 +166,17 @@ public class ArtifactService {
       return null;
     }
 
-    List<Row> sorted =
-        files.stream().sorted(Comparator.comparing(f -> f.getString("path"))).toList();
+    List<Row> sorted = files.stream().sorted(Comparator.comparing(f -> f.getString(PATH))).toList();
 
     if (sorted.size() == 1) {
       // Single-file: use the file's own sha256
-      return sorted.getFirst().getString("sha256");
+      return sorted.getFirst().getString(SHA256);
     }
 
     // Multi-file: tree hash
     StringBuilder sb = new StringBuilder();
     for (Row file : sorted) {
-      sb.append(file.getString("path")).append(":").append(file.getString("sha256"));
+      sb.append(file.getString(PATH)).append(":").append(file.getString(SHA256));
     }
 
     try {
@@ -204,24 +205,24 @@ public class ArtifactService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table artifactsTable = schema.getTable("HpcArtifacts");
+          Table artifactsTable = schema.getTable(HpcTables.ARTIFACTS);
 
-          List<Row> rows = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+          List<Row> rows = artifactsTable.where(f(ID, EQUALS, artifactId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row artifact = rows.getFirst();
 
           // Delete files first (FK dependency)
-          Table filesTable = schema.getTable("HpcArtifactFiles");
-          List<Row> files = filesTable.where(f("artifact_id", EQUALS, artifactId)).retrieveRows();
+          Table filesTable = schema.getTable(HpcTables.ARTIFACT_FILES);
+          List<Row> files = filesTable.where(f(ARTIFACT_ID, EQUALS, artifactId)).retrieveRows();
           for (Row file : files) {
             filesTable.delete(file);
           }
 
           // Nullify job references (output_artifact_id, log_artifact_id)
-          Table jobsTable = schema.getTable("HpcJobs");
-          for (String refColumn : List.of("output_artifact_id", "log_artifact_id")) {
+          Table jobsTable = schema.getTable(HpcTables.JOBS);
+          for (String refColumn : List.of(OUTPUT_ARTIFACT_ID, LOG_ARTIFACT_ID)) {
             List<Row> jobs = jobsTable.where(f(refColumn, EQUALS, artifactId)).retrieveRows();
             for (Row job : jobs) {
               job.set(refColumn, (String) null);
@@ -241,8 +242,8 @@ public class ArtifactService {
         db -> {
           List<Row> rows =
               db.getSchema(systemSchemaName)
-                  .getTable("HpcArtifacts")
-                  .where(f("id", EQUALS, artifactId))
+                  .getTable(HpcTables.ARTIFACTS)
+                  .where(f(ID, EQUALS, artifactId))
                   .retrieveRows();
           return rows.isEmpty() ? null : rows.getFirst();
         });
@@ -252,7 +253,7 @@ public class ArtifactService {
   public List<Row> listFiles(String artifactId, String prefix, int limit, int offset) {
     return tx.txResult(
         db -> {
-          Table table = db.getSchema(systemSchemaName).getTable("HpcArtifactFiles");
+          Table table = db.getSchema(systemSchemaName).getTable(HpcTables.ARTIFACT_FILES);
           Query query = applyFileFilters(table.query(), artifactId, prefix);
           return query.orderBy(fileListOrder()).limit(limit).offset(offset).retrieveRows();
         });
@@ -264,31 +265,31 @@ public class ArtifactService {
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           return jooq.fetchCount(
-              jooq.selectFrom(table(name(systemSchemaName, "HpcArtifactFiles")))
+              jooq.selectFrom(table(name(systemSchemaName, HpcTables.ARTIFACT_FILES)))
                   .where(fileListCondition(artifactId, prefix)));
         });
   }
 
   private Query applyFileFilters(Query query, String artifactId, String prefix) {
-    query.where(f("artifact_id", EQUALS, artifactId));
+    query.where(f(ARTIFACT_ID, EQUALS, artifactId));
     if (prefix != null && !prefix.isBlank()) {
-      query.where(f("path", LIKE, prefix + "%"));
+      query.where(f(PATH, LIKE, prefix + "%"));
     }
     return query;
   }
 
   private Condition fileListCondition(String artifactId, String prefix) {
-    Condition condition = field(name("artifact_id")).eq(artifactId);
+    Condition condition = field(name(ARTIFACT_ID)).eq(artifactId);
     if (prefix != null && !prefix.isBlank()) {
-      condition = condition.and(field(name("path")).like(prefix + "%"));
+      condition = condition.and(field(name(PATH)).like(prefix + "%"));
     }
     return condition;
   }
 
   private Map<String, Order> fileListOrder() {
     Map<String, Order> order = new LinkedHashMap<>();
-    order.put("path", Order.ASC);
-    order.put("id", Order.ASC);
+    order.put(PATH, Order.ASC);
+    order.put(ID, Order.ASC);
     return order;
   }
 
@@ -299,20 +300,20 @@ public class ArtifactService {
   public Row getFileWithContent(String artifactId, String path) {
     return tx.txResult(
         db -> {
-          Table table = db.getSchema(systemSchemaName).getTable("HpcArtifactFiles");
+          Table table = db.getSchema(systemSchemaName).getTable(HpcTables.ARTIFACT_FILES);
           List<Row> rows =
               table
                   .query()
                   .select(
-                      s("id"),
-                      s("artifact_id"),
-                      s("path"),
-                      s("sha256"),
-                      s("size_bytes"),
-                      s("content_type"),
+                      s(ID),
+                      s(ARTIFACT_ID),
+                      s(PATH),
+                      s(SHA256),
+                      s(SIZE_BYTES),
+                      s(CONTENT_TYPE),
                       FILE_CONTENT_SELECT)
-                  .where(f("artifact_id", EQUALS, artifactId))
-                  .where(f("path", EQUALS, path))
+                  .where(f(ARTIFACT_ID, EQUALS, artifactId))
+                  .where(f(PATH, EQUALS, path))
                   .retrieveRows();
           return rows.isEmpty() ? null : rows.getFirst();
         });
@@ -324,9 +325,9 @@ public class ArtifactService {
         db -> {
           List<Row> rows =
               db.getSchema(systemSchemaName)
-                  .getTable("HpcArtifactFiles")
-                  .where(f("artifact_id", EQUALS, artifactId))
-                  .where(f("path", EQUALS, path))
+                  .getTable(HpcTables.ARTIFACT_FILES)
+                  .where(f(ARTIFACT_ID, EQUALS, artifactId))
+                  .where(f(PATH, EQUALS, path))
                   .retrieveRows();
           return rows.isEmpty() ? null : rows.getFirst();
         });
@@ -352,15 +353,15 @@ public class ArtifactService {
           Schema schema = db.getSchema(systemSchemaName);
 
           // Transition artifact to UPLOADING if currently CREATED
-          Table artifactsTable = schema.getTable("HpcArtifacts");
-          List<Row> artifacts = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+          Table artifactsTable = schema.getTable(HpcTables.ARTIFACTS);
+          List<Row> artifacts = artifactsTable.where(f(ID, EQUALS, artifactId)).retrieveRows();
           if (artifacts.isEmpty()) {
             throw new MolgenisException("Artifact " + artifactId + " not found");
           }
           Row artifact = artifacts.getFirst();
-          String currentStatus = artifact.getString("status");
+          String currentStatus = artifact.getString(STATUS);
           if (ArtifactStatus.CREATED.name().equals(currentStatus)) {
-            artifact.set("status", ArtifactStatus.UPLOADING.name());
+            artifact.set(STATUS, ArtifactStatus.UPLOADING.name());
             artifactsTable.update(artifact);
           } else if (!ArtifactStatus.REGISTERED.name().equals(currentStatus)
               && !ArtifactStatus.UPLOADING.name().equals(currentStatus)) {
@@ -368,35 +369,35 @@ public class ArtifactService {
           }
 
           // Check if file already exists at this path
-          Table filesTable = schema.getTable("HpcArtifactFiles");
+          Table filesTable = schema.getTable(HpcTables.ARTIFACT_FILES);
           List<Row> existing =
               filesTable
-                  .where(f("artifact_id", EQUALS, artifactId))
-                  .where(f("path", EQUALS, path))
+                  .where(f(ARTIFACT_ID, EQUALS, artifactId))
+                  .where(f(PATH, EQUALS, path))
                   .retrieveRows();
 
           if (!existing.isEmpty()) {
             // Update existing file
             Row fileRow = existing.getFirst();
-            fileRow.set("sha256", sha256);
-            fileRow.set("size_bytes", sizeBytes);
-            fileRow.set("content_type", contentType);
+            fileRow.set(SHA256, sha256);
+            fileRow.set(SIZE_BYTES, sizeBytes);
+            fileRow.set(CONTENT_TYPE, contentType);
             if (content != null) {
               fileRow.set("content", content);
             }
             filesTable.update(fileRow);
-            return fileRow.getString("id");
+            return fileRow.getString(ID);
           } else {
             // Insert new file
             String newId = UUID.randomUUID().toString();
             Row fileRow =
                 row(
-                    "id", newId,
-                    "artifact_id", artifactId,
-                    "path", path,
-                    "sha256", sha256,
-                    "size_bytes", sizeBytes,
-                    "content_type", contentType);
+                    ID, newId,
+                    ARTIFACT_ID, artifactId,
+                    PATH, path,
+                    SHA256, sha256,
+                    SIZE_BYTES, sizeBytes,
+                    CONTENT_TYPE, contentType);
             if (content != null) {
               fileRow.set("content", content);
             }
@@ -418,22 +419,22 @@ public class ArtifactService {
           Schema schema = db.getSchema(systemSchemaName);
 
           // Check artifact status
-          Table artifactsTable = schema.getTable("HpcArtifacts");
-          List<Row> artifacts = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+          Table artifactsTable = schema.getTable(HpcTables.ARTIFACTS);
+          List<Row> artifacts = artifactsTable.where(f(ID, EQUALS, artifactId)).retrieveRows();
           if (artifacts.isEmpty()) {
             return false;
           }
-          String status = artifacts.getFirst().getString("status");
+          String status = artifacts.getFirst().getString(STATUS);
           if (ArtifactStatus.COMMITTED.name().equals(status)) {
             throw new MolgenisException("Cannot delete files from committed artifact");
           }
 
           // Find and delete the file
-          Table filesTable = schema.getTable("HpcArtifactFiles");
+          Table filesTable = schema.getTable(HpcTables.ARTIFACT_FILES);
           List<Row> files =
               filesTable
-                  .where(f("artifact_id", EQUALS, artifactId))
-                  .where(f("path", EQUALS, path))
+                  .where(f(ARTIFACT_ID, EQUALS, artifactId))
+                  .where(f(PATH, EQUALS, path))
                   .retrieveRows();
           if (!files.isEmpty()) {
             filesTable.delete(files.getFirst());

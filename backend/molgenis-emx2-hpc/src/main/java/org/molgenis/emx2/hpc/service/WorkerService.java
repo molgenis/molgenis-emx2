@@ -3,11 +3,13 @@ package org.molgenis.emx2.hpc.service;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.HpcTables;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 /**
@@ -39,35 +41,35 @@ public class WorkerService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table workersTable = schema.getTable("HpcWorkers");
-          Table capTable = schema.getTable("HpcWorkerCapabilities");
+          Table workersTable = schema.getTable(HpcTables.WORKERS);
+          Table capTable = schema.getTable(HpcTables.WORKER_CAPABILITIES);
 
           LocalDateTime now = LocalDateTime.now();
 
           // Upsert worker
-          List<Row> existing = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          List<Row> existing = workersTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           Row workerRow;
           if (existing.isEmpty()) {
             workerRow =
                 row(
-                    "worker_id", workerId,
-                    "hostname", hostname,
-                    "registered_at", now,
-                    "last_heartbeat_at", now);
+                    WORKER_ID, workerId,
+                    HOSTNAME, hostname,
+                    REGISTERED_AT, now,
+                    LAST_HEARTBEAT_AT, now);
             workersTable.insert(workerRow);
           } else {
             workerRow = existing.getFirst();
-            workerRow.set("hostname", hostname);
-            if (workerRow.getString("registered_at") == null
-                || workerRow.getString("registered_at").isBlank()) {
-              workerRow.set("registered_at", now);
+            workerRow.set(HOSTNAME, hostname);
+            if (workerRow.getString(REGISTERED_AT) == null
+                || workerRow.getString(REGISTERED_AT).isBlank()) {
+              workerRow.set(REGISTERED_AT, now);
             }
-            workerRow.set("last_heartbeat_at", now);
+            workerRow.set(LAST_HEARTBEAT_AT, now);
             workersTable.update(workerRow);
           }
 
           // Replace capabilities: delete old, insert new
-          List<Row> oldCaps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          List<Row> oldCaps = capTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           for (Row old : oldCaps) {
             capTable.delete(old);
           }
@@ -77,11 +79,11 @@ public class WorkerService {
             for (Map<String, Object> cap : capabilities) {
               capTable.insert(
                   row(
-                      "id", workerId + "-cap-" + idx++,
-                      "worker_id", workerId,
-                      "processor", cap.get("processor"),
-                      "profile", cap.get("profile"),
-                      "max_concurrent_jobs", cap.get("max_concurrent_jobs")));
+                      ID, workerId + "-cap-" + idx++,
+                      WORKER_ID, workerId,
+                      PROCESSOR, cap.get(PROCESSOR),
+                      PROFILE, cap.get(PROFILE),
+                      MAX_CONCURRENT_JOBS, cap.get(MAX_CONCURRENT_JOBS)));
             }
           }
 
@@ -99,34 +101,34 @@ public class WorkerService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table workersTable = schema.getTable("HpcWorkers");
+          Table workersTable = schema.getTable(HpcTables.WORKERS);
 
-          List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          List<Row> rows = workersTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row worker = rows.getFirst();
 
           // Delete capabilities (FK dependency)
-          Table capTable = schema.getTable("HpcWorkerCapabilities");
-          List<Row> caps = capTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          Table capTable = schema.getTable(HpcTables.WORKER_CAPABILITIES);
+          List<Row> caps = capTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           for (Row cap : caps) {
             capTable.delete(cap);
           }
 
           // Delete worker credentials
-          Table credentialsTable = schema.getTable("HpcWorkerCredentials");
+          Table credentialsTable = schema.getTable(HpcTables.WORKER_CREDENTIALS);
           List<Row> credentials =
-              credentialsTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+              credentialsTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           for (Row credential : credentials) {
             credentialsTable.delete(credential);
           }
 
           // Nullify worker_id on any jobs referencing this worker
-          Table jobsTable = schema.getTable("HpcJobs");
-          List<Row> jobs = jobsTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          Table jobsTable = schema.getTable(HpcTables.JOBS);
+          List<Row> jobs = jobsTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           for (Row job : jobs) {
-            job.set("worker_id", (String) null);
+            job.set(WORKER_ID, (String) null);
             jobsTable.update(job);
           }
 
@@ -140,13 +142,13 @@ public class WorkerService {
   public boolean heartbeat(String workerId) {
     return tx.txResult(
         db -> {
-          Table workersTable = db.getSchema(systemSchemaName).getTable("HpcWorkers");
-          List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+          Table workersTable = db.getSchema(systemSchemaName).getTable(HpcTables.WORKERS);
+          List<Row> rows = workersTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
           if (rows.isEmpty()) {
             return false;
           }
           Row worker = rows.getFirst();
-          worker.set("last_heartbeat_at", LocalDateTime.now());
+          worker.set(LAST_HEARTBEAT_AT, LocalDateTime.now());
           workersTable.update(worker);
           return true;
         });

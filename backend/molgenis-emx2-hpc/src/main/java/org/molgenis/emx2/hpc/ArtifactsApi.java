@@ -3,6 +3,7 @@ package org.molgenis.emx2.hpc;
 import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
 import static org.molgenis.emx2.hpc.HpcApiUtils.sanitizeDownloadFileName;
 import static org.molgenis.emx2.hpc.HpcApiUtils.verifyContentSha256;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
@@ -59,12 +60,8 @@ public class ArtifactsApi {
   /** Buffer size for streaming uploads to temp files. */
   private static final int STREAM_BUFFER_SIZE = 65_536;
 
-  private static final String CONTENT_URL = "content_url";
   private static final String ARTIFACT_PREFIX = "Artifact ";
   private static final String NOT_FOUND_SUFFIX = " not found";
-  private static final String SHA256 = "sha256";
-  private static final String SIZE_BYTES = "size_bytes";
-  private static final String CONTENT_TYPE_FIELD = "content_type";
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
   private static final String OCTET_STREAM = "application/octet-stream";
   private static final String CONTENT_LENGTH_HEADER = "Content-Length";
@@ -94,12 +91,11 @@ public class ArtifactsApi {
   @SuppressWarnings("unchecked")
   public void createArtifact(Context ctx) throws Exception {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String name = (String) body.get("name");
-    String type = (String) body.get("type");
-    String residence = (String) body.get("residence");
+    String name = (String) body.get(NAME);
+    String type = (String) body.get(TYPE);
+    String residence = (String) body.get(RESIDENCE);
     String contentUrl = (String) body.get(CONTENT_URL);
-    Object metadata =
-        body.get("metadata") != null ? MAPPER.valueToTree(body.get("metadata")) : null;
+    Object metadata = body.get(METADATA) != null ? MAPPER.valueToTree(body.get(METADATA)) : null;
 
     InputValidator.validateContentUrl(contentUrl, residence);
 
@@ -109,11 +105,11 @@ public class ArtifactsApi {
     ArtifactStatus status = isExternal ? ArtifactStatus.REGISTERED : ArtifactStatus.CREATED;
 
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("id", artifactId);
-    response.put("name", name);
-    response.put("type", type);
-    response.put("status", status.name());
-    response.put("_links", LinkBuilder.forArtifact(artifactId, status));
+    response.put(ID, artifactId);
+    response.put(NAME, name);
+    response.put(TYPE, type);
+    response.put(STATUS, status.name());
+    response.put(LINKS, LinkBuilder.forArtifact(artifactId, status));
 
     ctx.status(201);
     ctx.json(response);
@@ -121,8 +117,8 @@ public class ArtifactsApi {
 
   /** DELETE /api/hpc/artifacts/{id} — delete an artifact and its files. */
   public void deleteArtifact(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    InputValidator.requireUuid(artifactId, ID);
 
     Row deleted = artifactService.deleteArtifact(artifactId);
     if (deleted == null) {
@@ -133,8 +129,8 @@ public class ArtifactsApi {
 
   /** GET /api/hpc/artifacts/{id} — get artifact with HATEOAS links. */
   public void getArtifact(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    InputValidator.requireUuid(artifactId, ID);
 
     Row artifact = artifactService.getArtifact(artifactId);
     if (artifact == null) {
@@ -145,8 +141,8 @@ public class ArtifactsApi {
 
   /** GET /api/hpc/artifacts/{id}/files — list files in an artifact with pagination. */
   public void listFiles(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    InputValidator.requireUuid(artifactId, ID);
 
     String prefix = ctx.queryParam("prefix");
     int limit = parseIntParam(ctx.queryParam("limit"), 100);
@@ -160,18 +156,18 @@ public class ArtifactsApi {
             .map(
                 f -> {
                   Map<String, Object> m = new LinkedHashMap<>();
-                  m.put("id", f.getString("id"));
-                  m.put("path", f.getString("path"));
+                  m.put(ID, f.getString(ID));
+                  m.put(PATH, f.getString(PATH));
                   m.put(SHA256, f.getString(SHA256));
                   m.put(SIZE_BYTES, f.getString(SIZE_BYTES));
-                  m.put(CONTENT_TYPE_FIELD, f.getString(CONTENT_TYPE_FIELD));
+                  m.put(CONTENT_TYPE, f.getString(CONTENT_TYPE));
                   m.put(
-                      "_links",
+                      LINKS,
                       Map.of(
                           "content",
                           Map.of(
                               "href",
-                              "/api/hpc/artifacts/" + artifactId + "/files/" + f.getString("path"),
+                              "/api/hpc/artifacts/" + artifactId + "/files/" + f.getString(PATH),
                               "method",
                               "GET")));
                   return m;
@@ -212,10 +208,10 @@ public class ArtifactsApi {
    */
   @SuppressWarnings("unchecked")
   public void uploadFileByPath(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    String filePath = ctx.pathParam("path");
-    InputValidator.requireUuid(artifactId, "id");
-    InputValidator.validateFilePath(filePath, "path");
+    String artifactId = ctx.pathParam(ID);
+    String filePath = ctx.pathParam(PATH);
+    InputValidator.requireUuid(artifactId, ID);
+    InputValidator.validateFilePath(filePath, PATH);
 
     File tempFile = null;
     try {
@@ -244,9 +240,9 @@ public class ArtifactsApi {
               result.content());
 
       Map<String, Object> response = new LinkedHashMap<>();
-      response.put("id", fileId);
-      response.put("artifact_id", artifactId);
-      response.put("path", filePath);
+      response.put(ID, fileId);
+      response.put(ARTIFACT_ID, artifactId);
+      response.put(PATH, filePath);
       response.put(SHA256, result.sha256());
       response.put(SIZE_BYTES, result.sizeBytes());
 
@@ -281,7 +277,7 @@ public class ArtifactsApi {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String sha256 = (String) body.get(SHA256);
     long sizeBytes = body.get(SIZE_BYTES) != null ? ((Number) body.get(SIZE_BYTES)).longValue() : 0;
-    String contentType = (String) body.get(CONTENT_TYPE_FIELD);
+    String contentType = (String) body.get(CONTENT_TYPE);
     if (contentType == null || contentType.isBlank()) {
       contentType = OCTET_STREAM;
     }
@@ -315,7 +311,7 @@ public class ArtifactsApi {
     tempFile.delete();
 
     String sha256 = HexFormat.of().formatHex(digest.digest());
-    String contentType = ctx.formParam(CONTENT_TYPE_FIELD);
+    String contentType = ctx.formParam(CONTENT_TYPE);
     if (contentType == null) {
       contentType = filePart.getContentType();
     }
@@ -444,9 +440,9 @@ public class ArtifactsApi {
 
   /** GET /api/hpc/artifacts/{id}/files/{path} — download file content. */
   public void downloadFile(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    String filePath = ctx.pathParam("path");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    String filePath = ctx.pathParam(PATH);
+    InputValidator.requireUuid(artifactId, ID);
 
     Row file = artifactService.getFileWithContent(artifactId, filePath);
     if (file == null) {
@@ -473,7 +469,7 @@ public class ArtifactsApi {
 
     String contentType = file.getString("content_mimetype");
     if (contentType == null) {
-      contentType = file.getString(CONTENT_TYPE_FIELD);
+      contentType = file.getString(CONTENT_TYPE);
     }
     if (contentType == null) {
       contentType = OCTET_STREAM;
@@ -491,9 +487,9 @@ public class ArtifactsApi {
 
   /** HEAD /api/hpc/artifacts/{id}/files/{path} — file metadata in headers. */
   public void headFile(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    String filePath = ctx.pathParam("path");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    String filePath = ctx.pathParam(PATH);
+    InputValidator.requireUuid(artifactId, ID);
 
     Row file = artifactService.getFileMetadata(artifactId, filePath);
     if (file == null) {
@@ -506,17 +502,17 @@ public class ArtifactsApi {
     if (file.getString(SIZE_BYTES) != null) {
       ctx.header(CONTENT_LENGTH_HEADER, file.getString(SIZE_BYTES));
     }
-    if (file.getString(CONTENT_TYPE_FIELD) != null) {
-      ctx.header(CONTENT_TYPE_HEADER, file.getString(CONTENT_TYPE_FIELD));
+    if (file.getString(CONTENT_TYPE) != null) {
+      ctx.header(CONTENT_TYPE_HEADER, file.getString(CONTENT_TYPE));
     }
     ctx.status(200);
   }
 
   /** DELETE /api/hpc/artifacts/{id}/files/{path} — delete file before commit. */
   public void deleteFile(Context ctx) {
-    String artifactId = ctx.pathParam("id");
-    String filePath = ctx.pathParam("path");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    String filePath = ctx.pathParam(PATH);
+    InputValidator.requireUuid(artifactId, ID);
 
     try {
       boolean deleted = artifactService.deleteFile(artifactId, filePath);
@@ -542,8 +538,8 @@ public class ArtifactsApi {
    */
   @SuppressWarnings("unchecked")
   public void commitArtifact(Context ctx) throws Exception {
-    String artifactId = ctx.pathParam("id");
-    InputValidator.requireUuid(artifactId, "id");
+    String artifactId = ctx.pathParam(ID);
+    InputValidator.requireUuid(artifactId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String sha256 = (String) body.get(SHA256);

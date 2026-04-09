@@ -3,6 +3,7 @@ package org.molgenis.emx2.hpc.service;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,6 +23,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.hpc.HpcTables;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 /** Per-worker credential issuance, rotation, revocation, and verification support. */
@@ -29,7 +31,6 @@ public class WorkerCredentialService {
 
   public static final String CREDENTIALS_KEY_SETTING = "MOLGENIS_HPC_CREDENTIALS_KEY";
 
-  private static final String CREDENTIALS_TABLE = "HpcWorkerCredentials";
   private static final String STATUS_ACTIVE = "ACTIVE";
   private static final String STATUS_REVOKED = "REVOKED";
   private static final String STATUS_EXPIRED = "EXPIRED";
@@ -78,14 +79,14 @@ public class WorkerCredentialService {
           String id = UUID.randomUUID().toString();
           table.insert(
               row(
-                  "id", id,
-                  "worker_id", workerId,
-                  "secret_encrypted", encrypt(plaintextSecret, keyMaterial),
-                  "status", STATUS_ACTIVE,
-                  "label", label,
-                  "created_at", now,
-                  "created_by", createdBy,
-                  "expires_at", expiresAt));
+                  ID, id,
+                  WORKER_ID, workerId,
+                  SECRET_ENCRYPTED, encrypt(plaintextSecret, keyMaterial),
+                  STATUS, STATUS_ACTIVE,
+                  LABEL, label,
+                  CREATED_AT, now,
+                  CREATED_BY, createdBy,
+                  EXPIRES_AT, expiresAt));
           return new IssuedCredential(
               id, workerId, plaintextSecret, STATUS_ACTIVE, label, now, expiresAt);
         });
@@ -108,14 +109,14 @@ public class WorkerCredentialService {
           String id = UUID.randomUUID().toString();
           table.insert(
               row(
-                  "id", id,
-                  "worker_id", workerId,
-                  "secret_encrypted", encrypt(plaintextSecret, keyMaterial),
-                  "status", STATUS_ACTIVE,
-                  "label", label,
-                  "created_at", now,
-                  "created_by", createdBy,
-                  "expires_at", expiresAt));
+                  ID, id,
+                  WORKER_ID, workerId,
+                  SECRET_ENCRYPTED, encrypt(plaintextSecret, keyMaterial),
+                  STATUS, STATUS_ACTIVE,
+                  LABEL, label,
+                  CREATED_AT, now,
+                  CREATED_BY, createdBy,
+                  EXPIRES_AT, expiresAt));
           return new IssuedCredential(
               id, workerId, plaintextSecret, STATUS_ACTIVE, label, now, expiresAt);
         });
@@ -130,18 +131,18 @@ public class WorkerCredentialService {
     return tx.txResult(
         db -> {
           Table table = credentialsTable(db);
-          List<Row> rows = table.where(f("id", EQUALS, credentialId)).retrieveRows();
+          List<Row> rows = table.where(f(ID, EQUALS, credentialId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row credential = rows.getFirst();
-          if (!workerId.equals(credential.getString("worker_id"))) {
+          if (!workerId.equals(credential.getString(WORKER_ID))) {
             return null;
           }
-          String status = credential.getString("status");
+          String status = credential.getString(STATUS);
           if (STATUS_ACTIVE.equals(status)) {
-            credential.set("status", STATUS_REVOKED);
-            credential.set("revoked_at", LocalDateTime.now());
+            credential.set(STATUS, STATUS_REVOKED);
+            credential.set(REVOKED_AT, LocalDateTime.now());
             table.update(credential);
           }
           return credential;
@@ -157,12 +158,12 @@ public class WorkerCredentialService {
           LocalDateTime now = LocalDateTime.now();
           expireOverdueCredentials(table, workerId, now);
           List<Row> rows =
-              new ArrayList<>(table.where(f("worker_id", EQUALS, workerId)).retrieveRows());
+              new ArrayList<>(table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows());
           rows.sort(
               Comparator.comparing(
-                      (Row r) -> DateTimeUtil.parse(r.getString("created_at")),
+                      (Row r) -> DateTimeUtil.parse(r.getString(CREATED_AT)),
                       Comparator.nullsLast(Comparator.reverseOrder()))
-                  .thenComparing(r -> r.getString("id"), Comparator.nullsLast(String::compareTo)));
+                  .thenComparing(r -> r.getString(ID), Comparator.nullsLast(String::compareTo)));
           return rows;
         });
   }
@@ -182,18 +183,18 @@ public class WorkerCredentialService {
                 LocalDateTime now = LocalDateTime.now();
                 expireOverdueCredentials(table, workerId, now);
 
-                List<Row> rows = table.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+                List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
                 Row active = null;
                 for (Row row : rows) {
-                  if (!STATUS_ACTIVE.equals(row.getString("status"))) {
+                  if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
                     continue;
                   }
                   if (active == null) {
                     active = row;
                     continue;
                   }
-                  LocalDateTime activeTs = DateTimeUtil.parse(active.getString("created_at"));
-                  LocalDateTime rowTs = DateTimeUtil.parse(row.getString("created_at"));
+                  LocalDateTime activeTs = DateTimeUtil.parse(active.getString(CREATED_AT));
+                  LocalDateTime rowTs = DateTimeUtil.parse(row.getString(CREATED_AT));
                   if (rowTs != null && (activeTs == null || rowTs.isAfter(activeTs))) {
                     active = row;
                   }
@@ -203,9 +204,9 @@ public class WorkerCredentialService {
                 }
 
                 String keyMaterial = requireCredentialsKey(db);
-                String encrypted = active.getString("secret_encrypted");
+                String encrypted = active.getString(SECRET_ENCRYPTED);
                 String secret = decrypt(encrypted, keyMaterial);
-                return new AuthenticatedCredential(active.getString("id"), secret);
+                return new AuthenticatedCredential(active.getString(ID), secret);
               });
       if (credential == null) {
         throw new SecurityException("No active credential for worker " + workerId);
@@ -234,12 +235,12 @@ public class WorkerCredentialService {
     tx.tx(
         db -> {
           Table table = credentialsTable(db);
-          List<Row> rows = table.where(f("id", EQUALS, credentialId)).retrieveRows();
+          List<Row> rows = table.where(f(ID, EQUALS, credentialId)).retrieveRows();
           if (rows.isEmpty()) {
             return;
           }
           Row credential = rows.getFirst();
-          credential.set("last_used_at", LocalDateTime.now());
+          credential.set(LAST_USED_AT, LocalDateTime.now());
           table.update(credential);
         });
   }
@@ -252,22 +253,22 @@ public class WorkerCredentialService {
 
   private Table credentialsTable(Database db) {
     Schema schema = db.getSchema(systemSchemaName);
-    return schema.getTable(CREDENTIALS_TABLE);
+    return schema.getTable(HpcTables.WORKER_CREDENTIALS);
   }
 
   private void ensureWorkerIdentityExists(Database db, String workerId) {
-    Table workersTable = db.getSchema(systemSchemaName).getTable("HpcWorkers");
-    List<Row> rows = workersTable.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+    Table workersTable = db.getSchema(systemSchemaName).getTable(HpcTables.WORKERS);
+    List<Row> rows = workersTable.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
     if (rows.isEmpty()) {
       LocalDateTime now = LocalDateTime.now();
       // Populate the canonical registration fields so the identity row is complete
       // before first daemon register().
       workersTable.insert(
           row(
-              "worker_id", workerId,
-              "hostname", workerId,
-              "registered_at", now,
-              "last_heartbeat_at", now));
+              WORKER_ID, workerId,
+              HOSTNAME, workerId,
+              REGISTERED_AT, now,
+              LAST_HEARTBEAT_AT, now));
     }
   }
 
@@ -287,9 +288,9 @@ public class WorkerCredentialService {
   }
 
   private static boolean hasActiveCredential(Table table, String workerId) {
-    List<Row> rows = table.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+    List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
     for (Row row : rows) {
-      if (STATUS_ACTIVE.equals(row.getString("status"))) {
+      if (STATUS_ACTIVE.equals(row.getString(STATUS))) {
         return true;
       }
     }
@@ -297,27 +298,27 @@ public class WorkerCredentialService {
   }
 
   private static void revokeActiveCredentials(Table table, String workerId, LocalDateTime now) {
-    List<Row> rows = table.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+    List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
     for (Row row : rows) {
-      if (!STATUS_ACTIVE.equals(row.getString("status"))) {
+      if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
         continue;
       }
-      row.set("status", STATUS_REVOKED);
-      row.set("revoked_at", now);
+      row.set(STATUS, STATUS_REVOKED);
+      row.set(REVOKED_AT, now);
       table.update(row);
     }
   }
 
   private static void expireOverdueCredentials(Table table, String workerId, LocalDateTime now) {
-    List<Row> rows = table.where(f("worker_id", EQUALS, workerId)).retrieveRows();
+    List<Row> rows = table.where(f(WORKER_ID, EQUALS, workerId)).retrieveRows();
     for (Row row : rows) {
-      if (!STATUS_ACTIVE.equals(row.getString("status"))) {
+      if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
         continue;
       }
-      LocalDateTime expiresAt = DateTimeUtil.parse(row.getString("expires_at"));
+      LocalDateTime expiresAt = DateTimeUtil.parse(row.getString(EXPIRES_AT));
       if (expiresAt != null && now.isAfter(expiresAt)) {
-        row.set("status", STATUS_EXPIRED);
-        row.set("revoked_at", now);
+        row.set(STATUS, STATUS_EXPIRED);
+        row.set(REVOKED_AT, now);
         table.update(row);
       }
     }
@@ -379,15 +380,15 @@ public class WorkerCredentialService {
   /** Converts a credential row to API-safe metadata (without secret material). */
   public static Map<String, Object> toMetadata(Row row) {
     Map<String, Object> metadata = new LinkedHashMap<>();
-    metadata.put("id", row.getString("id"));
-    metadata.put("worker_id", row.getString("worker_id"));
-    metadata.put("status", row.getString("status"));
-    metadata.put("label", row.getString("label"));
-    metadata.put("created_at", row.getString("created_at"));
-    metadata.put("created_by", row.getString("created_by"));
-    metadata.put("last_used_at", row.getString("last_used_at"));
-    metadata.put("revoked_at", row.getString("revoked_at"));
-    metadata.put("expires_at", row.getString("expires_at"));
+    metadata.put(ID, row.getString(ID));
+    metadata.put(WORKER_ID, row.getString(WORKER_ID));
+    metadata.put(STATUS, row.getString(STATUS));
+    metadata.put(LABEL, row.getString(LABEL));
+    metadata.put(CREATED_AT, row.getString(CREATED_AT));
+    metadata.put(CREATED_BY, row.getString(CREATED_BY));
+    metadata.put(LAST_USED_AT, row.getString(LAST_USED_AT));
+    metadata.put(REVOKED_AT, row.getString(REVOKED_AT));
+    metadata.put(EXPIRES_AT, row.getString(EXPIRES_AT));
     return metadata;
   }
 }

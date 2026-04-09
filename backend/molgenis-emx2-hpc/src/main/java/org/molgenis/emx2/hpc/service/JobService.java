@@ -6,6 +6,7 @@ import static org.jooq.impl.DSL.table;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.HpcTables;
 import org.molgenis.emx2.hpc.model.ArtifactStatus;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -69,18 +71,18 @@ public class JobService {
 
           Row jobRow =
               row(
-                  "id", jobId,
-                  "processor", processor,
-                  "profile", profile,
-                  "parameters", parameters,
-                  "status", HpcJobStatus.PENDING.name(),
-                  "inputs", inputs,
-                  "submit_user", submitUser,
-                  "created_at", LocalDateTime.now());
+                  ID, jobId,
+                  PROCESSOR, processor,
+                  PROFILE, profile,
+                  PARAMETERS, parameters,
+                  STATUS, HpcJobStatus.PENDING.name(),
+                  INPUTS, inputs,
+                  SUBMIT_USER, submitUser,
+                  CREATED_AT, LocalDateTime.now());
           if (timeoutSeconds != null) {
-            jobRow.set("timeout_seconds", timeoutSeconds);
+            jobRow.set(TIMEOUT_SECONDS, timeoutSeconds);
           }
-          schema.getTable("HpcJobs").insert(jobRow);
+          schema.getTable(HpcTables.JOBS).insert(jobRow);
 
           recordTransition(
               schema, jobId, null, HpcJobStatus.PENDING, null, "Job created", null, null, null);
@@ -109,15 +111,15 @@ public class JobService {
 
           // Atomic UPDATE: only succeeds if job is still PENDING
           DSLContext jooq = ((SqlDatabase) db).getJooq();
-          org.jooq.Table<?> jobsJooq = table(name(systemSchemaName, "HpcJobs"));
+          org.jooq.Table<?> jobsJooq = table(name(systemSchemaName, HpcTables.JOBS));
           LocalDateTime now = LocalDateTime.now();
 
           int affected =
               jooq.update(jobsJooq)
-                  .set(field("status"), HpcJobStatus.CLAIMED.name())
-                  .set(field("worker_id"), workerId)
-                  .set(field("claimed_at"), now)
-                  .where(field("id").eq(jobId).and(field("status").eq(HpcJobStatus.PENDING.name())))
+                  .set(field(STATUS), HpcJobStatus.CLAIMED.name())
+                  .set(field(WORKER_ID), workerId)
+                  .set(field(CLAIMED_AT), now)
+                  .where(field(ID).eq(jobId).and(field(STATUS).eq(HpcJobStatus.PENDING.name())))
                   .execute();
 
           if (affected == 0) {
@@ -127,22 +129,23 @@ public class JobService {
           }
 
           // Re-fetch the claimed job
-          List<Row> rows = schema.getTable("HpcJobs").where(f("id", EQUALS, jobId)).retrieveRows();
+          List<Row> rows =
+              schema.getTable(HpcTables.JOBS).where(f(ID, EQUALS, jobId)).retrieveRows();
           if (rows.isEmpty()) {
             return ClaimResult.notPending();
           }
           Row job = rows.getFirst();
 
           // Verify worker has a matching capability for this job's processor/profile
-          String processor = job.getString("processor");
-          String profile = job.getString("profile");
+          String processor = job.getString(PROCESSOR);
+          String profile = job.getString(PROFILE);
           if (!workerHasCapability(schema, workerId, processor, profile)) {
             // Roll back: set status back to PENDING (guarded by status='CLAIMED')
             jooq.update(jobsJooq)
-                .set(field("status"), HpcJobStatus.PENDING.name())
-                .setNull(field("worker_id"))
-                .setNull(field("claimed_at"))
-                .where(field("id").eq(jobId).and(field("status").eq(HpcJobStatus.CLAIMED.name())))
+                .set(field(STATUS), HpcJobStatus.PENDING.name())
+                .setNull(field(WORKER_ID))
+                .setNull(field(CLAIMED_AT))
+                .where(field(ID).eq(jobId).and(field(STATUS).eq(HpcJobStatus.CLAIMED.name())))
                 .execute();
             logger.warn(
                 "Claim rejected for job={}: worker {} lacks capability {}/{}",
@@ -157,10 +160,10 @@ public class JobService {
           if (isWorkerAtCapacity(schema, jooq, systemSchemaName, workerId, processor, profile)) {
             // Roll back: set status back to PENDING (guarded by status='CLAIMED')
             jooq.update(jobsJooq)
-                .set(field("status"), HpcJobStatus.PENDING.name())
-                .setNull(field("worker_id"))
-                .setNull(field("claimed_at"))
-                .where(field("id").eq(jobId).and(field("status").eq(HpcJobStatus.CLAIMED.name())))
+                .set(field(STATUS), HpcJobStatus.PENDING.name())
+                .setNull(field(WORKER_ID))
+                .setNull(field(CLAIMED_AT))
+                .where(field(ID).eq(jobId).and(field(STATUS).eq(HpcJobStatus.CLAIMED.name())))
                 .execute();
             logger.warn(
                 "Claim rejected for job={}: worker {} at max_concurrent_jobs for {}/{}",
@@ -195,9 +198,9 @@ public class JobService {
       Schema schema, String workerId, String processor, String profile) {
     List<Row> caps =
         schema
-            .getTable("HpcWorkerCapabilities")
-            .where(f("worker_id", EQUALS, workerId))
-            .where(f("processor", EQUALS, processor))
+            .getTable(HpcTables.WORKER_CAPABILITIES)
+            .where(f(WORKER_ID, EQUALS, workerId))
+            .where(f(PROCESSOR, EQUALS, processor))
             .retrieveRows();
     if (caps.isEmpty()) {
       return false;
@@ -206,7 +209,7 @@ public class JobService {
     if (profile == null || profile.isBlank()) {
       return true;
     }
-    return caps.stream().anyMatch(c -> profile.equals(c.getString("profile")));
+    return caps.stream().anyMatch(c -> profile.equals(c.getString(PROFILE)));
   }
 
   /**
@@ -224,16 +227,16 @@ public class JobService {
     // Find the matching capability's max_concurrent_jobs
     List<Row> caps =
         schema
-            .getTable("HpcWorkerCapabilities")
-            .where(f("worker_id", EQUALS, workerId))
-            .where(f("processor", EQUALS, processor))
+            .getTable(HpcTables.WORKER_CAPABILITIES)
+            .where(f(WORKER_ID, EQUALS, workerId))
+            .where(f(PROCESSOR, EQUALS, processor))
             .retrieveRows();
 
     Integer maxJobs = null;
     for (Row cap : caps) {
-      String capProfile = cap.getString("profile");
+      String capProfile = cap.getString(PROFILE);
       if (profile == null || profile.isBlank() || profile.equals(capProfile)) {
-        maxJobs = cap.getInteger("max_concurrent_jobs");
+        maxJobs = cap.getInteger(MAX_CONCURRENT_JOBS);
         break;
       }
     }
@@ -243,15 +246,15 @@ public class JobService {
     }
 
     // Count active jobs for this worker (across all processors/profiles)
-    org.jooq.Table<?> jobsJooq = table(name(systemSchemaName, "HpcJobs"));
+    org.jooq.Table<?> jobsJooq = table(name(systemSchemaName, HpcTables.JOBS));
     int activeCount =
         jooq.fetchCount(
             jooq.selectFrom(jobsJooq)
                 .where(
-                    field("worker_id")
+                    field(WORKER_ID)
                         .eq(workerId)
                         .and(
-                            field("status")
+                            field(STATUS)
                                 .in(
                                     HpcJobStatus.CLAIMED.name(),
                                     HpcJobStatus.SUBMITTED.name(),
@@ -278,14 +281,14 @@ public class JobService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table jobsTable = schema.getTable("HpcJobs");
+          Table jobsTable = schema.getTable(HpcTables.JOBS);
 
-          List<Row> rows = jobsTable.where(f("id", EQUALS, jobId)).retrieveRows();
+          List<Row> rows = jobsTable.where(f(ID, EQUALS, jobId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row job = rows.getFirst();
-          HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString("status"));
+          HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString(STATUS));
 
           if (!isAuthorizedTransition(job, targetStatus, workerId)) {
             logger.warn(
@@ -294,7 +297,7 @@ public class JobService {
                 currentStatus,
                 targetStatus,
                 workerId,
-                job.getString("worker_id"));
+                job.getString(WORKER_ID));
             return null;
           }
 
@@ -334,27 +337,27 @@ public class JobService {
           }
 
           // Apply transition
-          job.set("status", targetStatus.name());
+          job.set(STATUS, targetStatus.name());
           if (workerId != null) {
-            job.set("worker_id", workerId);
+            job.set(WORKER_ID, workerId);
           }
           if (slurmJobId != null) {
-            job.set("slurm_job_id", slurmJobId);
+            job.set(SLURM_JOB_ID, slurmJobId);
           }
           if (outputArtifactId != null) {
-            job.set("output_artifact_id", outputArtifactId);
+            job.set(OUTPUT_ARTIFACT_ID, outputArtifactId);
           }
           if (logArtifactId != null) {
-            job.set("log_artifact_id", logArtifactId);
+            job.set(LOG_ARTIFACT_ID, logArtifactId);
           }
           applyProgressSnapshot(job, phase, message, progress);
 
           // Set timestamp fields based on target status
           LocalDateTime now = LocalDateTime.now();
           switch (targetStatus) {
-            case SUBMITTED -> job.set("submitted_at", now);
-            case STARTED -> job.set("started_at", now);
-            case COMPLETED, FAILED, CANCELLED -> job.set("completed_at", now);
+            case SUBMITTED -> job.set(SUBMITTED_AT, now);
+            case STARTED -> job.set(STARTED_AT, now);
+            case COMPLETED, FAILED, CANCELLED -> job.set(COMPLETED_AT, now);
             default -> {}
           }
 
@@ -382,7 +385,7 @@ public class JobService {
 
   private static boolean isAuthorizedTransition(
       Row job, HpcJobStatus targetStatus, String workerId) {
-    String assignedWorkerId = job.getString("worker_id");
+    String assignedWorkerId = job.getString(WORKER_ID);
     if (assignedWorkerId == null || assignedWorkerId.isBlank()) {
       return true;
     }
@@ -403,14 +406,14 @@ public class JobService {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
-          Table jobsTable = schema.getTable("HpcJobs");
+          Table jobsTable = schema.getTable(HpcTables.JOBS);
 
-          List<Row> rows = jobsTable.where(f("id", EQUALS, jobId)).retrieveRows();
+          List<Row> rows = jobsTable.where(f(ID, EQUALS, jobId)).retrieveRows();
           if (rows.isEmpty()) {
             return null;
           }
           Row job = rows.getFirst();
-          HpcJobStatus status = HpcJobStatus.valueOf(job.getString("status"));
+          HpcJobStatus status = HpcJobStatus.valueOf(job.getString(STATUS));
 
           // Reject deletion of non-terminal jobs — caller must cancel first
           if (!status.isTerminal()) {
@@ -423,8 +426,8 @@ public class JobService {
           }
 
           // Delete transitions first (FK dependency)
-          Table transitionsTable = schema.getTable("HpcJobTransitions");
-          List<Row> transitions = transitionsTable.where(f("job_id", EQUALS, jobId)).retrieveRows();
+          Table transitionsTable = schema.getTable(HpcTables.JOB_TRANSITIONS);
+          List<Row> transitions = transitionsTable.where(f(JOB_ID, EQUALS, jobId)).retrieveRows();
           for (Row t : transitions) {
             transitionsTable.delete(t);
           }
@@ -442,8 +445,8 @@ public class JobService {
         db -> {
           List<Row> rows =
               db.getSchema(systemSchemaName)
-                  .getTable("HpcJobs")
-                  .where(f("id", EQUALS, jobId))
+                  .getTable(HpcTables.JOBS)
+                  .where(f(ID, EQUALS, jobId))
                   .retrieveRows();
           return rows.isEmpty() ? null : rows.getFirst();
         });
@@ -457,7 +460,7 @@ public class JobService {
       String status, String processor, String profile, int limit, int offset) {
     return tx.txResult(
         db -> {
-          Table jobsTable = db.getSchema(systemSchemaName).getTable("HpcJobs");
+          Table jobsTable = db.getSchema(systemSchemaName).getTable(HpcTables.JOBS);
           Query query = applyJobFilters(jobsTable.query(), status, processor, profile);
           return query.orderBy(jobListOrder()).limit(limit).offset(offset).retrieveRows();
         });
@@ -469,7 +472,7 @@ public class JobService {
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           return jooq.fetchCount(
-              jooq.selectFrom(table(name(systemSchemaName, "HpcJobs")))
+              jooq.selectFrom(table(name(systemSchemaName, HpcTables.JOBS)))
                   .where(jobListCondition(status, processor, profile)));
         });
   }
@@ -484,32 +487,32 @@ public class JobService {
 
   private Query applyJobFilters(Query query, String status, String processor, String profile) {
     String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
-    query.where(f("status", f("name", EQUALS, filterStatus)));
+    query.where(f(STATUS, f(NAME, EQUALS, filterStatus)));
     if (processor != null) {
-      query.where(f("processor", EQUALS, processor));
+      query.where(f(PROCESSOR, EQUALS, processor));
     }
     if (profile != null) {
-      query.where(f("profile", EQUALS, profile));
+      query.where(f(PROFILE, EQUALS, profile));
     }
     return query;
   }
 
   private Condition jobListCondition(String status, String processor, String profile) {
     String filterStatus = (status != null) ? status : HpcJobStatus.PENDING.name();
-    Condition condition = field(name("status")).eq(filterStatus);
+    Condition condition = field(name(STATUS)).eq(filterStatus);
     if (processor != null) {
-      condition = condition.and(field(name("processor")).eq(processor));
+      condition = condition.and(field(name(PROCESSOR)).eq(processor));
     }
     if (profile != null) {
-      condition = condition.and(field(name("profile")).eq(profile));
+      condition = condition.and(field(name(PROFILE)).eq(profile));
     }
     return condition;
   }
 
   private Map<String, Order> jobListOrder() {
     Map<String, Order> order = new LinkedHashMap<>();
-    order.put("created_at", Order.ASC);
-    order.put("id", Order.ASC);
+    order.put(CREATED_AT, Order.ASC);
+    order.put(ID, Order.ASC);
     return order;
   }
 
@@ -518,9 +521,9 @@ public class JobService {
     return tx.txResult(
         db ->
             db.getSchema(systemSchemaName)
-                .getTable("HpcJobTransitions")
-                .where(f("job_id", EQUALS, jobId))
-                .orderBy("timestamp", Order.ASC)
+                .getTable(HpcTables.JOB_TRANSITIONS)
+                .where(f(JOB_ID, EQUALS, jobId))
+                .orderBy(TIMESTAMP, Order.ASC)
                 .retrieveRows());
   }
 
@@ -535,28 +538,28 @@ public class JobService {
       String message,
       Double progress) {
     schema
-        .getTable("HpcJobTransitions")
+        .getTable(HpcTables.JOB_TRANSITIONS)
         .insert(
             row(
-                "id",
+                ID,
                 UUID.randomUUID().toString(),
-                "job_id",
+                JOB_ID,
                 jobId,
-                "from_status",
+                FROM_STATUS,
                 from != null ? from.name() : null,
-                "to_status",
+                TO_STATUS,
                 to.name(),
-                "timestamp",
+                TIMESTAMP,
                 LocalDateTime.now(),
-                "worker_id",
+                WORKER_ID,
                 workerId,
-                "detail",
+                DETAIL,
                 detail,
-                "phase",
+                PHASE,
                 phase,
-                "message",
+                MESSAGE,
                 message,
-                "progress",
+                PROGRESS,
                 progress));
   }
 
@@ -577,14 +580,14 @@ public class JobService {
       String message,
       Double progress) {
     List<Row> transitions =
-        schema.getTable("HpcJobTransitions").where(f("job_id", EQUALS, jobId)).retrieveRows();
+        schema.getTable(HpcTables.JOB_TRANSITIONS).where(f(JOB_ID, EQUALS, jobId)).retrieveRows();
     for (Row t : transitions) {
-      if (Objects.equals(toStatus.name(), t.getString("to_status"))
-          && Objects.equals(workerId, t.getString("worker_id"))
-          && Objects.equals(detail, t.getString("detail"))
-          && Objects.equals(phase, t.getString("phase"))
-          && Objects.equals(message, t.getString("message"))
-          && Objects.equals(progress, t.getDecimal("progress"))) {
+      if (Objects.equals(toStatus.name(), t.getString(TO_STATUS))
+          && Objects.equals(workerId, t.getString(WORKER_ID))
+          && Objects.equals(detail, t.getString(DETAIL))
+          && Objects.equals(phase, t.getString(PHASE))
+          && Objects.equals(message, t.getString(MESSAGE))
+          && Objects.equals(progress, t.getDecimal(PROGRESS))) {
         return true;
       }
     }
@@ -594,13 +597,13 @@ public class JobService {
   private static void applyProgressSnapshot(
       Row job, String phase, String message, Double progress) {
     if (phase != null) {
-      job.set("phase", phase);
+      job.set(PHASE, phase);
     }
     if (message != null) {
-      job.set("message", message);
+      job.set(MESSAGE, message);
     }
     if (progress != null) {
-      job.set("progress", progress);
+      job.set(PROGRESS, progress);
     }
   }
 
@@ -619,8 +622,8 @@ public class JobService {
         for (JsonNode element : node) {
           if (element.isTextual()) {
             ids.add(element.asText());
-          } else if (element.isObject() && element.has("artifact_id")) {
-            ids.add(element.get("artifact_id").asText());
+          } else if (element.isObject() && element.has(ARTIFACT_ID)) {
+            ids.add(element.get(ARTIFACT_ID).asText());
           }
         }
       } else if (node.isObject()) {
@@ -657,14 +660,14 @@ public class JobService {
    */
   private static void validateArtifactsCommitted(Schema schema, List<String> artifactIds) {
     if (artifactIds.isEmpty()) return;
-    Table artifactsTable = schema.getTable("HpcArtifacts");
+    Table artifactsTable = schema.getTable(HpcTables.ARTIFACTS);
     List<String> problems = new ArrayList<>();
     for (String artifactId : artifactIds) {
-      List<Row> rows = artifactsTable.where(f("id", EQUALS, artifactId)).retrieveRows();
+      List<Row> rows = artifactsTable.where(f(ID, EQUALS, artifactId)).retrieveRows();
       if (rows.isEmpty()) {
         problems.add("artifact " + artifactId + " not found");
       } else {
-        String status = rows.getFirst().getString("status");
+        String status = rows.getFirst().getString(STATUS);
         if (!ArtifactStatus.COMMITTED.name().equals(status)) {
           problems.add("artifact " + artifactId + " is " + status + ", expected COMMITTED");
         }

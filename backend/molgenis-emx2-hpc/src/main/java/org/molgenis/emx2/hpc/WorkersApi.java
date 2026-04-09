@@ -1,5 +1,6 @@
 package org.molgenis.emx2.hpc;
 
+import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
 import io.javalin.http.Context;
@@ -43,8 +44,8 @@ public class WorkersApi {
   public void register(Context ctx) throws Exception {
     String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
-    String workerId = (String) body.get("worker_id");
-    String hostname = (String) body.get("hostname");
+    String workerId = (String) body.get(WORKER_ID);
+    String hostname = (String) body.get(HOSTNAME);
     List<Map<String, Object>> capabilities = (List<Map<String, Object>>) body.get("capabilities");
 
     if (workerId == null || workerId.isBlank()) {
@@ -59,12 +60,12 @@ public class WorkersApi {
     Row worker = workerService.registerOrHeartbeat(workerId, hostname, capabilities);
 
     Map<String, Object> response = new LinkedHashMap<>();
-    response.put("worker_id", workerId);
-    response.put("hostname", hostname);
-    response.put("registered_at", worker.getString("registered_at"));
-    response.put("last_heartbeat_at", worker.getString("last_heartbeat_at"));
+    response.put(WORKER_ID, workerId);
+    response.put(HOSTNAME, hostname);
+    response.put(REGISTERED_AT, worker.getString(REGISTERED_AT));
+    response.put(LAST_HEARTBEAT_AT, worker.getString(LAST_HEARTBEAT_AT));
     response.put(
-        "_links",
+        LINKS,
         Map.of(
             "self", Map.of("href", "/api/hpc/workers/" + workerId, "method", "GET"),
             "heartbeat",
@@ -77,7 +78,7 @@ public class WorkersApi {
 
   /** DELETE /api/hpc/workers/{id} — remove a worker, capabilities, and credentials. */
   public void deleteWorker(Context ctx) {
-    String workerId = ctx.pathParam("id");
+    String workerId = ctx.pathParam(ID);
     if (workerId == null || workerId.isBlank()) {
       throw HpcException.badRequest("worker id is required", ctx.header(HpcHeaders.REQUEST_ID));
     }
