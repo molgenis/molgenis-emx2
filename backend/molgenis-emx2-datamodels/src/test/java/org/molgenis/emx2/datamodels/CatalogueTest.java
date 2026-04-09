@@ -22,9 +22,14 @@ public class CatalogueTest extends TestLoaders {
     assertEquals(20, cohortStaging.getTableNames().size());
   }
 
+  @Test
+  public void test08DataCatalogueRWEStagingLoader() {
+    assertEquals(18, rweStaging.getTableNames().size());
+  }
+
   @Disabled
   @Test
-  public void test08DataCatalogueNetworkStagingLoader() {
+  public void test09DataCatalogueNetworkStagingLoader() {
     assertEquals(15, networkStaging.getTableNames().size());
   }
 }
