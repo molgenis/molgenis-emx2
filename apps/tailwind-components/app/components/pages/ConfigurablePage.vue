@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { IConfigurablePages } from "../../../types/cms";
-import type {
-  ISchemaMetaData,
-  ITableMetaData,
-} from "../../../../metadata-utils/src";
+import type { ITableMetaData } from "../../../../metadata-utils/src";
 
+import PageSection from "./Section.vue";
 import PageComponent from "./PageComponent.vue";
 import TextParagraph from "./Paragraph.vue";
 
@@ -33,8 +31,6 @@ const props = withDefaults(
       v-else-if="orderedBlock.block.mg_tableclass === 'cms.Sections'"
       :mg_tableclass="orderedBlock.block.mg_tableclass"
       :component="orderedBlock.block"
-      :is-editable="isEditable"
-      :metadata="metadata"
     >
       <template
         v-for="orderedComponent in orderedBlock.block.componentOrder"
