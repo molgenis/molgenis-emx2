@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, useId } from "vue";
+import { onMounted, ref, useId } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 
 const pageInputId = useId();
@@ -11,15 +11,19 @@ const props = withDefaults(
     preventDefault?: boolean;
     inverted?: boolean;
     jumpToEdge?: boolean;
+    showPageSize?: boolean;
+    pageSizeOptions?: number[];
   }>(),
   {
     preventDefault: false,
     inverted: false,
     jumpToEdge: false,
+    showPageSize: false,
+    pageSizeOptions: () => [10, 20, 50, 100],
   }
 );
-const emit = defineEmits(["update"]);
-
+const emit = defineEmits(["update", "update:pageSize"]);
+const pageSize = ref(20);
 onMounted(() => {
   if (window) {
     window.addEventListener("popstate", () => {
@@ -170,6 +174,40 @@ function changeCurrentPage(event: Event) {
           <span class="sr-only">Go to last page</span>
           <BaseIcon name="double-arrow-right" :width="24" />
         </a>
+      </li>
+
+
+      <li v-if="showPageSize" class="flex justify-center items-center">
+        <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
+          <span
+            class="text-pagination"
+            :class="{
+              'text-pagination-inverted': inverted,
+            }"
+          >
+            with size
+          </span>
+        </div>
+      </li>
+
+      <li v-if="showPageSize" class="flex justify-center items-center">
+        <div class="tracking-widest whitespace-nowrap w-32">
+            <span
+            class="text-pagination"
+            :class="{
+              'text-pagination-inverted': inverted,
+            }"
+          >
+            <InputSelect
+              id="page-size-select"
+              :options="pageSizeOptions"
+              @update:modelValue="(value) => emit('update:pageSize', value)"
+              v-model="pageSize"
+              class="!p-0 text-center border border-input rounded-theme bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
+              :required="true"
+            />
+            </span>
+        </div>
       </li>
     </ul>
   </nav>

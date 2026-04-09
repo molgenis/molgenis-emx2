@@ -166,7 +166,9 @@
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
+    :show-page-size="true"
     @update="handlePagingRequest($event)"
+    @update:pageSize="handlePageSizeChange($event)"
   />
 
   <Modal
@@ -424,7 +426,11 @@ function handlePagingRequest(page: number) {
   settings.value.page = page;
   refresh();
 }
-
+function handlePageSizeChange(pageSize: number) {
+  settings.value.pageSize = pageSize;
+  settings.value.page = 1;
+  refresh();
+}
 function handleCellClick(event: cellPayload, column: IColumn) {
   cellDetailSubtitle.value = column.label;
   cellDetailColumn.value = column;
