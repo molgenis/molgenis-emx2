@@ -7,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * HMAC-SHA256 request verification for the HPC bridge protocol.
@@ -27,7 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class HmacVerifier {
 
-  private static final Logger logger = LoggerFactory.getLogger(HmacVerifier.class);
   private static final String ALGORITHM = "HmacSHA256";
   private static final long MAX_TIMESTAMP_DRIFT_SECONDS = 300; // 5 minutes
   private static final int DEFAULT_MAX_NONCE_CACHE_ENTRIES = 50_000;

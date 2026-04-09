@@ -4,6 +4,7 @@ import static org.molgenis.emx2.hpc.HpcApiUtils.requestId;
 import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -22,12 +23,10 @@ public class WorkerCredentialsApi {
   }
 
   @SuppressWarnings("unchecked")
-  public void issueCredential(Context ctx) throws Exception {
+  public void issueCredential(Context ctx) throws JsonProcessingException {
     String workerId = requirePathWorkerId(ctx);
     Map<String, Object> body =
-        ctx.body() == null || ctx.body().isBlank()
-            ? Map.of()
-            : MAPPER.readValue(ctx.body(), Map.class);
+        ctx.body().isBlank() ? Map.of() : MAPPER.readValue(ctx.body(), Map.class);
     String label = optionalString(body.get(LABEL));
     LocalDateTime expiresAt = parseOptionalDateTime(body.get(EXPIRES_AT), EXPIRES_AT, ctx);
     String createdBy =
@@ -77,12 +76,10 @@ public class WorkerCredentialsApi {
   }
 
   @SuppressWarnings("unchecked")
-  public void rotateCredential(Context ctx) throws Exception {
+  public void rotateCredential(Context ctx) throws JsonProcessingException {
     String workerId = requirePathWorkerId(ctx);
     Map<String, Object> body =
-        ctx.body() == null || ctx.body().isBlank()
-            ? Map.of()
-            : MAPPER.readValue(ctx.body(), Map.class);
+        ctx.body().isBlank() ? Map.of() : MAPPER.readValue(ctx.body(), Map.class);
     String label = optionalString(body.get(LABEL));
     LocalDateTime expiresAt = parseOptionalDateTime(body.get(EXPIRES_AT), EXPIRES_AT, ctx);
     String createdBy =
@@ -119,7 +116,7 @@ public class WorkerCredentialsApi {
   public void revokeCredential(Context ctx) {
     String workerId = requirePathWorkerId(ctx);
     String credentialId = ctx.pathParam("credentialId");
-    if (credentialId == null || credentialId.isBlank()) {
+    if (credentialId.isBlank()) {
       throw HpcException.badRequest("credential id is required", requestId(ctx));
     }
 
@@ -152,7 +149,7 @@ public class WorkerCredentialsApi {
 
   private static String requirePathWorkerId(Context ctx) {
     String workerId = ctx.pathParam(ID);
-    if (workerId == null || workerId.isBlank()) {
+    if (workerId.isBlank()) {
       throw HpcException.badRequest("worker id is required", requestId(ctx));
     }
     return workerId;
@@ -176,7 +173,7 @@ public class WorkerCredentialsApi {
     }
     try {
       return LocalDateTime.parse(s.replace(' ', 'T'));
-    } catch (Exception e) {
+    } catch (java.time.format.DateTimeParseException e) {
       throw HpcException.badRequest(field + " must be an ISO-8601 datetime", requestId(ctx));
     }
   }

@@ -85,7 +85,7 @@ public class JobService {
           schema.getTable(HpcTables.JOBS).insert(jobRow);
 
           recordTransition(
-              schema, jobId, null, HpcJobStatus.PENDING, null, "Job created", null, null, null);
+              schema, jobId, null, HpcJobStatus.PENDING, TransitionParams.of(null, "Job created"));
         });
     logger.info(
         "Job created: id={} processor={} profile={} user={}",
@@ -179,11 +179,7 @@ public class JobService {
               jobId,
               HpcJobStatus.PENDING,
               HpcJobStatus.CLAIMED,
-              workerId,
-              "Claimed by worker " + workerId,
-              null,
-              null,
-              null);
+              TransitionParams.of(workerId, "Claimed by worker " + workerId));
 
           logger.info("Job claimed: id={} worker={}", jobId, workerId);
           return ClaimResult.success(job);
@@ -267,17 +263,7 @@ public class JobService {
    * Transitions a job from its current status to a new status. Validates the transition against the
    * state machine. Returns the updated job row, or null if the transition is invalid.
    */
-  public Row transitionJob(
-      String jobId,
-      HpcJobStatus targetStatus,
-      String workerId,
-      String detail,
-      String slurmJobId,
-      String outputArtifactId,
-      String logArtifactId,
-      String phase,
-      String message,
-      Double progress) {
+  public Row transitionJob(String jobId, HpcJobStatus targetStatus, TransitionParams params) {
     return tx.txResult(
         db -> {
           Schema schema = db.getSchema(systemSchemaName);
@@ -290,41 +276,31 @@ public class JobService {
           Row job = rows.getFirst();
           HpcJobStatus currentStatus = HpcJobStatus.valueOf(job.getString(STATUS));
 
-          if (!isAuthorizedTransition(job, targetStatus, workerId)) {
+          if (!isAuthorizedTransition(job, targetStatus, params.workerId())) {
             logger.warn(
                 "Rejected transition for job={} {} -> {}: worker {} does not own job (owner={})",
                 jobId,
                 currentStatus,
                 targetStatus,
-                workerId,
+                params.workerId(),
                 job.getString(WORKER_ID));
             return null;
           }
 
           // Same-state transition: idempotent retry detection or progress update
           if (currentStatus == targetStatus) {
-            if (isIdenticalTransitionRecorded(
-                schema, jobId, targetStatus, workerId, detail, phase, message, progress)) {
+            if (isIdenticalTransitionRecorded(schema, jobId, targetStatus, params)) {
               logger.debug(
                   "Idempotent duplicate transition for job={} status={}", jobId, targetStatus);
               return job;
             }
-            if ((detail != null && !detail.isBlank())
-                || phase != null
-                || message != null
-                || progress != null) {
-              applyProgressSnapshot(job, phase, message, progress);
+            if ((params.detail() != null && !params.detail().isBlank())
+                || params.phase() != null
+                || params.message() != null
+                || params.progress() != null) {
+              applyProgressSnapshot(job, params);
               jobsTable.update(job);
-              recordTransition(
-                  schema,
-                  jobId,
-                  currentStatus,
-                  targetStatus,
-                  workerId,
-                  detail,
-                  phase,
-                  message,
-                  progress);
+              recordTransition(schema, jobId, currentStatus, targetStatus, params);
             }
             return job;
           }
@@ -338,19 +314,19 @@ public class JobService {
 
           // Apply transition
           job.set(STATUS, targetStatus.name());
-          if (workerId != null) {
-            job.set(WORKER_ID, workerId);
+          if (params.workerId() != null) {
+            job.set(WORKER_ID, params.workerId());
           }
-          if (slurmJobId != null) {
-            job.set(SLURM_JOB_ID, slurmJobId);
+          if (params.slurmJobId() != null) {
+            job.set(SLURM_JOB_ID, params.slurmJobId());
           }
-          if (outputArtifactId != null) {
-            job.set(OUTPUT_ARTIFACT_ID, outputArtifactId);
+          if (params.outputArtifactId() != null) {
+            job.set(OUTPUT_ARTIFACT_ID, params.outputArtifactId());
           }
-          if (logArtifactId != null) {
-            job.set(LOG_ARTIFACT_ID, logArtifactId);
+          if (params.logArtifactId() != null) {
+            job.set(LOG_ARTIFACT_ID, params.logArtifactId());
           }
-          applyProgressSnapshot(job, phase, message, progress);
+          applyProgressSnapshot(job, params);
 
           // Set timestamp fields based on target status
           LocalDateTime now = LocalDateTime.now();
@@ -362,22 +338,13 @@ public class JobService {
           }
 
           jobsTable.update(job);
-          recordTransition(
-              schema,
-              jobId,
-              currentStatus,
-              targetStatus,
-              workerId,
-              detail,
-              phase,
-              message,
-              progress);
+          recordTransition(schema, jobId, currentStatus, targetStatus, params);
           logger.info(
               "Job transitioned: id={} {} -> {} worker={}",
               jobId,
               currentStatus,
               targetStatus,
-              workerId);
+              params.workerId());
 
           return job;
         });
@@ -528,15 +495,7 @@ public class JobService {
   }
 
   private static void recordTransition(
-      Schema schema,
-      String jobId,
-      HpcJobStatus from,
-      HpcJobStatus to,
-      String workerId,
-      String detail,
-      String phase,
-      String message,
-      Double progress) {
+      Schema schema, String jobId, HpcJobStatus from, HpcJobStatus to, TransitionParams params) {
     schema
         .getTable(HpcTables.JOB_TRANSITIONS)
         .insert(
@@ -552,15 +511,15 @@ public class JobService {
                 TIMESTAMP,
                 LocalDateTime.now(),
                 WORKER_ID,
-                workerId,
+                params.workerId(),
                 DETAIL,
-                detail,
+                params.detail(),
                 PHASE,
-                phase,
+                params.phase(),
                 MESSAGE,
-                message,
+                params.message(),
                 PROGRESS,
-                progress));
+                params.progress()));
   }
 
   /**
@@ -571,39 +530,31 @@ public class JobService {
    * recording again.
    */
   private static boolean isIdenticalTransitionRecorded(
-      Schema schema,
-      String jobId,
-      HpcJobStatus toStatus,
-      String workerId,
-      String detail,
-      String phase,
-      String message,
-      Double progress) {
+      Schema schema, String jobId, HpcJobStatus toStatus, TransitionParams params) {
     List<Row> transitions =
         schema.getTable(HpcTables.JOB_TRANSITIONS).where(f(JOB_ID, EQUALS, jobId)).retrieveRows();
     for (Row t : transitions) {
       if (Objects.equals(toStatus.name(), t.getString(TO_STATUS))
-          && Objects.equals(workerId, t.getString(WORKER_ID))
-          && Objects.equals(detail, t.getString(DETAIL))
-          && Objects.equals(phase, t.getString(PHASE))
-          && Objects.equals(message, t.getString(MESSAGE))
-          && Objects.equals(progress, t.getDecimal(PROGRESS))) {
+          && Objects.equals(params.workerId(), t.getString(WORKER_ID))
+          && Objects.equals(params.detail(), t.getString(DETAIL))
+          && Objects.equals(params.phase(), t.getString(PHASE))
+          && Objects.equals(params.message(), t.getString(MESSAGE))
+          && Objects.equals(params.progress(), t.getDecimal(PROGRESS))) {
         return true;
       }
     }
     return false;
   }
 
-  private static void applyProgressSnapshot(
-      Row job, String phase, String message, Double progress) {
-    if (phase != null) {
-      job.set(PHASE, phase);
+  private static void applyProgressSnapshot(Row job, TransitionParams params) {
+    if (params.phase() != null) {
+      job.set(PHASE, params.phase());
     }
-    if (message != null) {
-      job.set(MESSAGE, message);
+    if (params.message() != null) {
+      job.set(MESSAGE, params.message());
     }
-    if (progress != null) {
-      job.set(PROGRESS, progress);
+    if (params.progress() != null) {
+      job.set(PROGRESS, params.progress());
     }
   }
 
@@ -644,7 +595,7 @@ public class JobService {
     return ids;
   }
 
-  private static JsonNode toJsonNode(Object value) throws Exception {
+  private static JsonNode toJsonNode(Object value) throws IllegalArgumentException {
     if (value == null) {
       return null;
     }

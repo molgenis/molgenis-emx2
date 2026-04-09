@@ -48,7 +48,7 @@ class HpcApiContractTest {
   @Test
   void apiVersionMatchesSpec() {
     String specVersion = defs.get("apiVersion").get("const").asText();
-    assertEquals(specVersion, ApiVersion.CURRENT, "ApiVersion.CURRENT does not match protocol");
+    assertEquals(ApiVersion.CURRENT, specVersion, "ApiVersion.CURRENT does not match protocol");
   }
 
   @Test

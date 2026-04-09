@@ -9,6 +9,7 @@ import static org.molgenis.emx2.hpc.JobResponseMapper.resolveWorkerId;
 import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.molgenis.emx2.hpc.protocol.LinkBuilder;
 import org.molgenis.emx2.hpc.service.ArtifactService;
 import org.molgenis.emx2.hpc.service.ClaimResult;
 import org.molgenis.emx2.hpc.service.JobService;
+import org.molgenis.emx2.hpc.service.TransitionParams;
 
 /**
  * Job lifecycle endpoints:
@@ -47,7 +49,7 @@ public class JobsApi {
 
   /** POST /api/hpc/jobs — create a new job in PENDING status. */
   @SuppressWarnings("unchecked")
-  public void createJob(Context ctx) throws Exception {
+  public void createJob(Context ctx) throws JsonProcessingException {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String processor = (String) body.get(PROCESSOR);
     String profile = (String) body.get(PROFILE);
@@ -113,7 +115,7 @@ public class JobsApi {
    * success, 409 if already claimed or capability mismatch, 404 if not found.
    */
   @SuppressWarnings("unchecked")
-  public void claimJob(Context ctx) throws Exception {
+  public void claimJob(Context ctx) throws JsonProcessingException {
     String jobId = ctx.pathParam(ID);
     InputValidator.requireUuid(jobId, ID);
 
@@ -163,22 +165,12 @@ public class JobsApi {
    * "slurm_job_id": "12345", "phase": "staging", "message": "step 2/5", "progress": 0.4}
    */
   @SuppressWarnings("unchecked")
-  public void transitionJob(Context ctx) throws Exception {
+  public void transitionJob(Context ctx) throws JsonProcessingException {
     String jobId = ctx.pathParam(ID);
     InputValidator.requireUuid(jobId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String targetStatusStr = (String) body.get(STATUS);
-    String workerId = resolveWorkerId(ctx, (String) body.get(WORKER_ID));
-    String detail = (String) body.get(DETAIL);
-    String phase =
-        parseOptionalBoundedString(
-            body.get(PHASE), PHASE, JobResponseMapper.maxProgressPhaseLength());
-    String message =
-        parseOptionalBoundedString(
-            body.get(MESSAGE), MESSAGE, JobResponseMapper.maxProgressMessageLength());
-    Double progress = parseOptionalProgress(body.get(PROGRESS));
-
     if (targetStatusStr == null) {
       throw HpcException.badRequest("status is required", requestId(ctx));
     }
@@ -190,21 +182,8 @@ public class JobsApi {
       throw HpcException.badRequest("Invalid status: " + targetStatusStr, requestId(ctx));
     }
 
-    String slurmJobId = (String) body.get(SLURM_JOB_ID);
-    String outputArtifactId = (String) body.get(OUTPUT_ARTIFACT_ID);
-    String logArtifactId = (String) body.get(LOG_ARTIFACT_ID);
-    Row result =
-        jobService.transitionJob(
-            jobId,
-            targetStatus,
-            workerId,
-            detail,
-            slurmJobId,
-            outputArtifactId,
-            logArtifactId,
-            phase,
-            message,
-            progress);
+    TransitionParams params = parseTransitionParams(ctx, body);
+    Row result = jobService.transitionJob(jobId, targetStatus, params);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -233,25 +212,12 @@ public class JobsApi {
    * the job with all artifact references.
    */
   @SuppressWarnings("unchecked")
-  public void completeJob(Context ctx) throws Exception {
+  public void completeJob(Context ctx) throws JsonProcessingException {
     String jobId = ctx.pathParam(ID);
     InputValidator.requireUuid(jobId, ID);
 
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String targetStatusStr = (String) body.get(STATUS);
-    String workerId = resolveWorkerId(ctx, (String) body.get(WORKER_ID));
-    String detail = (String) body.get(DETAIL);
-    String phase =
-        parseOptionalBoundedString(
-            body.get(PHASE), PHASE, JobResponseMapper.maxProgressPhaseLength());
-    String message =
-        parseOptionalBoundedString(
-            body.get(MESSAGE), MESSAGE, JobResponseMapper.maxProgressMessageLength());
-    Double progress = parseOptionalProgress(body.get(PROGRESS));
-    String slurmJobId = (String) body.get(SLURM_JOB_ID);
-    String outputArtifactId = (String) body.get(OUTPUT_ARTIFACT_ID);
-    String logArtifactId = (String) body.get(LOG_ARTIFACT_ID);
-
     if (targetStatusStr == null) {
       throw HpcException.badRequest("status is required", requestId(ctx));
     }
@@ -270,18 +236,8 @@ public class JobsApi {
           requestId(ctx));
     }
 
-    Row result =
-        jobService.transitionJob(
-            jobId,
-            targetStatus,
-            workerId,
-            detail,
-            slurmJobId,
-            outputArtifactId,
-            logArtifactId,
-            phase,
-            message,
-            progress);
+    TransitionParams params = parseTransitionParams(ctx, body);
+    Row result = jobService.transitionJob(jobId, targetStatus, params);
     if (result == null) {
       Row existing = jobService.getJob(jobId);
       if (existing == null) {
@@ -315,16 +271,7 @@ public class JobsApi {
     // authenticated caller (UI user, API client), not just the assigned worker.
     Row result =
         jobService.transitionJob(
-            jobId,
-            HpcJobStatus.CANCELLED,
-            null,
-            "Cancelled via API",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            jobId, HpcJobStatus.CANCELLED, TransitionParams.of(null, "Cancelled via API"));
     if (result == null) {
       throw HpcException.conflict(
           "Cannot cancel job " + jobId + " in status " + existing.getString(STATUS),
@@ -390,5 +337,19 @@ public class JobsApi {
     response.put("items", items);
     response.put("count", items.size());
     ctx.json(response);
+  }
+
+  private static TransitionParams parseTransitionParams(Context ctx, Map<String, Object> body) {
+    return new TransitionParams(
+        resolveWorkerId(ctx, (String) body.get(WORKER_ID)),
+        (String) body.get(DETAIL),
+        (String) body.get(SLURM_JOB_ID),
+        (String) body.get(OUTPUT_ARTIFACT_ID),
+        (String) body.get(LOG_ARTIFACT_ID),
+        parseOptionalBoundedString(
+            body.get(PHASE), PHASE, JobResponseMapper.maxProgressPhaseLength()),
+        parseOptionalBoundedString(
+            body.get(MESSAGE), MESSAGE, JobResponseMapper.maxProgressMessageLength()),
+        parseOptionalProgress(body.get(PROGRESS)));
   }
 }

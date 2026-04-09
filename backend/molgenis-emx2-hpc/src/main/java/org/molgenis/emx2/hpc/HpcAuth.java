@@ -105,7 +105,8 @@ class HpcAuth {
       logger.debug("HPC JWT auth: authenticated as user '{}'", user);
       return user;
     } catch (MolgenisException e) {
-      logger.warn("HPC JWT auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
+      logger.warn(
+          "HPC JWT auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip(), e);
       throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
   }
@@ -154,9 +155,10 @@ class HpcAuth {
           contentSha256);
       workerCredentialService.markCredentialUsed(credential.id());
     } catch (IllegalStateException e) {
+      logger.warn("HPC HMAC auth unavailable: {}", e.getMessage(), e);
       throw HpcException.serviceUnavailable(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     } catch (SecurityException e) {
-      logger.warn("HPC auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip());
+      logger.warn("HPC auth failed: {} (path={}, ip={})", e.getMessage(), ctx.path(), ctx.ip(), e);
       throw HpcException.unauthorized(e.getMessage(), ctx.header(HpcHeaders.REQUEST_ID));
     }
   }
@@ -329,10 +331,12 @@ class HpcAuth {
     if (isCredentialsKeyMissing(e)) {
       return HpcException.serviceUnavailable(rootMessage(e), requestId);
     }
+    String method = ctx.method().name();
+    String path = ctx.path();
     logger.error(
         "HPC backend exception on {} {} [request_id={}, trace_id={}]",
-        ctx.method().name(),
-        ctx.path(),
+        method,
+        path,
         requestId,
         traceId,
         e);
@@ -349,10 +353,12 @@ class HpcAuth {
     if (isCredentialsKeyMissing(e)) {
       return HpcException.serviceUnavailable(rootMessage(e), requestId);
     }
+    String method = ctx.method().name();
+    String path = ctx.path();
     logger.error(
         "Unhandled HPC exception on {} {} [request_id={}, trace_id={}]",
-        ctx.method().name(),
-        ctx.path(),
+        method,
+        path,
         requestId,
         traceId,
         e);

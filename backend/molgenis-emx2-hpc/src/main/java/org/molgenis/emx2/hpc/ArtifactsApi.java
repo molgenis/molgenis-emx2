@@ -7,8 +7,10 @@ import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.InputValidator.parseIntParam;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,7 +92,7 @@ public class ArtifactsApi {
 
   /** POST /api/hpc/artifacts — create a new artifact. */
   @SuppressWarnings("unchecked")
-  public void createArtifact(Context ctx) throws Exception {
+  public void createArtifact(Context ctx) throws JsonProcessingException {
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String name = (String) body.get(NAME);
     String type = (String) body.get(TYPE);
@@ -259,8 +262,10 @@ public class ArtifactsApi {
       throw HpcException.internal(e.getMessage(), requestId(ctx));
     } finally {
       if (tempFile != null) {
-        if (!tempFile.delete() && tempFile.exists()) {
-          logger.warn("Failed to delete temp file: {}", tempFile.getAbsolutePath());
+        try {
+          Files.deleteIfExists(tempFile.toPath());
+        } catch (IOException e) {
+          logger.warn("Failed to delete temp file: {}", tempFile.getAbsolutePath(), e);
         }
       }
     }
@@ -286,7 +291,7 @@ public class ArtifactsApi {
 
   /** Handles multipart file upload, streaming to a temp file with SHA-256 computation. */
   private UploadResult handleMultipartUpload(Context ctx, String filePath, File tempFile)
-      throws Exception {
+      throws IOException, NoSuchAlgorithmException, ServletException {
     long maxBytes = getMaxUploadBytes();
     enforceContentLengthLimit(ctx, maxBytes);
 
@@ -304,11 +309,11 @@ public class ArtifactsApi {
     try (InputStream input = filePart.getInputStream()) {
       sizeBytes = streamToFile(input, multipartTemp, digest, maxBytes, requestId(ctx));
     } catch (HpcException e) {
-      multipartTemp.delete();
+      Files.deleteIfExists(multipartTemp.toPath());
       throw e;
     }
     // Replace tempFile reference so both get cleaned up
-    tempFile.delete();
+    Files.deleteIfExists(tempFile.toPath());
 
     String sha256 = HexFormat.of().formatHex(digest.digest());
     String contentType = ctx.formParam(CONTENT_TYPE);
@@ -320,14 +325,15 @@ public class ArtifactsApi {
     verifyContentSha256(ctx, sha256);
     BinaryFileWrapper content =
         new BinaryFileWrapper(contentType, filePath, Files.readAllBytes(multipartTemp.toPath()));
-    multipartTemp.delete();
+    Files.deleteIfExists(multipartTemp.toPath());
 
     return new UploadResult(sha256, sizeBytes, contentType, content);
   }
 
   /** Handles raw binary upload, streaming to a temp file with SHA-256 computation. */
   private UploadResult handleBinaryUpload(
-      Context ctx, String filePath, String declaredType, File tempFile) throws Exception {
+      Context ctx, String filePath, String declaredType, File tempFile)
+      throws IOException, NoSuchAlgorithmException {
     long maxBytes = getMaxUploadBytes();
     enforceContentLengthLimit(ctx, maxBytes);
 
@@ -537,7 +543,7 @@ public class ArtifactsApi {
    * <p>Request body: {"sha256": "overall-hash...", "size_bytes": 4096}
    */
   @SuppressWarnings("unchecked")
-  public void commitArtifact(Context ctx) throws Exception {
+  public void commitArtifact(Context ctx) throws JsonProcessingException {
     String artifactId = ctx.pathParam(ID);
     InputValidator.requireUuid(artifactId, ID);
 

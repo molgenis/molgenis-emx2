@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.hpc.model.HpcJobStatus;
@@ -82,37 +81,22 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         jobService.transitionJob(
             jobId,
             HpcJobStatus.SUBMITTED,
-            "worker-other",
-            "should fail",
-            "slurm-1",
-            null,
-            null,
-            null,
-            null,
-            null);
+            new TransitionParams(
+                "worker-other", "should fail", "slurm-1", null, null, null, null, null));
     assertNull(wrongWorker, "Non-owner worker must not transition claimed job");
 
     Row invalidState =
         jobService.transitionJob(
             jobId,
             HpcJobStatus.COMPLETED,
-            "worker-owner",
-            "cannot skip states",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
+            TransitionParams.of("worker-owner", "cannot skip states"));
     assertNull(invalidState, "CLAIMED -> COMPLETED must be rejected");
 
     Row stillClaimed = jobService.getJob(jobId);
     assertEquals(HpcJobStatus.CLAIMED.name(), stillClaimed.getString("status"));
 
     List<String> toStatuses =
-        jobService.getTransitions(jobId).stream()
-            .map(t -> t.getString("to_status"))
-            .collect(Collectors.toList());
+        jobService.getTransitions(jobId).stream().map(t -> t.getString("to_status")).toList();
     assertIterableEquals(List.of("PENDING", "CLAIMED"), toStatuses);
   }
 
@@ -128,61 +112,36 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         jobService.transitionJob(
             jobId,
             HpcJobStatus.SUBMITTED,
-            "worker-order",
-            "submitted",
-            "slurm-123",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-order", "submitted", "slurm-123", null, null, null, null, null)));
     Thread.sleep(5);
     assertNotNull(
         jobService.transitionJob(
             jobId,
             HpcJobStatus.STARTED,
-            "worker-order",
-            "started",
-            "slurm-123",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-order", "started", "slurm-123", null, null, null, null, null)));
     Thread.sleep(5);
     assertNotNull(
         jobService.transitionJob(
             jobId,
             HpcJobStatus.COMPLETED,
-            "worker-order",
-            "done",
-            "slurm-123",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-order", "done", "slurm-123", null, null, null, null, null)));
 
     int beforeDuplicate = jobService.getTransitions(jobId).size();
     assertNotNull(
         jobService.transitionJob(
             jobId,
             HpcJobStatus.COMPLETED,
-            "worker-order",
-            "done",
-            "slurm-123",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-order", "done", "slurm-123", null, null, null, null, null)));
     int afterDuplicate = jobService.getTransitions(jobId).size();
     assertEquals(
         beforeDuplicate, afterDuplicate, "Duplicate transition retry should be idempotent");
 
     List<Row> transitions = jobService.getTransitions(jobId);
-    List<String> statuses =
-        transitions.stream().map(t -> t.getString("to_status")).collect(Collectors.toList());
+    List<String> statuses = transitions.stream().map(t -> t.getString("to_status")).toList();
     assertIterableEquals(
         List.of("PENDING", "CLAIMED", "SUBMITTED", "STARTED", "COMPLETED"), statuses);
 
@@ -210,26 +169,14 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         jobService.transitionJob(
             jobId,
             HpcJobStatus.SUBMITTED,
-            "worker-progress",
-            "submitted",
-            "slurm-progress",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-progress", "submitted", "slurm-progress", null, null, null, null, null)));
     assertNotNull(
         jobService.transitionJob(
             jobId,
             HpcJobStatus.STARTED,
-            "worker-progress",
-            "started",
-            "slurm-progress",
-            null,
-            null,
-            null,
-            null,
-            null));
+            new TransitionParams(
+                "worker-progress", "started", "slurm-progress", null, null, null, null, null)));
 
     int beforeProgress = jobService.getTransitions(jobId).size();
 
@@ -237,14 +184,15 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         jobService.transitionJob(
             jobId,
             HpcJobStatus.STARTED,
-            "worker-progress",
-            "progress update",
-            "slurm-progress",
-            null,
-            null,
-            "sorting",
-            "step 3 of 10",
-            0.3));
+            new TransitionParams(
+                "worker-progress",
+                "progress update",
+                "slurm-progress",
+                null,
+                null,
+                "sorting",
+                "step 3 of 10",
+                0.3)));
 
     Row updated = jobService.getJob(jobId);
     assertEquals("sorting", updated.getString("phase"));
@@ -265,14 +213,15 @@ class JobServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         jobService.transitionJob(
             jobId,
             HpcJobStatus.STARTED,
-            "worker-progress",
-            "progress update",
-            "slurm-progress",
-            null,
-            null,
-            "sorting",
-            "step 3 of 10",
-            0.3));
+            new TransitionParams(
+                "worker-progress",
+                "progress update",
+                "slurm-progress",
+                null,
+                null,
+                "sorting",
+                "step 3 of 10",
+                0.3)));
     assertEquals(beforeProgress + 1, jobService.getTransitions(jobId).size());
   }
 

@@ -68,16 +68,19 @@ class ArtifactServiceIntegrationTest extends HpcServiceIntegrationTestBase {
         artifactService.commitArtifact(artifactId, firstHash, (long) first.length).isSuccess());
 
     byte[] replacement = "replacement".getBytes(StandardCharsets.UTF_8);
+    String replacementHash = sha256Hex(replacement);
+    BinaryFileWrapper replacementWrapper =
+        new BinaryFileWrapper("text/plain", "output.txt", replacement);
     assertThrows(
         MolgenisException.class,
         () ->
             artifactService.uploadFileByPath(
                 artifactId,
                 "output.txt",
-                sha256Hex(replacement),
+                replacementHash,
                 (long) replacement.length,
                 "text/plain",
-                new BinaryFileWrapper("text/plain", "output.txt", replacement)));
+                replacementWrapper));
 
     assertThrows(
         MolgenisException.class, () -> artifactService.deleteFile(artifactId, "output.txt"));

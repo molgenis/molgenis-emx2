@@ -3,6 +3,7 @@ package org.molgenis.emx2.hpc;
 import static org.molgenis.emx2.hpc.HpcFields.*;
 import static org.molgenis.emx2.hpc.protocol.Json.MAPPER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class WorkersApi {
    * </pre>
    */
   @SuppressWarnings("unchecked")
-  public void register(Context ctx) throws Exception {
+  public void register(Context ctx) throws JsonProcessingException {
     String headerWorkerId = HpcHeaders.requireWorkerId(ctx);
     Map<String, Object> body = MAPPER.readValue(ctx.body(), Map.class);
     String workerId = (String) body.get(WORKER_ID);
