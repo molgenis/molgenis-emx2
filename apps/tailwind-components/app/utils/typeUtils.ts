@@ -164,7 +164,7 @@ export function assertRefColumnValue(
   }
 }
 
-export function assertMenu(menu: any): asserts menu is Menu {
+export function assertMenu(menu: unknown): asserts menu is Menu {
   if (!Array.isArray(menu)) {
     throw new Error(`Expected menu to be an array, but got ${typeof menu}`);
   }
@@ -174,22 +174,22 @@ export function assertMenu(menu: any): asserts menu is Menu {
         `Expected menu item at index ${index} to have a string 'label' property`
       );
     }
-    if (typeof item.href !== "string") {
+    if (typeof item.link !== "string") {
       throw new Error(
-        `Expected menu item at index ${index} to have a string 'href' property`
+        `Expected menu item at index ${index} to have a string 'link' property`
       );
     }
-    if (typeof item.role !== "string") {
+    if (item.role && typeof item.role !== "string") {
       throw new Error(
         `Expected menu item at index ${index} to have a string 'role' property`
       );
     }
-    if (typeof item.key !== "string") {
+    if (item.key && typeof item.key !== "string") {
       throw new Error(
         `Expected menu item at index ${index} to have a string 'key' property`
       );
     }
-    if (item.submenu && !Array.isArray(item.submenu)) {
+    if (item.submenu && item.submenu && !Array.isArray(item.submenu)) {
       throw new Error(
         `Expected menu item at index ${index} to have an array 'submenu' property`
       );

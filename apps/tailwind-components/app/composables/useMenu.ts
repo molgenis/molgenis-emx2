@@ -3,6 +3,8 @@ import type { Menu } from "../../types/types";
 import { useSchemaSettings } from "./useSchemaSettings";
 import { computed, ref, useRoute, watch } from "#imports";
 
+const MENU_SETTING_KEY = "tw-menu";
+
 const route = useRoute();
 const schema = computed(() =>
   Array.isArray(route.params.schema)
@@ -24,8 +26,10 @@ function parseMenuItems(menuJson: string): Menu {
 async function fetchMenu() {
   if (schema.value) {
     // Fetch menu settings for the current schema
-    const schemaSettings = await useSchemaSettings(new Set(["menu"]));
-    return schemaSettings?.menu ? parseMenuItems(schemaSettings.menu) : [];
+    const schemaSettings = await useSchemaSettings(new Set([MENU_SETTING_KEY]));
+    return schemaSettings?.[MENU_SETTING_KEY]
+      ? parseMenuItems(schemaSettings[MENU_SETTING_KEY])
+      : [];
   } else {
     // Fetch system menu
     return [];
