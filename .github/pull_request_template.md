@@ -9,4 +9,4 @@
 - [ ] added/updated tests
 - [ ] added/updated testplan to include a test for this fix, including ref to bug using # notation
 
-By creating this pull request I confirm to agree to the terms as described in [CONTRIBUTING.md](https://github.com/molgenis/molgenis-emx2/blob/master/CONTRIBUTING.md)
+By creating this pull request I agree with the [contributor terms](https://github.com/molgenis/molgenis-emx2/blob/master/CONTRIBUTING.md)
