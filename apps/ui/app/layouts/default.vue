@@ -71,7 +71,7 @@
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -82,6 +82,7 @@ import FooterComponent from "../../../tailwind-components/app/components/FooterC
 import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
+import type { MenuItem } from "../../../tailwind-components/types/types";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -133,14 +134,43 @@ const isAdmin = computed(() => session.value?.admin);
 //   return items;
 // });
 
+const DEFAULT_MAIN_MENU: MenuItem[] = [
+  { label: "Databases", link: "/", isSpaLink: true },
+  { label: "GraphQL API", link: "apps/graphql-playground", isSpaLink: false },
+  { label: "Help", link: "apps/docs", isSpaLink: false },
+  { label: "Classic UI", link: "apps/central/", isSpaLink: false },
+];
+
+const defaultSchemaMenu = computed<MenuItem[]>(() => [
+  { label: "Tables", link: `${schema.value}`, isSpaLink: true },
+  { label: "Schema", link: `${schema.value}/schema`, isSpaLink: false },
+  {
+    label: "Up/Download",
+    link: `${schema.value}/updownload`,
+    isSpaLink: false,
+  },
+  { label: "Reports", link: `${schema.value}/reports`, isSpaLink: false },
+  {
+    label: "GraphQL",
+    link: `${schema.value}/graphql-playground`,
+    isSpaLink: false,
+  },
+  { label: "Help", link: `${schema.value}/docs`, isSpaLink: false },
+]);
+
 const menu = await useMenu();
 
 const navigation = computed(() => {
-  const items: { label: string; link: string }[] = [];
-  menu.value.forEach((item) => {
-    items.push({ label: item.label, link: item.href });
+  if (menu.value.length === 0) {
+    return schema.value ? defaultSchemaMenu.value : DEFAULT_MAIN_MENU;
+  }
+  return menu.value.map((item) => {
+    return {
+      label: item.label,
+      link: item.link,
+      isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
+    };
   });
-  return items;
 });
 </script>
 
