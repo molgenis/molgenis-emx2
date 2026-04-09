@@ -186,6 +186,11 @@ subprojects {
     }
 }
 
+/* have webapi tests run after all other modules (starts web service, needs exclusive DB access) */
+project(":backend:molgenis-emx2-webapi").test.dependsOn subprojects.findAll {
+    it != project(":backend:molgenis-emx2-webapi") && it != project(":backend:molgenis-emx2-nonparallel-tests")
+}.collect { ":backend:${it.name}:test" }
+
 /* have the non-parallel test package run last*/
 project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.findAll { it != project(":backend:molgenis-emx2-nonparallel-tests") }.collect { ":backend:${it.name}:test" }
 

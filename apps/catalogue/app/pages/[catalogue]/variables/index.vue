@@ -187,7 +187,14 @@ async function fetchResourceOptions(): Promise<INode[]> {
               ],
             },
           }
-        : { resource: { type: { name: { equals: "Network" } } } },
+        : {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
     },
   });
 
@@ -315,7 +322,6 @@ const fetchData = async () => {
               { resource: { id: { equals: catalogueRouteParam } } },
               {
                 resource: {
-                  type: { name: { equals: "Network" } },
                   parentNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
@@ -342,7 +348,14 @@ const fetchData = async () => {
         variablesFilter: {
           ...filter.value,
           ...variableResourceFilter,
-          ...{ resource: { type: { name: { equals: "Network" } } } },
+          ...{
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
         },
         resourcesFilter,
       };
