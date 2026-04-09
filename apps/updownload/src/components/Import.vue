@@ -35,6 +35,29 @@
             </form>
             <br />
           </div>
+          <div>
+            <h5>Import from RDF</h5>
+            <p>Harvest data from an RDF source (Turtle, JSON-LD, RDF/XML).</p>
+            <form class="form-inline" @submit.prevent="harvestUrl">
+              <input
+                v-model="rdfUrl"
+                type="url"
+                class="form-control mr-2"
+                placeholder="Enter RDF URL to harvest..."
+                style="min-width: 400px"
+              />
+              <ButtonAction @click="harvestUrl" v-if="rdfUrl">
+                Harvest
+              </ButtonAction>
+            </form>
+            <form class="form-inline mt-2">
+              <InputFile v-model="rdfFile" />
+              <ButtonAction @click="uploadRdf" v-if="rdfFile != undefined">
+                Import RDF
+              </ButtonAction>
+            </form>
+          </div>
+          <br />
         </div>
         <div
           v-if="
@@ -137,6 +160,8 @@ export default {
       schema: null,
       tables: [],
       file: null,
+      rdfUrl: null,
+      rdfFile: null,
       error: null,
       success: null,
       loading: false,
@@ -268,6 +293,73 @@ export default {
     },
     done() {
       this.taskId = null;
+    },
+    harvestUrl() {
+      this.error = null;
+      this.success = null;
+      this.loading = true;
+      this.taskDone = false;
+      fetch(`/${this.schema}/api/rdf/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: this.rdfUrl }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            response.json().then((task) => {
+              this.taskId = task.id;
+              this.error = null;
+            });
+          } else {
+            response.json().then((error) => {
+              this.success = null;
+              this.error = error.errors
+                ? error.errors[0].message
+                : "RDF harvest failed";
+            });
+          }
+        })
+        .catch((error) => {
+          this.error = error.toString();
+        })
+        .finally(() => {
+          this.rdfUrl = null;
+          this.loading = false;
+        });
+    },
+    uploadRdf() {
+      this.error = null;
+      this.success = null;
+      this.loading = true;
+      this.taskDone = false;
+      let formData = new FormData();
+      formData.append("file", this.rdfFile);
+      fetch(`/${this.schema}/api/rdf/import/file`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (response.ok) {
+            response.json().then((task) => {
+              this.taskId = task.id;
+              this.error = null;
+            });
+          } else {
+            response.json().then((error) => {
+              this.success = null;
+              this.error = error.errors
+                ? error.errors[0].message
+                : "RDF import failed";
+            });
+          }
+        })
+        .catch((error) => {
+          this.error = error.toString();
+        })
+        .finally(() => {
+          this.rdfFile = null;
+          this.loading = false;
+        });
     },
   },
   watch: {

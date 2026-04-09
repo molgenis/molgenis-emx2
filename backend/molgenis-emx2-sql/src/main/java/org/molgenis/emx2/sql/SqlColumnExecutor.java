@@ -339,6 +339,10 @@ public class SqlColumnExecutor {
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
                 .setRequired(false)
                 .setDescription("Reference to structured definition of this term"),
+            column("alternativeIds")
+                .setType(STRING_ARRAY)
+                .setRequired(false)
+                .setDescription("Alternative identifiers or URIs that map to this term"),
             column("definition")
                 .setType(TEXT)
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
