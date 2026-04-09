@@ -240,7 +240,8 @@ abstract class HpcApiTestBase extends ApiTestBase {
   @BeforeAll
   static void setUpHpcSettings() {
     login(database.getAdminUserName(), "admin");
-    // Read current values via the test database instance (read-only, safe)
+    // Reload settings from DB so reads reflect the actual persisted state.
+    database.clearCache();
     previousHpcEnabled = database.getSetting(HPC_ENABLED_SETTING);
     previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
     // Write settings via GraphQL so the webservice's SqlDatabase instance handles

@@ -21,6 +21,9 @@ class HpcGraphqlGuardE2ETest extends ApiTestBase {
 
   @BeforeAll
   static void setup() {
+    // Reload settings from DB — this test instance's in-memory map may be incomplete,
+    // and setSetting persists the entire map which could wipe MOLGENIS_JWT_SHARED_SECRET.
+    database.clearCache();
     previousEnabled = database.getSetting(HPC_ENABLED_SETTING);
     previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
     database.setSetting(HPC_ENABLED_SETTING, "true");
@@ -33,6 +36,7 @@ class HpcGraphqlGuardE2ETest extends ApiTestBase {
 
   @AfterAll
   static void teardown() {
+    database.clearCache();
     if (previousEnabled == null || previousEnabled.isBlank()) {
       database.removeSetting(HPC_ENABLED_SETTING);
     } else {

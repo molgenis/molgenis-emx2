@@ -96,6 +96,7 @@ class HpcApiAuthRotationE2ETest extends HpcApiTestBase {
 
   @Test
   void issueCredentialReturns503WhenCredentialsKeyIsMissing() {
+    database.clearCache();
     database.setSetting(HPC_ENABLED_SETTING, "true");
     database.removeSetting(HPC_CREDENTIALS_KEY_SETTING);
     try {
@@ -107,6 +108,7 @@ class HpcApiAuthRotationE2ETest extends HpcApiTestBase {
           .statusCode(503)
           .body("detail", containsString(HPC_CREDENTIALS_KEY_SETTING));
     } finally {
+      database.clearCache();
       database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
     }
   }

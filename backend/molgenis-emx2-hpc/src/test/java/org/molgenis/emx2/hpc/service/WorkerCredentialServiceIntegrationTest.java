@@ -17,7 +17,10 @@ class WorkerCredentialServiceIntegrationTest extends HpcServiceIntegrationTestBa
 
   @BeforeEach
   void setUpCredentialService() {
-    // Set the credentials encryption key in the database
+    // Reload settings from DB first — this SqlDatabase(false) instance has an incomplete
+    // in-memory settings map, and setSetting persists the entire map. Without clearCache(),
+    // it would overwrite the DB and wipe keys like MOLGENIS_JWT_SHARED_SECRET.
+    database.clearCache();
     database.tx(
         db -> {
           db.becomeAdmin();
