@@ -221,11 +221,11 @@ A **variant** is a composable, table-level configuration that adds columns for a
 
 Variants are declared in a `variants:` keyed map at the top of a table file. Each entry supports:
 
-| Attribute | Description |
-|-----------|-------------|
-| `description:` | Human-readable description |
-| `extends:` | List of parent variants this variant extends (IS-A relationship, inherits all columns) |
-| `internal:` | If `true`, the variant is not shown in the user-facing variant selector but can be used as an `extends:` target |
+| Attribute | Description                                                                                                                |
+|-----------|----------------------------------------------------------------------------------------------------------------------------|
+| `description:` | Human-readable description                                                                                                 |
+| `extends:` | (optional) List of parent variants this variant extends (IS-A relationship, inherits all columns)                          |
+| `internal:` | (optional) If `true`, the variant is not shown in the user-facing variant selector but can be used as an `extends:` target |
 
 ```yaml
 table: Experiments
