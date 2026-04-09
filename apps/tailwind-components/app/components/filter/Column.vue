@@ -70,19 +70,48 @@ const treeNodes = computed<ITreeNode[]>(() =>
 const treeSelection = computed<string[]>(() => {
   if (!props.modelValue || props.modelValue.operator !== "equals") return [];
   const val = props.modelValue.value;
-  if (Array.isArray(val)) {
-    return val.filter((v): v is string | number => v !== null).map(String);
+  if (!Array.isArray(val)) {
+    if (typeof val === "string") return [val];
+    return [];
   }
-  if (typeof val === "string") return [val];
-  return [];
+  return val
+    .filter((v) => v !== null && v !== undefined)
+    .map((v) => {
+      if (typeof v === "object" && v !== null) {
+        const values = Object.values(v as Record<string, unknown>);
+        return values.length === 1
+          ? String(values[0])
+          : values.map(String).join(", ");
+      }
+      return String(v);
+    });
 });
+
+const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
+
+const hasKeyObjects = computed(
+  () => props.options.length > 0 && props.options[0]?.keyObject !== undefined
+);
 
 function onTreeSelectionChange(selected: string[]) {
   if (selected.length === 0) {
     emit("update:modelValue", undefined);
-  } else {
-    emit("update:modelValue", { operator: "equals", value: selected });
+    return;
   }
+  if (REF_FILTER_TYPES.has(props.column.columnType) && hasKeyObjects.value) {
+    const firstKey = props.options[0]!.keyObject!;
+    const isComposite = Object.keys(firstKey).length > 1;
+    if (isComposite) {
+      const optionsByName = new Map(props.options.map((o) => [o.name, o]));
+      const values = selected.map((name) => {
+        const opt = optionsByName.get(name);
+        return (opt?.keyObject ?? { name }) as Record<string, unknown>;
+      });
+      emit("update:modelValue", { operator: "equals", value: values });
+      return;
+    }
+  }
+  emit("update:modelValue", { operator: "equals", value: selected });
 }
 
 const rangeValue = computed<[any, any]>(() => {

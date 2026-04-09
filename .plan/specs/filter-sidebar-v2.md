@@ -94,7 +94,13 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | ONTOLOGY (single): `_groupBy` for direct counts; ancestor chain resolved via `_match_any_including_parents` in one query; parent counts rolled up client-side (sum of children) | fetchCounts.ts | fetchCounts.spec.ts | - |
 | ONTOLOGY_ARRAY: `_groupBy` for direct counts; parent counts via `_agg` with `_match_any_including_children` (avoids double-counting) | fetchCounts.ts | fetchCounts.spec.ts | - |
 | Empty branches pruned: parent nodes with 0 count and no counted descendants are hidden | fetchCounts.ts | fetchCounts.spec.ts | - |
-| BOOL/RADIO/CHECKBOX counts use `_groupBy` per column | useFilters.ts | useFilters.spec.ts | - |
+| BOOL counts use `_groupBy` per column (scalar true/false/null) | useFilters.ts | useFilters.spec.ts | - |
+| RADIO/CHECKBOX counts use `_groupBy` with key field expansion via getColumnIds | fetchCounts.ts | fetchCounts.spec.ts | - |
+| RADIO/CHECKBOX filters use `_match_any` operator (backend resolves against primary key) | buildFilter.ts | buildFilter.spec.ts | - |
+| RADIO/CHECKBOX single-key: plain string values, flat URL (`status=active`) | filterUrlCodec.ts | filterUrlCodec.spec.ts | - |
+| RADIO/CHECKBOX composite-key: key objects with `keyObject` on CountedOption, JSON in URL when needed | fetchCounts.ts, Column.vue | fetchCounts.spec.ts, Column.spec.ts | - |
+| STRING/TEXT filters use `like` operator (no ref key issues) | buildFilter.ts | buildFilter.spec.ts | - |
+| RANGE filters use `between` operator with min/max (no ref key issues) | buildFilter.ts | buildFilter.spec.ts | - |
 
 ## Filter Picker (Modal)
 

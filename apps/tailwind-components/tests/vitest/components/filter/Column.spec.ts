@@ -294,6 +294,65 @@ describe("Column", () => {
     });
   });
 
+  describe("composite key support for RADIO", () => {
+    it("emits key objects for RADIO with composite key options", async () => {
+      const radioCol = {
+        id: "status",
+        label: "Status",
+        columnType: "RADIO",
+      } as IColumn;
+      const radioOptions: CountedOption[] = [
+        { name: "A, 1", count: 5, keyObject: { id: "A", code: "1" } },
+        { name: "B, 2", count: 3, keyObject: { id: "B", code: "2" } },
+      ];
+      const wrapper = mountColumn(radioCol, radioOptions);
+      const tree = wrapper.findComponent(Tree);
+      await tree.vm.$emit("update:modelValue", ["A, 1"]);
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted![0][0]).toEqual({
+        operator: "equals",
+        value: [{ id: "A", code: "1" }],
+      });
+    });
+
+    it("emits plain strings for RADIO with single-key options", async () => {
+      const radioCol = {
+        id: "status",
+        label: "Status",
+        columnType: "RADIO",
+      } as IColumn;
+      const radioOptions: CountedOption[] = [
+        { name: "active", count: 5, keyObject: { name: "active" } },
+        { name: "inactive", count: 3, keyObject: { name: "inactive" } },
+      ];
+      const wrapper = mountColumn(radioCol, radioOptions);
+      const tree = wrapper.findComponent(Tree);
+      await tree.vm.$emit("update:modelValue", ["active"]);
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted![0][0]).toEqual({
+        operator: "equals",
+        value: ["active"],
+      });
+    });
+
+    it("extracts display names from composite key objects in modelValue", () => {
+      const radioCol = {
+        id: "status",
+        label: "Status",
+        columnType: "RADIO",
+      } as IColumn;
+      const radioOptions: CountedOption[] = [
+        { name: "A, 1", count: 5, keyObject: { id: "A", code: "1" } },
+      ];
+      const wrapper = mountColumn(radioCol, radioOptions, {
+        operator: "equals",
+        value: [{ id: "A", code: "1" }],
+      });
+      const tree = wrapper.findComponent(Tree);
+      expect(tree.props("modelValue")).toEqual(["A, 1"]);
+    });
+  });
+
   describe("loading state", () => {
     it("shows loading skeleton when loading is true and no options yet", () => {
       const wrapper = mountColumn(ontologyColumn(), [], undefined, true);

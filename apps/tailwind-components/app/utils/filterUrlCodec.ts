@@ -225,6 +225,11 @@ export function serializeFiltersToUrl(
         } else {
           params[`${key}.name`] = serialized;
         }
+      } else if (
+        column.columnType === "RADIO" ||
+        column.columnType === "CHECKBOX"
+      ) {
+        params[key] = serialized;
       } else if (REF_TYPES.includes(column.columnType)) {
         const refField = extractRefField(value);
         params[`${key}.${refField}`] = serialized;

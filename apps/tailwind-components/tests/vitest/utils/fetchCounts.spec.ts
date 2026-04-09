@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { fetchCounts } from "../../../app/utils/fetchCounts";
 
+vi.mock("../../../app/composables/fetchTableData", () => ({
+  getColumnIds: vi.fn(),
+}));
+
 function makeFetcher(rows: any[], tableId: string) {
   return vi.fn().mockResolvedValue({ [`${tableId}_groupBy`]: rows });
 }
@@ -69,6 +73,114 @@ describe("fetchCounts - nested dotted paths (BOOL)", () => {
       { name: "false", label: "No", count: 3 },
       { name: "_null_", label: "Not set", count: 0 },
     ]);
+  });
+});
+
+describe("fetchCounts - RADIO with key field expansion", () => {
+  it("expands single key field in _groupBy query", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [
+      { count: 7, status: { name: "active" } },
+      { count: 1, status: { name: "inactive" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher,
+      "StatusTable",
+      null
+    );
+
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("status { name }");
+    expect(result).toEqual([
+      { name: "active", keyObject: { name: "active" }, count: 7 },
+      { name: "inactive", keyObject: { name: "inactive" }, count: 1 },
+    ]);
+  });
+
+  it("expands composite key fields", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" id code");
+
+    const rows = [
+      { count: 5, status: { id: "A", code: "1" } },
+      { count: 3, status: { id: "B", code: "2" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher,
+      "StatusTable",
+      null
+    );
+
+    expect(result).toEqual([
+      { name: "A, 1", keyObject: { id: "A", code: "1" }, count: 5 },
+      { name: "B, 2", keyObject: { id: "B", code: "2" }, count: 3 },
+    ]);
+  });
+
+  it("falls back to scalar when no refTableId", async () => {
+    const rows = [
+      { count: 7, status: "active" },
+      { count: 1, status: "inactive" },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher
+    );
+
+    expect(result).toEqual([
+      { name: "active", count: 7 },
+      { name: "inactive", count: 1 },
+    ]);
+    expect(result[0]).not.toHaveProperty("keyObject");
+  });
+
+  it("filters out null responses", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" id");
+
+    const rows = [
+      { count: 5, status: { id: "A" } },
+      { count: 2, status: null },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher,
+      "StatusTable",
+      null
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("A");
   });
 });
 

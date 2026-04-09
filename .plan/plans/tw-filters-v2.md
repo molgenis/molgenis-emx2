@@ -125,20 +125,63 @@ New worktree from master. Cherry-pick what works, rewrite what doesn't.
 - [x] 5.12 Range inputs: use generic Input component (auto-dispatches to Date/DateTime/Int), strip _ARRAY suffix
 - [x] 5.13 DateTime width 14em, sidebar w-[30rem] to fit date-time range
 
-### Phase 6: Final polish (remaining)
-- [ ] 6.1 Theme testing (all 5 themes)
-- [ ] 6.2 pnpm format + pnpm lint
-- [ ] 6.3 Review: dead code, stale terminology, orphaned refs
-- [ ] 6.4 Final test run (386 tests currently passing)
-- [ ] 6.5 Stage changes
+### Phase 6: Nested filters & ontology tree counting
+- [x] 6.1 FilterPicker: show all column types (not just countable+string), nested REF children appear
+- [x] 6.2 fetchCounts: valid nested GraphQL for dotted paths (e.g. `self { ontologySmallType { ... } }`)
+- [x] 6.3 Sidebar: resolve nested column metadata on URL load (fetch ref table columns)
+- [x] 6.4 useFilters: trigger count fetch when nested meta registers (watch nestedColumnMeta)
+- [x] 6.5 Ontology tree counting: two-query approach (_groupBy + _match_any_including_parents)
+- [x] 6.6 ONTOLOGY: client-side rollup (parent = sum of children, safe for single-select)
+- [x] 6.7 ONTOLOGY_ARRAY: _agg with _match_any_including_children per parent (accurate for multi-select)
+- [x] 6.8 CountedOption extends ITreeNode (no reinvented interface)
+
+### Phase 7: Component renames & UI polish
+- [x] 7.1 Rename FilterOptions.vue → Column.vue, FilterPicker.vue → Picker.vue (+ test files)
+- [x] 7.2 Sidebar styling aligned with catalogue (p-5 padding, h3 headings, caret-up icon)
+- [x] 7.3 Min/max range labels use text-search-filter-group-title for theme consistency
+- [x] 7.4 Tree search: always-visible compact input (shown when >25 options or has children)
+- [x] 7.5 mg_collapsed URL param for bookmarkable collapse state
+- [x] 7.6 filterColumns logic moved into useFilters (apps/ui simplified)
+- [x] 7.7 Picker uses fetchTableMetadata (cached) instead of raw $fetch
+- [x] 7.8 fetchCounts refactored: clean dispatcher + named strategies (step-down rule)
+- [x] 7.9 E2e smoketest on catalogue-demo/Resources (7 tests)
+
+### Phase 8: Final polish
+- [ ] 8.1 Theme testing (all 5 themes)
+- [ ] 8.2 pnpm format + pnpm lint
+- [ ] 8.3 Review: dead code, stale terminology, orphaned refs
+- [ ] 8.4 Final test run (405 tests currently passing)
+- [ ] 8.5 Stage changes
 
 ## Current stats
-- **386 tests**, 46 test files, all passing
-- **~40 files changed** vs master
-- Key components: useFilters (composable), FilterOptions, Sidebar, FilterPicker, ActiveFilters, FilterRange
+- **405 tests**, 46 test files, all passing
+- **~50 files changed** vs master
+- Key components: useFilters (composable), Column, Sidebar, Picker, ActiveFilters, Range
 - Key utils: filterUrlCodec, buildFilter, fetchCounts, computeDefaultFilters, filterTreeUtils
 
+### Phase 9: Composite key support for RADIO/CHECKBOX filters
+Approach: `_match_any` operator — backend resolves against primary key structure natively.
+- Single key (99%): plain strings, flat URL, `_match_any: ["active"]`
+- Composite key: key objects on CountedOption, `_match_any: [{ id: "A", code: "1" }]`
+- STRING/RANGE filters unchanged (`like`/`between` operators, no ref key concerns)
+
+Tasks:
+- [x] 9.1 fetchCounts: getColumnIds expands key fields in _groupBy query, `keyObject` on CountedOption for composite
+- [x] 9.2 buildFilter: RADIO/CHECKBOX → `_match_any: values` (+2 lines), no `_or` clause needed
+- [x] 9.3 Column.vue: single-key emits plain strings; composite maps Tree names → keyObjects
+- [x] 9.4 filterUrlCodec: RADIO/CHECKBOX stay flat in URL (no `.name` suffix, no nested path ambiguity)
+- [x] 9.5 Tests: 14 new tests across 4 spec files (418 total passing)
+- [x] 9.6 Review: clean
+
 ## Future Work (not this PR)
+
+### Phase 10: Use GraphQL variables instead of string serialization
+- fetchGraphql already accepts `variables` param (currently always null)
+- Replace serializeFilterForQuery + string interpolation with parameterized queries ($filter variables)
+- Cleaner, safer (no injection risk), standard GraphQL practice
+- Affects: all fetchCounts strategies, buildFilter
+
+### Other future work
 - Mobile: full-screen modal sidebar
 - Backend: add limit/offset to _groupBy for large ontologies
 - Type fetchGraphql responses (generics)

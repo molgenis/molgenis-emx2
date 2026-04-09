@@ -522,6 +522,35 @@ describe("BOOL/RADIO/CHECKBOX URL round-trip", () => {
   });
 });
 
+describe("RADIO flat URL serialization", () => {
+  it("RADIO serializes with flat key (no .name suffix)", () => {
+    const columns = [
+      { id: "status", columnType: "RADIO", refTableId: "Status" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("status", {
+      operator: "equals",
+      value: ["active", "inactive"],
+    });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("status", "active|inactive");
+    expect(params).not.toHaveProperty("status.name");
+  });
+
+  it("RADIO roundtrips through URL with plain strings", () => {
+    const columns = [
+      { id: "status", columnType: "RADIO", refTableId: "Status" },
+    ] as IColumn[];
+    const original = new Map<string, IFilterValue>();
+    original.set("status", { operator: "equals", value: ["active"] });
+
+    const params = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(params, columns);
+    expect(filters.get("status")).toEqual(original.get("status"));
+  });
+});
+
 describe("string filter round-trip (type → URL → parse → buildFilter)", () => {
   const stringColumn: IColumn = {
     id: "name",

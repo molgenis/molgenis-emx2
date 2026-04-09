@@ -412,6 +412,86 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ active: { equals: [true, false] } });
   });
 
+  it("uses _match_any for RADIO with plain string values", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "status",
+        columnType: "RADIO",
+        label: "Status",
+        refTableId: "Status",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["status", { operator: "equals", value: ["active", "inactive"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      status: { _match_any: ["active", "inactive"] },
+    });
+  });
+
+  it("uses _match_any for CHECKBOX with plain string values", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "color",
+        columnType: "CHECKBOX",
+        label: "Color",
+        refTableId: "Colors",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["color", { operator: "equals", value: ["red", "blue"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      color: { _match_any: ["red", "blue"] },
+    });
+  });
+
+  it("uses _match_any for RADIO with composite key objects", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "status",
+        columnType: "RADIO",
+        label: "Status",
+        refTableId: "Status",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "status",
+        {
+          operator: "equals",
+          value: [
+            { id: "A", code: "1" },
+            { id: "B", code: "2" },
+          ],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      status: {
+        _match_any: [
+          { id: "A", code: "1" },
+          { id: "B", code: "2" },
+        ],
+      },
+    });
+  });
+
+  it("uses _match_any for nested RADIO path", () => {
+    const columns: IColumn[] = [orderColumn];
+    const columnTypeMap = new Map([["order.status", "RADIO"]]);
+    const filters = new Map<string, IFilterValue>([
+      ["order.status", { operator: "equals", value: ["active"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "", columnTypeMap);
+    expect(result).toEqual({
+      order: { status: { _match_any: ["active"] } },
+    });
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([

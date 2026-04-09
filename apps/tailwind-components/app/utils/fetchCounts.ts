@@ -1,9 +1,11 @@
 import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
+import { getColumnIds } from "../composables/fetchTableData";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
   children?: CountedOption[];
+  keyObject?: Record<string, any>;
 }
 
 interface OntologyTermNode {
@@ -53,7 +55,20 @@ export async function fetchCounts(
   }
 
   if (columnType === "RADIO" || columnType === "CHECKBOX") {
-    return fetchFlatGroupBy(schemaId, tableId, columnId, crossFilter, fetcher);
+    let keyExpansion: string | undefined;
+    if (refTableId) {
+      keyExpansion = (
+        await getColumnIds(refSchemaId ?? schemaId, refTableId, 0)
+      ).trim();
+    }
+    return fetchFlatGroupBy(
+      schemaId,
+      tableId,
+      columnId,
+      crossFilter,
+      fetcher,
+      keyExpansion
+    );
   }
 
   return [];
@@ -110,12 +125,23 @@ async function fetchFlatGroupBy(
   tableId: string,
   columnId: string,
   crossFilter: IGraphQLFilter,
-  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  keyFieldExpansion?: string
 ): Promise<CountedOption[]> {
   const filterArg = buildFilterArg(crossFilter);
   const segments = columnId.split(".");
-  const fieldSelection =
-    segments.length > 1 ? buildNestedField(segments, "") : columnId;
+
+  let fieldSelection: string;
+  if (keyFieldExpansion) {
+    const leaf = `{ ${keyFieldExpansion} }`;
+    fieldSelection =
+      segments.length > 1
+        ? buildNestedField(segments, leaf)
+        : `${columnId} ${leaf}`;
+  } else {
+    fieldSelection =
+      segments.length > 1 ? buildNestedField(segments, "") : columnId;
+  }
 
   let rows: any[];
   try {
@@ -131,16 +157,30 @@ async function fetchFlatGroupBy(
   }
 
   return rows
-    .filter((row) => {
-      const val =
-        segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
-      return val !== null && val !== undefined;
-    })
     .map((row) => {
       const val =
         segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
+      if (keyFieldExpansion) {
+        if (val === null || val === undefined || typeof val !== "object")
+          return null;
+        const entries = Object.entries(val).filter(
+          ([, v]) => v !== null && v !== undefined
+        );
+        if (entries.length === 0) return null;
+        const keyObject = Object.fromEntries(entries);
+        if (entries.length === 1) {
+          return { name: String(entries[0]![1]), keyObject, count: row.count };
+        }
+        return {
+          name: entries.map(([, v]) => String(v)).join(", "),
+          keyObject,
+          count: row.count,
+        };
+      }
+      if (val === null || val === undefined) return null;
       return { name: String(val), count: row.count };
-    });
+    })
+    .filter((item): item is CountedOption => item !== null);
 }
 
 async function fetchOntologyWithAncestors(
