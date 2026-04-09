@@ -12,6 +12,7 @@ import type {
   IConfigurablePages,
   IDeveloperPages,
 } from "../../../../../../tailwind-components/types/cms";
+import type { ITableMetaData } from "../../../../../../metadata-utils/src";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -22,7 +23,7 @@ const page = route.params.page as string;
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
 const pageData = await getPage(schema as string, page);
-const pageContent = await pageData.page;
+const pageContent = pageData.page;
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
@@ -42,7 +43,7 @@ const crumbs: Crumb[] = [
   <ConfigurablePage
     v-else
     :content="(pageData.page as IConfigurablePages)"
-    :metadata="pageData.metadata"
+    :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="true"
   />
 </template>

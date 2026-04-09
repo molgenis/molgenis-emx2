@@ -9,7 +9,7 @@ import type {
   IConfigurablePages,
 } from "./cms.ts";
 
-import type { ISchemaMetaData } from "../../metadata-utils/src/types.js";
+import type { ITableMetaData } from "../../metadata-utils/src/types.js";
 
 export interface IPageComponent
   extends IHeaders,
@@ -21,5 +21,5 @@ export interface IPageComponent
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
-  metadata?: ISchemaMetaData[];
+  metadata?: ITableMetaData[];
 }
