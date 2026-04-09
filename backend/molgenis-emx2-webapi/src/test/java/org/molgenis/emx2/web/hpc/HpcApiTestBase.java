@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web.hpc;
 
+import static io.restassured.RestAssured.given;
+
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import java.util.Collections;
@@ -237,11 +239,15 @@ abstract class HpcApiTestBase extends ApiTestBase {
 
   @BeforeAll
   static void setUpHpcSettings() {
+    login(database.getAdminUserName(), "admin");
+    // Read current values via the test database instance (read-only, safe)
     previousHpcEnabled = database.getSetting(HPC_ENABLED_SETTING);
     previousCredentialsKey = database.getSetting(HPC_CREDENTIALS_KEY_SETTING);
-    database.setSetting(HPC_ENABLED_SETTING, "true");
-    database.setSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
-    login(database.getAdminUserName(), "admin");
+    // Write settings via GraphQL so the webservice's SqlDatabase instance handles
+    // persistence — avoids overwriting its in-memory settings map (which holds
+    // MOLGENIS_JWT_SHARED_SECRET and other keys this test instance doesn't know about).
+    setDatabaseSetting(HPC_ENABLED_SETTING, "true");
+    setDatabaseSetting(HPC_CREDENTIALS_KEY_SETTING, TEST_CREDENTIALS_KEY);
     registerWorker(WORKER_A);
     registerWorker(WORKER_B);
   }
@@ -292,19 +298,32 @@ abstract class HpcApiTestBase extends ApiTestBase {
     }
     trackedWorkerIds.clear();
 
-    // Restore settings — use setSetting with "false"/"" rather than removeSetting,
-    // because removeSetting calls setSettings(map) which overwrites ALL database settings
-    // from this instance's potentially stale in-memory snapshot, which can wipe settings
-    // (like MOLGENIS_JWT_SHARED_SECRET) that were set by a different SqlDatabase instance.
-    if (previousHpcEnabled == null || previousHpcEnabled.isBlank()) {
-      database.setSetting(HPC_ENABLED_SETTING, "false");
-    } else {
-      database.setSetting(HPC_ENABLED_SETTING, previousHpcEnabled);
-    }
-    if (previousCredentialsKey == null || previousCredentialsKey.isBlank()) {
-      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, "");
-    } else {
-      database.setSetting(HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey);
-    }
+    // Restore settings via GraphQL (same reason as setUpHpcSettings — avoid corrupting
+    // the webservice's in-memory settings map by writing through the test database instance).
+    setDatabaseSetting(
+        HPC_ENABLED_SETTING, previousHpcEnabled != null ? previousHpcEnabled : "false");
+    setDatabaseSetting(
+        HPC_CREDENTIALS_KEY_SETTING, previousCredentialsKey != null ? previousCredentialsKey : "");
+  }
+
+  /**
+   * Sets a database-level setting via the GraphQL API of the running webservice. This ensures the
+   * webservice's own SqlDatabase instance handles the write, preserving its complete in-memory
+   * settings map. Using {@code database.setSetting()} from the test instance would overwrite the DB
+   * with a stale snapshot missing keys like {@code MOLGENIS_JWT_SHARED_SECRET}.
+   */
+  private static void setDatabaseSetting(String key, String value) {
+    String escapedValue = value.replace("\\", "\\\\").replace("\"", "\\\"");
+    given()
+        .sessionId(sessionId)
+        .body(
+            """
+            {"query":"mutation{change(settings:[{key:\\"%s\\",value:\\"%s\\"}]){message}}"}
+            """
+                .formatted(key, escapedValue))
+        .when()
+        .post("/api/graphql")
+        .then()
+        .statusCode(200);
   }
 }
