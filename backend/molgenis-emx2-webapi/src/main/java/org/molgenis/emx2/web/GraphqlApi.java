@@ -146,30 +146,28 @@ public class GraphqlApi {
     }
 
     for (Definition<?> definition : parsed.getDefinitions()) {
-      if (!(definition instanceof OperationDefinition operationDefinition)) {
+      if (definition instanceof OperationDefinition op
+          && op.getOperation() == OperationDefinition.Operation.MUTATION
+          && op.getSelectionSet() != null) {
+        rejectHpcMutationFields(op.getSelectionSet().getSelections());
+      }
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static void rejectHpcMutationFields(java.util.List<Selection> selections) {
+    for (Selection<?> selection : selections) {
+      if (!(selection instanceof Field field)) {
         continue;
       }
-      if (operationDefinition.getOperation() != OperationDefinition.Operation.MUTATION) {
+      if (!BLOCKED_MUTATION_FIELDS.contains(field.getName().toLowerCase(Locale.ROOT))) {
         continue;
       }
-      if (operationDefinition.getSelectionSet() == null) {
-        continue;
-      }
-      for (Selection<?> selection : operationDefinition.getSelectionSet().getSelections()) {
-        if (!(selection instanceof Field field)) {
-          continue;
-        }
-        if (!BLOCKED_MUTATION_FIELDS.contains(field.getName().toLowerCase(Locale.ROOT))) {
-          continue;
-        }
-        boolean touchesHpcTable =
-            field.getArguments().stream()
-                .map(Argument::getName)
-                .anyMatch(GraphqlApi::isHpcTableName);
-        if (touchesHpcTable) {
-          throw new ForbiddenResponse(
-              "Mutations on _SYSTEM_ Hpc* tables are disabled. Use /api/hpc endpoints.");
-        }
+      boolean touchesHpcTable =
+          field.getArguments().stream().map(Argument::getName).anyMatch(GraphqlApi::isHpcTableName);
+      if (touchesHpcTable) {
+        throw new ForbiddenResponse(
+            "Mutations on _SYSTEM_ Hpc* tables are disabled. Use /api/hpc endpoints.");
       }
     }
   }
