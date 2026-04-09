@@ -5,7 +5,7 @@ defineProps<{
 }>();
 </script>
 <template>
-  <div class="px-12 py-4">
+  <div class="px-12 py-4 overflow-auto">
     <h1
       v-if="title"
       class="text-heading-6xl text-favorite hover:text-favorite-hover"
