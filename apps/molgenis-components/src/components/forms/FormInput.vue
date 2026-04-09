@@ -178,10 +178,8 @@ export default {
       return typeToInputMap[this.columnType];
     },
     computedProps() {
-      const isVariant =
-        this.columnType === "VARIANT" || this.columnType === "VARIANT_ARRAY";
-      return isVariant
-        ? { ...this.$props, options: this.variantOptions ?? [] }
+      return this.variantOptions
+        ? { ...this.$props, options: this.variantOptions }
         : this.$props;
     },
   },
