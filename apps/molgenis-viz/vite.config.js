@@ -15,7 +15,7 @@ dotenv.config({ path: "./.env" });
 // basic build conf for both library and app
 const conf = {
   plugins: [vue()],
-  base: "apps/molgenis-viz/",
+  base: (process.env.VITE_BASE_PATH ?? "") + "/apps/molgenis-viz/",
   resolve: {
     alias: {
       vue: "vue/dist/vue.runtime.esm-bundler.js",

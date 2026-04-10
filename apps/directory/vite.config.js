@@ -11,7 +11,7 @@ const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  base: command === "serve" ? "/" : "apps/directory/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/directory/",
   build: { sourcemap: true },
   plugins: [
     vue(),

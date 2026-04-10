@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 
 export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: command === "serve" ? "/" : "apps/tasks/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/tasks/",
   server: {
     proxy: require("../dev-proxy.config"),
   },

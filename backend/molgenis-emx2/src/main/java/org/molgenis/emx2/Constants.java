@@ -100,6 +100,7 @@ public class Constants {
   public static final String MOLGENIS_APP_GQL_DB_CACHE_SIZE = "MOLGENIS_APP_GQL_DB_CACHE_SIZE";
   public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
       "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
+  public static final String MOLGENIS_CONTEXT_PATH = "MOLGENIS_CONTEXT_PATH";
 
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 

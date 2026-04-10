@@ -7,7 +7,7 @@ export default defineConfig(({ command }) => ({
   // css: {
 
   // }
-  base: command === "serve" ? "/" : "apps/tables/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/tables/",
   server: {
     proxy: devProxy,
   },
