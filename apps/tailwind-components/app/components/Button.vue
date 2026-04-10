@@ -65,8 +65,8 @@ const SIZE_MAPPING = {
 const ICON_ONLY_SIZE_MAPPING = {
   tiny: "p-[8px] h-8 w-8",
   small: "p-[5px] h-10 w-10",
-  medium: "p-[8px] h-14 w-14",
-  large: "p-[8px] h-18 w-18",
+  medium: "p-[8px] h-10 w-10",
+  large: "p-[8px] h-10 w-10",
 };
 
 const ICON_SIZE_MAPPING = {
