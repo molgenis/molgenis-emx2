@@ -487,6 +487,26 @@ function handleRowAction(payload: { action: string }) {
       emit("view-details", singleRowSelected);
     } else if (action === "delete-selection" && selectedRows.value.size > 1) {
       showDeleteMultipleModal.value = true;
+    } else if (action === "select-all") {
+      rows.value.forEach((row) => {
+        selectedRows.value.add(row._rowId);
+      });
+    } else if (action === "select-none") {
+      selectedRows.value.clear();
+    } else if (action === "select-drafts") {
+      selectedRows.value.clear();
+      rows.value.forEach((row) => {
+        if (row.mg_draft === true) {
+          selectedRows.value.add(row._rowId);
+        }
+      });
+    } else if (action === "select-approved") {
+      selectedRows.value.clear();
+      rows.value.forEach((row) => {
+        if (row.mg_draft !== true) {
+          selectedRows.value.add(row._rowId);
+        }
+      });
     }
   }
 }
