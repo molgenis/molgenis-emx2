@@ -133,7 +133,7 @@ const DEFAULT_MAIN_MENU: MenuItem[] = [
 ];
 
 const defaultSchemaMenu = computed<MenuItem[]>(() => [
-  { label: "Tables", link: `${schema.value}`, isSpaLink: true },
+  { label: "Tables", link: "", isSpaLink: true },
   {
     label: "Schema",
     link: `${schema.value}/schema`,
@@ -142,7 +142,7 @@ const defaultSchemaMenu = computed<MenuItem[]>(() => [
   },
   {
     label: "SHACL",
-    link: `${schema.value}/shacl`,
+    link: `shacl`,
     isSpaLink: true,
     role: "Viewer",
   },
@@ -177,13 +177,13 @@ const defaultSchemaMenu = computed<MenuItem[]>(() => [
   },
   {
     label: "Analytics",
-    link: `${schema.value}/analytics`,
+    link: `analytics`,
     isSpaLink: true,
     role: "Manager",
   },
   {
     label: "Pages",
-    link: `${schema.value}/pages/`,
+    link: `pages`,
     isSpaLink: true,
     role: "Manager",
   },
