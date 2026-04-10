@@ -124,7 +124,7 @@ const DEFAULT_MAIN_MENU: MenuItem[] = [
   { label: "API", link: "apps/graphql-playground", isSpaLink: false },
   {
     label: "Components (for developers)",
-    link: "apps/tailwind-component",
+    link: "apps/tailwind-components",
     isSpaLink: false,
   },
   { label: "Help", link: "apps/docs", isSpaLink: false },
