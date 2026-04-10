@@ -21,20 +21,13 @@ public class CatalogueTest extends TestLoaders {
     assertEquals(21, cohortStaging.getTableNames().size());
   }
 
-<<<<<<< fix/add-rwe-template
   @Test
   public void test08DataCatalogueRWEStagingLoader() {
     assertEquals(18, rweStaging.getTableNames().size());
   }
 
-  @Disabled
-  @Test
-  public void test09DataCatalogueNetworkStagingLoader() {
-    assertEquals(15, networkStaging.getTableNames().size());
-=======
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     assertEquals(16, networkStaging.getTableNames().size());
->>>>>>> master
   }
 }
