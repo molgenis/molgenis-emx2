@@ -1,5 +1,6 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
+import { RANGE_TYPES } from "./filterTypes";
 
 const REF_TYPES = [
   "REF",
@@ -11,21 +12,6 @@ const REF_TYPES = [
   "MULTISELECT",
   "RADIO",
   "CHECKBOX",
-];
-
-const RANGE_TYPES = [
-  "INT",
-  "LONG",
-  "DECIMAL",
-  "DATE",
-  "DATETIME",
-  "NON_NEGATIVE_INT",
-  "INT_ARRAY",
-  "LONG_ARRAY",
-  "DECIMAL_ARRAY",
-  "DATE_ARRAY",
-  "NON_NEGATIVE_INT_ARRAY",
-  "DATETIME_ARRAY",
 ];
 
 const MULTI_VALUE_SEPARATOR = "|";
@@ -149,7 +135,7 @@ export function parseFilterValue(
     return { operator: "equals", value: [refValue] };
   }
 
-  if (RANGE_TYPES.includes(columnType)) {
+  if (RANGE_TYPES.has(columnType)) {
     if (urlValue.includes("..")) {
       const [minStr = "", maxStr = ""] = urlValue.split("..");
       const isDateType = columnType.includes("DATE");

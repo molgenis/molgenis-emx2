@@ -16,16 +16,13 @@ import type {
 } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
-import { computeDefaultFilters } from "../utils/computeDefaultFilters";
+import { computeDefaultFilters } from "../utils/filterTypes";
 import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
 } from "../utils/filterUrlCodec";
-import {
-  fetchCounts,
-  isCountableType,
-  type CountedOption,
-} from "../utils/fetchCounts";
+import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
+import { isCountableType } from "../utils/filterTypes";
 import fetchGraphql from "./fetchGraphql";
 
 export const MG_FILTERS_PARAM = "mg_filters";

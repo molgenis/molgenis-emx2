@@ -7,6 +7,7 @@ import type {
 import type { CountedOption } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import type { ITreeNode } from "../../../types/types";
+import { isCountableType, isRangeType } from "../../utils/filterTypes";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import Input from "../Input.vue";
@@ -22,33 +23,8 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
-const COUNTABLE_TYPES = new Set([
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "BOOL",
-  "RADIO",
-  "CHECKBOX",
-]);
-
-const RANGE_TYPES = new Set([
-  "INT",
-  "INT_ARRAY",
-  "DECIMAL",
-  "DECIMAL_ARRAY",
-  "LONG",
-  "LONG_ARRAY",
-  "NON_NEGATIVE_INT",
-  "NON_NEGATIVE_INT_ARRAY",
-  "DATE",
-  "DATE_ARRAY",
-  "DATETIME",
-  "DATETIME_ARRAY",
-]);
-
-const isCountable = computed(() =>
-  COUNTABLE_TYPES.has(props.column.columnType)
-);
-const isRange = computed(() => RANGE_TYPES.has(props.column.columnType));
+const isCountable = computed(() => isCountableType(props.column.columnType));
+const isRange = computed(() => isRangeType(props.column.columnType));
 const rangeInputType = computed(
   () => props.column.columnType.replace(/_ARRAY$/, "") as CellValueType
 );

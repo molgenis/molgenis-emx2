@@ -16,18 +16,6 @@ interface OntologyTermNode {
   count: number;
 }
 
-const COUNTABLE_TYPES = new Set([
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "BOOL",
-  "RADIO",
-  "CHECKBOX",
-]);
-
-export function isCountableType(columnType: string): boolean {
-  return COUNTABLE_TYPES.has(columnType);
-}
-
 export async function fetchCounts(
   schemaId: string,
   tableId: string,

@@ -6,13 +6,13 @@ import InputSearch from "../input/Search.vue";
 import Button from "../Button.vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
 import BaseIcon from "../BaseIcon.vue";
-import { computeDefaultFilters } from "../../utils/computeDefaultFilters";
 import {
+  computeDefaultFilters,
   isRefExpandable,
   isExcludedColumn,
   shouldExcludeSelfRef,
   navDepth,
-} from "../../utils/filterTreeUtils";
+} from "../../utils/filterTypes";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 interface PickerNode {
