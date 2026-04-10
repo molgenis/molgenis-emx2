@@ -1,5 +1,5 @@
 <template>
-  <div class="flex pb-[30px] justify-between">
+  <div class="flex mb-[30px] justify-between h-50px">
     <RowControles
       :number-of-selected-rows="numberOfSelectedRows"
       :can-edit="props.isEditable"
@@ -8,6 +8,7 @@
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       v-model="settings.search"
+      size="medium"
       @update:modelValue="handleSearchRequest"
       :placeholder="`Search ${props.tableId}`"
       id="search-input"
@@ -19,6 +20,7 @@
         type="primary"
         icon="add-circle"
         @click="onAddRowClicked"
+        class="h-50px"
       >
         Add {{ tableId }}
       </Button>

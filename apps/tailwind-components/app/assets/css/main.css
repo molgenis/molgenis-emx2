@@ -255,6 +255,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */
