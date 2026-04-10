@@ -15,6 +15,12 @@
   );
   --background-color-navigation: #f7f6f5;
 
+  --text-color-logo-text: var(--raft-accent);
+  --text-color-logo-text-inverted: var(--color-white);
+  --background-color-logo: var(--color-gray-700);
+  --logo-icon-primary: var(--color-green-800);
+  --logo-icon-secondary: var(--color-green-500);
+
   --text-color: var(--raft-fg-alt);
   --text-color-title: var(--raft-accent);
   --text-color-title-contrast: var(--raft-fg);
