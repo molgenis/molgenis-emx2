@@ -15,6 +15,12 @@
 
   --background-color-button-tree-node-toggle: var(--color-green-200);
 
+  --text-color-logo-text: var(--color-green-500);
+  --text-color-logo-text-inverted: var(--color-white);
+  --background-color-logo: var(--color-gray-700);
+  --logo-icon-primary: var(--color-green-800);
+  --logo-icon-secondary: var(--color-green-500);
+
   --color-valid-foreground: var(--color-green-200);
   --color-valid-background: var(--color-green-900);
   --color-disabled-background: var(--color-gray-600);
