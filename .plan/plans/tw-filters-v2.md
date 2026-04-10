@@ -172,6 +172,14 @@ Tasks:
 - [x] 9.4 filterUrlCodec: RADIO/CHECKBOX stay flat in URL (no `.name` suffix, no nested path ambiguity)
 - [x] 9.5 Tests: 14 new tests across 4 spec files (418 total passing)
 - [x] 9.6 Review: clean
+- [x] 9.7 Backend fix: `_groupBy` SQL fails when REF_ARRAY has overlapping FK (composite PK shared column)
+  - Root cause: `jsonGroupBySelect()` correlated subquery references overlapping FK columns not in GROUP BY
+  - Trigger: REF_ARRAY target table shares PK column name with source table (e.g., both have `resource` REF)
+  - Fix: `SqlQuery.java` — collect overlapping ref fields into separate `overlappingRefFields` set, add to GROUP BY only (not SELECT)
+  - Test: `TestCompositeForeignKeys.testGroupByWithCompositeRefKey()` — 3 scenarios (simple target PK, composite target PK, overlapping FK)
+  - Verified in UI: `CollectionEvents_groupBy { count creator { ... } }` now returns data
+  - Frontend fix: `fetchCounts.ts` uses `refLabelDefault` template for filter option labels (resolves `[object Object]` display)
+  - Also added `resolveValue()` helper for graceful nested object stringification as fallback
 
 ## Future Work (not this PR)
 

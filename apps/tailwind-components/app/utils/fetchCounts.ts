@@ -1,3 +1,4 @@
+import { columnValueToString } from "./columnValueToString";
 import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
@@ -35,7 +36,8 @@ export async function fetchCounts(
   crossFilter: IGraphQLFilter,
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
   refTableId?: string | null,
-  refSchemaId?: string | null
+  refSchemaId?: string | null,
+  refLabel?: string | null
 ): Promise<CountedOption[]> {
   if (columnType === "ONTOLOGY" || columnType === "ONTOLOGY_ARRAY") {
     return fetchOntologyWithAncestors(
@@ -67,7 +69,8 @@ export async function fetchCounts(
       columnId,
       crossFilter,
       fetcher,
-      keyExpansion
+      keyExpansion,
+      refLabel
     );
   }
 
@@ -126,7 +129,8 @@ async function fetchFlatGroupBy(
   columnId: string,
   crossFilter: IGraphQLFilter,
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
-  keyFieldExpansion?: string
+  keyFieldExpansion?: string,
+  refLabel?: string | null
 ): Promise<CountedOption[]> {
   const filterArg = buildFilterArg(crossFilter);
   const segments = columnId.split(".");
@@ -168,14 +172,12 @@ async function fetchFlatGroupBy(
         );
         if (entries.length === 0) return null;
         const keyObject = Object.fromEntries(entries);
-        if (entries.length === 1) {
-          return { name: String(entries[0]![1]), keyObject, count: row.count };
-        }
-        return {
-          name: entries.map(([, v]) => String(v)).join(", "),
-          keyObject,
-          count: row.count,
-        };
+        const name = refLabel
+          ? columnValueToString(val as any, refLabel) ?? ""
+          : entries.length === 1
+          ? String(entries[0]![1])
+          : entries.map(([, v]) => String(v)).join(", ");
+        return { name, keyObject, count: row.count };
       }
       if (val === null || val === undefined) return null;
       return { name: String(val), count: row.count };

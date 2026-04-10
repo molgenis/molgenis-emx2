@@ -282,6 +282,7 @@ export function useFilters(
         columnType: string;
         refTableId?: string | null;
         refSchemaId?: string | null;
+        refLabel?: string | null;
       }
     >
   >(new Map());
@@ -293,6 +294,7 @@ export function useFilters(
       columnType: string;
       refTableId?: string | null;
       refSchemaId?: string | null;
+      refLabel?: string | null;
     }
   ) {
     const next = new Map(nestedColumnMeta.value);
@@ -357,6 +359,13 @@ export function useFilters(
     };
   }
 
+  function resolveRefLabel(columnId: string): string | null {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) return direct.refLabel ?? direct.refLabelDefault ?? null;
+    const nested = nestedColumnMeta.value.get(columnId);
+    return nested?.refLabel ?? null;
+  }
+
   async function fetchColumnCounts(columnId: string, useBase = false) {
     const columnType = resolveColumnType(columnId);
     if (!columnType || !isCountableType(columnType)) return;
@@ -368,6 +377,7 @@ export function useFilters(
     try {
       const crossFilter = useBase ? {} : buildCrossFilter(columnId);
       const { refTableId, refSchemaId } = resolveColumnRefInfo(columnId);
+      const refLabel = resolveRefLabel(columnId);
       const results = await fetchCounts(
         schemaId,
         tableId,
@@ -376,7 +386,8 @@ export function useFilters(
         crossFilter,
         fetchGraphql,
         refTableId,
-        refSchemaId
+        refSchemaId,
+        refLabel
       );
 
       let merged = results;

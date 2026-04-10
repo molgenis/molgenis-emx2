@@ -782,6 +782,7 @@ public class SqlQuery extends QueryBean {
     Set<Field> groupByFields = new HashSet<>(); // name, ref{otherName}, etc
     Set<Field> nonArraySourceFields = new HashSet<>(); // xo x, name, except those from ref_array
     List<SelectConnectByStep> refArraySubqueries = new ArrayList<>(); // for the ref_array columns
+    Set<Field> overlappingRefFields = new HashSet<>();
 
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
@@ -871,6 +872,13 @@ public class SqlQuery extends QueryBean {
           refArraySubqueries.add(
               jooq.select(subselectFields)
                   .from(tableWithInheritanceJoin(table).as(alias(subQueryAlias))));
+          if (col.isRefArray()) {
+            for (Reference ref : col.getReferences()) {
+              if (ref.isOverlapping()) {
+                overlappingRefFields.add(field(name(tableAlias, ref.getName())));
+              }
+            }
+          }
         }
       }
     }
@@ -896,12 +904,14 @@ public class SqlQuery extends QueryBean {
     List<Field> selectFields = new ArrayList<>();
     selectFields.addAll(aggregationFields);
     selectFields.addAll(groupByFields);
+    Collection<Field> allGroupByFields = new LinkedHashSet<>(groupByFields);
+    allGroupByFields.addAll(overlappingRefFields);
     return field(
             jooq.select(field(JSON_AGG_SQL))
                 .from(
                     jooq.select(selectFields)
                         .from(sourceQuery.asTable(name(tableAlias)))
-                        .groupBy(groupByFields)
+                        .groupBy(allGroupByFields)
                         .orderBy(orderByFields)
                         .asTable(ITEM)))
         .as(convertToCamelCase(groupBy.getColumn()));
