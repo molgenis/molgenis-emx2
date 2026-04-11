@@ -8,6 +8,14 @@ vi.mock("#app", () => ({
   createError: (e: unknown) => e,
 }));
 
+vi.mock("../../../../app/components/BaseIcon.vue", () => ({
+  default: {
+    name: "BaseIcon",
+    props: ["name", "width"],
+    template: '<span :data-icon="name"></span>',
+  },
+}));
+
 const ontologyCol: IColumn = {
   id: "status",
   label: "Status",
