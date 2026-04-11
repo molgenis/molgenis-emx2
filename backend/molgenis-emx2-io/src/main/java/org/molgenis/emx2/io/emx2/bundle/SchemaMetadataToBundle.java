@@ -135,14 +135,14 @@ public class SchemaMetadataToBundle {
     if (TableType.INTERNAL.equals(table.getTableType())) {
       return false;
     }
-    String[] inheritNames = table.getExtendNames();
-    return inheritNames == null || inheritNames.length == 0;
+    String[] extendNames = table.getExtendNames();
+    return extendNames == null || extendNames.length == 0;
   }
 
   private static TableDef convertRootTable(
       SchemaMetadata schema, TableMetadata table, Map<String, List<String>> profileIncludes) {
     String description = table.getDescriptions().get("en");
-    List<String> inherits =
+    List<String> extendList =
         table.getExtendNames() != null ? Arrays.asList(table.getExtendNames()) : List.of();
     List<String> tableProfiles =
         deduplicateWithIncludes(normalizeProfiles(table.getProfiles()), profileIncludes);
@@ -158,7 +158,7 @@ public class SchemaMetadataToBundle {
     String oldName = table.getOldName();
     String importSchema = table.getImportSchema();
 
-    List<TableMetadata> variantTableList = findSubtypeTables(schema, table.getTableName());
+    List<TableMetadata> variantTableList = findVariantTables(schema, table.getTableName());
     List<VariantDef> variants = new ArrayList<>();
     for (TableMetadata variantTable : variantTableList) {
       variants.add(convertVariantDef(variantTable, table.getTableName()));
@@ -184,7 +184,7 @@ public class SchemaMetadataToBundle {
 
     return new TableDef(
         description,
-        inherits.isEmpty() ? null : inherits,
+        extendList.isEmpty() ? null : extendList,
         profilesOrNull,
         semantics,
         internal,
@@ -196,21 +196,21 @@ public class SchemaMetadataToBundle {
   }
 
   private static VariantDef convertVariantDef(TableMetadata variantTable, String defaultParent) {
-    String[] inheritNames = variantTable.getExtendNames();
-    List<String> inherits;
-    if (inheritNames != null
-        && inheritNames.length > 0
-        && !(inheritNames.length == 1 && defaultParent.equals(inheritNames[0]))) {
-      inherits = Arrays.asList(inheritNames);
+    String[] rawExtendNames = variantTable.getExtendNames();
+    List<String> extendList;
+    if (rawExtendNames != null
+        && rawExtendNames.length > 0
+        && !(rawExtendNames.length == 1 && defaultParent.equals(rawExtendNames[0]))) {
+      extendList = Arrays.asList(rawExtendNames);
     } else {
-      inherits = List.of();
+      extendList = List.of();
     }
     Boolean internal = TableType.INTERNAL.equals(variantTable.getTableType()) ? Boolean.TRUE : null;
     String description = variantTable.getDescriptions().get("en");
     List<String> variantProfiles = normalizeProfiles(variantTable.getProfiles());
     return new VariantDef(
         variantTable.getTableName(),
-        inherits.isEmpty() ? null : inherits,
+        extendList.isEmpty() ? null : extendList,
         description,
         internal,
         variantProfiles.isEmpty() ? null : variantProfiles);
@@ -491,7 +491,7 @@ public class SchemaMetadataToBundle {
     return allProfiles;
   }
 
-  private static List<TableMetadata> findSubtypeTables(
+  private static List<TableMetadata> findVariantTables(
       SchemaMetadata schema, String rootTableName) {
     List<TableMetadata> result = new ArrayList<>();
     Set<String> visited = new HashSet<>();
@@ -505,9 +505,9 @@ public class SchemaMetadataToBundle {
         if (visited.contains(table.getTableName())) {
           continue;
         }
-        String[] inheritNames = table.getExtendNames();
-        if (inheritNames != null) {
-          for (String parent : inheritNames) {
+        String[] extendNames = table.getExtendNames();
+        if (extendNames != null) {
+          for (String parent : extendNames) {
             if (current.equals(parent)) {
               result.add(table);
               visited.add(table.getTableName());

@@ -20,7 +20,7 @@ class Emx2YamlTest {
   @Test
   void testTemplateRd3() throws Exception {
     Path template = Path.of(getClass().getResource("/yaml-model/templates/rd3.yaml").toURI());
-    Emx2Yaml.TemplateResult result = Emx2Yaml.fromYamlTemplate(template);
+    Emx2Yaml.BundleParseResult result = Emx2Yaml.fromYamlBundle(template);
 
     assertEquals("RD3", result.getName());
     assertEquals("Rare Disease Data for Discovery", result.getDescription());
@@ -43,7 +43,7 @@ class Emx2YamlTest {
   @Test
   void testTemplateFull() throws Exception {
     Path template = Path.of(getClass().getResource("/yaml-model/templates/full.yaml").toURI());
-    Emx2Yaml.TemplateResult result = Emx2Yaml.fromYamlTemplate(template);
+    Emx2Yaml.BundleParseResult result = Emx2Yaml.fromYamlBundle(template);
 
     assertEquals("Full", result.getName());
 
@@ -53,26 +53,12 @@ class Emx2YamlTest {
   }
 
   @Test
-  void testLegacyProfilesKeyThrowsError() throws Exception {
-    Path legacyTemplate = tempDir.resolve("legacy.yaml");
-    Files.writeString(legacyTemplate, "name: Legacy\nprofiles:\n  - wgs\n");
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> Emx2Yaml.fromYamlTemplate(legacyTemplate));
-    assertTrue(
-        exception.getMessage().contains("'profiles' is no longer supported"),
-        "Error message should name the deprecated key");
-    assertTrue(
-        exception.getMessage().contains("activeSubsets"),
-        "Error message should name the replacement key");
-  }
-
-  @Test
   void testVariantExtendsOmittedWhenMatchesDefaultParent() throws Exception {
     SchemaMetadata schema = new SchemaMetadata();
     TableMetadata root = schema.create(new TableMetadata("MyTable"));
     root.add(new Column("id").setKey(1));
     TableMetadata variant = schema.create(new TableMetadata("MyVariant"));
-    variant.setInheritNames("MyTable");
+    variant.setExtendNames("MyTable");
     variant.add(new Column("extra").setType(ColumnType.STRING));
 
     Path outputFile = tempDir.resolve("test-variant.yaml");
@@ -88,7 +74,7 @@ class Emx2YamlTest {
     Path templateFile = tempDir.resolve("template.yaml");
     Files.writeString(templateFile, "name: Test\nimports:\n  - ../../../etc/passwd\n");
     MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> Emx2Yaml.fromYamlTemplate(templateFile));
+        assertThrows(MolgenisException.class, () -> Emx2Yaml.fromYamlBundle(templateFile));
     assertTrue(
         exception.getMessage().toLowerCase().contains("escapes"),
         "Error message should indicate path escapes base directory, but was: "
@@ -111,12 +97,12 @@ class Emx2YamlTest {
   @Test
   void testTemplateRoundtrip() throws Exception {
     Path template = Path.of(getClass().getResource("/yaml-model/templates/rd3.yaml").toURI());
-    Emx2Yaml.TemplateResult original = Emx2Yaml.fromYamlTemplate(template);
+    Emx2Yaml.BundleParseResult original = Emx2Yaml.fromYamlBundle(template);
 
-    String yaml = Emx2Yaml.toYamlTemplate(original);
+    String yaml = Emx2Yaml.toYamlBundle(original);
     assertTrue(yaml.contains("name: "));
     assertTrue(yaml.contains("RD3"));
-    assertTrue(yaml.contains("activeSubsets:"));
+    assertTrue(yaml.contains("activeProfiles:"));
     assertTrue(yaml.contains("wgs"));
   }
 }

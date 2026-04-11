@@ -74,7 +74,7 @@ public class TestTableMetadata {
     c1.setTable(table);
     c2.setTable(table);
     table.setSchema(schema);
-    table.setInheritNames("parent table");
+    table.setExtendNames("parent table");
 
     // Parent table for inheritance validation
     Column c3 = new Column("parent column");

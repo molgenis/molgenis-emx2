@@ -44,7 +44,7 @@ public class CrossSchemaReferenceExample {
     petLover.insert(row("name", "x", "pets", new String[] {"pooky", "spike"}));
 
     Table cat =
-        schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInheritNames("Pet"));
+        schema2.create(table("Mouse").setImportSchema(schema1.getName()).setExtendNames("Pet"));
     cat.insert(row("name", "mickey", "species", "mouse"));
 
     // for test if tables can have same name but different structure between schemas

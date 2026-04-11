@@ -46,30 +46,30 @@ public class TestSubtables {
     schema.create(
         table("sampling")
             .setTableType(TableType.INTERNAL)
-            .setInheritNames("Experiments")
+            .setExtendNames("Experiments")
             .add(column("sample type").setType(STRING))
             .add(column("tissue type").setType(STRING)));
 
     schema.create(
         table("sequencing")
             .setTableType(TableType.INTERNAL)
-            .setInheritNames("Experiments")
+            .setExtendNames("Experiments")
             .add(column("library strategy").setType(STRING))
             .add(column("read length").setType(INT)));
 
     schema.create(
         table("WGS")
-            .setInheritNames("sampling", "sequencing")
+            .setExtendNames("sampling", "sequencing")
             .add(column("coverage").setType(DECIMAL)));
 
     schema.create(
         table("WES")
-            .setInheritNames("sampling", "sequencing")
+            .setExtendNames("sampling", "sequencing")
             .add(column("capture kit").setType(STRING)));
 
     schema.create(
         table("Imaging")
-            .setInheritNames("Experiments")
+            .setExtendNames("Experiments")
             .add(column("modality").setType(STRING))
             .add(column("body part").setType(STRING)));
 
@@ -87,13 +87,13 @@ public class TestSubtables {
 
     schema.create(
         table("Dermatology")
-            .setInheritNames("Observations")
+            .setExtendNames("Observations")
             .add(column("BSA").setType(DECIMAL))
             .add(column("lesion type").setType(STRING)));
 
     schema.create(
         table("Neurology")
-            .setInheritNames("Observations")
+            .setExtendNames("Observations")
             .add(column("motor score").setType(INT))
             .add(column("cognitive score").setType(INT)));
 
@@ -586,19 +586,19 @@ public class TestSubtables {
     Schema reloaded = db.getSchema(SCHEMA_PICK_ONE);
 
     TableMetadata wgsMeta = reloaded.getTable("WGS").getMetadata();
-    String[] inheritNames = wgsMeta.getInheritNames();
-    assertNotNull(inheritNames, "WGS inheritName should not be null");
-    assertEquals(2, inheritNames.length, "WGS should inherit from 2 blocks");
+    String[] extendNames = wgsMeta.getExtendNames();
+    assertNotNull(extendNames, "WGS extendNames should not be null");
+    assertEquals(2, extendNames.length, "WGS should extend 2 blocks");
 
-    List<String> names = List.of(inheritNames);
-    assertTrue(names.contains("sampling"), "WGS should inherit sampling");
-    assertTrue(names.contains("sequencing"), "WGS should inherit sequencing");
+    List<String> names = List.of(extendNames);
+    assertTrue(names.contains("sampling"), "WGS should extend sampling");
+    assertTrue(names.contains("sequencing"), "WGS should extend sequencing");
 
     TableMetadata imagingMeta = reloaded.getTable("Imaging").getMetadata();
-    String[] imagingInherit = imagingMeta.getInheritNames();
-    assertNotNull(imagingInherit);
-    assertEquals(1, imagingInherit.length);
-    assertEquals("Experiments", imagingInherit[0]);
+    String[] imagingExtend = imagingMeta.getExtendNames();
+    assertNotNull(imagingExtend);
+    assertEquals(1, imagingExtend.length);
+    assertEquals("Experiments", imagingExtend[0]);
   }
 
   @Test
@@ -668,14 +668,14 @@ public class TestSubtables {
 
     schema.create(table("RootA").add(column("id").setType(STRING).setPkey()));
     schema.create(table("RootB").add(column("id").setType(STRING).setPkey()));
-    schema.create(table("ChildA").setInheritNames("RootA").add(column("fieldA").setType(STRING)));
+    schema.create(table("ChildA").setExtendNames("RootA").add(column("fieldA").setType(STRING)));
 
     assertThrows(
         MolgenisException.class,
         () ->
             schema.create(
                 table("NewTable")
-                    .setInheritNames("ChildA", "RootB")
+                    .setExtendNames("ChildA", "RootB")
                     .add(column("extra").setType(STRING))),
         "Should throw when parents have different root tables");
 
@@ -687,12 +687,12 @@ public class TestSubtables {
     Schema schema = db.dropCreateSchema("TestSubtablesReroot");
 
     schema.create(table("TableA").add(column("id").setType(STRING).setPkey()));
-    schema.create(table("TableB").setInheritNames("TableA").add(column("fieldB").setType(STRING)));
+    schema.create(table("TableB").setExtendNames("TableA").add(column("fieldB").setType(STRING)));
     schema.create(table("TableC").add(column("id").setType(STRING).setPkey()));
 
     assertThrows(
         MolgenisException.class,
-        () -> schema.getTable("TableA").getMetadata().setInheritNames("TableC"),
+        () -> schema.getTable("TableA").getMetadata().setExtendNames("TableC"),
         "Should throw when table has subclasses and would become a child");
 
     db.dropSchema("TestSubtablesReroot");
@@ -714,7 +714,7 @@ public class TestSubtables {
 
     Table employee =
         schema.create(
-            table("Employee").setInheritNames(person.getName()).add(column("salary").setType(INT)));
+            table("Employee").setExtendNames(person.getName()).add(column("salary").setType(INT)));
 
     assertNotNull(
         employee.getMetadata().getColumn(MG_TABLECLASS),

@@ -116,7 +116,7 @@ public class Column {
 
     // calculated field
     if (table.getExtendNames() != null) {
-      for (org.molgenis.emx2.TableMetadata parent : table.getInheritedTables()) {
+      for (org.molgenis.emx2.TableMetadata parent : table.getExtendedTables()) {
         if (parent.getColumnNames().contains(column.getName())) {
           this.inherited = true;
           break;

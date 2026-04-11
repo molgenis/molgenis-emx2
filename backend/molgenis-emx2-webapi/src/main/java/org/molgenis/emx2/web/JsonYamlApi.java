@@ -58,7 +58,8 @@ public class JsonYamlApi {
     Schema schema = getSchema(ctx);
     Path tempFile = Files.createTempFile("yaml_export_", ".yaml");
     try {
-      Emx2Yaml.toBundleSingleFile(schema.getMetadata(), schema.getName(), null, tempFile, List.of());
+      Emx2Yaml.toBundleSingleFile(
+          schema.getMetadata(), schema.getName(), null, tempFile, List.of());
       ctx.contentType(ACCEPT_YAML);
       String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
       ctx.header(

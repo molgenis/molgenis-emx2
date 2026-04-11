@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2.bundle;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,8 +13,8 @@ public record HeadingDef(String variant, List<String> profiles, Map<String, Data
 
   @JsonCreator
   public HeadingDef(
-      @JsonProperty("variant") @JsonAlias("subtype") String variant,
-      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
+      @JsonProperty("variant") String variant,
+      @JsonProperty("profiles") List<String> profiles,
       @JsonProperty("columns") Map<String, DataColumn> columns) {
     this.variant = variant;
     this.profiles = profiles != null ? profiles : List.of();

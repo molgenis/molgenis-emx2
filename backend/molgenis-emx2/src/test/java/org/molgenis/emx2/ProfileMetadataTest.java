@@ -187,7 +187,7 @@ public class ProfileMetadataTest {
     schema.create(sequencing);
     schema.create(wgs);
 
-    List<String> allNames = wgs.getAllInheritNames();
+    List<String> allNames = wgs.getAllExtendNames();
     assertTrue(allNames.contains("WGS"), "Should contain self");
     assertTrue(allNames.contains("sampling"), "Should contain first parent");
     assertTrue(allNames.contains("sequencing"), "Should contain second parent");

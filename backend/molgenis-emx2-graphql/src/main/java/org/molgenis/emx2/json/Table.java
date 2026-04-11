@@ -52,9 +52,9 @@ public class Table {
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getExtendNames() != null) {
       this.extendNames = tableMetadata.getExtendNames();
-      if (!tableMetadata.getInheritedTables().isEmpty()) {
+      if (!tableMetadata.getExtendedTables().isEmpty()) {
         this.extendIds =
-            tableMetadata.getInheritedTables().stream()
+            tableMetadata.getExtendedTables().stream()
                 .map(TableMetadata::getIdentifier)
                 .toArray(String[]::new);
       }

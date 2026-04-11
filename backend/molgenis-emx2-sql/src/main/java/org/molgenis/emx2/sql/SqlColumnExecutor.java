@@ -384,7 +384,7 @@ public class SqlColumnExecutor {
       }
       if (c.isRefback()
           && c.getRefBackColumn().isRef()
-          && !c.getTable().getAllInheritNames().contains(c.getRefBackColumn().getRefTableName())) {
+          && !c.getTable().getAllExtendNames().contains(c.getRefBackColumn().getRefTableName())) {
         throw new MolgenisException(
             "Refback '"
                 + c.getRefTableName()

@@ -4,7 +4,7 @@ description: "Rare Disease Data for Discovery"
 imports:
   - ../tables/*
 
-activeSubsets:
+activeProfiles:
   - wgs
   - rna
 

@@ -238,7 +238,7 @@ public class SqlTable implements Table {
                 keepSet.add(unqualifiedTarget);
                 TableMetadata targetMeta = schema.getMetadata().getTableMetadata(unqualifiedTarget);
                 if (targetMeta != null) {
-                  for (TableMetadata ancestor : targetMeta.getAllInheritedTables()) {
+                  for (TableMetadata ancestor : targetMeta.getAllExtendedTables()) {
                     keepSet.add(ancestor.getTableName());
                   }
                 }
@@ -465,7 +465,7 @@ public class SqlTable implements Table {
     boolean extend = table.getMetadata().getExtendNames() != null;
     int count = 0;
     if (extend) {
-      for (SqlTable inheritedTable : table.getInheritedTables()) {
+      for (SqlTable inheritedTable : table.getExtendedTables()) {
         // use upsert (updateOnConflict=true) for all parent inserts to handle diamond inheritance
         count = inheritedTable.insertBatch(inheritedTable, rows, true, updateColumns);
       }
@@ -528,7 +528,7 @@ public class SqlTable implements Table {
     boolean extend = table.getMetadata().getExtendNames() != null;
     int count = 0;
     if (extend) {
-      for (SqlTable inheritedTable : table.getInheritedTables()) {
+      for (SqlTable inheritedTable : table.getExtendedTables()) {
         count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
       }
     }
@@ -624,7 +624,7 @@ public class SqlTable implements Table {
 
             // finally delete in superclass tables
             if (table.getMetadata().getExtendNames() != null) {
-              for (SqlTable inheritedTable : table.getInheritedTables()) {
+              for (SqlTable inheritedTable : table.getExtendedTables()) {
                 inheritedTable.delete(rows);
               }
             }
@@ -786,7 +786,7 @@ public class SqlTable implements Table {
 
   // Casts TableMetadata results to SqlTable so insertBatch can recursively insert into parent
   // tables.
-  public List<SqlTable> getInheritedTables() {
+  public List<SqlTable> getExtendedTables() {
     List<SqlTable> result = new ArrayList<>();
     if (getMetadata().getExtendNames() != null) {
       for (String name : getMetadata().getExtendNames()) {

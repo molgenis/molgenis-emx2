@@ -13,15 +13,15 @@ class BundleValidator {
   private BundleValidator() {}
 
   static void validate(
-      String bundleName, Map<String, ProfileEntry> templateRegistry, SchemaMetadata schema) {
+      String bundleName, Map<String, ProfileEntry> profileRegistry, SchemaMetadata schema) {
 
     List<String> errors = new ArrayList<>();
 
-    validateIdentifierFormats(templateRegistry, bundleName, errors);
-    validateIncludesResolution(templateRegistry, bundleName, errors);
-    validateIncludesAcyclicity(templateRegistry, errors);
-    validateSubsetReferencesOnTablesAndColumns(schema, templateRegistry, errors);
-    validateReferenceCompleteness(schema, templateRegistry, errors);
+    validateIdentifierFormats(profileRegistry, bundleName, errors);
+    validateIncludesResolution(profileRegistry, bundleName, errors);
+    validateIncludesAcyclicity(profileRegistry, errors);
+    validateProfileReferencesOnTablesAndColumns(schema, profileRegistry, errors);
+    validateReferenceCompleteness(schema, profileRegistry, errors);
 
     if (!errors.isEmpty()) {
       throw new MolgenisException(
@@ -32,8 +32,8 @@ class BundleValidator {
   private static final String IDENTIFIER_PATTERN = "[a-z][a-z0-9_]*";
 
   private static void validateIdentifierFormats(
-      Map<String, ProfileEntry> templateRegistry, String bundleName, List<String> errors) {
-    for (String id : templateRegistry.keySet()) {
+      Map<String, ProfileEntry> profileRegistry, String bundleName, List<String> errors) {
+    for (String id : profileRegistry.keySet()) {
       if (!id.matches(IDENTIFIER_PATTERN)) {
         errors.add(
             "Bundle '"
@@ -115,32 +115,32 @@ class BundleValidator {
     return path;
   }
 
-  private static void validateSubsetReferencesOnTablesAndColumns(
+  private static void validateProfileReferencesOnTablesAndColumns(
       SchemaMetadata schema, Map<String, ProfileEntry> combined, List<String> errors) {
     for (TableMetadata table : schema.getTables()) {
       if (table.getProfiles() != null) {
-        for (String subsetName : table.getProfiles()) {
-          if (!combined.containsKey(subsetName)) {
+        for (String profileName : table.getProfiles()) {
+          if (!combined.containsKey(profileName)) {
             errors.add(
                 "Table '"
                     + table.getTableName()
-                    + "' references unknown subset '"
-                    + subsetName
+                    + "' references unknown profile '"
+                    + profileName
                     + "'");
           }
         }
       }
       for (Column column : table.getNonInheritedColumns()) {
         if (column.getProfiles() != null) {
-          for (String subsetName : column.getProfiles()) {
-            if (!combined.containsKey(subsetName)) {
+          for (String profileName : column.getProfiles()) {
+            if (!combined.containsKey(profileName)) {
               errors.add(
                   "Table '"
                       + table.getTableName()
                       + "', column '"
                       + column.getName()
-                      + "' references unknown subset '"
-                      + subsetName
+                      + "' references unknown profile '"
+                      + profileName
                       + "'");
             }
           }
@@ -156,12 +156,12 @@ class BundleValidator {
       return;
     }
 
-    Map<String, Set<String>> tableSubsets = buildTableSubsetsMap(schema);
+    Map<String, Set<String>> tableProfiles = buildTableProfilesMap(schema);
     Map<String, Set<String>> transitiveClosurePerEntry = buildTransitiveClosurePerEntry(combined);
 
     for (TableMetadata table : schema.getTables()) {
-      Set<String> sourceSubsets = tableSubsets.getOrDefault(table.getTableName(), Set.of());
-      if (sourceSubsets.isEmpty()) {
+      Set<String> sourceProfiles = tableProfiles.getOrDefault(table.getTableName(), Set.of());
+      if (sourceProfiles.isEmpty()) {
         continue;
       }
 
@@ -173,26 +173,26 @@ class BundleValidator {
         if (refTableName == null) {
           continue;
         }
-        Set<String> targetSubsets = tableSubsets.get(refTableName);
-        if (targetSubsets == null || targetSubsets.isEmpty()) {
+        Set<String> targetProfiles = tableProfiles.get(refTableName);
+        if (targetProfiles == null || targetProfiles.isEmpty()) {
           continue;
         }
 
         boolean covered =
             existsActivationCoveringBoth(
-                sourceSubsets, targetSubsets, combined, transitiveClosurePerEntry);
+                sourceProfiles, targetProfiles, combined, transitiveClosurePerEntry);
         if (!covered) {
           errors.add(
               "Table '"
                   + table.getTableName()
                   + "', column '"
                   + column.getName()
-                  + "' (subsets: "
-                  + sortedJoin(sourceSubsets)
+                  + "' (profiles: "
+                  + sortedJoin(sourceProfiles)
                   + ") references table '"
                   + refTableName
-                  + "' (subsets: "
-                  + sortedJoin(targetSubsets)
+                  + "' (profiles: "
+                  + sortedJoin(targetProfiles)
                   + ") but no single profile in the registry covers both when activated. "
                   + "Either make '"
                   + refTableName
@@ -203,8 +203,8 @@ class BundleValidator {
   }
 
   private static boolean existsActivationCoveringBoth(
-      Set<String> sourceSubsets,
-      Set<String> targetSubsets,
+      Set<String> sourceProfiles,
+      Set<String> targetProfiles,
       Map<String, ProfileEntry> combined,
       Map<String, Set<String>> transitiveClosurePerEntry) {
 
@@ -213,8 +213,8 @@ class BundleValidator {
       coverage.add(entryId);
       coverage.addAll(transitiveClosurePerEntry.getOrDefault(entryId, Set.of()));
 
-      boolean coversSource = sourceSubsets.stream().anyMatch(coverage::contains);
-      boolean coversTarget = targetSubsets.stream().anyMatch(coverage::contains);
+      boolean coversSource = sourceProfiles.stream().anyMatch(coverage::contains);
+      boolean coversTarget = targetProfiles.stream().anyMatch(coverage::contains);
       if (coversSource && coversTarget) {
         return true;
       }
@@ -236,7 +236,7 @@ class BundleValidator {
     return type != null && type.isReference();
   }
 
-  private static Map<String, Set<String>> buildTableSubsetsMap(SchemaMetadata schema) {
+  private static Map<String, Set<String>> buildTableProfilesMap(SchemaMetadata schema) {
     Map<String, Set<String>> result = new HashMap<>();
     for (TableMetadata table : schema.getTables()) {
       if (table.getProfiles() != null && table.getProfiles().length > 0) {

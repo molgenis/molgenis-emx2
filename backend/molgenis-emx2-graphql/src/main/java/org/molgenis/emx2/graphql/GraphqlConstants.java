@@ -29,8 +29,6 @@ public class GraphqlConstants {
   public static final String SCHEMA_ID = "schemaId";
   public static final String EXTEND_NAMES = "extends";
   public static final String EXTEND_IDS = "extendIds";
-  public static final String INHERIT_NAMES = "inheritNames";
-  public static final String INHERIT_IDS = "inheritIds";
   public static final String INHERITED = "inherited";
   public static final String FILTER = "Filter";
   public static final String FILTER_IS_NULL = "_is_null";

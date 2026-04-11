@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2.bundle;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -52,8 +51,8 @@ public record DataColumn(
       @JsonProperty("description") String description,
       @JsonProperty("semantics") @JsonDeserialize(using = StringOrListDeserializer.class)
           List<String> semantics,
-      @JsonProperty("variant") @JsonAlias("subtype") String variant,
-      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
+      @JsonProperty("variant") String variant,
+      @JsonProperty("profiles") List<String> profiles,
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
       @JsonProperty("drop") Boolean drop) {

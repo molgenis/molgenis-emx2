@@ -69,20 +69,20 @@ public class TestProfileActivation {
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
-                + "  subset_a:\n"
+                + "profiles:\n"
+                + "  - name: subset_a\n"
                 + "    description: Subset A\n"
                 + "tables:\n"
                 + "  Animals:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      name:\n"
+                + "      - name: animal_name\n"
                 + "        type: string\n"
-                + "      weight:\n"
+                + "      - name: weight\n"
                 + "        type: decimal\n"
-                + "        subsets: [subset_a]\n");
+                + "        profiles: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
     SqlSchema schema = createSchema("TestEnableProfileCreatesTaggedColumns");
@@ -100,7 +100,8 @@ public class TestProfileActivation {
     assertTrue(
         columnExistsInPg(schema, "Animals", "id"), "id (always-on) column should always exist");
     assertTrue(
-        columnExistsInPg(schema, "Animals", "name"), "name (always-on) column should always exist");
+        columnExistsInPg(schema, "Animals", "animal_name"),
+        "animal_name (always-on) column should always exist");
   }
 
   @Test
@@ -109,18 +110,18 @@ public class TestProfileActivation {
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
-                + "  subset_a:\n"
+                + "profiles:\n"
+                + "  - name: subset_a\n"
                 + "    description: Subset A\n"
                 + "tables:\n"
                 + "  Animals:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      weight:\n"
+                + "      - name: weight\n"
                 + "        type: decimal\n"
-                + "        subsets: [subset_a]\n");
+                + "        profiles: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
     SqlSchema schema = createSchema("TestEnableProfileIsIdempotent");
@@ -138,22 +139,22 @@ public class TestProfileActivation {
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
-                + "  subset_b:\n"
+                + "profiles:\n"
+                + "  - name: subset_b\n"
                 + "    description: Subset B\n"
                 + "tables:\n"
                 + "  Experiments:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
                 + "  Sequencing:\n"
-                + "    subsets: [subset_b]\n"
+                + "    profiles: [subset_b]\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      read_length:\n"
+                + "      - name: read_length\n"
                 + "        type: int\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
@@ -176,25 +177,25 @@ public class TestProfileActivation {
             tempDir,
             "name: test_bundle\n"
                 + "profiles:\n"
-                + "  core:\n"
+                + "  - name: core\n"
                 + "    description: Core\n"
                 + "    internal: true\n"
-                + "  extended:\n"
+                + "  - name: extended\n"
                 + "    description: Extended\n"
                 + "    internal: true\n"
-                + "  full:\n"
+                + "  - name: full\n"
                 + "    description: Full template\n"
                 + "    includes: [core, extended]\n"
                 + "tables:\n"
                 + "  Animals:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      weight:\n"
+                + "      - name: weight\n"
                 + "        type: decimal\n"
                 + "        profiles: [core]\n"
-                + "      color:\n"
+                + "      - name: color\n"
                 + "        type: string\n"
                 + "        profiles: [extended]\n");
 
@@ -218,23 +219,23 @@ public class TestProfileActivation {
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
-                + "  subset_a:\n"
+                + "profiles:\n"
+                + "  - name: subset_a\n"
                 + "    description: Subset A\n"
-                + "  subset_b:\n"
+                + "  - name: subset_b\n"
                 + "    description: Subset B\n"
                 + "tables:\n"
                 + "  Animals:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      weight:\n"
+                + "      - name: weight\n"
                 + "        type: decimal\n"
-                + "        subsets: [subset_a]\n"
-                + "      color:\n"
+                + "        profiles: [subset_a]\n"
+                + "      - name: color\n"
                 + "        type: string\n"
-                + "        subsets: [subset_b]\n");
+                + "        profiles: [subset_b]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
     SqlSchema schema = createSchema("TestDisableProfileLeavesColumns");
@@ -268,18 +269,18 @@ public class TestProfileActivation {
         writeBundleYaml(
             tempDir,
             "name: test_bundle\n"
-                + "subsets:\n"
-                + "  subset_a:\n"
+                + "profiles:\n"
+                + "  - name: subset_a\n"
                 + "    description: Subset A\n"
                 + "tables:\n"
                 + "  Animals:\n"
                 + "    columns:\n"
-                + "      id:\n"
+                + "      - name: id\n"
                 + "        type: int\n"
                 + "        key: 1\n"
-                + "      weight:\n"
+                + "      - name: weight\n"
                 + "        type: decimal\n"
-                + "        subsets: [subset_a]\n");
+                + "        profiles: [subset_a]\n");
 
     Emx2Yaml.BundleResult bundle = parseBundle(bundleDir);
     SqlSchema schema = createSchema("TestDisableProfileThenReEnable");

@@ -27,27 +27,27 @@ class TestProfileMutations {
       "name: test_graphql_bundle\n"
           + "description: Bundle for GraphQL profile tests\n"
           + "profiles:\n"
-          + "  subset_a:\n"
+          + "  - name: subset_a\n"
           + "    description: Subset A\n"
           + "    internal: true\n"
-          + "  subset_b:\n"
+          + "  - name: subset_b\n"
           + "    description: Subset B\n"
           + "    internal: true\n"
           + "    includes: [subset_a]\n"
-          + "  template_x:\n"
+          + "  - name: template_x\n"
           + "    description: Template X\n"
           + "    includes: [subset_a]\n"
           + "tables:\n"
           + "  Animals:\n"
           + "    columns:\n"
-          + "      id:\n"
+          + "      - name: id\n"
           + "        type: int\n"
           + "        key: 1\n"
-          + "      name:\n"
+          + "      - name: name\n"
           + "        type: string\n"
-          + "      weight:\n"
+          + "      - name: weight\n"
           + "        type: decimal\n"
-          + "        subsets: [subset_a]\n";
+          + "        profiles: [subset_a]\n";
 
   private SqlSchema createBundleSchema(String schemaName, Path tempDir) throws IOException {
     Path molgenisYaml = tempDir.resolve("molgenis.yaml");
@@ -163,7 +163,7 @@ class TestProfileMutations {
   @Test
   void schemaIntrospectionExposesAvailableProfiles(@TempDir Path tempDir) throws IOException {
     SqlSchema schema = createBundleSchema("TestIntrospectAvailableProfiles", tempDir);
-    schema.enableProfile("subset_a");
+    schema.enableProfile("template_x");
     GraphqlExecutor graphql = executorFor(schema);
 
     JsonNode result =
@@ -171,18 +171,14 @@ class TestProfileMutations {
     JsonNode availableProfiles = result.at("/_schema/availableProfiles");
     assertNotNull(availableProfiles);
     assertTrue(availableProfiles.isArray());
-    assertTrue(availableProfiles.size() >= 2);
+    assertTrue(availableProfiles.size() >= 1);
 
-    JsonNode subsetA = findByName(availableProfiles, "subset_a");
-    assertNotNull(subsetA, "subset_a should be in availableProfiles");
-    assertEquals("Subset A", subsetA.get("description").asText());
-    assertTrue(subsetA.get("active").asBoolean(), "subset_a should be active");
-
-    JsonNode subsetB = findByName(availableProfiles, "subset_b");
-    assertNotNull(subsetB, "subset_b should be in availableProfiles");
-    assertFalse(subsetB.get("active").asBoolean(), "subset_b should not be active");
-    assertTrue(subsetB.get("includes").isArray());
-    assertEquals("subset_a", subsetB.get("includes").get(0).asText());
+    JsonNode templateX = findByName(availableProfiles, "template_x");
+    assertNotNull(templateX, "template_x should be in availableProfiles");
+    assertEquals("Template X", templateX.get("description").asText());
+    assertTrue(templateX.get("active").asBoolean(), "template_x should be active");
+    assertTrue(templateX.get("includes").isArray());
+    assertEquals("subset_a", templateX.get("includes").get(0).asText());
   }
 
   @Test

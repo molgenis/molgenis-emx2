@@ -577,7 +577,7 @@ public class SqlQuery extends QueryBean {
                 }
               });
 
-      for (TableMetadata ancestor : table.getAllInheritedTables()) {
+      for (TableMetadata ancestor : table.getAllExtendedTables()) {
         search.add(
             field(name(alias(subAlias), searchColumnName(ancestor.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
@@ -910,7 +910,7 @@ public class SqlQuery extends QueryBean {
     Set<String> joined = new HashSet<>();
     joined.add(table.getTableName());
 
-    for (TableMetadata parent : table.getAllInheritedTables()) {
+    for (TableMetadata parent : table.getAllExtendedTables()) {
       if (joined.add(parent.getTableName())) {
         Field<?>[] using = parent.getPrimaryKeyFields().toArray(new Field<?>[0]);
         result = result.join(parent.getJooqTable()).using(using);
@@ -1579,7 +1579,7 @@ public class SqlQuery extends QueryBean {
 
     List<String> searchableTables = new ArrayList<>();
     searchableTables.add(table.getTableName());
-    for (TableMetadata ancestor : table.getAllInheritedTables()) {
+    for (TableMetadata ancestor : table.getAllExtendedTables()) {
       searchableTables.add(ancestor.getTableName());
     }
     List<Condition> termConditions = new ArrayList<>();

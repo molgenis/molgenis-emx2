@@ -589,8 +589,8 @@ public class GraphqlSchemaFieldFactory {
               + "'");
     }
     boolean known =
-        bundleContext.getProfileRegistry().containsKey(name)
-            || bundleContext.getTemplateRegistry().containsKey(name);
+        bundleContext.getInternalProfileRegistry().containsKey(name)
+            || bundleContext.getProfileRegistry().containsKey(name);
     if (!known) {
       throw new MolgenisException(
           "Unknown profile '" + name + "' in bundle '" + bundleContext.getBundleName() + "'");

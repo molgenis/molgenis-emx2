@@ -440,19 +440,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this.extendNames;
   }
 
-  /**
-   * @deprecated use {@link #getExtendNames()}
-   */
-  @Deprecated
-  public String[] getInheritNames() {
-    return getExtendNames();
-  }
-
-  public List<String> getAllInheritNames() {
+  public List<String> getAllExtendNames() {
     List<String> result = new ArrayList<>();
     result.add(this.getTableName());
     for (TableMetadata parent : getExtendedTables()) {
-      for (String name : parent.getAllInheritNames()) {
+      for (String name : parent.getAllExtendNames()) {
         if (!result.contains(name)) {
           result.add(name);
         }
@@ -468,14 +460,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.extendNames = otherTable;
     }
     return this;
-  }
-
-  /**
-   * @deprecated use {@link #setExtendNames(String...)}
-   */
-  @Deprecated
-  public TableMetadata setInheritNames(String... otherTable) {
-    return setExtendNames(otherTable);
   }
 
   public List<TableMetadata> getExtendedTables() {
@@ -526,14 +510,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * @deprecated use {@link #getExtendedTables()}
-   */
-  @Deprecated
-  public List<TableMetadata> getInheritedTables() {
-    return getExtendedTables();
-  }
-
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
@@ -565,14 +541,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata removeExtendNames() {
     this.extendNames = null;
     return this;
-  }
-
-  /**
-   * @deprecated use {@link #removeExtendNames()}
-   */
-  @Deprecated
-  public TableMetadata removeInheritNames() {
-    return removeExtendNames();
   }
 
   public String getSchemaName() {
@@ -802,13 +770,5 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       result.addAll(parent.getAllExtendedTables());
     }
     return result;
-  }
-
-  /**
-   * @deprecated use {@link #getAllExtendedTables()}
-   */
-  @Deprecated
-  public List<TableMetadata> getAllInheritedTables() {
-    return getAllExtendedTables();
   }
 }

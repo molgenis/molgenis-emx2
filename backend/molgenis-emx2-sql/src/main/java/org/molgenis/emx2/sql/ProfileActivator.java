@@ -17,26 +17,26 @@ class ProfileActivator {
     Set<String> resolved = new HashSet<>();
     collectTransitive(
         profileName,
+        bundleContext.getInternalProfileRegistry(),
         bundleContext.getProfileRegistry(),
-        bundleContext.getTemplateRegistry(),
         resolved);
     return resolved;
   }
 
   private static void collectTransitive(
       String entryName,
+      Map<String, ProfileEntry> internalProfileRegistry,
       Map<String, ProfileEntry> profileRegistry,
-      Map<String, ProfileEntry> templateRegistry,
       Set<String> visited) {
     if (visited.contains(entryName)) return;
     visited.add(entryName);
     ProfileEntry entry =
-        profileRegistry.containsKey(entryName)
-            ? profileRegistry.get(entryName)
-            : templateRegistry.get(entryName);
+        internalProfileRegistry.containsKey(entryName)
+            ? internalProfileRegistry.get(entryName)
+            : profileRegistry.get(entryName);
     if (entry != null) {
       for (String included : entry.getIncludes()) {
-        collectTransitive(included, profileRegistry, templateRegistry, visited);
+        collectTransitive(included, internalProfileRegistry, profileRegistry, visited);
       }
     }
   }

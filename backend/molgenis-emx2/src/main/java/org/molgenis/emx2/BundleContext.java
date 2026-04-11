@@ -6,31 +6,31 @@ public class BundleContext {
   private final String bundleName;
   private final String bundleDescription;
   private final SchemaMetadata bundleSchema;
+  private final Map<String, ProfileEntry> internalProfileRegistry;
   private final Map<String, ProfileEntry> profileRegistry;
-  private final Map<String, ProfileEntry> templateRegistry;
 
   public BundleContext(
       SchemaMetadata bundleSchema,
-      Map<String, ProfileEntry> profileRegistry,
-      Map<String, ProfileEntry> templateRegistry) {
+      Map<String, ProfileEntry> internalProfileRegistry,
+      Map<String, ProfileEntry> profileRegistry) {
     this.bundleName = null;
     this.bundleDescription = null;
     this.bundleSchema = bundleSchema;
+    this.internalProfileRegistry = internalProfileRegistry;
     this.profileRegistry = profileRegistry;
-    this.templateRegistry = templateRegistry;
   }
 
   public BundleContext(
       String bundleName,
       String bundleDescription,
       SchemaMetadata bundleSchema,
-      Map<String, ProfileEntry> profileRegistry,
-      Map<String, ProfileEntry> templateRegistry) {
+      Map<String, ProfileEntry> internalProfileRegistry,
+      Map<String, ProfileEntry> profileRegistry) {
     this.bundleName = bundleName;
     this.bundleDescription = bundleDescription;
     this.bundleSchema = bundleSchema;
+    this.internalProfileRegistry = internalProfileRegistry;
     this.profileRegistry = profileRegistry;
-    this.templateRegistry = templateRegistry;
   }
 
   public String getBundleName() {
@@ -45,11 +45,11 @@ public class BundleContext {
     return bundleSchema;
   }
 
-  public Map<String, ProfileEntry> getProfileRegistry() {
-    return profileRegistry;
+  public Map<String, ProfileEntry> getInternalProfileRegistry() {
+    return internalProfileRegistry;
   }
 
-  public Map<String, ProfileEntry> getTemplateRegistry() {
-    return templateRegistry;
+  public Map<String, ProfileEntry> getProfileRegistry() {
+    return profileRegistry;
   }
 }

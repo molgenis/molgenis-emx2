@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2.bundle;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,7 +26,7 @@ public record Bundle(
       @JsonProperty("name") String name,
       @JsonProperty("description") String description,
       @JsonProperty("namespaces") Map<String, String> namespaces,
-      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<ProfileDef> profiles,
+      @JsonProperty("profiles") List<ProfileDef> profiles,
       @JsonProperty("tables") Map<String, TableDef> tables,
       @JsonProperty("demodata") List<String> demodata,
       @JsonProperty("ontologies") List<String> ontologies,

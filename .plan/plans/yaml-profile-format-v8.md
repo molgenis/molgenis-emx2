@@ -17,24 +17,24 @@ CSV with `tableExtends` remains fully supported.
 
 ## Core Concept: Multiple Inheritance
 
-The core backend feature is **multiple inheritance**. A table's `inheritNames` is a String array — each entry is a direct parent. FK is created to each parent. All parents must share the same root table.
+The core backend feature is **multiple inheritance**. A table's `extendNames` is a String array — each entry is a direct parent. FK is created to each parent. All parents must share the same root table.
 
 Everything else is layered on top:
 
 | Concept | What it is | Backend impact |
 |---|---|---|
-| Multiple inheritance | `inheritNames = ["sampling", "sequencing"]` | Core feature: FKs, column merging, recursive insert/update/delete |
+| Multiple inheritance | `extendNames = ["sampling", "sequencing"]` | Core feature: FKs, column merging, recursive insert/update/delete |
 | `mg_tableclass` | Old-style discriminator column (auto-managed) | Used when root has NO profile column (backward compat) |
 | EXTENSION column | New-style discriminator (user-visible, pick-one) | Same role as `mg_tableclass` but explicit. Extends STRING. |
 | EXTENSION_ARRAY column | Multi-value discriminator (pick-many) | Like EXTENSION but extends STRING_ARRAY — rows in multiple children |
-| `TableType.INTERNAL` | Table type for non-selectable child tables | **UX-only** — backend never branches on it. Means "don't show in profile selector dropdown". Was called BLOCK. |
+| `TableType.INTERNAL` | Table type for non-selectable child tables | **UX-only** — backend never branches on it. Means "don't show in variant selector dropdown". Was called BLOCK. |
 
 ### Terminology
 
-> **Note**: Phase 5.5 established new terminology. See `.plan/specs/new_naming.md` for the full naming conventions.
+> **Note**: Phase 5.5 established new terminology. See `.plan/specs/yaml-profile-format-v8.md` for the full naming conventions.
 
-- **Parent table** = any table listed in `inheritNames`
-- **Child table** = any table whose `inheritNames` includes this table
+- **Parent table** = any table listed in `extendNames`
+- **Child table** = any table whose `extendNames` includes this table
 - **Root table** = the top of the inheritance tree (no parents)
 - **Internal table** = a child table marked `TableType.INTERNAL` (UX hint: not selectable by users). Previously called "block". Backend treats it identically to any other child table.
 - **Extension column** = an EXTENSION or EXTENSION_ARRAY column on the root table that drives which child tables get rows on save
@@ -68,15 +68,15 @@ One check: `getRootTable().getProfileColumn() != null`
 
 | File | Role |
 |---|---|
-| `TableMetadata.java` | Core model: `inheritNames`, `getInheritedTables()`, `getAllInheritedTables()`, `getRootTable()`, `getSubclassTables()`, `getProfileColumn()`, `hasColumnInParent()`, `getQualifiedName()` |
+| `TableMetadata.java` | Core model: `extendNames`, `getInheritedTables()`, `getAllInheritedTables()`, `getRootTable()`, `getSubclassTables()`, `getProfileColumn()`, `hasColumnInParent()`, `getQualifiedName()` |
 | `SqlTableMetadataExecutor.java` | DDL: `executeSetInherit()` with `addMgTableclass` boolean |
-| `SqlTableMetadata.java` | `setInheritNames()` validation: same root, no reroot, PK check |
+| `SqlTableMetadata.java` | `setExtendNames()` validation: same root, no reroot, PK check |
 | `SqlTable.java` | Row management: unified discriminator, `subclassRows` batching, per-row delete of non-matching children |
 | `SqlQuery.java` | `tableWithInheritanceJoin()`: ancestor INNER JOIN + child LEFT JOIN (PK-only). `whereConditionSearch()`: self + ancestors |
-| `MetadataUtils.java` | Persistence: `inheritNames` as varchar[] |
+| `MetadataUtils.java` | Persistence: `extendNames` as varchar[] |
 | `Emx2.java` | CSV parser: `tableExtends` as comma-separated |
-| `Emx2Yaml.java` | YAML parser: hierarchical format with extensions, sections, profiles |
-| `GraphqlSchemaFieldFactory.java` | GraphQL: `inheritNames` as String[] list, `profiles`, `activeProfiles` |
+| `Emx2Yaml.java` | YAML parser: hierarchical format with variants, sections, profiles |
+| `GraphqlSchemaFieldFactory.java` | GraphQL: `extendNames` as String[] list, `profiles`, `activeProfiles` |
 | `ColumnTypeRdfMapper.java` | RDF: EXTENSION/EXTENSION_ARRAY mapped to STRING |
 
 ---
@@ -85,7 +85,7 @@ One check: `getRootTable().getProfileColumn() != null`
 
 ### Phase 1: Java Metadata Model — COMPLETE
 
-Extended core metadata: `TableType.INTERNAL` (was BLOCK), `ColumnType.EXTENSION/EXTENSION_ARRAY` (was PROFILE/PROFILES), `inheritNames` as String[], helper methods on `TableMetadata`.
+Extended core metadata: `TableType.INTERNAL` (was BLOCK), `ColumnType.EXTENSION/EXTENSION_ARRAY` (was PROFILE/PROFILES), `extendNames` as String[] (legacy `inheritNames` kept as `@Deprecated` delegator), helper methods on `TableMetadata`.
 
 ### Phase 2: SQL Layer — COMPLETE
 
@@ -93,7 +93,7 @@ Multiple inheritance in PostgreSQL. Single `executeSetInherit()` method. Unified
 
 ### Phase 3: GraphQL API — COMPLETE
 
-- `inheritNames` exposed as String[] list
+- `extendNames` exposed as String[] list
 - EXTENSION/EXTENSION_ARRAY columns queryable via GraphQL
 - `TableType.INTERNAL` exposed in `_schema` metadata query
 - Mutations with extension values create correct child table rows
@@ -291,11 +291,13 @@ Key insight: 12 profiles (DataCatalogue, CohortsStaging, PatientRegistry, FAIRGe
 
 ---
 
-### Phase 7c: Review-driven improvements — TODO
+### Phase 7c: Review-driven improvements — IN PROGRESS
 
 After multi-persona review (backend, frontend, data manager, naive researcher), the following issues need addressing. Grouped by track.
 
-#### Track 1: Correctness blockers (DO FIRST)
+**Status**: Tracks 1 and 2 COMPLETE. Tracks 3-6 TODO.
+
+#### Track 1: Correctness blockers — COMPLETE
 
 **1.1 Fix `buildVariantDefList` extends suppression bug** — `Emx2Yaml.java:1111`
 - Currently: `def.name().equals(defaultParent)` — wrong check, never fires
@@ -314,7 +316,7 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Fix: replace casts with `.toString()` coercion, same pattern as defaultValue
 - Add test for numeric value in refTable
 
-#### Track 2: Architectural cleanup (DO NEXT)
+#### Track 2: Architectural cleanup — COMPLETE
 
 **2.1 `TableDef.columns` from `Object` to `List<>`** — `bundle/TableDef.java:26`
 - Remove backward-compat map format entirely (nothing uses it now)
@@ -332,7 +334,7 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Collapse to 2: `toBundleDirectory(schema, name, desc, dir, profileDefs)` and `toBundleSingleFile(schema, name, desc, file, profileDefs)`
 - `profileDefs` is optional param (default `List.of()`)
 
-#### Track 3: Design decisions
+#### Track 3: Design decisions — TODO
 
 **3.1 Simple inline enum type** — new column type (`enum`)
 - `- name: smoking status, type: enum, values: [never, former, current]`
@@ -346,7 +348,7 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Document clearly in `yaml_format.md`
 - Add tests for precedence
 
-#### Track 4: Server-side features
+#### Track 4: Server-side features — TODO
 
 **4.1 Active-profile filtering done server-side** — GraphQL
 - Backend should filter metadata responses based on active profiles
@@ -365,7 +367,7 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - API responses include it so UI can show "defined in columns/demographics.yaml"
 - Strip before DDL apply
 
-#### Track 5: Format + naming refinements
+#### Track 5: Format + naming refinements — TODO
 
 **5.1 Two-roundtrip equivalence rule**
 - Roundtrip YAML → parse → serialize → YAML is ALLOWED to differ (comments lost, reformatting ok)
@@ -384,10 +386,10 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Breaking change — needs migration script for existing deployments
 - Discuss scope before implementing
 
-#### Track 6: Documentation overhaul
+#### Track 6: Documentation overhaul — TODO
 
 **6.1 Terminology section** — add glossary up-front in `yaml_format.md`
-- Define: bundle, profile (vs subset), variant (vs extends/inheritance), section, heading, import, ontology vs ref, refTable, refback, computed, visible, semantics, CURIE, internal
+- Define: bundle, profile (was called subset), variant (vs extends/inheritance), section, heading, import, ontology vs ref, refTable, refback, computed, visible, semantics, CURIE, internal
 - Short definitions, 1 line each
 
 **6.2 Consolidate with `use_schema.md` / `schema.md`**

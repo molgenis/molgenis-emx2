@@ -36,14 +36,14 @@ public class TestInherits {
 
     // test if fails if no primary key
     try {
-      s.create(table("Employee").setInheritNames(person.getName()));
+      s.create(table("Employee").setExtendNames(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(table("Employee").setInheritNames("fake_table"));
+      s.create(table("Employee").setExtendNames("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -56,7 +56,7 @@ public class TestInherits {
     // create first extended table
     Table employee =
         s.create(
-            table("Employee").setInheritNames(person.getName()).add(column("salary").setType(INT)));
+            table("Employee").setExtendNames(person.getName()).add(column("salary").setType(INT)));
 
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
@@ -77,14 +77,14 @@ public class TestInherits {
     Table manager =
         s.create(
             table("Manager")
-                .setInheritNames("Employee")
+                .setExtendNames("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
     Table ceo =
         otherSchema.create(
             table("CEO")
-                .setInheritNames("Manager")
+                .setExtendNames("Manager")
                 .setImportSchema(s.getName())
                 .add(column("title")));
 
@@ -123,7 +123,7 @@ public class TestInherits {
 
     // try to extend twice
     try {
-      manager.getMetadata().setInheritNames("Student");
+      manager.getMetadata().setExtendNames("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -131,9 +131,7 @@ public class TestInherits {
 
     // create another extended table
     s.create(
-        table("Student")
-            .setInheritNames(person.getName())
-            .add(column("averageGrade").setType(INT)));
+        table("Student").setExtendNames(person.getName()).add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");

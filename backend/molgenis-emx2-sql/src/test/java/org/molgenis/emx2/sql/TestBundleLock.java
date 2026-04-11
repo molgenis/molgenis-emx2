@@ -16,18 +16,18 @@ public class TestBundleLock {
 
   private static final String BUNDLE_YAML =
       "name: lock_test_bundle\n"
-          + "subsets:\n"
-          + "  subset_a:\n"
+          + "profiles:\n"
+          + "  - name: subset_a\n"
           + "    description: Subset A\n"
           + "tables:\n"
           + "  Animals:\n"
           + "    columns:\n"
-          + "      id:\n"
+          + "      - name: id\n"
           + "        type: int\n"
           + "        key: 1\n"
-          + "      weight:\n"
+          + "      - name: weight\n"
           + "        type: decimal\n"
-          + "        subsets: [subset_a]\n";
+          + "        profiles: [subset_a]\n";
 
   private static Database db;
 

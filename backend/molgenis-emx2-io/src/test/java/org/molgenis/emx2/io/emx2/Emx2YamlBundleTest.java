@@ -109,35 +109,35 @@ class Emx2YamlBundleTest {
     assertEquals("MOLGENIS shared catalogue bundle", bundle.getName());
     assertNotNull(bundle.getDescription());
 
+    assertNotNull(bundle.getInternalRegistry(), "internalRegistry must not be null");
     assertNotNull(bundle.getProfileRegistry(), "profileRegistry must not be null");
-    assertNotNull(bundle.getTemplateRegistry(), "templateRegistry must not be null");
 
     assertTrue(
-        bundle.getProfileRegistry().containsKey("datacatalogueflat"),
-        "datacatalogueflat internal profile must be in profileRegistry");
+        bundle.getInternalRegistry().containsKey("datacatalogueflat"),
+        "datacatalogueflat internal profile must be in internalRegistry");
     assertTrue(
-        bundle.getProfileRegistry().containsKey("rwestaging"),
-        "rwestaging internal profile must be in profileRegistry");
+        bundle.getInternalRegistry().containsKey("rwestaging"),
+        "rwestaging internal profile must be in internalRegistry");
     assertTrue(
-        bundle.getTemplateRegistry().containsKey("cohortsstaging"),
-        "cohortsstaging profile must be in templateRegistry");
+        bundle.getProfileRegistry().containsKey("cohortsstaging"),
+        "cohortsstaging profile must be in profileRegistry");
     assertTrue(
-        bundle.getTemplateRegistry().containsKey("patient_registry"),
-        "patient_registry profile must be in templateRegistry");
+        bundle.getProfileRegistry().containsKey("patient_registry"),
+        "patient_registry profile must be in profileRegistry");
   }
 
   @Test
-  void loadSharedBundleSubsetIncludes() throws IOException {
+  void loadSharedBundleProfileIncludes() throws IOException {
     Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
-    ProfileEntry rweStaging = bundle.getProfileRegistry().get("rwestaging");
+    ProfileEntry rweStaging = bundle.getInternalRegistry().get("rwestaging");
     assertNotNull(rweStaging);
     assertTrue(
         rweStaging.getIncludes().contains("datacatalogueflat"),
         "rwestaging should include datacatalogueflat");
 
-    ProfileEntry datacatalogueflat = bundle.getProfileRegistry().get("datacatalogueflat");
+    ProfileEntry datacatalogueflat = bundle.getInternalRegistry().get("datacatalogueflat");
     assertNotNull(datacatalogueflat);
   }
 
@@ -175,7 +175,7 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void loadSharedBundleColumnSubsets() throws IOException {
+  void loadSharedBundleColumnProfiles() throws IOException {
     Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
@@ -184,10 +184,10 @@ class Emx2YamlBundleTest {
 
     Column idCol = processes.getColumn("id");
     assertNotNull(idCol);
-    assertNotNull(idCol.getProfiles(), "id column should have subsets");
+    assertNotNull(idCol.getProfiles(), "id column should have profiles");
     assertTrue(
         List.of(idCol.getProfiles()).contains("patient_registry"),
-        "id column should be in patient_registry subset");
+        "id column should be in patient_registry profile");
   }
 
   @Test
@@ -284,7 +284,7 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void attributeHoistingSubsetsFromSection() throws IOException {
+  void attributeHoistingProfilesFromSection() throws IOException {
     String yaml =
         """
         name: Test
@@ -315,7 +315,7 @@ class Emx2YamlBundleTest {
 
     Column col1 = table.getColumn("col1");
     assertNotNull(col1);
-    assertNotNull(col1.getProfiles(), "col1 should inherit subset from section");
+    assertNotNull(col1.getProfiles(), "col1 should inherit profile from section");
     assertTrue(
         List.of(col1.getProfiles()).contains("my_subset"),
         "col1 should inherit my_subset from MySection");
@@ -324,10 +324,10 @@ class Emx2YamlBundleTest {
     assertNotNull(col2);
     assertFalse(
         List.of(col2.getProfiles()).contains("my_subset"),
-        "col2 overrides subsets, should not have my_subset");
+        "col2 overrides profiles, should not have my_subset");
     assertTrue(
         List.of(col2.getProfiles()).contains("other_subset"),
-        "col2 should have its own other_subset");
+        "col2 should have its own other_subset profile");
   }
 
   @Test
@@ -417,7 +417,7 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void validationErrorInvalidSubsetIdentifierFormat() {
+  void validationErrorInvalidProfileIdentifierFormat() {
     String yaml =
         """
         name: Test
@@ -466,13 +466,13 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void internalFlagRoutesTemplateToSubsetRegistry() throws IOException {
+  void internalFlagRoutesProfileToInternalRegistry() throws IOException {
     String yaml =
         """
         name: Test
         profiles:
           - name: internal_one
-            description: goes to subsetRegistry
+            description: goes to internalRegistry
             internal: true
           - name: user_facing
             description: goes to profileRegistry
@@ -486,14 +486,14 @@ class Emx2YamlBundleTest {
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
     assertNotNull(
-        bundle.getProfileRegistry().get("internal_one"),
-        "internal:true template must appear in subsetRegistry");
+        bundle.getInternalRegistry().get("internal_one"),
+        "internal:true profile must appear in internalRegistry");
     assertNotNull(
-        bundle.getTemplateRegistry().get("user_facing"),
-        "non-internal template must appear in templateRegistry");
-    assertNull(
         bundle.getProfileRegistry().get("user_facing"),
-        "non-internal template must not appear in profileRegistry");
+        "non-internal profile must appear in profileRegistry");
+    assertNull(
+        bundle.getInternalRegistry().get("user_facing"),
+        "non-internal profile must not appear in internalRegistry");
   }
 
   @Test
@@ -516,8 +516,8 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getProfileRegistry().get("core"));
-    assertNotNull(bundle.getTemplateRegistry().get("extended"));
+    assertNotNull(bundle.getInternalRegistry().get("core"));
+    assertNotNull(bundle.getProfileRegistry().get("extended"));
   }
 
   @Test
@@ -569,9 +569,9 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getProfileRegistry().get("extended"));
+    assertNotNull(bundle.getInternalRegistry().get("extended"));
     assertTrue(
-        bundle.getProfileRegistry().get("extended").getIncludes().contains("base"),
+        bundle.getInternalRegistry().get("extended").getIncludes().contains("base"),
         "extended must include base");
   }
 
@@ -660,11 +660,11 @@ class Emx2YamlBundleTest {
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
-    assertNotNull(bundle.getProfileRegistry().get("top"));
+    assertNotNull(bundle.getInternalRegistry().get("top"));
   }
 
   @Test
-  void validationErrorUnknownSubsetOnColumn() {
+  void validationErrorUnknownProfileOnColumn() {
     String yaml =
         """
         name: Test
@@ -687,11 +687,11 @@ class Emx2YamlBundleTest {
                     new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))));
     assertTrue(
         ex.getMessage().contains("ghost_subset"),
-        "Error must name the unknown subset 'ghost_subset'");
+        "Error must name the unknown profile 'ghost_subset'");
   }
 
   @Test
-  void validationErrorUnknownSubsetOnTable() {
+  void validationErrorUnknownProfileOnTable() {
     String yaml =
         """
         name: Test
@@ -714,11 +714,11 @@ class Emx2YamlBundleTest {
                     new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8))));
     assertTrue(
         ex.getMessage().contains("phantom_subset"),
-        "Error must name the unknown subset 'phantom_subset'");
+        "Error must name the unknown profile 'phantom_subset'");
   }
 
   @Test
-  void validKnownSubsetsOnColumnAndTable() throws IOException {
+  void validKnownProfilesOnColumnAndTable() throws IOException {
     String yaml =
         """
         name: Test
@@ -741,7 +741,7 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void validationErrorRefTableSubsetNotCompatible() {
+  void validationErrorRefTableProfileNotCompatible() {
     String yaml =
         """
         name: Test
@@ -808,7 +808,7 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void validRefTableSubsetCompatibleViaIncludes() throws IOException {
+  void validRefTableProfileCompatibleViaIncludes() throws IOException {
     String yaml =
         """
         name: Test
@@ -1157,8 +1157,8 @@ class Emx2YamlBundleTest {
     Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
     assertNotNull(bundle.getName());
+    assertFalse(bundle.getInternalRegistry().isEmpty());
     assertFalse(bundle.getProfileRegistry().isEmpty());
-    assertFalse(bundle.getTemplateRegistry().isEmpty());
   }
 
   @Test
@@ -1366,27 +1366,27 @@ class Emx2YamlBundleTest {
   }
 
   @Test
-  void normalizeSubsetNameLowercase() {
+  void normalizeProfileNameLowercase() {
     assertEquals("petstore", ProfileNameNormalizer.normalize("Petstore"));
   }
 
   @Test
-  void normalizeSubsetNameReplacesSpaces() {
+  void normalizeProfileNameReplacesSpaces() {
     assertEquals("data_catalogue", ProfileNameNormalizer.normalize("Data Catalogue"));
   }
 
   @Test
-  void normalizeSubsetNameCollapsesUnderscores() {
+  void normalizeProfileNameCollapsesUnderscores() {
     assertEquals("data_catalogue", ProfileNameNormalizer.normalize("Data  Catalogue"));
   }
 
   @Test
-  void normalizeSubsetNameStripsPunctuation() {
+  void normalizeProfileNameStripsPunctuation() {
     assertEquals("fair_genomes", ProfileNameNormalizer.normalize("FAIR-Genomes!"));
   }
 
   @Test
-  void normalizeSubsetNameLeadingDigit() {
+  void normalizeProfileNameLeadingDigit() {
     assertEquals("s_3prime", ProfileNameNormalizer.normalize("3prime"));
   }
 

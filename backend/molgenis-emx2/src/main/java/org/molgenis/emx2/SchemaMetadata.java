@@ -163,7 +163,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
-    for (TableMetadata inheritedTable : current.getInheritedTables()) {
+    for (TableMetadata inheritedTable : current.getExtendedTables()) {
       String scopeTableName = inheritedTable.getTableName();
       if (!inheritedTable.getSchemaName().equals(getName())) {
         scopeTableName = inheritedTable.getSchemaName() + "_" + scopeTableName;

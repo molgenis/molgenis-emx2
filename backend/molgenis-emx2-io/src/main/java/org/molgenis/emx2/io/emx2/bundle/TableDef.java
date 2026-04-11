@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2.bundle;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,15 +25,15 @@ public record TableDef(
   @JsonCreator
   public TableDef(
       @JsonProperty("description") String description,
-      @JsonProperty("extends") @JsonAlias("inherits") List<String> extendNames,
-      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<String> profiles,
+      @JsonProperty("extends") List<String> extendNames,
+      @JsonProperty("profiles") List<String> profiles,
       @JsonProperty("semantics") @JsonDeserialize(using = StringOrListDeserializer.class)
           List<String> semantics,
       @JsonProperty("internal") Boolean internal,
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
       @JsonProperty("importSchema") String importSchema,
-      @JsonProperty("variants") @JsonAlias("subtypes") List<VariantDef> variants,
+      @JsonProperty("variants") List<VariantDef> variants,
       @JsonProperty("columns") List<Map<String, Object>> columns) {
     this.description = description;
     this.extendNames = extendNames != null ? extendNames : List.of();
