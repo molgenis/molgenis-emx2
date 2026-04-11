@@ -1,23 +1,25 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import BaseIcon from "./BaseIcon.vue";
+import type { MenuItem } from "../../types/types";
+import { useAppConfig } from "#app";
 
-interface PropType {
-  maximumButtonShown?: number;
-  invert?: boolean;
-  navigation: {
-    label: string;
-    link: string;
-    highlight?: boolean;
-  }[];
-  showMoreButton?: boolean;
-}
+const appConfig = useAppConfig();
+const basePath = appConfig.basePath || "/";
 
-const props: PropType = withDefaults(defineProps<PropType>(), {
-  maximumButtonShown: 4,
-  showMoreButton: true,
-  invert: false,
-});
+const props = withDefaults(
+  defineProps<{
+    navigation: MenuItem[];
+    showMoreButton?: boolean;
+    invert?: boolean;
+    maximumButtonShown?: number;
+  }>(),
+  {
+    showMoreButton: true,
+    invert: false,
+    maximumButtonShown: 4,
+  }
+);
 
 const mainButtons = computed(() =>
   props.navigation.slice(0, props.maximumButtonShown)
@@ -29,14 +31,24 @@ const subButtons = computed(() =>
 
 <template>
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
-    <NuxtLink
-      v-for="button in mainButtons"
-      :to="button.link"
-      class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
-      :class="invert ? 'text-sub-menu' : 'text-menu'"
-    >
-      {{ button.label }}
-    </NuxtLink>
+    <template v-for="button in mainButtons">
+      <NuxtLink
+        v-if="button.isSpaLink"
+        :to="button.link"
+        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+        :class="invert ? 'text-sub-menu' : 'text-menu'"
+      >
+        {{ button.label }}
+      </NuxtLink>
+      <a
+        v-else
+        :href="basePath + button.link"
+        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+        :class="invert ? 'text-sub-menu' : 'text-menu'"
+      >
+        {{ button.label }}
+      </a>
+    </template>
 
     <VMenu
       placement="bottom-end"
@@ -53,15 +65,23 @@ const subButtons = computed(() =>
 
       <template #popper>
         <ol
-          class="flex flex-col gap-1.5 bg-white text-body-base rounded-3px rounded-tr-none shadow-xl p-6"
+          class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
         >
           <li v-for="button in subButtons">
             <NuxtLink
+              v-if="button.isSpaLink"
               :to="button.link"
-              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline"
+              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
             >
               {{ button.label }}
             </NuxtLink>
+            <a
+              v-else
+              :href="basePath + button.link"
+              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+            >
+              {{ button.label }}
+            </a>
           </li>
         </ol>
       </template>
