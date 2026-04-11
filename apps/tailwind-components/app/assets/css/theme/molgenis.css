@@ -16,6 +16,9 @@
 
   --opacity-background-gradient: 100;
 
+  --text-color-logo-text: var(--color-white);
+  --text-color-logo-text-inverted: var(--color-blue-500);
+
   --background-color-button-primary: var(--color-yellow-500);
   --background-color-button-primary-hover: var(--color-yellow-200);
   --background-color-button-secondary: var(--color-blue-800);
