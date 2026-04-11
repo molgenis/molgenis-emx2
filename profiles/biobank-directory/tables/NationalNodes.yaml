@@ -1,41 +1,39 @@
 table: NationalNodes
 description: National Node Information
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    readonly: true
-    description: Unique national node ID (in most of the cases a two letter country code).
-  description:
-    label: Description
-    key: 2
-    required: true
-    description: Description
-  dns:
-    label: External DNS
-    type: hyperlink
-    description: If applicable the DNS of the national node's own server.
-  contact_persons:
-    label: Contact Persons
-    type: ref_array
-    refSchema: ""
-    refTable: ContactPersonsNationalNodes
-    refLabel: ${first_name} ${last_name}
-    description: The contact person(s) with their roles
-  data_refresh:
-    label: Data Refresh
-    type: ontology
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: DataRefreshTypes
-    refLabel: ${label}
-    description: How is the data updated?
-  date_start:
-    label: Date Start
-    type: date
-    description: The date the national node is included in the Directory.
-  date_end:
-    label: Date End
-    type: date
-    description: The date the national node is no longer included in the Directory.
+- name: id
+  key: 1
+  required: true
+  description: Unique national node ID (in most of the cases a two letter country code).
+  readonly: true
+  label: ID
+- name: description
+  key: 2
+  required: true
+  description: Description
+  label: Description
+- name: dns
+  type: hyperlink
+  description: If applicable the DNS of the national node's own server.
+  label: External DNS
+- name: contact_persons
+  type: ref_array
+  refTable: ContactPersonsNationalNodes
+  refLabel: "${first_name} ${last_name}"
+  description: The contact person(s) with their roles
+  label: Contact Persons
+- name: data_refresh
+  type: ontology
+  required: true
+  refTable: DataRefreshTypes
+  refLabel: "${label}"
+  description: How is the data updated?
+  label: Data Refresh
+- name: date_start
+  type: date
+  description: The date the national node is included in the Directory.
+  label: Date Start
+- name: date_end
+  type: date
+  description: The date the national node is no longer included in the Directory.
+  label: Date End

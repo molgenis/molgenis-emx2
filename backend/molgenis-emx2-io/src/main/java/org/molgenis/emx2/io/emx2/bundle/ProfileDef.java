@@ -9,14 +9,20 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProfileDef(
-    String description, List<String> includes, Boolean internal, List<String> settings) {
+    String name,
+    String description,
+    List<String> includes,
+    Boolean internal,
+    List<String> settings) {
 
   @JsonCreator
   public ProfileDef(
+      @JsonProperty("name") String name,
       @JsonProperty("description") String description,
       @JsonProperty("includes") List<String> includes,
       @JsonProperty("internal") Boolean internal,
       @JsonProperty("settings") List<String> settings) {
+    this.name = name;
     this.description = description;
     this.includes = includes != null ? includes : List.of();
     this.internal = internal;

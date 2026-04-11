@@ -1,0 +1,6 @@
+section: Consent
+columns:
+  - name: consent given
+    type: bool
+  - name: consent date
+    type: date

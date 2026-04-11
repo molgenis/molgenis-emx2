@@ -139,54 +139,289 @@ Steps completed:
 - CSS: `.profiles-checkboxes :deep(.form-check-inline) { display: block }` for vertical stacking
 - 5 Playwright e2e tests (display on tables, display on columns, table edit modal, column edit modal, active profiles header)
 
-### Phase 8: Extract CSV Models to YAML Table Definitions — TODO
+### Phase 7b: List-based columns + column-level imports — TODO
 
-**Goal**: Convert existing CSV table definitions to YAML format under `data/templates/`. CSV originals untouched. This phase focuses on **table definitions only** — not demodata, ontologies, settings, or template import logic.
+**Goal**: Change YAML format from keyed-maps to list-of-maps for **columns, profiles, and variants** (consistent pattern), and add `import:` support inside column lists for composable table definitions.
 
-**Analysis of model groupings:**
+**Motivation**: List format (a) preserves explicit ordering, (b) enables `import:` entries at any position in the column sequence, (c) is more self-documenting for naive users (`- name: X` vs implicit map key), (d) one consistent pattern for all named collections.
 
-| Template dir | Source CSVs | Profile YAML files (12 templates share datacatalogue) |
-|---|---|---|
-| `petstore/` | `specific/petstore.csv` | PetStore.yaml |
-| `typetest/` | `specific/typetest.csv` | TypeTest.yaml |
-| `pages/` | `specific/Pages.csv` | Pages.yaml |
-| `datacatalogue/` | All 31 `shared/*.csv` + `specific/CatalogueOntologies/` + `specific/Catalogue aggregates.csv` | DataCatalogue, CohortsStaging, INTEGRATECohorts, NetworksStaging, RWEStaging, SharedStaging, StudiesStaging, UMCGCohorts, UMCUCohorts, DataCatalogueAggregates, PatientRegistry, FAIRGenomes, ImageTest |
+**Format change — columns:**
+```yaml
+# BEFORE (keyed map)
+columns:
+  id:
+    key: 1
+  status: {}
 
-Key insight: 12 profiles are different **views** of one shared model (different profileTags select different subsets of tables/columns from the same 31 CSVs).
+# AFTER (list of maps)
+columns:
+  - name: id
+    key: 1
+  - name: status
 
-**Output structure:**
-```
-data/templates/
-├── petstore/
-│   ├── petstore.yaml              # template file
-│   └── tables/*.yaml              # from specific/petstore.csv
-├── typetest/
-│   ├── typetest.yaml
-│   └── tables/*.yaml
-├── pages/
-│   ├── pages.yaml
-│   └── tables/*.yaml
-└── shared/
-    ├── tables/*.yaml              # from 31 shared/*.csv → YAML
-    ├── datacatalogue.yaml         # template: profileTags: DataCatalogueFlat
-    ├── cohortstaging.yaml         # template: profileTags: CohortsStaging
-    ├── patientregistry.yaml       # template: profileTags: Patient registry, DataCatalogueFlat
-    ├── fairgenomes.yaml           # template: profileTags: FAIR Genomes
-    └── ...                        # remaining template files
+# NEW: column-level imports (inserted in order)
+columns:
+  - name: id
+    key: 1
+  - import: columns/demographics.yaml
+  - name: status
+  - import: columns/consent_section.yaml
 ```
 
-**Approach:**
-1. Write a conversion utility (Java or script) that reads CSV → SchemaMetadata → YAML via `Emx2Yaml.toYamlDirectory()`
-2. Start with PetStore (simplest, standalone)
-3. Convert datacatalogue shared models
-4. Create template YAML files (just name, description, profileTags for now)
-5. Verify roundtrip: YAML → SchemaMetadata → compare with CSV → SchemaMetadata
+Imported column files can define:
+- A list of columns: `columns: [{ name: x, type: int }, ...]`
+- A section: `section: Demographics` + `columns: [...]`
 
-**Not in scope for Phase 8:**
-- demodata, ontologies, settings (these stay in `_demodata/`, `_ontologies/`, `_settings/`)
+**Format change — profiles (bundle root):**
+```yaml
+# BEFORE
+profiles:
+  catalogue_core:
+    description: Core catalogue columns
+    internal: true
+  cohort_core:
+    includes: [catalogue_core]
+
+# AFTER
+profiles:
+  - name: catalogue_core
+    description: Core catalogue columns
+    internal: true
+  - name: cohort_core
+    includes: [catalogue_core]
+```
+
+**Format change — variants (table level):**
+```yaml
+# BEFORE
+variants:
+  sampling:
+    description: Sample collection
+    internal: true
+  WGS:
+    extends: [sampling, sequencing]
+
+# AFTER
+variants:
+  - name: sampling
+    description: Sample collection
+    internal: true
+  - name: WGS
+    extends: [sampling, sequencing]
+```
+
+**Steps:**
+
+Red-green approach: update tests first (RED — they fail), then fix code to pass (GREEN).
+
+#### Step 1: RED — Update test resources to list format (6 YAML files)
+- Convert all test YAML files under `src/test/resources/yaml-model/` to list-of-maps format
+- Convert `columns:`, `profiles:`, and `variants:` maps to lists with `name:` field
+- Sections/headings become entries in the columns list (`section:` / `heading:` key)
+- Add new test resource files for column-level imports
+- Tests now fail because parser still expects map format
+
+#### Step 2: RED — Update test code for list format (~58 tests)
+- `Emx2YamlBundleTest.java` (50 tests): update inline YAML strings to list format (columns, profiles, variants)
+- `Emx2YamlTest.java`, `Emx2ChangelogTest.java`, `Emx2CsvMigrationTest.java`: same
+- Add new tests:
+  - Column-level import: columns from file inserted at correct position
+  - Multiple imports at different positions in one table
+  - Section import (imported file defines `section:` + `columns:`)
+  - Import collision detection (duplicate column name across imports)
+  - Import inside section columns
+- Verify all tests fail (RED)
+
+#### Step 3: GREEN — Update bundle record classes
+- `TableDef.java`: `Map<String, DataColumn> columns` → `List<DataColumn> columns` (add `name` field to DataColumn or use a new ColumnEntry type)
+- `SectionDef.java`: same change
+- `HeadingDef.java`: same change
+- Decide on a union type for column list entries: `{name:}` = column, `{section:}` = section, `{import:}` = import directive
+
+#### Step 4: GREEN — Update `Emx2Yaml.java` parser
+- `parseColumnsAtDepth()`: change from iterating `Map.entrySet()` to iterating `List<Map>`, extracting `name:` from each entry
+- Parse `profiles:` and `variants:` as lists with `name:` field (both at bundle root and table level)
+- Handle `section:` entries (currently detected by presence of nested `columns:`, now explicit)
+- Handle `heading:` entries within sections
+- Preserve depth validation (max 2)
+- Run tests — existing parsing tests should pass (GREEN)
+
+#### Step 5: GREEN — Update `Emx2Yaml.java` serializer
+- `buildDataColumnMap()` → `buildDataColumnList()`: emit list-of-maps with `name:` field
+- Profiles/variants serialization: emit as lists with `name:` field
+- Section/heading serialization: emit `section:` / `heading:` key instead of relying on map nesting
+- Run tests — roundtrip tests should now pass (GREEN)
+
+#### Step 6: GREEN — Update `ImportExpander.java` for column-level imports
+- Detect `import:` entries inside column lists
+- Expand imported file contents in-place (preserving position in list)
+- Imported file resolution: reuse existing `resolveImportPaths()` with cycle/escape detection
+- Collision detection: duplicate column names across imports + inline
+- Run tests — column-level import tests should now pass (GREEN)
+
+#### Step 7: CSV→YAML converter + regenerate all profiles
+- Write a Java conversion utility (JUnit test or main class) that does: CSV → `SchemaMetadata` (via `Emx2.fromReader()`) → new YAML format (via updated `Emx2Yaml` serializer)
+- This replaces the fragile text-level YAML transformations from steps 1-2 with programmatically correct output
+- Handles all nesting correctly: columns, sections, headings, profiles, variants
+- Regenerate all production YAML files under `profiles/` from their CSV source in `data/_models/`
+- Reusable for future CSV→YAML migrations (replaces old Phase 8)
+- Verify roundtrip: CSV → SchemaMetadata → YAML → SchemaMetadata → compare
+
+**Model groupings (from old Phase 8 analysis):**
+
+| Profile dir | CSV source |
+|---|---|
+| `petstore/` | `data/_models/specific/petstore.csv` |
+| `typetest/` | `data/_models/specific/typetest.csv` |
+| `pages/` | `data/_models/specific/Pages.csv` |
+| `shared/` (12 profiles) | `data/_models/shared/*.csv` (31 files) |
+
+Key insight: 12 profiles (DataCatalogue, CohortsStaging, PatientRegistry, FAIRGenomes, etc.) are different profile-tagged views of one shared model from the same 31 CSVs.
+
+#### Step 8: Update documentation
+- `docs/molgenis/yaml_format.md`: all examples to list format, document `import:` in columns, update profiles/variants format, update migration table
+
+**Estimated effort**: Medium-high. Steps 1-2 (RED) establish the target. Steps 3-6 (GREEN) are the core work (~2-3 days). Step 7 is the reliable conversion path.
+
+**Not in scope:**
+- demodata, ontologies, settings (stay in `_demodata/`, `_ontologies/`, `_settings/`)
 - Template import logic (creating schemas, loading demodata, setting permissions)
 - `firstCreateSchemasIfMissing` cascading
 - `ontologiesToFixedSchema` / `additionalFixedSchemaModel`
+
+---
+
+### Phase 7c: Review-driven improvements — TODO
+
+After multi-persona review (backend, frontend, data manager, naive researcher), the following issues need addressing. Grouped by track.
+
+#### Track 1: Correctness blockers (DO FIRST)
+
+**1.1 Fix `buildVariantDefList` extends suppression bug** — `Emx2Yaml.java:1111`
+- Currently: `def.name().equals(defaultParent)` — wrong check, never fires
+- Fix: `def.extendNames().get(0).equals(defaultParent)`
+- Symptom: redundant `extends:` written to YAML, round-trip bloat
+
+**1.2 Fix path-traversal in template import path** — `Emx2Yaml.java:1221-1241`
+- `resolveImport` (template flow) has no `startsWith(baseReal)` escape check
+- `imports: [../../../etc/passwd]` would pass through
+- Fix: reuse `ImportExpander.resolveImportPaths()` or add same guards
+- Add test for traversal attempt
+
+**1.3 Safe type coercion for all String attributes** — `Emx2Yaml.java:772-848`
+- `refTable`, `refBack`, `refLink`, `refLabel`, `refSchema`, `computed`, `label`, `oldName`, `validation`, `visible`, `description` all use `(String) attrs.get(...)` — ClassCastException on numeric values
+- `defaultValue` already fixed
+- Fix: replace casts with `.toString()` coercion, same pattern as defaultValue
+- Add test for numeric value in refTable
+
+#### Track 2: Architectural cleanup (DO NEXT)
+
+**2.1 `TableDef.columns` from `Object` to `List<>`** — `bundle/TableDef.java:26`
+- Remove backward-compat map format entirely (nothing uses it now)
+- Change type to `List<Map<String, Object>>` (or a proper ColumnEntry union type)
+- Remove `getColumnsAsList()`, `hasColumns()`, `instanceof Map` branches
+- Update callers
+
+**2.2 Consolidate column-parsing paths** — `Emx2Yaml.java`
+- `parseNewFormatTableIntoSchema` (line 390) and `materializeTableDef` (line 302) both call `parseColumnsAsList` but duplicate setup
+- Merge: everything flows through `TableDef` as the canonical intermediate
+- One entry point for parsing columns
+
+**2.3 Consolidate `toBundle*` methods** — `Emx2Yaml.java:931-1001`
+- 4 methods: `toBundleDirectory`, `toBundleDirectoryWithProfiles`, `toBundleSingleFile`, `toBundleSingleFileWithProfiles`
+- Collapse to 2: `toBundleDirectory(schema, name, desc, dir, profileDefs)` and `toBundleSingleFile(schema, name, desc, file, profileDefs)`
+- `profileDefs` is optional param (default `List.of()`)
+
+#### Track 3: Design decisions
+
+**3.1 Simple inline enum type** — new column type (`enum`)
+- `- name: smoking status, type: enum, values: [never, former, current]`
+- Avoids needing a separate ontology table for simple choice fields
+- Backend: new `ColumnType.ENUM` or similar, stored as string with validation
+- Separate phase — not in this refactor scope
+
+**3.2 Profile precedence rule** — document and implement
+- Inheritance order (most-specific wins on override): **column > heading > section > table**
+- Union semantics already works via `includes:`
+- Document clearly in `yaml_format.md`
+- Add tests for precedence
+
+#### Track 4: Server-side features
+
+**4.1 Active-profile filtering done server-side** — GraphQL
+- Backend should filter metadata responses based on active profiles
+- Frontend shouldn't need to replicate `includes:` expansion
+- Already partially done (`applyProfileFilter`) — verify and document
+
+**4.2 Structured parse errors** — new error type
+- Current: raw exception, line number only
+- New: `{file, table, section/heading, column, message, line}` — structured
+- Return via GraphQL mutation errors so UI can highlight the problematic entry
+- Update error-throw sites in `Emx2Yaml.java` to include context
+
+**4.3 Source provenance on imported columns** — debugging
+- When `ImportExpander` splices an imported file's columns, tag them with a `_source` field
+- Parser preserves it into the Column metadata as a non-persisted attribute
+- API responses include it so UI can show "defined in columns/demographics.yaml"
+- Strip before DDL apply
+
+#### Track 5: Format + naming refinements
+
+**5.1 Two-roundtrip equivalence rule**
+- Roundtrip YAML → parse → serialize → YAML is ALLOWED to differ (comments lost, reformatting ok)
+- But parse → serialize → parse → serialize must produce IDENTICAL output on the second pass
+- Add test: idempotence of roundtrip after first normalisation pass
+
+**5.2 Dual format support: CSV stays first-class**
+- Data managers can use CSV or YAML — both are source-of-truth options
+- New features added to YAML may also be backported to CSV format (keep old CSV naming)
+- Long-term: YAML is the primary recommended format, CSV stays supported
+
+**5.3 Profile naming standardisation** — rename with migration
+- Current mix: `datacatalogueflat`, `cohortsstaging`, `umcgcohortsstaging`, `fair_genomes`
+- Standardise: snake_case, `_core` suffix for internal base profiles
+- Proposal: `datacatalogueflat` → `catalogue_core`, `cohortsstaging` → `cohort_staging`, etc.
+- Breaking change — needs migration script for existing deployments
+- Discuss scope before implementing
+
+#### Track 6: Documentation overhaul
+
+**6.1 Terminology section** — add glossary up-front in `yaml_format.md`
+- Define: bundle, profile (vs subset), variant (vs extends/inheritance), section, heading, import, ontology vs ref, refTable, refback, computed, visible, semantics, CURIE, internal
+- Short definitions, 1 line each
+
+**6.2 Consolidate with `use_schema.md` / `schema.md`**
+- Currently separate docs for schema model and YAML format
+- Merge into one: YAML docs should fully replace the old schema docs
+- Include: ref vs radio vs select vs ontology (all UI hints), ref_array vs checkbox vs multiselect
+
+**6.3 Beginner-friendly type reference**
+- Group the 50+ types: "text values", "numbers", "dates", "choices (single/multi)", "files", "references", "ontology"
+- Explain which are UI hints for the same underlying type
+- "How do I add a simple choice field?" worked example
+
+**6.4 Rename "diamond inheritance" in variants docs**
+- Current: "Diamond inheritance" — compiler-writer jargon
+- New: "Multiple protocols on one row" (diamond inheritance)
+- Keep technical term in parens for experts
+
+**6.5 Document `required:` semantics**
+- Allowed values: `true`, `false`, or a JavaScript expression returning a message
+- Quoting is not needed (boolean is fine); quote only if writing an expression that starts with ambiguous characters
+- Add examples of each
+
+**6.6 Example bundle with all features** — new reference file
+- Small RD3-inspired model (patient registry) with heavily reduced column count
+- Demonstrates: sections, headings, variants, profiles, includes, column-level imports, semantics, ontology refs, computed fields, validation
+- Goal: "one place to see everything"
+- Location: `profiles/example/` or `profiles/reference/`
+
+**6.7 Target audience for docs**
+- YAML format docs target data modelers and developers, NOT naive researchers
+- Naive researchers keep using Excel/CSV path (no YAML exposure needed)
+- State this explicitly in docs introduction
+
+---
 
 ### Phase 9: Template Import Process — TODO
 
@@ -200,6 +435,52 @@ data/templates/
 - `fixedSchemas:` — ontologiesToFixedSchema, additionalFixedSchemaModel
 - `dependencies:` — replaces `firstCreateSchemasIfMissing` (create other schemas first)
 - Resolution of relative paths within template directory
+
+### Phase 9b: Variant rendering architecture — TODO (discussion track)
+
+**Goal**: Decide how variants are represented in YAML, GraphQL, and frontend rendering. This is a design discussion, not a ready-to-implement task.
+
+**The problem** — raised by frontend review:
+- Current YAML uses `section: X` + `variant: X` together to scope a section to a variant. This overloads the `section:` discriminator.
+- In the frontend, detecting "is this a variant scope?" requires checking two keys: `entry.section && entry.variant`.
+- But making `variant:` its own top-level discriminator raises architectural questions (see below).
+
+**Complications to resolve**:
+
+1. **Multi-variant selection**: A row can have multiple variants active (e.g. `[sampling, sequencing, WGS]` all at once via diamond inheritance). When rendering a form, do we:
+   - Concatenate columns from all active variants into one flat list?
+   - Show separate column groups per variant?
+   - Let the data modeler decide via explicit grouping?
+
+2. **Plain grouping inside variant scope**: A variant's columns may themselves need sections/headings. E.g. WGS variant could have a "Quality metrics" heading and a "Pipeline info" heading. Does `variant:` as a top-level discriminator allow nested sections?
+
+3. **GraphQL representation**:
+   - Should GraphQL schema metadata expose variants as a separate field (`table.variants[].columns`) or keep them flat with a `variantScope` attribute per column?
+   - Should the same shape serve both authoring (YAML roundtrip) and rendering (form building)?
+   - Or is it OK for GraphQL to flatten/denormalize for frontend convenience while YAML keeps the structural form?
+
+4. **"Dumb frontend" principle**: Frontend devs want simple iteration. The backend should precompute the rendering tree for each active variant set, vs forcing the frontend to reimplement the inheritance logic.
+
+**Options to evaluate**:
+
+- **Option A**: Keep current `section: + variant:` overload, add frontend utility to detect variant scope.
+- **Option B**: Promote `variant:` to top-level discriminator (rejected in discussion — loses composability with sections).
+- **Option C**: Keep `section: + variant:` in YAML as authoring format; GraphQL exposes a computed rendering tree per active variant set (denormalized).
+- **Option D**: Add `variantColumns` or similar explicit column grouping in GraphQL while YAML stays as-is.
+
+**Decision needed**:
+- Should YAML and GraphQL converge on the same shape, or can they diverge (YAML = authoring, GraphQL = rendering)?
+- Who owns variant expansion: parser at load-time, or GraphQL resolver at query-time?
+
+**Related files**:
+- `profiles/shared/tables/Processes.yaml` — extensive variants (Analyses, Observations, Experiments, NGS sequencing...)
+- `profiles/shared/tables/Observations.yaml` — variant-scoped sections
+- `backend/molgenis-emx2-graphql/src/main/java/.../GraphqlSchemaFieldFactory.java` — where GraphQL metadata is exposed
+
+**Not in scope for this phase**:
+- Implementation. This track is for reaching architectural alignment before coding.
+
+---
 
 ### Phase 10: Documentation — TODO
 

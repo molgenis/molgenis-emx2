@@ -19,19 +19,19 @@ description: Classic MOLGENIS pet store demo
 tables:
   Category:
     columns:
-      name:
+      - name: name
         key: 1
         required: 'true'
 
   Pet:
     columns:
-      name:
+      - name: name
         key: 1
         required: 'true'
-      category:
+      - name: category
         type: radio
         refTable: Category
-      photoUrls:
+      - name: photoUrls
         type: string_array
 ```
 
@@ -48,10 +48,10 @@ imports:
   - tables/
   - ontologies/tables/
 profiles:
-  catalogue_core:
+  - name: catalogue_core
     description: Core catalogue columns visible in all catalogue-family templates
     internal: true
-  cohorts_staging:
+  - name: cohorts_staging
     description: Cohort registry staging workspace
     includes: [cohort_core]
 ```
@@ -83,22 +83,23 @@ A table definition has the same shape whether it is inline under `tables:` in th
 table: Pet
 description: My pet store example table
 columns:
-  name:
+  - name: name
     key: 1
     required: 'true'
-  category:
+  - name: category
     type: radio
     refTable: Category
-  photoUrls:
+  - name: photoUrls
     type: string_array
 ```
 
-Every column is an entry in the `columns:` keyed map. The key is the column name.
+Every column is an entry in the `columns:` list. Each entry must have a `name:` key.
 
 ### Column attributes
 
 | Attribute | Description |
 |---|---|
+| `name` | Column name (required for column entries) |
 | `type` | Column type (see list below). Default: `string` |
 | `key` | Primary key part: `1`, `2`, `3` for composite keys |
 | `required` | `'true'`, `'false'`, or a JavaScript expression returning a message |
@@ -114,7 +115,7 @@ Every column is an entry in the `columns:` keyed map. The key is the column name
 | `profiles` | List of profile names that include this column |
 | `variant` | Scopes this section to a named variant (see Variants) |
 
-**Column name rules:** names must be unique table-wide across the root columns map and all sections and headings. The name `columns` is reserved.
+**Column name rules:** names must be unique table-wide across all columns entries including inside sections and headings. The name `columns` is reserved.
 
 ### Column types
 
@@ -169,47 +170,92 @@ Every column is an entry in the `columns:` keyed map. The key is the column name
 
 Columns can be organized into **sections** and **headings** for display in the form UI. Sections and headings do not affect the database schema.
 
+Sections and headings are entries in the `columns:` list, distinguished by the `section:` or `heading:` key instead of `name:`. They can appear anywhere in the list and contain a nested `columns:` list.
+
 ### Sections
 
-A `sections:` keyed map at table level groups columns under named headings. Each section has optional `description:` and a `columns:` map. From `profiles/petstore.yaml`:
+A section entry uses the `section:` key and an optional `description:`. Its own `columns:` list holds the columns belonging to that section:
 
 ```yaml
 table: Pet
 columns:
-  name:
+  - name: name
     key: 1
     required: 'true'
-sections:
-  details:
+  - section: details
     description: Details
     columns:
-      status: {}
-      weight:
+      - name: status
+      - name: weight
         type: decimal
         required: 'true'
 ```
 
 ### Headings
 
-A section can contain `headings:` for a second level of grouping. Each heading has a `columns:` map. Max depth is section → heading → columns:
+A section can contain heading entries for a second level of grouping. A heading uses the `heading:` key and its own `columns:` list. Max depth is section → heading → columns:
 
 ```yaml
-sections:
-  details:
+columns:
+  - name: name
+    key: 1
+  - section: details
     columns:
-      status: {}
-    headings:
-      Heading2:
+      - name: status
+      - heading: Measurements
         columns:
-          orders:
+          - name: orders
             type: refback
             refTable: Order
             refBack: pet
 ```
 
-A section can have both direct `columns:` and `headings:`. Columns listed directly under the section appear before any headings.
+A section can have both direct column entries and heading entries. Columns listed directly under the section appear before any headings.
 
 **Maximum nesting depth is 2:** table → section → heading → columns. A heading cannot contain further sub-groupings.
+
+---
+
+## Column-level imports
+
+Large tables can be split across multiple files using `import:` entries inside a `columns:` list. An `import:` entry splices the contents of another file into the column list at that position.
+
+```yaml
+columns:
+  - name: id
+    key: 1
+  - import: columns/demographics.yaml
+  - name: status
+  - import: columns/consent_section.yaml
+```
+
+### Importing a flat columns file
+
+A flat columns file contains a `columns:` list of column entries. All entries are spliced in at the import position:
+
+```yaml
+# columns/demographics.yaml
+columns:
+  - name: year of birth
+    type: int
+  - name: country of birth
+    type: ontology
+    refTable: Countries
+```
+
+### Importing a section file
+
+A section file contains a single `section:` entry with its own `columns:` list. The entire section is inserted at the import position:
+
+```yaml
+# columns/consent_section.yaml
+section: Consent
+columns:
+  - name: consent given
+    type: bool
+  - name: consent date
+    type: date
+```
 
 ---
 
@@ -219,29 +265,30 @@ A **variant** is a composable, table-level configuration that adds columns for a
 
 ### Declaring variants
 
-Variants are declared in a `variants:` keyed map at the top of a table file. Each entry supports:
+Variants are declared in a `variants:` list at the top of a table file. Each entry has a `name:` key and supports:
 
-| Attribute | Description                                                                                                                |
+| Attribute | Description |
 |-----------|----------------------------------------------------------------------------------------------------------------------------|
-| `description:` | Human-readable description                                                                                                 |
-| `extends:` | (optional) List of parent variants this variant extends (IS-A relationship, inherits all columns)                          |
-| `internal:` | (optional) If `true`, the variant is not shown in the user-facing variant selector but can be used as an `extends:` target |
+| `name` | Variant name (required) |
+| `description` | Human-readable description |
+| `extends` | (optional) List of parent variants this variant extends (IS-A relationship, inherits all columns) |
+| `internal` | (optional) If `true`, the variant is not shown in the user-facing variant selector but can be used as an `extends:` target |
 
 ```yaml
 table: Experiments
 description: "Research experiments with composable protocol modules"
 
 variants:
-  sampling:
+  - name: sampling
     description: "Sample collection protocol"
     internal: true
-  sequencing:
+  - name: sequencing
     description: "Sequencing protocol"
     internal: true
-  WGS:
+  - name: WGS
     description: "Whole genome sequencing"
     extends: [sampling, sequencing]
-  Imaging:
+  - name: Imaging
     description: "Medical imaging"
 ```
 
@@ -251,11 +298,11 @@ Simple variants without `extends:` or `internal:` flag:
 
 ```yaml
 variants:
-  Dermatology:
+  - name: Dermatology
     description: "Skin examination findings"
-  Neurology:
+  - name: Neurology
     description: "Neurological assessment"
-  Questionnaire:
+  - name: Questionnaire
     description: "Validated instruments and scores"
 ```
 
@@ -265,48 +312,48 @@ Add a discriminator column to the base table using `type: variant` (single selec
 
 ```yaml
 columns:
-  observation id:
+  - name: observation id
     type: string
     key: 1
-  date:
+  - name: date
     type: date
-  observation types:
+  - name: observation types
     type: variant_array
     description: "Select one or more clinical domains"
 ```
 
 ### Scoping columns to a variant
 
-Columns belonging to a variant are placed in a named entry under `columns:` with a `variant:` attribute and a nested `columns:` map:
+Columns belonging to a variant are placed as a section-like entry in the `columns:` list with a `variant:` attribute and a nested `columns:` list:
 
 ```yaml
 columns:
-  observation id:
+  - name: observation id
     type: string
     key: 1
-  date:
+  - name: date
     type: date
-  observation types:
+  - name: observation types
     type: variant_array
-  Dermatology:
+  - section: Dermatology
     variant: Dermatology
     columns:
-      BSA percentage:
+      - name: BSA percentage
         type: decimal
         description: "Body surface area affected (%)"
-      lesion type: {}
-  Neurology:
+      - name: lesion type
+  - section: Neurology
     variant: Neurology
     columns:
-      motor score:
+      - name: motor score
         type: int
-      cognitive score:
+      - name: cognitive score
         type: int
-  Questionnaire:
+  - section: Questionnaire
     variant: Questionnaire
     columns:
-      instrument name: {}
-      total score:
+      - name: instrument name
+      - name: total score
         type: decimal
 ```
 
@@ -317,16 +364,16 @@ Variants from `profiles/pages/tables/Blocks.yaml` showing a section scoped to a 
 ```yaml
 table: Blocks
 variants:
-  Headers:
+  - name: Headers
     description: <header> elements
 
-sections:
-  Headers:
+columns:
+  - section: Headers
     variant: Headers
     columns:
-      title:
+      - name: title
         description: A title for the page
-      background image:
+      - name: background image
         type: select
         refTable: Images
 ```
@@ -355,7 +402,7 @@ Key rules:
 
 ## Profiles
 
-A **profile** is a tagged subset of the core data model. Profiles are declared in `profiles:` at the bundle root. `internal: true` marks profiles that are implementation details, not shown in the user picker.
+A **profile** is a tagged subset of the core data model. Profiles are declared in `profiles:` as a list at the bundle root. `internal: true` marks profiles that are implementation details, not shown in the user picker.
 
 ### Declaring profiles
 
@@ -363,20 +410,20 @@ From `profiles/shared/molgenis.yaml`:
 
 ```yaml
 profiles:
-  catalogue_core:
+  - name: catalogue_core
     description: Core catalogue columns visible in all catalogue-family templates
     internal: true
-  cohort_core:
+  - name: cohort_core
     description: Cohort-specific columns shared by CohortsStaging, UMCGCohortsStaging, and UMCUCohorts
     includes: [catalogue_core]
     internal: true
-  cohorts_staging:
+  - name: cohorts_staging
     description: Cohort registry staging workspace
     includes: [cohort_core]
-  patient_registry:
+  - name: patient_registry
     description: Patient registry (includes catalogue resource view)
     includes: [patient_core, catalogue_core]
-  fair_genomes:
+  - name: fair_genomes
     description: FAIR Genomes patient registry
     includes: [patient_core]
 ```
@@ -387,6 +434,7 @@ profiles:
 
 | Key | Type | Description |
 |---|---|---|
+| `name` | string | Profile name (required) |
 | `description` | string | Human-readable description |
 | `includes` | string list | Profiles to activate transitively |
 | `internal` | bool | If `true`, not shown in user picker |
@@ -400,10 +448,10 @@ Tag tables or columns with `profiles:` to make them conditional on those profile
 table: Individuals
 profiles: [patient_core]
 columns:
-  year of birth:
+  - name: year of birth
     type: int
     profiles: [patient_core]
-  alternate ids:
+  - name: alternate ids
     type: string_array
     profiles: [patient_registry]
 ```
@@ -436,13 +484,13 @@ Tag tables and columns with `semantics:` URIs or CURIEs to give them machine-rea
 table: Pet
 semantics: ['foaf:Person']
 columns:
-  username:
+  - name: username
     key: 1
     semantics: ['foaf:accountName']
-  email:
+  - name: email
     type: email
     semantics: ['foaf:mbox']
-  tags:
+  - name: tags
     type: ontology_array
     refTable: Tag
     semantics: ['http://example.com/petstore#hasTags']
@@ -482,9 +530,9 @@ The CSV format uses separate spreadsheet tabs or files (`molgenis.csv`, `columns
 | CSV concept | YAML equivalent |
 |---|---|
 | `molgenis.csv` row (table) | Top-level entry under `tables:` or a `tables/*.yaml` file |
-| `columns.csv` row | Entry under `columns:` in the table definition |
+| `columns.csv` row | Entry in the `columns:` list with a `name:` key |
 | `tableName` column | `table:` key at file top (directory) or map key (inline) |
-| `columnName` column | Key in `columns:` map |
+| `columnName` column | `name:` in a `columns:` list entry |
 | `columnType` column | `type:` attribute |
 | `required` column | `required:` attribute |
 | `refTable` column | `refTable:` attribute |
@@ -492,13 +540,17 @@ The CSV format uses separate spreadsheet tabs or files (`molgenis.csv`, `columns
 | `profiles` column | `profiles:` attribute (list) |
 | `semantics` column | `semantics:` attribute (list) |
 | `description` column | `description:` attribute |
-| Tab/section grouping | `sections:` and `headings:` keys |
+| Tab/section grouping | `section:` entry in the `columns:` list |
+| Sub-grouping within a section | `heading:` entry inside a section's `columns:` list |
 | Subtype discriminator | `type: variant` / `type: variant_array` |
 | Subtype column scoping | `variant:` attribute on a section entry |
+| Profile/template declaration | Entry in the `profiles:` list with a `name:` key |
+| Variant declaration | Entry in the `variants:` list with a `name:` key |
 
 Key differences:
 
-- **Structure is hierarchical**, not flat rows. Column grouping (sections, headings) is expressed via nesting, not separate columns.
+- **Structure is hierarchical**, not flat rows. Column grouping (sections, headings) is expressed as entries in the `columns:` list, not separate keys.
+- **Columns are a list**, not a keyed map. Each entry has a `name:` key. This preserves order and allows `import:` entries.
 - **Variants replace subtypes.** The old `subtype`/`subtype_array` discriminator types become `variant`/`variant_array`. The old `subtype:` scoping attribute on sections becomes `variant:`.
 - **Profiles replace templates/subsets.** The old `subsets:` / `templates:` split is unified into `profiles:`. The `internal: true` flag replaces the old `subsets:` vs `templates:` distinction.
 - **Single file per table** in directory bundles keeps large models readable.
@@ -513,7 +565,7 @@ Key differences:
 | `description` | string | Shown in admin UI |
 | `imports` | list | File or directory paths to load (e.g. `- tables/`) |
 | `tables` | mapping | Inline table definitions keyed by table name |
-| `profiles` | mapping | Profile declarations (see Profiles section) |
+| `profiles` | list | Profile declarations — each entry has `name:` and optional `description:`, `includes:`, `internal:`, `settings:` |
 | `namespaces` | mapping | Custom prefix-to-URI mappings for CURIE expansion |
 | `ontologies` | list | Ontology table file paths (e.g. `[_demodata/applications/petstore]`) |
 | `demodata` | list | Seed data CSV paths (e.g. `[_demodata/applications/petstore]`) |

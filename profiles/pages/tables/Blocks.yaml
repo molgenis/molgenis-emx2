@@ -1,56 +1,61 @@
 table: Blocks
 description: Subcontainers with in a page used to group components
+profiles:
+- pages
 variants:
-  Sections:
-    description: Subcontainers for providing context to components
-  Headers:
-    description: <header> elements
-sections:
-  Configuration:
-    headings:
-      UI settings:
-        columns:
-          enable full screen width:
-            type: bool
-            defaultValue: 'false'
-            description: If true, content will be expanded to the fit the full width of the screen
-      Component connections:
-        description: Link components and set the order in which they display on page.
-        columns:
-          in container:
-            type: multiselect
-            refTable: Configurable pages
-            description: A link to the configurable page where the block is displayed
-          components:
-            type: refback
-            refTable: Components
-            refBack: in block
-            description: The elements that are displayed in a block
-          component order:
-            type: refback
-            refTable: Component orders
-            refBack: block
-      Metadata:
-        columns:
-          id:
-            type: auto_id
-            key: 1
-            required: 'true'
-            description: An auto ID used to generate UI elements
-  Headers:
-    variant: Headers
+- name: Sections
+  description: Subcontainers for providing context to components
+  profiles:
+  - pages
+- name: Headers
+  description: <header> elements
+  profiles:
+  - pages
+columns:
+- section: Configuration
+  columns:
+  - heading: UI settings
     columns:
-      Content:
-        type: section
-      title:
-        description: A title for the page
-      subtitle:
-        description: An optional secondary title that describes the page
-      background image:
-        type: select
-        refTable: Images
-        description: An image to display in the background of the header
-      title is centered:
-        type: bool
-        defaultValue: 'false'
-        description: If true, the title and subtitle will be center aligned
+    - name: enable full screen width
+      type: bool
+      defaultValue: "false"
+      description: "If true, content will be expanded to the fit the full width of the screen"
+  - heading: Component connections
+    description: Link components and set the order in which they display on page.
+    columns:
+    - name: in container
+      type: multiselect
+      refTable: Configurable pages
+      description: A link to the configurable page where the block is displayed
+    - name: components
+      type: refback
+      refTable: Components
+      refBack: in block
+      description: The elements that are displayed in a block
+    - name: component order
+      type: refback
+      refTable: Component orders
+      refBack: block
+  - heading: Metadata
+    columns:
+    - name: id
+      type: auto_id
+      key: 1
+      required: true
+      description: An auto ID used to generate UI elements
+- variant: Headers
+  columns:
+  - section: Content
+    columns:
+    - name: title
+      description: A title for the page
+    - name: subtitle
+      description: An optional secondary title that describes the page
+    - name: background image
+      type: select
+      refTable: Images
+      description: An image to display in the background of the header
+    - name: title is centered
+      type: bool
+      defaultValue: "false"
+      description: "If true, the title and subtitle will be center aligned"

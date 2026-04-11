@@ -1,28 +1,35 @@
 table: Profiles
 description: INTEGRATE
-profiles: [integrate]
+profiles:
+- integrate
 columns:
-  DataCatalogueFlat:
-    profiles: [catalogue_core]
-    description: DataCatalogueFlat
-  EMA:
-    profiles: [ema]
-    description: EMA
-  RWEStaging:
-    profiles: [rwe_staging]
-    description: RWEStaging
-  CohortsStaging:
-    profiles: [cohorts_staging]
-    description: CohortsStaging
-  UMCGCohortsStaging:
-    profiles: [umcg_cohorts_staging]
-    description: UMCGCohortsStaging
-  NetworksStaging:
-    profiles: [networks_staging]
-    description: NetworksStaging
-  UMCUCohorts:
-    profiles: [umcu_cohorts]
-    description: UMCUCohorts
-  INTEGRATE:
-    profiles: [integrate]
-    description: INTEGRATE
+- name: DataCatalogueFlat
+  description: DataCatalogueFlat
+  profiles:
+  - datacatalogueflat
+- name: EMA
+  description: EMA
+  profiles:
+  - ema
+- name: RWEStaging
+  description: RWEStaging
+  profiles:
+  - rwestaging
+- name: CohortsStaging
+  description: CohortsStaging
+  profiles:
+  - cohortsstaging
+- name: UMCGCohortsStaging
+  description: UMCGCohortsStaging
+  profiles:
+  - umcgcohortsstaging
+- name: NetworksStaging
+  description: NetworksStaging
+  profiles:
+  - networksstaging
+- name: UMCUCohorts
+  description: UMCUCohorts
+  profiles:
+  - umcucohorts
+- name: INTEGRATE
+  description: INTEGRATE

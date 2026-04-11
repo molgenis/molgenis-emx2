@@ -2,15 +2,15 @@ table: Individuals
 description: "Study participants"
 
 columns:
-  individual id:
+  - name: individual id
     type: string
     key: 1
-  display name: {}
-  gender:
+  - name: display name
+  - name: gender
     type: ontology
     refTable: Genders
-  year of birth:
+  - name: year of birth
     type: int
-  country of birth:
+  - name: country of birth
     type: ontology
     refTable: Countries

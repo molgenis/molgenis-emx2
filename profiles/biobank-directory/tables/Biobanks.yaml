@@ -1,136 +1,135 @@
 table: Biobanks
 description: "Description of the biobank organisation, like name, location, network, contact person, collaboration opportunities and quality assessments."
-semantics: "obo:OBIB_0000623,foaf:Organization"
+semantics:
+- "obo:OBIB_0000623,foaf:Organization"
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    readonly: true
-    description: "Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01."
-    semantics: dcterms:identifier
-  pid:
-    label: PID
-    key: 2
-    required: true
-    readonly: true
-    description: Persistent Identifier.
-  name:
-    label: Name
-    required: true
-    description: Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.
-    semantics: foaf:name
-  acronym:
-    label: Acronym
-    description: Biobank acronym - MIABIS-2.0-02.
-  description:
-    label: Description
-    type: text
-    required: true
-    description: Biobank description - MIABIS-2.0-08.
-    semantics: dcterms:description
-  url:
-    label: URL
-    type: hyperlink
-    description: Biobank URL - MIABIS-2.0-04.
-    semantics: dcat:landingPage
-  location:
-    label: Location
-    description: The city where the biobank is located.
-    semantics: dcterms:location
-  country:
-    label: Country
-    type: ontology
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: Countries
-    refLabel: ${label}
-    description: Country hosting the biobank according to MIABIS 2.0 - MIABIS-2.0-06.
-  latitude:
-    label: Latitude
-    description: "Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere."
-  longitude:
-    label: Longitude
-    description: "Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
-  head:
-    label: Head of the Biobank
-    type: ref
-    refSchema: ""
-    refTable: Persons
-    refLabel: ${email}
-    description: Person in charge of the biobank.
-  contact:
-    label: Contact Person
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: Persons
-    refLabel: ${email}
-    description: Contact person of the biobank.
-    semantics: dcat:contactPoint
-  juridical_person:
-    label: Juridical Person
-    required: true
-    description: Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.
-    semantics: obo:OMRSE_00000038
-  network:
-    label: Networks
-    type: ref_array
-    refSchema: ""
-    refTable: Networks
-    refLabel: ${name}
-    description: "Reference to a biobank network ID, to which the biobank belongs."
-  also_known:
-    label: Also Known In
-    type: ref_array
-    refSchema: ""
-    refTable: AlsoKnownIn
-    refLabel: ${name_system}
-    description: "The biobank also exists in \u2026"
-  collections:
-    label: Collections
-    type: refback
-    refSchema: ""
-    refTable: Collections
-    refBack: biobank
-    refLabel: ${name}
-    description: Collections belonging to the biobank.
-  services:
-    label: Services
-    type: refback
-    refSchema: ""
-    refTable: Services
-    refBack: biobank
-    refLabel: ${name}
-    description: Capabilities and services that the biobank organisation can offer to a researcher.
-  quality:
-    label: Quality Standards
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: QualityInfoBiobanks
-    refBack: biobank
-    refLabel: ${quality_standard.label}
-    description: The biobank is marked with this/these quality standard(s).
-  collaboration_commercial:
-    label: Commercial Collaboration
-    type: bool
-    description: The biobank can be used for collaboration with commercial partners.
-  collaboration_non_for_profit:
-    label: Non-for-profit Collaboration
-    type: bool
-    description: The biobank can be used for collaboration with non-for-profit partners.
-  national_node:
-    label: National Node
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: NationalNodes
-    refLabel: ${description}
-    description: The biobank originates from this national node.
-  withdrawn:
-    label: Withdrawn
-    type: bool
-    required: true
-    defaultValue: "false"
-    description: This biobank is withdrawn from the Directory.
+- name: id
+  key: 1
+  required: true
+  description: "Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01."
+  semantics:
+  - dcterms:identifier
+  readonly: true
+  label: ID
+- name: pid
+  key: 2
+  required: true
+  description: Persistent Identifier.
+  readonly: true
+  label: PID
+- name: name
+  required: true
+  description: Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.
+  semantics:
+  - foaf:name
+  label: Name
+- name: acronym
+  description: Biobank acronym - MIABIS-2.0-02.
+  label: Acronym
+- name: description
+  type: text
+  required: true
+  description: Biobank description - MIABIS-2.0-08.
+  semantics:
+  - dcterms:description
+  label: Description
+- name: url
+  type: hyperlink
+  description: Biobank URL - MIABIS-2.0-04.
+  semantics:
+  - dcat:landingPage
+  label: URL
+- name: location
+  description: The city where the biobank is located.
+  semantics:
+  - dcterms:location
+  label: Location
+- name: country
+  type: ontology
+  required: true
+  refTable: Countries
+  refLabel: "${label}"
+  description: Country hosting the biobank according to MIABIS 2.0 - MIABIS-2.0-06.
+  label: Country
+- name: latitude
+  description: "Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere."
+  label: Latitude
+- name: longitude
+  description: "Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich."
+  label: Longitude
+- name: head
+  type: ref
+  refTable: Persons
+  refLabel: "${email}"
+  description: Person in charge of the biobank.
+  label: Head of the Biobank
+- name: contact
+  type: ref
+  required: true
+  refTable: Persons
+  refLabel: "${email}"
+  description: Contact person of the biobank.
+  semantics:
+  - dcat:contactPoint
+  label: Contact Person
+- name: juridical_person
+  required: true
+  description: Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.
+  semantics:
+  - obo:OMRSE_00000038
+  label: Juridical Person
+- name: network
+  type: ref_array
+  refTable: Networks
+  refLabel: "${name}"
+  description: "Reference to a biobank network ID, to which the biobank belongs."
+  label: Networks
+- name: also_known
+  type: ref_array
+  refTable: AlsoKnownIn
+  refLabel: "${name_system}"
+  description: The biobank also exists in …
+  label: Also Known In
+- name: collections
+  type: refback
+  refTable: Collections
+  refBack: biobank
+  refLabel: "${name}"
+  description: Collections belonging to the biobank.
+  label: Collections
+- name: services
+  type: refback
+  refTable: Services
+  refBack: biobank
+  refLabel: "${name}"
+  description: Capabilities and services that the biobank organisation can offer to a researcher.
+  label: Services
+- name: quality
+  type: refback
+  refTable: QualityInfoBiobanks
+  refBack: biobank
+  refLabel: "${quality_standard.label}"
+  description: The biobank is marked with this/these quality standard(s).
+  readonly: true
+  label: Quality Standards
+- name: collaboration_commercial
+  type: bool
+  description: The biobank can be used for collaboration with commercial partners.
+  label: Commercial Collaboration
+- name: collaboration_non_for_profit
+  type: bool
+  description: The biobank can be used for collaboration with non-for-profit partners.
+  label: Non-for-profit Collaboration
+- name: national_node
+  type: ref
+  required: true
+  refTable: NationalNodes
+  refLabel: "${description}"
+  description: The biobank originates from this national node.
+  label: National Node
+- name: withdrawn
+  type: bool
+  required: true
+  defaultValue: "false"
+  description: This biobank is withdrawn from the Directory.
+  label: Withdrawn

@@ -12,34 +12,34 @@ variants:
     description: "Validated instruments and scores"
 
 columns:
-  observation id:
+  - name: observation id
     type: string
     key: 1
-  date:
+  - name: date
     type: date
-  individual:
+  - name: individual
     type: ref
     refTable: Individuals
-  observation types:
+  - name: observation types
     type: variant_array
     description: "Select one or more clinical domains"
-  Dermatology:
+  - section: Dermatology
     variant: Dermatology
     columns:
-      BSA percentage:
+      - name: BSA percentage
         type: decimal
         description: "Body surface area affected (%)"
-      lesion type: {}
-  Neurology:
+      - name: lesion type
+  - section: Neurology
     variant: Neurology
     columns:
-      motor score:
+      - name: motor score
         type: int
-      cognitive score:
+      - name: cognitive score
         type: int
-  Questionnaire:
+  - section: Questionnaire
     variant: Questionnaire
     columns:
-      instrument name: {}
-      total score:
+      - name: instrument name
+      - name: total score
         type: decimal

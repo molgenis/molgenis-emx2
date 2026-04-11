@@ -1,10 +1,11 @@
 table: Collections
-description: Collections of data, such as cohort studies, biobanks and registries
-profiles: [aggregate_core]
+description: "Collections of data, such as cohort studies, biobanks and registries"
+profiles:
+- datacatalogueaggregates
 columns:
-  id:
-    key: 1
-    required: true
-    description: IDs taken from the catalogue table 'Collections'
-  display name:
-    description: Collection name for display in aggregate dashboard
+- name: id
+  key: 1
+  required: true
+  description: IDs taken from the catalogue table 'Collections'
+- name: display name
+  description: Collection name for display in aggregate dashboard

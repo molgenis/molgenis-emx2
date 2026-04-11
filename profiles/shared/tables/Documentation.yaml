@@ -1,33 +1,28 @@
 table: Documentation
 description: Documentation attached to a resource
-profiles: [catalogue_core]
+profiles:
+- datacatalogueflat
 columns:
-  resource:
-    type: ref
-    key: 1
-    required: true
-    refTable: Resources
-    profiles: [catalogue_core]
-    description: The resource this documentation is for
-  name:
-    key: 1
-    required: true
-    profiles: [catalogue_core]
-    description: Document name
-  type:
-    type: ontology
-    refTable: Document types
-    profiles: [catalogue_core]
-    description: Type of documentation
-  description:
-    type: text
-    profiles: [catalogue_core]
-    description: Description of the document
-  url:
-    type: hyperlink
-    profiles: [catalogue_core]
-    description: Hyperlink to the source of the documentation
-  file:
-    type: file
-    profiles: [catalogue_core]
-    description: Optional file attachment containing the documentation
+- name: resource
+  type: ref
+  key: 1
+  required: true
+  refTable: Resources
+  description: The resource this documentation is for
+- name: name
+  key: 1
+  required: true
+  description: Document name
+- name: type
+  type: ontology
+  refTable: Document types
+  description: Type of documentation
+- name: description
+  type: text
+  description: Description of the document
+- name: url
+  type: hyperlink
+  description: Hyperlink to the source of the documentation
+- name: file
+  type: file
+  description: Optional file attachment containing the documentation

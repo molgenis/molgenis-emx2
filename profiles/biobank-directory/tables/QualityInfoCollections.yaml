@@ -1,39 +1,36 @@
 table: QualityInfoCollections
 description: Collection Quality Information
 columns:
-  id:
-    label: ID
-    type: auto_id
-    key: 1
-    required: true
-    readonly: true
-    defaultValue: QIC-${mg_autoid}
-  collection:
-    label: Collection
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: Collections
-    refLabel: ${name}
-  quality_standard:
-    label: Quality Standard
-    type: ontology
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: QualityStandards
-    refLabel: ${label}
-  assess_level_col:
-    label: Assessment Level
-    type: ontology
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: AssessmentLevels
-    refLabel: ${label}
-  certification_number:
-    label: Certification Number
-  certification_report:
-    label: Certification Report
-    type: hyperlink
-  certification_image_link:
-    label: Certification Image
-    type: hyperlink
+- name: id
+  type: auto_id
+  key: 1
+  required: true
+  defaultValue: "QIC-${mg_autoid}"
+  readonly: true
+  label: ID
+- name: collection
+  type: ref
+  required: true
+  refTable: Collections
+  refLabel: "${name}"
+  label: Collection
+- name: quality_standard
+  type: ontology
+  required: true
+  refTable: QualityStandards
+  refLabel: "${label}"
+  label: Quality Standard
+- name: assess_level_col
+  type: ontology
+  required: true
+  refTable: AssessmentLevels
+  refLabel: "${label}"
+  label: Assessment Level
+- name: certification_number
+  label: Certification Number
+- name: certification_report
+  type: hyperlink
+  label: Certification Report
+- name: certification_image_link
+  type: hyperlink
+  label: Certification Image

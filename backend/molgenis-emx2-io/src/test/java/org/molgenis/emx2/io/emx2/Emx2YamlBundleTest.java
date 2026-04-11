@@ -113,14 +113,14 @@ class Emx2YamlBundleTest {
     assertNotNull(bundle.getTemplateRegistry(), "templateRegistry must not be null");
 
     assertTrue(
-        bundle.getProfileRegistry().containsKey("catalogue_core"),
-        "catalogue_core internal profile must be in profileRegistry");
+        bundle.getProfileRegistry().containsKey("datacatalogueflat"),
+        "datacatalogueflat internal profile must be in profileRegistry");
     assertTrue(
-        bundle.getProfileRegistry().containsKey("patient_core"),
-        "patient_core internal profile must be in profileRegistry");
+        bundle.getProfileRegistry().containsKey("rwestaging"),
+        "rwestaging internal profile must be in profileRegistry");
     assertTrue(
-        bundle.getTemplateRegistry().containsKey("data_catalogue"),
-        "data_catalogue profile must be in templateRegistry");
+        bundle.getTemplateRegistry().containsKey("cohortsstaging"),
+        "cohortsstaging profile must be in templateRegistry");
     assertTrue(
         bundle.getTemplateRegistry().containsKey("patient_registry"),
         "patient_registry profile must be in templateRegistry");
@@ -131,16 +131,14 @@ class Emx2YamlBundleTest {
     Path sharedDir = PROFILES_DIR.resolve("shared");
     Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(sharedDir);
 
-    ProfileEntry cohortCore = bundle.getProfileRegistry().get("cohort_core");
-    assertNotNull(cohortCore);
+    ProfileEntry rweStaging = bundle.getProfileRegistry().get("rwestaging");
+    assertNotNull(rweStaging);
     assertTrue(
-        cohortCore.getIncludes().contains("catalogue_core"),
-        "cohort_core should include catalogue_core");
+        rweStaging.getIncludes().contains("datacatalogueflat"),
+        "rwestaging should include datacatalogueflat");
 
-    ProfileEntry rweCore = bundle.getProfileRegistry().get("rwe_core");
-    assertNotNull(rweCore);
-    assertTrue(
-        rweCore.getIncludes().contains("rwe_staging"), "rwe_core should include rwe_staging");
+    ProfileEntry datacatalogueflat = bundle.getProfileRegistry().get("datacatalogueflat");
+    assertNotNull(datacatalogueflat);
   }
 
   @Test
@@ -188,8 +186,8 @@ class Emx2YamlBundleTest {
     assertNotNull(idCol);
     assertNotNull(idCol.getProfiles(), "id column should have subsets");
     assertTrue(
-        List.of(idCol.getProfiles()).contains("patient_core"),
-        "id column should be in patient_core subset");
+        List.of(idCol.getProfiles()).contains("patient_registry"),
+        "id column should be in patient_registry subset");
   }
 
   @Test
@@ -200,12 +198,11 @@ class Emx2YamlBundleTest {
         tables:
           MyTable:
             columns:
-              foo:
+              - name: foo
                 type: string
-            sections:
-              Section1:
+              - section: Section1
                 columns:
-                  foo:
+                  - name: foo
                     type: int
         """;
     MolgenisException ex =
@@ -225,7 +222,7 @@ class Emx2YamlBundleTest {
         tables:
           MyTable:
             columns:
-              columns:
+              - name: columns
                 type: string
         """;
     MolgenisException ex =
@@ -246,12 +243,12 @@ class Emx2YamlBundleTest {
         name: Test
         tables:
           MyTable:
-            sections:
-              Section1:
-                headings:
-                  Heading1:
+            columns:
+              - section: Section1
+                columns:
+                  - heading: Heading1
                     columns:
-                      leaf:
+                      - name: leaf
                         type: string
         """;
     Emx2Yaml.BundleResult bundle =
@@ -268,10 +265,10 @@ class Emx2YamlBundleTest {
         name: Test
         tables:
           MyTable:
-            sections:
-              MySection:
+            columns:
+              - section: MySection
                 columns:
-                  leaf:
+                  - name: leaf
                     type: string
                     semantics: ['http://example.com/thing']
         """;
@@ -292,21 +289,21 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          my_subset:
+          - name: my_subset
             description: section-level subset
             internal: true
-          other_subset:
+          - name: other_subset
             description: column-level override subset
             internal: true
         tables:
           MyTable:
-            sections:
-              MySection:
+            columns:
+              - section: MySection
                 profiles: [my_subset]
                 columns:
-                  col1:
+                  - name: col1
                     type: string
-                  col2:
+                  - name: col2
                     type: int
                     profiles: [other_subset]
         """;
@@ -341,15 +338,15 @@ class Emx2YamlBundleTest {
         tables:
           MyTable:
             variants:
-              ChildA:
+              - name: ChildA
                 description: first child
-            sections:
-              MySection:
-                headings:
-                  MyHeading:
+            columns:
+              - section: MySection
+                columns:
+                  - heading: MyHeading
                     variant: ChildA
                     columns:
-                      col1:
+                      - name: col1
                         type: string
         """;
     Emx2Yaml.BundleResult bundle =
@@ -372,13 +369,13 @@ class Emx2YamlBundleTest {
         tables:
           MyTable:
             variants:
-              ChildA:
+              - name: ChildA
                 description: extends parent
-              ChildB:
+              - name: ChildB
                 extends: [ChildA]
                 description: multi extend
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -402,7 +399,7 @@ class Emx2YamlBundleTest {
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         ontologies:
           - SomeOntology
@@ -425,13 +422,13 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          BadName:
+          - name: BadName
             description: starts with uppercase
             internal: true
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -450,12 +447,12 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          123bad:
+          - name: 123bad
             description: starts with digit
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -474,16 +471,16 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          internal_one:
+          - name: internal_one
             description: goes to subsetRegistry
             internal: true
-          user_facing:
+          - name: user_facing
             description: goes to profileRegistry
             includes: [internal_one]
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -505,16 +502,16 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          core:
+          - name: core
             description: core subset
             internal: true
-          extended:
+          - name: extended
             description: user-facing template
             includes: [core]
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -529,13 +526,13 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          my_subset:
+          - name: my_subset
             includes: [nonexistent_subset]
             internal: true
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -556,18 +553,18 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          base:
+          - name: base
             description: base subset
             internal: true
-          extended:
+          - name: extended
             includes: [base]
             internal: true
-          full:
+          - name: full
             includes: [extended, base]
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -584,16 +581,16 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          alpha:
+          - name: alpha
             includes: [beta]
             internal: true
-          beta:
+          - name: beta
             includes: [alpha]
             internal: true
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -613,19 +610,19 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          aaa:
+          - name: aaa
             includes: [bbb]
             internal: true
-          bbb:
+          - name: bbb
             includes: [ccc]
             internal: true
-          ccc:
+          - name: ccc
             includes: [aaa]
             internal: true
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -646,19 +643,19 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          base:
+          - name: base
             description: base
             internal: true
-          mid:
+          - name: mid
             includes: [base]
             internal: true
-          top:
+          - name: top
             includes: [mid, base]
             internal: true
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -672,13 +669,13 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          known_subset:
+          - name: known_subset
             description: this one exists
             internal: true
         tables:
           MyTable:
             columns:
-              col1:
+              - name: col1
                 type: string
                 profiles: [known_subset, ghost_subset]
         """;
@@ -699,14 +696,14 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          real_subset:
+          - name: real_subset
             description: this one exists
             internal: true
         tables:
           MyTable:
             profiles: [phantom_subset]
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -726,14 +723,14 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          feature_x:
+          - name: feature_x
             description: a real subset
             internal: true
         tables:
           MyTable:
             profiles: [feature_x]
             columns:
-              col1:
+              - name: col1
                 type: string
                 profiles: [feature_x]
         """;
@@ -749,25 +746,25 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          subset_a:
+          - name: subset_a
             description: subset A
             internal: true
-          subset_b:
+          - name: subset_b
             description: subset B - not related to A
             internal: true
         tables:
           TableA:
             profiles: [subset_a]
             columns:
-              id:
+              - name: id
                 key: 1
-              ref_col:
+              - name: ref_col
                 type: ref
                 refTable: TableB
           TableB:
             profiles: [subset_b]
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -787,21 +784,21 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          subset_a:
+          - name: subset_a
             description: subset A
             internal: true
         tables:
           TableA:
             profiles: [subset_a]
             columns:
-              id:
+              - name: id
                 key: 1
-              ref_col:
+              - name: ref_col
                 type: ref
                 refTable: Lookup
           Lookup:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
@@ -816,31 +813,343 @@ class Emx2YamlBundleTest {
         """
         name: Test
         profiles:
-          base:
+          - name: base
             description: base
             internal: true
-          extended:
+          - name: extended
             includes: [base]
             internal: true
         tables:
           TableA:
             profiles: [extended]
             columns:
-              id:
+              - name: id
                 key: 1
-              ref_col:
+              - name: ref_col
                 type: ref
                 refTable: TableB
           TableB:
             profiles: [base]
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     Emx2Yaml.BundleResult bundle =
         Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
     assertNotNull(bundle.getSchema().getTableMetadata("TableA"));
     assertNotNull(bundle.getSchema().getTableMetadata("TableB"));
+  }
+
+  @Test
+  void serializerDedupsColumnProfilesMatchingTable() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: profile_a
+            description: A
+            internal: true
+        tables:
+          MyTable:
+            profiles: [profile_a]
+            columns:
+              - name: col1
+                type: string
+                profiles: [profile_a]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    SchemaMetadata schema = bundle.getSchema();
+
+    Emx2Yaml.toBundleSingleFile(
+        schema,
+        bundle.getName(),
+        bundle.getDescription(),
+        java.nio.file.Path.of("/tmp/test-dedup-table.yaml"),
+        bundle.getBundle().profiles());
+    String serialized =
+        java.nio.file.Files.readString(java.nio.file.Path.of("/tmp/test-dedup-table.yaml"));
+    assertFalse(
+        serialized.contains("col1") && countProfilesOccurrences(serialized, "col1") > 0,
+        "col1 profiles should be deduped when matching table profiles");
+
+    com.fasterxml.jackson.databind.ObjectMapper mapper =
+        new com.fasterxml.jackson.databind.ObjectMapper(
+            new com.fasterxml.jackson.dataformat.yaml.YAMLFactory());
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> doc = mapper.readValue(serialized, java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> tables = (java.util.Map<String, Object>) doc.get("tables");
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> myTable = (java.util.Map<String, Object>) tables.get("MyTable");
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> columns =
+        (java.util.List<java.util.Map<String, Object>>) myTable.get("columns");
+    java.util.Map<String, Object> col1 =
+        columns.stream().filter(c -> "col1".equals(c.get("name"))).findFirst().orElseThrow();
+    assertNull(
+        col1.get("profiles"), "col1 profiles should be omitted when matching table profiles");
+  }
+
+  private int countProfilesOccurrences(String yaml, String columnName) {
+    int count = 0;
+    int idx = yaml.indexOf("name: " + columnName);
+    if (idx < 0) return 0;
+    int end = yaml.indexOf("- name:", idx + 1);
+    if (end < 0) end = yaml.length();
+    String section = yaml.substring(idx, end);
+    idx = 0;
+    while ((idx = section.indexOf("profiles:", idx)) >= 0) {
+      count++;
+      idx++;
+    }
+    return count;
+  }
+
+  @Test
+  void serializerDedupsColumnProfilesMatchingSection() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: pa
+            description: A
+            internal: true
+          - name: pb
+            description: B
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [pa, pb]
+                columns:
+                  - name: col1
+                    type: string
+                    profiles: [pa, pb]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    SchemaMetadata schema = bundle.getSchema();
+
+    java.nio.file.Path outFile = java.nio.file.Path.of("/tmp/test-dedup-section.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        schema, bundle.getName(), bundle.getDescription(), outFile, bundle.getBundle().profiles());
+    String serialized = java.nio.file.Files.readString(outFile);
+
+    com.fasterxml.jackson.databind.ObjectMapper mapper =
+        new com.fasterxml.jackson.databind.ObjectMapper(
+            new com.fasterxml.jackson.dataformat.yaml.YAMLFactory());
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> doc = mapper.readValue(serialized, java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> tables = (java.util.Map<String, Object>) doc.get("tables");
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> myTable = (java.util.Map<String, Object>) tables.get("MyTable");
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> topCols =
+        (java.util.List<java.util.Map<String, Object>>) myTable.get("columns");
+    java.util.Map<String, Object> section =
+        topCols.stream()
+            .filter(c -> "MySection".equals(c.get("section")))
+            .findFirst()
+            .orElseThrow();
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> sectionCols =
+        (java.util.List<java.util.Map<String, Object>>) section.get("columns");
+    java.util.Map<String, Object> col1 =
+        sectionCols.stream().filter(c -> "col1".equals(c.get("name"))).findFirst().orElseThrow();
+    assertNull(
+        col1.get("profiles"), "col1 profiles should be omitted when matching section profiles");
+  }
+
+  @Test
+  void serializerKeepsColumnProfilesWhenDifferent() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: pa
+            description: A
+            internal: true
+          - name: pb
+            description: B
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [pa]
+                columns:
+                  - name: col1
+                    type: string
+                    profiles: [pa, pb]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    SchemaMetadata schema = bundle.getSchema();
+
+    java.nio.file.Path outFile = java.nio.file.Path.of("/tmp/test-dedup-keep.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        schema, bundle.getName(), bundle.getDescription(), outFile, bundle.getBundle().profiles());
+    String serialized = java.nio.file.Files.readString(outFile);
+
+    com.fasterxml.jackson.databind.ObjectMapper mapper =
+        new com.fasterxml.jackson.databind.ObjectMapper(
+            new com.fasterxml.jackson.dataformat.yaml.YAMLFactory());
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> doc = mapper.readValue(serialized, java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> tables = (java.util.Map<String, Object>) doc.get("tables");
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> myTable = (java.util.Map<String, Object>) tables.get("MyTable");
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> topCols =
+        (java.util.List<java.util.Map<String, Object>>) myTable.get("columns");
+    java.util.Map<String, Object> section =
+        topCols.stream()
+            .filter(c -> "MySection".equals(c.get("section")))
+            .findFirst()
+            .orElseThrow();
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> sectionCols =
+        (java.util.List<java.util.Map<String, Object>>) section.get("columns");
+    java.util.Map<String, Object> col1 =
+        sectionCols.stream().filter(c -> "col1".equals(c.get("name"))).findFirst().orElseThrow();
+    assertNotNull(col1.get("profiles"), "col1 profiles should be kept when different from section");
+    @SuppressWarnings("unchecked")
+    java.util.List<String> col1Profiles = (java.util.List<String>) col1.get("profiles");
+    assertTrue(
+        col1Profiles.contains("pa") && col1Profiles.contains("pb"),
+        "col1 should have both pa and pb profiles");
+  }
+
+  @Test
+  void serializerLiftsCommonChildProfilesToSection() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: pa
+            description: A
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                columns:
+                  - name: col1
+                    type: string
+                    profiles: [pa]
+                  - name: col2
+                    type: int
+                    profiles: [pa]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    SchemaMetadata schema = bundle.getSchema();
+
+    java.nio.file.Path outFile = java.nio.file.Path.of("/tmp/test-dedup-lift.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        schema, bundle.getName(), bundle.getDescription(), outFile, bundle.getBundle().profiles());
+    String serialized = java.nio.file.Files.readString(outFile);
+
+    com.fasterxml.jackson.databind.ObjectMapper mapper =
+        new com.fasterxml.jackson.databind.ObjectMapper(
+            new com.fasterxml.jackson.dataformat.yaml.YAMLFactory());
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> doc = mapper.readValue(serialized, java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> tables = (java.util.Map<String, Object>) doc.get("tables");
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> myTable = (java.util.Map<String, Object>) tables.get("MyTable");
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> topCols =
+        (java.util.List<java.util.Map<String, Object>>) myTable.get("columns");
+    java.util.Map<String, Object> section =
+        topCols.stream()
+            .filter(c -> "MySection".equals(c.get("section")))
+            .findFirst()
+            .orElseThrow();
+    assertNotNull(section.get("profiles"), "section should have profiles lifted from children");
+    @SuppressWarnings("unchecked")
+    java.util.List<String> sectionProfiles = (java.util.List<String>) section.get("profiles");
+    assertTrue(sectionProfiles.contains("pa"), "section should have pa lifted from children");
+    @SuppressWarnings("unchecked")
+    java.util.List<java.util.Map<String, Object>> sectionCols =
+        (java.util.List<java.util.Map<String, Object>>) section.get("columns");
+    for (java.util.Map<String, Object> col : sectionCols) {
+      assertNull(col.get("profiles"), "child profiles should be omitted after lifting to section");
+    }
+  }
+
+  @Test
+  void roundtripAfterDedupProducesIdenticalMetadata() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: pa
+            description: A
+            internal: true
+          - name: pb
+            description: B
+            internal: true
+        tables:
+          MyTable:
+            profiles: [pa, pb]
+            columns:
+              - name: col1
+                type: string
+                profiles: [pa, pb]
+              - section: MySection
+                profiles: [pa, pb]
+                columns:
+                  - name: col2
+                    type: int
+                    profiles: [pa, pb]
+                  - name: col3
+                    type: string
+                    profiles: [pa]
+        """;
+    Emx2Yaml.BundleResult original =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    SchemaMetadata originalSchema = original.getSchema();
+
+    java.nio.file.Path outFile = java.nio.file.Path.of("/tmp/test-dedup-roundtrip.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        originalSchema,
+        original.getName(),
+        original.getDescription(),
+        outFile,
+        original.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    SchemaMetadata roundtripSchema = roundtrip.getSchema();
+
+    TableMetadata originalTable = originalSchema.getTableMetadata("MyTable");
+    TableMetadata roundtripTable = roundtripSchema.getTableMetadata("MyTable");
+    assertNotNull(roundtripTable, "MyTable must survive roundtrip");
+
+    for (Column originalCol : originalTable.getNonInheritedColumns()) {
+      if (originalCol.isSystemColumn()) continue;
+      Column roundtripCol = roundtripTable.getColumn(originalCol.getName());
+      assertNotNull(roundtripCol, "Column '" + originalCol.getName() + "' must survive roundtrip");
+      String[] origProfiles = originalCol.getProfiles();
+      String[] rtProfiles = roundtripCol.getProfiles();
+      java.util.Set<String> origSet =
+          origProfiles != null
+              ? new java.util.HashSet<>(java.util.Arrays.asList(origProfiles))
+              : java.util.Set.of();
+      java.util.Set<String> rtSet =
+          rtProfiles != null
+              ? new java.util.HashSet<>(java.util.Arrays.asList(rtProfiles))
+              : java.util.Set.of();
+      assertEquals(
+          origSet,
+          rtSet,
+          "Profiles for column '" + originalCol.getName() + "' must match after dedup roundtrip");
+    }
   }
 
   @Test
@@ -869,7 +1178,7 @@ class Emx2YamlBundleTest {
         """
         table: Alpha
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -892,7 +1201,7 @@ class Emx2YamlBundleTest {
         """
         table: Imported
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -903,7 +1212,7 @@ class Emx2YamlBundleTest {
         tables:
           Inline:
             columns:
-              id:
+              - name: id
                 key: 1
           imports:
           - extra.yaml
@@ -924,7 +1233,7 @@ class Emx2YamlBundleTest {
         """
         table: TableC
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -935,7 +1244,7 @@ class Emx2YamlBundleTest {
         imports:
         - c.yaml
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -966,7 +1275,7 @@ class Emx2YamlBundleTest {
         imports:
         - b.yaml
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -977,7 +1286,7 @@ class Emx2YamlBundleTest {
         imports:
         - a.yaml
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -1006,7 +1315,7 @@ class Emx2YamlBundleTest {
         """
         table: SameName
         columns:
-          id:
+          - name: id
             key: 1
         """);
 
@@ -1015,7 +1324,7 @@ class Emx2YamlBundleTest {
         """
         table: SameName
         columns:
-          label:
+          - name: label
             type: string
         """);
 
@@ -1089,14 +1398,14 @@ class Emx2YamlBundleTest {
         tables:
           MyTable:
             variants:
-              ChildA:
+              - name: ChildA
                 description: child
             columns:
-              id:
+              - name: id
                 key: 1
-              kind:
+              - name: kind
                 type: variant
-              kinds:
+              - name: kinds
                 type: variant_array
         """;
     Emx2Yaml.BundleResult bundle =
@@ -1127,7 +1436,7 @@ class Emx2YamlBundleTest {
         tables:
           T:
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -1150,7 +1459,7 @@ class Emx2YamlBundleTest {
           T:
             imports: [extra.yaml]
             columns:
-              id:
+              - name: id
                 key: 1
         """;
     MolgenisException ex =
@@ -1167,7 +1476,7 @@ class Emx2YamlBundleTest {
   @Test
   void importsAbsolutePathRejected(@TempDir Path tempDir) throws IOException {
     Path tableFile = tempDir.resolve("table.yaml");
-    Files.writeString(tableFile, "table: T\ncolumns:\n  id:\n    key: 1\n");
+    Files.writeString(tableFile, "table: T\ncolumns:\n  - name: id\n    key: 1\n");
     Path molgenisYaml = tempDir.resolve("molgenis.yaml");
     Files.writeString(molgenisYaml, "name: Test\nimports: [/etc/passwd]\n");
     MolgenisException ex =
@@ -1209,5 +1518,368 @@ class Emx2YamlBundleTest {
     int aLastIdx = msg.lastIndexOf("a.yaml");
     assertTrue(
         aLastIdx > bIdx, "a.yaml should appear both before and after b.yaml in cycle: " + msg);
+  }
+
+  @Test
+  void importsInsideColumnsList(@TempDir Path tempDir) throws IOException {
+    Path colsDir = tempDir.resolve("columns");
+    Files.createDirectories(colsDir);
+
+    Files.writeString(
+        colsDir.resolve("demographics.yaml"),
+        """
+        columns:
+          - name: year of birth
+            type: int
+          - name: country of birth
+            type: ontology
+            refTable: Countries
+        """);
+
+    Files.writeString(
+        tempDir.resolve("bundle.yaml"),
+        """
+        name: test_bundle
+        tables:
+          Patient:
+            columns:
+              - name: id
+                key: 1
+              - import: columns/demographics.yaml
+              - name: status
+        """);
+
+    Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(tempDir.resolve("bundle.yaml"));
+    TableMetadata patient = bundle.getSchema().getTableMetadata("Patient");
+    assertNotNull(patient, "Patient table must be loaded");
+    assertNotNull(patient.getColumn("id"), "id column must be present");
+    assertNotNull(
+        patient.getColumn("year of birth"),
+        "imported column 'year of birth' must expand at position");
+    assertNotNull(
+        patient.getColumn("country of birth"),
+        "imported column 'country of birth' must be present");
+    assertNotNull(patient.getColumn("status"), "status column after import must be present");
+  }
+
+  @Test
+  void importsAtMultiplePositionsInColumns(@TempDir Path tempDir) throws IOException {
+    Path colsDir = tempDir.resolve("columns");
+    Files.createDirectories(colsDir);
+
+    Files.writeString(
+        colsDir.resolve("part1.yaml"),
+        """
+        columns:
+          - name: field_a
+            type: string
+        """);
+
+    Files.writeString(
+        colsDir.resolve("part2.yaml"),
+        """
+        columns:
+          - name: field_b
+            type: int
+        """);
+
+    Files.writeString(
+        tempDir.resolve("bundle.yaml"),
+        """
+        name: test_bundle
+        tables:
+          T:
+            columns:
+              - name: id
+                key: 1
+              - import: columns/part1.yaml
+              - name: mid
+              - import: columns/part2.yaml
+              - name: last
+        """);
+
+    Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(tempDir.resolve("bundle.yaml"));
+    TableMetadata table = bundle.getSchema().getTableMetadata("T");
+    assertNotNull(table.getColumn("field_a"), "field_a from first import must be present");
+    assertNotNull(table.getColumn("field_b"), "field_b from second import must be present");
+    assertNotNull(table.getColumn("mid"), "mid inline column must be present");
+    assertNotNull(table.getColumn("last"), "last inline column must be present");
+  }
+
+  @Test
+  void importSectionIntoColumnsList(@TempDir Path tempDir) throws IOException {
+    Path colsDir = tempDir.resolve("columns");
+    Files.createDirectories(colsDir);
+
+    Files.writeString(
+        colsDir.resolve("consent_section.yaml"),
+        """
+        section: Consent
+        columns:
+          - name: consent given
+            type: bool
+          - name: consent date
+            type: date
+        """);
+
+    Files.writeString(
+        tempDir.resolve("bundle.yaml"),
+        """
+        name: test_bundle
+        tables:
+          Subject:
+            columns:
+              - name: id
+                key: 1
+              - import: columns/consent_section.yaml
+        """);
+
+    Emx2Yaml.BundleResult bundle = Emx2Yaml.fromBundle(tempDir.resolve("bundle.yaml"));
+    TableMetadata subject = bundle.getSchema().getTableMetadata("Subject");
+    assertNotNull(subject, "Subject table must be loaded");
+    assertNotNull(
+        subject.getColumn("consent given"), "consent given from imported section must be present");
+    assertNotNull(
+        subject.getColumn("consent date"), "consent date from imported section must be present");
+  }
+
+  @Test
+  void importColumnCollisionDetected(@TempDir Path tempDir) throws IOException {
+    Path colsDir = tempDir.resolve("columns");
+    Files.createDirectories(colsDir);
+
+    Files.writeString(
+        colsDir.resolve("shared.yaml"),
+        """
+        columns:
+          - name: status
+            type: string
+        """);
+
+    Files.writeString(
+        tempDir.resolve("bundle.yaml"),
+        """
+        name: test_bundle
+        tables:
+          T:
+            columns:
+              - name: id
+                key: 1
+              - import: columns/shared.yaml
+              - name: status
+                type: int
+        """);
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class, () -> Emx2Yaml.fromBundle(tempDir.resolve("bundle.yaml")));
+    assertTrue(
+        ex.getMessage().contains("status"),
+        "Error must name the duplicate column 'status': " + ex.getMessage());
+  }
+
+  @Test
+  void serializerDedupsIncludedProfileFromColumn(@TempDir Path tempDir) throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: base
+            description: base
+            internal: true
+          - name: extended
+            includes: [base]
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - name: col1
+                type: string
+                profiles: [base, extended]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    Path outFile = tempDir.resolve("dedup-include.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        bundle.getSchema(),
+        bundle.getName(),
+        bundle.getDescription(),
+        outFile,
+        bundle.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    Column col1 = roundtrip.getSchema().getTableMetadata("MyTable").getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = col1.getProfiles() != null ? List.of(col1.getProfiles()) : List.of();
+    assertTrue(profiles.contains("base"), "base profile must be kept");
+    assertFalse(
+        profiles.contains("extended"),
+        "extended must be dropped because extended includes base, so extended tag is redundant");
+  }
+
+  @Test
+  void serializerDedupsTransitivelyIncludedProfile(@TempDir Path tempDir) throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: base
+            description: base
+            internal: true
+          - name: mid
+            includes: [base]
+            internal: true
+          - name: top
+            includes: [mid]
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - name: col1
+                type: string
+                profiles: [base, mid, top]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    Path outFile = tempDir.resolve("dedup-transitive.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        bundle.getSchema(),
+        bundle.getName(),
+        bundle.getDescription(),
+        outFile,
+        bundle.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    Column col1 = roundtrip.getSchema().getTableMetadata("MyTable").getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = col1.getProfiles() != null ? List.of(col1.getProfiles()) : List.of();
+    assertTrue(profiles.contains("base"), "base profile must be kept");
+    assertFalse(profiles.contains("mid"), "mid must be dropped: mid transitively includes base");
+    assertFalse(profiles.contains("top"), "top must be dropped: top transitively includes base");
+  }
+
+  @Test
+  void serializerKeepsProfileNotInIncludeChain(@TempDir Path tempDir) throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: alpha
+            description: alpha
+            internal: true
+          - name: beta
+            description: beta - unrelated to alpha
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - name: col1
+                type: string
+                profiles: [alpha, beta]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    Path outFile = tempDir.resolve("dedup-unrelated.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        bundle.getSchema(),
+        bundle.getName(),
+        bundle.getDescription(),
+        outFile,
+        bundle.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    Column col1 = roundtrip.getSchema().getTableMetadata("MyTable").getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = col1.getProfiles() != null ? List.of(col1.getProfiles()) : List.of();
+    assertTrue(profiles.contains("alpha"), "alpha must be kept: unrelated to beta");
+    assertTrue(profiles.contains("beta"), "beta must be kept: unrelated to alpha");
+  }
+
+  @Test
+  void serializerDedupsIncludeProfileOnSection(@TempDir Path tempDir) throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: base
+            description: base
+            internal: true
+          - name: derived
+            includes: [base]
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [base, derived]
+                columns:
+                  - name: col1
+                    type: string
+                    profiles: [base, derived]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    Path outFile = tempDir.resolve("dedup-section.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        bundle.getSchema(),
+        bundle.getName(),
+        bundle.getDescription(),
+        outFile,
+        bundle.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    Column col1 = roundtrip.getSchema().getTableMetadata("MyTable").getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = col1.getProfiles() != null ? List.of(col1.getProfiles()) : List.of();
+    assertTrue(profiles.contains("base"), "base must be kept");
+    assertFalse(profiles.contains("derived"), "derived must be dropped: derived includes base");
+  }
+
+  @Test
+  void roundtripAfterIncludeDedupLossless(@TempDir Path tempDir) throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: base
+            description: base
+            internal: true
+          - name: extended
+            includes: [base]
+            internal: true
+        tables:
+          MyTable:
+            columns:
+              - name: col1
+                type: string
+                profiles: [base, extended]
+              - name: col2
+                type: int
+                profiles: [base]
+        """;
+    Emx2Yaml.BundleResult original =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+    Path outFile = tempDir.resolve("dedup-roundtrip.yaml");
+    Emx2Yaml.toBundleSingleFile(
+        original.getSchema(),
+        original.getName(),
+        original.getDescription(),
+        outFile,
+        original.getBundle().profiles());
+
+    Emx2Yaml.BundleResult roundtrip = Emx2Yaml.fromBundle(outFile);
+    SchemaMetadata schema = roundtrip.getSchema();
+
+    Column col1 = schema.getTableMetadata("MyTable").getColumn("col1");
+    assertNotNull(col1);
+    List<String> col1Profiles =
+        col1.getProfiles() != null ? List.of(col1.getProfiles()) : List.of();
+    assertTrue(col1Profiles.contains("base"), "col1 must have base after dedup+roundtrip");
+
+    Column col2 = schema.getTableMetadata("MyTable").getColumn("col2");
+    assertNotNull(col2);
+    List<String> col2Profiles =
+        col2.getProfiles() != null ? List.of(col2.getProfiles()) : List.of();
+    assertTrue(col2Profiles.contains("base"), "col2 base must survive roundtrip");
   }
 }

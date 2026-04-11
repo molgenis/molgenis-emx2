@@ -1,58 +1,74 @@
 table: Chart data
 description: Data used in a visualisation
-semantics: http://semanticscience.org/resource/SIO_000089
+semantics:
+- http://semanticscience.org/resource/SIO_000089
 columns:
-  id:
-    key: 1
-    required: true
-    semantics: http://semanticscience.org/resource/SIO_000115
-    description: A value that identifies this data point in a chart
-  name:
-    semantics: http://semanticscience.org/resource/SIO_000116
-    description: "A label to be displayed in the chart that visually identifies the data point. By default, data points must have a name and value defined. If you would like to create a chart that displays number of participants by disease and research institution, then you would put the diseases in the \"name\" column and the institutions in the \"primary category\" column."
-  value:
-    type: decimal
-    semantics: http://semanticscience.org/resource/SIO_000465
-    description: "The calculated value of the data point. A value that is described by the \"name\" and can be further grouped by the primary and secondary categories."
-  value label:
-    semantics: http://semanticscience.org/resource/SIO_000179
-    description: "An alternative label that will be displayed in the chart in place of the actual value. This is useful if you would like to format the values in the specific format (e.g., \"10.05% increase\" instead of \"10.05\"). If you use the \"value label\" column, the \"value\" column must be populated."
-  series:
-    semantics: http://semanticscience.org/resource/SIO_000464
-    description: A data series is a data set composed of related values displayed in a statistical graph. It is intended to use this column for line charts. This column is useful to link data points of a group in addition to the primary and secondary category columns.
-  primary category:
-    semantics: "http://semanticscience.org/resource/SIO_000455,http://semanticscience.org/resource/SIO_000456"
-    description: "A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the \"name\" column, then define the grouping levels here."
-  secondary category:
-    semantics: "http://semanticscience.org/resource/SIO_000455,http://semanticscience.org/resource/SIO_000457"
-    description: A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.
-  primary category label:
-    semantics: http://semanticscience.org/resource/SIO_000179
-    description: "An alternative label that will be displayed instead of the value in \"primary category\" column"
-  secondary category label:
-    semantics: http://semanticscience.org/resource/SIO_000179
-    description: "An alternative label that will be displayed instead of the value in \"secondary category\" column"
-  time value:
-    semantics: http://semanticscience.org/resource/SIO_000391
-    description: " time measurement is a measurement value of the duration of some interval of time or a particular instant of time (against some frame of reference). This column should be populated if you are visualising data by time. It is intended to place the value in this column (e.g., \"2020,2021,2022,...\" or \"12, 13,14\"; years, months, etc.) and set the unit in the \"time unit\" column."
-  time unit:
-    type: ontology
-    refTable: Time intervals
-    semantics: http://semanticscience.org/resource/SIO_000074
-    description: "A unit that provides context to the value in the column \"time interval\". E.g., \"months\", \"years\", etc."
-  color:
-    semantics: http://schema.org/color
-    description: "A colour value (RGB, HEX, HSL, etc.) used to style the data point"
-  description:
-    type: text
-    semantics: http://semanticscience.org/resource/SIO_000136
-    description: A description is language entity in which elements of a language (formal or natural) are used to characterize an entity. This is useful if you are using tooltips in charts. Information placed in this column could be displayed in the charts.
-  sort order:
-    type: int
-    semantics: http://semanticscience.org/resource/SIO_001316
-    description: A numerical value indicating the sorting method for data points
-  included in chart:
-    type: ref
-    refTable: Charts
-    semantics: http://edamontology.org/topic_0092
-    description: A value that links one or more data points to a visualisation
+- name: id
+  key: 1
+  required: true
+  description: A value that identifies this data point in a chart
+  semantics:
+  - http://semanticscience.org/resource/SIO_000115
+- name: name
+  description: "A label to be displayed in the chart that visually identifies the data point. By default, data points must have a name and value defined. If you would like to create a chart that displays number of participants by disease and research institution, then you would put the diseases in the \"name\" column and the institutions in the \"primary category\" column."
+  semantics:
+  - http://semanticscience.org/resource/SIO_000116
+- name: value
+  type: decimal
+  description: The calculated value of the data point. A value that is described by the "name" and can be further grouped by the primary and secondary categories.
+  semantics:
+  - http://semanticscience.org/resource/SIO_000465
+- name: value label
+  description: "An alternative label that will be displayed in the chart in place of the actual value. This is useful if you would like to format the values in the specific format (e.g., \"10.05% increase\" instead of \"10.05\"). If you use the \"value label\" column, the \"value\" column must be populated."
+  semantics:
+  - http://semanticscience.org/resource/SIO_000179
+- name: series
+  description: A data series is a data set composed of related values displayed in a statistical graph. It is intended to use this column for line charts. This column is useful to link data points of a group in addition to the primary and secondary category columns.
+  semantics:
+  - http://semanticscience.org/resource/SIO_000464
+- name: primary category
+  description: "A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the \"name\" column, then define the grouping levels here."
+  semantics:
+  - "http://semanticscience.org/resource/SIO_000455,http://semanticscience.org/resource/SIO_000456"
+- name: secondary category
+  description: A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.
+  semantics:
+  - "http://semanticscience.org/resource/SIO_000455,http://semanticscience.org/resource/SIO_000457"
+- name: primary category label
+  description: An alternative label that will be displayed instead of the value in "primary category" column
+  semantics:
+  - http://semanticscience.org/resource/SIO_000179
+- name: secondary category label
+  description: An alternative label that will be displayed instead of the value in "secondary category" column
+  semantics:
+  - http://semanticscience.org/resource/SIO_000179
+- name: time value
+  description: " time measurement is a measurement value of the duration of some interval of time or a particular instant of time (against some frame of reference). This column should be populated if you are visualising data by time. It is intended to place the value in this column (e.g., \"2020,2021,2022,...\" or \"12, 13,14\"; years, months, etc.) and set the unit in the \"time unit\" column."
+  semantics:
+  - http://semanticscience.org/resource/SIO_000391
+- name: time unit
+  type: ontology
+  refTable: Time intervals
+  description: "A unit that provides context to the value in the column \"time interval\". E.g., \"months\", \"years\", etc."
+  semantics:
+  - http://semanticscience.org/resource/SIO_000074
+- name: color
+  description: "A colour value (RGB, HEX, HSL, etc.) used to style the data point"
+  semantics:
+  - http://schema.org/color
+- name: description
+  type: text
+  description: A description is language entity in which elements of a language (formal or natural) are used to characterize an entity. This is useful if you are using tooltips in charts. Information placed in this column could be displayed in the charts.
+  semantics:
+  - http://semanticscience.org/resource/SIO_000136
+- name: sort order
+  type: int
+  description: A numerical value indicating the sorting method for data points
+  semantics:
+  - http://semanticscience.org/resource/SIO_001316
+- name: included in chart
+  type: ref
+  refTable: Charts
+  description: A value that links one or more data points to a visualisation
+  semantics:
+  - http://edamontology.org/topic_0092

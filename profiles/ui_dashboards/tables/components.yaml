@@ -1,10 +1,11 @@
 table: components
-tableType: ONTOLOGIES
 description: List of visualisation components used in the dashboard
-semantics: http://www.w3.org/ns/prov#component
+semantics:
+- http://www.w3.org/ns/prov#component
 columns:
-  statistics:
-    type: refback
-    refTable: statistics
-    refBack: component
-    semantics: http://purl.obolibrary.org/obo/STATO_0000039
+- name: statistics
+  type: refback
+  refTable: statistics
+  refBack: component
+  semantics:
+  - http://purl.obolibrary.org/obo/STATO_0000039

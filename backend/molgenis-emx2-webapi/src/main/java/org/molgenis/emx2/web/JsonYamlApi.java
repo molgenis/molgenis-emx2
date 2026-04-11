@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.json.JsonUtil;
@@ -57,7 +58,7 @@ public class JsonYamlApi {
     Schema schema = getSchema(ctx);
     Path tempFile = Files.createTempFile("yaml_export_", ".yaml");
     try {
-      Emx2Yaml.toBundleSingleFile(schema.getMetadata(), schema.getName(), null, tempFile);
+      Emx2Yaml.toBundleSingleFile(schema.getMetadata(), schema.getName(), null, tempFile, List.of());
       ctx.contentType(ACCEPT_YAML);
       String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
       ctx.header(

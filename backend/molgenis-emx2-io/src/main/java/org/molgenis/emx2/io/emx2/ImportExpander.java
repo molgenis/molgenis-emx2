@@ -15,6 +15,8 @@ class ImportExpander {
   private static final String FIELD_IMPORTS = "imports";
   private static final String FIELD_TABLES = "tables";
   private static final String FIELD_TABLE = "table";
+  private static final String FIELD_COLUMNS = "columns";
+  private static final String FIELD_IMPORT_ENTRY = "import";
 
   private ImportExpander() {}
 
@@ -32,7 +34,14 @@ class ImportExpander {
       } else if (entry.getValue() instanceof List) {
         for (Object item : (List<Object>) entry.getValue()) {
           if (item instanceof Map) {
-            assertNoImports((Map<String, Object>) item, yamlSource);
+            Map<String, Object> itemMap = (Map<String, Object>) item;
+            if (itemMap.containsKey(FIELD_IMPORT_ENTRY)) {
+              throw new MolgenisException(
+                  "imports: not allowed in single-file bundle (parsed from stream, no filesystem base directory). "
+                      + "If imports are needed, use a directory bundle or ZIP upload. Source: "
+                      + yamlSource);
+            }
+            assertNoImports(itemMap, yamlSource);
           }
         }
       }
@@ -81,9 +90,62 @@ class ImportExpander {
         } else {
           entry.setValue(expandImports(nested, baseDir, visited));
         }
+      } else if (FIELD_COLUMNS.equals(entry.getKey()) && entry.getValue() instanceof List) {
+        entry.setValue(
+            expandImportsInColumnsList(
+                (List<Map<String, Object>>) entry.getValue(), baseDir, visited));
       }
     }
 
+    return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Map<String, Object>> expandImportsInColumnsList(
+      List<Map<String, Object>> columnsList, Path baseDir, Set<Path> visited) throws IOException {
+    boolean hasImports = false;
+    for (Map<String, Object> item : columnsList) {
+      if (item.containsKey(FIELD_IMPORT_ENTRY)) {
+        hasImports = true;
+        break;
+      }
+    }
+    if (!hasImports) {
+      return columnsList;
+    }
+
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Map<String, Object> item : columnsList) {
+      if (item.containsKey(FIELD_IMPORT_ENTRY)) {
+        String importPath = (String) item.get(FIELD_IMPORT_ENTRY);
+        List<Path> files = resolveImportPaths(baseDir, importPath);
+        for (Path file : files) {
+          Path canonical = file.toRealPath();
+          if (visited.contains(canonical)) {
+            List<String> cycle = buildCycleDescription(visited, canonical);
+            throw new MolgenisException("Import cycle detected: " + String.join(" -> ", cycle));
+          }
+          Set<Path> childVisited = new LinkedHashSet<>(visited);
+          childVisited.add(canonical);
+          Map<String, Object> fileContent = loadYaml(file);
+          Map<String, Object> expanded = expandImports(fileContent, file.getParent(), childVisited);
+          if (expanded.containsKey("section")) {
+            result.add(expanded);
+          } else if (expanded.containsKey(FIELD_COLUMNS)) {
+            List<Map<String, Object>> importedColumns =
+                (List<Map<String, Object>>) expanded.get(FIELD_COLUMNS);
+            result.addAll(importedColumns);
+          } else {
+            throw new MolgenisException(
+                "Column import file '"
+                    + file
+                    + "' must have either 'columns:' or 'section:' at root level");
+          }
+        }
+      } else {
+        result.add(item);
+      }
+    }
     return result;
   }
 

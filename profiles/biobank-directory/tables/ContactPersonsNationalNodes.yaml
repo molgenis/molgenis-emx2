@@ -1,25 +1,25 @@
 table: ContactPersonsNationalNodes
 description: Contact persons national nodes
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    readonly: true
-    description: Unique ID.
-  first_name:
-    label: First name
-    description: First name.
-  last_name:
-    label: Last name
-    required: true
-    description: Last name.
-  email:
-    label: Email
-    type: email
-    required: true
-    description: Email address.
-  role:
-    label: Contact Role
-    required: true
-    description: Role of the contact person within the national node.
+- name: id
+  key: 1
+  required: true
+  description: Unique ID.
+  readonly: true
+  label: ID
+- name: first_name
+  description: First name.
+  label: First name
+- name: last_name
+  required: true
+  description: Last name.
+  label: Last name
+- name: email
+  type: email
+  required: true
+  description: Email address.
+  label: Email
+- name: role
+  required: true
+  description: Role of the contact person within the national node.
+  label: Contact Role

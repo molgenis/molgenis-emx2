@@ -1,90 +1,84 @@
 table: Services
 description: Biobank Capabilities and Services
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    description: "Unique ID of the service, prefixed with bbmri-eric:serviceID:"
-  name:
-    label: Service Name
-    key: 2
-    required: true
-    description: Name of the service (preferably in English).
-  serviceTypes:
-    label: Service Types
-    type: ref_array
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: ServiceTypes
-    refLabel: ${label}
-    description: Related service types
-  acronym:
-    label: Acronym
-    description: Short name in use for the service. If applicable.
-  description:
-    label: Description
-    required: true
-    description: Full description of the service (in English)
-  descriptionUrl:
-    label: Description URL
-    type: hyperlink
-    description: URL address of the service description if available.
-  device:
-    label: Device
-    description: Name of the device(s) if the service is provided with the use of them.
-  deviceSystem:
-    label: Device System
-    description: Name of a software system or platform if important for the device characteristics.
-  tRL:
-    label: Technology Readiness Level
-    type: ontology
-    refSchema: DirectoryOntologies
-    refTable: TRLs
-    refLabel: ${label}
-    description: Technology Readiness Level - a concept for self-assessment of the service maturity
-  accessDescription:
-    label: Access Description
-    required: true
-    description: Description of the access policy of the service.
-  accessDescriptionUrl:
-    label: Access Description URL
-    type: hyperlink
-    description: URL of the service access policy if available..
-  unitOfAccess:
-    label: Unit of Access
-    description: Information about a standard unit used in calculations of costs of service provision.
-  unitCost:
-    label: Unit Cost
-    description: Cost per unit.
-  qualityStandards:
-    label: Quality Standards
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: QualityInfoServices
-    refBack: service
-    refLabel: ${qualityStandard.label}
-    description: The standards and/or technical specifications that the service is certified or accredited for.
-  contactInformation:
-    label: Contact Information
-    type: ref
-    refSchema: ""
-    refTable: Persons
-    description: Contact information for the contact person or responsible person of the service
-  national_node:
-    label: National Node
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: NationalNodes
-    refLabel: ${description}
-    description: The study originates from this national node.
-  biobank:
-    label: Biobank
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: Biobanks
-    refLabel: ${name}
-    description: "Reference to a biobank ID, to which the service belongs."
+- name: id
+  key: 1
+  required: true
+  description: "Unique ID of the service, prefixed with bbmri-eric:serviceID:"
+  label: ID
+- name: name
+  key: 2
+  required: true
+  description: Name of the service (preferably in English).
+  label: Service Name
+- name: serviceTypes
+  type: ref_array
+  required: true
+  refTable: ServiceTypes
+  refLabel: "${label}"
+  description: Related service types
+  label: Service Types
+- name: acronym
+  description: Short name in use for the service. If applicable.
+  label: Acronym
+- name: description
+  required: true
+  description: Full description of the service (in English)
+  label: Description
+- name: descriptionUrl
+  type: hyperlink
+  description: URL address of the service description if available.
+  label: Description URL
+- name: device
+  description: Name of the device(s) if the service is provided with the use of them.
+  label: Device
+- name: deviceSystem
+  description: Name of a software system or platform if important for the device characteristics.
+  label: Device System
+- name: tRL
+  type: ontology
+  refTable: TRLs
+  refLabel: "${label}"
+  description: Technology Readiness Level - a concept for self-assessment of the service maturity
+  label: Technology Readiness Level
+- name: accessDescription
+  required: true
+  description: Description of the access policy of the service.
+  label: Access Description
+- name: accessDescriptionUrl
+  type: hyperlink
+  description: URL of the service access policy if available..
+  label: Access Description URL
+- name: unitOfAccess
+  description: Information about a standard unit used in calculations of costs of service provision.
+  label: Unit of Access
+- name: unitCost
+  description: Cost per unit.
+  label: Unit Cost
+- name: qualityStandards
+  type: refback
+  refTable: QualityInfoServices
+  refBack: service
+  refLabel: "${qualityStandard.label}"
+  description: The standards and/or technical specifications that the service is certified or accredited for.
+  readonly: true
+  label: Quality Standards
+- name: contactInformation
+  type: ref
+  refTable: Persons
+  description: Contact information for the contact person or responsible person of the service
+  label: Contact Information
+- name: national_node
+  type: ref
+  required: true
+  refTable: NationalNodes
+  refLabel: "${description}"
+  description: The study originates from this national node.
+  label: National Node
+- name: biobank
+  type: ref
+  required: true
+  refTable: Biobanks
+  refLabel: "${name}"
+  description: "Reference to a biobank ID, to which the service belongs."
+  label: Biobank

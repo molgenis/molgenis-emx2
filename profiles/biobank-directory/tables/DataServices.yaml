@@ -1,133 +1,146 @@
 table: DataServices
 description: Entity to describe a DataService as defined by DCAT and EJP-RD Resource Metadata Schema
-semantics: dcat:DataService
+semantics:
+- dcat:DataService
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    description: Unique ID of the Data Service
-  endpoint_url:
-    label: Endpoint URL
-    type: hyperlink
-    required: true
-    description: URL of the endpoint of the data service
-  endpoint_description:
-    label: Endpoint Description
-    type: text
-    required: true
-    description: Description of the endpoint of the data service
-    semantics: dcterms:endpointDescription
-  conforms_to:
-    type: hyperlink
-    required: true
-    description: The specification of the data service
-    semantics: dcterms:conformsTo
-  type:
-    label: Data Service Type
-    type: hyperlink_array
-    description: "The type of data service, for ejp-rd is one of VPBeacon2_Catalog, VPBeacon2_Individuals, VPBeacon2_Biosamples"
-    semantics: dcterms:type
-  title:
-    required: true
-    description: Name of the data service
-    semantics: "dcterms:title,rdfs:label"
-  url:
-    label: URL
-    type: hyperlink
-    description: data service URL
-    semantics: dcat:landingPage
-  logo:
-    label: Logo
-    type: hyperlink
-    description: The logo of the data service.
-    semantics: foaf:logo
-  collection:
-    label: Served Collection
-    type: ref
-    refSchema: ""
-    refTable: Collections
-    description: Reference to the served collection
-    semantics: dcat:servesDataset
-  catalog:
-    label: Served Catalog
-    type: ref
-    refSchema: ""
-    refTable: Catalogs
-    description: Reference to the served catalog
-    semantics: dcat:servesDataset
-  part_of:
-    label: Part Of
-    type: ref
-    refSchema: ""
-    refTable: Catalogs
-    description: The catalog where this data service is listed
-  contact_organisation:
-    label: Contact Organisation
-    type: ref
-    refSchema: ""
-    refTable: Organisations
-    description: "Contact for the resource in case it is an organisation (e.g., a contact for a catalog)"
-    semantics: dcat:contactPoint
-  contact_individual:
-    label: Contact Person
-    type: ref
-    refSchema: ""
-    refTable: Persons
-    description: "Contact for the resource in case it is a person (e.g., a contact for a collection)"
-    semantics: dcat:contactPoint
-  EJP_RD_personalData:
-    label: Contains personal data
-    description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations."
-    semantics: ejp:personalData
-  EJP_RD_vpConnection:
-    label: Want to be part of the EJP-RD VP
-    type: hyperlink
-    description: This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.
-    semantics: ejp:vpConnection
-  issued:
-    type: datetime
-    required: true
-    computed: mg_insertedOn
-    description: When the metadata for this resource was first published in the catalogue
-    semantics: "dcterms:issued,fdp-o:metadataIssued"
-  modified:
-    type: datetime
-    required: true
-    computed: mg_updatedOn
-    description: When the metadata for this resource was last modified
-    semantics: "dcterms:modified,fdp-o:metadataModified"
-  theme:
-    type: ontology_array
-    refSchema: DirectoryOntologies
-    refTable: Themes
-    description: A main category or concept relating to the resource. A resource can have multiple themes.
-    semantics: dcat:theme
-  description:
-    label: Description
-    type: text
-    required: true
-    description: Description of the data service
-    semantics: dcterms:description
-  keyword:
-    type: string_array
-    description: Keyword(s) describing the data service.
-    semantics: dcat:keyword
-  language:
-    type: ontology_array
-    refSchema: DirectoryOntologies
-    refTable: Languages
-    description: The language(s) used in the data service.
-    semantics: dcterms:language
-  license:
-    type: hyperlink
-    required: true
-    description: The reference to the usage license of the data service.
-    semantics: dcterms:license
-  publisher:
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: Publishers
-    description: The publisher making the data service available.
-    semantics: dcterms:publisher
+- name: id
+  key: 1
+  required: true
+  description: Unique ID of the Data Service
+  label: ID
+- name: endpoint_url
+  type: hyperlink
+  required: true
+  description: URL of the endpoint of the data service
+  label: Endpoint URL
+- name: endpoint_description
+  type: text
+  required: true
+  description: Description of the endpoint of the data service
+  semantics:
+  - dcterms:endpointDescription
+  label: Endpoint Description
+- name: conforms_to
+  type: hyperlink
+  required: true
+  description: The specification of the data service
+  semantics:
+  - dcterms:conformsTo
+- name: type
+  type: hyperlink_array
+  description: "The type of data service, for ejp-rd is one of VPBeacon2_Catalog, VPBeacon2_Individuals, VPBeacon2_Biosamples"
+  semantics:
+  - dcterms:type
+  label: Data Service Type
+- name: title
+  required: true
+  description: Name of the data service
+  semantics:
+  - "dcterms:title,rdfs:label"
+- name: url
+  type: hyperlink
+  description: data service URL
+  semantics:
+  - dcat:landingPage
+  label: URL
+- name: logo
+  type: hyperlink
+  description: The logo of the data service.
+  semantics:
+  - foaf:logo
+  label: Logo
+- name: collection
+  type: ref
+  refTable: Collections
+  description: Reference to the served collection
+  semantics:
+  - dcat:servesDataset
+  label: Served Collection
+- name: catalog
+  type: ref
+  refTable: Catalogs
+  description: Reference to the served catalog
+  semantics:
+  - dcat:servesDataset
+  label: Served Catalog
+- name: part_of
+  type: ref
+  refTable: Catalogs
+  description: The catalog where this data service is listed
+  label: Part Of
+- name: contact_organisation
+  type: ref
+  refTable: Organisations
+  description: "Contact for the resource in case it is an organisation (e.g., a contact for a catalog)"
+  semantics:
+  - dcat:contactPoint
+  label: Contact Organisation
+- name: contact_individual
+  type: ref
+  refTable: Persons
+  description: "Contact for the resource in case it is a person (e.g., a contact for a collection)"
+  semantics:
+  - dcat:contactPoint
+  label: Contact Person
+- name: EJP_RD_personalData
+  description: "Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations."
+  semantics:
+  - ejp:personalData
+  label: Contains personal data
+- name: EJP_RD_vpConnection
+  type: hyperlink
+  description: This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.
+  semantics:
+  - ejp:vpConnection
+  label: Want to be part of the EJP-RD VP
+- name: issued
+  type: datetime
+  required: true
+  description: When the metadata for this resource was first published in the catalogue
+  semantics:
+  - "dcterms:issued,fdp-o:metadataIssued"
+  computed: mg_insertedOn
+- name: modified
+  type: datetime
+  required: true
+  description: When the metadata for this resource was last modified
+  semantics:
+  - "dcterms:modified,fdp-o:metadataModified"
+  computed: mg_updatedOn
+- name: theme
+  type: ontology_array
+  refTable: Themes
+  description: A main category or concept relating to the resource. A resource can have multiple themes.
+  semantics:
+  - dcat:theme
+- name: description
+  type: text
+  required: true
+  description: Description of the data service
+  semantics:
+  - dcterms:description
+  label: Description
+- name: keyword
+  type: string_array
+  description: Keyword(s) describing the data service.
+  semantics:
+  - dcat:keyword
+- name: language
+  type: ontology_array
+  refTable: Languages
+  description: The language(s) used in the data service.
+  semantics:
+  - dcterms:language
+- name: license
+  type: hyperlink
+  required: true
+  description: The reference to the usage license of the data service.
+  semantics:
+  - dcterms:license
+- name: publisher
+  type: ref
+  required: true
+  refTable: Publishers
+  description: The publisher making the data service available.
+  semantics:
+  - dcterms:publisher

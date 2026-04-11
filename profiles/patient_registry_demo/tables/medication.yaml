@@ -1,29 +1,29 @@
 table: medication
 description: Medication
 columns:
-  label:
-    required: 'false'
-    label: Label
-  belongsToSubject:
-    type: ref
-    required: 'false'
-    refTable: subject
-    label: Medication belongs to Patient
-  medHistory:
-    type: text
-  medicationName:
-  doseUnit:
-  freq:
-  routs:
-  startDate:
-    type: date
-  stopDate:
-    type: date
-  ongoingBool:
-    type: bool
-  id:
-    type: auto_id
-    key: 1
-    required: 'true'
-    computed: ${mg_autoid}
-    label: Auto-identifier
+- name: label
+  required: false
+  label: Label
+- name: belongsToSubject
+  type: ref
+  required: false
+  refTable: subject
+  label: Medication belongs to Patient
+- name: medHistory
+  type: text
+- name: medicationName
+- name: doseUnit
+- name: freq
+- name: routs
+- name: startDate
+  type: date
+- name: stopDate
+  type: date
+- name: ongoingBool
+  type: bool
+- name: id
+  type: auto_id
+  key: 1
+  required: true
+  computed: "${mg_autoid}"
+  label: Auto-identifier

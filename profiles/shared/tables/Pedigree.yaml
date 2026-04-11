@@ -1,33 +1,38 @@
 table: Pedigree
 description: Pedigree studies in which the individual is part of.
-profiles: [patient_core]
-semantics: ['http://purl.obolibrary.org/obo/NCIT_C27957']
+semantics:
+- http://purl.obolibrary.org/obo/NCIT_C27957
+profiles:
+- patient_registry
+- fair_genomes
 columns:
-  id:
-    key: 1
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C204540']
-    profiles: [patient_core]
-    description: An identifier that is used to identify related pedigree members
-  alternate ids:
-    type: string_array
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C90353']
-    profiles: [patient_core]
-    description: Additional identifiers that identify a pedigree
-  disease:
-    type: ontology_array
-    refTable: Diseases
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25209']
-    profiles: [patient_core]
-  members:
-    type: refback
-    refTable: Pedigree members
-    refBack: pedigree
-    refLabel: ${individual.id}
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C41256']
-    profiles: [patient_core]
-    description: List of the family members in the pedigree
-  others affected:
-    type: bool
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C64917']
-    profiles: [patient_registry]
-    description: Are there family members, other than the proband, affected by the disease?
+- name: id
+  key: 1
+  description: An identifier that is used to identify related pedigree members
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C204540
+- name: alternate ids
+  type: string_array
+  description: Additional identifiers that identify a pedigree
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C90353
+- name: disease
+  type: ontology_array
+  refTable: Diseases
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C25209
+- name: members
+  type: refback
+  refTable: Pedigree members
+  refBack: pedigree
+  refLabel: "${individual.id}"
+  description: List of the family members in the pedigree
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C41256
+- name: others affected
+  type: bool
+  description: "Are there family members, other than the proband, affected by the disease?"
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C64917
+  profiles:
+  - patient_registry

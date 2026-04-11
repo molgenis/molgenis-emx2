@@ -1,26 +1,23 @@
 table: Internal identifiers
 description: Internal identifier(s) for this resource
-profiles: [catalogue_core]
+profiles:
+- datacatalogueflat
 columns:
-  resource:
-    type: ref
-    key: 1
-    required: true
-    refTable: Resources
-    profiles: [catalogue_core]
-    description: Resource that this internal identifier belongs to
-  identifier:
-    type: text
-    key: 1
-    required: true
-    profiles: [catalogue_core]
-    description: Internal identifier
-  internal identifier type:
-    type: ontology
-    refTable: Internal identifier types
-    profiles: [catalogue_core]
-    description: Internal identifier type
-  internal identifier type other:
-    type: text
-    profiles: [catalogue_core]
-    description: If 'other', enter internal identifier type
+- name: resource
+  type: ref
+  key: 1
+  required: true
+  refTable: Resources
+  description: Resource that this internal identifier belongs to
+- name: identifier
+  type: text
+  key: 1
+  required: true
+  description: Internal identifier
+- name: internal identifier type
+  type: ontology
+  refTable: Internal identifier types
+  description: Internal identifier type
+- name: internal identifier type other
+  type: text
+  description: "If 'other', enter internal identifier type"

@@ -1,97 +1,98 @@
 table: Persons
 description: "Information of the contact persons of a biobank, collection of network, like name, address and e-mail address."
-semantics: "vcard:Kind,vcard:Individual"
+semantics:
+- "vcard:Kind,vcard:Individual"
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    readonly: true
-    description: "Unique ID of the person, prefixed with bbmri-eric:contactID:"
-  title_before_name:
-    label: Title before Name
-    description: "Title before name, values like \"prof. mr.\""
-  first_name:
-    label: First Name
-    description: First name according to MIABIS 2.0 - MIABIS-2.0-07-A.
-    semantics: vcard:hasGivenName
-  last_name:
-    label: Last Name
-    description: Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.
-    semantics: vcard:hasFamilyName
-  title_after_name:
-    label: Title after Name
-    description: "Title after name, values like \"Bsc.\""
-  full_name:
-    label: Full Name
-    type: text
-    computed: "[title_before_name, first_name, last_name, title_after_name].join(\" \")"
-    description: The full name of the person
-    semantics: vcard:fn
-  email:
-    label: Email address
-    type: email
-    required: true
-    description: Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.
-    semantics: "vcard:email,vcard:hasEmail"
-  phone:
-    label: Phone Number
-    description: Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.
-    semantics: vcard:hasTelephone
-  address:
-    label: Address
-    type: text
-    description: Address according to MIABIS 2.0 - MIABIS-2.0-07-E.
-  zip:
-    label: Zip code
-    description: ZIP or postal code according to MIABIS 2.0 - MIABIS-2.0-07-F.
-  city:
-    label: City
-    description: City according to MIABIS 2.0 - MIABIS-2.0-07-G.
-  country:
-    label: Country
-    type: ontology
-    required: true
-    refSchema: DirectoryOntologies
-    refTable: Countries
-    refLabel: ${label}
-    description: Country according to MIABIS 2.0 - MIABIS-2.0-07-H.
-  role:
-    label: Role of the Person
-    type: text
-    description: Official role of the person.
-  biobanks:
-    label: Biobanks
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: Biobanks
-    refBack: contact
-    refLabel: ${name}
-    description: Biobanks the person is connected to.
-  collections:
-    label: Collections
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: Collections
-    refBack: contact
-    refLabel: ${name}
-    description: Collections the person is connected to.
-  networks:
-    label: Networks
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: Networks
-    refBack: contact
-    refLabel: ${name}
-    description: Networks the person is connected to.
-  national_node:
-    label: National Node
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: NationalNodes
-    refLabel: ${description}
-    description: The person originates from this national node.
+- name: id
+  key: 1
+  required: true
+  description: "Unique ID of the person, prefixed with bbmri-eric:contactID:"
+  readonly: true
+  label: ID
+- name: title_before_name
+  description: "Title before name, values like \"prof. mr.\""
+  label: Title before Name
+- name: first_name
+  description: First name according to MIABIS 2.0 - MIABIS-2.0-07-A.
+  semantics:
+  - vcard:hasGivenName
+  label: First Name
+- name: last_name
+  description: Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.
+  semantics:
+  - vcard:hasFamilyName
+  label: Last Name
+- name: title_after_name
+  description: "Title after name, values like \"Bsc.\""
+  label: Title after Name
+- name: full_name
+  type: text
+  description: The full name of the person
+  semantics:
+  - vcard:fn
+  computed: "[title_before_name, first_name, last_name, title_after_name].join(\" \")"
+  label: Full Name
+- name: email
+  type: email
+  required: true
+  description: Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.
+  semantics:
+  - "vcard:email,vcard:hasEmail"
+  label: Email address
+- name: phone
+  description: Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.
+  semantics:
+  - vcard:hasTelephone
+  label: Phone Number
+- name: address
+  type: text
+  description: Address according to MIABIS 2.0 - MIABIS-2.0-07-E.
+  label: Address
+- name: zip
+  description: ZIP or postal code according to MIABIS 2.0 - MIABIS-2.0-07-F.
+  label: Zip code
+- name: city
+  description: City according to MIABIS 2.0 - MIABIS-2.0-07-G.
+  label: City
+- name: country
+  type: ontology
+  required: true
+  refTable: Countries
+  refLabel: "${label}"
+  description: Country according to MIABIS 2.0 - MIABIS-2.0-07-H.
+  label: Country
+- name: role
+  type: text
+  description: Official role of the person.
+  label: Role of the Person
+- name: biobanks
+  type: refback
+  refTable: Biobanks
+  refBack: contact
+  refLabel: "${name}"
+  description: Biobanks the person is connected to.
+  readonly: true
+  label: Biobanks
+- name: collections
+  type: refback
+  refTable: Collections
+  refBack: contact
+  refLabel: "${name}"
+  description: Collections the person is connected to.
+  readonly: true
+  label: Collections
+- name: networks
+  type: refback
+  refTable: Networks
+  refBack: contact
+  refLabel: "${name}"
+  description: Networks the person is connected to.
+  readonly: true
+  label: Networks
+- name: national_node
+  type: ref
+  required: true
+  refTable: NationalNodes
+  refLabel: "${description}"
+  description: The person originates from this national node.
+  label: National Node

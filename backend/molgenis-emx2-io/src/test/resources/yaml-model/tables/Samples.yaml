@@ -2,15 +2,15 @@ table: Samples
 description: "Biobank samples linked to individuals"
 
 columns:
-  sample id:
+  - name: sample id
     type: string
     key: 1
-  individual:
+  - name: individual
     type: ref
     refTable: Individuals
-  collection date:
+  - name: collection date
     type: date
-  tissue type:
+  - name: tissue type
     type: ontology
     refTable: Tissue types
-  storage conditions: {}
+  - name: storage conditions

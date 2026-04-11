@@ -1,172 +1,158 @@
 table: Subpopulations
 description: Subpopulations defined for this resource
-profiles: [cohort_core]
+profiles:
+- datacatalogueflat
 columns:
-  resource:
-    type: ref
-    key: 1
-    required: true
-    refTable: Resources
-    semantics: ['dcterms:source']
-    profiles: [cohort_core]
-    description: Resource this subpopulation is part of
-  name:
-    key: 1
-    required: true
-    semantics: ['dcterms:title']
-    profiles: [cohort_core]
-    description: Subpopulation name, e.g. 'mothers in first trimester','newborns'
-  pid:
-    semantics: ['dcterms:identifier']
-    profiles: [cohort_core]
-    description: Persistent identifier for this subpopulation
-  description:
-    type: text
-    semantics: ['dcterms:description']
-    profiles: [cohort_core]
-    description: Subpopulation description
-  keywords:
-    type: string_array
-    semantics: ['dcat:keyword']
-    profiles: [cohort_core]
-    description: Keywords to increase findability of this subpopulation. Try to use words that are not
-      used in the description. Keywords are not displayed on the subpopulation page
-  number of participants:
-    type: non_negative_int
-    semantics: ['healthdcatap:numberOfUniqueIndividuals']
-    profiles: [cohort_core]
-    description: Number of participants in this subpopulation
-  counts:
-    type: refback
-    refTable: Subpopulation counts
-    refBack: subpopulation
-    profiles: [cohort_core]
-    description: Total number of unique individuals per age(group), gender and year
-  inclusion start:
-    type: int
-    semantics: ['dcat:startDate']
-    profiles: [cohort_core]
-    description: Year of first included participant
-  inclusion end:
-    type: int
-    semantics: ['dcat:endDate']
-    profiles: [cohort_core]
-    description: Year of last included participant. Leave empty if data collection is ongoing
-  age groups:
-    type: ontology_array
-    refTable: Age groups
-    profiles: [cohort_core]
-    description: Age groups within this subpopulation
-  age min:
-    type: non_negative_int
-    semantics: ['healthdcatap:minimumTypicalAge']
-    profiles: [cohort_core]
-    description: Minimum age of participants within this subpopulation
-  age max:
-    type: non_negative_int
-    semantics: ['healthdcatap:maximumTypicalAge']
-    profiles: [cohort_core]
-    description: Maximum age of participants within this subpopulation
-  main medical condition:
-    type: ontology_array
-    refTable: Diseases
-    profiles: [cohort_core]
-    description: Disease groups within this subpopulation, based on ICD-10 and ORPHA code classifications
-  comorbidity:
-    type: ontology_array
-    refTable: Diseases
-    profiles: [cohort_core]
-    description: Comorbidity within this subpopulation, based on ICD-10 classification
-  countries:
-    type: ontology_array
-    refTable: Countries
-    semantics: ['dcterms:spatial']
-    profiles: [cohort_core]
-    description: Countries where data from this subpopulation largely originate from
-  regions:
-    type: ontology_array
-    refTable: Regions
-    semantics: ['dcterms:coverage']
-    profiles: [cohort_core]
-    description: Geographical regions where data from this subpopulation largely originate from
-  inclusion criteria:
-    type: ontology_array
-    refTable: Inclusion Exclusion Criteria
-    profiles: [cohort_core]
-    description: Inclusion criteria applied to this subpopulation
-  other inclusion criteria:
-    type: text
-    profiles: [cohort_core]
-    description: Other inclusion criteria applied to this subpopulation
-  exclusion criteria:
-    type: ontology_array
-    refTable: Inclusion Exclusion Criteria
-    profiles: [cohort_core]
-    description: Exclusion criteria applied to this subpopulation
-  other exclusion criteria:
-    type: text
-    profiles: [cohort_core]
-    description: Other exclusion criteria applied to this subpopulation
-  contact point:
-    type: ref
-    refTable: Contacts
-    refLink: resource
-    semantics: ['dcat:contactPoint']
-    profiles: [catalogue_core]
-    description: Contact point for this subpopulation. Value copied from Resources table
-  publisher:
-    type: ref
-    refTable: Organisations
-    refLink: resource
-    semantics: ['dcterms:publisher']
-    profiles: [catalogue_core]
-    description: Organisation that published this subpopulation. Value copied from Resources table
-  creator:
-    type: ref_array
-    refTable: Organisations
-    refLink: resource
-    semantics: ['dcterms:creator']
-    profiles: [catalogue_core]
-    description: Organisation(s) that created this subpopulation. Value copied from Resources table
-  issued:
-    type: datetime
-    semantics: ['dcterms:issued']
-    profiles: [cohort_core]
-    description: When the data for this subpopulation was first published
-  modified:
-    type: datetime
-    semantics: ['dcterms:modified']
-    profiles: [cohort_core]
-    description: When the data for this subpopulation was last modified
-  theme:
-    type: ontology_array
-    defaultValue: '= [{name: ''Health''}]'
-    refTable: Themes
-    semantics: ['dcat:theme']
-    profiles: [cohort_core]
-    description: A main category of the subpopulation. A subpopulation can have multiple themes, for health
-      data theme must at least take the value 'Health', which is set as a default
-  access rights:
-    type: ontology
-    defaultValue: '= {name: ''Non public''}'
-    refTable: Access rights
-    semantics: ['dcterms:accessRights']
-    profiles: [cohort_core]
-    description: Information that indicates whether the resource is publicly accessible, has access restrictions
-      or is not public. A default is set for non-public access, because most health datasets contain sensitive
-      information and rules and licenses apply to get access
-  applicable legislation:
-    type: ontology_array
-    defaultValue: '= [{name: ''Data Governance Act''}]'
-    refTable: Legislations
-    semantics: ['dcatap:applicableLegislation']
-    profiles: [cohort_core]
-    description: The legislation that mandates the creation or management of the subpopulation. For health
-      datasets, the value must include the data governance act, which is set as a default. URI's to other
-      legislations may be included
-  provenance statement:
-    type: text
-    semantics: ['dct:provenance']
-    profiles: [ema]
-    description: A statement of any changes in ownership and custody of a resource since its creation
-      that are significant for its authenticity, integrity, and interpretation
+- name: resource
+  type: ref
+  key: 1
+  required: true
+  refTable: Resources
+  description: Resource this subpopulation is part of
+  semantics:
+  - dcterms:source
+- name: name
+  key: 1
+  required: true
+  description: "Subpopulation name, e.g. 'mothers in first trimester','newborns'"
+  semantics:
+  - dcterms:title
+- name: pid
+  description: Persistent identifier for this subpopulation
+  semantics:
+  - dcterms:identifier
+- name: description
+  type: text
+  description: Subpopulation description
+  semantics:
+  - dcterms:description
+- name: keywords
+  type: string_array
+  description: Keywords to increase findability of this subpopulation. Try to use words that are not used in the description. Keywords are not displayed on the subpopulation page
+  semantics:
+  - dcat:keyword
+- name: number of participants
+  type: non_negative_int
+  description: Number of participants in this subpopulation
+  semantics:
+  - healthdcatap:numberOfUniqueIndividuals
+- name: counts
+  type: refback
+  refTable: Subpopulation counts
+  refBack: subpopulation
+  description: "Total number of unique individuals per age(group), gender and year"
+- name: inclusion start
+  type: int
+  description: Year of first included participant
+  semantics:
+  - dcat:startDate
+- name: inclusion end
+  type: int
+  description: Year of last included participant. Leave empty if data collection is ongoing
+  semantics:
+  - dcat:endDate
+- name: age groups
+  type: ontology_array
+  refTable: Age groups
+  description: Age groups within this subpopulation
+- name: age min
+  type: non_negative_int
+  description: Minimum age of participants within this subpopulation
+  semantics:
+  - healthdcatap:minimumTypicalAge
+- name: age max
+  type: non_negative_int
+  description: Maximum age of participants within this subpopulation
+  semantics:
+  - healthdcatap:maximumTypicalAge
+- name: main medical condition
+  type: ontology_array
+  refTable: Diseases
+  description: "Disease groups within this subpopulation, based on ICD-10 and ORPHA code classifications"
+- name: comorbidity
+  type: ontology_array
+  refTable: Diseases
+  description: "Comorbidity within this subpopulation, based on ICD-10 classification"
+- name: countries
+  type: ontology_array
+  refTable: Countries
+  description: Countries where data from this subpopulation largely originate from
+  semantics:
+  - dcterms:spatial
+- name: regions
+  type: ontology_array
+  refTable: Regions
+  description: Geographical regions where data from this subpopulation largely originate from
+  semantics:
+  - dcterms:coverage
+- name: inclusion criteria
+  type: ontology_array
+  refTable: Inclusion Exclusion Criteria
+  description: Inclusion criteria applied to this subpopulation
+- name: other inclusion criteria
+  type: text
+  description: Other inclusion criteria applied to this subpopulation
+- name: exclusion criteria
+  type: ontology_array
+  refTable: Inclusion Exclusion Criteria
+  description: Exclusion criteria applied to this subpopulation
+- name: other exclusion criteria
+  type: text
+  description: Other exclusion criteria applied to this subpopulation
+- name: contact point
+  type: ref
+  refTable: Contacts
+  refLink: resource
+  description: Contact point for this subpopulation. Value copied from Resources table
+  semantics:
+  - dcat:contactPoint
+- name: publisher
+  type: ref
+  refTable: Organisations
+  refLink: resource
+  description: Organisation that published this subpopulation. Value copied from Resources table
+  semantics:
+  - dcterms:publisher
+- name: creator
+  type: ref_array
+  refTable: Organisations
+  refLink: resource
+  description: Organisation(s) that created this subpopulation. Value copied from Resources table
+  semantics:
+  - dcterms:creator
+- name: issued
+  type: datetime
+  description: When the data for this subpopulation was first published
+  semantics:
+  - dcterms:issued
+- name: modified
+  type: datetime
+  description: When the data for this subpopulation was last modified
+  semantics:
+  - dcterms:modified
+- name: theme
+  type: ontology_array
+  defaultValue: "= [{name: 'Health'}]"
+  refTable: Themes
+  description: "A main category of the subpopulation. A subpopulation can have multiple themes, for health data theme must at least take the value 'Health', which is set as a default"
+  semantics:
+  - dcat:theme
+- name: access rights
+  type: ontology
+  defaultValue: "= {name: 'Non public'}"
+  refTable: Access rights
+  description: "Information that indicates whether the resource is publicly accessible, has access restrictions or is not public. A default is set for non-public access, because most health datasets contain sensitive information and rules and licenses apply to get access"
+  semantics:
+  - dcterms:accessRights
+- name: applicable legislation
+  type: ontology_array
+  defaultValue: "= [{name: 'Data Governance Act'}]"
+  refTable: Legislations
+  description: "The legislation that mandates the creation or management of the subpopulation. For health datasets, the value must include the data governance act, which is set as a default. URI's to other legislations may be included"
+  semantics:
+  - dcatap:applicableLegislation
+- name: provenance statement
+  type: text
+  description: "A statement of any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation"
+  semantics:
+  - dct:provenance

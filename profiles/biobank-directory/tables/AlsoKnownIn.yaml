@@ -1,33 +1,33 @@
 table: AlsoKnownIn
-description: "Biobank, collection or network also exists in \u2026"
+description: "Biobank, collection or network also exists in …"
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    readonly: true
-    description: Unique ID.
-  name_system:
-    label: Name of the System
-    required: true
-    description: "Name of the source in which the biobank, collection or network also exists."
-  pid:
-    label: Persistent Identifier
-    description: "Persistent Identifier of the biobank, collection or network in the other source."
-  url:
-    label: URL
-    type: hyperlink
-    required: true
-    description: "Link to the biobank, collection or network in the other source."
-  national_node:
-    label: National Node
-    type: ref
-    required: true
-    refTable: NationalNodes
-    refLabel: ${description}
-    description: "The biobank, collection or network where this also known In refers to originates from this national node."
-  label:
-    label: Name of the System
-    readonly: true
-    computed: name_system
-    description: "Name of the source in which the biobank, collection or network also exists."
+- name: id
+  key: 1
+  required: true
+  description: Unique ID.
+  readonly: true
+  label: ID
+- name: name_system
+  required: true
+  description: "Name of the source in which the biobank, collection or network also exists."
+  label: Name of the System
+- name: pid
+  description: "Persistent Identifier of the biobank, collection or network in the other source."
+  label: Persistent Identifier
+- name: url
+  type: hyperlink
+  required: true
+  description: "Link to the biobank, collection or network in the other source."
+  label: URL
+- name: national_node
+  type: ref
+  required: true
+  refTable: NationalNodes
+  refLabel: "${description}"
+  description: "The biobank, collection or network where this also known In refers to originates from this national node."
+  label: National Node
+- name: label
+  description: "Name of the source in which the biobank, collection or network also exists."
+  computed: name_system
+  readonly: true
+  label: Name of the System

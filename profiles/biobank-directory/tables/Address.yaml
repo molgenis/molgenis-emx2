@@ -1,29 +1,34 @@
 table: Address
 description: Structured VCard address
-semantics: vcard:Address
+semantics:
+- vcard:Address
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    description: Unique ID for the address
-  street:
-    label: Street
-    required: true
-    description: Street name
-    semantics: vcard:street-address
-  city:
-    label: Locality
-    required: true
-    description: The locality
-    semantics: vcard:locality
-  country:
-    label: Country
-    required: true
-    description: The name of the country
-    semantics: vcard:country-name
-  postal_code:
-    label: Postal Code
-    required: true
-    description: The postal code
-    semantics: vcard:postal-code
+- name: id
+  key: 1
+  required: true
+  description: Unique ID for the address
+  label: ID
+- name: street
+  required: true
+  description: Street name
+  semantics:
+  - vcard:street-address
+  label: Street
+- name: city
+  required: true
+  description: The locality
+  semantics:
+  - vcard:locality
+  label: Locality
+- name: country
+  required: true
+  description: The name of the country
+  semantics:
+  - vcard:country-name
+  label: Country
+- name: postal_code
+  required: true
+  description: The postal code
+  semantics:
+  - vcard:postal-code
+  label: Postal Code

@@ -14,7 +14,7 @@ public record Bundle(
     String name,
     String description,
     Map<String, String> namespaces,
-    Map<String, ProfileDef> profiles,
+    List<ProfileDef> profiles,
     Map<String, TableDef> tables,
     List<String> demodata,
     List<String> ontologies,
@@ -27,8 +27,7 @@ public record Bundle(
       @JsonProperty("name") String name,
       @JsonProperty("description") String description,
       @JsonProperty("namespaces") Map<String, String> namespaces,
-      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"})
-          Map<String, ProfileDef> profiles,
+      @JsonProperty("profiles") @JsonAlias({"subsets", "templates"}) List<ProfileDef> profiles,
       @JsonProperty("tables") Map<String, TableDef> tables,
       @JsonProperty("demodata") List<String> demodata,
       @JsonProperty("ontologies") List<String> ontologies,
@@ -38,7 +37,7 @@ public record Bundle(
     this.name = name;
     this.description = description;
     this.namespaces = namespaces != null ? namespaces : Map.of();
-    this.profiles = profiles != null ? profiles : Map.of();
+    this.profiles = profiles != null ? profiles : List.of();
     this.tables = tables != null ? tables : Map.of();
     this.demodata = demodata != null ? demodata : List.of();
     this.ontologies = ontologies != null ? ontologies : List.of();

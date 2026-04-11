@@ -1,18 +1,22 @@
 table: Chart palette
 description: Color palette for distinct groups in a dataset
-semantics: http://purl.obolibrary.org/obo/PATO_0000014
+semantics:
+- http://purl.obolibrary.org/obo/PATO_0000014
 columns:
-  key:
-    key: 1
-    required: true
-    semantics: http://purl.obolibrary.org/obo/NCIT_C46002
-    description: A unique key that represents a categorical value in the dataset
-  color:
-    required: true
-    semantics: http://purl.obolibrary.org/obo/GSSO_004945
-    description: "The color code assigned to the group (HEX, RGB, etc.)"
-  included in chart:
-    type: ref
-    refTable: Charts
-    semantics: http://edamontology.org/topic_0092
-    description: A value that links one or more data points to a visualisation
+- name: key
+  key: 1
+  required: true
+  description: A unique key that represents a categorical value in the dataset
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C46002
+- name: color
+  required: true
+  description: "The color code assigned to the group (HEX, RGB, etc.)"
+  semantics:
+  - http://purl.obolibrary.org/obo/GSSO_004945
+- name: included in chart
+  type: ref
+  refTable: Charts
+  description: A value that links one or more data points to a visualisation
+  semantics:
+  - http://edamontology.org/topic_0092

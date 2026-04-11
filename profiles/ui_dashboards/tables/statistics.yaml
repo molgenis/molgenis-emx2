@@ -1,29 +1,36 @@
 table: statistics
 description: A set label-value pairs containing calculations to be used in the dashboard
-semantics: http://purl.obolibrary.org/obo/STATO_0000039
+semantics:
+- http://purl.obolibrary.org/obo/STATO_0000039
 columns:
-  id:
-    key: 1
-    required: true
-    semantics: http://purl.obolibrary.org/obo/NCIT_C25364
-    description: A unique identifier for each label-value pair
-  label:
-    semantics: http://www.w3.org/2000/01/rdf-schema#label
-    description: A human readable name that describes the value. This is also the text that will be displayed in the dashboard.
-  value:
-    type: decimal
-    semantics: http://www.w3.org/ns/prov#value
-    description: The calculated value
-  valueOrder:
-    type: int
-    semantics: http://www.w3.org/ns/prov#order
-    description: A numerical value indicating the sorting method for a group of similar label-value pairs.
-  component:
-    type: ref
-    refTable: components
-    semantics: http://www.w3.org/ns/prov#component
-    description: The name of the visualisation component that indicates where the label-value pair should be used.
-  description:
-    type: text
-    semantics: http://www.w3.org/ns/prov#definition
-    description: "A description of the label-value pair; e.g., calculation notes, etc."
+- name: id
+  key: 1
+  required: true
+  description: A unique identifier for each label-value pair
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C25364
+- name: label
+  description: A human readable name that describes the value. This is also the text that will be displayed in the dashboard.
+  semantics:
+  - http://www.w3.org/2000/01/rdf-schema#label
+- name: value
+  type: decimal
+  description: The calculated value
+  semantics:
+  - http://www.w3.org/ns/prov#value
+- name: valueOrder
+  type: int
+  description: A numerical value indicating the sorting method for a group of similar label-value pairs.
+  semantics:
+  - http://www.w3.org/ns/prov#order
+- name: component
+  type: ref
+  refTable: components
+  description: The name of the visualisation component that indicates where the label-value pair should be used.
+  semantics:
+  - http://www.w3.org/ns/prov#component
+- name: description
+  type: text
+  description: "A description of the label-value pair; e.g., calculation notes, etc."
+  semantics:
+  - http://www.w3.org/ns/prov#definition

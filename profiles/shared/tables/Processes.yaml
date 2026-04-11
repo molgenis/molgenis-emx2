@@ -1,1024 +1,1145 @@
 table: Processes
-description: An event (e.g., an experiment, a clinical observation) that belongs to an individual
-profiles: [patient_core]
-semantics: ['http://purl.obolibrary.org/obo/NCIT_C29862']
+description: "An event (e.g., an experiment, a clinical observation) that belongs to an individual"
+semantics:
+- http://purl.obolibrary.org/obo/NCIT_C29862
+profiles:
+- patient_registry
+- fair_genomes
 variants:
-  Analyses:
-    description: An analysis (examination and interpretation) relating to an individual
-    profiles: [patient_core]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25391', 'http://edamontology.org/operation_2945']
-  Observations:
-    description: Findings and circumstances relating to the examination and treatment of an individual
-    profiles: [patient_core]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25398']
-  Experiments:
-    description: An experiment is an investigation that has the goal of verifying, falsifying, or establishing the validity
-      of a hypothesis.
-    profiles: [patient_core]
-    semantics: ['http://semanticscience.org/resource/SIO_000994']
-  Metabolomic material processing:
-    description: A metabolomics material processing is a protocol application including material enrollments and biomaterial
-      transformations.
-    profiles: [fair_genomes_metabolomics]
-    semantics: ['http://purl.obolibrary.org/obo/OBI_0000073']
-  Metabolomic mass spec assays:
-    description: A qualitative or quantitative analysis performed to determine the amount of a particular constituent in a
-      sample or the biological or pharmacological properties of a drug.
-    profiles: [fair_genomes_metabolomics]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C60819']
-  Metabolomic analyses:
-    description: Basic information, annotation or documentation concerning a metabolomics analysis workflow (but not the workflow
-      itself).
-    profiles: [fair_genomes_metabolomics]
-    semantics: ['http://edamontology.org/data_0949']
-  Variant interpretation analyses:
-    description: Analyses relating to specific individuals
-    extends: [Analyses]
-    profiles: [patient_registry]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25391']
-  Clinical observations:
-    description: This table extends observations with clinical details compatible with phenopacket
-    extends: [Observations]
-    profiles: [patient_core]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C87853']
-  NGS sequencing:
-    description: Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands
-      or segments of DNA or RNA
-    extends: [Experiments]
-    profiles: [patient_core]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C101293']
-  Experiments OGM:
-    description: An Optical Genome Mapping (OGM) experiment
-    extends: [Experiments]
-    profiles: [patient_registry]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C116162']
-  Experiments RNA:
-    description: An RNA sequencing experiment
-    extends: [NGS sequencing]
-    profiles: [patient_registry]
-    semantics: ['http://purl.obolibrary.org/obo/OBI_0001177']
-  Experiments lrGS:
-    description: A long-read Genome Sequencing (lrGS) experiment
-    extends: [NGS sequencing]
-    profiles: [patient_registry]
-    semantics: ['http://edamontology.org/topic_4056']
-  Experiments srDNA:
-    description: A short-read DNA sequencing experiment
-    extends: [NGS sequencing]
-    profiles: [patient_registry]
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C153598', 'http://edamontology.org/operation_3198']
+- name: Analyses
+  description: An analysis (examination and interpretation) relating to an individual
+  profiles:
+  - patient_registry
+  - fair_genomes
+- name: Observations
+  description: Findings and circumstances relating to the examination and treatment of an individual
+  profiles:
+  - patient_registry
+  - fair_genomes
+- name: Experiments
+  description: "An experiment is an investigation that has the goal of verifying, falsifying, or establishing the validity of a hypothesis."
+  profiles:
+  - patient_registry
+  - fair_genomes
+- name: Metabolomic material processing
+  description: A metabolomics material processing is a protocol application including material enrollments and biomaterial transformations.
+  profiles:
+  - fair_genomes_metabolomics_add_on
+- name: Metabolomic mass spec assays
+  description: A qualitative or quantitative analysis performed to determine the amount of a particular constituent in a sample or the biological or pharmacological properties of a drug.
+  profiles:
+  - fair_genomes_metabolomics_add_on
+- name: Metabolomic analyses
+  description: "Basic information, annotation or documentation concerning a metabolomics analysis workflow (but not the workflow itself)."
+  profiles:
+  - fair_genomes_metabolomics_add_on
+- name: Variant interpretation analyses
+  description: Analyses relating to specific individuals
+  extends:
+  - Analyses
+  profiles:
+  - patient_registry
+- name: Clinical observations
+  description: This table extends observations with clinical details compatible with phenopacket
+  extends:
+  - Observations
+  profiles:
+  - patient_registry
+  - fair_genomes
+- name: NGS sequencing
+  description: Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands or segments of DNA or RNA
+  extends:
+  - Experiments
+  profiles:
+  - patient_registry
+  - fair_genomes
+- name: Experiments OGM
+  description: An Optical Genome Mapping (OGM) experiment
+  extends:
+  - Experiments
+  profiles:
+  - patient_registry
+- name: Experiments RNA
+  description: An RNA sequencing experiment
+  extends:
+  - NGS sequencing
+  profiles:
+  - patient_registry
+- name: Experiments lrGS
+  description: A long-read Genome Sequencing (lrGS) experiment
+  extends:
+  - NGS sequencing
+  profiles:
+  - patient_registry
+- name: Experiments srDNA
+  description: A short-read DNA sequencing experiment
+  extends:
+  - NGS sequencing
+  profiles:
+  - patient_registry
 columns:
-  General Information:
-    type: heading
-    profiles: [patient_core]
-  id:
+- heading: General Information
+  columns:
+  - name: id
     type: auto_id
     key: 1
     required: true
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
-    profiles: [patient_core]
-    computed: ERD-E-${mg_autoid}
-    description: One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing
-  individuals:
+    description: "One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing"
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    computed: "ERD-E-${mg_autoid}"
+  - name: individuals
     type: multiselect
     refTable: Individuals
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C164337']
-    profiles: [patient_core]
     description: A reference to one or more individuals associated to the process
-  alternate ids:
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164337
+  - name: alternate ids
     type: string_array
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C90353']
-    profiles: [patient_core]
     description: Additional identifiers that identify a process
-  affiliated organisations:
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C90353
+  - name: affiliated organisations
     type: multiselect
     refTable: Organisations
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25412']
-    profiles: [patient_core]
     description: One or more associations between the individual and an organisation.
-  included in resources:
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25412
+  - name: included in resources
     type: multiselect
     refTable: Resources
-    semantics: ['http://purl.obolibrary.org/obo/HSO_0000370']
-    profiles: [patient_registry]
-    description: A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations,
-      cohorts, etc.)
-  Additional Process Information:
-    type: heading
-    profiles: [patient_core]
-  data source:
+    description: "A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)"
+    semantics:
+    - http://purl.obolibrary.org/obo/HSO_0000370
+    profiles:
+    - patient_registry
+- heading: Additional Process Information
+  columns:
+  - name: data source
     type: select
     refTable: Resources
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C16493']
-    profiles: [patient_registry]
-    description: The source or origin of the record. For example, an organisation, database, system, etc.
-  date created at source:
+    description: "The source or origin of the record. For example, an organisation, database, system, etc."
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    profiles:
+    - patient_registry
+  - name: date created at source
     type: date
-    semantics: ['dcterms:created', 'http://purl.obolibrary.org/obo/NCIT_C16493']
-    profiles: [patient_core]
     description: The date the record was created at the source
-  created at source by:
+    semantics:
+    - dcterms:created
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+  - name: created at source by
     type: select
     refTable: Contacts
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C51820', 'http://purl.obolibrary.org/obo/NCIT_C16493']
-    profiles: [patient_core]
     description: The person who created the record at the source
-  date updated at source:
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+  - name: date updated at source
     type: date
-    semantics: ['dcterms:modified', 'http://purl.obolibrary.org/obo/NCIT_C16493']
-    profiles: [patient_core]
     description: The date the record was updated at the source
-  updated at source by:
+    semantics:
+    - dcterms:modified
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+  - name: updated at source by
     type: select
     refTable: Contacts
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C51820', 'http://purl.obolibrary.org/obo/NCIT_C16493']
-    profiles: [patient_core]
     description: The person who updated the record at the source
-  comments:
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+  - name: comments
     type: text
-    semantics: ['http://purl.obolibrary.org/obo/NCIT_C25393']
-    profiles: [patient_core]
-    description: A written explanation, observation or criticism added to textual material
-  Analyses fields:
-    variant: Analyses
+    description: "A written explanation, observation or criticism added to textual material"
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25393
+- variant: Analyses
+  columns:
+  - heading: Analyses Information
     columns:
-      Analyses Information:
-        type: heading
-      date started:
-        type: date
-        semantics: ['http://semanticscience.org/resource/SIO_000031']
-        description: A start date is a time instant pertaining to the date of the beginning of a analysis.
-      date completed:
-        type: date
-        semantics: ['http://semanticscience.org/resource/SIO_000032']
-        description: An end date is a time instant pertaining to date of the end of an analysis
-      persons involved:
-        type: multiselect
-        refTable: Contacts
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25461']
-        description: Reference to one or more individuals involved in the analysis
-  Observations fields:
-    variant: Observations
+    - name: date started
+      type: date
+      description: A start date is a time instant pertaining to the date of the beginning of a analysis.
+      semantics:
+      - http://semanticscience.org/resource/SIO_000031
+    - name: date completed
+      type: date
+      description: An end date is a time instant pertaining to date of the end of an analysis
+      semantics:
+      - http://semanticscience.org/resource/SIO_000032
+    - name: persons involved
+      type: multiselect
+      refTable: Contacts
+      description: Reference to one or more individuals involved in the analysis
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25461
+- variant: Observations
+  columns:
+  - heading: Observations Information
     columns:
-      Observations Information:
-        type: heading
-      date of observation:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C119798']
-        description: The date on which an observation took place
-      age at observation:
-        type: period
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C192236']
-        description: The age of the individual at the time of observation (e.g., "P55Y8M12D")
-      type of visit:
-        type: ontology
-        refTable: Visit type
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C103165']
-        description: The kind of visit undertaken by the individual within a study such as inpatient, outpatient, telephone,
-          baseline, follow up, etc.
-      location of observation:
-        type: select
-        refTable: Organisations
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C119804']
-        description: The site in or on the body at which the observation is made.
-  Experiments fields:
-    variant: Experiments
+    - name: date of observation
+      type: date
+      description: The date on which an observation took place
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C119798
+    - name: age at observation
+      type: period
+      description: "The age of the individual at the time of observation (e.g., \"P55Y8M12D\")"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C192236
+    - name: type of visit
+      type: ontology
+      refTable: Visit type
+      description: "The kind of visit undertaken by the individual within a study such as inpatient, outpatient, telephone, baseline, follow up, etc."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C103165
+    - name: location of observation
+      type: select
+      refTable: Organisations
+      description: The site in or on the body at which the observation is made.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C119804
+- variant: Experiments
+  columns:
+  - heading: Sample
     columns:
-      Sample:
-        type: heading
-        profiles: [patient_core]
-      sample id:
-        type: auto_id
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
-        profiles: [patient_core]
-        computed: ERD-S-${mg_autoid}
-        description: One or more characters used to identify, name, or characterize the nature, properties, or contents of
-          a sample
-      local sample id:
-        type: string_array
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25364']
-        profiles: [patient_core]
-        description: An identifier associated with a particular source, used by the data provider or owner
-      sample type:
-        type: ontology
-        refTable: Sample type
-        semantics: ['http://purl.obolibrary.org/obo/FBcv_0003044']
-        profiles: [patient_core]
-        description: The type of sample as characterized by its biological source material collected for testing, diagnostic,
-          propagation, treatment or research purposes
-      sample type other:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C126072']
-        profiles: [patient_core]
-        description: If the sample type is other, provide a description of the sample.
-      tissue type:
-        type: ontology
-        refTable: Tissue type
-        semantics: ['http://purl.uniprot.org/core/Tissue']
-        profiles: [patient_core]
-        description: The tissue type of origin (e.g., lung or heart) for the sample
-      aliquot id:
-        type: string_array
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C173074']
-        profiles: [patient_core]
-        description: A unique identifier assigned to an aliquot containing a portion of a biospecimen
-      sample availability:
-        type: ontology
-        refTable: Sample availability
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C19065']
-        profiles: [patient_core]
-        description: An indication if the sample is available (i.e., retained, available for use, etc.)
-      pathological state:
-        type: ontology
-        refTable: Pathological state
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C28257']
-        profiles: [patient_core]
-        description: An examination that is performed to determine the extent of the spread of cancer based on histopathologic
-          examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of
-          clinical staging, supplemented by histopathologic examination of surgical specimens.
-      volume:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C74720']
-        profiles: [patient_core]
-        description: The determination of the volume of a sample.
-      volume unit:
-        type: ontology
-        refTable: Units
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C44279']
-        profiles: [patient_core]
-        description: An indication of the type of unit of measure being used to express a volume.
-      percentage tumor cells:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C127771']
-        profiles: [patient_core]
-        description: The percentage of tumor cells compared to total cells present in this sample.
-      age group of individual at collection:
-        type: ontology
-        refTable: Age groups
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C20587']
-        profiles: [patient_core]
-        description: A categorical value that groups this individual by age at the time of collection (e.g., "Adult", "18-24
-          years", etc.)
-      age of individual at collection in years:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001775']
-        profiles: [patient_core]
-        description: The age of the individual (in years) at the time of collection
-      anatomical location:
-        type: ontology
-        refTable: Anatomical location
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C170983']
-        profiles: [patient_core]
-        description: The specific anatomical or biological region associated with a tissue or organ specimen.
-      anatomical location other:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C170983']
-        profiles: [patient_core]
-        description: Additional description on the anatomical or biological region associated with a tissue or organ specimen
-      failed quality control:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100564']
-        profiles: [patient_core]
-        description: An indication confirming that quality control processes were carried out and that the sequence did not
-          meet the assessment criteria.
-      reason failed quality control:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100559']
-        profiles: [patient_core]
-        description: An explanation why quality control failed
-      registration timestamp:
-        type: datetime
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25646']
-        profiles: [patient_core]
-        description: Date and time at which this sample was listed or recorded officially, i.e. officially qualified or enrolled.
-      input amount:
-        type: int
-        semantics: ['http://purl.allotrope.org/ontologies/role#AFRL_0000010']
-        profiles: [patient_core]
-        description: Amount of input material in nanogram (ng).
-      collected at organisation:
-        type: select
-        refTable: Organisations
-        semantics: ['http://purl.obolibrary.org/obo/OBIB_0000085']
-        profiles: [patient_core]
-        description: The geographic location where sample collection took place
-      collected by:
-        type: multiselect
-        refTable: Contacts
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0001769']
-        profiles: [patient_core]
-        description: The person or persons responsible for sample collection
-      date of collection:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C82515']
-        profiles: [patient_core]
-        description: Date on which the sample was collected
-      storage conditions:
-        type: ontology
-        refTable: Storage conditions
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C96145']
-        profiles: [patient_core]
-        description: The conditions under which this sample was stored.
-      storage location:
-        type: ontology
-        refTable: Storage locations
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100594']
-        profiles: [patient_core]
-        description: A place on the Earth where this sample is located, by its name or by its geographical location. This
-          definition is intentionally vague to allow reuse locally (e.g. which freezer), for contacting (e.g. which institute),
-          broadly for logistical or legal reasons (e.g. city, country or continent).
-      date of expiration:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C164516']
-        profiles: [patient_core]
-        description: The date this sample is no longer regarded as fit for use.
-      platform model:
-        type: ontology
-        refTable: Sequencing instrument models
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001921']
-        profiles: [patient_core]
-        description: "The name of the product and model number of a manufacturer's genomic (dna) sequencer. In FAIR Genomes:\
-          \ SequencingInstrumentModel."
-      instrument id:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C178947']
-        profiles: [patient_core]
-        description: The unique number assigned to an instrument (e.g., a sequencer). This could either be the serial number,
-          a unique ID generated by the data provider/owner, or another character string used to identify the instrument
-      instrument software:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C178947']
-        profiles: [patient_registry]
-        description: The instrument (e.g., a sequencer) software
-      output files:
-        type: refback
-        refTable: Files
-        refBack: produced by experiment
-        semantics: ['http://edamontology.org/topic_3168']
-        profiles: [patient_registry]
-        description: links to output of files
-      reference genome used:
-        type: ontology
-        refTable: Genome accessions
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C164815']
-        profiles: [patient_core]
-        description: The source-specific version of the published genome assembly.
-      observed insert size:
-        type: int
-        semantics: ['https://w3id.org/fair-genomes/resource/FG_0000002']
-        profiles: [patient_core]
-        description: In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence
-          is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals
-          read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance.
-      other quality metrics:
-        type: text
-        semantics: ['http://edamontology.org/data_3914']
-        profiles: [patient_core]
-        description: Other NGS quality control metrics, including but not limited to (i) sequencer metrics such as yield,
-          error rate, density (K/mm2), cluster PF (%) and phas/prephas (%), (ii) alignment metrics such as QM insert size,
-          GC content, QM duplicated reads (%), QM error rate, uniformity/evenness of coverage and maternal cell contamination,
-          and (iii) variant call metrics such as number of SNVs/CNVs/SVs called, number of missense/nonsense variants, common
-          variants (%), unique variants (%), gender match and trio inheritance check
-      run id:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C117058']
-        profiles: [patient_core]
-        description: A sequence of characters used to uniquely identify a particular run of a test on a particular batch of
-          samples
-      number of aliquots:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25414', 'http://purl.obolibrary.org/obo/NCIT_C25463']
-        description: The number of aliquots (= pertaining to a portion of the whole; any one of two or more samples of something,
-          of the same volume or weight)
-      storage buffer:
-        type: ontology
-        refTable: Storage buffer
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C70815']
-        description: An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.
-      mean read length:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C153362']
-        description: The mean number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained
-          after the completion of a sequencing process
-        label: mean read length (Kb)
-      map rate:
-        type: decimal
-        description: Map rate (%) is the percentage of sequencing reads that successfully align to a reference genome.
-        label: map rate (%)
-      secondary analysis centre:
-        type: multiselect
-        refTable: Organisations
-        semantics: ['http://id.nlm.nih.gov/mesh/D000094422']
-        description: Analysis or reanalysis of existing data collected by another centre usually for a different purpose
-  Metabolomic material processing fields:
-    variant: Metabolomic material processing
+    - name: sample id
+      type: auto_id
+      description: "One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25364
+      computed: "ERD-S-${mg_autoid}"
+    - name: local sample id
+      type: string_array
+      description: "An identifier associated with a particular source, used by the data provider or owner"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25364
+    - name: sample type
+      type: ontology
+      refTable: Sample type
+      description: "The type of sample as characterized by its biological source material collected for testing, diagnostic, propagation, treatment or research purposes"
+      semantics:
+      - http://purl.obolibrary.org/obo/FBcv_0003044
+    - name: sample type other
+      description: "If the sample type is other, provide a description of the sample."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C126072
+    - name: tissue type
+      type: ontology
+      refTable: Tissue type
+      description: "The tissue type of origin (e.g., lung or heart) for the sample"
+      semantics:
+      - http://purl.uniprot.org/core/Tissue
+    - name: aliquot id
+      type: string_array
+      description: A unique identifier assigned to an aliquot containing a portion of a biospecimen
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C173074
+    - name: sample availability
+      type: ontology
+      refTable: Sample availability
+      description: "An indication if the sample is available (i.e., retained, available for use, etc.)"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C19065
+    - name: pathological state
+      type: ontology
+      refTable: Pathological state
+      description: "An examination that is performed to determine the extent of the spread of cancer based on histopathologic examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of clinical staging, supplemented by histopathologic examination of surgical specimens."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C28257
+    - name: volume
+      type: int
+      description: The determination of the volume of a sample.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C74720
+    - name: volume unit
+      type: ontology
+      refTable: Units
+      description: An indication of the type of unit of measure being used to express a volume.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C44279
+    - name: percentage tumor cells
+      type: decimal
+      description: The percentage of tumor cells compared to total cells present in this sample.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C127771
+    - name: age group of individual at collection
+      type: ontology
+      refTable: Age groups
+      description: "A categorical value that groups this individual by age at the time of collection (e.g., \"Adult\", \"18-24 years\", etc.)"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C20587
+    - name: age of individual at collection in years
+      type: int
+      description: The age of the individual (in years) at the time of collection
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001775
+    - name: anatomical location
+      type: ontology
+      refTable: Anatomical location
+      description: The specific anatomical or biological region associated with a tissue or organ specimen.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C170983
+    - name: anatomical location other
+      description: Additional description on the anatomical or biological region associated with a tissue or organ specimen
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C170983
+    - name: failed quality control
+      type: bool
+      description: An indication confirming that quality control processes were carried out and that the sequence did not meet the assessment criteria.
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0100564
+    - name: reason failed quality control
+      type: text
+      description: An explanation why quality control failed
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0100559
+    - name: registration timestamp
+      type: datetime
+      description: "Date and time at which this sample was listed or recorded officially, i.e. officially qualified or enrolled."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25646
+    - name: input amount
+      type: int
+      description: Amount of input material in nanogram (ng).
+      semantics:
+      - http://purl.allotrope.org/ontologies/role#AFRL_0000010
+    - name: collected at organisation
+      type: select
+      refTable: Organisations
+      description: The geographic location where sample collection took place
+      semantics:
+      - http://purl.obolibrary.org/obo/OBIB_0000085
+    - name: collected by
+      type: multiselect
+      refTable: Contacts
+      description: The person or persons responsible for sample collection
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0001769
+    - name: date of collection
+      type: date
+      description: Date on which the sample was collected
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C82515
+    - name: storage conditions
+      type: ontology
+      refTable: Storage conditions
+      description: The conditions under which this sample was stored.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C96145
+    - name: storage location
+      type: ontology
+      refTable: Storage locations
+      description: "A place on the Earth where this sample is located, by its name or by its geographical location. This definition is intentionally vague to allow reuse locally (e.g. which freezer), for contacting (e.g. which institute), broadly for logistical or legal reasons (e.g. city, country or continent)."
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0100594
+    - name: date of expiration
+      type: date
+      description: The date this sample is no longer regarded as fit for use.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C164516
+    - name: platform model
+      type: ontology
+      refTable: Sequencing instrument models
+      description: "The name of the product and model number of a manufacturer's genomic (dna) sequencer. In FAIR Genomes: SequencingInstrumentModel."
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001921
+    - name: instrument id
+      description: "The unique number assigned to an instrument (e.g., a sequencer). This could either be the serial number, a unique ID generated by the data provider/owner, or another character string used to identify the instrument"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C178947
+    - name: instrument software
+      description: "The instrument (e.g., a sequencer) software"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C178947
+      profiles:
+      - patient_registry
+    - name: persons involved
+      type: multiselect
+      refTable: Contacts
+      description: Who was involved in the processing
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25461
+    - name: output files
+      type: refback
+      refTable: Files
+      refBack: produced by experiment
+      description: links to output of files
+      semantics:
+      - http://edamontology.org/topic_3168
+      profiles:
+      - patient_registry
+    - name: reference genome used
+      type: ontology
+      refTable: Genome accessions
+      description: The source-specific version of the published genome assembly.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C164815
+    - name: observed insert size
+      type: int
+      description: "In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance."
+      semantics:
+      - https://w3id.org/fair-genomes/resource/FG_0000002
+    - name: other quality metrics
+      type: text
+      description: "Other NGS quality control metrics, including but not limited to (i) sequencer metrics such as yield, error rate, density (K/mm2), cluster PF (%) and phas/prephas (%), (ii) alignment metrics such as QM insert size, GC content, QM duplicated reads (%), QM error rate, uniformity/evenness of coverage and maternal cell contamination, and (iii) variant call metrics such as number of SNVs/CNVs/SVs called, number of missense/nonsense variants, common variants (%), unique variants (%), gender match and trio inheritance check"
+      semantics:
+      - http://edamontology.org/data_3914
+    - name: run id
+      description: A sequence of characters used to uniquely identify a particular run of a test on a particular batch of samples
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C117058
+- variant: Metabolomic material processing
+  columns:
+  - heading: Metabolomic Material Processing
+    profiles:
+    - fair_genomes_metabolomics_add_on
     columns:
-      Metabolomic Material Processing:
-        type: heading
-      processing type:
-        type: ontology
-        refTable: Metabolomic processing type
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0000094']
-        description: A planned process which results in physical changes in a specified input material.
-      sample extraction:
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0001577']
-        description: The transfer of a solute from a liquid phase to another immiscible or partially-miscible liquid phase
-          in contact with it.
-      filter used:
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0001640']
-        description: The filter used in separating of suspended solids from a liquid or gas, usually by forcing a carrier
-          gas or liquid through a porous medium.
-      passing rate:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0002751']
-        description: The volume of carrier gas passing through a chromatography column in unit time.
-      SPE cartridge:
-        semantics: ['http://purl.obolibrary.org/obo/OMIT_0025161']
-        description: A sample preparation technique using a solid adsorbent contained most commonly in a cartridge device,
-          or on a disk to adsorb select species from solution.
-      washing protocol:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0302888']
-        description: Washing is a process by which a material entity acting as contaminant (e.g. excess staining reagent)
-          is removed by application of one or more cycles of solution in flow.
-  Metabolomic mass spec assays fields:
-    variant: Metabolomic mass spec assays
+    - name: processing type
+      type: ontology
+      refTable: Metabolomic processing type
+      description: A planned process which results in physical changes in a specified input material.
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0000094
+    - name: sample extraction
+      description: The transfer of a solute from a liquid phase to another immiscible or partially-miscible liquid phase in contact with it.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0001577
+    - name: filter used
+      description: "The filter used in separating of suspended solids from a liquid or gas, usually by forcing a carrier gas or liquid through a porous medium."
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0001640
+    - name: passing rate
+      type: int
+      description: The volume of carrier gas passing through a chromatography column in unit time.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0002751
+    - name: SPE cartridge
+      description: "A sample preparation technique using a solid adsorbent contained most commonly in a cartridge device, or on a disk to adsorb select species from solution."
+      semantics:
+      - http://purl.obolibrary.org/obo/OMIT_0025161
+    - name: washing protocol
+      type: text
+      description: Washing is a process by which a material entity acting as contaminant (e.g. excess staining reagent) is removed by application of one or more cycles of solution in flow.
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0302888
+- variant: Metabolomic mass spec assays
+  columns:
+  - heading: Metabolomic Mass Spec Assays
+    profiles:
+    - fair_genomes_metabolomics_add_on
     columns:
-      Metabolomic Mass Spec Assays:
-        type: heading
-      assay type:
-        type: ontology
-        refTable: Metabolomic assay type
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0000470']
-        description: Spectrometry where the sample is converted into gaseous ions which are characterised by their mass-to-charge
-          ratio and relative abundance.
-      inlet port valve:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C50251']
-        description: A valve that controls the flow of fluids in through the wall of a chamber.
-      mass spectrometer:
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0000982']
-        description: A piece of apparatus that consists of at least an ion source, a mass-to-charge analyser, a detector and
-          a vacuum system and is used to measure mass spectra.
-      ionization source:
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0000960']
-        description: A piece of apparatus that takes an analyte and generates ions which are passed to the rest of a mass
-          spectrometer for analysis.
-      chromatography column:
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0000997']
-        description: A piece of apparatus that has the form of a tube with a diameter between 5 to 50 mm and hosts the stationary
-          bed in chromatography.
-      phase separation protocol:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/CHMO_0002214']
-        description: Any method for the synthesis of polymer membranes that involves the polymer transforming from the liquid
-          phase of the cast solution to the solid phase.
-      source conditions:
-        semantics: ['http://purl.obolibrary.org/obo/ZECO_0000104']
-        description: Condition in which variables of the experiment are manipulated to determine the variables effect by comparing
-          to a control condition.
-  Metabolomic analyses fields:
-    variant: Metabolomic analyses
+    - name: assay type
+      type: ontology
+      refTable: Metabolomic assay type
+      description: Spectrometry where the sample is converted into gaseous ions which are characterised by their mass-to-charge ratio and relative abundance.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0000470
+    - name: inlet port valve
+      description: A valve that controls the flow of fluids in through the wall of a chamber.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C50251
+    - name: mass spectrometer
+      description: "A piece of apparatus that consists of at least an ion source, a mass-to-charge analyser, a detector and a vacuum system and is used to measure mass spectra."
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0000982
+    - name: ionization source
+      description: A piece of apparatus that takes an analyte and generates ions which are passed to the rest of a mass spectrometer for analysis.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0000960
+    - name: chromatography column
+      description: A piece of apparatus that has the form of a tube with a diameter between 5 to 50 mm and hosts the stationary bed in chromatography.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0000997
+    - name: phase separation protocol
+      type: text
+      description: Any method for the synthesis of polymer membranes that involves the polymer transforming from the liquid phase of the cast solution to the solid phase.
+      semantics:
+      - http://purl.obolibrary.org/obo/CHMO_0002214
+    - name: source conditions
+      description: Condition in which variables of the experiment are manipulated to determine the variables effect by comparing to a control condition.
+      semantics:
+      - http://purl.obolibrary.org/obo/ZECO_0000104
+- variant: Metabolomic analyses
+  columns:
+  - heading: Metabolomic Analyses
+    profiles:
+    - fair_genomes_metabolomics_add_on
     columns:
-      Metabolomic Analyses:
-        type: heading
-      analysis type:
-        type: ontology
-        refTable: Metabolomic analysis type
-        semantics: ['http://edamontology.org/operation_2945']
-        description: Apply analytical methods to existing data of a specific type.
-      workflow definition:
-        type: text
-        semantics: ['http://semanticscience.org/resource/SIO_000127']
-        description: File content or location that encapsulates the analysis workflow, i.e. a sequence of operations to achieve
-          one or more objectives.
-      workflow engine:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C48293']
-        description: The engine used to execute the workflow such as Papermill, Jupyter, Galaxy or Nextflow.
-      workflow published:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C48471']
-        description: A printed or electronic work offered for distribution.
-      containerized by:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C43186']
-        description: The analysis has been boxed by a container engine such as Singularity or Docker.
-      software tools:
-        semantics: ['http://purl.obolibrary.org/obo/ERO_0000071']
-        description: A general term primarily used for digitally stored data such as computer programs and other kinds of
-          information read and written by computers.
-      parameters:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C44175']
-        description: Any factor that defines a system and determines (or limits) its performance.
-      dataformats stored:
-        type: ontology_array
-        refTable: File formats
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C142494']
-        description: Which data file formats (i.e. defined ways or layouts of representing and structuring data in a computer
-          file, blob, string, message, or elsewhere) are stored and potentially available.
-      standards used:
-        semantics: ['http://semanticscience.org/resource/SIO_000618']
-        description: Any socially-agreed upon specifications used such as Common Workflow Language, mzML, ISA-TAB, FAIR Genomes,
-          etc.
-      statistical methods applied:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C19044']
-        description: A method of analyzing or representing statistical data or a procedure for calculating a statistic, such
-          as principal component analysis, affinity propagation clustering, T-test, etc.
-  Variant interpretation analyses fields:
-    variant: Variant interpretation analyses
+    - name: analysis type
+      type: ontology
+      refTable: Metabolomic analysis type
+      description: Apply analytical methods to existing data of a specific type.
+      semantics:
+      - http://edamontology.org/operation_2945
+    - name: workflow definition
+      type: text
+      description: "File content or location that encapsulates the analysis workflow, i.e. a sequence of operations to achieve one or more objectives."
+      semantics:
+      - http://semanticscience.org/resource/SIO_000127
+    - name: workflow engine
+      description: "The engine used to execute the workflow such as Papermill, Jupyter, Galaxy or Nextflow."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C48293
+    - name: workflow published
+      description: A printed or electronic work offered for distribution.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C48471
+    - name: containerized by
+      description: The analysis has been boxed by a container engine such as Singularity or Docker.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C43186
+    - name: software tools
+      description: A general term primarily used for digitally stored data such as computer programs and other kinds of information read and written by computers.
+      semantics:
+      - http://purl.obolibrary.org/obo/ERO_0000071
+    - name: parameters
+      description: Any factor that defines a system and determines (or limits) its performance.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C44175
+    - name: dataformats stored
+      type: ontology_array
+      refTable: File formats
+      description: "Which data file formats (i.e. defined ways or layouts of representing and structuring data in a computer file, blob, string, message, or elsewhere) are stored and potentially available."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C142494
+    - name: standards used
+      description: "Any socially-agreed upon specifications used such as Common Workflow Language, mzML, ISA-TAB, FAIR Genomes, etc."
+      semantics:
+      - http://semanticscience.org/resource/SIO_000618
+    - name: statistical methods applied
+      description: "A method of analyzing or representing statistical data or a procedure for calculating a statistic, such as principal component analysis, affinity propagation clustering, T-test, etc."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C19044
+- variant: Variant interpretation analyses
+  columns:
+  - heading: Variant Interpretation Analyses
+    profiles:
+    - patient_registry
     columns:
-      Variant Interpretation Analyses:
-        type: heading
-      experiment:
-        type: multiselect
-        refTable: Experiments
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C43376']
-        description: Links to experiment
-      status:
-        type: select
-        refTable: Status
-        semantics: ['http://semanticscience.org/resource/SIO_000033']
-        description: An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to
-          be verified, etc.)
-      solved:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/IAO_0000136']
-        description: A reference to the individual whom this analysis is about
-      date solved:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25587']
-        description: An indication that diagnosis is given and the case is no longer considered unsolved.
-      variant interpretation:
-        type: refback
-        refTable: Variant interpretations
-        refBack: interpretation analysis
-        semantics: ['http://purl.obolibrary.org/obo/NGBO_6000125']
-        description: Links to variant interpretation(s)
-  Clinical observations fields:
-    variant: Clinical observations
+    - name: experiment
+      type: multiselect
+      refTable: Experiments
+      description: Links to experiment
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C43376
+    - name: status
+      type: select
+      refTable: Status
+      description: "An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)"
+      semantics:
+      - http://semanticscience.org/resource/SIO_000033
+    - name: solved
+      type: bool
+      description: A reference to the individual whom this analysis is about
+      semantics:
+      - http://purl.obolibrary.org/obo/IAO_0000136
+    - name: date solved
+      type: date
+      description: An indication that diagnosis is given and the case is no longer considered unsolved.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25587
+    - name: variant interpretation
+      type: refback
+      refTable: Variant interpretations
+      refBack: interpretation analysis
+      description: Links to variant interpretation(s)
+      semantics:
+      - http://purl.obolibrary.org/obo/NGBO_6000125
+- variant: Clinical observations
+  columns:
+  - heading: Clinical Observations
     columns:
-      Clinical Observations:
-        type: heading
-        profiles: [patient_core]
-      observation performed by:
-        type: select
-        refTable: Contacts
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C48206']
-        profiles: [patient_core]
-        description: The individual that performed the clinical observation (e.g., made the diagnosis, performed the evaluation,
-          etc.)
-      phenotypes:
-        type: refback
-        refTable: Phenotype observations
-        refBack: part of clinical observation
-        refLabel: ${type.name}
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C16977']
-        profiles: [patient_core]
-        description: The assemblage of traits or outward appearance of an individual. It is the product of interactions between
-          genes and between genes and the environment. In medical context,  these are often the symptoms caused by a disease.
-      diseases:
-        type: refback
-        refTable: Disease history
-        refBack: part of clinical observation
-        refLabel: ${disease.name}
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C15607']
-        profiles: [patient_core]
-        description: Any abnormal condition of the body or mind that causes discomfort, dysfunction, or distress to the person
-          affected or those in contact with the person. The term is often used broadly to include injuries, disabilities,
-          syndromes, symptoms, deviant behaviors, and atypical variations of structure and function.
-      measurements:
-        type: refback
-        refTable: Clinical measurements
-        refBack: part of clinical observation
-        refLabel: ${variable}
-        semantics: ['http://purl.obolibrary.org/obo/CMO_0000000']
-        profiles: [patient_core]
-        description: Clinical measurements collected as part of the clinical observation
-      age group at onset:
-        type: ontology
-        refTable: Age groups at onset
-        semantics: ['http://www.ebi.ac.uk/efo/EFO_0004847', 'http://purl.obolibrary.org/obo/NCIT_C20587']
-        profiles: [patient_core]
-        description: A categorical value that groups this individual's age of onset into groups (e.g., "Adult", "18-24 years",
-          etc.)
-      age at onset:
-        type: period
-        semantics: ['http://www.ebi.ac.uk/efo/EFO_0004847']
-        profiles: [patient_core]
-        description: The age at which manifestations of the disease first appeared (e.g., "P32Y6M1D")
-      consanguinity:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/OMIT_0004546']
-        profiles: [patient_core]
-        description: Information on whether the patient is a child from two family members who are second cousins or closer
-      molecular diagnosis gene:
-        type: ontology_array
-        refTable: Genes
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C36391']
-        profiles: [patient_core]
-        description: Gene affected by pathogenic variation that is causal for disease of the individual
-      molecular diagnosis other:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C20826']
-        profiles: [patient_core]
-        description: Causal variant in HGVS notation with optional classification or free text explaining any other molecular
-          mechanisms involved.
-      is solved:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25587']
-        profiles: [patient_registry]
-        description: An indication that diagnosis is given and the case is no longer considered unsolved.
-      medication:
-        type: ontology_array
-        refTable: Medication
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C459']
-        profiles: [patient_core]
-        description: A drug product that contains one or more active and/or inactive ingredients used by the individual intended
-          to treat, prevent or alleviate the symptoms of disease. Any hormone therapies, gender-related, or otherwise should
-          also be recorded here.
-      drug regimen:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C142516']
-        profiles: [patient_core]
-        description: The specific way a therapeutic drug is to be taken, including formulation route of administration, dose,
-          dosing interval, and treatment duration.
-      medical history:
-        type: ontology_array
-        refTable: Medical history
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C18772']
-        profiles: [patient_core]
-        description: "A record of a individual's background regarding health, occurrence of disease events and surgical procedures"
-      date of first contact:
-        type: date
-        semantics: ['http://purl.bioontology.org/ontology/LNC/MTHU048806']
-        profiles: [patient_core]
-        description: The date on which contact with the individual was initiated
-      date of last contact:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C156916']
-        profiles: [patient_registry]
-        description: The date on which contact with the individual was last made
-      classification of functioning:
-        type: text
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C21007']
-        profiles: [patient_core]
-        description: "An individual's classification of functioning i.e. disability profile according to International Classification\
-          \ of Functioning and Disability (ICF)"
-      material used in diagnosis:
-        type: text
-        semantics: ['http://semanticscience.org/resource/SIO_000641']
-        profiles: [patient_core]
-        description: A description of one or more materials used to make a diagnosis
-  NGS sequencing fields:
-    variant: NGS sequencing
+    - name: observation performed by
+      type: select
+      refTable: Contacts
+      description: "The individual that performed the clinical observation (e.g., made the diagnosis, performed the evaluation, etc.)"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C48206
+    - name: phenotypes
+      type: refback
+      refTable: Phenotype observations
+      refBack: part of clinical observation
+      refLabel: "${type.name}"
+      description: "The assemblage of traits or outward appearance of an individual. It is the product of interactions between genes and between genes and the environment. In medical context,  these are often the symptoms caused by a disease."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C16977
+    - name: diseases
+      type: refback
+      refTable: Disease history
+      refBack: part of clinical observation
+      refLabel: "${disease.name}"
+      description: "Any abnormal condition of the body or mind that causes discomfort, dysfunction, or distress to the person affected or those in contact with the person. The term is often used broadly to include injuries, disabilities, syndromes, symptoms, deviant behaviors, and atypical variations of structure and function."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C15607
+    - name: measurements
+      type: refback
+      refTable: Clinical measurements
+      refBack: part of clinical observation
+      refLabel: "${variable}"
+      description: Clinical measurements collected as part of the clinical observation
+      semantics:
+      - http://purl.obolibrary.org/obo/CMO_0000000
+    - name: age group at onset
+      type: ontology
+      refTable: Age groups at onset
+      description: "A categorical value that groups this individual's age of onset into groups (e.g., \"Adult\", \"18-24 years\", etc.)"
+      semantics:
+      - http://www.ebi.ac.uk/efo/EFO_0004847
+      - http://purl.obolibrary.org/obo/NCIT_C20587
+    - name: age at onset
+      type: period
+      description: "The age at which manifestations of the disease first appeared (e.g., \"P32Y6M1D\")"
+      semantics:
+      - http://www.ebi.ac.uk/efo/EFO_0004847
+    - name: consanguinity
+      type: bool
+      description: Information on whether the patient is a child from two family members who are second cousins or closer
+      semantics:
+      - http://purl.obolibrary.org/obo/OMIT_0004546
+    - name: molecular diagnosis gene
+      type: ontology_array
+      refTable: Genes
+      description: Gene affected by pathogenic variation that is causal for disease of the individual
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C36391
+    - name: molecular diagnosis other
+      type: text
+      description: Causal variant in HGVS notation with optional classification or free text explaining any other molecular mechanisms involved.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C20826
+    - name: is solved
+      type: bool
+      description: An indication that diagnosis is given and the case is no longer considered unsolved.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25587
+      profiles:
+      - patient_registry
+    - name: date solved
+      type: date
+      description: "The date on which a case was considered solved (i.e., when a diagnosis was made)"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C119798
+      profiles:
+      - patient_registry
+    - name: medication
+      type: ontology_array
+      refTable: Medication
+      description: "A drug product that contains one or more active and/or inactive ingredients used by the individual intended to treat, prevent or alleviate the symptoms of disease. Any hormone therapies, gender-related, or otherwise should also be recorded here."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C459
+    - name: drug regimen
+      type: text
+      description: "The specific way a therapeutic drug is to be taken, including formulation route of administration, dose, dosing interval, and treatment duration."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C142516
+    - name: medical history
+      type: ontology_array
+      refTable: Medical history
+      description: "A record of a individual's background regarding health, occurrence of disease events and surgical procedures"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C18772
+    - name: date of first contact
+      type: date
+      description: The date on which contact with the individual was initiated
+      semantics:
+      - http://purl.bioontology.org/ontology/LNC/MTHU048806
+    - name: date of last contact
+      type: date
+      description: The date on which contact with the individual was last made
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C156916
+      profiles:
+      - patient_registry
+    - name: classification of functioning
+      type: text
+      description: An individual's classification of functioning i.e. disability profile according to International Classification of Functioning and Disability (ICF)
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C21007
+    - name: material used in diagnosis
+      type: text
+      description: A description of one or more materials used to make a diagnosis
+      semantics:
+      - http://semanticscience.org/resource/SIO_000641
+- variant: NGS sequencing
+  columns:
+  - name: extraction kit
+    description: An assay kit used for the technique of extracting nucleic acids from a biological sample
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000407
+    - http://purl.obolibrary.org/obo/NGBO_6000238
+  - name: extraction date
+    type: date
+    description: A time measurement datum that specifies when some material was extracted from an input material
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0003081
+  - heading: Library Preparation
     columns:
-      extraction kit:
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0000407', 'http://purl.obolibrary.org/obo/NGBO_6000238']
-        profiles: [patient_core]
-        description: An assay kit used for the technique of extracting nucleic acids from a biological sample
-      extraction date:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0003081']
-        profiles: [patient_core]
-        description: A time measurement datum that specifies when some material was extracted from an input material
-      Library Preparation:
-        type: heading
-        profiles: [patient_core]
-      library source:
-        type: ontology
-        refTable: Library source
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001965']
-        profiles: [patient_core]
-        description: E.g. genomic source
-      library selection:
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001940']
-        profiles: [patient_core]
-        description: E.g. RANDOM method
-      library strategy:
-        type: ontology
-        refTable: Sequencing methods
-        semantics: ['http://purl.obolibrary.org/obo/FIX_0000704']
-        profiles: [patient_core]
-        description: 'Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.'
-      library layout:
-        type: ontology
-        refTable: Library layout
-        semantics: ['http://purl.obolibrary.org/obo/FBcv_0003208']
-        profiles: [patient_core]
-        description: Either PAIRED or SINGLE
-      sequencer barcode:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C43361']
-        profiles: [patient_core]
-        description: A machine-readable representation of an instrument (e.g., a sequencer) in a visual format on a surface
-      library preparation kit:
-        type: ontology
-        refTable: Sequencing enrichment kits
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0000085']
-        profiles: [patient_core]
-        description: Pre-filled, ready-to-use reagent cartridges intented to improve chemistry, cluster density and read length
-          as well as improve quality (Q) scores for this sample. Reagent components are encoded to interact with the sequencing
-          system to validate compatibility with user-defined applications.
-      PCR free:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C17003']
-        profiles: [patient_core]
-        description: Indicates whether a polymerase chain reaction (PCR) was used to prepare this sample. PCR is a method
-          for amplifying a DNA base sequence using multiple rounds of heat denaturation of the DNA and annealing of oligonucleotide
-          primers complementary to flanking regions in the presence of a heat-stable polymerase.
-      target enrichment kit:
-        type: ontology
-        refTable: Sequencing enrichment kits
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C154307']
-        profiles: [patient_core]
-        description: Indicates which target enrichment kit was used to prepare this sample. Target enrichment is a pre-sequencing
-          DNA preparation step where DNA sequences are either directly amplified (amplicon or multiplex PCR-based) or captured
-          (hybrid capture-based) in order to only focus on specific regions of a genome or DNA sample.
-      UMIs present:
-        type: bool
-        semantics: ['http://www.ebi.ac.uk/efo/EFO_0010199']
-        profiles: [patient_core]
-        description: Indicates whether any unique molecular identifiers (UMIs) are present. An UMI barcode is a short nucleotide
-          sequence that is used to identify reads originating from an individual mRNA molecule.
-      intended insert size:
-        type: int
-        semantics: ['https://w3id.org/fair-genomes/resource/FG_0000001']
-        profiles: [patient_core]
-        description: In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence
-          is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals
-          read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance.
-      intended read length:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C153362']
-        profiles: [patient_core]
-        description: The number of nucleotides intended to be ordered from each side of a nucleic acid fragment obtained after
-          the completion of a sequencing process.
-      barcode:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C43361']
-        profiles: [patient_core]
-        description: A machine-readable representation of information in a visual format on a surface.
-      Sequencing:
-        type: heading
-        profiles: [patient_core]
-      date of sequencing:
-        type: datetime
-        profiles: [patient_core]
-        description: When the sequencing run took place
-      mean read depth:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C155320']
-        profiles: [patient_core]
-        description: The mean number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.
-      median read depth:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C155320']
-        profiles: [patient_core]
-        description: The median number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.
-      observed read length:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C153362']
-        profiles: [patient_core]
-        description: The number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after
-          the completion of a sequencing process.
-      sequencing centre:
-        type: select
-        refTable: Organisations
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001202']
-        profiles: [patient_registry]
-        description: A data field which describes the name of the third party company or laboratory that provided services.
-      platform:
-        type: ontology
-        refTable: Sequencing platforms
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0000071']
-        profiles: [patient_core]
-        description: 'The name of the sequencing platform (i.e. brand, name of a company that produces sequencer equipment).
-          In FAIR Genomes: SequencingPlatform.'
-      percentage Q30:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0000089']
-        profiles: [patient_core]
-        description: Percentage of reads with a Phred quality score over 30, which indicates less than a 1/1000 chance that
-          the base was called incorrectly.
-      percentage Tr20:
-        type: decimal
-        semantics: ['https://w3id.org/fair-genomes/resource/FG_0000003']
-        profiles: [patient_core]
-        description: Percentage of the target sequence on which 20 or more unique reads were successfully mapped.
-      flow cell ID:
-        semantics: ['http://purl.allotrope.org/ontologies/result#AFR_0003078']
-        profiles: [patient_core]
-        description: A flow cell identifier is an identifier that identifies some flow cell (aparatus in the fluidic subsystem
-          where the sheath and sample meet)
-      sequencing lane identifier:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C182081']
-        profiles: [patient_core]
-        description: The numerical identifier for the lane or machine unit where a sample was located during nucleotide sequencing.
-      secondary analysis pipeline version:
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0000152']
-        profiles: [patient_registry]
-        description: A datum which describes the version of the bioinformatics pipeline used.
-      concentration:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C41185']
-        description: The quantity of a substance per unit volume or weight; a measure of the amount of substance present in
-          a unit amount of mixture, particularly, the amount of solute dissolved in a solvent. The amounts can be expressed
-          as moles, masses, volumes, or parts.
-      concentration unit:
-        type: ontology
-        refTable: Units
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C48207']
-        description: An indication of the type of unit of measure being used to express a concentration.
-      DNA Extraction:
-        type: heading
-  Experiments OGM fields:
-    variant: Experiments OGM
+    - name: library source
+      type: ontology
+      refTable: Library source
+      description: E.g. genomic source
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001965
+    - name: library selection
+      description: E.g. RANDOM method
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001940
+    - name: library strategy
+      type: ontology
+      refTable: Sequencing methods
+      description: "Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod."
+      semantics:
+      - http://purl.obolibrary.org/obo/FIX_0000704
+    - name: library layout
+      type: ontology
+      refTable: Library layout
+      description: Either PAIRED or SINGLE
+      semantics:
+      - http://purl.obolibrary.org/obo/FBcv_0003208
+    - name: sequencer barcode
+      description: "A machine-readable representation of an instrument (e.g., a sequencer) in a visual format on a surface"
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C43361
+    - name: library preparation kit
+      type: ontology
+      refTable: Sequencing enrichment kits
+      description: "Pre-filled, ready-to-use reagent cartridges intented to improve chemistry, cluster density and read length as well as improve quality (Q) scores for this sample. Reagent components are encoded to interact with the sequencing system to validate compatibility with user-defined applications."
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0000085
+    - name: PCR free
+      type: bool
+      description: Indicates whether a polymerase chain reaction (PCR) was used to prepare this sample. PCR is a method for amplifying a DNA base sequence using multiple rounds of heat denaturation of the DNA and annealing of oligonucleotide primers complementary to flanking regions in the presence of a heat-stable polymerase.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C17003
+    - name: target enrichment kit
+      type: ontology
+      refTable: Sequencing enrichment kits
+      description: Indicates which target enrichment kit was used to prepare this sample. Target enrichment is a pre-sequencing DNA preparation step where DNA sequences are either directly amplified (amplicon or multiplex PCR-based) or captured (hybrid capture-based) in order to only focus on specific regions of a genome or DNA sample.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C154307
+    - name: UMIs present
+      type: bool
+      description: Indicates whether any unique molecular identifiers (UMIs) are present. An UMI barcode is a short nucleotide sequence that is used to identify reads originating from an individual mRNA molecule.
+      semantics:
+      - http://www.ebi.ac.uk/efo/EFO_0010199
+    - name: intended insert size
+      type: int
+      description: "In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance."
+      semantics:
+      - https://w3id.org/fair-genomes/resource/FG_0000001
+    - name: intended read length
+      type: int
+      description: The number of nucleotides intended to be ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C153362
+    - name: barcode
+      description: A machine-readable representation of information in a visual format on a surface.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C43361
+  - heading: Sequencing
     columns:
-      number of cells per million:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C202259']
-        description: The number of cells (million) in a sample, sample volume, field, or other delimiter.
-      Sample Preparation:
-        type: heading
-      processing centre:
-        type: select
-        refTable: Organisations
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0001202']
-        description: A data field which describes the name of the third party company or laboratory that provided services.
-      cell count:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/UO_0010073']
-        description: The number of cells used for DNA isolation
-        label: cell count (million)
-      HMW_DNA isolation:
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0000834']
-        description: The output of an extraction process in which DNA molecules above a molecular weight cutoff are purified
-          in order to exclude DNA from organellas
-        label: HMW-DNA isolation method
-      isolation date:
-        type: date
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100465']
-        description: A date field which describes the date on which the DNA was isolated from a sample
-      viscosity:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C75912']
-        description: The resistance of a liquid to sheer forces and flow
-      mean concentration HMW_DNA:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C41185']
-        description: The quantity of a HMW-DNA per unit volume or weight
-        label: mean concentration HMW-DNA (ng/μl)
-      labeling protocol:
-        semantics: ['http://www.ebi.ac.uk/efo/EFO_0003813']
-        description: A protocol description in which input nucleic acid material is labeled
-      labeling date:
-        type: date
-        semantics: ['http://purl.org/dc/terms/date']
-        description: The date of the labeling protocol
-      concentration after labeling:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C41185']
-        description: The amount of DNA present in the sample after labeling
-        label: concentration after labeling (ng/μl)
-      date of mapping:
-        type: datetime
-        description: When the mapping experiment took place
-      chip id:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C181946']
-        description: A sequence of characters used to uniquely identify a particular microassay chip
-      OGM Characteristics:
-        type: heading
-      jobIDs:
-        type: string_array
-        semantics: ['http://edamontology.org/data_2098']
-        description: An identifier of a submitted job
-      bionano solve version:
-        description: The specific version of the Bionano Solve software
-      bionano access version:
-        description: The specific version of the Bionano Access software
-      total DNA:
-        type: decimal
-        description: The total amount of DNA data generated during an OGM run
-        label: total DNA (Gb)
-      N50150kbp:
-        type: int
-        description: The molecule N50 for all molecules that are ≥ 150 kbp in length
-        label: N50 > 150kbp (kb)
-      N5020kbp:
-        type: int
-        description: The molecule N50 for all molecules that are ≥ 20 kbp in length
-        label: N50 > 20kbp (kb)
-      label density:
-        type: decimal
-        description: The average number of fluorescent labels per unit length of DNA
-      PLV:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C133645']
-        description: The percentage of labeled sites whose observed positions differ from the expected positions in the reference
-          genome
-        label: PLV (%)
-      NLV:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C133645']
-        description: The percentage of expected label sites from the reference genome that are missing in the observed DNA
-          molecules
-        label: NLV (%)
-  Experiments RNA fields:
-    variant: Experiments RNA
+    - name: date of sequencing
+      type: datetime
+      description: When the sequencing run took place
+    - name: mean read depth
+      type: decimal
+      description: "The mean number of times a particular locus (site, nucleotide, amplicon, region) was sequenced."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C155320
+    - name: median read depth
+      type: decimal
+      description: "The median number of times a particular locus (site, nucleotide, amplicon, region) was sequenced."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C155320
+    - name: observed read length
+      type: int
+      description: The number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C153362
+    - name: sequencing centre
+      type: select
+      refTable: Organisations
+      description: A data field which describes the name of the third party company or laboratory that provided services.
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001202
+      profiles:
+      - patient_registry
+    - name: platform
+      type: ontology
+      refTable: Sequencing platforms
+      description: "The name of the sequencing platform (i.e. brand, name of a company that produces sequencer equipment). In FAIR Genomes: SequencingPlatform."
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0000071
+    - name: percentage Q30
+      type: decimal
+      description: "Percentage of reads with a Phred quality score over 30, which indicates less than a 1/1000 chance that the base was called incorrectly."
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    - name: percentage Tr20
+      type: decimal
+      description: Percentage of the target sequence on which 20 or more unique reads were successfully mapped.
+      semantics:
+      - https://w3id.org/fair-genomes/resource/FG_0000003
+    - name: flow cell ID
+      description: A flow cell identifier is an identifier that identifies some flow cell (aparatus in the fluidic subsystem where the sheath and sample meet)
+      semantics:
+      - http://purl.allotrope.org/ontologies/result#AFR_0003078
+    - name: sequencing lane identifier
+      description: The numerical identifier for the lane or machine unit where a sample was located during nucleotide sequencing.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C182081
+    - name: secondary analysis pipeline version
+      description: A datum which describes the version of the bioinformatics pipeline used.
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0000152
+      profiles:
+      - patient_registry
+- variant: Experiments OGM
+  columns:
+  - name: number of aliquots
+    type: int
+    description: "The number of aliquots (= pertaining to a portion of the whole; any one of two or more samples of something, of the same volume or weight)"
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    profiles:
+    - patient_registry
+  - name: number of cells per million
+    type: decimal
+    description: "The number of cells (million) in a sample, sample volume, field, or other delimiter."
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C202259
+    profiles:
+    - patient_registry
+  - name: storage buffer
+    type: ontology
+    refTable: Storage buffer
+    description: An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    profiles:
+    - patient_registry
+  - heading: Sample Preparation
+    profiles:
+    - patient_registry
     columns:
-      RIN QC value:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100661']
-        validation: if(parseFloat(rINQCValue) < 1 || parseFloat(rINQCValue) > 10) "Only values between 1 and 10 are allowed."
-        description: A data field which describes quality control information
-      NMD inhibitor added:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C29648']
-        description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
-      RNA Extraction:
-        type: heading
-      fragmentation method:
-        description: A laboratory process in which RNA molecules are broken into smaller fragments
-      flow cell type:
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0400043']
-        description: Can be one of several types; jet-in-air, quartz cuvette, or a hybrid of the two. The sample flows through
-          the center of a fluid column of sheath fluid in the flow cell.
-      TIN:
-        type: decimal
-        description: Transcript Integrity Number
-      targeted sequencing:
-        type: bool
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C158252']
-        description: Did targeted sequencing take place?
-      adaptive sequencing:
-        type: bool
-        description: Did adaptive sequencing take place?
-      adaptive sequencing bed file:
-        type: file
-        description: If adaptive sequencing took place, please provide the bed file
-      sample batch ID:
-        semantics: ['http://purl.obolibrary.org/obo/MS_1000053']
-        description: Sample batch lot identifier
-      experiment attributes:
-        type: text
-        description: Any other experiment attributes
-  Experiments lrGS fields:
-    variant: Experiments lrGS
+    - name: processing centre
+      type: select
+      refTable: Organisations
+      description: A data field which describes the name of the third party company or laboratory that provided services.
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0001202
+    - name: cell count
+      type: decimal
+      description: The number of cells used for DNA isolation
+      semantics:
+      - http://purl.obolibrary.org/obo/UO_0010073
+      label: cell count (million)
+    - name: HMW_DNA isolation
+      description: The output of an extraction process in which DNA molecules above a molecular weight cutoff are purified in order to exclude DNA from organellas
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0000834
+      label: HMW-DNA isolation method
+    - name: isolation date
+      type: date
+      description: A date field which describes the date on which the DNA was isolated from a sample
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0100465
+    - name: viscosity
+      type: int
+      description: The resistance of a liquid to sheer forces and flow
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C75912
+    - name: mean concentration HMW_DNA
+      type: decimal
+      description: The quantity of a HMW-DNA per unit volume or weight
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C41185
+      label: mean concentration HMW-DNA (ng/μl)
+    - name: labeling protocol
+      description: A protocol description in which input nucleic acid material is labeled
+      semantics:
+      - http://www.ebi.ac.uk/efo/EFO_0003813
+    - name: labeling date
+      type: date
+      description: The date of the labeling protocol
+      semantics:
+      - http://purl.org/dc/terms/date
+    - name: concentration after labeling
+      type: decimal
+      description: The amount of DNA present in the sample after labeling
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C41185
+      label: concentration after labeling (ng/μl)
+    - name: date of mapping
+      type: datetime
+      description: When the mapping experiment took place
+    - name: mean read length
+      type: decimal
+      description: The mean number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C153362
+      label: mean read length (Kb)
+    - name: chip id
+      description: A sequence of characters used to uniquely identify a particular microassay chip
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C181946
+  - heading: OGM Characteristics
+    profiles:
+    - patient_registry
     columns:
-      genomic fragment length:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/IAO_0000408']
-        description: A scalar measurement datum that is the result of measurement of length of a genomic fragment
-      A260 to A280 ratio:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C139280']
-        description: An assessment of nucleic acid purity that is measured by determining the ratio of light absorbance of
-          the nucleic acid sample at 260nm and 280nm respectively.
-      A260 to A230 ratio:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C139281']
-        description: An assessment of nucleic acid purity that is measured by determining the ratio of light absorbance of
-          the nucleic acid sample at 260nm and 230nm respectively.
-      concentration measurement type:
-        type: ontology
-        refTable: Concentration measurement type
-        semantics: ['http://purl.allotrope.org/ontologies/process#AFP_0002800']
-        description: An concentration measurement is the determination of the concentration of a compound in solution. [Allotrope]
-      DIN QC value:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0100661']
-        validation: if(parseFloat(dINQCValue) < 1 || parseFloat(dINQCValue) > 10) "Only values between 1 and 10 are allowed."
-        description: A data field which describes quality control information
-      N50 read length:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/OBI_0001940']
-        description: the weighted median item size or N50 is a weighted median of the lengths of items, equal to the length
-          of the longest item i such that the sum of the lengths of items greater than or equal in length to i is greater
-          than or equal to half the length of all of the items. With regard to assemblies the items are typically contigs
-          or scaffolds. It therefore denotes the ability of the software to create contigs and provides information about
-          the resulting sequence assembly
-      sequencing chemistry:
-        semantics: ['http://purl.obolibrary.org/obo/GENEPIO_0000075']
-        description: A laboratory sequencing datum which describes the method and chemistry used to determine the order of
-          nucleotides in a DNA molecule
-      base rate:
-        type: decimal
-        description: rate at which bases are produced or processed by the sequencing instrument
-        label: base rate (bp/s)
-      base quality:
-        type: decimal
-        semantics: ['http://purl.obolibrary.org/obo/NGBO_6000281', 'http://purl.obolibrary.org/obo/GENEPIO_0000089']
-        description: The percentage of sequenced bases whose Phred quality score exceeds 25, indicating high-confidence base
-          calls
-        label: base quality (x% bases > Q25 (%)
-      samples per flow cell:
-        type: int
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25463']
-        description: The number of samples per flow cell
-      yield:
-        type: decimal
-        semantics: ['http://biomodels.net/SBO/SBO_0000668']
-        description: Output generated as biomass or product from a set of chemical reactions
-        label: yield (Gb)
-      movietime:
-        type: ontology
-        refTable: Movietime
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C25330']
-        description: The period of time during which a sequencing run took place, i.e., the length of time during which the
-          instrument records signal data.
-      base kinetics included:
-        type: bool
-        description: Does the experiment contain kinetic information?
-      basecaller version:
-        semantics: ['http://purl.obolibrary.org/obo/NCIT_C181950']
-        description: The version of the software used to call the nucleotide bases in a sequencing assay
+    - name: jobIDs
+      type: string_array
+      description: An identifier of a submitted job
+      semantics:
+      - http://edamontology.org/data_2098
+    - name: bionano solve version
+      description: The specific version of the Bionano Solve software
+    - name: bionano access version
+      description: The specific version of the Bionano Access software
+    - name: total DNA
+      type: decimal
+      description: The total amount of DNA data generated during an OGM run
+      label: total DNA (Gb)
+    - name: N50150kbp
+      type: int
+      description: The molecule N50 for all molecules that are ≥ 150 kbp in length
+      label: N50 > 150kbp (kb)
+    - name: N5020kbp
+      type: int
+      description: The molecule N50 for all molecules that are ≥ 20 kbp in length
+      label: N50 > 20kbp (kb)
+    - name: label density
+      type: decimal
+      description: The average number of fluorescent labels per unit length of DNA
+    - name: map rate
+      type: decimal
+      description: Map rate (%) is the percentage of sequencing reads that successfully align to a reference genome.
+      label: map rate (%)
+    - name: PLV
+      type: decimal
+      description: The percentage of labeled sites whose observed positions differ from the expected positions in the reference genome
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C133645
+      label: PLV (%)
+    - name: NLV
+      type: decimal
+      description: The percentage of expected label sites from the reference genome that are missing in the observed DNA molecules
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C133645
+      label: NLV (%)
+    - name: secondary analysis centre
+      type: multiselect
+      refTable: Organisations
+      description: Analysis or reanalysis of existing data collected by another centre usually for a different purpose
+      semantics:
+      - http://id.nlm.nih.gov/mesh/D000094422
+- variant: Experiments RNA
+  columns:
+  - name: number of aliquots
+    type: int
+    description: "The number of aliquots (= pertaining to a portion of the whole; any one of two or more samples of something, of the same volume or weight)"
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    profiles:
+    - patient_registry
+  - name: concentration
+    type: decimal
+    description: "The quantity of a substance per unit volume or weight; a measure of the amount of substance present in a unit amount of mixture, particularly, the amount of solute dissolved in a solvent. The amounts can be expressed as moles, masses, volumes, or parts."
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    profiles:
+    - patient_registry
+  - name: concentration unit
+    type: ontology
+    refTable: Units
+    description: An indication of the type of unit of measure being used to express a concentration.
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    profiles:
+    - patient_registry
+  - name: RIN QC value
+    type: decimal
+    description: A data field which describes quality control information
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    profiles:
+    - patient_registry
+    validation: if(parseFloat(rINQCValue) < 1 || parseFloat(rINQCValue) > 10) "Only values between 1 and 10 are allowed."
+  - name: NMD inhibitor added
+    type: bool
+    description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29648
+    profiles:
+    - patient_registry
+  - heading: RNA Extraction
+    profiles:
+    - patient_registry
+    columns:
+    - name: fragmentation method
+      description: A laboratory process in which RNA molecules are broken into smaller fragments
+    - name: flow cell type
+      description: "Can be one of several types; jet-in-air, quartz cuvette, or a hybrid of the two. The sample flows through the center of a fluid column of sheath fluid in the flow cell."
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0400043
+    - name: TIN
+      type: decimal
+      description: Transcript Integrity Number
+    - name: targeted sequencing
+      type: bool
+      description: Did targeted sequencing take place?
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C158252
+    - name: adaptive sequencing
+      type: bool
+      description: Did adaptive sequencing take place?
+    - name: adaptive sequencing bed file
+      type: file
+      description: "If adaptive sequencing took place, please provide the bed file"
+    - name: sample batch ID
+      description: Sample batch lot identifier
+      semantics:
+      - http://purl.obolibrary.org/obo/MS_1000053
+    - name: secondary analysis centre
+      type: multiselect
+      refTable: Organisations
+      description: Analysis or reanalysis of existing data collected by another centre usually for a different purpose
+      semantics:
+      - http://id.nlm.nih.gov/mesh/D000094422
+    - name: experiment attributes
+      type: text
+      description: Any other experiment attributes
+- variant: Experiments lrGS
+  columns:
+  - name: number of aliquots
+    type: int
+    description: "The number of aliquots (= pertaining to a portion of the whole; any one of two or more samples of something, of the same volume or weight)"
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    profiles:
+    - patient_registry
+  - name: genomic fragment length
+    type: int
+    description: A scalar measurement datum that is the result of measurement of length of a genomic fragment
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000408
+    profiles:
+    - patient_registry
+  - name: A260 to A280 ratio
+    type: decimal
+    description: An assessment of nucleic acid purity that is measured by determining the ratio of light absorbance of the nucleic acid sample at 260nm and 280nm respectively.
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139280
+    profiles:
+    - patient_registry
+  - name: A260 to A230 ratio
+    type: decimal
+    description: An assessment of nucleic acid purity that is measured by determining the ratio of light absorbance of the nucleic acid sample at 260nm and 230nm respectively.
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139281
+    profiles:
+    - patient_registry
+  - heading: DNA Extraction
+    profiles:
+    - patient_registry
+    columns:
+    - name: storage buffer
+      type: ontology
+      refTable: Storage buffer
+      description: An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C70815
+    - name: concentration
+      type: decimal
+      description: "The quantity of a substance per unit volume or weight; a measure of the amount of substance present in a unit amount of mixture, particularly, the amount of solute dissolved in a solvent. The amounts can be expressed as moles, masses, volumes, or parts."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C41185
+    - name: concentration unit
+      type: ontology
+      refTable: Units
+      description: An indication of the type of unit of measure being used to express a concentration.
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C48207
+    - name: concentration measurement type
+      type: ontology
+      refTable: Concentration measurement type
+      description: "An concentration measurement is the determination of the concentration of a compound in solution. [Allotrope]"
+      semantics:
+      - http://purl.allotrope.org/ontologies/process#AFP_0002800
+    - name: DIN QC value
+      type: decimal
+      description: A data field which describes quality control information
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0100661
+      validation: if(parseFloat(dINQCValue) < 1 || parseFloat(dINQCValue) > 10) "Only values between 1 and 10 are allowed."
+    - name: mean read length
+      type: decimal
+      description: The mean number of nucleotides successfully ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C153362
+      label: mean read length (Kb)
+    - name: N50 read length
+      type: decimal
+      description: "the weighted median item size or N50 is a weighted median of the lengths of items, equal to the length of the longest item i such that the sum of the lengths of items greater than or equal in length to i is greater than or equal to half the length of all of the items. With regard to assemblies the items are typically contigs or scaffolds. It therefore denotes the ability of the software to create contigs and provides information about the resulting sequence assembly"
+      semantics:
+      - http://purl.obolibrary.org/obo/OBI_0001940
+    - name: map rate
+      type: decimal
+      description: Map rate (%) is the percentage of sequencing reads that successfully align to a reference genome.
+      label: map rate (%)
+    - name: sequencing chemistry
+      description: A laboratory sequencing datum which describes the method and chemistry used to determine the order of nucleotides in a DNA molecule
+      semantics:
+      - http://purl.obolibrary.org/obo/GENEPIO_0000075
+    - name: base rate
+      type: decimal
+      description: rate at which bases are produced or processed by the sequencing instrument
+      label: base rate (bp/s)
+    - name: base quality
+      type: decimal
+      description: "The percentage of sequenced bases whose Phred quality score exceeds 25, indicating high-confidence base calls"
+      semantics:
+      - http://purl.obolibrary.org/obo/NGBO_6000281
+      - http://purl.obolibrary.org/obo/GENEPIO_0000089
+      label: base quality (x% bases > Q25 (%)
+    - name: samples per flow cell
+      type: int
+      description: The number of samples per flow cell
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25463
+    - name: yield
+      type: decimal
+      description: Output generated as biomass or product from a set of chemical reactions
+      semantics:
+      - http://biomodels.net/SBO/SBO_0000668
+      label: yield (Gb)
+    - name: movietime
+      type: ontology
+      refTable: Movietime
+      description: "The period of time during which a sequencing run took place, i.e., the length of time during which the instrument records signal data."
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C25330
+    - name: base kinetics included
+      type: bool
+      description: Does the experiment contain kinetic information?
+    - name: basecaller version
+      description: The version of the software used to call the nucleotide bases in a sequencing assay
+      semantics:
+      - http://purl.obolibrary.org/obo/NCIT_C181950
+    - name: secondary analysis centre
+      type: multiselect
+      refTable: Organisations
+      description: Analysis or reanalysis of existing data collected by another centre usually for a different purpose
+      semantics:
+      - http://id.nlm.nih.gov/mesh/D000094422
+- variant: Experiments srDNA
+  columns:
+  - heading: DNA Extraction
+    profiles:
+    - patient_registry
+    columns: []

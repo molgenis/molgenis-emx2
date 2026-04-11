@@ -1,1076 +1,924 @@
 table: Resources
 description: Resource of data and/or samples. Use 'resource type' to specify
-profiles: [catalogue_core]
-semantics: ['ldp:DirectContainer']
+semantics:
+- ldp:DirectContainer
+profiles:
+- datacatalogueflat
 columns:
-  rdf type:
-    type: hyperlink
-    semantics: ['rdf:type']
-    profiles: [ema]
-    computed: 'type.some(item => item.name === ''Catalogue'') ? ''http://www.w3.org/ns/dcat#Catalog''
-      : type.some(item => item.name === ''Network'') ?  undefined : ''http://www.w3.org/ns/dcat#Dataset'''
-    description: The DCAT type such as dcat:Catalog as computed field
-  fdp endpoint:
-    type: ref
-    defaultValue: '= {id: ''main_fdp''}'
-    refTable: Endpoint
-    semantics: ['ldp:membershipResource']
-    profiles: [ema]
-    description: FDP endpoint to associated with the catalogue
-  ldp membership relation:
-    type: hyperlink
-    defaultValue: https://w3id.org/fdp/fdp-o#metadataCatalog
-    semantics: ['ldp:hasMemberRelation']
-    profiles: [ema]
-    description: LDP membership relation
-  overview:
-    type: heading
-    profiles: [catalogue_core]
-    description: General information
-  hricore:
+- name: rdf type
+  type: hyperlink
+  description: The DCAT type such as dcat:Catalog as computed field
+  semantics:
+  - rdf:type
+  computed: "type.some(item => item.name === 'Catalogue') ? 'http://www.w3.org/ns/dcat#Catalog' : type.some(item => item.name === 'Network') ?  undefined : 'http://www.w3.org/ns/dcat#Dataset'"
+- name: fdp endpoint
+  type: ref
+  defaultValue: "= {id: 'main_fdp'}"
+  refTable: Endpoint
+  description: FDP endpoint to associated with the catalogue
+  semantics:
+  - ldp:membershipResource
+- name: ldp membership relation
+  type: hyperlink
+  defaultValue: https://w3id.org/fdp/fdp-o#metadataCatalog
+  description: LDP membership relation
+  semantics:
+  - ldp:hasMemberRelation
+- heading: overview
+  description: General information
+  columns:
+  - name: hricore
     type: bool
-    profiles: [catalogue_core]
-    description: Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata
-      can be shared with the Dutch National Health Data Catalogue?
-  id:
+    description: "Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata can be shared with the Dutch National Health Data Catalogue?"
+  - name: id
     key: 1
     required: true
-    profiles: [catalogue_core]
     description: Internal identifier
-  pid:
+  - name: pid
     key: 2
-    semantics: ['dcterms:identifier']
-    profiles: [catalogue_core]
     description: Persistent identifier
-  name:
+    semantics:
+    - dcterms:identifier
+  - name: name
     type: text
     key: 3
     required: true
-    semantics: ['dcterms:title']
-    profiles: [catalogue_core]
     description: Name used in international projects
-  local name:
-    semantics: ['rdfs:label']
-    profiles: [cohorts_staging, rwe_staging]
-    description: If different from above, name in the national language
-  acronym:
-    semantics: ['dcterms:alternative']
-    profiles: [catalogue_core]
-    description: Acronym, if applicable
-  type:
+    semantics:
+    - dcterms:title
+  - name: local name
+    description: "If different from above, name in the national language"
+    semantics:
+    - rdfs:label
+  - name: acronym
+    description: "Acronym, if applicable"
+    semantics:
+    - dcterms:alternative
+  - name: type
     type: ontology_array
     required: true
     refTable: Resource types
-    profiles: [catalogue_core]
-    description: Type of resource, e.g. registry, cohort, biobank
-  catalogue type:
+    description: "Type of resource, e.g. registry, cohort, biobank"
+  - name: catalogue type
     type: ontology
     refTable: CatalogueTypes
-    profiles: [networks_staging]
-    visible: type?.some(item => item.name === 'Catalogue')
     description: Type of catalogue
-  main catalogue:
-    type: bool
-    profiles: [networks_staging]
     visible: type?.some(item => item.name === 'Catalogue')
+  - name: main catalogue
+    type: bool
     description: Is this the main catalogue of this catalogue server?
-  cohort type:
+    visible: type?.some(item => item.name === 'Catalogue')
+  - name: cohort type
     type: ontology_array
     refTable: Cohort study types
-    profiles: [cohort_core]
-    visible: type?.some(item => item.name === 'Cohort study')
     description: Type of cohort
-  clinical study type:
+    visible: type?.some(item => item.name === 'Cohort study')
+  - name: clinical study type
     type: ontology_array
     refTable: Clinical study types
-    profiles: [ema]
-    visible: type?.some(item => item.name === 'Clinical trial')
     description: Type of clinical study
-  registry or health record type:
+    visible: type?.some(item => item.name === 'Clinical trial')
+  - name: registry or health record type
     type: ontology_array
     refTable: Datasource types
-    profiles: [rwe_core]
-    visible: type?.some(item => item.name === 'Data source' | item.name === 'Databank' | item.name ===
-      'Registry'  | item.name === 'Health records')
     description: Type of registry or health record
-  network type:
+    visible: type?.some(item => item.name === 'Data source' | item.name === 'Databank' | item.name === 'Registry'  | item.name === 'Health records')
+  - name: network type
     type: ontology_array
     refTable: Network types
-    profiles: [networks_staging]
-    visible: type?.some(item => item.name === 'Network')
     description: Type of network
-  website:
+    visible: type?.some(item => item.name === 'Network')
+  - name: website
     type: hyperlink
-    semantics: ['dcat:landingPage', 'foaf:homepage']
-    profiles: [catalogue_core]
     description: Link to the website or homepage
-  description:
+    semantics:
+    - dcat:landingPage
+    - foaf:homepage
+  - name: description
     type: text
     required: if(hricore === true) 'This field is mandatory for HRICore compatibility'
-    semantics: ['dcterms:description']
-    profiles: [catalogue_core]
     description: Short description
-  keywords:
+    semantics:
+    - dcterms:description
+  - name: keywords
     type: string_array
-    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue'))
-      'This field is mandatory for HRICore compatibility'
-    semantics: ['dcat:keyword']
-    profiles: [cohort_core, rwe_staging, integrate]
-    description: Keywords to increase findability of this resource. Try to use words that are not used
-      in the description. Keywords are not displayed on the resource page
-  internal identifiers:
+    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue')) 'This field is mandatory for HRICore compatibility'
+    description: Keywords to increase findability of this resource. Try to use words that are not used in the description. Keywords are not displayed on the resource page
+    semantics:
+    - dcat:keyword
+  - name: internal identifiers
     type: refback
     refTable: Internal identifiers
     refBack: resource
-    profiles: [catalogue_core]
     description: Internal identifier(s) for this resource (e.g. UMCG register number)
-  external identifiers:
+  - name: external identifiers
     type: refback
     refTable: External identifiers
     refBack: resource
-    profiles: [catalogue_core]
     description: External identifier(s) for this resource (e.g. EUPASS number or BBMRI persistent identifer)
-  start year:
+  - name: start year
     type: int
-    semantics: ['dcat:startDate']
-    profiles: [cohort_core, rwe_core, networks_staging]
-    description: The year when the resource started, e.g. when data or samples started to be collected
-      or extracted, or when the resource was established
-  end year:
+    description: "The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established"
+    semantics:
+    - dcat:startDate
+  - name: end year
     type: int
-    semantics: ['dcat:endDate']
-    profiles: [cohort_core, rwe_core, networks_staging]
-    description: The year the resource ceased, e.g. when data or sample collection was stopped
-  time span description:
+    description: "The year the resource ceased, e.g. when data or sample collection was stopped"
+    semantics:
+    - dcat:endDate
+  - name: time span description
     type: text
-    profiles: [rwe_staging]
     description: Description of time span
-  contact email:
+  - name: contact email
     type: email
-    profiles: [catalogue_core]
     description: Contact e-mail address
-  logo:
+  - name: logo
     type: file
-    profiles: [catalogue_core]
-    description: Logo of the resource, for use on homepages etc.
-  status:
+    description: "Logo of the resource, for use on homepages etc."
+  - name: status
     type: ontology
     refTable: Study status
-    profiles: [rwe_core, study_staging]
     description: Status of the study
-  conforms to:
+  - name: conforms to
     type: hyperlink
-    semantics: ['dcterms:conformsTo']
-    profiles: [catalogue_core]
     description: The specification of the catalog metadata schema
-  has member relation:
+    semantics:
+    - dcterms:conformsTo
+  - name: has member relation
     type: hyperlink
-    semantics: ['ldp:hasMemberRelation', 'dcat:record']
-    profiles: [catalogue_core]
-    description: This relation points to the URI of the custom relation/predicate used to relate the FAIR
-      Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.
-  issued:
+    description: This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.
+    semantics:
+    - ldp:hasMemberRelation
+    - dcat:record
+  - name: issued
     type: datetime
-    semantics: ['dcterms:issued', 'https://w3id.org/fdp/fdp-o#metadataIssued']
-    profiles: [cohort_core, rwe_core, networks_staging]
     description: When the data of the resource was first published
-  modified:
+    semantics:
+    - dcterms:issued
+    - https://w3id.org/fdp/fdp-o#metadataIssued
+  - name: modified
     type: datetime
-    semantics: ['dcterms:modified', 'https://w3id.org/fdp/fdp-o#metadataModified']
-    profiles: [cohort_core, rwe_core, networks_staging]
     description: When the data of the resource was last modified
-  design and structure:
-    type: heading
-    profiles: [catalogue_core]
-    description: Structure of the resource
-  design:
+    semantics:
+    - dcterms:modified
+    - https://w3id.org/fdp/fdp-o#metadataModified
+- heading: design and structure
+  description: Structure of the resource
+  columns:
+  - name: design
     type: ontology
     refTable: Cohort designs
-    profiles: [cohort_core]
-    description: The study design of this cohort, i.e. cross-sectional or longitudinal
-  design description:
+    description: "The study design of this cohort, i.e. cross-sectional or longitudinal"
+  - name: design description
     type: text
-    semantics: ['dcterms:provenance']
-    profiles: [cohort_core, rwe_core]
-    description: Short description of the study design of this resource, if applicable
-  design schematic:
+    description: "Short description of the study design of this resource, if applicable"
+    semantics:
+    - dcterms:provenance
+  - name: design schematic
     type: file
-    profiles: [cohort_core]
     description: A schematic depiction of the study design of this resource
-  data collection type:
+  - name: data collection type
     type: ontology_array
     refTable: Cohort collection types
-    profiles: [cohort_core]
     description: Retrospective or prospective data collection
-  data collection description:
+  - name: data collection description
     type: text
-    semantics: ['dcterms:provenance']
-    profiles: [rwe_core]
     description: Describe the process of collection and recording of data
-  reason sustained:
+    semantics:
+    - dcterms:provenance
+  - name: reason sustained
     type: text
-    semantics: ['dcterms:provenance']
-    profiles: [rwe_staging]
-    description: Description of the reason why the data bank is sustained by the organisation (e.g. for
-      surveillance, clinical purposes, financial or administrative purposes, research purposes)
-  record trigger:
+    description: "Description of the reason why the data bank is sustained by the organisation (e.g. for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
+    semantics:
+    - dcterms:provenance
+  - name: record trigger
     type: text
-    profiles: [rwe_core, integrate]
-    description: What triggers the creation of a record in the data bank? e.g. planned collection events,
-      hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital
-      anomaly
-  unit of observation:
+    description: "What triggers the creation of a record in the data bank? e.g. planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
+  - name: unit of observation
     type: text
-    profiles: [rwe_staging]
-    description: Based on the record trigger or promt, what is the unit(s) of observation of a record
-      (e.g. person, prescription)?
-  subpopulations:
+    description: "Based on the record trigger or promt, what is the unit(s) of observation of a record (e.g. person, prescription)?"
+  - name: subpopulations
     type: refback
     refTable: Subpopulations
     refBack: resource
-    profiles: [cohort_core]
-    description: List of cohorts or subpopulations defined in this resource, if applicable
-  collection events:
+    description: "List of cohorts or subpopulations defined in this resource, if applicable"
+  - name: collection events
     type: refback
     refTable: Collection events
     refBack: resource
-    profiles: [cohort_core]
-    description: List of data/sample collection events defined for this collection, if applicable
-  data resources:
+    description: "List of data/sample collection events defined for this collection, if applicable"
+  - name: data resources
     type: ref_array
     refTable: Resources
-    semantics: ['dcat:dataset']
-    profiles: [networks_staging]
-    description: List of other data collections included in this network, e.g. cohorts, biobanks or real
-      world data sources. Do not list other networks or catalogues here
-  part of networks:
+    description: "List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here"
+    semantics:
+    - dcat:dataset
+    profiles:
+    - networksstaging
+  - name: part of networks
     type: refback
     refTable: Resources
     refBack: data resources
-    profiles: [ema]
     description: List of other collections included in this resource
-  population:
-    type: heading
-    profiles: [cohort_core, rwe_core]
-    description: Description of the population that is sampled in this resource
-  number of participants:
+- heading: population
+  description: Description of the population that is sampled in this resource
+  columns:
+  - name: number of participants
     type: non_negative_int
-    semantics: ['healthdcatap:numberOfUniqueIndividuals']
-    profiles: [cohort_core, rwe_core]
     description: Total number of individuals for which data is collected
-  number of participants with samples:
+    semantics:
+    - healthdcatap:numberOfUniqueIndividuals
+  - name: number of participants with samples
     type: non_negative_int
-    profiles: [cohort_core, rwe_staging, integrate]
     description: Number of individuals for which samples are collected
-  underlying population:
+  - name: underlying population
     type: text
-    semantics: ['healthdcatap:populationCoverage']
-    profiles: [rwe_staging]
-    description: Provide a summary description of the underlying population from which participants are
-      sampled
-  population description:
+    description: Provide a summary description of the underlying population from which participants are sampled
+    semantics:
+    - healthdcatap:populationCoverage
+  - name: population description
     type: text
-    semantics: ['healthdcatap:populationCoverage']
-    profiles: [ema]
     description: A short description of the study population
-  population of interest:
+    semantics:
+    - healthdcatap:populationCoverage
+    profiles:
+    - ema
+  - name: population of interest
     type: ontology_array
     refTable: Population of interest
-    profiles: [rwe_core, study_staging]
     description: Select population of interest
-  population of interest other:
+  - name: population of interest other
     type: text
-    profiles: [rwe_core, study_staging]
-    description: If population of interest is 'Other', please specify which other population has been
-      studied
-  countries:
+    description: "If population of interest is 'Other', please specify which other population has been studied"
+  - name: countries
     type: ontology_array
     refTable: Countries
-    semantics: ['dcterms:spatial']
-    profiles: [catalogue_core]
     description: Countries where data/samples from this resource largely originate from
-  continents:
+    semantics:
+    - dcterms:spatial
+  - name: continents
     type: ontology_array
     refTable: Continents
-    semantics: ['dcterms:spatial']
-    profiles: [cohorts_staging]
     description: Continent(s) where data/samples from this resource originate from
-  regions:
+    semantics:
+    - dcterms:spatial
+  - name: regions
     type: ontology_array
     refTable: Regions
-    semantics: ['dcterms:spatial']
-    profiles: [cohort_core, rwe_core]
     description: Geographical regions where data/samples from this resource largely originate from
-  population age groups:
+    semantics:
+    - dcterms:spatial
+  - name: population age groups
     type: ontology_array
     refTable: Age groups
-    profiles: [cohort_core, rwe_core]
     description: Which population age groups are captured in this resource? Select all that are relevant
-  age min:
+  - name: age min
     type: non_negative_int
-    semantics: ['healthdcatap:minimumTypicalAge']
-    profiles: [cohort_core, rwe_core]
     description: Minimum age of participants within this resource
-  age max:
+    semantics:
+    - healthdcatap:minimumTypicalAge
+  - name: age max
     type: non_negative_int
-    semantics: ['healthdcatap:maximumTypicalAge']
-    profiles: [cohort_core, rwe_core]
     description: Maximum age of participants within this resource
-  inclusion criteria:
+    semantics:
+    - healthdcatap:maximumTypicalAge
+  - name: inclusion criteria
     type: ontology_array
     refTable: Inclusion Exclusion Criteria
-    profiles: [cohort_core]
     description: Inclusion criteria applied to the participants of this resource
-  other inclusion criteria:
+  - name: other inclusion criteria
     type: text
-    profiles: [cohort_core]
     description: Other inclusion criteria applied to the participants of this resource
-  exclusion criteria:
+  - name: exclusion criteria
     type: ontology_array
     refTable: Inclusion Exclusion Criteria
-    profiles: [cohort_core]
     description: Exclusion criteria applied to the participants of this resource
-  other exclusion criteria:
+  - name: other exclusion criteria
     type: text
-    profiles: [cohort_core]
     description: Other exclusion criteria applied to the participants of this resource
-  population entry:
+  - name: population entry
     type: ontology_array
     refTable: Population entry
-    profiles: [rwe_core]
-    description: Select the possible causes / events that trigger the registration of a person in the
-      data source
-  population entry other:
+    description: Select the possible causes / events that trigger the registration of a person in the data source
+  - name: population entry other
     type: text
-    profiles: [rwe_core]
-    description: If other, specify the causes of entry to the underlying population
-  population exit:
+    description: "If other, specify the causes of entry to the underlying population"
+  - name: population exit
     type: ontology_array
     refTable: Population exit
-    profiles: [rwe_core]
-    description: Select the possible causes / events that trigger the de-registration of a person in the
-      data source
-  population exit other:
+    description: Select the possible causes / events that trigger the de-registration of a person in the data source
+  - name: population exit other
     type: text
-    profiles: [rwe_core]
-    description: If other, specify the causes of exit from the underlying population
-  population disease:
+    description: "If other, specify the causes of exit from the underlying population"
+  - name: population disease
     type: ontology_array
     refTable: Diseases
-    profiles: [cohorts_staging, rwe_staging, integrate]
-    description: Is information on a specific disease subpopulation collected (e.g. as in a disease-specific
-      registry or cohort)?
-  population oncology topology:
+    description: Is information on a specific disease subpopulation collected (e.g. as in a disease-specific registry or cohort)?
+  - name: population oncology topology
     type: ontology_array
     refTable: ICDO topologies
-    profiles: [cohorts_staging, rwe_staging]
-    description: Is information on specific cancer subtype(s) collected? If yes, select topology specifications
-  population oncology morphology:
+    description: "Is information on specific cancer subtype(s) collected? If yes, select topology specifications"
+  - name: population oncology morphology
     type: ontology_array
     refTable: ICDO morphologies
-    profiles: [cohorts_staging, rwe_staging]
-    description: Is information on specific cancer subtype(s) collected? If yes, select morphology specifications
-  population coverage:
+    description: "Is information on specific cancer subtype(s) collected? If yes, select morphology specifications"
+  - name: population coverage
     type: text
-    profiles: [rwe_core, integrate]
-    description: Estimated percentage of the population covered by the data source in the catchment area.
-      Please describe the denominator
-  population not covered:
+    description: Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator
+  - name: population not covered
     type: text
-    profiles: [rwe_core]
-    description: Description of the population covered by the data source in the catchment area whose
-      data are not collected, where applicable (e.g. people who are registered only for private care)
-  counts:
+    description: "Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g. people who are registered only for private care)"
+  - name: counts
     type: refback
     refTable: Resource counts
     refBack: resource
-    profiles: [rwe_staging, study_staging, integrate]
     description: Counts of e.g. samples defined for this resource
-  contributors:
-    type: heading
-    profiles: [cohort_core, rwe_core]
-    description: List of relevant collaborations
-  organisations involved:
+- heading: contributors
+  description: List of relevant collaborations
+  columns:
+  - name: organisations involved
     type: refback
     refTable: Organisations
     refBack: resource
-    profiles: [cohort_core, rwe_core, networks_staging]
     description: Organisations involved in this resource and their role(s)
-  publisher:
+  - name: publisher
     type: ref
     required: if(hricore === true) 'This field is mandatory for HRICore compatibility'
     refTable: Organisations
-    semantics: ['dcterms:publisher']
-    profiles: [cohort_core, rwe_core, networks_staging]
-    description: From organisations involved, point out the organisation that published this resource
-  creator:
+    description: "From organisations involved, point out the organisation that published this resource"
+    semantics:
+    - dcterms:publisher
+  - name: creator
     type: ref_array
-    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue'))
-      'This field is mandatory for HRICore compatibility'
+    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue')) 'This field is mandatory for HRICore compatibility'
     refTable: Organisations
-    semantics: ['dcterms:creator']
-    profiles: [cohort_core, rwe_core]
-    description: From organisations involved, point out the organisation(s) that created this resource
-  people involved:
+    description: "From organisations involved, point out the organisation(s) that created this resource"
+    semantics:
+    - dcterms:creator
+  - name: people involved
     type: refback
     refTable: Contacts
     refBack: resource
-    profiles: [cohort_core, rwe_core, networks_staging]
     description: Persons that contributed to this resource
-  contact point:
+  - name: contact point
     type: ref
     required: if(hricore === true) 'This field is mandatory for HRICore compatibility'
     refTable: Contacts
-    semantics: ['dcat:contactPoint']
-    profiles: [cohort_core, rwe_core, networks_staging]
-    description: From people involved, point out the primary contact point for this resource
-  child networks:
+    description: "From people involved, point out the primary contact point for this resource"
+    semantics:
+    - dcat:contactPoint
+  - name: child networks
     type: ref_array
     refTable: Resources
-    semantics: ['dcat:catalog']
-    profiles: [networks_staging]
-    description: List of networks, consortia or catalogues included in this network
-  parent networks:
+    description: "List of networks, consortia or catalogues included in this network"
+    semantics:
+    - dcat:catalog
+    profiles:
+    - networksstaging
+  - name: parent networks
     type: refback
     refTable: Resources
     refBack: child networks
-    profiles: [ema]
     description: The consortia or networks that this resource is part of
-  networks other:
+  - name: networks other
     type: text
-    profiles: [ema]
-    description: List the names of any other networks that are not listed and this resource is involved
-      in
-  available data and samples:
-    type: heading
-    profiles: [cohorts_staging, rwe_core]
-    description: Data model and contents
-  datasets:
+    description: List the names of any other networks that are not listed and this resource is involved in
+    profiles:
+    - ema
+- heading: available data and samples
+  description: Data model and contents
+  columns:
+  - name: datasets
     type: refback
     refTable: Datasets
     refBack: resource
-    profiles: [cohorts_staging, rwe_staging, study_staging]
     description: List of datasets contained in this resouce if applicable
-  samplesets:
+  - name: samplesets
     type: refback
     refTable: Samplesets
     refBack: resource
-    profiles: [cohorts_staging, rwe_staging, study_staging]
     description: List of sample sets contained in this resource if applicable
-  areas of information:
+  - name: areas of information
     type: ontology_array
     refTable: Areas of information cohorts
-    profiles: [cohorts_staging]
     description: Areas of information that were collected
-  areas of information rwd:
+  - name: areas of information rwd
     type: ontology_array
     refTable: Areas of information ds
-    profiles: [rwe_core]
     description: Areas of information that were collected
-  quality of life other:
+  - name: quality of life other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', specify additional quality of life measures
-  cause of death code other:
+    description: "If 'other', specify additional quality of life measures"
+  - name: cause of death code other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what cause of death vocabulary is used?
-  indication vocabulary other:
+    description: "If 'other', what cause of death vocabulary is used?"
+  - name: indication vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what indication for use vocabulary is used?
-  genetic data vocabulary other:
+    description: "If 'other', what indication for use vocabulary is used?"
+  - name: genetic data vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what genetic data vocabulary is used?
-  care setting other:
+    description: "If 'other', what genetic data vocabulary is used?"
+  - name: care setting other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', description of the setting of care
-  medicinal product vocabulary other:
+    description: "If 'other', description of the setting of care"
+  - name: medicinal product vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', description of the medicinal product vocabulary
-  prescriptions vocabulary other:
+    description: "If 'other', description of the medicinal product vocabulary"
+  - name: prescriptions vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what prescriptions vocabulary is used?
-  dispensings vocabulary other:
+    description: "If 'other', what prescriptions vocabulary is used?"
+  - name: dispensings vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what dispensings vocabulary is used?
-  procedures vocabulary other:
+    description: "If 'other', what dispensings vocabulary is used?"
+  - name: procedures vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what procedures vocabulary is used?
-  biomarker data vocabulary other:
+    description: "If 'other', what procedures vocabulary is used?"
+  - name: biomarker data vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what biomarker data vocabulary is used?
-  diagnosis medical event vocabulary other:
+    description: "If 'other', what biomarker data vocabulary is used?"
+  - name: diagnosis medical event vocabulary other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', what diagnosis medical event vocabulary is used?
-  data dictionary available:
+    description: "If 'other', what diagnosis medical event vocabulary is used?"
+  - name: data dictionary available
     type: bool
-    profiles: [rwe_staging]
     description: Are a data dictionary and a data model available?
-  disease details:
+  - name: disease details
     type: ontology_array
     refTable: MedDRA
-    profiles: [ema]
-    description: If data on a specific disease is collected, which diseases does the data source collect
-      information on
-  disease details other:
+    description: "If data on a specific disease is collected, which diseases does the data source collect information on"
+    profiles:
+    - ema
+  - name: disease details other
     type: text
-    profiles: [ema]
     description: Specify disease details if not present in MedDRA
-  biospecimen collected:
+    profiles:
+    - ema
+  - name: biospecimen collected
     type: ontology_array
     refTable: Biospecimens
-    profiles: [rwe_staging]
-    description: If the data bank contains biospecimens, what types of specimen
-  languages:
+    description: "If the data bank contains biospecimens, what types of specimen"
+  - name: languages
     type: ontology_array
     refTable: Languages
-    profiles: [rwe_core]
     description: Languages that the records are recorded in (ISO 639)
-  multiple entries:
+  - name: multiple entries
     type: bool
-    profiles: [rwe_staging]
     description: Can there be multiple entries for a single person in the data bank?
-  linkage:
-    type: heading
-    profiles: [cohort_core, rwe_core]
-    description: Data linkage
-  has identifier:
+- heading: linkage
+  description: Data linkage
+  columns:
+  - name: has identifier
     type: bool
-    profiles: [rwe_staging]
     description: Is there a unique identifier for a person in the data bank?
-  identifier description:
+  - name: identifier description
     type: text
-    profiles: [rwe_staging]
-    description: Describe the variable that is used as a unique identifier for a person in the data bank.
-      If the unique identifier is not at level of a person (for example hospital encounter), describe
-      how this is translated to an individual level
-  prelinked:
+    description: "Describe the variable that is used as a unique identifier for a person in the data bank. If the unique identifier is not at level of a person (for example hospital encounter), describe how this is translated to an individual level"
+  - name: prelinked
     type: bool
-    profiles: [cohort_core, rwe_core]
     description: Is the data from this data source linked to other data sources?
-  linkage options:
+  - name: linkage options
     type: text
-    profiles: [cohort_core, rwe_staging, integrate]
     description: Linkage options with additional data resources that are available for this resource
-  linkage description:
+  - name: linkage description
     type: text
-    profiles: [ema]
-    description: Provide a high-level description of the linkages that are currently available for this
-      data resource
-  linkage possibility:
+    description: Provide a high-level description of the linkages that are currently available for this data resource
+    profiles:
+    - ema
+  - name: linkage possibility
     type: bool
-    profiles: [cohort_core, rwe_core]
     description: Can this data source be linked to other data sources?
-  linkage possibility description:
+  - name: linkage possibility description
     type: text
-    profiles: [ema]
     description: Description of data sources that can be linked to this data source
-  linked resources:
+    profiles:
+    - ema
+  - name: linked resources
     type: refback
     refTable: Linkages
     refBack: resource
-    profiles: [rwe_core]
     description: List of resources that are or can be linked to this main resource
-  access conditions:
-    type: heading
-    profiles: [cohort_core, rwe_core]
-    description: Access and validation information
-  informed consent type:
+- heading: access conditions
+  description: Access and validation information
+  columns:
+  - name: informed consent type
     type: ontology
     refTable: Informed consent types
-    profiles: [cohort_core]
     description: What type of informed consent was given for data resource?
-  informed consent required:
+  - name: informed consent required
     type: ontology
     refTable: Informed consent required
-    profiles: [rwe_core]
     description: Is informed consent required for use of the data for research purposes?
-  informed consent other:
+  - name: informed consent other
     type: text
-    profiles: [rwe_core]
-    description: If 'other', describe the conditions when informed consent is required
-  access rights:
+    description: "If 'other', describe the conditions when informed consent is required"
+  - name: access rights
     type: ontology
-    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue'))
-      'This field is mandatory for HRICore compatibility'
-    defaultValue: '= {name: ''Non public''}'
+    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue')) 'This field is mandatory for HRICore compatibility'
+    defaultValue: "= {name: 'Non public'}"
     refTable: Access rights
-    semantics: ['dcterms:accessRights']
-    profiles: [cohort_core, rwe_core]
-    description: Information that indicates whether the resource is publicly accessible, has access restrictions
-      or is not public. A default is set for non-public access, because most health datasets contain sensitive
-      information and rules and licenses apply to get access.
-  data access conditions:
+    description: "Information that indicates whether the resource is publicly accessible, has access restrictions or is not public. A default is set for non-public access, because most health datasets contain sensitive information and rules and licenses apply to get access."
+    semantics:
+    - dcterms:accessRights
+  - name: data access conditions
     type: ontology_array
     refTable: Data access conditions
-    profiles: [cohort_core]
     description: Codes defining data access terms and conditions
-  data use conditions:
+  - name: data use conditions
     type: ontology_array
     refTable: Data use conditions
-    profiles: [cohort_core]
     description: Codes defining data use terms and conditions
-  data access conditions description:
+  - name: data access conditions description
     type: text
-    profiles: [cohort_core]
     description: Description of data access terms and use conditions
-  data access fee:
+  - name: data access fee
     type: bool
-    profiles: [cohort_core]
     description: Does a fee apply to gain access to data of this resource?
-  access identifiable data:
+  - name: access identifiable data
     type: text
-    profiles: [rwe_staging]
-    description: Can identifiable data be accessed in the data bank (including patient/practitioner name/practice
-      name)?
-  access identifiable data route:
+    description: Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?
+  - name: access identifiable data route
     type: text
-    profiles: [rwe_staging]
-    description: If yes above, what is the route to access or process this information? What permission
-      is required?
-  access subject details:
+    description: "If yes above, what is the route to access or process this information? What permission is required?"
+  - name: access subject details
     type: bool
-    profiles: [rwe_core]
     description: Can individual patients/practitioners/practices be contacted in the data bank?
-  access subject details route:
+  - name: access subject details route
     type: text
-    profiles: [rwe_staging]
-    description: If yes to the above, what is the route to access or process this information? What permission
-      is required?
-  access third party:
+    description: "If yes to the above, what is the route to access or process this information? What permission is required?"
+  - name: access third party
     type: bool
-    profiles: [rwe_staging]
     description: Can (an extract of) the data bank be accessed with permission by a third party?
-  access third party conditions:
+  - name: access third party conditions
     type: text
-    profiles: [rwe_staging]
-    description: If above is 'yes', describe the conditions under which third-party access may be granted
-  access non EU:
+    description: "If above is 'yes', describe the conditions under which third-party access may be granted"
+  - name: access non EU
     type: bool
-    profiles: [rwe_staging]
     description: Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
-  access non EU conditions:
+  - name: access non EU conditions
     type: text
-    profiles: [rwe_staging]
-    description: If yes to the above, describe the conditions under which non-EU/EEA access may be granted
-  biospecimen access:
+    description: "If yes to the above, describe the conditions under which non-EU/EEA access may be granted"
+  - name: biospecimen access
     type: bool
-    profiles: [rwe_core, integrate]
-    description: If the data bank contains biospecimens (e.g. tissue samples), can these be retrieved?
-  biospecimen access conditions:
+    description: "If the data bank contains biospecimens (e.g. tissue samples), can these be retrieved?"
+  - name: biospecimen access conditions
     type: text
-    profiles: [rwe_core, integrate]
-    description: If yes to the above, describe the conditions under which permission to retrieve biospecimens
-      may be granted
-  governance details:
+    description: "If yes to the above, describe the conditions under which permission to retrieve biospecimens may be granted"
+  - name: governance details
     type: text
-    profiles: [rwe_staging]
-    description: If available, provide a link to documents or webpages that describe the overall governance
-      of the data source bank (governing data access or utilisation for research purposes by existing
-      DAPs)
-  approval for publication:
+    description: "If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
+  - name: approval for publication
     type: bool
-    profiles: [rwe_core]
     description: Is an approval needed to publish the results of a study using the data
-  updates:
-    type: heading
-    profiles: [rwe_core]
-    description: Information on the regularity of updates and time lags
-  release type:
+- heading: updates
+  description: Information on the regularity of updates and time lags
+  columns:
+  - name: release type
     type: ontology
     refTable: Release types
-    semantics: ['dcterms:accrualPeriodicity']
-    profiles: [cohort_core]
-    description: Select whether this resource is a closed dataset or whether new data is released continuously
-      or at a termly basis
-  release description:
+    description: Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
+    semantics:
+    - dcterms:accrualPeriodicity
+  - name: release description
     type: text
-    profiles: [cohort_core]
     description: Description of the release cycle of this resource
-  number of records:
+  - name: number of records
     type: int
-    profiles: [rwe_staging]
     description: Total number of unique records captured in the data bank (most recent count)
-  release frequency:
+  - name: release frequency
     type: int
-    profiles: [rwe_core]
     description: Refreshing rate (in months)
-  refresh time:
+  - name: refresh time
     type: int
-    profiles: [rwe_staging]
     description: Average number of days between refresh of data bank with new records
-  lag time:
+  - name: lag time
     type: int
-    profiles: [rwe_staging]
-    description: How many days is the lag time after refresh before a record can be extracted? (e.g. a
-      lag time may occur if the originator conducts quality checks)
-  refresh period:
+    description: How many days is the lag time after refresh before a record can be extracted? (e.g. a lag time may occur if the originator conducts quality checks)
+  - name: refresh period
     type: ontology_array
     refTable: Refresh periods
-    profiles: [rwe_core]
-    description: 'If data are refreshed on fixed dates (e.g. every June and December), when are the refreshes
-      scheduled? Select all that apply from the following:'
-  date last refresh:
+    description: "If data are refreshed on fixed dates (e.g. every June and December), when are the refreshes scheduled? Select all that apply from the following:"
+  - name: date last refresh
     type: date
-    profiles: [rwe_core]
     description: Date of last update/refresh
-  preservation:
+  - name: preservation
     type: bool
-    profiles: [rwe_core]
     description: Are records preserved in the data bank indefinitely?
-  preservation duration:
+  - name: preservation duration
     type: int
-    profiles: [rwe_core]
-    description: If 'no' to the above, for how long (in years) are records preserved in the data bank?
-  quality:
-    type: heading
-    profiles: [rwe_core, integrate]
-    description: List of relevant studies conducted using the data bank
-  standard operating procedures:
+    description: "If 'no' to the above, for how long (in years) are records preserved in the data bank?"
+- heading: quality
+  description: List of relevant studies conducted using the data bank
+  columns:
+  - name: standard operating procedures
     type: bool
-    profiles: [rwe_staging]
-    description: Is there a standard operating procedure document that defines the processes and procedures
-      for data capture and management?
-  qualification:
+    description: Is there a standard operating procedure document that defines the processes and procedures for data capture and management?
+  - name: qualification
     type: bool
-    profiles: [rwe_core, integrate]
-    description: Has the data source successfully undergone a formal qualification process (e.g. from
-      the EMA, ISO or other certifications)?
-  qualifications description:
+    description: "Has the data source successfully undergone a formal qualification process (e.g. from the EMA, ISO or other certifications)?"
+  - name: qualifications description
     type: text
-    profiles: [rwe_core]
-    description: Has the data source successfully undergone a qualification process (e.g. from the EMA)?
-      If yes, describe the qualification(s) granted
-  audit possible:
+    description: "Has the data source successfully undergone a qualification process (e.g. from the EMA)? If yes, describe the qualification(s) granted"
+  - name: audit possible
     type: bool
-    profiles: [rwe_staging]
-    description: Are external parties allowed to audit the data? For example, is it possible for an external
-      party to audit the quality or validity of the data source?
-  completeness:
+    description: "Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?"
+  - name: completeness
     type: text
-    profiles: [rwe_staging]
-    description: Describe the completeness of the data bank (e.g. variables with more or fewer missing
-      values)
-  completeness over time:
+    description: Describe the completeness of the data bank (e.g. variables with more or fewer missing values)
+  - name: completeness over time
     type: text
-    profiles: [rwe_staging]
-    description: Describe any changes in completeness of the data bank (e.g. variables with more or fewer
-      missing values) that have occurred  over time
-  completeness results:
+    description: Describe any changes in completeness of the data bank (e.g. variables with more or fewer missing values) that have occurred  over time
+  - name: completeness results
     type: text
-    profiles: [rwe_staging]
     description: What methods or processes are applied to check completeness of the data bank?
-  quality description:
+  - name: quality description
     type: text
-    profiles: [rwe_staging]
     description: Describe the quality of the data bank (e.g. variables with more or fewer missing values)
-  quality over time:
+  - name: quality over time
     type: text
-    profiles: [rwe_staging]
     description: Describe any changes in quality of the data bank that have occurred  over time
-  access for validation:
+  - name: access for validation
     type: bool
-    profiles: [rwe_core]
-    description: Can validity of the data in the data bank be verified, e.g. by review of origin medical
-      charts?
-  quality validation frequency:
+    description: "Can validity of the data in the data bank be verified, e.g. by review of origin medical charts?"
+  - name: quality validation frequency
     type: text
-    profiles: [rwe_staging]
     description: How often are data quality checks and validation steps conducted on the data bank?
-  quality validation methods:
+  - name: quality validation methods
     type: text
-    profiles: [rwe_staging]
-    description: What methods or processes are applied for data quality checks and validation steps conducted
-      on the data bank?
-  correction methods:
+    description: What methods or processes are applied for data quality checks and validation steps conducted on the data bank?
+  - name: correction methods
     type: text
-    profiles: [rwe_staging]
     description: What methods or processes are applied to correct illogical values in the data bank?
-  quality validation results:
-    profiles: [rwe_staging]
-    description: If available, provide a link to a publication of the data quality check and validation
-      results
-  quality marks:
+  - name: quality validation results
+    description: "If available, provide a link to a publication of the data quality check and validation results"
+  - name: quality marks
     type: ontology_array
     refTable: Study quality marks
-    profiles: [ema]
-    description: Quality marks, such as ENCePP seal
-  standards:
-    type: heading
-    profiles: [rwe_core, integrate]
-    description: Use of standard data models and ontologies
-  mappings to common data models:
+    description: "Quality marks, such as ENCePP seal"
+    profiles:
+    - ema
+- heading: standards
+  description: Use of standard data models and ontologies
+  columns:
+  - name: mappings to common data models
     type: refback
     refTable: Dataset mappings
     refBack: source
-    profiles: [rwe_staging]
     description: Overview of dataset mappings available
-  common data models other:
+  - name: common data models other
     type: text
-    profiles: [rwe_core]
-    description: If not in list above, give the name of cdm(s) used by this data source
-  ETL standard vocabularies:
+    description: "If not in list above, give the name of cdm(s) used by this data source"
+  - name: ETL standard vocabularies
     type: ontology_array
     refTable: Vocabularies
-    profiles: [rwe_staging, integrate]
-    description: Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies
-      are used for events, such as diagnoses?
-  ETL standard vocabularies other:
+    description: "Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
+  - name: ETL standard vocabularies other
     type: text
-    profiles: [rwe_staging, integrate]
-    description: If other, what other vocabularies are used?
-  information:
-    type: heading
-    profiles: [catalogue_core]
-    description: Other information
-  publications:
+    description: "If other, what other vocabularies are used?"
+- heading: information
+  description: Other information
+  columns:
+  - name: publications
     type: refback
     refTable: Publications
     refBack: resource
-    profiles: [catalogue_core]
     description: Publication(s) about this resource
-  funding sources:
+  - name: funding sources
     type: ontology_array
     refTable: Funding types
-    profiles: [rwe_core, integrate]
-    description: Specify the main financial support sources for the data source in the last three years.
-      Select all that apply
-  funding scheme:
+    description: Specify the main financial support sources for the data source in the last three years. Select all that apply
+  - name: funding scheme
     type: ontology_array
     refTable: Study funding
-    profiles: [rwe_core, study_staging]
     description: The source of funding for the study. Select all that apply
-  funding statement:
+  - name: funding statement
     type: text
-    profiles: [catalogue_core]
     description: Statement listing funding that was obtained for this resource
-  citation requirements:
+  - name: citation requirements
     type: text
-    profiles: [catalogue_core]
     description: Citation regulation for this resource
-  acknowledgements:
+  - name: acknowledgements
     type: text
-    profiles: [cohort_core, rwe_staging, study_staging]
     description: Acknowledgement statement and citation regulation for this resource
-  provenance statement:
+  - name: provenance statement
     type: text
-    semantics: ['dcterms:provenance']
-    profiles: [cohort_core, rwe_core, study_staging]
-    description: A statement of any changes in ownership and custody of a resource since its creation
-      that are significant for its authenticity, integrity, and interpretation
-  documentation:
+    description: "A statement of any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation"
+    semantics:
+    - dcterms:provenance
+  - name: documentation
     type: refback
     refTable: Documentation
     refBack: resource
-    profiles: [catalogue_core]
-    description: Descriptive document(s) available for this resource, e.g. informed consent
-  supplementary information:
+    description: "Descriptive document(s) available for this resource, e.g. informed consent"
+  - name: supplementary information
     type: text
-    profiles: [cohorts_staging, rwe_staging]
     description: Any other information that needs to be disclosed for this resource
-  theme:
+  - name: theme
     type: ontology_array
-    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue'))
-      'This field is mandatory for HRICore compatibility'
-    defaultValue: '= [{name: ''Health''}]'
+    required: if(hricore === true && type?.some(item => item.name !== 'Network' && item.name !== 'Catalogue')) 'This field is mandatory for HRICore compatibility'
+    defaultValue: "= [{name: 'Health'}]"
     refTable: Themes
-    semantics: ['dcat:theme']
-    profiles: [catalogue_core]
-    description: A main category of the resource. A resource can have multiple themes, for health data
-      theme must at least take the value 'Health', which is set as a default
-  applicable legislation:
+    description: "A main category of the resource. A resource can have multiple themes, for health data theme must at least take the value 'Health', which is set as a default"
+    semantics:
+    - dcat:theme
+  - name: applicable legislation
     type: ontology_array
     required: if(hricore === true) 'This field is mandatory for HRICore compatibility'
-    defaultValue: '= [{name: ''Data Governance Act''}]'
+    defaultValue: "= [{name: 'Data Governance Act'}]"
     refTable: Legislations
-    semantics: ['dcatap:applicableLegislation']
-    profiles: [catalogue_core]
-    description: The legislation that mandates the creation or management of the resource. For health
-      datasets, the value must include the data governance act, which is set as a default. URI's to other
-      legislations may be included
-  study details:
-    type: heading
-    profiles: [rwe_core, study_staging]
-    description: List of relevant collaborations
-  study requirements:
+    description: "The legislation that mandates the creation or management of the resource. For health datasets, the value must include the data governance act, which is set as a default. URI's to other legislations may be included"
+    semantics:
+    - dcatap:applicableLegislation
+- heading: study details
+  description: List of relevant collaborations
+  columns:
+  - name: study requirements
     type: ontology_array
     refTable: Study requirements
-    profiles: [ema]
     description: Study requirements
-  regulatory procedure number:
-    profiles: [ema]
-    description: Regulatory procedure number, for RMP Category 1 and 2 studies only
-  date of signing funding contract planned:
+    profiles:
+    - ema
+  - name: regulatory procedure number
+    description: "Regulatory procedure number, for RMP Category 1 and 2 studies only"
+    profiles:
+    - ema
+  - name: date of signing funding contract planned
     type: date
-    profiles: [ema]
-    description: Date when funding contract was signed, planned
-  date of signing funding contract actual:
+    description: "Date when funding contract was signed, planned"
+    profiles:
+    - ema
+  - name: date of signing funding contract actual
     type: date
-    profiles: [ema]
-    description: Date when funding contract was signed, actual
-  collection start planned:
+    description: "Date when funding contract was signed, actual"
+    profiles:
+    - ema
+  - name: collection start planned
     type: date
-    profiles: [rwe_core, study_staging]
     description: When was the data collection planned to start?
-  collection start actual:
+  - name: collection start actual
     type: date
-    profiles: [rwe_core, study_staging]
     description: When was the data collection actually start?
-  analysis start planned:
+  - name: analysis start planned
     type: date
-    profiles: [rwe_core, study_staging]
     description: When was the data analysis planned to start?
-  analysis start actual:
+  - name: analysis start actual
     type: date
-    profiles: [rwe_core, study_staging]
     description: When did the data analysis actually start?
-  interim report planned:
+  - name: interim report planned
     type: date
-    profiles: [ema]
-    description: Planned date of interim report, if expected
-  interim report actual:
+    description: "Planned date of interim report, if expected"
+    profiles:
+    - ema
+  - name: interim report actual
     type: date
-    profiles: [ema]
-    description: Actual date of interim report, if expected
-  final report planned:
+    description: "Actual date of interim report, if expected"
+    profiles:
+    - ema
+  - name: final report planned
     type: date
-    profiles: [ema]
-    description: Date of final study report, planned
-  final report actual:
+    description: "Date of final study report, planned"
+    profiles:
+    - ema
+  - name: final report actual
     type: date
-    profiles: [ema]
-    description: Date of final study report, actual
-  data sources:
+    description: "Date of final study report, actual"
+    profiles:
+    - ema
+  - name: data sources
     type: ref_array
     refTable: Resources
-    profiles: [rwe_core, study_staging]
     description: Data sources that provided data into this study
-  data sources other:
+  - name: data sources other
     type: text
-    profiles: [ema]
     description: Other not listed data sources that provided data into this study
-  study features:
+    profiles:
+    - ema
+  - name: study features
     type: ontology_array
     refTable: Study features
-    profiles: [ema]
     description: Data features
-  data characterisation details:
+    profiles:
+    - ema
+  - name: data characterisation details
     type: text
-    profiles: [ema]
     description: Provide a summary description of the data characterisation or quality check process
-  data source types:
+    profiles:
+    - ema
+  - name: data source types
     type: ontology_array
     refTable: Study datasource types
-    profiles: [ema]
     description: Types of data sources used
-  data source types other:
+    profiles:
+    - ema
+  - name: data source types other
     type: text
-    profiles: [ema]
-    description: Sources of data, if 'other'
-  number of data sources:
+    description: "Sources of data, if 'other'"
+    profiles:
+    - ema
+  - name: number of data sources
     type: int
-    profiles: [ema]
     description: Total number of data sources included in the study
-  medicines studied INN codes:
+    profiles:
+    - ema
+  - name: medicines studied INN codes
     type: ontology_array
     refTable: INN
-    profiles: [ema]
     description: INN codes of medicines studied
-  medicines studied ATC codes:
+    profiles:
+    - ema
+  - name: medicines studied ATC codes
     type: ontology_array
     refTable: ATC
-    profiles: [ema]
     description: ATC codes of medicines studied
-  medicines studies brands:
+    profiles:
+    - ema
+  - name: medicines studies brands
     type: ontology_array
     refTable: Medicine brand names
-    profiles: [ema]
     description: Brand names of the medicines studied
-  medicines studied other:
+    profiles:
+    - ema
+  - name: medicines studied other
     type: text
-    profiles: [ema]
-    description: If the medicinal product information (e.g. brand name or active substance or ATC code)
-      does not appear in the available look-ups please enter it here
-  medical conditions studied:
+    description: If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here
+    profiles:
+    - ema
+  - name: medical conditions studied
     type: ontology_array
     refTable: MedDRA
-    profiles: [ema]
     description: Codes of the medical conditions studied
-  medical conditions studied other:
+    profiles:
+    - ema
+  - name: medical conditions studied other
     type: text
-    profiles: [ema]
     description: Codes of the medical conditions studied
-  data extraction date:
+    profiles:
+    - ema
+  - name: data extraction date
     type: date
-    profiles: [study_staging]
     description: Date on which the study data was extracted
-  study methods:
-    type: heading
-    profiles: [rwe_core, study_staging]
-    description: Methodological aspects
-  analysis plan:
+- heading: study methods
+  description: Methodological aspects
+  columns:
+  - name: analysis plan
     type: text
-    profiles: [study_staging]
-    description: A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external
-      validity)
-  objectives:
+    description: "A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)"
+  - name: objectives
     type: text
-    profiles: [rwe_core, study_staging]
     description: A short description of the study objective
-  interventions:
+  - name: interventions
     type: text
-    profiles: [ema]
     description: A short description of the study interventions
-  comparators:
+    profiles:
+    - ema
+  - name: comparators
     type: text
-    profiles: [ema]
     description: A short description of the study comparators
-  outcomes:
+    profiles:
+    - ema
+  - name: outcomes
     type: text
-    profiles: [ema]
     description: A short description of the study outcomes
-  results:
+    profiles:
+    - ema
+  - name: results
     type: text
-    profiles: [rwe_core, study_staging]
     description: A brief summary of the results of the study on study completion (e.g. from abstract)
-  topic:
+  - name: topic
     type: ontology_array
     refTable: Study topics
-    profiles: [ema]
     description: An initial classification of the study purpose
-  topic other:
+    profiles:
+    - ema
+  - name: topic other
     type: text
-    profiles: [ema]
-    description: If the study is not concerning any of the proposed categories, please specify the details
-  trial regulatory scope:
+    description: "If the study is not concerning any of the proposed categories, please specify the details"
+    profiles:
+    - ema
+  - name: trial regulatory scope
     type: ontology_array
     refTable: Study trial regulatory scopes
-    profiles: [ema]
     description: Classification of the clinical trial in relation to the medicines authorisation
-  study design classification:
+    profiles:
+    - ema
+  - name: study design classification
     type: ontology_array
     refTable: Study design classification
-    profiles: [ema]
     description: Study design classifications
-  study design classification other:
+    profiles:
+    - ema
+  - name: study design classification other
     type: text
-    profiles: [ema]
     description: Further details on design
-  study scope:
+    profiles:
+    - ema
+  - name: study scope
     type: ontology_array
     refTable: Study scopes
-    profiles: [ema]
     description: Scope of the study
-  study scope other:
+    profiles:
+    - ema
+  - name: study scope other
     type: text
-    profiles: [ema]
     description: If scope 'other'
+    profiles:
+    - ema

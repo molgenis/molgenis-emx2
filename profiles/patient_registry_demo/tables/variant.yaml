@@ -1,61 +1,62 @@
 table: variant
+description: ""
 columns:
-  label:
-    required: 'false'
-    label: Label
-  belongsToSubject:
-    type: ref
-    required: 'false'
-    refTable: subject
-    label: Variant belongs to Patient
-  hgnc:
-    type: ontology
-    required: 'false'
-    refTable: gene
-    refLabel: ${label}
-    description: If Gene name is not present in this list, please select ?Other"
-    label: Gene
-  otherGene:
-    required: 'false'
-    description: Give Gene name, that is not present in HGNC list.
-    label: Other genename
-  refseq:
-    required: 'false'
-    description: Transcript, e.g. NM_004006.2
-    label: Reference sequence
-  hgvs:
-    required: 'false'
-    description: HGVS notation (Format:c.4375C>T).
-    label: Nucleotide Change
-  proteinDescription:
-    required: 'false'
-    description: HGVS notation format(p.Arg1459Ter) or p.?
-    label: Protein Change
-  typeMutation:
-    required: 'false'
-    label: Type of Mutation
-  allelicState:
-    type: ontology
-    required: 'false'
-    refTable: allelicState
-    refLabel: ${label}
-    label: Allelic State
-  acmg:
-    type: ontology
-    required: 'false'
-    refTable: acmg
-    refLabel: ${label}
-    description: ACMG classification
-    label: HCP classification variant
-  inheritance:
-    type: ontology
-    required: 'false'
-    refTable: inheritance
-    refLabel: ${label}
-    label: Inheritance
-  id:
-    type: auto_id
-    key: 1
-    required: 'true'
-    computed: ${mg_autoid}
-    label: Auto-identifier
+- name: label
+  required: false
+  label: Label
+- name: belongsToSubject
+  type: ref
+  required: false
+  refTable: subject
+  label: Variant belongs to Patient
+- name: hgnc
+  type: ontology
+  required: false
+  refTable: gene
+  refLabel: "${label}"
+  description: "If Gene name is not present in this list, please select ?Other\""
+  label: Gene
+- name: otherGene
+  required: false
+  description: "Give Gene name, that is not present in HGNC list."
+  label: Other genename
+- name: refseq
+  required: false
+  description: "Transcript, e.g. NM_004006.2"
+  label: Reference sequence
+- name: hgvs
+  required: false
+  description: HGVS notation (Format:c.4375C>T).
+  label: Nucleotide Change
+- name: proteinDescription
+  required: false
+  description: HGVS notation format(p.Arg1459Ter) or p.?
+  label: Protein Change
+- name: typeMutation
+  required: false
+  label: Type of Mutation
+- name: allelicState
+  type: ontology
+  required: false
+  refTable: allelicState
+  refLabel: "${label}"
+  label: Allelic State
+- name: acmg
+  type: ontology
+  required: false
+  refTable: acmg
+  refLabel: "${label}"
+  description: ACMG classification
+  label: HCP classification variant
+- name: inheritance
+  type: ontology
+  required: false
+  refTable: inheritance
+  refLabel: "${label}"
+  label: Inheritance
+- name: id
+  type: auto_id
+  key: 1
+  required: true
+  computed: "${mg_autoid}"
+  label: Auto-identifier

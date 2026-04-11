@@ -1,10 +1,11 @@
 table: users
-tableType: ONTOLOGIES
 description: A person acting as a channel for communication between groups or on behalf of a group.
-semantics: http://purl.obolibrary.org/obo/NCIT_C25461
+semantics:
+- http://purl.obolibrary.org/obo/NCIT_C25461
 columns:
-  organisation:
-    type: ref
-    refTable: organisations
-    semantics: http://purl.obolibrary.org/obo/NCIT_C25412
-    description: A formal association between entities.
+- name: organisation
+  type: ref
+  refTable: organisations
+  description: A formal association between entities.
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C25412

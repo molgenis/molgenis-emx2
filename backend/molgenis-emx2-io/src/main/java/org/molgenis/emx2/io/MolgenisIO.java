@@ -65,7 +65,8 @@ public class MolgenisIO {
     try {
       Path tempDir = Files.createTempDirectory("yaml_export_");
       try {
-        Emx2Yaml.toBundleDirectory(schema.getMetadata(), schema.getName(), null, tempDir);
+        Emx2Yaml.toBundleDirectory(
+            schema.getMetadata(), schema.getName(), null, tempDir, List.of());
         try (FileSystem zipfs = FileSystems.newFileSystem(zipFile, Map.of())) {
           Path zipTablesDir = zipfs.getPath("/tables");
           if (!Files.exists(zipTablesDir)) {

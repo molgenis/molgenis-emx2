@@ -1,22 +1,22 @@
 table: gpFollowUp
 description: General practitioner Follow up data
 columns:
-  name:
-    label: 'Name reference centre Follow up:'
-  gp:
-    label: 'General practitioner Follow up:'
-  visitDate:
-    type: int
-    description: YYYY
-    label: visit(s)/year
-  title:
-    label: Title
-  firstName:
-    label: First name
-  lastName:
-    label: Last name
-  id:
-    type: auto_id
-    key: 1
-    required: 'true'
-    label: Auto-identifier
+- name: name
+  label: "Name reference centre Follow up:"
+- name: gp
+  label: "General practitioner Follow up:"
+- name: visitDate
+  type: int
+  description: YYYY
+  label: visit(s)/year
+- name: title
+  label: Title
+- name: firstName
+  label: First name
+- name: lastName
+  label: Last name
+- name: id
+  type: auto_id
+  key: 1
+  required: true
+  label: Auto-identifier

@@ -1,69 +1,64 @@
 table: Studies
 description: Table with information about the studies in which context the collection was generated
 columns:
-  id:
-    label: ID
-    key: 1
-    required: true
-    description: "Unique ID of the study, prefixed with bbmri-eric:studyID:<id_of_the_study>"
-  title:
-    label: Title
-    type: text
-    required: true
-    description: The title of the study
-  description:
-    label: Description
-    type: text
-    description: A text describing the study
-  type:
-    label: Type
-    description: "The type of study (Observational, Interventional)."
-  sex:
-    label: Sex
-    type: ontology_array
-    refSchema: DirectoryOntologies
-    refTable: SexTypes
-    refLabel: ${label}
-    description: "The sex of the individuals that participated to the study"
-  age_low:
-    label: Age Low
-    type: int
-    description: Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.
-  age_high:
-    label: Age High
-    type: int
-    description: Age of oldest sample donor at time of sample donation - MIABIS-2.0-11.
-  age_unit:
-    label: Age Unit
-    type: ontology
-    refSchema: DirectoryOntologies
-    refTable: AgeUnits
-    refLabel: ${label}
-    description: "Unit defining Age Low and Age High. Can be one of the following values: YEAR, MONTH, WEEK, DAY - MIABIS-2.0-08."
-  number_of_subjects:
-    label: Number of subjects
-    type: int
-    description: "The number of subjects that participated to the study"
-  also_known:
-    label: Also Known In
-    type: ref_array
-    refSchema: ""
-    refTable: AlsoKnownIn
-    refLabel: ${name_system}
-    description: "The study also exists in \u2026"
-  collections:
-    label: Collections
-    type: refback
-    readonly: true
-    refSchema: ""
-    refTable: Collections
-    refBack: studies
-    refLabel: ${name}
-  national_node:
-    label: National Node
-    type: ref
-    required: true
-    refSchema: ""
-    refTable: NationalNodes
-    refLabel: ${description}
-    description: The study originates from this national node.
+- name: id
+  key: 1
+  required: true
+  description: "Unique ID of the study, prefixed with bbmri-eric:studyID:<id_of_the_study>"
+  label: ID
+- name: title
+  type: text
+  required: true
+  description: The title of the study
+  label: Title
+- name: description
+  type: text
+  description: A text describing the study
+  label: Description
+- name: type
+  description: "The type of study (Observational, Interventional)."
+  label: Type
+- name: sex
+  type: ontology_array
+  refTable: SexTypes
+  refLabel: "${label}"
+  description: The sex of the individuals that participated to the study
+  label: Sex
+- name: age_low
+  type: int
+  description: Age of youngest sample donor at time of sample donation - MIABIS-2.0-10.
+  label: Age Low
+- name: age_high
+  type: int
+  description: Age of oldest sample donor at time of sample donation - MIABIS-2.0-11.
+  label: Age High
+- name: age_unit
+  type: ontology
+  refTable: AgeUnits
+  refLabel: "${label}"
+  description: "Unit defining Age Low and Age High. Can be one of the following values: YEAR, MONTH, WEEK, DAY - MIABIS-2.0-08."
+  label: Age Unit
+- name: number_of_subjects
+  type: int
+  description: The number of subjects that participated to the study
+  label: Number of subjects
+- name: also_known
+  type: ref_array
+  refTable: AlsoKnownIn
+  refLabel: "${name_system}"
+  description: The study also exists in …
+  label: Also Known In
+- name: collections
+  type: refback
+  refTable: Collections
+  refBack: studies
+  refLabel: "${name}"
+  readonly: true
+  label: Collections
+- name: national_node
+  type: ref
+  required: true
+  refTable: NationalNodes
+  refLabel: "${description}"
+  description: The study originates from this national node.
+  label: National Node

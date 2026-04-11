@@ -15,12 +15,21 @@ public class SchemaMetadataToBundle {
       SchemaMetadata schema,
       String bundleName,
       String bundleDescription,
-      Map<String, ProfileDef> profiles) {
+      List<ProfileDef> profiles) {
+    return convert(schema, bundleName, bundleDescription, profiles, Map.of());
+  }
+
+  public static Bundle convert(
+      SchemaMetadata schema,
+      String bundleName,
+      String bundleDescription,
+      List<ProfileDef> profiles,
+      Map<String, List<String>> profileIncludes) {
 
     Map<String, TableDef> tables = new LinkedHashMap<>();
     for (TableMetadata table : schema.getTables()) {
       if (isRootTable(table)) {
-        TableDef tableDef = convertRootTable(schema, table);
+        TableDef tableDef = convertRootTable(schema, table, profileIncludes);
         tables.put(table.getTableName(), tableDef);
       }
     }
@@ -40,16 +49,86 @@ public class SchemaMetadataToBundle {
 
   public static Bundle convertWithAutoRegistry(
       SchemaMetadata schema, String bundleName, String bundleDescription) {
+    return convertWithAutoRegistry(schema, bundleName, bundleDescription, List.of());
+  }
+
+  public static Bundle convertWithAutoRegistry(
+      SchemaMetadata schema,
+      String bundleName,
+      String bundleDescription,
+      List<ProfileDef> profileDefs) {
+    Map<String, List<String>> profileIncludes = buildIncludesMap(profileDefs);
     Set<String> allProfiles = collectAllProfileNames(schema);
-    Map<String, ProfileDef> profiles = new LinkedHashMap<>();
-    for (String profile : allProfiles) {
-      profiles.put(profile, new ProfileDef(null, List.of(), Boolean.TRUE, List.of()));
+    List<ProfileDef> profiles = new ArrayList<>(profileDefs);
+    Set<String> existingNames = new LinkedHashSet<>();
+    for (ProfileDef def : profileDefs) {
+      existingNames.add(def.name());
     }
-    if (!allProfiles.isEmpty()) {
-      profiles.put("all", new ProfileDef(null, List.copyOf(allProfiles), null, List.of()));
+    for (String profile : allProfiles) {
+      if (!existingNames.contains(profile)) {
+        profiles.add(new ProfileDef(profile, null, List.of(), Boolean.TRUE, List.of()));
+      }
+    }
+    Set<String> allProfileNames = collectAllProfileNames(schema);
+    for (ProfileDef def : profileDefs) {
+      allProfileNames.add(def.name());
+    }
+    if (!allProfileNames.isEmpty()) {
+      profiles.removeIf(p -> "all".equals(p.name()));
+      profiles.add(new ProfileDef("all", null, List.copyOf(allProfileNames), null, List.of()));
     }
 
-    return convert(schema, bundleName, bundleDescription, profiles);
+    return convert(schema, bundleName, bundleDescription, profiles, profileIncludes);
+  }
+
+  static Map<String, List<String>> buildIncludesMap(List<ProfileDef> profileDefs) {
+    Map<String, List<String>> result = new LinkedHashMap<>();
+    for (ProfileDef def : profileDefs) {
+      result.put(def.name(), def.includes());
+    }
+    return result;
+  }
+
+  static Set<String> computeTransitiveClosure(String profile, Map<String, List<String>> includes) {
+    Set<String> visited = new LinkedHashSet<>();
+    Queue<String> queue = new LinkedList<>();
+    List<String> direct = includes.get(profile);
+    if (direct != null) {
+      queue.addAll(direct);
+    }
+    while (!queue.isEmpty()) {
+      String current = queue.poll();
+      if (visited.add(current)) {
+        List<String> next = includes.get(current);
+        if (next != null) {
+          queue.addAll(next);
+        }
+      }
+    }
+    return visited;
+  }
+
+  static List<String> deduplicateWithIncludes(
+      List<String> profiles, Map<String, List<String>> allIncludes) {
+    if (profiles.size() <= 1 || allIncludes.isEmpty()) {
+      return profiles;
+    }
+    Set<String> profileSet = new LinkedHashSet<>(profiles);
+    List<String> result = new ArrayList<>();
+    for (String candidate : profiles) {
+      Set<String> transitivelyIncluded = computeTransitiveClosure(candidate, allIncludes);
+      boolean redundant = false;
+      for (String other : profileSet) {
+        if (!other.equals(candidate) && transitivelyIncluded.contains(other)) {
+          redundant = true;
+          break;
+        }
+      }
+      if (!redundant) {
+        result.add(candidate);
+      }
+    }
+    return result;
   }
 
   private static boolean isRootTable(TableMetadata table) {
@@ -60,11 +139,13 @@ public class SchemaMetadataToBundle {
     return inheritNames == null || inheritNames.length == 0;
   }
 
-  private static TableDef convertRootTable(SchemaMetadata schema, TableMetadata table) {
+  private static TableDef convertRootTable(
+      SchemaMetadata schema, TableMetadata table, Map<String, List<String>> profileIncludes) {
     String description = table.getDescriptions().get("en");
     List<String> inherits =
         table.getExtendNames() != null ? Arrays.asList(table.getExtendNames()) : List.of();
-    List<String> tableProfiles = normalizeProfiles(table.getProfiles());
+    List<String> tableProfiles =
+        deduplicateWithIncludes(normalizeProfiles(table.getProfiles()), profileIncludes);
     List<String> semantics =
         table.getSemantics() != null && table.getSemantics().length > 0
             ? Arrays.asList(table.getSemantics())
@@ -78,17 +159,28 @@ public class SchemaMetadataToBundle {
     String importSchema = table.getImportSchema();
 
     List<TableMetadata> variantTableList = findSubtypeTables(schema, table.getTableName());
-    Map<String, VariantDef> variants = new LinkedHashMap<>();
+    List<VariantDef> variants = new ArrayList<>();
     for (TableMetadata variantTable : variantTableList) {
-      variants.put(
-          variantTable.getTableName(), convertVariantDef(variantTable, table.getTableName()));
+      variants.add(convertVariantDef(variantTable, table.getTableName()));
     }
 
-    Map<String, DataColumn> columns = convertColumns(table.getNonInheritedColumns());
+    List<Map<String, Object>> columns =
+        convertColumnsToList(table.getNonInheritedColumns(), tableProfiles, profileIncludes);
+    for (TableMetadata variantTable : variantTableList) {
+      List<Map<String, Object>> variantColumns =
+          convertColumnsToList(
+              variantTable.getNonInheritedColumns(), tableProfiles, profileIncludes);
+      if (!variantColumns.isEmpty()) {
+        Map<String, Object> variantGroup = new LinkedHashMap<>();
+        variantGroup.put("variant", variantTable.getTableName());
+        variantGroup.put("columns", variantColumns);
+        columns.add(variantGroup);
+      }
+    }
 
     List<String> profilesOrNull = tableProfiles.isEmpty() ? null : tableProfiles;
-    Map<String, VariantDef> variantsOrNull = variants.isEmpty() ? null : variants;
-    Map<String, DataColumn> columnsOrNull = columns.isEmpty() ? null : columns;
+    List<VariantDef> variantsOrNull = variants.isEmpty() ? null : variants;
+    List<Map<String, Object>> columnsOrNull = columns.isEmpty() ? null : columns;
 
     return new TableDef(
         description,
@@ -100,8 +192,7 @@ public class SchemaMetadataToBundle {
         oldName,
         importSchema,
         variantsOrNull,
-        columnsOrNull,
-        null);
+        columnsOrNull);
   }
 
   private static VariantDef convertVariantDef(TableMetadata variantTable, String defaultParent) {
@@ -116,67 +207,248 @@ public class SchemaMetadataToBundle {
     }
     Boolean internal = TableType.INTERNAL.equals(variantTable.getTableType()) ? Boolean.TRUE : null;
     String description = variantTable.getDescriptions().get("en");
-    return new VariantDef(inherits.isEmpty() ? null : inherits, description, internal);
+    List<String> variantProfiles = normalizeProfiles(variantTable.getProfiles());
+    return new VariantDef(
+        variantTable.getTableName(),
+        inherits.isEmpty() ? null : inherits,
+        description,
+        internal,
+        variantProfiles.isEmpty() ? null : variantProfiles);
   }
 
-  private static Map<String, DataColumn> convertColumns(List<Column> columns) {
-    Map<String, DataColumn> result = new LinkedHashMap<>();
+  private static List<Map<String, Object>> convertColumnsToList(
+      List<Column> columns, List<String> parentProfiles) {
+    return convertColumnsToList(columns, parentProfiles, Map.of());
+  }
+
+  private static List<Map<String, Object>> convertColumnsToList(
+      List<Column> columns,
+      List<String> parentProfiles,
+      Map<String, List<String>> profileIncludes) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    List<Map<String, Object>> currentSectionColumns = null;
+    List<Map<String, Object>> currentHeadingColumns = null;
+    Map<String, Object> currentSectionEntry = null;
+    Map<String, Object> currentHeadingEntry = null;
+    List<String> currentSectionProfiles = null;
+    List<String> currentHeadingProfiles = null;
+
     for (Column col : columns) {
       if (col.isSystemColumn()) {
         continue;
       }
-      result.put(col.getName(), convertColumn(col));
+      ColumnType colType = col.getColumnType();
+      if (ColumnType.SECTION.equals(colType)) {
+        currentSectionEntry =
+            buildContainerEntryWithDedup("section", col, parentProfiles, profileIncludes);
+        currentSectionColumns = new ArrayList<>();
+        currentSectionProfiles =
+            deduplicateWithIncludes(normalizeProfiles(col.getProfiles()), profileIncludes);
+        currentSectionEntry.put("columns", currentSectionColumns);
+        currentHeadingColumns = null;
+        currentHeadingEntry = null;
+        currentHeadingProfiles = null;
+        result.add(currentSectionEntry);
+      } else if (ColumnType.HEADING.equals(colType)) {
+        List<String> parentForHeading =
+            currentSectionProfiles != null ? currentSectionProfiles : parentProfiles;
+        currentHeadingEntry =
+            buildContainerEntryWithDedup("heading", col, parentForHeading, profileIncludes);
+        currentHeadingColumns = new ArrayList<>();
+        currentHeadingProfiles =
+            deduplicateWithIncludes(normalizeProfiles(col.getProfiles()), profileIncludes);
+        currentHeadingEntry.put("columns", currentHeadingColumns);
+        if (currentSectionColumns != null) {
+          currentSectionColumns.add(currentHeadingEntry);
+        } else {
+          result.add(currentHeadingEntry);
+        }
+      } else {
+        List<String> effectiveParent =
+            currentHeadingProfiles != null
+                ? currentHeadingProfiles
+                : (currentSectionProfiles != null ? currentSectionProfiles : parentProfiles);
+        Map<String, Object> colMap = convertColumnToMap(col, effectiveParent, profileIncludes);
+        if (currentHeadingColumns != null) {
+          currentHeadingColumns.add(colMap);
+        } else if (currentSectionColumns != null) {
+          currentSectionColumns.add(colMap);
+        } else {
+          result.add(colMap);
+        }
+      }
     }
+
+    liftCommonChildProfilesToContainers(result, parentProfiles);
+
     return result;
   }
 
-  private static DataColumn convertColumn(Column col) {
+  @SuppressWarnings("unchecked")
+  private static void liftCommonChildProfilesToContainers(
+      List<Map<String, Object>> entries, List<String> parentProfiles) {
+    for (Map<String, Object> entry : entries) {
+      if (!entry.containsKey("section") && !entry.containsKey("heading")) {
+        continue;
+      }
+      if (entry.get("profiles") != null) {
+        continue;
+      }
+      List<Map<String, Object>> children = (List<Map<String, Object>>) entry.get("columns");
+      if (children == null || children.isEmpty()) {
+        continue;
+      }
+      List<String> commonProfiles = extractCommonProfiles(children);
+      if (commonProfiles == null || commonProfiles.isEmpty()) {
+        continue;
+      }
+      if (profileSetsEqual(commonProfiles, parentProfiles)) {
+        continue;
+      }
+      entry.put("profiles", commonProfiles);
+      for (Map<String, Object> child : children) {
+        if (child.containsKey("section") || child.containsKey("heading")) {
+          continue;
+        }
+        Object childProfiles = child.get("profiles");
+        if (childProfiles instanceof List
+            && profileSetsEqual((List<String>) childProfiles, commonProfiles)) {
+          child.remove("profiles");
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<String> extractCommonProfiles(List<Map<String, Object>> children) {
+    List<String> common = null;
+    for (Map<String, Object> child : children) {
+      if (child.containsKey("section") || child.containsKey("heading")) {
+        return null;
+      }
+      Object profiles = child.get("profiles");
+      if (profiles == null) {
+        return null;
+      }
+      List<String> childProfiles = (List<String>) profiles;
+      if (common == null) {
+        common = childProfiles;
+      } else if (!profileSetsEqual(childProfiles, common)) {
+        return null;
+      }
+    }
+    return common;
+  }
+
+  private static boolean profileSetsEqual(List<String> a, List<String> b) {
+    if (a == null || a.isEmpty()) return b == null || b.isEmpty();
+    if (b == null || b.isEmpty()) return false;
+    return new HashSet<>(a).equals(new HashSet<>(b));
+  }
+
+  private static Map<String, Object> buildContainerEntryWithDedup(
+      String containerKey, Column col, List<String> parentProfiles) {
+    return buildContainerEntryWithDedup(containerKey, col, parentProfiles, Map.of());
+  }
+
+  private static Map<String, Object> buildContainerEntryWithDedup(
+      String containerKey,
+      Column col,
+      List<String> parentProfiles,
+      Map<String, List<String>> profileIncludes) {
+    Map<String, Object> entry = new LinkedHashMap<>();
+    entry.put(containerKey, col.getName());
+    String description = col.getDescriptions().get("en");
+    if (description != null) {
+      entry.put("description", description);
+    }
+    List<String> colProfiles =
+        deduplicateWithIncludes(normalizeProfiles(col.getProfiles()), profileIncludes);
+    if (!colProfiles.isEmpty() && !profileSetsEqual(colProfiles, parentProfiles)) {
+      entry.put("profiles", colProfiles);
+    }
+    return entry;
+  }
+
+  static Map<String, Object> convertColumnToMap(Column col) {
+    return convertColumnToMap(col, List.of(), Map.of());
+  }
+
+  static Map<String, Object> convertColumnToMap(Column col, List<String> parentProfiles) {
+    return convertColumnToMap(col, parentProfiles, Map.of());
+  }
+
+  static Map<String, Object> convertColumnToMap(
+      Column col, List<String> parentProfiles, Map<String, List<String>> profileIncludes) {
+    Map<String, Object> entry = new LinkedHashMap<>();
+    entry.put("name", col.getName());
+
     ColumnType colType = col.getColumnType();
-    String type = null;
     if (colType != null && !ColumnType.STRING.equals(colType)) {
-      type = columnTypeToString(colType);
+      entry.put("type", columnTypeToString(colType));
     }
 
     int keyVal = col.getKey();
-    Integer key = keyVal > 0 ? keyVal : null;
+    if (keyVal > 0) {
+      entry.put("key", keyVal);
+    }
 
+    if (col.getRequired() != null) {
+      String required = col.getRequired();
+      if ("true".equalsIgnoreCase(required)) {
+        entry.put("required", Boolean.TRUE);
+      } else if ("false".equalsIgnoreCase(required)) {
+        entry.put("required", Boolean.FALSE);
+      } else {
+        entry.put("required", required);
+      }
+    }
+    if (col.getDefaultValue() != null) {
+      entry.put("defaultValue", col.getDefaultValue());
+    }
+    if (col.getRefTableName() != null) {
+      entry.put("refTable", col.getRefTableName());
+    }
+    if (col.getRefLink() != null) {
+      entry.put("refLink", col.getRefLink());
+    }
+    if (col.getRefBack() != null) {
+      entry.put("refBack", col.getRefBack());
+    }
+    if (col.getRefLabel() != null) {
+      entry.put("refLabel", col.getRefLabel());
+    }
     String description = col.getDescriptions().get("en");
-
-    List<String> semantics =
-        col.getSemantics() != null && col.getSemantics().length > 0
-            ? Arrays.asList(col.getSemantics())
-            : null;
-
-    List<String> colProfiles = normalizeProfiles(col.getProfiles());
-    List<String> subsetsOrNull = colProfiles.isEmpty() ? null : colProfiles;
-
+    if (description != null) {
+      entry.put("description", description);
+    }
+    if (col.getSemantics() != null && col.getSemantics().length > 0) {
+      entry.put("semantics", Arrays.asList(col.getSemantics()));
+    }
+    List<String> colProfiles =
+        deduplicateWithIncludes(normalizeProfiles(col.getProfiles()), profileIncludes);
+    if (!colProfiles.isEmpty() && !profileSetsEqual(colProfiles, parentProfiles)) {
+      entry.put("profiles", colProfiles);
+    }
+    if (col.getValidation() != null) {
+      entry.put("validation", col.getValidation());
+    }
+    if (col.getVisible() != null) {
+      entry.put("visible", col.getVisible());
+    }
+    if (col.getComputed() != null) {
+      entry.put("computed", col.getComputed());
+    }
+    if (Boolean.TRUE.equals(col.isReadonly())) {
+      entry.put("readonly", true);
+    }
     String label =
         col.getLabel() != null && !col.getLabel().equals(col.getName()) ? col.getLabel() : null;
+    if (label != null) {
+      entry.put("label", label);
+    }
 
-    Boolean readonlyVal = col.isReadonly() != null && col.isReadonly() ? Boolean.TRUE : null;
-
-    return new DataColumn(
-        type,
-        key,
-        col.getRequired(),
-        col.getDefaultValue(),
-        col.getValidation(),
-        col.getVisible(),
-        col.getComputed(),
-        readonlyVal,
-        col.getRefTableName(),
-        col.getRefLink(),
-        col.getRefBack(),
-        col.getRefLabel(),
-        null,
-        null,
-        description,
-        semantics,
-        null,
-        subsetsOrNull,
-        label,
-        null,
-        null);
+    return entry;
   }
 
   private static String columnTypeToString(ColumnType colType) {

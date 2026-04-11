@@ -1,16 +1,20 @@
 table: dataproviders
 description: Information about organisations within the context of the project
-semantics: http://purl.obolibrary.org/obo/OBI_0000947
+semantics:
+- http://purl.obolibrary.org/obo/OBI_0000947
 columns:
-  providerIdentifier:
-    key: 1
-    required: true
-    semantics: http://purl.obolibrary.org/obo/NCIT_C25364
-  organisation:
-    type: ref
-    refTable: organisations
-    semantics: http://purl.obolibrary.org/obo/NCIT_C25412
-  hasSubmittedData:
-    type: bool
-    semantics: http://purl.obolibrary.org/obo/NCIT_C172872
-    description: "An indication that a file, record, or dataset has been sbmitted to a data repository"
+- name: providerIdentifier
+  key: 1
+  required: true
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C25364
+- name: organisation
+  type: ref
+  refTable: organisations
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C25412
+- name: hasSubmittedData
+  type: bool
+  description: "An indication that a file, record, or dataset has been sbmitted to a data repository"
+  semantics:
+  - http://purl.obolibrary.org/obo/NCIT_C172872

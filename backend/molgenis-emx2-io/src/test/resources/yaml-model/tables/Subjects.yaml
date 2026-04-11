@@ -1,0 +1,10 @@
+table: Subjects
+description: "Study subjects with imported column groups"
+
+columns:
+  - name: subject id
+    type: string
+    key: 1
+  - import: columns/demographics.yaml
+  - name: status
+  - import: columns/consent_section.yaml

@@ -1,0 +1,6 @@
+columns:
+  - name: year of birth
+    type: int
+  - name: country of birth
+    type: ontology
+    refTable: Countries

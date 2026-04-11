@@ -1,93 +1,94 @@
 table: historyStatistics
+description: ""
 columns:
-  age_group_5:
-  age_group_6:
-  enrollment_1:
-  enrollment_2:
-  enrollment_3:
-  enrollment_4:
-  enrollment_5:
-  enrollment_6:
-  enrollment_8:
-  age_group_0:
-  age_group_2:
-  age_group_4:
-  age_group_1:
-  age_group_3:
-  age_group_7:
-  enrollment_7:
-  enrollment_9:
-  enrollment_10:
-  highlights_0:
-  highlights_1:
-  highlights_2:
-  sex_intersex:
-  sex_female:
-  sex_undetermined:
-  sex_male:
-  AT01:
-  AT04:
-  BE04:
-  BE06:
-  BE10:
-  CZ03:
-  CZ04:
-  CZ06:
-  CZ08:
-  DE03:
-  DE19:
-  DE20:
-  DE24:
-  DE25:
-  DE26:
-  DE27:
-  DK03:
-  DK04:
-  ES08:
-  FI01:
-  FR09:
-  FR15:
-  FR22:
-  FR28:
-  FR31:
-  FR34:
-  HR01:
-  HU01:
-  HU03:
-  HU04:
-  IE01:
-  IT04:
-  IT07:
-  IT109:
-  IT11:
-  IT14:
-  IT20:
-  IT27:
-  IT33:
-  IT34:
-  IT39:
-  IT53:
-  IT58:
-  LT04:
-  NL06:
-  LU01:
-  LV01:
-  MT02:
-  NL01:
-  NL02:
-  NL03:
-  NL13:
-  RO02:
-  SE05:
-  SI02:
-  DE38a:
-  DE38b:
-  date:
-    type: date
-    computed: new Date().toISOString()
-  id:
-    type: auto_id
-    key: 1
-    required: 'true'
-    computed: ${mg_autoid}
-    label: Auto-identifier
+- name: age_group_5
+- name: age_group_6
+- name: enrollment_1
+- name: enrollment_2
+- name: enrollment_3
+- name: enrollment_4
+- name: enrollment_5
+- name: enrollment_6
+- name: enrollment_8
+- name: age_group_0
+- name: age_group_2
+- name: age_group_4
+- name: age_group_1
+- name: age_group_3
+- name: age_group_7
+- name: enrollment_7
+- name: enrollment_9
+- name: enrollment_10
+- name: highlights_0
+- name: highlights_1
+- name: highlights_2
+- name: sex_intersex
+- name: sex_female
+- name: sex_undetermined
+- name: sex_male
+- name: AT01
+- name: AT04
+- name: BE04
+- name: BE06
+- name: BE10
+- name: CZ03
+- name: CZ04
+- name: CZ06
+- name: CZ08
+- name: DE03
+- name: DE19
+- name: DE20
+- name: DE24
+- name: DE25
+- name: DE26
+- name: DE27
+- name: DK03
+- name: DK04
+- name: ES08
+- name: FI01
+- name: FR09
+- name: FR15
+- name: FR22
+- name: FR28
+- name: FR31
+- name: FR34
+- name: HR01
+- name: HU01
+- name: HU03
+- name: HU04
+- name: IE01
+- name: IT04
+- name: IT07
+- name: IT109
+- name: IT11
+- name: IT14
+- name: IT20
+- name: IT27
+- name: IT33
+- name: IT34
+- name: IT39
+- name: IT53
+- name: IT58
+- name: LT04
+- name: NL06
+- name: LU01
+- name: LV01
+- name: MT02
+- name: NL01
+- name: NL02
+- name: NL03
+- name: NL13
+- name: RO02
+- name: SE05
+- name: SI02
+- name: DE38a
+- name: DE38b
+- name: date
+  type: date
+  computed: new Date().toISOString()
+- name: id
+  type: auto_id
+  key: 1
+  required: true
+  computed: "${mg_autoid}"
+  label: Auto-identifier

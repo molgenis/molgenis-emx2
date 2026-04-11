@@ -20,9 +20,8 @@ public record TableDef(
     String label,
     String oldName,
     String importSchema,
-    Map<String, VariantDef> variants,
-    Map<String, DataColumn> columns,
-    Map<String, SectionDef> sections) {
+    List<VariantDef> variants,
+    List<Map<String, Object>> columns) {
 
   @JsonCreator
   public TableDef(
@@ -35,9 +34,8 @@ public record TableDef(
       @JsonProperty("label") String label,
       @JsonProperty("oldName") String oldName,
       @JsonProperty("importSchema") String importSchema,
-      @JsonProperty("variants") @JsonAlias("subtypes") Map<String, VariantDef> variants,
-      @JsonProperty("columns") Map<String, DataColumn> columns,
-      @JsonProperty("sections") Map<String, SectionDef> sections) {
+      @JsonProperty("variants") @JsonAlias("subtypes") List<VariantDef> variants,
+      @JsonProperty("columns") List<Map<String, Object>> columns) {
     this.description = description;
     this.extendNames = extendNames != null ? extendNames : List.of();
     this.profiles = profiles != null ? profiles : List.of();
@@ -46,9 +44,8 @@ public record TableDef(
     this.label = label;
     this.oldName = oldName;
     this.importSchema = importSchema;
-    this.variants = variants != null ? variants : Map.of();
-    this.columns = columns != null ? columns : Map.of();
-    this.sections = sections != null ? sections : Map.of();
+    this.variants = variants != null ? variants : List.of();
+    this.columns = columns != null ? columns : List.of();
   }
 
   public boolean isInternal() {
