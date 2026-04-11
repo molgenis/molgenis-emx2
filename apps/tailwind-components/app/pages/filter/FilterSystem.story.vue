@@ -5,7 +5,7 @@
     </h2>
 
     <div class="flex gap-6">
-      <div class="w-64 shrink-0">
+      <div class="w-80 shrink-0">
         <FilterSidebar
           :filters="mockFilters"
           :columns="columns"

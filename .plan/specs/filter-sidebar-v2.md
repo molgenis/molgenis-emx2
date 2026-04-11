@@ -50,7 +50,8 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Visible filter set persisted in URL via `mg_filters` param | useFilters.ts | useFilters.spec.ts | - |
 | Collapse state persisted in URL via `mg_collapsed` param (comma-separated IDs); first-5 rule applied when param absent | Sidebar.vue | Sidebar.spec.ts | - |
 | Styling matches catalogue: `p-5` padding, `<h3>` headings, `caret-up` icon | Sidebar.vue | - | visual check |
-| Sidebar wide enough to fit date-time range inputs side by side (~400-500px) | [table]/index.vue | - | visual check |
+| Sidebar is narrow (w-80, 320px) | [table]/index.vue | - | visual check |
+| Range filter inputs stacked vertically — Min row above Max row | filter/Range.vue | - | visual check |
 | DateTime input width 14em (Date stays 10em) | DateTime.vue | - | visual check |
 | Styling works in all 5 themes (Light, Dark, Molgenis, UMCG, AUMC) | Sidebar.vue | - | visual check |
 

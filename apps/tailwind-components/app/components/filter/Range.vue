@@ -34,35 +34,39 @@ function updateMax(val: columnValue | columnValue[]) {
 </script>
 
 <template>
-  <fieldset class="flex items-center gap-1">
+  <fieldset class="flex flex-col gap-2">
     <legend v-if="legend" class="sr-only">{{ legend }}</legend>
-    <label
-      :for="`${id}-min`"
-      class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
-    >
-      {{ minLabel }}
-    </label>
-    <div class="min-w-0 flex-1">
-      <slot
-        name="min"
-        :value="modelValue[0]"
-        :update="updateMin"
-        :id="`${id}-min`"
-      />
+    <div class="flex items-center gap-2">
+      <label
+        :for="`${id}-min`"
+        class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
+      >
+        {{ minLabel }}
+      </label>
+      <div class="min-w-0 flex-1">
+        <slot
+          name="min"
+          :value="modelValue[0]"
+          :update="updateMin"
+          :id="`${id}-min`"
+        />
+      </div>
     </div>
-    <label
-      :for="`${id}-max`"
-      class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
-    >
-      {{ maxLabel }}
-    </label>
-    <div class="min-w-0 flex-1">
-      <slot
-        name="max"
-        :value="modelValue[1]"
-        :update="updateMax"
-        :id="`${id}-max`"
-      />
+    <div class="flex items-center gap-2">
+      <label
+        :for="`${id}-max`"
+        class="text-body-xs shrink-0 cursor-pointer text-search-filter-group-title"
+      >
+        {{ maxLabel }}
+      </label>
+      <div class="min-w-0 flex-1">
+        <slot
+          name="max"
+          :value="modelValue[1]"
+          :update="updateMax"
+          :id="`${id}-max`"
+        />
+      </div>
     </div>
   </fieldset>
 </template>

@@ -190,6 +190,7 @@ Tasks:
 - [x] 8.7.5 Add `defaultFilters?: string[]` option to `useFilters` — overrides `computeDefaultFilters` for initial visible set AND Picker Reset
 - [x] 8.7.6 Add `defaultCollapsed?: string[]` prop to Sidebar.vue — overrides the first-5-expanded rule. `mg_collapsed` URL param still takes precedence when present.
 - [x] 8.7.7 +3 vitest tests covering both new overrides (436 total, was 433). Filter-sidebar e2e 10/10.
+- [x] 8.7.8 Sidebar narrowed from w-[34rem] (544px) to w-80 (320px); Range.vue inputs changed from horizontal side-by-side to vertical stacked rows (Min above Max).
 
 ## Future Work (not this PR)
 

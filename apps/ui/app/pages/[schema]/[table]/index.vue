@@ -134,7 +134,7 @@ const sidebarVisible = ref(true);
         :tableId="tableId"
         :route="route"
         :router="router"
-        class="w-[34rem] shrink-0"
+        class="w-80 shrink-0"
       />
       <div class="flex-1 min-w-0">
         <TableEMX2
