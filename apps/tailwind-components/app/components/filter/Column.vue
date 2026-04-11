@@ -3,14 +3,22 @@ import { computed } from "vue";
 import type {
   IColumn,
   CellValueType,
+  columnValue,
 } from "../../../../metadata-utils/src/types";
 import type { CountedOption } from "../../utils/fetchCounts";
+import { countedOptionToTreeNode } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import type { ITreeNode } from "../../../types/types";
-import { isCountableType, isRangeType } from "../../utils/filterTypes";
+import {
+  isCountableType,
+  isRangeType,
+  isRefFilterType,
+} from "../../utils/filterTypes";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import Input from "../Input.vue";
+
+const TEXT_INPUT_DEBOUNCE_MS = 300;
 
 const props = defineProps<{
   column: IColumn;
@@ -28,16 +36,7 @@ const isRange = computed(() => isRangeType(props.column.columnType));
 const rangeInputType = computed(
   () => props.column.columnType.replace(/_ARRAY$/, "") as CellValueType
 );
-
-function countedOptionToTreeNode(opt: CountedOption): ITreeNode {
-  return {
-    ...opt,
-    label: opt.label
-      ? `${opt.label} (${opt.count})`
-      : `${opt.name} (${opt.count})`,
-    children: opt.children?.map(countedOptionToTreeNode) ?? [],
-  };
-}
+const treeId = computed(() => `filter-tree-${props.column.id}`);
 
 const treeNodes = computed<ITreeNode[]>(() =>
   props.options.map(countedOptionToTreeNode)
@@ -51,19 +50,17 @@ const treeSelection = computed<string[]>(() => {
     return [];
   }
   return val
-    .filter((v) => v !== null && v !== undefined)
-    .map((v) => {
-      if (typeof v === "object" && v !== null) {
-        const values = Object.values(v as Record<string, unknown>);
+    .filter((value) => value !== null && value !== undefined)
+    .map((value) => {
+      if (typeof value === "object" && value !== null) {
+        const values = Object.values(value as Record<string, unknown>);
         return values.length === 1
           ? String(values[0])
           : values.map(String).join(", ");
       }
-      return String(v);
+      return String(value);
     });
 });
-
-const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
 
 const hasKeyObjects = computed(
   () => props.options.length > 0 && props.options[0]?.keyObject !== undefined
@@ -74,33 +71,34 @@ function onTreeSelectionChange(selected: string[]) {
     emit("update:modelValue", undefined);
     return;
   }
-  if (REF_FILTER_TYPES.has(props.column.columnType) && hasKeyObjects.value) {
+  if (isRefFilterType(props.column.columnType) && hasKeyObjects.value) {
     const firstKey = props.options[0]!.keyObject!;
     const isComposite = Object.keys(firstKey).length > 1;
     if (isComposite) {
-      const optionsByName = new Map(props.options.map((o) => [o.name, o]));
+      const optionsByName = new Map(
+        props.options.map((option) => [option.name, option])
+      );
       const values = selected.map((name) => {
         const opt = optionsByName.get(name);
         return (opt?.keyObject ?? { name }) as Record<string, unknown>;
       });
-      emit("update:modelValue", { operator: "equals", value: values });
+      emit("update:modelValue", {
+        operator: "equals",
+        value: values as columnValue,
+      });
       return;
     }
   }
   emit("update:modelValue", { operator: "equals", value: selected });
 }
 
-const rangeValue = computed<[any, any]>(() => {
+const rangeValue = computed<[columnValue, columnValue]>(() => {
   if (!props.modelValue || props.modelValue.operator !== "between")
     return [null, null];
-  const val = props.modelValue.value;
-  if (Array.isArray(val) && val.length === 2) {
-    return [val[0] ?? null, val[1] ?? null];
-  }
-  return [null, null];
+  return props.modelValue.value;
 });
 
-function onRangeChange(val: [any, any]) {
+function onRangeChange(val: [columnValue, columnValue]) {
   const [min, max] = val;
   if (min === null && max === null) {
     emit("update:modelValue", undefined);
@@ -127,10 +125,8 @@ function onTextInput(event: Event) {
     } else {
       emit("update:modelValue", { operator: "like", value: val });
     }
-  }, 300);
+  }, TEXT_INPUT_DEBOUNCE_MS);
 }
-
-const treeId = computed(() => `filter-tree-${props.column.id}`);
 </script>
 
 <template>

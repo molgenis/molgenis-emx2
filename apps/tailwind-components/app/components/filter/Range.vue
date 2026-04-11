@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { columnValue } from "../../../../metadata-utils/src/types";
+
 const props = withDefaults(
   defineProps<{
     id: string;
@@ -13,13 +15,21 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<[any, any]>({ default: () => [null, null] });
+const modelValue = defineModel<[columnValue, columnValue]>({
+  default: () => [null, null],
+});
 
-function updateMin(val: any) {
-  modelValue.value = [val ?? null, modelValue.value[1]];
+function updateMin(val: columnValue | columnValue[]) {
+  modelValue.value = [
+    (Array.isArray(val) ? val[0] : val) ?? null,
+    modelValue.value[1],
+  ];
 }
-function updateMax(val: any) {
-  modelValue.value = [modelValue.value[0], val ?? null];
+function updateMax(val: columnValue | columnValue[]) {
+  modelValue.value = [
+    modelValue.value[0],
+    (Array.isArray(val) ? val[0] : val) ?? null,
+  ];
 }
 </script>
 

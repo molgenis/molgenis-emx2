@@ -1,3 +1,7 @@
+import type { Ref, ComputedRef } from "vue";
+import type { columnValue, IColumn } from "../../metadata-utils/src/types";
+import type { CountedOption } from "../app/utils/fetchCounts";
+
 export interface ActiveFilter {
   columnId: string;
   label: string;
@@ -12,19 +16,12 @@ export type FilterOperator =
   | "notNull"
   | "isNull";
 
-export type FilterValue =
-  | string
-  | number
-  | boolean
-  | Record<string, unknown>
-  | Record<string, unknown>[]
-  | (string | number | null)[]
-  | null;
-
-export interface IFilterValue {
-  operator: FilterOperator;
-  value: FilterValue;
-}
+export type IFilterValue =
+  | {
+      operator: "equals" | "like" | "notNull" | "isNull";
+      value: columnValue;
+    }
+  | { operator: "between"; value: [columnValue, columnValue] };
 
 export interface IGraphQLFilterEquals {
   equals: unknown;
@@ -64,10 +61,6 @@ export interface IGraphQLFilter {
     | string
     | undefined;
 }
-
-import type { Ref, ComputedRef } from "vue";
-import type { IColumn } from "../../metadata-utils/src/types";
-import type { CountedOption } from "../app/utils/fetchCounts";
 
 export interface UseFilters {
   filterStates: Ref<Map<string, IFilterValue>>;

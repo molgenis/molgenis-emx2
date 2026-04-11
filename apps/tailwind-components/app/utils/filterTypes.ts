@@ -18,6 +18,11 @@ export const COUNTABLE_TYPES = new Set([
   "CHECKBOX",
 ]);
 
+export const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
+
+export const isRefFilterType = (columnType: string): boolean =>
+  REF_FILTER_TYPES.has(columnType);
+
 export const RANGE_TYPES = new Set([
   "INT",
   "INT_ARRAY",

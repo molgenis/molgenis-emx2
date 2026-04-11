@@ -14,15 +14,14 @@ export function formatFilterValue(filterValue: IFilterValue): {
   const { operator, value } = filterValue;
 
   switch (operator) {
-    case "between":
-      if (Array.isArray(value) && value.length === 2) {
-        const [min, max] = value;
-        if (min != null && max != null)
-          return { displayValue: `${min} - ${max}`, values: [] };
-        if (min != null) return { displayValue: `≥ ${min}`, values: [] };
-        if (max != null) return { displayValue: `≤ ${max}`, values: [] };
-      }
+    case "between": {
+      const [min, max] = value;
+      if (min != null && max != null)
+        return { displayValue: `${min} - ${max}`, values: [] };
+      if (min != null) return { displayValue: `≥ ${min}`, values: [] };
+      if (max != null) return { displayValue: `≤ ${max}`, values: [] };
       return { displayValue: "", values: [] };
+    }
 
     case "notNull":
       return { displayValue: "has value", values: [] };

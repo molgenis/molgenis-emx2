@@ -51,15 +51,13 @@ export function serializeFilterValue(value: IFilterValue): string | null {
   if (val === null || val === undefined) return null;
 
   switch (operator) {
-    case "between":
-      if (Array.isArray(val) && val.length === 2) {
-        const [min, max] = val;
-        const minStr = min ?? "";
-        const maxStr = max ?? "";
-        if (minStr === "" && maxStr === "") return null;
-        return `${minStr}..${maxStr}`;
-      }
-      return null;
+    case "between": {
+      const [min, max] = val;
+      const minStr = min ?? "";
+      const maxStr = max ?? "";
+      if (minStr === "" && maxStr === "") return null;
+      return `${minStr}..${maxStr}`;
+    }
 
     case "notNull":
       return "!null";
