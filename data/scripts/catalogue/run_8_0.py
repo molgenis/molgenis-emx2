@@ -67,7 +67,7 @@ asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', 
 for schema in source.get_schemas():
     schema_name = schema.get('name')
     schema_description = schema.get('description')
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store', 'Aggregates']:
+    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store', 'Aggregates']:  # and schema_name not in target.schema_names:
         # instantiate Client for source schema:
         source = Client(SOURCE_SERVER_URL, schema=schema_name, token=SOURCE_SERVER_TOKEN)
 
@@ -90,7 +90,7 @@ for schema in source.get_schemas():
         zip_handling.zip_data()
 
         # # instantiate Client for target server:
-        # target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+        target = Client(TARGET_SERVER_URL, CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
         # create new schema
         if schema_name not in target.schema_names:
             asyncio.run(target.create_schema(name=schema_name, description=schema_description))
