@@ -11,8 +11,6 @@ import InputSearch from "../input/Search.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { resolveRouteRouter } from "../../utils/routeParams";
-
 type RouteQuery = Record<
   string,
   string | string[] | (string | null)[] | null | undefined
@@ -23,14 +21,13 @@ const props = defineProps<{
   columns: IColumn[];
   schemaId: string;
   tableId: string;
+  defaultCollapsed?: string[];
   route?: { query: RouteQuery };
   router?: { replace: (opts: Record<string, unknown>) => void };
 }>();
 
-const { route, router } = resolveRouteRouter({
-  route: props.route,
-  router: props.router,
-});
+const route = props.route ?? null;
+const router = props.router ?? null;
 
 const searchInputId = useId();
 const collapsed = ref(new Set<string>());
@@ -48,7 +45,7 @@ async function fetchTableColumns(
   }
 }
 
-async function resolveNestedMeta() {
+async function hydrateNestedFiltersFromUrl() {
   const visibleIds = props.filters.visibleFilterIds.value;
   const alreadyKnown = props.filters.nestedColumnMeta.value;
 
@@ -56,8 +53,6 @@ async function resolveNestedMeta() {
     (id) => id.includes(".") && !alreadyKnown.has(id)
   );
   if (dottedIds.length === 0) return;
-
-  const columnCache = new Map<string, IColumn[]>();
 
   for (const id of dottedIds) {
     const segments = id.split(".");
@@ -81,12 +76,7 @@ async function resolveNestedMeta() {
           break;
         }
         const nextSchemaId = col.refSchemaId || currentSchemaId;
-        const cacheKey = `${nextSchemaId}.${col.refTableId}`;
-        if (!columnCache.has(cacheKey)) {
-          const cols = await fetchTableColumns(nextSchemaId, col.refTableId);
-          columnCache.set(cacheKey, cols);
-        }
-        currentCols = columnCache.get(cacheKey)!;
+        currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
         currentSchemaId = nextSchemaId;
       } else if (resolved) {
         props.filters.registerNestedColumn(id, {
@@ -101,6 +91,10 @@ async function resolveNestedMeta() {
 }
 
 function applyDefaultCollapse() {
+  if (props.defaultCollapsed) {
+    collapsed.value = new Set(props.defaultCollapsed);
+    return;
+  }
   const visibleIds = [...props.filters.visibleFilterIds.value];
   const next = new Set<string>();
   visibleIds.forEach((id, index) => {
@@ -133,7 +127,7 @@ onMounted(async () => {
   } else {
     applyDefaultCollapse();
   }
-  await resolveNestedMeta();
+  await hydrateNestedFiltersFromUrl();
 });
 
 function toggleSection(columnId: string) {

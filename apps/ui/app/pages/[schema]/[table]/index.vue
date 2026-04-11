@@ -132,6 +132,8 @@ const sidebarVisible = ref(true);
         :columns="filters.columns.value"
         :schemaId="schemaId"
         :tableId="tableId"
+        :route="route"
+        :router="router"
         class="w-[34rem] shrink-0"
       />
       <div class="flex-1 min-w-0">

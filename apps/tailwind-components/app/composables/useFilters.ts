@@ -23,7 +23,6 @@ import {
 } from "../utils/filterUrlCodec";
 import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
 import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
-import { resolveRouteRouter } from "../utils/routeParams";
 import fetchGraphql from "./fetchGraphql";
 
 export const MG_FILTERS_PARAM = "mg_filters";
@@ -40,6 +39,7 @@ export interface UseFiltersOptions {
   schemaId: string;
   tableId: string;
   debounceMs?: number;
+  defaultFilters?: string[];
   route?: { query: RouteQuery };
   router?: { replace: (opts: Record<string, unknown>) => void };
 }
@@ -83,9 +83,16 @@ export function useFilters(
   const columns = computed(() => filterColumns(rawColumns.value));
   const urlSync = options.urlSync ?? false;
 
-  const { route, router } = urlSync
-    ? resolveRouteRouter(options)
-    : { route: null, router: null };
+  if (urlSync && (!options.route || !options.router)) {
+    console.warn(
+      "useFilters: urlSync is true but route/router were not provided. URL sync disabled."
+    );
+  }
+
+  const route =
+    urlSync && options.route && options.router ? options.route : null;
+  const router =
+    urlSync && options.route && options.router ? options.router : null;
 
   const urlSyncEnabled = urlSync && !!route && !!router;
 
@@ -199,7 +206,12 @@ export function useFilters(
     return result;
   });
 
-  const defaultFilterIds = computed(() => computeDefaultFilters(columns.value));
+  const defaultFilterIds = computed(() => {
+    if (options.defaultFilters && options.defaultFilters.length > 0) {
+      return options.defaultFilters;
+    }
+    return computeDefaultFilters(columns.value);
+  });
 
   function getInitialVisibleFilters(): string[] {
     const urlParam = getCurrentQuery()[MG_FILTERS_PARAM];

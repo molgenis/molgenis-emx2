@@ -3,35 +3,19 @@ import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
 
 const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
 
-type ParsedTerms = { terms: string[] };
-
-export function parseFilterTerms(input: string): ParsedTerms {
+export function parseFilterTerms(input: string): string[] {
   const tokenRegex = /'([^']*)'|(\S+)/g;
-  const tokens: string[] = [];
+  const terms: string[] = [];
   let match;
+
   while ((match = tokenRegex.exec(input)) !== null) {
-    tokens.push(match[1] ?? match[2]!);
-  }
-
-  const andIndices: number[] = [];
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i]!.toLowerCase() === "and") andIndices.push(i);
-  }
-
-  if (andIndices.length > 0) {
-    const terms: string[] = [];
-    let start = 0;
-    for (const idx of andIndices) {
-      const group = tokens.slice(start, idx).join(" ");
-      if (group) terms.push(group);
-      start = idx + 1;
+    const token = match[1] ?? match[2]!;
+    if (token.toLowerCase() !== "and") {
+      terms.push(token);
     }
-    const lastGroup = tokens.slice(start).join(" ");
-    if (lastGroup) terms.push(lastGroup);
-    return { terms: terms.filter(Boolean) };
   }
 
-  return { terms: tokens.filter(Boolean) };
+  return terms.filter(Boolean);
 }
 
 function setNestedValue(obj: any, path: string[], value: any): void {
@@ -127,11 +111,11 @@ export function buildGraphQLFilter(
 
       case "like": {
         if (typeof value === "string") {
-          const parsed = parseFilterTerms(value);
-          if (parsed.terms.length <= 1) {
-            filterValueObj = { like: parsed.terms[0] || value };
+          const terms = parseFilterTerms(value);
+          if (terms.length <= 1) {
+            filterValueObj = { like: terms[0] || value };
           } else {
-            const likeFilters = parsed.terms.map((term: string) => {
+            const likeFilters = terms.map((term: string) => {
               const entry: any = {};
               setNestedValue(entry, pathSegments, { like: term });
               return entry;

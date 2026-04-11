@@ -358,6 +358,33 @@ describe("useFilters — URL sync", () => {
   });
 });
 
+describe("useFilters — defaultFilters option", () => {
+  it("uses defaultFilters as initial visible set when urlSync has no mg_filters param", () => {
+    const columns = ref(allColumns);
+    const { visibleFilterIds } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ["name", "age"],
+    });
+    expect(visibleFilterIds.value).toEqual(["name", "age"]);
+  });
+
+  it("resetFilters restores defaultFilters when provided", () => {
+    const columns = ref(allColumns);
+    const { visibleFilterIds, toggleFilter, resetFilters } = useFilters(
+      columns,
+      {
+        schemaId: "test",
+        tableId: "table1",
+        defaultFilters: ["name", "age"],
+      }
+    );
+    toggleFilter("status");
+    resetFilters();
+    expect(visibleFilterIds.value).toEqual(["name", "age"]);
+  });
+});
+
 describe("useFilters — nested column meta", () => {
   it("registerNestedColumn stores meta accessible via nestedColumnMeta", () => {
     const columns = ref(allColumns);

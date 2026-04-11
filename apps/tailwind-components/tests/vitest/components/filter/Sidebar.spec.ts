@@ -308,6 +308,50 @@ describe("Sidebar", () => {
     expect(filters.toggleFilter).toHaveBeenCalledWith("status");
   });
 
+  describe("defaultCollapsed prop", () => {
+    it("overrides first-5 rule when defaultCollapsed is provided", async () => {
+      const ids = ["a", "b", "c", "d", "e", "f"];
+      const filters = makeFilters(ids);
+      const columns = makeColumns(ids);
+      const wrapper = mount(Sidebar, {
+        props: {
+          filters,
+          columns,
+          schemaId: "test",
+          tableId: "TestTable",
+          defaultCollapsed: ["b", "d"],
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(
+        wrapper
+          .find('[aria-controls="filter-section-a"]')
+          .attributes("aria-expanded")
+      ).toBe("true");
+      expect(
+        wrapper
+          .find('[aria-controls="filter-section-b"]')
+          .attributes("aria-expanded")
+      ).toBe("false");
+      expect(
+        wrapper
+          .find('[aria-controls="filter-section-c"]')
+          .attributes("aria-expanded")
+      ).toBe("true");
+      expect(
+        wrapper
+          .find('[aria-controls="filter-section-d"]')
+          .attributes("aria-expanded")
+      ).toBe("false");
+      expect(
+        wrapper
+          .find('[aria-controls="filter-section-f"]')
+          .attributes("aria-expanded")
+      ).toBe("true");
+    });
+  });
+
   describe("URL collapse persistence", () => {
     it("reads mg_collapsed from URL on mount and collapses those ids", async () => {
       const ids = ["a", "b", "c"];

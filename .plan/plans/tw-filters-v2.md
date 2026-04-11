@@ -182,6 +182,15 @@ Tasks:
   - Frontend fix: `fetchCounts.ts` uses `refLabelDefault` template for filter option labels (resolves `[object Object]` display)
   - Also added `resolveValue()` helper for graceful nested object stringification as fallback
 
+### Phase 8.7: Post-review polish
+- [x] 8.7.1 Rename `resolveNestedMeta` → `hydrateNestedFiltersFromUrl` (Sidebar.vue) — clearer intent (URL-hydration counterpart of Picker's nested selection)
+- [x] 8.7.2 Delete redundant local `columnCache` in Sidebar.vue — `fetchTableMetadata` already caches per session (CLAUDE.md rule)
+- [x] 8.7.3 Delete `utils/routeParams.ts` + the `resolveRouteRouter` magic (dynamic `require("#app/composables/router")` was a code smell). Route/router now explicit: useFilters warns + falls back when urlSync=true without them; Sidebar.vue uses `props.route`/`props.router` directly; apps/ui page now passes `:route="route" :router="router"` to `<FilterSidebar>`.
+- [x] 8.7.4 Simplify `parseFilterTerms` — single-pass loop, return type `string[]` (was `{ terms: string[] }`), caller updated
+- [x] 8.7.5 Add `defaultFilters?: string[]` option to `useFilters` — overrides `computeDefaultFilters` for initial visible set AND Picker Reset
+- [x] 8.7.6 Add `defaultCollapsed?: string[]` prop to Sidebar.vue — overrides the first-5-expanded rule. `mg_collapsed` URL param still takes precedence when present.
+- [x] 8.7.7 +3 vitest tests covering both new overrides (436 total, was 433). Filter-sidebar e2e 10/10.
+
 ## Future Work (not this PR)
 
 ### Phase 10: Use GraphQL variables instead of string serialization
@@ -190,10 +199,17 @@ Tasks:
 - Cleaner, safer (no injection risk), standard GraphQL practice
 - Affects: all fetchCounts strategies, buildFilter
 
+### Phase 11: Custom filter hook (parity with catalogue's advanced cases)
+Backlog. Adds an escape hatch so consumers can inject custom GraphQL filter construction for individual columns or the `_search` field. Subsumes the catalogue features we intentionally skipped:
+- Per-column `buildFilter?: (filterState, column) => IGraphQLFilter` hook (catalogue's `buildFilterFunction`)
+- Custom `_search` builder: lets the consumer turn `_search` into an `_or` across multiple joined tables (catalogue's `searchTables` use case)
+- Replaces need for `filterTable` and multi-table `_search` as standalone features — those become recipes on top of the hook
+- Signatures TBD; likely lives in `useFilters` options
+
 ### Other future work
 - Mobile: full-screen modal sidebar
 - Backend: add limit/offset to _groupBy for large ontologies
 - Type fetchGraphql responses (generics)
-- User-configurable initial filter set (pass as prop)
 - Null search (filter for missing values)
 - Input size prop for compact filter context
+- Filter options description display (catalogue `List.vue` `descriptionField` prop) — optional secondary text next to checkbox labels in Column.vue
