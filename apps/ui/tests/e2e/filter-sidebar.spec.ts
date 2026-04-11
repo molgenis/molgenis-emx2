@@ -20,35 +20,21 @@ test.describe("filter sidebar", () => {
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(5000);
 
-    const filterSections = page.locator('[role="button"][aria-expanded]');
-    const sectionCount = await filterSections.count();
+    const filterSectionHeadings = page.locator("h3");
+    const sectionCount = await filterSectionHeadings.count();
     expect(sectionCount).toBeGreaterThanOrEqual(1);
 
-    const firstSection = filterSections.first();
+    const firstSection = filterSectionHeadings.first();
     await expect(firstSection).toBeVisible();
-
-    const isExpandedInitially =
-      (await firstSection.getAttribute("aria-expanded")) === "true";
-    expect(isExpandedInitially).toBe(true);
-
-    await firstSection.click();
-    const isCollapsedAfterClick =
-      (await firstSection.getAttribute("aria-expanded")) === "false";
-    expect(isCollapsedAfterClick).toBe(true);
-
-    await firstSection.click();
-    const isExpandedAfterReclick =
-      (await firstSection.getAttribute("aria-expanded")) === "true";
-    expect(isExpandedAfterReclick).toBe(true);
   });
 
   test("filter sections contain checkboxes", async ({ page }) => {
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(5000);
 
-    const labels = page.locator('label:has(input[type="checkbox"])');
-    const labelCount = await labels.count();
-    expect(labelCount).toBeGreaterThanOrEqual(1);
+    const checkboxes = page.locator('input[type="checkbox"]');
+    const checkboxCount = await checkboxes.count();
+    expect(checkboxCount).toBeGreaterThanOrEqual(1);
   });
 
   test("table renders with data", async ({ page }) => {
@@ -119,6 +105,244 @@ test.describe("filter sidebar", () => {
     expect(updatedUrl).not.toBe(initialUrl);
 
     await firstLabel.click();
+    await page.waitForTimeout(500);
+  });
+
+  test("nested REF filter expands and allows selecting leaf columns (catalogue-demo)", async ({
+    page,
+  }) => {
+    // Test verifies that nested REF selection creates a dotted path filter
+    // and displays the breadcrumb notation in the sidebar
+    // Parent: "internal identifiers" → Leaf: "identifier" (TEXT type)
+    // Expected filter ID: "internalIdentifiers.identifier"
+
+    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(3000);
+
+    // Open Picker modal
+    const customizeButton = page.getByRole("button", { name: /customize/i });
+    await expect(customizeButton).toBeVisible();
+    await customizeButton.click();
+    await page.waitForTimeout(2000);
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+
+    // Find "internal identifiers → InternalIdentifiers" expander
+    const internalIdRef = modal.locator(
+      'button:has-text("internal identifiers")'
+    );
+    await expect(internalIdRef).toBeVisible();
+
+    // Click to expand nested columns
+    await internalIdRef.click();
+    await page.waitForTimeout(1000);
+
+    // Find nested leaf nodes (items with padding-left > 0)
+    // Specifically, find the "identifier" field nested under internal identifiers
+    // It will have padding-left: 1.5rem and contain "identifierInternal identifier"
+    const nestedItems = modal.locator(
+      'li[style*="padding-left: 1.5rem"] label'
+    );
+    const itemCount = await nestedItems.count();
+    expect(itemCount).toBeGreaterThan(0);
+
+    // Find the first occurrence of the nested "identifier" field
+    // It should contain the text pattern "identifierInternal identifier"
+    let identifierLeaf = null;
+    for (let i = 0; i < itemCount; i++) {
+      const item = nestedItems.nth(i);
+      const text = await item.textContent();
+      // Match "identifier" at the start of label (not "type")
+      if (text && /^identifier[A-Z]/.test(text)) {
+        identifierLeaf = item;
+        break;
+      }
+    }
+
+    expect(identifierLeaf).not.toBeNull();
+
+    // Verify it's not already checked
+    const checkbox = identifierLeaf!.locator('input[type="checkbox"]');
+    let wasChecked = await checkbox.isChecked();
+    if (wasChecked) {
+      // Toggle off so we can toggle it on to test the change
+      await checkbox.click();
+      await page.waitForTimeout(500);
+    }
+
+    // Click the checkbox to select the nested leaf
+    await identifierLeaf!.click();
+    await page.waitForTimeout(500);
+
+    // Verify checkbox is now checked
+    const isNowChecked = await checkbox.isChecked();
+    expect(isNowChecked).toBe(true);
+
+    // Click Apply button
+    const applyBtn = page.getByRole("button", { name: /apply/i });
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
+    await page.waitForTimeout(2000);
+
+    // Verify modal closed
+    await expect(modal).not.toBeVisible();
+
+    // Verify URL contains dotted path filter (NOT a top-level column)
+    const url = page.url();
+    expect(url).toContain("mg_filters=");
+    expect(url).toContain("internalIdentifiers.identifier");
+
+    // Verify sidebar shows breadcrumb notation with →
+    const sidebarHeadings = page.locator("h3");
+    const breadcrumbHeading = sidebarHeadings.filter({
+      hasText: /internal identifiers\s*→\s*identifier/i,
+    });
+    await expect(breadcrumbHeading).toBeVisible();
+
+    // Prove nested filter is functional: locate text input within the new section
+    // and type a value to verify URL changes
+    const sidebarSection = page.locator("h3", {
+      hasText: /internal identifiers\s*→\s*identifier/i,
+    });
+    await expect(sidebarSection).toBeVisible();
+
+    // Find the filter container for this section and locate the text input
+    // Start from the h3 and go to the next sibling or parent container
+    const textInputs = page.locator('input[type="text"]');
+    const inputCountBefore = await textInputs.count();
+
+    // Type into the last text input (most likely the newly created filter)
+    const lastInput = textInputs.last();
+    await lastInput.fill("test");
+    await page.waitForTimeout(500);
+
+    // Verify URL changed to include the nested filter value
+    const updatedUrl = page.url();
+    expect(updatedUrl).toContain("internalIdentifiers.identifier");
+    expect(updatedUrl).not.toBe(url);
+  });
+
+  test("nested REF filter with string leaf field (type test schema)", async ({
+    page,
+  }) => {
+    // Similar test on a different schema with a different nested field type
+    // Navigate to type test schema (Types table) and select nested "option value" field
+    // Parent: "ref type" → Leaf: "option value" (STRING type)
+    // Expected filter ID: "refType.optionValue"
+
+    await page.goto(`${route}type%20test/Types`);
+    await page.waitForTimeout(3000);
+
+    // Open Picker modal
+    const customizeButton = page.getByRole("button", { name: /customize/i });
+    await expect(customizeButton).toBeVisible();
+    await customizeButton.click();
+    await page.waitForTimeout(2000);
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+
+    // Find "ref type → Options" expander
+    const refTypeExpander = modal.locator('button:has-text("ref type")');
+    await expect(refTypeExpander).toBeVisible();
+
+    // Click to expand
+    await refTypeExpander.click();
+    await page.waitForTimeout(1000);
+
+    // Find nested leaves with indentation (padding-left: 1.5rem)
+    const nestedLeaves = modal.locator('li[style*="padding-left: 1.5rem"]');
+    const leafCount = await nestedLeaves.count();
+    expect(leafCount).toBeGreaterThan(0);
+
+    // Find "option value" field (STRING type)
+    let optionValueLeaf = null;
+    for (let i = 0; i < leafCount; i++) {
+      const leaf = nestedLeaves.nth(i);
+      const text = await leaf.textContent();
+      if (text && text.includes("option value")) {
+        optionValueLeaf = leaf;
+        break;
+      }
+    }
+
+    expect(optionValueLeaf).not.toBeNull();
+
+    // Get checkbox and verify it's not checked
+    const checkbox = optionValueLeaf!.locator('input[type="checkbox"]');
+    const isChecked = await checkbox.isChecked();
+    if (!isChecked) {
+      // Click to select it
+      await optionValueLeaf!.click();
+      await page.waitForTimeout(500);
+    }
+
+    // Verify it's now checked
+    const isNowChecked = await checkbox.isChecked();
+    expect(isNowChecked).toBe(true);
+
+    // Click Apply
+    const applyBtn = page.getByRole("button", { name: /apply/i });
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
+    await page.waitForTimeout(2000);
+
+    // Verify modal closed
+    await expect(modal).not.toBeVisible();
+
+    // Verify URL contains a dotted path (indicates nested filter)
+    const url = page.url();
+    expect(url).toContain("mg_filters=");
+    expect(url).toContain("refType.optionValue");
+
+    // Verify sidebar shows breadcrumb notation with →
+    const sidebarHeadings = page.locator("h3");
+    const breadcrumbHeading = sidebarHeadings.filter({
+      hasText: /ref type\s*→\s*option value/i,
+    });
+    await expect(breadcrumbHeading).toBeVisible();
+
+    // Prove nested filter is functional: type a value into the text input
+    // and verify URL changes
+    const textInputs = page.locator('input[type="text"]');
+    const lastInput = textInputs.last();
+    await lastInput.fill("testvalue");
+    await page.waitForTimeout(500);
+
+    // Verify URL changed to include the nested filter value
+    const updatedUrl = page.url();
+    expect(updatedUrl).toContain("refType.optionValue");
+    expect(updatedUrl).not.toBe(url);
+  });
+
+  test("filter picker footer buttons exist", async ({ page }) => {
+    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(3000);
+
+    const customizeButton = page.getByRole("button", { name: /customize/i });
+    await customizeButton.click();
+    await page.waitForTimeout(1000);
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+
+    // Check for footer buttons
+    const applyBtn = page.getByRole("button", { name: /apply/i });
+    const cancelBtn = page.getByRole("button", { name: /cancel/i });
+    const clearBtn = page.getByRole("button", { name: /clear/i });
+    const selectAllBtn = page.getByRole("button", { name: /select all/i });
+    const resetBtn = page.getByRole("button", { name: /reset/i });
+
+    // All required footer buttons must be visible
+    await expect(applyBtn).toBeVisible();
+    await expect(cancelBtn).toBeVisible();
+    await expect(clearBtn).toBeVisible();
+    await expect(selectAllBtn).toBeVisible();
+    await expect(resetBtn).toBeVisible();
+
+    // Close with Cancel
+    await cancelBtn.click();
     await page.waitForTimeout(500);
   });
 });

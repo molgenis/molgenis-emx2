@@ -118,7 +118,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | REF expands 2 levels deep, REF_ARRAY/REFBACK 1 level deep | Picker.vue | Picker.spec.ts | - |
 | Self-referencing back-refs to parent table excluded | Picker.vue | Picker.spec.ts | - |
 | Expanded ref shows sub-columns indented with same checkbox + description + type layout | Picker.vue | - | visual check |
-| Selecting nested column adds filter as "root → child [→ child]" label in sidebar | Picker.vue, Sidebar.vue | Picker.spec.ts | visual check |
+| Selecting nested column adds filter as "root → child [→ child]" label in sidebar | Picker.vue, Sidebar.vue | Picker.spec.ts, filter-sidebar.spec.ts (e2e) | verified |
 | Shows selected state (checkmarks via InputCheckboxIcon) | Picker.vue | Picker.spec.ts | visual check |
 | Search input to find columns by name/description | Picker.vue | Picker.spec.ts | visual check |
 | "Apply" button applies selection and closes modal | Picker.vue | Picker.spec.ts | visual check |

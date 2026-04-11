@@ -353,7 +353,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                 >
               </button>
               <span
-                class="text-xs text-disabled bg-gray-100 px-1.5 py-0.5 rounded shrink-0"
+                class="text-xs text-type-badge bg-type-badge px-1.5 py-0.5 rounded shrink-0"
                 >{{ node.columnType }}</span
               >
             </div>
@@ -388,7 +388,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                 </div>
               </div>
               <span
-                class="text-xs text-disabled bg-gray-100 px-1.5 py-0.5 rounded shrink-0"
+                class="text-xs text-type-badge bg-type-badge px-1.5 py-0.5 rounded shrink-0"
                 >{{ node.columnType }}</span
               >
             </label>

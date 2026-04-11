@@ -17,7 +17,7 @@ const emit = defineEmits<{
     v-if="props.filters.length > 0"
     class="flex flex-wrap items-center gap-3 bg-button-primary rounded-input px-3 py-2 mb-2"
   >
-    <span class="text-white text-xs whitespace-nowrap mr-1"
+    <span class="text-button-primary text-xs whitespace-nowrap mr-1"
       >Active filters</span
     >
 
@@ -70,7 +70,7 @@ const emit = defineEmits<{
 
     <button
       @click="emit('clearAll')"
-      class="whitespace-nowrap text-white text-xs underline hover:no-underline cursor-pointer"
+      class="whitespace-nowrap text-button-primary text-xs underline hover:no-underline cursor-pointer"
     >
       Clear all
     </button>

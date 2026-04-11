@@ -22,7 +22,8 @@ import {
   parseFiltersFromUrl,
 } from "../utils/filterUrlCodec";
 import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
-import { isCountableType } from "../utils/filterTypes";
+import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
+import { resolveRouteRouter } from "../utils/routeParams";
 import fetchGraphql from "./fetchGraphql";
 
 export const MG_FILTERS_PARAM = "mg_filters";
@@ -69,27 +70,8 @@ function jsonEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function resolveRouteRouter(options: UseFiltersOptions): {
-  route: { query: RouteQuery } | null;
-  router: { replace: (opts: Record<string, unknown>) => void } | null;
-} {
-  if (options.route && options.router) {
-    return { route: options.route, router: options.router };
-  }
-  try {
-    const { useRoute, useRouter } = require("#app/composables/router");
-    return { route: useRoute(), router: useRouter() };
-  } catch {
-    return { route: null, router: null };
-  }
-}
-
-const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
-
 function filterColumns(rawColumns: IColumn[]): IColumn[] {
-  return rawColumns.filter(
-    (c) => !c.id.startsWith("mg_") && !EXCLUDED_COLUMN_TYPES.has(c.columnType)
-  );
+  return rawColumns.filter((c) => !isExcludedColumn(c));
 }
 
 export function useFilters(
@@ -104,6 +86,7 @@ export function useFilters(
   const { route, router } = urlSync
     ? resolveRouteRouter(options)
     : { route: null, router: null };
+
   const urlSyncEnabled = urlSync && !!route && !!router;
 
   function getCurrentQuery(): RouteQuery {

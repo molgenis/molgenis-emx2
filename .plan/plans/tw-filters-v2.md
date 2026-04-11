@@ -147,11 +147,12 @@ New worktree from master. Cherry-pick what works, rewrite what doesn't.
 - [x] 7.9 E2e smoketest on catalogue-demo/Resources (7 tests)
 
 ### Phase 8: Final polish
-- [ ] 8.1 Theme testing (all 5 themes)
-- [ ] 8.2 pnpm format + pnpm lint
-- [ ] 8.3 Review: dead code, stale terminology, orphaned refs
-- [ ] 8.4 Final test run (405 tests currently passing)
+- [x] 8.1 Theme testing (all 5 themes) — verified Light/Dark/Molgenis/UMCG/AUMC via `?theme=` query param on apps/ui:3000. Found + fixed 2 contrast bugs: Picker type badges (raw `bg-gray-100`/`text-disabled` ≈1.2:1 → added semantic `text-type-badge`/`bg-type-badge` pair in tailwind config + main.css + dark.css) and ActiveFilters chips (hardcoded `text-white` on `bg-button-primary` → swapped to semantic `text-button-primary`).
+- [x] 8.2 pnpm format + pnpm lint — both apps clean (tailwind-components + ui). Format only touched `apps/ui/tests/e2e/filter-sidebar.spec.ts`. nuxi typecheck exit 0.
+- [x] 8.3 Review: dead code, stale terminology, orphaned refs — review pass done. 11 findings triaged, user approved all. Applied: #1 Sidebar.vue `fetchTableColumns` → `fetchTableMetadata`; #2 useFilters.ts `filterColumns` uses `isExcludedColumn`; #3 `IGraphQLFilterNull.is_null` (was `isNull`/`notNull`); #4 `UseFilters.nestedColumnMeta` adds `refLabel`; #5 Sidebar.vue imports Column/Picker (not FilterOptions/FilterPicker); #6 `IGraphQLFilterMatchAny` in union; #7 `resolveRouteRouter` extracted to new `utils/routeParams.ts`; #8 Sidebar.vue unused `index` in v-for removed; #10 unused `FilterOperator` type removed. Skipped: #9 (review was wrong — `LONG` is already in `RANGE_TYPES` at filterTypes.ts:33); #11 (`PickerNode extends INode` rejected — `INode` uses `name` not `id`, `ITreeNode` adds unrelated `children`/`parent`). Leftover `apps/ui/test_themes.mjs` deleted. Tests: tailwind-components vitest 47 files / 433 tests pass; e2e filter-sidebar 10/10 pass.
+- [x] 8.4 Final test run — tailwind-components vitest: 433/433 pass (17 pre-existing unhandled rejections in Picker.spec.ts from a vitest/SSR `BaseIcon.vue` dynamic-import quirk, not ours). filter-sidebar e2e: 10/10 pass. Full ui e2e: 19 pass, 2 fail. Regression fixed: `explorer-ref-columns.spec.ts:16` — generic `h2` locator tightened to `getByRole('dialog').getByRole('heading', { level: 2 })` (broken by new sidebar `<h2>Filters</h2>`). Remaining 2 failures are pre-existing, unrelated: `crud.spec.ts:53` (missing "e2e" cell — test-data/state), `re-authtest.spec.ts:60` ("reauth" text not found — state/timing). These predate the branch and need separate triage.
 - [ ] 8.5 Stage changes
+- [x] 8.6 E2e verification of nested REF picker flow on `catalogue-demo` + `type test` via apps/ui:3000 — added 2 nested-ref tests + footer-buttons assertion in `apps/ui/tests/e2e/filter-sidebar.spec.ts` (10/10 pass). Verified: `internalIdentifiers.identifier` (catalogue-demo/Resources) and `refType.optionValue` (type test/Types) — breadcrumb `→` in sidebar `<h3>`, dotted path in `mg_filters` URL param, text input in new section updates URL on type.
 
 ## Current stats
 - **405 tests**, 46 test files, all passing

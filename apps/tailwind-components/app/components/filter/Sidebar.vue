@@ -8,8 +8,10 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
 import InputSearch from "../input/Search.vue";
-import FilterOptions from "./Column.vue";
-import FilterPicker from "./Picker.vue";
+import Column from "./Column.vue";
+import Picker from "./Picker.vue";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { resolveRouteRouter } from "../../utils/routeParams";
 
 type RouteQuery = Record<
   string,
@@ -25,22 +27,10 @@ const props = defineProps<{
   router?: { replace: (opts: Record<string, unknown>) => void };
 }>();
 
-function resolveRouteRouter(): {
-  route: { query: RouteQuery } | null;
-  router: { replace: (opts: Record<string, unknown>) => void } | null;
-} {
-  if (props.route && props.router) {
-    return { route: props.route, router: props.router };
-  }
-  try {
-    const { useRoute, useRouter } = require("#app/composables/router");
-    return { route: useRoute(), router: useRouter() };
-  } catch {
-    return { route: null, router: null };
-  }
-}
-
-const { route, router } = resolveRouteRouter();
+const { route, router } = resolveRouteRouter({
+  route: props.route,
+  router: props.router,
+});
 
 const searchInputId = useId();
 const collapsed = ref(new Set<string>());
@@ -51,19 +41,8 @@ async function fetchTableColumns(
   tableId: string
 ): Promise<IColumn[]> {
   try {
-    const response = await $fetch<{
-      data: {
-        _schema: { tables: Array<{ name: string; columns: IColumn[] }> };
-      };
-    }>(`/${encodeURIComponent(schemaId)}/graphql`, {
-      method: "POST",
-      body: {
-        query: `{ _schema { tables { name columns { id name label columnType description refTableId refSchemaId } } } }`,
-      },
-    });
-    const tables = response?.data?._schema?.tables ?? [];
-    const table = tables.find((t) => t.name === tableId);
-    return table?.columns ?? [];
+    const meta = await fetchTableMetadata(schemaId, tableId);
+    return meta.columns ?? [];
   } catch {
     return [];
   }
@@ -256,7 +235,7 @@ function handlePickerApply(
         />
       </div>
 
-      <template v-for="(column, index) in visibleColumns" :key="column.id">
+      <template v-for="column in visibleColumns" :key="column.id">
         <hr class="border-black opacity-10 mx-5" />
         <div
           class="p-5 flex items-center justify-between cursor-pointer group"
@@ -285,7 +264,7 @@ function handlePickerApply(
           :id="`filter-section-${column.id}`"
           class="mx-5 mb-5"
         >
-          <FilterOptions
+          <Column
             :column="column"
             :options="filters.getCountedOptions(column.id).value"
             :loading="filters.isCountLoading(column.id).value"
@@ -296,7 +275,7 @@ function handlePickerApply(
       </template>
     </div>
 
-    <FilterPicker
+    <Picker
       v-model="pickerOpen"
       :columns="columns"
       :visible-filter-ids="visibleFilterIdsSet"

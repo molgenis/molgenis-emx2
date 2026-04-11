@@ -9,13 +9,6 @@ export interface ActiveFilter {
   values: string[];
 }
 
-export type FilterOperator =
-  | "equals"
-  | "like"
-  | "between"
-  | "notNull"
-  | "isNull";
-
 export type IFilterValue =
   | {
       operator: "equals" | "like" | "notNull" | "isNull";
@@ -36,8 +29,11 @@ export interface IGraphQLFilterBetween {
 }
 
 export interface IGraphQLFilterNull {
-  notNull?: boolean;
-  isNull?: boolean;
+  is_null?: boolean;
+}
+
+export interface IGraphQLFilterMatchAny {
+  _match_any: unknown[];
 }
 
 export interface IGraphQLFilterMatchAnyIncludingChildren {
@@ -49,6 +45,7 @@ export type IGraphQLFilterValue =
   | IGraphQLFilterLike
   | IGraphQLFilterBetween
   | IGraphQLFilterNull
+  | IGraphQLFilterMatchAny
   | IGraphQLFilterMatchAnyIncludingChildren;
 
 export interface IGraphQLFilter {
@@ -85,6 +82,7 @@ export interface UseFilters {
         columnType: string;
         refTableId?: string | null;
         refSchemaId?: string | null;
+        refLabel?: string | null;
       }
     >
   >;
@@ -95,6 +93,7 @@ export interface UseFilters {
       columnType: string;
       refTableId?: string | null;
       refSchemaId?: string | null;
+      refLabel?: string | null;
     }
   ) => void;
   schemaId: string;
