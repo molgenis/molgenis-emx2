@@ -1,4 +1,6 @@
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { IColumn, columnValue } from "../../../metadata-utils/src/types";
+import type { IFilterValue } from "../../types/filters";
+import type { CountedOption } from "./fetchCounts";
 
 export const MAX_NESTING_DEPTH = 5;
 
@@ -125,4 +127,55 @@ export function computeDefaultFilters(columns: IColumn[]): string[] {
         !isExcludedColumn(col) && DEFAULT_FILTER_TYPES.has(col.columnType)
     )
     .map((col) => col.id);
+}
+
+export function treeSelectionToFilterValue(
+  selected: string[],
+  column: IColumn,
+  options: CountedOption[]
+): IFilterValue | undefined {
+  if (selected.length === 0) return undefined;
+
+  if (
+    isRefFilterType(column.columnType) &&
+    options.length > 0 &&
+    options[0]?.keyObject !== undefined
+  ) {
+    const firstKey = options[0].keyObject!;
+    const isComposite = Object.keys(firstKey).length > 1;
+    if (isComposite) {
+      const optionsByName = new Map(
+        options.map((option) => [option.name, option])
+      );
+      const values = selected.map((name) => {
+        const option = optionsByName.get(name);
+        return (option?.keyObject ?? { name }) as Record<string, unknown>;
+      });
+      return { operator: "equals", value: values as columnValue };
+    }
+  }
+
+  return { operator: "equals", value: selected };
+}
+
+export function filterValueToTreeSelection(
+  filterValue: IFilterValue | undefined
+): string[] {
+  if (!filterValue || filterValue.operator !== "equals") return [];
+  const val = filterValue.value;
+  if (!Array.isArray(val)) {
+    if (typeof val === "string") return [val];
+    return [];
+  }
+  return val
+    .filter((value) => value !== null && value !== undefined)
+    .map((value) => {
+      if (typeof value === "object" && value !== null) {
+        const values = Object.values(value as Record<string, unknown>);
+        return values.length === 1
+          ? String(values[0])
+          : values.map(String).join(", ");
+      }
+      return String(value);
+    });
 }

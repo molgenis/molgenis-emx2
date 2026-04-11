@@ -12,7 +12,8 @@ import type { ITreeNode } from "../../../types/types";
 import {
   isCountableType,
   isRangeType,
-  isRefFilterType,
+  filterValueToTreeSelection,
+  treeSelectionToFilterValue,
 } from "../../utils/filterTypes";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
@@ -42,54 +43,15 @@ const treeNodes = computed<ITreeNode[]>(() =>
   props.options.map(countedOptionToTreeNode)
 );
 
-const treeSelection = computed<string[]>(() => {
-  if (!props.modelValue || props.modelValue.operator !== "equals") return [];
-  const val = props.modelValue.value;
-  if (!Array.isArray(val)) {
-    if (typeof val === "string") return [val];
-    return [];
-  }
-  return val
-    .filter((value) => value !== null && value !== undefined)
-    .map((value) => {
-      if (typeof value === "object" && value !== null) {
-        const values = Object.values(value as Record<string, unknown>);
-        return values.length === 1
-          ? String(values[0])
-          : values.map(String).join(", ");
-      }
-      return String(value);
-    });
-});
-
-const hasKeyObjects = computed(
-  () => props.options.length > 0 && props.options[0]?.keyObject !== undefined
+const treeSelection = computed(() =>
+  filterValueToTreeSelection(props.modelValue)
 );
 
 function onTreeSelectionChange(selected: string[]) {
-  if (selected.length === 0) {
-    emit("update:modelValue", undefined);
-    return;
-  }
-  if (isRefFilterType(props.column.columnType) && hasKeyObjects.value) {
-    const firstKey = props.options[0]!.keyObject!;
-    const isComposite = Object.keys(firstKey).length > 1;
-    if (isComposite) {
-      const optionsByName = new Map(
-        props.options.map((option) => [option.name, option])
-      );
-      const values = selected.map((name) => {
-        const opt = optionsByName.get(name);
-        return (opt?.keyObject ?? { name }) as Record<string, unknown>;
-      });
-      emit("update:modelValue", {
-        operator: "equals",
-        value: values as columnValue,
-      });
-      return;
-    }
-  }
-  emit("update:modelValue", { operator: "equals", value: selected });
+  emit(
+    "update:modelValue",
+    treeSelectionToFilterValue(selected, props.column, props.options)
+  );
 }
 
 const rangeValue = computed<[columnValue, columnValue]>(() => {
