@@ -5,9 +5,11 @@ import { computed } from "vue";
 import type { IResources, IResources_agg } from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
 import ContentBlockCatalogues from "../components/content/ContentBlockCatalogues.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
+import { useRouter } from "#app";
+
+const router = useRouter();
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -101,6 +103,13 @@ useHead(() => ({
     },
   ],
 }));
+
+function handleSearch(query: string) {
+  console.log("Search query:", query);
+  if (query?.trim()) {
+    router.push({ name: "search", query: { q: query.trim() } });
+  }
+}
 </script>
 
 <template>
@@ -114,10 +123,10 @@ useHead(() => ({
         <div
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
-          <div class="flex flex-col items-center max-w-sm lg:mt-5">
-            <NuxtLink :to="`/all`">
-              <Button label="Search all" />
-            </NuxtLink>
+          <div class="flex flex-col items-center w-full lg:mt-5">
+           
+              <SearchBar @submitSearch="handleSearch" id="search-input" class="w-3/5" />
+          
             <p
               class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
               v-if="catalogues?.length"
