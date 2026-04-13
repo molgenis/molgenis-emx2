@@ -57,6 +57,7 @@ public class Emx2Yaml {
   private static final String ROLE_OWNER_VALUE = "Owner";
 
   private static final String FIELD_PROFILES = "profiles";
+  private static final String FIELD_VALUES = "values";
   private static final String FIELD_VARIANTS = "variants";
   private static final String FIELD_VARIANT = "variant";
   private static final String FIELD_TABLES = "tables";
@@ -505,7 +506,9 @@ public class Emx2Yaml {
             entry.containsKey(FIELD_VARIANT) ? (String) entry.get(FIELD_VARIANT) : inheritedVariant;
         String[] containerProfiles;
         if (entry.containsKey(FIELD_PROFILES)) {
-          containerProfiles = toStringArray((List<String>) entry.get(FIELD_PROFILES));
+          containerProfiles =
+              mergeProfiles(
+                  inheritedProfiles, toStringArray((List<String>) entry.get(FIELD_PROFILES)));
         } else {
           containerProfiles = inheritedProfiles;
         }
@@ -569,8 +572,17 @@ public class Emx2Yaml {
           Column headingCol = new Column(columnKey);
           headingCol.setType(ColumnType.HEADING);
           applyCommonColumnAttributes(headingCol, columnAttrs);
-          if (inheritedProfiles != null) {
-            headingCol.setProfiles(inheritedProfiles);
+          String[] headingProfiles;
+          if (columnAttrs.containsKey(FIELD_PROFILES)) {
+            headingProfiles =
+                mergeProfiles(
+                    inheritedProfiles,
+                    toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES)));
+          } else {
+            headingProfiles = inheritedProfiles;
+          }
+          if (headingProfiles != null && headingProfiles.length > 0) {
+            headingCol.setProfiles(headingProfiles);
           }
           TableMetadata target =
               resolveTargetTable(
@@ -596,7 +608,10 @@ public class Emx2Yaml {
 
           String[] effectiveProfiles;
           if (columnAttrs.containsKey(FIELD_PROFILES)) {
-            effectiveProfiles = toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES));
+            effectiveProfiles =
+                mergeProfiles(
+                    inheritedProfiles,
+                    toStringArray((List<String>) columnAttrs.get(FIELD_PROFILES)));
           } else {
             effectiveProfiles = inheritedProfiles;
           }
@@ -744,6 +759,13 @@ public class Emx2Yaml {
       column.setSemantics((String) semantics);
     }
 
+    Object values = attrs.get(FIELD_VALUES);
+    if (values instanceof List) {
+      column.setValues(((List<String>) values).toArray(new String[0]));
+    } else if (values instanceof String) {
+      column.setValues((String) values);
+    }
+
     Object validation = attrs.get(FIELD_VALIDATION);
     if (validation != null) {
       column.setValidation(validation.toString());
@@ -765,6 +787,14 @@ public class Emx2Yaml {
       return new String[0];
     }
     return list.toArray(new String[0]);
+  }
+
+  private static String[] mergeProfiles(String[] inherited, String[] declared) {
+    if (inherited == null || inherited.length == 0) return declared;
+    if (declared == null || declared.length == 0) return inherited;
+    Set<String> merged = new LinkedHashSet<>(Arrays.asList(inherited));
+    merged.addAll(Arrays.asList(declared));
+    return merged.toArray(new String[0]);
   }
 
   public static class BundleResult {

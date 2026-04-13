@@ -460,6 +460,27 @@ A table or column with no `profiles:` tag is **always-on** — it is created in 
 
 Reading the example: `year of birth` is created in any deployment with `patient_core` active (that includes both `patient_registry` and `fair_genomes`). `alternate ids` is created only when `patient_registry` is active.
 
+### Profile inheritance
+
+Profiles are inherited from parent to child in the structure hierarchy: table → section → heading → column. Child profiles are **merged** (union) with parent profiles — a child that declares its own `profiles:` gets both the parent's profiles and its own. Duplicates are removed.
+
+```yaml
+table: Individuals
+columns:
+  - section: Core
+    profiles: [patient_core]
+    columns:
+      - name: year of birth
+        type: int
+        # no profiles: — inherits [patient_core] from section
+      - name: alternate ids
+        type: string_array
+        profiles: [patient_registry]
+        # union: gets [patient_core, patient_registry]
+```
+
+To exclude a column from a profile, simply do not tag it with that profile. There is no negation syntax.
+
 ---
 
 ## Enabling and disabling profiles

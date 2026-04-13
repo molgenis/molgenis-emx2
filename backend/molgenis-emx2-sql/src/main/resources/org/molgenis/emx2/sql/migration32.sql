@@ -35,4 +35,7 @@ BEGIN
     ) THEN
         ALTER TABLE "MOLGENIS"."table_metadata" RENAME COLUMN "table_inherits" TO "table_extends";
     END IF;
+
+    -- add columnValues for ENUM types
+    ALTER TABLE "MOLGENIS"."column_metadata" ADD COLUMN IF NOT EXISTS "columnValues" VARCHAR[];
 END $$;

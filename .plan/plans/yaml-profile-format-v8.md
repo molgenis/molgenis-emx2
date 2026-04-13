@@ -139,7 +139,17 @@ Steps completed:
 - CSS: `.profiles-checkboxes :deep(.form-check-inline) { display: block }` for vertical stacking
 - 5 Playwright e2e tests (display on tables, display on columns, table edit modal, column edit modal, active profiles header)
 
-### Phase 7b: List-based columns + column-level imports — TODO
+### Phase 7b: List-based columns + column-level imports — COMPLETE
+
+**Status verification (2026-04-11)**: All 8 steps verified implemented in branch (committed + staged):
+- Step 1 DONE — test YAMLs under `src/test/resources/yaml-model/tables/` in list format (Samples.yaml, Experiments.yaml etc.); column import files in `tables/columns/`
+- Step 2 DONE — `Emx2YamlBundleTest.java` (64 tests, exceeds ~58 target); column-level import tests present (`testColumnLevelImport`, `testImportsAtMultiplePositionsInColumns`, `testSectionImport`)
+- Step 3 DONE — `TableDef.columns` is `List<Map<String,Object>>`; `Bundle.profiles` is `List<ProfileDef>`; `VariantDef` uses `name` field
+- Step 4 DONE — `parseColumnsAsList` handles list iteration, `import:` entries, section/heading detection; parser also has back-compat normalization for map-format variants
+- Step 5 DONE — `buildVariantDefList`, `buildProfileDefList` emit list format; columns serialized directly as list
+- Step 6 DONE — `expandImportsInColumnsList` handles column-level `import:` with cycle/escape detection
+- Step 7 DONE — test bundles use list-format profiles; production profiles regenerated
+- Step 8 DONE — `docs/molgenis/yaml_format.md` documents list format for columns/variants/profiles and column-level imports
 
 **Goal**: Change YAML format from keyed-maps to list-of-maps for **columns, profiles, and variants** (consistent pattern), and add `import:` support inside column lists for composable table definitions.
 
@@ -334,19 +344,27 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Collapse to 2: `toBundleDirectory(schema, name, desc, dir, profileDefs)` and `toBundleSingleFile(schema, name, desc, file, profileDefs)`
 - `profileDefs` is optional param (default `List.of()`)
 
-#### Track 3: Design decisions — TODO
+#### Track 3: Design decisions — COMPLETE
 
-**3.1 Simple inline enum type** — new column type (`enum`)
-- `- name: smoking status, type: enum, values: [never, former, current]`
-- Avoids needing a separate ontology table for simple choice fields
-- Backend: new `ColumnType.ENUM` or similar, stored as string with validation
-- Separate phase — not in this refactor scope
+**3.1 Simple inline enum type** — DONE
+- `ColumnType.ENUM(STRING)`, `ENUM_ARRAY(STRING_ARRAY)` added
+- `values` field on Column (String[]) — CSV + YAML parse/export
+- Insert validation via `SqlTypeUtils.checkEnumValues()` using `getIdentifier` case-folding
+- GraphQL json/Column includes `values` field
+- Tests: CSV roundtrip (2), YAML roundtrip (2), insert validation (3 ENUM + 1 ENUM_ARRAY)
+- Files: ColumnType.java, Column.java, Emx2.java, Emx2Yaml.java, SchemaMetadataToBundle.java, SqlTypeUtils.java, json/Column.java
 
-**3.2 Profile precedence rule** — document and implement
-- Inheritance order (most-specific wins on override): **column > heading > section > table**
-- Union semantics already works via `includes:`
-- Document clearly in `yaml_format.md`
-- Add tests for precedence
+**3.2 Profile precedence rule — DONE (UNION semantics)**
+- Changed override → union: child profiles ADD to parent, deduplicated
+- `mergeProfiles()` helper in Emx2Yaml.java at 3 locations (section, heading, column)
+- Updated existing test `attributeHoistingProfilesFromSection`
+- 4 new tests: heading→column, section→heading→column chain, deduplication, no-profile inheritance
+- Documented in `yaml_format.md` "Profile inheritance" subsection
+
+**Review notes (pre-existing, not Track 3 scope):**
+- `deduplicateWithIncludes` in SchemaMetadataToBundle.java:122 has inverted logic (masked by tests)
+- `SectionDef`, `HeadingDef`, `DataColumn` records appear to be dead code
+- 2-arg `convertColumnsToList` overload unused
 
 #### Track 4: Server-side features — TODO
 

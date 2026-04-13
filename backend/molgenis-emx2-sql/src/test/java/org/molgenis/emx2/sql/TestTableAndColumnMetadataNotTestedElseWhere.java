@@ -2,6 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.ENUM;
+import static org.molgenis.emx2.ColumnType.ENUM_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.ArrayList;
@@ -34,6 +36,25 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
     } catch (MolgenisException me) {
       System.out.println("Error unexpected:\n" + me);
     }
+  }
+
+  @Test
+  void testEnumColumnValuesPersistence() {
+    Schema s = db.dropCreateSchema("testEnumColumnValuesPersistence");
+    s.create(
+        table(
+            "testEnum",
+            column("status").setType(ENUM).setValues("active", "inactive", "pending"),
+            column("tags").setType(ENUM_ARRAY).setValues("java", "python", "sql")));
+
+    db.clearCache();
+
+    TableMetadata reloaded =
+        db.getSchema("testEnumColumnValuesPersistence").getTable("testEnum").getMetadata();
+    assertArrayEquals(
+        new String[] {"active", "inactive", "pending"}, reloaded.getColumn("status").getValues());
+    assertArrayEquals(
+        new String[] {"java", "python", "sql"}, reloaded.getColumn("tags").getValues());
   }
 
   @Test

@@ -425,6 +425,9 @@ public class SchemaMetadataToBundle {
     if (col.getSemantics() != null && col.getSemantics().length > 0) {
       entry.put("semantics", Arrays.asList(col.getSemantics()));
     }
+    if (col.getValues() != null && col.getValues().length > 0) {
+      entry.put("values", Arrays.asList(col.getValues()));
+    }
     List<String> colProfiles =
         deduplicateWithIncludes(normalizeProfiles(col.getProfiles()), profileIncludes);
     if (!colProfiles.isEmpty() && !profileSetsEqual(colProfiles, parentProfiles)) {

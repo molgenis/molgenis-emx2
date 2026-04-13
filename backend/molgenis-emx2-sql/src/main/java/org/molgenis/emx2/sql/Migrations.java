@@ -199,7 +199,7 @@ public class Migrations {
             executeMigrationFile(
                 tdb,
                 "migration32.sql",
-                "multi-inheritance (varchar[]), BLOCK→INTERNAL, PROFILE→VARIANT column types, add profile columns");
+                "multi-inheritance (varchar[]), BLOCK→INTERNAL, PROFILE→VARIANT column types, add profile columns, add columnValues for ENUM types");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

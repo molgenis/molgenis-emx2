@@ -322,12 +322,153 @@ class Emx2YamlBundleTest {
 
     Column col2 = table.getColumn("col2");
     assertNotNull(col2);
-    assertFalse(
+    assertTrue(
         List.of(col2.getProfiles()).contains("my_subset"),
-        "col2 overrides profiles, should not have my_subset");
+        "col2 should inherit my_subset from section (union semantics)");
     assertTrue(
         List.of(col2.getProfiles()).contains("other_subset"),
         "col2 should have its own other_subset profile");
+  }
+
+  @Test
+  void profileUnionFromHeadingToColumn() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: section_prof
+          - name: heading_prof
+          - name: col_prof
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [section_prof]
+                columns:
+                  - name: myHeading
+                    type: heading
+                    profiles: [heading_prof]
+                  - name: col1
+                    type: string
+                    profiles: [col_prof]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    assertNotNull(table);
+
+    Column heading = table.getColumn("myHeading");
+    assertNotNull(heading);
+    List<String> headingProfiles = List.of(heading.getProfiles());
+    assertTrue(headingProfiles.contains("section_prof"), "heading should inherit section_prof");
+    assertTrue(headingProfiles.contains("heading_prof"), "heading should keep heading_prof");
+
+    Column col1 = table.getColumn("col1");
+    assertNotNull(col1);
+    List<String> col1Profiles = List.of(col1.getProfiles());
+    assertTrue(col1Profiles.contains("section_prof"), "col1 should inherit section_prof");
+    assertTrue(col1Profiles.contains("col_prof"), "col1 should keep col_prof");
+  }
+
+  @Test
+  void profileUnionSectionHeadingColumnChain() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: a
+          - name: b
+          - name: c
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [a]
+                columns:
+                  - section: MyHeading
+                    profiles: [b]
+                    columns:
+                      - name: col1
+                        type: string
+                        profiles: [c]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    assertNotNull(table);
+
+    Column col1 = table.getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = List.of(col1.getProfiles());
+    assertTrue(profiles.contains("a"), "col1 should inherit a from outer section");
+    assertTrue(profiles.contains("b"), "col1 should inherit b from inner section");
+    assertTrue(profiles.contains("c"), "col1 should keep its own c");
+    assertEquals(3, profiles.size(), "col1 should have exactly 3 profiles (a, b, c)");
+  }
+
+  @Test
+  void profileUnionDeduplication() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: a
+          - name: b
+          - name: c
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [a, b]
+                columns:
+                  - name: col1
+                    type: string
+                    profiles: [b, c]
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    assertNotNull(table);
+
+    Column col1 = table.getColumn("col1");
+    assertNotNull(col1);
+    List<String> profiles = List.of(col1.getProfiles());
+    assertTrue(profiles.contains("a"), "col1 should have a from section");
+    assertTrue(profiles.contains("b"), "col1 should have b (no duplicate)");
+    assertTrue(profiles.contains("c"), "col1 should have c from column");
+    assertEquals(3, profiles.size(), "col1 should have exactly 3 profiles, b deduplicated");
+  }
+
+  @Test
+  void profileInheritanceNoProfileOnChild() throws IOException {
+    String yaml =
+        """
+        name: Test
+        profiles:
+          - name: inherited_prof
+        tables:
+          MyTable:
+            columns:
+              - section: MySection
+                profiles: [inherited_prof]
+                columns:
+                  - name: col1
+                    type: string
+        """;
+    Emx2Yaml.BundleResult bundle =
+        Emx2Yaml.fromBundle(new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8)));
+
+    TableMetadata table = bundle.getSchema().getTableMetadata("MyTable");
+    assertNotNull(table);
+
+    Column col1 = table.getColumn("col1");
+    assertNotNull(col1);
+    assertTrue(
+        List.of(col1.getProfiles()).contains("inherited_prof"),
+        "col1 with no own profiles should inherit from section");
   }
 
   @Test

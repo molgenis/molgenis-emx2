@@ -233,6 +233,7 @@ public class SqlTypeUtils extends TypeUtils {
   public static void checkValidation(Column column, Map<String, Object> values) {
     if (values.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(values.get(column.getName()));
+      checkEnumValues(column, values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
@@ -242,6 +243,35 @@ public class SqlTypeUtils extends TypeUtils {
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
       }
     }
+  }
+
+  private static void checkEnumValues(Column column, Object value) {
+    if (value == null || column.getValues() == null || column.getValues().length == 0) return;
+    ColumnType type = column.getColumnType();
+    if (!ColumnType.ENUM.equals(type) && !ColumnType.ENUM_ARRAY.equals(type)) return;
+
+    if (value instanceof Object[]) {
+      for (Object item : (Object[]) value) {
+        checkSingleEnumValue(column, item.toString());
+      }
+    } else {
+      checkSingleEnumValue(column, value.toString());
+    }
+  }
+
+  private static void checkSingleEnumValue(Column column, String value) {
+    String normalizedValue = TypeUtils.convertToCamelCase(value);
+    for (String allowed : column.getValues()) {
+      if (normalizedValue.equals(TypeUtils.convertToCamelCase(allowed))) return;
+    }
+    throw new MolgenisException(
+        "Validation error on column '"
+            + column.getName()
+            + "': value '"
+            + value
+            + "' is not in the list of allowed values "
+            + Arrays.toString(column.getValues())
+            + ".");
   }
 
   private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {

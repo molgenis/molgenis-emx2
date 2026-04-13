@@ -105,4 +105,48 @@ class Emx2YamlTest {
     assertTrue(yaml.contains("activeProfiles:"));
     assertTrue(yaml.contains("wgs"));
   }
+
+  @Test
+  void testEnumColumnYamlRoundtrip() throws Exception {
+    Path yamlFile = tempDir.resolve("enum-test.yaml");
+    Files.writeString(
+        yamlFile,
+        "name: EnumTest\ntables:\n  Patients:\n    columns:\n"
+            + "      - name: id\n        key: 1\n"
+            + "      - name: smoking_status\n        type: enum\n"
+            + "        values: [never, former, current]\n");
+
+    Emx2Yaml.BundleResult result = Emx2Yaml.fromBundle(yamlFile);
+    Column col = result.getSchema().getTableMetadata("Patients").getColumn("smoking_status");
+    assertNotNull(col);
+    assertEquals(ColumnType.ENUM, col.getColumnType());
+    assertArrayEquals(new String[] {"never", "former", "current"}, col.getValues());
+
+    Path outputFile = tempDir.resolve("enum-output.yaml");
+    Emx2Yaml.toBundleSingleFile(result.getSchema(), "EnumTest", null, outputFile, List.of());
+    String outputYaml = Files.readString(outputFile);
+
+    assertTrue(outputYaml.contains("type: enum"), "YAML should contain 'type: enum'");
+    assertTrue(outputYaml.contains("values:"), "YAML should contain 'values:'");
+    assertTrue(outputYaml.contains("never"), "YAML should contain 'never'");
+    assertTrue(outputYaml.contains("former"), "YAML should contain 'former'");
+    assertTrue(outputYaml.contains("current"), "YAML should contain 'current'");
+  }
+
+  @Test
+  void testEnumArrayColumnYamlRoundtrip() throws Exception {
+    Path yamlFile = tempDir.resolve("enum-array-test.yaml");
+    Files.writeString(
+        yamlFile,
+        "name: EnumArrayTest\ntables:\n  Survey:\n    columns:\n"
+            + "      - name: id\n        key: 1\n"
+            + "      - name: diet\n        type: enum_array\n"
+            + "        values: [vegan, vegetarian, omnivore]\n");
+
+    Emx2Yaml.BundleResult result = Emx2Yaml.fromBundle(yamlFile);
+    Column col = result.getSchema().getTableMetadata("Survey").getColumn("diet");
+    assertNotNull(col);
+    assertEquals(ColumnType.ENUM_ARRAY, col.getColumnType());
+    assertArrayEquals(new String[] {"vegan", "vegetarian", "omnivore"}, col.getValues());
+  }
 }

@@ -43,6 +43,7 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
   private String[] profiles = null;
+  private String[] values = null;
 
   private boolean inherited = false;
 
@@ -113,6 +114,7 @@ public class Column {
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();
+    this.values = column.getValues();
 
     // calculated field
     if (table.getExtendNames() != null) {
@@ -154,6 +156,7 @@ public class Column {
     c.setComputed(computed);
     c.setReadonly(readonly);
     c.setProfiles(profiles);
+    c.setValues(values);
     c.setFormLabel(formLabel);
 
     // ignore inherited
@@ -422,6 +425,14 @@ public class Column {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String[] getValues() {
+    return values;
+  }
+
+  public void setValues(String[] values) {
+    this.values = values;
   }
 
   public String getSection() {

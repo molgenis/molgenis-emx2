@@ -286,4 +286,56 @@ class TestEvaluateExpressions {
             "refArray.last name",
             "bar"));
   }
+
+  @Test
+  void testEnumColumnValidValueDoesNotThrow() {
+    Column enumCol =
+        new Column("smoking_status")
+            .setType(ColumnType.ENUM)
+            .setValues("never", "former", "current");
+    TableMetadata tableMetadata = table("Test", enumCol);
+    assertDoesNotThrow(
+        () ->
+            applyValidationAndComputed(
+                tableMetadata.getColumns(), new Row("smoking_status", "never")));
+  }
+
+  @Test
+  void testEnumColumnInvalidValueThrows() {
+    Column enumCol =
+        new Column("smoking_status")
+            .setType(ColumnType.ENUM)
+            .setValues("never", "former", "current");
+    TableMetadata tableMetadata = table("Test", enumCol);
+    List<Column> columns = tableMetadata.getColumns();
+    Row row = new Row("smoking_status", "unknown");
+    MolgenisException ex =
+        assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row));
+    assertTrue(ex.getMessage().contains("smoking_status"));
+    assertTrue(ex.getMessage().contains("unknown"));
+  }
+
+  @Test
+  void testEnumColumnCaseFoldedValueMatches() {
+    Column enumCol =
+        new Column("status").setType(ColumnType.ENUM).setValues("Never Smoked", "Former Smoker");
+    TableMetadata tableMetadata = table("Test", enumCol);
+    assertDoesNotThrow(
+        () ->
+            applyValidationAndComputed(
+                tableMetadata.getColumns(), new Row("status", "neverSmoked")));
+  }
+
+  @Test
+  void testEnumArrayColumnInvalidElementThrows() {
+    Column enumArrayCol =
+        new Column("tags").setType(ColumnType.ENUM_ARRAY).setValues("a", "b", "c");
+    TableMetadata tableMetadata = table("Test", enumArrayCol);
+    List<Column> columns = tableMetadata.getColumns();
+    Row row = new Row("tags", List.of("a", "d"));
+    MolgenisException ex =
+        assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row));
+    assertTrue(ex.getMessage().contains("tags"));
+    assertTrue(ex.getMessage().contains("d"));
+  }
 }
