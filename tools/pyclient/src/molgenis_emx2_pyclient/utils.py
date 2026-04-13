@@ -2,6 +2,7 @@
 Utility functions for the Molgenis EMX2 Pyclient package
 """
 import csv
+import io
 import json
 import logging
 import pathlib
@@ -273,3 +274,22 @@ def check_schema(schema: str, default_schema: str, schema_names: list[str]):
     if default_schema is None:
         raise NoSuchSchemaException(f"Select an existing schema for this operation.")
     return default_schema
+
+def csv_string_to_array(csv_string: str) -> list:
+    """Convert EMX2 input of type *_ARRAY, from a string from the CSV API to a list"""
+    if pd.notna(csv_string):
+        with io.StringIO(csv_string) as in_string:
+            reader = csv.reader(in_string, dialect=csv.excel)
+            return next(reader)
+    else:
+        return []
+    
+def array_to_csv_string(array: list) -> str:
+    """Convert a list to a string suitable for output to an EMX2 value of type *_ARRAY, 
+    through the CSV API
+    """
+    
+    with io.StringIO() as csv_string:
+        writer = csv.writer(csv_string, dialect=csv.excel)
+        writer.writerow(array)
+        return csv_string.getvalue().strip()
