@@ -1,7 +1,3 @@
-<script lang="ts">
-export const MG_COLLAPSED_PARAM = "mg_collapsed";
-</script>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
@@ -11,26 +7,15 @@ import InputSearch from "../input/Search.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-type RouteQuery = Record<
-  string,
-  string | string[] | (string | null)[] | null | undefined
->;
 
 const props = defineProps<{
   filters: UseFilters;
   columns: IColumn[];
   schemaId: string;
   tableId: string;
-  defaultCollapsed?: string[];
-  route?: { query: RouteQuery };
-  router?: { replace: (opts: Record<string, unknown>) => void };
 }>();
 
-const route = props.route ?? null;
-const router = props.router ?? null;
-
 const searchInputId = useId();
-const collapsed = ref(new Set<string>());
 const pickerOpen = ref(false);
 
 async function fetchTableColumns(
@@ -90,60 +75,9 @@ async function hydrateNestedFiltersFromUrl() {
   }
 }
 
-function applyDefaultCollapse() {
-  if (props.defaultCollapsed) {
-    collapsed.value = new Set(props.defaultCollapsed);
-    return;
-  }
-  const visibleIds = [...props.filters.visibleFilterIds.value];
-  const next = new Set<string>();
-  visibleIds.forEach((id, index) => {
-    if (index >= 5 && !props.filters.filterStates.value.has(id)) {
-      next.add(id);
-    }
-  });
-  collapsed.value = next;
-}
-
-function persistCollapsed(next: Set<string>) {
-  if (!route || !router) return;
-  const currentQuery = { ...(route.query as Record<string, unknown>) };
-  if (next.size === 0) {
-    delete currentQuery[MG_COLLAPSED_PARAM];
-  } else {
-    currentQuery[MG_COLLAPSED_PARAM] = [...next].join(",");
-  }
-  router.replace({ query: currentQuery });
-}
-
 onMounted(async () => {
-  const urlParam = route?.query[MG_COLLAPSED_PARAM];
-  if (typeof urlParam === "string" && urlParam.trim()) {
-    const ids = urlParam
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean);
-    collapsed.value = new Set(ids);
-  } else {
-    applyDefaultCollapse();
-  }
   await hydrateNestedFiltersFromUrl();
 });
-
-function toggleSection(columnId: string) {
-  const next = new Set(collapsed.value);
-  if (next.has(columnId)) {
-    next.delete(columnId);
-  } else {
-    next.add(columnId);
-  }
-  collapsed.value = next;
-  persistCollapsed(next);
-}
-
-function isCollapsed(columnId: string): boolean {
-  return collapsed.value.has(columnId);
-}
 
 const searchValue = computed({
   get: () => props.filters.searchValue.value,
@@ -235,10 +169,10 @@ function handlePickerApply(
           class="p-5 flex items-center justify-between cursor-pointer group"
           role="button"
           tabindex="0"
-          :aria-expanded="!isCollapsed(column.id)"
+          :aria-expanded="!filters.isCollapsed(column.id)"
           :aria-controls="`filter-section-${column.id}`"
-          @click="toggleSection(column.id)"
-          @keydown.enter.space.prevent="toggleSection(column.id)"
+          @click="filters.toggleCollapse(column.id)"
+          @keydown.enter.space.prevent="filters.toggleCollapse(column.id)"
         >
           <h3
             class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline"
@@ -247,14 +181,14 @@ function handlePickerApply(
           </h3>
           <span
             class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform"
-            :class="{ 'rotate-180': isCollapsed(column.id) }"
+            :class="{ 'rotate-180': filters.isCollapsed(column.id) }"
           >
             <BaseIcon name="caret-up" :width="26" />
           </span>
         </div>
 
         <div
-          v-if="!isCollapsed(column.id)"
+          v-if="!filters.isCollapsed(column.id)"
           :id="`filter-section-${column.id}`"
           class="mx-5 mb-5"
         >

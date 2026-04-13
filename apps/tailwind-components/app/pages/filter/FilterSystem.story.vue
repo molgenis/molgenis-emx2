@@ -208,6 +208,8 @@ function isCountLoading(columnId: string) {
   return computed(() => false);
 }
 
+const collapsedRef = ref(new Set<string>());
+
 const mockFilters: UseFilters = {
   filterStates: filterStatesRef,
   searchValue: searchValueRef,
@@ -229,5 +231,16 @@ const mockFilters: UseFilters = {
   registerNestedColumn: () => {},
   schemaId: "demo",
   tableId: "Samples",
+  collapsedIds: computed(() => collapsedRef.value),
+  toggleCollapse: (id: string) => {
+    const next = new Set(collapsedRef.value);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    collapsedRef.value = next;
+  },
+  isCollapsed: (id: string) => collapsedRef.value.has(id),
 };
 </script>

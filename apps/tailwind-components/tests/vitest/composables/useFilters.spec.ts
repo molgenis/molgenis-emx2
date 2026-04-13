@@ -9,6 +9,7 @@ vi.mock("../../../app/composables/fetchGraphql", () => ({
 import {
   useFilters,
   MG_FILTERS_PARAM,
+  MG_COLLAPSED_PARAM,
 } from "../../../app/composables/useFilters";
 
 const ontologyColumn: IColumn = {
@@ -457,5 +458,201 @@ describe("useFilters — count integration", () => {
       tableId: "table1",
     });
     expect(isCountLoading("age").value).toBe(false);
+  });
+});
+
+describe("useFilters — collapsed state", () => {
+  it("first 5 visible filters are not collapsed by default", () => {
+    const ids = ["a", "b", "c", "d", "e"];
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+    for (const id of ids) {
+      expect(isCollapsed(id)).toBe(false);
+    }
+  });
+
+  it("filters beyond index 5 are collapsed by default", () => {
+    const ids = ["a", "b", "c", "d", "e", "f", "g"];
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+    });
+    expect(isCollapsed("f")).toBe(true);
+    expect(isCollapsed("g")).toBe(true);
+  });
+
+  it("filters beyond index 5 with active filter state are not collapsed", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const { route, router } = makeUrlSync({ f: "something" });
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    expect(isCollapsed("f")).toBe(false);
+  });
+
+  it("toggleCollapse collapses an expanded section", () => {
+    const columns = ref<IColumn[]>([
+      { id: "a", label: "a", columnType: "ONTOLOGY" },
+    ]);
+    const { isCollapsed, toggleCollapse } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ["a"],
+    });
+    expect(isCollapsed("a")).toBe(false);
+    toggleCollapse("a");
+    expect(isCollapsed("a")).toBe(true);
+  });
+
+  it("toggleCollapse expands a collapsed section", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed, toggleCollapse } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+    });
+    expect(isCollapsed("f")).toBe(true);
+    toggleCollapse("f");
+    expect(isCollapsed("f")).toBe(false);
+  });
+
+  it("defaultCollapsed option overrides auto-collapse rule", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      defaultCollapsed: ["b", "d"],
+    });
+    expect(isCollapsed("a")).toBe(false);
+    expect(isCollapsed("b")).toBe(true);
+    expect(isCollapsed("c")).toBe(false);
+    expect(isCollapsed("d")).toBe(true);
+    expect(isCollapsed("f")).toBe(false);
+  });
+
+  it("reads mg_collapsed from URL on init", () => {
+    const ids = ["a", "b", "c"];
+    const { route, router } = makeUrlSync({
+      [MG_COLLAPSED_PARAM]: "a,c",
+    });
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    expect(isCollapsed("a")).toBe(true);
+    expect(isCollapsed("b")).toBe(false);
+    expect(isCollapsed("c")).toBe(true);
+  });
+
+  it("toggleCollapse persists to URL", () => {
+    const ids = ["a", "b", "c"];
+    const { route, router, replaceCalls } = makeUrlSync({});
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { toggleCollapse } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    toggleCollapse("a");
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    expect(lastCall?.query?.[MG_COLLAPSED_PARAM]).toContain("a");
+  });
+
+  it("removes mg_collapsed from URL when all sections expanded", () => {
+    const ids = ["a"];
+    const { route, router, replaceCalls } = makeUrlSync({
+      [MG_COLLAPSED_PARAM]: "a",
+    });
+    const columns = ref<IColumn[]>([
+      { id: "a", label: "a", columnType: "ONTOLOGY" },
+    ]);
+    const { toggleCollapse } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    toggleCollapse("a");
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    expect(lastCall?.query?.[MG_COLLAPSED_PARAM]).toBeUndefined();
+  });
+
+  it("preserves other URL params when updating mg_collapsed", () => {
+    const ids = ["a"];
+    const { route, router, replaceCalls } = makeUrlSync({
+      page: "2",
+      sort: "name",
+    });
+    const columns = ref<IColumn[]>([
+      { id: "a", label: "a", columnType: "ONTOLOGY" },
+    ]);
+    const { toggleCollapse } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    toggleCollapse("a");
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    expect(lastCall?.query?.["page"]).toBe("2");
+    expect(lastCall?.query?.["sort"]).toBe("name");
+  });
+
+  it("applies first-5 rule when mg_collapsed is absent from URL", () => {
+    const ids = ["a", "b", "c", "d", "e", "f", "g"];
+    const { route, router } = makeUrlSync({});
+    const columns = ref<IColumn[]>(
+      ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
+    );
+    const { isCollapsed } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ids,
+      urlSync: true,
+      route,
+      router,
+    });
+    expect(isCollapsed("a")).toBe(false);
+    expect(isCollapsed("f")).toBe(true);
   });
 });

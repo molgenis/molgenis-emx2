@@ -27,6 +27,7 @@ import fetchGraphql from "./fetchGraphql";
 
 export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
+export const MG_COLLAPSED_PARAM = "mg_collapsed";
 export const MAX_VISIBLE_FILTERS = 25;
 
 type RouteQuery = Record<
@@ -40,6 +41,7 @@ export interface UseFiltersOptions {
   tableId: string;
   debounceMs?: number;
   defaultFilters?: string[];
+  defaultCollapsed?: string[];
   route?: { query: RouteQuery };
   router?: { replace: (opts: Record<string, unknown>) => void };
 }
@@ -52,6 +54,10 @@ function getNonFilterParams(
   const preserved: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(query)) {
     if (key === MG_SEARCH_PARAM) continue;
+    if (key === MG_COLLAPSED_PARAM) {
+      preserved[key] = value;
+      continue;
+    }
     const firstSegment = key.split(".")[0] ?? key;
     if (columnIds.has(firstSegment)) continue;
     preserved[key] = value;
@@ -264,6 +270,67 @@ export function useFilters(
     clearFilters();
     userHasCustomized.value = false;
     visibleFilterIds.value = [...defaultFilterIds.value];
+  }
+
+  const collapsed = ref(new Set<string>());
+
+  const collapsedIds = computed(() => collapsed.value);
+
+  function applyDefaultCollapse() {
+    if (options.defaultCollapsed) {
+      collapsed.value = new Set(options.defaultCollapsed);
+      return;
+    }
+    const ids = visibleFilterIds.value;
+    const next = new Set<string>();
+    ids.forEach((id, index) => {
+      if (index >= 5 && !filterStates.value.has(id)) {
+        next.add(id);
+      }
+    });
+    collapsed.value = next;
+  }
+
+  function persistCollapsed(next: Set<string>) {
+    if (!route || !router) return;
+    const currentQuery = { ...(route.query as Record<string, unknown>) };
+    if (next.size === 0) {
+      delete currentQuery[MG_COLLAPSED_PARAM];
+    } else {
+      currentQuery[MG_COLLAPSED_PARAM] = [...next].join(",");
+    }
+    router.replace({ query: currentQuery });
+  }
+
+  function toggleCollapse(columnId: string) {
+    const next = new Set(collapsed.value);
+    if (next.has(columnId)) {
+      next.delete(columnId);
+    } else {
+      next.add(columnId);
+    }
+    collapsed.value = next;
+    persistCollapsed(next);
+  }
+
+  function isCollapsed(columnId: string): boolean {
+    return collapsed.value.has(columnId);
+  }
+
+  if (urlSyncEnabled && route) {
+    const urlParam = route.query[MG_COLLAPSED_PARAM];
+    if (typeof urlParam === "string" && urlParam.trim()) {
+      collapsed.value = new Set(
+        urlParam
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      );
+    } else {
+      applyDefaultCollapse();
+    }
+  } else {
+    applyDefaultCollapse();
   }
 
   const nestedColumnMeta = ref<
@@ -499,5 +566,8 @@ export function useFilters(
     registerNestedColumn,
     schemaId,
     tableId,
+    collapsedIds,
+    toggleCollapse,
+    isCollapsed,
   };
 }

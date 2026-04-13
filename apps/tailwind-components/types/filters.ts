@@ -98,4 +98,7 @@ export interface UseFilters {
   ) => void;
   schemaId: string;
   tableId: string;
+  collapsedIds: ComputedRef<Set<string>>;
+  toggleCollapse: (columnId: string) => void;
+  isCollapsed: (columnId: string) => boolean;
 }

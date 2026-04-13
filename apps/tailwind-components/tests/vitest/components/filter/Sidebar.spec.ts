@@ -41,11 +41,13 @@ function makeCountedOptions(names: string[]): CountedOption[] {
 function makeFilters(
   visibleIds: string[],
   filterStatesMap: Map<string, IFilterValue> = new Map(),
-  nestedMeta: Map<string, { label: string; columnType: string }> = new Map()
+  nestedMeta: Map<string, { label: string; columnType: string }> = new Map(),
+  collapsedSet: Set<string> = new Set()
 ): UseFilters {
   const visibleFilterIds = ref(visibleIds);
   const filterStates = ref(filterStatesMap);
   const nestedColumnMeta = ref(nestedMeta);
+  const collapsed = ref(collapsedSet);
 
   return {
     filterStates,
@@ -67,6 +69,17 @@ function makeFilters(
     registerNestedColumn: vi.fn(),
     schemaId: "test",
     tableId: "TestTable",
+    collapsedIds: computed(() => collapsed.value),
+    toggleCollapse: vi.fn((id: string) => {
+      const next = new Set(collapsed.value);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      collapsed.value = next;
+    }),
+    isCollapsed: (id: string) => collapsed.value.has(id),
   };
 }
 
@@ -80,9 +93,15 @@ function makeColumns(ids: string[]): IColumn[] {
 
 function mountSidebar(
   visibleIds: string[],
-  filterStatesMap: Map<string, IFilterValue> = new Map()
+  filterStatesMap: Map<string, IFilterValue> = new Map(),
+  collapsedSet: Set<string> = new Set()
 ) {
-  const filters = makeFilters(visibleIds, filterStatesMap);
+  const filters = makeFilters(
+    visibleIds,
+    filterStatesMap,
+    new Map(),
+    collapsedSet
+  );
   const columns = makeColumns(visibleIds);
   return mount(Sidebar, {
     props: {
@@ -92,37 +111,6 @@ function mountSidebar(
       tableId: "TestTable",
     },
   });
-}
-
-function mountSidebarWithRoute(
-  visibleIds: string[],
-  query: Record<string, string> = {},
-  filterStatesMap: Map<string, IFilterValue> = new Map()
-) {
-  const filters = makeFilters(visibleIds, filterStatesMap);
-  const columns = makeColumns(visibleIds);
-  const routeQuery = { ...query };
-  const replaceFn = vi.fn((opts: Record<string, unknown>) => {
-    const newQuery = opts["query"] as Record<string, string>;
-    Object.assign(routeQuery, newQuery);
-    for (const key of Object.keys(routeQuery)) {
-      if (!(key in newQuery)) delete routeQuery[key];
-    }
-  });
-  return {
-    wrapper: mount(Sidebar, {
-      props: {
-        filters,
-        columns,
-        schemaId: "test",
-        tableId: "TestTable",
-        route: { query: routeQuery },
-        router: { replace: replaceFn },
-      },
-    }),
-    replaceFn,
-    routeQuery,
-  };
 }
 
 describe("Sidebar", () => {
@@ -143,7 +131,7 @@ describe("Sidebar", () => {
     expect(wrapper.html()).toContain("Label col2");
   });
 
-  it("first 5 sections are expanded on mount", async () => {
+  it("expanded sections show aria-expanded=true", async () => {
     const ids = ["a", "b", "c", "d", "e"];
     const wrapper = mountSidebar(ids);
     await wrapper.vm.$nextTick();
@@ -154,9 +142,9 @@ describe("Sidebar", () => {
     }
   });
 
-  it("sections beyond index 5 are collapsed on mount", async () => {
+  it("collapsed sections show aria-expanded=false", async () => {
     const ids = ["a", "b", "c", "d", "e", "f", "g"];
-    const wrapper = mountSidebar(ids);
+    const wrapper = mountSidebar(ids, new Map(), new Set(["f", "g"]));
     await wrapper.vm.$nextTick();
 
     const fBtn = wrapper.find('[aria-controls="filter-section-f"]');
@@ -165,35 +153,41 @@ describe("Sidebar", () => {
     expect(gBtn.attributes("aria-expanded")).toBe("false");
   });
 
-  it("sections with active filter states start expanded even beyond index 5", async () => {
-    const ids = ["a", "b", "c", "d", "e", "f"];
-    const filterStates = new Map<string, IFilterValue>([
-      ["f", { operator: "equals", value: "something" }],
-    ]);
-    const wrapper = mountSidebar(ids, filterStates);
+  it("calls toggleCollapse when section header is clicked", async () => {
+    const ids = ["col1"];
+    const filters = makeFilters(ids);
+    const columns = makeColumns(ids);
+    const wrapper = mount(Sidebar, {
+      props: { filters, columns, schemaId: "test", tableId: "TestTable" },
+    });
     await wrapper.vm.$nextTick();
 
-    const fBtn = wrapper.find('[aria-controls="filter-section-f"]');
-    expect(fBtn.attributes("aria-expanded")).toBe("true");
+    const btn = wrapper.find('[aria-controls="filter-section-col1"]');
+    await btn.trigger("click");
+
+    expect(filters.toggleCollapse).toHaveBeenCalledWith("col1");
   });
 
-  it("toggles section collapse on click", async () => {
-    const wrapper = mountSidebar(["col1"]);
+  it("toggles section collapse on click via mock", async () => {
+    const collapsed = new Set<string>();
+    const wrapper = mountSidebar(["col1"], new Map(), collapsed);
     await wrapper.vm.$nextTick();
 
     const btn = wrapper.find('[aria-controls="filter-section-col1"]');
     expect(btn.attributes("aria-expanded")).toBe("true");
 
     await btn.trigger("click");
+    await wrapper.vm.$nextTick();
     expect(btn.attributes("aria-expanded")).toBe("false");
 
     await btn.trigger("click");
+    await wrapper.vm.$nextTick();
     expect(btn.attributes("aria-expanded")).toBe("true");
   });
 
   it("Column not rendered for collapsed sections (lazy mount)", async () => {
     const ids = ["a", "b", "c", "d", "e", "f"];
-    const wrapper = mountSidebar(ids);
+    const wrapper = mountSidebar(ids, new Map(), new Set(["f"]));
     await wrapper.vm.$nextTick();
 
     const filterOptions = wrapper.findAll(".filter-options-stub");
@@ -306,143 +300,5 @@ describe("Sidebar", () => {
 
     expect(filters.toggleFilter).toHaveBeenCalledWith("tags");
     expect(filters.toggleFilter).toHaveBeenCalledWith("status");
-  });
-
-  describe("defaultCollapsed prop", () => {
-    it("overrides first-5 rule when defaultCollapsed is provided", async () => {
-      const ids = ["a", "b", "c", "d", "e", "f"];
-      const filters = makeFilters(ids);
-      const columns = makeColumns(ids);
-      const wrapper = mount(Sidebar, {
-        props: {
-          filters,
-          columns,
-          schemaId: "test",
-          tableId: "TestTable",
-          defaultCollapsed: ["b", "d"],
-        },
-      });
-      await wrapper.vm.$nextTick();
-
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-a"]')
-          .attributes("aria-expanded")
-      ).toBe("true");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-b"]')
-          .attributes("aria-expanded")
-      ).toBe("false");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-c"]')
-          .attributes("aria-expanded")
-      ).toBe("true");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-d"]')
-          .attributes("aria-expanded")
-      ).toBe("false");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-f"]')
-          .attributes("aria-expanded")
-      ).toBe("true");
-    });
-  });
-
-  describe("URL collapse persistence", () => {
-    it("reads mg_collapsed from URL on mount and collapses those ids", async () => {
-      const ids = ["a", "b", "c"];
-      const { wrapper } = mountSidebarWithRoute(ids, {
-        mg_collapsed: "a,c",
-      });
-      await wrapper.vm.$nextTick();
-
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-a"]')
-          .attributes("aria-expanded")
-      ).toBe("false");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-b"]')
-          .attributes("aria-expanded")
-      ).toBe("true");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-c"]')
-          .attributes("aria-expanded")
-      ).toBe("false");
-    });
-
-    it("applies first-5 rule when mg_collapsed is absent from URL", async () => {
-      const ids = ["a", "b", "c", "d", "e", "f", "g"];
-      const { wrapper } = mountSidebarWithRoute(ids, {});
-      await wrapper.vm.$nextTick();
-
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-a"]')
-          .attributes("aria-expanded")
-      ).toBe("true");
-      expect(
-        wrapper
-          .find('[aria-controls="filter-section-f"]')
-          .attributes("aria-expanded")
-      ).toBe("false");
-    });
-
-    it("updates URL with mg_collapsed param when section is toggled", async () => {
-      const ids = ["a", "b", "c"];
-      const { wrapper, replaceFn } = mountSidebarWithRoute(ids, {});
-      await wrapper.vm.$nextTick();
-
-      const btn = wrapper.find('[aria-controls="filter-section-a"]');
-      await btn.trigger("click");
-      await wrapper.vm.$nextTick();
-
-      expect(replaceFn).toHaveBeenCalled();
-      const callArg = replaceFn.mock.calls[replaceFn.mock.calls.length - 1]![0];
-      const query = callArg["query"] as Record<string, string>;
-      expect(query["mg_collapsed"]).toContain("a");
-    });
-
-    it("removes mg_collapsed param from URL when all sections are expanded", async () => {
-      const ids = ["a"];
-      const { wrapper, replaceFn } = mountSidebarWithRoute(ids, {
-        mg_collapsed: "a",
-      });
-      await wrapper.vm.$nextTick();
-
-      const btn = wrapper.find('[aria-controls="filter-section-a"]');
-      await btn.trigger("click");
-      await wrapper.vm.$nextTick();
-
-      expect(replaceFn).toHaveBeenCalled();
-      const callArg = replaceFn.mock.calls[replaceFn.mock.calls.length - 1]![0];
-      const query = callArg["query"] as Record<string, string>;
-      expect(query["mg_collapsed"]).toBeUndefined();
-    });
-
-    it("preserves other URL params when updating mg_collapsed", async () => {
-      const ids = ["a"];
-      const { wrapper, replaceFn } = mountSidebarWithRoute(ids, {
-        page: "2",
-        sort: "name",
-      });
-      await wrapper.vm.$nextTick();
-
-      const btn = wrapper.find('[aria-controls="filter-section-a"]');
-      await btn.trigger("click");
-      await wrapper.vm.$nextTick();
-
-      expect(replaceFn).toHaveBeenCalled();
-      const callArg = replaceFn.mock.calls[replaceFn.mock.calls.length - 1]![0];
-      const query = callArg["query"] as Record<string, string>;
-      expect(query["page"]).toBe("2");
-      expect(query["sort"]).toBe("name");
-    });
   });
 });
