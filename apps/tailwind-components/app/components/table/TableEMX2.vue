@@ -394,7 +394,7 @@ watch(
 
 const sortedColumns = computed(() => {
   // sort form backend
-  let sortedColumns = sortColumns(columns.value);
+  let sortedColumns = sortColumns([...(columns.value ?? [])]);
 
   if (
     settings.value.orderedColumnsIds &&

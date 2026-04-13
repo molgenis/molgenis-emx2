@@ -110,9 +110,7 @@ const selectedSortMethod = ref<string>("Default");
 watch(() => props.columns, initializeColumns, { immediate: true });
 
 function initializeColumns(newColumns: IColumn[]) {
-  columnsInColumnsSelectModal.value = indexColumns(
-    sortColumns(newColumns.map(columnToColumnConfig))
-  );
+  columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
 }
 
 function indexColumns(columns: IColumnConfig[]) {
