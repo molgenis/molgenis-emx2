@@ -66,11 +66,9 @@ public class TableSparqlQuery {
       }
 
       if (column.isReference()) {
-        if (ONTOLOGY_TYPES.contains(column.getColumnType())) {
-          continue;
+        if (!ONTOLOGY_TYPES.contains(column.getColumnType())) {
+          resolveReference(column, columnVar);
         }
-
-        resolveReference(column, columnVar);
       }
 
       select.select(columnVar);
