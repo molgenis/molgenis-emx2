@@ -75,4 +75,4 @@ for example `.../catalogue-demo/catalogue?cohort-only=true&theme=umcg&logo=UMCGk
 
 ### generate types
 
-gradle generateTypes --args='catalogue apps/catalogue/interfaces/catalogue.ts'
+./gradlew generateTypes --args='catalogue-demo apps/catalogue/interfaces/catalogue.ts'
