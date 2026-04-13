@@ -7,7 +7,6 @@ import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "../pages/Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
-import NavigationCards from "./Navigation/NavigationCards.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -23,20 +22,33 @@ const props = defineProps<{
 }>();
 
 const showEditModal = ref<boolean>(false);
-
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && typeof componentMetadata !== "undefined";
 });
 
+const schemaTableName = ref<string>(
+  props.mg_tableclass.split(".")[1] as string
+);
+const componentData = ref<IPageComponent>(props.component);
+
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
-    const schemaTableName = props.mg_tableclass.split(".")[1];
-    return props.metadata.filter((table) => table.id === schemaTableName)[0];
+    return props.metadata.filter(
+      (table) => table.name === schemaTableName.value
+    )[0];
   }
   return undefined;
 });
 
-function onEdit() {
+function onEdit(component?: string, value?: IPageComponent) {
+  if (component) {
+    schemaTableName.value = component as string;
+  }
+
+  if (value) {
+    componentData.value = value as IPageComponent;
+  }
+
   showEditModal.value = true;
 }
 </script>
@@ -94,6 +106,8 @@ function onEdit() {
     v-else-if="mg_tableclass.endsWith('.Navigation groups')"
     :id="component.id"
     :links="component.links"
+    :is-editable="editingIsEnabled"
+    @edit="onEdit"
   />
   <Paragraph v-else id="component-does-not-exist-message">
     Component {{ mg_tableclass }} is not yet supported
@@ -104,7 +118,7 @@ function onEdit() {
     :showButton="false"
     :schemaId="componentMetadata.schemaId"
     :metadata="componentMetadata"
-    :formValues="(component as Record<string,any>)"
+    :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
     v-model:visible="showEditModal"
   />

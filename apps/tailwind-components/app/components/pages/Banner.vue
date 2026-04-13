@@ -8,7 +8,7 @@ withDefaults(defineProps<IHeaders & { isEditable?: boolean }>(), {
 });
 
 const emit = defineEmits<{
-  (e: "edit", value: boolean): void;
+  (e: "edit"): void;
 }>();
 </script>
 
@@ -46,7 +46,7 @@ const emit = defineEmits<{
         type="secondary"
         size="small"
         aria-haspopup="true"
-        @click="emit('edit', true)"
+        @click="emit('edit')"
       />
     </div>
   </header>

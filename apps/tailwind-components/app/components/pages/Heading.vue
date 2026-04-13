@@ -9,7 +9,7 @@ withDefaults(defineProps<IHeadings & { isEditable?: boolean }>(), {
 });
 
 const emit = defineEmits<{
-  (e: "edit", value: boolean): void;
+  (e: "edit"): void;
 }>();
 </script>
 
@@ -29,7 +29,7 @@ const emit = defineEmits<{
       group: isEditable,
     }"
   >
-    <EditButton v-if="isEditable" @click="emit('edit', true)">
+    <EditButton v-if="isEditable" @click="emit('edit')">
       <span class="sr-only">edit heading: </span>
       <span class="group-hover:underline group-focus:underline">
         {{ text }}

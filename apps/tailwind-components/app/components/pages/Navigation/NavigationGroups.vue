@@ -1,8 +1,20 @@
 <script setup lang="ts">
 import NavigationCards from "./NavigationCards.vue";
 import type { INavigationGroups } from "../../../../types/cms";
+import type { IPageComponent } from "../../../../types/CmsComponents";
 
-defineProps<INavigationGroups>();
+import Button from "../../Button.vue";
+
+const props = withDefaults(
+  defineProps<INavigationGroups & { isEditable?: boolean }>(),
+  {
+    isEditable: false,
+  }
+);
+
+const emit = defineEmits<{
+  (e: "edit", component: string, metadata: IPageComponent): void;
+}>();
 </script>
 
 <template>
@@ -19,8 +31,19 @@ defineProps<INavigationGroups>();
           :url="card.url"
           :url-is-external="card.urlIsExternal"
           :url-label="card.urlLabel"
-          class="w-full md:w-80"
-        />
+          class="group w-full md:w-80"
+        >
+          <Button
+            class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 group-focus:opacity-100"
+            iconOnly
+            icon="edit"
+            label="Edit Card"
+            type="secondary"
+            size="small"
+            aria-haspopup="true"
+            @click="emit('edit', 'Navigation cards', card)"
+          />
+        </NavigationCards>
       </li>
     </ul>
     <slot></slot>
