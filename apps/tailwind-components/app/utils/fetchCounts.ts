@@ -9,16 +9,6 @@ export interface CountedOption extends Omit<ITreeNode, "children"> {
   keyObject?: Record<string, any>;
 }
 
-export function countedOptionToTreeNode(option: CountedOption): ITreeNode {
-  return {
-    ...option,
-    label: option.label
-      ? `${option.label} (${option.count})`
-      : `${option.name} (${option.count})`,
-    children: option.children?.map(countedOptionToTreeNode) ?? [],
-  };
-}
-
 interface OntologyTermNode {
   name: string;
   label?: string;

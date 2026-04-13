@@ -6,6 +6,7 @@ import InputSearch from "../input/Search.vue";
 import Button from "../Button.vue";
 import InputCheckboxIcon from "../input/CheckboxIcon.vue";
 import BaseIcon from "../BaseIcon.vue";
+import Well from "../Well.vue";
 import {
   computeDefaultFilters,
   isRefExpandable,
@@ -93,7 +94,8 @@ async function loadRefColumns(col: IColumn, path: string): Promise<void> {
     const newCache = new Map(refColumnsCache.value);
     newCache.set(path, cols);
     refColumnsCache.value = newCache;
-  } catch {
+  } catch (e) {
+    console.error("Failed to load ref columns:", e);
     const newCache = new Map(refColumnsCache.value);
     newCache.set(path, []);
     refColumnsCache.value = newCache;
@@ -352,10 +354,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                   >Loading...</span
                 >
               </button>
-              <span
-                class="text-xs text-type-badge bg-type-badge px-1.5 py-0.5 rounded shrink-0"
-                >{{ node.columnType }}</span
-              >
+              <Well class="shrink-0 text-xs">{{ node.columnType }}</Well>
             </div>
 
             <label
@@ -387,10 +386,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                   </span>
                 </div>
               </div>
-              <span
-                class="text-xs text-type-badge bg-type-badge px-1.5 py-0.5 rounded shrink-0"
-                >{{ node.columnType }}</span
-              >
+              <Well class="shrink-0 text-xs">{{ node.columnType }}</Well>
             </label>
           </li>
         </ul>

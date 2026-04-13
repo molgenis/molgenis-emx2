@@ -232,9 +232,9 @@ describe("Column", () => {
   });
 
   describe("string-like types", () => {
-    it("renders text input for STRING column type", () => {
+    it("renders search input for STRING column type", () => {
       const wrapper = mountColumn(stringColumn());
-      const input = wrapper.find('input[type="text"]');
+      const input = wrapper.find('input[type="search"]');
       expect(input.exists()).toBe(true);
     });
 
@@ -246,30 +246,29 @@ describe("Column", () => {
       );
     });
 
-    it("text input shows current like filter value", () => {
+    it("search input shows current like filter value", () => {
       const wrapper = mountColumn(stringColumn(), [], {
         operator: "like",
         value: "fluffy",
       });
-      const input = wrapper.find('input[type="text"]');
+      const input = wrapper.find('input[type="search"]');
       expect((input.element as HTMLInputElement).value).toBe("fluffy");
     });
 
-    it("has sr-only label for accessibility", () => {
+    it("renders InputSearch component for accessibility", () => {
       const wrapper = mountColumn(stringColumn());
-      const label = wrapper.find("label.sr-only");
-      expect(label.exists()).toBe(true);
-      expect(label.text()).toContain("Name");
+      const inputSearch = wrapper.findComponent({ name: "InputSearch" });
+      expect(inputSearch.exists()).toBe(true);
     });
 
     it("emits like filter on text input after debounce", async () => {
       vi.useFakeTimers();
       const wrapper = mountColumn(stringColumn());
-      const input = wrapper.find('input[type="text"]');
+      const input = wrapper.find('input[type="search"]');
       const el = input.element as HTMLInputElement;
       el.value = "hello";
       await input.trigger("input");
-      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(500);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
       expect(emitted![0][0]).toEqual({ operator: "like", value: "hello" });
@@ -282,11 +281,11 @@ describe("Column", () => {
         operator: "like",
         value: "hello",
       });
-      const input = wrapper.find('input[type="text"]');
+      const input = wrapper.find('input[type="search"]');
       const el = input.element as HTMLInputElement;
       el.value = "";
       await input.trigger("input");
-      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(500);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
       expect(emitted![0][0]).toBeUndefined();

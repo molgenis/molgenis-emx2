@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import type { columnValue } from "../../../../metadata-utils/src/types";
+import type {
+  CellValueType,
+  columnValue,
+} from "../../../../metadata-utils/src/types";
+import Input from "../Input.vue";
 
 const props = withDefaults(
   defineProps<{
     id: string;
+    inputType: CellValueType;
     legend?: string;
     minLabel?: string;
     maxLabel?: string;
   }>(),
   {
-    legend: "",
     minLabel: "Min",
     maxLabel: "Max",
   }
@@ -44,11 +48,11 @@ function updateMax(val: columnValue | columnValue[]) {
         {{ minLabel }}
       </label>
       <div class="min-w-0 flex-1">
-        <slot
-          name="min"
-          :value="modelValue[0]"
-          :update="updateMin"
+        <Input
           :id="`${id}-min`"
+          :type="inputType"
+          :model-value="modelValue[0]"
+          @update:model-value="updateMin"
         />
       </div>
     </div>
@@ -60,11 +64,11 @@ function updateMax(val: columnValue | columnValue[]) {
         {{ maxLabel }}
       </label>
       <div class="min-w-0 flex-1">
-        <slot
-          name="max"
-          :value="modelValue[1]"
-          :update="updateMax"
+        <Input
           :id="`${id}-max`"
+          :type="inputType"
+          :model-value="modelValue[1]"
+          @update:model-value="updateMax"
         />
       </div>
     </div>

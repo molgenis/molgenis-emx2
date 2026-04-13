@@ -9,6 +9,8 @@ import type {
   ButtonType,
 } from "../../types/types.ts";
 import BaseIcon from "./BaseIcon.vue";
+// TODO: refactor filterWell to render a <Well> directly once Button is decomposed into sub-components
+import { WELL_BASE } from "./Well.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -49,8 +51,7 @@ const COLOR_MAPPING = {
     "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   disabled:
     "tracking-widest uppercase rounded-input font-display bg-button-disabled text-button-disabled border-button-disabled cursor-not-allowed hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
-  filterWell:
-    "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
+  filterWell: `${WELL_BASE} hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover`,
   inline:
     "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
 };

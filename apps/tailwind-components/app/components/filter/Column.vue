@@ -6,20 +6,17 @@ import type {
   columnValue,
 } from "../../../../metadata-utils/src/types";
 import type { CountedOption } from "../../utils/fetchCounts";
-import { countedOptionToTreeNode } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import type { ITreeNode } from "../../../types/types";
 import {
   isCountableType,
   isRangeType,
-  filterValueToTreeSelection,
-  treeSelectionToFilterValue,
+  isRefFilterType,
 } from "../../utils/filterTypes";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
-import Input from "../Input.vue";
-
-const TEXT_INPUT_DEBOUNCE_MS = 300;
+import InputSearch from "../input/Search.vue";
+import Skeleton from "../Skeleton.vue";
 
 const props = defineProps<{
   column: IColumn;
@@ -39,9 +36,70 @@ const rangeInputType = computed(
 );
 const treeId = computed(() => `filter-tree-${props.column.id}`);
 
+function countedOptionToTreeNode(option: CountedOption): ITreeNode {
+  return {
+    ...option,
+    label: option.label
+      ? `${option.label} (${option.count})`
+      : `${option.name} (${option.count})`,
+    children: option.children?.map(countedOptionToTreeNode) ?? [],
+  };
+}
+
 const treeNodes = computed<ITreeNode[]>(() =>
   props.options.map(countedOptionToTreeNode)
 );
+
+function filterValueToTreeSelection(
+  filterValue: IFilterValue | undefined
+): string[] {
+  if (!filterValue || filterValue.operator !== "equals") return [];
+  const val = filterValue.value;
+  if (!Array.isArray(val)) {
+    if (typeof val === "string") return [val];
+    return [];
+  }
+  return val
+    .filter((value) => value !== null && value !== undefined)
+    .map((value) => {
+      if (typeof value === "object" && value !== null) {
+        const values = Object.values(value as Record<string, unknown>);
+        return values.length === 1
+          ? String(values[0])
+          : values.map(String).join(", ");
+      }
+      return String(value);
+    });
+}
+
+function treeSelectionToFilterValue(
+  selected: string[],
+  column: IColumn,
+  options: CountedOption[]
+): IFilterValue | undefined {
+  if (selected.length === 0) return undefined;
+
+  if (
+    isRefFilterType(column.columnType) &&
+    options.length > 0 &&
+    options[0]?.keyObject !== undefined
+  ) {
+    const firstKey = options[0].keyObject!;
+    const isComposite = Object.keys(firstKey).length > 1;
+    if (isComposite) {
+      const optionsByName = new Map(
+        options.map((option) => [option.name, option])
+      );
+      const values = selected.map((name) => {
+        const option = optionsByName.get(name);
+        return (option?.keyObject ?? { name }) as Record<string, unknown>;
+      });
+      return { operator: "equals", value: values as columnValue };
+    }
+  }
+
+  return { operator: "equals", value: selected };
+}
 
 const treeSelection = computed(() =>
   filterValueToTreeSelection(props.modelValue)
@@ -76,33 +134,19 @@ const textValue = computed<string>(() => {
     : "";
 });
 
-let textDebounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-function onTextInput(event: Event) {
-  const val = (event.target as HTMLInputElement).value;
-  clearTimeout(textDebounceTimer);
-  textDebounceTimer = setTimeout(() => {
-    if (!val) {
-      emit("update:modelValue", undefined);
-    } else {
-      emit("update:modelValue", { operator: "like", value: val });
-    }
-  }, TEXT_INPUT_DEBOUNCE_MS);
+function onSearchInput(val: string | number) {
+  const str = String(val);
+  if (!str) {
+    emit("update:modelValue", undefined);
+  } else {
+    emit("update:modelValue", { operator: "like", value: str });
+  }
 }
 </script>
 
 <template>
   <div>
-    <div v-if="loading && options.length === 0" class="space-y-2 py-1">
-      <div
-        v-for="n in 4"
-        :key="n"
-        class="h-4 rounded bg-gray-200 animate-pulse"
-        :style="{ width: `${60 + n * 8}%` }"
-        role="status"
-        aria-label="Loading options"
-      />
-    </div>
+    <Skeleton v-if="loading && options.length === 0" :lines="4" />
 
     <template v-else-if="isCountable">
       <Tree
@@ -118,40 +162,20 @@ function onTextInput(event: Event) {
       <FilterRange
         :id="`filter-range-${column.id}`"
         :legend="column.label || column.id"
+        :input-type="rangeInputType"
         :modelValue="rangeValue"
         @update:modelValue="onRangeChange"
-      >
-        <template #min="{ value, update, id: minId }">
-          <Input
-            :id="minId"
-            :type="rangeInputType"
-            :model-value="value"
-            @update:model-value="update"
-          />
-        </template>
-        <template #max="{ value, update, id: maxId }">
-          <Input
-            :id="maxId"
-            :type="rangeInputType"
-            :model-value="value"
-            @update:model-value="update"
-          />
-        </template>
-      </FilterRange>
+      />
     </template>
 
     <template v-else>
-      <label :for="`filter-text-${column.id}`" class="sr-only">
-        {{ column.label || column.id }}
-      </label>
-      <input
+      <InputSearch
         :id="`filter-text-${column.id}`"
-        type="text"
-        :value="textValue"
-        @input="onTextInput"
-        class="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+        :model-value="textValue"
+        @update:model-value="onSearchInput"
         :placeholder="`Search ${column.label || column.id}...`"
         :aria-label="column.label || column.id"
+        size="tiny"
       />
     </template>
   </div>
