@@ -99,4 +99,4 @@ python -m pytest -v
 
 ## Design
 
-See [apps/hpc/doc/design.md](../../apps/hpc/doc/design.md) for the full protocol specification.
+See [docs/hpc/design.md](../../docs/hpc/design.md) for the full protocol specification.

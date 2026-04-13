@@ -1,6 +1,6 @@
 # HPC Test Architecture
 
-Canonical behavior source: `apps/hpc/doc/design.md`
+Canonical behavior source: `docs/hpc/design.md`
 Protocol contract: `protocol/hpc-protocol.json`
 
 ## Suite Layout
