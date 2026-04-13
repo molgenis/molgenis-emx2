@@ -3,6 +3,8 @@ package org.molgenis.emx2.harvester;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -18,6 +20,9 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 
 public class TableSparqlQuery {
+
+  private static final List<ColumnType> ONTOLOGY_TYPES =
+      List.of(ColumnType.ONTOLOGY, ColumnType.ONTOLOGY_ARRAY);
 
   private final SchemaMetadata schema;
   private final TableMetadata table;
@@ -40,7 +45,7 @@ public class TableSparqlQuery {
   }
 
   public void build() {
-    if (table.getSemantics() != null) {
+    if (table.getSemantics() != null && !tableContainsRdfsTypeSemantic(table)) {
       String semantic = table.getSemantics()[0];
       mainPattern = mainVar.isA(object(semantic));
     }
@@ -50,7 +55,7 @@ public class TableSparqlQuery {
         continue;
       }
 
-      Variable columnVar = SparqlBuilder.var(column.getName());
+      Variable columnVar = SparqlBuilder.var(column.getName().replace(" ", "_"));
       String semantic = Arrays.stream(column.getSemantics()).findFirst().orElseThrow();
 
       if (column.isRequired()) {
@@ -61,41 +66,40 @@ public class TableSparqlQuery {
       }
 
       if (column.isReference()) {
-        Reference reference = column.getReferences().getFirst();
-        ReferencePatterns query = new ReferencePatterns(columnVar, reference, schema);
-        if (column.isRequired()) {
-          query.getPattern().forEach(mainPattern::and);
-        } else {
-          optionalPatterns.addAll(query.getPattern());
+        if (ONTOLOGY_TYPES.contains(column.getColumnType())) {
+          continue;
         }
+
+        resolveReference(column, columnVar);
       }
 
       select.select(columnVar);
-      select.where(mainPattern);
-      for (GraphPattern pattern : optionalPatterns) {
-        select.where(pattern);
-      }
+    }
+
+    select.where(mainPattern);
+    for (GraphPattern pattern : optionalPatterns) {
+      select.where(pattern);
     }
   }
 
-  private GraphPattern getReferenceTriplePattern(
-      Column column, Variable startingPoint, String semantic) {
+  private boolean tableContainsRdfsTypeSemantic(TableMetadata table) {
+    return table.getColumns().stream()
+        .map(Column::getSemantics)
+        .filter(Objects::nonNull)
+        .flatMap(Arrays::stream)
+        .collect(Collectors.toSet())
+        .contains("rdf:type");
+  }
+
+  private void resolveReference(Column column, Variable columnVar) {
     Reference reference = column.getReferences().getFirst();
-    TableMetadata referenceTable = schema.getTableMetadata(reference.getTargetTable());
-    Column referenceColumn = referenceTable.getColumn(reference.getTargetColumn());
-    if (referenceColumn.getSemantics() == null) {
-      throw new MolgenisException(
-          "Unable to resolve reference semantics for " + reference.getName());
+
+    TableColumnMapper query = new TableColumnMapper(columnVar, reference, schema);
+    if (column.isRequired()) {
+      query.getPattern().forEach(mainPattern::and);
+    } else {
+      optionalPatterns.addAll(query.getPattern());
     }
-
-    Variable refVar = SparqlBuilder.var(referenceColumn.getName() + "Ref");
-    TriplePattern triple = triple(startingPoint, semantic, refVar);
-
-    String referenceSemantic = referenceColumn.getSemantics()[0];
-    Variable refKeyVar = SparqlBuilder.var(referenceColumn.getName());
-    TriplePattern anotherTriple = triple(refVar, referenceSemantic, refKeyVar);
-
-    return GraphPatterns.optional(triple, anotherTriple);
   }
 
   private TriplePattern triple(Variable subject, String predicate, Variable object) {

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class ReferencePatternsTest {
+class TableColumnMapperTest {
 
   private Database database;
   private Schema schema;
@@ -34,9 +34,9 @@ class ReferencePatternsTest {
     Column column = order.getColumn("product");
     Reference reference = column.getReferences().getFirst();
 
-    ReferencePatterns referencePatterns =
-        new ReferencePatterns(SparqlBuilder.var("product"), reference, schema.getMetadata());
-    assertPatternsMatch(referencePatterns, "?product product:name ?Product_name .");
+    TableColumnMapper tableReferenceQuery =
+        new TableColumnMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
+    assertPatternsMatch(tableReferenceQuery, "?product product:name ?Product_name .");
   }
 
   @Test
@@ -53,12 +53,37 @@ class ReferencePatternsTest {
     TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
     Column column = order.getColumn("product");
     Reference reference = column.getReferences().getFirst();
-    ReferencePatterns referencePatterns =
-        new ReferencePatterns(SparqlBuilder.var("product"), reference, schema.getMetadata());
+    TableColumnMapper tableReferenceQuery =
+        new TableColumnMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
     assertPatternsMatch(
-        referencePatterns,
+        tableReferenceQuery,
         "?product product:name ?Product_name .",
         "?product product:barcode ?Product_barcode .");
+  }
+
+  @Test
+  void givenReference_whenKeyHasMultipleSemantics_thenFirstMatch() {
+    schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
+    schema.create(
+        addProductTableWithSemantics("product:name", "product:alt_name", "product:alt_alt_name"));
+
+    TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+    Column column = order.getColumn("product");
+    Reference reference = column.getReferences().getFirst();
+
+    TableColumnMapper tableReferenceQuery =
+        new TableColumnMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
+    assertPatternsMatch(
+        tableReferenceQuery,
+        """
+            {
+              ?order order:product ?product .
+              OPTIONAL { ?product product:name ?product_name0 . }
+              OPTIONAL { ?product product:alt_name ?product_name1 . }
+              OPTIONAL { ?product product:alt_alt_name ?product_name2 . }
+              BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name )
+            }
+            """);
   }
 
   @Nested
@@ -73,9 +98,9 @@ class ReferencePatternsTest {
       Variable startingPoint = SparqlBuilder.var("product");
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
-      ReferencePatterns referencePatterns =
-          new ReferencePatterns(startingPoint, reference, schema.getMetadata());
-      assertPatternsMatch(referencePatterns, "?product product:name ?Product_name .");
+      TableColumnMapper tableReferenceQuery =
+          new TableColumnMapper(startingPoint, reference, schema.getMetadata());
+      assertPatternsMatch(tableReferenceQuery, "?product product:name ?Product_name .");
     }
 
     @Test
@@ -87,9 +112,10 @@ class ReferencePatternsTest {
       Variable startingPoint = SparqlBuilder.var("product");
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
-      ReferencePatterns referencePatterns =
-          new ReferencePatterns(startingPoint, reference, schema.getMetadata());
-      assertPatternsMatch(referencePatterns, "OPTIONAL { ?product product:name ?Product_name . }");
+      TableColumnMapper tableReferenceQuery =
+          new TableColumnMapper(startingPoint, reference, schema.getMetadata());
+      assertPatternsMatch(
+          tableReferenceQuery, "OPTIONAL { ?product product:name ?Product_name . }");
     }
   }
 
@@ -106,11 +132,11 @@ class ReferencePatternsTest {
 
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
-      ReferencePatterns referencePatterns =
-          new ReferencePatterns(SparqlBuilder.var("product"), reference, schema.getMetadata());
+      TableColumnMapper tableReferenceQuery =
+          new TableColumnMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
 
       assertPatternsMatch(
-          referencePatterns,
+          tableReferenceQuery,
           "OPTIONAL { ?product product:name ?Product_name0 . }",
           "OPTIONAL { ?product product:alternativeName ?Product_name1 . }",
           "OPTIONAL { ?product product:altName ?Product_name2 . }",
@@ -127,20 +153,46 @@ class ReferencePatternsTest {
 
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
-      ReferencePatterns referencePatterns =
-          new ReferencePatterns(SparqlBuilder.var("product"), reference, schema.getMetadata());
+      TableColumnMapper tableReferenceQuery =
+          new TableColumnMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
 
       assertPatternsMatch(
-          referencePatterns,
+          tableReferenceQuery,
+          """
           "OPTIONAL { ?product product:name ?Product_name0 . }",
           "OPTIONAL { ?product product:alternativeName ?Product_name1 . }",
           "OPTIONAL { ?product product:altName ?Product_name2 . }",
           "BIND( COALESCE( ?Product_name0, ?Product_name1, ?Product_name2 ) AS ?Product_name )",
-          "FILTER ( BOUND( ?Product_name ) )");
+          "FILTER ( BOUND( ?Product_name ) )
+          """);
     }
   }
 
-  private void assertPatternsMatch(ReferencePatterns reference, String... expectedPatterns) {
+  @Nested
+  class OntologyReferenceTest {
+
+    @Test
+    void shouldUseLabelForOntology() {
+      schema = database.getSchema("pet store");
+      TableMetadata pet = schema.getTable("Pet").getMetadata();
+      Column tag = pet.getColumn("tag");
+      Reference reference = tag.getReferences().getFirst();
+      TableColumnMapper tableReferenceQuery =
+          new TableColumnMapper(SparqlBuilder.var("pet"), reference, schema.getMetadata());
+
+      for (GraphPattern graphPattern : tableReferenceQuery.getPattern()) {
+        System.out.println(graphPattern.getQueryString());
+      }
+    }
+  }
+
+  @Test
+  void givenOntology_whenNoSemantic_thenUseRdfsLabel() {}
+
+  @Test
+  void givenOntolog_whenSemantic_thenUseSemantic() {}
+
+  private void assertPatternsMatch(TableColumnMapper reference, String... expectedPatterns) {
     List<GraphPattern> patterns = reference.getPattern();
     assertEquals(expectedPatterns.length, patterns.size());
     for (int i = 0; i < expectedPatterns.length; i++) {

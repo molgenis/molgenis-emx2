@@ -15,25 +15,28 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.TriplePattern;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.harvester.mappers.ColumnMapper;
 
-public class ReferencePatterns {
+public class TableColumnMapper implements ColumnMapper {
 
   private final Variable startingPoint;
   private final Column relatedColumn;
   private final TableMetadata relatedTable;
   private final boolean referenceRequired;
 
-  public ReferencePatterns(Variable startingPoint, Reference reference, SchemaMetadata schema) {
+  public TableColumnMapper(Variable startingPoint, Reference reference, SchemaMetadata schema) {
     this.startingPoint = startingPoint;
     this.relatedTable = schema.getTableMetadata(reference.getTargetTable());
     this.relatedColumn = relatedTable.getColumn(reference.getTargetColumn());
     this.referenceRequired = reference.toPrimitiveColumn().isRequired();
   }
 
+  @Override
   public List<Projectable> getSelectors() {
     return Collections.emptyList();
   }
 
+  @Override
   public List<GraphPattern> getPattern() {
     if (relatedColumn.getSemantics() == null) {
       throw new MolgenisException(
@@ -65,15 +68,17 @@ public class ReferencePatterns {
 
     List<GraphPattern> patterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
+    String columnAlias =
+        startingPoint.getVarName() + "_" + column.getQualifiedName().replace(".", "_");
     for (int i = 0; i < column.getSemantics().length; i++) {
       String semantic = column.getSemantics()[i];
-      Variable alias = SparqlBuilder.var(alias(column.getName() + i).getQueryString());
+      Variable alias = SparqlBuilder.var(alias(columnAlias + i).getQueryString());
 
       patterns.add(variable.has(predicate(semantic), alias).optional());
       aliases.add(alias);
     }
 
-    Variable columnVariable = SparqlBuilder.var(alias(column.getName()).getQueryString());
+    Variable columnVariable = SparqlBuilder.var(alias(columnAlias).getQueryString());
 
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     patterns.add(Expressions.bind(coalesce, columnVariable));
