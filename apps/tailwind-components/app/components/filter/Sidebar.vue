@@ -3,6 +3,7 @@ import { ref, computed, onMounted, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
+import Button from "../Button.vue";
 import InputSearch from "../input/Search.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
@@ -25,7 +26,8 @@ async function fetchTableColumns(
   try {
     const meta = await fetchTableMetadata(schemaId, tableId);
     return meta.columns ?? [];
-  } catch {
+  } catch (e) {
+    console.error("Failed to fetch table columns:", e);
     return [];
   }
 }
@@ -136,7 +138,7 @@ function handlePickerApply(
   <div>
     <div
       id="filter-sidebar-content"
-      class="rounded-t-[3px] rounded-b-[50px] bg-sidebar-gradient pb-8"
+      class="rounded-t-3px rounded-b-50px bg-sidebar-gradient pb-8"
     >
       <div class="px-5 pt-5 pb-3 flex items-center justify-between">
         <h2
@@ -144,15 +146,15 @@ function handlePickerApply(
         >
           Filters
         </h2>
-        <button
-          type="button"
-          class="flex items-center gap-1 text-sm text-link hover:underline"
+        <Button
+          type="text"
+          size="tiny"
+          icon="filter"
           aria-label="Customize filters"
           @click="pickerOpen = true"
         >
-          <BaseIcon name="filter" :width="16" />
           Customize
-        </button>
+        </Button>
       </div>
 
       <div class="px-5 pb-4">
