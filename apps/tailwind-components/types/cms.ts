@@ -1,4 +1,4 @@
-// Generated (on: 2026-04-13T14:16:49.810009) from Generator.java for schema: cms
+// Generated (on: 2026-04-13T16:07:28.658752) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -43,7 +43,7 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
@@ -68,21 +68,21 @@ export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
   displayName?: string;
-  image: IFile;
+  image?: IFile;
   alt?: string;
   width?: string;
   height?: string;
   imageIsCentered?: boolean;
   links?: INavigationCards[];
-  text: string;
+  text?: string;
   paragraphIsCentered?: boolean;
-  level: number;
+  level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
   title?: string;
   description?: string;
   url: string;
-  urlLabel: string;
+  urlLabel?: string;
   urlIsExternal?: boolean;
   displayedInNavigationGroup?: any;
   order: number;
@@ -173,7 +173,7 @@ export interface IDeveloperPages_agg {
 }
 
 export interface IHeaders extends IMgTableClass {
-  title: string;
+  title?: string;
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
@@ -189,8 +189,8 @@ export interface IHeaders_agg {
 }
 
 export interface IHeadings extends IMgTableClass {
-  text: string;
-  level: number;
+  text?: string;
+  level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
   inBlock?: any;
@@ -203,7 +203,7 @@ export interface IHeadings_agg {
 
 export interface IImages extends IMgTableClass {
   displayName?: string;
-  image: IFile;
+  image?: IFile;
   alt?: string;
   width?: string;
   height?: string;
@@ -220,7 +220,7 @@ export interface INavigationCards extends IMgTableClass {
   title?: string;
   description?: string;
   url: string;
-  urlLabel: string;
+  urlLabel?: string;
   urlIsExternal?: boolean;
   displayedInNavigationGroup?: any;
   order: number;
@@ -253,7 +253,7 @@ export interface IOrderedLists_agg {
 }
 
 export interface IParagraphs extends IMgTableClass {
-  text: string;
+  text?: string;
   paragraphIsCentered?: boolean;
   inBlock?: any;
   id: string;
@@ -276,11 +276,11 @@ export interface ISections_agg {
 }
 
 export interface ITextElements extends IMgTableClass {
-  text: string;
+  text?: string;
   inBlock?: any;
   id: string;
   paragraphIsCentered?: boolean;
-  level: number;
+  level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
 }

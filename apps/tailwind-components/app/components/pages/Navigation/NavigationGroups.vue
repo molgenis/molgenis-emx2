@@ -43,6 +43,7 @@ const emit = defineEmits<{
           :url="card.url"
           :url-is-external="card.urlIsExternal"
           :url-label="card.urlLabel"
+          :order="card.order"
           class="group w-full md:w-80"
         >
           <Button
