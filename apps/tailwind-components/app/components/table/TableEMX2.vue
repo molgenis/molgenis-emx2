@@ -389,7 +389,7 @@ watch(
 );
 
 const sortedColumns = computed(() => {
-  // sort form backend
+  // sort from backend
   let sortedColumns = sortColumns([...(columns.value ?? [])]);
 
   if (
