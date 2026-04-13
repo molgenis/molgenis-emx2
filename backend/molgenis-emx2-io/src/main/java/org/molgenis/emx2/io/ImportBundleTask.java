@@ -116,20 +116,21 @@ public class ImportBundleTask extends Task {
       if (addSchema == null) {
         addSchema = db.createSchema(addSchemaName);
       }
-      if (def.model() != null) {
-        String modelPath = resolveRelativePath(def.model());
-        if (isYamlBundle(modelPath)) {
+      if (def.bundle() != null) {
+        String bundleDefPath = resolveRelativePath(def.bundle());
+        if (isYamlBundle(bundleDefPath)) {
           try {
-            Emx2Yaml.BundleResult bundleResult = Emx2Yaml.fromBundleClasspath(modelPath);
+            Emx2Yaml.BundleResult bundleResult = Emx2Yaml.fromBundleClasspath(bundleDefPath);
             addSchema.migrate(bundleResult.getSchema());
-            parentTask.addSubTask("Imported YAML bundle model into: " + addSchemaName).complete();
+            parentTask.addSubTask("Imported YAML bundle into: " + addSchemaName).complete();
           } catch (IOException e) {
-            throw new MolgenisException("Failed to load YAML bundle: " + modelPath, e);
+            throw new MolgenisException("Failed to load YAML bundle: " + bundleDefPath, e);
           }
         } else {
           Task importSchemaTask =
-              new ImportSchemaTask(new TableStoreForCsvFilesClasspath(modelPath), addSchema, false);
-          importSchemaTask.setDescription("Import CSV model into: " + addSchemaName);
+              new ImportSchemaTask(
+                  new TableStoreForCsvFilesClasspath(bundleDefPath), addSchema, false);
+          importSchemaTask.setDescription("Import CSV bundle into: " + addSchemaName);
           parentTask.addSubTask(importSchemaTask);
           importSchemaTask.run();
         }
@@ -137,7 +138,7 @@ public class ImportBundleTask extends Task {
       applySettings(addSchema, def, parentTask);
       applyPermissions(addSchema, def.permissions());
       if (includeDemoData) {
-        loadDemodataList(addSchema, def.demodata(), parentTask);
+        loadDataList(addSchema, def.data(), parentTask);
       }
     }
   }
@@ -151,18 +152,17 @@ public class ImportBundleTask extends Task {
   }
 
   private void loadDemoData(Schema schema, Bundle bundle, Task parentTask) {
-    loadDemodataList(schema, bundle.demodata(), parentTask);
+    loadDataList(schema, bundle.demodata(), parentTask);
   }
 
-  private void loadDemodataList(
-      Schema schema, java.util.List<String> demodataPaths, Task parentTask) {
-    for (String demodataPath : demodataPaths) {
-      String resolved = resolveRelativePath(demodataPath);
-      Task demoTask =
+  private void loadDataList(Schema schema, java.util.List<String> dataPaths, Task parentTask) {
+    for (String dataPath : dataPaths) {
+      String resolved = resolveRelativePath(dataPath);
+      Task dataTask =
           new ImportDataTask(schema, new TableStoreForCsvFilesClasspath(resolved), false)
-              .setDescription("Import demo data from: " + resolved);
-      parentTask.addSubTask(demoTask);
-      demoTask.run();
+              .setDescription("Import data from: " + resolved);
+      parentTask.addSubTask(dataTask);
+      dataTask.run();
     }
   }
 

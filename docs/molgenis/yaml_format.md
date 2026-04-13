@@ -6,6 +6,22 @@ A **bundle** is a YAML package that defines a MOLGENIS data model: tables, colum
 
 ---
 
+## Terminology
+
+| Term | Definition                                                                                                      |
+|------|-----------------------------------------------------------------------------------------------------------------|
+| bundle | one `molgenis.yaml`, optionally with imports of related files                                                   |
+| profile | A tag on tables/columns controlling which subset is visible per instance (live feature switch)                  |
+| variant | A child table in an inheritance hierarchy, shown as a form section when its discriminator is selected           |
+| section | A visual grouping of columns within a table definition                                                          |
+| heading | A sub-grouping within a section                                                                                 |
+| import | An `import:` directive that splices columns from another YAML file into a table's column list                   |
+| internal | A profile/variant/table marked as not directly selectable by users (used as a building block)                   |
+| ontology | A reference to a coded vocabulary table with hierarchy support                                                  |
+| semantics | IRIs/CURIEs linking columns or tables to external standards (e.g. `http://purl.obolibrary.org/obo/NCIT_C28421`) |
+
+---
+
 ## Bundle formats
 
 ### Single-file bundle
@@ -56,7 +72,7 @@ profiles:
     includes: [cohort_core]
 ```
 
-Directory layout:
+Convention for a bundle directory layout:
 
 ```
 <bundle>/
@@ -65,6 +81,43 @@ Directory layout:
 ├── ontologies/          # optional ontology tables
 ├── demodata/            # optional seed data CSVs
 └── settings/            # optional settings YAML
+```
+
+### Additional schemas
+
+A bundle can declare **additional schemas** that are created alongside the main schema. This is used for shared resources like ontologies that live in a separate schema and are referenced across multiple deployments.
+
+In `molgenis.yaml`, add an `additionalSchemas:` block:
+
+```yaml
+name: Patient Registry
+description: Patient registry data model
+imports:
+  - tables/
+additionalSchemas:
+  CatalogueOntologies:
+    bundle: catalogue-ontologies/molgenis.yaml
+    permissions:
+      view: anonymous
+```
+
+Each additional schema is a map entry keyed by the schema name to create. Supported fields:
+
+| Field | Description |
+|-------|-------------|
+| `bundle` | Path to the YAML bundle that defines the schema (relative to the bundle root) |
+| `data` | List of paths to data files or directories to import into the schema |
+| `settings` | List of paths to settings YAML files |
+| `permissions` | Map of role → permission level (e.g. `view: anonymous`) |
+
+This replaces the older `ontologiesToFixedSchema` pattern. Tables in the main schema can reference tables in the additional schema using `refSchema:`:
+
+```yaml
+columns:
+  - name: disease
+    type: ontology
+    refTable: Diseases
+    refSchema: CatalogueOntologies
 ```
 
 | Situation | Form |
@@ -159,10 +212,26 @@ Every column is an entry in the `columns:` list. Each entry must have a `name:` 
 | `checkbox` | UI variant of `ref_array` — checkbox-group widget |
 | `ontology` | Foreign key to an ontology table (single term) |
 | `ontology_array` | Multiple ontology terms |
+| `enum` | String column with a fixed set of allowed values. Define values inline: `values: [never, former, current]`. Validated on insert. Use for simple choice fields; use `ontology` for hierarchical/coded vocabularies. |
+| `enum_array` | Array variant of enum — multiple selections from the allowed values list. |
 | `variant` | Discriminator — holds which variant(s) a row belongs to |
 | `variant_array` | Multi-valued variant discriminator |
 | `heading` | Decorative UI-only label row — no DDL column |
 | `section` | UI section placeholder — no DDL column |
+
+### Choice fields: enum vs ontology
+
+Use `enum` for simple closed lists of string values. For coded vocabularies with hierarchies, parent-child relationships, or shared ontologies across tables, use `ontology` instead.
+
+```yaml
+columns:
+  - name: smoking_status
+    type: enum
+    values: [never, former, current]
+  - name: symptoms
+    type: enum_array
+    values: [fever, cough, fatigue, headache]
+```
 
 ---
 
@@ -400,6 +469,101 @@ Key rules:
 
 ---
 
+## When to use variants instead of visible expressions
+
+`visible:` expressions and `variant:` groupings both control which columns appear in a form — but they work at different levels of structure.
+
+**Decision guide:**
+
+| Use | When |
+|-----|------|
+| `variant` | A discriminator column determines which set of columns appears (form sections based on category selection) |
+| `visible` | A single column's visibility depends on another column's value (simple toggle within a section) |
+| `enum` | You need a fixed choice list without a separate reference table |
+
+### Before: visible expressions
+
+The pattern below works for small tables but becomes fragile as nesting grows. String matching on `?.name===` is hard to audit, and nested conditions (`expectedDob` depends on `foetus` which depends on `diseaseGroup`) are not obvious from the schema:
+
+```yaml
+table: subject
+columns:
+  - name: diseaseGroup
+    type: ontology
+    refTable: diseaseGroups
+  - name: dnaSubgroup
+    type: ontology
+    refTable: subgroupsDNA
+    visible: diseaseGroup?.name==="dna"
+  - name: otherSubgroup
+    type: ontology
+    refTable: subgroupOther
+    visible: diseaseGroup?.name==="other"
+  - name: foetus
+    type: ontology
+    refTable: yesNo
+    visible: diseaseGroup?.name==="mendel"
+  - name: expectedDob
+    type: date
+    visible: foetus?.name==="yes"
+```
+
+### After: variant-based grouping
+
+Each disease group becomes a declared variant. The `diseaseGroup` column changes type from `ontology` to `variant` — it becomes the discriminator. Variant-specific columns are grouped under their variant, and the structural relationship is explicit:
+
+```yaml
+table: subject
+variants:
+  - name: dna
+    description: DNA disease pathway
+    internal: true
+  - name: other
+    description: Other disease group
+    internal: true
+  - name: mendel
+    description: Mendelian diseases
+    internal: true
+columns:
+  - name: id
+    key: 1
+  - name: diseaseGroup
+    type: variant
+    description: Select disease group to show relevant fields
+  - section: DNA pathway
+    variant: dna
+    columns:
+      - name: dnaSubgroup
+        type: ontology
+        refTable: subgroupsDNA
+        required: true
+  - section: Other pathway
+    variant: other
+    columns:
+      - name: otherSubgroup
+        type: ontology
+        refTable: subgroupOther
+  - section: Mendelian diseases
+    variant: mendel
+    columns:
+      - name: foetus
+        type: ontology
+        refTable: yesNo
+      - name: expectedDob
+        type: date
+        visible: foetus?.name==="yes"
+```
+
+Key points:
+
+- `diseaseGroup` changes from `ontology` to `variant` — it becomes the discriminator that drives which section appears.
+- Each variant's columns are grouped inside a `section:` with a `variant:` attribute, linking the section to the variant declaration. The section becomes visible when the variant is selected.
+- Simple conditional visibility (foetus → expectedDob) can still use `visible:` within a variant scope — it does not need a full sub-variant.
+- Variants are composable: a variant can `extends:` another, so shared columns between two disease groups can be factored into an internal base variant.
+- There is no fragile string matching for top-level grouping — the variant name is the structural identity.
+
+---
+
 ## Profiles
 
 A **profile** is a tagged subset of the core data model. Profiles are declared in `profiles:` as a list at the bundle root. `internal: true` marks profiles that are implementation details, not shown in the user picker.
@@ -592,7 +756,7 @@ Key differences:
 | `demodata` | list | Seed data CSV paths (e.g. `[_demodata/applications/petstore]`) |
 | `settings` | list | YAML settings file paths (e.g. `[_demodata/applications/petstore]`) |
 | `permissions` | mapping | Role-based access: `view: anonymous`, `edit: user` |
-| `additionalSchemas` | mapping | Additional schemas to create (e.g., shared ontology schemas). Each entry has `model`, `permissions`, `demodata`, etc. |
+| `additionalSchemas` | mapping | Additional schemas to create (e.g., shared ontology schemas). Each entry has `bundle`, `data`, `settings`, `permissions`. |
 
 ---
 
