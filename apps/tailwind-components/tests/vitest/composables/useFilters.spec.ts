@@ -6,6 +6,10 @@ vi.mock("../../../app/composables/fetchGraphql", () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock("../../../app/composables/fetchTableMetadata", () => ({
+  default: vi.fn().mockResolvedValue({ columns: [] }),
+}));
+
 import {
   useFilters,
   MG_FILTERS_PARAM,
@@ -437,6 +441,61 @@ describe("useFilters — nested column meta", () => {
     expect(
       (gqlFilter.value as any).publisher?.country?._match_any_including_children
     ).toEqual(["NL"]);
+  });
+});
+
+describe("useFilters — hydrateNestedFilters", () => {
+  it("resolves dotted filter id into nestedColumnMeta using rawColumns", async () => {
+    const { default: fetchTableMetadata } = await import(
+      "../../../app/composables/fetchTableMetadata"
+    );
+    const refColumn: IColumn = {
+      id: "publisher",
+      label: "Publisher",
+      columnType: "REF",
+      refTableId: "Organisation",
+    } as IColumn;
+    const orgCountryColumn: IColumn = {
+      id: "country",
+      label: "Country",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+    vi.mocked(fetchTableMetadata).mockResolvedValue({
+      columns: [orgCountryColumn],
+    } as any);
+
+    const columns = ref([refColumn]);
+    const { nestedColumnMeta, hydrateNestedFilters } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ["publisher.country"],
+    });
+
+    await hydrateNestedFilters();
+    await nextTick();
+
+    const meta = nestedColumnMeta.value.get("publisher.country");
+    expect(meta?.label).toBe("Publisher → Country");
+    expect(meta?.columnType).toBe("ONTOLOGY");
+  });
+
+  it("skips dotted ids already in nestedColumnMeta", async () => {
+    const { default: fetchTableMetadata } = await import(
+      "../../../app/composables/fetchTableMetadata"
+    );
+    vi.mocked(fetchTableMetadata).mockClear();
+
+    const columns = ref<IColumn[]>([]);
+    const { registerNestedColumn, hydrateNestedFilters } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: ["a.b"],
+    });
+
+    registerNestedColumn("a.b", { label: "A → B", columnType: "STRING" });
+    await hydrateNestedFilters();
+
+    expect(fetchTableMetadata).not.toHaveBeenCalled();
   });
 });
 

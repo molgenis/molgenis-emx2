@@ -101,4 +101,5 @@ export interface UseFilters {
   collapsedIds: ComputedRef<Set<string>>;
   toggleCollapse: (columnId: string) => void;
   isCollapsed: (columnId: string) => boolean;
+  hydrateNestedFilters: () => Promise<void>;
 }

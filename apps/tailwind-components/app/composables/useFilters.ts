@@ -23,7 +23,9 @@ import {
 } from "../utils/filterUrlCodec";
 import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
 import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
+import { arraysEqual, jsonEqual } from "../utils/compare";
 import fetchGraphql from "./fetchGraphql";
+import fetchTableMetadata from "./fetchTableMetadata";
 
 export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
@@ -46,7 +48,7 @@ export interface UseFiltersOptions {
   router?: { replace: (opts: Record<string, unknown>) => void };
 }
 
-function getNonFilterParams(
+function preserveExternalQueryParams(
   query: RouteQuery,
   cols: IColumn[]
 ): Record<string, unknown> {
@@ -63,17 +65,6 @@ function getNonFilterParams(
     preserved[key] = value;
   }
   return preserved;
-}
-
-function arraysEqual(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
-  const sortedA = [...a].sort();
-  const sortedB = [...b].sort();
-  return sortedA.every((val, idx) => val === sortedB[idx]);
-}
-
-function jsonEqual(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function filterColumns(rawColumns: IColumn[]): IColumn[] {
@@ -131,7 +122,10 @@ export function useFilters(
       newSearch,
       columns.value
     );
-    const preserved = getNonFilterParams(getCurrentQuery(), columns.value);
+    const preserved = preserveExternalQueryParams(
+      getCurrentQuery(),
+      columns.value
+    );
     const mgFiltersParam = getCurrentQuery()[MG_FILTERS_PARAM];
     if (mgFiltersParam !== undefined) {
       preserved[MG_FILTERS_PARAM] = mgFiltersParam;
@@ -361,6 +355,74 @@ export function useFilters(
     nestedColumnMeta.value = next;
   }
 
+  async function fetchTableColumns(
+    sId: string,
+    tId: string
+  ): Promise<IColumn[]> {
+    try {
+      const meta = await fetchTableMetadata(sId, tId);
+      return meta.columns ?? [];
+    } catch (e) {
+      console.error("Failed to fetch table columns:", e);
+      return [];
+    }
+  }
+
+  async function hydrateNestedFilters() {
+    const visibleIds = visibleFilterIds.value;
+    const alreadyKnown = nestedColumnMeta.value;
+
+    const dottedIds = visibleIds.filter(
+      (id) => id.includes(".") && !alreadyKnown.has(id)
+    );
+    if (dottedIds.length === 0) return;
+
+    for (const id of dottedIds) {
+      const segments = id.split(".");
+      let currentCols: IColumn[] = rawColumns.value;
+      let currentSchemaId = schemaId;
+      const labelParts: string[] = [];
+      let resolved = true;
+
+      for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i]!;
+        const col = currentCols.find((c) => c.id === seg);
+        if (!col) {
+          resolved = false;
+          break;
+        }
+        labelParts.push(col.label || col.id);
+
+        if (i < segments.length - 1) {
+          if (!col.refTableId) {
+            resolved = false;
+            break;
+          }
+          const nextSchemaId = col.refSchemaId || currentSchemaId;
+          currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
+          currentSchemaId = nextSchemaId;
+        } else if (resolved) {
+          registerNestedColumn(id, {
+            label: labelParts.join(" → "),
+            columnType: col.columnType,
+            refTableId: col.refTableId ?? null,
+            refSchemaId: col.refSchemaId ?? null,
+          });
+        }
+      }
+    }
+  }
+
+  watch(
+    visibleFilterIds,
+    async (ids) => {
+      if (ids.some((id) => id.includes("."))) {
+        await hydrateNestedFilters();
+      }
+    },
+    { immediate: true }
+  );
+
   const countsMap = shallowRef<Map<string, CountedOption[]>>(new Map());
   const loadingSet = shallowRef<Set<string>>(new Set());
   const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());
@@ -569,5 +631,6 @@ export function useFilters(
     collapsedIds,
     toggleCollapse,
     isCollapsed,
+    hydrateNestedFilters,
   };
 }

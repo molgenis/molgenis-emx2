@@ -283,6 +283,7 @@ const showSearch = computed(
       @update:modelValue="handleSearchInput"
       placeholder="Search..."
       :describedby="`${id}-tree-search-input-message`"
+      size="tiny"
     />
     <div :id="`${id}-tree-search-input-message`">
       <span

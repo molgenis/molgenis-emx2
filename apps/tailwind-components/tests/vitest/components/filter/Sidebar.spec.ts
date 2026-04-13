@@ -80,6 +80,7 @@ function makeFilters(
       collapsed.value = next;
     }),
     isCollapsed: (id: string) => collapsed.value.has(id),
+    hydrateNestedFilters: vi.fn().mockResolvedValue(undefined),
   };
 }
 

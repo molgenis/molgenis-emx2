@@ -242,5 +242,6 @@ const mockFilters: UseFilters = {
     collapsedRef.value = next;
   },
   isCollapsed: (id: string) => collapsedRef.value.has(id),
+  hydrateNestedFilters: async () => {},
 };
 </script>

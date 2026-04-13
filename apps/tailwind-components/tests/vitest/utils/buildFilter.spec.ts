@@ -412,7 +412,7 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ active: { equals: [true, false] } });
   });
 
-  it("uses _match_any for RADIO with plain string values", () => {
+  it("uses equals with name key for RADIO with refTableId and plain string values", () => {
     const columns: IColumn[] = [
       makeColumn({
         id: "status",
@@ -426,11 +426,11 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      status: { _match_any: ["active", "inactive"] },
+      status: { equals: [{ name: "active" }, { name: "inactive" }] },
     });
   });
 
-  it("uses _match_any for CHECKBOX with plain string values", () => {
+  it("uses equals with name key for CHECKBOX with refTableId and plain string values", () => {
     const columns: IColumn[] = [
       makeColumn({
         id: "color",
@@ -444,7 +444,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      color: { _match_any: ["red", "blue"] },
+      color: { equals: [{ name: "red" }, { name: "blue" }] },
     });
   });
 
@@ -490,6 +490,51 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({
       order: { status: { _match_any: ["active"] } },
     });
+  });
+
+  it("generates equals filter for RADIO with refTableId", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "category",
+        columnType: "RADIO",
+        refTableId: "Category",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["category", { operator: "equals", value: ["cat", "dog"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns);
+    expect(result).toEqual({
+      category: { equals: [{ name: "cat" }, { name: "dog" }] },
+    });
+  });
+
+  it("generates equals filter for CHECKBOX with refTableId", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "colors",
+        columnType: "CHECKBOX",
+        refTableId: "Colors",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["colors", { operator: "equals", value: ["red"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns);
+    expect(result).toEqual({
+      colors: { equals: [{ name: "red" }] },
+    });
+  });
+
+  it("generates _match_any filter for RADIO without refTableId", () => {
+    const columns: IColumn[] = [
+      makeColumn({ id: "status", columnType: "RADIO" }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["status", { operator: "equals", value: ["active"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns);
+    expect(result).toEqual({ status: { _match_any: ["active"] } });
   });
 
   it("between with [null, null] produces no filter entry", () => {

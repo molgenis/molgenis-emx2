@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, useId } from "vue";
+import { ref, computed, useId } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
@@ -7,7 +7,6 @@ import Button from "../Button.vue";
 import InputSearch from "../input/Search.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
 
 const props = defineProps<{
   filters: UseFilters;
@@ -18,68 +17,6 @@ const props = defineProps<{
 
 const searchInputId = useId();
 const pickerOpen = ref(false);
-
-async function fetchTableColumns(
-  schemaId: string,
-  tableId: string
-): Promise<IColumn[]> {
-  try {
-    const meta = await fetchTableMetadata(schemaId, tableId);
-    return meta.columns ?? [];
-  } catch (e) {
-    console.error("Failed to fetch table columns:", e);
-    return [];
-  }
-}
-
-async function hydrateNestedFiltersFromUrl() {
-  const visibleIds = props.filters.visibleFilterIds.value;
-  const alreadyKnown = props.filters.nestedColumnMeta.value;
-
-  const dottedIds = visibleIds.filter(
-    (id) => id.includes(".") && !alreadyKnown.has(id)
-  );
-  if (dottedIds.length === 0) return;
-
-  for (const id of dottedIds) {
-    const segments = id.split(".");
-    let currentCols: IColumn[] = props.columns;
-    let currentSchemaId = props.schemaId;
-    const labelParts: string[] = [];
-    let resolved = true;
-
-    for (let i = 0; i < segments.length; i++) {
-      const seg = segments[i]!;
-      const col = currentCols.find((c) => c.id === seg);
-      if (!col) {
-        resolved = false;
-        break;
-      }
-      labelParts.push(col.label || col.id);
-
-      if (i < segments.length - 1) {
-        if (!col.refTableId) {
-          resolved = false;
-          break;
-        }
-        const nextSchemaId = col.refSchemaId || currentSchemaId;
-        currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
-        currentSchemaId = nextSchemaId;
-      } else if (resolved) {
-        props.filters.registerNestedColumn(id, {
-          label: labelParts.join(" → "),
-          columnType: col.columnType,
-          refTableId: col.refTableId ?? null,
-          refSchemaId: col.refSchemaId ?? null,
-        });
-      }
-    }
-  }
-}
-
-onMounted(async () => {
-  await hydrateNestedFiltersFromUrl();
-});
 
 const searchValue = computed({
   get: () => props.filters.searchValue.value,
@@ -108,6 +45,13 @@ const visibleColumns = computed(() =>
 const visibleFilterIdsSet = computed(
   () => new Set(props.filters.visibleFilterIds.value)
 );
+
+function getFilterSelectionCount(columnId: string): number {
+  const filterValue = props.filters.filterStates.value.get(columnId);
+  if (!filterValue) return 0;
+  if (Array.isArray(filterValue.value)) return filterValue.value.length;
+  return filterValue.value ? 1 : 0;
+}
 
 function handlePickerApply(
   selectedIds: Set<string>,
@@ -146,15 +90,15 @@ function handlePickerApply(
         >
           Filters
         </h2>
-        <Button
-          type="text"
-          size="tiny"
-          icon="filter"
+        <button
+          type="button"
+          class="flex items-center gap-1 text-body-sm text-search-filter-expand hover:underline cursor-pointer"
           aria-label="Customize filters"
           @click="pickerOpen = true"
         >
+          <BaseIcon name="filter" :width="16" />
           Customize
-        </Button>
+        </button>
       </div>
 
       <div class="px-5 pb-4">
@@ -168,7 +112,7 @@ function handlePickerApply(
       <template v-for="column in visibleColumns" :key="column.id">
         <hr class="border-black opacity-10 mx-5" />
         <div
-          class="p-5 flex items-center justify-between cursor-pointer group"
+          class="p-5 flex items-center gap-1 cursor-pointer group"
           role="button"
           tabindex="0"
           :aria-expanded="!filters.isCollapsed(column.id)"
@@ -182,7 +126,17 @@ function handlePickerApply(
             {{ column.label || column.id }}
           </h3>
           <span
-            class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform"
+            v-if="filters.filterStates.value.has(column.id)"
+            class="text-body-sm text-search-filter-expand hover:underline cursor-pointer grow text-right"
+            @click.stop="filters.removeFilter(column.id)"
+          >
+            <template v-if="getFilterSelectionCount(column.id) > 1">
+              Remove {{ getFilterSelectionCount(column.id) }} selected
+            </template>
+            <template v-else>Clear</template>
+          </span>
+          <span
+            class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform shrink-0"
             :class="{ 'rotate-180': filters.isCollapsed(column.id) }"
           >
             <BaseIcon name="caret-up" :width="26" />

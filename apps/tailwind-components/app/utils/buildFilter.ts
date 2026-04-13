@@ -84,7 +84,16 @@ export function buildGraphQLFilter(
               filterValueObj = { equals: boolValues };
             }
           } else if (resolvedType === "RADIO" || resolvedType === "CHECKBOX") {
-            filterValueObj = { _match_any: arr };
+            const isDirectColumn = !columnTypeMap?.get(columnId);
+            const hasPlainStringValues =
+              arr.length > 0 && typeof arr[0] === "string";
+            if (isDirectColumn && column.refTableId && hasPlainStringValues) {
+              filterValueObj = {
+                equals: arr.map((v: any) => ({ name: v })),
+              };
+            } else {
+              filterValueObj = { _match_any: arr };
+            }
           } else if (
             arr.length > 0 &&
             typeof arr[0] === "object" &&

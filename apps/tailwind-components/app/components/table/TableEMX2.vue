@@ -384,11 +384,12 @@ const primaryKeys = computed(() => {
 });
 
 watch(
-  () => JSON.stringify(props.filter),
+  () => props.filter,
   () => {
     settings.value.page = 1;
     refresh();
-  }
+  },
+  { deep: true }
 );
 
 watch(
