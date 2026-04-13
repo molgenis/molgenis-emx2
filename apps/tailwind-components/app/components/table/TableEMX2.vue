@@ -19,7 +19,7 @@
       </Button>
 
       <TableControlColumns
-        :columns="columns"
+        :columns="sortedColumns"
         @update:columns="handleColumnsUpdate"
       />
     </div>
@@ -49,7 +49,9 @@
               />
             </TableHeadCell>
             <TableHeadCell
-              v-for="column in sortedVisibleColumns"
+              v-for="column in sortedColumns.filter(
+                (c) => c.visible !== 'false'
+              )"
               :style="{
                 width: columnWidths[column.id] + 'px',
                 userSelect: isResizing ? 'none' : 'auto',
@@ -93,7 +95,9 @@
             </TableCellEMX2>
 
             <TableCellEMX2
-              v-for="(column, colIndex) in sortedVisibleColumns"
+              v-for="(column, colIndex) in sortedColumns.filter(
+                (c) => c.visible !== 'false'
+              )"
               :style="{ width: columnWidths[column.id] + 'px' }"
               class="text-table-row group-hover:bg-hover"
               :class="{
@@ -309,6 +313,7 @@ const settings = defineModel<ITableSettings>("settings", {
     pageSize: 10,
     orderby: { column: "", direction: "ASC" },
     search: "",
+    orderedColumnsIds: [],
   }),
 });
 
@@ -387,15 +392,37 @@ watch(
   { immediate: true }
 );
 
-const sortedVisibleColumns = computed(() => {
-  const visibleColumns = columns.value.filter(
-    (column: IColumn) => column.visible !== "false"
-  );
-  return sortColumns(visibleColumns);
+const sortedColumns = computed(() => {
+  // sort form backend
+  let sortedColumns = sortColumns(columns.value);
+
+  if (
+    settings.value.orderedColumnsIds &&
+    settings.value.orderedColumnsIds.length > 0
+  ) {
+    // override visibility with user settings
+    sortedColumns = sortedColumns.map((col) => {
+      return {
+        ...col,
+        // use string instead of boolean for compatibility backend
+        visible: settings.value.orderedColumnsIds.includes(col.id)
+          ? "true"
+          : "false",
+      };
+    });
+    // order by user settings
+    sortedColumns.sort((a, b) => {
+      const indexA = settings.value.orderedColumnsIds?.indexOf(a.id) ?? -1;
+      const indexB = settings.value.orderedColumnsIds?.indexOf(b.id) ?? -1;
+      return indexA - indexB;
+    });
+  }
+
+  return sortedColumns;
 });
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
-  columns.value = newColumns;
+  settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
 }
 
 function handleSortRequest(columnId: string) {

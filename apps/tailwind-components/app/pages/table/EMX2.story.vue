@@ -10,6 +10,7 @@ const tableSettings = ref<ITableSettings>({
   pageSize: 10,
   orderby: { column: "", direction: "ASC" },
   search: "",
+  orderedColumnsIds: [],
 });
 
 const router = useRouter();
