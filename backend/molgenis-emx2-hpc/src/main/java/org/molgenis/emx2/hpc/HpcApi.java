@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 public class HpcApi {
 
   private static final Logger logger = LoggerFactory.getLogger(HpcApi.class);
+
+  // Route path is part of the HPC protocol contract (see docs/hpc/design.md); not configurable.
+  @SuppressWarnings("java:S1075")
   private static final String ARTIFACT_FILES_PATH = "/api/hpc/artifacts/{id}/files/<path>";
 
   private HpcApi() {}

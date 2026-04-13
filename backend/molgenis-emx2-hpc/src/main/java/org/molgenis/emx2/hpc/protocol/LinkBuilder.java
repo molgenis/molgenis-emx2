@@ -9,6 +9,9 @@ import org.molgenis.emx2.hpc.model.HpcJobStatus;
  * Builds HATEOAS _links maps based on current job or artifact state. Clients should follow these
  * links rather than constructing URLs.
  */
+// All route fragments below are part of the HPC protocol contract (see docs/hpc/design.md);
+// they are not user-configurable URIs.
+@SuppressWarnings("java:S1075")
 public final class LinkBuilder {
 
   private static final String BASE = "/api/hpc";
@@ -66,19 +69,13 @@ public final class LinkBuilder {
     links.put("self", HateoasLink.get(artPath));
 
     switch (status) {
-      case CREATED -> {
-        links.put("upload", HateoasLink.put(artPath + FILES_PATH_TEMPLATE));
-      }
+      case CREATED -> links.put("upload", HateoasLink.put(artPath + FILES_PATH_TEMPLATE));
       case UPLOADING -> {
         links.put("upload", HateoasLink.put(artPath + FILES_PATH_TEMPLATE));
         links.put("commit", HateoasLink.post(artPath + "/commit"));
       }
-      case REGISTERED -> {
-        links.put("commit", HateoasLink.post(artPath + "/commit"));
-      }
-      case COMMITTED -> {
-        links.put("download", HateoasLink.get(artPath + FILES_PATH_TEMPLATE));
-      }
+      case REGISTERED -> links.put("commit", HateoasLink.post(artPath + "/commit"));
+      case COMMITTED -> links.put("download", HateoasLink.get(artPath + FILES_PATH_TEMPLATE));
       default -> {
         // Terminal FAILED state: only self and files links
       }

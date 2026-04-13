@@ -341,8 +341,6 @@ public class ArtifactsApi {
     long sizeBytes;
     try (InputStream input = ctx.req().getInputStream()) {
       sizeBytes = streamToFile(input, tempFile, digest, maxBytes, requestId(ctx));
-    } catch (HpcException e) {
-      throw e;
     }
 
     String sha256 = HexFormat.of().formatHex(digest.digest());

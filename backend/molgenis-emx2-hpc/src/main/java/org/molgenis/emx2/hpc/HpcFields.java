@@ -74,7 +74,11 @@ public final class HpcFields {
 
   // --- HATEOAS link building ---
   public static final String METHOD = "method";
+
+  // Part of the HPC protocol contract (see docs/hpc/design.md); not configurable.
+  @SuppressWarnings("java:S1075")
   public static final String WORKERS_PATH = "/api/hpc/workers/";
+
   public static final String CREDENTIALS_PATH = "/credentials";
 
   private HpcFields() {}

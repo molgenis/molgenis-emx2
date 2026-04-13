@@ -188,17 +188,17 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
+import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import {
   fetchWorkerCredentials,
   issueWorkerCredential,
   revokeWorkerCredential,
   type WorkerCredential,
 } from "../composables/useHpcApi";
-import Modal from "../../../tailwind-components/app/components/Modal.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import Message from "../../../tailwind-components/app/components/Message.vue";
-import StatusBadge from "./StatusBadge.vue";
 import { formatDate } from "../utils/jobs";
+import StatusBadge from "./StatusBadge.vue";
 
 const props = defineProps<{
   visible: boolean;
@@ -207,9 +207,7 @@ const props = defineProps<{
   initialSecret?: string | null;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:visible", value: boolean): void;
-}>();
+const emit = defineEmits<(e: "update:visible", value: boolean) => void>();
 
 const visibleModel = computed({
   get: () => props.visible,

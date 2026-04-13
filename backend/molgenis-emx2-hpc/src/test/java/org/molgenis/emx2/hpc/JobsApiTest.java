@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ class JobsApiTest {
   // ── createJob ──────────────────────────────────────────────────────────────
 
   @Test
-  void createJob_success() throws Exception {
+  void createJob_success() throws JsonProcessingException {
     when(ctx.body()).thenReturn("{\"processor\":\"text\",\"profile\":\"gpu\"}");
     when(ctx.attribute("hpcAuthMethod")).thenReturn("USER");
     when(ctx.attribute("hpcAuthUser")).thenReturn("admin");
@@ -68,7 +69,7 @@ class JobsApiTest {
   }
 
   @Test
-  void createJob_hmacAuth_nullSubmitUser() throws Exception {
+  void createJob_hmacAuth_nullSubmitUser() throws JsonProcessingException {
     when(ctx.body()).thenReturn("{\"processor\":\"text\"}");
     when(ctx.attribute("hpcAuthMethod")).thenReturn("HMAC");
     when(jobService.createJob(eq("text"), isNull(), isNull(), isNull(), isNull(), isNull()))
@@ -81,7 +82,7 @@ class JobsApiTest {
   }
 
   @Test
-  void createJob_withTimeoutSeconds() throws Exception {
+  void createJob_withTimeoutSeconds() throws JsonProcessingException {
     when(ctx.body()).thenReturn("{\"processor\":\"text\",\"timeout_seconds\":3600}");
     when(jobService.createJob(eq("text"), isNull(), isNull(), isNull(), isNull(), eq(3600)))
         .thenReturn(JOB_ID);
@@ -167,7 +168,7 @@ class JobsApiTest {
   // ── claimJob ───────────────────────────────────────────────────────────────
 
   @Test
-  void claimJob_success() throws Exception {
+  void claimJob_success() throws JsonProcessingException {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"worker_id\":\"w1\"}");
     Row claimedRow = buildJobRow(JOB_ID, "CLAIMED", "text", "gpu");
@@ -180,7 +181,7 @@ class JobsApiTest {
   }
 
   @Test
-  void claimJob_notPending_existingJob_throws409() throws Exception {
+  void claimJob_notPending_existingJob_throws409() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"worker_id\":\"w1\"}");
     when(jobService.claimJob(JOB_ID, "w1")).thenReturn(ClaimResult.notPending());
@@ -193,7 +194,7 @@ class JobsApiTest {
   }
 
   @Test
-  void claimJob_notPending_noJob_throws404() throws Exception {
+  void claimJob_notPending_noJob_throws404() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"worker_id\":\"w1\"}");
     when(jobService.claimJob(JOB_ID, "w1")).thenReturn(ClaimResult.notPending());
@@ -204,7 +205,7 @@ class JobsApiTest {
   }
 
   @Test
-  void claimJob_capabilityMismatch_throws409() throws Exception {
+  void claimJob_capabilityMismatch_throws409() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"worker_id\":\"w1\"}");
     when(jobService.claimJob(JOB_ID, "w1")).thenReturn(ClaimResult.capabilityMismatch());
@@ -217,7 +218,7 @@ class JobsApiTest {
   }
 
   @Test
-  void claimJob_capacityExceeded_throws409() throws Exception {
+  void claimJob_capacityExceeded_throws409() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"worker_id\":\"w1\"}");
     when(jobService.claimJob(JOB_ID, "w1")).thenReturn(ClaimResult.capacityExceeded());
@@ -230,7 +231,7 @@ class JobsApiTest {
   // ── transitionJob ──────────────────────────────────────────────────────────
 
   @Test
-  void transitionJob_success() throws Exception {
+  void transitionJob_success() throws JsonProcessingException {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body())
         .thenReturn("{\"status\":\"SUBMITTED\",\"worker_id\":\"w1\",\"detail\":\"sbatch 123\"}");
@@ -266,7 +267,7 @@ class JobsApiTest {
   }
 
   @Test
-  void transitionJob_notAllowed_existingJob_throws409() throws Exception {
+  void transitionJob_notAllowed_existingJob_throws409() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"status\":\"COMPLETED\",\"worker_id\":\"w1\"}");
     when(jobService.transitionJob(
@@ -281,7 +282,7 @@ class JobsApiTest {
   }
 
   @Test
-  void transitionJob_notAllowed_noJob_throws404() throws Exception {
+  void transitionJob_notAllowed_noJob_throws404() {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"status\":\"COMPLETED\",\"worker_id\":\"w1\"}");
     when(jobService.transitionJob(
@@ -296,7 +297,7 @@ class JobsApiTest {
   // ── completeJob ────────────────────────────────────────────────────────────
 
   @Test
-  void completeJob_success() throws Exception {
+  void completeJob_success() throws JsonProcessingException {
     when(ctx.pathParam("id")).thenReturn(JOB_ID);
     when(ctx.body()).thenReturn("{\"status\":\"COMPLETED\",\"worker_id\":\"w1\"}");
     Row resultRow = buildJobRow(JOB_ID, "COMPLETED", "text", "gpu");

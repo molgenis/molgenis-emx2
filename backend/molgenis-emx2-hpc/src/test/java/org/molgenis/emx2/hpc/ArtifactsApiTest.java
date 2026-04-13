@@ -251,7 +251,7 @@ class ArtifactsApiTest {
   }
 
   @Test
-  void commitArtifact_notFound_throws404() throws Exception {
+  void commitArtifact_notFound_throws404() {
     when(ctx.pathParam("id")).thenReturn(ARTIFACT_ID);
     when(ctx.body()).thenReturn("{\"sha256\":\"abc123\"}");
     when(artifactService.commitArtifact(ARTIFACT_ID, "abc123", null)).thenReturn(null);
@@ -261,7 +261,7 @@ class ArtifactsApiTest {
   }
 
   @Test
-  void commitArtifact_hashMismatch_throws409() throws Exception {
+  void commitArtifact_hashMismatch_throws409() {
     when(ctx.pathParam("id")).thenReturn(ARTIFACT_ID);
     when(ctx.body()).thenReturn("{\"sha256\":\"wrong\"}");
     when(artifactService.commitArtifact(ARTIFACT_ID, "wrong", null))
@@ -273,7 +273,7 @@ class ArtifactsApiTest {
   }
 
   @Test
-  void commitArtifact_wrongState_throws409() throws Exception {
+  void commitArtifact_wrongState_throws409() {
     when(ctx.pathParam("id")).thenReturn(ARTIFACT_ID);
     when(ctx.body()).thenReturn("{\"sha256\":\"abc123\"}");
     when(artifactService.commitArtifact(ARTIFACT_ID, "abc123", null))
@@ -1072,7 +1072,7 @@ class ArtifactsApiTest {
   }
 
   @Test
-  void uploadFileByPath_multipartUpload_contentLengthExceedsLimit_throws413() throws Exception {
+  void uploadFileByPath_multipartUpload_contentLengthExceedsLimit_throws413() {
     when(ctx.pathParam("id")).thenReturn(ARTIFACT_ID);
     when(ctx.pathParam("path")).thenReturn("upload.txt");
     when(ctx.header("Content-Type")).thenReturn("multipart/form-data; boundary=abc");

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +37,7 @@ class WorkerCredentialsApiTest {
   // ── issueCredential ────────────────────────────────────────────────────────
 
   @Test
-  void issueCredential_success() throws Exception {
+  void issueCredential_success() throws JsonProcessingException {
     when(ctx.body()).thenReturn("{\"label\":\"my-cred\"}");
     LocalDateTime now = LocalDateTime.of(2025, 1, 1, 0, 0);
     WorkerCredentialService.IssuedCredential issued =
@@ -61,7 +62,7 @@ class WorkerCredentialsApiTest {
   }
 
   @Test
-  void issueCredential_emptyBody() throws Exception {
+  void issueCredential_emptyBody() throws JsonProcessingException {
     when(ctx.body()).thenReturn("");
     LocalDateTime now = LocalDateTime.of(2025, 1, 1, 0, 0);
     WorkerCredentialService.IssuedCredential issued =
@@ -76,7 +77,7 @@ class WorkerCredentialsApiTest {
   }
 
   @Test
-  void issueCredential_conflict_alreadyActive() throws Exception {
+  void issueCredential_conflict_alreadyActive() {
     when(ctx.body()).thenReturn("{}");
     when(credentialService.issueCredential(eq(WORKER_ID), isNull(), isNull(), eq("admin")))
         .thenThrow(new IllegalStateException("Worker worker-1 already has an active credential"));
@@ -87,7 +88,7 @@ class WorkerCredentialsApiTest {
   }
 
   @Test
-  void issueCredential_credentialsKeyMissing() throws Exception {
+  void issueCredential_credentialsKeyMissing() {
     when(ctx.body()).thenReturn("{}");
     when(credentialService.issueCredential(eq(WORKER_ID), isNull(), isNull(), eq("admin")))
         .thenThrow(
@@ -100,7 +101,7 @@ class WorkerCredentialsApiTest {
   }
 
   @Test
-  void issueCredential_hmacAuth_nullCreatedBy() throws Exception {
+  void issueCredential_hmacAuth_nullCreatedBy() throws JsonProcessingException {
     when(ctx.attribute("hpcAuthMethod")).thenReturn("HMAC");
     when(ctx.body()).thenReturn("{}");
     LocalDateTime now = LocalDateTime.of(2025, 1, 1, 0, 0);
@@ -118,7 +119,7 @@ class WorkerCredentialsApiTest {
   // ── rotateCredential ───────────────────────────────────────────────────────
 
   @Test
-  void rotateCredential_success() throws Exception {
+  void rotateCredential_success() throws JsonProcessingException {
     when(ctx.body()).thenReturn("{\"label\":\"rotated\"}");
     LocalDateTime now = LocalDateTime.of(2025, 1, 1, 0, 0);
     WorkerCredentialService.IssuedCredential issued =
@@ -141,7 +142,7 @@ class WorkerCredentialsApiTest {
   }
 
   @Test
-  void rotateCredential_credentialsKeyMissing() throws Exception {
+  void rotateCredential_credentialsKeyMissing() {
     when(ctx.body()).thenReturn("{}");
     when(credentialService.rotateCredential(eq(WORKER_ID), isNull(), isNull(), eq("admin")))
         .thenThrow(

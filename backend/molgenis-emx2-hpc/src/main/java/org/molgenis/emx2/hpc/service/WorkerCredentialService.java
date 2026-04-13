@@ -204,22 +204,15 @@ public class WorkerCredentialService {
   }
 
   private static Row findMostRecentActive(List<Row> rows) {
-    Row active = null;
-    for (Row row : rows) {
-      if (!STATUS_ACTIVE.equals(row.getString(STATUS))) {
-        continue;
-      }
-      if (active == null) {
-        active = row;
-        continue;
-      }
-      LocalDateTime activeTs = DateTimeUtil.parse(active.getString(CREATED_AT));
-      LocalDateTime rowTs = DateTimeUtil.parse(row.getString(CREATED_AT));
-      if (rowTs != null && (activeTs == null || rowTs.isAfter(activeTs))) {
-        active = row;
-      }
-    }
-    return active;
+    return rows.stream()
+        .filter(row -> STATUS_ACTIVE.equals(row.getString(STATUS)))
+        .max(Comparator.comparing(WorkerCredentialService::createdAtOrMin))
+        .orElse(null);
+  }
+
+  private static LocalDateTime createdAtOrMin(Row row) {
+    LocalDateTime ts = DateTimeUtil.parse(row.getString(CREATED_AT));
+    return ts != null ? ts : LocalDateTime.MIN;
   }
 
   private static RuntimeException unwrapKnownException(RuntimeException e) {

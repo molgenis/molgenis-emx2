@@ -157,19 +157,20 @@ public class GraphqlApi {
   @SuppressWarnings("rawtypes")
   private static void rejectHpcMutationFields(java.util.List<Selection> selections) {
     for (Selection<?> selection : selections) {
-      if (!(selection instanceof Field field)) {
-        continue;
-      }
-      if (!BLOCKED_MUTATION_FIELDS.contains(field.getName().toLowerCase(Locale.ROOT))) {
-        continue;
-      }
-      boolean touchesHpcTable =
-          field.getArguments().stream().map(Argument::getName).anyMatch(GraphqlApi::isHpcTableName);
-      if (touchesHpcTable) {
+      if (selection instanceof Field field && isBlockedHpcMutation(field)) {
         throw new ForbiddenResponse(
             "Mutations on _SYSTEM_ Hpc* tables are disabled. Use /api/hpc endpoints.");
       }
     }
+  }
+
+  private static boolean isBlockedHpcMutation(Field field) {
+    if (!BLOCKED_MUTATION_FIELDS.contains(field.getName().toLowerCase(Locale.ROOT))) {
+      return false;
+    }
+    return field.getArguments().stream()
+        .map(Argument::getName)
+        .anyMatch(GraphqlApi::isHpcTableName);
   }
 
   private static boolean isHpcTableName(String argumentName) {

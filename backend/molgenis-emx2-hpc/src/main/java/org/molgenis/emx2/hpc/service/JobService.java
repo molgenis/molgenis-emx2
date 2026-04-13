@@ -611,14 +611,11 @@ public class JobService {
   }
 
   private static void extractFromObject(JsonNode objectNode, List<String> ids) {
-    objectNode
-        .fields()
-        .forEachRemaining(
-            entry -> {
-              if (entry.getValue().isTextual()) {
-                ids.add(entry.getValue().asText());
-              }
-            });
+    for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+      if (entry.getValue().isTextual()) {
+        ids.add(entry.getValue().asText());
+      }
+    }
   }
 
   private static JsonNode toJsonNode(Object value) throws IllegalArgumentException {

@@ -401,7 +401,7 @@ class HpcAuthTest {
   }
 
   @Test
-  void hpcHandler_successDoesNotThrow() throws Exception {
+  void hpcHandler_successDoesNotThrow() {
     io.javalin.http.Handler inner = c -> c.status(200);
 
     io.javalin.http.Handler wrapped = HpcAuth.hpcHandler(inner);
