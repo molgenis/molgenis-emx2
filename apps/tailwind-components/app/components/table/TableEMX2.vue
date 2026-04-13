@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <slot name="below-toolbar" />
+  <slot name="active-filters" />
 
   <div
     ref="tableContainer"
@@ -261,6 +261,7 @@ import { sortColumns } from "../../utils/sortColumns";
 import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
+import type { IGraphQLFilter } from "../../../types/filters";
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
 
@@ -284,7 +285,7 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
-    filter?: Record<string, unknown>;
+    filter?: IGraphQLFilter;
     hideSearch?: boolean;
   }>(),
   {

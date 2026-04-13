@@ -154,7 +154,7 @@ const sidebarVisible = ref(true);
               {{ sidebarVisible ? "Hide filters" : "Show filters" }}
             </Button>
           </template>
-          <template #below-toolbar>
+          <template #active-filters>
             <ActiveFilters
               :filters="filters.activeFilters.value"
               @remove="filters.removeFilter"
