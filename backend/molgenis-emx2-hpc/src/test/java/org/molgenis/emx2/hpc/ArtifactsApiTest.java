@@ -1142,7 +1142,9 @@ class ArtifactsApiTest {
       }
 
       @Override
-      public void setReadListener(ReadListener readListener) {}
+      public void setReadListener(ReadListener readListener) {
+        // No-op: tests use blocking reads, so non-blocking I/O listeners are never invoked.
+      }
     };
   }
 

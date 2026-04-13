@@ -177,9 +177,8 @@ class WorkerCredentialServiceIntegrationTest extends HpcServiceIntegrationTestBa
 
   @Test
   void markCredentialUsed_ignoresBlankId() {
-    // Should not throw
-    credentialService.markCredentialUsed(null);
-    credentialService.markCredentialUsed("");
+    assertDoesNotThrow(() -> credentialService.markCredentialUsed(null));
+    assertDoesNotThrow(() -> credentialService.markCredentialUsed(""));
   }
 
   @Test
