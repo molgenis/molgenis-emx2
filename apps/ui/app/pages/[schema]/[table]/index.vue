@@ -17,6 +17,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import type { S } from "vue-router/dist/index-DFCq6eJK.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -48,9 +49,18 @@ const tableSettings = ref<ITableSettings>({
   },
   search: search.value || "",
   orderedColumnsIds: route.query.columns
-    ? (JSON.parse(route.query.columns as string) as string[])
+    ? (tryParseJson(route.query.columns as string, []) as string[])
     : [],
 });
+
+function tryParseJson(input: string, fallback: "" | [] | {}) {
+  try {
+    return JSON.parse(input);
+  } catch (e) {
+    console.warn("Failed to parse JSON from input:", input, "Error:", e);
+    return fallback;
+  }
+}
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
