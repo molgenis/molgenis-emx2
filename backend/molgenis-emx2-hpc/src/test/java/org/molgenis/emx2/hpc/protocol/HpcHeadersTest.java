@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 
 import io.javalin.http.Context;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class HpcHeadersTest {
 
@@ -29,40 +31,22 @@ class HpcHeadersTest {
     assertTrue(ex.getMessage().contains("Missing required header"));
   }
 
-  @Test
-  void validateAll_throwsForInvalidRequestIdFormat() {
+  @ParameterizedTest(name = "{3}")
+  @CsvSource({
+    "not-a-uuid,               1700000000,   Invalid X-Request-Id, invalidRequestIdFormat",
+    "550e8400-e29b-41d4-a716-446655440000, not-a-number, Invalid X-Timestamp,  invalidTimestamp",
+    "550e8400-e29b-41d4-a716-446655440000, -1,           Invalid X-Timestamp,  negativeTimestamp"
+  })
+  void validateAll_throwsForInvalidHeaders(
+      String requestId, String timestamp, String expectedMessage, String caseName) {
     Context ctx = mock(Context.class);
     when(ctx.header(ApiVersion.HEADER_NAME)).thenReturn(ApiVersion.CURRENT);
-    when(ctx.header(HpcHeaders.REQUEST_ID)).thenReturn("not-a-uuid");
-    when(ctx.header(HpcHeaders.TIMESTAMP)).thenReturn("1700000000");
+    when(ctx.header(HpcHeaders.REQUEST_ID)).thenReturn(requestId);
+    when(ctx.header(HpcHeaders.TIMESTAMP)).thenReturn(timestamp);
 
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> HpcHeaders.validateAll(ctx));
-    assertTrue(ex.getMessage().contains("Invalid X-Request-Id"));
-  }
-
-  @Test
-  void validateAll_throwsForInvalidTimestamp() {
-    Context ctx = mock(Context.class);
-    when(ctx.header(ApiVersion.HEADER_NAME)).thenReturn(ApiVersion.CURRENT);
-    when(ctx.header(HpcHeaders.REQUEST_ID)).thenReturn("550e8400-e29b-41d4-a716-446655440000");
-    when(ctx.header(HpcHeaders.TIMESTAMP)).thenReturn("not-a-number");
-
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> HpcHeaders.validateAll(ctx));
-    assertTrue(ex.getMessage().contains("Invalid X-Timestamp"));
-  }
-
-  @Test
-  void validateAll_throwsForNegativeTimestamp() {
-    Context ctx = mock(Context.class);
-    when(ctx.header(ApiVersion.HEADER_NAME)).thenReturn(ApiVersion.CURRENT);
-    when(ctx.header(HpcHeaders.REQUEST_ID)).thenReturn("550e8400-e29b-41d4-a716-446655440000");
-    when(ctx.header(HpcHeaders.TIMESTAMP)).thenReturn("-1");
-
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> HpcHeaders.validateAll(ctx));
-    assertTrue(ex.getMessage().contains("Invalid X-Timestamp"));
+    assertTrue(ex.getMessage().contains(expectedMessage));
   }
 
   @Test

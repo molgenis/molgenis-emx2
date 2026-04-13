@@ -185,8 +185,7 @@ class WorkerCredentialServiceIntegrationTest extends HpcServiceIntegrationTestBa
   void expiredCredential_isAutomaticallyExpired() {
     // Issue with an expiry in the past
     LocalDateTime pastExpiry = LocalDateTime.now().minusHours(1);
-    WorkerCredentialService.IssuedCredential issued =
-        credentialService.issueCredential("worker-expired", null, pastExpiry, null);
+    credentialService.issueCredential("worker-expired", null, pastExpiry, null);
 
     // Listing triggers expiry check
     List<Row> credentials = credentialService.listCredentials("worker-expired");

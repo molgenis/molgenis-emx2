@@ -9,6 +9,8 @@ import io.javalin.http.HandlerType;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -27,21 +29,12 @@ class HpcAuthTest {
 
   // ── hasBody ───────────────────────────────────────────────────────────────
 
-  @Test
-  void hasBody_getReturnsFalse() {
-    when(ctx.method()).thenReturn(HandlerType.GET);
-    assertFalse(HpcAuth.hasBody(ctx));
-  }
-
-  @Test
-  void hasBody_headReturnsFalse() {
-    when(ctx.method()).thenReturn(HandlerType.HEAD);
-    assertFalse(HpcAuth.hasBody(ctx));
-  }
-
-  @Test
-  void hasBody_deleteReturnsFalse() {
-    when(ctx.method()).thenReturn(HandlerType.DELETE);
+  @ParameterizedTest
+  @EnumSource(
+      value = HandlerType.class,
+      names = {"GET", "HEAD", "DELETE"})
+  void hasBody_bodylessMethodsReturnFalse(HandlerType method) {
+    when(ctx.method()).thenReturn(method);
     assertFalse(HpcAuth.hasBody(ctx));
   }
 
