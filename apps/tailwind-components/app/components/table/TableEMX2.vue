@@ -49,9 +49,7 @@
               />
             </TableHeadCell>
             <TableHeadCell
-              v-for="column in sortedColumns.filter(
-                (c) => c.visible !== 'false'
-              )"
+              v-for="column in sortedVisibleColumns"
               :style="{
                 width: columnWidths[column.id] + 'px',
                 userSelect: isResizing ? 'none' : 'auto',
@@ -95,9 +93,7 @@
             </TableCellEMX2>
 
             <TableCellEMX2
-              v-for="(column, colIndex) in sortedColumns.filter(
-                (c) => c.visible !== 'false'
-              )"
+              v-for="(column, colIndex) in sortedVisibleColumns"
               :style="{ width: columnWidths[column.id] + 'px' }"
               class="text-table-row group-hover:bg-hover"
               :class="{
@@ -420,6 +416,10 @@ const sortedColumns = computed(() => {
 
   return sortedColumns;
 });
+
+const sortedVisibleColumns = computed(() =>
+  sortedColumns.value.filter((col) => col.visible !== "false")
+);
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
   settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
