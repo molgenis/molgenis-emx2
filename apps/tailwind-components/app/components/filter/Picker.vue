@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import Modal from "../Modal.vue";
 import InputSearch from "../input/Search.vue";
@@ -27,6 +27,13 @@ interface PickerNode {
   columnType: string;
 }
 
+interface NestedColumnMeta {
+  label: string;
+  columnType: string;
+  refTableId?: string | null;
+  refSchemaId?: string | null;
+}
+
 const props = defineProps<{
   modelValue: boolean;
   columns: IColumn[];
@@ -37,18 +44,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
-  apply: [
-    selectedIds: Set<string>,
-    nestedMeta: Map<
-      string,
-      {
-        label: string;
-        columnType: string;
-        refTableId?: string | null;
-        refSchemaId?: string | null;
-      }
-    >
-  ];
+  apply: [selectedIds: Set<string>, nestedMeta: Map<string, NestedColumnMeta>];
   cancel: [];
 }>();
 
@@ -58,25 +54,20 @@ const refColumnsCache = ref<Map<string, IColumn[]>>(new Map());
 const expandedRefs = ref<Set<string>>(new Set());
 const loadingRefs = ref<Set<string>>(new Set());
 
-function syncFromProps() {
+function resetLocalState() {
   localSelection.value = new Set(props.visibleFilterIds);
   searchQuery.value = "";
   expandedRefs.value = new Set();
 }
 
-onMounted(() => {
-  if (props.modelValue) {
-    syncFromProps();
-  }
-});
-
 watch(
   () => props.modelValue,
   (isOpen) => {
     if (isOpen) {
-      syncFromProps();
+      resetLocalState();
     }
-  }
+  },
+  { immediate: true }
 );
 
 async function loadRefColumns(col: IColumn, path: string): Promise<void> {
@@ -123,17 +114,19 @@ function buildNodes(
   parentPath: string,
   depth: number
 ): PickerNode[] {
-  const nodes: PickerNode[] = [];
-  for (const col of cols) {
-    if (isExcludedColumn(col)) continue;
-    if (shouldExcludeSelfRef(col, parentTableId)) continue;
+  return cols
+    .filter(
+      (col) =>
+        !isExcludedColumn(col) && !shouldExcludeSelfRef(col, parentTableId)
+    )
+    .flatMap((col) => {
+      const path = parentPath ? `${parentPath}.${col.id}` : col.id;
 
-    const path = parentPath ? `${parentPath}.${col.id}` : col.id;
+      if (isRefExpandable(col.columnType) && col.refTableId) {
+        const maxDepth = navDepth(col.columnType);
+        if (depth >= maxDepth) return [];
 
-    if (isRefExpandable(col.columnType) && col.refTableId) {
-      const maxDepth = navDepth(col.columnType);
-      if (depth < maxDepth) {
-        nodes.push({
+        const refNode: PickerNode = {
           id: path,
           label: col.label || col.id,
           description: col.description,
@@ -142,33 +135,33 @@ function buildNodes(
           refTableId: col.refTableId,
           refSchemaId: col.refSchemaId ?? null,
           columnType: col.columnType,
-        });
+        };
 
-        if (expandedRefs.value.has(path)) {
-          const childCols = refColumnsCache.value.get(path) ?? [];
-          const childNodes = buildNodes(
-            childCols,
-            col.refTableId,
-            path,
-            depth + 1
-          );
-          nodes.push(...childNodes);
-        }
+        const childNodes = expandedRefs.value.has(path)
+          ? buildNodes(
+              refColumnsCache.value.get(path) ?? [],
+              col.refTableId,
+              path,
+              depth + 1
+            )
+          : [];
+
+        return [refNode, ...childNodes];
       }
-    } else {
-      nodes.push({
-        id: path,
-        label: col.label || col.id,
-        description: col.description,
-        selectable: true,
-        depth,
-        refTableId: col.refTableId ?? null,
-        refSchemaId: col.refSchemaId ?? null,
-        columnType: col.columnType,
-      });
-    }
-  }
-  return nodes;
+
+      return [
+        {
+          id: path,
+          label: col.label || col.id,
+          description: col.description,
+          selectable: true,
+          depth,
+          refTableId: col.refTableId ?? null,
+          refSchemaId: col.refSchemaId ?? null,
+          columnType: col.columnType,
+        } satisfies PickerNode,
+      ];
+    });
 }
 
 const rootColsMap = computed<Map<string, IColumn>>(() => {
@@ -220,25 +213,9 @@ function toggleSelection(id: string) {
   localSelection.value = next;
 }
 
-function buildNestedMeta(): Map<
-  string,
-  {
-    label: string;
-    columnType: string;
-    refTableId?: string | null;
-    refSchemaId?: string | null;
-  }
-> {
+function buildNestedMeta(): Map<string, NestedColumnMeta> {
   const nodeById = new Map(allNodes.value.map((n) => [n.id, n]));
-  const meta = new Map<
-    string,
-    {
-      label: string;
-      columnType: string;
-      refTableId?: string | null;
-      refSchemaId?: string | null;
-    }
-  >();
+  const meta = new Map<string, NestedColumnMeta>();
   for (const id of localSelection.value) {
     if (!id.includes(".")) continue;
     const node = nodeById.get(id);
@@ -276,6 +253,10 @@ function clearSelection() {
   localSelection.value = new Set();
 }
 
+function updateVisibility(value: boolean) {
+  emit("update:modelValue", value);
+}
+
 function selectAll() {
   const selectableIds = allNodes.value
     .filter((node) => node.selectable)
@@ -308,7 +289,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
 <template>
   <Modal
     :visible="modelValue"
-    @update:visible="emit('update:modelValue', $event)"
+    @update:visible="updateVisibility"
     title="Customize filters"
     max-width="w-full max-w-full sm:w-[90vw] sm:max-w-[90vw]"
   >
