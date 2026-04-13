@@ -2,7 +2,6 @@
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 
-import PageSection from "./Section.vue";
 import PageComponent from "./PageComponent.vue";
 import TextParagraph from "./Paragraph.vue";
 
@@ -13,7 +12,7 @@ const props = withDefaults(
     metadata: ITableMetaData[];
   }>(),
   {
-    isEditable: true,
+    isEditable: false,
   }
 );
 </script>
@@ -44,8 +43,10 @@ const props = withDefaults(
         />
       </template>
     </PageComponent>
-    <TextParagraph v-else id="block-does-not-exist-message">
-      Block {{ orderedBlock.block.mg_tableclass }} is not yet supported.
-    </TextParagraph>
+    <TextParagraph
+      v-else
+      id="block-does-not-exist-message"
+      :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
+    />
   </template>
 </template>

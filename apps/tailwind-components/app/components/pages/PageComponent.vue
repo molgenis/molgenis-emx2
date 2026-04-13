@@ -14,12 +14,17 @@ import { parsePageText } from "../../utils/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 
-const props = defineProps<{
-  component: IPageComponent;
-  mg_tableclass: string;
-  metadata?: ITableMetaData[];
-  isEditable?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    component: IPageComponent;
+    mg_tableclass: string;
+    metadata?: ITableMetaData[];
+    isEditable?: boolean;
+  }>(),
+  {
+    isEditable: false,
+  }
+);
 
 const showEditModal = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
@@ -54,6 +59,10 @@ function onEdit(component?: string, value?: IPageComponent) {
 </script>
 
 <template>
+  <template v-if="mg_tableclass.endsWith('.Headings')">
+    {{ schemaTableName }}
+    {{ console.log(component) }}
+  </template>
   <Banner
     v-if="mg_tableclass.endsWith('.Headers')"
     :id="component.id"
@@ -109,9 +118,11 @@ function onEdit(component?: string, value?: IPageComponent) {
     :is-editable="editingIsEnabled"
     @edit="onEdit"
   />
-  <Paragraph v-else id="component-does-not-exist-message">
-    Component {{ mg_tableclass }} is not yet supported
-  </Paragraph>
+  <Paragraph
+    v-else
+    id="component-does-not-exist-message"
+    :text="`Component ${mg_tableclass} is not yet supported`"
+  />
   <EditModal
     v-if="componentMetadata && showEditModal"
     :key="`edit-modal-${componentMetadata.id}`"

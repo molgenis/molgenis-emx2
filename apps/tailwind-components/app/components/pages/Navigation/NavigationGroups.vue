@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import NavigationCards from "./NavigationCards.vue";
-import type { INavigationGroups } from "../../../../types/cms";
+import type {
+  INavigationGroups,
+  INavigationCards,
+} from "../../../../types/cms";
 import type { IPageComponent } from "../../../../types/CmsComponents";
 
 import Button from "../../Button.vue";
@@ -11,6 +14,15 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+
+const linksSorted = props.links?.sort(
+  (a: INavigationCards, b: INavigationCards) => {
+    if (a.order && b.order) {
+      return (a.order - b.order) as number;
+    }
+    return a.order as number;
+  }
+) as INavigationCards[];
 
 const emit = defineEmits<{
   (e: "edit", component: string, metadata: IPageComponent): void;
@@ -23,7 +35,7 @@ const emit = defineEmits<{
       :id="id"
       class="w-full m-0 list-none flex justify-center items-center flex-col md:flex-row gap-5"
     >
-      <li v-for="card in links" :key="card.id">
+      <li v-for="card in linksSorted" :key="card.id">
         <NavigationCards
           :id="card.id"
           :title="card.title"

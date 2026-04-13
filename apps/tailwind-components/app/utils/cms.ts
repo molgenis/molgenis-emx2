@@ -107,6 +107,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                             url
                             urlLabel
                             urlIsExternal
+                            order
                         }
                         
                     }

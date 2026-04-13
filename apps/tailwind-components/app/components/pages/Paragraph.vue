@@ -16,7 +16,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <p class="text-title-contrast text-left">
+  <p :id="id" class="text-title-contrast text-left">
     <EditButton v-if="isEditable" @click="emit('edit')" class="text-left">
       <span class="sr-only">edit paragraph: </span>
       <span class="group-hover:underline group-focus:underline">
