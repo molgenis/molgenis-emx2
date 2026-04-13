@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
@@ -7,12 +8,15 @@ import BreadCrumbs from "../../../../../../tailwind-components/app/components/Br
 import DeveloperPage from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
 import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
 import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
+
+import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
+
 import type { Crumb } from "../../../../../../tailwind-components/types/types";
+import type { ITableMetaData } from "../../../../../../metadata-utils/src";
 import type {
   IConfigurablePages,
   IDeveloperPages,
 } from "../../../../../../tailwind-components/types/cms";
-import type { ITableMetaData } from "../../../../../../metadata-utils/src";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -30,6 +34,14 @@ const crumbs: Crumb[] = [
   { label: "Pages", url: `/${schema}/pages` },
   { label: page as string, url: "" },
 ];
+
+const { isAdmin, session } = await useSession(schema);
+const enableEditing = computed(() => {
+  return (
+    session.value?.roles?.[schema as string]?.includes("Editor") ||
+    isAdmin.value
+  );
+});
 </script>
 
 <template>
@@ -44,6 +56,6 @@ const crumbs: Crumb[] = [
     v-else
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
-    :is-editable="true"
+    :is-editable="enableEditing"
   />
 </template>
