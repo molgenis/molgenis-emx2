@@ -283,12 +283,12 @@ def csv_string_to_array(csv_string: str) -> list:
             return next(reader)
     else:
         return []
-    
+
 def array_to_csv_string(array: list) -> str:
     """Convert a list to a string suitable for output to an EMX2 value of type *_ARRAY, 
     through the CSV API
     """
-    
+
     with io.StringIO() as csv_string:
         writer = csv.writer(csv_string, dialect=csv.excel)
         writer.writerow(array)
