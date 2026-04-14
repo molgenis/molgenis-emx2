@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, useId } from 'vue';
-import Button from '../../../tailwind-components/app/components/Button.vue';
-withDefaults(defineProps<{
-  placeholder?: string;
-}>(), {
-  placeholder: "Search variable. cohort etc"
-});
+import { ref, useId } from "vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+withDefaults(
+  defineProps<{
+    placeholder?: string;
+  }>(),
+  {
+    placeholder: "Search variable. cohort etc",
+  }
+);
 defineEmits(["submitSearch"]);
 
 const searchQuery = ref("");
 const id = useId();
-
 </script>
 
 <template>
@@ -26,7 +28,7 @@ const id = useId();
       type="primary"
       @click="$emit('submitSearch', searchQuery)"
       class="rounded-search-button absolute top-0 right-0 flex items-center pl-8 pr-6 tracking-wider border-search-button border-[0px] h-15"
-    >   
+    >
       Search All
     </Button>
   </form>
