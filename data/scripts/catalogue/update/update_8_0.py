@@ -82,7 +82,9 @@ class Transform:
 
 
 def assign_table_type(resource_type):
-    if 'Catalogue' in resource_type:
+    if pd.isna(resource_type):
+        table_type = 'Collection'
+    elif 'Catalogue' in resource_type:
         table_type = 'Catalogue'
     elif 'Network' in resource_type:
         table_type = 'Network'
