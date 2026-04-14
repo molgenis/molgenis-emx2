@@ -17,6 +17,17 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
+record AppsPath(String path, List<String> segments) {
+
+  public Boolean isFile() {
+    return segments().getLast().contains(("."));
+  }
+
+  public Boolean isUi() {
+    return !isFile() && segments.size() > 1 && Objects.equals(segments.get(1), "ui");
+  }
+}
+
 public class ServeStaticFile {
 
   private ServeStaticFile() {
@@ -29,6 +40,29 @@ public class ServeStaticFile {
 
   public static final String CUSTOM_APP_PATH =
       (String) EnvironmentProperty.getParameter(Constants.CUSTOM_APP_PATH, "", STRING);
+
+  private static String convertWindowsPathToJarPath(String potentialFile) {
+    return potentialFile.replace("\\", "/");
+  }
+
+  private static AppsPath resolveAppsPath(String path) {
+    // Dissect the path, so we can check for the folder to serve from
+    String[] segments = path.split("/");
+
+    List<String> parts = new ArrayList<>();
+    for (String segment : segments) {
+      if (!segment.isEmpty()) {
+        parts.add(segment);
+      }
+    }
+
+    // check if the path starts with apps, if not, remove the first bit <schema>
+    if (!Objects.equals(parts.getFirst(), "apps")) {
+      parts.set(0, "apps");
+    }
+    // Remove leading /, so that it will resolve correctly
+    return new AppsPath(String.join("/", parts), parts);
+  }
 
   private static Path getJarDirectory() {
 
@@ -52,10 +86,6 @@ public class ServeStaticFile {
     } catch (Exception e) {
       throw new MolgenisException("Cannot determine JAR location", e);
     }
-  }
-
-  private static String convertWindowsPathToJarPath(String potentialFile) {
-    return potentialFile.replace("\\", "/");
   }
 
   private static boolean tryServeJarApp(Context ctx, String potentialFile) {
@@ -109,28 +139,11 @@ public class ServeStaticFile {
   }
 
   public static void serve(Context ctx) {
-    String path = ctx.path();
-    // Dissect the path, so we can check for the folder to serve from
-    String[] segments = path.split("/");
+    AppsPath appsPath = resolveAppsPath(ctx.path());
+    boolean isFile = appsPath.isFile();
+    String fallbackFileBase = appsPath.path() + "/index.html";
 
-    List<String> parts = new ArrayList<>();
-    for (String segment : segments) {
-      if (!segment.isEmpty()) {
-        parts.add(segment);
-      }
-    }
-
-    // check if the path starts with apps, if not, remove the first bit <schema>
-    if (!Objects.equals(parts.getFirst(), "apps")) {
-      parts.set(0, "apps");
-    }
-
-    // Remove leading /, so that it will resolve correctly
-    path = String.join("/", parts);
-    boolean isFile = parts.getLast().contains(("."));
-    String fallbackFileBase = path + "/index.html";
-
-    if (parts.size() > 1 && Objects.equals(parts.get(1), "ui") && !isFile) {
+    if (appsPath.isUi()) {
       fallbackFileBase = "apps/ui/index.html";
     }
 
