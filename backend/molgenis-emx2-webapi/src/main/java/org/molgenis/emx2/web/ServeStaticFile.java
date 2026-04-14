@@ -62,8 +62,7 @@ public class ServeStaticFile {
     String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
     String potentialJarFile = convertWindowsPathToJarPath(potentialFile);
 
-    try (InputStream in =
-        ServeStaticFile.class.getResourceAsStream(potentialJarFile)) {
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(potentialJarFile)) {
       if (mimeType == null) {
         mimeType = Files.probeContentType(Path.of(potentialJarFile));
       }
