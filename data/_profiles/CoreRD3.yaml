@@ -6,7 +6,7 @@ description: The RD3 Core Profile defines a minimal, standardized data model for
     context, while remaining intentionally lightweight to support flexible
     implementation in diverse settings.
 
-profileTags: coreRD3
+profileTags: CoreRD3
 
 settings: _settings/core_rd3
 
