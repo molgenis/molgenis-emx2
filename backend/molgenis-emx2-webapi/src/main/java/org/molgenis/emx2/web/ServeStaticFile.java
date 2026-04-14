@@ -17,18 +17,36 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-record AppsPath(List<String> parts) {
+class AppsPath {
 
-  public String GetPath() {
-    return String.join("/", parts);
+  private static List<String> parts;
+
+  AppsPath(Context ctx) {
+    // Dissect the path, so we can check for the folder to serve from
+    String[] segments = ctx.path().split("/");
+
+    parts = new ArrayList<>();
+    for (String segment : segments) {
+      if (!segment.isEmpty()) {
+        parts.add(segment);
+      }
+    }
   }
 
   public Boolean isFile() {
-    return parts().getLast().contains(("."));
+    return parts.getLast().contains(("."));
   }
 
   public Boolean isUi() {
     return !isFile() && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
+  }
+
+  public String getPath() {
+    // check if the path starts with apps, if not, remove the first bit <schema>
+    if (!Objects.equals(parts.getFirst(), "apps")) {
+      parts.set(0, "apps");
+    }
+    return String.join("/", parts);
   }
 }
 
@@ -47,25 +65,6 @@ public class ServeStaticFile {
 
   private static String convertWindowsPathToJarPath(String potentialFile) {
     return potentialFile.replace("\\", "/");
-  }
-
-  private static AppsPath resolveAppsPath(String path) {
-    // Dissect the path, so we can check for the folder to serve from
-    String[] segments = path.split("/");
-
-    List<String> parts = new ArrayList<>();
-    for (String segment : segments) {
-      if (!segment.isEmpty()) {
-        parts.add(segment);
-      }
-    }
-
-    // check if the path starts with apps, if not, remove the first bit <schema>
-    if (!Objects.equals(parts.getFirst(), "apps")) {
-      parts.set(0, "apps");
-    }
-    // Remove leading /, so that it will resolve correctly
-    return new AppsPath(parts);
   }
 
   private static Path getJarDirectory() {
@@ -143,8 +142,9 @@ public class ServeStaticFile {
   }
 
   public static void serve(Context ctx) {
-    AppsPath appsPath = resolveAppsPath(ctx.path());
-    String path = appsPath.GetPath();
+    AppsPath appsPath = new AppsPath(ctx);
+
+    String path = appsPath.getPath();
     boolean isFile = appsPath.isFile();
     String fallbackFileBase = path + "/index.html";
 
