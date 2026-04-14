@@ -207,13 +207,13 @@ test.describe("filter sidebar", () => {
     });
     await expect(sidebarSection).toBeVisible();
 
-    // Find the filter container for this section and locate the text input
+    // Find the filter container for this section and locate the search input
     // Start from the h3 and go to the next sibling or parent container
-    const textInputs = page.locator('input[type="text"]');
-    const inputCountBefore = await textInputs.count();
+    const searchInputs = page.locator('input[type="search"]');
+    const inputCountBefore = await searchInputs.count();
 
-    // Type into the last text input (most likely the newly created filter)
-    const lastInput = textInputs.last();
+    // Type into the last search input (most likely the newly created filter)
+    const lastInput = searchInputs.last();
     await lastInput.fill("test");
     await page.waitForTimeout(500);
 
@@ -303,10 +303,10 @@ test.describe("filter sidebar", () => {
     });
     await expect(breadcrumbHeading).toBeVisible();
 
-    // Prove nested filter is functional: type a value into the text input
+    // Prove nested filter is functional: type a value into the search input
     // and verify URL changes
-    const textInputs = page.locator('input[type="text"]');
-    const lastInput = textInputs.last();
+    const searchInputs = page.locator('input[type="search"]');
+    const lastInput = searchInputs.last();
     await lastInput.fill("testvalue");
     await page.waitForTimeout(500);
 
