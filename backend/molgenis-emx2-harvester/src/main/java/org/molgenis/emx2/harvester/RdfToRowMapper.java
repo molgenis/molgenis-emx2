@@ -26,9 +26,6 @@ public class RdfToRowMapper {
       case STRING, TEXT, TEXT_ARRAY, AUTO_ID, RADIO, HYPERLINK, DATETIME -> {
         return Optional.ofNullable(value.stringValue());
       }
-        //      case DATETIME -> {
-        //        if (value)
-        //      }
       case INT, NON_NEGATIVE_INT -> {
         return Optional.of(Integer.parseInt(value.stringValue()));
       }
@@ -63,7 +60,6 @@ public class RdfToRowMapper {
           SELECT,
           MULTISELECT,
           CHECKBOX -> {
-        System.out.println("Missing column type: " + column.getColumnType());
         throw new MolgenisException("Add this one: " + column.getColumnType());
       }
       default -> throw new MolgenisException("Unsupported column type: " + column.getColumnType());
