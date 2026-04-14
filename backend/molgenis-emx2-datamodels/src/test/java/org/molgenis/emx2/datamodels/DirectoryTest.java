@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class DirectoryTest extends TestLoaders {
 
   @Test
-  public void test09DirectoryLoader() {
+  public void test10DirectoryLoader() {
     assertEquals(19, directory.getTableNames().size());
   }
 

@@ -308,6 +308,7 @@ module.exports = {
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
+        border: "var(--border-color-input)",
         "input-description": "var(--text-color-input-description)",
 
         required: "var(--text-color-required)",
@@ -408,6 +409,9 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "logo-background": "var(--background-color-logo)",
+        "logo-icon-primary": "var(--logo-icon-primary)",
+        "logo-icon-secondary": "var(--logo-icon-secondary)",
         "chart-text": "var(--chart-text)",
         "chart-paths": "var(--chart-paths)",
       }),
