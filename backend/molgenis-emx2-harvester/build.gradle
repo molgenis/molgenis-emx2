@@ -2,6 +2,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2-rdf')
+    implementation project(':backend:molgenis-emx2-io')
     implementation('org.eclipse.rdf4j:rdf4j-sparqlbuilder:5.2.2')
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
