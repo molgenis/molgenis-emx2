@@ -54,13 +54,18 @@ public class ServeStaticFile {
     }
   }
 
+  private static String convertWindowsPathToJarPath(String potentialFile) {
+    return potentialFile.replace("\\", "/");
+  }
+
   private static boolean tryServeJarApp(Context ctx, String potentialFile) {
     String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
+    String potentialJarFile = convertWindowsPathToJarPath(potentialFile);
 
     try (InputStream in =
-        ServeStaticFile.class.getResourceAsStream(potentialFile.replace("\\", "/"))) {
+        ServeStaticFile.class.getResourceAsStream(potentialJarFile)) {
       if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(potentialFile));
+        mimeType = Files.probeContentType(Path.of(potentialJarFile));
       }
       // App found inside the jar!
       if (in != null) {
@@ -137,6 +142,7 @@ public class ServeStaticFile {
 
     if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
       ctx.status(403).result("Forbidden");
+      return;
     }
 
     if (isFile) {
