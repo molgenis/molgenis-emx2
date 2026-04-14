@@ -62,7 +62,8 @@ def process_contacts(contacts: pd.DataFrame, resources: pd.DataFrame) -> pd.Data
 
     # Remove rows without any data consent
     contacts['mg_delete'] = contacts.apply(set_delete, axis=1)
-    contacts = contacts.drop(columns=[statement])
+    if statement in contacts.columns:
+        contacts = contacts.drop(columns=[statement])
     c_cols = ["resource", "first name", "last name"]
 
     r_cols = [c for c in resources.columns if c.startswith("contact point")]
