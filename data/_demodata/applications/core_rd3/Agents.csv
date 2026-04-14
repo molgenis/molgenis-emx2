@@ -1,0 +1,2 @@
+resource,id,type,name,organisation,department,website,email,logo,logo_filename,role,mg_draft
+MOLGENIS,MOLGENIS,,,,,,support@molgenis.org,,,,false

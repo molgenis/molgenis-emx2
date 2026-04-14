@@ -155,6 +155,7 @@ export default {
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
+        "CORE_RD3"
       ],
       includeDemoData: false,
     };
