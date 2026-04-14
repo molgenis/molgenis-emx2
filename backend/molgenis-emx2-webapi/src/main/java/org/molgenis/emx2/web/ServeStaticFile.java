@@ -145,7 +145,6 @@ public class ServeStaticFile {
     AppsPath appsPath = new AppsPath(ctx);
 
     String path = appsPath.getPath();
-    boolean isFile = appsPath.isFile();
     String fallbackFileBase = path + "/index.html";
 
     if (appsPath.isUi()) {
@@ -162,7 +161,7 @@ public class ServeStaticFile {
       return;
     }
 
-    if (isFile) {
+    if (appsPath.isFile()) {
       boolean internalRequestFound = tryServeJarApp(ctx, requestedInternalFilePath);
       if (internalRequestFound) return;
     }
@@ -192,7 +191,7 @@ public class ServeStaticFile {
       return;
     }
 
-    if (isFile) {
+    if (appsPath.isFile()) {
       boolean externalRequestFound = tryServeExternalApp(ctx, requestedExternalFilePath.toString());
       if (externalRequestFound) return;
     }
