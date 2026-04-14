@@ -17,14 +17,18 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-record AppsPath(String path, List<String> segments) {
+record AppsPath(List<String> parts) {
+
+  public String GetPath() {
+    return String.join("/", parts);
+  }
 
   public Boolean isFile() {
-    return segments().getLast().contains(("."));
+    return parts().getLast().contains(("."));
   }
 
   public Boolean isUi() {
-    return !isFile() && segments.size() > 1 && Objects.equals(segments.get(1), "ui");
+    return !isFile() && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
   }
 }
 
@@ -61,7 +65,7 @@ public class ServeStaticFile {
       parts.set(0, "apps");
     }
     // Remove leading /, so that it will resolve correctly
-    return new AppsPath(String.join("/", parts), parts);
+    return new AppsPath(parts);
   }
 
   private static Path getJarDirectory() {
@@ -140,8 +144,9 @@ public class ServeStaticFile {
 
   public static void serve(Context ctx) {
     AppsPath appsPath = resolveAppsPath(ctx.path());
+    String path = appsPath.GetPath();
     boolean isFile = appsPath.isFile();
-    String fallbackFileBase = appsPath.path() + "/index.html";
+    String fallbackFileBase = path + "/index.html";
 
     if (appsPath.isUi()) {
       fallbackFileBase = "apps/ui/index.html";
