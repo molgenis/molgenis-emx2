@@ -28,7 +28,7 @@ public class Poc {
     schema = database.getSchema("catalogue");
     repository = new SailRepository(new MemoryStore());
     conn = repository.getConnection();
-    try (InputStream inputStream = readTtl("catalogue.ttl")) {
+    try (InputStream inputStream = readTtl("dataset.ttl")) {
       conn.add(inputStream, RDFFormat.TURTLE);
     }
   }
