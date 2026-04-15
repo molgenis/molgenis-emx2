@@ -105,7 +105,7 @@ table,key,value
 
             <tr>
               <td>
-                <a href=""../tables/#/Materials"">Experiments</a>
+                <a href=""../tables/#/Materials"">Materials</a>
               </td>
               <td>
                 A generic table used to register and describe materials or entities within the system. It contains only the minimal core information required to identify and manage a material. Additional domain-specific details (e.g. samples, files, consent records, or other material types) can be captured by extending this table with related fields or linked tables.
@@ -119,3 +119,4 @@ table,key,value
   </div>
 </div>
 "",""css"":"".rd3-page {\n    font-size: 14pt;\n    font-family: Helvetica, sans-serif; \n}\n\n.rd3-page .header {\n    filter: hue-rotate(40deg);\n    position: relative;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background-size: cover;\n    background-position: 0 44%;\n    height: 15em;\n}\n\n.rd3-page .header .content {\n    width: 90%;\n    margin: 0 auto;\n    z-index: 1;\n    max-width: 924px;\n}\n\n.rd3-page .header .content h1, \n.rd3-page .header .content h2 {\n    margin: 0;\n    line-height: 1.3;\n    color: #f6f6f6;\n}\n.rd3-page .header .content h1 {\n    font-size: 13pt;\n    text-transform: uppercase;\n    letter-spacing: 4px;\n    font-weight: bold;\n}\n\n.rd3-page .header .content h2 {\n    font-size: 32pt;\n    font-weight: 200;\n}\n\n.rd3-page .header .bg-filter {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background-color: hsla(0,0%,0%, 0.20);\n}\n\n.rd3-page .section {\n    box-sizing: content-box;\n}\n\n.rd3-page .section .section-content {\n    margin: 0 auto;\n    width: 90%;\n    max-width: 1024px;\n    padding: 2em\n}\n\n.rd3-page .section .section-content h2 {\n    font-weight: 600;\n    line-height: 1.3;\n    margin: 0;\n    text-align: center;\n}\n\n.rd3-page .section .section-content p {\n    line-height: 1.5;\n}\n\n.bg-gray-050 {\n    background-color: #f6f6f6;\n}\n\n.bg-gray-000 {\n    background-color: #ffffff;\n}\n"",""javascript"":"""",""dependencies"":{""css"":[],""javascript"":[]}}"
+,reports,"[{""id"":""countTable"",""description"":""new report"",""sql"":""SELECT COUNT(*)\nFROM information_schema.tables\nWHERE table_schema = 'coreRD3'\n""}]"
