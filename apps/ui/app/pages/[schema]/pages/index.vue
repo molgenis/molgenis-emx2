@@ -45,9 +45,9 @@ const crumbs: Crumb[] = [
 
 function setNuxtLink(value: string, page: string): string | undefined {
   if (value.endsWith(".Developer pages")) {
-    return `/${schema}/pages/${page}/edit`;
+    return `/${schema}/pages/${page}/editor`;
   } else {
-    return `/${schema}/pages/${page}`;
+    return `/${schema}/pages/${page}/configure`;
   }
 }
 </script>
