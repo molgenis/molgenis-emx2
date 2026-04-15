@@ -19,34 +19,31 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 class AppsPath {
 
-  private static List<String> parts;
+  public Boolean isFile;
+  public Boolean isUi;
+  public String mimeType;
+  public String path;
 
   AppsPath(Context ctx) {
     // Dissect the path, so we can check for the folder to serve from
     String[] segments = ctx.path().split("/");
+    List<String> parts = new ArrayList<>();
 
-    parts = new ArrayList<>();
     for (String segment : segments) {
       if (!segment.isEmpty()) {
         parts.add(segment);
       }
     }
-  }
 
-  public Boolean isFile() {
-    return parts.getLast().contains(("."));
-  }
+    isFile = parts.getLast().contains(("."));
+    isUi = !isFile && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
 
-  public Boolean isUi() {
-    return !isFile() && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
-  }
-
-  public String getPath() {
     // check if the path starts with apps, if not, remove the first bit <schema>
     if (!Objects.equals(parts.getFirst(), "apps")) {
       parts.set(0, "apps");
     }
-    return String.join("/", parts);
+    path = String.join("/", parts);
+    mimeType = URLConnection.guessContentTypeFromName(path);
   }
 }
 
@@ -91,14 +88,10 @@ public class ServeStaticFile {
     }
   }
 
-  private static boolean tryServeJarApp(Context ctx, String potentialFile) {
-    String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
+  private static boolean tryServeJarApp(Context ctx, String potentialFile, String mimeType) {
     String potentialJarFile = convertWindowsPathToJarPath(potentialFile);
 
     try (InputStream in = ServeStaticFile.class.getResourceAsStream(potentialJarFile)) {
-      if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(potentialJarFile));
-      }
       // App found inside the jar!
       if (in != null) {
         send(ctx, in, mimeType);
@@ -110,13 +103,9 @@ public class ServeStaticFile {
     return false;
   }
 
-  private static boolean tryServeExternalApp(Context ctx, String potentialFile) {
-    String mimeType = URLConnection.guessContentTypeFromName(potentialFile);
+  private static boolean tryServeExternalApp(Context ctx, String potentialFile, String mimeType) {
 
     try (InputStream in = new FileInputStream(potentialFile)) {
-      if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(potentialFile));
-      }
       send(ctx, in, mimeType);
       return true;
 
@@ -144,10 +133,10 @@ public class ServeStaticFile {
   public static void serve(Context ctx) {
     AppsPath appsPath = new AppsPath(ctx);
 
-    String path = appsPath.getPath();
+    String path = appsPath.path;
     String fallbackFileBase = path + "/index.html";
 
-    if (appsPath.isUi()) {
+    if (appsPath.isUi) {
       fallbackFileBase = "apps/ui/index.html";
     }
 
@@ -161,12 +150,13 @@ public class ServeStaticFile {
       return;
     }
 
-    if (appsPath.isFile()) {
-      boolean internalRequestFound = tryServeJarApp(ctx, requestedInternalFilePath);
+    if (appsPath.isFile) {
+      boolean internalRequestFound =
+          tryServeJarApp(ctx, requestedInternalFilePath, appsPath.mimeType);
       if (internalRequestFound) return;
     }
 
-    boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile);
+    boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile, "text/html");
     if (internalFallbackFound) return;
 
     // External can not use apps
@@ -191,12 +181,13 @@ public class ServeStaticFile {
       return;
     }
 
-    if (appsPath.isFile()) {
-      boolean externalRequestFound = tryServeExternalApp(ctx, requestedExternalFilePath.toString());
+    if (appsPath.isFile) {
+      boolean externalRequestFound =
+          tryServeExternalApp(ctx, requestedExternalFilePath.toString(), appsPath.mimeType);
       if (externalRequestFound) return;
     }
 
-    boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile);
+    boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile, "text/html");
     if (externalFallbackFound) return;
 
     // Tried out best to serve something, sadly nothing was found!
@@ -214,7 +205,7 @@ public class ServeStaticFile {
     }
 
     try {
-      ctx.contentType(mimeType);
+      ctx.header("Content-Type", mimeType);
       ctx.result(ByteStreams.toByteArray(in));
     } catch (Exception e) {
       ctx.status(404).result(NOT_FOUND + ctx.path());
