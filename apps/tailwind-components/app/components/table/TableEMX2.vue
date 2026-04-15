@@ -392,10 +392,7 @@ const sortedColumns = computed(() => {
   // sort from backend
   let sortedColumns = sortColumns([...(columns.value ?? [])]);
 
-  if (
-    settings.value.orderedColumnsIds &&
-    settings.value.orderedColumnsIds.length > 0
-  ) {
+  if (settings.value.orderedColumnsIds?.length) {
     // override visibility with user settings
     sortedColumns = sortedColumns.map((col) => {
       return {

@@ -17,7 +17,6 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import type { S } from "vue-router/dist/index-DFCq6eJK.js";
 
 const route = useRoute();
 const router = useRouter();
