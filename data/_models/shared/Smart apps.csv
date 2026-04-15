@@ -1,5 +1,5 @@
 ﻿tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
-Smart apps,Resources,,,,,,,,,,,,,,,
+Smart apps,Resources,,,,,,,,,,,Listing of smart apps,,,,
 Smart apps,,model reference,hyperlink_array,,,,,,,,,Foreign key reference to the ML model or the classical risk score algorithm which has been used to create this smart application,"DataCatalogueFlat,SmartAppsStaging",,,
 Smart apps,,model version,string,,,,,,,,,"Version id of the model, if the app is tied to a specific deployed model build","DataCatalogueFlat,SmartAppsStaging",,,
 Smart apps,,version,string,,TRUE,,,,,,dcterms:version,Version of the smart application,"DataCatalogueFlat,SmartAppsStaging",,,
