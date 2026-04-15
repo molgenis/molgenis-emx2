@@ -39,8 +39,15 @@ createNodeMap(props.nodes);
 watch(
   () => props.nodes,
   (newValue) => {
+    const expandedState: Record<string, boolean> = {};
+    for (const [key, node] of Object.entries(nodeMap.value)) {
+      expandedState[key] = node.expanded === true;
+    }
     nodeMap.value = {};
     createNodeMap(newValue);
+    for (const [key, wasExpanded] of Object.entries(expandedState)) {
+      if (nodeMap.value[key]) nodeMap.value[key].expanded = wasExpanded;
+    }
     applyModelValueChangeToSelection(props.modelValue);
   }
 );
@@ -49,6 +56,18 @@ function createNodeMap(nodes: ITreeNode[]) {
   nodes.forEach((node) => {
     nodeMap.value[node.name] = clone(node);
   });
+  autoExpandSmallTree();
+}
+
+function autoExpandSmallTree() {
+  const totalNodes = Object.keys(nodeMap.value).length;
+  if (totalNodes <= 25) {
+    for (const node of Object.values(nodeMap.value)) {
+      if (node.children && node.children.length > 0) {
+        node.expanded = true;
+      }
+    }
+  }
 }
 
 function clone(node: ITreeNode): ITreeNodeState {

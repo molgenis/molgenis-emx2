@@ -192,6 +192,12 @@ Tasks:
 - [x] 8.7.7 +3 vitest tests covering both new overrides (436 total, was 433). Filter-sidebar e2e 10/10.
 - [x] 8.7.8 Sidebar narrowed from w-[34rem] (544px) to w-80 (320px); Range.vue inputs changed from horizontal side-by-side to vertical stacked rows (Min above Max).
 
+### Phase 8.8: Tree expand UX improvements
+- [x] 8.8.1 Tree.vue: auto-expand all nodes when total count ≤25 (count all nodes in `createNodeMap`, set `expanded: true` on parents)
+- [x] 8.8.2 Tree.vue: preserve expand state across node rebuilds — when `props.nodes` watcher fires, carry over `expanded` from old nodeMap before replacing
+- [x] 8.8.3 Tests: Tree.spec.ts — small tree auto-expands; expand state survives node prop change (3 tests, 449 total passing)
+- [ ] 8.8.4 Verify in apps/ui with ontology filters (small + large trees)
+
 ## Future Work (not this PR)
 
 ### Phase 10: Use GraphQL variables instead of string serialization

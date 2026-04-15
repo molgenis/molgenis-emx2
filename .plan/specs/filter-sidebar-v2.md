@@ -18,7 +18,8 @@ For filtering we need simpler: useFilters provides counted options, a thin `Colu
 
 Concerns addressed:
 - **Counting takes time**: show loading skeleton per filter section; tree renders once counts arrive
-- **Large tree**: collapse tree nodes by default, show top-level only; search-within-filter for finding deep terms
+- **Large tree (>25 nodes)**: collapse tree nodes by default, show top-level only; search-within-filter for finding deep terms
+- **Small tree (≤25 nodes)**: all nodes expanded by default — no clicking through a tiny tree
 - **Search in tree**: client-side filter of the counted options tree; Tree already supports this
 
 Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs only.
@@ -69,6 +70,9 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | STRING-like: renders text input | Column.vue | Column.spec.ts | visual check |
 | Shows loading skeleton while counts are being fetched | Column.vue | Column.spec.ts | visual check |
 | Search input always visible when >25 options or tree has children (no toggle button) | Column.vue | Column.spec.ts | visual check |
+| Small trees (≤25 total nodes): all nodes start expanded | Tree.vue | Tree.spec.ts | visual check |
+| Selecting a child node does NOT collapse/reset expand state of other nodes (expand state preserved across node rebuilds) | Tree.vue | Tree.spec.ts | visual check |
+| Expand state is local component state only — NOT persisted in URL | Tree.vue | - | - |
 | Emits selection changes; useFilters handles state update | Column.vue | Column.spec.ts | - |
 
 ## Filter Options Display
