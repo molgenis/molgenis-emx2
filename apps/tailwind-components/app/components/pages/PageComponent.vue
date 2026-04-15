@@ -59,10 +59,6 @@ function onEdit(component?: string, value?: IPageComponent) {
 </script>
 
 <template>
-  <template v-if="mg_tableclass.endsWith('.Headings')">
-    {{ schemaTableName }}
-    {{ console.log(component) }}
-  </template>
   <Banner
     v-if="mg_tableclass.endsWith('.Headers')"
     :id="component.id"

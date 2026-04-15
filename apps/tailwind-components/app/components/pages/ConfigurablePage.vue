@@ -20,14 +20,14 @@ const props = withDefaults(
 <template>
   <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
     <PageComponent
-      v-if="orderedBlock.block.mg_tableclass === 'cms.Headers'"
+      v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
       :mg_tableclass="orderedBlock.block.mg_tableclass"
       :component="orderedBlock.block"
       :is-editable="isEditable"
       :metadata="metadata"
     />
     <PageComponent
-      v-else-if="orderedBlock.block.mg_tableclass === 'cms.Sections'"
+      v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
       :mg_tableclass="orderedBlock.block.mg_tableclass"
       :component="orderedBlock.block"
     >
