@@ -85,22 +85,30 @@ public class ShaclResultWriter extends RdfWriter {
   public void close() {
     try {
       connection.commit();
-      try {
-        Rio.write(succeedModel, getOutputStream(), getFormat(), succeedWriterConfig);
-      } catch (RDFHandlerException e) {
-        throw new MolgenisException("An error occurred while writing the SHACL results");
-      }
+      writeSuccess();
     } catch (RepositoryException e) {
-      Throwable cause = e.getCause();
-      if (cause instanceof ValidationException) {
-        Model validationReportModel = ((ValidationException) cause).validationReportAsModel();
-        Rio.write(validationReportModel, getOutputStream(), getFormat());
-      } else {
-        throw new MolgenisException("An error occurred during SHACL validation: " + e.getMessage());
-      }
+      writeFailure(e);
     } finally {
       connection.close();
       repository.shutDown();
+    }
+  }
+
+  private void writeSuccess() {
+    try {
+      Rio.write(succeedModel, getOutputStream(), getFormat(), succeedWriterConfig);
+    } catch (RDFHandlerException e) {
+      throw new MolgenisException("An error occurred while writing the SHACL results");
+    }
+  }
+
+  private void writeFailure(RepositoryException e) {
+    Throwable cause = e.getCause();
+    if (cause instanceof ValidationException) {
+      Model validationReportModel = ((ValidationException) cause).validationReportAsModel();
+      Rio.write(validationReportModel, getOutputStream(), getFormat());
+    } else {
+      throw new MolgenisException("An error occurred during SHACL validation: " + e.getMessage());
     }
   }
 }
