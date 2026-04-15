@@ -48,18 +48,9 @@ const tableSettings = ref<ITableSettings>({
   },
   search: search.value || "",
   orderedColumnsIds: route.query.columns
-    ? (tryParseJson(route.query.columns as string, []) as string[])
+    ? (route.query.columns as string).split(",")
     : [],
 });
-
-function tryParseJson(input: string, fallback: "" | [] | {}) {
-  try {
-    return JSON.parse(input);
-  } catch (e) {
-    console.warn("Failed to parse JSON from input:", input, "Error:", e);
-    return fallback;
-  }
-}
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
@@ -75,10 +66,9 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
-    columns:
-      tableSettings.value.orderedColumnsIds.length > 0
-        ? JSON.stringify(tableSettings.value.orderedColumnsIds)
-        : undefined,
+    columns: tableSettings.value.orderedColumnsIds.length
+      ? tableSettings.value.orderedColumnsIds.join(",")
+      : undefined,
   };
 
   router.push({ query });
