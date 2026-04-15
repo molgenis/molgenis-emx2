@@ -366,7 +366,7 @@ const NON_REF_ARRAY_TYPES = [
   "PERIOD_ARRAY",
 ];
 
-function updateOntologyArrayValues(event: any) {
+function updateOntologyArrayValues(event?: string | string[] | null) {
   if (Array.isArray(event) && event.length) {
     modelValue.value = event.map((value) => {
       return { name: value };

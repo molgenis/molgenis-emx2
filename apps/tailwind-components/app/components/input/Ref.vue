@@ -244,6 +244,7 @@ async function select(label: string) {
       ? Object.values(selectionMap.value)
       : Object.values(selectionMap.value)[0]
   );
+  onBlur();
 }
 
 async function extractPrimaryKey(row: recordValue) {
@@ -265,13 +266,14 @@ function deselect(label: string) {
     selectionMap.value = {};
     emit("update:modelValue", null);
   }
+  onBlur();
 }
 
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : null);
   onBlur();
-  updateSearch(""); //reset
+  updateSearch("");
 }
 
 function loadMore() {
