@@ -1,4 +1,4 @@
-certifi==2026.1.4
+certifi==2026.2.25
 charset-normalizer==3.4.7
 idna==3.11
 numpy
@@ -8,5 +8,5 @@ pytz==2025.2
 requests==2.33.1
 setuptools==80.10.2
 six==1.17.0
-molgenis_emx2_pyclient==13.77.1
+molgenis_emx2_pyclient==13.84.2
 urllib3==2.6.3
