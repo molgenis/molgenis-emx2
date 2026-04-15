@@ -35,12 +35,18 @@ const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
 const componentData = ref<IPageComponent>(props.component);
+if (
+  props.mg_tableclass !== "Images" &&
+  Object.keys(props.component).includes("image")
+) {
+  delete props.component["image" as keyof IPageComponent];
+}
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
     return props.metadata.filter(
       (table) => table.name === schemaTableName.value
-    )[0];
+    )[0] as ITableMetaData;
   }
   return undefined;
 });
