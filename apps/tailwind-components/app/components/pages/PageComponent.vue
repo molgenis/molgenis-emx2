@@ -36,7 +36,7 @@ const schemaTableName = ref<string>(
 );
 const componentData = ref<IPageComponent>(props.component);
 if (
-  props.mg_tableclass !== "Images" &&
+  !props.mg_tableclass.endsWith(".Images") &&
   Object.keys(props.component).includes("image")
 ) {
   delete props.component["image" as keyof IPageComponent];
