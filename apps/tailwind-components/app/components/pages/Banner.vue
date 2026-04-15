@@ -37,7 +37,7 @@ const emit = defineEmits<{
       v-if="backgroundImage"
       class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60"
     />
-    <div v-if="isEditable" class="absolute bottom-5 right-5">
+    <div v-if="isEditable" class="absolute top-5 right-5">
       <Button
         class="opacity-0 group-hover:opacity-100 group-focus:opacity-100"
         iconOnly
