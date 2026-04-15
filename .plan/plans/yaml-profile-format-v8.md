@@ -301,11 +301,11 @@ Key insight: 12 profiles (DataCatalogue, CohortsStaging, PatientRegistry, FAIRGe
 
 ---
 
-### Phase 7c: Review-driven improvements — IN PROGRESS
+### Phase 7c: Review-driven improvements — COMPLETE
 
-After multi-persona review (backend, frontend, data manager, naive researcher), the following issues need addressing. Grouped by track.
+After multi-persona review (backend, frontend, data manager, naive researcher), the following issues were addressed. Grouped by track.
 
-**Status**: Tracks 1 and 2 COMPLETE. Tracks 3-6 TODO.
+**Status**: Tracks 1-3 COMPLETE. Track 6 PARTIAL (core docs done, polish deferred). Tracks 4-5 DEFERRED (not blocking core feature).
 
 #### Track 1: Correctness blockers — COMPLETE
 
@@ -404,11 +404,18 @@ After multi-persona review (backend, frontend, data manager, naive researcher), 
 - Breaking change — needs migration script for existing deployments
 - Discuss scope before implementing
 
-#### Track 6: Documentation overhaul — TODO
+#### Track 6: Documentation overhaul — PARTIAL
 
-**6.1 Terminology section** — add glossary up-front in `yaml_format.md`
-- Define: bundle, profile (was called subset), variant (vs extends/inheritance), section, heading, import, ontology vs ref, refTable, refback, computed, visible, semantics, CURIE, internal
-- Short definitions, 1 line each
+**Additional work done (not originally in plan):**
+- `AdditionalSchemaDef` renamed: `model` → `bundle`, `demodata`+`ontologies` → `data`
+- Updated `AdditionalSchemaDef.java`, `ImportBundleTask.java`, profile YAMLs, docs
+- `additionalSchemas` section added to `yaml_format.md` with field reference and `refSchema:` example
+- "When to use variants instead of visible expressions" section with patient-registry before/after example
+- "Choice fields: enum vs ontology" subsection with worked example
+- ENUM/ENUM_ARRAY added to column types table
+
+**6.1 Terminology section** — DONE
+- 10-term glossary added at top of `yaml_format.md`
 
 **6.2 Consolidate with `use_schema.md` / `schema.md`**
 - Currently separate docs for schema model and YAML format
