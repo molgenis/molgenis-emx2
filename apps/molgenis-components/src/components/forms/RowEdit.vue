@@ -95,7 +95,7 @@ export default {
     canEdit: {
       type: Boolean,
       required: false,
-      default: () => false,
+      default: () => true,
     },
     tablePermissions: {
       type: Array,

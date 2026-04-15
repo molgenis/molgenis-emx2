@@ -8,11 +8,13 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test("the draft status is displayed correctly", async ({ page }) => {
   await page.goto(
-    `${route}table/EMX2.story?schema=catalogue-demo&table=Resources`
+    `${route}table/EMX2.story?schema=catalogue-demo&table=Catalogues`
   );
 
   await expect(page.locator("tbody")).toContainText("main_fdp");
   await page.getByRole("button", { name: "hide menu" }).click();
-  await page.getByText("Catalogue", { exact: true }).first().click();
-  await expect(page.getByText("Catalogue of resources")).toBeVisible();
+  await page.getByText("project", { exact: true }).first().click();
+  await expect(
+    page.getByRole("heading", { name: "catalogue type" })
+  ).toBeVisible();
 });
