@@ -232,6 +232,87 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void viewerPlusCustomRoleSeesAllRowsButCanOnlyMutateOwned() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "WriteOnlyTable";
+    String user = "rls_user_write_only";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole("WriteOnlyRole");
+    schema.grant(
+        "WriteOnlyRole",
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    // Assigning VIEWER gives the user visibility of all rows; the custom role restricts DML to
+    // owned rows only.
+    schema.addMember(user, "WriteOnlyRole");
+    schema.addMember(user, Privileges.VIEWER.toString());
+
+    // Admin inserts rows owned by different roles
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "wo1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {"WriteOnlyRole"}));
+    schema
+        .getTable(table)
+        .insert(new Row().setString("id", "wo2").setString("title", "other role's row"));
+
+    // User should see ALL rows (VIEWER bypass in SELECT policy)
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("wo1"), "should see own row");
+          assertTrue(ids.contains("wo2"), "should see row owned by no-one");
+        });
+
+    // User can update their own row
+    database.setActiveUser(user);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(table)
+                .update(new Row().setString("id", "wo1").setString("title", "updated")));
+    database.becomeAdmin();
+    Row wo1 =
+        database.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+            .filter(r -> "wo1".equals(r.getString("id")))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("updated", wo1.getString("title"), "own row should be updated");
+
+    // User cannot update a row they don't own (DML policy: no EDITOR, no mg_roles match)
+    database.setActiveUser(user);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(table)
+                .update(new Row().setString("id", "wo2").setString("title", "hacked")));
+    database.becomeAdmin();
+    Row wo2 =
+        database.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+            .filter(r -> "wo2".equals(r.getString("id")))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("other role's row", wo2.getString("title"), "unowned row should be unchanged");
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.revoke("WriteOnlyRole", table);
+    schema.deleteRole("WriteOnlyRole");
+  }
+
+  @Test
   void rlsIsDisabledWhenAllRowLevelGrantsAreRevoked() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);

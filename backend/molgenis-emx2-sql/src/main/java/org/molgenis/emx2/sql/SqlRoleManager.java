@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
+import org.jooq.Param;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
@@ -138,18 +139,41 @@ public class SqlRoleManager {
     }
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
-    jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+
+    Param<String> viewerRole = inline(fullRoleName(schemaName, Privileges.VIEWER.toString()));
+    Param<String> editorRole = inline(fullRoleName(schemaName, Privileges.EDITOR.toString()));
+    Param<String> rolePrefix = inline(MG_ROLE_PREFIX + schemaName + "/");
+
+    // SELECT: Viewer+ can see all rows; custom roles see only rows where they are in mg_roles.
+    // Assign the Viewer system role to a user to grant them visibility of all rows.
+    jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
     jooq()
         .execute(
-            "CREATE POLICY mg_roles_policy ON {0} USING ("
+            "CREATE POLICY mg_roles_select_policy ON {0} FOR SELECT USING ("
                 + "pg_has_role(current_user, {1}, 'member') "
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                 + "))",
-            jooqTable,
-            inline(fullRoleName(schemaName, Privileges.VIEWER.toString())),
-            inline(MG_ROLE_PREFIX + schemaName + "/"));
+            jooqTable, viewerRole, rolePrefix);
+
+    // DML: Editor+ can mutate all rows; custom roles can only mutate rows where they are in
+    // mg_roles. Viewer-only users cannot perform DML on row-level secured tables.
+    jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
+    jooq()
+        .execute(
+            "CREATE POLICY mg_roles_dml_policy ON {0} FOR ALL USING ("
+                + "pg_has_role(current_user, {1}, 'member') "
+                + "OR EXISTS ("
+                + "  SELECT 1 FROM unnest(mg_roles) r"
+                + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
+                + ")) WITH CHECK ("
+                + "pg_has_role(current_user, {1}, 'member') "
+                + "OR EXISTS ("
+                + "  SELECT 1 FROM unnest(mg_roles) r"
+                + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
+                + "))",
+            jooqTable, editorRole, rolePrefix);
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -167,20 +191,21 @@ public class SqlRoleManager {
   }
 
   private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
-    if (!hasMgRolesPolicy(schemaName, tableName)) return;
-    boolean anyCustomSelectRemains =
+    if (!hasRowLevelSecurity(schemaName, tableName)) return;
+    boolean anyRowLevelGrantRemains =
         getRoles(schemaName).stream()
             .filter(role -> !role.isSystemRole())
             .flatMap(role -> getPermissions(schemaName, role.name()).stream())
-            .anyMatch(p -> tableName.equals(p.table()) && Boolean.TRUE.equals(p.select()));
-    if (!anyCustomSelectRemains) {
+            .anyMatch(p -> tableName.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel()));
+    if (!anyRowLevelGrantRemains) {
       org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-      jooq().execute("DROP POLICY IF EXISTS mg_roles_policy ON {0}", jooqTable);
+      jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
+      jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
       jooq().execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
     }
   }
 
-  private boolean hasMgRolesPolicy(String schemaName, String tableName) {
+  private boolean hasRowLevelSecurity(String schemaName, String tableName) {
     return jooq()
         .fetchExists(
             jooq()
@@ -190,7 +215,11 @@ public class SqlRoleManager {
                     field("schemaname")
                         .eq(inline(schemaName))
                         .and(field("tablename").eq(inline(tableName)))
-                        .and(field("policyname").eq(inline("mg_roles_policy")))));
+                        .and(
+                            field("policyname")
+                                .in(
+                                    inline("mg_roles_select_policy"),
+                                    inline("mg_roles_dml_policy")))));
   }
 
   private void applyPgGrants(
@@ -239,7 +268,7 @@ public class SqlRoleManager {
                        LEFT JOIN pg_policies p
                          ON p.schemaname = g.table_schema
                          AND p.tablename = g.table_name
-                         AND p.policyname = 'mg_roles_policy'
+                         AND p.policyname IN ('mg_roles_select_policy', 'mg_roles_dml_policy')
                        WHERE g.grantee = {0} AND g.table_schema = {1}
                        GROUP BY g.table_name""",
                   inline(fullRole), inline(schemaName));
@@ -248,7 +277,7 @@ public class SqlRoleManager {
         Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
         Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
         Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
-        Boolean isRowLevel =
+        Boolean rowLevel =
             Boolean.TRUE.equals(row.get("is_row_level", Boolean.class)) ? true : null;
         result.add(
             new TablePermission(row.get("table_name", String.class))
@@ -256,7 +285,7 @@ public class SqlRoleManager {
                 .insert(insert)
                 .update(update)
                 .delete(delete)
-                .rowLevel(isRowLevel));
+                .rowLevel(rowLevel));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
