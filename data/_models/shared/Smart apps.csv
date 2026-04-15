@@ -1,0 +1,36 @@
+﻿smartAppId,Literal,1..1,Mandatory,The unique identifier of the smart application,550e8400-e29b-41d4-a716-446655440000,pid
+modelReference,URI,0..1,Optional,Foreign key reference to the ML model or the classical risk score algorithm which has been used to create this smart application,https://qrisk.org/,
+modelVersion,Literal,0..1,Optional ,"Version id of the model, if the app is tied to a specific deployed model build",3,
+name,Literal,1..1,Mandatory,Name of the smart application,QRISK3 Calculator ,name
+version,Literal,1..1,Mandatory,Version of the smart application,2,
+keywords,Literal,0..*,Optional,Tags for the smart application,"QRISK, CVD,risk assessment, 10 year risk",keywords
+description,Literal,1..1,Mandatory,Description of the clinical smart application,"This is a Smart App that implements the QRISK®3-2018 risk calculator. QRISK®3 is the new name for a well-established cardiovascular disease (CVD) risk score, the latest version of a score which has been in use across the NHS since 2009. It is designed to identify people at high risk of developing CVD who need to be recalled and assessed in more detail to reduce their risk of developing CVD. The score estimates the risk of a person developing CVD over the next 10 years. It has been specifically developed by doctors and academics for use in the UK.",description
+,,,,,This Smart App can connect to any EHR supporting Smart on FHIR Authortization guidelines. It calculates QRISK score for the selected patient and generates recommendations using CDS-Hooks. The application is intended to be used for research purposes only. The application is open-source and accessable through following links:,
+,,,,,,
+,,,,,https://github.com/srdc/smart-on-fhir-web-apps,
+,,,,,,
+,,,,,https://github.com/srdc/smart-on-fhir-cds,
+,,,,,QRISK® is a trademark jointly held by the University of Nottingham and EMIS.,
+category,Concept,0..*,Optional,"E.g. Care Coordination, Population Health, Patient Engagement, Medication Review, Data Visualization, Risk Calculation, Disease Management","Risk Calculation, Disease Management",
+healthTheme,Concept,0..*,Optional,"e.g. Wikidata URIs  indicating clinical specialities such as cardiology, oncology","https://www.wikidata.org/wiki/Q7265536, https://www.wikidata.org/wiki/Q5133829",
+publisher,Agent,1..1,Mandatory,The owner organization of the smart application,SRDC,publisher
+trlLevel,Literal,0..1,Optional,Technology readiness level (TRL) for smart application ( Valueset to be defined),4,
+license,Literal,0..1,Optional,Specifies the type of license or legal agreement governing the usage and distribution of the smart application,Open Source,
+contactPoint,Kind,1..1,Mandatory,Contact information (email/Phone) that can be used for commnicating with the Publisher,info@srdc.com.tr,
+primaryUse,Literal,1..1,Mandatory,"Describes the primary intended use of the smart application, outlining its main application or purpose",Estimating the risk of a person developing CVD over the next 10 years.,
+secondaryUse,Literal,0..*,Optional,Indicates any secondary or additional use cases for the smart applicationl beyond its primary purpose,None,
+intendedUsers,Literal,1..*,Mandatory,Provides information about the intended users or user groups for the smart application (Valueset can be defined),Clinicians,
+contraindications,Literal,0..*,Optional,"Enumerates any specific conditions, scenarios or contexts where the use of the smart application is not recommended or contraindicated",The application is intended to be used for research purposes only.,
+ethicalConsiderations,Literal,0..*,Optional,Addresses ethical considerations associated with the smart application,The application is intended to be used for research purposes only.,
+,,,,,"Although it includes ethnicity, categories are coarse and may not reflect local population diversity.",
+limitations,Literal,0..*,Optional,The identified limitations of the smart application,"Does not support DSTU 2, STU3 FHIR versions",
+,,,,,UK-specific model,
+,,,,,"QRISK algorithm is built on UK GP data patterns, which may differ in coding practices, screening frequency, and disease prevalence.",
+createdAt,dateTime,1..1,Mandatory,The creation date and time.,9/1/2024,issued
+createdBy,Agent,1..1,Mandatory,Foreign key referencing the personnel who created this smart application,SRDC A.S.,creator
+lastUpdatedAt,dateTime,0..1,Optional,Date and time of the last update.,11/12/2024,modified
+lastUpdatedBy,Agent,0..1,Optional,Foreign key referencing the personnel who lastly updated this smart application,SRDC A.S.,creator
+fhirCompatibility,Literal,0..*,Optional,"FHIR version suported, e.g. DSTU 2, STU 3, STU 4 (Valueset can be defined)",STU 4,
+landingPage,URI,0..1,Optional,Web site of the smart application,https://kroniq.srdc.com.tr/smart-apps/qrisk3/,website
+smartLaunchURI,URI,1..1,Optional,OAuth  Launch URL ,https://kroniq.srdc.com.tr/smart-apps/qrisk3/launch,
+redirectURIs,URI,1..*,Optional,OAuth  Redirect URL,https://kroniq.srdc.com.tr/smart-apps/qrisk3/callback,
