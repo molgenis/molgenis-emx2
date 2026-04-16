@@ -45,7 +45,6 @@ New worktree from master. Cherry-pick what works, rewrite what doesn't.
 - `filterUrlCodec` (serialize/parse) + tests — URL format is good
 - `buildFilter.ts` + tests — GraphQL filter construction
 - `types/filters.ts` — type definitions
-- `fetchTableMetadata.ts` — subclass columns
 - `filterConstants.ts`, `formatFilterValue.ts`, `getPrimaryKey.ts`
 
 ## What to create new
@@ -90,7 +89,7 @@ New worktree from master. Cherry-pick what works, rewrite what doesn't.
 - [x] 1.2 Extract filterUrlCodec from useFilters into standalone utility + tests (56 tests)
 - [x] 1.3 Cherry-pick buildFilter.ts + tests (28 tests)
 - [x] 1.4 Cherry-pick small utils (formatFilterValue, filterConstants, computeDefaultFilters, filterTreeUtils) + tests
-- [x] 1.5 Cherry-pick Date/DateTime CSS fixes + fetchTableMetadata subclass columns
+- [x] 1.5 Cherry-pick Date/DateTime CSS fixes
 
 ### Phase 2: Centralized useFilters composable
 - [x] 2.1 New useFilters (374 lines, down from 877) with centralized counting
@@ -108,7 +107,6 @@ New worktree from master. Cherry-pick what works, rewrite what doesn't.
 ### Phase 4: Integration
 - [x] 4.1 Wire into [schema]/[table]/index.vue (sidebar + activefilters + gqlFilter)
 - [x] 4.2 TableEMX2: added filter prop, hideSearch prop, below-toolbar slot, pagination reset
-- [x] 4.3 fetchTableMetadata subclass columns (done in Phase 1)
 
 ### Phase 5: Bug fixes & polish (completed during review)
 - [x] 5.1 Tree.vue: fixed `selection` → `selected` typo in clone(), preserve `label`, re-apply modelValue after nodes rebuild

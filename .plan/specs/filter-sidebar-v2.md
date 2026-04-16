@@ -168,7 +168,6 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Sidebar sits left of table | [table]/index.vue | - | visual check |
 | ActiveFilters bar between toolbar and table rows | [table]/index.vue | - | visual check |
 | Filter changes reset pagination to page 1 | TableEMX2.vue | - | - |
-| `fetchTableMetadata` includes subclass columns | fetchTableMetadata.ts | - | - |
 | filterColumns logic lives in useFilters; consumers pass raw columns | useFilters.ts | useFilters.spec.ts | - |
 | Minimal changes to TableEMX2 (just plug in sidebar + activefilters) | TableEMX2.vue | - | - |
 
