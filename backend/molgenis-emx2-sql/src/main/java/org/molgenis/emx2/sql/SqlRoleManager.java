@@ -361,10 +361,18 @@ public class SqlRoleManager {
         .insert(Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null)
         .update(Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null)
         .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null)
-        .rowLevel(
-            Boolean.TRUE.equals(a.isRowLevel()) || Boolean.TRUE.equals(b.isRowLevel())
-                ? true
-                : null);
+        .rowLevel(mergeRowLevel(a, b));
+  }
+
+  private static Boolean mergeRowLevel(TablePermission a, TablePermission b) {
+    boolean aUnrestrictedDml =
+        Boolean.TRUE.equals(a.insert()) && !Boolean.TRUE.equals(a.isRowLevel());
+    boolean bUnrestrictedDml =
+        Boolean.TRUE.equals(b.insert()) && !Boolean.TRUE.equals(b.isRowLevel());
+    if (aUnrestrictedDml || bUnrestrictedDml) {
+      return null;
+    }
+    return Boolean.TRUE.equals(a.isRowLevel()) || Boolean.TRUE.equals(b.isRowLevel()) ? true : null;
   }
 
   public boolean isSystemRole(String roleName) {
