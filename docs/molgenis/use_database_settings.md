@@ -35,7 +35,7 @@ The user defined menu is stored in the database in the schema settings.
 **Important**: 
  - The settings key used is ```tw-menu```
  - The settings value should be a valid JSON array
- - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab. and so should not have a schema prefix
+ - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab.
  - External links should have the property ```isSpaLink``` set to false, and should have a schema prefix if they are related to a specific schema. The schema prefix is the name of the schema followed by a slash, for example: ```pet%20store/schema```. If the link is not related to a specific schema, it should not have a schema prefix, for example: ```https://www.google.com```.
 
 Example: 
@@ -66,7 +66,7 @@ Example:
     "isSpaLink": false,
     "role": "Manager"
   },
-
+  { "label": "My Pets", "link": "/pet%20store/Pet", "isSpaLink": true },
   {
     "label": "Help",
     "link": "pet%20store/docs",
