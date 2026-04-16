@@ -215,7 +215,10 @@ test.describe("filter sidebar", () => {
     // Type into the last search input (most likely the newly created filter)
     const lastInput = searchInputs.last();
     await lastInput.fill("test");
-    await page.waitForTimeout(500);
+
+    // Wait for debounce to flush and URL to update (auto-retrying assertion)
+    // The filter value appears as internalIdentifiers.identifier.*=test in the URL
+    await page.waitForURL(/internalIdentifiers\.identifier.*=test/);
 
     // Verify URL changed to include the nested filter value
     const updatedUrl = page.url();
@@ -308,7 +311,10 @@ test.describe("filter sidebar", () => {
     const searchInputs = page.locator('input[type="search"]');
     const lastInput = searchInputs.last();
     await lastInput.fill("testvalue");
-    await page.waitForTimeout(500);
+
+    // Wait for debounce to flush and URL to update (auto-retrying assertion)
+    // The filter value appears as refType.optionValue.*=testvalue in the URL
+    await page.waitForURL(/refType\.optionValue.*=testvalue/);
 
     // Verify URL changed to include the nested filter value
     const updatedUrl = page.url();

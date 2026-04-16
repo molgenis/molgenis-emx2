@@ -2,6 +2,7 @@ import { columnValueToString } from "./columnValueToString";
 import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
+import { setNestedValue } from "./buildFilter";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
@@ -319,17 +320,14 @@ async function fetchOntologyParentCountsFromServer(
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
 ): Promise<void> {
   const segments = columnId.split(".");
-  const leafColumnId = segments[segments.length - 1]!;
   const parentNodes = collectTreeNodesWithChildren(tree);
 
   await Promise.all(
     parentNodes.map(async (parentNode) => {
-      const parentFilter: IGraphQLFilter = {
-        ...crossFilter,
-        [leafColumnId]: {
-          _match_any_including_children: [parentNode.name],
-        },
-      };
+      const parentFilter: IGraphQLFilter = { ...crossFilter };
+      setNestedValue(parentFilter, segments, {
+        _match_any_including_children: [parentNode.name],
+      });
       const aggQuery = `{
             ${tableId}_agg(filter: {${serializeFilterForQuery(parentFilter)}}) {
               count

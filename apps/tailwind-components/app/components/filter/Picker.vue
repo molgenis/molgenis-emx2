@@ -384,7 +384,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
     <template #footer>
       <div class="py-3 flex justify-between items-center">
         <div class="flex items-center gap-2">
-          <Button type="text" size="tiny" icon="check-box" @click="selectAll">
+          <Button type="text" size="tiny" icon="checklist" @click="selectAll">
             Select all
           </Button>
           <Button type="text" size="tiny" icon="trash" @click="clearSelection">

@@ -18,7 +18,7 @@ export function parseFilterTerms(input: string): string[] {
   return terms.filter(Boolean);
 }
 
-function setNestedValue(obj: any, path: string[], value: any): void {
+export function setNestedValue(obj: any, path: string[], value: any): void {
   if (path.length === 0) return;
   let current = obj;
   for (let i = 0; i < path.length - 1; i++) {
