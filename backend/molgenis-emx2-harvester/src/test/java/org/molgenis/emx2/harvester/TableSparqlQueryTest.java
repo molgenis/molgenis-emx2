@@ -2,30 +2,39 @@ package org.molgenis.emx2.harvester;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TableSparqlQueryTest {
 
-  private Database database;
-  private Schema schema;
-  private SailRepository repository;
+  private static final String SCHEMA_NAME = TableSparqlQueryTest.class.getSimpleName();
+
+  private static Schema schema;
   private SailRepositoryConnection conn;
+
+  @BeforeAll
+  static void createSchema() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    DataModels.Profile.PET_STORE
+        .getImportTask(database, SCHEMA_NAME, "SparQL query generation test", true)
+        .run();
+    schema = database.getSchema(SCHEMA_NAME);
+    schema.getTable("Pet").getMetadata().setSemantics("http://example.com/pet");
+  }
 
   @BeforeEach
   void setUp() throws IOException {
-    database = TestDatabaseFactory.getTestDatabase();
-    schema = database.getSchema("pet store");
-    repository = new SailRepository(new MemoryStore());
+    SailRepository repository = new SailRepository(new MemoryStore());
     conn = repository.getConnection();
     try (InputStream inputStream = readTtl("pet-store.ttl")) {
       conn.add(inputStream, RDFFormat.TURTLE);
@@ -42,14 +51,6 @@ class TableSparqlQueryTest {
     TableSparqlQuery query = new TableSparqlQuery(schema.getMetadata(), "Pet");
     query.build();
     System.out.println(query.asString());
-  }
-
-  @Test
-  void shouldReadPets() {
-    TableSparqlQuery query = new TableSparqlQuery(schema.getMetadata(), "Pet");
-    query.build();
-    TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.asString());
-    tupleQuery.evaluate().stream().forEach(System.out::println);
   }
 
   private InputStream readTtl(String path) {
