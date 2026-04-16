@@ -13,7 +13,7 @@ public class EmbeddingStoreFactory {
         .database("emx-2-vector")
         .user("postgres")
         .password("postgres")
-        .table("embeddings")
+        .table("embeddingschunked")
         .dimension(384)
         .build();
   }

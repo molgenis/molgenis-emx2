@@ -9,14 +9,16 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RagService {
   private static final String URL = "url";
-  private static final Logger log = LoggerFactory.getLogger(Main.class);
   private static final String SOURCE = "source";
 
   private EmbeddingModel model;
@@ -35,7 +37,7 @@ public class RagService {
     try {
       model = RagModelFactory.create();
     } catch (IOException e) {
-      log.error("Can't load embedding model!", e);
+      logger.error("Can't load embedding model!", e);
     }
     this.model = model;
 
@@ -50,22 +52,59 @@ public class RagService {
 
     // Run the query
     EmbeddingSearchRequest request =
-        EmbeddingSearchRequest.builder().queryEmbedding(queryEmbedding).maxResults(10).build();
+        EmbeddingSearchRequest.builder().queryEmbedding(queryEmbedding).maxResults(100).build();
 
     EmbeddingSearchResult<TextSegment> searchResult = store.search(request);
     // Display the results
 
-    List<QueryResult> results =
+    Map<String, List<EmbeddingMatch<TextSegment>>> grouped =
         searchResult.matches().stream()
-            .filter(match -> match.score() > 0.7)
-            .filter(
-                match ->
-                    match.embedded().metadata() != null
-                        && match.embedded().metadata().containsKey(URL)
-                        && match.embedded().metadata().containsKey(SOURCE))
-            .map(RagService::getQueryResult)
+            .filter(match -> match.score() > 0.7) // slightly lower threshold
+            .filter(match -> match.embedded().metadata() != null)
+            .filter(match -> match.embedded().metadata().containsKey(URL))
+            .collect(Collectors.groupingBy(match -> match.embedded().metadata().getString(URL)));
+    grouped
+        .entrySet()
+        .forEach(
+            entry -> {
+              String url = entry.getKey();
+              List<EmbeddingMatch<TextSegment>> matches = entry.getValue();
+              logger.info("URL: {}, Matches: {}", url, matches.size());
+            });
+
+    Map<String, Double> docScores =
+        grouped.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> {
+                      return e.getValue().stream()
+                          .sorted(
+                              Comparator.comparingDouble(
+                                      (EmbeddingMatch<TextSegment> m) -> m.score())
+                                  .reversed())
+                          .limit(3) // top 3 chunks
+                          .mapToDouble(EmbeddingMatch::score)
+                          .sum();
+                    }));
+
+    List<QueryResult> results =
+        docScores.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .limit(30)
+            .map(
+                entry -> {
+                  String url = entry.getKey();
+                  List<EmbeddingMatch<TextSegment>> matches = grouped.get(url);
+
+                  // pick best chunk as preview
+                  EmbeddingMatch<TextSegment> bestMatch =
+                      matches.stream()
+                          .max(Comparator.comparingDouble(EmbeddingMatch::score))
+                          .orElse(null);
+                  return getQueryResult(bestMatch);
+                })
             .toList();
-    results.forEach(QueryResult::printResults);
 
     // maps to embbeding result
     return results;
