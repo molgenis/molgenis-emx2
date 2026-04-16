@@ -1,41 +1,46 @@
 package org.molgenis.emx2.harvester;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.harvester.util.HarvestingTestSchema;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class OntologyPostProcessorTest {
 
   @Test
   void shouldReplaceOntologySemanticsWithNames() throws IOException {
-    Path path = Path.of(OntologyPostProcessor.class.getResource("csv/resources.csv").getPath());
+    Path path = Path.of(OntologyPostProcessor.class.getResource("csv/Resources.csv").getPath());
     TableStore store = new TableStoreForCsvFile(path);
-    Database database = TestDatabaseFactory.getTestDatabase();
-    SchemaMetadata schema = database.getSchema("catalogue").getMetadata();
+    SchemaMetadata schema = HarvestingTestSchema.create();
 
-    OntologyPostProcessor processor =
-        new OntologyPostProcessor(store, schema.getTableMetadata("Resources"));
+    TableMetadata resourcesTable = schema.getTableMetadata("Resources");
+    OntologyPostProcessor processor = new OntologyPostProcessor(store, resourcesTable);
     processor.process();
 
     StringWriter writer = new StringWriter();
     List<String> columns =
-        schema.getTableMetadata("Resources").getDownloadColumnNames().stream()
-            .map(Column::getName)
-            .toList();
+        resourcesTable.getDownloadColumnNames().stream().map(Column::getName).toList();
     CsvTableWriter.write(store.readTable("Resources"), columns, writer, ',');
 
     System.out.println("CSV");
     System.out.println(writer);
-    Files.write(Path.of("Resources.csv"), writer.toString().getBytes());
+    Files.write(Path.of("ontology_resources.csv"), writer.toString().getBytes());
+    List<String> rowCountries =
+        StreamSupport.stream(store.readTable("Resources").spliterator(), false)
+            .map(row -> row.getString("countries"))
+            .toList();
+    assertTrue(rowCountries.contains("Denmark,Finland,Germany"));
   }
 }

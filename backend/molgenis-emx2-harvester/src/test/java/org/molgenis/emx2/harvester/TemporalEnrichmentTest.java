@@ -38,7 +38,7 @@ class TemporalEnrichmentTest {
   void setUp() throws IOException {
     repository = new SailRepository(new MemoryStore());
     conn = repository.getConnection();
-    try (InputStream inputStream = readTtl("data/dataset.ttl")) {
+    try (InputStream inputStream = readTtl("data/Dataset.ttl")) {
       conn.add(inputStream, RDFFormat.TURTLE);
     }
   }
@@ -70,6 +70,6 @@ class TemporalEnrichmentTest {
   }
 
   private InputStream readTtl(String path) {
-    return EnrichmentTest.class.getResourceAsStream(path);
+    return TemporalEnrichmentTest.class.getResourceAsStream(path);
   }
 }

@@ -12,31 +12,29 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.harvester.util.HarvestingTestSchema;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class FileBasedCatalogueTransformerTest {
 
   @Test
   void shouldMapResources() throws IOException {
-    Database database = TestDatabaseFactory.getTestDatabase();
     SailRepository repository = setupRepository();
-
-    SchemaMetadata schema = database.getSchema("catalogue").getMetadata();
+    SchemaMetadata schema = HarvestingTestSchema.create();
+    TableMetadata resourcesTable = schema.getTableMetadata("Resources");
 
     FileBasedCatalogueTransformer transformer =
         new FileBasedCatalogueTransformer(repository, schema);
     TableStore transform = transformer.transform();
 
-    TableMetadata resourcesTable = schema.getTableMetadata("Resources");
     List<String> columns =
         resourcesTable.getDownloadColumnNames().stream().map(Column::getName).toList();
     StringWriter writer = new StringWriter();
 
     CsvTableWriter.write(transform.readTable("Resources"), columns, writer, ',');
 
-    System.out.println("CSV");
+    System.out.println("--------- OUTPUT CSV ---------");
     System.out.println(writer);
     Files.write(Path.of("resources.csv"), writer.toString().getBytes());
   }
