@@ -1,7 +1,6 @@
 <template>
   <client-only>
     <vue-date-picker
-      class="date-input"
       :uid="id"
       :placeholder="datePlaceholder"
       :aria-describedby="describedBy"
@@ -28,12 +27,6 @@
     />
   </client-only>
 </template>
-
-<style scoped>
-.date-input {
-  width: 10em;
-}
-</style>
 
 <script setup lang="ts">
 import VueDatePicker from "@vuepic/vue-datepicker";
