@@ -23,6 +23,7 @@ public class HarvestingTestSchema {
     // Add missing semantics for key column
     Column column = resourcesTable.getColumn("id");
     column.setSemantics("dcterms:title", "dcterms:alternative");
+    resourcesTable.alterColumn(column);
 
     return schema;
   }
