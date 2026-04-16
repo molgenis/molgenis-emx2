@@ -10,7 +10,7 @@ See setting menu.
 
 
 ### New ui (tailwind based) menu
-With no configuration, the new ui shows a fix of internal and external links .
+With no configuration, the new ui shows a mix of internal and external links .
 Both the default menu and the user defined menu use the following configuration:
 
 ```ts
@@ -35,7 +35,7 @@ The user defined menu is stored in the database in the schema settings.
 **Important**: 
  - The settings key used is ```tw-menu```
  - The settings value should be a valid JSON array
- - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab.
+ - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab. Schema prefix should be included preceded by a slash.
  - External links should have the property ```isSpaLink``` set to false, and should have a schema prefix if they are related to a specific schema. The schema prefix is the name of the schema followed by a slash, for example: ```pet%20store/schema```. If the link is not related to a specific schema, it should not have a schema prefix, for example: ```https://www.google.com```.
 
 Example: 
