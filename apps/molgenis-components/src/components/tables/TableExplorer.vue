@@ -285,7 +285,7 @@
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButton
-                v-if="canUpdate"
+                v-if="canEditRow(slotProps.row)"
                 type="edit"
                 @edit="
                   handleRowAction(
@@ -299,7 +299,7 @@
                 "
               />
               <RowButton
-                v-if="canInsert"
+                v-if="canCloneRow(slotProps.row)"
                 type="clone"
                 @clone="
                   handleRowAction(
@@ -313,7 +313,7 @@
                 "
               />
               <RowButton
-                v-if="canDelete"
+                v-if="canDeleteRow(slotProps.row)"
                 type="delete"
                 @delete="
                   handleDeleteRowRequest(
@@ -604,6 +604,14 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    isRowLevel: {
+      type: Boolean,
+      default: () => false,
+    },
+    userRoles: {
+      type: Array as () => string[],
+      default: () => [],
+    },
     tablePermissions: {
       type: Array,
       default: () => [],
@@ -637,6 +645,25 @@ export default {
   },
   methods: {
     convertRowToPrimaryKey,
+    rowMatchesUserRole(row: any): boolean {
+      const mgRoles: string[] = row.mg_roles || [];
+      return this.userRoles.some((role) => mgRoles.includes(role as string));
+    },
+    canEditRow(row: any): boolean {
+      return (
+        this.canUpdate && (!this.isRowLevel || this.rowMatchesUserRole(row))
+      );
+    },
+    canDeleteRow(row: any): boolean {
+      return (
+        this.canDelete && (!this.isRowLevel || this.rowMatchesUserRole(row))
+      );
+    },
+    canCloneRow(row: any): boolean {
+      return (
+        this.canInsert && (!this.isRowLevel || this.rowMatchesUserRole(row))
+      );
+    },
     setSearchTerms(newSearchValue: string) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);

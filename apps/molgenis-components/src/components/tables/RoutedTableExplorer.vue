@@ -9,6 +9,8 @@
       :canUpdate="canUpdate"
       :canDelete="canDelete"
       :canManage="canManage"
+      :isRowLevel="isRowLevel"
+      :userRoles="userRoles"
       :tablePermissions="tablePermissions"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
@@ -88,6 +90,14 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    isRowLevel: {
+      type: Boolean,
+      default: () => false,
+    },
+    userRoles: {
+      type: Array,
+      default: () => [],
     },
     tablePermissions: {
       type: Array,
