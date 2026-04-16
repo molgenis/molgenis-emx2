@@ -8,7 +8,7 @@
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-      <Header>
+      <Header :fullScreen="fullScreen">
         <template #logo>
           <Logo link="/" />
         </template>
@@ -88,6 +88,7 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
+const fullScreen = computed(() => !!route.meta.layoutProps?.fullScreen);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`

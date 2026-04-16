@@ -4,6 +4,15 @@ import Container from "./Container.vue";
 import HeaderButton from "./HeaderButton.vue";
 import ThemeSwitch from "./ThemeSwitch.vue";
 
+const props = withDefaults(
+  defineProps<{
+    fullScreen?: boolean;
+  }>(),
+  {
+    fullScreen: false,
+  }
+);
+
 const config = useRuntimeConfig();
 
 // only show the theme switch if the emx2Theme is not set to a specific theme ( for example molgenis )
@@ -15,7 +24,7 @@ const showThemeSwitch =
   <header
     class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
   >
-    <Container>
+    <Container :fullScreen="fullScreen">
       <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
 

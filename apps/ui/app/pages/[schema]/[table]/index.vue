@@ -17,6 +17,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import { definePageMeta } from "#imports";
 
 const route = useRoute();
 const router = useRouter();
@@ -24,6 +25,13 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "default",
+  layoutProps: {
+    fullScreen: true,
+  },
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
