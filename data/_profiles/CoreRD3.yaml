@@ -10,7 +10,7 @@ profileTags: CoreRD3
 
 settings: _settings/core_rd3
 
-#demoData: _demodata/applications/core_rd3
+demoData: _demodata/applications/core_rd3
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies
