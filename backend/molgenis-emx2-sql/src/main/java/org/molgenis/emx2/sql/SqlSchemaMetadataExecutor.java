@@ -138,9 +138,12 @@ class SqlSchemaMetadataExecutor {
         db.addUser(m.getUser());
       }
 
-      // revoke other roles if user has them
+      // revoke roles of the same category (system or custom) if a user has them,
+      // so that a user can hold one system role and one custom role simultaneously
+      boolean newRoleIsSystemRole = Privileges.isSystemRole(m.getRole());
       for (Member old : currentMembers) {
-        if (old.getUser().equals(m.getUser())) {
+        if (old.getUser().equals(m.getUser())
+            && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
           jooq.execute(
               "REVOKE {0} FROM {1}",
               name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
