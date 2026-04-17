@@ -95,7 +95,10 @@ public class TestLoaders {
           .getImportTask(database, PATIENT_REGISTRY, "test", true)
           .run();
       patientRegistry = database.getSchema(PATIENT_REGISTRY);
+
+      DataModels.Profile.CORE_RD3.getImportTask(database, CORE_RD3, "test CoreRD3", true).run();
       coreRD3 = database.getSchema(CORE_RD3);
+
       DataModels.Regular.PATIENT_REGISTRY_DEMO
           .getImportTask(database, PATIENT_REGISTRY_DEMO, "test", true)
           .run();
