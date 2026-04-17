@@ -13,6 +13,7 @@ public class TestLoaders {
   public static final String DATA_CATALOGUE = "catalogue";
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
+  public static final String RWE_STAGING = "RWEStaging";
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
@@ -31,6 +32,7 @@ public class TestLoaders {
   protected static Schema dataCatalogue;
   protected static Schema cohortStaging;
   protected static Schema networkStaging;
+  protected static Schema rweStaging;
   protected static Schema directory;
   protected static Schema FAIRGenomesSchema;
   protected static Schema projectManagerSchema;
@@ -51,6 +53,7 @@ public class TestLoaders {
       database.dropSchemaIfExists(NETWORK_STAGING);
       database.dropSchemaIfExists(DATA_CATALOGUE);
       database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
+      database.dropSchemaIfExists(RWE_STAGING);
       database.dropSchemaIfExists(DIRECTORY_TEST);
       database.dropSchemaIfExists(DIRECTORY_STAGING);
       database.dropSchemaIfExists(FAIR_GENOMES);
@@ -74,6 +77,10 @@ public class TestLoaders {
           .getImportTask(database, NETWORK_STAGING, "test", true)
           .run();
       networkStaging = database.getSchema(NETWORK_STAGING);
+      DataModels.Profile.DATA_CATALOGUE_RWE_STAGING
+          .getImportTask(database, RWE_STAGING, "test", true)
+          .run();
+      rweStaging = database.getSchema(RWE_STAGING);
       DataModels.Regular.PROJECTMANAGER
           .getImportTask(database, PROJECT_MANAGER, "test", true)
           .run();
