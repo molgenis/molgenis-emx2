@@ -335,6 +335,100 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void nonRlsRoleSeesAllRowsWhenAnotherRoleEnablesRls() {
+    // Regression: granting RLS to one role must not restrict another role that has a plain
+    // (non-RLS) grant on the same table.
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "MixedAccessTable";
+    String rlsUser = "rls_user_mixed_rls";
+    String plainUser = "rls_user_mixed_plain";
+    for (String u : List.of(rlsUser, plainUser)) {
+      if (!database.hasUser(u)) database.addUser(u);
+    }
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole("MixedRlsRole");
+    schema.createRole("MixedPlainRole");
+
+    // Plain (non-RLS) grant first
+    schema.grant("MixedPlainRole", new TablePermission(table).select(true).insert(true));
+    // RLS grant second — this is what used to break the plain grant
+    schema.grant(
+        "MixedRlsRole", new TablePermission(table).select(true).insert(true).rowLevel(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "m1")
+                .setString("title", "rls row")
+                .set(MG_ROLES, new String[] {"MixedRlsRole"}));
+    schema.getTable(table).insert(new Row().setString("id", "m2").setString("title", "plain row"));
+
+    schema.addMember(rlsUser, "MixedRlsRole");
+    schema.addMember(plainUser, "MixedPlainRole");
+
+    // RLS user sees only their row
+    database.setActiveUser(rlsUser);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("m1"), "RLS user should see their row");
+          assertFalse(ids.contains("m2"), "RLS user should NOT see unowned row");
+        });
+
+    // Plain user sees ALL rows — the RLS grant for MixedRlsRole must not restrict MixedPlainRole
+    database.setActiveUser(plainUser);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+          assertTrue(ids.contains("m1"), "plain user should see RLS row");
+          assertTrue(ids.contains("m2"), "plain user should see plain row");
+        });
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.revoke("MixedRlsRole", table);
+    schema.revoke("MixedPlainRole", table);
+    schema.deleteRole("MixedRlsRole");
+    schema.deleteRole("MixedPlainRole");
+  }
+
+  @Test
+  void tablePermissionsReportsIsRowLevelTrueForUserWithViewerAndRlsRole() {
+    // Regression: getTablePermissionsForActiveUser must not return isRowLevel=false when the user
+    // holds both VIEWER and a custom RLS role, caused by the internal RLS_ role appearing in the
+    // inherited-roles list and overwriting is_row_level with false.
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String user = "rls_user_viewer_and_rls";
+    if (!database.hasUser(user)) database.addUser(user);
+    schema.addMember(user, "TeamA");
+    schema.addMember(user, Privileges.VIEWER.toString());
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<TablePermission> perms = db.getSchema(SCHEMA).getPermissionsForActiveUser();
+          TablePermission articlesPerm =
+              perms.stream()
+                  .filter(p -> ARTICLES.equals(p.table()))
+                  .findFirst()
+                  .orElseThrow(() -> new AssertionError("No permission found for " + ARTICLES));
+          assertEquals(
+              Boolean.TRUE,
+              articlesPerm.isRowLevel(),
+              "isRowLevel should be true for a user whose access comes from an RLS role");
+        });
+
+    database.becomeAdmin();
+    schema.removeMember(user);
+  }
+
+  @Test
   void viewerSeesAllRowsDespiteRls() {
     database.setActiveUser(USER_VIEWER);
     database.tx(

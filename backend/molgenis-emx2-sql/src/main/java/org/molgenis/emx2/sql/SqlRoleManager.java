@@ -8,10 +8,12 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Param;
 import org.jooq.Record;
@@ -23,6 +25,7 @@ public class SqlRoleManager {
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
+  public static final String RLS_ROLE_PREFIX = "RLS_";
 
   private final SqlDatabase database;
 
@@ -73,31 +76,42 @@ public class SqlRoleManager {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
+    String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
     database.tx( // we need to lift to admin to drop a role
         db -> {
           String currentUser = db.getActiveUser();
           try {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
-            for (String tableName : database.getSchema(schemaName).getTableNames()) {
-              jooq.execute(
-                  "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+            Collection<String> tableNames = database.getSchema(schemaName).getTableNames();
+            dropPgRoleAndCleanup(jooq, schemaName, fullRole, tableNames);
+            // Also clean up the companion RLS role if it exists
+            if (jooq.fetchExists(
+                jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))))) {
+              dropPgRoleAndCleanup(jooq, schemaName, rlsFullRole, tableNames);
             }
-            jooq.execute(
-                """
-                        DO $$ DECLARE m TEXT; BEGIN
-                         FOR m IN SELECT rolname FROM pg_roles
-                         WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
-                         LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
-                         END LOOP; END $$;""",
-                inline(fullRole));
-            jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
-
           } finally {
             db.setActiveUser(currentUser);
           }
         });
     database.getListener().onSchemaChange();
+  }
+
+  private static void dropPgRoleAndCleanup(
+      DSLContext jooq, String schemaName, String fullRole, Collection<String> tableNames) {
+    for (String tableName : tableNames) {
+      jooq.execute(
+          "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    }
+    jooq.execute(
+        """
+            DO $$ DECLARE m TEXT; BEGIN
+             FOR m IN SELECT rolname FROM pg_roles
+             WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
+             LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
+             END LOOP; END $$;""",
+        inline(fullRole));
+    jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
   }
 
   public boolean roleExists(String schemaName, String roleName) {
@@ -123,12 +137,40 @@ public class SqlRoleManager {
     if (!database.getSchema(schemaName).getTableNames().contains(tableName)) {
       throw new MolgenisException("Table does not exist: " + tableName);
     }
-    String fullRole = fullRoleName(schemaName, roleName);
+    String grantRoleName;
+    if (Boolean.TRUE.equals(permission.isRowLevel())) {
+      grantRoleName = RLS_ROLE_PREFIX + roleName;
+      ensureRlsRoleExists(schemaName, roleName);
+    } else {
+      grantRoleName = roleName;
+    }
+    String fullRole = fullRoleName(schemaName, grantRoleName);
     applyPgGrants(schemaName, fullRole, tableName, permission);
     if (Boolean.TRUE.equals(permission.isRowLevel())) {
       enableRowLevelSecurity(schemaName, tableName);
     }
     database.getListener().onSchemaChange();
+  }
+
+  private void ensureRlsRoleExists(String schemaName, String roleName) {
+    String rlsRoleName = RLS_ROLE_PREFIX + roleName;
+    if (!roleExists(schemaName, rlsRoleName)) {
+      createRole(schemaName, rlsRoleName);
+    }
+    String rlsFullRole = fullRoleName(schemaName, rlsRoleName);
+    String regularFullRole = fullRoleName(schemaName, roleName);
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            ((SqlDatabase) db)
+                .getJooq()
+                .execute("GRANT {0} TO {1}", name(rlsFullRole), name(regularFullRole));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
   }
 
   private void enableRowLevelSecurity(String schemaName, String tableName) {
@@ -143,37 +185,57 @@ public class SqlRoleManager {
     Param<String> viewerRole = inline(fullRoleName(schemaName, Privileges.VIEWER.toString()));
     Param<String> editorRole = inline(fullRoleName(schemaName, Privileges.EDITOR.toString()));
     Param<String> rolePrefix = inline(MG_ROLE_PREFIX + schemaName + "/");
+    Param<String> rlsRolePrefix = inline(MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX);
+    Param<String> schemaParam = inline(schemaName);
+    Param<String> tableParam = inline(tableName);
 
-    // SELECT: Viewer+ can see all rows; custom roles see only rows where they are in mg_roles.
-    // Assign the Viewer system role to a user to grant them visibility of all rows.
+    String sysRoleList =
+        Arrays.stream(Privileges.values())
+            .map(p -> "'" + fullRoleName(schemaName, p.toString()).replace("'", "''") + "'")
+            .collect(Collectors.joining(", "));
+
+    String nonRlsSelectBypass = nonRlsBypass(sysRoleList, "SELECT");
+    String nonRlsDmlBypass = nonRlsBypass(sysRoleList, "INSERT", "UPDATE", "DELETE");
+
     jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
     jooq()
         .execute(
             "CREATE POLICY mg_roles_select_policy ON {0} FOR SELECT USING ("
                 + "pg_has_role(current_user, {1}, 'member') "
+                + nonRlsSelectBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                 + "))",
-            jooqTable, viewerRole, rolePrefix);
+            jooqTable,
+            viewerRole,
+            rolePrefix,
+            rlsRolePrefix,
+            schemaParam,
+            tableParam);
 
-    // DML: Editor+ can mutate all rows; custom roles can only mutate rows where they are in
-    // mg_roles. Viewer-only users cannot perform DML on row-level secured tables.
     jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
     jooq()
         .execute(
             "CREATE POLICY mg_roles_dml_policy ON {0} FOR ALL USING ("
                 + "pg_has_role(current_user, {1}, 'member') "
+                + nonRlsDmlBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                 + ")) WITH CHECK ("
                 + "pg_has_role(current_user, {1}, 'member') "
+                + nonRlsDmlBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                 + "))",
-            jooqTable, editorRole, rolePrefix);
+            jooqTable,
+            editorRole,
+            rolePrefix,
+            rlsRolePrefix,
+            schemaParam,
+            tableParam);
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -186,18 +248,34 @@ public class SqlRoleManager {
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    // Also revoke from the RLS-prefixed role if it exists
+    String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
+    if (jooq()
+        .fetchExists(
+            jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))))) {
+      jooq()
+          .execute(
+              "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(rlsFullRole));
+    }
     disableRowLevelSecurityIfUnused(schemaName, tableName);
     database.getListener().onSchemaChange();
   }
 
   private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
-    if (!hasRowLevelSecurity(schemaName, tableName)) return;
-    boolean anyRowLevelGrantRemains =
-        getRoles(schemaName).stream()
-            .filter(role -> !role.isSystemRole())
-            .flatMap(role -> getPermissions(schemaName, role.name()).stream())
-            .anyMatch(p -> tableName.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel()));
-    if (!anyRowLevelGrantRemains) {
+    // RLS is still needed as long as any RLS-prefixed role has grants on the table.
+    // If none remain, drop the policies and disable RLS.  ALTER TABLE DISABLE ROW LEVEL SECURITY
+    // and DROP POLICY IF EXISTS are both no-ops when RLS is already off.
+    String rlsRolePrefix = MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX;
+    boolean anyRlsGrantRemains =
+        jooq()
+            .fetchExists(
+                jooq()
+                    .select()
+                    .from("information_schema.role_table_grants")
+                    .where(field("table_schema").eq(inline(schemaName)))
+                    .and(field("table_name").eq(inline(tableName)))
+                    .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
+    if (!anyRlsGrantRemains) {
       org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
       jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
       jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
@@ -205,21 +283,31 @@ public class SqlRoleManager {
     }
   }
 
-  private boolean hasRowLevelSecurity(String schemaName, String tableName) {
-    return jooq()
-        .fetchExists(
-            jooq()
-                .select()
-                .from("pg_policies")
-                .where(
-                    field("schemaname")
-                        .eq(inline(schemaName))
-                        .and(field("tablename").eq(inline(tableName)))
-                        .and(
-                            field("policyname")
-                                .in(
-                                    inline("mg_roles_select_policy"),
-                                    inline("mg_roles_dml_policy")))));
+  // Non-RLS bypass clause for RLS policies: users with a direct (non-inherited) grant for
+  // any of the given privileges via a custom non-system, non-RLS role bypass row filtering.
+  private static String nonRlsBypass(String sysRoleList, String... privileges) {
+    String privilegeCondition =
+        privileges.length == 1
+            ? "g.privilege_type = '" + privileges[0] + "'"
+            : "g.privilege_type IN ("
+                + Arrays.stream(privileges)
+                    .map(p -> "'" + p + "'")
+                    .collect(Collectors.joining(", "))
+                + ")";
+    return "OR EXISTS ("
+        + "  SELECT 1 FROM pg_roles r"
+        + "  JOIN information_schema.role_table_grants g ON g.grantee = r.rolname"
+        + "  WHERE r.rolname LIKE {2} || '%'"
+        + "  AND r.rolname NOT LIKE {3} || '%'"
+        + "  AND r.rolname NOT IN ("
+        + sysRoleList
+        + ")"
+        + "  AND g.table_schema = {4}"
+        + "  AND g.table_name = {5}"
+        + "  AND "
+        + privilegeCondition
+        + "  AND pg_has_role(current_user, r.rolname, 'member')"
+        + ") ";
   }
 
   private void applyPgGrants(
@@ -252,6 +340,7 @@ public class SqlRoleManager {
       return systemPermissions(roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
+    String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
     List<TablePermission> result = new ArrayList<>();
     try {
       Result<Record> rows =
@@ -263,15 +352,11 @@ public class SqlRoleManager {
                         bool_or(g.privilege_type = 'INSERT') AS can_insert,
                         bool_or(g.privilege_type = 'UPDATE') AS can_update,
                         bool_or(g.privilege_type = 'DELETE') AS can_delete,
-                        bool_or(p.policyname IS NOT NULL) AS is_row_level
+                        bool_or(g.grantee = {1}) AS is_row_level
                        FROM information_schema.role_table_grants g
-                       LEFT JOIN pg_policies p
-                         ON p.schemaname = g.table_schema
-                         AND p.tablename = g.table_name
-                         AND p.policyname IN ('mg_roles_select_policy', 'mg_roles_dml_policy')
-                       WHERE g.grantee = {0} AND g.table_schema = {1}
+                       WHERE g.grantee IN ({0}, {1}) AND g.table_schema = {2}
                        GROUP BY g.table_name""",
-                  inline(fullRole), inline(schemaName));
+                  inline(fullRole), inline(rlsFullRole), inline(schemaName));
       for (Record row : rows) {
         Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
         Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
@@ -300,11 +385,15 @@ public class SqlRoleManager {
 
   public List<Role> getRoles(String schemaName) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
     List<String> roleNames =
         jooq()
             .select(field(ROLNAME))
             .from(PG_ROLES)
-            .where(field(ROLNAME).like(inline(rolePrefix + "%")))
+            .where(
+                field(ROLNAME)
+                    .like(inline(rolePrefix + "%"))
+                    .and(field(ROLNAME).notLike(inline(rlsRolePrefix + "%"))))
             .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
     List<Role> result = new ArrayList<>();
     for (String roleName : roleNames) {
@@ -322,6 +411,7 @@ public class SqlRoleManager {
 
     Map<String, TablePermission> merged = new LinkedHashMap<>();
     for (String roleName : roleNames) {
+      if (roleName.startsWith(RLS_ROLE_PREFIX)) continue;
       for (TablePermission p : getPermissions(schemaName, roleName)) {
         if (hasAnyPermission(p)) {
           merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
