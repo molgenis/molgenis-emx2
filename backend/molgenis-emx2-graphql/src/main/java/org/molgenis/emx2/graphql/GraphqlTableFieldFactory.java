@@ -360,15 +360,15 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.EXISTS)) {
+    if (PermissionEvaluator.canExists(schema, table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.RANGE)) {
+    if (PermissionEvaluator.canRange(schema, table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (PermissionEvaluator.tablePermissionAtLeast(schema, table, AggregateLevel.COUNT)) {
+    if (PermissionEvaluator.canCount(schema, table)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())

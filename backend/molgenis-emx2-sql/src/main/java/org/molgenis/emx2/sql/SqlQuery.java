@@ -705,7 +705,7 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (PermissionEvaluator.tablePermissionAtLeast(getSchema(), table, AggregateLevel.EXISTS)) {
+        if (PermissionEvaluator.canExists(getSchema(), table)) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {

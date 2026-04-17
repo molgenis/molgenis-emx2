@@ -25,7 +25,19 @@ public final class PermissionEvaluator {
     return AggregateLevel.NONE;
   }
 
-  public static boolean tablePermissionAtLeast(
+  public static boolean canCount(Schema schema, TableMetadata table) {
+    return tablePermissionAtLeast(schema, table, AggregateLevel.COUNT);
+  }
+
+  public static boolean canRange(Schema schema, TableMetadata table) {
+    return tablePermissionAtLeast(schema, table, AggregateLevel.RANGE);
+  }
+
+  public static boolean canExists(Schema schema, TableMetadata table) {
+    return tablePermissionAtLeast(schema, table, AggregateLevel.EXISTS);
+  }
+
+  private static boolean tablePermissionAtLeast(
       Schema schema, TableMetadata table, AggregateLevel level) {
     return getAggregateLevel(schema, table).isAtLeast(level);
   }
