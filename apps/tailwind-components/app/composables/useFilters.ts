@@ -236,7 +236,7 @@ export function useFilters(
   });
 
   watch(visibleFilterIds, async (newIds) => {
-    userHasCustomized.value = true;
+    if (!userHasCustomized.value) return;
     const isDefault = arraysEqual(newIds, defaultFilterIds.value);
     await nextTick();
     if (!urlSyncEnabled || !route || !router) return;
@@ -250,6 +250,7 @@ export function useFilters(
   });
 
   function toggleFilter(columnId: string) {
+    userHasCustomized.value = true;
     if (visibleFilterIds.value.includes(columnId)) {
       visibleFilterIds.value = visibleFilterIds.value.filter(
         (id) => id !== columnId
@@ -264,6 +265,11 @@ export function useFilters(
     clearFilters();
     userHasCustomized.value = false;
     visibleFilterIds.value = [...defaultFilterIds.value];
+    if (urlSyncEnabled && route && router) {
+      const currentQuery = { ...getCurrentQuery() };
+      delete currentQuery[MG_FILTERS_PARAM];
+      router.replace({ query: currentQuery });
+    }
   }
 
   const collapsed = ref(new Set<string>());
@@ -549,7 +555,10 @@ export function useFilters(
         if (!colType || !isCountableType(colType)) return true;
         const base = baseCounts.value.get(id);
         if (!base) return true;
-        const totalCount = base.reduce((sum, opt) => sum + opt.count, 0);
+        const totalCount = base.reduce(
+          (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
+          0
+        );
         return totalCount > 0;
       });
     }

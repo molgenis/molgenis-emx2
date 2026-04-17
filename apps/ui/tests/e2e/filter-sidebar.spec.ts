@@ -451,3 +451,37 @@ test.describe("filter sidebar", () => {
       .toBeLessThan(initialPages);
   });
 });
+
+  test("countable filter sections with zero base count are hidden initially", async ({
+    page,
+  }) => {
+    await page.goto(`${route}catalogue-demo/Collections`);
+    await page.waitForTimeout(5000);
+
+    const url = page.url();
+    expect(url).not.toContain("mg_filters=");
+
+    const filterHeadings = page.locator("h3");
+    const headingTexts = await filterHeadings.allTextContents();
+
+    const filtersHeading = page.getByRole("heading", { level: 2 }).filter({
+      hasText: "Filters",
+    });
+    await expect(filtersHeading).toBeVisible();
+
+    expect(headingTexts.length).toBeGreaterThan(0);
+
+    const hrICoreSection = filterHeadings.filter({ hasText: /hricore/i });
+
+    const hrICoreVisible = await hrICoreSection.isVisible().catch(() => false);
+
+    expect(hrICoreVisible).toBe(
+      false,
+      'Empty "hricore" section should be hidden'
+    );
+
+    const countriesSection = filterHeadings.filter({ hasText: /countries/i });
+    await expect(countriesSection).toBeVisible(
+      "Non-empty 'countries' section should be visible"
+    );
+  });
