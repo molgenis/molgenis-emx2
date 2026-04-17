@@ -86,10 +86,10 @@ watch(
 );
 
 // the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-watch(
-  () => modelValue.value,
-  () => init
-);
+// watch(
+//   () => modelValue.value,
+//   () => init
+// );
 
 onMounted(() => {
   init();
@@ -100,14 +100,12 @@ async function init() {
     props.refSchemaId,
     props.refTableId
   );
-
+  const isModalValueArray = Array.isArray(modelValue.value);
   if (
     modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
+    (isModalValueArray ? modelValue.value.length : modelValue.value)
   ) {
-    const keys = Array.isArray(modelValue.value)
+    const keys = isModalValueArray
       ? await Promise.all(
           (modelValue.value as []).map((row) => extractPrimaryKey(row))
         )

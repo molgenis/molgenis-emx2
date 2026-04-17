@@ -1,3 +1,4 @@
+import { isArrayType } from "../../../../../metadata-utils/src/fieldHelpers";
 import type {
   columnValue,
   IColumn,
@@ -6,7 +7,7 @@ import type {
 } from "../../../../../metadata-utils/src/types";
 import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
-import { deepClone, filterObject } from "../../utils";
+import { deepClone, filterObject, isRefType } from "../../utils";
 
 const {
   EMAIL_REGEX,
@@ -261,7 +262,7 @@ export function isInvalidNonNegativeInt(value: columnValue): boolean {
 
 export function isMissingValue(value: columnValue): boolean {
   if (Array.isArray(value)) {
-    return value.some((element) => isMissingValue(element));
+    return !value.length || value.some((element) => isMissingValue(element));
   } else {
     return value === undefined || value === null || value === "";
   }
