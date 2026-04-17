@@ -140,20 +140,55 @@ const overFlowItems = computed(() =>
           class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
         >
           <li v-for="overFlowItem in overFlowItems">
-            <NuxtLink
-              v-if="overFlowItem.isSpaLink"
-              :to="overFlowItem.link"
-              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
-            >
-              {{ overFlowItem.label }}
-            </NuxtLink>
-            <a
-              v-else
-              :href="basePath + overFlowItem.link"
-              class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
-            >
-              {{ overFlowItem.label }}
-            </a>
+            <template v-if="!overFlowItem.submenu">
+              <NuxtLink
+                v-if="overFlowItem.isSpaLink"
+                :to="overFlowItem.link"
+                class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+              >
+                {{ overFlowItem.label }}
+              </NuxtLink>
+              <a
+                v-else
+                :href="basePath + overFlowItem.link"
+                class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+              >
+                {{ overFlowItem.label }}
+              </a>
+            </template>
+            <template v-else>
+              <VMenu placement="right-start" :distance="-1">
+                <button
+                  class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+                  :class="invert ? 'text-sub-menu' : 'text-menu'"
+                >
+                  {{ overFlowItem.label }}
+                  <BaseIcon name="caret-right" />
+                </button>
+                <template #popper>
+                  <ol
+                    class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
+                  >
+                    <li v-for="subOverFlowItem in overFlowItem.submenu">
+                      <NuxtLink
+                        v-if="subOverFlowItem.isSpaLink"
+                        :to="subOverFlowItem.link"
+                        class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                      >
+                        {{ subOverFlowItem.label }}
+                      </NuxtLink>
+                      <a
+                        v-else
+                        :href="basePath + subOverFlowItem.link"
+                        class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                      >
+                        {{ subOverFlowItem.label }}
+                      </a>
+                    </li>
+                  </ol>
+                </template>
+              </VMenu>
+            </template>
           </li>
         </ol>
       </template>
