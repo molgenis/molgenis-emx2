@@ -215,7 +215,6 @@ test.describe("filter sidebar", () => {
     // Type into the last search input (most likely the newly created filter)
     const lastInput = searchInputs.last();
     await lastInput.fill("test");
-
     // Wait for debounce to flush and URL to update (auto-retrying assertion)
     // The filter value appears as internalIdentifiers.identifier.*=test in the URL
     await page.waitForURL(/internalIdentifiers\.identifier.*=test/);
@@ -350,5 +349,105 @@ test.describe("filter sidebar", () => {
     // Close with Cancel
     await cancelBtn.click();
     await page.waitForTimeout(500);
+  });
+
+  test("pagination count updates when filter applied", async ({ page }) => {
+    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(5000);
+
+    const paginationNav = page.locator('nav[role="navigation"]');
+    await expect(paginationNav).toBeVisible();
+
+    const initialTotalPagesSpan = page
+      .locator('nav[role="navigation"] span')
+      .filter({ hasText: /OF/ })
+      .first();
+    const initialTotalPages = await initialTotalPagesSpan.textContent();
+    expect(initialTotalPages).toMatch(/OF \d+/);
+
+    const initialPages = parseInt(initialTotalPages!.replace(/OF /g, ""));
+    expect(initialPages).toBeGreaterThan(0);
+
+    const initialRowCount = await page.locator("table tbody tr").count();
+
+    const firstCheckboxLabel = page
+      .locator('label:has(input[type="checkbox"])')
+      .first();
+    await expect(firstCheckboxLabel).toBeVisible();
+
+    await firstCheckboxLabel.click();
+    await page.waitForTimeout(3000);
+
+    const paginationVisible = await paginationNav.isVisible();
+    if (paginationVisible) {
+      const updatedTotalPagesSpan = page
+        .locator('nav[role="navigation"] span')
+        .filter({ hasText: /OF/ })
+        .first();
+      const updatedTotalPages = await updatedTotalPagesSpan.textContent();
+      expect(updatedTotalPages).toMatch(/OF \d+/);
+
+      const updatedPages = parseInt(updatedTotalPages!.replace(/OF /g, ""));
+      expect(updatedPages).toBeLessThan(initialPages);
+    } else {
+      const filteredRowCount = await page.locator("table tbody tr").count();
+      expect(filteredRowCount).toBeLessThan(initialRowCount);
+    }
+  });
+
+  test("pagination OF count decreases but stays visible when filter leaves >pageSize results", async ({
+    page,
+  }) => {
+    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(5000);
+
+    const paginationNav = page.locator('nav[role="navigation"]');
+    await expect(paginationNav).toBeVisible();
+
+    const initialOfSpan = page
+      .locator('nav[role="navigation"] span')
+      .filter({ hasText: /OF/ })
+      .first();
+    const initialText = await initialOfSpan.textContent();
+    expect(initialText).toMatch(/OF \d+/);
+    const initialPages = parseInt(initialText!.replace(/OF /g, "").trim());
+    expect(initialPages).toBeGreaterThan(2);
+
+    const countriesHeading = page
+      .locator("h3")
+      .filter({ hasText: /countries/i });
+    await expect(countriesHeading).toBeVisible();
+
+    const netherlandsLabel = page
+      .locator('label:has(input[type="checkbox"])')
+      .filter({ hasText: /Netherlands/ })
+      .first();
+    await expect(netherlandsLabel).toBeVisible();
+    const filterRequestPromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/graphql") && response.status() === 200,
+      { timeout: 15000 }
+    );
+
+    await netherlandsLabel.click();
+    await filterRequestPromise;
+
+    await expect(paginationNav).toBeVisible({ timeout: 10000 });
+
+    const updatedOfSpan = page
+      .locator('nav[role="navigation"] span')
+      .filter({ hasText: /OF/ })
+      .first();
+    await expect(updatedOfSpan).toBeVisible({ timeout: 10000 });
+
+    await expect
+      .poll(
+        async () => {
+          const text = await updatedOfSpan.textContent();
+          return parseInt(text?.replace(/OF /g, "").trim() ?? "");
+        },
+        { timeout: 10000 }
+      )
+      .toBeLessThan(initialPages);
   });
 });
