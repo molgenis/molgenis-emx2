@@ -28,7 +28,7 @@ test("Can change order of columns", async ({ page }) => {
       .locator("table.table-fixed tr")
       .first()
       .getByRole("columnheader")
-      .nth(1)
+      .nth(2)
   ).toHaveText("name");
   await page.getByRole("button", { name: "Columns" }).click();
   await page
@@ -40,6 +40,6 @@ test("Can change order of columns", async ({ page }) => {
       .locator("table.table-fixed tr")
       .first()
       .getByRole("columnheader")
-      .nth(1)
+      .nth(2)
   ).toHaveText("category");
 });

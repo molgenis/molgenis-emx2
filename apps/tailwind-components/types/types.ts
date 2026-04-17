@@ -71,7 +71,6 @@ export type ButtonType =
   | "tertiary"
   | "text"
   | "outline"
-  | "disabled"
   | "filterWell"
   | "inline";
 
