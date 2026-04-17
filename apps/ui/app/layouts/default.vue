@@ -83,6 +83,7 @@ import FooterVersion from "../../../tailwind-components/app/components/FooterVer
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 import type { MenuItem } from "../../../tailwind-components/types/types";
+import { m } from "vue-router/dist/index-DFCq6eJK.js";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -206,6 +207,7 @@ const menuItems: Ref<MenuItem[]> = computed(() => {
       link: item.link,
       isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
       role: item.role,
+      submenu: item.submenu,
     };
   });
 });

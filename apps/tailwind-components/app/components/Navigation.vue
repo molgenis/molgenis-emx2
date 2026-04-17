@@ -21,39 +21,111 @@ const props = withDefaults(
   }
 );
 
-const mainButtons = computed(() =>
+const mainNavItems = computed(() =>
   props.navigation.slice(0, props.maximumButtonShown)
 );
-const subButtons = computed(() =>
+const overFlowItems = computed(() =>
   props.navigation.slice(props.maximumButtonShown)
 );
 </script>
 
 <template>
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
-    <template v-for="button in mainButtons">
-      <NuxtLink
-        v-if="button.isSpaLink"
-        :to="button.link"
-        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
-        :class="invert ? 'text-sub-menu' : 'text-menu'"
-      >
-        {{ button.label }}
-      </NuxtLink>
-      <a
-        v-else
-        :href="basePath + button.link"
-        class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
-        :class="invert ? 'text-sub-menu' : 'text-menu'"
-      >
-        {{ button.label }}
-      </a>
+    <template v-for="mainNavItem in mainNavItems">
+      <template v-if="!mainNavItem.submenu">
+        <NuxtLink
+          v-if="mainNavItem.isSpaLink"
+          :to="mainNavItem.link"
+          class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+          :class="invert ? 'text-sub-menu' : 'text-menu'"
+        >
+          {{ mainNavItem.label }}
+        </NuxtLink>
+        <a
+          v-else
+          :href="basePath + mainNavItem.link"
+          class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+          :class="invert ? 'text-sub-menu' : 'text-menu'"
+        >
+          {{ mainNavItem.label }}
+        </a>
+      </template>
+      <template v-else>
+        <VMenu placement="bottom-end" :distance="-1">
+          <button
+            class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+            :class="invert ? 'text-sub-menu' : 'text-menu'"
+          >
+            {{ mainNavItem.label }}
+            <BaseIcon name="caret-down" />
+          </button>
+
+          <template #popper>
+            <ol
+              class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
+            >
+              <li v-for="subNavItem in mainNavItem.submenu">
+                <template v-if="!subNavItem.submenu">
+                  <NuxtLink
+                    v-if="subNavItem.isSpaLink"
+                    :to="subNavItem.link"
+                    class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                  >
+                    {{ subNavItem.label }}
+                  </NuxtLink>
+                  <a
+                    v-else
+                    :href="basePath + subNavItem.link"
+                    class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                  >
+                    {{ subNavItem.label }}
+                  </a>
+                </template>
+                <template v-else>
+                  <VMenu placement="right-start" :distance="-1">
+                    <button
+                      class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap"
+                      :class="invert ? 'text-sub-menu' : 'text-menu'"
+                    >
+                      {{ subNavItem.label }}
+                      <BaseIcon name="caret-right" />
+                    </button>
+
+                    <template #popper>
+                      <ol
+                        class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
+                      >
+                        <li v-for="subSubNavItem in subNavItem.submenu">
+                          <NuxtLink
+                            v-if="subSubNavItem.isSpaLink"
+                            :to="subSubNavItem.link"
+                            class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                          >
+                            {{ subSubNavItem.label }}
+                          </NuxtLink>
+                          <a
+                            v-else
+                            :href="basePath + subSubNavItem.link"
+                            class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
+                          >
+                            {{ subSubNavItem.label }}
+                          </a>
+                        </li>
+                      </ol>
+                    </template>
+                  </VMenu>
+                </template>
+              </li>
+            </ol>
+          </template>
+        </VMenu>
+      </template>
     </template>
 
     <VMenu
       placement="bottom-end"
       :distance="-1"
-      v-if="subButtons.length > 0 && showMoreButton"
+      v-if="overFlowItems.length > 0 && showMoreButton"
     >
       <button
         class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent rounded-t-3px font-display text-heading-xl hover:border-white"
@@ -67,20 +139,20 @@ const subButtons = computed(() =>
         <ol
           class="flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form"
         >
-          <li v-for="button in subButtons">
+          <li v-for="overFlowItem in overFlowItems">
             <NuxtLink
-              v-if="button.isSpaLink"
-              :to="button.link"
+              v-if="overFlowItem.isSpaLink"
+              :to="overFlowItem.link"
               class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
             >
-              {{ button.label }}
+              {{ overFlowItem.label }}
             </NuxtLink>
             <a
               v-else
-              :href="basePath + button.link"
+              :href="basePath + overFlowItem.link"
               class="font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap"
             >
-              {{ button.label }}
+              {{ overFlowItem.label }}
             </a>
           </li>
         </ol>
