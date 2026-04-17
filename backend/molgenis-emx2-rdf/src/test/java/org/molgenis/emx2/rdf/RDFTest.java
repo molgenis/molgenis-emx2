@@ -1200,7 +1200,7 @@ public class RDFTest {
     testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.SEMANTIC, petStore_nr1));
   }
 
-  private void testDraftRowExcluded(InMemoryRDFHandler handler) throws IOException {
+  private void testDraftRowExcluded(InMemoryRDFHandler handler) {
     IRI nonDraftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=pooky");
     IRI draftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=yakul");
 
