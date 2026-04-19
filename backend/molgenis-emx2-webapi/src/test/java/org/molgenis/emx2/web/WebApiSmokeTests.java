@@ -1263,6 +1263,14 @@ class WebApiSmokeTests extends ApiTestBase {
             .getBody()
             .asString();
 
+    String resultShaclNonTurtleSucceed =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .getBody()
+            .asString();
+
     assertAll(
         // Validate base API.
         () -> assertFalse(resultBase.contains("CatalogueOntologies")),
@@ -1283,7 +1291,14 @@ class WebApiSmokeTests extends ApiTestBase {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")));
+                    - id: hri-v2.0.2""")),
+        () ->
+            assertTrue(
+                resultShaclNonTurtleSucceed.contains(
+                    """
+                            "@type": [
+                                        "http://www.w3.org/ns/shacl#ValidationReport"
+                                    ],""")));
   }
 
   /**

@@ -63,7 +63,7 @@ const isSingleListSection = computed(
 <template>
   <section
     :id="heading?.id"
-    class="scroll-mt-[30px] bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px]"
+    class="min-w-0 scroll-mt-[30px] bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px]"
   >
     <h2 v-if="sectionHeading" :class="headingClasses">
       {{ sectionHeading }}
