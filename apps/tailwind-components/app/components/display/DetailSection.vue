@@ -54,12 +54,16 @@ const sectionHeading = computed(() => {
   if (!props.heading || isTopSection(props.heading)) return false;
   return props.heading.label || props.heading.id;
 });
+
+const isSingleListSection = computed(
+  () => visibleColumns.value.length === 1 && listColumns.value.length === 1
+);
 </script>
 
 <template>
   <section
     :id="heading?.id"
-    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden"
+    class="scroll-mt-[30px] bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px]"
   >
     <h2 v-if="sectionHeading" :class="headingClasses">
       {{ sectionHeading }}
@@ -77,6 +81,7 @@ const sectionHeading = computed(() => {
           <RecordColumn
             :column="col.meta"
             :value="col.value"
+            :count="col.count"
             :show-empty="showEmpty"
             :schema-id="schemaId"
             :parent-row-id="parentRowId"
@@ -85,19 +90,26 @@ const sectionHeading = computed(() => {
       </template>
     </DefinitionList>
 
-    <div v-if="listColumns.length" class="mt-4 space-y-4">
+    <div
+      v-if="listColumns.length"
+      :class="{ 'mt-4': regularColumns.length, 'space-y-4': true }"
+    >
       <div
         v-for="col in listColumns"
         :key="col.meta.id"
         class="record-list-section"
       >
-        <dt class="font-bold text-body-base mb-2 capitalize">
+        <dt
+          v-if="!isSingleListSection"
+          class="font-bold text-body-base mb-2 capitalize"
+        >
           {{ col.meta.label || col.meta.id }}
         </dt>
         <dd class="text-black ml-0">
           <RecordColumn
             :column="col.meta"
             :value="col.value"
+            :count="col.count"
             :show-empty="showEmpty"
             :schema-id="schemaId"
             :parent-row-id="parentRowId"

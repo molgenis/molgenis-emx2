@@ -212,11 +212,33 @@ const effectiveShowPagination = computed(() =>
 | `metadata-utils/src/IQueryMetaData.ts` | Add `nestedLimit?: number` |
 | `app/composables/fetchTableData.ts` | `getColumnIds`: add `_agg{count}` for REFBACK/REF_ARRAY at root; optional `(limit:N)` |
 | `app/composables/fetchRowData.ts` | Pass `nestedLimit` through to `fetchTableData` |
+| `app/composables/useTableData.ts` | Accept `Ref<string> \| string` for schemaId/tableId; watch for changes to re-fetch |
 | `types/types.ts` | `ISectionField`: add `count?: number` |
 | `app/components/display/DetailView.vue` | Add `nestedLimit` prop; pass `_agg` count in section mapping |
 | `app/components/display/DetailSection.vue` | Pass `count` to RecordColumn |
 | `app/components/display/DetailColumn.vue` | Add `count` prop, pass `totalCount` + `filter` to dumb DataList |
 | `app/components/display/DataList.vue` | Add `totalCount` prop, hybrid mode, one-way smart fallback |
+
+## Behavior spec — DataList hybrid switching
+
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| `rows` prop → dumb mode, useTableData called with empty strings | DataList | `DataList — dumb mode initial state > starts with empty schemaId/tableId` | - |
+| `totalCount > rows.length` → show pagination in dumb mode | DataList | `DataList — dumb mode initial state > shows InlinePagination when totalCount > rows.length` | visual check |
+| `totalCount === rows.length` → no pagination, no search | DataList | `DataList — dumb mode initial state > does not show InlinePagination when totalCount === rows.length` | - |
+| No rows, schemaId+tableId → pure smart mode | DataList | `DataList — pure smart mode > uses schemaId and tableId in smart mode` | - |
+| Truncated + search typed → switch to smart (one-way) | DataList | `DataList — one-way switch to smart mode on search > schemaId ref resolves to real value after search` | visual check |
+| Smart switch is one-way — clearing search stays smart | DataList | `DataList — one-way switch > schemaId ref stays resolved after clear search` | - |
+| Truncated + search → search box shown in dumb mode | DataList | `DataList — one-way switch > shows search box in dumb hybrid mode when truncated` | visual check |
+| All prefetched → no search box shown | DataList | `DataList — one-way switch > does not show search box when all data prefetched` | - |
+| Pagination shows correct total pages from totalCount | DataList | `DataList — one-way switch on pagination > shows totalCount / 4 pages in pagination` | visual check |
+| Page beyond prefetched range → switch to smart | DataList | `DataList — one-way switch on pagination > effectiveSchemaId resolves to mySchema when hasSwitchedToSmart` | visual check |
+
+## Implementation decisions
+
+- **Search in all-prefetched mode**: simpler path chosen — any search with `hasTruncatedData=true` triggers smart fallback. When `totalCount === rows.length`, no search box is shown (no search needed client-side). This avoids split search behavior.
+- **`useTableData` accepts `Ref<string> | string`**: modified to accept reactive refs so DataList can pass computed refs that flip from `""` to real values when smart switch occurs, without reinitializing the composable.
+- **`hasSwitchedToSmart`** internal ref in DataList drives the one-way switch. Once true, `isPrefetchMode` becomes false and `effectiveSmartMode` becomes true.
 
 ## Edge cases
 
@@ -229,8 +251,10 @@ const effectiveShowPagination = computed(() =>
 ## Verification
 
 1. **curl test**: ✅ backend supports `(limit:N)` and `_agg{count}` on nested REFBACK fields
-2. **Playwright**: load page, check only 1 SSR data query, no client-side re-fetches
-3. **Playwright**: verify DataList shows correct total count in pagination
-4. **Playwright**: search in a truncated REFBACK DataList triggers smart mode query
-5. **Playwright**: navigate beyond prefetched pages triggers smart mode query
-6. **Playwright**: small REFBACK (all data prefetched) — search works client-side, no server query
+2. **vitest**: ✅ 14 DataList unit tests pass covering all hybrid mode behaviors
+3. **vitest**: ✅ fetchTableData.spec.ts covers _agg and limit emission
+4. **Playwright**: load page, check only 1 SSR data query, no client-side re-fetches
+5. **Playwright**: verify DataList shows correct total count in pagination
+6. **Playwright**: search in a truncated REFBACK DataList triggers smart mode query
+7. **Playwright**: navigate beyond prefetched pages triggers smart mode query
+8. **Playwright**: small REFBACK (all data prefetched) — no search box shown

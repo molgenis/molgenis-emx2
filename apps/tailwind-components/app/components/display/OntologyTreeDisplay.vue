@@ -13,7 +13,7 @@ const props = withDefaults(
   }>(),
   {
     collapseAll: true,
-    maxItems: 5,
+    maxItems: 10,
   }
 );
 

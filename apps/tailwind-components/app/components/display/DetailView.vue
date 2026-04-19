@@ -33,12 +33,14 @@ const props = withDefaults(
     showSideNav?: boolean;
     columnTransform?: (columns: IColumn[]) => IColumn[];
     expandLevel?: number;
+    nestedLimit?: number;
     rowTransform?: (row: recordValue) => recordValue;
   }>(),
   {
     showEmpty: false,
     showSideNav: true,
     expandLevel: 2,
+    nestedLimit: 5,
   }
 );
 
@@ -70,7 +72,8 @@ const {
       props.schemaId!,
       props.tableId!,
       props.rowId!,
-      props.expandLevel
+      props.expandLevel,
+      props.nestedLimit
     ),
   {
     watch: [() => props.schemaId, () => props.tableId, () => props.rowId],
@@ -126,6 +129,16 @@ interface SectionGroup {
   columns: ISectionField[];
 }
 
+function toSectionField(col: IColumn): ISectionField {
+  return {
+    meta: col,
+    value: effectiveData.value[col.id],
+    count: (
+      effectiveData.value[`${col.id}_agg`] as { count?: number } | undefined
+    )?.count,
+  };
+}
+
 const sections = computed<SectionGroup[]>(() => {
   const columns = processedColumns.value;
   const result: SectionGroup[] = [];
@@ -142,10 +155,7 @@ const sections = computed<SectionGroup[]>(() => {
     result.push({
       heading: null,
       isSection: false,
-      columns: orphanColumns.map((col) => ({
-        meta: col,
-        value: effectiveData.value[col.id],
-      })),
+      columns: orphanColumns.map(toSectionField),
     });
   }
 
@@ -162,10 +172,7 @@ const sections = computed<SectionGroup[]>(() => {
       result.push({
         heading: isTop ? null : section,
         isSection: !isTop,
-        columns: sectionDirectColumns.map((col) => ({
-          meta: col,
-          value: effectiveData.value[col.id],
-        })),
+        columns: sectionDirectColumns.map(toSectionField),
       });
     }
 
@@ -182,10 +189,7 @@ const sections = computed<SectionGroup[]>(() => {
         result.push({
           heading,
           isSection: false,
-          columns: headingColumns_.map((col) => ({
-            meta: col,
-            value: effectiveData.value[col.id],
-          })),
+          columns: headingColumns_.map(toSectionField),
         });
       }
     }
@@ -199,10 +203,7 @@ const sections = computed<SectionGroup[]>(() => {
       result.push({
         heading,
         isSection: false,
-        columns: headingColumns_.map((col) => ({
-          meta: col,
-          value: effectiveData.value[col.id],
-        })),
+        columns: headingColumns_.map(toSectionField),
       });
     }
   }

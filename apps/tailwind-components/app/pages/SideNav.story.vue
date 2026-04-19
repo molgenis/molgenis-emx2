@@ -23,7 +23,7 @@ const sections = [
 
     <div class="xl:flex xl:items-start gap-8">
       <aside class="xl:w-82.5 sticky top-8 shrink-0 hidden xl:block">
-        <SideNav title="EXAMPLE" :sections="sections" :scroll-offset="80" />
+        <SideNav title="EXAMPLE" :sections="sections" />
       </aside>
 
       <main class="xl:pl-7.5 grow min-w-0">

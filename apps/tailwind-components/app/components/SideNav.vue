@@ -1,86 +1,25 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useRoute } from "#app/composables/router";
 
 interface Section {
   id: string;
   label: string;
 }
 
-const props = withDefaults(
-  defineProps<{
-    sections: Section[];
-    title?: string;
-    image?: string;
-    scrollOffset?: number;
-  }>(),
-  {
-    scrollOffset: 30,
-  }
-);
+defineProps<{
+  sections: Section[];
+  title?: string;
+  image?: string;
+  headerTarget?: string;
+}>();
 
-const activeSection = ref<string>("");
-let observer: IntersectionObserver | null = null;
+const route = useRoute();
 
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+function activeClass(hash: string) {
+  return hash === route.hash
+    ? "border-l-4 border-menu-active pl-4 font-bold hover:cursor-pointer"
+    : "hover:font-bold hover:cursor-pointer";
 }
-
-function scrollToSection(sectionId: string) {
-  const element = document.getElementById(sectionId);
-  if (element) {
-    const top =
-      element.getBoundingClientRect().top + window.scrollY - props.scrollOffset;
-    window.scrollTo({ top, behavior: "smooth" });
-  }
-}
-
-function setupObserver() {
-  if (observer) {
-    observer.disconnect();
-  }
-
-  const options: IntersectionObserverInit = {
-    root: null,
-    rootMargin: `-${props.scrollOffset}px 0px -50% 0px`,
-    threshold: 0,
-  };
-
-  observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        activeSection.value = entry.target.id;
-      }
-    }
-  }, options);
-
-  for (const section of props.sections) {
-    const element = document.getElementById(section.id);
-    if (element) {
-      observer.observe(element);
-    }
-  }
-}
-
-onMounted(() => {
-  setupObserver();
-  if (props.sections.length > 0 && props.sections[0]) {
-    activeSection.value = props.sections[0].id;
-  }
-});
-
-watch(
-  () => props.sections,
-  () => {
-    setupObserver();
-  },
-  { deep: true }
-);
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
-});
 </script>
 
 <template>
@@ -88,33 +27,34 @@ onUnmounted(() => {
     class="text-body-base text-title-contrast bg-content rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary mb-18"
     aria-label="Section navigation"
   >
-    <button
-      v-if="title || image"
-      class="mb-6 font-display text-heading-4xl w-full text-left hover:cursor-pointer"
-      @click="scrollToTop"
-    >
-      <img v-if="image" :src="image" :alt="title" class="max-w-full" />
-      <span
+    <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
+      <NuxtLink v-if="image" :to="{ ...route, hash: headerTarget }">
+        <img :src="image" :alt="title" class="max-w-full" />
+      </NuxtLink>
+      <NuxtLink
         v-else
-        class="block"
-        style="overflow-wrap: break-word; word-wrap: break-word"
+        :to="{ ...route, hash: headerTarget }"
+        style="
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          white-space: normal;
+        "
       >
         {{ title }}
-      </span>
-    </button>
+      </NuxtLink>
+    </div>
     <ul>
       <li v-for="section in sections" :key="section.id">
-        <button
-          @click="scrollToSection(section.id)"
-          class="capitalize w-full block my-2 text-left hover:font-bold hover:cursor-pointer"
-          :class="{
-            'border-l-4 border-menu-active pl-4 font-bold':
-              activeSection === section.id,
-          }"
-          :aria-current="activeSection === section.id ? 'true' : undefined"
-        >
-          {{ section.label }}
-        </button>
+        <ClientOnly>
+          <NuxtLink
+            class="capitalize w-full block my-2"
+            :to="{ ...route, hash: '#' + section.id }"
+            :class="activeClass('#' + section.id)"
+            :aria-current="route.hash === '#' + section.id ? 'true' : undefined"
+          >
+            {{ section.label }}
+          </NuxtLink>
+        </ClientOnly>
       </li>
     </ul>
   </nav>

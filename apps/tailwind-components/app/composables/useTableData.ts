@@ -26,8 +26,8 @@ export interface UseTableDataReturn {
 }
 
 export function useTableData(
-  schemaId: string,
-  tableId: string,
+  schemaId: string | Ref<string>,
+  tableId: string | Ref<string>,
   options: UseTableDataOptions
 ): UseTableDataReturn {
   const {
@@ -46,7 +46,9 @@ export function useTableData(
   const errorRef = ref<string | undefined>(undefined);
 
   async function fetchData(): Promise<void> {
-    if (!schemaId || !tableId) {
+    const resolvedSchemaId = unref(schemaId);
+    const resolvedTableId = unref(tableId);
+    if (!resolvedSchemaId || !resolvedTableId) {
       status.value = "idle";
       return;
     }
@@ -54,8 +56,10 @@ export function useTableData(
     errorRef.value = undefined;
     try {
       const [tableMetadata, tableData] = await Promise.all([
-        fetchTableMetadata(schemaId, tableId, { includeSubclassColumns }),
-        fetchTableData(schemaId, tableId, {
+        fetchTableMetadata(resolvedSchemaId, resolvedTableId, {
+          includeSubclassColumns,
+        }),
+        fetchTableData(resolvedSchemaId, resolvedTableId, {
           limit: pageSize,
           offset: (page.value - 1) * pageSize,
           orderby: orderby?.value?.column
@@ -93,6 +97,16 @@ export function useTableData(
     () => unref(filter),
     () => fetchData(),
     { immediate: false, deep: true }
+  );
+  watch(
+    () => unref(schemaId),
+    () => fetchData(),
+    { immediate: false }
+  );
+  watch(
+    () => unref(tableId),
+    () => fetchData(),
+    { immediate: false }
   );
 
   fetchData();

@@ -22,6 +22,7 @@ const props = withDefaults(
   defineProps<{
     column: IColumn;
     value: any;
+    count?: number;
     showEmpty?: boolean;
     schemaId?: string;
     parentRowId?: Record<string, any>;
@@ -146,6 +147,7 @@ function handleRefClick() {
   <DataList
     v-else-if="showDataList"
     :rows="listRows"
+    :total-count="count"
     :columns="refTableColumns"
     :schema-id="column.refSchemaId || schemaId"
     :table-id="column.refTableId"
