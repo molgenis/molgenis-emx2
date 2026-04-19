@@ -69,6 +69,8 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   @Override
   protected void dataRowToRdf(
       NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
+    if (row.isDraft()) return;
+
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
     if (table.getMetadata().getSemantics() != null) {
