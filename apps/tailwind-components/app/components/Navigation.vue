@@ -26,7 +26,7 @@ const props = withDefaults(
 const mainNavItems = computed(() =>
   props.navigation.slice(0, props.maximumButtonShown)
 );
-const overFlowItems = computed(() =>
+const overflowItems = computed(() =>
   props.navigation.slice(props.maximumButtonShown)
 );
 
@@ -74,7 +74,7 @@ const moreButtonClass =
     <VMenu
       placement="bottom-end"
       :distance="-1"
-      v-if="overFlowItems.length > 0 && showMoreButton"
+      v-if="overflowItems.length > 0 && showMoreButton"
     >
       <button
         :class="[moreButtonClass, invert ? 'text-sub-menu' : 'text-menu']"
@@ -86,7 +86,7 @@ const moreButtonClass =
 
       <template #popper>
         <NavigationMenuItems
-          :items="overFlowItems"
+          :items="overflowItems"
           :base-path="basePath"
           :invert="invert"
         />
