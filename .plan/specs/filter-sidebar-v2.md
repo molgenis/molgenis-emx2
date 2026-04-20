@@ -164,6 +164,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Non-filter URL params preserved (page, sort, view) | useFilters.ts | useFilters.spec.ts | - |
 | Bookmarkable: copy URL reproduces exact filter state including collapse state | useFilters.ts | - | visual check |
 | No localStorage usage (URL is the only persistence) | - | - | - |
+| URL-hydrated nested filter (`mg_filters=parent.child`) resolves nested column metadata before sidebar first render — renders correct component for nested type (e.g. ONTOLOGY → Tree, not STRING input fallback) | useFilters.ts, Sidebar.vue | useFilters.spec.ts; filter-sidebar.spec.ts (e2e) | visual check |
 
 ## Table Integration
 

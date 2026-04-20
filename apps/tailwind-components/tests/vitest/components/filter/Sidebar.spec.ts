@@ -17,6 +17,14 @@ vi.mock("../../../../app/components/filter/Column.vue", () => ({
   },
 }));
 
+vi.mock("../../../../app/components/Skeleton.vue", () => ({
+  default: {
+    name: "Skeleton",
+    props: ["lines"],
+    template: '<div class="skeleton-stub" />',
+  },
+}));
+
 vi.mock("../../../../app/components/BaseIcon.vue", () => ({
   default: {
     name: "BaseIcon",
@@ -301,5 +309,50 @@ describe("Sidebar", () => {
 
     expect(filters.toggleFilter).toHaveBeenCalledWith("tags");
     expect(filters.toggleFilter).toHaveBeenCalledWith("status");
+  });
+
+  it("renders skeleton for dotted id without nestedColumnMeta entry (pending)", async () => {
+    const filters = makeFilters(["publisher.country"]);
+    const columns = makeColumns(["publisher"]);
+    const wrapper = mount(Sidebar, {
+      props: { filters, columns, schemaId: "test", tableId: "TestTable" },
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".skeleton-stub").exists()).toBe(true);
+    expect(wrapper.find('[data-column="publisher.country"]').exists()).toBe(
+      false
+    );
+  });
+
+  it("renders Column (not skeleton) for dotted id once nestedColumnMeta resolves", async () => {
+    const nestedMeta = ref(
+      new Map([
+        [
+          "publisher.country",
+          { label: "publisher → country", columnType: "ONTOLOGY" },
+        ],
+      ])
+    );
+    const filtersWithMeta = makeFilters(
+      ["publisher.country"],
+      new Map(),
+      nestedMeta.value
+    );
+    const columns = makeColumns(["publisher"]);
+    const wrapper = mount(Sidebar, {
+      props: {
+        filters: filtersWithMeta,
+        columns,
+        schemaId: "test",
+        tableId: "TestTable",
+      },
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".skeleton-stub").exists()).toBe(false);
+    expect(wrapper.find('[data-column="publisher.country"]').exists()).toBe(
+      true
+    );
   });
 });

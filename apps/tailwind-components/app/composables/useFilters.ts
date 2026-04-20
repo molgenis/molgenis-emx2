@@ -441,6 +441,16 @@ export function useFilters(
     { immediate: true }
   );
 
+  watch(rawColumns, async (cols) => {
+    if (cols.length === 0) return;
+    const hasUnresolvedDotted = visibleFilterIds.value.some(
+      (id) => id.includes(".") && !nestedColumnMeta.value.has(id)
+    );
+    if (hasUnresolvedDotted) {
+      await hydrateNestedFilters();
+    }
+  });
+
   const countsMap = shallowRef<Map<string, CountedOption[]>>(new Map());
   const loadingSet = shallowRef<Set<string>>(new Set());
   const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());

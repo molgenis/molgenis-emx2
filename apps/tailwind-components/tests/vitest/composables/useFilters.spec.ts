@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref, nextTick } from "vue";
+import { flushPromises } from "@vue/test-utils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
 vi.mock("../../../app/composables/fetchGraphql", () => ({
@@ -496,6 +497,51 @@ describe("useFilters — hydrateNestedFilters", () => {
     await hydrateNestedFilters();
 
     expect(fetchTableMetadata).not.toHaveBeenCalled();
+  });
+
+  it("resolves nested column metadata when rawColumns populates after URL-init with dotted mg_filters", async () => {
+    const { default: fetchTableMetadata } = await import(
+      "../../../app/composables/fetchTableMetadata"
+    );
+    const subpopulationsColumn: IColumn = {
+      id: "subpopulations",
+      label: "Subpopulations",
+      columnType: "REF",
+      refTableId: "Subpopulations",
+    } as IColumn;
+    const ageGroupsColumn: IColumn = {
+      id: "ageGroups",
+      label: "Age Groups",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+    vi.mocked(fetchTableMetadata).mockResolvedValue({
+      columns: [ageGroupsColumn],
+    } as any);
+
+    const { route, router } = makeUrlSync({
+      [MG_FILTERS_PARAM]: "subpopulations.ageGroups",
+    });
+    const rawColumns = ref<IColumn[]>([]);
+
+    const { nestedColumnMeta } = useFilters(rawColumns, {
+      schemaId: "catalogue-demo",
+      tableId: "Collections",
+      urlSync: true,
+      route,
+      router,
+    });
+
+    await flushPromises();
+    expect(
+      nestedColumnMeta.value.get("subpopulations.ageGroups")
+    ).toBeUndefined();
+
+    rawColumns.value = [subpopulationsColumn];
+    await flushPromises();
+    await nextTick();
+
+    const meta = nestedColumnMeta.value.get("subpopulations.ageGroups");
+    expect(meta?.columnType).toBe("ONTOLOGY");
   });
 });
 

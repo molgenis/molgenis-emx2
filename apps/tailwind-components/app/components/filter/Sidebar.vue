@@ -5,6 +5,7 @@ import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import InputSearch from "../input/Search.vue";
+import Skeleton from "../Skeleton.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
 
@@ -25,6 +26,14 @@ const searchValue = computed({
 
 function pathLabel(id: string): string {
   return id.split(".").join(" → ");
+}
+
+function isNestedPending(id: string): boolean {
+  return (
+    id.includes(".") &&
+    !props.columns.find((col) => col.id === id) &&
+    !props.filters.nestedColumnMeta.value.has(id)
+  );
 }
 
 const visibleColumns = computed(() =>
@@ -148,7 +157,9 @@ function handlePickerApply(
           :id="`filter-section-${column.id}`"
           class="mx-5 mb-5"
         >
+          <Skeleton v-if="isNestedPending(column.id)" :lines="3" />
           <Column
+            v-else
             :column="column"
             :options="filters.getCountedOptions(column.id).value"
             :loading="filters.isCountLoading(column.id).value"
