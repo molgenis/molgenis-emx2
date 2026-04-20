@@ -23,6 +23,7 @@ import {
 } from "../utils/filterUrlCodec";
 import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
 import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
+import { BOOL_LABELS } from "../utils/filterConstants";
 import { arraysEqual, jsonEqual } from "../utils/compare";
 import fetchGraphql from "./fetchGraphql";
 import fetchTableMetadata from "./fetchTableMetadata";
@@ -196,9 +197,20 @@ export function useFilters(
   const activeFilters = computed<ActiveFilter[]>(() => {
     const result: ActiveFilter[] = [];
     for (const [columnId, filterValue] of filterStates.value) {
-      const column = columns.value.find((c) => c.id === columnId);
+      const column = resolveColumn(columnId);
       const label = column?.label || column?.id || columnId;
-      const { displayValue, values } = formatFilterValue(filterValue);
+      if (!column) {
+        const { displayValue, values } = formatFilterValue(filterValue, {});
+        if (displayValue)
+          result.push({ columnId, label, displayValue, values });
+        continue;
+      }
+      const counted = countsMap.value.get(columnId) ?? null;
+      const optionLabels = buildLabelMap(column, counted);
+      const { displayValue, values } = formatFilterValue(
+        filterValue,
+        optionLabels
+      );
       if (displayValue) {
         result.push({ columnId, label, displayValue, values });
       }
@@ -468,6 +480,20 @@ export function useFilters(
     return nested?.columnType ?? null;
   }
 
+  function resolveColumn(columnId: string): IColumn | null {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) return direct;
+    const nested = nestedColumnMeta.value.get(columnId);
+    if (!nested) return null;
+    return {
+      id: columnId,
+      columnType: nested.columnType,
+      label: nested.label,
+      refTableId: nested.refTableId ?? undefined,
+      refSchemaId: nested.refSchemaId ?? undefined,
+    } as IColumn;
+  }
+
   function resolveColumnRefInfo(columnId: string): {
     refTableId: string | null;
     refSchemaId: string | null;
@@ -642,4 +668,60 @@ export function useFilters(
     isCollapsed,
     hydrateNestedFilters,
   };
+}
+
+export function buildLabelMap(
+  column: IColumn,
+  counted: CountedOption[] | undefined | null
+): Record<string, string> {
+  if (column.columnType === "BOOL") {
+    return { ...BOOL_LABELS };
+  }
+
+  if (!counted || counted.length === 0) {
+    return {};
+  }
+
+  if (
+    column.columnType === "ONTOLOGY" ||
+    column.columnType === "ONTOLOGY_ARRAY"
+  ) {
+    return flattenOntologyTree(counted);
+  }
+
+  if (column.columnType === "RADIO" || column.columnType === "CHECKBOX") {
+    return flattenRefOptions(counted);
+  }
+
+  return {};
+}
+
+function flattenOntologyTree(nodes: CountedOption[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  collectOntologyNodes(nodes, map);
+  return map;
+}
+
+function collectOntologyNodes(
+  nodes: CountedOption[],
+  map: Record<string, string>
+): void {
+  for (const node of nodes) {
+    map[node.name] = node.label ?? node.name;
+    if (node.children && node.children.length > 0) {
+      collectOntologyNodes(node.children, map);
+    }
+  }
+}
+
+function flattenRefOptions(options: CountedOption[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const option of options) {
+    if (option.keyObject !== undefined) {
+      map[JSON.stringify(option.keyObject)] = option.name;
+    } else {
+      map[option.name] = option.label ?? option.name;
+    }
+  }
+  return map;
 }

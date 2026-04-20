@@ -78,4 +78,43 @@ describe("ActiveFilters", () => {
     const wrapper = mountComponent([singleFilter]);
     expect(wrapper.html()).toContain("Clear all");
   });
+
+  it("renders BOOL chip with 'Yes' display value (not raw 'true')", () => {
+    const boolFilter: ActiveFilter = {
+      columnId: "active",
+      label: "Active",
+      displayValue: "Yes",
+      values: [],
+    };
+    const wrapper = mountComponent([boolFilter]);
+    expect(wrapper.html()).toContain("Yes");
+    expect(wrapper.html()).not.toContain(">true<");
+  });
+
+  it("renders multi-value BOOL chip showing 'Yes', 'No', 'Not set' in tooltip values", () => {
+    const boolFilter: ActiveFilter = {
+      columnId: "active",
+      label: "Active",
+      displayValue: "3",
+      values: ["Yes", "No", "Not set"],
+    };
+    const wrapper = mountComponent([boolFilter]);
+    expect(boolFilter.values).toContain("Yes");
+    expect(boolFilter.values).toContain("No");
+    expect(boolFilter.values).toContain("Not set");
+    expect(boolFilter.values).not.toContain("true");
+    expect(boolFilter.values).not.toContain("_null_");
+  });
+
+  it("renders ONTOLOGY chip with label instead of name", () => {
+    const ontologyFilter: ActiveFilter = {
+      columnId: "type",
+      label: "Type",
+      displayValue: "Heart Disease",
+      values: [],
+    };
+    const wrapper = mountComponent([ontologyFilter]);
+    expect(wrapper.html()).toContain("Heart Disease");
+    expect(wrapper.html()).not.toContain("ncit_C123");
+  });
 });

@@ -3,6 +3,7 @@ import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
 import { setNestedValue } from "./buildFilter";
+import { BOOL_LABELS } from "./filterConstants";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
@@ -91,9 +92,9 @@ async function fetchBoolGroupBy(
     );
   } catch {
     return [
-      { name: "true", label: "Yes", count: 0 },
-      { name: "false", label: "No", count: 0 },
-      { name: "_null_", label: "Not set", count: 0 },
+      { name: "true", label: BOOL_LABELS["true"], count: 0 },
+      { name: "false", label: BOOL_LABELS["false"], count: 0 },
+      { name: "_null_", label: BOOL_LABELS["_null_"], count: 0 },
     ];
   }
 
@@ -106,9 +107,21 @@ async function fetchBoolGroupBy(
   }
 
   return [
-    { name: "true", label: "Yes", count: countMap.get("true") ?? 0 },
-    { name: "false", label: "No", count: countMap.get("false") ?? 0 },
-    { name: "_null_", label: "Not set", count: countMap.get("_null_") ?? 0 },
+    {
+      name: "true",
+      label: BOOL_LABELS["true"],
+      count: countMap.get("true") ?? 0,
+    },
+    {
+      name: "false",
+      label: BOOL_LABELS["false"],
+      count: countMap.get("false") ?? 0,
+    },
+    {
+      name: "_null_",
+      label: BOOL_LABELS["_null_"],
+      count: countMap.get("_null_") ?? 0,
+    },
   ];
 }
 

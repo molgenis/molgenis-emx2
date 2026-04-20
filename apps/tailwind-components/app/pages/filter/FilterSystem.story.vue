@@ -54,6 +54,7 @@ import FilterSidebar from "../../components/filter/Sidebar.vue";
 import FilterActiveFilters from "../../components/filter/ActiveFilters.vue";
 import { buildGraphQLFilter } from "../../utils/buildFilter";
 import { formatFilterValue } from "../../utils/formatFilterValue";
+import { buildLabelMap } from "../../composables/useFilters";
 
 const columns: IColumn[] = [
   {
@@ -157,7 +158,13 @@ const activeFilters = computed<ActiveFilter[]>(() => {
   for (const [columnId, filterValue] of filterStatesRef.value) {
     const column = columns.find((col) => col.id === columnId);
     const label = column?.label || column?.id || columnId;
-    const { displayValue, values } = formatFilterValue(filterValue);
+    const effectiveColumn =
+      column ?? ({ id: columnId, columnType: "STRING" } as IColumn);
+    const optionLabels = buildLabelMap(effectiveColumn, null);
+    const { displayValue, values } = formatFilterValue(
+      filterValue,
+      optionLabels
+    );
     if (displayValue) {
       result.push({ columnId, label, displayValue, values });
     }
