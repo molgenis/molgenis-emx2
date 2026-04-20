@@ -30,10 +30,7 @@ const overFlowItems = computed(() =>
   props.navigation.slice(props.maximumButtonShown)
 );
 
-const topLevelLinkClass =
-  "flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap";
-
-const submenuButtonClass =
+const linkClass =
   "flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap";
 
 const moreButtonClass =
@@ -50,18 +47,13 @@ const moreButtonClass =
         <NavigationMenuLink
           :item="mainNavItem"
           :base-path="basePath"
-          :link-class="`${topLevelLinkClass} ${
-            invert ? 'text-sub-menu' : 'text-menu'
-          }`"
+          :link-class="`${linkClass} ${invert ? 'text-sub-menu' : 'text-menu'}`"
         />
       </template>
       <template v-else>
         <VMenu placement="bottom-end" :distance="-1">
           <button
-            :class="[
-              submenuButtonClass,
-              invert ? 'text-sub-menu' : 'text-menu',
-            ]"
+            :class="[linkClass, invert ? 'text-sub-menu' : 'text-menu']"
             :data-test="`main-submenu-${mainNavItem.label}`"
           >
             {{ mainNavItem.label }}

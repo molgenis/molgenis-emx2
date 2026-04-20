@@ -14,11 +14,11 @@ defineProps<{
 }>();
 
 const submenuListClass =
-  "flex flex-col gap-1.5 text-body-base rounded-3px rounded-tr-none shadow-xl p-6 bg-form";
+  "flex flex-col gap-1.5 rounded-3px rounded-tr-none bg-form p-6 shadow-xl text-body-base";
 const submenuLinkClass =
-  "font-bold transition-colors text-sub-menu hover:text-sub-menu-hover hover:underline whitespace-nowrap";
+  "font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu hover:text-sub-menu-hover";
 const submenuButtonClass =
-  "flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap";
+  "font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu flex items-center gap-1 border border-b-0 border-transparent";
 </script>
 
 <template>
