@@ -434,7 +434,7 @@ const onBlur = useDebounceFn(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection?.length : selection"
     @click="clearSelection"
     type="text"
     size="tiny"
