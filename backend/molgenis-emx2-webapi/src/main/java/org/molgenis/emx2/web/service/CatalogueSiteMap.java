@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web.service;
 
 import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
@@ -64,7 +65,18 @@ public class CatalogueSiteMap {
         schema
             .query("Variables")
             .select(s("name"), s(RESOURCE), s("dataset"))
-            .where(f(RESOURCE, f("type", f("name", Operator.EQUALS, TYPE_NETWORK))))
+            .where(
+                f(
+                    RESOURCE,
+                    or(
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Networks"),
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Catalogues"))))
             .retrieveRows()
             .forEach(
                 variable -> {
