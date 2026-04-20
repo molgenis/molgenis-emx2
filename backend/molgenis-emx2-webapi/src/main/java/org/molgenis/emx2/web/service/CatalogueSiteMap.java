@@ -69,9 +69,12 @@ public class CatalogueSiteMap {
                 f(
                     RESOURCE,
                     or(
-                        f("mg_tableclass", Operator.EQUALS, schema.getName() + "." + "Networks"),
                         f(
-                            "mg_tableclass",
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Networks"),
+                        f(
+                            Constants.MG_TABLECLASS,
                             Operator.EQUALS,
                             schema.getName() + "." + "Catalogues"))))
             .retrieveRows()
