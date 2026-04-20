@@ -9,8 +9,6 @@ import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.List;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String TYPE_NETWORK = "Network";
   private static final String RESOURCE = "resource";
 
   private enum ResourcePath {
@@ -28,10 +25,16 @@ public class CatalogueSiteMap {
 
   private final Schema schema;
   private final String baseUrl;
+  private String networkTableClass;
+  private String catalogueTableClass;
+  private String collectionTableClass;
 
   public CatalogueSiteMap(Schema schema, String baseUrl) {
     this.schema = schema;
     this.baseUrl = baseUrl;
+    networkTableClass = "%s.%s".formatted(schema.getName(), "Networks");
+    catalogueTableClass = "%s.%s".formatted(schema.getName(), "Catalogues");
+    collectionTableClass = "%s.%s".formatted(schema.getName(), "Collections");
   }
 
   public String buildSiteMap() {
@@ -43,21 +46,23 @@ public class CatalogueSiteMap {
             "Expected table 'Resources' not found in schema: %s".formatted(schema.getName()));
       }
       resourceTable
-          .select(s("id"), s("type"))
+          .select(s("id"), s(Constants.MG_TABLECLASS))
           .retrieveRows()
           .forEach(
               resource -> {
                 String collectionId = resource.getString("id");
                 ResourcePath resourcePath = getResourcePath(resource);
-                try {
-                  wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
-                } catch (MalformedURLException e) {
-                  logger.error(
-                      "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
-                      schema.getName(),
-                      resourcePath.name(),
-                      collectionId,
-                      e);
+                if (resourcePath != null) {
+                  try {
+                    wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
+                  } catch (MalformedURLException e) {
+                    logger.error(
+                        "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
+                        schema.getName(),
+                        resourcePath.name(),
+                        collectionId,
+                        e);
+                  }
                 }
               });
 
@@ -102,12 +107,13 @@ public class CatalogueSiteMap {
   }
 
   private ResourcePath getResourcePath(Row resource) {
-    List<String> types = Arrays.asList(resource.getStringArray("type", false));
-    // no switch bool in java 21
-    if (types.contains(TYPE_NETWORK)) {
+    String tableclass = resource.getString(Constants.MG_TABLECLASS);
+    if (tableclass.equals(networkTableClass) || tableclass.equals(catalogueTableClass)) {
       return ResourcePath.networks;
-    } else {
+    } else if (tableclass.equals(collectionTableClass)) {
       return ResourcePath.collections;
+    } else {
+      return null;
     }
   }
 
