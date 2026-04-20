@@ -17,6 +17,7 @@ import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 
 const props = defineProps<{
   column: IColumn;
@@ -147,6 +148,12 @@ function onSearchInput(val: string | number) {
 <template>
   <div>
     <Skeleton v-if="loading && options.length === 0" :lines="4" />
+
+    <TextNoResultsMessage
+      v-else-if="isCountable && options.length === 0"
+      label="No matching values for this filter"
+      class="!text-search-filter-group-title"
+    />
 
     <template v-else-if="isCountable">
       <Tree

@@ -85,6 +85,8 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | On search within filter: show all matching terms regardless of count | Column.vue | Column.spec.ts | visual check |
 | On clear filters: go back to showing only initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
 | No facet counting on REF/REF_ARRAY (use nested filters via picker instead) | - | - | - |
+| Countable filter with zero options (after load) shows "No matching values for this filter" message | Column.vue | Column.spec.ts | visual check |
+| Empty-state message only renders when `!loading && options.length === 0` for countable filters (not range/text) | Column.vue | Column.spec.ts | - |
 
 ## Facet Counting (Centralized)
 

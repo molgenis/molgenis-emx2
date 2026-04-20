@@ -7,6 +7,7 @@ import Column from "../../../../app/components/filter/Column.vue";
 import Tree from "../../../../app/components/input/Tree.vue";
 import FilterRange from "../../../../app/components/filter/Range.vue";
 import GenericInput from "../../../../app/components/Input.vue";
+import NoResultsMessage from "../../../../app/components/text/NoResultsMessage.vue";
 
 vi.mock("../../../../app/components/Input.vue", () => ({
   default: {
@@ -349,6 +350,43 @@ describe("Column", () => {
       });
       const tree = wrapper.findComponent(Tree);
       expect(tree.props("modelValue")).toEqual(["A, 1"]);
+    });
+  });
+
+  describe("empty state", () => {
+    it("renders empty-state message for countable filter with no options when not loading", () => {
+      const wrapper = mountColumn(ontologyColumn(), [], undefined, false);
+      expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
+      expect(wrapper.find("span.italic").exists()).toBe(true);
+      expect(wrapper.text()).toContain("No matching values for this filter");
+      expect(wrapper.findComponent(Tree).exists()).toBe(false);
+    });
+
+    it("does not render empty-state message for range/text filters", () => {
+      const rangeWrapper = mountColumn(dateColumn(), [], undefined, false);
+      expect(rangeWrapper.findComponent(NoResultsMessage).exists()).toBe(false);
+      expect(rangeWrapper.find("span.italic").exists()).toBe(false);
+      expect(rangeWrapper.text()).not.toContain(
+        "No matching values for this filter"
+      );
+      expect(rangeWrapper.findComponent(FilterRange).exists()).toBe(true);
+
+      const stringWrapper = mountColumn(stringColumn(), [], undefined, false);
+      expect(stringWrapper.findComponent(NoResultsMessage).exists()).toBe(
+        false
+      );
+      expect(stringWrapper.find("span.italic").exists()).toBe(false);
+      expect(stringWrapper.text()).not.toContain(
+        "No matching values for this filter"
+      );
+      expect(stringWrapper.find('input[type="search"]').exists()).toBe(true);
+    });
+
+    it("does not render empty-state message while loading", () => {
+      const wrapper = mountColumn(ontologyColumn(), [], undefined, true);
+      expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(false);
+      expect(wrapper.find("span.italic").exists()).toBe(false);
+      expect(wrapper.findAll('[role="status"]').length).toBeGreaterThan(0);
     });
   });
 
