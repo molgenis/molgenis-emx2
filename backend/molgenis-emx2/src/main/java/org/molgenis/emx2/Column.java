@@ -583,14 +583,22 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public String getRefLabelDefault() {
     if (!isReference()) return null;
-    // we concat all columns unless already shown in another column
-    StringBuilder result = new StringBuilder();
-    for (Reference ref : getReferences()) {
-      if (!ref.isOverlapping()) {
-        result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
-      }
-    }
-    return result.toString().replaceFirst("[.]", "");
+    List<Column> allPk = getRefTable().getPrimaryKeyColumns();
+    Set<String> excludedPkeyFields =
+        allPk.stream()
+            .filter(
+                pk ->
+                    isRefback()
+                        ? pk.getName().equals(getRefBack())
+                        : pk.isReference() && getTableName().equals(pk.getRefTableName()))
+            .flatMap(c -> c.getCompositeFields().stream())
+            .map(Field::getName)
+            .collect(Collectors.toSet());
+    return getReferences().stream()
+        .filter(ref -> !ref.isOverlapping())
+        .filter(ref -> !excludedPkeyFields.contains(ref.getRefTo()))
+        .map(ref -> "${" + String.join(".", ref.getPath()) + "}")
+        .collect(Collectors.joining(" "));
   }
 
   public Column setRefLabel(String refLabel) {
