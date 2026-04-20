@@ -84,6 +84,10 @@ watch(
   () => props.refTableId,
   () => init
 );
+watch(
+  () => modelValue.value,
+  () => init
+);
 
 onMounted(() => {
   init();
