@@ -62,16 +62,16 @@ const columnName = computed<string>(() => {
 });
 
 //computed elements to translate to CheckboxGroup or
-const listOptions = computed(() => {
+const listOptions = computed((): IValueLabel[] => {
   return Object.keys(optionMap.value).map((label) => {
-    return { value: label } as IValueLabel;
+    return { value: label };
   });
 });
 
-const selection = computed(() =>
+const selection = computed((): string | string[] | undefined =>
   props.isArray
-    ? (Object.keys(selectionMap.value) as string[])
-    : (Object.keys(selectionMap.value)[0] as string)
+    ? Object.keys(selectionMap.value)
+    : Object.keys(selectionMap.value)[0]
 );
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
@@ -84,12 +84,6 @@ watch(
   () => props.refTableId,
   () => init
 );
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
-// watch(
-//   () => modelValue.value,
-//   () => init
-// );
 
 onMounted(() => {
   init();

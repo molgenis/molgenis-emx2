@@ -1,4 +1,3 @@
-import { isArrayType } from "../../../../../metadata-utils/src/fieldHelpers";
 import type {
   columnValue,
   IColumn,
@@ -7,7 +6,7 @@ import type {
 } from "../../../../../metadata-utils/src/types";
 import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
-import { deepClone, filterObject, isRefType } from "../../utils";
+import { deepClone, filterObject } from "../../utils";
 
 const {
   EMAIL_REGEX,
