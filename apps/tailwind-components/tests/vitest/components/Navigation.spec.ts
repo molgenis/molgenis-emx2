@@ -51,9 +51,6 @@ describe("Navigation", () => {
     });
 
     const html = wrapper.html();
-    expect(html).toContain('data-test="main-submenu-Data"');
-    expect(html).toContain('data-test="submenu-trigger-Catalog"');
-    expect(html).toContain("Entities");
     expect(html).toMatchSnapshot();
   });
 });

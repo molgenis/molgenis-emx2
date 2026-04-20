@@ -38,7 +38,7 @@ const submenuButtonClass =
               submenuButtonClass,
               invert ? 'text-sub-menu' : 'text-menu',
             ]"
-            :data-test="`submenu-trigger-${item.label}`"
+            type="button"
           >
             {{ item.label }}
             <BaseIcon name="caret-right" />

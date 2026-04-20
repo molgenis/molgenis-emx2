@@ -78,7 +78,7 @@ const moreButtonClass =
     >
       <button
         :class="[moreButtonClass, invert ? 'text-sub-menu' : 'text-menu']"
-        data-test="more-menu-trigger"
+        type="button"
       >
         More
         <BaseIcon name="caret-down" />

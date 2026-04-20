@@ -5,7 +5,7 @@ exports[`Navigation > renders menu html with submenu and sub-submenu items 1`] =
   <div class="vmenu-stub" placement="bottom-end" distance="-1"><button class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline whitespace-nowrap text-menu" data-test="main-submenu-Data">Data <base-icon-stub name="caret-down" width="24"></base-icon-stub></button>
     <ol class="flex flex-col gap-1.5 rounded-3px rounded-tr-none bg-form p-6 shadow-xl text-body-base">
       <li>
-        <div class="vmenu-stub" placement="right-start" distance="-1"><button class="font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu flex items-center gap-1 border border-b-0 border-transparent text-menu" data-test="submenu-trigger-Catalog">Catalog <base-icon-stub name="caret-right" width="24"></base-icon-stub></button>
+        <div class="vmenu-stub" placement="right-start" distance="-1"><button class="font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu flex items-center gap-1 border border-b-0 border-transparent text-menu" type="button">Catalog <base-icon-stub name="caret-right" width="24"></base-icon-stub></button>
           <ol class="flex flex-col gap-1.5 rounded-3px rounded-tr-none bg-form p-6 shadow-xl text-body-base">
             <li><a href="/#entities" class="font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu hover:text-sub-menu-hover">Entities</a></li>
           </ol>
