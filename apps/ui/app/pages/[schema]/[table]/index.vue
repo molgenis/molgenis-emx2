@@ -70,7 +70,10 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
-    pagesize: tableSettings.value.pageSize === 10 ? undefined : tableSettings.value.pageSize,
+    pagesize:
+      tableSettings.value.pageSize === 10
+        ? undefined
+        : tableSettings.value.pageSize,
   };
 
   router.push({ query });
