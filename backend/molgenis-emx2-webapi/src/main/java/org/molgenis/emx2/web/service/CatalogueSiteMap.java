@@ -25,9 +25,9 @@ public class CatalogueSiteMap {
 
   private final Schema schema;
   private final String baseUrl;
-  private String networkTableClass;
-  private String catalogueTableClass;
-  private String collectionTableClass;
+  private final String networkTableClass;
+  private final String catalogueTableClass;
+  private final String collectionTableClass;
 
   public CatalogueSiteMap(Schema schema, String baseUrl) {
     this.schema = schema;
@@ -57,7 +57,7 @@ public class CatalogueSiteMap {
                     wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
                   } catch (MalformedURLException e) {
                     logger.error(
-                        "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
+                        "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
                         schema.getName(),
                         resourcePath.name(),
                         collectionId,
