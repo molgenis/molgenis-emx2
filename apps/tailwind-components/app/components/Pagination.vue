@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, useId } from "vue";
 import BaseIcon from "./BaseIcon.vue";
+import InputSelect from "./input/Select.vue";
 
 const pageInputId = useId();
 
