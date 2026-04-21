@@ -17,37 +17,34 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-class AppsPath {
-
-  public Boolean isFile;
-  public Boolean isUi;
-  public String mimeType;
-  public String path;
-
-  AppsPath(Context ctx) {
-    // Dissect the path, so we can check for the folder to serve from
-    String[] segments = ctx.path().split("/");
-    List<String> parts = new ArrayList<>();
-
-    for (String segment : segments) {
-      if (!segment.isEmpty()) {
-        parts.add(segment);
-      }
-    }
-
-    isFile = parts.getLast().contains(("."));
-    isUi = !isFile && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
-
-    // check if the path starts with apps, if not, remove the first bit <schema>
-    if (!Objects.equals(parts.getFirst(), "apps")) {
-      parts.set(0, "apps");
-    }
-    path = String.join("/", parts);
-    mimeType = URLConnection.guessContentTypeFromName(path);
-  }
-}
-
 public class ServeStaticFile {
+
+  private record AppsPath(boolean isFile, boolean isUi, String mimeType, String path) {
+
+    public static AppsPath fromContext(Context ctx) {
+      // Dissect the path, so we can check for the folder to serve from
+      String[] segments = ctx.path().split("/");
+      List<String> parts = new ArrayList<>();
+
+      for (String segment : segments) {
+        if (!segment.isEmpty()) {
+          parts.add(segment);
+        }
+      }
+
+      boolean isFile = parts.getLast().contains(("."));
+      boolean isUi = !isFile && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
+
+      // check if the path starts with apps, if not, remove the first bit <schema>
+      if (!Objects.equals(parts.getFirst(), "apps")) {
+        parts.set(0, "apps");
+      }
+      String path = String.join("/", parts);
+      String mimeType = URLConnection.guessContentTypeFromName(path);
+
+      return new AppsPath(isFile, isUi, mimeType, path);
+    }
+  }
 
   private ServeStaticFile() {
     // hide constructor
@@ -131,7 +128,7 @@ public class ServeStaticFile {
   }
 
   public static void serve(Context ctx) {
-    AppsPath appsPath = new AppsPath(ctx);
+    AppsPath appsPath = AppsPath.fromContext(ctx);
 
     String path = appsPath.path;
     String fallbackFileBase = path + "/index.html";
