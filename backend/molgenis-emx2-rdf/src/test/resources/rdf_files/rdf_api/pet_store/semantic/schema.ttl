@@ -87,10 +87,6 @@
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://example.com/petstore#hasWeight> "0.01"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yakul> <http://example.com/petstore#hasName>
-    "yakul";
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals> .
-
 <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a foaf:Person;
   foaf:accountName "bofke";
   foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
