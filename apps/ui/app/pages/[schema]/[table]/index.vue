@@ -32,6 +32,13 @@ const currentPage = computed(() => {
     : 1;
 });
 
+const currentPageSize = computed(() => {
+  const queryPageSizeNumber = Number(route.query?.pagesize);
+  return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
+    ? Math.round(queryPageSizeNumber)
+    : 10;
+});
+
 const orderbyColumn = computed(() => route.query.orderby as string);
 const orderbyDirection = computed(() =>
   route.query.order ? (route.query.order as sortDirection) : "ASC"
@@ -41,7 +48,7 @@ const search = computed(() => route.query.search as string);
 
 const tableSettings = ref<ITableSettings>({
   page: currentPage.value,
-  pageSize: 10,
+  pageSize: currentPageSize.value,
   orderby: {
     column: orderbyColumn.value,
     direction: orderbyDirection.value,
@@ -63,6 +70,7 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    pagesize: tableSettings.value.pageSize === 10 ? undefined : tableSettings.value.pageSize,
   };
 
   router.push({ query });
