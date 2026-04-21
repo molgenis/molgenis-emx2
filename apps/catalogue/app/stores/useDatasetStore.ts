@@ -7,11 +7,14 @@ import type { IShoppingCart } from "../../interfaces/types";
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
   const isEnabled = ref<boolean>(false);
+  const datasetStoreUrl = ref<string>("");
+
   const CATALOGUE_STORE_IS_ENABLED: string = "CATALOGUE_STORE_IS_ENABLED";
+  const CATALOGUE_STORE_URL: string = "CATALOGUE_STORE_URL";
 
   async function isDatastoreEnabled() {
-    const response = await fetchSetting(CATALOGUE_STORE_IS_ENABLED);
-    const status = response.data._settings.find(
+    const enabledResponse = await fetchSetting(CATALOGUE_STORE_IS_ENABLED);
+    const status = enabledResponse.data._settings.find(
       (setting: { key: string; value: string }) => {
         return setting.key === CATALOGUE_STORE_IS_ENABLED;
       }
@@ -21,9 +24,22 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
   }
 
+  async function getDatasetStoreUrl() {
+    if (!datasetStoreUrl.value) {
+      const urlResponse = await fetchSetting(CATALOGUE_STORE_URL);
+      const url = urlResponse.data._settings.find(
+        (setting: { key: string; value: string }) => {
+          return setting.key === CATALOGUE_STORE_URL;
+        }
+      );
+
+      datasetStoreUrl.value = url.value || "";
+    }
+    return datasetStoreUrl.value;
+  }
+
   function addToCart(resource: IResources) {
-    const newCartDataset: IShoppingCart = {};
-    newCartDataset[resource.id] = resource;
+    const newCartDataset: IShoppingCart = { [resource.id]: resource };
     datasets.value = Object.assign(newCartDataset, datasets.value);
   }
 
@@ -48,5 +64,6 @@ export const useDatasetStore = defineStore("datasets", () => {
     removeFromCart,
     resourceIsInCart,
     isDatastoreEnabled,
+    getDatasetStoreUrl,
   };
 });

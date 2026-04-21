@@ -21,7 +21,8 @@
     </ContentBlockModal>
     <template #footer>
       <a
-        href="https://catalogue.portal.dev.gdi.lu/organization/umcg"
+        :href="datasetStoreUrl"
+        target="_blank"
         class="flex items-center border rounded-input h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
       >
         <span>Request from GDI</span>
@@ -39,6 +40,8 @@ import StoreModalResourceList from "./ModalResourceList.vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 
 const datasetStore = useDatasetStore();
+
+const datasetStoreUrl = await datasetStore.getDatasetStoreUrl();
 
 withDefaults(
   defineProps<{
