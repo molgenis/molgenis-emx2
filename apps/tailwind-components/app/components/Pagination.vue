@@ -176,7 +176,6 @@ function changeCurrentPage(event: Event) {
         </a>
       </li>
 
-
       <li v-if="showPageSize" class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
           <span
@@ -192,7 +191,7 @@ function changeCurrentPage(event: Event) {
 
       <li v-if="showPageSize" class="flex justify-center items-center">
         <div class="tracking-widest whitespace-nowrap w-32">
-            <span
+          <span
             class="text-pagination"
             :class="{
               'text-pagination-inverted': inverted,
@@ -203,10 +202,10 @@ function changeCurrentPage(event: Event) {
               :options="pageSizeOptions"
               @update:modelValue="(value) => emit('update:pageSize', value)"
               v-model="pageSize"
-              class="!p-0 text-center border border-input rounded-theme bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
+              class="!p-0 text-center border border-input rounded-theme !bg-input text-pagination-input !hover:text-pagination-hover hover:outline-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
               :required="true"
             />
-            </span>
+          </span>
         </div>
       </li>
     </ul>
