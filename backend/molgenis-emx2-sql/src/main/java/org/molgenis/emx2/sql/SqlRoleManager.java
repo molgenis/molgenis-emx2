@@ -186,23 +186,20 @@ public class SqlRoleManager {
     Param<String> editorRole = inline(fullRoleName(schemaName, Privileges.EDITOR.toString()));
     Param<String> rolePrefix = inline(MG_ROLE_PREFIX + schemaName + "/");
     Param<String> rlsRolePrefix = inline(MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX);
-    Param<String> schemaParam = inline(schemaName);
-    Param<String> tableParam = inline(tableName);
 
     String sysRoleList =
         Arrays.stream(Privileges.values())
             .map(p -> "'" + fullRoleName(schemaName, p.toString()).replace("'", "''") + "'")
             .collect(Collectors.joining(", "));
 
-    String nonRlsSelectBypass = nonRlsBypass(sysRoleList, "SELECT");
-    String nonRlsDmlBypass = nonRlsBypass(sysRoleList, "INSERT", "UPDATE", "DELETE");
+    String nonRlsBypass = nonRlsBypass(sysRoleList);
 
     jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
     jooq()
         .execute(
             "CREATE POLICY mg_roles_select_policy ON {0} FOR SELECT USING ("
                 + "pg_has_role(current_user, {1}, 'member') "
-                + nonRlsSelectBypass
+                + nonRlsBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
@@ -211,21 +208,21 @@ public class SqlRoleManager {
             viewerRole,
             rolePrefix,
             rlsRolePrefix,
-            schemaParam,
-            tableParam);
+            inline(schemaName),
+            inline(tableName));
 
     jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
     jooq()
         .execute(
             "CREATE POLICY mg_roles_dml_policy ON {0} FOR ALL USING ("
                 + "pg_has_role(current_user, {1}, 'member') "
-                + nonRlsDmlBypass
+                + nonRlsBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
                 + ")) WITH CHECK ("
                 + "pg_has_role(current_user, {1}, 'member') "
-                + nonRlsDmlBypass
+                + nonRlsBypass
                 + "OR EXISTS ("
                 + "  SELECT 1 FROM unnest(mg_roles) r"
                 + "  WHERE pg_has_role(current_user, {2} || r, 'member')"
@@ -234,8 +231,8 @@ public class SqlRoleManager {
             editorRole,
             rolePrefix,
             rlsRolePrefix,
-            schemaParam,
-            tableParam);
+            inline(schemaName),
+            inline(tableName));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -262,9 +259,6 @@ public class SqlRoleManager {
   }
 
   private void disableRowLevelSecurityIfUnused(String schemaName, String tableName) {
-    // RLS is still needed as long as any RLS-prefixed role has grants on the table.
-    // If none remain, drop the policies and disable RLS.  ALTER TABLE DISABLE ROW LEVEL SECURITY
-    // and DROP POLICY IF EXISTS are both no-ops when RLS is already off.
     String rlsRolePrefix = MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX;
     boolean anyRlsGrantRemains =
         jooq()
@@ -283,30 +277,25 @@ public class SqlRoleManager {
     }
   }
 
-  // Non-RLS bypass clause for RLS policies: users with a direct (non-inherited) grant for
-  // any of the given privileges via a custom non-system, non-RLS role bypass row filtering.
-  private static String nonRlsBypass(String sysRoleList, String... privileges) {
-    String privilegeCondition =
-        privileges.length == 1
-            ? "g.privilege_type = '" + privileges[0] + "'"
-            : "g.privilege_type IN ("
-                + Arrays.stream(privileges)
-                    .map(p -> "'" + p + "'")
-                    .collect(Collectors.joining(", "))
-                + ")";
+  private static String nonRlsBypass(String sysRoleList) {
     return "OR EXISTS ("
         + "  SELECT 1 FROM pg_roles r"
-        + "  JOIN information_schema.role_table_grants g ON g.grantee = r.rolname"
+        + "  CROSS JOIN LATERAL ("
+        + "    SELECT c.relacl FROM pg_class c"
+        + "    JOIN pg_namespace n ON n.oid = c.relnamespace"
+        + "    WHERE n.nspname = {4} AND c.relname = {5}"
+        + "  ) tbl"
         + "  WHERE r.rolname LIKE {2} || '%'"
         + "  AND r.rolname NOT LIKE {3} || '%'"
         + "  AND r.rolname NOT IN ("
         + sysRoleList
         + ")"
-        + "  AND g.table_schema = {4}"
-        + "  AND g.table_name = {5}"
-        + "  AND "
-        + privilegeCondition
         + "  AND pg_has_role(current_user, r.rolname, 'member')"
+        + "  AND tbl.relacl IS NOT NULL"
+        + "  AND EXISTS ("
+        + "    SELECT 1 FROM aclexplode(tbl.relacl) ace"
+        + "    WHERE ace.grantee = r.oid"
+        + "  )"
         + ") ";
   }
 
@@ -406,36 +395,55 @@ public class SqlRoleManager {
     String activeUser = database.getActiveUser();
     SqlSchema schema = database.getSchema(schemaName);
     List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
-
     if (roleNames.isEmpty()) return List.of();
 
-    Map<String, TablePermission> merged = new LinkedHashMap<>();
-    for (String roleName : roleNames) {
-      if (roleName.startsWith(RLS_ROLE_PREFIX)) continue;
-      for (TablePermission p : getPermissions(schemaName, roleName)) {
-        if (hasAnyPermission(p)) {
-          merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
+    String customRoleName =
+        roleNames.stream()
+            .filter(r -> !r.startsWith(RLS_ROLE_PREFIX) && !isSystemRole(r))
+            .findFirst()
+            .orElse(null);
+
+    TablePermission systemWildcard =
+        roleNames.stream()
+            .filter(this::isSystemRole)
+            .flatMap(r -> systemPermissions(r).stream())
+            .filter(p -> "*".equals(p.table()) && hasAnyPermission(p))
+            .findFirst()
+            .orElse(null);
+
+    Map<String, TablePermission> result = new LinkedHashMap<>();
+
+    if (customRoleName != null) {
+      getPermissions(schemaName, customRoleName).stream()
+          .filter(SqlRoleManager::hasAnyPermission)
+          .forEach(p -> result.put(p.table(), p));
+    }
+
+    if (systemWildcard != null) {
+      boolean systemHasDml = hasAnyDml(systemWildcard);
+      TablePermission sw = systemWildcard;
+      result.replaceAll(
+          (table, p) ->
+              new TablePermission(table)
+                  .select(orBool(p.select(), sw.select()))
+                  .insert(orBool(p.insert(), sw.insert()))
+                  .update(orBool(p.update(), sw.update()))
+                  .delete(orBool(p.delete(), sw.delete()))
+                  .rowLevel(systemHasDml ? null : p.isRowLevel()));
+      for (String tableName : schema.getTableNames()) {
+        if (!result.containsKey(tableName)) {
+          TablePermission tp =
+              new TablePermission(tableName)
+                  .select(sw.select())
+                  .insert(sw.insert())
+                  .update(sw.update())
+                  .delete(sw.delete());
+          if (hasAnyPermission(tp)) result.put(tableName, tp);
         }
       }
     }
-    expandWildcard(merged, schema.getTableNames());
-    return new ArrayList<>(merged.values());
-  }
 
-  private static void expandWildcard(
-      Map<String, TablePermission> permissions, Collection<String> tableNames) {
-    TablePermission wildcard = permissions.remove("*");
-    if (wildcard == null) return;
-    for (String tableName : tableNames) {
-      permissions.merge(
-          tableName,
-          new TablePermission(tableName)
-              .select(wildcard.select())
-              .insert(wildcard.insert())
-              .update(wildcard.update())
-              .delete(wildcard.delete()),
-          SqlRoleManager::mergePermissions);
-    }
+    return new ArrayList<>(result.values());
   }
 
   private static boolean hasAnyPermission(TablePermission p) {
@@ -445,24 +453,14 @@ public class SqlRoleManager {
         || Boolean.TRUE.equals(p.delete());
   }
 
-  private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
-    return new TablePermission(a.table())
-        .select(Boolean.TRUE.equals(a.select()) || Boolean.TRUE.equals(b.select()) ? true : null)
-        .insert(Boolean.TRUE.equals(a.insert()) || Boolean.TRUE.equals(b.insert()) ? true : null)
-        .update(Boolean.TRUE.equals(a.update()) || Boolean.TRUE.equals(b.update()) ? true : null)
-        .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null)
-        .rowLevel(mergeRowLevel(a, b));
+  private static boolean hasAnyDml(TablePermission p) {
+    return Boolean.TRUE.equals(p.insert())
+        || Boolean.TRUE.equals(p.update())
+        || Boolean.TRUE.equals(p.delete());
   }
 
-  private static Boolean mergeRowLevel(TablePermission a, TablePermission b) {
-    boolean aUnrestrictedDml =
-        Boolean.TRUE.equals(a.insert()) && !Boolean.TRUE.equals(a.isRowLevel());
-    boolean bUnrestrictedDml =
-        Boolean.TRUE.equals(b.insert()) && !Boolean.TRUE.equals(b.isRowLevel());
-    if (aUnrestrictedDml || bUnrestrictedDml) {
-      return null;
-    }
-    return Boolean.TRUE.equals(a.isRowLevel()) || Boolean.TRUE.equals(b.isRowLevel()) ? true : null;
+  private static Boolean orBool(Boolean a, Boolean b) {
+    return Boolean.TRUE.equals(a) || Boolean.TRUE.equals(b) ? true : null;
   }
 
   public boolean isSystemRole(String roleName) {
