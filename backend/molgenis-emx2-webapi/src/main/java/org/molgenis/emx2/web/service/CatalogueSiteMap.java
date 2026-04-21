@@ -107,10 +107,10 @@ public class CatalogueSiteMap {
   }
 
   private ResourcePath getResourcePath(Row resource) {
-    String tableclass = resource.getString(Constants.MG_TABLECLASS);
-    if (tableclass.equals(networkTableClass) || tableclass.equals(catalogueTableClass)) {
+    String tableClass = resource.getString(Constants.MG_TABLECLASS);
+    if (networkTableClass.equals(tableClass) || catalogueTableClass.equals(tableClass)) {
       return ResourcePath.networks;
-    } else if (tableclass.equals(collectionTableClass)) {
+    } else if (collectionTableClass.equals(tableClass)) {
       return ResourcePath.collections;
     } else {
       return null;
