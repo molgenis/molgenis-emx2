@@ -65,15 +65,15 @@ Navigation cards,,order,int,,TRUE,,,,,,0,,Order the card should appear in when u
 Blocks,,Configuration,section,,,,,,,,,,,pages
 Blocks,,UI settings,heading,,,,,,,,,,,pages
 Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
-Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
-Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
-Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
-Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
+Blocks,,Component connections,heading,,,,,,"mg_tableclass && mg_tableclass.endsWith("".Headers"") ? false : true",,,,Link components and set the order in which they display on page. ,pages
+Blocks,,in container,multiselect,,,Configurable pages,,,"mg_tableclass && mg_tableclass.endsWith("".Headers"") ? false : true",,,,A link to the configurable page where the block is displayed,pages
+Blocks,,components,refback,,,Components,in block,,"mg_tableclass && mg_tableclass.endsWith("".Headers"") ? false : true",,,,The elements that are displayed in a block,pages
+Blocks,,component order,refback,,,Component orders,block,,"mg_tableclass && mg_tableclass.endsWith("".Headers"") ? false : true",,,,,pages
 Blocks,,Metadata,heading,,,,,,,,,,,pages
 Blocks,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
 Components,,Configuration,section,,,,,,,,,,,pages
-Components,,Component connections,heading,,,,,,,,,,Create links between components and blocks,pages
-Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
+Components,,Component connections,heading,,,,,,false,,,,Create links between components and blocks,pages
+Components,,in block,multiselect,,,Blocks,,,false,,,,A link to the block where the component is used,pages
 Components,,Metadata,heading,,,,,,,,,,,pages
 Components,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
 Block orders,,,,,,,,,,,,,"The order blocks (headers, sections, etc.) appear on a page",pages
