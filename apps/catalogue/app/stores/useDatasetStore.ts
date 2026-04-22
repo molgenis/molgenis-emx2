@@ -35,9 +35,7 @@ export const useDatasetStore = defineStore("datasets", () => {
   }
 
   async function setNegotiatorVersion() {
-    getSetting(CATALOGUE_STORE_VERSION).then((version) => {
-      storeVersion.value = version || "";
-    });
+    storeVersion.value = (await getSetting(CATALOGUE_STORE_VERSION)) || "";
   }
 
   async function getNegotiatorVersion() {
