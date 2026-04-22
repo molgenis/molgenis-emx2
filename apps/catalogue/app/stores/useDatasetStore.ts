@@ -1,6 +1,6 @@
 import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
-import { reactive, ref, type Ref } from "vue";
+import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
 import type { IShoppingCart } from "../../interfaces/types";
 
@@ -38,7 +38,7 @@ export const useDatasetStore = defineStore("datasets", () => {
     storeVersion.value = (await getSetting(CATALOGUE_STORE_VERSION)) || "";
   }
 
-  async function getNegotiatorVersion() {
+  async function getDataStoreVersion() {
     if (!storeVersion.value) {
       await setNegotiatorVersion();
     }
@@ -76,11 +76,12 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   return {
     datasets,
+    storeVersion,
     isEnabled,
     addToCart,
     removeFromCart,
     resourceIsInCart,
     getDatasetStoreUrl,
-    getNegotiatorVersion,
+    getDataStoreVersion,
   };
 });
