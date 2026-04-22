@@ -11,8 +11,7 @@ const config = useRuntimeConfig();
 const theme = await useTheme();
 const { initialize } = useGtag();
 
-const datasetStore = useDatasetStore();
-await datasetStore.isDatastoreEnabled();
+useDatasetStore();
 
 const GOOGLE_ANALYTICS: analyticsService = "google-analytics";
 const SITE_IMPROVE: analyticsService = "site-improve";
