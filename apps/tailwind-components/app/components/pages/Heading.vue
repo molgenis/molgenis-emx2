@@ -25,7 +25,7 @@ const emit = defineEmits<{
       'text-heading-3xl': level === 4,
       'text-heading-2xl': level === 5,
       'text-heading-xl': level === 6,
-      'text-center': headingIsCentered,
+      'w-full flex justify-center text-center': headingIsCentered,
       group: isEditable,
     }"
   >
