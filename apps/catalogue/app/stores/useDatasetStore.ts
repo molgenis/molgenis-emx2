@@ -14,28 +14,17 @@ export const useDatasetStore = defineStore("datasets", () => {
   const CATALOGUE_STORE_URL = "CATALOGUE_STORE_URL";
   const CATALOGUE_STORE_VERSION = "CATALOGUE_STORE_VERSION";
 
-  // init();
   isDatastoreEnabled();
   setDatasetStoreUrl();
   setNegotiatorVersion();
 
-  async function init() {
-    if (isEnabled.value) {
-    }
-    console.log("Negotiator version: ", storeVersion.value);
-  }
-
   async function isDatastoreEnabled() {
-    const enabledSetting = await getSetting(
-      CATALOGUE_STORE_IS_ENABLED,
-      isEnabled
-    );
+    const enabledSetting = await getSetting(CATALOGUE_STORE_IS_ENABLED);
     isEnabled.value = enabledSetting === "true";
   }
 
   async function setDatasetStoreUrl() {
-    datasetStoreUrl.value =
-      (await getSetting(CATALOGUE_STORE_URL, datasetStoreUrl)) || "";
+    datasetStoreUrl.value = (await getSetting(CATALOGUE_STORE_URL)) || "";
   }
 
   async function getDatasetStoreUrl() {
@@ -46,7 +35,7 @@ export const useDatasetStore = defineStore("datasets", () => {
   }
 
   async function setNegotiatorVersion() {
-    getSetting(CATALOGUE_STORE_VERSION, storeVersion).then((version) => {
+    getSetting(CATALOGUE_STORE_VERSION).then((version) => {
       storeVersion.value = version || "";
     });
   }
@@ -77,10 +66,7 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
   }
 
-  async function getSetting(
-    settingConst: string,
-    settingRef: Ref<string | boolean>
-  ) {
+  async function getSetting(settingConst: string) {
     const response = await fetchSetting(settingConst);
     const settingResponse = response.data._settings.find(
       (setting: { key: string; value: string }) => {
