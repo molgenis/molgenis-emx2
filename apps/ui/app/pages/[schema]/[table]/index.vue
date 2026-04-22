@@ -36,7 +36,7 @@ const currentPageSize = computed(() => {
   const queryPageSizeNumber = Number(route.query?.pagesize);
   return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
     ? Math.round(queryPageSizeNumber)
-    : 10;
+    : 20;
 });
 
 const orderbyColumn = computed(() => route.query.orderby as string);
@@ -71,7 +71,7 @@ function handleSettingsUpdate() {
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
     pagesize:
-      tableSettings.value.pageSize === 10
+      tableSettings.value.pageSize === 20
         ? undefined
         : tableSettings.value.pageSize,
   };

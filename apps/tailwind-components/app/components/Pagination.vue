@@ -12,6 +12,7 @@ const props = withDefaults(
     preventDefault?: boolean;
     inverted?: boolean;
     jumpToEdge?: boolean;
+    showPageSelector?: boolean;
     showPageSize?: boolean;
     pageSizeOptions?: number[];
   }>(),
@@ -19,6 +20,7 @@ const props = withDefaults(
     preventDefault: false,
     inverted: false,
     jumpToEdge: false,
+    showPageSelector: true,
     showPageSize: false,
     pageSizeOptions: () => [10, 20, 50, 100],
   }
@@ -91,7 +93,7 @@ function changeCurrentPage(event: Event) {
       pagination navigation
     </span>
     <ul class="flex items-center justify-center list-none gap-2.5">
-      <li v-if="jumpToEdge">
+      <li v-if="showPageSelector && jumpToEdge">
         <a
           href="#"
           @click.prevent="onFirstClick"
@@ -105,7 +107,7 @@ function changeCurrentPage(event: Event) {
           <BaseIcon name="double-arrow-left" :width="24" />
         </a>
       </li>
-      <li>
+      <li v-if="showPageSelector">
         <a
           href="#"
           @click.prevent="onPrevClick"
@@ -119,7 +121,7 @@ function changeCurrentPage(event: Event) {
           <BaseIcon name="caret-left" :width="24" />
         </a>
       </li>
-      <li class="flex justify-center items-center">
+      <li v-if="showPageSelector" class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5">
           <label :for="pageInputId" class="sr-only">go to specific page</label>
           <span
@@ -148,7 +150,7 @@ function changeCurrentPage(event: Event) {
           </span>
         </div>
       </li>
-      <li>
+      <li v-if="showPageSelector">
         <a
           href="#"
           @click.prevent="onNextClick"
@@ -162,7 +164,7 @@ function changeCurrentPage(event: Event) {
           <BaseIcon name="caret-right" :width="24" />
         </a>
       </li>
-      <li v-if="jumpToEdge">
+      <li v-if="showPageSelector && jumpToEdge">
         <a
           href="#"
           @click.prevent="onLastClick"
@@ -185,7 +187,7 @@ function changeCurrentPage(event: Event) {
               'text-pagination-inverted': inverted,
             }"
           >
-            with size
+            {{ showPageSelector ? "with size" : "Results per page" }}
           </span>
         </div>
       </li>
