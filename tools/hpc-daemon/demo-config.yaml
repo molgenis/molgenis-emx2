@@ -1,0 +1,22 @@
+emx2:
+  base_url: "http://localhost:8080"
+  worker_id: "demo-worker-01"
+  worker_secret_file: ".secret"
+
+worker:
+  poll_interval_seconds: 10
+  max_concurrent_jobs: 2
+
+slurm:
+  default_partition: "default"
+
+profiles:
+  "test:test":
+    sif_image: "/dev/null"
+    cpus: 1
+    memory: "1G"
+    time: "00:10:00"
+    # submission_timeout_seconds: 300  # fail CLAIMED jobs not submitted within this time
+
+apptainer:
+  tmp_dir: "/tmp/emx2-hpc-demo"

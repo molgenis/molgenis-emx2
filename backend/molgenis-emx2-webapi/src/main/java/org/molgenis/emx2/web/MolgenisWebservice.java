@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.hpc.HpcApi;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
@@ -133,6 +134,7 @@ public class MolgenisWebservice {
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
     PodiumApi.create(app);
+    HpcApi.create(app);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
