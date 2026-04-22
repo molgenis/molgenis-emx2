@@ -543,6 +543,93 @@ describe("useFilters — hydrateNestedFilters", () => {
     const meta = nestedColumnMeta.value.get("subpopulations.ageGroups");
     expect(meta?.columnType).toBe("ONTOLOGY");
   });
+
+
+  it("resolves nested REF leaf column type when rawColumns populates after URL-init", async () => {
+    const { default: fetchTableMetadata } = await import(
+      "../../../app/composables/fetchTableMetadata"
+    );
+    const parentColumn: IColumn = {
+      id: "parent",
+      label: "Parent",
+      columnType: "REF",
+      refTableId: "ParentTable",
+    } as IColumn;
+    const refLeafColumn: IColumn = {
+      id: "someRef",
+      label: "Some Ref",
+      columnType: "REF",
+    } as IColumn;
+    vi.mocked(fetchTableMetadata).mockResolvedValue({
+      columns: [refLeafColumn],
+    } as any);
+
+    const { route, router } = makeUrlSync({
+      [MG_FILTERS_PARAM]: "parent.someRef",
+    });
+    const rawColumns = ref<IColumn[]>([]);
+
+    const { nestedColumnMeta } = useFilters(rawColumns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+      route,
+      router,
+    });
+
+    await flushPromises();
+    expect(nestedColumnMeta.value.get("parent.someRef")).toBeUndefined();
+
+    rawColumns.value = [parentColumn];
+    await flushPromises();
+    await nextTick();
+
+    const meta = nestedColumnMeta.value.get("parent.someRef");
+    expect(meta?.columnType).toBe("REF");
+  });
+
+  it("resolves nested DATE leaf column type when rawColumns populates after URL-init", async () => {
+    const { default: fetchTableMetadata } = await import(
+      "../../../app/composables/fetchTableMetadata"
+    );
+    const parentColumn: IColumn = {
+      id: "parent",
+      label: "Parent",
+      columnType: "REF",
+      refTableId: "ParentTable",
+    } as IColumn;
+    const dateLeafColumn: IColumn = {
+      id: "someDate",
+      label: "Some Date",
+      columnType: "DATE",
+    } as IColumn;
+    vi.mocked(fetchTableMetadata).mockResolvedValue({
+      columns: [dateLeafColumn],
+    } as any);
+
+    const { route, router } = makeUrlSync({
+      [MG_FILTERS_PARAM]: "parent.someDate",
+    });
+    const rawColumns = ref<IColumn[]>([]);
+
+    const { nestedColumnMeta } = useFilters(rawColumns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+      route,
+      router,
+    });
+
+    await flushPromises();
+    expect(nestedColumnMeta.value.get("parent.someDate")).toBeUndefined();
+
+    rawColumns.value = [parentColumn];
+    await flushPromises();
+    await nextTick();
+
+    const meta = nestedColumnMeta.value.get("parent.someDate");
+    expect(meta?.columnType).toBe("DATE");
+  });
 });
 
 describe("useFilters — count integration", () => {
