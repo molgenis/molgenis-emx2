@@ -204,12 +204,12 @@ public class SqlRoleManager {
             jooqTable);
   }
 
-  private static String rlsAccessClause(String schemaName, String tableName, String bypassRole) {
+  private String rlsAccessClause(String schemaName, String tableName, String bypassRole) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
     String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
     String systemRoles =
         Arrays.stream(Privileges.values())
-            .map(p -> sqlLiteral(fullRoleName(schemaName, p.toString())))
+            .map(p -> jooq().render(inline(fullRoleName(schemaName, p.toString()))))
             .collect(Collectors.joining(", "));
 
     return """
@@ -233,17 +233,13 @@ public class SqlRoleManager {
           WHERE pg_has_role(current_user, %s || r, 'member')
         )"""
         .formatted(
-            sqlLiteral(bypassRole),
-            sqlLiteral(schemaName),
-            sqlLiteral(tableName),
-            sqlLiteral(rolePrefix + "%"),
-            sqlLiteral(rlsRolePrefix + "%"),
+            jooq().render(inline(bypassRole)),
+            jooq().render(inline(schemaName)),
+            jooq().render(inline(tableName)),
+            jooq().render(inline(rolePrefix + "%")),
+            jooq().render(inline(rlsRolePrefix + "%")),
             systemRoles,
-            sqlLiteral(rolePrefix));
-  }
-
-  private static String sqlLiteral(String s) {
-    return "'" + s.replace("'", "''") + "'";
+            jooq().render(inline(rolePrefix)));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
