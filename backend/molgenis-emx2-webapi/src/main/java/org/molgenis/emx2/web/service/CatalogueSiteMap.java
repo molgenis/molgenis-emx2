@@ -20,6 +20,7 @@ public class CatalogueSiteMap {
 
   private enum ResourcePath {
     networks,
+    catalogues,
     collections,
   }
 
@@ -109,8 +110,10 @@ public class CatalogueSiteMap {
 
   private ResourcePath getResourcePath(Row resource) {
     String tableClass = resource.getString(Constants.MG_TABLECLASS);
-    if (networkTableClass.equals(tableClass) || catalogueTableClass.equals(tableClass)) {
+    if (networkTableClass.equals(tableClass)) {
       return ResourcePath.networks;
+    } else if (catalogueTableClass.equals(tableClass)) {
+      return ResourcePath.catalogues;
     } else if (collectionTableClass.equals(tableClass)) {
       return ResourcePath.collections;
     } else {

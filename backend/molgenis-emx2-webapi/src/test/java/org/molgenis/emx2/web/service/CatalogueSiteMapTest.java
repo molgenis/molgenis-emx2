@@ -53,7 +53,9 @@ public class CatalogueSiteMapTest {
             new Row("id", "my-collection-id", "mg_tableclass", "mockSchema.Collections"),
             new Row("id", "my-second-collection-id", "mg_tableclass", "mockSchema.Collections"),
             new Row("id", "my-network-id", "mg_tableclass", "mockSchema.Networks"),
-            new Row("id", "my-second-network-id", "mg_tableclass", "mockSchema.Networks"));
+            new Row("id", "my-second-network-id", "mg_tableclass", "mockSchema.Networks"),
+            new Row("id", "my-catalogue-id", "mg_tableclass", "mockSchema.Catalogues"),
+            new Row("id", "my-second-catalogue-id", "mg_tableclass", "mockSchema.Catalogues"));
     List<Row> variableRows =
         List.of(
             new Row(
@@ -92,6 +94,12 @@ public class CatalogueSiteMapTest {
       </url>
       <url>
         <loc>https://my/base/url/all/networks/my-second-network-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/all/catalogues/my-catalogue-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/all/catalogues/my-second-catalogue-id</loc>
       </url>
       <url>
         <loc>https://my/base/url/all/variables/Var%20name-lifetime-core-lifetime?keys=%7B%22name%22%3A%22Var+name%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%2C%22dataset%22%3A%7B%22name%22%3A%22core%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%7D%7D</loc>
