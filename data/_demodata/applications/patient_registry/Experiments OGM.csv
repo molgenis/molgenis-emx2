@@ -1,7 +1,7 @@
-id,individuals,alternate ids,local experiment id,affiliated organisations,instrument id,output files,reference genome used,observed insert size,other quality metrics,sample,included in resources,data source,date created at source
-EXPR-OGM-000001,Case1C,,124512,University Medical Center Groningen,,,,,,SAMP-OGM-000001,EGAD00001008392,EGAS00001005702,2021-10-22
-EXPR-OGM-000002,Case2C,,346213461,University Medical Center Groningen,,,,,,SAMP-OGM-000002,EGAD00001008392,EGAS00001005702,2021-10-22
-EXPR-OGM-000003,Case3C,,346134123,University Medical Center Groningen,,,,,,SAMP-OGM-000003,EGAD00001008392,EGAS00001005702,2021-10-22
-EXPR-OGM-000004,Case4C,,7545123512,University Medical Center Groningen,,,,,,SAMP-OGM-000004,EGAD00001008392,EGAS00001005702,2021-10-22
-EXPR-OGM-000005,Case5C,,664645,University Medical Center Groningen,,,,,,SAMP-OGM-000005,EGAD00001008392,EGAS00001005702,2021-10-22
-EXPR-OGM-000006,Case6C,,4623526467,University Medical Center Groningen,,,,,,SAMP-OGM-000006,EGAD00001008392,EGAS00001005702,2021-10-22
+id,individuals,alternate ids,local experiment id,affiliated organisations,platform,platform model,instrument id,output files,reference genome used,observed insert size,other quality metrics,sample,included in resources,data source,date created at source
+EXPR-OGM-000001,Case1C,,124512,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000001,EGAD00001008392,EGAS00001005702,2021-10-22
+EXPR-OGM-000002,Case2C,,346213461,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000002,EGAD00001008392,EGAS00001005702,2021-10-22
+EXPR-OGM-000003,Case3C,,346134123,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000003,EGAD00001008392,EGAS00001005702,2021-10-22
+EXPR-OGM-000004,Case4C,,7545123512,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000004,EGAD00001008392,EGAS00001005702,2021-10-22
+EXPR-OGM-000005,Case5C,,664645,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000005,EGAD00001008392,EGAS00001005702,2021-10-22
+EXPR-OGM-000006,Case6C,,4623526467,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,,SAMP-OGM-000006,EGAD00001008392,EGAS00001005702,2021-10-22
