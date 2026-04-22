@@ -66,9 +66,10 @@ public class CatalogueSiteMap {
                 }
               });
 
-      if (schema.getTable("Variables") != null) {
-        schema
-            .query("Variables")
+      Table variableTable = schema.getTable("Variables");
+
+      if (variableTable != null) {
+        variableTable
             .select(s("name"), s(RESOURCE), s("dataset"))
             .where(
                 f(

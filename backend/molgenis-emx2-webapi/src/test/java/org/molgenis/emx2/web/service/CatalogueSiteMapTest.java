@@ -44,12 +44,8 @@ public class CatalogueSiteMapTest {
   void buildSiteMapForSchemaWithVariables() {
     Schema schema = mock(Schema.class);
     Table resourceTable = mock(Table.class);
-    Table collectionTable = mock(Table.class);
-    Table networkTable = mock(Table.class);
     Table variableTable = mock(Table.class);
     Query resourceQuery = mock(Query.class);
-    Query collectionQuery = mock(Query.class);
-    Query networkQuery = mock(Query.class);
 
     Query variableQuery = mock(Query.class);
     List<Row> resourceRows =
@@ -74,19 +70,11 @@ public class CatalogueSiteMapTest {
     when(resourceTable.select(any(), any())).thenReturn(resourceQuery);
     when(resourceQuery.retrieveRows()).thenReturn(resourceRows);
 
-    //    when(schema.getTable("Collections")).thenReturn(collectionTable);
-    //    when(collectionTable.select(any(), any())).thenReturn(collectionQuery);
-    //    when(collectionQuery.retrieveRows()).thenReturn(collectionRows);
-    //
-    //    when(schema.getTable("Networks")).thenReturn(networkTable);
-    //    when(networkTable.select(any(), any())).thenReturn(networkQuery);
-    //    when(networkQuery.retrieveRows()).thenReturn(networkRows);
-
     when(schema.getTable("Variables")).thenReturn(variableTable);
-    //    when(schema.query("Variables")).thenReturn(variableQuery);
-    when(variableQuery.select(any(), any(), any())).thenReturn(variableQuery);
+    when(variableTable.select(any(), any(), any())).thenReturn(variableQuery);
     when(variableQuery.where(any())).thenReturn(variableQuery);
     when(variableQuery.retrieveRows()).thenReturn(variableRows);
+
     CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
 
     String expected =
@@ -103,7 +91,7 @@ public class CatalogueSiteMapTest {
         <loc>https://my/base/url/all/networks/my-network-id</loc>
       </url>
       <url>
-        <loc>https://my/base/url/all/network/my-second-network-id</loc>
+        <loc>https://my/base/url/all/networks/my-second-network-id</loc>
       </url>
       <url>
         <loc>https://my/base/url/all/variables/Var%20name-lifetime-core-lifetime?keys=%7B%22name%22%3A%22Var+name%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%2C%22dataset%22%3A%7B%22name%22%3A%22core%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%7D%7D</loc>
