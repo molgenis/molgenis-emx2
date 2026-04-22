@@ -80,9 +80,9 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - run:
-        name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
-        working_directory: apps      
+        name: run-pnpm-audit
+        command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
+        working_directory: apps
     - run:
           name: Concatenate Build Files as key for cache
           command: |

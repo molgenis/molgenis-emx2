@@ -100,7 +100,7 @@ crumbs.push({ label: "tables", url: "" });
     <ContentBlock
       v-if="ontologies.length"
       class="mt-1"
-      title="ontolgies"
+      title="ontologies"
       description="description"
     >
       <Table>
