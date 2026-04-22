@@ -308,7 +308,7 @@ const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
     page: 1,
-    pageSize: 10,
+    pageSize: 20,
     orderby: { column: "", direction: "ASC" },
     search: "",
   }),
