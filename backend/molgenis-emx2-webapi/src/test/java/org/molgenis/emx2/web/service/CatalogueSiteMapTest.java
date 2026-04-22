@@ -43,21 +43,21 @@ public class CatalogueSiteMapTest {
   @Test
   void buildSiteMapForSchemaWithVariables() {
     Schema schema = mock(Schema.class);
+    Table resourceTable = mock(Table.class);
     Table collectionTable = mock(Table.class);
     Table networkTable = mock(Table.class);
     Table variableTable = mock(Table.class);
+    Query resourceQuery = mock(Query.class);
     Query collectionQuery = mock(Query.class);
     Query networkQuery = mock(Query.class);
 
     Query variableQuery = mock(Query.class);
-    List<Row> collectionRows =
+    List<Row> resourceRows =
         List.of(
-            new Row("id", "my-collection-id", "mg_tableclass", "Collections"),
-            new Row("id", "my-second-collection-id", "mg_tableclass", "Collections"));
-    List<Row> networkRows =
-        List.of(
-            new Row("id", "my-network-id", "mg_tableclass", "Networks"),
-            new Row("id", "my-second-network-id", "mg_tableclass", "Networks"));
+            new Row("id", "my-collection-id", "mg_tableclass", "mockSchema.Collections"),
+            new Row("id", "my-second-collection-id", "mg_tableclass", "mockSchema.Collections"),
+            new Row("id", "my-network-id", "mg_tableclass", "mockSchema.Networks"),
+            new Row("id", "my-second-network-id", "mg_tableclass", "mockSchema.Networks"));
     List<Row> variableRows =
         List.of(
             new Row(
@@ -69,14 +69,18 @@ public class CatalogueSiteMapTest {
                 "core",
                 "mg_tableclass",
                 "Variables"));
+    when(schema.getName()).thenReturn("mockSchema");
+    when(schema.getTable("Resources")).thenReturn(resourceTable);
+    when(resourceTable.select(any(), any())).thenReturn(resourceQuery);
+    when(resourceQuery.retrieveRows()).thenReturn(resourceRows);
 
-    when(schema.getTable("Collections")).thenReturn(collectionTable);
-    when(collectionTable.select(any(), any())).thenReturn(collectionQuery);
-    when(collectionQuery.retrieveRows()).thenReturn(collectionRows);
-
-    when(schema.getTable("Networks")).thenReturn(networkTable);
-    when(networkTable.select(any(), any())).thenReturn(networkQuery);
-    when(networkQuery.retrieveRows()).thenReturn(networkRows);
+    //    when(schema.getTable("Collections")).thenReturn(collectionTable);
+    //    when(collectionTable.select(any(), any())).thenReturn(collectionQuery);
+    //    when(collectionQuery.retrieveRows()).thenReturn(collectionRows);
+    //
+    //    when(schema.getTable("Networks")).thenReturn(networkTable);
+    //    when(networkTable.select(any(), any())).thenReturn(networkQuery);
+    //    when(networkQuery.retrieveRows()).thenReturn(networkRows);
 
     when(schema.getTable("Variables")).thenReturn(variableTable);
     //    when(schema.query("Variables")).thenReturn(variableQuery);
