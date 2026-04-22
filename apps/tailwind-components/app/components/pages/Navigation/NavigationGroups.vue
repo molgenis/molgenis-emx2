@@ -47,6 +47,7 @@ const emit = defineEmits<{
           class="group w-full md:w-80"
         >
           <Button
+            v-if="isEditable"
             class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 group-focus:opacity-100"
             iconOnly
             icon="edit"

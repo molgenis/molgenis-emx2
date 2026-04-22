@@ -20,7 +20,7 @@ const props = withDefaults(
       class="opacity-0 group-focus:opacity-100 group-hover:opacity-100"
       :class="{
         'inline-block ml-2.5 -mt-1': !fixIconPosition,
-        'absolute h-6 w-6 bg-button-secondary-hover text-button-secondary-hover top-2.5 right-2.5':
+        'absolute h-10 w-10 bg-button-secondary-hover text-button-secondary-hover top-2.5 right-2.5 p-2.5':
           fixIconPosition,
       }"
       v-tooltip.bottom="'Edit'"

@@ -3,6 +3,7 @@ import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
 
 import EditButton from "./EditButton.vue";
+import Button from "../Button.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -32,7 +33,7 @@ if (props.height) {
   <div>
     <EditButton
       v-if="isEditable"
-      class="border-2 border-transparent hover:bg-button-primary-hover focus:bg-button-primary-hover"
+      class="border-2 border-transparent bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
       :class="{ 'm-auto flex justify-center items-center': imageIsCentered }"
       @click="emit('edit')"
       :fix-icon-position="true"
