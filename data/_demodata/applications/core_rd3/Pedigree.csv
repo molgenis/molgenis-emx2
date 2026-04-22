@@ -1,0 +1,7 @@
+id,alternate ids,disease,members.pedigree,members.individual,members.relative,others affected,mg_draft
+Case1,FAM0001814,"Central core disease,Congenital myopathy","Case1,Case1,Case1","Case1C,Case1F,Case1M","Case1C,Case1C,Case1C",,
+Case2,FAM0001815,,"Case2,Case2,Case2","Case2C,Case2F,Case2M","Case2C,Case2C,Case2C",,
+Case3,FAM0001816,,"Case3,Case3,Case3","Case3C,Case3F,Case3M","Case3C,Case3C,Case3C",,
+Case4,FAM0001817,,"Case4,Case4,Case4","Case4C,Case4F,Case4M","Case4C,Case4C,Case4C",,
+Case5,FAM0002372,Hereditary breast and ovarian cancer syndrome,"Case5,Case5,Case5","Case5C,Case5F,Case5M","Case5C,Case5C,Case5C",,
+Case6,FAM0569511,Congenital myopathy,"Case6,Case6,Case6","Case6C,Case6F,Case6M","Case6C,Case6C,Case6C",,

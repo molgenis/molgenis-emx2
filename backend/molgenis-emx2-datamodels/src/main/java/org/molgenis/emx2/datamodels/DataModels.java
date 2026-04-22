@@ -20,6 +20,7 @@ public class DataModels {
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
+    CORE_RD3("_profiles/CoreRD3.yaml"),
     PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),

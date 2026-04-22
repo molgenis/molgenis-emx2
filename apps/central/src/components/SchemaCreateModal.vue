@@ -146,6 +146,7 @@ export default {
         "UMCU_COHORTS_STAGING",
         "INTEGRATE_COHORTS_STAGING",
         "PATIENT_REGISTRY",
+        "CORE_RD3",
         "FAIR_GENOMES",
         "ERN_DASHBOARD",
         "UI_DASHBOARD",

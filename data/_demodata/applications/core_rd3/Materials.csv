@@ -1,0 +1,7 @@
+id,produced by process,individuals,alternate ids,affiliated organisations,included in resources,data source,date created at source,created at source by.resource,created at source by.first name,created at source by.last name,date updated at source,updated at source by.resource,updated at source by.first name,updated at source by.last name,comments,mg_draft
+IC_Case1C,Case1C,Case1C,IC_Case1C,University Medical Center Groningen,EGAS00001005702,EGAS00001005702,1980-04-11,EGAS00001005702,Hannah,Doyle,,,,,,false
+IC_Case2C,Case2C,Case2C,IC_Case2C,Maastricht University Medical Centre,,,,,,,,,,,,false
+IC_Case3C,Case3C,Case3C,Case3_M.17.g.vcf.gz.cip,Hospital Clínic de Barcelona,EGAD00001008392,VCFs,2026-04-16,MOLGENIS,Jane,Doe,,,,,,false
+IC_Case4C,Case4C,Case4C,Case4_F.11.g.vcf.gz.cip,,,,,,,,,,,,,false
+IC_Case6C,Case6C,Case6C,SAMPLE_6C,University Medical Center Groningen,,,,,,,,,,,,false
+IC_Case5C,Case5C,Case5C,SAMPLE_5C,,,,,,,,,,,,,false

@@ -25,6 +25,7 @@ public class TestLoaders {
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   public static final String PATIENT_REGISTRY = "patientRegistry";
+  public static final String CORE_RD3 = "coreRD3";
   public static final String PAGES_SCHEMA = "pagesSchema";
 
   protected static Database database;
@@ -41,6 +42,7 @@ public class TestLoaders {
   protected static Schema patientRegistryDemo;
   protected static Schema patientRegistry;
   protected static Schema pagesSchema;
+  protected static Schema coreRD3;
 
   @BeforeAll
   public void setup() {
@@ -62,6 +64,7 @@ public class TestLoaders {
       database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
       database.dropSchemaIfExists(PATIENT_REGISTRY);
       database.dropSchemaIfExists(PAGES_SCHEMA);
+      database.dropSchemaIfExists(CORE_RD3);
 
       // delete ontologies last
       database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -99,6 +102,10 @@ public class TestLoaders {
           .getImportTask(database, PATIENT_REGISTRY, "test", true)
           .run();
       patientRegistry = database.getSchema(PATIENT_REGISTRY);
+
+      DataModels.Profile.CORE_RD3.getImportTask(database, CORE_RD3, "test CoreRD3", true).run();
+      coreRD3 = database.getSchema(CORE_RD3);
+
       DataModels.Regular.PATIENT_REGISTRY_DEMO
           .getImportTask(database, PATIENT_REGISTRY_DEMO, "test", true)
           .run();
