@@ -544,7 +544,6 @@ describe("useFilters — hydrateNestedFilters", () => {
     expect(meta?.columnType).toBe("ONTOLOGY");
   });
 
-
   it("resolves nested REF leaf column type when rawColumns populates after URL-init", async () => {
     const { default: fetchTableMetadata } = await import(
       "../../../app/composables/fetchTableMetadata"
