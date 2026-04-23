@@ -19,9 +19,15 @@ public class CatalogueSiteMap {
   private static final String RESOURCE = "resource";
 
   private enum ResourcePath {
-    NETWORKS,
-    CATALOGUES,
-    COLLECTIONS,
+    NETWORKS("networks"),
+    CATALOGUES("catalogues"),
+    COLLECTIONS("collections");
+
+    public final String value;
+
+    ResourcePath(String value) {
+      this.value = value;
+    }
   }
 
   private final Schema schema;
@@ -60,7 +66,7 @@ public class CatalogueSiteMap {
                     logger.error(
                         "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
                         schema.getName(),
-                        resourcePath.name(),
+                        resourcePath.value,
                         collectionId,
                         e);
                   }
@@ -128,7 +134,7 @@ public class CatalogueSiteMap {
             "%s/all/%s/%s"
                 .formatted(
                     resourceBasePath,
-                    encodePathSegment(resourcePath.name()),
+                    encodePathSegment(resourcePath.value),
                     encodePathSegment(resourceId)))
         .build();
   }
