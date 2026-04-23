@@ -280,11 +280,6 @@ class SqlTableMetadataExecutor {
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 
-      // drop search trigger
-      jooq.execute(
-          "DROP FUNCTION IF EXISTS {0} CASCADE",
-          name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
-
       // drop trigger function if extended
       dropMgTableClassCannotUpdateCheck((SqlTableMetadata) table, jooq);
 
@@ -302,6 +297,11 @@ class SqlTableMetadataExecutor {
       for (Column c : columns) {
         executeRemoveColumn(jooq, c);
       }
+
+      // drop search trigger
+      jooq.execute(
+          "DROP FUNCTION IF EXISTS {0} CASCADE",
+          name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
       // drop the table
       jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).execute();
