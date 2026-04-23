@@ -829,8 +829,6 @@ public class TestGraphqlSchemaFields {
       execute("mutation{delete(Some:{id:\"one\"}){message}}");
       execute(
           "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
-      execute(
-          "mutation{delete(PersonDetails:{firstName:\"blaatb\",last_name:\"blaata2\"}){message}}");
       assertEquals(
           count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
