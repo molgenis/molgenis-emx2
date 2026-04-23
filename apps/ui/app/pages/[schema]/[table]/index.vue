@@ -47,6 +47,9 @@ const tableSettings = ref<ITableSettings>({
     direction: orderbyDirection.value,
   },
   search: search.value || "",
+  orderedColumnsIds: route.query.columns
+    ? (route.query.columns as string).split(",")
+    : [],
 });
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
@@ -63,6 +66,9 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    columns: tableSettings.value.orderedColumnsIds.length
+      ? tableSettings.value.orderedColumnsIds.join(",")
+      : undefined,
   };
 
   router.push({ query });
