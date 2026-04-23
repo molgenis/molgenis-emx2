@@ -552,8 +552,11 @@ public class SqlTable implements Table {
                       + nrRowsToDelete
                       + " rows but only deleted "
                       + nrDeleted.get()
-                      + " rows. Some specified rows do not exist in table "
-                      + getName());
+                      + " row"
+                      + (nrDeleted.get() == 1 ? "" : "s")
+                      + ". Some specified rows do not exist in table "
+                      + getName()
+                      + ". Transaction rolled back.");
             }
 
             // notify handlers
