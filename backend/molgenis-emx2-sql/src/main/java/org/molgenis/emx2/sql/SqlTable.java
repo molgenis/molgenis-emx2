@@ -521,11 +521,13 @@ public class SqlTable implements Table {
           db2 -> {
             int batchSize = 1000;
             int currentBatchSize = 0;
+            int nrRowsToDelete = 0;
 
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
             List<Row> batch = new ArrayList<>();
 
             for (Row row : rows) {
+              nrRowsToDelete++;
               batch.add(row);
               currentBatchSize++;
               if (currentBatchSize % batchSize == 0) {
@@ -541,6 +543,17 @@ public class SqlTable implements Table {
             // finally delete in superclass
             if (table.getMetadata().getInheritName() != null) {
               table.getInheritedTable().delete(rows);
+            }
+
+            // Validate that we deleted exactly the number of rows we intended to delete
+            if (nrDeleted.get() != nrRowsToDelete) {
+              throw new MolgenisException(
+                  "Delete failed: attempted to delete "
+                      + nrRowsToDelete
+                      + " rows but only deleted "
+                      + nrDeleted.get()
+                      + " rows. Some specified rows do not exist in table "
+                      + getName());
             }
 
             // notify handlers
