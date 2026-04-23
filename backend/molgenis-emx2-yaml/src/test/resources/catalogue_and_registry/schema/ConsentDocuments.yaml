@@ -1,0 +1,56 @@
+---
+table:
+  table: Consent documents
+  description: A document explaining all the relevant information to assist an individual
+    in understanding the expectations and risks in making a decision about a procedure.
+    This document is presented to and signed by the individual or guardian.
+  columns:
+  - name: id
+    key: 1
+    semantics:
+    - http://semanticscience.org/resource/SIO_000148
+    description: A unique proper name or character sequence that identifies this document
+  - name: type of document
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/ICO_0000001
+    description: "A classification of the document (e.g., leaflet, consent for clinical\
+      \ study, consent for intervention, etc.)"
+    refTable: Consent document types
+    refSchema: CatalogueOntologies
+  - name: title
+    semantics:
+    - http://semanticscience.org/resource/SIO_000175
+    description: A title or name given to the document
+  - name: version
+    semantics:
+    - http://semanticscience.org/resource/SIO_000186
+    description: "The version, edition, or adaptation of this document"
+  - name: date of approval
+    type: date
+    semantics:
+    - http://semanticscience.org/resource/SIO_000031
+    description: "The date on which this document was approved (e.g., ethnical approval,\
+      \ regulatory approval, etc.)"
+  - name: date valid from
+    type: date
+    semantics:
+    - http://semanticscience.org/resource/SIO_000031
+    description: The date on which this document is valid
+  - name: date valid until
+    type: date
+    semantics:
+    - http://semanticscience.org/resource/SIO_000032
+    description: The last date on which this document is valid
+  - name: authors
+    type: multiselect
+    semantics:
+    - http://semanticscience.org/resource/SIO_001315
+    description: The persons involved in creating or maintaining this document
+    refTable: Contacts
+  - name: related to documents
+    type: multiselect
+    semantics:
+    - http://semanticscience.org/resource/SIO_000295
+    description: Reference to one or more relevant documents
+    refTable: Consent documents

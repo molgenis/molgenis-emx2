@@ -1,0 +1,7 @@
+---
+table:
+  table: Profiles
+  description: DataCatalogueFlat
+  columns:
+  - name: DataCatalogueFlat
+    description: DataCatalogueFlat
