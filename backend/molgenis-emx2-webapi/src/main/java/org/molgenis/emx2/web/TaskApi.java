@@ -35,7 +35,7 @@ public class TaskApi {
 
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);
-    app.get("/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/api/tasks/clear", TaskApi::clearTasks);
     app.get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
     app.get("/api/scripts/{name}", TaskApi::getScript); // run synchronously, with parameters on url
     app.post(
@@ -51,7 +51,7 @@ public class TaskApi {
     // also works in context schema
     // todo: make tasks scoped?
     app.get("/{schema}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/api/tasks/{id}", TaskApi::getTask);
     app.get(
         "/{schema}/api/scripts/{name}",
@@ -67,7 +67,7 @@ public class TaskApi {
 
     // also in app
     app.get("/{schema}/{app}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
   }
 
