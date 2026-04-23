@@ -35,7 +35,7 @@ If this is not the case, see the section on [requesting access](#request-access)
 The metadata of the resource are first uploaded into what are called the 'staging areas' of the catalogue.
 Later on the metadata are transferred to the main catalogue.
 Use of a staging area allows for review before the information becomes available through the live catalogue.
-If the data in your staging area is ready for transfer you can let us know by emailing us through [MOLGENIS support](mailto:support@molgenis.org).
+If the data in your staging area is ready for transfer you can let us know by contacting [MOLGENIS support](mailto:support@molgenis.org).
 
 When you log in, you will be able to see at least the following databases:
 
