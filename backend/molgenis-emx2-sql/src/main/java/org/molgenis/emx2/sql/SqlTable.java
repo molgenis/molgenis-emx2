@@ -515,26 +515,28 @@ public class SqlTable implements Table {
   public int delete(Iterable<Row> rows) {
     long start = System.currentTimeMillis();
 
-    AtomicInteger count = new AtomicInteger(0);
+    AtomicInteger nrDeleted = new AtomicInteger(0);
     try {
       db.tx(
           db2 -> {
-            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
-
-            // delete in batches
             int batchSize = 1000;
+            int currentBatchSize = 0;
+
+            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
             List<Row> batch = new ArrayList<>();
+
             for (Row row : rows) {
               batch.add(row);
-              count.set(count.get() + 1);
-              if (count.get() % batchSize == 0) {
-                deleteBatch(table, batch);
+              currentBatchSize++;
+              if (currentBatchSize % batchSize == 0) {
+                nrDeleted.addAndGet(deleteBatch(table, batch));
                 batch.clear();
+                currentBatchSize = 0;
               }
             }
 
             // delete remaining elements
-            deleteBatch(table, batch);
+            nrDeleted.addAndGet(deleteBatch(table, batch));
 
             // finally delete in superclass
             if (table.getMetadata().getInheritName() != null) {
@@ -550,9 +552,8 @@ public class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser(), getName(), start, count, "deleted");
-
-    return count.get();
+    log(db.getActiveUser(), getName(), start, nrDeleted, "deleted");
+    return nrDeleted.get();
   }
 
   @Override
@@ -584,7 +585,7 @@ public class SqlTable implements Table {
     return delete(Arrays.asList(rows));
   }
 
-  private static void deleteBatch(SqlTable table, Collection<Row> rows) {
+  private static int deleteBatch(SqlTable table, Collection<Row> rows) {
     if (!rows.isEmpty()) {
       List<String> keyNames =
           table.getMetadata().getPrimaryKeyFields().stream()
@@ -597,8 +598,10 @@ public class SqlTable implements Table {
             "Delete on table " + table.getName() + " failed: no primary key set");
       }
       Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
-      table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
+      return table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
     }
+
+    return 0;
   }
 
   private DSLContext getJooq() {
