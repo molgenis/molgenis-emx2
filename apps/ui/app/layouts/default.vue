@@ -71,7 +71,7 @@
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -206,6 +206,7 @@ const menuItems: Ref<MenuItem[]> = computed(() => {
       link: item.link,
       isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
       role: item.role,
+      submenu: item.submenu,
     };
   });
 });
@@ -215,17 +216,31 @@ const userMenuItems = computed(() => {
     return menuItems.value;
   }
 
-  return menuItems.value.filter((item) => {
+  const isVisibleToUser = (item: MenuItem): boolean => {
     if (item.role) {
       if (session.value?.roles && Array.isArray(session.value.roles)) {
         return session.value.roles.includes(item.role);
       } else {
-        // used for system app where user has no schema role
-        return item.role === "Admin" && isAdmin.value;
+        return item.role === "Admin" && isAdmin.value === true;
       }
     }
-    return true; // If no role is specified, show the item
-  });
+    return true;
+  };
+
+  const removeInvisibleSubmenus = (items: MenuItem[]): MenuItem[] => {
+    return items
+      .filter(isVisibleToUser)
+      .map((item) => {
+        if (item.submenu && item.submenu.length > 0) {
+          return { ...item, submenu: removeInvisibleSubmenus(item.submenu) };
+        }
+        return item;
+      })
+      .filter((item) => !item.submenu || item.submenu.length > 0);
+  };
+
+  const visibleMenuItems = menuItems.value.filter(isVisibleToUser);
+  return removeInvisibleSubmenus(visibleMenuItems);
 });
 </script>
 
