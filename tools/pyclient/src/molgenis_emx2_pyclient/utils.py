@@ -255,13 +255,12 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         return read_file(file_path=file_path)
 
     if data is not None:
-        # TODO: add comment?
-        if isinstance(data, pd.DataFrame):
-            object_columns = data.select_dtypes('object').columns
-            data[object_columns] = data[object_columns].map(array_to_csv_string)
-            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-        else:
-            return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+        if not isinstance(data, pd.DataFrame):
+            data = pd.DataFrame(data, dtype=str)
+        # Convert lists in dataframe to CSV-formatted string
+        object_columns = data.select_dtypes('object').columns
+        data[object_columns] = data[object_columns].map(array_to_csv_string)
+        return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
     message = "No data to import. Specify a file location or a dataset."
     log.error(message)
