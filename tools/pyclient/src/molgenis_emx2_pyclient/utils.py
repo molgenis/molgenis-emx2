@@ -258,6 +258,7 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         if not isinstance(data, pd.DataFrame):
             data = pd.DataFrame(data, dtype=str)
         # Convert lists in dataframe to CSV-formatted string
+        # FIXME: selecting only object columns works for as_df=True, but for as_df=False, column types are not (or incorrectly) inferred. This is a bug in pyclient, needs fixing first before array handling can work reliably. 
         object_columns = data.select_dtypes('object').columns
         data[object_columns] = data[object_columns].map(array_to_csv_string)
         return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
