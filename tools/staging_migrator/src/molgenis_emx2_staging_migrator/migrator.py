@@ -138,15 +138,15 @@ class StagingMigrator(Client):
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
-                        resources = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Resources'))
+                        collections = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Collections'))
                         try:
-                            updated_table = process_contacts(updated_table, resources)
+                            updated_table = process_contacts(updated_table, collections)
                         except MissingContactException as e:
                             self.errors.append(e)
                             raise e
                     if table.id in ["CollectionEvents", "Subpopulations"]:
                         updated_table = self._copy_resource_columns(updated_table)
-                    if table.id == "Resources":
+                    if table.id == "Collections":
                         try:
                             check_hricore(updated_table, source_profile)
                         except MissingHRICoreException as ve:
@@ -408,12 +408,12 @@ class StagingMigrator(Client):
                 Path(filename).unlink()
 
     def _copy_resource_columns(self, table_df: pd.DataFrame) -> pd.DataFrame:
-        """Inserts values for columns 'publisher', 'creator', 'contact point' from Resources into this table."""
-        resources = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Resources'))
-        table_df["creator"] = table_df["resource"].map(resources.set_index('id')["creator.id"].to_dict())
-        table_df["publisher"] = table_df["resource"].map(resources.set_index('id')["publisher.id"].to_dict())
-        table_df["contact point.first name"] = table_df["resource"].map(resources.set_index('id')["contact point.first name"].to_dict())
-        table_df["contact point.last name"] = table_df["resource"].map(resources.set_index('id')["contact point.last name"].to_dict())
+        """Inserts values for columns 'publisher', 'creator', 'contact point' from Collections into this table."""
+        collections = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Collections'))
+        table_df["creator"] = table_df["resource"].map(collections.set_index('id')["creator.id"].to_dict())
+        table_df["publisher"] = table_df["resource"].map(collections.set_index('id')["publisher.id"].to_dict())
+        table_df["contact point.first name"] = table_df["resource"].map(collections.set_index('id')["contact point.first name"].to_dict())
+        table_df["contact point.last name"] = table_df["resource"].map(collections.set_index('id')["contact point.last name"].to_dict())
         return table_df
 
     def _get_source_profile(self) -> str | None:
