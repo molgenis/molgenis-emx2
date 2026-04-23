@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,13 +39,17 @@ class TestDeletingTableRows {
   }
 
   @Test
-  void whenDeletingNonExistingRows_thenDontDelete() {
+  void whenDeletingNonExistingRows_thenThrowException() {
     table.insert(Row.row("id", 1, "name", "a"));
     table.insert(Row.row("id", 2, "name", "b"));
 
-    int nrDeleted = table.delete(Row.row("id", 123));
-    assertEquals(0, nrDeleted);
+    Row nonExistentRow = Row.row("id", 123);
+    assertThrows(
+        MolgenisException.class,
+        () -> table.delete(nonExistentRow),
+        "Should throw exception when deleting a row that doesn't exist in the table");
 
+    // Verify transaction is rolled back
     CompareTools.assertEquals(
         table.retrieveRows(Option.EXCLUDE_MG_COLUMNS),
         List.of(Row.row("id", 1, "name", "a"), Row.row("id", 2, "name", "b")));
@@ -73,5 +77,31 @@ class TestDeletingTableRows {
 
     CompareTools.assertEquals(
         table.retrieveRows(Option.EXCLUDE_MG_COLUMNS), List.of(Row.row("id", 2, "name", "bar")));
+  }
+
+  @Test
+  void whenDeletingRowNotInTable_thenThrowException() {
+    table.insert(Row.row("id", 1, "name", "test"));
+
+    Row nonExistentRow = Row.row("id", 999, "name", "non-existent");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> table.delete(nonExistentRow),
+        "Should throw exception when deleting a row that doesn't exist in the table");
+  }
+
+  @Test
+  void whenDeletingRowsWithMixedValidAndInvalidRows_thenThrowException() {
+    table.insert(Row.row("id", 1, "name", "test1"));
+    table.insert(Row.row("id", 2, "name", "test2"));
+
+    Row validRow = Row.row("id", 1, "name", "test1");
+    Row invalidRow = Row.row("id", 999, "name", "non-existent");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> table.delete(validRow, invalidRow),
+        "Should throw exception when any row in the batch doesn't exist in the table");
   }
 }
