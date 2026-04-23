@@ -255,7 +255,10 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         return read_file(file_path=file_path)
 
     if data is not None:
+        # TODO: add comment?
         if isinstance(data, pd.DataFrame):
+            object_columns = data.select_dtypes('object').columns
+            data[object_columns] = data[object_columns].map(array_to_csv_string)
             return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
         else:
             return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
@@ -277,6 +280,7 @@ def check_schema(schema: str, default_schema: str, schema_names: list[str]):
 
 def csv_string_to_array(csv_string: str) -> list:
     """Convert EMX2 input of type *_ARRAY, from a string from the CSV API to a list"""
+    #FIXME: return input if not string
     if pd.notna(csv_string):
         with io.StringIO(csv_string) as in_string:
             reader = csv.reader(in_string, dialect=csv.excel)
@@ -288,8 +292,10 @@ def array_to_csv_string(array: list) -> str:
     """Convert a list to a string suitable for output to an EMX2 value of type *_ARRAY, 
     through the CSV API
     """
-
-    with io.StringIO() as csv_string:
-        writer = csv.writer(csv_string, dialect=csv.excel)
-        writer.writerow(array)
-        return csv_string.getvalue().strip()
+    if isinstance(array, list):
+        with io.StringIO() as csv_string:
+            writer = csv.writer(csv_string, dialect=csv.excel)
+            writer.writerow(array)
+            return csv_string.getvalue().strip()
+    else:
+        return array
