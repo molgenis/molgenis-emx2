@@ -19,9 +19,9 @@ public class CatalogueSiteMap {
   private static final String RESOURCE = "resource";
 
   private enum ResourcePath {
-    networks,
-    catalogues,
-    collections,
+    NETWORKS,
+    CATALOGUES,
+    COLLECTIONS,
   }
 
   private final Schema schema;
@@ -111,11 +111,11 @@ public class CatalogueSiteMap {
   private ResourcePath getResourcePath(Row resource) {
     String tableClass = resource.getString(Constants.MG_TABLECLASS);
     if (networkTableClass.equals(tableClass)) {
-      return ResourcePath.networks;
+      return ResourcePath.NETWORKS;
     } else if (catalogueTableClass.equals(tableClass)) {
-      return ResourcePath.catalogues;
+      return ResourcePath.CATALOGUES;
     } else if (collectionTableClass.equals(tableClass)) {
-      return ResourcePath.collections;
+      return ResourcePath.COLLECTIONS;
     } else {
       return null;
     }
