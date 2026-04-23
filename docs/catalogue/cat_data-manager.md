@@ -56,9 +56,10 @@ You can see filled out example metadata in these databases.
 
 ## Fill out rich metadata
 
-Open your staging area and open the table **Resources**. The **id** and **name** columns are already filled in.
+Open your staging area and open the table **Collections** (or, if you are a network data manager, **Networks**).
+The **id** and **name** columns are already filled in.
 Click on the pencil sign next to this entry to start editing your metadata by filling out
-the form. For additional detail, or if you are planning on entering source variables,
+the form. For a more detailed description of your collection, or if you are planning on entering source variables,
 make sure to fill in the tables **Collection events** and **Subpopulations** as well.
 These contain valuable metadata items for describing your resource in more detail.
 Also, you can later refer to these from columns in the dictionary templates to indicate
@@ -66,8 +67,8 @@ which variables were collected during which collection event and for which subpo
 
 ## Define data dictionaries and common data models
 
-The next sections explain how to define variable metadata, which can be used to create data dictionaries (also known as codebooks),
-in the case of source variables, and common data models, in the case of target variables, in the MOLGENIS catalogue.
+The next sections explain how to define variable metadata, which can be used to create data dictionaries
+in the case of source variables, and common data models in the case of target variables, in the MOLGENIS catalogue.
 For the creation of data dictionaries, you can also watch this
 [instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 Note that this video uses an older version of the dictionary model (2.x).
