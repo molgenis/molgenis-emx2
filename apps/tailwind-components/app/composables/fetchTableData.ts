@@ -27,12 +27,14 @@ export default async (
     schemaId,
     tableId,
     expandLevel,
-    properties?.columns
+    properties?.columns,
+    true,
+    properties?.nestedLimit
   );
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
-          limit:${limit}, 
+          limit:${limit},
           offset:${offset}${search},
           orderby:$orderby
           )
@@ -65,62 +67,53 @@ export default async (
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
-export const getColumnIds = async (
-  schemaId: string,
-  tableId: string,
-  //allows expansion of ref fields to add their next layer of details.
+const COLLECTION_TYPES = ["REF_ARRAY", "REFBACK", "MULTISELECT", "CHECKBOX"];
+const REF_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "MULTISELECT",
+  "CHECKBOX",
+  "SELECT",
+  "RADIO",
+];
+const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+
+export function buildColumnGql(
+  columns: IColumn[],
+  columnsForTable: (tableId: string) => IColumn[],
+  rootLevel: boolean,
   expandLevel: number,
-  columnFilter: IColumn[] = [],
-  rootLevel = true
-) => {
-  const metadata = await fetchMetadata(schemaId);
-
-  const columns = columnFilter?.length
-    ? columnFilter
-    : metadata.tables.find((table) => table.id === tableId)?.columns || [];
-
+  nestedLimit: number | undefined
+): string {
   let gqlFields = "";
+
   for (const col of columns) {
-    //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
-      if (
-        !rootLevel &&
-        [
-          "REF_ARRAY",
-          "REFBACK",
-          "ONTOLOGY_ARRAY",
-          "MULTISELECT",
-          "CHECKBOX",
-        ].includes(col.columnType)
-      ) {
-        //skip
-      } else if (
-        [
-          "REF",
-          "REF_ARRAY",
-          "REFBACK",
-          "MULTISELECT",
-          "CHECKBOX",
-          "SELECT",
-          "RADIO",
-        ].includes(col.columnType)
-      ) {
-        gqlFields =
-          gqlFields +
+      if (!rootLevel && COLLECTION_TYPES.includes(col.columnType)) {
+        // skip collection types at non-root levels
+      } else if (REF_TYPES.includes(col.columnType)) {
+        const subColumns = columnsForTable(col.refTableId || "");
+        const subFields = buildColumnGql(
+          subColumns,
+          columnsForTable,
+          false,
+          expandLevel - 1,
+          undefined
+        );
+        const isCollection =
+          rootLevel && COLLECTION_TYPES.includes(col.columnType);
+        const limitArg =
+          isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
+        gqlFields += ` ${col.id}${limitArg} {${subFields} }`;
+        if (isCollection) {
+          gqlFields += ` ${col.id}_agg { count }`;
+        }
+      } else if (ONTOLOGY_TYPES.includes(col.columnType)) {
+        gqlFields +=
           " " +
           col.id +
-          " {" +
-          (await getColumnIds(
-            col.refSchemaId || schemaId,
-            col.refTableId || tableId,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
-            expandLevel - 1,
-            [],
-            false
-          )) +
-          " }";
-      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        gqlFields = gqlFields + " " + col.id + " {name, label}";
+          " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}";
       } else if (col.columnType === "FILE") {
         gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
       } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
@@ -130,4 +123,92 @@ export const getColumnIds = async (
   }
 
   return gqlFields;
+}
+
+export const getColumnIds = async (
+  schemaId: string,
+  tableId: string,
+  expandLevel: number,
+  columnFilter: IColumn[] = [],
+  rootLevel = true,
+  nestedLimit?: number
+) => {
+  const metadata = await fetchMetadata(schemaId);
+
+  const columns = columnFilter?.length
+    ? columnFilter
+    : metadata.tables.find((table) => table.id === tableId)?.columns || [];
+
+  const columnsForTable = async (
+    refSchemaId: string,
+    refTableId: string
+  ): Promise<IColumn[]> => {
+    const refMetadata = await fetchMetadata(refSchemaId);
+    return (
+      refMetadata.tables.find((table) => table.id === refTableId)?.columns || []
+    );
+  };
+
+  return buildColumnGqlAsync(
+    columns,
+    columnsForTable,
+    schemaId,
+    tableId,
+    rootLevel,
+    expandLevel,
+    nestedLimit
+  );
 };
+
+async function buildColumnGqlAsync(
+  columns: IColumn[],
+  columnsForTable: (schemaId: string, tableId: string) => Promise<IColumn[]>,
+  schemaId: string,
+  tableId: string,
+  rootLevel: boolean,
+  expandLevel: number,
+  nestedLimit: number | undefined
+): Promise<string> {
+  let gqlFields = "";
+
+  for (const col of columns) {
+    if (expandLevel > 0 || col.key) {
+      if (!rootLevel && COLLECTION_TYPES.includes(col.columnType)) {
+        // skip collection types at non-root levels
+      } else if (REF_TYPES.includes(col.columnType)) {
+        const subColumns = await columnsForTable(
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId
+        );
+        const subFields = await buildColumnGqlAsync(
+          subColumns,
+          columnsForTable,
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId,
+          false,
+          expandLevel - 1,
+          undefined
+        );
+        const isCollection =
+          rootLevel && COLLECTION_TYPES.includes(col.columnType);
+        const limitArg =
+          isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
+        gqlFields += ` ${col.id}${limitArg} {${subFields} }`;
+        if (isCollection) {
+          gqlFields += ` ${col.id}_agg { count }`;
+        }
+      } else if (ONTOLOGY_TYPES.includes(col.columnType)) {
+        gqlFields +=
+          " " +
+          col.id +
+          " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}";
+      } else if (col.columnType === "FILE") {
+        gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
+      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
+        gqlFields += ` ${col.id}`;
+      }
+    }
+  }
+
+  return gqlFields;
+}

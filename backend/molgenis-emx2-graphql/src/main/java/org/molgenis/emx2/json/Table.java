@@ -6,6 +6,7 @@ import java.util.List;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.TableRole;
 import org.molgenis.emx2.TableType;
 
 public class Table {
@@ -27,6 +28,7 @@ public class Table {
   private String[] profiles = null;
   private String id;
   private TableType tableType;
+  private TableRole role;
 
   public Table() {
     // for json serialisation
@@ -90,6 +92,7 @@ public class Table {
       this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();
+    this.role = tableMetadata.getRole();
     this.profiles = tableMetadata.getProfiles();
   }
 
@@ -187,6 +190,14 @@ public class Table {
 
   public void setTableType(TableType tableType) {
     this.tableType = tableType;
+  }
+
+  public TableRole getRole() {
+    return role;
+  }
+
+  public void setRole(TableRole role) {
+    this.role = role;
   }
 
   public List<LanguageValue> getLabels() {

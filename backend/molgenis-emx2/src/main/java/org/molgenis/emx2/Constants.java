@@ -23,6 +23,9 @@ public class Constants {
   public static final String COLUMN = "column";
   public static final String FORM = "form";
   public static final String READONLY = "readonly";
+  public static final String COLUMN_ROLE = "role";
+  public static final String TABLE_ROLE = "role";
+  public static final String DISPLAY = "display";
   public static final String COMPUTED = "computed";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";

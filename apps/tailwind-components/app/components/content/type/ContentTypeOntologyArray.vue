@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ISectionField } from "../../../../types/types";
+import type { columnValueObject } from "../../../../../metadata-utils/src/types";
 
 const { field } = defineProps<{
   field: ISectionField;
 }>();
 
-interface Item {
-  name: string;
-}
-
 const asString = computed((): string => {
-  return field.value?.map((item: Item): string => item.name).join(", ");
+  const items = field.value as columnValueObject[];
+  return items?.map((item) => String(item.name ?? "")).join(", ") ?? "";
 });
 </script>
 

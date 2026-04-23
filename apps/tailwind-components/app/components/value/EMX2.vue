@@ -18,16 +18,32 @@ import ValueText from "./Text.vue";
 import ValueDate from "./Date.vue";
 import ValueDateTime from "./DateTime.vue";
 
-withDefaults(
+import { computed } from "vue";
+
+const props = withDefaults(
   defineProps<{
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
+    maxItems?: number;
   }>(),
   {
     hideListSeparator: false,
   }
 );
+
+const effectiveMaxItems = computed(() => {
+  if (props.maxItems !== undefined) return props.maxItems;
+  const type = props.metadata.columnType;
+  if (
+    type.endsWith("_ARRAY") ||
+    type === "CHECKBOX" ||
+    type === "MULTISELECT"
+  ) {
+    return 5;
+  }
+  return undefined;
+});
 
 defineEmits<{
   (e: "valueClick", payload: RefPayload | ListPayload): void;
@@ -45,6 +61,7 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
+    :maxItems="effectiveMaxItems"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 
