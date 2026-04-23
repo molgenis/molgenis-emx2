@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -130,6 +131,25 @@ class TestGraphqlAdminFields {
 
   private String executeDb(String query) throws JsonProcessingException {
     return convertExecutionResultToJson(graphql.execute(query, null, sessionManager));
+  }
+
+  @Test
+  void shouldOnlyListTasksAsAdmin() throws JsonProcessingException {
+    String query =
+        """
+        {
+          _tasks {
+            id
+          }
+        }
+        """;
+
+    sessionManager.createSession(ANONYMOUS);
+    MolgenisException exception = assertThrows(MolgenisException.class, () -> executeDb(query));
+    assertTrue(exception.getMessage().contains("task id needs to be provided to specify task"));
+
+    sessionManager.createSession(ADMIN_USER);
+    assertTrue(executeDb(query).contains("\"_tasks\" : [ ]"));
   }
 
   @Test

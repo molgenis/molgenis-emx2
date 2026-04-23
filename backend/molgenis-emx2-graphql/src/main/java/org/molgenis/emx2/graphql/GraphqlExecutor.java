@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public class GraphqlExecutor {
   }
 
   public GraphqlExecutor(Database database) {
-    this(database, null);
+    this(database, new TaskServiceInMemory());
   }
 
   public GraphqlExecutor(Schema schema, TaskService taskService) {
@@ -71,7 +72,7 @@ public class GraphqlExecutor {
   }
 
   public GraphqlExecutor(Schema schema) {
-    this(schema, null);
+    this(schema, new TaskServiceInMemory());
   }
 
   public @NotNull ExecutionResult executeWithoutSession(String query) {
