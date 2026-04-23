@@ -134,7 +134,7 @@ class StagingMigrator(Client):
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
 
-                if source_profile in ["CohortStaging", "UMCGCohortsStaging", "UMCUCohorts"]:
+                if source_profile in ["CohortsStaging", "UMCGCohortsStaging", "UMCUCohorts"]:
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
