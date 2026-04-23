@@ -18,7 +18,7 @@ const emit = defineEmits<{
 <template>
   <p
     :id="id"
-    class="text-title-contrast text-left"
+    class="text-title-contrast"
     :class="{
       'text-center': paragraphIsCentered,
       'text-left': !paragraphIsCentered,
