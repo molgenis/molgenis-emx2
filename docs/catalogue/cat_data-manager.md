@@ -33,9 +33,9 @@ If this is not the case, see the section on [requesting access](#request-access)
 ## Staging areas
 
 The metadata of the resource are first uploaded into what are called the 'staging areas' of the catalogue.
-Later on the metadata are transferred to the main catalogue
+Later on the metadata are transferred to the main catalogue.
 Use of a staging area allows for review before the information becomes available through the live catalogue.
-If the data in your staging area is ready for transfer you can let us know by emailing us through [MOLGENIS support](mailto:support@molgenis.org).
+If the data in your staging area is ready for transfer you can let us know by contacting [MOLGENIS support](mailto:support@molgenis.org).
 
 When you log in, you will be able to see at least the following databases:
 
@@ -56,9 +56,10 @@ You can see filled out example metadata in these databases.
 
 ## Fill out rich metadata
 
-Open your staging area and open the table **Resources**. The **id** and **name** columns are already filled in.
+Open your staging area and open the table **Collections** (or, if you are a network data manager, **Networks**).
+The **id** and **name** columns are already filled in.
 Click on the pencil sign next to this entry to start editing your metadata by filling out
-the form. For additional detail, or if you are planning on entering source variables,
+the form. For a more detailed description of your collection, or if you are planning on entering source variables,
 make sure to fill in the tables **Collection events** and **Subpopulations** as well.
 These contain valuable metadata items for describing your resource in more detail.
 Also, you can later refer to these from columns in the dictionary templates to indicate
@@ -66,8 +67,8 @@ which variables were collected during which collection event and for which subpo
 
 ## Define data dictionaries and common data models
 
-The next sections explain how to define variable metadata, which can be used to create data dictionaries (also known as codebooks),
-in the case of source variables, and common data models, in the case of target variables, in the MOLGENIS catalogue.
+The next sections explain how to define variable metadata, which can be used to create data dictionaries
+in the case of source variables, and common data models in the case of target variables, in the MOLGENIS catalogue.
 For the creation of data dictionaries, you can also watch this
 [instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 Note that this video uses an older version of the dictionary model (2.x).
@@ -110,7 +111,7 @@ The datasets (sets of variables) that make up a resource are defined in the *Dat
 
 | Column name                               | Description                                                                       | Remarks                                                                                                                                                         |
 |-------------------------------------------|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| resource\*                                | Resource that this dataset belongs to. Fill in your resource id                   | The resource id is found in the table *Resources* in the resource staging area                                                                                  |
+| resource\*                                | Resource that this dataset belongs to. Fill in your resource id                   | The resource id is found in the *Collections* or *Networks* table in the resource staging area                                                                                  |
 | name\*                                    | Unique dataset name                                                               |                                                                                                                                                                 |
 | label                                     | Dataset label                                                                     |                                                                                                                                                                 |
 | dataset type<sup id="ds1">[1](#ds1)</sup> | Type of dataset                                                                   | Find list to choose from in CatalogueOntologies [Dataset types](https://molgeniscatalogue.org/CatalogueOntologies/tables/#/DatasetTypes)             |
@@ -132,7 +133,7 @@ The variables making up the datasets specified in the *Datasets* sheet are defin
 
 | Column name                                     | Description                                                                        | Remarks                                                                                                                                                 |
 |-------------------------------------------------|------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| resource\*                                      | Resource that this variable belongs to. Fill out your resource id                  | The resource id is found in the table *Resources* in the resource staging area                                                                          |
+| resource\*                                      | Resource that this variable belongs to. Fill out your resource id                  | The resource id is found in the *Collections* or *Networks* table in the resource staging area                                                                          |
 | dataset\*                                       | Dataset that contains the variable.                                                | Datasets must be predefined in the *Datasets* sheet                                                                                                     |
 | name\*                                          | Variable name, unique within a dataset                                             |                                                                                                                                                         |
 | label                                           | Human readable variable label                                                      |                                                                                                                                                         |
@@ -163,7 +164,7 @@ insightful for those that are interested.
 
 | Column name       | Description                                                       | Remarks                                                                        |
 |-------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| resource\*        | Resource that the variable belongs to. Fill out your resource id  | The resource id is found in the table *Resources* in the resource staging area |
+| resource\*        | Resource that the variable belongs to. Fill out your resource id  | The resource id is found in the *Collections* or *Networks* table in the resource staging area |
 | dataset\*         | Dataset that contains the variable                                | Datasets must be predefined in the *Datasets* sheet                            |
 | variable\*        | Variable name                                                     | Variables must be predefined in the *Variables* sheet                          |
 | value\*           | The code or value used                                            | e.g. 1, 2 or -99                                                               |
@@ -196,7 +197,7 @@ Harmonisation procedures at the dataset level are defined in the *Dataset mappin
 
 | Column name      | Description                                                                     | Remarks                                                                              |
 |------------------|---------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| source\*         | Resource id. Fill out your resource id                                          | The resource id is found in the table *Resources* in the resource staging area       |
+| source\*         | Resource id. Fill out your resource id                                          | The resource id is found in the *Collections* or *Networks* table in the resource staging area       |
 | source dataset\* | Source dataset name                                                             | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
 | target\*         | Name of the target CDM                                                          | e.g. LifeCycle or LongITools                                                         |
 | target dataset\* | Target dataset name                                                             | Map to a dataset that is defined in a CDM                                            |
@@ -212,7 +213,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 
 | Column name                             | Description                                                                                    | Remarks                                                                                                                                                                                                                                             |
 |-----------------------------------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| source\*                                | Resource id. Fill out your resource id                                                         | The resource id is found in the table *Resources* in the resource staging area                                                                                                                                                                      |
+| source\*                                | Resource id. Fill out your resource id                                                         | The resource id is found in the *Collections* or *Networks* table in the resource staging area                                                                                                                                                                      |
 | source dataset\*                        | Source table name                                                                              | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template                                                                                                                                                                |
 | source variables                        | Source variable name(s)                                                                        | Variables must be predefined in the *Variables* sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3                                                                       |
 | source variables other datasets.dataset | Other source tables                                                                            | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup id="vm1">[1](#vm1)</sup>                                                                                                         |
