@@ -1,16 +1,12 @@
 import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
+import useErrorHandler from "../composables/errorHandler";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { IBiobanks } from "../interfaces/directory";
-import {
-  IBiobankIdentifier,
-  IFilterDetails,
-  IFilterFacet,
-} from "../interfaces/interfaces";
+import { IBiobankIdentifier, IFilterDetails } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
-import useErrorHandler from "../composables/errorHandler";
 
 export interface ILabelValuePair {
   label: string;

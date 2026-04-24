@@ -46,7 +46,6 @@ const headerClasses = computed(() => {
 });
 
 function onInput() {
-  console.log(props.resource);
   isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
   if (isInShoppingCart.value) {
     datasetStore.removeFromCart(props.resource.id);
