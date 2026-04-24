@@ -35,8 +35,16 @@
       :style="{ left: guideX + 'px' }"
     />
 
-    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px" v-on:scroll.native="handleStickyHeaderOffset">
-       <table id="table-header-static" ref="table-header-static" :class="{'hidden': !showStickyHeader}" class="border text-left w-full table-fixed fixed top-0 z-10 bg-table">
+    <div
+      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
+      v-on:scroll.native="handleStickyHeaderOffset"
+    >
+      <table
+        id="table-header-static"
+        ref="table-header-static"
+        :class="{ hidden: !showStickyHeader }"
+        class="border text-left w-full table-fixed fixed top-0 z-10 bg-table"
+      >
         <thead>
           <tr>
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
@@ -75,7 +83,7 @@
           </tr>
         </thead>
       </table>
-    
+
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
           <tr>
@@ -377,22 +385,25 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-  if (process.client) {
-    window.addEventListener('scroll', (event) => {
-        const { top } = tableContainer?.value.getBoundingClientRect();
-        console.log("y-axis: " + top);
-        showStickyHeader.value = top <= 0;
-    });
+if (process.client) {
+  window.addEventListener("scroll", (event) => {
+    const rect = tableContainer?.value?.getBoundingClientRect();
+    const top = rect?.top ?? 0;
+    console.log("y-axis: " + top);
+    showStickyHeader.value = top <= 0;
+  });
+}
+function handleStickyHeaderOffset(event: Event) {
+  const target = event.target as HTMLElement;
+  const { scrollLeft } = target;
+  console.log("x-axis: " + scrollLeft);
+  const tableFixed = target.querySelector(
+    "#table-header-static"
+  ) as HTMLElement;
+  if (tableFixed) {
+    tableFixed.style.transform = `translateX(-${scrollLeft}px)`;
   }
-  function handleStickyHeaderOffset(event: Event) {
-    const target = event.target as HTMLElement;
-    const { scrollLeft } = target;
-    console.log("x-axis: "+ scrollLeft);
-    const tableFixed = target.querySelector("#table-header-static") as HTMLElement;
-    if (tableFixed) {
-      tableFixed.style.transform = `translateX(-${scrollLeft}px)`;
-    }
-  }
+}
 
 let widthsInitialized = false;
 watch(
