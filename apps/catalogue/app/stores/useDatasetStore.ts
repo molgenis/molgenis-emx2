@@ -2,7 +2,6 @@ import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
-import type { IShoppingCart } from "../../interfaces/types";
 
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
@@ -27,41 +26,20 @@ export const useDatasetStore = defineStore("datasets", () => {
     datasetStoreUrl.value = (await getSetting(CATALOGUE_STORE_URL)) || "";
   }
 
-  async function getDatasetStoreUrl() {
-    if (!datasetStoreUrl.value) {
-      await setDatasetStoreUrl();
-    }
-    return datasetStoreUrl.value;
-  }
-
   async function setNegotiatorVersion() {
     storeVersion.value = (await getSetting(CATALOGUE_STORE_VERSION)) || "";
   }
 
-  async function getDatasetStoreVersion() {
-    if (!storeVersion.value) {
-      await setNegotiatorVersion();
-    }
-    return storeVersion.value;
-  }
-
   function addToCart(resource: IResources) {
-    const newCartDataset: IShoppingCart = { [resource.id]: resource };
-    datasets.value = Object.assign(newCartDataset, datasets.value);
+    datasets[resource.id as keyof IResources] = resource;
   }
 
   function removeFromCart(resourceId: string) {
-    if (datasets.value) {
-      delete datasets.value[resourceId as keyof IResources];
-    }
+    delete datasets[resourceId as keyof IResources];
   }
 
   function resourceIsInCart(resourceId: string) {
-    if (datasets.value) {
-      return Object.keys(datasets.value).includes(resourceId);
-    } else {
-      return false;
-    }
+    return Object.keys(datasets).includes(resourceId);
   }
 
   async function getSetting(settingConst: string) {
@@ -82,11 +60,11 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   return {
     datasets,
+    datasetStoreUrl,
     storeVersion,
     isEnabled,
     addToCart,
     clearCart,
-    getDatasetStoreUrl,
     removeFromCart,
     resourceIsInCart,
   };

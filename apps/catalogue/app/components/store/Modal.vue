@@ -34,6 +34,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
+import type { IResources } from "~~/interfaces/catalogue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
@@ -77,7 +78,7 @@ function getSendToText() {
 
 async function sendToNegotiator() {
   const version = datasetStore.storeVersion;
-  const dataStoreUrl = await datasetStore.getDatasetStoreUrl();
+  const dataStoreUrl = datasetStore.datasetStoreUrl;
   switch (version) {
     case "GDI":
       window.open(dataStoreUrl, "_blank");
@@ -95,15 +96,13 @@ async function sendToNegotiator() {
 
 async function doNegotiatorV3Request() {
   error.value = "";
-  const dataStoreUrl = await datasetStore.getDatasetStoreUrl();
-
   const url = window.location.origin;
   const humanReadable = getHumanReadableString(); //+ createHistoryJournal();
-  const resources = toNegotiatorFormat(datasetStore.datasets.value);
+  const resources = toNegotiatorFormat(datasetStore.datasets);
   console.log(resources);
   const payload: Record<string, any> = { url, humanReadable, resources };
 
-  const response = await fetch(dataStoreUrl, {
+  const response = await fetch(datasetStore.datasetStoreUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -152,7 +151,7 @@ async function doNegotiatorV3Request() {
     }
   }
 
-  function toNegotiatorFormat(datasets: Record<string, any>) {
+  function toNegotiatorFormat(datasets: Record<string, IResources>) {
     console.log(datasets);
     return Object.values(datasets).map((dataset) => ({
       id: dataset.pid,
