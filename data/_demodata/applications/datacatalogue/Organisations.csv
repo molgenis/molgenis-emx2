@@ -185,5 +185,5 @@ testUMC,TUMC,Organisation,,,testUMC,,,test@email.com,,,Data holder,testUMC,https
 TestDataSourceID,UCL,Organisation,,University College London,,,,test@email.com,,,Researcher,University College London,https://ror.org/02jx3x895,http://www.ucl.ac.uk/,false,
 TestDataSourceID,INSERM,Organisation,,Inserm,,,,test@email.com,,,Researcher,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,false,
 TestDataSourceID,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,Data originator,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,true,
-TestDatabank1,UMCG,Organisation,,University Medical Center Groningen,,Genomics Coordination Center,,,,,Data originator,University Medical Center Groningen,https://roridtest.org,https://testwebsite.org,true,false
+TestDatabank1,UMCG,Organisation,,University Medical Center Groningen,,Genomics Coordination Center,,test@email.com,,,Data originator,University Medical Center Groningen,https://roridtest.org,https://testwebsite.org,true,false
 TestDatabank2,UMCU,Organisation,,University Medical Center Utrecht,,Julius center,,test@umcu.nl,,,Data originator,University Medical Center Utrecht,https://roridtest.org,https://testwebsite.org,false,false
