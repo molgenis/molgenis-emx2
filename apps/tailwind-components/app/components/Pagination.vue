@@ -10,6 +10,7 @@ const props = withDefaults(
   defineProps<{
     currentPage: number;
     totalPages: number;
+    pageSize?: number;
     preventDefault?: boolean;
     inverted?: boolean;
     jumpToEdge?: boolean;
@@ -20,12 +21,11 @@ const props = withDefaults(
     inverted: false,
     jumpToEdge: false,
     showPageSelector: true,
+    pageSize: constants.PAGE_SIZE_DEFAULT,
   }
 );
 
 const emit = defineEmits(["update", "update:pageSize"]);
-
-const pageSize = ref(constants.PAGE_SIZE_DEFAULT);
 
 onMounted(() => {
   if (window) {
@@ -204,7 +204,7 @@ function changeCurrentPage(event: Event) {
               id="page-size-select"
               :options="constants.PAGE_SIZE_OPTIONS"
               @update:modelValue="(value) => emit('update:pageSize', value)"
-              v-model="pageSize"
+              :modelValue="pageSize"
               class="!p-0 text-center border border-input rounded-theme !bg-input text-pagination-input !hover:text-pagination-hover hover:outline-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
               :required="true"
             />

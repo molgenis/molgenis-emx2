@@ -166,7 +166,7 @@
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
     :show-page-selector="count > settings.pageSize"
-    :show-page-size="true"
+    :page-size="settings.pageSize"
     @update="handlePagingRequest($event)"
     @update:pageSize="handlePageSizeChange($event)"
   />

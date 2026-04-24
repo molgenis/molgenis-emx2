@@ -21,7 +21,6 @@
     :totalPages="999"
     :preventDefault="true"
     :jumpToEdge="true"
-    :showPageSize="true"
     @update="updatePage"
   />
 
