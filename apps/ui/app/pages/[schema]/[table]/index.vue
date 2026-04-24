@@ -17,6 +17,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import constants from "../../../../../tailwind-components/app/utils/constants";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,9 +35,12 @@ const currentPage = computed(() => {
 
 const currentPageSize = computed(() => {
   const queryPageSizeNumber = Number(route.query?.pagesize);
+  if (!constants.PAGE_SIZE_OPTIONS.includes(queryPageSizeNumber)) {
+    return constants.PAGE_SIZE_DEFAULT;
+  }
   return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
     ? Math.round(queryPageSizeNumber)
-    : 20;
+    : constants.PAGE_SIZE_DEFAULT;
 });
 
 const orderbyColumn = computed(() => route.query.orderby as string);
@@ -71,7 +75,7 @@ function handleSettingsUpdate() {
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
     pagesize:
-      tableSettings.value.pageSize === 20
+      tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
         ? undefined
         : tableSettings.value.pageSize,
   };

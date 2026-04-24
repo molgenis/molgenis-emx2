@@ -275,6 +275,7 @@ import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
+import constants from "../../utils/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -308,7 +309,7 @@ const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
     page: 1,
-    pageSize: 20,
+    pageSize: constants.PAGE_SIZE_DEFAULT,
     orderby: { column: "", direction: "ASC" },
     search: "",
   }),
@@ -426,11 +427,13 @@ function handlePagingRequest(page: number) {
   settings.value.page = page;
   refresh();
 }
+
 function handlePageSizeChange(pageSize: number) {
   settings.value.pageSize = pageSize;
   settings.value.page = 1;
   refresh();
 }
+
 function handleCellClick(event: cellPayload, column: IColumn) {
   cellDetailSubtitle.value = column.label;
   cellDetailColumn.value = column;

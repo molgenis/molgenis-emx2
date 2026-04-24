@@ -2,6 +2,7 @@
 import { onMounted, ref, useId } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import InputSelect from "./input/Select.vue";
+import constants from "../utils/constants";
 
 const pageInputId = useId();
 
@@ -13,20 +14,19 @@ const props = withDefaults(
     inverted?: boolean;
     jumpToEdge?: boolean;
     showPageSelector?: boolean;
-    showPageSize?: boolean;
-    pageSizeOptions?: number[];
   }>(),
   {
     preventDefault: false,
     inverted: false,
     jumpToEdge: false,
     showPageSelector: true,
-    showPageSize: false,
-    pageSizeOptions: () => [10, 20, 50, 100],
   }
 );
+
 const emit = defineEmits(["update", "update:pageSize"]);
-const pageSize = ref(20);
+
+const pageSize = ref(constants.PAGE_SIZE_DEFAULT);
+
 onMounted(() => {
   if (window) {
     window.addEventListener("popstate", () => {
@@ -179,7 +179,7 @@ function changeCurrentPage(event: Event) {
         </a>
       </li>
 
-      <li v-if="showPageSize" class="flex justify-center items-center">
+      <li class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
           <span
             class="text-pagination"
@@ -192,7 +192,7 @@ function changeCurrentPage(event: Event) {
         </div>
       </li>
 
-      <li v-if="showPageSize" class="flex justify-center items-center">
+      <li class="flex justify-center items-center">
         <div class="tracking-widest whitespace-nowrap w-32">
           <span
             class="text-pagination"
@@ -202,7 +202,7 @@ function changeCurrentPage(event: Event) {
           >
             <InputSelect
               id="page-size-select"
-              :options="pageSizeOptions"
+              :options="constants.PAGE_SIZE_OPTIONS"
               @update:modelValue="(value) => emit('update:pageSize', value)"
               v-model="pageSize"
               class="!p-0 text-center border border-input rounded-theme !bg-input text-pagination-input !hover:text-pagination-hover hover:outline-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
