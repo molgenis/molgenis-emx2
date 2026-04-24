@@ -13,5 +13,7 @@ test("View ref details", async ({ page }) => {
   await page.getByText("pooky").first().click();
   await page.waitForLoadState("networkidle");
   // verify the ref details
-  await expect(page.locator("h2")).toContainText("pet");
+  await expect(
+    page.getByRole("dialog").getByRole("heading", { level: 2 })
+  ).toContainText("pet");
 });

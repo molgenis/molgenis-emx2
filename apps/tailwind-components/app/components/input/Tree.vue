@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import type { ITreeNode, ITreeNodeState } from "../../../types/types";
+import type {
+  ITreeNode,
+  ITreeNodeState,
+  SelectionState,
+} from "../../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
-import ButtonText from "../button/Text.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -19,12 +22,15 @@ const props = withDefaults(
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
     emitSelectedChildren?: boolean;
+    /* suppress internal search when search is handled by a parent component */
+    disableInternalSearch?: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
     inverted: false,
     emitSelectedChildren: true,
+    disableInternalSearch: false,
   }
 );
 
@@ -36,8 +42,16 @@ createNodeMap(props.nodes);
 watch(
   () => props.nodes,
   (newValue) => {
+    const expandedState: Record<string, boolean> = {};
+    for (const [key, node] of Object.entries(nodeMap.value)) {
+      expandedState[key] = node.expanded === true;
+    }
     nodeMap.value = {};
     createNodeMap(newValue);
+    for (const [key, wasExpanded] of Object.entries(expandedState)) {
+      if (nodeMap.value[key]) nodeMap.value[key].expanded = wasExpanded;
+    }
+    applyModelValueChangeToSelection(props.modelValue);
   }
 );
 
@@ -45,15 +59,28 @@ function createNodeMap(nodes: ITreeNode[]) {
   nodes.forEach((node) => {
     nodeMap.value[node.name] = clone(node);
   });
+  autoExpandSmallTree();
+}
+
+function autoExpandSmallTree() {
+  const totalNodes = Object.keys(nodeMap.value).length;
+  if (totalNodes <= 25) {
+    for (const node of Object.values(nodeMap.value)) {
+      if (node.children && node.children.length > 0) {
+        node.expanded = true;
+      }
+    }
+  }
 }
 
 function clone(node: ITreeNode): ITreeNodeState {
   const result = {
     name: node.name,
+    label: node.label,
     description: node.description,
     visible: true,
     children: [] as ITreeNodeState[],
-    selection: "unselected",
+    selected: "unselected" as SelectionState,
     expanded: false,
     selectable: true,
   };
@@ -172,7 +199,6 @@ function toggleExpand(node: ITreeNodeState) {
 }
 
 /* manage search */
-const showOptionsSearch = ref(false); //if the search for options input should be shown
 const optionsSearch = ref(""); //to store the value of the search
 watch(optionsSearch, (newValue, oldValue) => {
   if (newValue !== oldValue) {
@@ -197,7 +223,6 @@ watch(optionsSearch, (newValue, oldValue) => {
         });
       });
     } else {
-      showOptionsSearch.value = false;
       Object.values(nodeMap.value).forEach((node) => {
         node.visible = true;
         node.expanded = false;
@@ -230,10 +255,6 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
   }
 }
 
-function toggleSearch() {
-  showOptionsSearch.value = !showOptionsSearch.value;
-}
-
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
 function handleSearchInput(input: string) {
   clearTimeout(timeoutID);
@@ -256,32 +277,44 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
   expanded: true,
   selectable: false,
 }));
+
+function countAllNodes(nodes: ITreeNode[]): number {
+  return nodes.reduce(
+    (sum, node) => sum + 1 + countAllNodes(node.children ?? []),
+    0
+  );
+}
+
+function hasAnyChildren(nodes: ITreeNode[]): boolean {
+  return nodes.some((node) => (node.children?.length ?? 0) > 0);
+}
+
+const showSearch = computed(
+  () =>
+    !props.disableInternalSearch &&
+    (countAllNodes(props.nodes) > 25 || hasAnyChildren(props.nodes))
+);
 </script>
 
 <template>
-  <ButtonText
-    :id="`${id}-tree-search-button-toggle`"
-    icon="Search"
-    @click="toggleSearch"
-    :aria-controls="`${id}-tree-search-input-container`"
-    :aria-expanded="showOptionsSearch"
-    :class="inverted ? 'text-title-contrast' : 'text-title'"
-  >
-    <span :class="inverted ? 'text-title-contrast' : 'text-title'"
-      >Search for options</span
+  <div v-if="showSearch" :id="`${id}-tree-search-input-container`">
+    <label :for="`${id}-tree-search-input`" class="sr-only"
+      >Search options</label
     >
-  </ButtonText>
-  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
-    <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
     <InputSearch
       :id="`${id}-tree-search-input`"
       :modelValue="optionsSearch"
       @update:modelValue="handleSearchInput"
-      placeholder="Type to search in options..."
+      placeholder="Search..."
       :describedby="`${id}-tree-search-input-message`"
+      size="tiny"
     />
     <div :id="`${id}-tree-search-input-message`">
-      <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+      <span
+        v-if="
+          optionsSearch && rootNodes.filter((node) => node.visible).length === 0
+        "
+      >
         no results found
       </span>
     </div>

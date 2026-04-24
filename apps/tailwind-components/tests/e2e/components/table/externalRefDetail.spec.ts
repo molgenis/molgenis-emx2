@@ -15,6 +15,6 @@ test("the draft status is displayed correctly", async ({ page }) => {
   await page.getByRole("button", { name: "hide menu" }).click();
   await page.getByText("project", { exact: true }).first().click();
   await expect(
-    page.getByRole("heading", { name: "catalogue type" })
+    page.getByRole("dialog").getByRole("heading", { name: "catalogue type" })
   ).toBeVisible();
 });

@@ -95,7 +95,6 @@ const { isAdmin, session } = await useSession(schemaId);
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"

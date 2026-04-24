@@ -49,6 +49,7 @@ const COLOR_MAPPING = {
     "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   disabled:
     "tracking-widest uppercase rounded-input font-display bg-button-disabled text-button-disabled border-button-disabled cursor-not-allowed hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
+  // TODO: refactor filterWell to render a <Well> directly once Button is decomposed into sub-components
   filterWell:
     "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
   inline:

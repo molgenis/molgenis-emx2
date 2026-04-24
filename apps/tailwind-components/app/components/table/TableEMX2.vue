@@ -1,173 +1,209 @@
 <template>
-  <div class="flex pb-[30px] justify-between">
-    <InputSearch
-      class="w-3/5 xl:w-2/5 2xl:w-1/5"
-      v-model="settings.search"
-      @update:modelValue="handleSearchRequest"
-      :placeholder="`Search ${props.tableId}`"
-      id="search-input"
+  <div :class="{ 'flex gap-6': enableFilters }">
+    <FilterSidebar
+      v-if="enableFilters && filters"
+      v-show="sidebarVisible"
+      :filters="filters"
+      :columns="filters.columns.value"
+      :schemaId="schemaId"
+      :tableId="tableId"
+      class="w-80 shrink-0"
     />
 
-    <div class="flex gap-[10px]">
-      <Button
-        v-if="props.isEditable && data?.tableMetadata"
-        type="primary"
-        icon="add-circle"
-        @click="onAddRowClicked"
-      >
-        Add {{ tableId }}
-      </Button>
+    <div :class="{ 'flex-1 min-w-0': enableFilters }">
+      <div class="flex pb-[30px] justify-between">
+        <div class="flex gap-[10px]">
+          <Button
+            v-if="enableFilters"
+            type="outline"
+            icon="filter-alt"
+            @click="sidebarVisible = !sidebarVisible"
+          >
+            {{ sidebarVisible ? "Hide filters" : "Show filters" }}
+          </Button>
+          <InputSearch
+            v-if="!enableFilters && !props.hideSearch"
+            class="w-3/5 xl:w-2/5 2xl:w-1/5"
+            v-model="settings.search"
+            @update:modelValue="handleSearchRequest"
+            :placeholder="`Search ${props.tableId}`"
+            id="search-input"
+          />
+          <slot name="toolbar-end" />
+        </div>
 
-      <TableControlColumns
-        :columns="columns"
-        @update:columns="handleColumnsUpdate"
+        <div class="flex gap-[10px]">
+          <Button
+            v-if="props.isEditable && data?.tableMetadata"
+            type="primary"
+            icon="add-circle"
+            @click="onAddRowClicked"
+          >
+            Add {{ tableId }}
+          </Button>
+
+          <TableControlColumns
+            :columns="columns"
+            @update:columns="handleColumnsUpdate"
+          />
+        </div>
+      </div>
+
+      <ActiveFilters
+        v-if="enableFilters && filters"
+        :filters="filters.activeFilters.value"
+        @remove="filters.removeFilter"
+        @clear-all="filters.clearFilters"
+      />
+      <slot v-else name="active-filters" />
+
+      <div
+        ref="tableContainer"
+        class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
+      >
+        <div
+          v-if="guideX !== null"
+          class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
+          :style="{ left: guideX + 'px' }"
+        />
+
+        <div
+          class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
+        >
+          <table ref="table" class="text-left w-full table-fixed">
+            <thead>
+              <tr>
+                <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
+                  <TableHeaderAction
+                    :column="{ id: 'mg_draft', label: 'Draft' }"
+                    :schemaId="schemaId"
+                    :tableId="tableId"
+                    :settings="settings"
+                    @sort-requested="handleSortRequest"
+                  />
+                </TableHeadCell>
+                <TableHeadCell
+                  v-for="column in sortedVisibleColumns"
+                  :style="{
+                    width: columnWidths[column.id] + 'px',
+                    userSelect: isResizing ? 'none' : 'auto',
+                  }"
+                  class="relative group"
+                >
+                  <div
+                    class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
+                    @mousedown.stop="startResize($event, column.id)"
+                  >
+                    <div
+                      class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
+                    />
+                  </div>
+                  <TableHeaderAction
+                    :column="column"
+                    :schemaId="schemaId"
+                    :tableId="tableId"
+                    :settings="settings"
+                    @sort-requested="handleSortRequest"
+                  />
+                </TableHeadCell>
+              </tr>
+            </thead>
+            <tbody
+              class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
+            >
+              <tr
+                v-if="rows"
+                v-for="row in rows"
+                class="group h-[50px]"
+                :class="{
+                  'hover:cursor-pointer': props.isEditable,
+                }"
+              >
+                <TableCellEMX2
+                  v-if="showDraftColumn"
+                  class="text-table-row group-hover:bg-hover"
+                >
+                  <DraftLabel v-if="row?.mg_draft === true" type="inline" />
+                </TableCellEMX2>
+
+                <TableCellEMX2
+                  v-for="(column, colIndex) in sortedVisibleColumns"
+                  :style="{ width: columnWidths[column.id] + 'px' }"
+                  class="text-table-row group-hover:bg-hover"
+                  :class="{
+                    'w-60 lg:w-full': columns.length <= 5,
+                    'w-60': columns.length > 5,
+                    'h-11': !row[column.id] || row[column.id] === '',
+                  }"
+                  :scope="column.key === 1 ? 'row' : null"
+                  :metadata="column"
+                  :data="row[column.id]"
+                  @cellClicked="handleCellClick($event, column)"
+                >
+                  <template #row-actions v-if="colIndex === 0">
+                    <div
+                      class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                    >
+                      <Button
+                        v-if="isEditable"
+                        :id="useId()"
+                        :icon-only="true"
+                        type="inline"
+                        icon="trash"
+                        size="small"
+                        label="delete"
+                        @click="onShowDeleteModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showDeleteModal"
+                      >
+                        {{ getRowId(row) }}
+                      </Button>
+                      <Button
+                        v-if="isEditable"
+                        :id="useId()"
+                        :icon-only="true"
+                        type="inline"
+                        icon="edit"
+                        size="small"
+                        label="edit"
+                        @click="onShowEditModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showEditModal"
+                      >
+                        {{ getRowId(row) }}
+                      </Button>
+
+                      <slot name="additional-row-actions" :row="row" />
+                    </div>
+                  </template>
+                </TableCellEMX2>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            class="sticky left-0 flex justify-center items-center py-2.5"
+            v-if="!rows"
+          >
+            <TextNoResultsMessage
+              class="w-full text-center"
+              label="No records found"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Pagination
+        v-if="count > settings.pageSize"
+        class="pt-[30px] pb-[30px]"
+        :current-page="settings.page"
+        :totalPages="Math.ceil(count / settings.pageSize)"
+        :jump-to-edge="true"
+        @update="handlePagingRequest($event)"
       />
     </div>
   </div>
-
-  <div
-    ref="tableContainer"
-    class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
-  >
-    <div
-      v-if="guideX !== null"
-      class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
-      :style="{ left: guideX + 'px' }"
-    />
-
-    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table ref="table" class="text-left w-full table-fixed">
-        <thead>
-          <tr>
-            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
-              <TableHeaderAction
-                :column="{ id: 'mg_draft', label: 'Draft' }"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-            <TableHeadCell
-              v-for="column in sortedVisibleColumns"
-              :style="{
-                width: columnWidths[column.id] + 'px',
-                userSelect: isResizing ? 'none' : 'auto',
-              }"
-              class="relative group"
-            >
-              <div
-                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
-                @mousedown.stop="startResize($event, column.id)"
-              >
-                <div
-                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
-                />
-              </div>
-              <TableHeaderAction
-                :column="column"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-          </tr>
-        </thead>
-        <tbody
-          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
-        >
-          <tr
-            v-if="rows"
-            v-for="row in rows"
-            class="group h-[50px]"
-            :class="{
-              'hover:cursor-pointer': props.isEditable,
-            }"
-          >
-            <TableCellEMX2
-              v-if="showDraftColumn"
-              class="text-table-row group-hover:bg-hover"
-            >
-              <DraftLabel v-if="row?.mg_draft === true" type="inline" />
-            </TableCellEMX2>
-
-            <TableCellEMX2
-              v-for="(column, colIndex) in sortedVisibleColumns"
-              :style="{ width: columnWidths[column.id] + 'px' }"
-              class="text-table-row group-hover:bg-hover"
-              :class="{
-                'w-60 lg:w-full': columns.length <= 5,
-                'w-60': columns.length > 5,
-                'h-11': !row[column.id] || row[column.id] === '',
-              }"
-              :scope="column.key === 1 ? 'row' : null"
-              :metadata="column"
-              :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column)"
-            >
-              <template #row-actions v-if="colIndex === 0">
-                <div
-                  class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
-                >
-                  <Button
-                    v-if="isEditable"
-                    :id="useId()"
-                    :icon-only="true"
-                    type="inline"
-                    icon="trash"
-                    size="small"
-                    label="delete"
-                    @click="onShowDeleteModal(row)"
-                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                    aria-haspopup="dialog"
-                    :aria-expanded="showDeleteModal"
-                  >
-                    {{ getRowId(row) }}
-                  </Button>
-                  <Button
-                    v-if="isEditable"
-                    :id="useId()"
-                    :icon-only="true"
-                    type="inline"
-                    icon="edit"
-                    size="small"
-                    label="edit"
-                    @click="onShowEditModal(row)"
-                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                    aria-haspopup="dialog"
-                    :aria-expanded="showEditModal"
-                  >
-                    {{ getRowId(row) }}
-                  </Button>
-
-                  <slot name="additional-row-actions" :row="row" />
-                </div>
-              </template>
-            </TableCellEMX2>
-          </tr>
-        </tbody>
-      </table>
-      <div
-        class="sticky left-0 flex justify-center items-center py-2.5"
-        v-if="!rows"
-      >
-        <TextNoResultsMessage
-          class="w-full text-center"
-          label="No records found"
-        />
-      </div>
-    </div>
-  </div>
-
-  <Pagination
-    v-if="count > settings.pageSize"
-    class="pt-[30px] pb-[30px]"
-    :current-page="settings.page"
-    :totalPages="Math.ceil(count / settings.pageSize)"
-    :jump-to-edge="true"
-    @update="handlePagingRequest($event)"
-  />
 
   <Modal
     type="right"
@@ -254,8 +290,12 @@ import type {
 import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
+import { useRoute, useRouter } from "#app/composables/router";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
+import type { IGraphQLFilter } from "../../../types/filters";
+import type { UseFilters } from "../../../types/filters";
+import { useFilters } from "../../composables/useFilters";
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
 
@@ -263,6 +303,8 @@ import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import Modal from "../Modal.vue";
 import InputSearch from "../input/Search.vue";
+import FilterSidebar from "../filter/Sidebar.vue";
+import ActiveFilters from "../filter/ActiveFilters.vue";
 
 import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
@@ -279,9 +321,15 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    filter?: IGraphQLFilter;
+    hideSearch?: boolean;
+    enableFilters?: boolean;
   }>(),
   {
     isEditable: () => false,
+    filter: () => ({}),
+    hideSearch: false,
+    enableFilters: true,
   }
 );
 
@@ -312,6 +360,38 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
+const route = useRoute();
+const router = useRouter();
+
+const filters: UseFilters | null = props.enableFilters
+  ? useFilters(
+      computed(() => columns.value),
+      {
+        urlSync: true,
+        route,
+        router,
+        schemaId: props.schemaId,
+        tableId: props.tableId,
+      }
+    )
+  : null;
+
+const sidebarVisible = ref(true);
+
+if (filters) {
+  watch(
+    () => filters.searchValue.value,
+    (value) => {
+      settings.value.search = value ?? "";
+      settings.value.page = 1;
+    }
+  );
+}
+
+const effectiveFilter = computed(() =>
+  filters ? filters.gqlFilter.value : props.filter
+);
+
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
@@ -327,6 +407,7 @@ const { data, refresh } = useAsyncData(
         ? { [settings.value.orderby.column]: settings.value.orderby.direction }
         : {},
       searchTerms: settings.value.search,
+      filter: effectiveFilter.value,
     });
 
     return {
@@ -372,6 +453,15 @@ const primaryKeys = computed(() => {
     })
     .filter((value: any) => value);
 });
+
+watch(
+  () => effectiveFilter.value,
+  () => {
+    settings.value.page = 1;
+    refresh();
+  },
+  { deep: true }
+);
 
 watch(
   () => data.value?.tableMetadata,

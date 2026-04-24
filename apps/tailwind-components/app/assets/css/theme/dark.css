@@ -58,6 +58,7 @@
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
   --background-color-code-output: var(--color-gray-600);
 
+  --text-color-search-filter-expand: var(--color-green-500);
   --text-color-link: var(--color-green-500);
   --text-color-link-inverted: var(--color-green-500);
   --text-color-button-primary: var(--color-gray-800);

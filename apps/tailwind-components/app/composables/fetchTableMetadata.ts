@@ -9,8 +9,8 @@ export default async (
   const tableMetadata = schemaMetadata.tables.find(
     (table) => table.id === tableId
   );
-  return (
-    tableMetadata ||
-    Promise.reject(`Table ${tableId} not found in schema ${schemaId}`)
-  );
+  if (!tableMetadata) {
+    return Promise.reject(`Table ${tableId} not found in schema ${schemaId}`);
+  }
+  return tableMetadata;
 };
