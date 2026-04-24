@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -186,12 +185,40 @@ public class SqlQuery extends QueryBean {
 
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        && !getTablesWithSelectPermission().contains("*")
-        && !getTablesWithSelectPermission().contains(table.getTableName())) {
+        && getEffectiveViewMode(table) != TablePermission.ViewMode.FULL) {
       throw new MolgenisException(
           "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
+  }
+
+  private TablePermission.ViewMode getEffectiveViewMode(SqlTableMetadata table) {
+    String schemaNameForTable = table.getSchemaName();
+    return schema
+        .getDatabase()
+        .getRoleManager()
+        .getTablePermissionsForActiveUser(schemaNameForTable)
+        .stream()
+        .filter(p -> p.table().equals(table.getTableName()) || p.table().equals("*"))
+        .map(TablePermission::viewMode)
+        .reduce(SqlQuery::maxViewMode)
+        .orElse(null);
+  }
+
+  private static TablePermission.ViewMode maxViewMode(
+      TablePermission.ViewMode a, TablePermission.ViewMode b) {
+    if (a == null) return b;
+    if (b == null) return a;
+    return viewModePermissivenessLevel(a) >= viewModePermissivenessLevel(b) ? a : b;
+  }
+
+  private static int viewModePermissivenessLevel(TablePermission.ViewMode viewMode) {
+    return switch (viewMode) {
+      case EXISTS -> 0;
+      case RANGE -> 1;
+      case AGGREGATE -> 2;
+      case COUNT -> 3;
+      case FULL -> 4;
+    };
   }
 
   private Set<String> getTablesWithSelectPermission() {
@@ -202,7 +229,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getTablePermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
+              .filter(p -> p.select() != TablePermission.Scope.NONE)
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }
@@ -707,7 +734,8 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
+        TablePermission.ViewMode existsViewMode = getEffectiveViewMode(table);
+        if (existsViewMode != null) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
@@ -743,14 +771,12 @@ public class SqlQuery extends QueryBean {
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
     if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    if (schema.hasActiveUserRole(COUNT.toString())) {
+    TablePermission.ViewMode viewMode = getEffectiveViewMode(table);
+    if (viewMode == TablePermission.ViewMode.FULL || viewMode == TablePermission.ViewMode.COUNT) {
       return count();
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
-    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+    } else if (viewMode == TablePermission.ViewMode.AGGREGATE) {
       return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (schema.hasActiveUserRole(RANGE.toString())) {
+    } else if (viewMode == TablePermission.ViewMode.RANGE) {
       return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
     }
     throw new MolgenisException("Need permission >= RANGE to perform count queries");
@@ -785,7 +811,9 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
+        TablePermission.ViewMode groupByViewMode = getEffectiveViewMode(table);
+        if (groupByViewMode == TablePermission.ViewMode.FULL
+            || groupByViewMode == TablePermission.ViewMode.COUNT) {
           aggregationFields.add(field("COUNT(*)"));
         } else {
           aggregationFields.add(

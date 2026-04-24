@@ -6,6 +6,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlPermissionFieldFactory.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
@@ -13,6 +14,8 @@ import graphql.schema.*;
 import java.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Role;
+import org.molgenis.emx2.sql.SqlRoleManager;
 
 public class GraphqlAdminFieldFactory {
   private GraphqlAdminFieldFactory() {
@@ -52,9 +55,11 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .build();
 
+  private static final String USER_COUNT = "userCount";
+  private static final String ROLES_FIELD = "roles";
+
   // retrieve user list, user count
   public static GraphQLFieldDefinition queryAdminField(Database db) {
-    String userCount = "userCount";
     GraphQLOutputType adminType =
         GraphQLObjectType.newObject()
             .name("MolgenisAdmin")
@@ -68,8 +73,14 @@ public class GraphqlAdminFieldFactory {
                     .build())
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
-                    .name(userCount)
+                    .name(USER_COUNT)
                     .type(Scalars.GraphQLInt)
+                    .build())
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(ROLES_FIELD)
+                    .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
+                    .type(GraphQLList.list(roleOutputType))
                     .build())
             .build();
 
@@ -77,21 +88,46 @@ public class GraphqlAdminFieldFactory {
         .name("_admin")
         .dataFetcher(
             dataFetchingEnvironment -> {
+              if (!db.isAdmin()) {
+                return Map.of();
+              }
               Map<String, Object> result = new LinkedHashMap<>();
-              // check for parameters
               for (SelectedField selectedField :
                   dataFetchingEnvironment.getSelectionSet().getImmediateFields()) {
                 if (selectedField.getName().equals(USERS)) {
                   result.put(USERS, getUsers(selectedField, db));
                 }
-                if (selectedField.getName().equals(userCount)) {
-                  result.put(userCount, db.countUsers());
+                if (selectedField.getName().equals(USER_COUNT)) {
+                  result.put(USER_COUNT, db.countUsers());
+                }
+                if (selectedField.getName().equals(ROLES_FIELD)) {
+                  result.put(ROLES_FIELD, getRoles(selectedField, db));
                 }
               }
               return result;
             })
         .type(adminType)
         .build();
+  }
+
+  private static List<Map<String, Object>> getRoles(SelectedField selectedField, Database db) {
+    String nameFilter = (String) selectedField.getArguments().get(NAME);
+    SqlRoleManager rm = (SqlRoleManager) db.getRoleManager();
+    List<Role> roles = rm.listRoles();
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Role meta : roles) {
+      if (nameFilter != null && !nameFilter.equals(meta.getRoleName())) {
+        continue;
+      }
+      Map<String, Object> roleMap = new LinkedHashMap<>();
+      roleMap.put("role", meta.getRoleName());
+      roleMap.put(GraphqlConstants.DESCRIPTION, meta.getDescription());
+      roleMap.put("systemRole", meta.isSystemRole());
+      roleMap.put(PERMISSIONS, permissionsToMaps(rm, meta.getRoleName()));
+      roleMap.put(MEMBERS, rm.getMembersForRole(meta.getRoleName()));
+      result.add(roleMap);
+    }
+    return result;
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {

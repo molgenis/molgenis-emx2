@@ -4,6 +4,10 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.Constants.SQL_DELETE;
+import static org.molgenis.emx2.Constants.SQL_INSERT;
+import static org.molgenis.emx2.Constants.SQL_SELECT;
+import static org.molgenis.emx2.Constants.SQL_UPDATE;
 import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
@@ -11,10 +15,12 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -453,6 +459,132 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
+  public TableMetadata setRowLevelSecurity(boolean enabled) {
+    return setRowLevelSecurity(enabled, false);
+  }
+
+  public TableMetadata setRowLevelSecurity(boolean enabled, boolean dropColumns) {
+    if (!getDatabase().isAdmin()) {
+      throw new MolgenisException("admin only");
+    }
+    String schemaName = getSchemaName();
+    String tableName = getTableName();
+    getDatabase()
+        .tx(
+            db -> {
+              String currentUser = db.getActiveUser();
+              try {
+                db.becomeAdmin();
+                DSLContext jooq = ((SqlDatabase) db).getJooq();
+                boolean currentlyEnabled =
+                    SqlPermissionExecutor.isRlsEnabled(jooq, schemaName, tableName);
+                if (enabled && !currentlyEnabled) {
+                  SqlPermissionExecutor.enableRowLevelSecurity(jooq, schemaName, tableName);
+                  SqlPermissionExecutor.installGuardTrigger(jooq, schemaName, tableName);
+                  reEmitPendingOwnGroupPolicies(jooq, schemaName, tableName);
+                  persistRlsFlag(jooq, schemaName, tableName, true);
+                } else if (!enabled && currentlyEnabled) {
+                  guardAgainstOwnGroupPolicies(jooq, schemaName, tableName);
+                  for (Role role : listGlobalCustomRoles(jooq)) {
+                    SqlPermissionExecutor.dropAllPolicies(
+                        jooq, "MG_ROLE_" + role.getRoleName(), schemaName, tableName);
+                  }
+                  SqlPermissionExecutor.dropGuardTrigger(jooq, schemaName, tableName);
+                  SqlPermissionExecutor.disableRowLevelSecurity(jooq, schemaName, tableName);
+                  if (dropColumns) {
+                    jooq.execute(
+                        "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_owner",
+                        org.jooq.impl.DSL.table(name(schemaName, tableName)));
+                    jooq.execute(
+                        "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_roles",
+                        org.jooq.impl.DSL.table(name(schemaName, tableName)));
+                  }
+                  persistRlsFlag(jooq, schemaName, tableName, false);
+                }
+              } finally {
+                db.setActiveUser(currentUser);
+              }
+            });
+    super.setRowLevelSecurity(enabled);
+    return this;
+  }
+
+  private static void reEmitPendingOwnGroupPolicies(
+      DSLContext jooq, String schemaName, String tableName) {
+    for (Role role : listGlobalCustomRoles(jooq)) {
+      PermissionSet existing =
+          SqlPermissionExecutor.readPolicies(jooq, "MG_ROLE_" + role.getRoleName());
+      for (TablePermission p : existing) {
+        if (!p.schema().equals(schemaName) || !p.table().equals(tableName)) continue;
+        reEmitVerbIfOwnOrGroup(jooq, "MG_ROLE_" + role.getRoleName(), schemaName, tableName, p);
+      }
+    }
+  }
+
+  private static void reEmitVerbIfOwnOrGroup(
+      DSLContext jooq, String pgRole, String schemaName, String tableName, TablePermission p) {
+    emitIfOwnOrGroup(jooq, pgRole, schemaName, tableName, SQL_SELECT, p.select());
+    emitIfOwnOrGroup(jooq, pgRole, schemaName, tableName, SQL_INSERT, p.insert());
+    emitIfOwnOrGroup(jooq, pgRole, schemaName, tableName, SQL_UPDATE, p.update());
+    emitIfOwnOrGroup(jooq, pgRole, schemaName, tableName, SQL_DELETE, p.delete());
+  }
+
+  private static void emitIfOwnOrGroup(
+      DSLContext jooq,
+      String pgRole,
+      String schema,
+      String table,
+      String verb,
+      TablePermission.Scope scope) {
+    if (scope == TablePermission.Scope.OWN || scope == TablePermission.Scope.GROUP) {
+      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, scope);
+    }
+  }
+
+  private static List<Role> listGlobalCustomRoles(DSLContext jooq) {
+    List<Role> result = new ArrayList<>();
+    jooq.fetch("SELECT a.rolname FROM pg_authid a WHERE a.rolname LIKE 'MG_ROLE_%'")
+        .forEach(
+            r -> {
+              String pgName = r.get("rolname", String.class);
+              result.add(new Role(pgName.substring("MG_ROLE_".length())));
+            });
+    return result;
+  }
+
+  private static void guardAgainstOwnGroupPolicies(
+      DSLContext jooq, String schemaName, String tableName) {
+    for (Role role : listGlobalCustomRoles(jooq)) {
+      PermissionSet existing =
+          SqlPermissionExecutor.readPolicies(jooq, "MG_ROLE_" + role.getRoleName());
+      for (TablePermission p : existing) {
+        if (p.schema().equals(schemaName) && p.table().equals(tableName)) {
+          if (p.select() == TablePermission.Scope.OWN
+              || p.select() == TablePermission.Scope.GROUP
+              || p.insert() == TablePermission.Scope.OWN
+              || p.insert() == TablePermission.Scope.GROUP
+              || p.update() == TablePermission.Scope.OWN
+              || p.update() == TablePermission.Scope.GROUP
+              || p.delete() == TablePermission.Scope.OWN
+              || p.delete() == TablePermission.Scope.GROUP) {
+            throw new MolgenisException(
+                "cannot disable RLS: role '"
+                    + role.getRoleName()
+                    + "' uses own/group scope on this table");
+          }
+        }
+      }
+    }
+  }
+
+  private static void persistRlsFlag(
+      DSLContext jooq, String schemaName, String tableName, boolean value) {
+    jooq.execute(
+        "UPDATE \"MOLGENIS\".table_metadata SET row_level_security = {0} WHERE table_schema = {1} AND table_name = {2}",
+        inline(value), inline(schemaName), inline(tableName));
+  }
+
+  @Override
   public void enableRowLevelSecurity() {
     this.add(column(MG_EDIT_ROLE).setIndex(true));
 
@@ -463,8 +595,6 @@ class SqlTableMetadata extends TableMetadata {
             name("RLS/" + getSchema().getName() + "/" + getTableName()),
             getJooqTable(),
             name(MG_EDIT_ROLE));
-    // set RLS on the table
-    // add policy for 'viewer' and 'editor'.
   }
 
   @Override

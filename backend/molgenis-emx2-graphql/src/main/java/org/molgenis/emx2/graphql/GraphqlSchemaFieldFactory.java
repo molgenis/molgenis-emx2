@@ -543,7 +543,7 @@ public class GraphqlSchemaFieldFactory {
 
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
-    roleMap.put(GraphqlConstants.NAME, role.name());
+    roleMap.put(GraphqlConstants.NAME, role.getRoleName());
     roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
     roleMap.put(
         GraphqlConstants.PERMISSIONS,
@@ -552,10 +552,10 @@ public class GraphqlSchemaFieldFactory {
                 p -> {
                   Map<String, Object> permMap = new LinkedHashMap<>();
                   permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select());
-                  permMap.put(GraphqlConstants.INSERT, p.insert());
-                  permMap.put(GraphqlConstants.UPDATE, p.update());
-                  permMap.put(GraphqlConstants.DELETE, p.delete());
+                  permMap.put(GraphqlConstants.SELECT, p.select() != TablePermission.Scope.NONE);
+                  permMap.put(GraphqlConstants.INSERT, p.insert() != TablePermission.Scope.NONE);
+                  permMap.put(GraphqlConstants.UPDATE, p.update() != TablePermission.Scope.NONE);
+                  permMap.put(GraphqlConstants.DELETE, p.delete() != TablePermission.Scope.NONE);
                   return permMap;
                 })
             .toList());
@@ -695,19 +695,27 @@ public class GraphqlSchemaFieldFactory {
           (List<Map<String, Object>>) roleMap.get(GraphqlConstants.PERMISSIONS);
       if (perms != null) {
         for (Map<String, Object> permMap : perms) {
-          schema.grant(roleName, mapToTablePermission(permMap));
+          schema.grant(roleName, mapToPermission(permMap));
         }
       }
     }
   }
 
-  private static TablePermission mapToTablePermission(Map<String, Object> permMap) {
+  private static TablePermission mapToPermission(Map<String, Object> permMap) {
     String table = (String) permMap.get(TABLE);
     Boolean select = (Boolean) permMap.get(GraphqlConstants.SELECT);
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(table).select(select).insert(insert).update(update).delete(delete);
+    return new TablePermission(
+        null,
+        table,
+        Boolean.TRUE.equals(select) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        Boolean.TRUE.equals(insert) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        Boolean.TRUE.equals(update) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        Boolean.TRUE.equals(delete) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        false,
+        false);
   }
 
   private static void dropRoles(

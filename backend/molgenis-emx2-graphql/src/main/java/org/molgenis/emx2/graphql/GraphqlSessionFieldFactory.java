@@ -7,13 +7,13 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
-import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,29 +22,6 @@ import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
-
-  static final GraphQLObjectType outputTablePermissionsType =
-      GraphQLObjectType.newObject()
-          .name("MolgenisTablePermission")
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(CAN_VIEW)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(CAN_INSERT)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(CAN_UPDATE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(CAN_DELETE)
-                  .type(Scalars.GraphQLBoolean))
-          .build();
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -146,8 +123,10 @@ public class GraphqlSessionFieldFactory {
   }
 
   public GraphQLFieldDefinition sessionQueryField(Database database, Schema schema) {
+    String currentSchemaName = schema != null ? schema.getName() : null;
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_session")
+        .argument(GraphQLArgument.newArgument().name("schema").type(Scalars.GraphQLString))
         .type(
             GraphQLObjectType.newObject()
                 .name("MolgenisSession")
@@ -165,10 +144,6 @@ public class GraphqlSessionFieldFactory {
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
-                        .name(TABLE_PERMISSIONS)
-                        .type(GraphQLList.list(outputTablePermissionsType)))
-                .field(
-                    GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
@@ -178,16 +153,23 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(TOKEN)
-                        .type(Scalars.GraphQLString)))
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name("permissions")
+                        .type(
+                            GraphQLList.list(
+                                GraphqlPermissionFieldFactory.effectivePermissionType))))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              String schemaFilter =
+                  dataFetchingEnvironment.getArgumentOrDefault("schema", currentSchemaName);
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
-                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());
@@ -195,23 +177,31 @@ public class GraphqlSessionFieldFactory {
                   SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
                   TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+              result.put("permissions", buildPermissions(database, schemaFilter));
               return result;
             })
         .build();
   }
 
-  private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
-    return schema.getPermissionsForActiveUser().stream()
-        .map(
-            p ->
-                Map.<String, Object>of(
-                    ID, convertToPascalCase(p.table()),
-                    NAME, p.table(),
-                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
-                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
-                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
-                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
-        .toList();
+  private static List<Map<String, Object>> buildPermissions(
+      Database database, String schemaFilter) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (TablePermission p : database.getRoleManager().getPermissionsForActiveUser()) {
+      if (schemaFilter != null && !"*".equals(p.schema()) && !schemaFilter.equals(p.schema())) {
+        continue;
+      }
+      Map<String, Object> map = new LinkedHashMap<>();
+      map.put("schema", p.schema());
+      map.put("table", p.table());
+      map.put(SELECT, p.select());
+      map.put(INSERT, p.insert());
+      map.put(UPDATE, p.update());
+      map.put(DELETE, p.delete());
+      map.put("changeOwner", p.changeOwner());
+      map.put("share", p.share());
+      result.add(map);
+    }
+    return result;
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {

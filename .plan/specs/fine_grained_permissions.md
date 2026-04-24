@@ -11,7 +11,7 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
   - **own** — row where `mg_owner = session_user`.
   - **group** — row where `mg_roles && current_user_roles()` (array overlap on SELECT/UPDATE/DELETE); INSERT uses `<@` (subset — stricter).
   - **all** — every row in the table.
-- **Built-in role** — immutable (VIEWER, EDITOR, MANAGER, OWNER, AGGREGATOR, RANGE, EXISTS, COUNT).
+- **Built-in role** — system role (VIEWER, EDITOR, MANAGER, OWNER, AGGREGATOR, RANGE, EXISTS, COUNT); `isSystemRole()` flag on the `Role` record.
 - **Custom role** — admin-created, mutable.
 - **`row_level_security` flag** — boolean on `table_metadata`; own/group scopes only allowed when true.
 - **`SqlPermissionExecutor`** — static helpers under `org.molgenis.emx2.sql.rls`. Class is package-accessible within `.rls` (not truly package-private to `org.molgenis.emx2.sql`); `SqlRoleManager` in the parent package imports it. Modelled on `org.molgenis.emx2.sql.autoid.*` precedent. Not part of public API.
@@ -25,8 +25,8 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
 
 ## Components (public surface)
 
-- `org.molgenis.emx2.Permission` — Java `record`: `schema, table, select: Scope, insert: Scope, update: Scope, delete: Scope, changeOwner: boolean, share: boolean`. Wildcards allowed on schema/table (`"*"`). Record `equals`/`hashCode` cover all fields (true value-object semantics).
-- `org.molgenis.emx2.PermissionSet` — composition, holds `LinkedHashMap<String, Permission>` keyed on `schema + ":" + table`. Methods: `put(Permission)` (replace-by-key), `remove(schema, table)`, `iterator/size/contains` + `validate(Function<TableRef, Boolean> isRlsEnabled): List<ValidationError>` + `resolveFor(schemaName, tableName): Permission` (applies union-most-permissive). The "Set" in the type name reflects replace-by-key semantics, not a `java.util.Set`.
+- `org.molgenis.emx2.TablePermission` — Java `record`: `schema, table, select: Scope, insert: Scope, update: Scope, delete: Scope, changeOwner: boolean, share: boolean`. Wildcards allowed on schema/table (`"*"`). Record `equals`/`hashCode` cover all fields (true value-object semantics).
+- `org.molgenis.emx2.PermissionSet` — composition, holds `LinkedHashMap<String, TablePermission>` keyed on `schema + ":" + table`. Methods: `put(TablePermission)` (replace-by-key), `remove(schema, table)`, `iterator/size/contains` + `validate(Function<TableRef, Boolean> isRlsEnabled): List<ValidationError>` + `resolveFor(schemaName, tableName): TablePermission` (applies union-most-permissive). The "Set" in the type name reflects replace-by-key semantics, not a `java.util.Set`.
 - `org.molgenis.emx2.RoleManager` — interface in base module. Methods:
   - `createRole(name, description)` — global custom role
   - `deleteRole(name)`
@@ -49,22 +49,35 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
 
 Additionally, `enableRowLevelSecurity` creates a GIN index on `mg_roles`: `CREATE INDEX <table>_mg_roles_gin ON <table> USING GIN (mg_roles)` (dropped by `disableRowLevelSecurity`). Required for `&&` / `<@` operator performance on large tables.
 
-### `MOLGENIS.role_metadata` table (new — migration 32)
+### `MOLGENIS.permission_attributes` table (migration 32)
 
 | Column | Type | Notes |
 |---|---|---|
-| `role_name` | varchar NOT NULL | ≤ 40 **UTF-8 bytes** (enforced via `.getBytes(UTF_8).length` in Java, matching existing `fullRoleName` checks) |
-| `schema_name` | varchar NOT NULL DEFAULT `'*'` | `'*'` = global custom role (sentinel, unified with Permission wildcard); real schema name for per-schema built-ins |
-| `description` | varchar | free form |
-| `immutable` | boolean NOT NULL default false | true for built-ins |
-| `status` | varchar NOT NULL default `'active'` | `'active'` \| `'deleted'` — `'deleted'` rows are tombstones reserving the name against reuse; PG role + policies are gone, only metadata remains |
-| `created_by` | varchar | |
-| `created_on` | timestamptz | |
-| `deleted_on` | timestamptz | populated when `status → 'deleted'` |
+| `role_name` | varchar NOT NULL | base name without `MG_ROLE_` prefix |
+| `schema_name` | varchar NOT NULL | schema the grant applies to |
+| `table_name` | varchar NOT NULL | table the grant applies to |
+| `change_owner` | boolean NOT NULL DEFAULT false | allows `mg_owner` mutation |
+| `share` | boolean NOT NULL DEFAULT false | allows `mg_roles` mutation |
 
-Composite primary key `(role_name, schema_name)`, both NOT NULL. Sentinel `'*'` avoids NULL-in-PK and reuses the same wildcard token used by `Permission.schema`. In v1, user-facing mutations only create rows with `schema_name = '*'` (global custom roles). Rows with a real `schema_name` come from the schema-create hook installing built-ins.
+Primary key `(role_name, schema_name, table_name)`. Stores `change_owner`/`share` flags per `(role, schema, table)` for the guard trigger.
 
-DDL lives in `migration32.sql` (see below), **not** in `MetadataUtils.init()`. `MetadataUtils` gets only Java CRUD helpers (`saveRole`, `getRole`, `listRoles`, `deleteRole` backed by JOOQ queries against this table) — consistent with how `table_metadata` / `column_metadata` split their DDL (init / migrations) from their row-level helpers (other `MetadataUtils` methods).
+### `MOLGENIS.role_wildcards` table (migration 32)
+
+| Column | Type | Notes |
+|---|---|---|
+| `role_name` | varchar NOT NULL | |
+| `schema_pattern` | varchar NOT NULL DEFAULT `'*'` | wildcard schema |
+| `table_pattern` | varchar NOT NULL DEFAULT `'*'` | wildcard table |
+| `select_scope` | varchar | |
+| `insert_scope` | varchar | |
+| `update_scope` | varchar | |
+| `delete_scope` | varchar | |
+| `change_owner` | boolean NOT NULL DEFAULT false | |
+| `share` | boolean NOT NULL DEFAULT false | |
+
+Primary key `(role_name, schema_pattern, table_pattern)`. Stores wildcard permission entries.
+
+Note: `role_metadata` table was NOT implemented. Role descriptions are stored as `COMMENT ON ROLE` on the PG role. System-role flag is derived by `SqlRoleManager.isSystemRoleByName` from the built-in name list.
 
 ### `table_metadata` schema change (migration 32)
 
@@ -72,16 +85,15 @@ Add column `row_level_security BOOLEAN DEFAULT FALSE` alongside existing boolean
 
 ### Migration 32 (`migration32.sql` in resources, bumps `SOFTWARE_DATABASE_VERSION` to 33)
 
-Resource path: `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/migration32.sql`. `Migrations.java` loads via `getResourceAsStream("migration32.sql")` (class-relative to `org.molgenis.emx2.sql`). Guard must be `if (version < 33)`.
+Resource path: `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/migration32.sql`. Guard: `if (version < 33)`.
 
-All DDL for this feature lives in `migration32.sql` — the migration is the single source of truth for the schema shape. `MetadataUtils.init()` does **not** create `role_metadata`; it only holds Java CRUD helpers that query the table. Use the `MetadataUtils.MOLGENIS` constant, not a string literal.
-
-- `CREATE TABLE MOLGENIS.role_metadata (role_name VARCHAR NOT NULL, schema_name VARCHAR NOT NULL DEFAULT '*', description VARCHAR, immutable BOOLEAN NOT NULL DEFAULT FALSE, status VARCHAR NOT NULL DEFAULT 'active' CHECK (status IN ('active','deleted')), created_by VARCHAR, created_on TIMESTAMPTZ, deleted_on TIMESTAMPTZ, PRIMARY KEY (role_name, schema_name))` — empty at install time.
-- `ALTER TABLE MOLGENIS.table_metadata ADD COLUMN row_level_security BOOLEAN NOT NULL DEFAULT FALSE` (deliberate deviation from the nullable-boolean convention used for `indexed`/`cascade`/`readonly`; see decisions log).
-- `CREATE OR REPLACE FUNCTION MOLGENIS.current_user_roles() RETURNS text[] LANGUAGE sql STABLE AS $$ SELECT COALESCE(string_to_array(current_setting('molgenis.current_roles', true), ','), ARRAY(SELECT rolname FROM pg_auth_members JOIN pg_roles ON oid=roleid WHERE member = (SELECT oid FROM pg_roles WHERE rolname = session_user))) $$;` — fast path reads a session-local GUC (`molgenis.current_roles`, comma-delimited); fallback scans `pg_auth_members` (preserves correctness for raw psql sessions). `STABLE` enables planner caching. `current_setting(..., true)` returns NULL if unset rather than raising.
-- `ALTER ROLE <admin_role> BYPASSRLS` — **non-transactional**. `ALTER ROLE` writes the catalog outside the migration's JOOQ tx; if the migration rolls back, BYPASSRLS stays set. Documented risk; partial-migration recovery may require manual `ALTER ROLE … NOBYPASSRLS`. Idempotent on rerun.
-
-No backfill of `role_metadata` for existing schemas. Their PG built-in roles already exist; GraphQL role listing surfaces built-ins by joining `Privileges.java` with actual `pg_roles` rather than relying on `role_metadata`. New schemas created after migration route built-in install through `SqlRoleManager.setPermissions`, which emits the identical `GRANT`s the legacy code did, so PG state is uniform across pre-feature and post-feature schemas.
+DDL created by migration 32:
+- `ALTER TABLE MOLGENIS.table_metadata ADD COLUMN IF NOT EXISTS row_level_security BOOLEAN NOT NULL DEFAULT FALSE`
+- `CREATE OR REPLACE FUNCTION MOLGENIS.current_user_roles()` — STABLE; reads `molgenis.current_roles` GUC, falls back to `pg_auth_members` scan.
+- `ALTER ROLE "MG_USER_admin" BYPASSRLS` — non-transactional; idempotent on rerun.
+- `CREATE TABLE IF NOT EXISTS MOLGENIS.permission_attributes` (see above)
+- `CREATE TABLE IF NOT EXISTS MOLGENIS.role_wildcards` (see above)
+- `CREATE OR REPLACE FUNCTION MOLGENIS.mg_enforce_row_authorisation()` — BEFORE UPDATE trigger function enforcing `change_owner`/`share` constraints.
 
 ## Session role cache (`molgenis.current_roles` GUC)
 
@@ -91,7 +103,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 
 ## Source of truth for permissions
 
-`pg_policies` scan, filtered by `policyname LIKE 'MG_P_%'`. Role name, verb, and scope are encoded directly in the policy name (`MG_P_<role>_<VERB>_<SCOPE>`), so parsing is positional and unambiguous — no `COMMENT ON POLICY` is used. Schema and table come from `pg_policies` columns. Created timestamp and any future metadata live in `role_metadata` (per-role, not per-policy), not on the policy itself. Table-level `GRANT`s (scope=all without RLS) read from `information_schema.role_table_grants`.
+`pg_policies` scan, filtered by `policyname LIKE 'MG_P_%'`. Role name, verb, and scope are encoded directly in the policy name (`MG_P_<role>_<VERB>_<SCOPE>`), so parsing is positional and unambiguous — no `COMMENT ON POLICY` is used. Schema and table come from `pg_policies` columns. `change_owner`/`share` flags live in `MOLGENIS.permission_attributes`. Wildcard entries live in `MOLGENIS.role_wildcards`. Table-level `GRANT`s (scope=all without RLS) read from `information_schema.role_table_grants`.
 
 ## Policy naming
 
@@ -100,7 +112,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 - `VERB` ∈ `SELECT | INSERT | UPDATE | DELETE` in v1. Reserved for future: `EXISTS | COUNT | GROUPBY`.
 - `SCOPE` ∈ `OWN | GROUP | ALL`.
 - Fixed overhead is 18 chars max (`MG_P_` + `_` + longest VERB (`DELETE`, 6) + `_` + longest SCOPE (`GROUP`, 5) = 18). Role name capped at 40 UTF-8 bytes → worst-case identifier = 58 bytes, within PG's 63-byte `NAMEDATALEN` limit.
-- No `COMMENT ON POLICY` — metadata is fully derivable from name + `pg_policies` columns + `role_metadata`.
+- No `COMMENT ON POLICY` — metadata is fully derivable from name + `pg_policies` columns + `permission_attributes` / `role_wildcards` tables.
 
 ## Trigger & default policy strategy (defense in depth)
 
@@ -110,7 +122,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
   - `insert:group` → `mg_roles <@ current_user_roles() AND cardinality(mg_roles) >= 1`. **Note asymmetry**: INSERT uses `<@` (subset — every value in `mg_roles` must be a role the inserter holds) while SELECT/UPDATE USING uses `&&` (overlap — row is visible if the caller shares *any* role with it). This is intentional: to *place* a row in a group, the inserter must be a member of every group they tag; to *read* a row, sharing one group suffices.
   - `insert:all` → `WITH CHECK (true)`.
 - **UPDATE**: policy `USING` (row visibility) + policy `WITH CHECK` (post-update row still in scope). For `own` scope, both `USING` and `WITH CHECK` are `mg_owner = session_user` — the `WITH CHECK` is mandatory so that a policy-permitted UPDATE cannot move the row out of the caller's ownership undetected.
-- **UPDATE — change_owner / share enforcement**: **one** BEFORE UPDATE trigger per RLS-enabled table (`mg_reserved_column_guard`), checks `OLD.mg_owner IS DISTINCT FROM NEW.mg_owner` and `OLD.mg_roles IS DISTINCT FROM NEW.mg_roles`, raises unless current user has `change_owner` / `share` with a satisfied scope. Trigger is the only place OLD vs NEW is accessible, so it is unavoidable for this behaviour. Trigger body lives in `backend/molgenis-emx2-sql/src/main/resources/sql/rls/mg_reserved_column_guard.sql` (loaded at `SqlPermissionExecutor` class-init), mirroring migration-file precedent. Uses `session_user`, not `current_user` (see `SECURITY DEFINER` consideration below).
+- **UPDATE — change_owner / share enforcement**: **one** BEFORE UPDATE trigger per RLS-enabled table (`mg_enforce_row_authorisation`), checks `OLD.mg_owner IS DISTINCT FROM NEW.mg_owner` and `OLD.mg_roles IS DISTINCT FROM NEW.mg_roles`, raises unless current user has `change_owner` / `share` in `MOLGENIS.permission_attributes`. Trigger function defined in `migration32.sql`. Uses `session_user`, not `current_user` (see `SECURITY DEFINER` consideration below).
 - **DELETE**: policy `USING` matching scope; no trigger needed.
 - **SECURITY DEFINER awareness**: EMX2 has existing `SECURITY DEFINER` helpers (e.g. `mg_generate_autoid`). Inside them `current_user` is the definer, not the caller. All RLS-sensitive predicates (`mg_owner` column DEFAULT, policy `USING`/`WITH CHECK`, guard trigger) use `session_user` to follow the caller, not the definer.
 - **Principle**: policies + DEFAULTs + one guard trigger + `FORCE` means direct `psql` access is equally protected as Java access. Java layer adds nicer error messages and pre-flight validation but is not the enforcement boundary.
@@ -135,7 +147,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `Permission` immutable; `schema`/`table` accept `"*"` | `Permission` | `PermissionTest#wildcardAccepted` | n/a |
+| `TablePermission` immutable; `schema`/`table` accept `"*"` | `TablePermission` | `TablePermissionTest#wildcardAccepted` | n/a |
 | `PermissionSet.put` replaces on `(schema, table)` key (Map-semantics via internal `LinkedHashMap`) | `PermissionSet` | `PermissionSetTest#putReplacesByKey` | n/a |
 | `PermissionSet.validate()` collects all invariant violations (no short-circuit) | `PermissionSet` | `PermissionSetTest#validateReturnsAllErrors` | n/a |
 | `delete.scope > select.scope` → invariant error | `PermissionSet.validate` | `PermissionSetTest#deleteRequiresRead` | n/a |
@@ -159,7 +171,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
 | `TableMetadata.rowLevelSecurity` defaults false | `TableMetadata` | `TableMetadataTest#rlsFlagDefault` | n/a |
-| Setter true when flag was false: adds `mg_owner` (backfill from `mg_insertedBy`), `mg_roles` (empty array), `ENABLE ROW LEVEL SECURITY`, installs pending `MG_P` policies for roles that already had own/group configured, installs guard trigger `mg_reserved_column_guard` | `SqlTableMetadata.setRowLevelSecurity(true)` → SqlPermissionExecutor `enableRowLevelSecurity` | `SqlTableMetadataRlsTest#enableBackfillsAndInstalls` | n/a |
+| Setter true when flag was false: adds `mg_owner` (backfill from `mg_insertedBy`), `mg_roles` (empty array), `ENABLE ROW LEVEL SECURITY`, installs pending `MG_P` policies for roles that already had own/group configured, installs guard trigger `mg_enforce_row_authorisation` | `SqlTableMetadata.setRowLevelSecurity(true)` → SqlPermissionExecutor `enableRowLevelSecurity` | `SqlTableMetadataRlsTest#enableBackfillsAndInstalls` | n/a |
 | Setter false when any role has own/group on this table → rejected | `SqlTableMetadata.setRowLevelSecurity(false)` | `SqlTableMetadataRlsTest#disableBlockedWhenOwnGroupUsed` | n/a |
 | Setter false when safe: drops `MG_P_%` policies on table, drops guard trigger, `DISABLE ROW LEVEL SECURITY`; columns stay unless caller passes `dropColumns=true` | `SqlTableMetadata.setRowLevelSecurity(false)` → SqlPermissionExecutor `disableRowLevelSecurity` | `SqlTableMetadataRlsTest#disableSafeDropsPolicies` | n/a |
 | Flip operations idempotent | `SqlTableMetadata.setRowLevelSecurity` | `SqlTableMetadataRlsTest#idempotent` | n/a |
@@ -188,12 +200,12 @@ These behaviours are tested through `SqlRoleManager.setPermissions` + `getPermis
 | `insert:own` — WITH CHECK rejects INSERT if `mg_owner != session_user` | policy | `RowLifecycleTest#insertOwnBlocksForeignOwner` | n/a |
 | `insert:group` — user must set `mg_roles` length ≥ 1 and all ∈ user's granted roles | policy | `RowLifecycleTest#insertGroupValidatesRoles` | n/a |
 | `insert:all` — user may set `mg_owner`/`mg_roles` freely; omitted fields get DEFAULTs | policy + DEFAULTs | `RowLifecycleTest#insertAllDefaults` | n/a |
-| UPDATE without `change_owner` — guard trigger raises if `NEW.mg_owner != OLD.mg_owner` | `mg_reserved_column_guard` | `RowLifecycleTest#updateWithoutChangeOwnerRejected` | n/a |
-| UPDATE without `share` — guard trigger raises if `NEW.mg_roles != OLD.mg_roles` | `mg_reserved_column_guard` | `RowLifecycleTest#updateWithoutShareRejected` | n/a |
-| `change_owner:own` — may transfer rows user owned; destination unrestricted | `mg_reserved_column_guard` | `RowLifecycleTest#changeOwnerOwnScope` | n/a |
-| `change_owner:group` — may change owner on rows in user's group; destination must also be member of user's group | `mg_reserved_column_guard` | `RowLifecycleTest#changeOwnerGroupScope` | n/a |
-| `change_owner:all` — unrestricted | `mg_reserved_column_guard` | `RowLifecycleTest#changeOwnerAllScope` | n/a |
-| `share` (any scope) — new `mg_roles` values must all be roles user is member of | `mg_reserved_column_guard` | `RowLifecycleTest#shareLimitedToGrantedRoles` | n/a |
+| UPDATE without `change_owner` — guard trigger raises if `NEW.mg_owner != OLD.mg_owner` | `mg_enforce_row_authorisation` | `RowLifecycleTest#updateWithoutChangeOwnerRejected` | n/a |
+| UPDATE without `share` — guard trigger raises if `NEW.mg_roles != OLD.mg_roles` | `mg_enforce_row_authorisation` | `RowLifecycleTest#updateWithoutShareRejected` | n/a |
+| `change_owner:own` — may transfer rows user owned; destination unrestricted | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerOwnScope` | n/a |
+| `change_owner:group` — may change owner on rows in user's group; destination must also be member of user's group | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerGroupScope` | n/a |
+| `change_owner:all` — unrestricted | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerAllScope` | n/a |
+| `share` (any scope) — new `mg_roles` values must all be roles user is member of | `mg_enforce_row_authorisation` | `RowLifecycleTest#shareLimitedToGrantedRoles` | n/a |
 
 ### Built-in roles + coexistence
 
@@ -203,7 +215,7 @@ These behaviours are tested through `SqlRoleManager.setPermissions` + `getPermis
 | Pre-existing schemas have legacy-installed PG built-in roles; no backfill of `role_metadata`; `listRoles` reconstructs built-ins by joining `Privileges.java` with `pg_roles` for both pre-feature and post-feature schemas | `SqlRoleManager.listRoles` | `BuiltinInstallTest#listBuiltinsUniform` | n/a |
 | Custom role name colliding with any built-in privilege (case-insensitive) rejected | `SqlRoleManager.createRole` | `SqlRoleManagerTest#rejectBuiltinNameCollision` | n/a |
 | Custom role operates on any schema regardless of age; own/group scope always requires the target table's `row_level_security=true` | `SqlRoleManager.setPermissions` + `PermissionSet.validate` | `SqlRoleManagerTest#customRoleOnAnySchema` | n/a |
-| Deleting a built-in via `deleteRole` rejected (built-ins are immutable; removed only by DROP SCHEMA cascade) | `SqlRoleManager.deleteRole` | `SqlRoleManagerTest#immutableBuiltinsRejected` | n/a |
+| Deleting a built-in via `deleteRole` rejected (system roles cannot be dropped) | `SqlRoleManager.deleteRole` | `SqlRoleManagerTest#immutableBuiltinsRejected` | n/a |
 | Drop schema / table cascades `MG_P_%` policies and built-in PG roles for that schema automatically (PG cascade) | PG | `SqlRoleManagerTest#schemaDropCascades` | n/a |
 | Drop schema while a `schema:*` role exists silently shrinks effective permissions (no error) | `SqlRoleManager` | `SqlRoleManagerTest#schemaDropNoError` | n/a |
 
@@ -218,7 +230,21 @@ Admin guard is **Java-first with PG defense-in-depth**: `SqlRoleManager` checks 
 
 ## GraphQL surface (phase 2)
 
-Follows the existing EMX2 pattern (`GraphqlSchemaFieldFactory`): **one `change` mutation** accepting payload lists for create-or-update, and **one `drop` mutation** accepting name/key lists for deletes. No `createX` / `deleteX` / `setX` fan-out. Both return `GraphqlApiMutationResult { status, message, taskId }`.
+Follows the existing EMX2 pattern: **existing `change` and `drop` root mutations** extended with new argument lists for fine-grained permission management. No separate `changePermissions`/`dropPermissions` root fields. Both return `GraphqlApiMutationResult { status, message }`.
+
+GraphQL enum types:
+- `MolgenisEditScope` — values: `NONE | OWN | GROUP | ALL` (edit-verb scopes for select/insert/update/delete)
+- `MolgenisViewScope` — values: `FULL | COUNT | AGGREGATE | EXISTS | RANGE` (view modality; only `FULL` enforced in v1)
+
+Input types:
+- `MolgenisRoleInput { name: String!, description: String, permissions: [MolgenisPermissionInputFg!] }`
+- `MolgenisPermissionInputFg { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean, selectScope: MolgenisViewScope }`
+- `MolgenisRoleMemberInput { role: String!, user: String! }`
+- `MolgenisTableRlsInput { schema: String!, table: String!, rowLevelSecurity: Boolean! }`
+
+Output types:
+- `MolgenisRoleOutput { role, description, systemRole: Boolean, permissions: [MolgenisRolePermissionsOutput], members: [String] }`
+- `MolgenisEffectivePermission { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean }`
 
 Tests live in `org.molgenis.emx2.graphql.*`.
 
@@ -226,56 +252,25 @@ Tests live in `org.molgenis.emx2.graphql.*`.
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `_session { effectivePermissions { schema table select insert update delete changeOwner share } }` returns current user's effective permissions (union-most-permissive of all granted roles, resolved across wildcards). Field named `effectivePermissions` to avoid collision with existing `tablePermissions` field on `MolgenisSession`, which stays unchanged. | `GraphqlSessionFieldFactory.effectivePermissions` | `GraphqlSessionTest#permissionsForCurrentUser` | n/a |
-| `permission { roles { role description immutable permissions {...} members } }` (admin-only root query) lists all roles with their permission sets and member users | new `GraphqlPermissionFieldFactory` | `PermissionQueryTest#listsAllRolesAndPermissions` | n/a |
-| Non-admin querying `permission { roles }` gets an empty list or auth error (consistent with other admin-only queries) | auth check | `PermissionQueryTest#nonAdminForbidden` | n/a |
-
-### Mutation shape (unified `change` / `drop`)
-
-The existing root `change` mutation (`GraphqlSchemaFieldFactory`) already has a `roles: [MolgenisRoleInput!]` argument whose semantics are *per-schema member → role* grants. To avoid ambiguity, the fine-grained-permission mutations live on a **separate root pair** `changePermissions` / `dropPermissions` exposed by `GraphqlPermissionFieldFactory` (admin-only, database-scoped). Inputs follow the EMX2 `Molgenis`-prefix convention.
-
-```graphql
-type Mutation {
-  changePermissions(
-    roles: [MolgenisCustomRoleInput!]        # upsert role_metadata rows + PG role
-    permissions: [MolgenisRolePermissionsInput!]  # replace-all permission set for a role
-    members: [MolgenisRoleMemberInput!]      # grant role→user
-    tables: [MolgenisTableRlsInput!]         # flip row_level_security flag on table
-  ): GraphqlApiMutationResult
-
-  dropPermissions(
-    roles: [String!]                          # delete custom roles (built-ins rejected)
-    members: [MolgenisRoleMemberInput!]       # revoke role→user
-  ): GraphqlApiMutationResult
-}
-
-input MolgenisCustomRoleInput { name: String!, description: String }
-input MolgenisRolePermissionsInput { role: String!, permissions: [MolgenisPermissionInput!]! }
-input MolgenisPermissionInput { schema: String!, table: String!, select: Scope, insert: Scope, update: Scope, delete: Scope, changeOwner: Boolean, share: Boolean }
-input MolgenisRoleMemberInput { role: String!, user: String! }
-input MolgenisTableRlsInput { schema: String!, table: String!, rowLevelSecurity: Boolean! }
-```
+| `_session(schema) { permissions { schema table select insert update delete changeOwner share } }` returns current user's resolved permissions. Field named `permissions` (no collision found with existing `tablePermissions`). | `GraphqlSessionFieldFactory` + `SqlRoleManager.getPermissionsForActiveUser()` | `GraphqlPermissionFieldFactoryTest#sessionPermissions_currentUserSeesOwnPermissions` | n/a |
+| `_admin { roles(name) { role description systemRole permissions {...} members } }` (admin-only) lists all roles with permission sets and members | `GraphqlAdminFieldFactory` using `roleOutputType` from `GraphqlPermissionFieldFactory` | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_listsRolesAndPermissions` | n/a |
+| `systemRole` field in role output is `true` for built-in roles, `false` for custom | `GraphqlAdminFieldFactory` → `Role.isSystemRole()` | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_listsRolesAndPermissions` | n/a |
+| Non-admin querying `_admin { roles }` receives exception | `GraphqlAdminFieldFactory` auth check | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_nonAdminNotAccessible` | n/a |
 
 ### Mutation behaviours
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `changePermissions(roles: [...])` creates or updates custom role(s); admin-only; returns `SUCCESS` with message listing affected roles | `GraphqlPermissionFieldFactory.changePermissions` → `SqlRoleManager.createRole` | `PermissionMutationTest#changeRoles` | n/a |
-| `changePermissions(permissions: [...])` applies replace-all permission set per role, transactional per role; invariant violations across all entries collected into one `MolgenisException` with `List<MolgenisExceptionDetail>` (one detail per violation — structured, not string-concatenated) | `SqlRoleManager.setPermissions` + `PermissionSet.validate` | `PermissionMutationTest#changePermissions` and `#rejectInvariantViolations` | n/a |
-| `changePermissions(members: [...])` grants role→user for each entry | `SqlRoleManager.grantRoleToUser` | `PermissionMutationTest#changeMembers` | n/a |
-| `changePermissions(tables: [...])` flips `row_level_security` flag per entry; backfills columns, installs/removes guard trigger and policies | `SqlTableMetadata.setRowLevelSecurity` | `PermissionMutationTest#changeTableRls` | n/a |
-| `changePermissions` accepts multiple entity lists in one call and executes them in a single JOOQ transaction via `database.tx(...)` (not `dsl.transaction(...)` — honours EMX2's `inTx` re-entry guard); partial failure rolls all back | `GraphqlPermissionFieldFactory.changePermissions` | `PermissionMutationTest#changeBatchTransactional` | n/a |
-| `dropPermissions(roles: [...])` deletes custom role(s); built-ins rejected with `MolgenisExceptionDetail` per immutable role | `SqlRoleManager.deleteRole` | `PermissionMutationTest#dropRoles` | n/a |
-| `dropPermissions(members: [...])` revokes role→user for each entry | `SqlRoleManager.revokeRoleFromUser` | `PermissionMutationTest#dropMembers` | n/a |
-| Non-admin invoking `changePermissions` or `dropPermissions` receives auth error consistent with existing admin mutations (`database.isAdmin()` pre-check) | auth check | `PermissionMutationTest#nonAdminForbidden` | n/a |
-| GraphQL integration test exercises: `changePermissions(roles, permissions, tables, members)` in one call → user logs in → `_session.effectivePermissions` matches → user reads/writes succeed/fail per matrix → `dropPermissions(members, roles)` cleans up | end-to-end | `GraphqlPermissionsIT#fullScenario` | n/a |
-
-### Error shape
-
-| Behavior | Component | Test | Visual |
-|---|---|---|---|
-| Invariant violations surface as a single `MolgenisException` populated with `List<MolgenisExceptionDetail>` (one detail per violation — uses the existing structured-error field, not string concatenation). The exception handler renders as multi-line message for GraphQL response. | `SqlRoleManager.setPermissions` throws → `GraphqlCustomExceptionHandler` wraps | `PermissionMutationTest#validationErrorShape` | n/a |
-| `changePermissions`/`dropPermissions` return `GraphqlApiMutationResult{status:FAILED, message:<joined>, taskId:null}` on validation failure — matches existing EMX2 mutation return contract | `GraphqlPermissionFieldFactory` | `PermissionMutationTest#validationErrorShape` | n/a |
+| `change(roles: [{name, description, permissions:[...]}])` creates or updates custom role(s) with nested permission set; admin-only | `GraphqlDatabaseFieldFactory` → `GraphqlPermissionFieldFactory.applyRoles` → `SqlRoleManager.createOrUpdateRole` + `setPermissions` | `GraphqlPermissionFieldFactoryTest#changeRoleDefinitions_createsRole` | n/a |
+| `change(roles: [{name, permissions:[{schema, table, select, ...}]}])` replaces permission set for role | `GraphqlPermissionFieldFactory.applyPermissionsForRole` → `SqlRoleManager.setPermissions` | `GraphqlPermissionFieldFactoryTest#changePermissions_replaceAll` | n/a |
+| `change(members: [{role, user}])` grants role→user | `GraphqlPermissionFieldFactory.applyMembers` → `SqlRoleManager.grantRoleToUser` | `GraphqlPermissionFieldFactoryTest#changeMembers_grantsRole` | n/a |
+| `change(tables: [{schema, table, rowLevelSecurity}])` flips RLS flag | `GraphqlPermissionFieldFactory.applyTables` → `SqlTableMetadata.setRowLevelSecurity` | `GraphqlPermissionFieldFactoryTest#changeTables_setsRls` | n/a |
+| `change` with tables + roles + members in one call executes transactionally; order: tables → roles → members | `GraphqlDatabaseFieldFactory` wraps in `database.tx(...)` | `GraphqlPermissionsIT#fullScenario` | n/a |
+| `drop(roles: [String!])` deletes custom role(s); system roles rejected | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.deleteRole` | `GraphqlPermissionFieldFactoryTest#dropRoles_tombstonesRole` | n/a |
+| `drop(members: [{role, user}])` revokes role→user | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.revokeRoleFromUser` | `GraphqlPermissionFieldFactoryTest#dropMembers_revokesRole` | n/a |
+| Non-admin invoking `change` or `drop` with permission arguments receives `FAILED` result with "admin" message | `GraphqlDatabaseFieldFactory` admin guard | `GraphqlPermissionFieldFactoryTest#nonAdminForbidden` | n/a |
+| `selectScope` field in permission input accepts `MolgenisViewScope` values; only `FULL` is passed through in v1 | `GraphqlPermissionFieldFactory.applyPermissionsForRole` | implicit in mutation tests | n/a |
+| End-to-end: single `change` call (tables + roles + members) → non-admin session → `_session.permissions` correct → SELECT/INSERT/UPDATE enforced per scope → `drop` cleans up | `GraphqlPermissionsIT` | `GraphqlPermissionsIT#fullScenario` | n/a |
 
 ## Out of scope (v1 — phases 1+2)
 
@@ -298,5 +293,5 @@ input MolgenisTableRlsInput { schema: String!, table: String!, rowLevelSecurity:
 - Java-side cache for `getPermissionsForActiveUser` — add a request-scoped cache analogous to `SchemaMetadata` caching only if profiling shows repetitive calls are a bottleneck. No cache in v1.
 - Fate of existing user-created per-schema custom roles from legacy `SqlRoleManager.createRole(schemaName, roleName)` — decide whether to deprecate the API, auto-migrate to global custom roles, or keep indefinitely.
 - `setPermissions` wildcard lock blast (when the diff is genuinely wide): batch-by-table in separate transactions — loses atomicity, add `MOLGENIS.permission_sync_log` for resume-on-crash.
-- `purgeRole(name)`: admin-only hard-delete that removes a tombstoned `role_metadata` row and sweeps `mg_roles` arrays across all RLS tables (slow, admin-triggered, rare).
-- Guard-trigger permission lookup: cache caller's `change_owner`/`share` scope in a session GUC at request start (mirrors `molgenis.current_roles`) so the slow path avoids a `pg_policies` scan per changed row.
+- Guard-trigger permission lookup: cache caller's `change_owner`/`share` scope in a session GUC at request start (mirrors `molgenis.current_roles`) so the slow path avoids a `permission_attributes` scan per changed row.
+- Tombstone/name-reservation semantics for deleted roles (v1 does not reserve names after drop).

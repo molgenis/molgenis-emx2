@@ -109,4 +109,6 @@ public interface Database extends HasSettingsInterface<Database> {
   void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
 
   void updateRoles(String userName, List<Map<String, String>> roles);
+
+  RoleManager getRoleManager();
 }

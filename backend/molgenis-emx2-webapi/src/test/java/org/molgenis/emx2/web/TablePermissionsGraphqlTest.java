@@ -17,6 +17,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.TablePermission.Scope;
 import org.molgenis.emx2.TableType;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -140,7 +141,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
   @Test
   @Order(3)
-  void customUserSessionShowsTablePermissionsAfterMembership() {
+  void customUserSessionShowsPermissionsAfterMembership() {
     database.becomeAdmin();
     database.getSchema(SCHEMA).addMember(CUSTOM_USER, "ReaderA");
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -150,18 +151,15 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _session { tablePermissions { name canView canInsert canUpdate canDelete } } }"}
+                {"query":"{ _session(schema:\\"TablePermissionsGqlTest\\") { permissions { table select insert update delete } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
             .extract()
             .asString();
 
-    assertTrue(body.contains("\"ArticleA\""), "_session.tablePermissions must list ArticleA");
-    assertTrue(body.contains("\"canView\" : true"), "canView must be true for SELECT grant");
-    assertTrue(body.contains("\"canInsert\" : false"), "canInsert must be false (not granted)");
-    assertTrue(body.contains("\"canUpdate\" : false"), "canUpdate must be false (not granted)");
-    assertTrue(body.contains("\"canDelete\" : false"), "canDelete must be false (not granted)");
+    assertTrue(body.contains("\"ArticleA\""), "_session.permissions must list ArticleA");
+    assertTrue(body.contains("\"ALL\""), "select must be ALL for SELECT grant");
   }
 
   @Test
@@ -211,7 +209,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",insert:true}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:true,insert:true}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -228,15 +226,15 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _session { tablePermissions { name canView canInsert } } }"}
+                {"query":"{ _session(schema:\\"TablePermissionsGqlTest\\") { permissions { table select insert } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
             .extract()
             .asString();
 
-    assertTrue(sessionBody.contains("\"canView\" : true"), "canView must still be true");
-    assertTrue(sessionBody.contains("\"canInsert\" : true"), "canInsert must be true after grant");
+    assertTrue(sessionBody.contains("\"ALL\""), "select and insert must be ALL after grant");
+    assertTrue(sessionBody.contains("\"ArticleA\""), "ArticleA must appear in permissions");
   }
 
   @Test
@@ -279,7 +277,12 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   @Order(8)
   void dropCustomRoleViaGraphql() {
     database.becomeAdmin();
-    database.getSchema(SCHEMA).grant("ReaderA", new TablePermission(TABLE_A).select(true));
+    database
+        .getSchema(SCHEMA)
+        .grant(
+            "ReaderA",
+            new TablePermission(
+                null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -340,7 +343,10 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MixedRole");
-    schema.grant("MixedRole", new TablePermission(TABLE_A).select(true).insert(true));
+    schema.grant(
+        "MixedRole",
+        new TablePermission(
+            null, TABLE_A, Scope.ALL, Scope.ALL, Scope.NONE, Scope.NONE, false, false));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -388,7 +394,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
   @Test
   @Order(12)
-  void userWithEmptyRoleSessionHasNoTablePermissions() {
+  void userWithEmptyRoleSessionHasNoPermissions() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("EmptyGqlRole");
@@ -400,7 +406,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _session { tablePermissions { name canView canInsert canUpdate canDelete } } }"}
+                {"query":"{ _session(schema:\\"TablePermissionsGqlTest\\") { permissions { table select } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -409,7 +415,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
     assertNoGraphqlErrors(body);
     assertFalse(
-        body.contains("\"canView\" : true"), "User with empty role should not have canView:true");
+        body.contains("\"ALL\""), "User with empty role should not have any ALL scope permissions");
 
     // Cleanup
     database.becomeAdmin();
@@ -419,13 +425,18 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
   @Test
   @Order(13)
-  void revokeViaFalseShowsCorrectSessionPermission() {
+  void revokeInsertShowsCorrectSessionPermission() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("FalseTestRole");
     schema.grant(
-        "FalseTestRole", new TablePermission(TABLE_A).select(true).insert(true).update(true));
-    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(false));
+        "FalseTestRole",
+        new TablePermission(
+            null, TABLE_A, Scope.ALL, Scope.ALL, Scope.ALL, Scope.NONE, false, false));
+    schema.grant(
+        "FalseTestRole",
+        new TablePermission(
+            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.ALL, Scope.NONE, false, false));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -434,7 +445,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _session { tablePermissions { name canView canInsert canUpdate canDelete } } }"}
+                {"query":"{ _session(schema:\\"TablePermissionsGqlTest\\") { permissions { table select insert update delete } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -442,10 +453,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .asString();
 
     assertNoGraphqlErrors(body);
-    assertTrue(body.contains("\"canView\" : true"), "canView should be true (select granted)");
-    assertTrue(
-        body.contains("\"canInsert\" : false"), "canInsert should be false (explicitly revoked)");
-    assertTrue(body.contains("\"canUpdate\" : true"), "canUpdate should be true (update granted)");
+    assertTrue(body.contains("\"ArticleA\""), "ArticleA must appear in permissions");
+    assertTrue(body.contains("\"ALL\""), "select and update should be ALL");
 
     // Cleanup
     database.becomeAdmin();
@@ -461,7 +470,10 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("OntologyTestRole");
-    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(true));
+    schema.grant(
+        "OntologyTestRole",
+        new TablePermission(
+            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
     schema.addMember(CUSTOM_USER, "OntologyTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
