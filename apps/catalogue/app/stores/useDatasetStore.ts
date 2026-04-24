@@ -38,7 +38,7 @@ export const useDatasetStore = defineStore("datasets", () => {
     storeVersion.value = (await getSetting(CATALOGUE_STORE_VERSION)) || "";
   }
 
-  async function getDataStoreVersion() {
+  async function getDatasetStoreVersion() {
     if (!storeVersion.value) {
       await setNegotiatorVersion();
     }
@@ -74,14 +74,20 @@ export const useDatasetStore = defineStore("datasets", () => {
     return settingResponse.value;
   }
 
+  function clearCart() {
+    for (const key in datasets) {
+      delete datasets[key as keyof IResources];
+    }
+  }
+
   return {
     datasets,
     storeVersion,
     isEnabled,
     addToCart,
+    clearCart,
+    getDatasetStoreUrl,
     removeFromCart,
     resourceIsInCart,
-    getDatasetStoreUrl,
-    getDataStoreVersion,
   };
 });
