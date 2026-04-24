@@ -10,6 +10,7 @@
     - [Forms](use_forms.md)
     - [Up/download](use_updownload.md)
     - [Permissions](use_permissions.md)
+    - [Fine-grained permissions](use_fine_grained_permissions.md)
     - [Settings](use_database_settings.md)
     - [Scripts/Jobs](use_scripts_jobs.md)
     - [Tokens](use_tokens.md)

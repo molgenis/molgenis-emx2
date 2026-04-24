@@ -442,13 +442,13 @@ public class SqlSchema implements Schema {
   @Override
   public void createRole(String roleName) {
     requireManager();
-    roleManager().createRole(getName(), roleName);
+    roleManager().createSchemaRole(getName(), roleName);
   }
 
   @Override
   public void deleteRole(String roleName) {
     requireManager();
-    roleManager().deleteRole(getName(), roleName);
+    roleManager().deleteSchemaRole(getName(), roleName);
   }
 
   @Override

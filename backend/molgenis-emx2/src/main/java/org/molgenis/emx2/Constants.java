@@ -58,6 +58,11 @@ public class Constants {
   public static final String CHANGELOG_OLD = "old";
   public static final String CHANGELOG_NEW = "new";
 
+  public static final String SQL_SELECT = "SELECT";
+  public static final String SQL_INSERT = "INSERT";
+  public static final String SQL_UPDATE = "UPDATE";
+  public static final String SQL_DELETE = "DELETE";
+
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";

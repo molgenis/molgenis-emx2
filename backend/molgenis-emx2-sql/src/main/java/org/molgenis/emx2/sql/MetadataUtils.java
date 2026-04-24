@@ -4,10 +4,12 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Role;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,23 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+
+  private static final org.jooq.Table ROLE_METADATA = table(name(MOLGENIS, "role_metadata"));
+
+  private static final Field<String> ROLE_NAME = field(name("role_name"), VARCHAR.nullable(false));
+  private static final Field<String> ROLE_SCHEMA_NAME =
+      field(name("schema_name"), VARCHAR.nullable(false));
+  private static final Field<String> ROLE_DESCRIPTION =
+      field(name("description"), VARCHAR.nullable(true));
+  private static final Field<Boolean> ROLE_IMMUTABLE =
+      field(name("immutable"), BOOLEAN.nullable(false));
+  private static final Field<String> ROLE_STATUS = field(name("status"), VARCHAR.nullable(false));
+  private static final Field<String> ROLE_CREATED_BY =
+      field(name("created_by"), VARCHAR.nullable(true));
+  private static final Field<OffsetDateTime> ROLE_CREATED_ON =
+      field(name("created_on"), TIMESTAMPWITHTIMEZONE.nullable(true));
+  private static final Field<OffsetDateTime> ROLE_DELETED_ON =
+      field(name("deleted_on"), TIMESTAMPWITHTIMEZONE.nullable(true));
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
@@ -728,5 +747,85 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  static void saveRole(DSLContext jooq, Role role) {
+    jooq.insertInto(ROLE_METADATA)
+        .columns(
+            ROLE_NAME,
+            ROLE_SCHEMA_NAME,
+            ROLE_DESCRIPTION,
+            ROLE_IMMUTABLE,
+            ROLE_STATUS,
+            ROLE_CREATED_BY,
+            ROLE_CREATED_ON,
+            ROLE_DELETED_ON)
+        .values(
+            role.getRoleName(),
+            role.getSchemaName(),
+            role.getDescription(),
+            role.isImmutable(),
+            role.getStatus(),
+            role.getCreatedBy(),
+            role.getCreatedOn(),
+            role.getDeletedOn())
+        .onConflict(ROLE_NAME, ROLE_SCHEMA_NAME)
+        .doUpdate()
+        .set(ROLE_DESCRIPTION, role.getDescription())
+        .set(ROLE_IMMUTABLE, role.isImmutable())
+        .set(ROLE_STATUS, role.getStatus())
+        .set(ROLE_DELETED_ON, role.getDeletedOn())
+        .execute();
+  }
+
+  static Role getRole(DSLContext jooq, String roleName) {
+    org.jooq.Record record =
+        jooq.selectFrom(ROLE_METADATA)
+            .where(ROLE_NAME.eq(roleName).and(ROLE_SCHEMA_NAME.eq("*")))
+            .fetchOne();
+    return record == null ? null : recordToRole(record);
+  }
+
+  static List<Role> listRoles(DSLContext jooq) {
+    return listRoles(jooq, false);
+  }
+
+  static List<Role> listRoles(DSLContext jooq, boolean includeDeleted) {
+    List<org.jooq.Record> records;
+    if (includeDeleted) {
+      records = jooq.selectFrom(ROLE_METADATA).orderBy(ROLE_NAME, ROLE_SCHEMA_NAME).fetch();
+    } else {
+      records =
+          jooq.selectFrom(ROLE_METADATA)
+              .where(ROLE_STATUS.eq("active"))
+              .orderBy(ROLE_NAME, ROLE_SCHEMA_NAME)
+              .fetch();
+    }
+    return records.stream().map(MetadataUtils::recordToRole).toList();
+  }
+
+  static void deleteRole(DSLContext jooq, String roleName) {
+    jooq.deleteFrom(ROLE_METADATA)
+        .where(ROLE_NAME.eq(roleName).and(ROLE_SCHEMA_NAME.eq("*")))
+        .execute();
+  }
+
+  static void tombstoneRole(DSLContext jooq, String roleName) {
+    jooq.update(ROLE_METADATA)
+        .set(ROLE_STATUS, "deleted")
+        .set(ROLE_DELETED_ON, OffsetDateTime.now())
+        .where(ROLE_NAME.eq(roleName).and(ROLE_SCHEMA_NAME.eq("*")))
+        .execute();
+  }
+
+  private static Role recordToRole(org.jooq.Record record) {
+    return new Role(record.get(ROLE_NAME, String.class))
+        .setSchemaName(record.get(ROLE_SCHEMA_NAME, String.class))
+        .setDescription(record.get(ROLE_DESCRIPTION, String.class))
+        .setImmutable(Boolean.TRUE.equals(record.get(ROLE_IMMUTABLE, Boolean.class)))
+        .setStatus(record.get(ROLE_STATUS, String.class))
+        .setCreatedBy(record.get(ROLE_CREATED_BY, String.class))
+        .setCreatedOn(record.get(ROLE_CREATED_ON, OffsetDateTime.class))
+        .setDeletedOn(record.get(ROLE_DELETED_ON, OffsetDateTime.class));
   }
 }

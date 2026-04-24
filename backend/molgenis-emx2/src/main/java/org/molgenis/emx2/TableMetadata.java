@@ -22,6 +22,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public String inheritName = null;
   // to allow indicate that a table should be dropped
   protected boolean drop = false;
+  // row-level security flag; own/group scopes only allowed when true
+  private boolean rowLevelSecurity = false;
   // for refenence to another schema (rare use)
   protected String importSchema = null;
   // columns of the table (required)
@@ -439,6 +441,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       }
     }
     return null;
+  }
+
+  public boolean getRowLevelSecurity() {
+    return rowLevelSecurity;
+  }
+
+  public TableMetadata setRowLevelSecurity(boolean rowLevelSecurity) {
+    this.rowLevelSecurity = rowLevelSecurity;
+    return this;
   }
 
   public void enableRowLevelSecurity() {
