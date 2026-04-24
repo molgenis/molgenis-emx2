@@ -97,10 +97,10 @@ async function doNegotiatorV3Request() {
   error.value = "";
   const dataStoreUrl = await datasetStore.getDatasetStoreUrl();
 
-  const resources = toNegotiatorFormat(datasetStore.datasets);
   const url = window.location.origin;
   const humanReadable = getHumanReadableString(); //+ createHistoryJournal();
-
+  const resources = toNegotiatorFormat(datasetStore.datasets.value);
+  console.log(resources);
   const payload: Record<string, any> = { url, humanReadable, resources };
 
   const response = await fetch(dataStoreUrl, {
@@ -153,8 +153,9 @@ async function doNegotiatorV3Request() {
   }
 
   function toNegotiatorFormat(datasets: Record<string, any>) {
+    console.log(datasets);
     return Object.values(datasets).map((dataset) => ({
-      id: dataset.id,
+      id: dataset.pid,
       name: dataset.name,
     }));
   }
