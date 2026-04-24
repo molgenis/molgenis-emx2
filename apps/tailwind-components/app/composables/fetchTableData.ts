@@ -29,19 +29,17 @@ export default async (
     expandLevel,
     properties?.columns
   );
-  // Workaround: $aggFilter is a separate variable (same value as $filter) to avoid a backend bug
-  // where _agg ignores $filter when used with ontology _match_any_including_children.
-  const query = `query ${tableId}( $filter:${tableId}Filter, $aggFilter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
+  const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
-          limit:${limit},
+          limit:${limit}, 
           offset:${offset}${search},
           orderby:$orderby
           )
           {
             ${columnIds}
           }
-          ${tableId}_agg( filter:$aggFilter${search} ) {
+          ${tableId}_agg( filter:$filter${search} ) {
             count
           }
         }`;
@@ -53,7 +51,7 @@ export default async (
     method: "POST",
     body: {
       query,
-      variables: { filter, aggFilter: filter, orderby },
+      variables: { filter, orderby },
     },
   }).catch((error) => {
     const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
