@@ -37,7 +37,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/cranio-public/",
+    base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/cranio-public/",
     server: {
       proxy: devProxy,
     },

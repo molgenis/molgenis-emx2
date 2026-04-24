@@ -71,6 +71,8 @@ commands:
             git fetch origin +refs/heads/*:refs/remotes/origin/* --prune
           GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
             git fetch origin +refs/tags/*:refs/tags/* --prune
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
+            git fetch origin "+refs/pull/*/head:refs/remotes/origin/pull/*" --prune
           git checkout -f "$CIRCLE_BRANCH"
     - run:
         name: Setup git, todo, move to molgenisci user

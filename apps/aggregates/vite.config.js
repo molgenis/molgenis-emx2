@@ -33,7 +33,7 @@ export default defineConfig(({command}) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/aggregates/",
+    base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/aggregates/",
     server: {
       proxy: devProxy
     },

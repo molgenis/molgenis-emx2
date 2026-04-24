@@ -23,7 +23,7 @@ export default defineConfig(({ command }) => ({
 
     }),
   ],
-  base: command === "serve" ? "/" : "apps/graphql-playground/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/graphql-playground/",
   server: {
     port: 3000,
     proxy: devProxyConfig,

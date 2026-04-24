@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     logLevel: 4,
   },
+  app: {
+    baseURL: process.env.NUXT_APP_BASE_URL || "/",
+  },
 
   tailwindcss: {
     cssPath: "../tailwind-components/app/assets/css/main.css",

@@ -36,7 +36,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/ern-genturis/",
+    base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/ern-genturis/",
     server: {
       proxy: devProxy,
     },

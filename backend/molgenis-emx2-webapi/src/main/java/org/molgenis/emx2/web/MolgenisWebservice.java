@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
@@ -48,12 +50,17 @@ public class MolgenisWebservice {
   static URL hostUrl;
 
   public MolgenisWebservice() {
+    String contextPath =
+        (String) EnvironmentProperty.getParameter(MOLGENIS_CONTEXT_PATH, "", STRING);
     app =
         Javalin.create(
             config -> {
               config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
               config.router.ignoreTrailingSlashes = true;
               config.router.treatMultipleSlashesAsSingleSlash = true;
+              if (!contextPath.isEmpty()) {
+                config.router.contextPath = contextPath;
+              }
               config.jsonMapper(
                   new JavalinJackson()
                       .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
@@ -95,9 +102,13 @@ public class MolgenisWebservice {
           String landingPagePath =
               APPLICATION_CACHE.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
-            ctx.redirect(landingPagePath);
+            if (landingPagePath.startsWith("/")) {
+              ctx.redirect(ctx.contextPath() + landingPagePath);
+            } else {
+              ctx.redirect(landingPagePath);
+            }
           } else {
-            ctx.redirect("/apps/central/");
+            ctx.redirect(ctx.contextPath() + "/apps/central/");
           }
         });
 
@@ -188,7 +199,7 @@ public class MolgenisWebservice {
 
       SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
       if (schemaMenu.isEmpty()) {
-        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        ctx.redirect(ctx.contextPath() + "/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
         return;
       }
 
@@ -202,9 +213,9 @@ public class MolgenisWebservice {
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
         if (schema.getRoleForUser(ANONYMOUS).isEmpty()) {
-          ctx.redirect("/");
+          ctx.redirect(ctx.contextPath() + "/");
         } else {
-          ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+          ctx.redirect(ctx.contextPath() + "/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
         }
 
         return;
@@ -215,10 +226,10 @@ public class MolgenisWebservice {
               + encodePathSegment(ctx.pathParam(SCHEMA))
               + "/"
               + menuForRole.items().getFirst().href().replace("../", "");
-      ctx.redirect(location);
+      ctx.redirect(ctx.contextPath() + location);
     } catch (Exception e) {
       logger.debug(e.getMessage());
-      ctx.redirect("/");
+      ctx.redirect(ctx.contextPath() + "/");
     }
   }
 

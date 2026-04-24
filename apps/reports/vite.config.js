@@ -4,7 +4,7 @@ import devProxy from "../dev-proxy.config";
 
 export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: command === "serve" ? "/" : "apps/reports/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/reports/",
   server: {
     proxy: devProxy,
   },
