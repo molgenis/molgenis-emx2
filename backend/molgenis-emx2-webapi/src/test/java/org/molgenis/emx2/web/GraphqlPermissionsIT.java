@@ -70,15 +70,10 @@ class GraphqlPermissionsIT extends ApiTestBase {
     login("admin", "admin");
     String adminSession = sessionId;
 
-    // Step 3: single change mutation — creates role, grants SELECT=ALL + UPDATE=OWN,
-    // enables RLS, adds non-admin user as member
+    // Step 3: single change mutation — creates role, grants SELECT=ALL + UPDATE=OWN (RLS
+    // auto-installed by OWN grant), adds non-admin user as member
     String changeMutation =
         "{\"query\":\"mutation{change("
-            + "tables:[{schema:\\\""
-            + SCHEMA
-            + "\\\",table:\\\""
-            + TABLE
-            + "\\\",rowLevelSecurity:true}],"
             + "roles:[{name:\\\""
             + CLINICIAN_ROLE
             + "\\\",permissions:[{schema:\\\""

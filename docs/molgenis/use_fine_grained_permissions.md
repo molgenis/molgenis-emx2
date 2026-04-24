@@ -2,7 +2,7 @@
 
 Standard schema roles (viewer, editor, manager, etc.) grant uniform access to every table in a schema. Fine-grained roles give you table-level control: you define a named role, specify exactly which tables it can read, insert, update, or delete, how broadly (all rows, only the user's own rows, or rows tagged with a shared group), and then assign users to that role.
 
-Fine-grained roles are global (not schema-scoped): one role can carry permissions across multiple schemas. Use `schema: "*"` in a permission entry to match all schemas. Scoped OWN and GROUP verbs require row-level security (RLS) to be enabled on the target table; ALL scope uses a plain PostgreSQL GRANT and does not require RLS.
+Fine-grained roles are global (not schema-scoped): one role can carry permissions across multiple schemas. Use `schema: "*"` in a permission entry to match all schemas. Scoped OWN and GROUP verbs automatically install row-level security (RLS) on the target table the first time such a scope is granted; ALL scope uses a plain PostgreSQL GRANT and does not require RLS.
 
 Roles are stored as PostgreSQL roles named `MG_ROLE_<name>`; description lives in `COMMENT ON ROLE`.
 
@@ -25,7 +25,7 @@ The same four values apply to every verb. All four are enforced server-side toda
 | `GROUP` | Rows where `mg_roles` overlaps the caller's granted roles |
 | `ALL` | Every row in the table |
 
-### ViewScope (select only)
+### SelectScope (select only)
 
 Controls what the caller can observe when `select` is not `NONE`. Only `FULL` is enforced today; the others are declared for future use and the server rejects them with an error if sent in a mutation.
 
@@ -48,18 +48,19 @@ Controls what the caller can observe when `select` is not `NONE`. Only `FULL` is
 
 All fine-grained permission operations use the existing `change` and `drop` mutations. Both run inside a single database transaction. A failure in any step rolls back the entire call.
 
-### change (create/update roles, permissions, RLS, members)
+### change (create/update roles, permissions, members)
 
-Creates or updates roles, enables RLS on tables, sets per-role per-table grants, and assigns users to roles. All argument lists are optional; include only the ones you need in a given call.
+Creates or updates roles, sets per-role per-table grants, and assigns users to roles. All argument lists are optional; include only the ones you need in a given call.
 
-Execution order inside the transaction: **tables → roles (including nested permissions) → members**.
+Execution order inside the transaction: **roles (including nested permissions) → members**.
+
+When a role is granted OWN or GROUP scope on a table, RLS is installed automatically on that table if it is not already present (idempotent). See [How RLS turns on](#how-rls-turns-on) below.
 
 **Input shape**
 
 ```graphql
 mutation {
   change(
-    tables: [{ schema: String!, table: String!, rowLevelSecurity: Boolean! }]
     roles: [{
       name: String!
       description: String
@@ -72,7 +73,7 @@ mutation {
         delete: MolgenisEditScope
         changeOwner: Boolean
         share: Boolean
-        selectScope: MolgenisViewScope
+        selectScope: MolgenisSelectScope
       }]
     }]
     members: [{ role: String!, user: String! }]
@@ -85,12 +86,11 @@ mutation {
 
 The `permissions` list inside a role is **replace-all**: it replaces the role's entire permission set for the listed (schema, table) pairs in one atomic operation. If `permissions` is absent, only the role definition (name, description) is created or updated.
 
-**Example — create a role, enable RLS, set SELECT=ALL + UPDATE=OWN, add a member**
+**Example — create a role, set SELECT=ALL + UPDATE=OWN (RLS auto-installed), add a member**
 
 ```graphql
 mutation {
   change(
-    tables: [{ schema: "trial_data", table: "Patients", rowLevelSecurity: true }]
     roles: [{
       name: "clinician"
       description: "Clinician read/own-update"
@@ -201,14 +201,20 @@ If the `schema` argument is provided, only permissions matching that schema (plu
 
 ---
 
-## RLS prerequisite
+## How RLS turns on
 
-Scopes `OWN` and `GROUP` on any verb require `rowLevelSecurity: true` on the target table. Setting those scopes without RLS causes the mutation to return `FAILED`. You can enable RLS in the same `change` call via the `tables` argument — the `tables` step runs before the `permissions` step, so a single call is sufficient.
+When an admin grants an OWN or GROUP scoped permission on a table for the first time, RLS is installed automatically. The install sequence is:
 
-Enabling RLS adds two columns to the table if they are not already present:
+1. Add `mg_owner text DEFAULT session_user` column (if absent).
+2. Add `mg_roles text[] NOT NULL DEFAULT '{}'` column (if absent).
+3. `ENABLE ROW LEVEL SECURITY` on the table.
+4. `FORCE ROW LEVEL SECURITY` on the table.
+5. Create a GIN index on `mg_roles` for `&&` / `<@` operator performance.
+6. Install the `mg_enforce_row_authorisation` BEFORE UPDATE trigger.
 
-- `mg_owner text DEFAULT session_user` — populated automatically on INSERT; identifies the row's owner.
-- `mg_roles text[] DEFAULT '{}'` — used for GROUP-scoped access; set explicitly by the inserting user.
+The install is idempotent — running it a second time on an already-RLS-enabled table is safe.
+
+Removing the last OWN or GROUP policy from a table (by clearing or replacing the role's permission set) drops the policies but keeps the infrastructure in place (`mg_owner`, `mg_roles`, trigger, RLS enabled, GIN index). The table remains in RLS mode until a full admin teardown. An admin who needs a full teardown must execute the DDL directly in PostgreSQL; there is no API for that in this version.
 
 The admin role carries the PostgreSQL `BYPASSRLS` attribute, so admin sessions always see all rows regardless of RLS policies.
 
@@ -236,12 +242,11 @@ POST /api/graphql
 { "query": "mutation { signin(email: \"admin\", password: \"admin\") { status } }" }
 ```
 
-**Step 2 — create role, enable RLS, set permissions, add member (one call)**
+**Step 2 — create role, set permissions (RLS auto-installed by OWN scope), add member (one call)**
 
 ```graphql
 mutation {
   change(
-    tables: [{ schema: "trial_data", table: "Patients", rowLevelSecurity: true }]
     roles: [{
       name: "clinician"
       description: "Clinician access"
@@ -325,6 +330,6 @@ The `trial_data / Patients` entry is gone.
 
 ## Known gaps
 
-- `MolgenisViewScope` values `COUNT`, `AGGREGATE`, `EXISTS`, and `RANGE` are declared in the GraphQL schema and visible in introspection, but the server throws an error if any of them is sent in a mutation (`selectScope` field). They are planned for a future release.
+- `MolgenisSelectScope` values `COUNT`, `AGGREGATE`, `EXISTS`, and `RANGE` are declared in the GraphQL schema and visible in introspection, but the server throws an error if any of them is sent in a mutation (`selectScope` field). They are planned for a future release.
 - The `permissions` list inside `change` performs a replace-all for the affected (schema, table) pairs rather than a diff-and-patch. Unchanged tables still receive the same DDL as changed ones. This is correct but does more work than necessary; a diff-and-patch optimisation is on the backlog.
 - When a fine-grained role is granted any permission in a schema, the schema-level `MG_ROLE_<schema>/Exists` role is automatically granted to it so the user can locate the schema. Revoking all permissions in that schema revokes the schema grant too.

@@ -1,8 +1,5 @@
 -- migration 32: fine-grained permissions (populated incrementally)
 
-ALTER TABLE "MOLGENIS"."table_metadata"
-    ADD COLUMN IF NOT EXISTS row_level_security BOOLEAN NOT NULL DEFAULT FALSE;
-
 CREATE OR REPLACE FUNCTION "MOLGENIS".current_user_roles()
 RETURNS text[]
 LANGUAGE sql

@@ -174,6 +174,13 @@ public class SqlPermissionExecutor {
     return row != null && Boolean.TRUE.equals(row.get("relrowsecurity", Boolean.class));
   }
 
+  public static void ensureRlsInstalled(DSLContext jooq, String schema, String table) {
+    if (!isRlsEnabled(jooq, schema, table)) {
+      enableRowLevelSecurity(jooq, schema, table);
+      installGuardTrigger(jooq, schema, table);
+    }
+  }
+
   public static void enableRowLevelSecurity(DSLContext jooq, String schema, String table) {
     String schemaTable = "\"" + schema + "\".\"" + table + "\"";
     jooq.execute(

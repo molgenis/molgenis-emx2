@@ -210,9 +210,7 @@ public class SqlRoleManager implements RoleManager {
     if (!database.isAdmin()) {
       throw new MolgenisException(ADMIN_ONLY);
     }
-    permissions.validateOrThrow(
-        tableRef ->
-            SqlPermissionExecutor.isRlsEnabled(jooq(), tableRef.schema(), tableRef.table()));
+    permissions.validateOrThrow();
     String pgRole = GLOBAL_ROLE_PG_PREFIX + role;
     database.tx(
         db -> {
@@ -390,6 +388,7 @@ public class SqlRoleManager implements RoleManager {
     if (scope == Scope.NONE) return;
     SqlPermissionExecutor.grantTablePrivilege(jooq, pgRole, schema, table, verb);
     if (scope == Scope.OWN || scope == Scope.GROUP) {
+      SqlPermissionExecutor.ensureRlsInstalled(jooq, schema, table);
       SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, scope);
     } else if (scope == Scope.ALL && SqlPermissionExecutor.isRlsEnabled(jooq, schema, table)) {
       SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, Scope.ALL);

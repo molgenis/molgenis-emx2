@@ -21,7 +21,6 @@ class SqlTableMetadataRlsTest {
 
   private static final SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
 
-  private SqlTableMetadata tm;
   private SqlRoleManager roleManager;
   private DSLContext jooq;
 
@@ -33,7 +32,6 @@ class SqlTableMetadataRlsTest {
     database.dropSchemaIfExists(TEST_SCHEMA);
     Schema schema = database.createSchema(TEST_SCHEMA);
     schema.create(table(TEST_TABLE).add(column("id").setType(ColumnType.INT).setKey(1)));
-    tm = (SqlTableMetadata) schema.getMetadata().getTableMetadata(TEST_TABLE);
     cleanupTestRole();
   }
 
@@ -45,34 +43,16 @@ class SqlTableMetadataRlsTest {
   }
 
   private void cleanupTestRole() {
-    jooq.execute("DROP ROLE IF EXISTS {0}", name(PG_ROLE));
+    boolean exists =
+        jooq.fetchExists(
+            jooq.select().from(name("pg_roles")).where(field("rolname").eq(inline(PG_ROLE))));
+    if (exists) {
+      roleManager.deleteRole(TEST_ROLE);
+    }
   }
 
   @Test
-  void enableBackfillsAndInstalls() {
-    tm.setRowLevelSecurity(true);
-
-    assertTrue(columnExists("mg_owner"), "mg_owner column should exist");
-    assertTrue(columnExists("mg_roles"), "mg_roles column should exist");
-
-    Record pgClass = fetchPgClass();
-    assertNotNull(pgClass, "pg_class row should exist");
-    assertTrue(
-        Boolean.TRUE.equals(pgClass.get("relrowsecurity", Boolean.class)),
-        "relrowsecurity should be true");
-    assertTrue(
-        Boolean.TRUE.equals(pgClass.get("relforcerowsecurity", Boolean.class)),
-        "relforcerowsecurity should be true");
-
-    assertTrue(ginIndexExists(), "GIN index on mg_roles should exist");
-    assertTrue(guardTriggerExists(), "guard trigger mg_enforce_row_authorisation should exist");
-    assertTrue(rlsPersistedInMetadata(), "row_level_security should be true in table_metadata");
-    assertTrue(tm.getRowLevelSecurity(), "in-memory flag should be true");
-  }
-
-  @Test
-  void disableBlockedWhenOwnGroupUsed() {
-    tm.setRowLevelSecurity(true);
+  void firstOwnGrantInstallsRls() {
     roleManager.createRole(TEST_ROLE, "rls test role");
 
     PermissionSet ps = new PermissionSet();
@@ -88,23 +68,110 @@ class SqlTableMetadataRlsTest {
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
 
-    MolgenisException ex =
-        assertThrows(MolgenisException.class, () -> tm.setRowLevelSecurity(false));
+    assertTrue(columnExists("mg_owner"), "mg_owner column should exist after OWN grant");
+    assertTrue(columnExists("mg_roles"), "mg_roles column should exist after OWN grant");
+
+    Record pgClass = fetchPgClass();
+    assertNotNull(pgClass, "pg_class row should exist");
     assertTrue(
-        ex.getMessage().toLowerCase().contains("own")
-            || ex.getMessage().toLowerCase().contains("group")
-            || ex.getMessage().toLowerCase().contains("rls"),
-        "Exception should mention own/group or rls, got: " + ex.getMessage());
+        Boolean.TRUE.equals(pgClass.get("relrowsecurity", Boolean.class)),
+        "relrowsecurity should be true after first OWN grant");
+    assertTrue(
+        Boolean.TRUE.equals(pgClass.get("relforcerowsecurity", Boolean.class)),
+        "relforcerowsecurity should be true after first OWN grant");
+
+    assertTrue(ginIndexExists(), "GIN index on mg_roles should exist after OWN grant");
+    assertTrue(guardTriggerExists(), "guard trigger mg_enforce_row_authorisation should exist");
+  }
+
+  @Test
+  void firstGroupGrantInstallsRls() {
+    roleManager.createRole(TEST_ROLE, "rls test role");
+
+    PermissionSet ps = new PermissionSet();
+    ps.put(
+        new TablePermission(
+            TEST_SCHEMA,
+            TEST_TABLE,
+            TablePermission.Scope.GROUP,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    roleManager.setPermissions(TEST_ROLE, ps);
+
+    assertTrue(columnExists("mg_owner"), "mg_owner column should exist after GROUP grant");
+    assertTrue(columnExists("mg_roles"), "mg_roles column should exist after GROUP grant");
+
+    Record pgClass = fetchPgClass();
+    assertNotNull(pgClass);
+    assertTrue(
+        Boolean.TRUE.equals(pgClass.get("relrowsecurity", Boolean.class)),
+        "relrowsecurity should be true after first GROUP grant");
+    assertTrue(ginIndexExists(), "GIN index should exist after GROUP grant");
+    assertTrue(guardTriggerExists(), "guard trigger should exist after GROUP grant");
+  }
+
+  @Test
+  void rlsInstallIdempotent() {
+    roleManager.createRole(TEST_ROLE, "rls test role");
+
+    PermissionSet ps = new PermissionSet();
+    ps.put(
+        new TablePermission(
+            TEST_SCHEMA,
+            TEST_TABLE,
+            TablePermission.Scope.OWN,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    assertDoesNotThrow(() -> roleManager.setPermissions(TEST_ROLE, ps), "first OWN grant");
+    assertDoesNotThrow(
+        () -> roleManager.setPermissions(TEST_ROLE, ps), "second OWN grant idempotent");
+
+    assertTrue(columnExists("mg_owner"));
+    assertTrue(ginIndexExists());
+  }
+
+  @Test
+  void lastOwnGroupRemovedDropsPoliciesKeepsRls() {
+    roleManager.createRole(TEST_ROLE, "rls test role");
+
+    PermissionSet ps = new PermissionSet();
+    ps.put(
+        new TablePermission(
+            TEST_SCHEMA,
+            TEST_TABLE,
+            TablePermission.Scope.OWN,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    roleManager.setPermissions(TEST_ROLE, ps);
+    assertTrue(policiesExistForRole(), "OWN policies should exist after grant");
 
     PermissionSet empty = new PermissionSet();
     roleManager.setPermissions(TEST_ROLE, empty);
 
-    assertDoesNotThrow(() -> tm.setRowLevelSecurity(false));
+    assertFalse(policiesExistForRole(), "Policies for role should be gone after clearing");
+
+    Record pgClass = fetchPgClass();
+    assertNotNull(pgClass);
+    assertTrue(
+        Boolean.TRUE.equals(pgClass.get("relrowsecurity", Boolean.class)),
+        "relrowsecurity should remain true (infrastructure stays after last policy removed)");
+    assertTrue(guardTriggerExists(), "guard trigger should remain after last policy removed");
+    assertTrue(columnExists("mg_owner"), "mg_owner column should remain");
+    assertTrue(columnExists("mg_roles"), "mg_roles column should remain");
+    assertTrue(ginIndexExists(), "GIN index should remain");
   }
 
   @Test
-  void disableSafeDropsPolicies() {
-    tm.setRowLevelSecurity(true);
+  void allScopeGrantDoesNotInstallRls() {
     roleManager.createRole(TEST_ROLE, "rls test role");
 
     PermissionSet ps = new PermissionSet();
@@ -120,34 +187,12 @@ class SqlTableMetadataRlsTest {
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
 
-    PermissionSet empty = new PermissionSet();
-    roleManager.setPermissions(TEST_ROLE, empty);
-
-    tm.setRowLevelSecurity(false);
-
     Record pgClass = fetchPgClass();
     assertNotNull(pgClass);
     assertFalse(
         Boolean.TRUE.equals(pgClass.get("relrowsecurity", Boolean.class)),
-        "relrowsecurity should be false after disable");
-
-    assertFalse(guardTriggerExists(), "guard trigger should be gone after disable");
-    assertFalse(policiesExistForTable(), "no MG_P policies should remain after disable");
-    assertFalse(ginIndexExists(), "GIN index should be dropped after disable");
-
-    assertTrue(columnExists("mg_owner"), "mg_owner column should still exist (dropColumns=false)");
-    assertTrue(columnExists("mg_roles"), "mg_roles column should still exist (dropColumns=false)");
-  }
-
-  @Test
-  void idempotent() {
-    assertDoesNotThrow(() -> tm.setRowLevelSecurity(true));
-    assertDoesNotThrow(() -> tm.setRowLevelSecurity(true));
-    assertTrue(tm.getRowLevelSecurity());
-
-    assertDoesNotThrow(() -> tm.setRowLevelSecurity(false));
-    assertDoesNotThrow(() -> tm.setRowLevelSecurity(false));
-    assertFalse(tm.getRowLevelSecurity());
+        "ALL scope should not trigger RLS install");
+    assertFalse(columnExists("mg_owner"), "mg_owner should not exist for ALL-only grant");
   }
 
   private boolean columnExists(String columnName) {
@@ -193,7 +238,7 @@ class SqlTableMetadataRlsTest {
                     .and(field("t.tgname").eq(inline("mg_enforce_row_authorisation")))));
   }
 
-  private boolean policiesExistForTable() {
+  private boolean policiesExistForRole() {
     return jooq.fetchExists(
         jooq.select()
             .from("pg_policies")
@@ -201,14 +246,6 @@ class SqlTableMetadataRlsTest {
                 field("schemaname")
                     .eq(inline(TEST_SCHEMA))
                     .and(field("tablename").eq(inline(TEST_TABLE)))
-                    .and(field("policyname").like(inline("MG_P_%")))));
-  }
-
-  private boolean rlsPersistedInMetadata() {
-    Record row =
-        jooq.fetchOne(
-            "SELECT row_level_security FROM \"MOLGENIS\".table_metadata WHERE table_schema = {0} AND table_name = {1}",
-            inline(TEST_SCHEMA), inline(TEST_TABLE));
-    return row != null && Boolean.TRUE.equals(row.get("row_level_security", Boolean.class));
+                    .and(field("policyname").like(inline("MG_P_" + TEST_ROLE + "_%")))));
   }
 }

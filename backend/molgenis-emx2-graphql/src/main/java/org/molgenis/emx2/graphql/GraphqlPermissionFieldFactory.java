@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.TablePermission.Scope;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -30,7 +28,7 @@ public class GraphqlPermissionFieldFactory {
   static final GraphQLEnumType selectScopeEnumType;
 
   static {
-    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisViewScope");
+    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
     for (TablePermission.ViewMode vm : TablePermission.ViewMode.values()) {
       builder.value(vm.name(), vm);
     }
@@ -163,23 +161,6 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
-  static final GraphQLInputObjectType inputTableRlsType =
-      GraphQLInputObjectType.newInputObject()
-          .name("MolgenisTableRlsInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name("schema")
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name("table")
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name("rowLevelSecurity")
-                  .type(Scalars.GraphQLBoolean))
-          .build();
-
   public GraphqlPermissionFieldFactory() {}
 
   static List<Map<String, Object>> permissionsToMaps(SqlRoleManager rm, String role) {
@@ -238,17 +219,6 @@ public class GraphqlPermissionFieldFactory {
     if (members == null) return;
     for (Map<String, Object> member : members) {
       rm.grantRoleToUser((String) member.get("role"), (String) member.get("user"));
-    }
-  }
-
-  static void applyTables(Database db, List<Map<String, Object>> tables) {
-    if (tables == null) return;
-    for (Map<String, Object> tableEntry : tables) {
-      String schemaName = (String) tableEntry.get("schema");
-      String tableName = (String) tableEntry.get("table");
-      boolean rls = Boolean.TRUE.equals(tableEntry.get("rowLevelSecurity"));
-      TableMetadata tableMetadata = db.getSchema(schemaName).getTable(tableName).getMetadata();
-      tableMetadata.setRowLevelSecurity(rls);
     }
   }
 

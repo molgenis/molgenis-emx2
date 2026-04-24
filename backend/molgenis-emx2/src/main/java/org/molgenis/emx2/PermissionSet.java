@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PermissionSet implements Iterable<TablePermission> {
@@ -30,7 +29,7 @@ public class PermissionSet implements Iterable<TablePermission> {
     return entries.values().iterator();
   }
 
-  public List<ValidationError> validate(Function<PermissionSet.TableRef, Boolean> isRlsEnabled) {
+  public List<ValidationError> validate() {
     List<ValidationError> errors = new ArrayList<>();
     for (TablePermission p : entries.values()) {
       String schema = p.schema();
@@ -47,27 +46,12 @@ public class PermissionSet implements Iterable<TablePermission> {
       if (p.share() && p.update().ordinal() < TablePermission.Scope.OWN.ordinal()) {
         errors.add(new ValidationError(schema, table, "share requires update"));
       }
-      if (!schema.equals("*") && !table.equals("*")) {
-        boolean needsRls =
-            p.select() == TablePermission.Scope.OWN
-                || p.select() == TablePermission.Scope.GROUP
-                || p.insert() == TablePermission.Scope.OWN
-                || p.insert() == TablePermission.Scope.GROUP
-                || p.update() == TablePermission.Scope.OWN
-                || p.update() == TablePermission.Scope.GROUP
-                || p.delete() == TablePermission.Scope.OWN
-                || p.delete() == TablePermission.Scope.GROUP;
-        if (needsRls && !Boolean.TRUE.equals(isRlsEnabled.apply(new TableRef(schema, table)))) {
-          errors.add(
-              new ValidationError(schema, table, "own/group scope requires row_level_security"));
-        }
-      }
     }
     return errors;
   }
 
-  public void validateOrThrow(Function<TableRef, Boolean> isRlsEnabled) {
-    List<ValidationError> errors = validate(isRlsEnabled);
+  public void validateOrThrow() {
+    List<ValidationError> errors = validate();
     if (!errors.isEmpty()) {
       String detail =
           errors.stream()

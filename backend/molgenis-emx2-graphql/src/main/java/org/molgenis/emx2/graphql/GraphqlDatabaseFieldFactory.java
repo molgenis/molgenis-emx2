@@ -240,8 +240,6 @@ public class GraphqlDatabaseFieldFactory {
         .argument(GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputRoleType)))
         .argument(
             GraphQLArgument.newArgument().name(MEMBERS).type(GraphQLList.list(inputRoleMemberType)))
-        .argument(
-            GraphQLArgument.newArgument().name("tables").type(GraphQLList.list(inputTableRlsType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               if (hasFineGrainedArgs(dataFetchingEnvironment) && !database.isAdmin()) {
@@ -255,7 +253,6 @@ public class GraphqlDatabaseFieldFactory {
                       changeSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
                       SqlRoleManager rm = ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
-                      applyTables(db, dataFetchingEnvironment.getArgument("tables"));
                       applyRoles(rm, dataFetchingEnvironment.getArgument(ROLES));
                       applyMembers(rm, dataFetchingEnvironment.getArgument(MEMBERS));
                     });
@@ -319,8 +316,7 @@ public class GraphqlDatabaseFieldFactory {
   private static boolean hasFineGrainedArgs(
       graphql.schema.DataFetchingEnvironment dataFetchingEnvironment) {
     return dataFetchingEnvironment.getArgument(ROLES) != null
-        || dataFetchingEnvironment.getArgument(MEMBERS) != null
-        || dataFetchingEnvironment.getArgument("tables") != null;
+        || dataFetchingEnvironment.getArgument(MEMBERS) != null;
   }
 
   public GraphQLFieldDefinition.Builder lastUpdateQuery(Database database) {

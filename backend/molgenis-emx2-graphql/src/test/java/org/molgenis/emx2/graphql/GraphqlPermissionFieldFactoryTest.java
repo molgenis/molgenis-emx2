@@ -243,37 +243,6 @@ class GraphqlPermissionFieldFactoryTest {
   }
 
   @Test
-  void changeTables_setsRls() throws IOException {
-    database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
-
-    String mutation =
-        "mutation{change(tables:[{schema:\""
-            + SCHEMA_NAME
-            + "\",table:\""
-            + TABLE_NAME
-            + "\",rowLevelSecurity:true}]){status message}}";
-    JsonNode result = executeQuery(mutation);
-    assertEquals("SUCCESS", result.at("/change/status").asText());
-
-    int rlsCount =
-        database
-            .getJooq()
-            .fetchCount(
-                org.jooq
-                    .impl
-                    .DSL
-                    .selectOne()
-                    .from("pg_class c")
-                    .join("pg_namespace n")
-                    .on("n.oid = c.relnamespace")
-                    .where("n.nspname = '" + SCHEMA_NAME + "'")
-                    .and("c.relname = '" + TABLE_NAME + "'")
-                    .and("c.relrowsecurity = true"));
-    assertTrue(rlsCount > 0, "RLS must be enabled after change(tables)");
-  }
-
-  @Test
   void nonAdminForbidden() throws IOException {
     database.setActiveUser(TEST_USER);
     executor = new GraphqlExecutor(database);

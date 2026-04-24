@@ -16,7 +16,6 @@ public class MigrationsTest {
     DSLContext jooq = database.getJooq();
 
     assertVersion33(database, jooq);
-    assertTableMetadataHasRlsColumn(jooq);
     assertCurrentUserRolesFunctionExists(jooq);
     assertAdminBypassRls(jooq);
     assertGuardTriggerFunctionExists(jooq);
@@ -24,7 +23,6 @@ public class MigrationsTest {
     Migrations.initOrMigrate(database);
 
     assertVersion33(database, jooq);
-    assertTableMetadataHasRlsColumn(jooq);
     assertCurrentUserRolesFunctionExists(jooq);
     assertAdminBypassRls(jooq);
     assertGuardTriggerFunctionExists(jooq);
@@ -34,19 +32,6 @@ public class MigrationsTest {
     assertEquals(33, Migrations.getSoftwareDatabaseVersion());
     int dbVersion = MetadataUtils.getVersion(jooq);
     assertEquals(33, dbVersion);
-  }
-
-  private void assertTableMetadataHasRlsColumn(DSLContext jooq) {
-    Record rlsCol =
-        jooq.fetchOne(
-            "SELECT is_nullable, column_default FROM information_schema.columns "
-                + "WHERE table_schema = 'MOLGENIS' AND table_name = 'table_metadata' "
-                + "AND column_name = 'row_level_security'");
-    assertNotNull(rlsCol, "table_metadata must have row_level_security column");
-    assertEquals("NO", rlsCol.get(0, String.class), "row_level_security must be NOT NULL");
-    String rlsDefault = rlsCol.get(1, String.class);
-    assertNotNull(rlsDefault, "row_level_security must have a DEFAULT");
-    assertTrue(rlsDefault.contains("false"), "row_level_security DEFAULT must be false");
   }
 
   private void assertCurrentUserRolesFunctionExists(DSLContext jooq) {

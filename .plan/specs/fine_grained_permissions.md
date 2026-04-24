@@ -13,7 +13,6 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
   - **all** — every row in the table.
 - **Built-in role** — system role (VIEWER, EDITOR, MANAGER, OWNER, AGGREGATOR, RANGE, EXISTS, COUNT); `isSystemRole()` flag on the `Role` record.
 - **Custom role** — admin-created, mutable.
-- **`row_level_security` flag** — boolean on `table_metadata`; own/group scopes only allowed when true.
 - **`SqlPermissionExecutor`** — static helpers under `org.molgenis.emx2.sql.rls`. Class is package-accessible within `.rls` (not truly package-private to `org.molgenis.emx2.sql`); `SqlRoleManager` in the parent package imports it. Modelled on `org.molgenis.emx2.sql.autoid.*` precedent. Not part of public API.
 
   Verb-to-PG-action naming convention:
@@ -35,8 +34,7 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
   - `setPermissions(role, permissionSet)` (replace-all semantics, v1)
   - `getPermissions(role): PermissionSet`
   - `getPermissionsForActiveUser(): PermissionSet`
-- `org.molgenis.emx2.sql.SqlRoleManager` — extends existing class, implements `RoleManager`. Legacy per-schema methods stay. `setPermissions` is used both by custom-role admin mutations AND by `SqlSchema.create` when installing built-ins (under schema-scoped role names). Internally it decides between GRANT and POLICY based on scope + table `row_level_security` flag; the emitter is a private concern.
-- `TableMetadata` gains `rowLevelSecurity: boolean` with getter/setter (setter triggers DDL via `SqlTable`).
+- `org.molgenis.emx2.sql.SqlRoleManager` — extends existing class, implements `RoleManager`. Legacy per-schema methods stay. `setPermissions` is used both by custom-role admin mutations AND by `SqlSchema.create` when installing built-ins (under schema-scoped role names). Internally it decides between GRANT and POLICY based on scope; OWN/GROUP scope triggers `ensureRlsInstalled` automatically. The emitter is a private concern.
 
 ## Data model
 
@@ -79,21 +77,18 @@ Primary key `(role_name, schema_pattern, table_pattern)`. Stores wildcard permis
 
 Note: `role_metadata` table was NOT implemented. Role descriptions are stored as `COMMENT ON ROLE` on the PG role. System-role flag is derived by `SqlRoleManager.isSystemRoleByName` from the built-in name list.
 
-### `table_metadata` schema change (migration 32)
-
-Add column `row_level_security BOOLEAN DEFAULT FALSE` alongside existing booleans.
-
 ### Migration 32 (`migration32.sql` in resources, bumps `SOFTWARE_DATABASE_VERSION` to 33)
 
 Resource path: `backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/migration32.sql`. Guard: `if (version < 33)`.
 
 DDL created by migration 32:
-- `ALTER TABLE MOLGENIS.table_metadata ADD COLUMN IF NOT EXISTS row_level_security BOOLEAN NOT NULL DEFAULT FALSE`
 - `CREATE OR REPLACE FUNCTION MOLGENIS.current_user_roles()` — STABLE; reads `molgenis.current_roles` GUC, falls back to `pg_auth_members` scan.
 - `ALTER ROLE "MG_USER_admin" BYPASSRLS` — non-transactional; idempotent on rerun.
 - `CREATE TABLE IF NOT EXISTS MOLGENIS.permission_attributes` (see above)
 - `CREATE TABLE IF NOT EXISTS MOLGENIS.role_wildcards` (see above)
 - `CREATE OR REPLACE FUNCTION MOLGENIS.mg_enforce_row_authorisation()` — BEFORE UPDATE trigger function enforcing `change_owner`/`share` constraints.
+
+Note: `table_metadata` has no `row_level_security` column — RLS state is derived from `pg_class.relrowsecurity` and is managed automatically by permission grants.
 
 ## Session role cache (`molgenis.current_roles` GUC)
 
@@ -141,7 +136,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 | `grantRoleToUser` = `GRANT MG_ROLE_<name> TO <user>` | `SqlRoleManager.grantRoleToUser` | `SqlRoleManagerTest#grantMembership` | n/a |
 | `revokeRoleFromUser` = `REVOKE MG_ROLE_<name> FROM <user>` | `SqlRoleManager.revokeRoleFromUser` | `SqlRoleManagerTest#revokeMembership` | n/a |
 | Only admin may invoke role mutation methods (v1) | `SqlRoleManager` admin guard | `SqlRoleManagerTest#nonAdminRejected` | n/a |
-| Migration 32 bumps `SOFTWARE_DATABASE_VERSION` to 33, creates `role_metadata`, adds `row_level_security` column, seeds built-ins, sets `BYPASSRLS` on admin | `Migrations.executeMigrationFile("migration32.sql", …)` | `MigrationsTest#migration32AppliesIdempotently` | n/a |
+| Migration 32 bumps `SOFTWARE_DATABASE_VERSION` to 33, creates `permission_attributes` and `role_wildcards`, installs `current_user_roles()`, sets `BYPASSRLS` on admin, creates `mg_enforce_row_authorisation` trigger function | `Migrations.executeMigrationFile("migration32.sql", …)` | `MigrationsTest#migration32AppliesIdempotently` | n/a |
 
 ### Permission CRUD + invariants
 
@@ -154,7 +149,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 | `update.scope > select.scope` → invariant error | `PermissionSet.validate` | `PermissionSetTest#updateRequiresRead` | n/a |
 | `changeOwner=true` requires `update ≥ own` | `PermissionSet.validate` | `PermissionSetTest#changeOwnerRequiresUpdate` | n/a |
 | `share=true` requires `update ≥ own` | `PermissionSet.validate` | `PermissionSetTest#shareRequiresUpdate` | n/a |
-| `own`/`group` scope on any verb requires target table has `row_level_security=true` | `PermissionSet.validate` (needs TableMetadata lookup) | `PermissionSetTest#ownGroupRequiresRlsFlag` | n/a |
+| `own`/`group` scope on any verb auto-installs RLS on the target table via `ensureRlsInstalled` | `SqlRoleManager.setPermissions` → `SqlPermissionExecutor.ensureRlsInstalled` | `SqlTableMetadataRlsTest#firstOwnGrantInstallsRls` | n/a |
 | Validation is server-side rejection; client-side auto-upgrade deferred to UI | `PermissionSet.validate` | `PermissionSetTest#serverRejectsInsteadOfUpgrading` | n/a |
 | `SqlRoleManager.setPermissions` uses **diff-and-patch**: reads current `PermissionSet` via `getPermissions(role)`, compares against payload, emits DROP/CREATE only for `(schema, table)` keys that changed. Unchanged entries → no DDL, no lock. Removed entries → drop only. Added entries → create only. | `SqlRoleManager.setPermissions` → SqlPermissionExecutor | `SqlRoleManagerTest#setPermissionsDiffPatchOnlyTouchesChanged` | n/a |
 | `SqlRoleManager.setPermissions` wraps the diff application in one JOOQ transaction; mid-save failure rolls back so role never observed in half-saved state | `SqlRoleManager.setPermissions` | `SqlRoleManagerTest#setPermissionsTransactional` | n/a |
@@ -166,15 +161,15 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 | Wildcard permission that genuinely changes N tables still takes `ACCESS EXCLUSIVE` on all N tables for the transaction duration; diff-and-patch only helps when tables are unchanged. Documented as a v1 limitation. | `SqlRoleManager.setPermissions` | n/a | n/a |
 | `scope='schema'` rejected in v1 | `PermissionSet.validate` or `SqlRoleManager.createRole` | `PermissionSetTest#schemaScopeDeferred` | n/a |
 
-### RLS flag lifecycle
+### RLS emergent lifecycle
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `TableMetadata.rowLevelSecurity` defaults false | `TableMetadata` | `TableMetadataTest#rlsFlagDefault` | n/a |
-| Setter true when flag was false: adds `mg_owner` (backfill from `mg_insertedBy`), `mg_roles` (empty array), `ENABLE ROW LEVEL SECURITY`, installs pending `MG_P` policies for roles that already had own/group configured, installs guard trigger `mg_enforce_row_authorisation` | `SqlTableMetadata.setRowLevelSecurity(true)` → SqlPermissionExecutor `enableRowLevelSecurity` | `SqlTableMetadataRlsTest#enableBackfillsAndInstalls` | n/a |
-| Setter false when any role has own/group on this table → rejected | `SqlTableMetadata.setRowLevelSecurity(false)` | `SqlTableMetadataRlsTest#disableBlockedWhenOwnGroupUsed` | n/a |
-| Setter false when safe: drops `MG_P_%` policies on table, drops guard trigger, `DISABLE ROW LEVEL SECURITY`; columns stay unless caller passes `dropColumns=true` | `SqlTableMetadata.setRowLevelSecurity(false)` → SqlPermissionExecutor `disableRowLevelSecurity` | `SqlTableMetadataRlsTest#disableSafeDropsPolicies` | n/a |
-| Flip operations idempotent | `SqlTableMetadata.setRowLevelSecurity` | `SqlTableMetadataRlsTest#idempotent` | n/a |
+| First OWN grant on a table auto-installs RLS: adds `mg_owner`, `mg_roles`, `ENABLE ROW LEVEL SECURITY`, `FORCE ROW LEVEL SECURITY`, GIN index, guard trigger `mg_enforce_row_authorisation` | `SqlRoleManager.setPermissions` → `SqlPermissionExecutor.ensureRlsInstalled` | `SqlTableMetadataRlsTest#firstOwnGrantInstallsRls` | n/a |
+| First GROUP grant on a table auto-installs RLS (same as OWN) | `SqlRoleManager.setPermissions` → `SqlPermissionExecutor.ensureRlsInstalled` | `SqlTableMetadataRlsTest#firstGroupGrantInstallsRls` | n/a |
+| `ensureRlsInstalled` is idempotent — calling twice does not error | `SqlPermissionExecutor.ensureRlsInstalled` | `SqlTableMetadataRlsTest#rlsInstallIdempotent` | n/a |
+| Removing last OWN/GROUP policy (by clearing role permissions) drops only the policies; `mg_owner`, `mg_roles`, trigger, RLS enabled, GIN index remain | `SqlRoleManager.setPermissions` (clear) | `SqlTableMetadataRlsTest#lastOwnGroupRemovedDropsPoliciesKeepsRls` | n/a |
+| ALL-scope grant does not trigger RLS install | `SqlRoleManager.setPermissions` | `SqlTableMetadataRlsTest#allScopeGrantDoesNotInstallRls` | n/a |
 
 ### GRANT / POLICY emission semantics (private to `SqlRoleManager`)
 
@@ -234,13 +229,12 @@ Follows the existing EMX2 pattern: **existing `change` and `drop` root mutations
 
 GraphQL enum types:
 - `MolgenisEditScope` — values: `NONE | OWN | GROUP | ALL` (edit-verb scopes for select/insert/update/delete)
-- `MolgenisViewScope` — values: `FULL | COUNT | AGGREGATE | EXISTS | RANGE` (view modality; only `FULL` enforced in v1)
+- `MolgenisSelectScope` — values: `FULL | COUNT | AGGREGATE | EXISTS | RANGE` (view modality; only `FULL` enforced in v1)
 
 Input types:
 - `MolgenisRoleInput { name: String!, description: String, permissions: [MolgenisPermissionInputFg!] }`
-- `MolgenisPermissionInputFg { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean, selectScope: MolgenisViewScope }`
+- `MolgenisPermissionInputFg { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean, selectScope: MolgenisSelectScope }`
 - `MolgenisRoleMemberInput { role: String!, user: String! }`
-- `MolgenisTableRlsInput { schema: String!, table: String!, rowLevelSecurity: Boolean! }`
 
 Output types:
 - `MolgenisRoleOutput { role, description, systemRole: Boolean, permissions: [MolgenisRolePermissionsOutput], members: [String] }`
@@ -264,12 +258,11 @@ Tests live in `org.molgenis.emx2.graphql.*`.
 | `change(roles: [{name, description, permissions:[...]}])` creates or updates custom role(s) with nested permission set; admin-only | `GraphqlDatabaseFieldFactory` → `GraphqlPermissionFieldFactory.applyRoles` → `SqlRoleManager.createOrUpdateRole` + `setPermissions` | `GraphqlPermissionFieldFactoryTest#changeRoleDefinitions_createsRole` | n/a |
 | `change(roles: [{name, permissions:[{schema, table, select, ...}]}])` replaces permission set for role | `GraphqlPermissionFieldFactory.applyPermissionsForRole` → `SqlRoleManager.setPermissions` | `GraphqlPermissionFieldFactoryTest#changePermissions_replaceAll` | n/a |
 | `change(members: [{role, user}])` grants role→user | `GraphqlPermissionFieldFactory.applyMembers` → `SqlRoleManager.grantRoleToUser` | `GraphqlPermissionFieldFactoryTest#changeMembers_grantsRole` | n/a |
-| `change(tables: [{schema, table, rowLevelSecurity}])` flips RLS flag | `GraphqlPermissionFieldFactory.applyTables` → `SqlTableMetadata.setRowLevelSecurity` | `GraphqlPermissionFieldFactoryTest#changeTables_setsRls` | n/a |
-| `change` with tables + roles + members in one call executes transactionally; order: tables → roles → members | `GraphqlDatabaseFieldFactory` wraps in `database.tx(...)` | `GraphqlPermissionsIT#fullScenario` | n/a |
+| `change` with roles + members in one call executes transactionally; order: roles → members; OWN/GROUP scopes in permissions auto-install RLS | `GraphqlDatabaseFieldFactory` wraps in `database.tx(...)` | `GraphqlPermissionsIT#fullScenario` | n/a |
 | `drop(roles: [String!])` deletes custom role(s); system roles rejected | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.deleteRole` | `GraphqlPermissionFieldFactoryTest#dropRoles_tombstonesRole` | n/a |
 | `drop(members: [{role, user}])` revokes role→user | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.revokeRoleFromUser` | `GraphqlPermissionFieldFactoryTest#dropMembers_revokesRole` | n/a |
 | Non-admin invoking `change` or `drop` with permission arguments receives `FAILED` result with "admin" message | `GraphqlDatabaseFieldFactory` admin guard | `GraphqlPermissionFieldFactoryTest#nonAdminForbidden` | n/a |
-| `selectScope` field in permission input accepts `MolgenisViewScope` values; only `FULL` is passed through in v1 | `GraphqlPermissionFieldFactory.applyPermissionsForRole` | implicit in mutation tests | n/a |
+| `selectScope` field in permission input accepts `MolgenisSelectScope` values; only `FULL` is passed through in v1 | `GraphqlPermissionFieldFactory.applyPermissionsForRole` | implicit in mutation tests | n/a |
 | End-to-end: single `change` call (tables + roles + members) → non-admin session → `_session.permissions` correct → SELECT/INSERT/UPDATE enforced per scope → `drop` cleans up | `GraphqlPermissionsIT` | `GraphqlPermissionsIT#fullScenario` | n/a |
 
 ## Out of scope (v1 — phases 1+2)
