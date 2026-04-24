@@ -466,14 +466,13 @@ describe("useFilters — hydrateNestedFilters", () => {
     } as any);
 
     const columns = ref([refColumn]);
-    const { nestedColumnMeta, hydrateNestedFilters } = useFilters(columns, {
+    const { nestedColumnMeta } = useFilters(columns, {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ["publisher.country"],
     });
 
-    await hydrateNestedFilters();
-    await nextTick();
+    await flushPromises();
 
     const meta = nestedColumnMeta.value.get("publisher.country");
     expect(meta?.label).toBe("Publisher → Country");
@@ -486,15 +485,23 @@ describe("useFilters — hydrateNestedFilters", () => {
     );
     vi.mocked(fetchTableMetadata).mockClear();
 
-    const columns = ref<IColumn[]>([]);
-    const { registerNestedColumn, hydrateNestedFilters } = useFilters(columns, {
+    const parentCol: IColumn = {
+      id: "a",
+      label: "A",
+      columnType: "REF",
+      refTableId: "ATable",
+    } as IColumn;
+
+    const rawColumns = ref<IColumn[]>([]);
+    const { registerNestedColumn } = useFilters(rawColumns, {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ["a.b"],
     });
 
     registerNestedColumn("a.b", { label: "A → B", columnType: "STRING" });
-    await hydrateNestedFilters();
+    rawColumns.value = [parentCol];
+    await flushPromises();
 
     expect(fetchTableMetadata).not.toHaveBeenCalled();
   });

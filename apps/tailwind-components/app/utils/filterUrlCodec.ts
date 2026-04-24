@@ -2,7 +2,7 @@ import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
 import { RANGE_TYPES } from "./filterTypes";
 
-const REF_TYPES = [
+const REF_TYPES = new Set([
   "REF",
   "REF_ARRAY",
   "REFBACK",
@@ -12,7 +12,7 @@ const REF_TYPES = [
   "MULTISELECT",
   "RADIO",
   "CHECKBOX",
-];
+]);
 
 const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
@@ -100,20 +100,15 @@ export function parseFilterValue(
 
   const columnType = column.columnType;
 
-  const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
-  if (ONTOLOGY_TYPES.includes(columnType)) {
-    if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
-      const values = urlValue.split(MULTI_VALUE_SEPARATOR);
-      return { operator: "equals", value: values };
-    }
-    return { operator: "equals", value: [urlValue] };
-  }
+  const MULTI_VALUE_TYPES = new Set([
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "BOOL",
+    "RADIO",
+    "CHECKBOX",
+  ]);
 
-  if (
-    columnType === "BOOL" ||
-    columnType === "RADIO" ||
-    columnType === "CHECKBOX"
-  ) {
+  if (MULTI_VALUE_TYPES.has(columnType)) {
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       return {
         operator: "equals",
@@ -123,7 +118,7 @@ export function parseFilterValue(
     return { operator: "equals", value: [urlValue] };
   }
 
-  if (REF_TYPES.includes(columnType)) {
+  if (REF_TYPES.has(columnType)) {
     const field = refField ?? "name";
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
@@ -214,7 +209,7 @@ export function serializeFiltersToUrl(
         column.columnType === "CHECKBOX"
       ) {
         params[key] = serialized;
-      } else if (REF_TYPES.includes(column.columnType)) {
+      } else if (REF_TYPES.has(column.columnType)) {
         const refField = extractRefField(value);
         params[`${key}.${refField}`] = serialized;
       } else {
@@ -254,7 +249,7 @@ export function parseFiltersFromUrl(
     let filterKey: string;
     let refField: string | null;
 
-    if (!REF_TYPES.includes(column.columnType) || segments.length === 1) {
+    if (!REF_TYPES.has(column.columnType) || segments.length === 1) {
       filterKey = key;
       refField = null;
     } else if (segments.length === 2) {

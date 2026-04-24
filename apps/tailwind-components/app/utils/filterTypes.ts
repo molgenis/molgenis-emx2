@@ -4,13 +4,13 @@ import type { CountedOption } from "./fetchCounts";
 
 export const MAX_NESTING_DEPTH = 5;
 
-export const REF_EXPANDABLE_TYPES = [
+export const REF_EXPANDABLE_TYPES = new Set([
   "REF",
   "REF_ARRAY",
   "SELECT",
   "MULTISELECT",
   "REFBACK",
-];
+]);
 
 export const COUNTABLE_TYPES = new Set([
   "ONTOLOGY",
@@ -74,8 +74,6 @@ const STRING_FILTER_TYPES = new Set([
   "AUTO_ID",
 ]);
 
-const REF_EXPANDABLE = new Set(REF_EXPANDABLE_TYPES);
-
 const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
 
 const DEFAULT_FILTER_TYPES = new Set([
@@ -101,7 +99,7 @@ export function isStringFilterType(ct: string): boolean {
 }
 
 export function isRefExpandable(ct: string): boolean {
-  return REF_EXPANDABLE.has(ct);
+  return REF_EXPANDABLE_TYPES.has(ct);
 }
 
 export function navDepth(ct: string): 1 | 2 {

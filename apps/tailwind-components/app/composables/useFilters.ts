@@ -28,7 +28,7 @@ import {
 } from "../utils/fetchCounts";
 import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
 import { BOOL_LABELS } from "../utils/filterConstants";
-import { arraysEqual, jsonEqual } from "../utils/compare";
+import { arraysEqual } from "../utils/compare";
 import fetchGraphql from "./fetchGraphql";
 import fetchTableMetadata from "./fetchTableMetadata";
 
@@ -138,6 +138,15 @@ export function useFilters(
     router.replace({ query: { ...preserved, ...filterParams } });
   }
 
+  function commit(newFilters: Map<string, IFilterValue>, newSearch: string) {
+    if (urlSyncEnabled) {
+      updateUrl(newFilters, newSearch);
+    } else {
+      filterStatesRef.value = newFilters;
+      searchValueRef.value = newSearch;
+    }
+  }
+
   function setFilter(columnId: string, value: IFilterValue | null) {
     const current = new Map(filterStates.value);
     if (value === null) {
@@ -145,11 +154,7 @@ export function useFilters(
     } else {
       current.set(columnId, value);
     }
-    if (urlSyncEnabled) {
-      updateUrl(current, searchValue.value);
-    } else {
-      filterStatesRef.value = current;
-    }
+    commit(current, searchValue.value);
   }
 
   function removeFilter(columnId: string) {
@@ -157,20 +162,11 @@ export function useFilters(
   }
 
   function setSearch(value: string) {
-    if (urlSyncEnabled) {
-      updateUrl(filterStates.value, value);
-    } else {
-      searchValueRef.value = value;
-    }
+    commit(filterStates.value, value);
   }
 
   function clearFilters() {
-    if (urlSyncEnabled) {
-      updateUrl(new Map(), "");
-    } else {
-      filterStatesRef.value = new Map();
-      searchValueRef.value = "";
-    }
+    commit(new Map(), "");
   }
 
   const columnTypeMap = computed(() => {
@@ -181,7 +177,7 @@ export function useFilters(
     return map;
   });
 
-  const gqlFilterRaw = computed<IGraphQLFilter>(() =>
+  const gqlFilter = computed<IGraphQLFilter>(() =>
     buildGraphQLFilter(
       filterStates.value,
       columns.value,
@@ -189,14 +185,6 @@ export function useFilters(
       columnTypeMap.value
     )
   );
-
-  let lastGqlFilter: IGraphQLFilter = {};
-  const gqlFilter = computed<IGraphQLFilter>(() => {
-    const next = gqlFilterRaw.value;
-    if (jsonEqual(next, lastGqlFilter)) return lastGqlFilter;
-    lastGqlFilter = next;
-    return next;
-  });
 
   const activeFilters = computed<ActiveFilter[]>(() => {
     const result: ActiveFilter[] = [];
@@ -489,13 +477,6 @@ export function useFilters(
     return buildGraphQLFilter(crossStates, columns.value, searchValue.value);
   }
 
-  function resolveColumnType(columnId: string): string | null {
-    const direct = columns.value.find((c) => c.id === columnId);
-    if (direct) return direct.columnType;
-    const nested = nestedColumnMeta.value.get(columnId);
-    return nested?.columnType ?? null;
-  }
-
   function resolveColumn(columnId: string): IColumn | null {
     const direct = columns.value.find((c) => c.id === columnId);
     if (direct) return direct;
@@ -507,36 +488,13 @@ export function useFilters(
       label: nested.label,
       refTableId: nested.refTableId ?? undefined,
       refSchemaId: nested.refSchemaId ?? undefined,
+      refLabel: nested.refLabel ?? undefined,
     } as IColumn;
   }
 
-  function resolveColumnRefInfo(columnId: string): {
-    refTableId: string | null;
-    refSchemaId: string | null;
-  } {
-    const direct = columns.value.find((c) => c.id === columnId);
-    if (direct) {
-      return {
-        refTableId: direct.refTableId ?? null,
-        refSchemaId: direct.refSchemaId ?? null,
-      };
-    }
-    const nested = nestedColumnMeta.value.get(columnId);
-    return {
-      refTableId: nested?.refTableId ?? null,
-      refSchemaId: nested?.refSchemaId ?? null,
-    };
-  }
-
-  function resolveRefLabel(columnId: string): string | null {
-    const direct = columns.value.find((c) => c.id === columnId);
-    if (direct) return direct.refLabel ?? direct.refLabelDefault ?? null;
-    const nested = nestedColumnMeta.value.get(columnId);
-    return nested?.refLabel ?? null;
-  }
-
   async function fetchColumnCounts(columnId: string, useBase = false) {
-    const columnType = resolveColumnType(columnId);
+    const col = resolveColumn(columnId);
+    const columnType = col?.columnType ?? null;
     if (!columnType || !isCountableType(columnType)) return;
 
     const prior = abortControllers.get(columnId);
@@ -550,8 +508,9 @@ export function useFilters(
 
     try {
       const crossFilter = useBase ? {} : buildCrossFilter(columnId);
-      const { refTableId, refSchemaId } = resolveColumnRefInfo(columnId);
-      const refLabel = resolveRefLabel(columnId);
+      const refTableId = col?.refTableId ?? null;
+      const refSchemaId = col?.refSchemaId ?? null;
+      const refLabel = col?.refLabel ?? col?.refLabelDefault ?? null;
       const signalledFetcher = (
         sId: string,
         query: string,
@@ -610,7 +569,7 @@ export function useFilters(
 
   async function fetchAllBaseCounts() {
     const countableIds = visibleFilterIds.value.filter((id) => {
-      const colType = resolveColumnType(id);
+      const colType = resolveColumn(id)?.columnType ?? null;
       return colType && isCountableType(colType);
     });
 
@@ -618,7 +577,7 @@ export function useFilters(
 
     if (!userHasCustomized.value) {
       visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
-        const colType = resolveColumnType(id);
+        const colType = resolveColumn(id)?.columnType ?? null;
         if (!colType || !isCountableType(colType)) return true;
         const base = baseCounts.value.get(id);
         if (!base) return true;
@@ -633,7 +592,7 @@ export function useFilters(
 
   const debouncedRefetchCounts = useDebounceFn(async () => {
     const countableIds = visibleFilterIds.value.filter((id) => {
-      const colType = resolveColumnType(id);
+      const colType = resolveColumn(id)?.columnType ?? null;
       return colType && isCountableType(colType);
     });
     await Promise.all(countableIds.map((id) => fetchColumnCounts(id, false)));
@@ -711,7 +670,6 @@ export function useFilters(
     tableId,
     toggleCollapse,
     isCollapsed,
-    hydrateNestedFilters,
   };
 }
 

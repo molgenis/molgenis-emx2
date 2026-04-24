@@ -11,18 +11,85 @@ import type { ITreeNode } from "../../../types/types";
 import {
   isCountableType,
   isRangeType,
-  isRefFilterType,
+  filterValueToTreeSelection,
+  treeSelectionToFilterValue,
 } from "../../utils/filterTypes";
-import {
-  applyCollapseView,
-  countAllNodes,
-  filterOptionsBySearch,
-} from "../../utils/applyCollapseView";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+
+function hasNonZeroDescendant(node: CountedOption): boolean {
+  if (!node.children || node.children.length === 0) return false;
+  return node.children.some(
+    (child) => child.count > 0 || hasNonZeroDescendant(child)
+  );
+}
+
+function pruneZeros(nodes: CountedOption[]): CountedOption[] {
+  return nodes
+    .filter((node) => node.count > 0 || hasNonZeroDescendant(node))
+    .map((node) => ({
+      ...node,
+      children:
+        node.children && node.children.length > 0
+          ? pruneZeros(node.children)
+          : node.children,
+    }));
+}
+
+function countAllNodes(nodes: CountedOption[]): number {
+  let total = 0;
+  for (const node of nodes) {
+    total += 1;
+    if (node.children && node.children.length > 0) {
+      total += countAllNodes(node.children);
+    }
+  }
+  return total;
+}
+
+function applyCollapseView(
+  options: CountedOption[],
+  { hideZero, limit }: { hideZero: boolean; limit: number | null }
+): CountedOption[] {
+  const afterZeroFilter = hideZero ? pruneZeros(options) : options;
+  if (limit === null) return afterZeroFilter;
+  if (afterZeroFilter.length <= limit) return afterZeroFilter;
+  return afterZeroFilter.slice(0, limit);
+}
+
+function nodeMatchesQuery(node: CountedOption, query: string): boolean {
+  const lower = query.toLowerCase();
+  const label = (node.label ?? node.name).toLowerCase();
+  return label.includes(lower);
+}
+
+function filterNode(node: CountedOption, query: string): CountedOption | null {
+  const selfMatches = nodeMatchesQuery(node, query);
+  const filteredChildren = (node.children ?? [])
+    .map((child) => filterNode(child, query))
+    .filter((child): child is CountedOption => child !== null);
+
+  if (selfMatches) {
+    return { ...node, children: node.children ? node.children : undefined };
+  }
+  if (filteredChildren.length > 0) {
+    return { ...node, children: filteredChildren };
+  }
+  return null;
+}
+
+function filterOptionsBySearch(
+  options: CountedOption[],
+  query: string
+): CountedOption[] {
+  if (!query) return options;
+  return options
+    .map((node) => filterNode(node, query))
+    .filter((node): node is CountedOption => node !== null);
+}
 
 const SHOW_MORE_THRESHOLD = 25;
 const SHOW_MORE_STEP = 50;
@@ -112,57 +179,6 @@ function countedOptionToTreeNode(option: CountedOption): ITreeNode {
 const treeNodes = computed<ITreeNode[]>(() =>
   visibleOptions.value.map(countedOptionToTreeNode)
 );
-
-function filterValueToTreeSelection(
-  filterValue: IFilterValue | undefined
-): string[] {
-  if (!filterValue || filterValue.operator !== "equals") return [];
-  const val = filterValue.value;
-  if (!Array.isArray(val)) {
-    if (typeof val === "string") return [val];
-    return [];
-  }
-  return val
-    .filter((value) => value !== null && value !== undefined)
-    .map((value) => {
-      if (typeof value === "object" && value !== null) {
-        const values = Object.values(value as Record<string, unknown>);
-        return values.length === 1
-          ? String(values[0])
-          : values.map(String).join(", ");
-      }
-      return String(value);
-    });
-}
-
-function treeSelectionToFilterValue(
-  selected: string[],
-  column: IColumn,
-  options: CountedOption[]
-): IFilterValue | undefined {
-  if (selected.length === 0) return undefined;
-
-  if (
-    isRefFilterType(column.columnType) &&
-    options.length > 0 &&
-    options[0]?.keyObject !== undefined
-  ) {
-    const firstKey = options[0].keyObject!;
-    const isComposite = Object.keys(firstKey).length > 1;
-    if (isComposite) {
-      const optionsByName = new Map(
-        options.map((option) => [option.name, option])
-      );
-      const values = selected.map((name) => {
-        const option = optionsByName.get(name);
-        return (option?.keyObject ?? { name }) as Record<string, unknown>;
-      });
-      return { operator: "equals", value: values as columnValue };
-    }
-  }
-
-  return { operator: "equals", value: selected };
-}
 
 const treeSelection = computed(() =>
   filterValueToTreeSelection(props.modelValue)

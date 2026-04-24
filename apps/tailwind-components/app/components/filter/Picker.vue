@@ -22,9 +22,7 @@ interface PickerNode {
   description?: string | null;
   selectable: boolean;
   depth: number;
-  refTableId?: string | null;
-  refSchemaId?: string | null;
-  columnType: string;
+  column: IColumn;
 }
 
 interface NestedColumnMeta {
@@ -97,13 +95,13 @@ async function loadRefColumns(col: IColumn, path: string): Promise<void> {
   }
 }
 
-function toggleExpand(node: PickerNode, col: IColumn) {
+function toggleExpand(node: PickerNode) {
   const newExpanded = new Set(expandedRefs.value);
   if (newExpanded.has(node.id)) {
     newExpanded.delete(node.id);
   } else {
     newExpanded.add(node.id);
-    loadRefColumns(col, node.id);
+    loadRefColumns(node.column, node.id);
   }
   expandedRefs.value = newExpanded;
 }
@@ -132,9 +130,7 @@ function buildNodes(
           description: col.description,
           selectable: false,
           depth,
-          refTableId: col.refTableId,
-          refSchemaId: col.refSchemaId ?? null,
-          columnType: col.columnType,
+          column: col,
         };
 
         const childNodes = expandedRefs.value.has(path)
@@ -156,23 +152,11 @@ function buildNodes(
           description: col.description,
           selectable: true,
           depth,
-          refTableId: col.refTableId ?? null,
-          refSchemaId: col.refSchemaId ?? null,
-          columnType: col.columnType,
+          column: col,
         } satisfies PickerNode,
       ];
     });
 }
-
-const rootColsMap = computed<Map<string, IColumn>>(() => {
-  const map = new Map<string, IColumn>();
-  for (const col of props.columns) {
-    if (isRefExpandable(col.columnType) && col.refTableId) {
-      map.set(col.id, col);
-    }
-  }
-  return map;
-});
 
 const parentTableId = computed(() => props.columns[0]?.table ?? "");
 
@@ -227,9 +211,9 @@ function buildNestedMeta(): Map<string, NestedColumnMeta> {
     });
     meta.set(id, {
       label: labelParts.join(" → "),
-      columnType: node.columnType,
-      refTableId: node.refTableId,
-      refSchemaId: node.refSchemaId,
+      columnType: node.column.columnType,
+      refTableId: node.column.refTableId,
+      refSchemaId: node.column.refSchemaId ?? null,
     });
   }
   return meta;
@@ -263,27 +247,6 @@ function selectAll() {
     .map((node) => node.id);
   localSelection.value = new Set(selectableIds);
 }
-
-function getRefColForNode(node: PickerNode): IColumn | undefined {
-  const topId = node.id.split(".")[0];
-  if (!topId) return undefined;
-
-  if (node.depth === 0) {
-    return rootColsMap.value.get(topId);
-  }
-
-  const segments = node.id.split(".");
-  let currentCols: IColumn[] = props.columns;
-  for (let i = 0; i < segments.length - 1; i++) {
-    const seg = segments[i];
-    const found = currentCols.find((c) => c.id === seg);
-    if (!found) return undefined;
-    const parentPath = segments.slice(0, i + 1).join(".");
-    currentCols = refColumnsCache.value.get(parentPath) ?? [];
-  }
-  const lastSeg = segments[segments.length - 1];
-  return currentCols.find((c) => c.id === lastSeg);
-}
 </script>
 
 <template>
@@ -315,7 +278,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                 type="button"
                 class="flex items-center gap-1.5 text-left cursor-pointer hover:underline flex-1 min-w-0"
                 :aria-expanded="expandedRefs.has(node.id)"
-                @click="toggleExpand(node, getRefColForNode(node)!)"
+                @click="toggleExpand(node)"
               >
                 <BaseIcon
                   name="caret-right"
@@ -325,9 +288,9 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                 />
                 <span class="font-medium">{{ node.label }}</span>
                 <span
-                  v-if="!loadingRefs.has(node.id) && node.refTableId"
+                  v-if="!loadingRefs.has(node.id) && node.column.refTableId"
                   class="text-xs text-disabled"
-                  >&rarr; {{ node.refTableId }}</span
+                  >&rarr; {{ node.column.refTableId }}</span
                 >
                 <span
                   v-if="loadingRefs.has(node.id)"
@@ -335,7 +298,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                   >Loading...</span
                 >
               </button>
-              <Well class="shrink-0 text-xs">{{ node.columnType }}</Well>
+              <Well class="shrink-0 text-xs">{{ node.column.columnType }}</Well>
             </div>
 
             <label
@@ -367,7 +330,7 @@ function getRefColForNode(node: PickerNode): IColumn | undefined {
                   </span>
                 </div>
               </div>
-              <Well class="shrink-0 text-xs">{{ node.columnType }}</Well>
+              <Well class="shrink-0 text-xs">{{ node.column.columnType }}</Well>
             </label>
           </li>
         </ul>
