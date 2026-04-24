@@ -36,7 +36,7 @@
     />
 
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px" v-on:scroll.native="handleStickyHeaderOffset">
-       <table id="table-header-static" ref="table-header-static" :class="{'hidden': !showStickyHeader}" class="border text-left w-full table-fixed fixed top-[59px] z-10 bg-table"> <!-- temp note: 59px is the height of the header, need to make dynamic -->
+       <table id="table-header-static" ref="table-header-static" :class="{'hidden': !showStickyHeader}" class="border text-left w-full table-fixed fixed top-0 z-10 bg-table">
         <thead>
           <tr>
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
@@ -381,7 +381,7 @@ const { data, refresh } = useAsyncData(
     window.addEventListener('scroll', (event) => {
         const { top } = tableContainer?.value.getBoundingClientRect();
         console.log("y-axis: " + top);
-        showStickyHeader.value = top <= 59;
+        showStickyHeader.value = top <= 0;
     });
   }
   function handleStickyHeaderOffset(event: Event) {
