@@ -95,6 +95,62 @@ describe("Tree", () => {
     });
   });
 
+  describe("disableInternalSearch prop", () => {
+    it("renders internal search by default when >25 nodes", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: makeLargeHierarchicalNodes(),
+          modelValue: [],
+        },
+      });
+      expect(
+        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
+      ).toBe(true);
+    });
+
+    it("renders internal search by default when tree has children", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: makeSmallHierarchicalNodes(),
+          modelValue: [],
+        },
+      });
+      expect(
+        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
+      ).toBe(true);
+    });
+
+    it("suppresses internal search when disableInternalSearch is true, even with >25 nodes", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: makeLargeHierarchicalNodes(),
+          modelValue: [],
+          disableInternalSearch: true,
+        },
+      });
+      expect(
+        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
+      ).toBe(false);
+    });
+
+    it("suppresses internal search when disableInternalSearch is true, even with children", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: makeSmallHierarchicalNodes(),
+          modelValue: [],
+          disableInternalSearch: true,
+        },
+      });
+      expect(
+        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
+      ).toBe(false);
+    });
+  });
+
   describe("preserve expand state across node rebuilds", () => {
     it("preserves expand state when nodes prop changes", async () => {
       const initialNodes = makeSmallHierarchicalNodes();

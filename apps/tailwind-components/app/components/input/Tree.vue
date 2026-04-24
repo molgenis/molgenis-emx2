@@ -22,12 +22,15 @@ const props = withDefaults(
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
     emitSelectedChildren?: boolean;
+    /* suppress internal search when search is handled by a parent component */
+    disableInternalSearch?: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
     inverted: false,
     emitSelectedChildren: true,
+    disableInternalSearch: false,
   }
 );
 
@@ -287,7 +290,9 @@ function hasAnyChildren(nodes: ITreeNode[]): boolean {
 }
 
 const showSearch = computed(
-  () => countAllNodes(props.nodes) > 25 || hasAnyChildren(props.nodes)
+  () =>
+    !props.disableInternalSearch &&
+    (countAllNodes(props.nodes) > 25 || hasAnyChildren(props.nodes))
 );
 </script>
 

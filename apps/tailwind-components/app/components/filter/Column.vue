@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type {
   IColumn,
   CellValueType,
@@ -13,17 +13,26 @@ import {
   isRangeType,
   isRefFilterType,
 } from "../../utils/filterTypes";
+import {
+  applyCollapseView,
+  countAllNodes,
+  filterOptionsBySearch,
+} from "../../utils/applyCollapseView";
 import Tree from "../input/Tree.vue";
 import FilterRange from "./Range.vue";
 import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 
+const SHOW_MORE_THRESHOLD = 25;
+const SHOW_MORE_STEP = 50;
+
 const props = defineProps<{
   column: IColumn;
   options: CountedOption[];
   modelValue: IFilterValue | undefined;
   loading: boolean;
+  saturated?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -37,6 +46,59 @@ const rangeInputType = computed(
 );
 const treeId = computed(() => `filter-tree-${props.column.id}`);
 
+const visibleRootCount = ref(SHOW_MORE_THRESHOLD);
+const localSearch = ref("");
+
+const totalOptionCount = computed(() => countAllNodes(props.options));
+const rootOptionCount = computed(() => props.options.length);
+
+const showSearchInput = computed(
+  () => isCountable.value && totalOptionCount.value > SHOW_MORE_THRESHOLD
+);
+
+const showMoreButton = computed(
+  () => rootOptionCount.value > SHOW_MORE_THRESHOLD && !localSearch.value
+);
+
+const isFullyExpanded = computed(
+  () => visibleRootCount.value >= rootOptionCount.value
+);
+
+const showMoreLabel = computed(() => {
+  if (isFullyExpanded.value) return "Show less";
+  const remaining = rootOptionCount.value - visibleRootCount.value;
+  if (remaining >= SHOW_MORE_STEP) return `Show more (+${SHOW_MORE_STEP})`;
+  return `Show ${remaining} more`;
+});
+
+const visibleOptions = computed<CountedOption[]>(() => {
+  if (!isCountable.value) return props.options;
+  if (localSearch.value) {
+    return filterOptionsBySearch(props.options, localSearch.value);
+  }
+  return applyCollapseView(props.options, {
+    hideZero: !isFullyExpanded.value,
+    limit: isFullyExpanded.value ? null : visibleRootCount.value,
+  });
+});
+
+function onShowMoreClick() {
+  if (isFullyExpanded.value) {
+    visibleRootCount.value = SHOW_MORE_THRESHOLD;
+  } else {
+    visibleRootCount.value = Math.min(
+      visibleRootCount.value + SHOW_MORE_STEP,
+      rootOptionCount.value
+    );
+  }
+}
+
+watch(localSearch, (newVal, oldVal) => {
+  if (oldVal && !newVal) {
+    visibleRootCount.value = SHOW_MORE_THRESHOLD;
+  }
+});
+
 function countedOptionToTreeNode(option: CountedOption): ITreeNode {
   return {
     ...option,
@@ -48,7 +110,7 @@ function countedOptionToTreeNode(option: CountedOption): ITreeNode {
 }
 
 const treeNodes = computed<ITreeNode[]>(() =>
-  props.options.map(countedOptionToTreeNode)
+  visibleOptions.value.map(countedOptionToTreeNode)
 );
 
 function filterValueToTreeSelection(
@@ -156,13 +218,47 @@ function onSearchInput(val: string | number) {
     />
 
     <template v-else-if="isCountable">
+      <span
+        v-if="saturated"
+        class="block text-body-sm text-search-filter-group-title italic mb-2"
+      >
+        too many options, please search
+      </span>
+
+      <InputSearch
+        v-if="showSearchInput"
+        v-model="localSearch"
+        :id="`filter-search-${column.id}`"
+        :placeholder="`Search ${column.label || column.id}...`"
+        :aria-label="`Search within ${column.label || column.id}`"
+        size="tiny"
+        class="mb-2"
+      />
+
+      <TextNoResultsMessage
+        v-if="localSearch && visibleOptions.length === 0"
+        label="No matching values for this filter"
+        class="!text-search-filter-group-title"
+      />
+
       <Tree
+        v-else
         :id="treeId"
         :nodes="treeNodes"
         :modelValue="treeSelection"
         :isMultiSelect="true"
+        :disableInternalSearch="true"
         @update:modelValue="onTreeSelectionChange"
       />
+
+      <button
+        v-if="showMoreButton"
+        type="button"
+        class="text-body-sm text-search-filter-expand hover:underline cursor-pointer mt-1"
+        @click="onShowMoreClick"
+      >
+        {{ showMoreLabel }}
+      </button>
     </template>
 
     <template v-else-if="isRange">

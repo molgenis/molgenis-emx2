@@ -21,7 +21,11 @@ import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
 } from "../utils/filterUrlCodec";
-import { fetchCounts, type CountedOption } from "../utils/fetchCounts";
+import {
+  fetchCounts,
+  type CountedOption,
+  type FetchCountsResult,
+} from "../utils/fetchCounts";
 import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
 import { BOOL_LABELS } from "../utils/filterConstants";
 import { arraysEqual, jsonEqual } from "../utils/compare";
@@ -454,6 +458,8 @@ export function useFilters(
   const countsMap = shallowRef<Map<string, CountedOption[]>>(new Map());
   const loadingSet = shallowRef<Set<string>>(new Set());
   const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());
+  const saturatedMap = shallowRef<Map<string, boolean>>(new Map());
+  const abortControllers = new Map<string, AbortController>();
 
   function mergeWithBaseCounts(
     base: CountedOption[],
@@ -533,6 +539,11 @@ export function useFilters(
     const columnType = resolveColumnType(columnId);
     if (!columnType || !isCountableType(columnType)) return;
 
+    const prior = abortControllers.get(columnId);
+    if (prior) prior.abort();
+    const controller = new AbortController();
+    abortControllers.set(columnId, controller);
+
     const newLoading = new Set(loadingSet.value);
     newLoading.add(columnId);
     loadingSet.value = newLoading;
@@ -541,17 +552,30 @@ export function useFilters(
       const crossFilter = useBase ? {} : buildCrossFilter(columnId);
       const { refTableId, refSchemaId } = resolveColumnRefInfo(columnId);
       const refLabel = resolveRefLabel(columnId);
-      const results = await fetchCounts(
+      const signalledFetcher = (
+        sId: string,
+        query: string,
+        variables: any
+      ): Promise<any> =>
+        fetchGraphql(sId, query, variables, { signal: controller.signal });
+
+      const result: FetchCountsResult = await fetchCounts(
         schemaId,
         tableId,
         columnId,
         columnType,
         crossFilter,
-        fetchGraphql,
+        signalledFetcher,
         refTableId,
         refSchemaId,
         refLabel
       );
+
+      const { options: results, saturated } = result;
+
+      const newSaturated = new Map(saturatedMap.value);
+      newSaturated.set(columnId, saturated);
+      saturatedMap.value = newSaturated;
 
       let merged = results;
       if (!useBase) {
@@ -569,6 +593,10 @@ export function useFilters(
         const newBase = new Map(baseCounts.value);
         newBase.set(columnId, results);
         baseCounts.value = newBase;
+      }
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        console.error(`fetchColumnCounts failed for ${columnId}:`, err);
       }
     } finally {
       const newLoading = new Set(loadingSet.value);
@@ -654,6 +682,10 @@ export function useFilters(
     return computed(() => loadingSet.value.has(columnId));
   }
 
+  function isSaturated(columnId: string): ComputedRef<boolean> {
+    return computed(() => saturatedMap.value.get(columnId) === true);
+  }
+
   return {
     filterStates,
     searchValue,
@@ -669,6 +701,8 @@ export function useFilters(
     resetFilters,
     getCountedOptions,
     isCountLoading,
+    isSaturated,
+    saturatedMap,
     nestedColumnMeta,
     registerNestedColumn,
     schemaId,

@@ -43,10 +43,10 @@ describe("fetchCounts - nested dotted paths (ONTOLOGY)", () => {
     expect(query).toContain("self {");
     expect(query).toContain("ontologySmallType { name label parent { name } }");
     expect(query).not.toContain("self.ontologySmallType");
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("typeA");
-    expect(result[0].children).toHaveLength(1);
-    expect(result[0].children![0].name).toBe("typeB");
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("typeA");
+    expect(result.options[0].children).toHaveLength(1);
+    expect(result.options[0].children![0].name).toBe("typeB");
   });
 });
 
@@ -68,7 +68,7 @@ describe("fetchCounts - nested dotted paths (BOOL)", () => {
     const query: string = fetcher.mock.calls[0][1];
     expect(query).toContain("self { active }");
     expect(query).not.toContain("self.active");
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "true", label: "Yes", count: 5 },
       { name: "false", label: "No", count: 3 },
       { name: "_null_", label: "Not set", count: 0 },
@@ -101,7 +101,7 @@ describe("fetchCounts - RADIO with key field expansion", () => {
 
     const query: string = fetcher.mock.calls[0][1];
     expect(query).toContain("status { name }");
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "active", keyObject: { name: "active" }, count: 7 },
       { name: "inactive", keyObject: { name: "inactive" }, count: 1 },
     ]);
@@ -129,7 +129,7 @@ describe("fetchCounts - RADIO with key field expansion", () => {
       null
     );
 
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "A, 1", keyObject: { id: "A", code: "1" }, count: 5 },
       { name: "B, 2", keyObject: { id: "B", code: "2" }, count: 3 },
     ]);
@@ -150,11 +150,11 @@ describe("fetchCounts - RADIO with key field expansion", () => {
       fetcher
     );
 
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "active", count: 7 },
       { name: "inactive", count: 1 },
     ]);
-    expect(result[0]).not.toHaveProperty("keyObject");
+    expect(result.options[0]).not.toHaveProperty("keyObject");
   });
 
   it("filters out null responses", async () => {
@@ -179,8 +179,8 @@ describe("fetchCounts - RADIO with key field expansion", () => {
       null
     );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("A");
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("A");
   });
 });
 
@@ -201,7 +201,7 @@ describe("fetchCounts - nested dotted paths (RADIO)", () => {
     );
     const query: string = fetcher.mock.calls[0][1];
     expect(query).toContain("self { status }");
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "active", count: 7 },
       { name: "inactive", count: 1 },
     ]);
@@ -226,7 +226,7 @@ describe("fetchCounts - BOOL", () => {
       {},
       fetcher
     );
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "true", label: "Yes", count: 5 },
       { name: "false", label: "No", count: 3 },
       { name: "_null_", label: "Not set", count: 2 },
@@ -243,7 +243,7 @@ describe("fetchCounts - BOOL", () => {
       {},
       fetcher
     );
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "true", label: "Yes", count: 5 },
       { name: "false", label: "No", count: 0 },
       { name: "_null_", label: "Not set", count: 0 },
@@ -260,7 +260,7 @@ describe("fetchCounts - BOOL", () => {
       {},
       fetcher
     );
-    expect(result).toEqual([
+    expect(result.options).toEqual([
       { name: "true", label: "Yes", count: 0 },
       { name: "false", label: "No", count: 0 },
       { name: "_null_", label: "Not set", count: 0 },
@@ -284,7 +284,86 @@ describe("fetchCounts - BOOL", () => {
       {},
       fetcher
     );
-    expect(result.map((o) => o.name)).toEqual(["true", "false", "_null_"]);
+    expect(result.options.map((o) => o.name)).toEqual([
+      "true",
+      "false",
+      "_null_",
+    ]);
+  });
+});
+
+describe("fetchCounts - limit and saturation", () => {
+  it("does NOT include limit: in _groupBy query (backend rejects unknown arg)", async () => {
+    const fetcher = makeFetcher([], "Patient");
+    await fetchCounts("s", "Patient", "status", "RADIO", {}, fetcher);
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).not.toContain("limit:");
+  });
+
+  it("does NOT include limit: in _groupBy query with cross-filter", async () => {
+    const fetcher = makeFetcher([], "Patient");
+    await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      { age: { _between: [10, 50] } },
+      fetcher
+    );
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).not.toContain("limit:");
+  });
+
+  it("saturated is false when response has fewer than 500 rows", async () => {
+    const rows = Array.from({ length: 10 }, (_, i) => ({
+      count: 1,
+      status: `val${i}`,
+    }));
+    const fetcher = makeFetcher(rows, "Patient");
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher
+    );
+    expect(result.saturated).toBe(false);
+  });
+
+  it("saturated is true when response has 500 or more rows (post-hoc check)", async () => {
+    const rows = Array.from({ length: 500 }, (_, i) => ({
+      count: 1,
+      status: `val${i}`,
+    }));
+    const fetcher = makeFetcher(rows, "Patient");
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "status",
+      "RADIO",
+      {},
+      fetcher
+    );
+    expect(result.saturated).toBe(true);
+  });
+
+  it("returns options array on result object", async () => {
+    const rows = [
+      { count: 5, active: true },
+      { count: 3, active: false },
+    ];
+    const fetcher = makeFetcher(rows, "Patient");
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "active",
+      "BOOL",
+      {},
+      fetcher
+    );
+    expect(result.options).toBeDefined();
+    expect(Array.isArray(result.options)).toBe(true);
   });
 });
 
@@ -375,12 +454,12 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("root");
-    expect(result[0].count).toBe(3);
-    expect(result[0].children).toHaveLength(1);
-    expect(result[0].children![0].name).toBe("child1");
-    expect(result[0].children![0].count).toBe(3);
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("root");
+    expect(result.options[0].count).toBe(3);
+    expect(result.options[0].children).toHaveLength(1);
+    expect(result.options[0].children![0].name).toBe("child1");
+    expect(result.options[0].children![0].count).toBe(3);
   });
 
   it("rolls up counts from children for ONTOLOGY (non-array) — no _agg needed", async () => {
@@ -421,11 +500,11 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("root");
-    expect(result[0].count).toBe(6);
-    expect(result[0].children![0].name).toBe("branch");
-    expect(result[0].children![0].count).toBe(6);
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("root");
+    expect(result.options[0].count).toBe(6);
+    expect(result.options[0].children![0].name).toBe("branch");
+    expect(result.options[0].children![0].count).toBe(6);
 
     const aggCalls = fetcher.mock.calls.filter(([_s, q]: [string, string]) =>
       q.includes("_agg")
@@ -463,9 +542,9 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("root");
-    expect(result[0].count).toBe(3);
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("root");
+    expect(result.options[0].count).toBe(3);
 
     const aggCalls = fetcher.mock.calls.filter(([_s, q]: [string, string]) =>
       q.includes("_agg")
@@ -502,10 +581,10 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("root");
-    expect(result[0].children![0].name).toBe("mid");
-    expect(result[0].children![0].children![0].name).toBe("leaf");
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("root");
+    expect(result.options[0].children![0].name).toBe("mid");
+    expect(result.options[0].children![0].children![0].name).toBe("leaf");
 
     const ancestorQueryCalls = fetcher.mock.calls.filter(
       ([_s, q]: [string, string]) => q.includes("_match_any_including_parents")
@@ -586,9 +665,9 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     );
 
     expect(fetcher).toHaveBeenCalledOnce();
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("termA");
-    expect(result[0].count).toBe(5);
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("termA");
+    expect(result.options[0].count).toBe(5);
   });
 
   it("applies cross-filter to _agg parent count queries for ONTOLOGY_ARRAY", async () => {
@@ -660,7 +739,7 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toEqual([]);
+    expect(result.options).toEqual([]);
   });
 
   it("returns empty array when groupBy returns no rows", async () => {
@@ -682,6 +761,6 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
       null
     );
 
-    expect(result).toEqual([]);
+    expect(result.options).toEqual([]);
   });
 });

@@ -234,6 +234,7 @@ const mockFilters: UseFilters = {
   resetFilters,
   getCountedOptions,
   isCountLoading,
+  isSaturated: (_columnId: string) => computed(() => false),
   nestedColumnMeta: ref(new Map()),
   registerNestedColumn: () => {},
   schemaId: "demo",

@@ -163,6 +163,7 @@ function handlePickerApply(
             :column="column"
             :options="filters.getCountedOptions(column.id).value"
             :loading="filters.isCountLoading(column.id).value"
+            :saturated="filters.isSaturated(column.id).value"
             :model-value="filters.filterStates.value.get(column.id)"
             @update:model-value="filters.setFilter(column.id, $event ?? null)"
           />

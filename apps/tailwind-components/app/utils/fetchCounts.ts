@@ -18,6 +18,11 @@ interface OntologyTermNode {
   count: number;
 }
 
+export interface FetchCountsResult {
+  options: CountedOption[];
+  saturated: boolean;
+}
+
 export async function fetchCounts(
   schemaId: string,
   tableId: string,
@@ -28,9 +33,9 @@ export async function fetchCounts(
   refTableId?: string | null,
   refSchemaId?: string | null,
   refLabel?: string | null
-): Promise<CountedOption[]> {
+): Promise<FetchCountsResult> {
   if (columnType === "ONTOLOGY" || columnType === "ONTOLOGY_ARRAY") {
-    return fetchOntologyWithAncestors(
+    const { options, saturated } = await fetchOntologyWithAncestors(
       schemaId,
       tableId,
       columnId,
@@ -40,10 +45,18 @@ export async function fetchCounts(
       refTableId ?? null,
       fetcher
     );
+    return { options, saturated };
   }
 
   if (columnType === "BOOL") {
-    return fetchBoolGroupBy(schemaId, tableId, columnId, crossFilter, fetcher);
+    const options = await fetchBoolGroupBy(
+      schemaId,
+      tableId,
+      columnId,
+      crossFilter,
+      fetcher
+    );
+    return { options, saturated: false };
   }
 
   if (columnType === "RADIO" || columnType === "CHECKBOX") {
@@ -53,7 +66,7 @@ export async function fetchCounts(
         await getColumnIds(refSchemaId ?? schemaId, refTableId, 0)
       ).trim();
     }
-    return fetchFlatGroupBy(
+    const { options, saturated } = await fetchFlatGroupBy(
       schemaId,
       tableId,
       columnId,
@@ -62,10 +75,13 @@ export async function fetchCounts(
       keyExpansion,
       refLabel
     );
+    return { options, saturated };
   }
 
-  return [];
+  return { options: [], saturated: false };
 }
+
+const GROUP_BY_SATURATION_THRESHOLD = 500;
 
 // === STRATEGIES ===
 
@@ -133,7 +149,7 @@ async function fetchFlatGroupBy(
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
   keyFieldExpansion?: string,
   refLabel?: string | null
-): Promise<CountedOption[]> {
+): Promise<FetchCountsResult> {
   const filterArg = buildFilterArg(crossFilter);
   const segments = columnId.split(".");
 
@@ -159,10 +175,11 @@ async function fetchFlatGroupBy(
       fetcher
     );
   } catch {
-    return [];
+    return { options: [], saturated: false };
   }
 
-  return rows
+  const saturated = rows.length >= GROUP_BY_SATURATION_THRESHOLD;
+  const options = rows
     .map((row) => {
       const val =
         segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
@@ -185,6 +202,7 @@ async function fetchFlatGroupBy(
       return { name: String(val), count: row.count };
     })
     .filter((item): item is CountedOption => item !== null);
+  return { options, saturated };
 }
 
 async function fetchOntologyWithAncestors(
@@ -196,15 +214,15 @@ async function fetchOntologyWithAncestors(
   refSchemaId: string | null,
   refTableId: string | null,
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
-): Promise<CountedOption[]> {
-  const terms = await groupByOntologyTerms(
+): Promise<FetchCountsResult> {
+  const { terms, saturated } = await groupByOntologyTerms(
     schemaId,
     tableId,
     columnId,
     crossFilter,
     fetcher
   );
-  if (terms.size === 0) return [];
+  if (terms.size === 0) return { options: [], saturated };
 
   const allTerms = await resolveOntologyAncestorChain(
     terms,
@@ -227,7 +245,7 @@ async function fetchOntologyWithAncestors(
     rollupOntologyParentCountsFromChildren(tree);
   }
 
-  return tree;
+  return { options: tree, saturated };
 }
 
 // === ONTOLOGY SUB-STEPS ===
@@ -238,7 +256,7 @@ async function groupByOntologyTerms(
   columnId: string,
   crossFilter: IGraphQLFilter,
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
-): Promise<Map<string, OntologyTermNode>> {
+): Promise<{ terms: Map<string, OntologyTermNode>; saturated: boolean }> {
   const filterArg = buildFilterArg(crossFilter);
   const segments = columnId.split(".");
   const ontologyLeaf = "{ name label parent { name } }";
@@ -257,9 +275,10 @@ async function groupByOntologyTerms(
       fetcher
     );
   } catch {
-    return new Map();
+    return { terms: new Map(), saturated: false };
   }
 
+  const saturated = rows.length >= GROUP_BY_SATURATION_THRESHOLD;
   const knownTerms = new Map<string, OntologyTermNode>();
   for (const row of rows) {
     const term =
@@ -273,7 +292,7 @@ async function groupByOntologyTerms(
       });
     }
   }
-  return knownTerms;
+  return { terms: knownTerms, saturated };
 }
 
 async function resolveOntologyAncestorChain(

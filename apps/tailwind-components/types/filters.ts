@@ -74,6 +74,7 @@ export interface UseFilters {
   resetFilters: () => void;
   getCountedOptions: (columnId: string) => ComputedRef<CountedOption[]>;
   isCountLoading: (columnId: string) => ComputedRef<boolean>;
+  isSaturated: (columnId: string) => ComputedRef<boolean>;
   nestedColumnMeta: Ref<
     Map<
       string,

@@ -8,6 +8,7 @@ import Tree from "../../../../app/components/input/Tree.vue";
 import FilterRange from "../../../../app/components/filter/Range.vue";
 import GenericInput from "../../../../app/components/Input.vue";
 import NoResultsMessage from "../../../../app/components/text/NoResultsMessage.vue";
+import InputSearch from "../../../../app/components/input/Search.vue";
 
 vi.mock("../../../../app/components/Input.vue", () => ({
   default: {
@@ -86,11 +87,20 @@ function mountColumn(
   column: IColumn,
   options: CountedOption[] = [],
   modelValue: IFilterValue | undefined = undefined,
-  loading = false
+  loading = false,
+  saturated = false
 ) {
   return mount(Column, {
-    props: { column, options, modelValue, loading },
+    props: { column, options, modelValue, loading, saturated },
   });
+}
+
+function makeOptions(count: number, withZeros = false): CountedOption[] {
+  return Array.from({ length: count }, (_, i) => ({
+    name: `opt${i}`,
+    label: `Option ${i}`,
+    count: withZeros && i % 3 === 0 ? 0 : i + 1,
+  }));
 }
 
 describe("Column", () => {
@@ -387,6 +397,345 @@ describe("Column", () => {
       expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(false);
       expect(wrapper.find("span.italic").exists()).toBe(false);
       expect(wrapper.findAll('[role="status"]').length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("show-more and zero-hiding states", () => {
+    it("≤25 root options: no show-more button, all options visible", () => {
+      const opts = makeOptions(20);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      expect(wrapper.find("button").exists()).toBe(false);
+      const tree = wrapper.findComponent(Tree);
+      expect(tree.props("nodes")).toHaveLength(20);
+    });
+
+    it(">25 root options collapsed: shows first 25 roots, button shows 'Show more (+50)'", async () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button");
+      expect(btn.exists()).toBe(true);
+      expect(btn.text()).toBe("Show 5 more");
+      const tree = wrapper.findComponent(Tree);
+      expect(tree.props("nodes") as any[]).toHaveLength(25);
+    });
+
+    it(">25 root options expanded: all options shown including zeros, button shows 'Show less'", async () => {
+      const opts = makeOptions(30, true);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button");
+      expect(btn.exists()).toBe(true);
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show less");
+      const tree = wrapper.findComponent(Tree);
+      expect((tree.props("nodes") as any[]).length).toBe(30);
+    });
+
+    it("5 roots with 200 total descendants: search visible (total > 25) but no show-more button (root ≤ 25)", () => {
+      const opts: CountedOption[] = Array.from({ length: 5 }, (_, i) => ({
+        name: `root${i}`,
+        label: `Root ${i}`,
+        count: 40,
+        children: Array.from({ length: 39 }, (__, j) => ({
+          name: `child${i}_${j}`,
+          label: `Child ${i}-${j}`,
+          count: 1,
+        })),
+      }));
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+        false
+      );
+      const searchInputs = wrapper
+        .findAllComponents(InputSearch)
+        .filter((w) => w.props("id")?.startsWith("filter-search-"));
+      expect(searchInputs.length).toBeGreaterThan(0);
+    });
+
+    it("30 flat roots: initial 25 shown, button shows 'Show 5 more', click shows all 30, click again resets to 25", async () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+      expect(btn.exists()).toBe(true);
+      expect(btn.text()).toBe("Show 5 more");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        25
+      );
+
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show less");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        30
+      );
+
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show 5 more");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        25
+      );
+    });
+
+    it("30 roots each with children: show-more shows 25 roots with all their descendants intact", () => {
+      const opts: CountedOption[] = Array.from({ length: 30 }, (_, i) => ({
+        name: `root${i}`,
+        label: `Root ${i}`,
+        count: 3,
+        children: [
+          { name: `child${i}_a`, label: `Child ${i}A`, count: 1 },
+          { name: `child${i}_b`, label: `Child ${i}B`, count: 2 },
+        ],
+      }));
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+      expect(btn.exists()).toBe(true);
+      const tree = wrapper.findComponent(Tree);
+      const nodes = tree.props("nodes") as any[];
+      expect(nodes).toHaveLength(25);
+      nodes.forEach((n: any) => {
+        expect(n.children).toHaveLength(2);
+      });
+    });
+
+    it("100 flat roots: incremental reveal — 25 → 75 → 100 → back to 25", async () => {
+      const opts = makeOptions(100);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+      expect(btn.exists()).toBe(true);
+      expect(btn.text()).toBe("Show more (+50)");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        25
+      );
+
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show 25 more");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        75
+      );
+
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show less");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        100
+      );
+
+      await btn.trigger("click");
+      expect(btn.text()).toBe("Show more (+50)");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        25
+      );
+    });
+
+    it("5 roots: no show-more button", () => {
+      const opts = makeOptions(5);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+        false
+      );
+    });
+
+    it("zero-hiding: zeros hidden while partially expanded, visible when fully expanded, hidden again after Show less", async () => {
+      const opts = makeOptions(30, true);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+
+      const zeroOpts = opts.slice(0, 25).filter((o) => o.count === 0);
+      expect(zeroOpts.length).toBeGreaterThan(0);
+
+      const initialNodes = wrapper.findComponent(Tree).props("nodes") as any[];
+      const zeroNames = zeroOpts.map((o) => o.name);
+      expect(initialNodes.some((n: any) => zeroNames.includes(n.name))).toBe(
+        false
+      );
+
+      await btn.trigger("click");
+      const expandedNodes = wrapper.findComponent(Tree).props("nodes") as any[];
+      const allZeroNames = opts.filter((o) => o.count === 0).map((o) => o.name);
+      expect(
+        expandedNodes.some((n: any) => allZeroNames.includes(n.name))
+      ).toBe(true);
+
+      await btn.trigger("click");
+      const collapsedNodes = wrapper
+        .findComponent(Tree)
+        .props("nodes") as any[];
+      expect(collapsedNodes.some((n: any) => zeroNames.includes(n.name))).toBe(
+        false
+      );
+    });
+
+    it("clearing search resets visibleRootCount to 25", async () => {
+      const opts = makeOptions(100);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+
+      await btn.trigger("click");
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        75
+      );
+
+      const searchInput = wrapper
+        .findAllComponents(InputSearch)
+        .find((w) => w.props("id")?.startsWith("filter-search-"));
+      await searchInput!.vm.$emit("update:modelValue", "opt1");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+        false
+      );
+
+      await searchInput!.vm.$emit("update:modelValue", "");
+      await wrapper.vm.$nextTick();
+      expect((wrapper.findComponent(Tree).props("nodes") as any[]).length).toBe(
+        25
+      );
+      expect(wrapper.find("button.text-search-filter-expand").text()).toBe(
+        "Show more (+50)"
+      );
+    });
+
+    it("searching: no show-more button shown when search active (future: local search)", async () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const btn = wrapper.find("button");
+      expect(btn.exists()).toBe(true);
+    });
+
+    it("saturated flag true: hint rendered above tree", () => {
+      const opts = makeOptions(10);
+      const wrapper = mountColumn(
+        ontologyColumn(),
+        opts,
+        undefined,
+        false,
+        true
+      );
+      const hint = wrapper.find("span.italic");
+      expect(hint.exists()).toBe(true);
+      expect(hint.text()).toBe("too many options, please search");
+    });
+
+    it("saturated + not-saturated: hint only when saturated is true", () => {
+      const opts = makeOptions(10);
+      const withoutSaturation = mountColumn(
+        ontologyColumn(),
+        opts,
+        undefined,
+        false,
+        false
+      );
+      expect(withoutSaturation.find("span.italic").exists()).toBe(false);
+
+      const withSaturation = mountColumn(
+        ontologyColumn(),
+        opts,
+        undefined,
+        false,
+        true
+      );
+      expect(withSaturation.find("span.italic").exists()).toBe(true);
+    });
+  });
+
+  describe("per-filter search input", () => {
+    it("renders search input when totalCount > 25", () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const searchInputs = wrapper
+        .findAllComponents(InputSearch)
+        .filter((w) => w.props("id")?.startsWith("filter-search-"));
+      expect(searchInputs.length).toBeGreaterThan(0);
+    });
+
+    it("search input hidden when tree is small (≤25) even if hierarchical", () => {
+      const opts: CountedOption[] = [
+        {
+          name: "animal",
+          label: "Animal",
+          count: 5,
+          children: [{ name: "dogs", label: "Dogs", count: 3 }],
+        },
+      ];
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const searchInputs = wrapper
+        .findAllComponents(InputSearch)
+        .filter((w) => w.props("id")?.startsWith("filter-search-"));
+      expect(searchInputs.length).toBe(0);
+    });
+
+    it("does not render per-filter search input for flat list with ≤25 options", () => {
+      const opts = makeOptions(5);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const searchInputs = wrapper
+        .findAllComponents(InputSearch)
+        .filter((w) => w.props("id")?.startsWith("filter-search-"));
+      expect(searchInputs.length).toBe(0);
+    });
+
+    it("renders exactly one search input when >25 options (no duplicate from Tree internal search)", () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const allSearchInputs = wrapper.findAllComponents(InputSearch);
+      expect(allSearchInputs).toHaveLength(1);
+    });
+
+    it("small hierarchical tree (6 nodes with parent) renders no search input", () => {
+      const opts: CountedOption[] = [
+        {
+          name: "animal",
+          label: "Animal",
+          count: 6,
+          children: [
+            { name: "dogs", label: "Dogs", count: 3 },
+            { name: "cats", label: "Cats", count: 2 },
+            { name: "birds", label: "Birds", count: 1 },
+          ],
+        },
+      ];
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const allSearchInputs = wrapper
+        .findAllComponents(InputSearch)
+        .filter((w) => w.props("id")?.startsWith("filter-search-"));
+      expect(allSearchInputs).toHaveLength(0);
+    });
+
+    it("typing in search hides the show-more button", async () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      expect(wrapper.find("button").exists()).toBe(true);
+      const searchInput = wrapper
+        .findAllComponents(InputSearch)
+        .find((w) => w.props("id")?.startsWith("filter-search-"));
+      await searchInput!.vm.$emit("update:modelValue", "opt1");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find("button").exists()).toBe(false);
+    });
+
+    it("typing in search shows matching options including zero-count", async () => {
+      const opts: CountedOption[] = [
+        { name: "opt-match", label: "Match Option", count: 0 },
+        { name: "other", label: "Other", count: 5 },
+      ];
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const searchInput = wrapper
+        .findAllComponents(InputSearch)
+        .find((w) => w.props("id")?.startsWith("filter-search-"));
+      if (!searchInput) return;
+      await searchInput.vm.$emit("update:modelValue", "match");
+      await wrapper.vm.$nextTick();
+      const tree = wrapper.findComponent(Tree);
+      const nodes = tree.props("nodes") as any[];
+      expect(nodes.some((n: any) => n.name === "opt-match")).toBe(true);
+    });
+
+    it("empty search results render the empty-state no-results message", async () => {
+      const opts = makeOptions(30);
+      const wrapper = mountColumn(ontologyColumn(), opts);
+      const searchInput = wrapper
+        .findAllComponents(InputSearch)
+        .find((w) => w.props("id")?.startsWith("filter-search-"));
+      await searchInput!.vm.$emit("update:modelValue", "xyznotfound");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
+      expect(wrapper.text()).toContain("No matching values for this filter");
+      expect(wrapper.findComponent(Tree).exists()).toBe(false);
     });
   });
 

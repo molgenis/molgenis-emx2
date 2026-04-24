@@ -69,7 +69,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Min/max labels use `text-search-filter-group-title` for theme consistency | Column.vue | Column.spec.ts | visual check |
 | STRING-like: renders text input | Column.vue | Column.spec.ts | visual check |
 | Shows loading skeleton while counts are being fetched | Column.vue | Column.spec.ts | visual check |
-| Search input always visible when >25 options or tree has children (no toggle button) | Column.vue | Column.spec.ts | visual check |
+| Search input visible only when >25 total options (flat or hierarchical); tiny trees show no search — all nodes auto-expanded instead | Column.vue | Column.spec.ts | visual check |
 | Small trees (≤25 total nodes): all nodes start expanded | Tree.vue | Tree.spec.ts | visual check |
 | Selecting a child node does NOT collapse/reset expand state of other nodes (expand state preserved across node rebuilds) | Tree.vue | Tree.spec.ts | visual check |
 | Expand state is local component state only — NOT persisted in URL | Tree.vue | - | - |
@@ -81,7 +81,15 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 |----------|-----------|------|--------|
 | Default: only show options with initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
 | When other filters applied: counts update but initial terms stay visible | useFilters.ts | useFilters.spec.ts | - |
-| Options that reach count 0 due to cross-filter stay visible (merged with base counts, show "0") | useFilters.ts | useFilters.spec.ts | visual check |
+| Options that reach count 0 due to cross-filter: hidden while filter is collapsed (show-more not clicked), visible when expanded (show-more clicked). Stability preserved within expanded view. | useFilters.ts, Column.vue | useFilters.spec.ts; Column.spec.ts | visual check |
+| Zero-count hiding is hierarchy-aware: parent with count 0 AND all-zero descendants is hidden; parent with count 0 but non-zero descendants stays | useFilters.ts | useFilters.spec.ts | - |
+| Filter with >25 ROOT options shows first 25 roots + "Show more (+50)" button; each click reveals up to 50 more roots (clamps to remaining count, label becomes "Show N more" when <50 remain); when all visible button becomes "Show less" (resets view to 25) | Column.vue | Column.spec.ts | visual check |
+| Zero-count options hidden while view is partially expanded; visible only when all roots are shown ("Show less" state). Searching bypasses both. Clearing search resets view to initial 25 | Column.vue | Column.spec.ts | visual check |
+| Truncation at 25 root-slices the option array; descendants come with their root intact, no slicing within subtrees | Column.vue | Column.spec.ts | - |
+| Search visibility uses total node count (incl. descendants); show-more uses root count only | Column.vue | Column.spec.ts | - |
+| Search within filter shows all matching terms regardless of show-more or zero-hiding state | Column.vue | Column.spec.ts | visual check |
+| `_groupBy` response with ≥500 rows sets saturated flag → triggers "too many options, please search" hint (payload is post-hoc checked; backend `_groupBy` does NOT support `limit` arg) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
+| Filter-change aborts in-flight count requests for that column (per-column AbortController) | useFilters.ts | useFilters.spec.ts | - |
 | On search within filter: show all matching terms regardless of count | Column.vue | Column.spec.ts | visual check |
 | On clear filters: go back to showing only initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
 | No facet counting on REF/REF_ARRAY (use nested filters via picker instead) | - | - | - |

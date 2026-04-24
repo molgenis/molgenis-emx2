@@ -631,6 +631,51 @@ describe("useFilters — hydrateNestedFilters", () => {
   });
 });
 
+describe("useFilters — AbortController per column", () => {
+  it("aborts prior in-flight count request when a second refetch fires for the same column", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    let resolveFirst!: (value: any) => void;
+    const firstCallSignals: AbortSignal[] = [];
+
+    vi.mocked(fetchGraphql).mockImplementation(
+      (
+        _schema: string,
+        _query: string,
+        _vars: any,
+        opts?: { signal?: AbortSignal }
+      ) => {
+        if (opts?.signal) firstCallSignals.push(opts.signal);
+        return new Promise((resolve) => {
+          resolveFirst = resolve;
+        });
+      }
+    );
+
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+
+    await flushPromises();
+
+    const signal = firstCallSignals[0];
+    expect(signal).toBeDefined();
+    expect(signal?.aborted).toBe(false);
+
+    columns.value = [...columns.value];
+    await flushPromises();
+
+    expect(signal?.aborted).toBe(true);
+
+    vi.mocked(fetchGraphql).mockResolvedValue({});
+    resolveFirst({ data: {} });
+  });
+});
+
 describe("useFilters — count integration", () => {
   it("getCountedOptions returns empty array initially", () => {
     const columns = ref<IColumn[]>([intColumn]);
