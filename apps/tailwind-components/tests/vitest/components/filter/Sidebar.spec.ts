@@ -78,7 +78,6 @@ function makeFilters(
     registerNestedColumn: vi.fn(),
     schemaId: "test",
     tableId: "TestTable",
-    collapsedIds: computed(() => collapsed.value),
     toggleCollapse: vi.fn((id: string) => {
       const next = new Set(collapsed.value);
       if (next.has(id)) {
@@ -89,7 +88,6 @@ function makeFilters(
       collapsed.value = next;
     }),
     isCollapsed: (id: string) => collapsed.value.has(id),
-    hydrateNestedFilters: vi.fn().mockResolvedValue(undefined),
   };
 }
 

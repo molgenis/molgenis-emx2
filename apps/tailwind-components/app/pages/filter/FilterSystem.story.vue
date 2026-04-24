@@ -239,7 +239,6 @@ const mockFilters: UseFilters = {
   registerNestedColumn: () => {},
   schemaId: "demo",
   tableId: "Samples",
-  collapsedIds: computed(() => collapsedRef.value),
   toggleCollapse: (id: string) => {
     const next = new Set(collapsedRef.value);
     if (next.has(id)) {
@@ -250,6 +249,5 @@ const mockFilters: UseFilters = {
     collapsedRef.value = next;
   },
   isCollapsed: (id: string) => collapsedRef.value.has(id),
-  hydrateNestedFilters: async () => {},
 };
 </script>

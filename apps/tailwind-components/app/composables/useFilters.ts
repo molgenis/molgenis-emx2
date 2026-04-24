@@ -602,6 +602,9 @@ export function useFilters(
       const newLoading = new Set(loadingSet.value);
       newLoading.delete(columnId);
       loadingSet.value = newLoading;
+      if (abortControllers.get(columnId) === controller) {
+        abortControllers.delete(columnId);
+      }
     }
   }
 
@@ -702,12 +705,10 @@ export function useFilters(
     getCountedOptions,
     isCountLoading,
     isSaturated,
-    saturatedMap,
     nestedColumnMeta,
     registerNestedColumn,
     schemaId,
     tableId,
-    collapsedIds,
     toggleCollapse,
     isCollapsed,
     hydrateNestedFilters,

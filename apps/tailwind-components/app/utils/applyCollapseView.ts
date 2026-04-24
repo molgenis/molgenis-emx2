@@ -24,7 +24,7 @@ function pruneZeros(nodes: CountedOption[]): CountedOption[] {
     }));
 }
 
-function countAllNodes(nodes: CountedOption[]): number {
+export function countAllNodes(nodes: CountedOption[]): number {
   let total = 0;
   for (const node of nodes) {
     total += 1;
@@ -78,5 +78,3 @@ export function filterOptionsBySearch(
     .map((node) => filterNode(node, query))
     .filter((node): node is CountedOption => node !== null);
 }
-
-export { countAllNodes };
