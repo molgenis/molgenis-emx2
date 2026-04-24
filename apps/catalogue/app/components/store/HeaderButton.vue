@@ -30,13 +30,12 @@ defineEmits<{ (e: "click"): void }>();
 const storeHasDatasets = ref<boolean>(false);
 
 watch([datasetStore.datasets], () => {
-  storeHasDatasets.value =
-    !!datasetStore.datasets && Object.keys(datasetStore.datasets).length > 0;
+  storeHasDatasets.value = !!Object.keys(datasetStore.datasets).length;
 });
 
 const numberOfItemsInStore = computed<number | string>(() => {
   if (storeHasDatasets.value) {
-    const count = Object.keys(datasetStore.datasets || {}).length;
+    const count = Object.keys(datasetStore.datasets).length;
     if (count > 99) {
       return "99+";
     } else {

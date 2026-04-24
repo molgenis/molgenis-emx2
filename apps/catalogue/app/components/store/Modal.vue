@@ -8,11 +8,7 @@
     @close="$emit('close')"
   >
     <ContentBlockModal title="Collections">
-      <template
-        v-if="
-          datasetStore.datasets && Object.keys(datasetStore.datasets).length > 0
-        "
-      >
+      <template v-if="Object.keys(datasetStore.datasets).length">
         <p class="mb-2">Review selected collections and linked datasets</p>
         <StoreModalResourceList />
       </template>
@@ -21,7 +17,6 @@
     <template #footer>
       <a
         v-on:click="sendToNegotiator"
-        target="_blank"
         class="flex items-center border rounded-input h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
       >
         <span>Request from {{ getSendToText() }}</span>
@@ -99,7 +94,6 @@ async function doNegotiatorV3Request() {
   const url = window.location.origin;
   const humanReadable = getHumanReadableString(); //+ createHistoryJournal();
   const resources = toNegotiatorFormat(datasetStore.datasets);
-  console.log(resources);
   const payload: Record<string, any> = { url, humanReadable, resources };
 
   const response = await fetch(datasetStore.datasetStoreUrl, {
@@ -152,7 +146,6 @@ async function doNegotiatorV3Request() {
   }
 
   function toNegotiatorFormat(datasets: Record<string, IResources>) {
-    console.log(datasets);
     return Object.values(datasets).map((dataset) => ({
       id: dataset.pid,
       name: dataset.name,
