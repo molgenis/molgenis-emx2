@@ -7,6 +7,7 @@ export interface ITablePermission {
   canInsert: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface ISession {
