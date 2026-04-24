@@ -14,6 +14,7 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +179,13 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(TOKEN)
-                        .type(Scalars.GraphQLString)))
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name("effectivePermissions")
+                        .type(
+                            GraphQLList.list(
+                                GraphqlPermissionFieldFactory.effectivePermissionType))))
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
@@ -195,9 +202,27 @@ public class GraphqlSessionFieldFactory {
                   SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
                   TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+              result.put("effectivePermissions", buildEffectivePermissions(database));
               return result;
             })
         .build();
+  }
+
+  private static List<Map<String, Object>> buildEffectivePermissions(Database database) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Permission p : database.getRoleManager().getPermissionsForActiveUser()) {
+      Map<String, Object> map = new LinkedHashMap<>();
+      map.put("schema", p.schema());
+      map.put("table", p.table());
+      map.put(SELECT, p.select());
+      map.put(INSERT, p.insert());
+      map.put(UPDATE, p.update());
+      map.put(DELETE, p.delete());
+      map.put("changeOwner", p.changeOwner());
+      map.put("share", p.share());
+      result.add(map);
+    }
+    return result;
   }
 
   private static List<Map<String, Object>> buildTablePermissions(Schema schema) {

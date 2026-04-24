@@ -52,6 +52,11 @@ public class GraphqlFactory {
       mutationBuilder.field(session.createTokenField(database));
     }
 
+    GraphqlPermissionFieldFactory permissionFactory = new GraphqlPermissionFieldFactory();
+    queryBuilder.field(permissionFactory.permissionQueryField(database));
+    mutationBuilder.field(permissionFactory.changePermissionsMutation(database));
+    mutationBuilder.field(permissionFactory.dropPermissionsMutation(database));
+
     GraphQL graphql =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())

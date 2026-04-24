@@ -543,8 +543,8 @@ public class GraphqlSchemaFieldFactory {
 
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
-    roleMap.put(GraphqlConstants.NAME, role.name());
-    roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
+    roleMap.put(GraphqlConstants.NAME, role.getRoleName());
+    roleMap.put(GraphqlConstants.SYSTEM, role.isImmutable());
     roleMap.put(
         GraphqlConstants.PERMISSIONS,
         role.permissions().stream()

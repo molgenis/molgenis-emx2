@@ -906,6 +906,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
+  @Override
   public SqlRoleManager getRoleManager() {
     return new SqlRoleManager(this);
   }
