@@ -209,12 +209,14 @@
   </div>
 
   <Pagination
-    v-if="count > settings.pageSize"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
+    :show-page-selector="count > settings.pageSize"
+    :page-size="settings.pageSize"
     @update="handlePagingRequest($event)"
+    @update:pageSize="handlePageSizeChange($event)"
   />
 
   <Modal
@@ -321,6 +323,7 @@ import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
+import constants from "../../utils/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -355,7 +358,7 @@ const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
     page: 1,
-    pageSize: 10,
+    pageSize: constants.PAGE_SIZE_DEFAULT,
     orderby: { column: "", direction: "ASC" },
     search: "",
   }),
@@ -490,6 +493,12 @@ function handleSearchRequest(search: string) {
 
 function handlePagingRequest(page: number) {
   settings.value.page = page;
+  refresh();
+}
+
+function handlePageSizeChange(pageSize: number) {
+  settings.value.pageSize = pageSize;
+  settings.value.page = 1;
   refresh();
 }
 
