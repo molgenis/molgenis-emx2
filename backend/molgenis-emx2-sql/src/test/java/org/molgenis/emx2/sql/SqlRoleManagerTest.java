@@ -281,10 +281,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "rmt_test_table",
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt delete", ps);
@@ -367,10 +367,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt reuse", ps);
@@ -463,10 +463,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt replace role", first);
@@ -476,20 +476,17 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t2",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt replace role", second);
 
       TablePermission resolved =
           roleManager.getPermissions("rmt replace role").resolveFor(schemaName, "t1");
-      assertEquals(
-          TablePermission.Select.NONE,
-          resolved.select(),
-          "t1 select should be NONE after replace-all with t2");
+      assertTrue(resolved.select().isEmpty(), "t1 select should be NONE after replace-all with t2");
     } finally {
       database.becomeAdmin();
       jooq.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
@@ -519,10 +516,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.ALL,
-              TablePermission.Scope.ALL,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.ALL,
+              TablePermission.UpdateScope.ALL,
+              TablePermission.UpdateScope.NONE,
               true,
               true));
       roleManager.setPermissions("rmt roundtrip role", ps);
@@ -530,9 +527,11 @@ class SqlRoleManagerTest {
       TablePermission got =
           roleManager.getPermissions("rmt roundtrip role").resolveFor(schemaName, "t1");
       assertTrue(got.changeOwner(), "changeOwner should survive round-trip");
-      assertTrue(got.share(), "share should survive round-trip");
-      assertEquals(TablePermission.Select.ALL, got.select());
-      assertEquals(TablePermission.Scope.ALL, got.update());
+      assertTrue(got.changeGroup(), "changeGroup should survive round-trip");
+      assertTrue(
+          got.select().contains(TablePermission.SelectScope.ALL),
+          "select must contain ALL after round-trip");
+      assertEquals(TablePermission.UpdateScope.ALL, got.update());
     } finally {
       database.becomeAdmin();
       jooq.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
@@ -561,10 +560,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               "*",
               "*",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt wc role", ps);
@@ -593,9 +592,8 @@ class SqlRoleManagerTest {
 
       PermissionSet got = roleManager.getPermissions("rmt wc role");
       TablePermission schema1Perm = got.resolveFor(schema1, "t1");
-      assertEquals(
-          TablePermission.Select.ALL,
-          schema1Perm.select(),
+      assertTrue(
+          schema1Perm.select().contains(TablePermission.SelectScope.ALL),
           "Wildcard materialised grant should be visible for schema1.t1");
     } finally {
       database.becomeAdmin();
@@ -622,10 +620,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt drop role", ps);
@@ -634,10 +632,7 @@ class SqlRoleManagerTest {
 
       PermissionSet got = roleManager.getPermissions("rmt drop role");
       TablePermission resolved = got.resolveFor(schemaName, "t1");
-      assertEquals(
-          TablePermission.Select.NONE,
-          resolved.select(),
-          "After schema drop, permissions should appear NONE");
+      assertTrue(resolved.select().isEmpty(), "After schema drop, permissions should appear NONE");
     } finally {
       database.becomeAdmin();
       jooq.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
@@ -666,10 +661,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               "*",
               "*",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt nodrop role", ps);
@@ -719,10 +714,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schema1,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt custom role", ps);
@@ -778,10 +773,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               "*",
               "*",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt wm role", ps);
@@ -812,9 +807,8 @@ class SqlRoleManagerTest {
 
       PermissionSet got = roleManager.getPermissions("rmt wm role");
       TablePermission schema1Perm = got.resolveFor(schema1, "studies");
-      assertEquals(
-          TablePermission.Select.ALL,
-          schema1Perm.select(),
+      assertTrue(
+          schema1Perm.select().contains(TablePermission.SelectScope.ALL),
           "Materialised grant must be present in getPermissions for schema1");
     } finally {
       database.becomeAdmin();
@@ -841,10 +835,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt ss role", ps);
@@ -887,10 +881,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt ssa role", ps);
@@ -933,9 +927,8 @@ class SqlRoleManagerTest {
               + "\".t1 AS PERMISSIVE FOR SELECT TO \"MG_ROLE_rmt gss role\" USING (false)");
 
       TablePermission got = roleManager.getPermissions("rmt gss role").resolveFor(schemaName, "t1");
-      assertEquals(
-          TablePermission.Select.AGGREGATE,
-          got.select(),
+      assertTrue(
+          got.select().contains(TablePermission.SelectScope.AGGREGATE),
           "getPermissions must hydrate SELECT_AGGREGATE policy into select=AGGREGATE");
     } finally {
       database.becomeAdmin();
@@ -947,9 +940,9 @@ class SqlRoleManagerTest {
 
   @ParameterizedTest
   @EnumSource(
-      value = TablePermission.Select.class,
+      value = TablePermission.SelectScope.class,
       names = {"EXISTS", "COUNT", "RANGE"})
-  void selectViewModeRoundTrip(TablePermission.Select selectValue) {
+  void selectViewModeRoundTrip(TablePermission.SelectScope selectValue) {
     DSLContext jooq = database.getJooq();
     String schemaName = "rmt_svm_schema";
     String roleName = "rmt svm " + selectValue.name().toLowerCase();
@@ -966,10 +959,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              selectValue,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(selectValue),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions(roleName, ps);
@@ -987,8 +980,9 @@ class SqlRoleManagerTest {
       assertTrue(policyExists, expectedPolicy + " must exist in pg_policies after setPermissions");
 
       TablePermission got = roleManager.getPermissions(roleName).resolveFor(schemaName, "t1");
-      assertEquals(
-          selectValue, got.select(), "getPermissions must round-trip select=" + selectValue.name());
+      assertTrue(
+          got.select().contains(selectValue),
+          "getPermissions must round-trip select=" + selectValue.name());
     } finally {
       database.becomeAdmin();
       jooq.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
@@ -1014,10 +1008,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt gavm role", ps);
@@ -1028,9 +1022,8 @@ class SqlRoleManagerTest {
       database.becomeAdmin();
 
       TablePermission resolved = userPerms.resolveFor(schemaName, "t1");
-      assertEquals(
-          TablePermission.Select.AGGREGATE,
-          resolved.select(),
+      assertTrue(
+          resolved.select().contains(TablePermission.SelectScope.AGGREGATE),
           "getPermissionsForActiveUser must expose select=AGGREGATE for the granted role");
     } finally {
       database.becomeAdmin();
@@ -1059,10 +1052,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt gvmm role agg", psAgg);
@@ -1072,10 +1065,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt gvmm role all", psAll);
@@ -1088,10 +1081,9 @@ class SqlRoleManagerTest {
       database.becomeAdmin();
 
       TablePermission resolved = userPerms.resolveFor(schemaName, "t1");
-      assertEquals(
-          TablePermission.Select.ALL,
-          resolved.select(),
-          "Most permissive select (ALL) must win when user holds AGGREGATE and ALL roles");
+      assertTrue(
+          resolved.select().contains(TablePermission.SelectScope.ALL),
+          "Both AGGREGATE and ALL must be in union set when user holds both roles");
     } finally {
       database.becomeAdmin();
       jooq.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
@@ -1127,20 +1119,20 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               tableA,
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       first.put(
           new TablePermission(
               schemaName,
               tableB,
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt dp role", first);
@@ -1155,20 +1147,20 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               tableA,
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       second.put(
           new TablePermission(
               schemaName,
               tableB,
-              TablePermission.Select.AGGREGATE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt dp role", second);
@@ -1226,10 +1218,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "*",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt noop role", wildcardPs);
@@ -1288,10 +1280,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "t1",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions("rmt tx role", valid);
@@ -1311,10 +1303,10 @@ class SqlRoleManagerTest {
           new TablePermission(
               schemaName,
               "nonexistent_table",
-              TablePermission.Select.ALL,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
-              TablePermission.Scope.NONE,
+              TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
+              TablePermission.UpdateScope.NONE,
               false,
               false));
       assertThrows(Exception.class, () -> roleManager.setPermissions("rmt tx role", failingSet));

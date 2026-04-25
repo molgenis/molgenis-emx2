@@ -1,6 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -15,8 +15,8 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Role;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 
 class BuiltinInstallTest {
 
@@ -53,10 +53,9 @@ class BuiltinInstallTest {
     String schemaRoleName = SCHEMA + "/" + privilegeName;
     PermissionSet ps = roleManager.getPermissions(schemaRoleName);
     TablePermission resolved = ps.resolveFor(SCHEMA, TABLE);
-    Select expected = Select.valueOf(expectedSelect.trim());
-    assertEquals(
-        expected,
-        resolved.select(),
+    SelectScope expected = SelectScope.valueOf(expectedSelect.trim());
+    assertTrue(
+        resolved.select().contains(expected),
         privilegeName
             + " role must expose select="
             + expectedSelect
@@ -69,10 +68,15 @@ class BuiltinInstallTest {
     String editorRoleName = SCHEMA + "/" + Privileges.EDITOR.toString();
     PermissionSet ps = roleManager.getPermissions(editorRoleName);
     TablePermission resolved = ps.resolveFor(SCHEMA, TABLE);
-    assertEquals(Select.ALL, resolved.select(), "Editor must have select=ALL; got " + resolved);
-    assertEquals(Scope.ALL, resolved.insert(), "Editor must have insert=ALL; got " + resolved);
-    assertEquals(Scope.ALL, resolved.update(), "Editor must have update=ALL; got " + resolved);
-    assertEquals(Scope.ALL, resolved.delete(), "Editor must have delete=ALL; got " + resolved);
+    assertTrue(
+        resolved.select().contains(SelectScope.ALL),
+        "Editor must have select=ALL; got " + resolved);
+    assertEquals(
+        UpdateScope.ALL, resolved.insert(), "Editor must have insert=ALL; got " + resolved);
+    assertEquals(
+        UpdateScope.ALL, resolved.update(), "Editor must have update=ALL; got " + resolved);
+    assertEquals(
+        UpdateScope.ALL, resolved.delete(), "Editor must have delete=ALL; got " + resolved);
   }
 
   @Test

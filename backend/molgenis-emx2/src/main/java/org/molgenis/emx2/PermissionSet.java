@@ -1,9 +1,11 @@
 package org.molgenis.emx2;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PermissionSet implements Iterable<TablePermission> {
@@ -34,18 +36,19 @@ public class PermissionSet implements Iterable<TablePermission> {
     for (TablePermission p : entries.values()) {
       String schema = p.schema();
       String table = p.table();
-      boolean hasReadAccess = p.select() != TablePermission.Select.NONE;
-      if (p.delete() != TablePermission.Scope.NONE && !hasReadAccess) {
+      boolean hasRowAccess = p.hasRowAccess();
+      boolean hasAnySelect = p.hasAnySelect();
+      if (p.delete() != TablePermission.UpdateScope.NONE && !hasAnySelect) {
         errors.add(new ValidationError(schema, table, "delete requires read"));
       }
-      if (p.update() != TablePermission.Scope.NONE && !hasReadAccess) {
+      if (p.update() != TablePermission.UpdateScope.NONE && !hasAnySelect) {
         errors.add(new ValidationError(schema, table, "update requires read"));
       }
-      if (p.changeOwner() && p.update().ordinal() < TablePermission.Scope.OWN.ordinal()) {
+      if (p.changeOwner() && p.update().ordinal() < TablePermission.UpdateScope.OWN.ordinal()) {
         errors.add(new ValidationError(schema, table, "changeOwner requires update"));
       }
-      if (p.share() && p.update().ordinal() < TablePermission.Scope.OWN.ordinal()) {
-        errors.add(new ValidationError(schema, table, "share requires update"));
+      if (p.changeGroup() && p.update().ordinal() < TablePermission.UpdateScope.OWN.ordinal()) {
+        errors.add(new ValidationError(schema, table, "changeGroup requires update"));
       }
     }
     return errors;
@@ -68,26 +71,26 @@ public class PermissionSet implements Iterable<TablePermission> {
     TablePermission wildcardTable = entries.get(key(schemaName, "*"));
     TablePermission exact = entries.get(key(schemaName, tableName));
 
-    TablePermission.Select select = TablePermission.Select.NONE;
-    TablePermission.Scope insert = TablePermission.Scope.NONE;
-    TablePermission.Scope update = TablePermission.Scope.NONE;
-    TablePermission.Scope delete = TablePermission.Scope.NONE;
+    Set<TablePermission.SelectScope> select = EnumSet.noneOf(TablePermission.SelectScope.class);
+    TablePermission.UpdateScope insert = TablePermission.UpdateScope.NONE;
+    TablePermission.UpdateScope update = TablePermission.UpdateScope.NONE;
+    TablePermission.UpdateScope delete = TablePermission.UpdateScope.NONE;
     boolean changeOwner = false;
-    boolean share = false;
+    boolean changeGroup = false;
 
     for (TablePermission p :
         new TablePermission[] {wildcardBoth, wildcardSchema, wildcardTable, exact}) {
       if (p == null) continue;
-      if (p.select().permissivenessLevel() > select.permissivenessLevel()) select = p.select();
+      select.addAll(p.select());
       if (p.insert().ordinal() > insert.ordinal()) insert = p.insert();
       if (p.update().ordinal() > update.ordinal()) update = p.update();
       if (p.delete().ordinal() > delete.ordinal()) delete = p.delete();
       if (p.changeOwner()) changeOwner = true;
-      if (p.share()) share = true;
+      if (p.changeGroup()) changeGroup = true;
     }
 
     return new TablePermission(
-        schemaName, tableName, select, insert, update, delete, changeOwner, share);
+        schemaName, tableName, select, insert, update, delete, changeOwner, changeGroup);
   }
 
   public record TableRef(String schema, String table) {}

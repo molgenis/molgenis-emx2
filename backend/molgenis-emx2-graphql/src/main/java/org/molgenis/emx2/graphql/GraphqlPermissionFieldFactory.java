@@ -5,39 +5,42 @@ import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 import org.molgenis.emx2.sql.SqlRoleManager;
 
 public class GraphqlPermissionFieldFactory {
 
-  static final GraphQLEnumType scopeEnumType;
+  static final GraphQLEnumType updateScopeEnumType;
 
   static {
-    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisEditScope");
-    for (Scope s : Scope.values()) {
+    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisUpdateScope");
+    for (UpdateScope s : UpdateScope.values()) {
       builder.value(s.name(), s);
     }
-    scopeEnumType = builder.build();
+    updateScopeEnumType = builder.build();
   }
 
-  static final GraphQLEnumType selectEnumType;
+  static final GraphQLEnumType selectScopeEnumType;
 
   static {
-    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelect");
-    for (Select s : Select.values()) {
+    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
+    for (SelectScope s : SelectScope.values()) {
       builder.value(s.name(), s);
     }
-    selectEnumType = builder.build();
+    selectScopeEnumType = builder.build();
   }
 
   static final GraphQLObjectType effectivePermissionType =
@@ -49,17 +52,20 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("table").type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(selectEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(scopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(scopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(scopeEnumType))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SELECT)
+                  .type(GraphQLList.list(GraphQLNonNull.nonNull(selectScopeEnumType))))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(updateScopeEnumType))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("changeOwner")
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("share")
+                  .name("changeGroup")
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -72,17 +78,20 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("table").type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(selectEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(scopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(scopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(scopeEnumType))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SELECT)
+                  .type(GraphQLList.list(GraphQLNonNull.nonNull(selectScopeEnumType))))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(updateScopeEnumType))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("changeOwner")
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("share")
+                  .name("changeGroup")
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -120,17 +129,23 @@ public class GraphqlPermissionFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name("table")
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(SELECT).type(selectEnumType))
-          .field(GraphQLInputObjectField.newInputObjectField().name(INSERT).type(scopeEnumType))
-          .field(GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(scopeEnumType))
-          .field(GraphQLInputObjectField.newInputObjectField().name(DELETE).type(scopeEnumType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SELECT)
+                  .type(GraphQLList.list(GraphQLNonNull.nonNull(selectScopeEnumType))))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(INSERT).type(updateScopeEnumType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(updateScopeEnumType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(DELETE).type(updateScopeEnumType))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name("changeOwner")
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("share")
+                  .name("changeGroup")
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -170,12 +185,12 @@ public class GraphqlPermissionFieldFactory {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("schema", p.schema());
       map.put("table", p.table());
-      map.put(SELECT, p.select().name());
+      map.put(SELECT, p.select().stream().map(SelectScope::name).collect(Collectors.toList()));
       map.put(INSERT, p.insert());
       map.put(UPDATE, p.update());
       map.put(DELETE, p.delete());
       map.put("changeOwner", p.changeOwner());
-      map.put("share", p.share());
+      map.put("changeGroup", p.changeGroup());
       result.add(map);
     }
     return result;
@@ -211,12 +226,12 @@ public class GraphqlPermissionFieldFactory {
           new TablePermission(
               schemaName,
               (String) pMap.get("table"),
-              toSelect(pMap.get(SELECT)),
-              toScope(pMap.get(INSERT)),
-              toScope(pMap.get(UPDATE)),
-              toScope(pMap.get(DELETE)),
+              toSelectScopeSet(pMap.get(SELECT)),
+              toUpdateScope(pMap.get(INSERT)),
+              toUpdateScope(pMap.get(UPDATE)),
+              toUpdateScope(pMap.get(DELETE)),
               Boolean.TRUE.equals(pMap.get("changeOwner")),
-              Boolean.TRUE.equals(pMap.get("share"))));
+              Boolean.TRUE.equals(pMap.get("changeGroup"))));
     }
     rm.setPermissions(role, ps);
   }
@@ -240,23 +255,38 @@ public class GraphqlPermissionFieldFactory {
     }
   }
 
-  static Select toSelect(Object value) {
-    if (value == null) return Select.NONE;
-    if (value instanceof Select s) return s;
+  static Set<SelectScope> toSelectScopeSet(Object value) {
+    if (value == null) return TablePermission.emptySelect();
+    if (value instanceof List<?> list) {
+      Set<SelectScope> result = EnumSet.noneOf(SelectScope.class);
+      for (Object item : list) {
+        if (item instanceof SelectScope s) {
+          result.add(s);
+        } else {
+          try {
+            result.add(SelectScope.fromString(item.toString()));
+          } catch (Exception ignored) {
+            // skip unknown values
+          }
+        }
+      }
+      return result;
+    }
+    if (value instanceof SelectScope s) return TablePermission.singletonSelect(s);
     try {
-      return Select.fromString(value.toString());
+      return TablePermission.singletonSelect(SelectScope.fromString(value.toString()));
     } catch (Exception e) {
-      return Select.NONE;
+      return TablePermission.emptySelect();
     }
   }
 
-  static Scope toScope(Object value) {
-    if (value == null) return Scope.NONE;
-    if (value instanceof Scope s) return s;
+  static UpdateScope toUpdateScope(Object value) {
+    if (value == null) return UpdateScope.NONE;
+    if (value instanceof UpdateScope s) return s;
     try {
-      return Scope.fromString(value.toString());
+      return UpdateScope.fromString(value.toString());
     } catch (Exception e) {
-      return Scope.NONE;
+      return UpdateScope.NONE;
     }
   }
 }

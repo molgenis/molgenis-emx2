@@ -3,13 +3,15 @@ package org.molgenis.emx2.sql.rls;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 
 public class SqlPermissionExecutor {
 
@@ -18,7 +20,7 @@ public class SqlPermissionExecutor {
   private static final String ROLE_PREFIX = "MG_ROLE_";
 
   private static final String CHANGEOWNER_VERB = "CHANGEOWNER";
-  private static final String SHARE_VERB = "SHARE";
+  private static final String CHANGEGROUP_VERB = "CHANGEGROUP";
   private static final String SELECT_VERB = "SELECT";
 
   private static final String USING_OWN = "(mg_owner = session_user)";
@@ -61,7 +63,7 @@ public class SqlPermissionExecutor {
   }
 
   public static void createPolicy(
-      DSLContext jooq, String pgRole, String schema, String table, String verb, Scope scope) {
+      DSLContext jooq, String pgRole, String schema, String table, String verb, UpdateScope scope) {
     String rawRole = stripRolePrefix(pgRole);
     String policyName = POLICY_PREFIX + rawRole + "_" + verb + "_" + scope.name();
     String usingExpr = usingExpr(verb, scope);
@@ -93,11 +95,11 @@ public class SqlPermissionExecutor {
     }
   }
 
-  public static void createSelectModePolicy(
-      DSLContext jooq, String pgRole, String schema, String table, Select select) {
+  public static void createSelectScopePolicy(
+      DSLContext jooq, String pgRole, String schema, String table, SelectScope scope) {
     String rawRole = stripRolePrefix(pgRole);
-    String policyName = composeSelectPolicyName(rawRole, select);
-    String usingExpr = selectModeUsingExpr(select);
+    String policyName = composeSelectPolicyName(rawRole, scope);
+    String usingExpr = selectScopeUsingExpr(scope);
     jooq.execute(
         "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR SELECT TO {2} USING " + usingExpr,
         name(policyName),
@@ -105,8 +107,8 @@ public class SqlPermissionExecutor {
         name(pgRole));
   }
 
-  private static String selectModeUsingExpr(Select select) {
-    return switch (select) {
+  private static String selectScopeUsingExpr(SelectScope scope) {
+    return switch (scope) {
       case NONE -> "(false)";
       case EXISTS, COUNT, AGGREGATE, RANGE -> USING_ALL;
       case OWN -> USING_OWN;
@@ -116,7 +118,7 @@ public class SqlPermissionExecutor {
   }
 
   public static void createChangeOwnerPolicy(
-      DSLContext jooq, String pgRole, String schema, String table, Scope scope) {
+      DSLContext jooq, String pgRole, String schema, String table, UpdateScope scope) {
     String rawRole = stripRolePrefix(pgRole);
     String policyName = composeChangeOwnerPolicyName(rawRole, scope);
     jooq.execute(
@@ -124,25 +126,25 @@ public class SqlPermissionExecutor {
         name(policyName), table(name(schema, table)), name(pgRole));
   }
 
-  public static void createSharePolicy(
-      DSLContext jooq, String pgRole, String schema, String table, Scope scope) {
+  public static void createChangeGroupPolicy(
+      DSLContext jooq, String pgRole, String schema, String table, UpdateScope scope) {
     String rawRole = stripRolePrefix(pgRole);
-    String policyName = composeSharePolicyName(rawRole, scope);
+    String policyName = composeChangeGroupPolicyName(rawRole, scope);
     jooq.execute(
         "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR SELECT TO {2} USING (false)",
         name(policyName), table(name(schema, table)), name(pgRole));
   }
 
-  public static String composeSelectPolicyName(String rawRole, Select select) {
-    return POLICY_PREFIX + rawRole + "_" + SELECT_VERB + "_" + select.name();
+  public static String composeSelectPolicyName(String rawRole, SelectScope scope) {
+    return POLICY_PREFIX + rawRole + "_" + SELECT_VERB + "_" + scope.name();
   }
 
-  public static String composeChangeOwnerPolicyName(String rawRole, Scope scope) {
+  public static String composeChangeOwnerPolicyName(String rawRole, UpdateScope scope) {
     return POLICY_PREFIX + rawRole + "_" + CHANGEOWNER_VERB + "_" + scope.name();
   }
 
-  public static String composeSharePolicyName(String rawRole, Scope scope) {
-    return POLICY_PREFIX + rawRole + "_" + SHARE_VERB + "_" + scope.name();
+  public static String composeChangeGroupPolicyName(String rawRole, UpdateScope scope) {
+    return POLICY_PREFIX + rawRole + "_" + CHANGEGROUP_VERB + "_" + scope.name();
   }
 
   public static void dropAllPolicies(DSLContext jooq, String pgRole, String schema, String table) {
@@ -177,11 +179,7 @@ public class SqlPermissionExecutor {
       String policyName = row.get("policyname", String.class);
 
       String tableKey = schema + ":" + table;
-      TablePermission existing =
-          perTable.getOrDefault(
-              tableKey,
-              new TablePermission(
-                  schema, table, Select.NONE, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+      TablePermission existing = perTable.getOrDefault(tableKey, emptyPermission(schema, table));
 
       String suffix = policyName.substring((POLICY_PREFIX + rawRole + "_").length());
       existing = applyPolicySuffix(existing, suffix);
@@ -201,11 +199,7 @@ public class SqlPermissionExecutor {
       String verb = row.get("privilege_type", String.class);
 
       String tableKey = schema + ":" + table;
-      TablePermission existing =
-          perTable.getOrDefault(
-              tableKey,
-              new TablePermission(
-                  schema, table, Select.NONE, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+      TablePermission existing = perTable.getOrDefault(tableKey, emptyPermission(schema, table));
 
       if (isVerbScopeNone(existing, verb)) {
         existing = mergeVerbAll(existing, verb);
@@ -220,12 +214,31 @@ public class SqlPermissionExecutor {
     return result;
   }
 
+  private static TablePermission emptyPermission(String schema, String table) {
+    return new TablePermission(
+        schema,
+        table,
+        TablePermission.emptySelect(),
+        UpdateScope.NONE,
+        UpdateScope.NONE,
+        UpdateScope.NONE,
+        false,
+        false);
+  }
+
   private static TablePermission applyPolicySuffix(TablePermission p, String suffix) {
     if (suffix.startsWith(CHANGEOWNER_VERB + "_")) {
       return new TablePermission(
-          p.schema(), p.table(), p.select(), p.insert(), p.update(), p.delete(), true, p.share());
+          p.schema(),
+          p.table(),
+          p.select(),
+          p.insert(),
+          p.update(),
+          p.delete(),
+          true,
+          p.changeGroup());
     }
-    if (suffix.startsWith(SHARE_VERB + "_")) {
+    if (suffix.startsWith(CHANGEGROUP_VERB + "_")) {
       return new TablePermission(
           p.schema(),
           p.table(),
@@ -238,12 +251,11 @@ public class SqlPermissionExecutor {
     }
     if (suffix.startsWith(SELECT_VERB + "_")) {
       String selectName = suffix.substring((SELECT_VERB + "_").length());
-      Select parsedSelect = parseSelect(selectName);
-      if (parsedSelect != null && parsedSelect != Select.NONE) {
-        Select merged =
-            parsedSelect.permissivenessLevel() > p.select().permissivenessLevel()
-                ? parsedSelect
-                : p.select();
+      SelectScope parsedSelect = parseSelectScope(selectName);
+      if (parsedSelect != null && parsedSelect != SelectScope.NONE) {
+        Set<SelectScope> merged = EnumSet.noneOf(SelectScope.class);
+        merged.addAll(p.select());
+        merged.add(parsedSelect);
         return new TablePermission(
             p.schema(),
             p.table(),
@@ -252,7 +264,7 @@ public class SqlPermissionExecutor {
             p.update(),
             p.delete(),
             p.changeOwner(),
-            p.share());
+            p.changeGroup());
       }
       return p;
     }
@@ -260,15 +272,15 @@ public class SqlPermissionExecutor {
     if (parts.length < 2) return p;
     String verb = parts[0];
     String scopeName = parts[1];
-    Scope scope = parseScope(scopeName);
+    UpdateScope scope = parseUpdateScope(scopeName);
     if (scope == null) return p;
     return mergeVerbFromPolicy(p, verb, scope);
   }
 
-  private static Select parseSelect(String name) {
+  private static SelectScope parseSelectScope(String name) {
     if (name == null) return null;
     try {
-      return Select.valueOf(name.toUpperCase(java.util.Locale.ROOT));
+      return SelectScope.valueOf(name.toUpperCase(java.util.Locale.ROOT));
     } catch (IllegalArgumentException e) {
       return null;
     }
@@ -347,7 +359,7 @@ public class SqlPermissionExecutor {
     jooq.execute("DROP TRIGGER IF EXISTS mg_enforce_row_authorisation ON " + schemaTable);
   }
 
-  private static String usingExpr(String verb, Scope scope) {
+  private static String usingExpr(String verb, UpdateScope scope) {
     if (SQL_INSERT.equals(verb)) return null;
     return switch (scope) {
       case OWN -> USING_OWN;
@@ -357,10 +369,10 @@ public class SqlPermissionExecutor {
     };
   }
 
-  private static String withCheckExpr(String verb, Scope scope) {
+  private static String withCheckExpr(String verb, UpdateScope scope) {
     if (SQL_SELECT.equals(verb) || SQL_DELETE.equals(verb)) return null;
     if (SQL_UPDATE.equals(verb)) {
-      if (scope == Scope.OWN || scope == Scope.GROUP) {
+      if (scope == UpdateScope.OWN || scope == UpdateScope.GROUP) {
         return WITH_CHECK_ALL;
       }
       return null;
@@ -376,18 +388,9 @@ public class SqlPermissionExecutor {
     return null;
   }
 
-  private static TablePermission mergeVerbFromPolicy(TablePermission p, String verb, Scope scope) {
+  private static TablePermission mergeVerbFromPolicy(
+      TablePermission p, String verb, UpdateScope scope) {
     return switch (verb.toUpperCase()) {
-      case SQL_SELECT ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              selectFromScope(scope),
-              p.insert(),
-              p.update(),
-              p.delete(),
-              p.changeOwner(),
-              p.share());
       case SQL_INSERT ->
           new TablePermission(
               p.schema(),
@@ -397,7 +400,7 @@ public class SqlPermissionExecutor {
               p.update(),
               p.delete(),
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       case SQL_UPDATE ->
           new TablePermission(
               p.schema(),
@@ -407,7 +410,7 @@ public class SqlPermissionExecutor {
               scope,
               p.delete(),
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       case SQL_DELETE ->
           new TablePermission(
               p.schema(),
@@ -417,71 +420,66 @@ public class SqlPermissionExecutor {
               p.update(),
               scope,
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       default -> p;
     };
   }
 
-  private static Select selectFromScope(Scope scope) {
-    return switch (scope) {
-      case OWN -> Select.OWN;
-      case GROUP -> Select.GROUP;
-      case ALL -> Select.ALL;
-      default -> Select.NONE;
-    };
-  }
-
-  private static Scope parseScope(String scopeName) {
+  private static UpdateScope parseUpdateScope(String scopeName) {
     return switch (scopeName) {
-      case "OWN" -> Scope.OWN;
-      case "GROUP" -> Scope.GROUP;
-      case "ALL" -> Scope.ALL;
+      case "OWN" -> UpdateScope.OWN;
+      case "GROUP" -> UpdateScope.GROUP;
+      case "ALL" -> UpdateScope.ALL;
       default -> null;
     };
   }
 
   private static boolean isVerbScopeNone(TablePermission p, String verb) {
     return switch (verb.toUpperCase()) {
-      case SQL_SELECT -> p.select() == Select.NONE;
-      case SQL_INSERT -> p.insert() == Scope.NONE;
-      case SQL_UPDATE -> p.update() == Scope.NONE;
-      case SQL_DELETE -> p.delete() == Scope.NONE;
+      case SQL_SELECT -> p.select().isEmpty();
+      case SQL_INSERT -> p.insert() == UpdateScope.NONE;
+      case SQL_UPDATE -> p.update() == UpdateScope.NONE;
+      case SQL_DELETE -> p.delete() == UpdateScope.NONE;
       default -> true;
     };
   }
 
   private static TablePermission mergeVerbAll(TablePermission p, String verb) {
     return switch (verb.toUpperCase()) {
-      case SQL_SELECT ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              Select.ALL,
-              p.insert(),
-              p.update(),
-              p.delete(),
-              p.changeOwner(),
-              p.share());
+      case SQL_SELECT -> {
+        Set<SelectScope> merged = EnumSet.noneOf(SelectScope.class);
+        merged.addAll(p.select());
+        merged.add(SelectScope.ALL);
+        yield new TablePermission(
+            p.schema(),
+            p.table(),
+            merged,
+            p.insert(),
+            p.update(),
+            p.delete(),
+            p.changeOwner(),
+            p.changeGroup());
+      }
       case SQL_INSERT ->
           new TablePermission(
               p.schema(),
               p.table(),
               p.select(),
-              Scope.ALL,
+              UpdateScope.ALL,
               p.update(),
               p.delete(),
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       case SQL_UPDATE ->
           new TablePermission(
               p.schema(),
               p.table(),
               p.select(),
               p.insert(),
-              Scope.ALL,
+              UpdateScope.ALL,
               p.delete(),
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       case SQL_DELETE ->
           new TablePermission(
               p.schema(),
@@ -489,9 +487,9 @@ public class SqlPermissionExecutor {
               p.select(),
               p.insert(),
               p.update(),
-              Scope.ALL,
+              UpdateScope.ALL,
               p.changeOwner(),
-              p.share());
+              p.changeGroup());
       default -> p;
     };
   }

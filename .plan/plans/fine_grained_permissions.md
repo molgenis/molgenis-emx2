@@ -168,18 +168,18 @@ All permission attributes (change_owner, share, view mode) are encoded as PG pol
 Policy naming (migration 32 is pre-ship — edit in place, no version bump):
 
 - Edit-verb scopes: `MG_P_<role>_<VERB>_<SCOPE>` where VERB ∈ SELECT/INSERT/UPDATE/DELETE, SCOPE ∈ OWN/GROUP/ALL — already implemented.
-- `change_owner` flag: `MG_P_<role>_CHANGEOWNER_<UPDATE_SCOPE>` (existence = flag is true; scope mirrors the update verb scope).
-- `share` flag: `MG_P_<role>_SHARE_<UPDATE_SCOPE>` (existence = flag is true).
+- `changeOwner` flag: `MG_P_<role>_CHANGEOWNER_<UPDATE_SCOPE>` (existence = flag is true; scope mirrors the update verb scope).
+- `changeGroup` flag: `MG_P_<role>_CHANGEGROUP_<UPDATE_SCOPE>` (existence = flag is true; renamed from SHARE).
 - View mode: `MG_P_<role>_VIEW_<MODE>` where MODE ∈ COUNT/AGGREGATE/EXISTS/RANGE. Default FULL = absence of any VIEW policy.
 
 Sentinel policies (CHANGEOWNER/SHARE/VIEW) are created as `FOR SELECT USING (false)` — they mark capability without granting data access (OR'd with real SELECT policies → no change to effective access).
 
 Wildcards (`schema='*'`, `table='*'`) are materialised at `setPermissions` time as concrete per-(schema,table) policies. `getPermissions(role)` returns concrete entries, not wildcard templates — acceptable per design.
 
-### Capability matrix
+### Capability matrix (SelectScope values)
 
-| Mode | rows / JSON | count | sum/avg | min/max | group by | exists |
-|------|-------------|-------|---------|---------|----------|--------|
+| SelectScope | rows / JSON | count | sum/avg | min/max | group by | exists |
+|-------------|-------------|-------|---------|---------|----------|--------|
 | FULL/ALL | ✓ | ✓ exact | ✓ | ✓ | ✓ | ✓ |
 | AGGREGATE | ✗ | ✓ exact | ✓ | ✓ | ✓ | ✓ |
 | COUNT | ✗ | ✓ exact | ✗ | ✗ | ✗ | ✓ |
@@ -188,7 +188,7 @@ Wildcards (`schema='*'`, `table='*'`) are materialised at `setPermissions` time 
 
 RANGE count truncation rule: keep only the first significant digit, zero the rest. Counts 0–9 → 0. `floor(n / 10^(digits-1)) * 10^(digits-1)` for n ≥ 10. `exists` check is the minimum affordance for all non-FULL modes.
 
-When a user holds multiple roles on the same table, union-most-permissive applies: the widest SelectScope wins. E.g. a user with AGGREGATOR (AGGREGATE) and VIEWER (FULL) sees FULL. Matches the scope-ladder union for edit verbs already in place.
+When a user holds multiple roles on the same table, union-most-permissive applies: the widest `SelectScope` wins. E.g. a user with AGGREGATOR (AGGREGATE) and VIEWER (FULL) sees FULL. Matches the `UpdateScope` ladder union for edit verbs already in place.
 
 ### Stories
 
@@ -251,7 +251,19 @@ Pulled into Phase 3 (was backlog) because 3.1/3.2 touch the same emit path; fold
 
 Red: `SqlRoleManagerTest#{setPermissionsDiffPatchOnlyTouchesChanged, setPermissionsNoOpForUnchangedWildcard}` (already on spec as unimplemented). Green: rewrite setPermissions around diff computation.
 
-#### Story 3.10 — Phase 3 integration test
+##### Story 3.11 — Terminology refactor: SelectScope / UpdateScope / changeGroup [DONE]
+
+Three coordinated renames, no behavioural change:
+1. `TablePermission.Select` → `TablePermission.SelectScope` (values unchanged: NONE/EXISTS/COUNT/AGGREGATE/RANGE/OWN/GROUP/ALL).
+2. `TablePermission.Scope` → `TablePermission.UpdateScope` (values unchanged: NONE/OWN/GROUP/ALL). Canonical name even though shared by insert/update/delete fields — mirrors PG's row-level write semantics.
+3. Field rename `share` → `changeGroup` on `TablePermission` record. Pairs with `changeOwner` (mg_owner/mg_roles axis).
+4. SQL policy infix: `MG_P_<role>_SHARE_<SCOPE>` → `MG_P_<role>_CHANGEGROUP_<SCOPE>` (in-place edit of `migration32.sql` and `mg_enforce_row_authorisation.sql`).
+5. GraphQL enums: `MolgenisSelect` → `MolgenisSelectScope`; `MolgenisEditScope` → `MolgenisUpdateScope`.
+6. GraphQL field: `share` → `changeGroup` on all input/output permission types.
+
+Propagated through: `SqlPermissionExecutor`, `SqlRoleManager`, `PermissionSet`, `GraphqlPermissionFieldFactory`, `GraphqlSessionFieldFactory`, all test files, plan + spec docs.
+
+### Story 3.10 — Phase 3 integration test
 
 `SelectScopeIT#fullMatrix` — admin creates 5 roles (one per mode), grants each to a distinct test user, runs each allowed and disallowed operation per row of the capability matrix. Asserts HTTP 200 for allowed, `MolgenisException`-mapped error for disallowed.
 
@@ -307,7 +319,7 @@ Per spec backlog line 290: reserve role names after `deleteRole` so a future `cr
 - Migration 32 follows existing scheme (`migration32.sql` resource + version bump). No `row_level_security` column on `table_metadata` — RLS is emergent.
 - `role_metadata` table NOT implemented; PG-native `COMMENT ON ROLE` for descriptions, `isSystemRoleByName` for system-role flag.
 - Schema-scoped roles in v1: internal infrastructure supports them for built-ins; user-facing custom-role mutation still global-only.
-- Terminology: `mg_roles` column, `group` scope, `share` permission.
+- Terminology: `mg_roles` column, `group` scope, `changeGroup` permission (renamed from `share` in Story 3.11).
 - Policy naming: `MG_P_<role>_<VERB>_<SCOPE>`, role name ≤ 40 chars.
 - Concurrency: last-write-wins.
 - Admin authority: Java `database.isAdmin()` pre-check on every mutation.
@@ -317,8 +329,9 @@ Per spec backlog line 290: reserve role names after `deleteRole` so a future `cr
 - `current_user_roles()` declared `STABLE`.
 - GIN index on `mg_roles` created on RLS enable, dropped on disable.
 - GraphQL mutations use EMX2's unified `change` / `drop` pattern on existing root fields.
-- `selectScope` field (was `viewMode`) on permission input; `MolgenisSelectScope` enum (was `MolgenisViewMode`).
-- `MolgenisEditScope` enum (was `MolgenisScope`) for edit-verb scopes.
+- `select` field using `MolgenisSelectScope` enum on permission input/output (Story 3.11 rename from `MolgenisSelect`).
+- `MolgenisUpdateScope` enum for edit-verb scopes insert/update/delete (Story 3.11 rename from `MolgenisEditScope`).
+- `changeGroup` field (Story 3.11 rename from `share`) on permission input/output.
 - `systemRole` GraphQL field (not `immutable`) in admin role output.
 - `_session.permissions` (not `effectivePermissions`) — no collision found with existing `tablePermissions`.
 

@@ -6,12 +6,16 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
 
 - **Role** — named permission bundle. One PostgreSQL role per EMX2 role. Custom role naming: `MG_ROLE_<rolename>` (global).
 - **User** — granted one or more roles via `GRANT <role> TO <user>`. Source of truth: `pg_auth_members`.
-- **Permission** — tuple `(schema, table, select, insert, update, delete, change_owner, share)` belonging to a role.
-- **Select** — unified enum field replacing `select: Scope` + `viewMode: ViewMode`. Values: `NONE, EXISTS, COUNT, AGGREGATE, RANGE, OWN, GROUP, ALL`. NONE = no access; EXISTS/COUNT/AGGREGATE/RANGE = view modes (table-wide in v1, no row filtering); OWN/GROUP/ALL = full row+field access with scope.
-- **Scope ladder** — `none | own | group | all`.
+- **Permission** — tuple `(schema, table, select, insert, update, delete, changeOwner, changeGroup)` belonging to a role.
+- **SelectScope** — unified enum (`TablePermission.SelectScope`) replacing prior `select: Scope` + `viewMode: ViewMode`. 
+- **SelectScope ladder** - `NONE, EXISTS, COUNT, AGGREGATE, RANGE, OWN, GROUP, ALL`. NONE = no access; EXISTS/COUNT/AGGREGATE/RANGE = view modes (table-wide in v1, no row filtering); OWN/GROUP/ALL = full row+field access with scope.
+- **UpdateScope** — enum (`TablePermission.UpdateScope`) for write verbs insert/update/delete. Values: `NONE, OWN, GROUP, ALL`. Canonical name even though it is shared across all three write verbs (mirrors PG row-level write semantics where update is the most expressive verb).
+- **UpdateScope ladder** — `none | own | group | all`.
   - **own** — row where `mg_owner = session_user`.
   - **group** — row where `mg_roles && current_user_roles()` (array overlap on SELECT/UPDATE/DELETE); INSERT uses `<@` (subset — stricter).
   - **all** — every row in the table.
+- **changeOwner** — boolean flag on `TablePermission`; permission to change `mg_owner` on a row. Policy infix `CHANGEOWNER`.
+- **changeGroup** — boolean flag on `TablePermission`; permission to change `mg_roles` on a row (renamed from `share` in Story 3.11). Policy infix `CHANGEGROUP`.
 - **Built-in role** — system role (VIEWER, EDITOR, MANAGER, OWNER, AGGREGATOR, RANGE, EXISTS, COUNT); `isSystemRole()` flag on the `Role` record.
 - **Custom role** — admin-created, mutable.
 - **`SqlPermissionExecutor`** — static helpers under `org.molgenis.emx2.sql.rls`. Class is package-accessible within `.rls` (not truly package-private to `org.molgenis.emx2.sql`); `SqlRoleManager` in the parent package imports it. Modelled on `org.molgenis.emx2.sql.autoid.*` precedent. Not part of public API.
@@ -25,7 +29,7 @@ Living guardrail for the fine-grained permission feature. Update when behaviour 
 
 ## Components (public surface)
 
-- `org.molgenis.emx2.TablePermission` — Java `record`: `schema, table, select: Select, insert: Scope, update: Scope, delete: Scope, changeOwner: boolean, share: boolean`. Unified `select` enum field replaces prior `select: Scope` + `viewMode: ViewMode`. Wildcards allowed on schema/table (`"*"`). Record `equals`/`hashCode` cover all fields (true value-object semantics).
+- `org.molgenis.emx2.TablePermission` — Java `record`: `schema, table, select: SelectScope, insert: UpdateScope, update: UpdateScope, delete: UpdateScope, changeOwner: boolean, changeGroup: boolean`. Unified `select` enum field replaces prior `select: Scope` + `viewMode: ViewMode`. Wildcards allowed on schema/table (`"*"`). Record `equals`/`hashCode` cover all fields (true value-object semantics).
 - `org.molgenis.emx2.PermissionSet` — composition, holds `LinkedHashMap<String, TablePermission>` keyed on `schema + ":" + table`. Methods: `put(TablePermission)` (replace-by-key), `remove(schema, table)`, `iterator/size/contains` + `validate(Function<TableRef, Boolean> isRlsEnabled): List<ValidationError>` + `resolveFor(schemaName, tableName): TablePermission` (applies union-most-permissive). The "Set" in the type name reflects replace-by-key semantics, not a `java.util.Set`.
 - `org.molgenis.emx2.RoleManager` — interface in base module. Methods:
   - `createRole(name, description)` — global custom role (name: max 32 chars, charset `[a-zA-Z0-9 ]`, no leading/trailing space)
@@ -76,9 +80,9 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 `MG_P_<role>_<VERB>_<VALUE>`
 
 - Edit-verb policies: `VERB` ∈ `SELECT | INSERT | UPDATE | DELETE`, `VALUE` ∈ `OWN | GROUP | ALL`. Real permissive policies with appropriate USING/WITH CHECK expressions.
-- `change_owner` flag: `VERB = CHANGEOWNER`, `VALUE` = the update verb's scope (`OWN | GROUP | ALL`). Sentinel policy: `FOR SELECT USING (false)` — marks capability, does not affect data access (OR'd with real SELECT policies).
-- `share` flag: `VERB = SHARE`, `VALUE` = the update verb's scope. Same sentinel pattern as CHANGEOWNER.
-- Select mode: `VERB = SELECT`, `VALUE` ∈ `EXISTS | COUNT | AGGREGATE | RANGE | OWN | GROUP | ALL`. Unified field subsumes both view modes + row scopes. Sentinel policies for EXISTS/COUNT/AGGREGATE/RANGE are `FOR SELECT USING (false)`. Default ALL = absence of any SELECT policy with a view-mode suffix.
+- `changeOwner` flag: `VERB = CHANGEOWNER`, `VALUE` = the update verb's `UpdateScope` (`OWN | GROUP | ALL`). Sentinel policy: `FOR SELECT USING (false)` — marks capability, does not affect data access (OR'd with real SELECT policies).
+- `changeGroup` flag: `VERB = CHANGEGROUP`, `VALUE` = the update verb's `UpdateScope`. Same sentinel pattern as CHANGEOWNER. (Renamed from `SHARE` in Story 3.11.)
+- Select mode: `VERB = SELECT`, `VALUE` ∈ `EXISTS | COUNT | AGGREGATE | RANGE | OWN | GROUP | ALL`. Unified `SelectScope` field subsumes both view modes + row scopes. Sentinel policies for EXISTS/COUNT/AGGREGATE/RANGE are `FOR SELECT USING (false)`. Default ALL = absence of any SELECT policy with a view-mode suffix.
 - Fixed overhead: `MG_P_` (5) + `_CHANGEOWNER_GROUP` (18) = 23 chars overhead. Role name capped at 32 UTF-8 bytes → worst-case identifier = 5 + 32 + 18 = 55 bytes, within PG's 63-byte `NAMEDATALEN` limit.
 - No `COMMENT ON POLICY` — metadata is fully derivable from the policy name alone.
 
@@ -120,7 +124,7 @@ Role names in EMX2 cannot contain commas (sanitized at creation), so `,` is safe
 | `delete.scope > select.scope` → invariant error; select must be OWN/GROUP/ALL (view modes are read-only) | `PermissionSet.validate` | `PermissionSetTest#deleteRequiresRead` | n/a |
 | `update.scope > select.scope` → invariant error | `PermissionSet.validate` | `PermissionSetTest#updateRequiresRead` | n/a |
 | `changeOwner=true` requires `update ≥ own` | `PermissionSet.validate` | `PermissionSetTest#changeOwnerRequiresUpdate` | n/a |
-| `share=true` requires `update ≥ own` | `PermissionSet.validate` | `PermissionSetTest#shareRequiresUpdate` | n/a |
+| `changeGroup=true` requires `update ≥ own` | `PermissionSet.validate` | `PermissionSetTest#changeGroupRequiresUpdate` | n/a |
 | `own`/`group` scope on any verb auto-installs RLS on the target table via `ensureRlsInstalled` | `SqlRoleManager.setPermissions` → `SqlPermissionExecutor.ensureRlsInstalled` | `SqlTableMetadataRlsTest#firstOwnGrantInstallsRls` | n/a |
 | Validation is server-side rejection; client-side auto-upgrade deferred to UI | `PermissionSet.validate` | `PermissionSetTest#serverRejectsInsteadOfUpgrading` | n/a |
 | `SqlRoleManager.setPermissions` uses **diff-and-patch**: reads current `PermissionSet` via `getPermissions(role)`, compares against payload, emits DROP/CREATE only for `(schema, table)` keys that changed. Unchanged entries → no DDL, no lock. Removed entries → drop only. Added entries → create only. | `SqlRoleManager.setPermissions` → SqlPermissionExecutor | `SqlRoleManagerTest#setPermissionsDiffPatchOnlyTouchesChanged` | n/a |
@@ -198,11 +202,11 @@ These behaviours are tested through `SqlRoleManager.setPermissions` + `getPermis
 | `insert:group` — user must set `mg_roles` length ≥ 1 and all ∈ user's granted roles | policy | `RowLifecycleTest#insertGroupValidatesRoles` | n/a |
 | `insert:all` — user may set `mg_owner`/`mg_roles` freely; omitted fields get DEFAULTs | policy + DEFAULTs | `RowLifecycleTest#insertAllDefaults` | n/a |
 | UPDATE without `change_owner` — guard trigger raises if `NEW.mg_owner != OLD.mg_owner` | `mg_enforce_row_authorisation` | `RowLifecycleTest#updateWithoutChangeOwnerRejected` | n/a |
-| UPDATE without `share` — guard trigger raises if `NEW.mg_roles != OLD.mg_roles` | `mg_enforce_row_authorisation` | `RowLifecycleTest#updateWithoutShareRejected` | n/a |
+| UPDATE without `changeGroup` — guard trigger raises if `NEW.mg_roles != OLD.mg_roles` | `mg_enforce_row_authorisation` | `RowLifecycleTest#updateWithoutChangeGroupRejected` | n/a |
 | `change_owner:own` — may transfer rows user owned; destination unrestricted | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerOwnScope` | n/a |
 | `change_owner:group` — may change owner on rows in user's group; destination must also be member of user's group | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerGroupScope` | n/a |
 | `change_owner:all` — unrestricted | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeOwnerAllScope` | n/a |
-| `share` (any scope) — new `mg_roles` values must all be roles user is member of | `mg_enforce_row_authorisation` | `RowLifecycleTest#shareLimitedToGrantedRoles` | n/a |
+| `changeGroup` (any scope) — new `mg_roles` values must all be roles user is member of | `mg_enforce_row_authorisation` | `RowLifecycleTest#changeGroupLimitedToGrantedRoles` | n/a |
 
 ### Built-in roles + coexistence
 
@@ -231,17 +235,17 @@ Admin guard is **Java-first with PG defense-in-depth**: `SqlRoleManager` checks 
 Follows the existing EMX2 pattern: **existing `change` and `drop` root mutations** extended with new argument lists for fine-grained permission management. No separate `changePermissions`/`dropPermissions` root fields. Both return `GraphqlApiMutationResult { status, message }`.
 
 GraphQL enum types:
-- `MolgenisEditScope` — values: `NONE | OWN | GROUP | ALL` (edit-verb scopes for insert/update/delete)
-- `MolgenisSelect` — values: `NONE | EXISTS | COUNT | AGGREGATE | RANGE | OWN | GROUP | ALL` (unified select: view modes + row scopes)
+- `MolgenisUpdateScope` — values: `NONE | OWN | GROUP | ALL` (edit-verb scopes for insert/update/delete; renamed from `MolgenisEditScope` in Story 3.11)
+- `MolgenisSelectScope` — values: `NONE | EXISTS | COUNT | AGGREGATE | RANGE | OWN | GROUP | ALL` (unified select: view modes + row scopes; renamed from `MolgenisSelect` in Story 3.11)
 
 Input types:
 - `MolgenisRoleInput { name: String!, description: String, permissions: [MolgenisPermissionInputFg!] }`
-- `MolgenisPermissionInputFg { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean }`
+- `MolgenisPermissionInputFg { schema, table, select: MolgenisSelectScope, insert, update, delete: MolgenisUpdateScope, changeOwner, changeGroup: Boolean }`
 - `MolgenisRoleMemberInput { role: String!, user: String! }`
 
 Output types:
 - `MolgenisRoleOutput { role, description, systemRole: Boolean, permissions: [MolgenisRolePermissionsOutput], members: [String] }`
-- `MolgenisEffectivePermission { schema, table, select, insert, update, delete: MolgenisEditScope, changeOwner, share: Boolean }`
+- `MolgenisEffectivePermission { schema, table, select: MolgenisSelectScope, insert, update, delete: MolgenisUpdateScope, changeOwner, changeGroup: Boolean }`
 
 Tests live in `org.molgenis.emx2.graphql.*`.
 
@@ -249,7 +253,7 @@ Tests live in `org.molgenis.emx2.graphql.*`.
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `_session(schema) { permissions { schema table select insert update delete changeOwner share } }` returns current user's resolved permissions using unified `select` enum. Field named `permissions` (no collision found with existing `tablePermissions`). | `GraphqlSessionFieldFactory` + `SqlRoleManager.getPermissionsForActiveUser()` | `GraphqlPermissionFieldFactoryTest#sessionPermissions_currentUserSeesOwnPermissions` | n/a |
+| `_session(schema) { permissions { schema table select insert update delete changeOwner changeGroup } }` returns current user's resolved permissions using unified `SelectScope` enum. Field named `permissions` (no collision found with existing `tablePermissions`). | `GraphqlSessionFieldFactory` + `SqlRoleManager.getPermissionsForActiveUser()` | `GraphqlPermissionFieldFactoryTest#sessionPermissions_currentUserSeesOwnPermissions` | n/a |
 | `_admin { roles(name) { role description systemRole permissions {...} members } }` (admin-only) lists all roles with permission sets and members | `GraphqlAdminFieldFactory` using `roleOutputType` from `GraphqlPermissionFieldFactory` | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_listsRolesAndPermissions` | n/a |
 | `systemRole` field in role output is `true` for built-in roles, `false` for custom | `GraphqlAdminFieldFactory` → `Role.isSystemRole()` | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_listsRolesAndPermissions` | n/a |
 | Non-admin querying `_admin { roles }` receives exception | `GraphqlAdminFieldFactory` auth check | `GraphqlPermissionFieldFactoryTest#adminRolesQuery_nonAdminNotAccessible` | n/a |
@@ -259,15 +263,15 @@ Tests live in `org.molgenis.emx2.graphql.*`.
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
 | `change(roles: [{name, description, permissions:[...]}])` creates or updates custom role(s) with nested permission set; admin-only | `GraphqlDatabaseFieldFactory` → `GraphqlPermissionFieldFactory.applyRoles` → `SqlRoleManager.createOrUpdateRole` + `setPermissions` | `GraphqlPermissionFieldFactoryTest#changeRoleDefinitions_createsRole` | n/a |
-| `change(roles: [{name, permissions:[{schema, table, select, ...}]}])` replaces permission set for role using unified `select` enum | `GraphqlPermissionFieldFactory.applyPermissionsForRole` → `SqlRoleManager.setPermissions` | `GraphqlPermissionFieldFactoryTest#changePermissions_replaceAll` | n/a |
+| `change(roles: [{name, permissions:[{schema, table, select, ...}]}])` replaces permission set for role using unified `SelectScope` enum | `GraphqlPermissionFieldFactory.applyPermissionsForRole` → `SqlRoleManager.setPermissions` | `GraphqlPermissionFieldFactoryTest#changePermissions_replaceAll` | n/a |
 | `change(members: [{role, user}])` grants role→user | `GraphqlPermissionFieldFactory.applyMembers` → `SqlRoleManager.grantRoleToUser` | `GraphqlPermissionFieldFactoryTest#changeMembers_grantsRole` | n/a |
 | `change` with roles + members in one call executes transactionally; order: roles → members; OWN/GROUP scopes in permissions auto-install RLS | `GraphqlDatabaseFieldFactory` wraps in `database.tx(...)` | `GraphqlPermissionsIT#fullScenario` | n/a |
 | `drop(roles: [String!])` deletes custom role(s); system roles rejected | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.deleteRole` | `GraphqlPermissionFieldFactoryTest#dropRoles_tombstonesRole` | n/a |
 | `drop(members: [{role, user}])` revokes role→user | `GraphqlDatabaseFieldFactory` → `SqlRoleManager.revokeRoleFromUser` | `GraphqlPermissionFieldFactoryTest#dropMembers_revokesRole` | n/a |
 | Non-admin invoking `change` or `drop` with permission arguments receives `FAILED` result with "admin" message | `GraphqlDatabaseFieldFactory` admin guard | `GraphqlPermissionFieldFactoryTest#nonAdminForbidden` | n/a |
-| `select` field in permission input accepts `MolgenisSelect` values (NONE/EXISTS/COUNT/AGGREGATE/RANGE/OWN/GROUP/ALL); unified enum replaces separate `selectScope` field | `GraphqlPermissionFieldFactory.applyPermissionsForRole` | implicit in mutation tests | n/a |
+| `select` field in permission input accepts `MolgenisSelectScope` values (NONE/EXISTS/COUNT/AGGREGATE/RANGE/OWN/GROUP/ALL); unified enum replaces separate `selectScope` field | `GraphqlPermissionFieldFactory.applyPermissionsForRole` | implicit in mutation tests | n/a |
 | `setPermissions` mutation accepts `select: COUNT` (and other values) without server-side rejection | `GraphqlPermissionFieldFactory` | `GraphqlPermissionFieldFactoryTest#changePermissions_acceptsSelectEnum` | — |
-| `_session.permissions[].select` reflects the persisted `MG_P_<role>_SELECT_<VALUE>` policy (defaults to `ALL`) using unified enum | `GraphqlSessionFieldFactory.buildPermissions` | `GraphqlPermissionFieldFactoryTest#sessionPermissions_exposesSelect` | — |
+| `_session.permissions[].select` reflects the persisted `MG_P_<role>_SELECT_<VALUE>` policy (defaults to `ALL`) using unified `SelectScope` enum | `GraphqlSessionFieldFactory.buildPermissions` | `GraphqlPermissionFieldFactoryTest#sessionPermissions_exposesSelect` | — |
 | When user holds one role for a table, `_session.permissions.select` equals that role's select value (no spurious ALL default from merge accumulator) | `SqlRoleManager.getPermissionsForActiveUser` | `SqlRoleManagerTest#getPermissionsForActiveUserReflectsSelect` | — |
 | `getPermissionsForActiveUser` returns most-permissive `select` when user holds multiple roles for same table | `PermissionSet.resolveFor` / `Select.permissivenessLevel` | `SqlRoleManagerTest#getPermissionsForActiveUserMergesSelectMostPermissiveWins` | — |
 | `mergeVerbAll` preserves `select` when merging GRANT rows with policy-derived permissions | `SqlPermissionExecutor.mergeVerbAll` | `SqlRoleManagerTest#getPermissionsReadsSelect` | — |

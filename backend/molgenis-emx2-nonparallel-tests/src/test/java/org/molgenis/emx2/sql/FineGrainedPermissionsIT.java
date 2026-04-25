@@ -8,7 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 
 class FineGrainedPermissionsIT {
@@ -95,10 +96,10 @@ class FineGrainedPermissionsIT {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.GROUP,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.GROUP),
+            UpdateScope.OWN,
+            UpdateScope.OWN,
+            UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -165,10 +166,10 @@ class FineGrainedPermissionsIT {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.emptySelect(),
+            UpdateScope.NONE,
+            UpdateScope.NONE,
+            UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, none);

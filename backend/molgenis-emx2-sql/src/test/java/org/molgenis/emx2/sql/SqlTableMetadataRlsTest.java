@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
 
 class SqlTableMetadataRlsTest {
 
@@ -61,10 +61,10 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -94,10 +94,10 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.GROUP,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.GROUP),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -123,10 +123,10 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     assertDoesNotThrow(() -> roleManager.setPermissions(TEST_ROLE, ps), "first OWN grant");
@@ -146,10 +146,10 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -180,10 +180,10 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);

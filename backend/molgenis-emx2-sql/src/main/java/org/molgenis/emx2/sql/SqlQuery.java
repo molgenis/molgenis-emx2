@@ -184,28 +184,34 @@ public class SqlQuery extends QueryBean {
 
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
-    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
-    if (effectiveSelect != TablePermission.Select.ALL
-        && effectiveSelect != TablePermission.Select.OWN
-        && effectiveSelect != TablePermission.Select.GROUP) {
+    Set<TablePermission.SelectScope> effectiveSelect = getEffectiveSelectScopes(table);
+    boolean hasRowAccess =
+        effectiveSelect.contains(TablePermission.SelectScope.ALL)
+            || effectiveSelect.contains(TablePermission.SelectScope.OWN)
+            || effectiveSelect.contains(TablePermission.SelectScope.GROUP);
+    if (!hasRowAccess) {
       throw new MolgenisException(
           "Cannot retrieve rows: requires ALL/OWN/GROUP select mode for table '"
               + table.getTableName()
-              + "' but effective mode is "
+              + "' but effective modes are "
               + effectiveSelect);
     }
   }
 
   private void enforceAllowsMinMax(SqlTableMetadata table) {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
-    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
-    if (effectiveSelect == TablePermission.Select.EXISTS
-        || effectiveSelect == TablePermission.Select.COUNT
-        || effectiveSelect == TablePermission.Select.NONE) {
+    Set<TablePermission.SelectScope> effectiveSelect = getEffectiveSelectScopes(table);
+    boolean allowed =
+        effectiveSelect.contains(TablePermission.SelectScope.ALL)
+            || effectiveSelect.contains(TablePermission.SelectScope.OWN)
+            || effectiveSelect.contains(TablePermission.SelectScope.GROUP)
+            || effectiveSelect.contains(TablePermission.SelectScope.AGGREGATE)
+            || effectiveSelect.contains(TablePermission.SelectScope.RANGE);
+    if (!allowed) {
       throw new MolgenisException(
-          "Cannot perform min/max: select mode '"
+          "Cannot perform min/max: effective select modes '"
               + effectiveSelect
-              + "' does not allow min/max for table '"
+              + "' do not allow min/max for table '"
               + table.getTableName()
               + "'");
     }
@@ -213,15 +219,17 @@ public class SqlQuery extends QueryBean {
 
   private void enforceAllowsAvgSum(SqlTableMetadata table) {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
-    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
-    if (effectiveSelect == TablePermission.Select.EXISTS
-        || effectiveSelect == TablePermission.Select.COUNT
-        || effectiveSelect == TablePermission.Select.RANGE
-        || effectiveSelect == TablePermission.Select.NONE) {
+    Set<TablePermission.SelectScope> effectiveSelect = getEffectiveSelectScopes(table);
+    boolean allowed =
+        effectiveSelect.contains(TablePermission.SelectScope.ALL)
+            || effectiveSelect.contains(TablePermission.SelectScope.OWN)
+            || effectiveSelect.contains(TablePermission.SelectScope.GROUP)
+            || effectiveSelect.contains(TablePermission.SelectScope.AGGREGATE);
+    if (!allowed) {
       throw new MolgenisException(
-          "Cannot perform avg/sum: select mode '"
+          "Cannot perform avg/sum: effective select modes '"
               + effectiveSelect
-              + "' does not allow avg/sum for table '"
+              + "' do not allow avg/sum for table '"
               + table.getTableName()
               + "'");
     }
@@ -229,13 +237,19 @@ public class SqlQuery extends QueryBean {
 
   private void enforceAllowsCount(SqlTableMetadata table) {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
-    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
-    if (effectiveSelect == TablePermission.Select.EXISTS
-        || effectiveSelect == TablePermission.Select.NONE) {
+    Set<TablePermission.SelectScope> effectiveSelect = getEffectiveSelectScopes(table);
+    boolean allowed =
+        effectiveSelect.contains(TablePermission.SelectScope.ALL)
+            || effectiveSelect.contains(TablePermission.SelectScope.OWN)
+            || effectiveSelect.contains(TablePermission.SelectScope.GROUP)
+            || effectiveSelect.contains(TablePermission.SelectScope.COUNT)
+            || effectiveSelect.contains(TablePermission.SelectScope.AGGREGATE)
+            || effectiveSelect.contains(TablePermission.SelectScope.RANGE);
+    if (!allowed) {
       throw new MolgenisException(
-          "Cannot perform count: select mode '"
+          "Cannot perform count: effective select modes '"
               + effectiveSelect
-              + "' does not allow count for table '"
+              + "' do not allow count for table '"
               + table.getTableName()
               + "'");
     }
@@ -249,38 +263,34 @@ public class SqlQuery extends QueryBean {
 
   private void enforceAllowsGroupBy(SqlTableMetadata table) {
     if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
-    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
-    if (effectiveSelect == TablePermission.Select.EXISTS
-        || effectiveSelect == TablePermission.Select.COUNT
-        || effectiveSelect == TablePermission.Select.RANGE
-        || effectiveSelect == TablePermission.Select.NONE) {
+    Set<TablePermission.SelectScope> effectiveSelect = getEffectiveSelectScopes(table);
+    boolean allowed =
+        effectiveSelect.contains(TablePermission.SelectScope.ALL)
+            || effectiveSelect.contains(TablePermission.SelectScope.OWN)
+            || effectiveSelect.contains(TablePermission.SelectScope.GROUP)
+            || effectiveSelect.contains(TablePermission.SelectScope.AGGREGATE);
+    if (!allowed) {
       throw new MolgenisException(
-          "Cannot perform groupBy: select mode '"
+          "Cannot perform groupBy: effective select modes '"
               + effectiveSelect
-              + "' does not allow groupBy for table '"
+              + "' do not allow groupBy for table '"
               + table.getTableName()
               + "'");
     }
   }
 
-  private TablePermission.Select getEffectiveSelect(SqlTableMetadata table) {
+  private Set<TablePermission.SelectScope> getEffectiveSelectScopes(SqlTableMetadata table) {
     String schemaNameForTable = table.getSchemaName();
-    return schema
+    Set<TablePermission.SelectScope> result = EnumSet.noneOf(TablePermission.SelectScope.class);
+    schema
         .getDatabase()
         .getRoleManager()
         .getTablePermissionsForActiveUser(schemaNameForTable)
         .stream()
         .filter(p -> p.table().equals(table.getTableName()) || p.table().equals("*"))
         .map(TablePermission::select)
-        .reduce(SqlQuery::maxSelect)
-        .orElse(null);
-  }
-
-  private static TablePermission.Select maxSelect(
-      TablePermission.Select a, TablePermission.Select b) {
-    if (a == null) return b;
-    if (b == null) return a;
-    return a.permissivenessLevel() >= b.permissivenessLevel() ? a : b;
+        .forEach(result::addAll);
+    return result;
   }
 
   private Set<String> getTablesWithSelectPermission() {
@@ -291,7 +301,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getTablePermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> p.select() != TablePermission.Select.NONE)
+              .filter(TablePermission::hasAnySelect)
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }
@@ -797,8 +807,8 @@ public class SqlQuery extends QueryBean {
         enforceAllowsCount(table);
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        TablePermission.Select existsSelect = getEffectiveSelect(table);
-        if (existsSelect != null) {
+        Set<TablePermission.SelectScope> existsSelect = getEffectiveSelectScopes(table);
+        if (!existsSelect.isEmpty()) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD).contains(field.getColumn())) {
@@ -838,14 +848,17 @@ public class SqlQuery extends QueryBean {
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
     if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    TablePermission.Select select = getEffectiveSelect(table);
-    if (select == TablePermission.Select.ALL
-        || select == TablePermission.Select.OWN
-        || select == TablePermission.Select.GROUP
-        || select == TablePermission.Select.COUNT
-        || select == TablePermission.Select.AGGREGATE) {
+    Set<TablePermission.SelectScope> select = getEffectiveSelectScopes(table);
+    boolean hasExactCount =
+        select.contains(TablePermission.SelectScope.ALL)
+            || select.contains(TablePermission.SelectScope.OWN)
+            || select.contains(TablePermission.SelectScope.GROUP)
+            || select.contains(TablePermission.SelectScope.COUNT)
+            || select.contains(TablePermission.SelectScope.AGGREGATE);
+    if (hasExactCount) {
       return count();
-    } else if (select == TablePermission.Select.RANGE) {
+    }
+    if (select.contains(TablePermission.SelectScope.RANGE)) {
       return field(
           "CASE WHEN COUNT(*) < 10 THEN 0"
               + " ELSE (COUNT(*) / POW(10, FLOOR(LOG(COUNT(*))))::bigint)"
@@ -853,9 +866,9 @@ public class SqlQuery extends QueryBean {
           Integer.class);
     }
     throw new MolgenisException(
-        "Select mode '"
+        "Effective select modes '"
             + select
-            + "' does not allow count for table '"
+            + "' do not allow count for table '"
             + table.getTableName()
             + "'");
   }

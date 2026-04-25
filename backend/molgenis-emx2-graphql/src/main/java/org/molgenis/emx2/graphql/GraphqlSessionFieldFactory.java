@@ -193,12 +193,14 @@ public class GraphqlSessionFieldFactory {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("schema", p.schema());
       map.put("table", p.table());
-      map.put(SELECT, p.select().name());
+      map.put(
+          SELECT,
+          p.select().stream().map(Enum::name).collect(java.util.stream.Collectors.toList()));
       map.put(INSERT, p.insert());
       map.put(UPDATE, p.update());
       map.put(DELETE, p.delete());
       map.put("changeOwner", p.changeOwner());
-      map.put("share", p.share());
+      map.put("changeGroup", p.changeGroup());
       result.add(map);
     }
     return result;

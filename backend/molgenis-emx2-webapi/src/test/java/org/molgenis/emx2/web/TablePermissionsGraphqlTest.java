@@ -17,8 +17,8 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.UpdateScope;
+import org.molgenis.emx2.TablePermission.SelectScope;
 import org.molgenis.emx2.TableType;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -283,7 +283,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
         .grant(
             "ReaderA",
             new TablePermission(
-                null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+                null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE, false, false));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -347,7 +347,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.grant(
         "MixedRole",
         new TablePermission(
-            null, TABLE_A, Select.ALL, Scope.ALL, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.ALL, UpdateScope.NONE, UpdateScope.NONE, false, false));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -433,11 +433,11 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.grant(
         "FalseTestRole",
         new TablePermission(
-            null, TABLE_A, Select.ALL, Scope.ALL, Scope.ALL, Scope.NONE, false, false));
+            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.ALL, UpdateScope.ALL, UpdateScope.NONE, false, false));
     schema.grant(
         "FalseTestRole",
         new TablePermission(
-            null, TABLE_A, Select.ALL, Scope.NONE, Scope.ALL, Scope.NONE, false, false));
+            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.ALL, UpdateScope.NONE, false, false));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -474,7 +474,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.grant(
         "OntologyTestRole",
         new TablePermission(
-            null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE, false, false));
     schema.addMember(CUSTOM_USER, "OntologyTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);

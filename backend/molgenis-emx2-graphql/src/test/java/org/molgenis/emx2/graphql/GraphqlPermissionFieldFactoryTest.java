@@ -10,7 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -100,10 +100,10 @@ class GraphqlPermissionFieldFactoryTest {
         new TablePermission(
             SCHEMA_NAME,
             TABLE_NAME,
-            Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE_ANALYST, ps);
@@ -123,7 +123,12 @@ class GraphqlPermissionFieldFactoryTest {
     for (JsonNode perm : perms) {
       if (SCHEMA_NAME.equals(perm.at("/schema").asText())
           && TABLE_NAME.equals(perm.at("/table").asText())) {
-        assertEquals("ALL", perm.at("/select").asText());
+        JsonNode selectList = perm.at("/select");
+        assertTrue(selectList.isArray(), "select must be an array");
+        boolean hasAll =
+            java.util.stream.StreamSupport.stream(selectList.spliterator(), false)
+                .anyMatch(n -> "ALL".equals(n.asText()));
+        assertTrue(hasAll, "select array must contain ALL, got: " + selectList);
         found = true;
       }
     }
@@ -143,10 +148,10 @@ class GraphqlPermissionFieldFactoryTest {
         new TablePermission(
             SCHEMA_NAME,
             TABLE_NAME,
-            Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE_ANALYST, ps);
@@ -215,7 +220,7 @@ class GraphqlPermissionFieldFactoryTest {
 
     PermissionSet perms = roleManager.getPermissions(ROLE_ANALYST);
     TablePermission found = perms.resolveFor(SCHEMA_NAME, TABLE_NAME);
-    assertEquals(Select.ALL, found.select(), "select scope must be ALL");
+    assertTrue(found.select().contains(SelectScope.ALL), "select scope must contain ALL");
   }
 
   @Test
@@ -305,7 +310,9 @@ class GraphqlPermissionFieldFactoryTest {
 
     PermissionSet perms = roleManager.getPermissions(ROLE_ANALYST);
     TablePermission found = perms.resolveFor(SCHEMA_NAME, TABLE_NAME);
-    assertEquals(TablePermission.Select.AGGREGATE, found.select());
+    assertTrue(
+        found.select().contains(TablePermission.SelectScope.AGGREGATE),
+        "select scope must contain AGGREGATE");
   }
 
   @Test
@@ -316,10 +323,10 @@ class GraphqlPermissionFieldFactoryTest {
         new TablePermission(
             SCHEMA_NAME,
             TABLE_NAME,
-            TablePermission.Select.AGGREGATE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE_ANALYST, ps);
@@ -338,10 +345,12 @@ class GraphqlPermissionFieldFactoryTest {
     for (JsonNode perm : perms) {
       if (SCHEMA_NAME.equals(perm.at("/schema").asText())
           && TABLE_NAME.equals(perm.at("/table").asText())) {
-        assertEquals(
-            "AGGREGATE",
-            perm.at("/select").asText(),
-            "select field must expose unified AGGREGATE value (no separate selectScope field)");
+        JsonNode selectList = perm.at("/select");
+        assertTrue(selectList.isArray(), "select must be an array");
+        boolean hasAggregate =
+            java.util.stream.StreamSupport.stream(selectList.spliterator(), false)
+                .anyMatch(n -> "AGGREGATE".equals(n.asText()));
+        assertTrue(hasAggregate, "select array must contain AGGREGATE, got: " + selectList);
         found = true;
       }
     }

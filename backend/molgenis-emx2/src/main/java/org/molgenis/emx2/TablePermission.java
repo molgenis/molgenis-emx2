@@ -1,35 +1,38 @@
 package org.molgenis.emx2;
 
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
 
 public record TablePermission(
     String schema,
     String table,
-    TablePermission.Select select,
-    TablePermission.Scope insert,
-    TablePermission.Scope update,
-    TablePermission.Scope delete,
+    Set<TablePermission.SelectScope> select,
+    TablePermission.UpdateScope insert,
+    TablePermission.UpdateScope update,
+    TablePermission.UpdateScope delete,
     boolean changeOwner,
-    boolean share) {
+    boolean changeGroup) {
 
-  public enum Scope {
+  public enum UpdateScope {
     NONE,
     OWN,
     GROUP,
     ALL;
 
-    public static Scope fromString(String name) {
+    public static UpdateScope fromString(String name) {
       String upper = name.toUpperCase(Locale.ROOT);
-      for (Scope s : values()) {
+      for (UpdateScope s : values()) {
         if (s.name().equals(upper)) {
           return s;
         }
       }
-      throw new MolgenisException("Unknown Scope: " + name);
+      throw new MolgenisException("Unknown UpdateScope: " + name);
     }
   }
 
-  public enum Select {
+  public enum SelectScope {
     NONE,
     EXISTS,
     COUNT,
@@ -40,45 +43,58 @@ public record TablePermission(
     ALL;
 
     public int permissivenessLevel() {
-      switch (this) {
-        case NONE:
-          return 0;
-        case EXISTS:
-          return 1;
-        case COUNT:
-          return 2;
-        case RANGE:
-          return 3;
-        case AGGREGATE:
-          return 4;
-        case OWN:
-          return 5;
-        case GROUP:
-          return 6;
-        case ALL:
-          return 7;
-        default:
-          throw new IllegalStateException("unhandled Select: " + this);
-      }
+      return switch (this) {
+        case NONE -> 0;
+        case EXISTS -> 1;
+        case COUNT -> 2;
+        case RANGE -> 3;
+        case AGGREGATE -> 4;
+        case OWN -> 5;
+        case GROUP -> 6;
+        case ALL -> 7;
+      };
     }
 
-    public static Select fromString(String name) {
+    public static SelectScope fromString(String name) {
       String upper = name.toUpperCase(Locale.ROOT);
-      for (Select s : values()) {
+      for (SelectScope s : values()) {
         if (s.name().equals(upper)) {
           return s;
         }
       }
-      throw new MolgenisException("Unknown Select: " + name);
+      throw new MolgenisException("Unknown SelectScope: " + name);
     }
   }
 
   public TablePermission {
     if (schema == null) schema = "*";
     if (table == null) table = "*";
-    if (select == null) select = Select.NONE;
-    if (insert == null) insert = Scope.NONE;
-    if (update == null) update = Scope.NONE;
-    if (delete == null) delete = Scope.NONE;
+    if (select == null || select.isEmpty()) {
+      select = Collections.emptySet();
+    } else {
+      select = Collections.unmodifiableSet(EnumSet.copyOf(select));
+    }
+    if (insert == null) insert = UpdateScope.NONE;
+    if (update == null) update = UpdateScope.NONE;
+    if (delete == null) delete = UpdateScope.NONE;
+  }
+
+  public boolean hasRowAccess() {
+    return select.contains(SelectScope.ALL)
+        || select.contains(SelectScope.OWN)
+        || select.contains(SelectScope.GROUP);
+  }
+
+  public boolean hasAnySelect() {
+    return !select.isEmpty();
+  }
+
+  public static Set<SelectScope> singletonSelect(SelectScope scope) {
+    if (scope == null || scope == SelectScope.NONE) return Collections.emptySet();
+    return EnumSet.of(scope);
+  }
+
+  public static Set<SelectScope> emptySelect() {
+    return Collections.emptySet();
   }
 }

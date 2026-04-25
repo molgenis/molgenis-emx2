@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -108,10 +108,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
 
@@ -144,10 +144,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -195,10 +195,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -224,10 +224,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.GROUP,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.GROUP),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -249,10 +249,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ownPs);
@@ -271,10 +271,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.GROUP,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.GROUP),
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, groupPs);
@@ -295,10 +295,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, allPs);
@@ -323,10 +323,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -355,10 +355,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.OWN,
+            TablePermission.singletonSelect(SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.OWN,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -383,10 +383,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.NONE,
             false,
             false);
     PermissionSet ps = new PermissionSet();
@@ -409,10 +409,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -477,10 +477,10 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(TEST_ROLE, ps);

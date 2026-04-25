@@ -11,8 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 
 /**
  * Story 3.10 — full matrix integration test via SqlRoleManager.setPermissions (global roles).
@@ -55,17 +55,17 @@ class SelectScopeIT {
   private Schema schema;
 
   enum Mode {
-    ALL(ROLE_ALL, USER_ALL, Select.ALL),
-    AGGREGATE(ROLE_AGGREGATE, USER_AGGREGATE, Select.AGGREGATE),
-    COUNT(ROLE_COUNT, USER_COUNT, Select.COUNT),
-    EXISTS(ROLE_EXISTS, USER_EXISTS, Select.EXISTS),
-    RANGE(ROLE_RANGE, USER_RANGE, Select.RANGE);
+    ALL(ROLE_ALL, USER_ALL, SelectScope.ALL),
+    AGGREGATE(ROLE_AGGREGATE, USER_AGGREGATE, SelectScope.AGGREGATE),
+    COUNT(ROLE_COUNT, USER_COUNT, SelectScope.COUNT),
+    EXISTS(ROLE_EXISTS, USER_EXISTS, SelectScope.EXISTS),
+    RANGE(ROLE_RANGE, USER_RANGE, SelectScope.RANGE);
 
     final String role;
     final String user;
-    final Select select;
+    final SelectScope select;
 
-    Mode(String role, String user, Select select) {
+    Mode(String role, String user, SelectScope select) {
       this.role = role;
       this.user = user;
       this.select = select;
@@ -104,10 +104,10 @@ class SelectScopeIT {
           new TablePermission(
               SCHEMA_NAME,
               DATA_TABLE,
-              mode.select,
-              Scope.NONE,
-              Scope.NONE,
-              Scope.NONE,
+              TablePermission.singletonSelect(mode.select),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
               false,
               false));
       roleManager.setPermissions(mode.role, ps);

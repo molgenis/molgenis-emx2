@@ -2,7 +2,9 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class PermissionSetTest {
@@ -14,25 +16,25 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     set.put(
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     assertEquals(1, set.size());
     TablePermission resolved = set.resolveFor("s", "t");
-    assertEquals(TablePermission.Select.NONE, resolved.select());
+    assertTrue(resolved.select().isEmpty(), "select should be empty after replace");
   }
 
   @Test
@@ -42,10 +44,10 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.ALL,
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.ALL,
             true,
             true));
     List<PermissionSet.ValidationError> errors = set.validate();
@@ -59,10 +61,10 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.OWN,
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.OWN,
             false,
             false));
     List<PermissionSet.ValidationError> errors = set.validate();
@@ -78,10 +80,10 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     List<PermissionSet.ValidationError> errors = set.validate();
@@ -97,10 +99,10 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             true,
             false));
     List<PermissionSet.ValidationError> errors = set.validate();
@@ -112,22 +114,24 @@ public class PermissionSetTest {
   }
 
   @Test
-  void shareRequiresUpdate() {
+  void changeGroupRequiresUpdate() {
     PermissionSet set = new PermissionSet();
     set.put(
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             true));
     List<PermissionSet.ValidationError> errors = set.validate();
     assertEquals(1, errors.size());
     String msg = errors.get(0).message().toLowerCase();
-    assertTrue(msg.contains("share") || msg.contains("update"), "Expected share+update in: " + msg);
+    assertTrue(
+        msg.contains("changegroup") || msg.contains("update"),
+        "Expected changeGroup+update in: " + msg);
   }
 
   @Test
@@ -137,10 +141,10 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.OWN,
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.OWN,
             false,
             false));
     List<PermissionSet.ValidationError> errors = set.validate();
@@ -155,33 +159,38 @@ public class PermissionSetTest {
         new TablePermission(
             "*",
             "*",
-            TablePermission.Select.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.OWN),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             true,
             false));
     set.put(
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.GROUP,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.GROUP),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     TablePermission resolved = set.resolveFor("s", "t");
-    assertEquals(TablePermission.Select.GROUP, resolved.select(), "GROUP > OWN, should pick GROUP");
+    assertTrue(
+        resolved.select().contains(TablePermission.SelectScope.GROUP),
+        "resolved set must contain GROUP");
+    assertTrue(
+        resolved.select().contains(TablePermission.SelectScope.OWN),
+        "resolved set must contain OWN (from wildcard)");
     assertTrue(resolved.changeOwner(), "Wildcard changeOwner=true should OR into resolved");
   }
 
   @Test
   void schemaScopeDeferred() {
     assertFalse(
-        java.util.Arrays.stream(TablePermission.Scope.values())
+        java.util.Arrays.stream(TablePermission.UpdateScope.values())
             .anyMatch(s -> s.name().equals("SCHEMA")),
-        "Scope.SCHEMA must not exist in v1");
+        "UpdateScope.SCHEMA must not exist in v1");
   }
 
   @Test
@@ -191,26 +200,60 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.AGGREGATE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     set.put(
         new TablePermission(
             "*",
             "*",
-            TablePermission.Select.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.ALL),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     TablePermission resolved = set.resolveFor("s", "t");
-    assertEquals(
-        TablePermission.Select.ALL,
-        resolved.select(),
-        "ALL is more permissive than AGGREGATE, so union returns ALL");
+    assertTrue(
+        resolved.select().contains(TablePermission.SelectScope.ALL),
+        "ALL must be in the union set");
+    assertTrue(
+        resolved.select().contains(TablePermission.SelectScope.AGGREGATE),
+        "AGGREGATE must also be in the union set");
+  }
+
+  @Test
+  void resolveForUnionsSelectSets() {
+    Set<TablePermission.SelectScope> ownCount =
+        EnumSet.of(TablePermission.SelectScope.OWN, TablePermission.SelectScope.COUNT);
+    PermissionSet set = new PermissionSet();
+    set.put(
+        new TablePermission(
+            "s",
+            "t",
+            ownCount,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            false,
+            false));
+    set.put(
+        new TablePermission(
+            "*",
+            "*",
+            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            false,
+            false));
+    TablePermission resolved = set.resolveFor("s", "t");
+    assertTrue(resolved.select().contains(TablePermission.SelectScope.OWN));
+    assertTrue(resolved.select().contains(TablePermission.SelectScope.COUNT));
+    assertTrue(resolved.select().contains(TablePermission.SelectScope.AGGREGATE));
+    assertEquals(3, resolved.select().size());
   }
 }

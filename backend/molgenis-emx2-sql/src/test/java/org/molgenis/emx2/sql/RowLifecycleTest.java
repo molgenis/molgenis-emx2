@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
 
 class RowLifecycleTest {
 
@@ -73,10 +73,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -98,10 +98,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -127,10 +127,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -168,10 +168,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -196,10 +196,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -231,10 +231,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
             false,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -261,7 +261,7 @@ class RowLifecycleTest {
                     + "\" SET mg_roles = ARRAY['"
                     + ROLE
                     + "'] WHERE id = 11"),
-        "Should be rejected: share=false");
+        "Should be rejected: changeGroup=false");
     database.becomeAdmin();
   }
 
@@ -272,10 +272,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
             true,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -306,10 +306,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.OWN,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.OWN,
+            TablePermission.UpdateScope.NONE,
             true,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -346,10 +346,10 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.GROUP,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.GROUP,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.GROUP),
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.GROUP,
+            TablePermission.UpdateScope.NONE,
             true,
             false));
     roleManager.setPermissions(ROLE, ps);
@@ -380,16 +380,16 @@ class RowLifecycleTest {
   }
 
   @Test
-  void shareLimitedToGrantedRoles() {
+  void changeGroupLimitedToGrantedRoles() {
     PermissionSet ps = new PermissionSet();
     ps.put(
         new TablePermission(
             SCHEMA,
             TABLE,
-            Select.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.ALL,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(SelectScope.ALL),
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.ALL,
+            TablePermission.UpdateScope.NONE,
             false,
             true));
     roleManager.setPermissions(ROLE, ps);
@@ -414,7 +414,7 @@ class RowLifecycleTest {
                     + "\".\""
                     + TABLE
                     + "\" SET mg_roles = ARRAY['someotherrole'] WHERE id = 50"),
-        "share should fail when role is not held by caller");
+        "changeGroup should fail when role is not held by caller");
     database.becomeAdmin();
   }
 }

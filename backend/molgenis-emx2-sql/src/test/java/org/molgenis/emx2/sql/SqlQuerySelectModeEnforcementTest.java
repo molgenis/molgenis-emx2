@@ -10,11 +10,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 
 /**
- * Story 3.7 — enforce Select mode at query time (RED → GREEN).
+ * Story 3.7 — enforce SelectScope mode at query time (RED → GREEN).
  *
  * <p>Capability matrix (from spec Phase 3):
  *
@@ -73,19 +73,26 @@ class SqlQuerySelectModeEnforcementTest {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
-    grantRole(ROLE_EXISTS, USER_EXISTS, Select.EXISTS);
-    grantRole(ROLE_COUNT, USER_COUNT, Select.COUNT);
-    grantRole(ROLE_AGGREGATE, USER_AGGREGATE, Select.AGGREGATE);
-    grantRole(ROLE_RANGE, USER_RANGE, Select.RANGE);
-    grantRole(ROLE_ALL, USER_ALL, Select.ALL);
+    grantRole(ROLE_EXISTS, USER_EXISTS, SelectScope.EXISTS);
+    grantRole(ROLE_COUNT, USER_COUNT, SelectScope.COUNT);
+    grantRole(ROLE_AGGREGATE, USER_AGGREGATE, SelectScope.AGGREGATE);
+    grantRole(ROLE_RANGE, USER_RANGE, SelectScope.RANGE);
+    grantRole(ROLE_ALL, USER_ALL, SelectScope.ALL);
   }
 
-  private void grantRole(String roleName, String user, Select selectMode) {
+  private void grantRole(String roleName, String user, SelectScope selectMode) {
     schema.createRole(roleName);
     schema.grant(
         roleName,
         new TablePermission(
-            null, DATA_TABLE, selectMode, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null,
+            DATA_TABLE,
+            TablePermission.singletonSelect(selectMode),
+            UpdateScope.NONE,
+            UpdateScope.NONE,
+            UpdateScope.NONE,
+            false,
+            false));
     schema.addMember(user, roleName);
   }
 

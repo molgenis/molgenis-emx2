@@ -247,18 +247,35 @@ public class GraphqlDatabaseFieldFactory {
                 return new GraphqlApiMutationResult(FAILED, "admin only");
               }
               StringBuilder messageBuilder = new StringBuilder();
-              try {
-                database.tx(
-                    db -> {
+              database.tx(
+                  db -> {
+                    try {
                       changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       changeSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                    } catch (Exception e) {
+                      throw new GraphqlException("change failed", e);
+                    }
+                  });
+              List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(ROLES);
+              if (roles != null) {
+                try {
+                  database.tx(
+                      db -> {
+                        SqlRoleManager rm =
+                            ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
+                        applyRoles(db, rm, roles);
+                      });
+                } catch (MolgenisException ex) {
+                  return new GraphqlApiMutationResult(FAILED, ex.getMessage());
+                }
+              }
+              if (members != null) {
+                database.tx(
+                    db -> {
                       SqlRoleManager rm = ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
-                      applyRoles(db, rm, dataFetchingEnvironment.getArgument(ROLES));
-                      applyMembers(rm, dataFetchingEnvironment.getArgument(MEMBERS));
+                      applyMembers(rm, members);
                     });
-              } catch (MolgenisException ex) {
-                return new GraphqlApiMutationResult(FAILED, ex.getMessage());
               }
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
@@ -287,9 +304,9 @@ public class GraphqlDatabaseFieldFactory {
                 return new GraphqlApiMutationResult(FAILED, "admin only");
               }
               StringBuilder messageBuilder = new StringBuilder();
-              try {
-                database.tx(
-                    db -> {
+              database.tx(
+                  db -> {
+                    try {
                       dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
@@ -305,10 +322,10 @@ public class GraphqlDatabaseFieldFactory {
                               (String) member.get("role"), (String) member.get("user"));
                         }
                       }
-                    });
-              } catch (MolgenisException ex) {
-                return new GraphqlApiMutationResult(FAILED, ex.getMessage());
-              }
+                    } catch (Exception e) {
+                      throw new GraphqlException("drop failed", e);
+                    }
+                  });
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();

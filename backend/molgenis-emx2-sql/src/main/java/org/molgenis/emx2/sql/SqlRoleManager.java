@@ -8,6 +8,7 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,8 +18,8 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.TablePermission.Scope;
-import org.molgenis.emx2.TablePermission.Select;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 
 public class SqlRoleManager implements RoleManager {
@@ -384,7 +385,14 @@ public class SqlRoleManager implements RoleManager {
         template.update(),
         template.delete(),
         template.changeOwner(),
-        template.share());
+        template.changeGroup());
+  }
+
+  private static Set<SelectScope> unionSelectSets(Set<SelectScope> a, Set<SelectScope> b) {
+    Set<SelectScope> result = EnumSet.noneOf(SelectScope.class);
+    result.addAll(a);
+    result.addAll(b);
+    return result;
   }
 
   private List<String> listUserSchemas(DSLContext jooq) {
@@ -416,20 +424,58 @@ public class SqlRoleManager implements RoleManager {
   }
 
   private static void emitSelectVerb(
-      DSLContext jooq, String pgRole, String schema, String table, Select select) {
-    if (select == Select.NONE) return;
+      DSLContext jooq, String pgRole, String schema, String table, Set<SelectScope> selectSet) {
+    if (selectSet.isEmpty()) return;
     SqlPermissionExecutor.grantTablePrivilege(jooq, pgRole, schema, table, SQL_SELECT);
-    if (select == Select.OWN) {
+    for (SelectScope scope : selectSet) {
+      emitOneSelectScope(jooq, pgRole, schema, table, scope);
+    }
+  }
+
+  private static void emitOneSelectScope(
+      DSLContext jooq, String pgRole, String schema, String table, SelectScope scope) {
+    if (scope == SelectScope.OWN) {
       SqlPermissionExecutor.ensureRlsInstalled(jooq, schema, table);
-      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, SQL_SELECT, Scope.OWN);
-    } else if (select == Select.GROUP) {
+      createSelectScopePolicyIfAbsent(jooq, pgRole, schema, table, scope);
+    } else if (scope == SelectScope.GROUP) {
       SqlPermissionExecutor.ensureRlsInstalled(jooq, schema, table);
-      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, SQL_SELECT, Scope.GROUP);
-    } else if (select == Select.ALL) {
-      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, SQL_SELECT, Scope.ALL);
+      createSelectScopePolicyIfAbsent(jooq, pgRole, schema, table, scope);
+    } else if (scope == SelectScope.ALL) {
+      createSelectScopePolicyIfAbsent(jooq, pgRole, schema, table, scope);
     } else {
       SqlPermissionExecutor.ensureRlsInstalled(jooq, schema, table);
-      SqlPermissionExecutor.createSelectModePolicy(jooq, pgRole, schema, table, select);
+      createSelectScopePolicyIfAbsent(jooq, pgRole, schema, table, scope);
+    }
+  }
+
+  private static void createSelectScopePolicyIfAbsent(
+      DSLContext jooq, String pgRole, String schema, String table, SelectScope scope) {
+    String rawRole = role(pgRole);
+    String policyName = SqlPermissionExecutor.composeSelectPolicyName(rawRole, scope);
+    boolean exists =
+        jooq.fetchExists(
+            jooq.select()
+                .from("pg_policies")
+                .where(
+                    org.jooq
+                        .impl
+                        .DSL
+                        .field("schemaname")
+                        .eq(org.jooq.impl.DSL.inline(schema))
+                        .and(
+                            org.jooq
+                                .impl
+                                .DSL
+                                .field("tablename")
+                                .eq(org.jooq.impl.DSL.inline(table)))
+                        .and(
+                            org.jooq
+                                .impl
+                                .DSL
+                                .field("policyname")
+                                .eq(org.jooq.impl.DSL.inline(policyName)))));
+    if (!exists) {
+      SqlPermissionExecutor.createSelectScopePolicy(jooq, pgRole, schema, table, scope);
     }
   }
 
@@ -437,17 +483,20 @@ public class SqlRoleManager implements RoleManager {
       DSLContext jooq, String pgRole, TablePermission p) {
     if (!SqlPermissionExecutor.isRlsEnabled(jooq, p.schema(), p.table())) return;
     String rawRole = role(pgRole);
-    if (p.select() == Select.ALL) {
-      createPolicyIfAbsent(jooq, pgRole, rawRole, p.schema(), p.table(), SQL_SELECT, Scope.ALL);
+    if (p.select().contains(SelectScope.ALL)) {
+      createSelectScopePolicyIfAbsent(jooq, pgRole, p.schema(), p.table(), SelectScope.ALL);
     }
-    if (p.insert() == Scope.ALL) {
-      createPolicyIfAbsent(jooq, pgRole, rawRole, p.schema(), p.table(), SQL_INSERT, Scope.ALL);
+    if (p.insert() == UpdateScope.ALL) {
+      createPolicyIfAbsent(
+          jooq, pgRole, rawRole, p.schema(), p.table(), SQL_INSERT, UpdateScope.ALL);
     }
-    if (p.update() == Scope.ALL) {
-      createPolicyIfAbsent(jooq, pgRole, rawRole, p.schema(), p.table(), SQL_UPDATE, Scope.ALL);
+    if (p.update() == UpdateScope.ALL) {
+      createPolicyIfAbsent(
+          jooq, pgRole, rawRole, p.schema(), p.table(), SQL_UPDATE, UpdateScope.ALL);
     }
-    if (p.delete() == Scope.ALL) {
-      createPolicyIfAbsent(jooq, pgRole, rawRole, p.schema(), p.table(), SQL_DELETE, Scope.ALL);
+    if (p.delete() == UpdateScope.ALL) {
+      createPolicyIfAbsent(
+          jooq, pgRole, rawRole, p.schema(), p.table(), SQL_DELETE, UpdateScope.ALL);
     }
   }
 
@@ -458,7 +507,7 @@ public class SqlRoleManager implements RoleManager {
       String schema,
       String table,
       String verb,
-      Scope scope) {
+      UpdateScope scope) {
     String policyName = "MG_P_" + rawRole + "_" + verb + "_" + scope.name();
     boolean exists =
         jooq.fetchExists(
@@ -488,27 +537,29 @@ public class SqlRoleManager implements RoleManager {
   }
 
   private static void emitVerb(
-      DSLContext jooq, String pgRole, String schema, String table, String verb, Scope scope) {
-    if (scope == Scope.NONE) return;
+      DSLContext jooq, String pgRole, String schema, String table, String verb, UpdateScope scope) {
+    if (scope == UpdateScope.NONE) return;
     SqlPermissionExecutor.grantTablePrivilege(jooq, pgRole, schema, table, verb);
-    if (scope == Scope.OWN || scope == Scope.GROUP) {
+    if (scope == UpdateScope.OWN || scope == UpdateScope.GROUP) {
       SqlPermissionExecutor.ensureRlsInstalled(jooq, schema, table);
       SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, scope);
-    } else if (scope == Scope.ALL && SqlPermissionExecutor.isRlsEnabled(jooq, schema, table)) {
-      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, Scope.ALL);
+    } else if (scope == UpdateScope.ALL
+        && SqlPermissionExecutor.isRlsEnabled(jooq, schema, table)) {
+      SqlPermissionExecutor.createPolicy(jooq, pgRole, schema, table, verb, UpdateScope.ALL);
     }
   }
 
   private static void emitFlagPolicies(DSLContext jooq, String pgRole, TablePermission p) {
-    Scope updateScope = p.update();
-    if ((p.changeOwner() || p.share()) && updateScope != Scope.NONE) {
+    UpdateScope updateScope = p.update();
+    if ((p.changeOwner() || p.changeGroup()) && updateScope != UpdateScope.NONE) {
       SqlPermissionExecutor.ensureRlsInstalled(jooq, p.schema(), p.table());
       if (p.changeOwner()) {
         SqlPermissionExecutor.createChangeOwnerPolicy(
             jooq, pgRole, p.schema(), p.table(), updateScope);
       }
-      if (p.share()) {
-        SqlPermissionExecutor.createSharePolicy(jooq, pgRole, p.schema(), p.table(), updateScope);
+      if (p.changeGroup()) {
+        SqlPermissionExecutor.createChangeGroupPolicy(
+            jooq, pgRole, p.schema(), p.table(), updateScope);
       }
     }
   }
@@ -553,17 +604,7 @@ public class SqlRoleManager implements RoleManager {
         if (existing == null) {
           byKey.put(key, p);
         } else {
-          byKey.put(
-              key,
-              new TablePermission(
-                  p.schema(),
-                  p.table(),
-                  maxSelect(existing.select(), p.select()),
-                  maxScope(existing.insert(), p.insert()),
-                  maxScope(existing.update(), p.update()),
-                  maxScope(existing.delete(), p.delete()),
-                  existing.changeOwner() || p.changeOwner(),
-                  existing.share() || p.share()));
+          byKey.put(key, mergePermissions(existing, p));
         }
       }
     }
@@ -574,11 +615,7 @@ public class SqlRoleManager implements RoleManager {
     return merged;
   }
 
-  private static Select maxSelect(Select a, Select b) {
-    return a.permissivenessLevel() >= b.permissivenessLevel() ? a : b;
-  }
-
-  private static Scope maxScope(Scope a, Scope b) {
+  private static UpdateScope maxUpdateScope(UpdateScope a, UpdateScope b) {
     return a.ordinal() >= b.ordinal() ? a : b;
   }
 
@@ -691,6 +728,7 @@ public class SqlRoleManager implements RoleManager {
             for (String tableName : database.getSchema(schemaName).getTableNames()) {
               jooq.execute(
                   "REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+              SqlPermissionExecutor.dropAllPolicies(jooq, fullRole, schemaName, tableName);
             }
             jooq.execute(
                 """
@@ -753,27 +791,34 @@ public class SqlRoleManager implements RoleManager {
   private void applyPgGrants(
       String schemaName, String fullRole, String tableName, TablePermission p) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    if (p.select() != Select.NONE) {
+    if (p.hasAnySelect()) {
       emitSelectVerb(jooq(), fullRole, schemaName, tableName, p.select());
       ensureAllScopePoliciesEmittedIfRlsInstalled(
           jooq(),
           fullRole,
           new TablePermission(
-              schemaName, tableName, p.select(), Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              schemaName,
+              tableName,
+              p.select(),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else {
       jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (p.insert() != Scope.NONE) {
+    if (p.insert() != UpdateScope.NONE) {
       jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
     } else {
       jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (p.update() != Scope.NONE) {
+    if (p.update() != UpdateScope.NONE) {
       jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
     } else {
       jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (p.delete() != Scope.NONE) {
+    if (p.delete() != UpdateScope.NONE) {
       jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
     } else {
       jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
@@ -787,7 +832,8 @@ public class SqlRoleManager implements RoleManager {
     String fullRole = fullRoleName(schemaName, roleName);
     List<TablePermission> result = new ArrayList<>();
     try {
-      Map<String, Select> selectModeByTable = readSelectModeFromPolicies(fullRole, schemaName);
+      Map<String, Set<SelectScope>> selectSetByTable =
+          readSelectSetsFromPolicies(fullRole, schemaName);
       Result<Record> rows =
           jooq()
               .fetch(
@@ -803,21 +849,29 @@ public class SqlRoleManager implements RoleManager {
                   inline(fullRole), inline(schemaName));
       for (Record row : rows) {
         String tableName = row.get("table_name", String.class);
-        Select select;
+        Set<SelectScope> selectSet;
         if (!Boolean.TRUE.equals(row.get("can_select", Boolean.class))) {
-          select = Select.NONE;
+          selectSet = TablePermission.emptySelect();
         } else {
-          select = selectModeByTable.getOrDefault(tableName, Select.ALL);
+          selectSet =
+              selectSetByTable.getOrDefault(
+                  tableName, TablePermission.singletonSelect(SelectScope.ALL));
         }
-        Scope insert =
-            Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? Scope.ALL : Scope.NONE;
-        Scope update =
-            Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? Scope.ALL : Scope.NONE;
-        Scope delete =
-            Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? Scope.ALL : Scope.NONE;
+        UpdateScope insert =
+            Boolean.TRUE.equals(row.get("can_insert", Boolean.class))
+                ? UpdateScope.ALL
+                : UpdateScope.NONE;
+        UpdateScope update =
+            Boolean.TRUE.equals(row.get("can_update", Boolean.class))
+                ? UpdateScope.ALL
+                : UpdateScope.NONE;
+        UpdateScope delete =
+            Boolean.TRUE.equals(row.get("can_delete", Boolean.class))
+                ? UpdateScope.ALL
+                : UpdateScope.NONE;
         result.add(
             new TablePermission(
-                schemaName, tableName, select, insert, update, delete, false, false));
+                schemaName, tableName, selectSet, insert, update, delete, false, false));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -825,14 +879,15 @@ public class SqlRoleManager implements RoleManager {
     return result;
   }
 
-  private Map<String, Select> readSelectModeFromPolicies(String fullRole, String schemaName) {
+  private Map<String, Set<SelectScope>> readSelectSetsFromPolicies(
+      String fullRole, String schemaName) {
     String rawRole =
         fullRole.startsWith(MG_ROLE_PREFIX)
             ? fullRole.substring(MG_ROLE_PREFIX.length())
             : fullRole;
     String selectPrefix = "MG_P_" + rawRole + "_SELECT_";
     String policyPattern = selectPrefix + "%";
-    Map<String, Select> result = new LinkedHashMap<>();
+    Map<String, Set<SelectScope>> result = new LinkedHashMap<>();
     jooq()
         .fetch(
             "SELECT tablename, policyname FROM pg_policies WHERE schemaname = {0} AND policyname LIKE {1}",
@@ -843,12 +898,11 @@ public class SqlRoleManager implements RoleManager {
               String policyName = row.get("policyname", String.class);
               String selectName = policyName.substring(selectPrefix.length());
               try {
-                Select parsed = Select.fromString(selectName);
-                if (parsed != Select.NONE) {
-                  result.merge(
-                      tableName,
-                      parsed,
-                      (a, b) -> a.permissivenessLevel() >= b.permissivenessLevel() ? a : b);
+                SelectScope parsed = SelectScope.fromString(selectName);
+                if (parsed != SelectScope.NONE) {
+                  result
+                      .computeIfAbsent(tableName, k -> EnumSet.noneOf(SelectScope.class))
+                      .add(parsed);
                 }
               } catch (MolgenisException ignored) {
                 // unknown select mode in policy name — skip
@@ -915,28 +969,28 @@ public class SqlRoleManager implements RoleManager {
               wildcard.update(),
               wildcard.delete(),
               wildcard.changeOwner(),
-              wildcard.share()),
+              wildcard.changeGroup()),
           SqlRoleManager::mergePermissions);
     }
   }
 
   private static boolean hasAnyPermission(TablePermission p) {
-    return p.select() != Select.NONE
-        || p.insert() != Scope.NONE
-        || p.update() != Scope.NONE
-        || p.delete() != Scope.NONE;
+    return p.hasAnySelect()
+        || p.insert() != UpdateScope.NONE
+        || p.update() != UpdateScope.NONE
+        || p.delete() != UpdateScope.NONE;
   }
 
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
     return new TablePermission(
         a.schema(),
         a.table(),
-        maxSelect(a.select(), b.select()),
-        maxScope(a.insert(), b.insert()),
-        maxScope(a.update(), b.update()),
-        maxScope(a.delete(), b.delete()),
+        unionSelectSets(a.select(), b.select()),
+        maxUpdateScope(a.insert(), b.insert()),
+        maxUpdateScope(a.update(), b.update()),
+        maxUpdateScope(a.delete(), b.delete()),
         a.changeOwner() || b.changeOwner(),
-        a.share() || b.share());
+        a.changeGroup() || b.changeGroup());
   }
 
   public boolean isSystemRole(String roleName) {
@@ -951,28 +1005,71 @@ public class SqlRoleManager implements RoleManager {
     if (roleName.equals(Privileges.EXISTS.toString())) {
       return List.of(
           new TablePermission(
-              "*", "*", Select.EXISTS, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.EXISTS),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else if (roleName.equals(Privileges.RANGE.toString())) {
       return List.of(
           new TablePermission(
-              "*", "*", Select.RANGE, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.RANGE),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else if (roleName.equals(Privileges.AGGREGATOR.toString())) {
       return List.of(
           new TablePermission(
-              "*", "*", Select.AGGREGATE, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.AGGREGATE),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else if (roleName.equals(Privileges.COUNT.toString())) {
       return List.of(
           new TablePermission(
-              "*", "*", Select.COUNT, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.COUNT),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else if (roleName.equals(Privileges.VIEWER.toString())) {
       return List.of(
           new TablePermission(
-              "*", "*", Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.ALL),
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              UpdateScope.NONE,
+              false,
+              false));
     } else if (roleName.equals(Privileges.EDITOR.toString())
         || roleName.equals(Privileges.MANAGER.toString())
         || roleName.equals(Privileges.OWNER.toString())) {
       return List.of(
-          new TablePermission("*", "*", Select.ALL, Scope.ALL, Scope.ALL, Scope.ALL, false, false));
+          new TablePermission(
+              "*",
+              "*",
+              TablePermission.singletonSelect(SelectScope.ALL),
+              UpdateScope.ALL,
+              UpdateScope.ALL,
+              UpdateScope.ALL,
+              false,
+              false));
     }
     return List.of();
   }

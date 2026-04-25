@@ -552,10 +552,13 @@ public class GraphqlSchemaFieldFactory {
                 p -> {
                   Map<String, Object> permMap = new LinkedHashMap<>();
                   permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select() != TablePermission.Select.NONE);
-                  permMap.put(GraphqlConstants.INSERT, p.insert() != TablePermission.Scope.NONE);
-                  permMap.put(GraphqlConstants.UPDATE, p.update() != TablePermission.Scope.NONE);
-                  permMap.put(GraphqlConstants.DELETE, p.delete() != TablePermission.Scope.NONE);
+                  permMap.put(GraphqlConstants.SELECT, p.hasAnySelect());
+                  permMap.put(
+                      GraphqlConstants.INSERT, p.insert() != TablePermission.UpdateScope.NONE);
+                  permMap.put(
+                      GraphqlConstants.UPDATE, p.update() != TablePermission.UpdateScope.NONE);
+                  permMap.put(
+                      GraphqlConstants.DELETE, p.delete() != TablePermission.UpdateScope.NONE);
                   return permMap;
                 })
             .toList());
@@ -710,10 +713,18 @@ public class GraphqlSchemaFieldFactory {
     return new TablePermission(
         null,
         table,
-        Boolean.TRUE.equals(select) ? TablePermission.Select.ALL : TablePermission.Select.NONE,
-        Boolean.TRUE.equals(insert) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
-        Boolean.TRUE.equals(update) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
-        Boolean.TRUE.equals(delete) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        Boolean.TRUE.equals(select)
+            ? TablePermission.singletonSelect(TablePermission.SelectScope.ALL)
+            : TablePermission.emptySelect(),
+        Boolean.TRUE.equals(insert)
+            ? TablePermission.UpdateScope.ALL
+            : TablePermission.UpdateScope.NONE,
+        Boolean.TRUE.equals(update)
+            ? TablePermission.UpdateScope.ALL
+            : TablePermission.UpdateScope.NONE,
+        Boolean.TRUE.equals(delete)
+            ? TablePermission.UpdateScope.ALL
+            : TablePermission.UpdateScope.NONE,
         false,
         false);
   }

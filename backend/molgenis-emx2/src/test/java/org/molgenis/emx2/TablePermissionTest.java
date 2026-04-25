@@ -2,70 +2,116 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Method;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class TablePermissionTest {
 
   @Test
   void selectEnumOrderIsLeastToMostPermissive() {
-    TablePermission.Select[] values = TablePermission.Select.values();
+    TablePermission.SelectScope[] values = TablePermission.SelectScope.values();
 
-    assertEquals(TablePermission.Select.NONE, values[0], "NONE must be first (least permissive)");
+    assertEquals(
+        TablePermission.SelectScope.NONE, values[0], "NONE must be first (least permissive)");
 
     assertTrue(
-        TablePermission.Select.NONE.permissivenessLevel()
-            < TablePermission.Select.EXISTS.permissivenessLevel(),
+        TablePermission.SelectScope.NONE.permissivenessLevel()
+            < TablePermission.SelectScope.EXISTS.permissivenessLevel(),
         "NONE < EXISTS");
     assertTrue(
-        TablePermission.Select.EXISTS.permissivenessLevel()
-            < TablePermission.Select.COUNT.permissivenessLevel(),
+        TablePermission.SelectScope.EXISTS.permissivenessLevel()
+            < TablePermission.SelectScope.COUNT.permissivenessLevel(),
         "EXISTS < COUNT");
     assertTrue(
-        TablePermission.Select.COUNT.permissivenessLevel()
-            < TablePermission.Select.RANGE.permissivenessLevel(),
+        TablePermission.SelectScope.COUNT.permissivenessLevel()
+            < TablePermission.SelectScope.RANGE.permissivenessLevel(),
         "COUNT < RANGE");
     assertTrue(
-        TablePermission.Select.RANGE.permissivenessLevel()
-            < TablePermission.Select.AGGREGATE.permissivenessLevel(),
+        TablePermission.SelectScope.RANGE.permissivenessLevel()
+            < TablePermission.SelectScope.AGGREGATE.permissivenessLevel(),
         "RANGE < AGGREGATE");
     assertTrue(
-        TablePermission.Select.AGGREGATE.permissivenessLevel()
-            < TablePermission.Select.OWN.permissivenessLevel(),
+        TablePermission.SelectScope.AGGREGATE.permissivenessLevel()
+            < TablePermission.SelectScope.OWN.permissivenessLevel(),
         "AGGREGATE < OWN");
     assertTrue(
-        TablePermission.Select.OWN.permissivenessLevel()
-            < TablePermission.Select.GROUP.permissivenessLevel(),
+        TablePermission.SelectScope.OWN.permissivenessLevel()
+            < TablePermission.SelectScope.GROUP.permissivenessLevel(),
         "OWN < GROUP");
     assertTrue(
-        TablePermission.Select.GROUP.permissivenessLevel()
-            < TablePermission.Select.ALL.permissivenessLevel(),
+        TablePermission.SelectScope.GROUP.permissivenessLevel()
+            < TablePermission.SelectScope.ALL.permissivenessLevel(),
         "GROUP < ALL");
   }
 
   @Test
-  void tablePermissionConstructorTakesSelectNotScopePlusViewMode() throws NoSuchMethodException {
-    Method selectGetter = TablePermission.class.getMethod("select");
-    assertEquals(
-        TablePermission.Select.class,
-        selectGetter.getReturnType(),
-        "select() must return TablePermission.Select (unified enum)");
-
-    assertThrows(
-        NoSuchMethodException.class,
-        () -> TablePermission.class.getMethod("viewMode"),
-        "viewMode() getter must not exist after Story 3.4 collapse");
-
+  void selectFieldIsSetOfSelectScope() {
     TablePermission perm =
         new TablePermission(
             "s",
             "t",
-            TablePermission.Select.AGGREGATE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
-            TablePermission.Scope.NONE,
+            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
             false,
             false);
-    assertEquals(TablePermission.Select.AGGREGATE, perm.select());
+    assertTrue(
+        perm.select().contains(TablePermission.SelectScope.AGGREGATE),
+        "select set must contain AGGREGATE");
+    assertEquals(1, perm.select().size(), "singleton select should have exactly one member");
+  }
+
+  @Test
+  void emptySelectMeansNoAccess() {
+    TablePermission perm =
+        new TablePermission(
+            "s",
+            "t",
+            TablePermission.emptySelect(),
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            false,
+            false);
+    assertTrue(perm.select().isEmpty(), "empty select set means no read access");
+    assertFalse(perm.hasAnySelect(), "hasAnySelect must be false for empty set");
+    assertFalse(perm.hasRowAccess(), "hasRowAccess must be false for empty set");
+  }
+
+  @Test
+  void multiValueSelectSet() {
+    Set<TablePermission.SelectScope> both =
+        java.util.EnumSet.of(TablePermission.SelectScope.OWN, TablePermission.SelectScope.COUNT);
+    TablePermission perm =
+        new TablePermission(
+            "s",
+            "t",
+            both,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            false,
+            false);
+    assertTrue(perm.select().contains(TablePermission.SelectScope.OWN));
+    assertTrue(perm.select().contains(TablePermission.SelectScope.COUNT));
+    assertEquals(2, perm.select().size());
+    assertTrue(perm.hasRowAccess(), "OWN in set means row access is granted");
+    assertTrue(perm.hasAnySelect(), "non-empty set means hasAnySelect");
+  }
+
+  @Test
+  void nullOrEmptySelectCoercedToEmptySet() {
+    TablePermission withNull =
+        new TablePermission(
+            "s",
+            "t",
+            null,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            TablePermission.UpdateScope.NONE,
+            false,
+            false);
+    assertTrue(withNull.select().isEmpty(), "null select coerced to empty set");
   }
 }
