@@ -193,7 +193,7 @@ public class GraphqlSessionFieldFactory {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("schema", p.schema());
       map.put("table", p.table());
-      map.put(SELECT, p.select());
+      map.put(SELECT, p.select().name());
       map.put(INSERT, p.insert());
       map.put(UPDATE, p.update());
       map.put(DELETE, p.delete());

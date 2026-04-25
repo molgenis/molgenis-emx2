@@ -202,6 +202,10 @@ public class Migrations {
 
           if (version < 33) {
             executeMigrationFile(tdb, "migration32.sql", "fine-grained permissions");
+            executeMigrationFile(
+                tdb,
+                "utility-sql/mg_enforce_row_authorisation.sql",
+                "fine-grained permissions trigger function");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

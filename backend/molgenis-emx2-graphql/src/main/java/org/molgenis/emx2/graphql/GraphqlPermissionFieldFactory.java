@@ -8,9 +8,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.TablePermission.Scope;
+import org.molgenis.emx2.TablePermission.Select;
 import org.molgenis.emx2.sql.SqlRoleManager;
 
 public class GraphqlPermissionFieldFactory {
@@ -25,14 +30,14 @@ public class GraphqlPermissionFieldFactory {
     scopeEnumType = builder.build();
   }
 
-  static final GraphQLEnumType selectScopeEnumType;
+  static final GraphQLEnumType selectEnumType;
 
   static {
-    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
-    for (TablePermission.ViewMode vm : TablePermission.ViewMode.values()) {
-      builder.value(vm.name(), vm);
+    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelect");
+    for (Select s : Select.values()) {
+      builder.value(s.name(), s);
     }
-    selectScopeEnumType = builder.build();
+    selectEnumType = builder.build();
   }
 
   static final GraphQLObjectType effectivePermissionType =
@@ -44,7 +49,7 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("table").type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(scopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(selectEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(scopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(scopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(scopeEnumType))
@@ -67,7 +72,7 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("table").type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(scopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(selectEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(scopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(scopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(scopeEnumType))
@@ -115,7 +120,7 @@ public class GraphqlPermissionFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name("table")
                   .type(Scalars.GraphQLString))
-          .field(GraphQLInputObjectField.newInputObjectField().name(SELECT).type(scopeEnumType))
+          .field(GraphQLInputObjectField.newInputObjectField().name(SELECT).type(selectEnumType))
           .field(GraphQLInputObjectField.newInputObjectField().name(INSERT).type(scopeEnumType))
           .field(GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(scopeEnumType))
           .field(GraphQLInputObjectField.newInputObjectField().name(DELETE).type(scopeEnumType))
@@ -127,10 +132,6 @@ public class GraphqlPermissionFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name("share")
                   .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name("selectScope")
-                  .type(selectScopeEnumType))
           .build();
 
   static final GraphQLInputObjectType inputRoleType =
@@ -169,7 +170,7 @@ public class GraphqlPermissionFieldFactory {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("schema", p.schema());
       map.put("table", p.table());
-      map.put(SELECT, p.select());
+      map.put(SELECT, p.select().name());
       map.put(INSERT, p.insert());
       map.put(UPDATE, p.update());
       map.put(DELETE, p.delete());
@@ -180,32 +181,37 @@ public class GraphqlPermissionFieldFactory {
     return result;
   }
 
-  static void applyRoles(SqlRoleManager rm, List<Map<String, Object>> roles) {
+  static void applyRoles(Database db, SqlRoleManager rm, List<Map<String, Object>> roles) {
     if (roles == null) return;
     for (Map<String, Object> roleMap : roles) {
       String name = (String) roleMap.get(NAME);
       String description = (String) roleMap.get(DESCRIPTION);
-      rm.createOrUpdateRole(name, description);
       List<Map<String, Object>> perms = (List<Map<String, Object>>) roleMap.get(PERMISSIONS);
-      if (perms != null) {
-        applyPermissionsForRole(rm, name, perms);
+      if (!db.isAdmin()) {
+        if (perms == null || perms.isEmpty()) {
+          throw new MolgenisException("admin only");
+        }
+        applyPermissionsForRole(db, rm, name, perms);
+      } else {
+        rm.createOrUpdateRole(name, description);
+        if (perms != null) {
+          applyPermissionsForRole(db, rm, name, perms);
+        }
       }
     }
   }
 
   private static void applyPermissionsForRole(
-      SqlRoleManager rm, String role, List<Map<String, Object>> perms) {
+      Database db, SqlRoleManager rm, String role, List<Map<String, Object>> perms) {
     PermissionSet ps = new PermissionSet();
     for (Map<String, Object> pMap : perms) {
-      Object selectScopeRaw = pMap.get("selectScope");
-      if (selectScopeRaw != null) {
-        TablePermission.ViewMode.fromString(selectScopeRaw.toString());
-      }
+      String schemaName = (String) pMap.get("schema");
+      requireManagerOrOwner(db, schemaName);
       ps.put(
           new TablePermission(
-              (String) pMap.get("schema"),
+              schemaName,
               (String) pMap.get("table"),
-              toScope(pMap.get(SELECT)),
+              toSelect(pMap.get(SELECT)),
               toScope(pMap.get(INSERT)),
               toScope(pMap.get(UPDATE)),
               toScope(pMap.get(DELETE)),
@@ -215,10 +221,32 @@ public class GraphqlPermissionFieldFactory {
     rm.setPermissions(role, ps);
   }
 
+  private static void requireManagerOrOwner(Database db, String schemaName) {
+    if (db.isAdmin()) return;
+    Schema schema = db.getSchema(schemaName);
+    if (schema == null
+        || (!schema.hasActiveUserRole(Privileges.MANAGER)
+            && !schema.hasActiveUserRole(Privileges.OWNER))) {
+      throw new MolgenisException(
+          "Permission denied: setting permissions requires MANAGER or OWNER privilege on schema "
+              + schemaName);
+    }
+  }
+
   static void applyMembers(SqlRoleManager rm, List<Map<String, Object>> members) {
     if (members == null) return;
     for (Map<String, Object> member : members) {
       rm.grantRoleToUser((String) member.get("role"), (String) member.get("user"));
+    }
+  }
+
+  static Select toSelect(Object value) {
+    if (value == null) return Select.NONE;
+    if (value instanceof Select s) return s;
+    try {
+      return Select.fromString(value.toString());
+    } catch (Exception e) {
+      return Select.NONE;
     }
   }
 

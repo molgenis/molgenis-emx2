@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.TablePermission.Select;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -19,7 +20,7 @@ class SqlRoleManagerEmissionTest {
 
   private static final String TEST_SCHEMA = "emission_test_schema";
   private static final String TEST_TABLE = "t1";
-  private static final String TEST_ROLE = "emission_test_role";
+  private static final String TEST_ROLE = "emission test role";
   private static final String PG_ROLE = "MG_ROLE_" + TEST_ROLE;
 
   private static final SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
@@ -107,7 +108,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -126,14 +127,14 @@ class SqlRoleManagerEmissionTest {
                 .and(field("privilege_type").eq(inline("SELECT"))));
     assertTrue(hasSelectGrant, "SELECT grant should exist for scope=ALL");
 
-    boolean hasPolicies =
+    boolean hasSelectAllPolicy =
         jooq.fetchExists(
             jooq.select()
                 .from("pg_policies")
                 .where(field("schemaname").eq(inline(TEST_SCHEMA)))
                 .and(field("tablename").eq(inline(TEST_TABLE)))
-                .and(field("roles").cast(String.class).contains(PG_ROLE)));
-    assertFalse(hasPolicies, "No policies should exist for scope=ALL (GRANT only)");
+                .and(field("policyname").eq(inline("MG_P_" + TEST_ROLE + "_SELECT_ALL"))));
+    assertTrue(hasSelectAllPolicy, "SELECT_ALL policy must exist for scope=ALL");
   }
 
   @Test
@@ -143,7 +144,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -194,7 +195,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -207,8 +208,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(qual, "Policy MG_P_<role>_SELECT_OWN should exist");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
-        "USING clause should reference mg_owner and current_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
+        "USING clause should reference mg_owner and session_user, got: " + qual);
 
     String withCheck = fetchPolicyWithCheck(policyName);
     assertNull(withCheck, "SELECT policy should have no WITH CHECK clause");
@@ -223,7 +224,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.GROUP,
+            Select.GROUP,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -248,7 +249,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.OWN,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
@@ -261,8 +262,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(ownWithCheck, "INSERT OWN policy should exist");
     String ownWithCheckLower = ownWithCheck.toLowerCase();
     assertTrue(
-        ownWithCheckLower.contains("mg_owner") && ownWithCheckLower.contains("current_user"),
-        "INSERT OWN WITH CHECK should reference mg_owner and current_user, got: " + ownWithCheck);
+        ownWithCheckLower.contains("mg_owner") && ownWithCheckLower.contains("session_user"),
+        "INSERT OWN WITH CHECK should reference mg_owner and session_user, got: " + ownWithCheck);
     assertNull(fetchPolicyQual(ownPolicyName), "INSERT policy should have no USING clause");
 
     PermissionSet groupPs = new PermissionSet();
@@ -270,7 +271,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.GROUP,
+            Select.GROUP,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.NONE,
@@ -294,7 +295,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
@@ -322,7 +323,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
@@ -338,8 +339,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(withCheck, "UPDATE OWN policy should have a WITH CHECK clause");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
-        "UPDATE USING should reference mg_owner and current_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
+        "UPDATE USING should reference mg_owner and session_user, got: " + qual);
     assertTrue(
         withCheck.contains("true"),
         "UPDATE OWN WITH CHECK should be (true) to allow changeOwner, got: " + withCheck);
@@ -354,7 +355,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.OWN,
@@ -367,8 +368,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(qual, "DELETE OWN policy should have a USING clause");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
-        "DELETE USING should reference mg_owner and current_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
+        "DELETE USING should reference mg_owner and session_user, got: " + qual);
 
     String withCheck = fetchPolicyWithCheck(policyName);
     assertNull(withCheck, "DELETE policy should have no WITH CHECK clause");
@@ -382,7 +383,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.OWN,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.NONE,
@@ -408,7 +409,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -476,7 +477,7 @@ class SqlRoleManagerEmissionTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,

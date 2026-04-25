@@ -34,10 +34,11 @@ public class PermissionSet implements Iterable<TablePermission> {
     for (TablePermission p : entries.values()) {
       String schema = p.schema();
       String table = p.table();
-      if (p.delete().ordinal() > p.select().ordinal()) {
+      boolean hasReadAccess = p.select() != TablePermission.Select.NONE;
+      if (p.delete() != TablePermission.Scope.NONE && !hasReadAccess) {
         errors.add(new ValidationError(schema, table, "delete requires read"));
       }
-      if (p.update().ordinal() > p.select().ordinal()) {
+      if (p.update() != TablePermission.Scope.NONE && !hasReadAccess) {
         errors.add(new ValidationError(schema, table, "update requires read"));
       }
       if (p.changeOwner() && p.update().ordinal() < TablePermission.Scope.OWN.ordinal()) {
@@ -67,7 +68,7 @@ public class PermissionSet implements Iterable<TablePermission> {
     TablePermission wildcardTable = entries.get(key(schemaName, "*"));
     TablePermission exact = entries.get(key(schemaName, tableName));
 
-    TablePermission.Scope select = TablePermission.Scope.NONE;
+    TablePermission.Select select = TablePermission.Select.NONE;
     TablePermission.Scope insert = TablePermission.Scope.NONE;
     TablePermission.Scope update = TablePermission.Scope.NONE;
     TablePermission.Scope delete = TablePermission.Scope.NONE;
@@ -77,7 +78,7 @@ public class PermissionSet implements Iterable<TablePermission> {
     for (TablePermission p :
         new TablePermission[] {wildcardBoth, wildcardSchema, wildcardTable, exact}) {
       if (p == null) continue;
-      if (p.select().ordinal() > select.ordinal()) select = p.select();
+      if (p.select().permissivenessLevel() > select.permissivenessLevel()) select = p.select();
       if (p.insert().ordinal() > insert.ordinal()) insert = p.insert();
       if (p.update().ordinal() > update.ordinal()) update = p.update();
       if (p.delete().ordinal() > delete.ordinal()) delete = p.delete();

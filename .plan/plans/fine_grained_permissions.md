@@ -5,9 +5,9 @@ Spec: [`fine_grained_permissions.md`](../specs/fine_grained_permissions.md) — 
 Phases:
 - **Phase 1** — Java + SQL layer (migration, model, policies, guard trigger, integration tests). No GraphQL. No UI.
 - **Phase 2** — GraphQL (`_session.permissions`, admin query + mutations). Likely PR boundary.
-- **Phase 3** — SelectScope view modes (COUNT, AGGREGATE, EXISTS, RANGE enforcement).
+- **Phase 3** — SelectScope view modes (COUNT, AGGREGATE, EXISTS, RANGE enforcement) + diff-and-patch `setPermissions`.
 - **Phase 4** — UI (global admin).
-- **Phase 5** — Performance & polish (diff-and-patch, built-in install via new codepath, trigger-lookup caching).
+- **Phase 5** — Performance & polish (retire legacy `Privileges.java`, trigger-lookup caching, role-name tombstones).
 
 Per-story workflow (red-green TDD is mandatory):
 1. Agent writes failing JUnit tests FIRST. Runs them. Confirms RED to lead.
@@ -127,7 +127,7 @@ Guard trigger function renamed to `mg_enforce_row_authorisation` (was `mg_reserv
 
 ### `role_metadata` table removed in favour of PG-native roles [DONE]
 
-Role descriptions stored as `COMMENT ON ROLE`. System-role flag derived via `isSystemRoleByName`. `permission_attributes` and `role_wildcards` tables used instead of `role_metadata`.
+Role descriptions stored as `COMMENT ON ROLE`. System-role flag derived via `isSystemRoleByName`. No metadata tables — `permission_attributes` and `role_wildcards` removed during revert; all state encoded in `pg_policies` policy names.
 
 ### GraphQL naming [DONE]
 
@@ -157,73 +157,83 @@ Role descriptions stored as `COMMENT ON ROLE`. System-role flag derived via `isS
 
 ---
 
-## Phase 3 — SelectScope view modes (COUNT, AGGREGATE, EXISTS, RANGE)
+## Phase 3 — SelectScope view modes (COUNT, AGGREGATE, EXISTS, RANGE) + MANAGER/OWNER gate + role-name validation + unified select
 
-Today only `FULL` is enforced server-side; the other `MolgenisSelectScope` values are declared but rejected on input. Phase 3 makes them real: a user assigned a role whose `selectScope` is non-FULL can perform only the allowed operations on matching tables.
+Phase 3 unifies select mode + row scope into single Select enum; validates role names (max 32 chars, charset [a-zA-Z0-9 ]); gates setPermissions on MANAGER/OWNER privilege; makes COUNT/AGGREGATE/EXISTS/RANGE view modes real.
 
 ### Storage
 
-Two columns added (migration 32 is pre-ship — edit in place, no version bump):
+All permission attributes (change_owner, share, view mode) are encoded as PG policies in `pg_policies`. No auxiliary MOLGENIS tables. Source of truth = `pg_policies` scan only.
 
-```sql
-ALTER TABLE "MOLGENIS"."permission_attributes" ADD COLUMN select_scope VARCHAR NOT NULL DEFAULT 'FULL';
-ALTER TABLE "MOLGENIS"."role_wildcards"        ADD COLUMN select_scope VARCHAR NOT NULL DEFAULT 'FULL';
-```
+Policy naming (migration 32 is pre-ship — edit in place, no version bump):
 
-Plus a consistency rename in `role_wildcards`: rename `{select,insert,update,delete}_scope` → `{select,insert,update,delete}`. Those columns hold the **edit** Scope (NONE/OWN/GROUP/ALL), not the view mode; the new `select_scope` column is the view mode. Rename frees the name for the semantic it matches (same as the `selectScope` field on `TablePermission`). Internal-only rename — DB tables are private to `MOLGENIS` schema; no external API change.
+- Edit-verb scopes: `MG_P_<role>_<VERB>_<SCOPE>` where VERB ∈ SELECT/INSERT/UPDATE/DELETE, SCOPE ∈ OWN/GROUP/ALL — already implemented.
+- `change_owner` flag: `MG_P_<role>_CHANGEOWNER_<UPDATE_SCOPE>` (existence = flag is true; scope mirrors the update verb scope).
+- `share` flag: `MG_P_<role>_SHARE_<UPDATE_SCOPE>` (existence = flag is true).
+- View mode: `MG_P_<role>_VIEW_<MODE>` where MODE ∈ COUNT/AGGREGATE/EXISTS/RANGE. Default FULL = absence of any VIEW policy.
 
-Built-ins re-seed via `SqlSchema.create` hook: AGGREGATOR→AGGREGATE, COUNT→COUNT, RANGE→RANGE, EXISTS→EXISTS, VIEWER/EDITOR/MANAGER/OWNER→FULL. Replaces the hardcoded template currently at `SqlRoleManager:885-890` with actual rows in `permission_attributes`. This subsumes the deferred story 1.9 tail (built-in install via new codepath).
+Sentinel policies (CHANGEOWNER/SHARE/VIEW) are created as `FOR SELECT USING (false)` — they mark capability without granting data access (OR'd with real SELECT policies → no change to effective access).
+
+Wildcards (`schema='*'`, `table='*'`) are materialised at `setPermissions` time as concrete per-(schema,table) policies. `getPermissions(role)` returns concrete entries, not wildcard templates — acceptable per design.
 
 ### Capability matrix
 
 | Mode | rows / JSON | count | sum/avg | min/max | group by | exists |
 |------|-------------|-------|---------|---------|----------|--------|
-| FULL | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AGGREGATE | ✗ | ✓ (≥ threshold) | ✓ | ✓ | ✓ | ✓ |
-| COUNT | ✗ | ✓ (≥ threshold) | ✗ | ✗ | ✗ | ✓ |
+| FULL/ALL | ✓ | ✓ exact | ✓ | ✓ | ✓ | ✓ |
+| AGGREGATE | ✗ | ✓ exact | ✓ | ✓ | ✓ | ✓ |
+| COUNT | ✗ | ✓ exact | ✗ | ✗ | ✗ | ✓ |
 | EXISTS | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
-| RANGE | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ |
+| RANGE | ✗ | ✓ truncated | ✗ | ✓ | ✗ | ✓ |
 
-Threshold for AGGREGATE/COUNT: single database-wide default (10), no per-role override in v1. `exists` check is the minimum affordance for all non-FULL modes (lets UI show "records present" without exposing data).
+RANGE count truncation rule: keep only the first significant digit, zero the rest. Counts 0–9 → 0. `floor(n / 10^(digits-1)) * 10^(digits-1)` for n ≥ 10. `exists` check is the minimum affordance for all non-FULL modes.
 
 When a user holds multiple roles on the same table, union-most-permissive applies: the widest SelectScope wins. E.g. a user with AGGREGATOR (AGGREGATE) and VIEWER (FULL) sees FULL. Matches the scope-ladder union for edit verbs already in place.
 
 ### Stories
 
-#### Story 3.1 — DB column add + rename (in-place migration edit)
+#### Story 3.1 — Policy-based encoding (in-place migration edit) [DONE]
 
-- Edit `migration32.sql` to add `select_scope` column on both tables and rename the wildcard edit-scope columns. Update `MigrationsTest` if it asserts on column names.
-- Update `MOLGENIS.mg_enforce_row_authorisation()` — not affected by this change, but confirm no reference to the renamed columns.
+- `migration32.sql` updated in place: removed `permission_attributes` and `role_wildcards` tables; rewrote `mg_enforce_row_authorisation()` to scan `pg_policies` for CHANGEOWNER/SHARE sentinel policies instead of reading from auxiliary tables.
+- Sentinel policies created as `FOR SELECT USING (false)` — visible in `pg_policies`, OR'd with real policies → no access change.
+- Tests green: `MigrationsTest#migration32AppliesIdempotently`. `MigrationsTest#migration32CreatesSelectScopeColumn` deleted (tables no longer exist).
 
-Red: `MigrationsTest#migration32CreatesSelectScopeColumn` (new). Green: edit migration, re-run idempotency test.
+#### Story 3.2 — Read/write `selectScope` through SqlRoleManager [DONE]
 
-#### Story 3.2 — Read/write `selectScope` through SqlRoleManager
+- `setPermissions` emits `MG_P_<role>_VIEW_<MODE>` sentinel policy when viewMode != FULL.
+- `getPermissions` parses VIEW/CHANGEOWNER/SHARE policy names from `pg_policies` scan.
+- `SqlRoleManagerTest#{setPermissionsPersistsSelectScope, getPermissionsReadsSelectScope}` rewritten to assert policy existence/parsing.
 
-- `setPermissions` writes `select_scope` alongside `change_owner`/`share` in `permission_attributes` (and in `role_wildcards` for wildcard entries).
-- `getPermissions` / `getTablePermissionsForActiveUser` hydrate `selectScope` back into the `TablePermission` record.
-- Built-in roles returning `Scope.NONE + selectScope=ALL-as-none` placeholder gets replaced with actual rows + selectScope.
+#### Story 3.3 — GraphQL accepts non-FULL values [DONE]
 
-Red: `SqlRoleManagerTest#{setPermissionsPersistsSelectScope, getPermissionsReadsSelectScope}`. Green: plumb through.
+Removed server-side rejection of COUNT/AGGREGATE/EXISTS/RANGE; exposed `selectScope` in `_session.permissions` output.
 
-#### Story 3.3 — GraphQL accepts non-FULL values
+#### Story 3.4 — Collapse select+selectScope into single Select enum
 
-- Remove server-side rejection of COUNT/AGGREGATE/EXISTS/RANGE in `GraphqlPermissionFieldFactory.applyPermissionsForRole`.
-- `_session.permissions` output includes the effective `selectScope`.
+Replace `select: Scope` + `selectScope: ViewMode` with unified `select: Select` enum carrying NONE/EXISTS/COUNT/AGGREGATE/RANGE/OWN/GROUP/ALL. Policy emission: `MG_P_<role>_SELECT_<MEMBER>` uniform. GraphQL: drop `MolgenisSelectScope`; new `MolgenisSelect` enum. Java: rename `TablePermission.viewMode` → `TablePermission.select`, type `Select`.
 
-Red: `GraphqlPermissionFieldFactoryTest#changePermissions_acceptsSelectScope`. Green: drop the rejection + wire the field.
+Diff-and-patch `setPermissions` only touches changed `(schema, table)` keys.
 
-#### Story 3.4 — Enforcement per mode in `SqlQuery`
+#### Story 3.5 — Validate role names (length 32, charset [a-zA-Z0-9 ])
+
+Add constant `MAX_ROLE_NAME_LENGTH = 32` and validation regex in `SqlRoleManager.createRole`. Reject names >32 chars, containing underscore/special chars, or with leading/trailing space. Throw `MolgenisException` with clear message.
+
+#### Story 3.6 — Gate setPermissions on MANAGER or OWNER privilege
+
+GraphQL mutation `setPermissions` checks caller holds `MANAGER` or `OWNER` privilege on target schema. Lower-privileged calls get permission-denied error.
+
+#### Story 3.7 — Enforcement per mode in `SqlQuery`
 
 Introduce a per-query `effectiveSelectScope(table)` helper that resolves the user's strongest view mode for the target table.
 
-- **3.4a — AGGREGATE** — already partial. Today enforces row-retrieve block + count threshold. Add explicit allow-lists for sum/avg/min/max/group-by (these already work by virtue of row-retrieve being off, but add guards so dropping a check elsewhere does not accidentally widen).
-- **3.4b — COUNT** — block sum/avg/min/max/group-by; allow count only (with threshold).
-- **3.4c — EXISTS** — block all aggregates except `SELECT EXISTS(...)`; allow exists only.
-- **3.4d — RANGE** — allow min/max only; block sum/avg/count/group-by.
+- **3.7a — AGGREGATE** — enforces row-retrieve block; count/sum/avg/min/max/group-by exact (no threshold).
+- **3.7b — COUNT** — block sum/avg/min/max/group-by; allow exact count only.
+- **3.7c — EXISTS** — block all aggregates except `SELECT EXISTS(...)`; allow exists only.
+- **3.7d — RANGE** — allow min/max and truncated count; block sum/avg/group-by. Count truncation: 0–9→0, 10→keep first digit zero rest (`floor(n / 10^(digits-1)) * 10^(digits-1)`).
 
 Each story writes red tests first (`TestSelectScope{Aggregate,Count,Exists,Range}Enforcement#...`), then green.
 
-#### Story 3.5 — Built-in roles re-seeded via SqlSchema.create
+#### Story 3.8 — Built-in roles re-seeded via SqlSchema.create
 
 - On schema create, call `SqlRoleManager.setPermissions(<built-in>, preset)` for each built-in including its `selectScope`.
 - Pre-existing schemas: backfill once on migration (or rely on a follow-up "upgrade schema" admin action — see Phase 5).
@@ -231,15 +241,29 @@ Each story writes red tests first (`TestSelectScope{Aggregate,Count,Exists,Range
 
 Red: `BuiltinInstallTest#selectScopeMatchesBuiltin`. Green: hook + seed.
 
-#### Story 3.6 — Phase 3 integration test
+#### Story 3.9 — Diff-and-patch `setPermissions`
+
+Currently replace-all: drops all policies for the role, re-creates them. ACCESS EXCLUSIVE lock per touched table for the transaction. Wildcard-permission updates that touch N tables lock all N, even when only one changed.
+
+Goal (per spec rows 154-156): read current `PermissionSet` via `getPermissions(role)`, compute diff against payload, emit `DROP POLICY`/`CREATE POLICY` only for `(schema, table)` keys that changed. Unchanged entries → no DDL, no lock. Same treatment for the new `select_scope` column — unchanged rows in `permission_attributes` are skipped.
+
+Pulled into Phase 3 (was backlog) because 3.1/3.2 touch the same emit path; folding in now avoids a second pass on the same code.
+
+Red: `SqlRoleManagerTest#{setPermissionsDiffPatchOnlyTouchesChanged, setPermissionsNoOpForUnchangedWildcard}` (already on spec as unimplemented). Green: rewrite setPermissions around diff computation.
+
+#### Story 3.10 — Phase 3 integration test
 
 `SelectScopeIT#fullMatrix` — admin creates 5 roles (one per mode), grants each to a distinct test user, runs each allowed and disallowed operation per row of the capability matrix. Asserts HTTP 200 for allowed, `MolgenisException`-mapped error for disallowed.
 
-### Open design questions (resolve before starting Phase 3)
+### Design decisions (locked)
 
-- Threshold configurable per-database or hardcoded 10? (Recommend hardcoded; revisit if bioinformatics users complain.)
-- Does EXISTS mode allow the user to discover table/column names via GraphQL introspection? (Schema metadata is a separate concern from row data; recommend: yes, keep introspection open — matching COUNT/AGGREGATE behavior.)
-- Is the `exists` affordance part of all non-FULL modes, or a mode of its own that stacks? (Matrix above treats it as a baseline floor for all non-FULL.)
+- Unified Select enum subsumes view modes + row scopes (Decisions A, I).
+- Threshold hardcoded at 10 (per spec, no config in v1).
+- EXISTS mode allows GraphQL introspection (schema metadata separate from row data).
+- `exists` affordance is a baseline floor for all non-FULL modes.
+- Role name max 32 chars, charset [a-zA-Z0-9 ], no leading/trailing space (Decision C).
+- `setPermissions` gates on MANAGER/OWNER privilege (Decision E).
+- Description sanitization via jOOQ inline() (Decision B).
 
 ---
 
@@ -249,25 +273,25 @@ TBD after Phase 3 green. Depends on: SelectScope must round-trip through `_sessi
 
 ---
 
+## Phase 4 — UI integration (planned)
+
+### Story 4.1 — `mg_roles` cell editor with role filtering
+
+`mg_roles` cell editor offers ONLY roles that hold a SELECT grant on the current table. If exactly one qualifying role exists, auto-select it. Client-side validation; backend enforces per-policy.
+
+---
+
 ## Phase 5 — Performance & polish (backlog → phased)
 
-### Story 5.1 — Diff-and-patch `setPermissions`
-
-Currently replace-all: drops all policies for the role, re-creates them. ACCESS EXCLUSIVE lock per touched table for the transaction. Wildcard-permission updates that touch N tables lock all N, even when only one changed.
-
-Goal (per spec rows 154-156): read current `PermissionSet` via `getPermissions(role)`, compute diff against payload, emit `DROP POLICY`/`CREATE POLICY` only for `(schema, table)` keys that changed. Unchanged entries → no DDL, no lock.
-
-Red: `SqlRoleManagerTest#{setPermissionsDiffPatchOnlyTouchesChanged, setPermissionsNoOpForUnchangedWildcard}` (already on spec as unimplemented). Green: rewrite setPermissions around diff computation.
-
-### Story 5.2 — Retire legacy `Privileges.java` install path
+### Story 5.1 — Retire legacy `Privileges.java` install path
 
 Once built-ins install exclusively via `SqlRoleManager.setPermissions` (Phase 3 Story 3.5) and all pre-existing schemas are backfilled, remove the legacy install code. Requires an admin-visible "upgrade schema" action for pre-feature DBs.
 
-### Story 5.3 — Guard-trigger permission lookup cache
+### Story 5.2 — Guard-trigger permission lookup cache
 
-Per spec backlog line 289: cache caller's `change_owner`/`share` scope in a session GUC at request start (mirrors `molgenis.current_roles`) so the trigger avoids a `permission_attributes` scan per changed row. Profile first.
+Cache caller's `change_owner`/`share` scope in a session GUC at request start (mirrors `molgenis.current_roles`) so the trigger avoids a `pg_policies` scan per changed row. Profile first.
 
-### Story 5.4 — Tombstone for deleted roles
+### Story 5.3 — Tombstone for deleted roles
 
 Per spec backlog line 290: reserve role names after `deleteRole` so a future `createRole` with the same name cannot resurrect visibility via orphaned `mg_roles` entries. v1 does not reserve.
 
@@ -297,3 +321,18 @@ Per spec backlog line 290: reserve role names after `deleteRole` so a future `cr
 - `MolgenisEditScope` enum (was `MolgenisScope`) for edit-verb scopes.
 - `systemRole` GraphQL field (not `immutable`) in admin role output.
 - `_session.permissions` (not `effectivePermissions`) — no collision found with existing `tablePermissions`.
+
+
+## Follow-ups (backlog)
+
+- Upgrade-schema admin action (migrate legacy built-ins to policy form).
+- Schema-scoped custom roles.
+- Agg sub-levels for read ladder.
+- Formal admin group model (replace superuser shortcut).
+- Schema-manager UI for user-to-role assignment per schema.
+- Guard-trigger performance: shared function is called per UPDATE on every RLS-enabled table; profile under load and add per-transaction role-cache (e.g. `SET LOCAL`) if it becomes a hot path.
+- Java-side cache for `getPermissionsForActiveUser` — add a request-scoped cache analogous to `SchemaMetadata` caching only if profiling shows repetitive calls are a bottleneck. No cache in v1.
+- Fate of existing user-created per-schema custom roles from legacy `SqlRoleManager.createRole(schemaName, roleName)` — decide whether to deprecate the API, auto-migrate to global custom roles, or keep indefinitely.
+- `setPermissions` wildcard lock blast (when the diff is genuinely wide): batch-by-table in separate transactions — loses atomicity, add `MOLGENIS.permission_sync_log` for resume-on-crash.
+- Guard-trigger permission lookup: cache caller's CHANGEOWNER/SHARE policy presence in a session GUC at request start (mirrors `molgenis.current_roles`) so the slow path avoids a `pg_policies` scan per changed row.
+- Tombstone/name-reservation semantics for deleted roles (v1 does not reserve names after drop).

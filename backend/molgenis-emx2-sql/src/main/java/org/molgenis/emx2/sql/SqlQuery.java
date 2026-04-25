@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -184,14 +183,87 @@ public class SqlQuery extends QueryBean {
   }
 
   private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && getEffectiveViewMode(table) != TablePermission.ViewMode.FULL) {
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
+    if (effectiveSelect != TablePermission.Select.ALL
+        && effectiveSelect != TablePermission.Select.OWN
+        && effectiveSelect != TablePermission.Select.GROUP) {
       throw new MolgenisException(
-          "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
+          "Cannot retrieve rows: requires ALL/OWN/GROUP select mode for table '"
+              + table.getTableName()
+              + "' but effective mode is "
+              + effectiveSelect);
     }
   }
 
-  private TablePermission.ViewMode getEffectiveViewMode(SqlTableMetadata table) {
+  private void enforceAllowsMinMax(SqlTableMetadata table) {
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
+    if (effectiveSelect == TablePermission.Select.EXISTS
+        || effectiveSelect == TablePermission.Select.COUNT
+        || effectiveSelect == TablePermission.Select.NONE) {
+      throw new MolgenisException(
+          "Cannot perform min/max: select mode '"
+              + effectiveSelect
+              + "' does not allow min/max for table '"
+              + table.getTableName()
+              + "'");
+    }
+  }
+
+  private void enforceAllowsAvgSum(SqlTableMetadata table) {
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
+    if (effectiveSelect == TablePermission.Select.EXISTS
+        || effectiveSelect == TablePermission.Select.COUNT
+        || effectiveSelect == TablePermission.Select.RANGE
+        || effectiveSelect == TablePermission.Select.NONE) {
+      throw new MolgenisException(
+          "Cannot perform avg/sum: select mode '"
+              + effectiveSelect
+              + "' does not allow avg/sum for table '"
+              + table.getTableName()
+              + "'");
+    }
+  }
+
+  private void enforceAllowsCount(SqlTableMetadata table) {
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
+    if (effectiveSelect == TablePermission.Select.EXISTS
+        || effectiveSelect == TablePermission.Select.NONE) {
+      throw new MolgenisException(
+          "Cannot perform count: select mode '"
+              + effectiveSelect
+              + "' does not allow count for table '"
+              + table.getTableName()
+              + "'");
+    }
+  }
+
+  static long truncateCountForRange(long count) {
+    if (count < 10) return 0;
+    long magnitude = (long) Math.pow(10, (long) Math.log10(count));
+    return (count / magnitude) * magnitude;
+  }
+
+  private void enforceAllowsGroupBy(SqlTableMetadata table) {
+    if (table.getTableType().equals(TableType.ONTOLOGIES)) return;
+    TablePermission.Select effectiveSelect = getEffectiveSelect(table);
+    if (effectiveSelect == TablePermission.Select.EXISTS
+        || effectiveSelect == TablePermission.Select.COUNT
+        || effectiveSelect == TablePermission.Select.RANGE
+        || effectiveSelect == TablePermission.Select.NONE) {
+      throw new MolgenisException(
+          "Cannot perform groupBy: select mode '"
+              + effectiveSelect
+              + "' does not allow groupBy for table '"
+              + table.getTableName()
+              + "'");
+    }
+  }
+
+  private TablePermission.Select getEffectiveSelect(SqlTableMetadata table) {
     String schemaNameForTable = table.getSchemaName();
     return schema
         .getDatabase()
@@ -199,26 +271,16 @@ public class SqlQuery extends QueryBean {
         .getTablePermissionsForActiveUser(schemaNameForTable)
         .stream()
         .filter(p -> p.table().equals(table.getTableName()) || p.table().equals("*"))
-        .map(TablePermission::viewMode)
-        .reduce(SqlQuery::maxViewMode)
+        .map(TablePermission::select)
+        .reduce(SqlQuery::maxSelect)
         .orElse(null);
   }
 
-  private static TablePermission.ViewMode maxViewMode(
-      TablePermission.ViewMode a, TablePermission.ViewMode b) {
+  private static TablePermission.Select maxSelect(
+      TablePermission.Select a, TablePermission.Select b) {
     if (a == null) return b;
     if (b == null) return a;
-    return viewModePermissivenessLevel(a) >= viewModePermissivenessLevel(b) ? a : b;
-  }
-
-  private static int viewModePermissivenessLevel(TablePermission.ViewMode viewMode) {
-    return switch (viewMode) {
-      case EXISTS -> 0;
-      case RANGE -> 1;
-      case AGGREGATE -> 2;
-      case COUNT -> 3;
-      case FULL -> 4;
-    };
+    return a.permissivenessLevel() >= b.permissivenessLevel() ? a : b;
   }
 
   private Set<String> getTablesWithSelectPermission() {
@@ -229,7 +291,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getTablePermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> p.select() != TablePermission.Scope.NONE)
+              .filter(p -> p.select() != TablePermission.Select.NONE)
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }
@@ -732,35 +794,40 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
+        enforceAllowsCount(table);
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        TablePermission.ViewMode existsViewMode = getEffectiveViewMode(table);
-        if (existsViewMode != null) {
+        TablePermission.Select existsSelect = getEffectiveSelect(table);
+        if (existsSelect != null) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
-      } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
-        checkHasViewPermission(table);
+      } else if (List.of(MAX_FIELD, MIN_FIELD).contains(field.getColumn())) {
+        enforceAllowsMinMax(table);
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
-          switch (field.getColumn()) {
-            case MAX_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default ->
-                throw new MolgenisException(
-                    "Unknown aggregate type provided: " + field.getColumn());
+          if (MAX_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+          } else {
+            result.add(
+                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+          }
+        }
+        fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
+      } else if (List.of(AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
+        enforceAllowsAvgSum(table);
+        List<JSONEntry<?>> result = new ArrayList<>();
+        for (SelectColumn sub : field.getSubselect()) {
+          Column c = getColumnByName(table, sub.getColumn());
+          if (AVG_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier())
+                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+          } else {
+            result.add(
+                key(c.getIdentifier())
+                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -771,15 +838,26 @@ public class SqlQuery extends QueryBean {
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
     if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    TablePermission.ViewMode viewMode = getEffectiveViewMode(table);
-    if (viewMode == TablePermission.ViewMode.FULL || viewMode == TablePermission.ViewMode.COUNT) {
+    TablePermission.Select select = getEffectiveSelect(table);
+    if (select == TablePermission.Select.ALL
+        || select == TablePermission.Select.OWN
+        || select == TablePermission.Select.GROUP
+        || select == TablePermission.Select.COUNT
+        || select == TablePermission.Select.AGGREGATE) {
       return count();
-    } else if (viewMode == TablePermission.ViewMode.AGGREGATE) {
-      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (viewMode == TablePermission.ViewMode.RANGE) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+    } else if (select == TablePermission.Select.RANGE) {
+      return field(
+          "CASE WHEN COUNT(*) < 10 THEN 0"
+              + " ELSE (COUNT(*) / POW(10, FLOOR(LOG(COUNT(*))))::bigint)"
+              + "      * POW(10, FLOOR(LOG(COUNT(*))))::bigint END",
+          Integer.class);
     }
-    throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    throw new MolgenisException(
+        "Select mode '"
+            + select
+            + "' does not allow count for table '"
+            + table.getTableName()
+            + "'");
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -795,6 +873,7 @@ public class SqlQuery extends QueryBean {
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNt or SUM is required when using group by");
     }
+    enforceAllowsGroupBy(table);
 
     // filter conditions
     Condition condition = null;
@@ -811,17 +890,9 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        TablePermission.ViewMode groupByViewMode = getEffectiveViewMode(table);
-        if (groupByViewMode == TablePermission.ViewMode.FULL
-            || groupByViewMode == TablePermission.ViewMode.COUNT) {
-          aggregationFields.add(field("COUNT(*)"));
-        } else {
-          aggregationFields.add(
-              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
-        }
+        aggregationFields.add(field("COUNT(*)"));
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
-        // sum precision depends on count
         field
             .getSubselect()
             .forEach(
@@ -829,19 +900,12 @@ public class SqlQuery extends QueryBean {
                   Column col = getColumnByName(table, sub.getColumn());
                   sumFields.add(
                       key(col.getIdentifier())
-                          .value(
-                              field(
-                                  "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
-                                  AGGREGATE_COUNT_THRESHOLD)));
+                          .value(field("SUM({0})", field(name(alias(subAlias), col.getName())))));
                   nonArraySourceFields.add(col.getJooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
         Column col = getColumnByName(table, field.getColumn());
-        if (!col.isOntology()) {
-          checkHasViewPermission(table);
-        }
         String subQueryAlias = tableAlias + "_" + col.getIdentifier();
         // in case of 'ref' we need a subselect
         if (col.isReference()) {

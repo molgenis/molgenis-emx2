@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.TablePermission.Select;
 import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 
 class FineGrainedPermissionsIT {
@@ -29,8 +30,6 @@ class FineGrainedPermissionsIT {
 
     jooq.execute("DROP SCHEMA IF EXISTS \"" + SCHEMA + "\" CASCADE");
     jooq.execute("DROP ROLE IF EXISTS \"MG_ROLE_" + ROLE + "\"");
-    jooq.execute("DELETE FROM \"MOLGENIS\".permission_attributes WHERE role_name = '" + ROLE + "'");
-    jooq.execute("DELETE FROM \"MOLGENIS\".role_wildcards WHERE role_name = '" + ROLE + "'");
 
     if (!database.hasUser(ALICE)) {
       database.addUser(ALICE);
@@ -66,8 +65,6 @@ class FineGrainedPermissionsIT {
     } catch (Exception ignored) {
     }
     jooq.execute("DROP ROLE IF EXISTS \"MG_ROLE_" + ROLE + "\"");
-    jooq.execute("DELETE FROM \"MOLGENIS\".permission_attributes WHERE role_name = '" + ROLE + "'");
-    jooq.execute("DELETE FROM \"MOLGENIS\".role_wildcards WHERE role_name = '" + ROLE + "'");
   }
 
   @Test
@@ -98,7 +95,7 @@ class FineGrainedPermissionsIT {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.GROUP,
+            Select.GROUP,
             TablePermission.Scope.OWN,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
@@ -168,7 +165,7 @@ class FineGrainedPermissionsIT {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.NONE,
+            Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.TablePermission.Scope;
+import org.molgenis.emx2.TablePermission.Select;
 
 /** Tests that table-level permissions are actually enforced at the SQL layer. */
 class TestTablePermissionEnforcement {
@@ -51,7 +52,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "ViewerRole",
         new TablePermission(
-            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -80,7 +81,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "PartialRole",
         new TablePermission(
-            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
     schema.addMember(USER_VIEWER, "PartialRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -100,7 +101,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "EditorRole",
         new TablePermission(
-            null, TABLE_A, Scope.ALL, Scope.ALL, Scope.ALL, Scope.ALL, false, false));
+            null, TABLE_A, Select.ALL, Scope.ALL, Scope.ALL, Scope.ALL, false, false));
     schema.addMember(USER_EDITOR, "EditorRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -126,7 +127,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "ReadOnlyRole",
         new TablePermission(
-            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -160,7 +161,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "CountRole",
         new TablePermission(
-            null, TABLE_A, Scope.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
+            null, TABLE_A, Select.ALL, Scope.NONE, Scope.NONE, Scope.NONE, false, false));
     schema.addMember(USER_VIEWER, "CountRole");
 
     database.setActiveUser(USER_VIEWER);

@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface RoleManager {
 
+  int MAX_ROLE_NAME_LENGTH = 32;
+
   void createRole(String name, String description);
 
   void deleteRole(String name);

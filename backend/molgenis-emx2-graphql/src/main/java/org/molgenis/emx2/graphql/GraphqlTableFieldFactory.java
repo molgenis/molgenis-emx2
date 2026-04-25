@@ -67,12 +67,12 @@ public class GraphqlTableFieldFactory {
     this.schema = schema;
     Set<String> tables = new java.util.HashSet<>();
     schema.getPermissionsForActiveUser().stream()
-        .filter(p -> p.select() != TablePermission.Scope.NONE)
+        .filter(p -> p.select() != TablePermission.Select.NONE)
         .map(TablePermission::table)
         .forEach(tables::add);
     PermissionSet globalPerms = schema.getDatabase().getRoleManager().getPermissionsForActiveUser();
     for (TablePermission p : globalPerms) {
-      if (schema.getName().equals(p.schema()) && p.select() != TablePermission.Scope.NONE) {
+      if (schema.getName().equals(p.schema()) && p.select() != TablePermission.Select.NONE) {
         tables.add(p.table());
       }
     }

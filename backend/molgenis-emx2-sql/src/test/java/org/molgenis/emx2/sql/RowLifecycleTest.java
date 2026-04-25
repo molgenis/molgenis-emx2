@@ -8,12 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.TablePermission.Select;
 
 class RowLifecycleTest {
 
   private static final String SCHEMA = "rlc_schema";
   private static final String TABLE = "rlc_table";
-  private static final String ROLE = "rlc_role";
+  private static final String ROLE = "rlc role";
   private static final String TEST_USER = "rlc_testuser";
 
   private static final SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
@@ -44,7 +45,6 @@ class RowLifecycleTest {
     org.molgenis.emx2.sql.rls.SqlPermissionExecutor.installGuardTrigger(jooq, SCHEMA, TABLE);
 
     jooq.execute("DROP ROLE IF EXISTS \"MG_ROLE_" + ROLE + "\"");
-    jooq.execute("DELETE FROM \"MOLGENIS\".permission_attributes WHERE role_name = '" + ROLE + "'");
 
     roleManager.createRole(ROLE, "lifecycle test role");
 
@@ -64,7 +64,6 @@ class RowLifecycleTest {
       // best effort
     }
     jooq.execute("DROP ROLE IF EXISTS \"MG_ROLE_" + ROLE + "\"");
-    jooq.execute("DELETE FROM \"MOLGENIS\".permission_attributes WHERE role_name = '" + ROLE + "'");
   }
 
   @Test
@@ -74,7 +73,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -99,7 +98,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -128,7 +127,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -169,7 +168,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -197,7 +196,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
@@ -232,7 +231,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
@@ -273,7 +272,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,
@@ -307,7 +306,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
@@ -347,7 +346,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.GROUP,
+            Select.GROUP,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.GROUP,
             TablePermission.Scope.NONE,
@@ -387,7 +386,7 @@ class RowLifecycleTest {
         new TablePermission(
             SCHEMA,
             TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.ALL,
             TablePermission.Scope.NONE,

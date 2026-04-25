@@ -552,7 +552,7 @@ public class GraphqlSchemaFieldFactory {
                 p -> {
                   Map<String, Object> permMap = new LinkedHashMap<>();
                   permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select() != TablePermission.Scope.NONE);
+                  permMap.put(GraphqlConstants.SELECT, p.select() != TablePermission.Select.NONE);
                   permMap.put(GraphqlConstants.INSERT, p.insert() != TablePermission.Scope.NONE);
                   permMap.put(GraphqlConstants.UPDATE, p.update() != TablePermission.Scope.NONE);
                   permMap.put(GraphqlConstants.DELETE, p.delete() != TablePermission.Scope.NONE);
@@ -710,7 +710,7 @@ public class GraphqlSchemaFieldFactory {
     return new TablePermission(
         null,
         table,
-        Boolean.TRUE.equals(select) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
+        Boolean.TRUE.equals(select) ? TablePermission.Select.ALL : TablePermission.Select.NONE,
         Boolean.TRUE.equals(insert) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
         Boolean.TRUE.equals(update) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,
         Boolean.TRUE.equals(delete) ? TablePermission.Scope.ALL : TablePermission.Scope.NONE,

@@ -11,12 +11,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.TablePermission.Select;
 
 class SqlTableMetadataRlsTest {
 
   private static final String TEST_SCHEMA = "testrls";
   private static final String TEST_TABLE = "t1";
-  private static final String TEST_ROLE = "rls_test_role";
+  private static final String TEST_ROLE = "rls test role";
   private static final String PG_ROLE = "MG_ROLE_" + TEST_ROLE;
 
   private static final SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
@@ -60,7 +61,7 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -93,7 +94,7 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.GROUP,
+            Select.GROUP,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -122,7 +123,7 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -145,7 +146,7 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.OWN,
+            Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -179,7 +180,7 @@ class SqlTableMetadataRlsTest {
         new TablePermission(
             TEST_SCHEMA,
             TEST_TABLE,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,

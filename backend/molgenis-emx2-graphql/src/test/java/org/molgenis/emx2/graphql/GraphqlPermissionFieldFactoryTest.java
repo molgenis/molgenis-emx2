@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.TablePermission.Select;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -21,8 +22,9 @@ class GraphqlPermissionFieldFactoryTest {
   private static final String SCHEMA_NAME = "GpfTestSchema";
   private static final String TABLE_NAME = "GpfTable";
   private static final String TEST_USER = "gpf_test_user";
-  private static final String ROLE_ANALYST = "gpf_analyst";
-  private static final String ROLE_REVIEWER = "gpf_reviewer";
+  private static final String ROLE_ANALYST = "GpfAnalyst";
+  private static final String ROLE_REVIEWER = "GpfReviewer";
+  private static final String ROLE_GATED = "GpfGatedRole";
 
   private GraphqlExecutor executor;
   private SqlRoleManager roleManager;
@@ -59,7 +61,7 @@ class GraphqlPermissionFieldFactoryTest {
   }
 
   private void cleanupRoles() {
-    for (String role : new String[] {ROLE_ANALYST, ROLE_REVIEWER}) {
+    for (String role : new String[] {ROLE_ANALYST, ROLE_REVIEWER, ROLE_GATED}) {
       try {
         String pgRole = "MG_ROLE_" + role;
         database
@@ -78,15 +80,6 @@ class GraphqlPermissionFieldFactoryTest {
                     + "EXCEPTION WHEN OTHERS THEN NULL; END $$");
       } catch (Exception ignored) {
       }
-      database
-          .getJooq()
-          .execute(
-              "DELETE FROM \"MOLGENIS\".\"permission_attributes\" WHERE role_name = '"
-                  + role
-                  + "'");
-      database
-          .getJooq()
-          .execute("DELETE FROM \"MOLGENIS\".\"role_wildcards\" WHERE role_name = '" + role + "'");
     }
   }
 
@@ -107,7 +100,7 @@ class GraphqlPermissionFieldFactoryTest {
         new TablePermission(
             SCHEMA_NAME,
             TABLE_NAME,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -150,7 +143,7 @@ class GraphqlPermissionFieldFactoryTest {
         new TablePermission(
             SCHEMA_NAME,
             TABLE_NAME,
-            TablePermission.Scope.ALL,
+            Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -222,7 +215,7 @@ class GraphqlPermissionFieldFactoryTest {
 
     PermissionSet perms = roleManager.getPermissions(ROLE_ANALYST);
     TablePermission found = perms.resolveFor(SCHEMA_NAME, TABLE_NAME);
-    assertEquals(TablePermission.Scope.ALL, found.select(), "select scope must be ALL");
+    assertEquals(Select.ALL, found.select(), "select scope must be ALL");
   }
 
   @Test
@@ -290,6 +283,136 @@ class GraphqlPermissionFieldFactoryTest {
     PermissionSet userPerms = database.getRoleManager().getPermissionsForActiveUser();
     database.becomeAdmin();
     assertEquals(0, userPerms.size(), "User must have no permissions after revoke");
+  }
+
+  @Test
+  void changePermissions_acceptsAggregateSelect() throws IOException {
+    database.becomeAdmin();
+    executor = new GraphqlExecutor(database);
+
+    roleManager.createRole(ROLE_ANALYST, "analyst");
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_ANALYST
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\""
+            + TABLE_NAME
+            + "\",select:AGGREGATE}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+
+    PermissionSet perms = roleManager.getPermissions(ROLE_ANALYST);
+    TablePermission found = perms.resolveFor(SCHEMA_NAME, TABLE_NAME);
+    assertEquals(TablePermission.Select.AGGREGATE, found.select());
+  }
+
+  @Test
+  void sessionPermissions_exposesUnifiedSelect() throws IOException {
+    roleManager.createRole(ROLE_ANALYST, "analyst");
+    PermissionSet ps = new PermissionSet();
+    ps.put(
+        new TablePermission(
+            SCHEMA_NAME,
+            TABLE_NAME,
+            TablePermission.Select.AGGREGATE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    roleManager.setPermissions(ROLE_ANALYST, ps);
+    roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database);
+
+    JsonNode result =
+        executeQuery(
+            "{_session(schema:\"" + SCHEMA_NAME + "\"){permissions{schema table select}}}");
+    JsonNode perms = result.at("/_session/permissions");
+    assertFalse(perms.isMissingNode(), "permissions must be present");
+
+    boolean found = false;
+    for (JsonNode perm : perms) {
+      if (SCHEMA_NAME.equals(perm.at("/schema").asText())
+          && TABLE_NAME.equals(perm.at("/table").asText())) {
+        assertEquals(
+            "AGGREGATE",
+            perm.at("/select").asText(),
+            "select field must expose unified AGGREGATE value (no separate selectScope field)");
+        found = true;
+      }
+    }
+    assertTrue(found, "Expected permission entry with unified select=AGGREGATE");
+  }
+
+  @Test
+  void setPermissionsRejectsNonManagerNonOwner() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.EDITOR.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database);
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\""
+            + TABLE_NAME
+            + "\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("FAILED", result.at("/change/status").asText());
+    String message = result.at("/change/message").asText().toLowerCase();
+    assertTrue(
+        message.contains("manager") || message.contains("owner") || message.contains("permission"),
+        "Error must mention MANAGER/OWNER or permission denied, got: " + message);
+  }
+
+  @Test
+  void setPermissionsAcceptsManager() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database);
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\""
+            + TABLE_NAME
+            + "\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+  }
+
+  @Test
+  void setPermissionsAcceptsOwner() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.OWNER.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database);
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\""
+            + TABLE_NAME
+            + "\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
   }
 
   private JsonNode executeQuery(String query) throws IOException {

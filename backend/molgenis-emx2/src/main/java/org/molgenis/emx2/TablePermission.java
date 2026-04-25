@@ -5,13 +5,12 @@ import java.util.Locale;
 public record TablePermission(
     String schema,
     String table,
-    TablePermission.Scope select,
+    TablePermission.Select select,
     TablePermission.Scope insert,
     TablePermission.Scope update,
     TablePermission.Scope delete,
     boolean changeOwner,
-    boolean share,
-    TablePermission.ViewMode viewMode) {
+    boolean share) {
 
   public enum Scope {
     NONE,
@@ -30,56 +29,56 @@ public record TablePermission(
     }
   }
 
-  public enum ViewMode {
-    FULL(true),
-    COUNT(false),
-    AGGREGATE(false),
-    EXISTS(false),
-    RANGE(false);
+  public enum Select {
+    NONE,
+    EXISTS,
+    COUNT,
+    AGGREGATE,
+    RANGE,
+    OWN,
+    GROUP,
+    ALL;
 
-    private final boolean supported;
-
-    ViewMode(boolean supported) {
-      this.supported = supported;
+    public int permissivenessLevel() {
+      switch (this) {
+        case NONE:
+          return 0;
+        case EXISTS:
+          return 1;
+        case COUNT:
+          return 2;
+        case RANGE:
+          return 3;
+        case AGGREGATE:
+          return 4;
+        case OWN:
+          return 5;
+        case GROUP:
+          return 6;
+        case ALL:
+          return 7;
+        default:
+          throw new IllegalStateException("unhandled Select: " + this);
+      }
     }
 
-    public boolean isSupported() {
-      return supported;
-    }
-
-    public static ViewMode fromString(String name) {
+    public static Select fromString(String name) {
       String upper = name.toUpperCase(Locale.ROOT);
-      for (ViewMode vm : values()) {
-        if (vm.name().equals(upper)) {
-          if (!vm.supported) {
-            throw new MolgenisException("ViewMode " + name + " is not yet supported");
-          }
-          return vm;
+      for (Select s : values()) {
+        if (s.name().equals(upper)) {
+          return s;
         }
       }
-      throw new MolgenisException("Unknown ViewMode: " + name);
+      throw new MolgenisException("Unknown Select: " + name);
     }
-  }
-
-  public TablePermission(
-      String schema,
-      String table,
-      Scope select,
-      Scope insert,
-      Scope update,
-      Scope delete,
-      boolean changeOwner,
-      boolean share) {
-    this(schema, table, select, insert, update, delete, changeOwner, share, null);
   }
 
   public TablePermission {
     if (schema == null) schema = "*";
     if (table == null) table = "*";
-    if (select == null) select = Scope.NONE;
+    if (select == null) select = Select.NONE;
     if (insert == null) insert = Scope.NONE;
     if (update == null) update = Scope.NONE;
     if (delete == null) delete = Scope.NONE;
-    if (viewMode == null) viewMode = ViewMode.FULL;
   }
 }

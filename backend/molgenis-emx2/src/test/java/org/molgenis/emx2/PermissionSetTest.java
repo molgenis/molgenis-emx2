@@ -14,7 +14,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.ALL,
+            TablePermission.Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -24,7 +24,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.NONE,
+            TablePermission.Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -32,7 +32,7 @@ public class PermissionSetTest {
             false));
     assertEquals(1, set.size());
     TablePermission resolved = set.resolveFor("s", "t");
-    assertEquals(TablePermission.Scope.NONE, resolved.select());
+    assertEquals(TablePermission.Select.NONE, resolved.select());
   }
 
   @Test
@@ -42,7 +42,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.NONE,
+            TablePermission.Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.ALL,
@@ -59,7 +59,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.NONE,
+            TablePermission.Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.OWN,
@@ -78,7 +78,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.NONE,
+            TablePermission.Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.OWN,
             TablePermission.Scope.NONE,
@@ -97,7 +97,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.ALL,
+            TablePermission.Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -118,7 +118,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.ALL,
+            TablePermission.Select.ALL,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -137,7 +137,7 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.NONE,
+            TablePermission.Select.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.OWN,
@@ -155,7 +155,7 @@ public class PermissionSetTest {
         new TablePermission(
             "*",
             "*",
-            TablePermission.Scope.OWN,
+            TablePermission.Select.OWN,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
@@ -165,14 +165,14 @@ public class PermissionSetTest {
         new TablePermission(
             "s",
             "t",
-            TablePermission.Scope.GROUP,
+            TablePermission.Select.GROUP,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             TablePermission.Scope.NONE,
             false,
             false));
     TablePermission resolved = set.resolveFor("s", "t");
-    assertEquals(TablePermission.Scope.GROUP, resolved.select(), "GROUP > OWN, should pick GROUP");
+    assertEquals(TablePermission.Select.GROUP, resolved.select(), "GROUP > OWN, should pick GROUP");
     assertTrue(resolved.changeOwner(), "Wildcard changeOwner=true should OR into resolved");
   }
 
@@ -182,5 +182,35 @@ public class PermissionSetTest {
         java.util.Arrays.stream(TablePermission.Scope.values())
             .anyMatch(s -> s.name().equals("SCHEMA")),
         "Scope.SCHEMA must not exist in v1");
+  }
+
+  @Test
+  void unionPicksMostPermissiveSelect() {
+    PermissionSet set = new PermissionSet();
+    set.put(
+        new TablePermission(
+            "s",
+            "t",
+            TablePermission.Select.AGGREGATE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    set.put(
+        new TablePermission(
+            "*",
+            "*",
+            TablePermission.Select.ALL,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            TablePermission.Scope.NONE,
+            false,
+            false));
+    TablePermission resolved = set.resolveFor("s", "t");
+    assertEquals(
+        TablePermission.Select.ALL,
+        resolved.select(),
+        "ALL is more permissive than AGGREGATE, so union returns ALL");
   }
 }
