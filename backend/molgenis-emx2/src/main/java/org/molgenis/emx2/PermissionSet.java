@@ -89,8 +89,13 @@ public class PermissionSet implements Iterable<TablePermission> {
       if (p.changeGroup()) changeGroup = true;
     }
 
-    return new TablePermission(
-        schemaName, tableName, select, insert, update, delete, changeOwner, changeGroup);
+    return new TablePermission(schemaName, tableName)
+        .select(select)
+        .insert(insert)
+        .update(update)
+        .delete(delete)
+        .setChangeOwner(changeOwner)
+        .setChangeGroup(changeGroup);
   }
 
   public record TableRef(String schema, String table) {}

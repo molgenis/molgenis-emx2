@@ -93,15 +93,10 @@ class FineGrainedPermissionsIT {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.GROUP),
-            UpdateScope.OWN,
-            UpdateScope.OWN,
-            UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.GROUP))
+            .insert(UpdateScope.OWN)
+            .update(UpdateScope.OWN));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(ALICE);
@@ -162,16 +157,7 @@ class FineGrainedPermissionsIT {
     database.becomeAdmin();
 
     PermissionSet none = new PermissionSet();
-    none.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.emptySelect(),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    none.put(new TablePermission(SCHEMA, TABLE).select(TablePermission.emptySelect()));
     roleManager.setPermissions(ROLE, none);
 
     database.setActiveUser(ALICE);

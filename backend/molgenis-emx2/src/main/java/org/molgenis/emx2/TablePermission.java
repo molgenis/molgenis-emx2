@@ -1,19 +1,22 @@
 package org.molgenis.emx2;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
-public record TablePermission(
-    String schema,
-    String table,
-    Set<TablePermission.SelectScope> select,
-    TablePermission.UpdateScope insert,
-    TablePermission.UpdateScope update,
-    TablePermission.UpdateScope delete,
-    boolean changeOwner,
-    boolean changeGroup) {
+public class TablePermission {
+
+  private String schema;
+  private String table;
+  private Set<SelectScope> select;
+  private UpdateScope insert;
+  private UpdateScope update;
+  private UpdateScope delete;
+  private boolean changeOwner;
+  private boolean changeGroup;
 
   public enum UpdateScope {
     NONE,
@@ -36,23 +39,14 @@ public record TablePermission(
     NONE,
     EXISTS,
     COUNT,
-    AGGREGATE,
     RANGE,
+    AGGREGATE,
     OWN,
     GROUP,
     ALL;
 
     public int permissivenessLevel() {
-      return switch (this) {
-        case NONE -> 0;
-        case EXISTS -> 1;
-        case COUNT -> 2;
-        case RANGE -> 3;
-        case AGGREGATE -> 4;
-        case OWN -> 5;
-        case GROUP -> 6;
-        case ALL -> 7;
-      };
+      return ordinal();
     }
 
     public static SelectScope fromString(String name) {
@@ -66,17 +60,121 @@ public record TablePermission(
     }
   }
 
-  public TablePermission {
-    if (schema == null) schema = "*";
-    if (table == null) table = "*";
-    if (select == null || select.isEmpty()) {
-      select = Collections.emptySet();
+  public TablePermission() {
+    this.schema = "*";
+    this.table = "*";
+    this.select = Collections.emptySet();
+    this.insert = UpdateScope.NONE;
+    this.update = UpdateScope.NONE;
+    this.delete = UpdateScope.NONE;
+    this.changeOwner = false;
+    this.changeGroup = false;
+  }
+
+  public TablePermission(String table) {
+    this();
+    this.table = table == null ? "*" : table;
+  }
+
+  public TablePermission(String schema, String table) {
+    this();
+    this.schema = schema == null ? "*" : schema;
+    this.table = table == null ? "*" : table;
+  }
+
+  public TablePermission(TablePermission source) {
+    this.schema = source.schema;
+    this.table = source.table;
+    this.select = source.select;
+    this.insert = source.insert;
+    this.update = source.update;
+    this.delete = source.delete;
+    this.changeOwner = source.changeOwner;
+    this.changeGroup = source.changeGroup;
+  }
+
+  public String schema() {
+    return schema;
+  }
+
+  public String table() {
+    return table;
+  }
+
+  public Set<SelectScope> select() {
+    return select;
+  }
+
+  public UpdateScope insert() {
+    return insert;
+  }
+
+  public UpdateScope update() {
+    return update;
+  }
+
+  public UpdateScope delete() {
+    return delete;
+  }
+
+  public boolean changeOwner() {
+    return changeOwner;
+  }
+
+  public boolean changeGroup() {
+    return changeGroup;
+  }
+
+  public TablePermission setSchema(String schema) {
+    this.schema = schema == null ? "*" : schema;
+    return this;
+  }
+
+  public TablePermission setTable(String table) {
+    this.table = table == null ? "*" : table;
+    return this;
+  }
+
+  public TablePermission select(SelectScope... scopes) {
+    if (scopes == null || scopes.length == 0) {
+      this.select = Collections.emptySet();
     } else {
-      select = Collections.unmodifiableSet(EnumSet.copyOf(select));
+      this.select = Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(scopes)));
     }
-    if (insert == null) insert = UpdateScope.NONE;
-    if (update == null) update = UpdateScope.NONE;
-    if (delete == null) delete = UpdateScope.NONE;
+    return this;
+  }
+
+  public TablePermission select(Set<SelectScope> scopes) {
+    this.select =
+        (scopes == null || scopes.isEmpty())
+            ? Collections.emptySet()
+            : Collections.unmodifiableSet(EnumSet.copyOf(scopes));
+    return this;
+  }
+
+  public TablePermission insert(UpdateScope scope) {
+    this.insert = scope == null ? UpdateScope.NONE : scope;
+    return this;
+  }
+
+  public TablePermission update(UpdateScope scope) {
+    this.update = scope == null ? UpdateScope.NONE : scope;
+    return this;
+  }
+
+  public TablePermission delete(UpdateScope scope) {
+    this.delete = scope == null ? UpdateScope.NONE : scope;
+    return this;
+  }
+
+  public TablePermission setChangeOwner(boolean value) {
+    this.changeOwner = value;
+    return this;
+  }
+
+  public TablePermission setChangeGroup(boolean value) {
+    this.changeGroup = value;
+    return this;
   }
 
   public boolean hasRowAccess() {
@@ -96,5 +194,46 @@ public record TablePermission(
 
   public static Set<SelectScope> emptySelect() {
     return Collections.emptySet();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof TablePermission other)) return false;
+    return changeOwner == other.changeOwner
+        && changeGroup == other.changeGroup
+        && Objects.equals(schema, other.schema)
+        && Objects.equals(table, other.table)
+        && Objects.equals(select, other.select)
+        && insert == other.insert
+        && update == other.update
+        && delete == other.delete;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(schema, table, select, insert, update, delete, changeOwner, changeGroup);
+  }
+
+  @Override
+  public String toString() {
+    return "TablePermission["
+        + "schema="
+        + schema
+        + ", table="
+        + table
+        + ", select="
+        + select
+        + ", insert="
+        + insert
+        + ", update="
+        + update
+        + ", delete="
+        + delete
+        + ", changeOwner="
+        + changeOwner
+        + ", changeGroup="
+        + changeGroup
+        + "]";
   }
 }

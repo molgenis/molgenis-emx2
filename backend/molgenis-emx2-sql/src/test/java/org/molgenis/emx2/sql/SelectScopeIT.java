@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.TablePermission.SelectScope;
-import org.molgenis.emx2.TablePermission.UpdateScope;
 
 /**
  * Story 3.10 — full matrix integration test via SqlRoleManager.setPermissions (global roles).
@@ -101,15 +100,8 @@ class SelectScopeIT {
       }
       PermissionSet ps = new PermissionSet();
       ps.put(
-          new TablePermission(
-              SCHEMA_NAME,
-              DATA_TABLE,
-              TablePermission.singletonSelect(mode.select),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+          new TablePermission(SCHEMA_NAME, DATA_TABLE)
+              .select(TablePermission.singletonSelect(mode.select)));
       roleManager.setPermissions(mode.role, ps);
       roleManager.grantRoleToUser(mode.role, mode.user);
     }

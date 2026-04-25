@@ -100,16 +100,7 @@ class TestTableRoleManagement {
   void cannotGrantToSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission =
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("Viewer", selectPermission));
   }
 
@@ -117,16 +108,7 @@ class TestTableRoleManagement {
   void cannotGrantToNonExistentRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission =
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
   }
 
@@ -135,16 +117,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("TempRole");
-    TablePermission permission =
-        new TablePermission(
-            null,
-            "NoSuchTable",
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false);
+    TablePermission permission = new TablePermission("NoSuchTable").select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
   }
 
@@ -153,17 +126,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("RevokeRole");
-    schema.grant(
-        "RevokeRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "RevokeRole");
 
     // Verify access exists
@@ -188,15 +151,7 @@ class TestTableRoleManagement {
     schema.createRole("PartialRevokeRole");
     schema.grant(
         "PartialRevokeRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.ALL,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -207,17 +162,7 @@ class TestTableRoleManagement {
         .insert(new Row().setString("id", "r_partial").setString("value", "v"));
 
     database.becomeAdmin();
-    schema.grant(
-        "PartialRevokeRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
 
     database.setActiveUser(USER_EDITOR);
 
@@ -239,26 +184,8 @@ class TestTableRoleManagement {
     schema.createRole("FalseNullRole");
     schema.grant(
         "FalseNullRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.ALL,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
-    schema.grant(
-        "FalseNullRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
+    schema.grant("FalseNullRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
 
     Role info = schema.getRoleInfo("FalseNullRole");
     TablePermission p = info.permissions().getFirst();
@@ -274,17 +201,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("LifecycleRole");
-    schema.grant(
-        "LifecycleRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "LifecycleRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -313,16 +230,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MetaRole");
     schema.grant(
-        "MetaRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.ALL,
-            UpdateScope.NONE,
-            false,
-            false));
+        "MetaRole", new TablePermission(TABLE_A).select(SelectScope.ALL).update(UpdateScope.ALL));
 
     Role info = schema.getRoleInfo("MetaRole");
     assertEquals(1, info.permissions().size());
@@ -394,15 +302,7 @@ class TestTableRoleManagement {
     schema.createRole("ActiveUserRole");
     schema.grant(
         "ActiveUserRole",
-        new TablePermission(
-            null,
-            TABLE_B,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.ALL,
-            false,
-            false));
+        new TablePermission(TABLE_B).select(SelectScope.ALL).delete(UpdateScope.ALL));
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -452,15 +352,7 @@ class TestTableRoleManagement {
     schema.createRole("MergeGrantRole");
     schema.grant(
         "MergeGrantRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.ALL,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "MergeGrantRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -498,16 +390,7 @@ class TestTableRoleManagement {
     // custom role grants select+insert on TABLE_A
     schema.createRole("InsertOnly");
     schema.grant(
-        "InsertOnly",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.ALL,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+        "InsertOnly", new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
     schema.addMember(USER_VIEWER, "InsertOnly");
 
     // every user inherits anonymous privileges via PostgreSQL role inheritance,

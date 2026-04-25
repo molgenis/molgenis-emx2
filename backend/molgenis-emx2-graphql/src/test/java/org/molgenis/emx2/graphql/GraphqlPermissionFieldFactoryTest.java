@@ -96,16 +96,7 @@ class GraphqlPermissionFieldFactoryTest {
   void sessionPermissions_currentUserSeesOwnPermissions() throws IOException {
     roleManager.createRole(ROLE_ANALYST, "analyst role");
     PermissionSet ps = new PermissionSet();
-    ps.put(
-        new TablePermission(
-            SCHEMA_NAME,
-            TABLE_NAME,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+    ps.put(new TablePermission(SCHEMA_NAME, TABLE_NAME).select(SelectScope.ALL));
     roleManager.setPermissions(ROLE_ANALYST, ps);
     roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
 
@@ -144,16 +135,7 @@ class GraphqlPermissionFieldFactoryTest {
     roleManager.createRole(ROLE_REVIEWER, "reviewer");
 
     PermissionSet ps = new PermissionSet();
-    ps.put(
-        new TablePermission(
-            SCHEMA_NAME,
-            TABLE_NAME,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+    ps.put(new TablePermission(SCHEMA_NAME, TABLE_NAME).select(SelectScope.ALL));
     roleManager.setPermissions(ROLE_ANALYST, ps);
 
     JsonNode result = executeQuery("{_admin{roles{role permissions{schema table select}}}}");
@@ -320,15 +302,7 @@ class GraphqlPermissionFieldFactoryTest {
     roleManager.createRole(ROLE_ANALYST, "analyst");
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA_NAME,
-            TABLE_NAME,
-            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA_NAME, TABLE_NAME).select(TablePermission.SelectScope.AGGREGATE));
     roleManager.setPermissions(ROLE_ANALYST, ps);
     roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
 

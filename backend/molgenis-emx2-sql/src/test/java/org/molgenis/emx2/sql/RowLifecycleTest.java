@@ -70,15 +70,9 @@ class RowLifecycleTest {
   void insertDefaultsOwner() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(TEST_USER);
@@ -95,15 +89,9 @@ class RowLifecycleTest {
   void insertOwnBlocksForeignOwner() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.OWN));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(TEST_USER);
@@ -124,15 +112,9 @@ class RowLifecycleTest {
   void insertGroupValidatesRoles() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.GROUP));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(TEST_USER);
@@ -165,15 +147,9 @@ class RowLifecycleTest {
   void insertAllDefaults() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(TEST_USER);
@@ -193,15 +169,10 @@ class RowLifecycleTest {
   void updateWithoutChangeOwnerRejected() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(ROLE, ps);
 
     database.becomeAdmin();
@@ -228,15 +199,10 @@ class RowLifecycleTest {
   void updateWithoutShareRejected() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(ROLE, ps);
 
     database.becomeAdmin();
@@ -269,15 +235,11 @@ class RowLifecycleTest {
   void changeOwnerAllScope() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            true,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.ALL)
+            .setChangeOwner(true));
     roleManager.setPermissions(ROLE, ps);
 
     database.becomeAdmin();
@@ -303,15 +265,11 @@ class RowLifecycleTest {
   void changeOwnerOwnScope() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.NONE,
-            true,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.OWN)
+            .setChangeOwner(true));
     roleManager.setPermissions(ROLE, ps);
 
     database.setActiveUser(TEST_USER);
@@ -343,15 +301,11 @@ class RowLifecycleTest {
   void changeOwnerGroupScope() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.GROUP),
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.NONE,
-            true,
-            false));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.GROUP))
+            .insert(TablePermission.UpdateScope.GROUP)
+            .update(TablePermission.UpdateScope.GROUP)
+            .setChangeOwner(true));
     roleManager.setPermissions(ROLE, ps);
 
     database.becomeAdmin();
@@ -383,15 +337,11 @@ class RowLifecycleTest {
   void changeGroupLimitedToGrantedRoles() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            SCHEMA,
-            TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            false,
-            true));
+        new TablePermission(SCHEMA, TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.ALL)
+            .setChangeGroup(true));
     roleManager.setPermissions(ROLE, ps);
 
     database.becomeAdmin();

@@ -377,15 +377,7 @@ public class SqlRoleManager implements RoleManager {
 
   private static TablePermission concretePermission(
       TablePermission template, String schema, String table) {
-    return new TablePermission(
-        schema,
-        table,
-        template.select(),
-        template.insert(),
-        template.update(),
-        template.delete(),
-        template.changeOwner(),
-        template.changeGroup());
+    return new TablePermission(template).setSchema(schema).setTable(table);
   }
 
   private static Set<SelectScope> unionSelectSets(Set<SelectScope> a, Set<SelectScope> b) {
@@ -794,17 +786,7 @@ public class SqlRoleManager implements RoleManager {
     if (p.hasAnySelect()) {
       emitSelectVerb(jooq(), fullRole, schemaName, tableName, p.select());
       ensureAllScopePoliciesEmittedIfRlsInstalled(
-          jooq(),
-          fullRole,
-          new TablePermission(
-              schemaName,
-              tableName,
-              p.select(),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+          jooq(), fullRole, new TablePermission(schemaName, tableName).select(p.select()));
     } else {
       jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
@@ -870,8 +852,11 @@ public class SqlRoleManager implements RoleManager {
                 ? UpdateScope.ALL
                 : UpdateScope.NONE;
         result.add(
-            new TablePermission(
-                schemaName, tableName, selectSet, insert, update, delete, false, false));
+            new TablePermission(schemaName, tableName)
+                .select(selectSet)
+                .insert(insert)
+                .update(update)
+                .delete(delete));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -961,15 +946,7 @@ public class SqlRoleManager implements RoleManager {
     for (String tableName : tableNames) {
       permissions.merge(
           tableName,
-          new TablePermission(
-              schemaName,
-              tableName,
-              wildcard.select(),
-              wildcard.insert(),
-              wildcard.update(),
-              wildcard.delete(),
-              wildcard.changeOwner(),
-              wildcard.changeGroup()),
+          new TablePermission(wildcard).setSchema(schemaName).setTable(tableName),
           SqlRoleManager::mergePermissions);
     }
   }
@@ -982,15 +959,13 @@ public class SqlRoleManager implements RoleManager {
   }
 
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
-    return new TablePermission(
-        a.schema(),
-        a.table(),
-        unionSelectSets(a.select(), b.select()),
-        maxUpdateScope(a.insert(), b.insert()),
-        maxUpdateScope(a.update(), b.update()),
-        maxUpdateScope(a.delete(), b.delete()),
-        a.changeOwner() || b.changeOwner(),
-        a.changeGroup() || b.changeGroup());
+    return new TablePermission(a.schema(), a.table())
+        .select(unionSelectSets(a.select(), b.select()))
+        .insert(maxUpdateScope(a.insert(), b.insert()))
+        .update(maxUpdateScope(a.update(), b.update()))
+        .delete(maxUpdateScope(a.delete(), b.delete()))
+        .setChangeOwner(a.changeOwner() || b.changeOwner())
+        .setChangeGroup(a.changeGroup() || b.changeGroup());
   }
 
   public boolean isSystemRole(String roleName) {
@@ -1003,73 +978,24 @@ public class SqlRoleManager implements RoleManager {
 
   private List<TablePermission> systemPermissions(String roleName) {
     if (roleName.equals(Privileges.EXISTS.toString())) {
-      return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.EXISTS),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+      return List.of(new TablePermission("*", "*").select(SelectScope.EXISTS));
     } else if (roleName.equals(Privileges.RANGE.toString())) {
-      return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.RANGE),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+      return List.of(new TablePermission("*", "*").select(SelectScope.RANGE));
     } else if (roleName.equals(Privileges.AGGREGATOR.toString())) {
-      return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.AGGREGATE),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+      return List.of(new TablePermission("*", "*").select(SelectScope.AGGREGATE));
     } else if (roleName.equals(Privileges.COUNT.toString())) {
-      return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.COUNT),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+      return List.of(new TablePermission("*", "*").select(SelectScope.COUNT));
     } else if (roleName.equals(Privileges.VIEWER.toString())) {
-      return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.ALL),
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              UpdateScope.NONE,
-              false,
-              false));
+      return List.of(new TablePermission("*", "*").select(SelectScope.ALL));
     } else if (roleName.equals(Privileges.EDITOR.toString())
         || roleName.equals(Privileges.MANAGER.toString())
         || roleName.equals(Privileges.OWNER.toString())) {
       return List.of(
-          new TablePermission(
-              "*",
-              "*",
-              TablePermission.singletonSelect(SelectScope.ALL),
-              UpdateScope.ALL,
-              UpdateScope.ALL,
-              UpdateScope.ALL,
-              false,
-              false));
+          new TablePermission("*", "*")
+              .select(SelectScope.ALL)
+              .insert(UpdateScope.ALL)
+              .update(UpdateScope.ALL)
+              .delete(UpdateScope.ALL));
     }
     return List.of();
   }

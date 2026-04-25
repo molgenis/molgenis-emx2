@@ -47,15 +47,7 @@ public class TablePermissionTest {
   @Test
   void selectFieldIsSetOfSelectScope() {
     TablePermission perm =
-        new TablePermission(
-            "s",
-            "t",
-            TablePermission.singletonSelect(TablePermission.SelectScope.AGGREGATE),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false);
+        new TablePermission("s", "t").select(TablePermission.SelectScope.AGGREGATE);
     assertTrue(
         perm.select().contains(TablePermission.SelectScope.AGGREGATE),
         "select set must contain AGGREGATE");
@@ -64,16 +56,7 @@ public class TablePermissionTest {
 
   @Test
   void emptySelectMeansNoAccess() {
-    TablePermission perm =
-        new TablePermission(
-            "s",
-            "t",
-            TablePermission.emptySelect(),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false);
+    TablePermission perm = new TablePermission("s", "t");
     assertTrue(perm.select().isEmpty(), "empty select set means no read access");
     assertFalse(perm.hasAnySelect(), "hasAnySelect must be false for empty set");
     assertFalse(perm.hasRowAccess(), "hasRowAccess must be false for empty set");
@@ -83,16 +66,7 @@ public class TablePermissionTest {
   void multiValueSelectSet() {
     Set<TablePermission.SelectScope> both =
         java.util.EnumSet.of(TablePermission.SelectScope.OWN, TablePermission.SelectScope.COUNT);
-    TablePermission perm =
-        new TablePermission(
-            "s",
-            "t",
-            both,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false);
+    TablePermission perm = new TablePermission("s", "t").select(both);
     assertTrue(perm.select().contains(TablePermission.SelectScope.OWN));
     assertTrue(perm.select().contains(TablePermission.SelectScope.COUNT));
     assertEquals(2, perm.select().size());
@@ -103,15 +77,7 @@ public class TablePermissionTest {
   @Test
   void nullOrEmptySelectCoercedToEmptySet() {
     TablePermission withNull =
-        new TablePermission(
-            "s",
-            "t",
-            null,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false);
+        new TablePermission("s", "t").select((Set<TablePermission.SelectScope>) null);
     assertTrue(withNull.select().isEmpty(), "null select coerced to empty set");
   }
 }

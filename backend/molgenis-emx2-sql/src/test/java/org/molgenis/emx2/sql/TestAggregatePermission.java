@@ -8,8 +8,10 @@ import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -53,22 +55,32 @@ public class TestAggregatePermission {
   }
 
   @Test
-  public void testAggregatorCanRetrieveExactCount() {
-    String json = schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON();
-    assertNotNull(json);
-    assertFalse(json.contains("\"count\":0"), "AGGREGATE must return exact count, not zero");
+  public void testAggregatorCanRetrieveCountsWithMinimum10() {
+    assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
   }
 
   @Test
-  public void testAggregatorPermissionGroupBy() throws JsonProcessingException {
-    String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
-    assertNotNull(json);
+  public void testAggregatorPermissionGroupByThresholds() throws JsonProcessingException {
+    try {
+      AGGREGATE_COUNT_THRESHOLD = 5;
+      String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
+      Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
+      List<Integer> counts =
+          result.get("Pet_groupBy").stream()
+              .map(object -> (Integer) object.get(COUNT_FIELD))
+              .toList();
+      counts.forEach(count -> assertEquals(count, AGGREGATE_COUNT_THRESHOLD));
 
-    json =
-        schema
-            .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
-            .retrieveJSON();
-    assertTrue(json.contains("16.21"));
+      json =
+          schema
+              .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
+              .retrieveJSON();
+      assertTrue(json.contains("16.21")); // should be a sum of all 'green'
+    } finally {
+      AGGREGATE_COUNT_THRESHOLD =
+          1; // no other tests affected, but reset just to make sure. Todo: later this becomes a
+      // setting.
+    }
   }
 
   @Test

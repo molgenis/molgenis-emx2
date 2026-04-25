@@ -58,15 +58,8 @@ class SqlTableMetadataRlsTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     assertTrue(columnExists("mg_owner"), "mg_owner column should exist after OWN grant");
@@ -91,15 +84,8 @@ class SqlTableMetadataRlsTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.GROUP),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.GROUP)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     assertTrue(columnExists("mg_owner"), "mg_owner column should exist after GROUP grant");
@@ -120,15 +106,8 @@ class SqlTableMetadataRlsTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN)));
     assertDoesNotThrow(() -> roleManager.setPermissions(TEST_ROLE, ps), "first OWN grant");
     assertDoesNotThrow(
         () -> roleManager.setPermissions(TEST_ROLE, ps), "second OWN grant idempotent");
@@ -143,15 +122,8 @@ class SqlTableMetadataRlsTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN)));
     roleManager.setPermissions(TEST_ROLE, ps);
     assertTrue(policiesExistForRole(), "OWN policies should exist after grant");
 
@@ -177,15 +149,8 @@ class SqlTableMetadataRlsTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     Record pgClass = fetchPgClass();

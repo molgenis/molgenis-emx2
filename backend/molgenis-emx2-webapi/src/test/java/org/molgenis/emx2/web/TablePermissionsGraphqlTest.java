@@ -17,8 +17,8 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TablePermission.UpdateScope;
 import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
 import org.molgenis.emx2.TableType;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -161,6 +161,11 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
     assertTrue(body.contains("\"ArticleA\""), "_session.permissions must list ArticleA");
     assertTrue(body.contains("\"ALL\""), "select must be ALL for SELECT grant");
+    assertFalse(
+        body.contains("\"ArticleB\""), "ArticleB must not appear — custom user has no grant on it");
+    assertTrue(
+        body.contains("\"NONE\"") || !body.contains("\"ALL\", \"ALL\""),
+        "insert/update/delete must not be ALL since only SELECT was granted");
   }
 
   @Test
@@ -280,10 +285,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     database
         .getSchema(SCHEMA)
-        .grant(
-            "ReaderA",
-            new TablePermission(
-                null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE, false, false));
+        .grant("ReaderA", new TablePermission(TABLE_A).select(SelectScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -345,9 +347,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MixedRole");
     schema.grant(
-        "MixedRole",
-        new TablePermission(
-            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.ALL, UpdateScope.NONE, UpdateScope.NONE, false, false));
+        "MixedRole", new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -432,12 +432,10 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.createRole("FalseTestRole");
     schema.grant(
         "FalseTestRole",
-        new TablePermission(
-            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.ALL, UpdateScope.ALL, UpdateScope.NONE, false, false));
-    schema.grant(
-        "FalseTestRole",
-        new TablePermission(
-            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.ALL, UpdateScope.NONE, false, false));
+        new TablePermission(TABLE_A)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.ALL)
+            .update(UpdateScope.ALL));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -471,10 +469,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("OntologyTestRole");
-    schema.grant(
-        "OntologyTestRole",
-        new TablePermission(
-            null, TABLE_A, TablePermission.singletonSelect(SelectScope.ALL), UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE, false, false));
+    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(CUSTOM_USER, "OntologyTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);

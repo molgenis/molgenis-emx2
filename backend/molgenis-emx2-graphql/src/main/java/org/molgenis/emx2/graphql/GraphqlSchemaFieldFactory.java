@@ -710,23 +710,23 @@ public class GraphqlSchemaFieldFactory {
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(
-        null,
-        table,
-        Boolean.TRUE.equals(select)
-            ? TablePermission.singletonSelect(TablePermission.SelectScope.ALL)
-            : TablePermission.emptySelect(),
-        Boolean.TRUE.equals(insert)
-            ? TablePermission.UpdateScope.ALL
-            : TablePermission.UpdateScope.NONE,
-        Boolean.TRUE.equals(update)
-            ? TablePermission.UpdateScope.ALL
-            : TablePermission.UpdateScope.NONE,
-        Boolean.TRUE.equals(delete)
-            ? TablePermission.UpdateScope.ALL
-            : TablePermission.UpdateScope.NONE,
-        false,
-        false);
+    return new TablePermission(table)
+        .select(
+            Boolean.TRUE.equals(select)
+                ? TablePermission.singletonSelect(TablePermission.SelectScope.ALL)
+                : TablePermission.emptySelect())
+        .insert(
+            Boolean.TRUE.equals(insert)
+                ? TablePermission.UpdateScope.ALL
+                : TablePermission.UpdateScope.NONE)
+        .update(
+            Boolean.TRUE.equals(update)
+                ? TablePermission.UpdateScope.ALL
+                : TablePermission.UpdateScope.NONE)
+        .delete(
+            Boolean.TRUE.equals(delete)
+                ? TablePermission.UpdateScope.ALL
+                : TablePermission.UpdateScope.NONE);
   }
 
   private static void dropRoles(

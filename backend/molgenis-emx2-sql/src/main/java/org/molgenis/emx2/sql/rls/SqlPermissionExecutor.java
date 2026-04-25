@@ -215,39 +215,15 @@ public class SqlPermissionExecutor {
   }
 
   private static TablePermission emptyPermission(String schema, String table) {
-    return new TablePermission(
-        schema,
-        table,
-        TablePermission.emptySelect(),
-        UpdateScope.NONE,
-        UpdateScope.NONE,
-        UpdateScope.NONE,
-        false,
-        false);
+    return new TablePermission(schema, table);
   }
 
   private static TablePermission applyPolicySuffix(TablePermission p, String suffix) {
     if (suffix.startsWith(CHANGEOWNER_VERB + "_")) {
-      return new TablePermission(
-          p.schema(),
-          p.table(),
-          p.select(),
-          p.insert(),
-          p.update(),
-          p.delete(),
-          true,
-          p.changeGroup());
+      return new TablePermission(p).setChangeOwner(true);
     }
     if (suffix.startsWith(CHANGEGROUP_VERB + "_")) {
-      return new TablePermission(
-          p.schema(),
-          p.table(),
-          p.select(),
-          p.insert(),
-          p.update(),
-          p.delete(),
-          p.changeOwner(),
-          true);
+      return new TablePermission(p).setChangeGroup(true);
     }
     if (suffix.startsWith(SELECT_VERB + "_")) {
       String selectName = suffix.substring((SELECT_VERB + "_").length());
@@ -256,15 +232,7 @@ public class SqlPermissionExecutor {
         Set<SelectScope> merged = EnumSet.noneOf(SelectScope.class);
         merged.addAll(p.select());
         merged.add(parsedSelect);
-        return new TablePermission(
-            p.schema(),
-            p.table(),
-            merged,
-            p.insert(),
-            p.update(),
-            p.delete(),
-            p.changeOwner(),
-            p.changeGroup());
+        return new TablePermission(p).select(merged);
       }
       return p;
     }
@@ -391,36 +359,9 @@ public class SqlPermissionExecutor {
   private static TablePermission mergeVerbFromPolicy(
       TablePermission p, String verb, UpdateScope scope) {
     return switch (verb.toUpperCase()) {
-      case SQL_INSERT ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              scope,
-              p.update(),
-              p.delete(),
-              p.changeOwner(),
-              p.changeGroup());
-      case SQL_UPDATE ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              p.insert(),
-              scope,
-              p.delete(),
-              p.changeOwner(),
-              p.changeGroup());
-      case SQL_DELETE ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              p.insert(),
-              p.update(),
-              scope,
-              p.changeOwner(),
-              p.changeGroup());
+      case SQL_INSERT -> new TablePermission(p).insert(scope);
+      case SQL_UPDATE -> new TablePermission(p).update(scope);
+      case SQL_DELETE -> new TablePermission(p).delete(scope);
       default -> p;
     };
   }
@@ -450,46 +391,11 @@ public class SqlPermissionExecutor {
         Set<SelectScope> merged = EnumSet.noneOf(SelectScope.class);
         merged.addAll(p.select());
         merged.add(SelectScope.ALL);
-        yield new TablePermission(
-            p.schema(),
-            p.table(),
-            merged,
-            p.insert(),
-            p.update(),
-            p.delete(),
-            p.changeOwner(),
-            p.changeGroup());
+        yield new TablePermission(p).select(merged);
       }
-      case SQL_INSERT ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              UpdateScope.ALL,
-              p.update(),
-              p.delete(),
-              p.changeOwner(),
-              p.changeGroup());
-      case SQL_UPDATE ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              p.insert(),
-              UpdateScope.ALL,
-              p.delete(),
-              p.changeOwner(),
-              p.changeGroup());
-      case SQL_DELETE ->
-          new TablePermission(
-              p.schema(),
-              p.table(),
-              p.select(),
-              p.insert(),
-              p.update(),
-              UpdateScope.ALL,
-              p.changeOwner(),
-              p.changeGroup());
+      case SQL_INSERT -> new TablePermission(p).insert(UpdateScope.ALL);
+      case SQL_UPDATE -> new TablePermission(p).update(UpdateScope.ALL);
+      case SQL_DELETE -> new TablePermission(p).delete(UpdateScope.ALL);
       default -> p;
     };
   }

@@ -105,15 +105,8 @@ class SqlRoleManagerEmissionTest {
   void allScopeUsesGrantOnly() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL)));
 
     roleManager.setPermissions(TEST_ROLE, ps);
 
@@ -141,15 +134,9 @@ class SqlRoleManagerEmissionTest {
   void clearScoped() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     boolean hasSelect =
@@ -192,15 +179,8 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     String policyName = "MG_P_" + TEST_ROLE + "_SELECT_OWN";
@@ -221,15 +201,8 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.GROUP),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.GROUP)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     String policyName = "MG_P_" + TEST_ROLE + "_SELECT_GROUP";
@@ -246,15 +219,10 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ownPs = new PermissionSet();
     ownPs.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN))
+            .insert(TablePermission.UpdateScope.OWN)
+            .update(TablePermission.UpdateScope.OWN));
     roleManager.setPermissions(TEST_ROLE, ownPs);
 
     String ownPolicyName = "MG_P_" + TEST_ROLE + "_INSERT_OWN";
@@ -268,15 +236,10 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet groupPs = new PermissionSet();
     groupPs.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.GROUP),
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.GROUP))
+            .insert(TablePermission.UpdateScope.GROUP)
+            .update(TablePermission.UpdateScope.GROUP));
     roleManager.setPermissions(TEST_ROLE, groupPs);
 
     String groupPolicyName = "MG_P_" + TEST_ROLE + "_INSERT_GROUP";
@@ -292,15 +255,10 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet allPs = new PermissionSet();
     allPs.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL)
+            .update(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(TEST_ROLE, allPs);
 
     boolean hasSelectGrant =
@@ -320,15 +278,9 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN))
+            .update(TablePermission.UpdateScope.OWN));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     String policyName = "MG_P_" + TEST_ROLE + "_UPDATE_OWN";
@@ -352,15 +304,9 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.OWN),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.OWN,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.OWN))
+            .delete(TablePermission.UpdateScope.OWN));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     String policyName = "MG_P_" + TEST_ROLE + "_DELETE_OWN";
@@ -380,15 +326,10 @@ class SqlRoleManagerEmissionTest {
     enableRlsOnTestTable(jooq, TEST_SCHEMA, TEST_TABLE);
 
     TablePermission input =
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.OWN,
-            TablePermission.UpdateScope.GROUP,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false);
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.OWN)
+            .update(TablePermission.UpdateScope.GROUP);
     PermissionSet ps = new PermissionSet();
     ps.put(input);
     roleManager.setPermissions(TEST_ROLE, ps);
@@ -406,15 +347,9 @@ class SqlRoleManagerEmissionTest {
   void revokeTablePrivilegeRemovesGrant() {
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.ALL,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL))
+            .insert(TablePermission.UpdateScope.ALL));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     boolean hasSelectBefore =
@@ -474,15 +409,8 @@ class SqlRoleManagerEmissionTest {
 
     PermissionSet ps = new PermissionSet();
     ps.put(
-        new TablePermission(
-            TEST_SCHEMA,
-            TEST_TABLE,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            TablePermission.UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(TEST_SCHEMA, TEST_TABLE)
+            .select(TablePermission.singletonSelect(SelectScope.ALL)));
     roleManager.setPermissions(TEST_ROLE, ps);
 
     String policyName = "MG_P_" + TEST_ROLE + "_SELECT_ALL";

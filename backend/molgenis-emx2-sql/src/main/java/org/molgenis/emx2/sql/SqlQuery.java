@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
+  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -901,9 +902,20 @@ public class SqlQuery extends QueryBean {
     Set<Field> nonArraySourceFields = new HashSet<>(); // xo x, name, except those from ref_array
     List<SelectConnectByStep> refArraySubqueries = new ArrayList<>(); // for the ref_array columns
 
+    Set<TablePermission.SelectScope> groupByScopes = getEffectiveSelectScopes(table);
+    boolean hasFullViewAccess =
+        groupByScopes.contains(TablePermission.SelectScope.ALL)
+            || groupByScopes.contains(TablePermission.SelectScope.OWN)
+            || groupByScopes.contains(TablePermission.SelectScope.GROUP);
+
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        aggregationFields.add(field("COUNT(*)"));
+        if (hasFullViewAccess) {
+          aggregationFields.add(field("COUNT(*)"));
+        } else {
+          aggregationFields.add(
+              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
+        }
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
         field
@@ -913,7 +925,11 @@ public class SqlQuery extends QueryBean {
                   Column col = getColumnByName(table, sub.getColumn());
                   sumFields.add(
                       key(col.getIdentifier())
-                          .value(field("SUM({0})", field(name(alias(subAlias), col.getName())))));
+                          .value(
+                              field(
+                                  "SUM({0})",
+                                  field(name(alias(subAlias), col.getName())),
+                                  AGGREGATE_COUNT_THRESHOLD)));
                   nonArraySourceFields.add(col.getJooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));

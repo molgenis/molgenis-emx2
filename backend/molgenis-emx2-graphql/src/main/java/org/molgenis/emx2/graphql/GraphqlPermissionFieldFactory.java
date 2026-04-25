@@ -223,15 +223,13 @@ public class GraphqlPermissionFieldFactory {
       String schemaName = (String) pMap.get("schema");
       requireManagerOrOwner(db, schemaName);
       ps.put(
-          new TablePermission(
-              schemaName,
-              (String) pMap.get("table"),
-              toSelectScopeSet(pMap.get(SELECT)),
-              toUpdateScope(pMap.get(INSERT)),
-              toUpdateScope(pMap.get(UPDATE)),
-              toUpdateScope(pMap.get(DELETE)),
-              Boolean.TRUE.equals(pMap.get("changeOwner")),
-              Boolean.TRUE.equals(pMap.get("changeGroup"))));
+          new TablePermission(schemaName, (String) pMap.get("table"))
+              .select(toSelectScopeSet(pMap.get(SELECT)))
+              .insert(toUpdateScope(pMap.get(INSERT)))
+              .update(toUpdateScope(pMap.get(UPDATE)))
+              .delete(toUpdateScope(pMap.get(DELETE)))
+              .setChangeOwner(Boolean.TRUE.equals(pMap.get("changeOwner")))
+              .setChangeGroup(Boolean.TRUE.equals(pMap.get("changeGroup"))));
     }
     rm.setPermissions(role, ps);
   }

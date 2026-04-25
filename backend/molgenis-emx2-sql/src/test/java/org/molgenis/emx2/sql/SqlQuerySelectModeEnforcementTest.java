@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.TablePermission.SelectScope;
-import org.molgenis.emx2.TablePermission.UpdateScope;
 
 /**
  * Story 3.7 — enforce SelectScope mode at query time (RED → GREEN).
@@ -84,15 +83,7 @@ class SqlQuerySelectModeEnforcementTest {
     schema.createRole(roleName);
     schema.grant(
         roleName,
-        new TablePermission(
-            null,
-            DATA_TABLE,
-            TablePermission.singletonSelect(selectMode),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+        new TablePermission(null, DATA_TABLE).select(TablePermission.singletonSelect(selectMode)));
     schema.addMember(user, roleName);
   }
 

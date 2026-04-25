@@ -49,17 +49,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ViewerRole");
-    schema.grant(
-        "ViewerRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("ViewerRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -85,17 +75,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRole");
-    schema.grant(
-        "PartialRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("PartialRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "PartialRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -114,15 +94,11 @@ class TestTablePermissionEnforcement {
     schema.createRole("EditorRole");
     schema.grant(
         "EditorRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.ALL,
-            UpdateScope.ALL,
-            UpdateScope.ALL,
-            false,
-            false));
+        new TablePermission(TABLE_A)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.ALL)
+            .update(UpdateScope.ALL)
+            .delete(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "EditorRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -145,17 +121,8 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ReadOnlyRole");
-    schema.grant(
-        "ReadOnlyRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    // Only SELECT – no insert/update/delete
+    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -186,17 +153,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("CountRole");
-    schema.grant(
-        "CountRole",
-        new TablePermission(
-            null,
-            TABLE_A,
-            TablePermission.singletonSelect(SelectScope.ALL),
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            UpdateScope.NONE,
-            false,
-            false));
+    schema.grant("CountRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "CountRole");
 
     database.setActiveUser(USER_VIEWER);
