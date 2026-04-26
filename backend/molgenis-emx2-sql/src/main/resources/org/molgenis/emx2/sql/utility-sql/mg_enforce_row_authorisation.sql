@@ -33,7 +33,7 @@ BEGIN
                   AND (
                       policyname = 'MG_P_' || raw_role || '_CHANGEOWNER_ALL'
                       OR (policyname = 'MG_P_' || raw_role || '_CHANGEOWNER_OWN'
-                          AND OLD.mg_owner = session_user)
+                          AND OLD.mg_owner = current_user)
                       OR (policyname = 'MG_P_' || raw_role || '_CHANGEOWNER_GROUP'
                           AND OLD.mg_roles && "MOLGENIS".current_user_roles())
                   )
@@ -61,7 +61,7 @@ BEGIN
                   AND (
                       policyname = 'MG_P_' || raw_role || '_CHANGEGROUP_ALL'
                       OR (policyname = 'MG_P_' || raw_role || '_CHANGEGROUP_OWN'
-                          AND OLD.mg_owner = session_user)
+                          AND OLD.mg_owner = current_user)
                       OR (policyname = 'MG_P_' || raw_role || '_CHANGEGROUP_GROUP'
                           AND OLD.mg_roles && "MOLGENIS".current_user_roles())
                   )

@@ -97,6 +97,8 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_AGGREGATE_COUNT_THRESHOLD =
+      "MOLGENIS_AGGREGATE_COUNT_THRESHOLD";
   public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
   public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
   public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";

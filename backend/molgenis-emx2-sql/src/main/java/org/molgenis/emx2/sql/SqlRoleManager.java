@@ -917,9 +917,12 @@ public class SqlRoleManager implements RoleManager {
     return result;
   }
 
-  public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
+  public PermissionSet getTablePermissionsForActiveUser(String schemaName) {
     String activeUser = database.getActiveUser();
     SqlSchema schema = database.getSchema(schemaName);
+    if (schema == null) {
+      return new PermissionSet();
+    }
     List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
 
     Map<String, TablePermission> merged = new LinkedHashMap<>();
@@ -936,7 +939,9 @@ public class SqlRoleManager implements RoleManager {
       }
     }
     expandWildcard(merged, schemaName, schema.getTableNames());
-    return new ArrayList<>(merged.values());
+    PermissionSet result = new PermissionSet();
+    merged.values().forEach(result::put);
+    return result;
   }
 
   private static void expandWildcard(

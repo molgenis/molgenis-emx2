@@ -185,11 +185,12 @@ public class GraphqlSessionFieldFactory {
 
   private static List<Map<String, Object>> buildPermissions(
       Database database, String schemaFilter) {
+    Iterable<TablePermission> permissions =
+        schemaFilter != null
+            ? database.getRoleManager().getTablePermissionsForActiveUser(schemaFilter)
+            : database.getRoleManager().getPermissionsForActiveUser();
     List<Map<String, Object>> result = new ArrayList<>();
-    for (TablePermission p : database.getRoleManager().getPermissionsForActiveUser()) {
-      if (schemaFilter != null && !"*".equals(p.schema()) && !schemaFilter.equals(p.schema())) {
-        continue;
-      }
+    for (TablePermission p : permissions) {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("schema", p.schema());
       map.put("table", p.table());

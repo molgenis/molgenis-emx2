@@ -160,12 +160,18 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .asString();
 
     assertTrue(body.contains("\"ArticleA\""), "_session.permissions must list ArticleA");
-    assertTrue(body.contains("\"ALL\""), "select must be ALL for SELECT grant");
     assertFalse(
         body.contains("\"ArticleB\""), "ArticleB must not appear — custom user has no grant on it");
+    assertTrue(body.contains("\"ALL\""), "select must be ALL for SELECT grant");
     assertTrue(
-        body.contains("\"NONE\"") || !body.contains("\"ALL\", \"ALL\""),
-        "insert/update/delete must not be ALL since only SELECT was granted");
+        body.contains("\"insert\" : \"NONE\""),
+        "insert must be NONE since only SELECT was granted");
+    assertTrue(
+        body.contains("\"update\" : \"NONE\""),
+        "update must be NONE since only SELECT was granted");
+    assertTrue(
+        body.contains("\"delete\" : \"NONE\""),
+        "delete must be NONE since only SELECT was granted");
   }
 
   @Test
@@ -436,6 +442,9 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .select(SelectScope.ALL)
             .insert(UpdateScope.ALL)
             .update(UpdateScope.ALL));
+    schema.grant(
+        "FalseTestRole",
+        new TablePermission(TABLE_A).select(SelectScope.ALL).update(UpdateScope.ALL));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -454,6 +463,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     assertNoGraphqlErrors(body);
     assertTrue(body.contains("\"ArticleA\""), "ArticleA must appear in permissions");
     assertTrue(body.contains("\"ALL\""), "select and update should be ALL");
+    assertTrue(body.contains("\"insert\" : \"NONE\""), "insert should be NONE after revoke");
+    assertTrue(body.contains("\"update\" : \"ALL\""), "update should be ALL (not revoked)");
 
     // Cleanup
     database.becomeAdmin();

@@ -47,10 +47,15 @@ class SqlRoleManagerTest {
     DSLContext jooq = database.getJooq();
     List<String> toClean =
         jooq.fetch(
-                "SELECT rolname FROM pg_roles WHERE rolname LIKE 'MG_ROLE_rmt_%' OR rolname = {0}",
+                "SELECT rolname FROM pg_roles WHERE rolname LIKE 'MG_ROLE_rmt_%' OR rolname LIKE 'MG_ROLE_rmt %' OR rolname = {0}",
                 org.jooq.impl.DSL.inline("MG_ROLE_" + THIRTY_TWO_CHAR_NAME))
             .map(r -> r.get(0, String.class));
     for (String rolName : toClean) {
+      try {
+        jooq.execute("DROP OWNED BY {0}", name(rolName));
+      } catch (Exception ignored) {
+        // best effort
+      }
       try {
         jooq.execute("DROP ROLE IF EXISTS {0}", name(rolName));
       } catch (Exception ignored) {

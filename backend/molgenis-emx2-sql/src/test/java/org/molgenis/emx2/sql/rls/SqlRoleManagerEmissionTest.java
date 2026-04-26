@@ -188,8 +188,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(qual, "Policy MG_P_<role>_SELECT_OWN should exist");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
-        "USING clause should reference mg_owner and session_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
+        "USING clause should reference mg_owner and current_user, got: " + qual);
 
     String withCheck = fetchPolicyWithCheck(policyName);
     assertNull(withCheck, "SELECT policy should have no WITH CHECK clause");
@@ -230,8 +230,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(ownWithCheck, "INSERT OWN policy should exist");
     String ownWithCheckLower = ownWithCheck.toLowerCase();
     assertTrue(
-        ownWithCheckLower.contains("mg_owner") && ownWithCheckLower.contains("session_user"),
-        "INSERT OWN WITH CHECK should reference mg_owner and session_user, got: " + ownWithCheck);
+        ownWithCheckLower.contains("mg_owner") && ownWithCheckLower.contains("current_user"),
+        "INSERT OWN WITH CHECK should reference mg_owner and current_user, got: " + ownWithCheck);
     assertNull(fetchPolicyQual(ownPolicyName), "INSERT policy should have no USING clause");
 
     PermissionSet groupPs = new PermissionSet();
@@ -291,8 +291,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(withCheck, "UPDATE OWN policy should have a WITH CHECK clause");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
-        "UPDATE USING should reference mg_owner and session_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
+        "UPDATE USING should reference mg_owner and current_user, got: " + qual);
     assertTrue(
         withCheck.contains("true"),
         "UPDATE OWN WITH CHECK should be (true) to allow changeOwner, got: " + withCheck);
@@ -314,8 +314,8 @@ class SqlRoleManagerEmissionTest {
     assertNotNull(qual, "DELETE OWN policy should have a USING clause");
     String qualLower = qual.toLowerCase();
     assertTrue(
-        qualLower.contains("mg_owner") && qualLower.contains("session_user"),
-        "DELETE USING should reference mg_owner and session_user, got: " + qual);
+        qualLower.contains("mg_owner") && qualLower.contains("current_user"),
+        "DELETE USING should reference mg_owner and current_user, got: " + qual);
 
     String withCheck = fetchPolicyWithCheck(policyName);
     assertNull(withCheck, "DELETE policy should have no WITH CHECK clause");

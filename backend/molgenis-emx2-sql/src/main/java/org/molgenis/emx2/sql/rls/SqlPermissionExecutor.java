@@ -23,12 +23,12 @@ public class SqlPermissionExecutor {
   private static final String CHANGEGROUP_VERB = "CHANGEGROUP";
   private static final String SELECT_VERB = "SELECT";
 
-  private static final String USING_OWN = "(mg_owner = session_user)";
+  private static final String USING_OWN = "(mg_owner = current_user)";
   private static final String USING_GROUP =
       "(mg_roles && \"" + MOLGENIS_SCHEMA + "\".current_user_roles())";
   private static final String USING_ALL = "(true)";
 
-  private static final String WITH_CHECK_INSERT_OWN = "(mg_owner = session_user)";
+  private static final String WITH_CHECK_INSERT_OWN = "(mg_owner = current_user)";
   private static final String WITH_CHECK_INSERT_GROUP =
       "(mg_roles <@ \""
           + MOLGENIS_SCHEMA

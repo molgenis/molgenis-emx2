@@ -163,17 +163,15 @@ class FineGrainedPermissionsIT {
     database.setActiveUser(ALICE);
 
     boolean accessDenied = false;
-    int afterReset = 0;
     try {
-      afterReset =
-          jooq.fetchOne("SELECT count(*) FROM \"" + SCHEMA + "\".\"" + TABLE + "\"")
-              .get(0, Integer.class);
+      jooq.fetchOne("SELECT count(*) FROM \"" + SCHEMA + "\".\"" + TABLE + "\"")
+          .get(0, Integer.class);
     } catch (Exception ex) {
       accessDenied = true;
     }
     assertTrue(
-        accessDenied || afterReset == 0,
-        "After clearing permissions, alice should see 0 rows or get permission denied");
+        accessDenied,
+        "After clearing permissions, alice MUST receive a permission-denied error, not just an empty result");
 
     database.becomeAdmin();
 

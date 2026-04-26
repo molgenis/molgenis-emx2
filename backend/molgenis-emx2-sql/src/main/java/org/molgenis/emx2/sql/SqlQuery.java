@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -59,6 +58,22 @@ public class SqlQuery extends QueryBean {
     super(field);
     this.schema = schema;
     this.select(selection);
+  }
+
+  /**
+   * Privacy floor: groups smaller than this threshold have their SUM suppressed (NULL) and their
+   * COUNT clamped up to this value, to prevent individual re-identification.
+   */
+  private int getAggregateCountThreshold() {
+    String value = schema.getDatabase().getSetting(MOLGENIS_AGGREGATE_COUNT_THRESHOLD);
+    if (value == null) return Integer.MIN_VALUE;
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException numberFormatException) {
+      logger.trace(
+          "Invalid {} value '{}', treating as disabled", MOLGENIS_AGGREGATE_COUNT_THRESHOLD, value);
+      return Integer.MIN_VALUE;
+    }
   }
 
   /** Create alias that is short enough for postgresql to not complain */
@@ -908,13 +923,13 @@ public class SqlQuery extends QueryBean {
             || groupByScopes.contains(TablePermission.SelectScope.OWN)
             || groupByScopes.contains(TablePermission.SelectScope.GROUP);
 
+    int threshold = getAggregateCountThreshold();
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (hasFullViewAccess) {
-          aggregationFields.add(field("COUNT(*)"));
+        if (hasFullViewAccess || threshold == Integer.MIN_VALUE) {
+          aggregationFields.add(field("COUNT(*)").as(COUNT_FIELD));
         } else {
-          aggregationFields.add(
-              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
+          aggregationFields.add(field("GREATEST({0},COUNT(*))", val(threshold)).as(COUNT_FIELD));
         }
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
@@ -923,13 +938,14 @@ public class SqlQuery extends QueryBean {
             .forEach(
                 sub -> {
                   Column col = getColumnByName(table, sub.getColumn());
-                  sumFields.add(
-                      key(col.getIdentifier())
-                          .value(
-                              field(
-                                  "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
-                                  AGGREGATE_COUNT_THRESHOLD)));
+                  Field<?> colField = field(name(alias(subAlias), col.getName()));
+                  Field<?> sumExpr =
+                      threshold == Integer.MIN_VALUE
+                          ? field("SUM({0})", colField)
+                          : field(
+                              "CASE WHEN COUNT(*) >= {0} THEN SUM({1}) ELSE NULL END",
+                              val(threshold), colField);
+                  sumFields.add(key(col.getIdentifier()).value(sumExpr));
                   nonArraySourceFields.add(col.getJooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));

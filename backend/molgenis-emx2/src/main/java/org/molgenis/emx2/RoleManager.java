@@ -21,4 +21,6 @@ public interface RoleManager {
   PermissionSet getPermissions(String role);
 
   PermissionSet getPermissionsForActiveUser();
+
+  PermissionSet getTablePermissionsForActiveUser(String schemaName);
 }

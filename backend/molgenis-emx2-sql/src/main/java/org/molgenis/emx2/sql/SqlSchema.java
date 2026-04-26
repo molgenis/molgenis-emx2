@@ -475,6 +475,9 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
-    return roleManager().getTablePermissionsForActiveUser(getName());
+    PermissionSet ps = roleManager().getTablePermissionsForActiveUser(getName());
+    List<TablePermission> list = new ArrayList<>();
+    ps.forEach(list::add);
+    return list;
   }
 }

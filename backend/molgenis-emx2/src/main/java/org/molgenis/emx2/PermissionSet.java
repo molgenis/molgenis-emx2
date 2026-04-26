@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PermissionSet implements Iterable<TablePermission> {
 
@@ -29,6 +31,10 @@ public class PermissionSet implements Iterable<TablePermission> {
   @Override
   public Iterator<TablePermission> iterator() {
     return entries.values().iterator();
+  }
+
+  public Stream<TablePermission> stream() {
+    return StreamSupport.stream(spliterator(), false);
   }
 
   public List<ValidationError> validate() {
