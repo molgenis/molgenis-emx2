@@ -2,6 +2,7 @@
 Utility functions for the Molgenis EMX2 Pyclient package
 """
 import csv
+import io
 import json
 import logging
 import pathlib
@@ -254,10 +255,13 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         return read_file(file_path=file_path)
 
     if data is not None:
-        if isinstance(data, pd.DataFrame):
-            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-        else:
-            return pd.DataFrame(data, dtype=str).to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
+        if not isinstance(data, pd.DataFrame):
+            data = pd.DataFrame(data, dtype=str)
+        # Convert lists in dataframe to CSV-formatted string
+        # FIXME: selecting only object columns works for as_df=True, but for as_df=False, column types are not (or incorrectly) inferred. This is a bug in pyclient, needs fixing first before array handling can work reliably. 
+        object_columns = data.select_dtypes('object').columns
+        data[object_columns] = data[object_columns].map(array_to_csv_string)
+        return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
 
     message = "No data to import. Specify a file location or a dataset."
     log.error(message)
@@ -273,3 +277,25 @@ def check_schema(schema: str, default_schema: str, schema_names: list[str]):
     if default_schema is None:
         raise NoSuchSchemaException(f"Select an existing schema for this operation.")
     return default_schema
+
+def csv_string_to_array(csv_string: str) -> list:
+    """Convert EMX2 input of type *_ARRAY, from a string from the CSV API to a list"""
+    #FIXME: return input if not string
+    if pd.notna(csv_string):
+        with io.StringIO(csv_string) as in_string:
+            reader = csv.reader(in_string, dialect=csv.excel)
+            return next(reader)
+    else:
+        return []
+
+def array_to_csv_string(array: list) -> str:
+    """Convert a list to a string suitable for output to an EMX2 value of type *_ARRAY, 
+    through the CSV API
+    """
+    if isinstance(array, list):
+        with io.StringIO() as csv_string:
+            writer = csv.writer(csv_string, dialect=csv.excel)
+            writer.writerow(array)
+            return csv_string.getvalue().strip()
+    else:
+        return array

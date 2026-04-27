@@ -2,6 +2,8 @@ import json
 import logging
 import pathlib
 import time
+import csv
+
 from functools import cache
 from io import BytesIO
 from warnings import warn
@@ -18,7 +20,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
 from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file, \
-    check_schema
+    check_schema, csv_string_to_array, array_to_csv_string
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -405,7 +407,8 @@ class Client:
             columns: list[str] = None,
             query_filter: str = None,
             schema: str = None,
-            as_df: bool = False) -> list | pd.DataFrame:
+            as_df: bool = False,
+            parse_arrays: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a table using the EMX2 CSV API and
         returns as a list of dictionaries or a pandas DataFrame.
 
@@ -420,6 +423,8 @@ class Client:
         :param as_df: if True, the response will be returned as a
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
+        :param parse_arrays: if True, parse columns of type *_ARRAY as lists
+        :type parse_arrays: bool
 
         :returns: list of dictionaries or pandas DataFrame
         :rtype: list | pd.DataFrame
@@ -451,9 +456,12 @@ class Client:
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
         date_columns = [c.name for c in table_meta.columns
                         if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns)
-
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns, dialect=csv.excel)
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
+        if parse_arrays:
+            array_columns = [c.name for c in table_meta.columns
+                        if c.get('columnType').endswith('_ARRAY') and c.name in response_columns]
+            response_data[array_columns] = response_data[array_columns].map(csv_string_to_array)
         response_data = response_data.astype(dtypes)
 
         if columns:
