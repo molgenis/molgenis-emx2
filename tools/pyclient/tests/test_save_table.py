@@ -103,9 +103,11 @@ def test_symmetry():
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        # Get all tables #FIXME
+        # Get all tables 
+        # TODO: extend to all tables
         user = client.get(schema="pet store", table="User")
-        row_of_comparison = user[0]
+        # TODO: compare all rows
+        row_of_comparison = user[0] 
         # Save table
         client.save_table(table = 'User', schema="pet store", data = user)
         # Get again
