@@ -98,6 +98,20 @@ def test_upload_file():
         assert pet_after == pet_before
         assert tag_after == tag_before
 
+def test_symmetry():
+    """Test symmetry of get and save_table (list format)."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Get all tables #FIXME
+        user = client.get(schema="pet store", table="User")
+        row_of_comparison = user[0]
+        # Save table
+        client.save_table(table = 'User', schema="pet store", data = user)
+        # Get again
+        user = client.get(schema="pet store", table="User")
+        assert user[0] == row_of_comparison
+
 def test_save_upload_list_data():
     """Tests uploading data in list format."""
     with Client(url=server_url) as client:
