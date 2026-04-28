@@ -6,7 +6,7 @@ import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 public class TestDatabaseFactory {
 
   public static Database getTestDatabase() {
-    Database db = new SqlDatabase(false);
+    Database db = new SqlDatabase(true);
     db.setActiveUser(db.getAdminUserName());
 
     if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init("123");
