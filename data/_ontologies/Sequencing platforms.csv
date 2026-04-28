@@ -8,3 +8,6 @@ Complete Genomics platform,Complete Genomics platform,GENEPIO,0001924,http://pur
 "PacBio platform","PacBio platform","GENEPIO","0001927","http://purl.obolibrary.org/obo/GENEPIO_0001927"
 "Roche LS454 platform","Roche LS454 platform","GENEPIO","0001926","http://purl.obolibrary.org/obo/GENEPIO_0001926"
 SOLiD sequening platform,SOLiD sequening platform,GENEPIO,0002684,http://purl.obolibrary.org/obo/GENEPIO_0002684
+MGI,MGI,,,
+AVITI,AVITI,,,
+ThermoFisher,ThermoFisher,,,
