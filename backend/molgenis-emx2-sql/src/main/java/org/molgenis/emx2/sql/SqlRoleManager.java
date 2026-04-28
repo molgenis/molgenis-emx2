@@ -419,7 +419,13 @@ public class SqlRoleManager {
             .filter(this::isSystemRole)
             .flatMap(r -> systemPermissions(r).stream())
             .filter(p -> "*".equals(p.table()) && hasAnyPermission(p))
-            .findFirst()
+            .reduce(
+                (a, b) ->
+                    new TablePermission("*")
+                        .select(orBool(a.select(), b.select()))
+                        .insert(orBool(a.insert(), b.insert()))
+                        .update(orBool(a.update(), b.update()))
+                        .delete(orBool(a.delete(), b.delete())))
             .orElse(null);
 
     Map<String, TablePermission> result = new LinkedHashMap<>();
@@ -432,23 +438,22 @@ public class SqlRoleManager {
 
     if (systemWildcard != null) {
       boolean systemHasDml = hasAnyDml(systemWildcard);
-      TablePermission sw = systemWildcard;
       result.replaceAll(
           (table, p) ->
               new TablePermission(table)
-                  .select(orBool(p.select(), sw.select()))
-                  .insert(orBool(p.insert(), sw.insert()))
-                  .update(orBool(p.update(), sw.update()))
-                  .delete(orBool(p.delete(), sw.delete()))
+                  .select(orBool(p.select(), systemWildcard.select()))
+                  .insert(orBool(p.insert(), systemWildcard.insert()))
+                  .update(orBool(p.update(), systemWildcard.update()))
+                  .delete(orBool(p.delete(), systemWildcard.delete()))
                   .rowLevel(systemHasDml ? null : p.isRowLevel()));
       for (String tableName : schema.getTableNames()) {
         if (!result.containsKey(tableName)) {
           TablePermission tp =
               new TablePermission(tableName)
-                  .select(sw.select())
-                  .insert(sw.insert())
-                  .update(sw.update())
-                  .delete(sw.delete());
+                  .select(systemWildcard.select())
+                  .insert(systemWildcard.insert())
+                  .update(systemWildcard.update())
+                  .delete(systemWildcard.delete());
           if (hasAnyPermission(tp)) result.put(tableName, tp);
         }
       }
