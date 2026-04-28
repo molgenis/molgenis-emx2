@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 class TestGraphqlAdminFields {
 
@@ -35,7 +36,7 @@ class TestGraphqlAdminFields {
     database.dropCreateSchema(SCHEMA_NAME);
     database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
 
-    graphql = new GraphqlExecutor(database);
+    graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
@@ -74,7 +75,7 @@ class TestGraphqlAdminFields {
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlExecutor(tdb);
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
           try {
             assertNull(execute("{_admin{userCount}}").textValue());
@@ -88,7 +89,7 @@ class TestGraphqlAdminFields {
   @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
-    graphql = new GraphqlExecutor(database);
+    graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     // create and sign in user testAdmin
     executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
@@ -157,7 +158,7 @@ class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          graphql = new GraphqlExecutor(testDatabase);
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
 
           try {
             // setup

@@ -61,10 +61,6 @@ public class GraphqlExecutor {
     this.graphqlQueryFragments = new LinkedHashMap<>();
   }
 
-  public GraphqlExecutor(Database database) {
-    this(database, new TaskServiceInMemory());
-  }
-
   public GraphqlExecutor(Schema schema, TaskService taskService) {
     init();
     this.graphql = GraphqlFactory.forSchema(schema, taskService);
