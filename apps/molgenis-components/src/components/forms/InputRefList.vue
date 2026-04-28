@@ -100,9 +100,6 @@
         </template>
       </LayoutModal>
     </div>
-    <br />
-    {{ modelValue }}
-    <br />
   </FormGroup>
 </template>
 
@@ -318,7 +315,7 @@ export default {
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaId, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path -->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"
