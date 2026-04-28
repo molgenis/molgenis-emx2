@@ -100,6 +100,9 @@
         </template>
       </LayoutModal>
     </div>
+    <br>
+    {{ modelValue }}
+    <br>
   </FormGroup>
 </template>
 
@@ -216,7 +219,7 @@ export default {
     },
     emitSelection() {
       if (!this.selection.length) {
-        this.$emit("update:modelValue", null);
+        this.$emit("update:modelValue", []);
       } else {
         this.$emit("update:modelValue", this.selection);
       }
