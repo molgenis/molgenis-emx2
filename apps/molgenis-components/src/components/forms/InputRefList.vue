@@ -100,9 +100,9 @@
         </template>
       </LayoutModal>
     </div>
-    <br>
+    <br />
     {{ modelValue }}
-    <br>
+    <br />
   </FormGroup>
 </template>
 
