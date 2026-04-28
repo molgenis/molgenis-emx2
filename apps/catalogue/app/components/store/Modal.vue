@@ -5,7 +5,7 @@
     :fullScreen="false"
     :includeFooter="true"
     buttonAlignment="left"
-    @close="$emit('close')"
+    @close="onClose"
   >
     <ContentBlockModal title="Collections">
       <template v-if="Object.keys(datasetStore.datasets).length">
@@ -13,6 +13,7 @@
         <StoreModalResourceList />
       </template>
       <p v-else>Cart is empty</p>
+      <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
     </ContentBlockModal>
     <template #footer>
       <a
@@ -22,7 +23,6 @@
         <span>Request from {{ getSendToText() }}</span>
         <BaseIcon name="external-link" :width="24" />
       </a>
-      <div v-if="error">{{ error }}</div>
     </template>
   </SideModal>
 </template>
@@ -33,6 +33,7 @@ import type { IResources } from "~~/interfaces/catalogue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
+import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import StoreModalResourceList from "./ModalResourceList.vue";
 
@@ -52,9 +53,14 @@ withDefaults(
 
 const error = ref("");
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "close"): void;
 }>();
+
+function onClose() {
+  error.value = "";
+  emit("close");
+}
 
 function getSendToText() {
   const version = datasetStore.storeVersion;
@@ -72,8 +78,14 @@ function getSendToText() {
 }
 
 async function sendToNegotiator() {
+  if (!Object.keys(datasetStore.datasets).length) {
+    error.value = `Cart is empty, cannot send to ${getSendToText()}`;
+    return;
+  }
+
   const version = datasetStore.storeVersion;
   const dataStoreUrl = datasetStore.datasetStoreUrl;
+
   switch (version) {
     case "GDI":
       window.open(dataStoreUrl, "_blank");
@@ -109,90 +121,94 @@ async function doNegotiatorV3Request() {
     const body = await response.json();
     window.location.href = body.redirectUrl;
   } else {
-    const statusCode = response.status;
-    const jsonResponse = await response.json();
-    const detail = jsonResponse.detail ? ` Detail: ${jsonResponse.detail}` : "";
-    error.value = NEGOTIATOR_ERROR;
-    switch (statusCode) {
-      case 400:
-        console.error(
-          `Negotiator responded with code 400, invalid input.${detail}`
-        );
-        break;
-      case 401:
-        console.error(
-          `Negotiator responded with code 401, not authorised.${detail}`
-        );
-        break;
-      case 404:
-        console.error(`Negotiator not found, error code 404.${detail}`);
-        break;
-      case 413:
-        console.error(
-          `Negotiator responded with code 413, request too large.${detail}`
-        );
-        break;
-      case 500:
-        console.error(
-          `Negotiator responded with code 500, internal server error.${detail}`
-        );
-        break;
-      default:
-        console.error(
-          `An unknown error occurred with the Negotiator. Please try again later.${detail}`
-        );
-        break;
-    }
+    handleV3Error(response);
   }
+}
 
-  function toNegotiatorFormat(datasets: Record<string, IResources>) {
-    return Object.values(datasets).map((dataset) => ({
-      id: dataset.pid,
-      name: dataset.name,
-    }));
+async function handleV3Error(response: Response) {
+  const statusCode = response.status;
+  const jsonResponse = await response.json();
+  const detail = jsonResponse.detail ? ` Detail: ${jsonResponse.detail}` : "";
+  error.value = NEGOTIATOR_ERROR;
+  switch (statusCode) {
+    case 400:
+      console.error(
+        `Negotiator responded with code 400, invalid input.${detail}`
+      );
+      break;
+    case 401:
+      console.error(
+        `Negotiator responded with code 401, not authorised.${detail}`
+      );
+      break;
+    case 404:
+      console.error(`Negotiator not found, error code 404.${detail}`);
+      break;
+    case 413:
+      console.error(
+        `Negotiator responded with code 413, request too large.${detail}`
+      );
+      break;
+    case 500:
+      console.error(
+        `Negotiator responded with code 500, internal server error.${detail}`
+      );
+      break;
+    default:
+      console.error(
+        `An unknown error occurred with the Negotiator. Please try again later.${detail}`
+      );
+      break;
   }
+}
 
-  function getHumanReadableString() {
-    return "";
-    // const activeFilterNames = Object.keys(filtersStore.filters);
+function toNegotiatorFormat(datasets: Record<string, IResources>) {
+  return Object.values(datasets).map((dataset) => ({
+    id: dataset.pid,
+    name: dataset.name,
+  }));
+}
 
-    // if (!activeFilterNames) return;
+function getHumanReadableString() {
+  return "";
+  // const activeFilterNames = Object.keys(filtersStore.filters);
 
-    // let humanReadableString = "";
-    // const additionText = " and ";
-    // const humanReadableStart: Record<string, string> = {};
+  // if (!activeFilterNames) return;
 
-    // /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
-    // filtersStore.filterFacets
-    //   .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
-    //   .forEach((filterDefinition: IFilterDetails) => {
-    //     humanReadableStart[filterDefinition.facetIdentifier] =
-    //       filterDefinition.negotiatorRequestString;
-    //   });
+  // let humanReadableString = "";
+  // const additionText = " and ";
+  // const humanReadableStart: Record<string, string> = {};
 
-    // for (const [filterName, filterValue] of Object.entries(
-    //   filtersStore.filters
-    // )) {
-    //   if (!filterValue) continue;
-    //   if (!Array.isArray(filterValue)) continue;
-    //   humanReadableString += humanReadableStart[filterName];
+  // /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
+  // filtersStore.filterFacets
+  //   .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
+  //   .forEach((filterDefinition: IFilterDetails) => {
+  //     humanReadableStart[filterDefinition.facetIdentifier] =
+  //       filterDefinition.negotiatorRequestString;
+  //   });
 
-    //   if (filterName === "search") {
-    //     humanReadableString += ` ${filterValue}`;
-    //   } else {
-    //     humanReadableString += ` ${filterValue
-    //       .map((fv) => fv.text)
-    //       .join(", ")}`;
-    //   }
-    //   humanReadableString += additionText;
-    // }
+  // for (const [filterName, filterValue] of Object.entries(
+  //   filtersStore.filters
+  // )) {
+  //   if (!filterValue) continue;
+  //   if (!Array.isArray(filterValue)) continue;
+  //   humanReadableString += humanReadableStart[filterName];
 
-    // if (humanReadableString === "") return humanReadableString;
+  //   if (filterName === "search") {
+  //     humanReadableString += ` ${filterValue}`;
+  //   } else {
+  //     humanReadableString += ` ${filterValue
+  //       .map((fv) => fv.text)
+  //       .join(", ")}`;
+  //   }
+  //   humanReadableString += additionText;
+  // }
 
-    // return humanReadableString.substring(
-    //   0,
-    //   humanReadableString.length - additionText.length
-    // );
-  }
+  // if (humanReadableString === "") return humanReadableString;
+
+  // return humanReadableString.substring(
+  //   0,
+  //   humanReadableString.length - additionText.length
+  // );
 }
 </script>

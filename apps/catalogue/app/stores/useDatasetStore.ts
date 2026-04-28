@@ -13,11 +13,11 @@ export const useDatasetStore = defineStore("datasets", () => {
   const CATALOGUE_STORE_URL = "CATALOGUE_STORE_URL";
   const CATALOGUE_STORE_VERSION = "CATALOGUE_STORE_VERSION";
 
-  isDatastoreEnabled();
+  setIsDatastoreEnabled();
   setDatasetStoreUrl();
   setNegotiatorVersion();
 
-  async function isDatastoreEnabled() {
+  async function setIsDatastoreEnabled() {
     const enabledSetting = await getSetting(CATALOGUE_STORE_IS_ENABLED);
     isEnabled.value = enabledSetting === "true";
   }
@@ -39,7 +39,7 @@ export const useDatasetStore = defineStore("datasets", () => {
   }
 
   function resourceIsInCart(resourceId: string) {
-    return Object.keys(datasets).includes(resourceId);
+    return !!datasets[resourceId as keyof IResources];
   }
 
   async function getSetting(settingConst: string) {
@@ -61,8 +61,8 @@ export const useDatasetStore = defineStore("datasets", () => {
   return {
     datasets,
     datasetStoreUrl,
-    storeVersion,
     isEnabled,
+    storeVersion,
     addToCart,
     clearCart,
     removeFromCart,
