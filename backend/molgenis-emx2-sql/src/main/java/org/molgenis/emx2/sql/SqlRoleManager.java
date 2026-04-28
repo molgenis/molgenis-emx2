@@ -26,6 +26,21 @@ public class SqlRoleManager {
   public static final int PG_MAX_ID_LENGTH = 63;
   public static final String RLS_ROLE_PREFIX = "RLS_";
 
+  private enum RlsPolicy {
+    VIEWER_BYPASS("mg_roles_viewer_bypass", "SELECT"),
+    EDITOR_BYPASS("mg_roles_editor_bypass", "ALL"),
+    TABLE_GRANT_BYPASS("mg_roles_table_grant_bypass", "ALL"),
+    ROW_MATCH("mg_roles_row_match", "ALL");
+
+    private final String policyName;
+    private final String command;
+
+    RlsPolicy(String policyName, String command) {
+      this.policyName = policyName;
+      this.command = command;
+    }
+  }
+
   private final SqlDatabase database;
 
   public SqlRoleManager(SqlDatabase database) {
@@ -180,66 +195,78 @@ public class SqlRoleManager {
     }
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
+    dropRlsPolicies(jooqTable);
 
-    String viewerRole = fullRoleName(schemaName, Privileges.VIEWER.toString());
-    String editorRole = fullRoleName(schemaName, Privileges.EDITOR.toString());
-    String selectClause = rlsAccessClause(schemaName, tableName, viewerRole);
-    String dmlClause = rlsAccessClause(schemaName, tableName, editorRole);
-
-    jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
-    jooq()
-        .execute(
-            "CREATE POLICY mg_roles_select_policy ON {0} FOR SELECT USING (" + selectClause + ")",
-            jooqTable);
-
-    jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
-    jooq()
-        .execute(
-            "CREATE POLICY mg_roles_dml_policy ON {0} FOR ALL"
-                + " USING ("
-                + dmlClause
-                + ") WITH CHECK ("
-                + dmlClause
-                + ")",
-            jooqTable);
+    createPolicy(
+        jooqTable, RlsPolicy.VIEWER_BYPASS, systemRoleMember(schemaName, Privileges.VIEWER));
+    createPolicy(
+        jooqTable, RlsPolicy.EDITOR_BYPASS, systemRoleMember(schemaName, Privileges.EDITOR));
+    createPolicy(jooqTable, RlsPolicy.TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
+    createPolicy(jooqTable, RlsPolicy.ROW_MATCH, rowRoleMatch(schemaName));
   }
 
-  private String rlsAccessClause(String schemaName, String tableName, String bypassRole) {
+  private void createPolicy(org.jooq.Table<?> jooqTable, RlsPolicy policy, String expression) {
+    String sql =
+        "CREATE POLICY "
+            + policy.policyName
+            + " ON {0} FOR "
+            + policy.command
+            + " USING ("
+            + expression
+            + ")";
+    if (!"SELECT".equals(policy.command)) {
+      sql += " WITH CHECK (" + expression + ")";
+    }
+    jooq().execute(sql, jooqTable);
+  }
+
+  static void dropRlsPolicies(DSLContext jooq, org.jooq.Table<?> jooqTable) {
+    for (RlsPolicy policy : RlsPolicy.values()) {
+      jooq.execute("DROP POLICY IF EXISTS " + policy.policyName + " ON {0}", jooqTable);
+    }
+  }
+
+  private void dropRlsPolicies(org.jooq.Table<?> jooqTable) {
+    dropRlsPolicies(jooq(), jooqTable);
+  }
+
+  private String systemRoleMember(String schemaName, Privileges role) {
+    return "pg_has_role(current_user, "
+        + jooq().render(inline(fullRoleName(schemaName, role.toString())))
+        + ", 'member')";
+  }
+
+  private String tableGrantBypass(String schemaName, String tableName) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
     String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
+    String qualifiedTable = jooq().render(name(schemaName, tableName));
     String systemRoles =
         Arrays.stream(Privileges.values())
             .map(p -> jooq().render(inline(fullRoleName(schemaName, p.toString()))))
             .collect(Collectors.joining(", "));
-
     return """
-        pg_has_role(current_user, %s, 'member')
-        OR EXISTS (
-          SELECT 1 FROM pg_roles r
-          CROSS JOIN LATERAL (
-            SELECT c.relacl FROM pg_class c
-            JOIN pg_namespace n ON n.oid = c.relnamespace
-            WHERE n.nspname = %s AND c.relname = %s
-          ) tbl
+        EXISTS (
+          SELECT 1
+          FROM aclexplode((SELECT relacl FROM pg_class WHERE oid = %s::regclass)) ace
+          JOIN pg_roles r ON r.oid = ace.grantee
           WHERE r.rolname LIKE %s
             AND r.rolname NOT LIKE %s
             AND r.rolname NOT IN (%s)
-            AND pg_has_role(current_user, r.rolname, 'member')
-            AND tbl.relacl IS NOT NULL
-            AND EXISTS (SELECT 1 FROM aclexplode(tbl.relacl) ace WHERE ace.grantee = r.oid)
-        )
-        OR EXISTS (
-          SELECT 1 FROM unnest(mg_roles) r
-          WHERE pg_has_role(current_user, %s || r, 'member')
+            AND pg_has_role(current_user, r.oid, 'member')
         )"""
         .formatted(
-            jooq().render(inline(bypassRole)),
-            jooq().render(inline(schemaName)),
-            jooq().render(inline(tableName)),
+            jooq().render(inline(qualifiedTable)),
             jooq().render(inline(rolePrefix + "%")),
             jooq().render(inline(rlsRolePrefix + "%")),
-            systemRoles,
-            jooq().render(inline(rolePrefix)));
+            systemRoles);
+  }
+
+  private String rowRoleMatch(String schemaName) {
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    return "EXISTS (SELECT 1 FROM unnest(mg_roles) r"
+        + " WHERE pg_has_role(current_user, "
+        + jooq().render(inline(rolePrefix))
+        + " || r, 'member'))";
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -278,8 +305,7 @@ public class SqlRoleManager {
                     .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
     if (!anyRlsGrantRemains) {
       org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-      jooq().execute("DROP POLICY IF EXISTS mg_roles_select_policy ON {0}", jooqTable);
-      jooq().execute("DROP POLICY IF EXISTS mg_roles_dml_policy ON {0}", jooqTable);
+      dropRlsPolicies(jooqTable);
       jooq().execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
     }
   }
