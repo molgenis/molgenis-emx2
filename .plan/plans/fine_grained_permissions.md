@@ -350,7 +350,7 @@ Open items below. ID prefixes: J=Java, Q=JOOQ, S=SQL/PG, E=Security, T=Test-suff
 
 Coordinate with master maintainers; raise upstream issue.
 
-### 6.B — Authorization scope ceiling (BLOCKER)
+### 6.B — Authorization scope ceiling (BLOCKER) [DONE]
 
 - C3 / E1 / J1: schema MANAGER can grant arbitrary scopes on global roles, no scope-ceiling check. Files: `GraphqlDatabaseFieldFactory.java:260-272`, `GraphqlPermissionFieldFactory.java:199-234,205-215`. Add ceiling: non-admin callers cannot grant scopes they do not hold.
 - E2: `applyMembers` admin check split across two layers (`GraphqlDatabaseFieldFactory.java:244-278`, `GraphqlPermissionFieldFactory.java:249-253`). Consolidate into single authoritative location.

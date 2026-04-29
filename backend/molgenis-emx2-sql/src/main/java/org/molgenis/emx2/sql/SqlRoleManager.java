@@ -203,6 +203,21 @@ public class SqlRoleManager implements RoleManager {
         });
   }
 
+  public void grantRoleToUserUnchecked(String role, String user) {
+    String pgRole = GLOBAL_ROLE_PG_PREFIX + role;
+    String pgUser = MG_USER_PREFIX + user;
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            ((SqlDatabase) db).getJooq().execute("GRANT {0} TO {1}", name(pgRole), name(pgUser));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
   @Override
   public void revokeRoleFromUser(String role, String user) {
     if (!database.isAdmin()) {

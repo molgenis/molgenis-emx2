@@ -14,6 +14,7 @@ import org.molgenis.emx2.TablePermission.SelectScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 class GraphqlPermissionFieldFactoryTest {
 
@@ -22,6 +23,7 @@ class GraphqlPermissionFieldFactoryTest {
   private static final String SCHEMA_NAME = "GpfTestSchema";
   private static final String TABLE_NAME = "GpfTable";
   private static final String TEST_USER = "gpf_test_user";
+  private static final String TARGET_USER = "gpf_target_user";
   private static final String ROLE_ANALYST = "GpfAnalyst";
   private static final String ROLE_REVIEWER = "GpfReviewer";
   private static final String ROLE_GATED = "GpfGatedRole";
@@ -40,7 +42,7 @@ class GraphqlPermissionFieldFactoryTest {
     }
 
     cleanupRoles();
-    cleanupTestUser();
+    cleanupUsers();
 
     database.addUser(TEST_USER);
     database.dropCreateSchema(SCHEMA_NAME);
@@ -49,14 +51,14 @@ class GraphqlPermissionFieldFactoryTest {
         .create(
             TableMetadata.table(TABLE_NAME).add(Column.column("id", ColumnType.STRING).setKey(1)));
 
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
   }
 
   @AfterEach
   void teardown() {
     database.becomeAdmin();
     cleanupRoles();
-    cleanupTestUser();
+    cleanupUsers();
     database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
@@ -83,12 +85,14 @@ class GraphqlPermissionFieldFactoryTest {
     }
   }
 
-  private void cleanupTestUser() {
-    try {
-      if (database.hasUser(TEST_USER)) {
-        database.removeUser(TEST_USER);
+  private void cleanupUsers() {
+    for (String user : new String[] {TEST_USER, TARGET_USER}) {
+      try {
+        if (database.hasUser(user)) {
+          database.removeUser(user);
+        }
+      } catch (Exception ignored) {
       }
-    } catch (Exception ignored) {
     }
   }
 
@@ -101,7 +105,7 @@ class GraphqlPermissionFieldFactoryTest {
     roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
 
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     JsonNode result =
         executeQuery(
@@ -129,7 +133,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void adminRolesQuery_listsRolesAndPermissions() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
     roleManager.createRole(ROLE_REVIEWER, "reviewer");
@@ -157,7 +161,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void adminRolesQuery_nonAdminNotAccessible() {
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     assertThrows(
         Exception.class,
@@ -168,7 +172,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void changeRoleDefinitions_createsRole() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     String mutation =
         "mutation{change(roles:[{name:\""
@@ -185,7 +189,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void changePermissions_replaceAll() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
 
@@ -208,7 +212,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void changeMembers_grantsRole() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
 
@@ -225,7 +229,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void nonAdminForbidden() throws IOException {
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     String mutation = "mutation{change(roles:[{name:\"" + ROLE_ANALYST + "\"}]){status message}}";
     JsonNode result = executeQuery(mutation);
@@ -236,7 +240,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void dropRoles_tombstonesRole() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
 
@@ -252,7 +256,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void dropMembers_revokesRole() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
     roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
@@ -275,7 +279,7 @@ class GraphqlPermissionFieldFactoryTest {
   @Test
   void changePermissions_acceptsAggregateSelect() throws IOException {
     database.becomeAdmin();
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     roleManager.createRole(ROLE_ANALYST, "analyst");
 
@@ -307,7 +311,7 @@ class GraphqlPermissionFieldFactoryTest {
     roleManager.grantRoleToUser(ROLE_ANALYST, TEST_USER);
 
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     JsonNode result =
         executeQuery(
@@ -338,7 +342,7 @@ class GraphqlPermissionFieldFactoryTest {
     database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.EDITOR.toString());
 
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     String mutation =
         "mutation{change(roles:[{name:\""
@@ -363,7 +367,7 @@ class GraphqlPermissionFieldFactoryTest {
     database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
 
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     String mutation =
         "mutation{change(roles:[{name:\""
@@ -384,7 +388,7 @@ class GraphqlPermissionFieldFactoryTest {
     database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.OWNER.toString());
 
     database.setActiveUser(TEST_USER);
-    executor = new GraphqlExecutor(database);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
 
     String mutation =
         "mutation{change(roles:[{name:\""
@@ -394,6 +398,151 @@ class GraphqlPermissionFieldFactoryTest {
             + "\",table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+  }
+
+  @Test
+  void setPermissionsRejectsWildcardSchemaForManager() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\"*\",table:\""
+            + TABLE_NAME
+            + "\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("FAILED", result.at("/change/status").asText());
+    String message = result.at("/change/message").asText().toLowerCase();
+    assertTrue(
+        message.contains("admin") || message.contains("wildcard"),
+        "Error must mention admin-only wildcard restriction, got: " + message);
+  }
+
+  @Test
+  void setPermissionsAcceptsWildcardTableForManager() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\"*\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+  }
+
+  @Test
+  void setPermissionsAcceptsWildcardTableForOwner() throws IOException {
+    database.becomeAdmin();
+    roleManager.createRole(ROLE_GATED, "gated role");
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.OWNER.toString());
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(roles:[{name:\""
+            + ROLE_GATED
+            + "\",permissions:[{schema:\""
+            + SCHEMA_NAME
+            + "\",table:\"*\",select:ALL}]}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+  }
+
+  @Test
+  void applyMembersRejectsManagerGrantingManager() throws IOException {
+    database.becomeAdmin();
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+    database.addUser(TARGET_USER);
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(members:[{role:\""
+            + Privileges.MANAGER.toString()
+            + "\",user:\""
+            + TARGET_USER
+            + "\"}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("FAILED", result.at("/change/status").asText());
+    String message = result.at("/change/message").asText().toLowerCase();
+    assertTrue(
+        message.contains("escalat") || message.contains("owner") || message.contains("admin"),
+        "Error must mention privilege escalation restriction, got: " + message);
+  }
+
+  @Test
+  void applyMembersRejectsManagerGrantingOwner() throws IOException {
+    database.becomeAdmin();
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+    database.addUser(TARGET_USER);
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(members:[{role:\""
+            + Privileges.OWNER.toString()
+            + "\",user:\""
+            + TARGET_USER
+            + "\"}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("FAILED", result.at("/change/status").asText());
+    String message = result.at("/change/message").asText().toLowerCase();
+    assertTrue(
+        message.contains("escalat") || message.contains("owner") || message.contains("admin"),
+        "Error must mention privilege escalation restriction, got: " + message);
+  }
+
+  @Test
+  void applyMembersAcceptsOwnerGrantingManager() throws IOException {
+    database.becomeAdmin();
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.OWNER.toString());
+    database.addUser(TARGET_USER);
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(members:[{role:\""
+            + Privileges.MANAGER.toString()
+            + "\",user:\""
+            + TARGET_USER
+            + "\"}]){status message}}";
+    JsonNode result = executeQuery(mutation);
+    assertEquals("SUCCESS", result.at("/change/status").asText());
+  }
+
+  @Test
+  void applyMembersAcceptsManagerGrantingViewer() throws IOException {
+    database.becomeAdmin();
+    database.getSchema(SCHEMA_NAME).addMember(TEST_USER, Privileges.MANAGER.toString());
+    database.addUser(TARGET_USER);
+
+    database.setActiveUser(TEST_USER);
+    executor = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    String mutation =
+        "mutation{change(members:[{role:\""
+            + Privileges.VIEWER.toString()
+            + "\",user:\""
+            + TARGET_USER
+            + "\"}]){status message}}";
     JsonNode result = executeQuery(mutation);
     assertEquals("SUCCESS", result.at("/change/status").asText());
   }

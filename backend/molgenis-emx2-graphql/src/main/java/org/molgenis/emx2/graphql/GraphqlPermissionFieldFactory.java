@@ -16,6 +16,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaInfo;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.TablePermission.SelectScope;
 import org.molgenis.emx2.TablePermission.UpdateScope;
@@ -221,6 +222,9 @@ public class GraphqlPermissionFieldFactory {
     PermissionSet ps = new PermissionSet();
     for (Map<String, Object> pMap : perms) {
       String schemaName = (String) pMap.get("schema");
+      if ("*".equals(schemaName) && !db.isAdmin()) {
+        throw new MolgenisException("Permission denied: wildcard schema='*' requires admin");
+      }
       requireManagerOrOwner(db, schemaName);
       ps.put(
           new TablePermission(schemaName, (String) pMap.get("table"))
@@ -246,10 +250,50 @@ public class GraphqlPermissionFieldFactory {
     }
   }
 
-  static void applyMembers(SqlRoleManager rm, List<Map<String, Object>> members) {
+  static void applyMembers(Database db, SqlRoleManager rm, List<Map<String, Object>> members) {
     if (members == null) return;
     for (Map<String, Object> member : members) {
-      rm.grantRoleToUser((String) member.get("role"), (String) member.get("user"));
+      String targetRole = (String) member.get("role");
+      String targetUser = (String) member.get("user");
+      if (db.isAdmin()) {
+        rm.grantRoleToUserUnchecked(targetRole, targetUser);
+      } else if (Privileges.isSystemRole(targetRole)) {
+        applySystemRoleMembership(db, targetRole, targetUser);
+      } else {
+        throw new MolgenisException("Permission denied: granting global role requires admin");
+      }
+    }
+  }
+
+  private static void applySystemRoleMembership(Database db, String targetRole, String targetUser) {
+    boolean targetIsManagerOrOwner =
+        Privileges.MANAGER.toString().equals(targetRole)
+            || Privileges.OWNER.toString().equals(targetRole);
+    boolean granted = false;
+    for (SchemaInfo schemaInfo : db.getSchemaInfos()) {
+      String schemaName = schemaInfo.tableSchema();
+      Schema schema = db.getSchema(schemaName);
+      if (schema == null) continue;
+      boolean callerIsOwner = schema.hasActiveUserRole(Privileges.OWNER);
+      boolean callerIsManager = schema.hasActiveUserRole(Privileges.MANAGER);
+      if (targetIsManagerOrOwner && callerIsOwner) {
+        schema.addMember(targetUser, targetRole);
+        granted = true;
+      } else if (!targetIsManagerOrOwner && (callerIsOwner || callerIsManager)) {
+        schema.addMember(targetUser, targetRole);
+        granted = true;
+      }
+    }
+    if (!granted) {
+      if (targetIsManagerOrOwner) {
+        throw new MolgenisException(
+            "Permission denied: granting MANAGER or OWNER requires OWNER privilege; "
+                + "admin-only for global roles");
+      }
+      throw new MolgenisException(
+          "Permission denied: granting role '"
+              + targetRole
+              + "' requires MANAGER or OWNER privilege on a schema; admin-only otherwise");
     }
   }
 

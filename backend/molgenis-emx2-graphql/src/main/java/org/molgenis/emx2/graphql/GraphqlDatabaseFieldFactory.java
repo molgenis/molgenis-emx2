@@ -257,9 +257,6 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               List<Map<String, Object>> members = dataFetchingEnvironment.getArgument(MEMBERS);
-              if (members != null && !database.isAdmin()) {
-                return new GraphqlApiMutationResult(FAILED, "admin only");
-              }
               StringBuilder messageBuilder = new StringBuilder();
               database.tx(
                   db -> {
@@ -285,11 +282,16 @@ public class GraphqlDatabaseFieldFactory {
                 }
               }
               if (members != null) {
-                database.tx(
-                    db -> {
-                      SqlRoleManager rm = ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
-                      applyMembers(rm, members);
-                    });
+                try {
+                  database.tx(
+                      db -> {
+                        SqlRoleManager rm =
+                            ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
+                        applyMembers(db, rm, members);
+                      });
+                } catch (MolgenisException ex) {
+                  return new GraphqlApiMutationResult(FAILED, ex.getMessage());
+                }
               }
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
