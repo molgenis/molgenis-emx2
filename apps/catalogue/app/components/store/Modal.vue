@@ -65,13 +65,10 @@ function onClose() {
 function getSendToText() {
   const version = datasetStore.storeVersion;
   switch (version) {
-    case "GDI":
-      return "GDI";
-    case "v1":
-      return "negotiator v1";
-    case "v3":
-    case "eric-negotiator":
-      return "ERIC Negotiator";
+    case "REMS":
+      return "REMS";
+    case "negotiatorV3":
+      return "Negotiator";
     default:
       return "Unknown data store";
   }
@@ -87,13 +84,10 @@ async function sendToNegotiator() {
   const dataStoreUrl = datasetStore.datasetStoreUrl;
 
   switch (version) {
-    case "GDI":
+    case "REMS":
       window.open(dataStoreUrl, "_blank");
       break;
-    case "v1":
-      break;
-    case "v3":
-    case "eric-negotiator":
+    case "negotiatorV3":
       doNegotiatorV3Request();
       break;
     default:

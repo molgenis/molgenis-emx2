@@ -50,6 +50,7 @@ export const useDatasetStore = defineStore("datasets", () => {
       }
     );
     if (!settingResponse) {
+      // TODO: better error handling
       throw new Error(`Setting ${settingConst} not found`);
     }
     return settingResponse.value;
