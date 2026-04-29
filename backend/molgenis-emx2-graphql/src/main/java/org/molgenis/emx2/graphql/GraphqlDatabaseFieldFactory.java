@@ -200,7 +200,7 @@ public class GraphqlDatabaseFieldFactory {
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef("MolgenisTask"))))
           .build();
 
-  public GraphQLFieldDefinition tasksQueryField(TaskService taskService) {
+  public GraphQLFieldDefinition tasksQueryField(TaskService taskService, Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_tasks")
         .type(GraphQLList.list(outputTaskType))
@@ -211,7 +211,21 @@ public class GraphqlDatabaseFieldFactory {
               if (id != null) {
                 return List.of(taskService.getTask(id));
               }
-              return taskService.listTasks();
+
+              GraphqlSessionHandlerInterface sessionHandler =
+                  dataFetchingEnvironment
+                      .getGraphQlContext()
+                      .get(GraphqlSessionHandlerInterface.class);
+
+              boolean isAdmin =
+                  Optional.ofNullable(database.getUser(sessionHandler.getCurrentUser()))
+                      .map(User::isAdmin)
+                      .orElse(false);
+              if (isAdmin) {
+                return taskService.listTasks();
+              }
+
+              throw new MolgenisException("task id needs to be provided to specify task");
             })
         .build();
   }
