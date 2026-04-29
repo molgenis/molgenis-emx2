@@ -18,16 +18,22 @@ public class PlainColumnMapper implements ColumnMapper {
   private final Variable startingPoint;
   private final Column column;
   private final Variable objectVariable;
+  private boolean isRequired;
 
   public PlainColumnMapper(Variable subjectVariable, Column column) {
     this(
-        subjectVariable, column, SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()));
+        subjectVariable,
+        column,
+        SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()),
+        column.isRequired());
   }
 
-  public PlainColumnMapper(Variable startingPoint, Column column, Variable objectVariable) {
+  public PlainColumnMapper(
+      Variable startingPoint, Column column, Variable objectVariable, boolean isRequired) {
     this.startingPoint = startingPoint;
     this.column = column;
     this.objectVariable = objectVariable;
+    this.isRequired = isRequired;
   }
 
   @Override
@@ -66,7 +72,7 @@ public class PlainColumnMapper implements ColumnMapper {
     GraphPatternNotTriples mainPattern =
         GraphPatterns.and(semanticPatterns.toArray(new GraphPattern[0])).optional();
 
-    if (column.isRequired()) {
+    if (isRequired) {
       Expression<?> bound = Expressions.bound(objectVariable);
       return List.of(mainPattern, () -> "FILTER ( " + bound.getQueryString() + " )");
     }
