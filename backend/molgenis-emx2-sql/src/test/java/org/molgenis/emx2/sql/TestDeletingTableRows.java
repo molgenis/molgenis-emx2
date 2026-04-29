@@ -39,15 +39,32 @@ class TestDeletingTableRows {
   }
 
   @Test
-  void whenDeletingNonExistingRows_thenThrowException() {
+  void givenNonExistingRows_whenDeletingWithStrict_thenThrowException() {
     table.insert(Row.row("id", 1, "name", "a"));
     table.insert(Row.row("id", 2, "name", "b"));
 
     Row nonExistentRow = Row.row("id", 123);
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(nonExistentRow),
+        () -> table.delete(List.of(nonExistentRow), true),
         "Should throw exception when deleting a row that doesn't exist in the table");
+
+    // Verify transaction is rolled back
+    CompareTools.assertEquals(
+        table.retrieveRows(Option.EXCLUDE_MG_COLUMNS),
+        List.of(Row.row("id", 1, "name", "a"), Row.row("id", 2, "name", "b")));
+  }
+
+  @Test
+  void givenNonExistingRows_whenDeletingWithoutStrict_thenDoNothing() {
+    table.insert(Row.row("id", 1, "name", "a"));
+    table.insert(Row.row("id", 2, "name", "b"));
+
+    Row nonExistentRow = Row.row("id", 123);
+    assertEquals(
+        0,
+        table.delete(nonExistentRow),
+        "Should ignore when deleting a row that doesn't exist in the table");
 
     // Verify transaction is rolled back
     CompareTools.assertEquals(
@@ -87,12 +104,30 @@ class TestDeletingTableRows {
 
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(nonExistentRow),
+        () -> table.delete(List.of(nonExistentRow), true),
         "Should throw exception when deleting a row that doesn't exist in the table");
   }
 
   @Test
-  void whenDeletingRowsWithMixedValidAndInvalidRows_thenThrowException() {
+  void givenRowsWithMixedValidAndInvalidRows_whenStrict_thenThrowException() {
+    table.insert(Row.row("id", 1, "name", "test1"));
+    table.insert(Row.row("id", 2, "name", "test2"));
+
+    Row validRow = Row.row("id", 1, "name", "test1");
+    Row invalidRow = Row.row("id", 999, "name", "non-existent");
+
+    assertEquals(
+        1,
+        table.delete(validRow, invalidRow),
+        "Should ignore when deleting a row that doesn't exist in the table");
+
+    // Verify transaction is rolled back
+    CompareTools.assertEquals(
+        table.retrieveRows(Option.EXCLUDE_MG_COLUMNS), List.of(Row.row("id", 2, "name", "test2")));
+  }
+
+  @Test
+  void givenRowsWithMixedValidAndInvalidRows_whenNotStrict_thenDeleteExisting() {
     table.insert(Row.row("id", 1, "name", "test1"));
     table.insert(Row.row("id", 2, "name", "test2"));
 
@@ -101,7 +136,12 @@ class TestDeletingTableRows {
 
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(validRow, invalidRow),
+        () -> table.delete(List.of(validRow, invalidRow), true),
         "Should throw exception when any row in the batch doesn't exist in the table");
+
+    // Verify transaction is rolled back
+    CompareTools.assertEquals(
+        table.retrieveRows(Option.EXCLUDE_MG_COLUMNS),
+        List.of(Row.row("id", 1, "name", "test1"), Row.row("id", 2, "name", "test2")));
   }
 }

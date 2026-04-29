@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -512,7 +513,7 @@ public class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Iterable<Row> rows) {
+  public int delete(Iterable<Row> rows, boolean strict) {
     long start = System.currentTimeMillis();
 
     AtomicInteger nrDeleted = new AtomicInteger(0);
@@ -546,7 +547,7 @@ public class SqlTable implements Table {
             }
 
             // Validate that we deleted exactly the number of rows we intended to delete
-            if (nrDeleted.get() != nrRowsToDelete) {
+            if (nrDeleted.get() != nrRowsToDelete && strict) {
               throw new MolgenisException(
                   "Delete failed: attempted to delete "
                       + nrRowsToDelete
@@ -594,11 +595,6 @@ public class SqlTable implements Table {
   // @Override
   public Query search(String terms) {
     return query().search(terms);
-  }
-
-  @Override
-  public int delete(Row... rows) {
-    return delete(Arrays.asList(rows));
   }
 
   private static int deleteBatch(SqlTable table, Collection<Row> rows) {
