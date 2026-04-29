@@ -1,27 +1,17 @@
 <template>
-  <div class="relative">
-    <HeaderButton
-      label="Selected items"
-      icon="shopping-cart"
-      class="xl:text-link"
-      @click="$emit('click')"
-    />
-    <div
-      v-if="storeHasDatasets"
-      class="absolute items-center justify-center top-0 left-0 inline-block text-center w-6 h-6 bg-blue-200 -translate-y-2 translate-x-4"
-      style="border-radius: 100%"
-    >
-      <span class="text-blue-800 font-bold body-xs/1">
+  <Button label="Request ">
+    <span class="inline-block w-6 h-6 bg-white" style="border-radius: 100%">
+      <span class="font-bold body-xs/1">
         {{ numberOfItemsInStore }}
       </span>
-    </div>
-  </div>
+    </span>
+  </Button>
 </template>
 
 <script lang="ts" setup>
 import { useDatasetStore } from "#imports";
 import { ref, watch, computed } from "vue";
-import HeaderButton from "../../../../tailwind-components/app/components/HeaderButton.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
 
 const datasetStore = useDatasetStore();
 

@@ -49,6 +49,9 @@ export const useDatasetStore = defineStore("datasets", () => {
         return setting.key === settingConst;
       }
     );
+    if (!settingResponse) {
+      throw new Error(`Setting ${settingConst} not found`);
+    }
     return settingResponse.value;
   }
 
