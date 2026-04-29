@@ -336,6 +336,74 @@ Per spec backlog line 290: reserve role names after `deleteRole` so a future `cr
 - `_session.permissions` (not `effectivePermissions`) — no collision found with existing `tablePermissions`.
 
 
+## Phase 6 — Review backlog (open items from 5-reviewer pass on 2026-04-25)
+
+Done in branch (closed): Phase A (test coverage restored), Phase B (AGGREGATE_COUNT_THRESHOLD fixed), F1 (`session_user`→`current_user` in OWN policies + trigger), F2 (`_session.permissions` schema-scoped roles via `getTablePermissionsForActiveUser` returning `PermissionSet`), W3/W4/T3/T4/T6 (weakened JSON-substring assertions tightened to parsed-JSON field equality), `schemaDropNoError` cleanup pattern.
+
+Open items below. ID prefixes: J=Java, Q=JOOQ, S=SQL/PG, E=Security, T=Test-sufficiency.
+
+### 6.A — Defence-in-depth for RLS (BLOCKERs, pre-existing on master)
+
+- C2 / S1 / E3: `USING (true)` on EXISTS/COUNT/AGGREGATE/RANGE in `SqlPermissionExecutor.java:110-118` and `SqlTableMetadataExecutor.java:131-143`. Only Java enforces row visibility. Replace with policies that deny raw row enumeration at SQL layer (e.g. `USING (false)` and route aggregate queries through SECURITY DEFINER functions, or add RESTRICTIVE policies).
+- S3: UPDATE_OWN/GROUP missing `WITH CHECK` (`SqlPermissionExecutor.java:340-357`). Trigger is the only barrier. Add `WITH CHECK (mg_owner = current_user)` on UPDATE_OWN and equivalent for GROUP.
+- S4: `molgenis.current_roles` GUC user-settable (`migration32.sql:3-17`). Direct DB users can impersonate. Revoke SET privilege or restrict to superuser.
+
+Coordinate with master maintainers; raise upstream issue.
+
+### 6.B — Authorization scope ceiling (BLOCKER)
+
+- C3 / E1 / J1: schema MANAGER can grant arbitrary scopes on global roles, no scope-ceiling check. Files: `GraphqlDatabaseFieldFactory.java:260-272`, `GraphqlPermissionFieldFactory.java:199-234,205-215`. Add ceiling: non-admin callers cannot grant scopes they do not hold.
+- E2: `applyMembers` admin check split across two layers (`GraphqlDatabaseFieldFactory.java:244-278`, `GraphqlPermissionFieldFactory.java:249-253`). Consolidate into single authoritative location.
+
+### 6.C — Code quality (Phase D from review)
+
+- J2: `deleteRole` LIKE prefix collision (`SqlRoleManager.java:114`) — use word boundary or exact match.
+- J3: `changeOwner`/`changeGroup` as `USING (false)` SELECT policies (`SqlPermissionExecutor.java:120-136`) — replace fragile marker with proper policy semantics. Dup of S7.
+- J4: schema-scoped `getPermissions` loses OWN/GROUP scope (`SqlRoleManager.java:843-854`).
+- J5: `wildcardSchema`/`wildcardTable` variable names inverted (`PermissionSet.java:69-72`). Cosmetic but bug-risk.
+- J6: O(n²) `List.contains` in hot path (`SqlRoleManager.java:319-330`) — replace with `Set`.
+- J7: no role-exists check before grant (`SqlRoleManager.java:227-246`).
+- J8 / Q5: manual quoting in DDL (`SqlPermissionExecutor.java:273-310`) — use JOOQ DSL quoting.
+- J9: non-exhaustive `switch` on ColumnType (`SqlPermissionExecutor.java:340-345`) — add explicit error default.
+- J10: unchecked cast (`GraphqlPermissionFieldFactory.java:204`).
+- J11: aliased `Set` returned (`TablePermission.java:85-94`) — defensive copy.
+- J12: N+1 queries in permission listing (`SqlRoleManager.java:570-608`) — batch.
+- J13: misleading `validate` error message (`PermissionSet.java`).
+- Q2: RANGE count `Integer.class` overflows >2.1B (`SqlQuery.java:863-867`) — use `Long.class`.
+- Q3 / Q4 / S11: missing `DSL.keyword()` on verb/privilege fragments (`SqlPermissionExecutor.java:42,47`, `SqlRoleManager.java:159`).
+- E5: `_schema.roles` enumerates full role catalog to any authenticated user (`GraphqlSchemaFieldFactory.java:582-584`) — restrict to MANAGER/OWNER or filter to roles the user holds.
+- S6: TOCTOU on `CREATE POLICY` (`SqlRoleManager.java:443-471,495-528`) — wrap in try/catch for `duplicate_object`.
+- S7: `USING (false)` marker fragile (`SqlPermissionExecutor.java:120-136`) — document or replace structurally. Dup of J3.
+- S8: index-name asymmetry create vs drop in `SqlRoleManager.java`.
+- S9: `current_user_roles` marked `STABLE` but reads GUC that can change mid-transaction — mark `VOLATILE` or document constraint.
+- S10: `disableRowLevelSecurity` leaves column-level policies behind in `SqlPermissionExecutor.java`.
+
+### 6.D — Missing negative tests
+
+- Non-admin calling `setPermissions` on a global role — must reject.
+- Schema MANAGER granting a scope (e.g. ADMIN) they do not hold — must reject.
+- Direct DB user setting `molgenis.current_roles` GUC to impersonate — must be ignored or rejected by policies.
+- SELECT via EXISTS policy by a user with no schema role — empty result, not error.
+- Aggregate query by AGGREGATE-scope user attempting raw rows via SUM — must be floored by threshold.
+- UPDATE on row not owned under UPDATE_OWN — must reject at DB layer (not just app).
+- GROUP-scope reader of rows belonging to a different group — must deny.
+- `_schema.roles` query by viewer-level user — must not enumerate roles user does not hold.
+
+### 6.E — Test isolation audit
+
+- Global PG roles created via `roleManager.createRole(name)` collide across parallel test classes and reruns. Schema isolation alone does not fix this.
+- Audit test classes creating global roles. Either prefix names with the test class simple name (e.g. `SqlRoleManagerTest_nodrop_role`) or switch to schema-scoped roles where global semantics aren't needed.
+- Tests that genuinely need cross-schema global-role semantics (e.g. `schemaDropNoError`) → move into `molgenis-emx2-nonparallel-tests` module.
+- Convention: clean at start (`@BeforeEach`), not at teardown — eases debugging by leaving failed-state inspectable.
+
+### 6.F — Future model extensions (out of scope, design notes)
+
+- Dedicated METADATA scope (separate from EXISTS) so users can see table existence/columns without row-level access. Would simplify `getTablePermissionsForActiveUser` schema lookup (no admin escalation needed).
+- Ontology table auto-grant: when a ref points to an ontology table, auto-grant SELECT on that ontology table. Defer to admin scripts; revisit later.
+- Ref / refLabel-only permission: see a ref column (and only the fields used in its refLabel) based on referenced-row visibility.
+
+---
+
 ## Follow-ups (backlog)
 
 - Upgrade-schema admin action (migrate legacy built-ins to policy form).

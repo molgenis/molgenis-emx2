@@ -75,6 +75,43 @@ public class TablePermissionTest {
   }
 
   @Test
+  void allowsExactCountExcludesRange() {
+    assertTrue(TablePermission.SelectScope.ALL.allowsExactCount());
+    assertTrue(TablePermission.SelectScope.OWN.allowsExactCount());
+    assertTrue(TablePermission.SelectScope.GROUP.allowsExactCount());
+    assertTrue(TablePermission.SelectScope.COUNT.allowsExactCount());
+    assertTrue(TablePermission.SelectScope.AGGREGATE.allowsExactCount());
+    assertFalse(
+        TablePermission.SelectScope.RANGE.allowsExactCount(), "RANGE must not allow exact count");
+    assertFalse(TablePermission.SelectScope.EXISTS.allowsExactCount());
+    assertFalse(TablePermission.SelectScope.NONE.allowsExactCount());
+  }
+
+  @Test
+  void updateScopeAllowsOwnRows() {
+    assertFalse(TablePermission.UpdateScope.NONE.allowsOwnRows());
+    assertTrue(TablePermission.UpdateScope.OWN.allowsOwnRows());
+    assertTrue(TablePermission.UpdateScope.GROUP.allowsOwnRows());
+    assertTrue(TablePermission.UpdateScope.ALL.allowsOwnRows());
+  }
+
+  @Test
+  void updateScopeAllowsGroupRows() {
+    assertFalse(TablePermission.UpdateScope.NONE.allowsGroupRows());
+    assertFalse(TablePermission.UpdateScope.OWN.allowsGroupRows());
+    assertTrue(TablePermission.UpdateScope.GROUP.allowsGroupRows());
+    assertTrue(TablePermission.UpdateScope.ALL.allowsGroupRows());
+  }
+
+  @Test
+  void updateScopeAllowsAllRows() {
+    assertFalse(TablePermission.UpdateScope.NONE.allowsAllRows());
+    assertFalse(TablePermission.UpdateScope.OWN.allowsAllRows());
+    assertFalse(TablePermission.UpdateScope.GROUP.allowsAllRows());
+    assertTrue(TablePermission.UpdateScope.ALL.allowsAllRows());
+  }
+
+  @Test
   void nullOrEmptySelectCoercedToEmptySet() {
     TablePermission withNull =
         new TablePermission("s", "t").select((Set<TablePermission.SelectScope>) null);

@@ -5,6 +5,8 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -216,19 +218,22 @@ class SqlQuerySelectModeEnforcementTest {
   }
 
   @Test
-  void aggregate_allowsAvg() {
+  void aggregate_allowsAvg() throws Exception {
     database.setActiveUser(USER_AGGREGATE);
     String json =
         schema.query(DATA_TABLE + "_agg", s(SqlQuery.AVG_FIELD, s("weight"))).retrieveJSON();
-    assertNotNull(json, "AGGREGATE mode must allow avg");
+    JsonNode root = new ObjectMapper().readTree(json);
+    double avg = root.path(DATA_TABLE + "_agg").path(SqlQuery.AVG_FIELD).path("weight").asDouble();
+    assertEquals(4.5, avg, 0.001, "avg weight of 5 items (1.5..7.5) is 4.5");
   }
 
   @Test
-  void aggregate_allowsGroupBy() {
+  void aggregate_allowsGroupBy() throws Exception {
     database.setActiveUser(USER_AGGREGATE);
     String json =
         schema.query(DATA_TABLE + "_groupBy", s(SqlQuery.COUNT_FIELD), s("name")).retrieveJSON();
-    assertNotNull(json, "AGGREGATE mode must allow groupBy");
+    JsonNode groups = new ObjectMapper().readTree(json).path(DATA_TABLE + "_groupBy");
+    assertEquals(5, groups.size(), "AGGREGATE groupBy must return 5 distinct name groups");
   }
 
   // --- RANGE mode ---
@@ -269,11 +274,12 @@ class SqlQuerySelectModeEnforcementTest {
   }
 
   @Test
-  void range_allowsTruncatedCount() {
+  void range_allowsTruncatedCount() throws Exception {
     database.setActiveUser(USER_RANGE);
     String json = schema.query(DATA_TABLE + "_agg", s(SqlQuery.COUNT_FIELD)).retrieveJSON();
-    assertNotNull(json);
-    assertTrue(json.contains("0"), "RANGE count of 5 rows truncates to 0 (< 10 threshold)");
+    JsonNode root = new ObjectMapper().readTree(json);
+    int count = root.path(DATA_TABLE + "_agg").path(SqlQuery.COUNT_FIELD).asInt(-1);
+    assertEquals(10, count, "RANGE count of 5 rows rounds up to 10 (CEIL(5/10)*10)");
   }
 
   @Test

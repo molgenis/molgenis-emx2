@@ -7,7 +7,6 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -938,22 +937,9 @@ public class SqlRoleManager implements RoleManager {
         merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
       }
     }
-    expandWildcard(merged, schemaName, schema.getTableNames());
     PermissionSet result = new PermissionSet();
     merged.values().forEach(result::put);
     return result;
-  }
-
-  private static void expandWildcard(
-      Map<String, TablePermission> permissions, String schemaName, Collection<String> tableNames) {
-    TablePermission wildcard = permissions.remove("*");
-    if (wildcard == null) return;
-    for (String tableName : tableNames) {
-      permissions.merge(
-          tableName,
-          new TablePermission(wildcard).setSchema(schemaName).setTable(tableName),
-          SqlRoleManager::mergePermissions);
-    }
   }
 
   private static boolean hasAnyPermission(TablePermission p) {

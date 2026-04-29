@@ -5,6 +5,8 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -158,17 +160,18 @@ class SelectScopeIT {
 
   @ParameterizedTest
   @EnumSource(Mode.class)
-  void count_allowedForAllCountAggregateAndRange(Mode mode) {
+  void count_allowedForAllCountAggregateAndRange(Mode mode) throws Exception {
     database.setActiveUser(mode.user);
     boolean countAllowed =
         mode == Mode.ALL || mode == Mode.COUNT || mode == Mode.AGGREGATE || mode == Mode.RANGE;
     if (countAllowed) {
       String json = schema.query(DATA_TABLE + "_agg", s(SqlQuery.COUNT_FIELD)).retrieveJSON();
-      assertNotNull(json, mode + " must allow count");
+      JsonNode root = new ObjectMapper().readTree(json);
+      int count = root.path(DATA_TABLE + "_agg").path(SqlQuery.COUNT_FIELD).asInt(-1);
       if (mode == Mode.RANGE) {
-        assertTrue(json.contains("0"), mode + ": RANGE count of 5 rows truncates to 0 (< 10)");
+        assertEquals(10, count, mode + ": RANGE count of 5 rows rounds up to 10 (CEIL(5/10)*10)");
       } else {
-        assertTrue(json.contains("5"), mode + ": exact count of 5 rows");
+        assertEquals(5, count, mode + ": exact count of 5 rows");
       }
     } else {
       assertThrows(

@@ -24,6 +24,18 @@ public class TablePermission {
     GROUP,
     ALL;
 
+    public boolean allowsOwnRows() {
+      return this == OWN || this == GROUP || this == ALL;
+    }
+
+    public boolean allowsGroupRows() {
+      return this == GROUP || this == ALL;
+    }
+
+    public boolean allowsAllRows() {
+      return this == ALL;
+    }
+
     public static UpdateScope fromString(String name) {
       String upper = name.toUpperCase(Locale.ROOT);
       for (UpdateScope s : values()) {
@@ -44,6 +56,35 @@ public class TablePermission {
     OWN,
     GROUP,
     ALL;
+
+    public boolean allowsRowAccess() {
+      return this == ALL || this == OWN || this == GROUP;
+    }
+
+    public boolean allowsCount() {
+      return this == ALL
+          || this == OWN
+          || this == GROUP
+          || this == COUNT
+          || this == AGGREGATE
+          || this == RANGE;
+    }
+
+    public boolean allowsMinMax() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE || this == RANGE;
+    }
+
+    public boolean allowsAvgSum() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
+    }
+
+    public boolean allowsGroupBy() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
+    }
+
+    public boolean allowsExactCount() {
+      return this == ALL || this == OWN || this == GROUP || this == COUNT || this == AGGREGATE;
+    }
 
     public int permissivenessLevel() {
       return ordinal();
@@ -178,9 +219,7 @@ public class TablePermission {
   }
 
   public boolean hasRowAccess() {
-    return select.contains(SelectScope.ALL)
-        || select.contains(SelectScope.OWN)
-        || select.contains(SelectScope.GROUP);
+    return select.stream().anyMatch(SelectScope::allowsRowAccess);
   }
 
   public boolean hasAnySelect() {

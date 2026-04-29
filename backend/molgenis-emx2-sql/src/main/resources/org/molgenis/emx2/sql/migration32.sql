@@ -16,5 +16,10 @@ AS $$
     )
 $$;
 
-ALTER ROLE "MG_USER_admin" BYPASSRLS;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_USER_admin') THEN
+    EXECUTE 'ALTER ROLE "MG_USER_admin" BYPASSRLS';
+  END IF;
+END $$;
 

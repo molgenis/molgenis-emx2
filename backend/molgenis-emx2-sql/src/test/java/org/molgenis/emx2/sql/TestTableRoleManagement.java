@@ -468,16 +468,24 @@ class TestTableRoleManagement {
     // InsertOnly
     database.setActiveUser(USER_VIEWER);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
-    TablePermission merged =
+
+    TablePermission wildcardEntry =
+        perms.stream()
+            .filter(p -> "*".equals(p.table()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No wildcard '*' permission entry for Viewer"));
+    assertTrue(
+        wildcardEntry.select().contains(SelectScope.ALL),
+        "wildcard entry should carry select=ALL from anonymous Viewer");
+
+    TablePermission tableEntry =
         perms.stream()
             .filter(p -> TABLE_A.equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
-    assertTrue(
-        merged.select().contains(SelectScope.ALL), "select should be merged from anonymous Viewer");
-    assertEquals(UpdateScope.ALL, merged.insert(), "insert should be merged from InsertOnly role");
-    assertEquals(UpdateScope.NONE, merged.update());
-    assertEquals(UpdateScope.NONE, merged.delete());
+    assertEquals(UpdateScope.ALL, tableEntry.insert(), "insert should come from InsertOnly role");
+    assertEquals(UpdateScope.NONE, tableEntry.update());
+    assertEquals(UpdateScope.NONE, tableEntry.delete());
 
     // clean up to avoid leaking anonymous Viewer into other tests
     database.becomeAdmin();

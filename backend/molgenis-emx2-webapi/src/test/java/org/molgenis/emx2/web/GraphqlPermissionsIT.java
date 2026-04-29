@@ -28,7 +28,7 @@ class GraphqlPermissionsIT extends ApiTestBase {
   private static final long UNIQUE_SUFFIX = System.currentTimeMillis();
   private static final String SCHEMA = "fg_perm_" + UNIQUE_SUFFIX;
   private static final String TABLE = "Patients";
-  private static final String CLINICIAN_ROLE = "clinician_" + UNIQUE_SUFFIX;
+  private static final String CLINICIAN_ROLE = "clinician " + UNIQUE_SUFFIX;
   private static final String NON_ADMIN_USER = "gpit_user_" + UNIQUE_SUFFIX;
   private static final String NON_ADMIN_PASS = "nonAdminPass1";
 
@@ -128,7 +128,7 @@ class GraphqlPermissionsIT extends ApiTestBase {
     boolean permFound = false;
     for (JsonNode perm : sessionPerms) {
       if (SCHEMA.equals(perm.at("/schema").asText()) && TABLE.equals(perm.at("/table").asText())) {
-        assertEquals("ALL", perm.at("/select").asText(), "select scope must be ALL");
+        assertEquals("ALL", perm.at("/select/0").asText(), "select scope must be ALL");
         assertEquals("OWN", perm.at("/update").asText(), "update scope must be OWN");
         permFound = true;
       }
