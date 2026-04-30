@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertHasSelectors;
 import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
 
@@ -18,7 +17,7 @@ class PlainColumnMapperTest {
     Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
     assertPatternsMatch(mapper, "?start foaf:test ?foo .");
-    assertHasSelectors(mapper, "foo");
+    assertHasSelectors(mapper, "?foo");
   }
 
   @Test
@@ -26,7 +25,7 @@ class PlainColumnMapperTest {
     Column column = Column.column("foo").setRequired(false).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
     assertPatternsMatch(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
-    assertHasSelectors(mapper, "foo");
+    assertHasSelectors(mapper, "?foo");
   }
 
   @Test
@@ -43,7 +42,7 @@ class PlainColumnMapperTest {
             OPTIONAL { ?start foaf:alternative ?foo1 . }
             OPTIONAL { ?start foaf:also_alternative ?foo2 . }
             BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""");
-    assertHasSelectors(mapper, "foo");
+    assertHasSelectors(mapper, "?foo");
   }
 
   @Test
@@ -61,7 +60,7 @@ class PlainColumnMapperTest {
         OPTIONAL { ?start foaf:also_alternative ?foo2 . }
         BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""",
         "FILTER ( BOUND( ?foo ) )");
-    assertHasSelectors(mapper, "foo");
+    assertHasSelectors(mapper, "?foo");
   }
 
   @Test
@@ -69,11 +68,6 @@ class PlainColumnMapperTest {
     Column column = Column.column("foo bar").setRequired(true).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
     assertPatternsMatch(mapper, "?start foaf:test ?foo___bar .");
-    assertHasSelectors(mapper, "foo___bar");
-  }
-
-  @Test
-  void givenArrayTypeColumn_thenMapperIsConcat() {
-    fail("Implement");
+    assertHasSelectors(mapper, "?foo___bar");
   }
 }
