@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -512,7 +513,7 @@ public class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Iterable<Row> rows) {
+  public int delete(Iterable<Row> rows, boolean strict) {
     long start = System.currentTimeMillis();
 
     AtomicInteger nrDeleted = new AtomicInteger(0);
@@ -521,11 +522,13 @@ public class SqlTable implements Table {
           db2 -> {
             int batchSize = 1000;
             int currentBatchSize = 0;
+            int nrRowsToDelete = 0;
 
             SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
             List<Row> batch = new ArrayList<>();
 
             for (Row row : rows) {
+              nrRowsToDelete++;
               batch.add(row);
               currentBatchSize++;
               if (currentBatchSize % batchSize == 0) {
@@ -541,6 +544,20 @@ public class SqlTable implements Table {
             // finally delete in superclass
             if (table.getMetadata().getInheritName() != null) {
               table.getInheritedTable().delete(rows);
+            }
+
+            // Validate that we deleted exactly the number of rows we intended to delete
+            if (nrDeleted.get() != nrRowsToDelete && strict) {
+              throw new MolgenisException(
+                  "Delete failed: attempted to delete "
+                      + nrRowsToDelete
+                      + " rows but only deleted "
+                      + nrDeleted.get()
+                      + " row"
+                      + (nrDeleted.get() == 1 ? "" : "s")
+                      + ". Some specified rows do not exist in table "
+                      + getName()
+                      + ". Transaction rolled back.");
             }
 
             // notify handlers
@@ -578,11 +595,6 @@ public class SqlTable implements Table {
   // @Override
   public Query search(String terms) {
     return query().search(terms);
-  }
-
-  @Override
-  public int delete(Row... rows) {
-    return delete(Arrays.asList(rows));
   }
 
   private static int deleteBatch(SqlTable table, Collection<Row> rows) {
