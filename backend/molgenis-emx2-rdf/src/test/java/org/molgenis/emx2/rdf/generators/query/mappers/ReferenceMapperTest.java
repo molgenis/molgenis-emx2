@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -108,8 +107,8 @@ class ReferenceMapperTest {
         tableReferenceQuery,
         "?product product:name ?product_name .",
         "?product product:manufacturer ?product_manufacturer .",
-        "?product_manufacturer  manufacturer:name ?product_manufacturer_name .",
-        "?product_manufacturer  manufacturer:id ?product_manufacturer_id .");
+        "?product_manufacturer manufacturer:name ?product_manufacturer_name .",
+        "?product_manufacturer manufacturer:id ?product_manufacturer_id .");
   }
 
   @Nested
