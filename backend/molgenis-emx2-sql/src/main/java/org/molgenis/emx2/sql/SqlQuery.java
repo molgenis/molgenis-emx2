@@ -799,14 +799,14 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Integer> getCountField(SqlTableMetadata table) {
+  private Field<?> getCountField(SqlTableMetadata table) {
     if (table.getTableType() == TableType.ONTOLOGIES) return count();
     Set<TablePermission.SelectScope> select = getEffectiveSelectScopes(table);
     if (select.stream().anyMatch(TablePermission.SelectScope::allowsExactCount)) {
       return count();
     }
     if (select.contains(TablePermission.SelectScope.RANGE)) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Long.class, 10L);
     }
     throw new MolgenisException(
         "Effective select modes '"

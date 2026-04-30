@@ -357,26 +357,34 @@ Coordinate with master maintainers; raise upstream issue.
 
 ### 6.C — Code quality (Phase D from review)
 
+#### 6.C.Batch 1 — Code cleanup phase 1 (2026-04-29) [DONE]
+
+Build results: molgenis-emx2 (89), molgenis-emx2-sql (49 targeted), molgenis-emx2-graphql (72), spotlessApply + pmdTest all green.
+
+Completed items:
+- J5: `wildcardSchema`/`wildcardTable` variable names inverted (`PermissionSet.java:69-72`) [DONE] — swapped inverted variable names.
+- J6: O(n²) `List.contains` in hot path (`SqlRoleManager.java:319-330`) [DONE] — replaced with `Set<String> schemasGranted`.
+- J13: misleading `validate` error message (`PermissionSet.java`) [DONE] — clarified error message.
+- Q2: RANGE count `Integer.class` overflows >2.1B (`SqlQuery.java:863-867`) [DONE] — widened return type to `Long.class`.
+- Q3 / Q4 / S11: missing `DSL.keyword()` on verb/privilege fragments (`SqlPermissionExecutor.java:42,47`, `SqlRoleManager.java:159`) [DONE] — replaced string concat with `keyword(verb)` placeholder.
+- J8 / Q5: manual quoting in DDL (`SqlPermissionExecutor.java:273-310`) [DONE] — replaced with JOOQ `name()` / `table()` DSL.
+- S8: index-name asymmetry create vs drop in `SqlRoleManager.java` [DONE] — unified via DSL; added `rlsEnableDisableEnableRoundTrip` test.
+- J9, J10, J11: verified clean (non-exhaustive switch, unchecked cast, aliased Set already have correct patterns).
+
+#### 6.C.Batch 2 — Code cleanup phase 2 (TODO)
+
+Open items:
 - J2: `deleteRole` LIKE prefix collision (`SqlRoleManager.java:114`) — use word boundary or exact match.
 - J3: `changeOwner`/`changeGroup` as `USING (false)` SELECT policies (`SqlPermissionExecutor.java:120-136`) — replace fragile marker with proper policy semantics. Dup of S7.
 - J4: schema-scoped `getPermissions` loses OWN/GROUP scope (`SqlRoleManager.java:843-854`).
-- J5: `wildcardSchema`/`wildcardTable` variable names inverted (`PermissionSet.java:69-72`). Cosmetic but bug-risk.
-- J6: O(n²) `List.contains` in hot path (`SqlRoleManager.java:319-330`) — replace with `Set`.
 - J7: no role-exists check before grant (`SqlRoleManager.java:227-246`).
-- J8 / Q5: manual quoting in DDL (`SqlPermissionExecutor.java:273-310`) — use JOOQ DSL quoting.
-- J9: non-exhaustive `switch` on ColumnType (`SqlPermissionExecutor.java:340-345`) — add explicit error default.
-- J10: unchecked cast (`GraphqlPermissionFieldFactory.java:204`).
-- J11: aliased `Set` returned (`TablePermission.java:85-94`) — defensive copy.
 - J12: N+1 queries in permission listing (`SqlRoleManager.java:570-608`) — batch.
-- J13: misleading `validate` error message (`PermissionSet.java`).
-- Q2: RANGE count `Integer.class` overflows >2.1B (`SqlQuery.java:863-867`) — use `Long.class`.
-- Q3 / Q4 / S11: missing `DSL.keyword()` on verb/privilege fragments (`SqlPermissionExecutor.java:42,47`, `SqlRoleManager.java:159`).
 - E5: `_schema.roles` enumerates full role catalog to any authenticated user (`GraphqlSchemaFieldFactory.java:582-584`) — restrict to MANAGER/OWNER or filter to roles the user holds.
 - S6: TOCTOU on `CREATE POLICY` (`SqlRoleManager.java:443-471,495-528`) — wrap in try/catch for `duplicate_object`.
 - S7: `USING (false)` marker fragile (`SqlPermissionExecutor.java:120-136`) — document or replace structurally. Dup of J3.
-- S8: index-name asymmetry create vs drop in `SqlRoleManager.java`.
 - S9: `current_user_roles` marked `STABLE` but reads GUC that can change mid-transaction — mark `VOLATILE` or document constraint.
 - S10: `disableRowLevelSecurity` leaves column-level policies behind in `SqlPermissionExecutor.java`.
+
 
 ### 6.D — Missing negative tests
 

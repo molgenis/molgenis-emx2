@@ -39,12 +39,13 @@ public class SqlPermissionExecutor {
 
   public static void grantTablePrivilege(
       DSLContext jooq, String role, String schema, String table, String verb) {
-    jooq.execute("GRANT " + verb + " ON {0} TO {1}", table(name(schema, table)), name(role));
+    jooq.execute("GRANT {0} ON {1} TO {2}", keyword(verb), table(name(schema, table)), name(role));
   }
 
   public static void revokeTablePrivilege(
       DSLContext jooq, String role, String schema, String table, String verb) {
-    jooq.execute("REVOKE " + verb + " ON {0} FROM {1}", table(name(schema, table)), name(role));
+    jooq.execute(
+        "REVOKE {0} ON {1} FROM {2}", keyword(verb), table(name(schema, table)), name(role));
   }
 
   public static void revokeAllTablePrivileges(
@@ -270,15 +271,12 @@ public class SqlPermissionExecutor {
   }
 
   public static void enableRowLevelSecurity(DSLContext jooq, String schema, String table) {
-    String schemaTable = "\"" + schema + "\".\"" + table + "\"";
     jooq.execute(
-        "ALTER TABLE "
-            + schemaTable
-            + " ADD COLUMN IF NOT EXISTS mg_owner text DEFAULT current_user");
+        "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner text DEFAULT current_user",
+        table(name(schema, table)));
     jooq.execute(
-        "ALTER TABLE "
-            + schemaTable
-            + " ADD COLUMN IF NOT EXISTS mg_roles text[] NOT NULL DEFAULT '{}'");
+        "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_roles text[] NOT NULL DEFAULT '{}'",
+        table(name(schema, table)));
     boolean hasInsertedBy =
         jooq.fetchExists(
             jooq.select()
@@ -290,41 +288,34 @@ public class SqlPermissionExecutor {
                         .and(field("column_name").eq(inline("mg_insertedBy")))));
     if (hasInsertedBy) {
       jooq.execute(
-          "UPDATE "
-              + schemaTable
-              + " SET mg_owner = \"mg_insertedBy\" WHERE mg_owner IS NULL AND \"mg_insertedBy\" IS NOT NULL");
+          "UPDATE {0} SET mg_owner = {1} WHERE mg_owner IS NULL AND {1} IS NOT NULL",
+          table(name(schema, table)), field(name("mg_insertedBy")));
     }
-    jooq.execute("ALTER TABLE " + schemaTable + " ALTER COLUMN mg_owner SET NOT NULL");
-    jooq.execute("ALTER TABLE " + schemaTable + " ENABLE ROW LEVEL SECURITY");
-    jooq.execute("ALTER TABLE " + schemaTable + " FORCE ROW LEVEL SECURITY");
-    String indexName = "\"" + table + "_mg_roles_gin\"";
+    jooq.execute("ALTER TABLE {0} ALTER COLUMN mg_owner SET NOT NULL", table(name(schema, table)));
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table(name(schema, table)));
+    jooq.execute("ALTER TABLE {0} FORCE ROW LEVEL SECURITY", table(name(schema, table)));
     jooq.execute(
-        "CREATE INDEX IF NOT EXISTS " + indexName + " ON " + schemaTable + " USING GIN (mg_roles)");
+        "CREATE INDEX IF NOT EXISTS {0} ON {1} USING GIN (mg_roles)",
+        name(table + "_mg_roles_gin"), table(name(schema, table)));
   }
 
   public static void disableRowLevelSecurity(DSLContext jooq, String schema, String table) {
-    String schemaTable = "\"" + schema + "\".\"" + table + "\"";
-    jooq.execute("ALTER TABLE " + schemaTable + " NO FORCE ROW LEVEL SECURITY");
-    jooq.execute("ALTER TABLE " + schemaTable + " DISABLE ROW LEVEL SECURITY");
-    String indexName = "\"" + schema + "\".\"" + table + "_mg_roles_gin\"";
-    jooq.execute("DROP INDEX IF EXISTS " + indexName);
+    jooq.execute("ALTER TABLE {0} NO FORCE ROW LEVEL SECURITY", table(name(schema, table)));
+    jooq.execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", table(name(schema, table)));
+    jooq.execute("DROP INDEX IF EXISTS {0}", name(schema, table + "_mg_roles_gin"));
   }
 
   public static void installGuardTrigger(DSLContext jooq, String schema, String table) {
-    String schemaTable = "\"" + schema + "\".\"" + table + "\"";
-    String guardFn = "\"" + MOLGENIS_SCHEMA + "\".\"mg_enforce_row_authorisation\"";
-    jooq.execute("DROP TRIGGER IF EXISTS mg_enforce_row_authorisation ON " + schemaTable);
     jooq.execute(
-        "CREATE TRIGGER mg_enforce_row_authorisation BEFORE UPDATE ON "
-            + schemaTable
-            + " FOR EACH ROW EXECUTE FUNCTION "
-            + guardFn
-            + "()");
+        "DROP TRIGGER IF EXISTS mg_enforce_row_authorisation ON {0}", table(name(schema, table)));
+    jooq.execute(
+        "CREATE TRIGGER mg_enforce_row_authorisation BEFORE UPDATE ON {0} FOR EACH ROW EXECUTE FUNCTION {1}()",
+        table(name(schema, table)), table(name(MOLGENIS_SCHEMA, "mg_enforce_row_authorisation")));
   }
 
   public static void dropGuardTrigger(DSLContext jooq, String schema, String table) {
-    String schemaTable = "\"" + schema + "\".\"" + table + "\"";
-    jooq.execute("DROP TRIGGER IF EXISTS mg_enforce_row_authorisation ON " + schemaTable);
+    jooq.execute(
+        "DROP TRIGGER IF EXISTS mg_enforce_row_authorisation ON {0}", table(name(schema, table)));
   }
 
   private static String usingExpr(String verb, UpdateScope scope) {

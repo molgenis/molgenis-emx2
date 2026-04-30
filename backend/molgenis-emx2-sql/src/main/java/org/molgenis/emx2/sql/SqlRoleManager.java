@@ -296,7 +296,7 @@ public class SqlRoleManager implements RoleManager {
       }
     }
 
-    List<String> schemasGranted = new ArrayList<>();
+    Set<String> schemasGranted = new LinkedHashSet<>();
     for (String key : newMap.keySet()) {
       TablePermission newPerm = newMap.get(key);
       TablePermission oldPerm = oldMap.get(key);
@@ -329,7 +329,7 @@ public class SqlRoleManager implements RoleManager {
   }
 
   private void grantSchemaAccessIfNeeded(
-      DSLContext jooq, String pgRole, String schemaName, List<String> schemasGranted) {
+      DSLContext jooq, String pgRole, String schemaName, Set<String> schemasGranted) {
     if (schemasGranted.contains(schemaName)) return;
     schemasGranted.add(schemaName);
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());

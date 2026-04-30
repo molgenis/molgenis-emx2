@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 
 class SqlTableMetadataRlsTest {
 
@@ -202,6 +203,18 @@ class SqlTableMetadataRlsTest {
                     .eq(inline(TEST_SCHEMA))
                     .and(field("c.relname").eq(inline(TEST_TABLE)))
                     .and(field("t.tgname").eq(inline("mg_enforce_row_authorisation")))));
+  }
+
+  @Test
+  void rlsEnableDisableEnableRoundTrip() {
+    SqlPermissionExecutor.enableRowLevelSecurity(jooq, TEST_SCHEMA, TEST_TABLE);
+    assertTrue(ginIndexExists(), "GIN index should exist after first enable");
+
+    SqlPermissionExecutor.disableRowLevelSecurity(jooq, TEST_SCHEMA, TEST_TABLE);
+    assertFalse(ginIndexExists(), "GIN index should be gone after disable");
+
+    SqlPermissionExecutor.enableRowLevelSecurity(jooq, TEST_SCHEMA, TEST_TABLE);
+    assertTrue(ginIndexExists(), "GIN index should exist again after second enable");
   }
 
   private boolean policiesExistForRole() {

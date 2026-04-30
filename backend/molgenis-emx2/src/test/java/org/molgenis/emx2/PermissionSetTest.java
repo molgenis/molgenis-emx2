@@ -38,7 +38,8 @@ public class PermissionSetTest {
     List<PermissionSet.ValidationError> errors = set.validate();
     assertEquals(1, errors.size());
     String msg = errors.get(0).message().toLowerCase();
-    assertTrue(msg.contains("delete") && msg.contains("read"), "Expected delete+read in: " + msg);
+    assertTrue(
+        msg.contains("delete") && msg.contains("select"), "Expected delete+select in: " + msg);
   }
 
   @Test
@@ -48,7 +49,8 @@ public class PermissionSetTest {
     List<PermissionSet.ValidationError> errors = set.validate();
     assertEquals(1, errors.size());
     String msg = errors.get(0).message().toLowerCase();
-    assertTrue(msg.contains("update") && msg.contains("read"), "Expected update+read in: " + msg);
+    assertTrue(
+        msg.contains("update") && msg.contains("select"), "Expected update+select in: " + msg);
   }
 
   @Test

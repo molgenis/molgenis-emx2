@@ -45,16 +45,18 @@ public class PermissionSet implements Iterable<TablePermission> {
       boolean hasRowAccess = p.hasRowAccess();
       boolean hasAnySelect = p.hasAnySelect();
       if (p.delete() != TablePermission.UpdateScope.NONE && !hasAnySelect) {
-        errors.add(new ValidationError(schema, table, "delete requires read"));
+        errors.add(new ValidationError(schema, table, "delete requires select"));
       }
       if (p.update() != TablePermission.UpdateScope.NONE && !hasAnySelect) {
-        errors.add(new ValidationError(schema, table, "update requires read"));
+        errors.add(new ValidationError(schema, table, "update requires select"));
       }
       if (p.changeOwner() && p.update().ordinal() < TablePermission.UpdateScope.OWN.ordinal()) {
-        errors.add(new ValidationError(schema, table, "changeOwner requires update"));
+        errors.add(
+            new ValidationError(schema, table, "changeOwner requires update scope OWN or higher"));
       }
       if (p.changeGroup() && p.update().ordinal() < TablePermission.UpdateScope.OWN.ordinal()) {
-        errors.add(new ValidationError(schema, table, "changeGroup requires update"));
+        errors.add(
+            new ValidationError(schema, table, "changeGroup requires update scope OWN or higher"));
       }
     }
     return errors;
@@ -73,8 +75,8 @@ public class PermissionSet implements Iterable<TablePermission> {
 
   public TablePermission resolveFor(String schemaName, String tableName) {
     TablePermission wildcardBoth = entries.get(key("*", "*"));
-    TablePermission wildcardSchema = entries.get(key("*", tableName));
-    TablePermission wildcardTable = entries.get(key(schemaName, "*"));
+    TablePermission wildcardSchema = entries.get(key(schemaName, "*"));
+    TablePermission wildcardTable = entries.get(key("*", tableName));
     TablePermission exact = entries.get(key(schemaName, tableName));
 
     Set<TablePermission.SelectScope> select = EnumSet.noneOf(TablePermission.SelectScope.class);

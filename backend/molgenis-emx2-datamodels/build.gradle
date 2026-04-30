@@ -7,6 +7,10 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-beacon-v2')
     testImplementation project(':backend:molgenis-emx2-cafevariome')
     testImplementation testFixtures(project(':backend:molgenis-emx2-rdf'))
+    testFixturesImplementation project(':backend:molgenis-emx2')
+    testFixturesImplementation project(':backend:molgenis-emx2-sql')
+    testFixturesImplementation project(':backend:molgenis-emx2-tasks')
+    testImplementation testFixtures(project(':backend:molgenis-emx2-datamodels'))
 }
 
 //we use data models from data folder
