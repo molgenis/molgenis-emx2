@@ -17,10 +17,7 @@ const props = withDefaults(
 
 const linksSorted = props.links?.sort(
   (a: INavigationCards, b: INavigationCards) => {
-    if (a.order && b.order) {
-      return (a.order - b.order) as number;
-    }
-    return a.order as number;
+    return (a.order ?? 0) - (b.order ?? 0);
   }
 ) as INavigationCards[];
 
