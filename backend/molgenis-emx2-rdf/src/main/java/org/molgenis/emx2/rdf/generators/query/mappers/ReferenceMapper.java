@@ -17,44 +17,46 @@ public class ReferenceMapper implements ColumnMapper {
   private final Variable variable;
   private final TableMetadata targetTable;
   private final boolean isRequired;
-  private final List<ColumnMapper> mappers;
+  private final List<GraphPattern> patterns = new ArrayList<>();
+  private final List<Projectable> selectors = new ArrayList<>();
 
   public ReferenceMapper(Variable variable, Reference reference, SchemaMetadata metadata) {
     this.variable = variable;
     this.targetTable = metadata.getTableMetadata(reference.getTargetTable());
     this.isRequired = reference.toPrimitiveColumn().isRequired();
-    this.mappers = setupMappers(variable);
+    map();
   }
 
-  private List<ColumnMapper> setupMappers(Variable variable) {
-    List<ColumnMapper> columnMappers = new ArrayList<>();
+  private void map() {
     for (Column column : targetTable.getPrimaryKeyColumns()) {
-      columnMappers.add(
-          new PlainColumnMapper(variable, column, getRefVariable(column), isRequired));
+      Variable object = getRefVariable(column);
+      ColumnMapper columnMapper = new PlainColumnMapper(variable, column, object, isRequired);
+      patterns.addAll(columnMapper.getPattern());
+
       if (column.isReference()) {
         Variable ref = SparqlBuilder.var(variable.getVarName() + "_" + column.getName());
-        columnMappers.add(
-            new ReferenceMapper(ref, column.getReferences().getFirst(), targetTable.getSchema()));
+        Reference firstRef = column.getReferences().getFirst();
+        ColumnMapper reference = new ReferenceMapper(ref, firstRef, targetTable.getSchema());
+
+        patterns.addAll(reference.getPattern());
+        selectors.addAll(reference.getSelectors());
+      } else {
+        selectors.addAll(columnMapper.getSelectors());
       }
     }
-
-    return columnMappers;
   }
 
   @Override
   public List<Projectable> getSelectors() {
-    return List.of();
+    return new ArrayList<>(selectors);
   }
 
   @Override
   public List<GraphPattern> getPattern() {
-    List<GraphPattern> columnPatterns =
-        mappers.stream().flatMap(mapper -> mapper.getPattern().stream()).toList();
-
     if (isRequired) {
-      return columnPatterns;
+      return new ArrayList<>(patterns);
     } else {
-      return List.of(GraphPatterns.and(columnPatterns.toArray(new GraphPattern[0])).optional());
+      return List.of(GraphPatterns.and(patterns.toArray(new GraphPattern[0])).optional());
     }
   }
 
