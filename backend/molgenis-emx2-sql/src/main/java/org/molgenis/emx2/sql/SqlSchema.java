@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
@@ -47,17 +46,14 @@ public class SqlSchema implements Schema {
 
   @Override
   public void addMember(String user, String role) {
-    tx(
-        db ->
-            executeAddMembers(
-                ((SqlDatabase) db).getJooq(), db.getSchema(getName()), new Member(user, role)));
+    roleManager().addMember(getName(), new Member(user, role));
   }
 
   @Override
   public List<Member> getMembers() {
     // only admin or other members can see
     if (db.getActiveUser() == null || db.isAdmin() || getRoleForActiveUser() != null) {
-      return executeGetMembers(getMetadata().getJooq(), getMetadata());
+      return roleManager().getMembers(getName());
     } else {
       return new ArrayList<>();
     }
@@ -65,7 +61,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public void removeMembers(List<Member> members) {
-    tx(database -> executeRemoveMembers((SqlDatabase) database, getName(), members));
+    roleManager().removeMembers(getName(), members);
   }
 
   @Override
@@ -80,7 +76,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<String> getRoles() {
-    return executeGetRoles(getMetadata().getJooq(), this.getMetadata().getName());
+    return roleManager().getRoleNames(getName());
   }
 
   @Override
@@ -107,11 +103,6 @@ public class SqlSchema implements Schema {
   @Override
   public List<String> getInheritedRolesForActiveUser() {
     return getMetadata().getInheritedRolesForActiveUser();
-  }
-
-  @Override
-  public boolean hasActiveUserRole(Privileges privileges) {
-    return getInheritedRolesForActiveUser().contains(privileges.toString());
   }
 
   @Override
@@ -433,7 +424,7 @@ public class SqlSchema implements Schema {
   }
 
   private void requireManager() {
-    if (!db.isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+    if (!PermissionEvaluator.canManage(this)) {
       throw new MolgenisException(
           "Permission denied: role management requires Manager or Owner privileges");
     }
