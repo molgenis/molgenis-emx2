@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, useAttrs } from "vue";
 import { type IInputProps } from "../../../types/types";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import BaseIcon from "../BaseIcon.vue";
@@ -20,6 +21,15 @@ withDefaults(
 
 const emit = defineEmits(["update:modelValue", "focus"]);
 
+defineOptions({ inheritAttrs: false });
+
+const attrs = useAttrs();
+const rootClass = computed(() => attrs.class);
+const selectAttrs = computed(() => {
+  const { class: _class, ...rest } = attrs;
+  return rest;
+});
+
 function optionValue(option: SelectOption): SelectPrimitive {
   return typeof option === "object" ? option.value : option;
 }
@@ -30,8 +40,9 @@ function optionLabel(option: SelectOption): string {
 </script>
 
 <template>
-  <div class="relative w-full">
+  <div class="relative w-full" :class="rootClass">
     <select
+      v-bind="selectAttrs"
       :modelValue="modelValue"
       @change="
         $event.target &&
