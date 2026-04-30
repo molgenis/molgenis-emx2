@@ -1,5 +1,5 @@
 <script setup lang="ts">
-//todo: refactor each button shape/flavor in seperate easy to understand components so we get rid of weird mappings.
+//todo: refactor each button shape/flavor in separate easy to understand components so we get rid of weird mappings.
 //similar to polymorphism in the inputs.
 
 import { computed, watchEffect } from "vue";

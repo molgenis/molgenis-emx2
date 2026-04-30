@@ -1,7 +1,7 @@
 <template>
   <Button label="Request " @click="$emit('click')">
     <span class="inline-block w-6 h-6 bg-white" style="border-radius: 100%">
-      <span class="font-bold body-xs/1">
+      <span class="body-xs/1">
         {{ numberOfItemsInStore }}
       </span>
     </span>

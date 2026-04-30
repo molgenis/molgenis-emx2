@@ -16,13 +16,12 @@
       <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
     </ContentBlockModal>
     <template #footer>
-      <a
-        v-on:click="sendToNegotiator"
-        class="flex items-center border rounded-input h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-      >
-        <span>Request from {{ getSendToText() }}</span>
-        <BaseIcon name="external-link" :width="24" />
-      </a>
+      <Button
+        :label="`Request from ${getSendToText()}`"
+        @click="sendToNegotiator"
+        :disabled="!Object.keys(datasetStore.datasets).length"
+        icon="external-link"
+      />
     </template>
   </SideModal>
 </template>
@@ -36,6 +35,7 @@ import ContentBlockModal from "../../../../tailwind-components/app/components/co
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import StoreModalResourceList from "./ModalResourceList.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
 
 const NEGOTIATOR_ERROR =
   "An error occurred while communicating with the Negotiator. Please try again later.";
