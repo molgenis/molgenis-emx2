@@ -96,7 +96,7 @@ async function sendToNegotiator() {
 
 async function doNegotiatorV3Request() {
   const url = window.location.origin;
-  const humanReadable = getHumanReadableString(); //+ createHistoryJournal();
+  const humanReadable = getHumanReadableString();
   const resources = toNegotiatorFormat(datasetStore.datasets);
   const payload: Record<string, any> = { url, humanReadable, resources };
 
@@ -162,45 +162,15 @@ function toNegotiatorFormat(datasets: Record<string, IResources>) {
 }
 
 function getHumanReadableString() {
-  return "";
-  // const activeFilterNames = Object.keys(filtersStore.filters);
+  const datasetInfo = Object.values(datasetStore.datasets).map((dataset) => {
+    return { pid: dataset.pid, name: dataset.name };
+  });
+  const humanReadableString = datasetInfo
+    .reduce((acc, dataset) => {
+      return acc + `${dataset.name} (${dataset.pid}), `;
+    }, "")
+    .slice(0, -2);
 
-  // if (!activeFilterNames) return;
-
-  // let humanReadableString = "";
-  // const additionText = " and ";
-  // const humanReadableStart: Record<string, string> = {};
-
-  // /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
-  // filtersStore.filterFacets
-  //   .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
-  //   .forEach((filterDefinition: IFilterDetails) => {
-  //     humanReadableStart[filterDefinition.facetIdentifier] =
-  //       filterDefinition.negotiatorRequestString;
-  //   });
-
-  // for (const [filterName, filterValue] of Object.entries(
-  //   filtersStore.filters
-  // )) {
-  //   if (!filterValue) continue;
-  //   if (!Array.isArray(filterValue)) continue;
-  //   humanReadableString += humanReadableStart[filterName];
-
-  //   if (filterName === "search") {
-  //     humanReadableString += ` ${filterValue}`;
-  //   } else {
-  //     humanReadableString += ` ${filterValue
-  //       .map((fv) => fv.text)
-  //       .join(", ")}`;
-  //   }
-  //   humanReadableString += additionText;
-  // }
-
-  // if (humanReadableString === "") return humanReadableString;
-
-  // return humanReadableString.substring(
-  //   0,
-  //   humanReadableString.length - additionText.length
-  // );
+  return humanReadableString;
 }
 </script>
