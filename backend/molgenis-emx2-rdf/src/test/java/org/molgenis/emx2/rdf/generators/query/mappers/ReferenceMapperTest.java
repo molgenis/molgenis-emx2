@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertHasSelectors;
 import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -34,6 +35,7 @@ class ReferenceMapperTest {
     ReferenceMapper tableReferenceQuery =
         new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
     assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
+    assertHasSelectors(tableReferenceQuery, "?product_name");
   }
 
   @Test
@@ -55,6 +57,7 @@ class ReferenceMapperTest {
         tableReferenceQuery,
         "?product product:name ?product_name .",
         "?product product:barcode ?product_barcode .");
+    assertHasSelectors(tableReferenceQuery, "?product_name", "?product_barcode");
   }
 
   @Test
@@ -76,6 +79,7 @@ class ReferenceMapperTest {
         OPTIONAL { ?product product:alt_alt_name ?product_name2 . }
         BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
         "FILTER ( BOUND( ?product_name ) )");
+    assertHasSelectors(tableReferenceQuery, "?product_name");
   }
 
   @Test
@@ -109,6 +113,11 @@ class ReferenceMapperTest {
         "?product product:manufacturer ?product_manufacturer .",
         "?product_manufacturer manufacturer:name ?product_manufacturer_name .",
         "?product_manufacturer manufacturer:id ?product_manufacturer_id .");
+    assertHasSelectors(
+        tableReferenceQuery,
+        "?product_name",
+        "?product_manufacturer_name",
+        "?product_manufacturer_id");
   }
 
   @Nested
@@ -125,6 +134,7 @@ class ReferenceMapperTest {
       ReferenceMapper tableReferenceQuery =
           new ReferenceMapper(startingPoint, reference, schema.getMetadata());
       assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
+      assertHasSelectors(tableReferenceQuery, "?product_name");
     }
 
     @Test
@@ -139,6 +149,7 @@ class ReferenceMapperTest {
           new ReferenceMapper(startingPoint, reference, schema.getMetadata());
       assertPatternsMatch(
           tableReferenceQuery, "OPTIONAL { ?product product:name ?product_name . }");
+      assertHasSelectors(tableReferenceQuery, "?product_name");
     }
   }
 
@@ -163,6 +174,7 @@ class ReferenceMapperTest {
           OPTIONAL { ?product product:alternativeName ?product_name1 . }
           OPTIONAL { ?product product:altName ?product_name2 . }
           BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""");
+      assertHasSelectors(tableReferenceQuery, "?product_name");
     }
 
     @Test
@@ -184,6 +196,7 @@ class ReferenceMapperTest {
           OPTIONAL { ?product product:altName ?product_name2 . }
           BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
           "FILTER ( BOUND( ?product_name ) )");
+      assertHasSelectors(tableReferenceQuery, "?product_name");
     }
   }
 
