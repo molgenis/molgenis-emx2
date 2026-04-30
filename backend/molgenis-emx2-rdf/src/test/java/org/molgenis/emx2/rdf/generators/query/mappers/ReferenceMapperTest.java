@@ -14,60 +14,57 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class ReferenceMapperTest {
 
-  private Database database;
   private Schema schema;
 
   @BeforeEach
   void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
+    schema = database.dropCreateSchema(getClass().getSimpleName());
   }
 
   @Test
   void givenReference_thenOnlyUseKey() {
-    schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
     schema.create(
-        addProductTableWithSemantics("product:name")
+        productTableWithSemantics("product:name")
             // Skip barcode because it is not a key
             .add(Column.column("barcode").setType(ColumnType.INT).setSemantics("product:barcode")));
-    TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+    TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
     Column column = order.getColumn("product");
     Reference reference = column.getReferences().getFirst();
 
     ReferenceMapper tableReferenceQuery =
         new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
-    assertPatternsMatch(tableReferenceQuery, "?product product:name ?Product_name .");
+    assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
   }
 
   @Test
   void givenReference_whenCompositeKey_thenUseAllKeys() {
-    schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
     schema.create(
-        addProductTableWithSemantics("product:name")
+        productTableWithSemantics("product:name")
             .add(
                 Column.column("barcode")
                     .setType(ColumnType.INT)
                     .setPkey()
                     .setSemantics("product:barcode")));
 
-    TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+    TableMetadata order = schema.create(orderTable(true)).getMetadata();
     Column column = order.getColumn("product");
     Reference reference = column.getReferences().getFirst();
     ReferenceMapper tableReferenceQuery =
         new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
     assertPatternsMatch(
         tableReferenceQuery,
-        "?product product:name ?Product_name .",
-        "?product product:barcode ?Product_barcode .");
+        "?product product:name ?product_name .",
+        "?product product:barcode ?product_barcode .");
   }
 
   @Test
   void givenReference_whenKeyHasMultipleSemantics_thenFirstMatch() {
-    schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
     schema.create(
-        addProductTableWithSemantics("product:name", "product:alt_name", "product:alt_alt_name"));
+        productTableWithSemantics("product:name", "product:alt_name", "product:alt_alt_name"));
 
-    TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+    TableMetadata order = schema.create(orderTable(true)).getMetadata();
     Column column = order.getColumn("product");
     Reference reference = column.getReferences().getFirst();
 
@@ -76,11 +73,44 @@ class ReferenceMapperTest {
     assertPatternsMatch(
         tableReferenceQuery,
         """
-        OPTIONAL { OPTIONAL { ?product product:name ?Product_name0 . }
-        OPTIONAL { ?product product:alt_name ?Product_name1 . }
-        OPTIONAL { ?product product:alt_alt_name ?Product_name2 . }
-        BIND( COALESCE( ?Product_name0, ?Product_name1, ?Product_name2 ) AS ?Product_name ) }""",
-        "FILTER ( BOUND( ?Product_name ) )");
+        OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
+        OPTIONAL { ?product product:alt_name ?product_name1 . }
+        OPTIONAL { ?product product:alt_alt_name ?product_name2 . }
+        BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
+        "FILTER ( BOUND( ?product_name ) )");
+  }
+
+  @Test
+  void givenReference_whenCompositeKeyPartIsReference_thenUseAllSubkeys() {
+    schema.create(
+        TableMetadata.table(
+            "Manufacturer",
+            Column.column("name")
+                .setType(ColumnType.STRING)
+                .setPkey()
+                .setSemantics("manufacturer:name"),
+            Column.column("id").setType(ColumnType.INT).setPkey().setSemantics("manufacturer:id")));
+    schema.create(
+        productTableWithSemantics("product:name")
+            .add(
+                Column.column("manufacturer")
+                    .setType(ColumnType.REF)
+                    .setPkey()
+                    .setRefTable("Manufacturer")
+                    .setSemantics("product:manufacturer")));
+    TableMetadata order = schema.create(orderTable(true)).getMetadata();
+
+    Variable startingPoint = SparqlBuilder.var("product");
+    Column column = order.getColumn("product");
+    Reference reference = column.getReferences().getFirst();
+    ReferenceMapper tableReferenceQuery =
+        new ReferenceMapper(startingPoint, reference, schema.getMetadata());
+    assertPatternsMatch(
+        tableReferenceQuery,
+        "?product product:name ?product_name .",
+        "?product product:manufacturer ?product_manufacturer .",
+        "?product_manufacturer  manufacturer:name ?product_manufacturer_name .",
+        "?product_manufacturer  manufacturer:id ?product_manufacturer_id .");
   }
 
   @Nested
@@ -88,31 +118,29 @@ class ReferenceMapperTest {
 
     @Test
     void shouldDoSimplifiedPatternOnSingleSemantic() {
-      schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
-      schema.create(addProductTableWithSemantics("product:name"));
-      TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+      schema.create(productTableWithSemantics("product:name"));
+      TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
       Variable startingPoint = SparqlBuilder.var("product");
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
       ReferenceMapper tableReferenceQuery =
           new ReferenceMapper(startingPoint, reference, schema.getMetadata());
-      assertPatternsMatch(tableReferenceQuery, "?product product:name ?Product_name .");
+      assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
     }
 
     @Test
     void whenRelationIsOptional_thenAddOptionalClause() {
-      schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
-      schema.create(addProductTableWithSemantics("product:name"));
+      schema.create(productTableWithSemantics("product:name"));
 
-      TableMetadata order = schema.create(addOrderTable(false)).getMetadata();
+      TableMetadata order = schema.create(orderTable(false)).getMetadata();
       Variable startingPoint = SparqlBuilder.var("product");
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
       ReferenceMapper tableReferenceQuery =
           new ReferenceMapper(startingPoint, reference, schema.getMetadata());
       assertPatternsMatch(
-          tableReferenceQuery, "OPTIONAL { ?product product:name ?Product_name . }");
+          tableReferenceQuery, "OPTIONAL { ?product product:name ?product_name . }");
     }
   }
 
@@ -121,11 +149,9 @@ class ReferenceMapperTest {
 
     @Test
     void shouldUseOrClause() {
-      schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
       schema.create(
-          addProductTableWithSemantics(
-              "product:name", "product:alternativeName", "product:altName"));
-      TableMetadata order = schema.create(addOrderTable(false)).getMetadata();
+          productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
+      TableMetadata order = schema.create(orderTable(false)).getMetadata();
 
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
@@ -135,19 +161,17 @@ class ReferenceMapperTest {
       assertPatternsMatch(
           tableReferenceQuery,
           """
-          OPTIONAL { OPTIONAL { ?product product:name ?Product_name0 . }
-          OPTIONAL { ?product product:alternativeName ?Product_name1 . }
-          OPTIONAL { ?product product:altName ?Product_name2 . }
-          BIND( COALESCE( ?Product_name0, ?Product_name1, ?Product_name2 ) AS ?Product_name ) }""");
+          OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
+          OPTIONAL { ?product product:alternativeName ?product_name1 . }
+          OPTIONAL { ?product product:altName ?product_name2 . }
+          BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""");
     }
 
     @Test
     void whenRequired_thenIncludeFilter() {
-      schema = database.dropCreateSchema(getClass().getSimpleName() + "_compositePkey");
       schema.create(
-          addProductTableWithSemantics(
-              "product:name", "product:alternativeName", "product:altName"));
-      TableMetadata order = schema.create(addOrderTable(true)).getMetadata();
+          productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
+      TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
       Column column = order.getColumn("product");
       Reference reference = column.getReferences().getFirst();
@@ -157,11 +181,11 @@ class ReferenceMapperTest {
       assertPatternsMatch(
           tableReferenceQuery,
           """
-          OPTIONAL { OPTIONAL { ?product product:name ?Product_name0 . }
-          OPTIONAL { ?product product:alternativeName ?Product_name1 . }
-          OPTIONAL { ?product product:altName ?Product_name2 . }
-          BIND( COALESCE( ?Product_name0, ?Product_name1, ?Product_name2 ) AS ?Product_name ) }""",
-          "FILTER ( BOUND( ?Product_name ) )");
+          OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
+          OPTIONAL { ?product product:alternativeName ?product_name1 . }
+          OPTIONAL { ?product product:altName ?product_name2 . }
+          BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
+          "FILTER ( BOUND( ?product_name ) )");
     }
   }
 
@@ -173,7 +197,7 @@ class ReferenceMapperTest {
     }
   }
 
-  private TableMetadata addOrderTable(boolean productRequired) {
+  private TableMetadata orderTable(boolean productRequired) {
     return TableMetadata.table(
         "Order",
         Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("orders:id"),
@@ -184,7 +208,7 @@ class ReferenceMapperTest {
             .setSemantics("orders:product"));
   }
 
-  private TableMetadata addProductTableWithSemantics(String... semantics) {
+  private TableMetadata productTableWithSemantics(String... semantics) {
     return TableMetadata.table(
         "Product",
         Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics(semantics),
