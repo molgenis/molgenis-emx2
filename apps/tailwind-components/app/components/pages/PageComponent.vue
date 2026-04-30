@@ -34,7 +34,16 @@ const editingIsEnabled = computed<boolean>(() => {
 const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
+
 const componentData = ref<IPageComponent>(props.component);
+
+// temporary workaround for graphql bug #2706
+if (
+  !props.mg_tableclass.endsWith(".Images") &&
+  Object.keys(componentData.value).includes("image")
+) {
+  delete componentData.value["image" as keyof IPageComponent];
+}
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
