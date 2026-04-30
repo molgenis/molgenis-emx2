@@ -43,10 +43,11 @@ class TestDeletingTableRows {
     table.insert(Row.row("id", 1, "name", "a"));
     table.insert(Row.row("id", 2, "name", "b"));
 
-    Row nonExistentRow = Row.row("id", 123);
+    List<Row> nonExistentRows = List.of(Row.row("id", 123));
+
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(List.of(nonExistentRow), true),
+        () -> table.delete(nonExistentRows, true),
         "Should throw exception when deleting a row that doesn't exist in the table");
 
     // Verify transaction is rolled back
@@ -99,12 +100,11 @@ class TestDeletingTableRows {
   @Test
   void whenDeletingRowNotInTable_thenThrowException() {
     table.insert(Row.row("id", 1, "name", "test"));
-
-    Row nonExistentRow = Row.row("id", 999, "name", "non-existent");
+    List<Row> rows = List.of(Row.row("id", 999, "name", "non-existent"));
 
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(List.of(nonExistentRow), true),
+        () -> table.delete(rows, true),
         "Should throw exception when deleting a row that doesn't exist in the table");
   }
 
@@ -133,10 +133,11 @@ class TestDeletingTableRows {
 
     Row validRow = Row.row("id", 1, "name", "test1");
     Row invalidRow = Row.row("id", 999, "name", "non-existent");
+    List<Row> rows = List.of(validRow, invalidRow);
 
     assertThrows(
         MolgenisException.class,
-        () -> table.delete(List.of(validRow, invalidRow), true),
+        () -> table.delete(rows, true),
         "Should throw exception when any row in the batch doesn't exist in the table");
 
     // Verify transaction is rolled back
