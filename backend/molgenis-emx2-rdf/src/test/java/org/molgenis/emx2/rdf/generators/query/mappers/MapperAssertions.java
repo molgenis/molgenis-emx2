@@ -9,13 +9,13 @@ public class MapperAssertions {
 
   public static void assertHasSelectors(ColumnMapper mapper, String... expectedSelectors) {
     assertEquals(
-        mapper.getSelectors().stream().map(QueryElement::getQueryString).toList(),
-        List.of(expectedSelectors));
+        List.of(expectedSelectors),
+        mapper.getSelectors().stream().map(QueryElement::getQueryString).toList());
   }
 
   public static void assertPatternsMatch(ColumnMapper mapper, String... expectedPatterns) {
     assertEquals(
-        mapper.getPattern().stream().map(QueryElement::getQueryString).toList(),
-        List.of(expectedPatterns));
+        List.of(expectedPatterns),
+        mapper.getPattern().stream().map(QueryElement::getQueryString).toList());
   }
 }
