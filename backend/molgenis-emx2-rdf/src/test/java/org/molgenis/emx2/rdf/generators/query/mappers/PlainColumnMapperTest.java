@@ -1,12 +1,11 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertHasSelectors;
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
 
-import java.util.List;
-import java.util.stream.Stream;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
-import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 
@@ -73,16 +72,8 @@ class PlainColumnMapperTest {
     assertHasSelectors(mapper, "foo___bar");
   }
 
-  private void assertPatternsMatch(ColumnMapper mapper, String... expectedPatterns) {
-    List<GraphPattern> patterns = mapper.getPattern();
-    assertEquals(expectedPatterns.length, patterns.size());
-    for (int i = 0; i < expectedPatterns.length; i++) {
-      assertEquals(expectedPatterns[i], patterns.get(i).getQueryString());
-    }
-  }
-
-  private void assertHasSelectors(ColumnMapper mapper, String expectedSelectors) {
-    assertEquals(
-        mapper.getSelectors(), Stream.of(expectedSelectors).map(SparqlBuilder::var).toList());
+  @Test
+  void givenArrayTypeColumn_thenMapperIsConcat() {
+    fail("Implement");
   }
 }
