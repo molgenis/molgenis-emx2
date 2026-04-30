@@ -3,7 +3,6 @@ import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
 
 import EditButton from "./EditButton.vue";
-import Button from "../Button.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
