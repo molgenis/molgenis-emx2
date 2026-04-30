@@ -56,14 +56,7 @@ public class SqlRoleManager {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
     String fullRole = fullRoleName(schemaName, roleName);
-    if (fullRole.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
-      throw new MolgenisException(
-          "Role name '"
-              + roleName
-              + "' is too long: the combined identifier '"
-              + fullRole
-              + "' exceeds PostgreSQL's 63-byte limit");
-    }
+    validateRoleName(fullRole);
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
@@ -82,6 +75,13 @@ public class SqlRoleManager {
         });
   }
 
+  private void validateRoleName(String roleName) {
+    if (roleName.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException(
+          "Role name '" + roleName + "' is too long, it exceeds PostgreSQL's 63-byte limit");
+    }
+  }
+
   public void deleteRole(String schemaName, String roleName) {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot delete system role: " + roleName);
@@ -98,11 +98,11 @@ public class SqlRoleManager {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
             Collection<String> tableNames = database.getSchema(schemaName).getTableNames();
-            dropPgRoleAndCleanup(jooq, schemaName, fullRole, tableNames);
+            deleteRoleAndGrants(jooq, schemaName, fullRole, tableNames);
             // Also clean up the companion RLS role if it exists
             if (jooq.fetchExists(
                 jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))))) {
-              dropPgRoleAndCleanup(jooq, schemaName, rlsFullRole, tableNames);
+              deleteRoleAndGrants(jooq, schemaName, rlsFullRole, tableNames);
             }
           } finally {
             db.setActiveUser(currentUser);
@@ -111,7 +111,7 @@ public class SqlRoleManager {
     database.getListener().onSchemaChange();
   }
 
-  private static void dropPgRoleAndCleanup(
+  private static void deleteRoleAndGrants(
       DSLContext jooq, String schemaName, String fullRole, Collection<String> tableNames) {
     for (String tableName : tableNames) {
       jooq.execute(
@@ -168,6 +168,8 @@ public class SqlRoleManager {
 
   private void createRlsRole(String schemaName, String roleName) {
     String rlsRoleName = RLS_ROLE_PREFIX + roleName;
+    validateRoleName(rlsRoleName);
+
     if (!roleExists(schemaName, rlsRoleName)) {
       createRole(schemaName, rlsRoleName);
     }

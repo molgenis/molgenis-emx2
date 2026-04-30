@@ -1016,9 +1016,9 @@ public class GraphqlTableFieldFactory {
 
   private static void addMgRolesWhenAbsent(
       Schema schema, TableMetadata tableMetadata, List<Map<String, Object>> rows) {
+    if (schema.hasActiveUserRole(EDITOR)) return;
     Column mgRolesColumn = tableMetadata.getColumn(Constants.MG_ROLES);
     if (mgRolesColumn == null) return;
-    if (schema.hasActiveUserRole(EDITOR)) return;
 
     List<String> customRoles =
         schema.getInheritedRolesForActiveUser().stream()
