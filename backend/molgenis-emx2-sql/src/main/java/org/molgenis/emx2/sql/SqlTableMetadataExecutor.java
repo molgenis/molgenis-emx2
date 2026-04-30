@@ -18,6 +18,9 @@ import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.TablePermission.SelectScope;
+import org.molgenis.emx2.TablePermission.UpdateScope;
+import org.molgenis.emx2.sql.rls.SqlPermissionExecutor;
 
 class SqlTableMetadataExecutor {
 
@@ -55,6 +58,8 @@ class SqlTableMetadataExecutor {
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
+
+    seedBuiltinSelectModePolicies(jooq, table);
 
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {
@@ -110,6 +115,38 @@ class SqlTableMetadataExecutor {
       // set audit trigger, logs insert, update and delete actions on table
       jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
+  }
+
+  private static void seedBuiltinSelectModePolicies(DSLContext jooq, SqlTableMetadata table) {
+    String schema = table.getSchemaName();
+    String tableName = table.getTableName();
+
+    String existsRole = getRolePrefix(table) + Privileges.EXISTS.toString();
+    String rangeRole = getRolePrefix(table) + Privileges.RANGE.toString();
+    String aggregatorRole = getRolePrefix(table) + Privileges.AGGREGATOR.toString();
+    String countRole = getRolePrefix(table) + Privileges.COUNT.toString();
+    String viewerRole = getRolePrefix(table) + Privileges.VIEWER.toString();
+    String editorRole = getRolePrefix(table) + Privileges.EDITOR.toString();
+
+    SqlPermissionExecutor.createSelectScopePolicy(
+        jooq, existsRole, schema, tableName, SelectScope.EXISTS);
+    SqlPermissionExecutor.createSelectScopePolicy(
+        jooq, rangeRole, schema, tableName, SelectScope.RANGE);
+    SqlPermissionExecutor.createSelectScopePolicy(
+        jooq, aggregatorRole, schema, tableName, SelectScope.AGGREGATE);
+    SqlPermissionExecutor.createSelectScopePolicy(
+        jooq, countRole, schema, tableName, SelectScope.COUNT);
+
+    SqlPermissionExecutor.createPolicy(
+        jooq, viewerRole, schema, tableName, SQL_SELECT, UpdateScope.ALL);
+    SqlPermissionExecutor.createPolicy(
+        jooq, editorRole, schema, tableName, SQL_SELECT, UpdateScope.ALL);
+    SqlPermissionExecutor.createPolicy(
+        jooq, editorRole, schema, tableName, SQL_INSERT, UpdateScope.ALL);
+    SqlPermissionExecutor.createPolicy(
+        jooq, editorRole, schema, tableName, SQL_UPDATE, UpdateScope.ALL);
+    SqlPermissionExecutor.createPolicy(
+        jooq, editorRole, schema, tableName, SQL_DELETE, UpdateScope.ALL);
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {

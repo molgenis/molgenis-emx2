@@ -65,11 +65,18 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
-    this.tablesWithSelectPermission =
-        schema.getPermissionsForActiveUser().stream()
-            .filter(p -> Boolean.TRUE.equals(p.select()))
-            .map(TablePermission::table)
-            .collect(Collectors.toUnmodifiableSet());
+    Set<String> tables = new java.util.HashSet<>();
+    schema.getPermissionsForActiveUser().stream()
+        .filter(TablePermission::hasAnySelect)
+        .map(TablePermission::table)
+        .forEach(tables::add);
+    PermissionSet globalPerms = schema.getDatabase().getRoleManager().getPermissionsForActiveUser();
+    for (TablePermission p : globalPerms) {
+      if (schema.getName().equals(p.schema()) && p.hasAnySelect()) {
+        tables.add(p.table());
+      }
+    }
+    this.tablesWithSelectPermission = java.util.Collections.unmodifiableSet(tables);
   }
 
   // helper to generate globally unique identifiers

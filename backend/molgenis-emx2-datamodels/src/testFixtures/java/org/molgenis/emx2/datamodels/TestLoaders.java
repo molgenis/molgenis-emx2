@@ -49,11 +49,11 @@ public class TestLoaders {
       database = TestDatabaseFactory.getTestDatabase();
       // prevent previous dangling test results
       database.dropSchemaIfExists(PORTAL_TEST);
+      database.dropSchemaIfExists(RWE_STAGING);
       database.dropSchemaIfExists(COHORT_STAGING);
       database.dropSchemaIfExists(NETWORK_STAGING);
       database.dropSchemaIfExists(DATA_CATALOGUE);
       database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
-      database.dropSchemaIfExists(RWE_STAGING);
       database.dropSchemaIfExists(DIRECTORY_TEST);
       database.dropSchemaIfExists(DIRECTORY_STAGING);
       database.dropSchemaIfExists(FAIR_GENOMES);

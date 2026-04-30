@@ -1,8 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -450,21 +448,6 @@ class SqlTableMetadata extends TableMetadata {
     MetadataUtils.saveTableMetadata(db.getJooq(), tm);
     db.getListener().schemaChanged(schemaName);
     return tm;
-  }
-
-  @Override
-  public void enableRowLevelSecurity() {
-    this.add(column(MG_EDIT_ROLE).setIndex(true));
-
-    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
-    getJooq()
-        .execute(
-            "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2}, 'member')) WITH CHECK (pg_has_role(current_user, {2}, 'member'))",
-            name("RLS/" + getSchema().getName() + "/" + getTableName()),
-            getJooqTable(),
-            name(MG_EDIT_ROLE));
-    // set RLS on the table
-    // add policy for 'viewer' and 'editor'.
   }
 
   @Override

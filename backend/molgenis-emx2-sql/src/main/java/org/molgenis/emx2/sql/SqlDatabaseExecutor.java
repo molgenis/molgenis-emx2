@@ -23,6 +23,9 @@ class SqlDatabaseExecutor {
       DSLContext jooq = db.getJooq();
       String userName = MG_USER_PREFIX + user;
       executeCreateRole(jooq, userName);
+      if (ADMIN_USER.equals(user)) {
+        jooq.execute("ALTER ROLE {0} BYPASSRLS", name(userName));
+      }
       if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));

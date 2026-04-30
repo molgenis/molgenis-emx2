@@ -58,6 +58,11 @@ public class Constants {
   public static final String CHANGELOG_OLD = "old";
   public static final String CHANGELOG_NEW = "new";
 
+  public static final String SQL_SELECT = "SELECT";
+  public static final String SQL_INSERT = "INSERT";
+  public static final String SQL_UPDATE = "UPDATE";
+  public static final String SQL_DELETE = "DELETE";
+
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
@@ -92,6 +97,8 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_AGGREGATE_COUNT_THRESHOLD =
+      "MOLGENIS_AGGREGATE_COUNT_THRESHOLD";
   public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
   public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
   public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";

@@ -442,13 +442,13 @@ public class SqlSchema implements Schema {
   @Override
   public void createRole(String roleName) {
     requireManager();
-    roleManager().createRole(getName(), roleName);
+    roleManager().createSchemaRole(getName(), roleName);
   }
 
   @Override
   public void deleteRole(String roleName) {
     requireManager();
-    roleManager().deleteRole(getName(), roleName);
+    roleManager().deleteSchemaRole(getName(), roleName);
   }
 
   @Override
@@ -475,6 +475,9 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
-    return roleManager().getTablePermissionsForActiveUser(getName());
+    PermissionSet ps = roleManager().getTablePermissionsForActiveUser(getName());
+    List<TablePermission> list = new ArrayList<>();
+    ps.forEach(list::add);
+    return list;
   }
 }

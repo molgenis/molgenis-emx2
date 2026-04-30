@@ -3,10 +3,12 @@ package org.molgenis.emx2.graphql;
 import static org.molgenis.emx2.Constants.DESCRIPTION;
 import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
+import static org.molgenis.emx2.graphql.GraphqlPermissionFieldFactory.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
@@ -14,6 +16,7 @@ import graphql.schema.*;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
@@ -248,8 +251,12 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputSettingsMetadataType)))
+        .argument(GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputRoleType)))
+        .argument(
+            GraphQLArgument.newArgument().name(MEMBERS).type(GraphQLList.list(inputRoleMemberType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              List<Map<String, Object>> members = dataFetchingEnvironment.getArgument(MEMBERS);
               StringBuilder messageBuilder = new StringBuilder();
               database.tx(
                   db -> {
@@ -261,6 +268,31 @@ public class GraphqlDatabaseFieldFactory {
                       throw new GraphqlException("change failed", e);
                     }
                   });
+              List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(ROLES);
+              if (roles != null) {
+                try {
+                  database.tx(
+                      db -> {
+                        SqlRoleManager rm =
+                            ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
+                        applyRoles(db, rm, roles);
+                      });
+                } catch (MolgenisException ex) {
+                  return new GraphqlApiMutationResult(FAILED, ex.getMessage());
+                }
+              }
+              if (members != null) {
+                try {
+                  database.tx(
+                      db -> {
+                        SqlRoleManager rm =
+                            ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
+                        applyMembers(db, rm, members);
+                      });
+                } catch (MolgenisException ex) {
+                  return new GraphqlApiMutationResult(FAILED, ex.getMessage());
+                }
+              }
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();
@@ -275,8 +307,18 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .argument(
+            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(Scalars.GraphQLString)))
+        .argument(
+            GraphQLArgument.newArgument().name(MEMBERS).type(GraphQLList.list(inputRoleMemberType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              List<String> rolesToDrop = dataFetchingEnvironment.getArgument(ROLES);
+              List<Map<String, Object>> membersToDrop =
+                  dataFetchingEnvironment.getArgument(MEMBERS);
+              if ((rolesToDrop != null || membersToDrop != null) && !database.isAdmin()) {
+                return new GraphqlApiMutationResult(FAILED, "admin only");
+              }
               StringBuilder messageBuilder = new StringBuilder();
               database.tx(
                   db -> {
@@ -284,8 +326,20 @@ public class GraphqlDatabaseFieldFactory {
                       dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                      SqlRoleManager rm = ((org.molgenis.emx2.sql.SqlDatabase) db).getRoleManager();
+                      if (rolesToDrop != null) {
+                        for (String role : rolesToDrop) {
+                          rm.deleteRole(role);
+                        }
+                      }
+                      if (membersToDrop != null) {
+                        for (Map<String, Object> member : membersToDrop) {
+                          rm.revokeRoleFromUser(
+                              (String) member.get("role"), (String) member.get("user"));
+                        }
+                      }
                     } catch (Exception e) {
-                      throw new GraphqlException("change failed", e);
+                      throw new GraphqlException("drop failed", e);
                     }
                   });
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
