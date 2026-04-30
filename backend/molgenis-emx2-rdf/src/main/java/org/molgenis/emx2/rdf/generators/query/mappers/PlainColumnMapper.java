@@ -1,6 +1,7 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expression;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
@@ -44,6 +45,10 @@ public class PlainColumnMapper implements ColumnMapper {
 
   @Override
   public List<Projectable> getSelectors() {
+    if (selector == null) {
+      return Collections.emptyList();
+    }
+
     return List.of(selector);
   }
 
