@@ -82,6 +82,7 @@ def test_process_organisations():
 
 def test_add_resource():
     """Tests the `add_resource` method."""
+    load_dotenv()
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
 
@@ -90,5 +91,5 @@ def test_add_resource():
 
     with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
         migrator.set_source(STAGING_AREA)
-        migrator.add_data_resource(CATALOGUE)
+        migrator.add_data_resource("main catalogue")
 

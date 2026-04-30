@@ -331,22 +331,27 @@ class StagingMigrator(Client):
             return
         with zipfile.ZipFile(update_filepath, 'r') as update_zip:
             try:
-                u_resources = pd.read_csv(BytesIO(update_zip.read("Resources.csv")))
+                u_collections = pd.read_csv(BytesIO(update_zip.read("Collections.csv")))
             except KeyError:
                 return
 
-        t_resources = self.get(schema=self.target, table="Resources", query_filter=f"id == {resource}", as_df=True)
-        if len(t_resources.index) == 0:
-            raise NoSuchResourceException(f"Resource {resource!r} not found in table Resources for target {self.target!r}.")
+        t_catalogues = self.get(schema=self.target, table="Catalogues", query_filter=f"id == {resource}", as_df=True)
+        if len(t_catalogues.index) == 0:
+            raise NoSuchResourceException(f"Resource {resource!r} not found in table 'Catalogues' for target {self.target!r}.")
 
-        new_resources = [res for res in u_resources["id"] if res not in t_resources["data resources"].str.split(',')]
+        if type(t_catalogues["data resources"][0]) != float:
+            new_collections = [res for res in u_collections["id"] if res not in t_catalogues["data resources"].str.split(',')]
+        else:
+            new_collections = [res for res in u_collections["id"]]
 
-        if len(new_resources) == 0:
+        if len(new_collections) == 0:
             return
 
-        t_resources.loc[0, "data resources"] = t_resources.loc[0, "data resources"] + ','  + ','.join(new_resources)
+        new_values = [] if type(t_catalogues.loc[0, "data resources"]) == float else t_catalogues.loc[0, "data resources"].split(',')
+        new_values.extend(new_collections)
+        t_catalogues.loc[0, "data resources"] = ','.join(new_collections)
 
-        self.save_table(schema=self.target, table="Resources", data=t_resources)
+        self.save_table(schema=self.target, table="Catalogues", data=t_catalogues)
 
 
 
