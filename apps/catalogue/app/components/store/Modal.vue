@@ -18,9 +18,9 @@
     <template #footer>
       <Button
         :label="`Request from ${getSendToText()}`"
-        @click="sendToNegotiator"
         :disabled="!Object.keys(datasetStore.datasets).length"
         icon="external-link"
+        @click="sendToNegotiator"
       />
     </template>
   </SideModal>
@@ -29,13 +29,12 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import type { IResources } from "~~/interfaces/catalogue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import StoreModalResourceList from "./ModalResourceList.vue";
-import Button from "../../../../tailwind-components/app/components/Button.vue";
 
 const NEGOTIATOR_ERROR =
   "An error occurred while communicating with the Negotiator. Please try again later.";
@@ -75,8 +74,8 @@ function getSendToText() {
 }
 
 async function sendToNegotiator() {
+  error.value = "";
   if (!Object.keys(datasetStore.datasets).length) {
-    error.value = `Cart is empty, cannot send to ${getSendToText()}`;
     return;
   }
 
@@ -96,7 +95,6 @@ async function sendToNegotiator() {
 }
 
 async function doNegotiatorV3Request() {
-  error.value = "";
   const url = window.location.origin;
   const humanReadable = getHumanReadableString(); //+ createHistoryJournal();
   const resources = toNegotiatorFormat(datasetStore.datasets);
