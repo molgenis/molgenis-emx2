@@ -1,11 +1,10 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
 
-import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
-import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -186,14 +185,6 @@ class ReferenceMapperTest {
           OPTIONAL { ?product product:altName ?product_name2 . }
           BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
           "FILTER ( BOUND( ?product_name ) )");
-    }
-  }
-
-  private void assertPatternsMatch(ReferenceMapper reference, String... expectedPatterns) {
-    List<GraphPattern> patterns = reference.getPattern();
-    assertEquals(expectedPatterns.length, patterns.size());
-    for (int i = 0; i < expectedPatterns.length; i++) {
-      assertEquals(expectedPatterns[i], patterns.get(i).getQueryString());
     }
   }
 
