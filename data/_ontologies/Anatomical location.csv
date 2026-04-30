@@ -19141,14 +19141,12 @@ Lateral splint bone,SNOMED CT,370745001,http://purl.bioontology.org/ontology/SNO
 Lateral splint bone of hindlimb,SNOMED CT,370746000,http://purl.bioontology.org/ontology/SNOMEDCT/370746000
 Lateral splint bone of forelimb,SNOMED CT,370747009,http://purl.bioontology.org/ontology/SNOMEDCT/370747009
 Pastern joint of forelimb,SNOMED CT,370748004,http://purl.bioontology.org/ontology/SNOMEDCT/370748004
-Pastern joint,SNOMED CT,370749007,http://purl.bioontology.org/ontology/SNOMEDCT/370749007
 Pastern joint of hindlimb,SNOMED CT,370750007,http://purl.bioontology.org/ontology/SNOMEDCT/370750007
 Fetlock region of equine limb,SNOMED CT,370751006,http://purl.bioontology.org/ontology/SNOMEDCT/370751006
 Coronary band of equine limb,SNOMED CT,370755002,http://purl.bioontology.org/ontology/SNOMEDCT/370755002
 Coronary cushion of equine foot,SNOMED CT,370756001,http://purl.bioontology.org/ontology/SNOMEDCT/370756001
 Coronary cushion of equine forefoot,SNOMED CT,370757005,http://purl.bioontology.org/ontology/SNOMEDCT/370757005
 Coronary cushion of equine hindfoot,SNOMED CT,370758000,http://purl.bioontology.org/ontology/SNOMEDCT/370758000
-Coffin joint,SNOMED CT,370892008,http://purl.bioontology.org/ontology/SNOMEDCT/370892008
 Pupillary membrane,SNOMED CT,370941004,http://purl.bioontology.org/ontology/SNOMEDCT/370941004
 Cardiophrenic angle lymph node,SNOMED CT,371013005,http://purl.bioontology.org/ontology/SNOMEDCT/371013005
 Bone structure of upper limb,SNOMED CT,371195002,http://purl.bioontology.org/ontology/SNOMEDCT/371195002
@@ -19641,7 +19639,6 @@ Skin and subcutaneous tissue structure of axilla,SNOMED CT,416710001,http://purl
 Skin and subcutaneous tissue structure of shoulder region,SNOMED CT,416771008,http://purl.bioontology.org/ontology/SNOMEDCT/416771008
 "Chest, abdomen, and pelvis",SNOMED CT,416775004,http://purl.bioontology.org/ontology/SNOMEDCT/416775004
 Skin and subcutaneous tissue structure of thigh,SNOMED CT,416788001,http://purl.bioontology.org/ontology/SNOMEDCT/416788001
-Hindfoot,SNOMED CT,416804009,http://purl.bioontology.org/ontology/SNOMEDCT/416804009
 Skin and subcutaneous tissue structure of chest,SNOMED CT,416807002,http://purl.bioontology.org/ontology/SNOMEDCT/416807002
 Entire interphalangeal joint of finger,SNOMED CT,416810009,http://purl.bioontology.org/ontology/SNOMEDCT/416810009
 Skin and subcutaneous tissue structure of upper arm,SNOMED CT,416827001,http://purl.bioontology.org/ontology/SNOMEDCT/416827001
@@ -19719,7 +19716,6 @@ Structure of body of axis,SNOMED CT,420367004,http://purl.bioontology.org/ontolo
 Structure of maxillary tooth,SNOMED CT,420393006,http://purl.bioontology.org/ontology/SNOMEDCT/420393006
 Structure of left intervertebral vein at L2,SNOMED CT,420396003,http://purl.bioontology.org/ontology/SNOMEDCT/420396003
 Abdominal para-aortic lymph node group,SNOMED CT,420429001,http://purl.bioontology.org/ontology/SNOMEDCT/420429001
-Entire mandibular right canine tooth,SNOMED CT,420433008,http://purl.bioontology.org/ontology/SNOMEDCT/420433008
 Structure of sclera proper,SNOMED CT,420455000,http://purl.bioontology.org/ontology/SNOMEDCT/420455000
 Structure of anterior external vertebral venous plexus,SNOMED CT,420465006,http://purl.bioontology.org/ontology/SNOMEDCT/420465006
 Structure of second web space of foot,SNOMED CT,420471000,http://purl.bioontology.org/ontology/SNOMEDCT/420471000
