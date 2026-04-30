@@ -34,8 +34,18 @@ public class ReferenceMapper implements ColumnMapper {
     List<GraphPattern> patterns = new ArrayList<>();
 
     for (Column column : targetTable.getPrimaryKeyColumns()) {
+
       List<GraphPattern> columnPatterns =
-          new PlainColumnMapper(variable, column, getRefVariable(column), isRequired).getPattern();
+          new ArrayList<>(
+              new PlainColumnMapper(variable, column, getRefVariable(column), isRequired)
+                  .getPattern());
+      if (column.isReference()) {
+        Variable ref = SparqlBuilder.var(variable.getVarName() + "_" + column.getName());
+        columnPatterns.addAll(
+            new ReferenceMapper(ref, column.getReferences().getFirst(), targetTable.getSchema())
+                .getPattern());
+      }
+
       if (isRequired) {
         patterns.addAll(columnPatterns);
       } else {
@@ -47,6 +57,6 @@ public class ReferenceMapper implements ColumnMapper {
   }
 
   private Variable getRefVariable(Column column) {
-    return SparqlBuilder.var(column.getQualifiedName().replace(".", "_"));
+    return SparqlBuilder.var(variable.getVarName() + "_" + column.getName().replace(".", "_"));
   }
 }
