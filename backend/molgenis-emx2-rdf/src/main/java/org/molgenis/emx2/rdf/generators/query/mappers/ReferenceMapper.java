@@ -17,11 +17,28 @@ public class ReferenceMapper implements ColumnMapper {
   private final Variable variable;
   private final TableMetadata targetTable;
   private final boolean isRequired;
+  private final List<ColumnMapper> mappers;
 
   public ReferenceMapper(Variable variable, Reference reference, SchemaMetadata metadata) {
     this.variable = variable;
     this.targetTable = metadata.getTableMetadata(reference.getTargetTable());
     this.isRequired = reference.toPrimitiveColumn().isRequired();
+    this.mappers = setupMappers(variable);
+  }
+
+  private List<ColumnMapper> setupMappers(Variable variable) {
+    List<ColumnMapper> columnMappers = new ArrayList<>();
+    for (Column column : targetTable.getPrimaryKeyColumns()) {
+      columnMappers.add(
+          new PlainColumnMapper(variable, column, getRefVariable(column), isRequired));
+      if (column.isReference()) {
+        Variable ref = SparqlBuilder.var(variable.getVarName() + "_" + column.getName());
+        columnMappers.add(
+            new ReferenceMapper(ref, column.getReferences().getFirst(), targetTable.getSchema()));
+      }
+    }
+
+    return columnMappers;
   }
 
   @Override
@@ -31,29 +48,14 @@ public class ReferenceMapper implements ColumnMapper {
 
   @Override
   public List<GraphPattern> getPattern() {
-    List<GraphPattern> patterns = new ArrayList<>();
+    List<GraphPattern> columnPatterns =
+        mappers.stream().flatMap(mapper -> mapper.getPattern().stream()).toList();
 
-    for (Column column : targetTable.getPrimaryKeyColumns()) {
-
-      List<GraphPattern> columnPatterns =
-          new ArrayList<>(
-              new PlainColumnMapper(variable, column, getRefVariable(column), isRequired)
-                  .getPattern());
-      if (column.isReference()) {
-        Variable ref = SparqlBuilder.var(variable.getVarName() + "_" + column.getName());
-        columnPatterns.addAll(
-            new ReferenceMapper(ref, column.getReferences().getFirst(), targetTable.getSchema())
-                .getPattern());
-      }
-
-      if (isRequired) {
-        patterns.addAll(columnPatterns);
-      } else {
-        patterns.add(GraphPatterns.and(columnPatterns.toArray(new GraphPattern[0])).optional());
-      }
+    if (isRequired) {
+      return columnPatterns;
+    } else {
+      return List.of(GraphPatterns.and(columnPatterns.toArray(new GraphPattern[0])).optional());
     }
-
-    return patterns;
   }
 
   private Variable getRefVariable(Column column) {
