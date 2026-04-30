@@ -1,25 +1,21 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.eclipse.rdf4j.sparqlbuilder.core.QueryElement;
 
 public class MapperAssertions {
 
-  public static void assertHasSelectors(ColumnMapper mapper, String expectedSelectors) {
+  public static void assertHasSelectors(ColumnMapper mapper, String... expectedSelectors) {
     assertEquals(
-            mapper.getSelectors(), Stream.of(expectedSelectors).map(SparqlBuilder::var).toList());
+        mapper.getSelectors().stream().map(QueryElement::getQueryString).toList(),
+        List.of(expectedSelectors));
   }
 
   public static void assertPatternsMatch(ColumnMapper mapper, String... expectedPatterns) {
-    List<GraphPattern> patterns = mapper.getPattern();
-    assertEquals(expectedPatterns.length, patterns.size());
-    for (int i = 0; i < expectedPatterns.length; i++) {
-      assertEquals(expectedPatterns[i], patterns.get(i).getQueryString());
-    }
+    assertEquals(
+        mapper.getPattern().stream().map(QueryElement::getQueryString).toList(),
+        List.of(expectedPatterns));
   }
 }

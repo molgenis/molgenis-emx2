@@ -15,30 +15,36 @@ import org.molgenis.emx2.Column;
 
 public class PlainColumnMapper implements ColumnMapper {
 
-  private final Variable startingPoint;
+  private final Variable subject;
   private final Column column;
-  private final Variable objectVariable;
-  private boolean isRequired;
+  protected final Variable object;
+  private final boolean isRequired;
+  protected final Variable selector;
 
-  public PlainColumnMapper(Variable subjectVariable, Column column) {
+  public PlainColumnMapper(Variable subject, Column column) {
     this(
-        subjectVariable,
+        subject,
         column,
         SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()),
         column.isRequired());
   }
 
+  public PlainColumnMapper(Variable subject, Column column, Variable object, boolean isRequired) {
+    this(subject, column, object, object, isRequired);
+  }
+
   public PlainColumnMapper(
-      Variable startingPoint, Column column, Variable objectVariable, boolean isRequired) {
-    this.startingPoint = startingPoint;
+      Variable subject, Column column, Variable object, Variable selector, boolean isRequired) {
+    this.subject = subject;
     this.column = column;
-    this.objectVariable = objectVariable;
+    this.object = object;
+    this.selector = selector;
     this.isRequired = isRequired;
   }
 
   @Override
   public List<Projectable> getSelectors() {
-    return List.of(objectVariable);
+    return List.of(selector);
   }
 
   @Override
@@ -48,7 +54,7 @@ public class PlainColumnMapper implements ColumnMapper {
     }
 
     String semantic = column.getSemantics()[0];
-    GraphPattern pattern = GraphPatterns.tp(startingPoint, () -> semantic, objectVariable);
+    GraphPattern pattern = GraphPatterns.tp(subject, () -> semantic, object);
 
     return List.of(column.isRequired() ? pattern : pattern.optional());
   }
@@ -59,21 +65,21 @@ public class PlainColumnMapper implements ColumnMapper {
 
     for (int i = 0; i < column.getSemantics().length; i++) {
       String semantic = column.getSemantics()[i];
-      Variable alias = SparqlBuilder.var(objectVariable.getVarName() + i);
+      Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
-      GraphPattern pattern = GraphPatterns.tp(startingPoint, () -> semantic, alias).optional();
+      GraphPattern pattern = GraphPatterns.tp(subject, () -> semantic, alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }
 
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
-    semanticPatterns.add(Expressions.bind(coalesce, objectVariable));
+    semanticPatterns.add(Expressions.bind(coalesce, object));
 
     GraphPatternNotTriples mainPattern =
         GraphPatterns.and(semanticPatterns.toArray(new GraphPattern[0])).optional();
 
     if (isRequired) {
-      Expression<?> bound = Expressions.bound(objectVariable);
+      Expression<?> bound = Expressions.bound(object);
       return List.of(mainPattern, () -> "FILTER ( " + bound.getQueryString() + " )");
     }
 
