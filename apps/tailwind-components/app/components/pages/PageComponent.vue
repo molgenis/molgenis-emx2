@@ -28,19 +28,13 @@ const props = withDefaults(
 
 const showEditModal = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
-  return props.isEditable && typeof componentMetadata !== "undefined";
+  return props.isEditable && componentMetadata.value !== undefined;
 });
 
 const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
 const componentData = ref<IPageComponent>(props.component);
-if (
-  !props.mg_tableclass.endsWith(".Images") &&
-  Object.keys(props.component).includes("image")
-) {
-  delete props.component["image" as keyof IPageComponent];
-}
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
