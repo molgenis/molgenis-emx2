@@ -18,7 +18,7 @@ describe("Text Headings", () => {
   test("Heading is rendered and text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("H2");
     expect(wrapper.attributes("class")).toContain(
-      "text-title text-heading-5xl text-center"
+      "text-title text-heading-5xl w-full flex justify-center text-center"
     );
   });
 });
