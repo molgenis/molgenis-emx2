@@ -23,11 +23,11 @@ public class PlainColumnMapper implements ColumnMapper {
   protected final Variable selector;
 
   public PlainColumnMapper(Variable subject, Column column) {
-    this(
-        subject,
-        column,
-        SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()),
-        column.isRequired());
+    this(subject, column, SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()));
+  }
+
+  public PlainColumnMapper(Variable subject, Column column, Variable object) {
+    this(subject, column, object, object, column.isRequired());
   }
 
   public PlainColumnMapper(Variable subject, Column column, Variable object, boolean isRequired) {
@@ -61,7 +61,7 @@ public class PlainColumnMapper implements ColumnMapper {
     String semantic = column.getSemantics()[0];
     GraphPattern pattern = GraphPatterns.tp(subject, () -> semantic, object);
 
-    return List.of(column.isRequired() ? pattern : pattern.optional());
+    return List.of(isRequired ? pattern : pattern.optional());
   }
 
   private List<GraphPattern> multiSemanticPattern() {
