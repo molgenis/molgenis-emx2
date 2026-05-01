@@ -85,4 +85,16 @@ public abstract class ApiTestBase {
             .post("api/graphql")
             .sessionId();
   }
+
+  protected static void logout() {
+    given()
+        .body(
+            """
+            {"query":"mutation{signout{status}}"}
+            """)
+        .when()
+        .post("api/graphql")
+        .sessionId();
+    sessionId = null;
+  }
 }
