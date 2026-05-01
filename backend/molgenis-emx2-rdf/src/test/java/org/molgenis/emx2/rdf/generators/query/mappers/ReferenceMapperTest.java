@@ -13,12 +13,14 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class ReferenceMapperTest {
 
-  private Schema schema;
+  public static final Variable ORDER_VAR = SparqlBuilder.var("order");
+
+  private SchemaMetadata schema;
 
   @BeforeEach
   void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(getClass().getSimpleName());
+    schema = database.dropCreateSchema(getClass().getSimpleName()).getMetadata();
   }
 
   @Test
@@ -27,14 +29,31 @@ class ReferenceMapperTest {
         productTableWithSemantics("product:name")
             // Skip barcode because it is not a key
             .add(Column.column("barcode").setType(ColumnType.INT).setSemantics("product:barcode")));
-    TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
+    TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    Reference reference = column.getReferences().getFirst();
+    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
 
-    ReferenceMapper tableReferenceQuery =
-        new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
-    assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
+    assertPatternsMatch(
+        tableReferenceQuery,
+        "?order orders:product ?product .",
+        "?product product:name ?product_name .");
+    assertHasSelectors(tableReferenceQuery, "?product_name");
+  }
+
+  @Test
+  void givenReference_whenOptional_thenAddOptional() {
+    schema.create(productTableWithSemantics("product:name"));
+
+    TableMetadata order = schema.create(orderTable(false));
+    Column column = order.getColumn("product");
+    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
+
+    assertPatternsMatch(
+        tableReferenceQuery,
+        """
+        OPTIONAL { ?order orders:product ?product .
+        ?product product:name ?product_name . }""");
     assertHasSelectors(tableReferenceQuery, "?product_name");
   }
 
@@ -48,38 +67,16 @@ class ReferenceMapperTest {
                     .setPkey()
                     .setSemantics("product:barcode")));
 
-    TableMetadata order = schema.create(orderTable(true)).getMetadata();
+    TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    Reference reference = column.getReferences().getFirst();
-    ReferenceMapper tableReferenceQuery =
-        new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
+    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+
     assertPatternsMatch(
-        tableReferenceQuery,
+        mapper,
+        "?order orders:product ?product .",
         "?product product:name ?product_name .",
         "?product product:barcode ?product_barcode .");
-    assertHasSelectors(tableReferenceQuery, "?product_name", "?product_barcode");
-  }
-
-  @Test
-  void givenReference_whenKeyHasMultipleSemantics_thenFirstMatch() {
-    schema.create(
-        productTableWithSemantics("product:name", "product:alt_name", "product:alt_alt_name"));
-
-    TableMetadata order = schema.create(orderTable(true)).getMetadata();
-    Column column = order.getColumn("product");
-    Reference reference = column.getReferences().getFirst();
-
-    ReferenceMapper tableReferenceQuery =
-        new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
-    assertPatternsMatch(
-        tableReferenceQuery,
-        """
-        OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
-        OPTIONAL { ?product product:alt_name ?product_name1 . }
-        OPTIONAL { ?product product:alt_alt_name ?product_name2 . }
-        BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
-        "FILTER ( BOUND( ?product_name ) )");
-    assertHasSelectors(tableReferenceQuery, "?product_name");
+    assertHasSelectors(mapper, "?product_name", "?product_barcode");
   }
 
   @Test
@@ -100,24 +97,20 @@ class ReferenceMapperTest {
                     .setPkey()
                     .setRefTable("Manufacturer")
                     .setSemantics("product:manufacturer")));
-    TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
-    Variable startingPoint = SparqlBuilder.var("product");
+    TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    Reference reference = column.getReferences().getFirst();
-    ReferenceMapper tableReferenceQuery =
-        new ReferenceMapper(startingPoint, reference, schema.getMetadata());
+    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+
     assertPatternsMatch(
-        tableReferenceQuery,
+        mapper,
+        "?order orders:product ?product .",
         "?product product:name ?product_name .",
         "?product product:manufacturer ?product_manufacturer .",
         "?product_manufacturer manufacturer:name ?product_manufacturer_name .",
         "?product_manufacturer manufacturer:id ?product_manufacturer_id .");
     assertHasSelectors(
-        tableReferenceQuery,
-        "?product_name",
-        "?product_manufacturer_name",
-        "?product_manufacturer_id");
+        mapper, "?product_name", "?product_manufacturer_name", "?product_manufacturer_id");
   }
 
   @Nested
@@ -126,30 +119,30 @@ class ReferenceMapperTest {
     @Test
     void shouldDoSimplifiedPatternOnSingleSemantic() {
       schema.create(productTableWithSemantics("product:name"));
-      TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
-      Variable startingPoint = SparqlBuilder.var("product");
+      TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      Reference reference = column.getReferences().getFirst();
-      ReferenceMapper tableReferenceQuery =
-          new ReferenceMapper(startingPoint, reference, schema.getMetadata());
-      assertPatternsMatch(tableReferenceQuery, "?product product:name ?product_name .");
-      assertHasSelectors(tableReferenceQuery, "?product_name");
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+
+      assertPatternsMatch(
+          mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
+      assertHasSelectors(mapper, "?product_name");
     }
 
     @Test
     void whenRelationIsOptional_thenAddOptionalClause() {
       schema.create(productTableWithSemantics("product:name"));
 
-      TableMetadata order = schema.create(orderTable(false)).getMetadata();
-      Variable startingPoint = SparqlBuilder.var("product");
+      TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      Reference reference = column.getReferences().getFirst();
-      ReferenceMapper tableReferenceQuery =
-          new ReferenceMapper(startingPoint, reference, schema.getMetadata());
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+
       assertPatternsMatch(
-          tableReferenceQuery, "OPTIONAL { ?product product:name ?product_name . }");
-      assertHasSelectors(tableReferenceQuery, "?product_name");
+          mapper,
+          """
+          OPTIONAL { ?order orders:product ?product .
+          ?product product:name ?product_name . }""");
+      assertHasSelectors(mapper, "?product_name");
     }
   }
 
@@ -157,46 +150,45 @@ class ReferenceMapperTest {
   class MultipleSemanticsTest {
 
     @Test
-    void shouldUseOrClause() {
+    void shouldUseOrCoalesce() {
       schema.create(
           productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
-      TableMetadata order = schema.create(orderTable(false)).getMetadata();
 
+      TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      Reference reference = column.getReferences().getFirst();
-      ReferenceMapper tableReferenceQuery =
-          new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
       assertPatternsMatch(
-          tableReferenceQuery,
+          mapper,
           """
-          OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
-          OPTIONAL { ?product product:alternativeName ?product_name1 . }
-          OPTIONAL { ?product product:altName ?product_name2 . }
-          BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""");
-      assertHasSelectors(tableReferenceQuery, "?product_name");
+        OPTIONAL { ?order orders:product ?product .
+        OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
+        OPTIONAL { ?product product:alternativeName ?product_name1 . }
+        OPTIONAL { ?product product:altName ?product_name2 . }
+        BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }
+        FILTER ( BOUND( ?product_name ) ) }""");
+      assertHasSelectors(mapper, "?product_name");
     }
 
     @Test
     void whenRequired_thenIncludeFilter() {
       schema.create(
           productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
-      TableMetadata order = schema.create(orderTable(true)).getMetadata();
 
+      TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      Reference reference = column.getReferences().getFirst();
-      ReferenceMapper tableReferenceQuery =
-          new ReferenceMapper(SparqlBuilder.var("product"), reference, schema.getMetadata());
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
       assertPatternsMatch(
-          tableReferenceQuery,
+          mapper,
+          "?order orders:product ?product .",
           """
           OPTIONAL { OPTIONAL { ?product product:name ?product_name0 . }
           OPTIONAL { ?product product:alternativeName ?product_name1 . }
           OPTIONAL { ?product product:altName ?product_name2 . }
           BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
           "FILTER ( BOUND( ?product_name ) )");
-      assertHasSelectors(tableReferenceQuery, "?product_name");
+      assertHasSelectors(mapper, "?product_name");
     }
   }
 
