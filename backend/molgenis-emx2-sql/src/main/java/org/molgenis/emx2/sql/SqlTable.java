@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
@@ -337,7 +338,7 @@ public class SqlTable implements Table {
       List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
       count.set(
           count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
+              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -378,27 +379,38 @@ public class SqlTable implements Table {
     return this.tableListener;
   }
 
-  private int insertBatch(
+  private List<Record> insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
-    int count = 0;
     if (inherit) {
       SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+      List<Record> records =
+          inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+
+      List<Column> autoIdColumns =
+          inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
+              .filter(c -> AUTO_ID.equals(c.getColumnType()))
+              .toList();
+
+      // Copy the generated auto id's from the parent table
+      for (int i = 0; i < records.size(); i++) {
+        copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
+      }
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
-    List<Field> insertFields =
-        columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
+    if (columns.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     InsertValuesStepN<org.jooq.Record> step =
         table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      // get values
-      Map values = getSelectedRowValues(columns, row);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
         values.put(MG_INSERTEDBY, getActiveUser(table));
         values.put(MG_INSERTEDON, now);
@@ -429,7 +441,13 @@ public class SqlTable implements Table {
       }
     }
 
-    return step.execute();
+    return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
+    for (Column column : toCopy) {
+      row.set(column.getName(), from.getValue(column.getName()));
+    }
   }
 
   private static String getActiveUser(SqlTable table) {
