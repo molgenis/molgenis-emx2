@@ -2,9 +2,11 @@
   <li>
     <div class="flex justfy-center items-start">
       <div class="grow mb-2">
-        <span class="block font-bold">{{ resource.id }}</span>
-        <span>{{ resource.name }}</span>
-        <div v-if="resource.datasets?.length">
+        <!-- TODO: Disabled html below is needed when we want to 
+         implement a connection with the REMS store-->
+        <!-- <span class="block font-bold">{{ resource.id }}</span> -->
+        <span class="block font-bold">{{ resource.name }}</span>
+        <!-- <div v-if="resource.datasets?.length">
           <div v-for="dataset in resource.datasets">
             <InputLabel
               :for="`${resource.id}-${dataset.name}`"
@@ -29,7 +31,7 @@
               </span>
             </InputLabel>
           </div>
-        </div>
+        </div> -->
       </div>
       <div>
         <IconButton

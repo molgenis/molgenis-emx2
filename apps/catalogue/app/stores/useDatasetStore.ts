@@ -2,51 +2,74 @@ import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
-import type { IShoppingCart } from "../../interfaces/types";
 
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
   const isEnabled = ref<boolean>(false);
-  const CATALOGUE_STORE_IS_ENABLED: string = "CATALOGUE_STORE_IS_ENABLED";
+  const datasetStoreUrl = ref<string>("");
+  const storeVersion = ref<string>("");
 
-  async function isDatastoreEnabled() {
-    const response = await fetchSetting(CATALOGUE_STORE_IS_ENABLED);
-    const status = response.data._settings.find(
-      (setting: { key: string; value: string }) => {
-        return setting.key === CATALOGUE_STORE_IS_ENABLED;
-      }
-    );
-    if (status) {
-      isEnabled.value = status.value === "true";
-    }
+  const CATALOGUE_STORE_IS_ENABLED = "CATALOGUE_STORE_IS_ENABLED";
+  const CATALOGUE_STORE_URL = "CATALOGUE_STORE_URL";
+  const CATALOGUE_STORE_VERSION = "CATALOGUE_STORE_VERSION";
+
+  setIsDatastoreEnabled();
+  setDatasetStoreUrl();
+  setNegotiatorVersion();
+
+  async function setIsDatastoreEnabled() {
+    const enabledSetting = await getSetting(CATALOGUE_STORE_IS_ENABLED);
+    isEnabled.value = enabledSetting === "true";
+  }
+
+  async function setDatasetStoreUrl() {
+    datasetStoreUrl.value = (await getSetting(CATALOGUE_STORE_URL)) || "";
+  }
+
+  async function setNegotiatorVersion() {
+    storeVersion.value = (await getSetting(CATALOGUE_STORE_VERSION)) || "";
   }
 
   function addToCart(resource: IResources) {
-    const newCartDataset: IShoppingCart = {};
-    newCartDataset[resource.id] = resource;
-    datasets.value = Object.assign(newCartDataset, datasets.value);
+    datasets[resource.id as keyof IResources] = resource;
   }
 
   function removeFromCart(resourceId: string) {
-    if (datasets.value) {
-      delete datasets.value[resourceId as keyof IResources];
-    }
+    delete datasets[resourceId as keyof IResources];
   }
 
   function resourceIsInCart(resourceId: string) {
-    if (datasets.value) {
-      return Object.keys(datasets.value).includes(resourceId);
-    } else {
-      return false;
+    return !!datasets[resourceId as keyof IResources];
+  }
+
+  async function getSetting(settingConst: string) {
+    const response = await fetchSetting(settingConst);
+    const settingResponse = response.data._settings.find(
+      (setting: { key: string; value: string }) => {
+        return setting.key === settingConst;
+      }
+    );
+    if (!settingResponse) {
+      // TODO: better error handling
+      throw new Error(`Setting ${settingConst} not found`);
+    }
+    return settingResponse.value;
+  }
+
+  function clearCart() {
+    for (const key in datasets) {
+      delete datasets[key as keyof IResources];
     }
   }
 
   return {
     datasets,
+    datasetStoreUrl,
     isEnabled,
+    storeVersion,
     addToCart,
+    clearCart,
     removeFromCart,
     resourceIsInCart,
-    isDatastoreEnabled,
   };
 });
