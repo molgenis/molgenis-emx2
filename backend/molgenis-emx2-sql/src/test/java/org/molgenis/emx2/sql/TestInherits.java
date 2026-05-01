@@ -13,20 +13,23 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-public class TestInherits {
+class TestInherits {
+
   private static Database db;
 
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
-  public void testExtends() {
+  void testExtends() {
 
     db.dropSchemaIfExists(
         TestInherits.class.getSimpleName() + "1"); // is a related schema, drop that first
@@ -299,7 +302,7 @@ public class TestInherits {
             .get(0)
             .getName());
 
-    // try to add faulty reftable
+    // try to add faulty ref-table
     assertThrows(
         MolgenisException.class,
         () -> {
@@ -313,5 +316,38 @@ public class TestInherits {
     studentTable.getMetadata().drop();
     personTable.getMetadata().drop();
     // todo add test that trigger actually is deleted
+  }
+
+  /**
+   * When inserting rows into a table (A) that inherits a different one (B), we first insert values
+   * into B, then insert into A afterward, using the values of B. We do this to ensure generated IDs
+   * are reused across all inherited tables. With this test, we want to ensure that the ordering of
+   * these values stay intact.
+   */
+  @Test
+  void whenInsertingInheritedTable_thenReuseInheritedValues() {
+    Schema schema = db.dropCreateSchema(TestInherits.class.getSimpleName() + "_insert");
+    schema.create(
+        table(
+            "test_inheritance_A",
+            new Column("a_id")
+                .setType(ColumnType.AUTO_ID)
+                .setComputed("${mg_autoid(length=10, format=numbers)}")
+                .setPkey(),
+            new Column("a_label").setType(ColumnType.INT)));
+
+    Table tableB =
+        schema.create(
+            table("test_inheritance_B", new Column("b_label").setType(ColumnType.INT))
+                .setInheritName("test_inheritance_A"));
+
+    List<Row> rows =
+        IntStream.range(0, 100).boxed().map(i -> Row.row("a_label", i, "b_label", i)).toList();
+
+    tableB.insert(rows);
+
+    for (Row row : tableB.retrieveRows()) {
+      assertEquals(row.getInteger("a_label"), row.getInteger("b_label"));
+    }
   }
 }
