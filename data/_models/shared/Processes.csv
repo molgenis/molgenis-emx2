@@ -3,7 +3,7 @@ Processes,,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (e.
 Processes,,General Information,heading,,,,,,,,,,,,,,"Patient registry, Patient registry staging, FAIR Genomes"
 Processes,,id,auto_id,,ERD-E-${mg_autoid},1,TRUE,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, Patient registry staging, FAIR Genomes"
 Processes,,individuals,multiselect,,,,,,Individuals,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes"
-Processes,,individuals,multiselect,,,,,erdera,Individuals,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry staging"
+Processes,,individuals,multiselect,,,,TRUE,erdera,Individuals,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry staging"
 Processes,,alternate ids,string_array,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify a process,"Patient registry, Patient registry staging, FAIR Genomes"
 Processes,,affiliated organisations,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and an organisation.,"Patient registry, Patient registry staging, FAIR Genomes"
 Analyses,Processes,,,,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25391,http://edamontology.org/operation_2945",An analysis (examination and interpretation) relating to an individual,"Patient registry, FAIR Genomes"
