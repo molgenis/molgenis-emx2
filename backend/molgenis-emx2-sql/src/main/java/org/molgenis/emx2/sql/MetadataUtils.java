@@ -28,6 +28,13 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+  static final org.jooq.Table GROUPS_METADATA = table(name(MOLGENIS, "groups_metadata"));
+
+  // groups_metadata columns
+  static final Field<String> GROUP_SCHEMA = field(name("schema"), VARCHAR.nullable(false));
+  static final Field<String> GROUP_NAME = field(name("name"), VARCHAR.nullable(false));
+  static final Field<String[]> GROUP_USERS =
+      field(name("users"), VARCHAR.nullable(true).getArrayType());
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
@@ -269,6 +276,16 @@ public class MetadataUtils {
             t = jooq.createTableIfNotExists(SETTINGS_METADATA);
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
                 .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+                .execute();
+
+            jooq.createTableIfNotExists(GROUPS_METADATA)
+                .columns(GROUP_SCHEMA, GROUP_NAME, GROUP_USERS)
+                .constraints(
+                    primaryKey(GROUP_SCHEMA, GROUP_NAME),
+                    foreignKey(GROUP_SCHEMA)
+                        .references(SCHEMA_METADATA)
+                        .onUpdateCascade()
+                        .onDeleteCascade())
                 .execute();
           });
 

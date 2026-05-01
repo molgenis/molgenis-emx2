@@ -229,35 +229,79 @@ Exit criteria: worktree exists, plan present, scout report appended to plan.
 8. **No existing `MG_BASE_*` roles** — no BYPASSRLS-bearing reusable base
    roles. The future-extension (shared-policy via base role) is greenfield.
 
-### Phase 1 — Foundation: groups + columns + functions
+### Phase 0.5 — Post-merge baseline (2026-05-01)
+
+After merging origin/master (13 new commits, no rls_v2-scope overlap), the
+test floor was established with a SINGLE combined gradle invocation. Running
+the suites as separate `./gradlew` invocations causes 9 spurious failures
+(DB-state leak between JVM processes). Always use the combined form.
+
+Canonical baseline command (after `./gradlew cleandb`):
+
+```
+./gradlew :backend:molgenis-emx2-sql:test \
+          :backend:molgenis-emx2-graphql:test \
+          :backend:molgenis-emx2-io:test \
+          :backend:molgenis-emx2-webapi:test \
+          :backend:molgenis-emx2-nonparallel-tests:test \
+          --no-parallel \
+          -x :apps:collectDist -x :apps:pnpm_build
+```
+
+Baseline floor (all green — Phase 1 must keep this):
+
+| Suite | Pass | Fail | Skip |
+|---|---|---|---|
+| sql | 279 | 0 | 1 (`TestRowLevelSecurity` disabled — old RLS) |
+| graphql | 53 | 0 | 0 |
+| io | 67 | 0 | 0 |
+| webapi | 146 | 0 | 3 (`testScriptExecution`, `testExecuteSubtaskInScriptTask`, `PerformanceTest`) |
+| nonparallel-tests | 6 | 0 | 0 |
+
+### Phase 1 — Foundation: groups table + function (slice A)
+
+Phase 1 is scoped to the foundation pieces that are independently testable
+right now, without needing a custom role to exist (custom roles arrive in
+Phase 2). The column-lifecycle plumbing (originally tasks 3, 4, 8 in the
+locked design) moves into Phase 2 because those columns only get added/
+removed when a role with OWN/GROUP scope is granted — implementing them
+without a caller produces dead code waiting for Phase 2.
 
 1. **Add `MOLGENIS.groups_metadata`** table with columns
    `(schema TEXT, name TEXT, users REF_ARRAY → users_metadata)`, PK
    `(schema, name)`. FK to schema metadata so deletion cascades.
 2. **Emit `MOLGENIS.current_user_groups(schema_name)`** STABLE function —
    single source, called from any user schema's policies.
-3. **Add `mg_owner` column** (REF → `MOLGENIS.users_metadata`,
-   DEFAULT current_user) to a table when the first role with `OWN` scope on
-   that table is granted; drop when the last is removed.
-4. **Add `mg_groups` column** (REF_ARRAY → `MOLGENIS.groups_metadata`) to
-   a table when the first role with `GROUP` scope is granted; drop when
-   the last is removed.
-5. **Add GIN index** on `mg_groups` (already created by emx2 ref_array
-   machinery — verify, don't duplicate).
-6. **Add B-tree index** on `mg_owner` (likewise, may come for free with REF
-   column — verify).
-7. **emx2 ref_array FK trigger** validates that `mg_groups` entries reference
-   existing `MOLGENIS.groups_metadata` names. Reuse, do not re-implement.
-8. **Column-level INSERT/UPDATE GRANTs** drive `mg_owner` / `mg_groups`
-   mutability per role's `changeOwner` / `changeGroup` flags (see the
-   architecture section). No triggers added by this phase.
+3. **Verify the existing emx2 ref_array FK trigger** rejects `mg_groups`-style
+   references to non-existent group names — write a unit test against
+   `groups_metadata`-shaped columns. Reuse, do not re-implement.
+4. **Verify GIN index** on the ref_array column (auto-created by emx2
+   ref_array machinery) — assertion test, no new code.
 
-Exit criteria: foundational columns/function present; emx2 ref_array
-trigger validates `mg_groups` entries; columns appear on tables when role
-scopes demand; function returns correct memberships under custom role; all
-foundation tests green.
+Exit criteria: groups table + function present in MOLGENIS schema after
+DB init; ref_array FK trigger rejects bad group references; GIN index
+verified; full combined-suite test floor still green
+(sql/graphql/io/webapi/nonparallel = 0 failures).
 
-### Phase 2 — Custom role definition
+#### Phase 1 status (2026-05-01)
+
+- Implementation in place: `migration33.sql`, `MetadataUtils` table +
+  `createCurrentUserGroupsFunction`, `Migrations.java` bumped to v33,
+  `GroupsMetadataTest` covering structure / FK cascade / function /
+  GIN index.
+- Targeted test: `GroupsMetadataTest` 4/4 pass (~17s).
+- **Pending**: user-run phase-boundary combined-suite from §0.5 to
+  confirm test floor still green.
+
+Deferred from the original Phase 1 design (now Phase 2):
+
+- `mg_owner` column lifecycle (was task 3) — drives off OWN-scope role grant
+- `mg_groups` column lifecycle (was task 4) — drives off GROUP-scope role grant
+- B-tree index on `mg_owner` (was task 6) — driven by the column add
+- Column-level INSERT/UPDATE GRANTs for changeOwner/changeGroup (was task 8) —
+  driven by role grant
+
+### Phase 2 — Custom role definition + column lifecycle
 
 1. **`SqlRoleManager.createRole(schema, name, description)`** creates PG role
    `MG_ROLE_<schema>/<name>`. Reject duplicates and reserved name patterns.
@@ -272,6 +316,14 @@ foundation tests green.
 5. **`changeOwner` / `changeGroup`** — emit column-level INSERT/UPDATE
    GRANTs as described in the architecture section. The PG ROLE COMMENT
    JSON also records the boolean for round-tripping via `getPermissions`.
+6. **Column lifecycle** (lifted in from old Phase 1):
+   - Add `mg_owner` column (REF → `MOLGENIS.users_metadata`, defaulted via
+     existing emx2 row-lifecycle trigger) when the first role with OWN scope
+     on the table is granted; drop when the last is removed. Verify
+     B-tree index comes for free with the REF column.
+   - Add `mg_groups` column (REF_ARRAY → `MOLGENIS.groups_metadata`) when
+     the first role with GROUP scope is granted; drop when the last is
+     removed.
 
 Exit criteria: roles can be created, listed, granted, revoked, deleted via
 GraphQL; one-role-per-schema constraint enforced; lifecycle round-trip tests

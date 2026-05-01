@@ -138,14 +138,16 @@ subprojects {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
         useJUnitPlatform()
         testLogging {
-            events "passed", "skipped", "failed" //, "standardOut", "standardError"
-
-            showExceptions = true
-            exceptionFormat = "full"
+            events 'failed'
+            exceptionFormat 'full'
+            showStandardStreams = false
             showCauses = true
             showStackTraces = true
-
-            showStandardStreams = false
+        }
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println "${project.path}:${name} → ${result.resultType} (${result.testCount} tests, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+            }
         }
     }
     test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
