@@ -1,0 +1,24 @@
+flowchart LR
+
+    subgraph EMX2["EMX2 Application Domain<br>(System of Record)"]
+        Jobs["Jobs API"]
+        Artifacts["Artifact Registry"]
+        DB["System Database"]
+    end
+
+    subgraph HPC["HPC Environment<br>(Outbound Only)"]
+        Head["Head Node Controller"]
+        Slurm["Slurm Scheduler"]
+        Runtime["Apptainer Runtime"]
+        NFS["Shared Storage"]
+    end
+
+    Head -->|"poll + claim"| Jobs
+    Head -->|"submit"| Slurm
+    Slurm --> Runtime
+    Runtime -->|"status transitions"| Jobs
+    Runtime -->|"artifact metadata"| Artifacts
+    Runtime -->|"read/write data"| NFS
+
+    Jobs --> DB
+    Artifacts --> DB
