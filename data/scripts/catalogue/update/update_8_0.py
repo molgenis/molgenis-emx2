@@ -46,14 +46,7 @@ class Transform:
         """
         profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
         path_to_write = self.path
-        if self.profile == 'DataCatalogueFlat':
-            path_to_write = './catalogue_data_model'
-            if not os.path.isdir(path_to_write):
-                os.mkdir(path_to_write)
-            get_data_model(profile_path, path_to_write, self.profile)
-            shutil.make_archive('./catalogue_data_model_upload', 'zip', path_to_write)
-        else:
-            get_data_model(profile_path, path_to_write, self.profile)
+        get_data_model(profile_path, path_to_write, self.profile)
 
     def transform_data(self):
         """Make changes per table
