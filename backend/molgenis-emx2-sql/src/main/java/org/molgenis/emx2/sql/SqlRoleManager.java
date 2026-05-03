@@ -459,6 +459,7 @@ public class SqlRoleManager {
             Map<String, PermissionSet> allPermissions = buildAllPermissionsSnapshot(txJooq, schema);
             applyColumnLifecycle(txJooq, schemaName, schema.getTableNames(), allPermissions);
             applyColumnGrants(txJooq, schemaName, schema.getTableNames(), allPermissions);
+            applyPolicies(txJooq, schemaName, schema.getTableNames(), allPermissions);
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -622,19 +623,11 @@ public class SqlRoleManager {
       String verb,
       List<String> columns) {
     String colList =
-        columns.stream().map(col -> "\"" + col + "\"").collect(Collectors.joining(", "));
+        columns.stream().map(col -> txJooq.render(name(col))).collect(Collectors.joining(", "));
     txJooq.execute(
-        "GRANT "
-            + verb
-            + " ("
-            + colList
-            + ") ON \""
-            + schemaName
-            + "\".\""
-            + tableName
-            + "\" TO \""
-            + fullRole
-            + "\"");
+        "GRANT " + verb + " (" + colList + ") ON {0} TO {1}",
+        table(name(schemaName, tableName)),
+        name(fullRole));
   }
 
   private void revokeColumnGrants(
@@ -645,19 +638,242 @@ public class SqlRoleManager {
       String verb,
       List<String> columns) {
     String colList =
-        columns.stream().map(col -> "\"" + col + "\"").collect(Collectors.joining(", "));
+        columns.stream().map(col -> txJooq.render(name(col))).collect(Collectors.joining(", "));
     txJooq.execute(
-        "REVOKE "
-            + verb
-            + " ("
-            + colList
-            + ") ON \""
-            + schemaName
-            + "\".\""
-            + tableName
-            + "\" FROM \""
-            + fullRole
-            + "\"");
+        "REVOKE " + verb + " (" + colList + ") ON {0} FROM {1}",
+        table(name(schemaName, tableName)),
+        name(fullRole));
+  }
+
+  private static final String POLICY_PREFIX = "MG_P_";
+  private static final String MOLGENIS_SCHEMA = "MOLGENIS";
+
+  private static final String SELECT_VERB = "SELECT";
+  private static final String INSERT_VERB = "INSERT";
+  private static final String UPDATE_VERB = "UPDATE";
+  private static final String DELETE_VERB = "DELETE";
+
+  private static final String USING_TRUE = "(true)";
+  private static final String USING_OWN = "(mg_owner = current_user)";
+  private static final String WITH_CHECK_TRUE = "(true)";
+
+  private void applyPolicies(
+      DSLContext txJooq,
+      String schemaName,
+      Collection<String> tableNames,
+      Map<String, PermissionSet> allPermissions) {
+    for (Map.Entry<String, PermissionSet> roleEntry : allPermissions.entrySet()) {
+      String roleShortName = roleEntry.getKey();
+      PermissionSet rolePerms = roleEntry.getValue();
+      String fullRole = fullRoleName(schemaName, roleShortName);
+      for (String tableName : tableNames) {
+        PermissionSet.TablePermissions tablePerms = rolePerms.getTables().get(tableName);
+        applyPoliciesForRoleAndTable(txJooq, schemaName, tableName, fullRole, tablePerms);
+      }
+    }
+  }
+
+  private void applyPoliciesForRoleAndTable(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      PermissionSet.TablePermissions tablePerms) {
+    applyVerbPolicy(
+        txJooq,
+        schemaName,
+        tableName,
+        fullRole,
+        SELECT_VERB,
+        tablePerms == null ? SelectScope.NONE : tablePerms.getSelect());
+    applyVerbPolicy(
+        txJooq,
+        schemaName,
+        tableName,
+        fullRole,
+        INSERT_VERB,
+        tablePerms == null ? SelectScope.NONE : tablePerms.getInsert());
+    applyVerbPolicy(
+        txJooq,
+        schemaName,
+        tableName,
+        fullRole,
+        UPDATE_VERB,
+        tablePerms == null ? SelectScope.NONE : tablePerms.getUpdate());
+    applyVerbPolicy(
+        txJooq,
+        schemaName,
+        tableName,
+        fullRole,
+        DELETE_VERB,
+        tablePerms == null ? SelectScope.NONE : tablePerms.getDelete());
+  }
+
+  private void applyVerbPolicy(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      SelectScope scope) {
+    String policyName = buildPolicyName(fullRole, tableName, verb);
+    txJooq.execute(
+        "DROP POLICY IF EXISTS {0} ON {1}", name(policyName), table(name(schemaName, tableName)));
+    boolean useColumnLevelGrant = INSERT_VERB.equals(verb) || UPDATE_VERB.equals(verb);
+    if (isViewModeScope(scope)) {
+      ensureRlsEnabled(txJooq, schemaName, tableName);
+      if (!useColumnLevelGrant) {
+        grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, true);
+      }
+      emitPolicy(txJooq, schemaName, tableName, fullRole, verb, policyName, SelectScope.ALL);
+      return;
+    }
+    if (scope == SelectScope.NONE) {
+      if (!useColumnLevelGrant) {
+        grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, false);
+      }
+      return;
+    }
+    ensureRlsEnabled(txJooq, schemaName, tableName);
+    if (!useColumnLevelGrant) {
+      grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, true);
+    }
+    emitPolicy(txJooq, schemaName, tableName, fullRole, verb, policyName, scope);
+  }
+
+  private void ensureRlsEnabled(DSLContext txJooq, String schemaName, String tableName) {
+    boolean rlsEnabled =
+        Boolean.TRUE.equals(
+            txJooq
+                .fetchOne(
+                    "SELECT relrowsecurity FROM pg_class c "
+                        + "JOIN pg_namespace n ON n.oid = c.relnamespace "
+                        + "WHERE n.nspname = {0} AND c.relname = {1}",
+                    inline(schemaName), inline(tableName))
+                .get("relrowsecurity", Boolean.class));
+    if (!rlsEnabled) {
+      txJooq.execute(
+          "ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table(name(schemaName, tableName)));
+      txJooq.execute(
+          "ALTER TABLE {0} FORCE ROW LEVEL SECURITY", table(name(schemaName, tableName)));
+    }
+  }
+
+  private void emitPolicy(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      String policyName,
+      SelectScope scope) {
+    String usingExpr = buildUsingExpr(verb, scope, schemaName);
+    String withCheckExpr = buildWithCheckExpr(verb, scope, schemaName);
+    if (usingExpr != null && withCheckExpr != null) {
+      txJooq.execute(
+          "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR "
+              + verb
+              + " TO {2} USING "
+              + usingExpr
+              + " WITH CHECK "
+              + withCheckExpr,
+          name(policyName),
+          table(name(schemaName, tableName)),
+          name(fullRole));
+    } else if (usingExpr != null) {
+      txJooq.execute(
+          "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR " + verb + " TO {2} USING " + usingExpr,
+          name(policyName),
+          table(name(schemaName, tableName)),
+          name(fullRole));
+    } else if (withCheckExpr != null) {
+      txJooq.execute(
+          "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR "
+              + verb
+              + " TO {2} WITH CHECK "
+              + withCheckExpr,
+          name(policyName),
+          table(name(schemaName, tableName)),
+          name(fullRole));
+    }
+  }
+
+  private void grantOrRevokeTableVerb(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      boolean grant) {
+    if (grant) {
+      txJooq.execute(
+          "GRANT " + verb + " ON {0} TO {1}", table(name(schemaName, tableName)), name(fullRole));
+    } else {
+      txJooq.execute(
+          "REVOKE " + verb + " ON {0} FROM {1}",
+          table(name(schemaName, tableName)),
+          name(fullRole));
+    }
+  }
+
+  private static String buildPolicyName(String fullRole, String tableName, String verb) {
+    String policyName = POLICY_PREFIX + fullRole + "_" + tableName + "_" + verb;
+    if (policyName.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException(
+          "Policy name exceeds PostgreSQL 63-byte limit for role='"
+              + fullRole
+              + "', table='"
+              + tableName
+              + "', verb='"
+              + verb
+              + "'");
+    }
+    return policyName;
+  }
+
+  private static boolean isViewModeScope(SelectScope scope) {
+    return scope == SelectScope.EXISTS
+        || scope == SelectScope.COUNT
+        || scope == SelectScope.RANGE
+        || scope == SelectScope.AGGREGATE;
+  }
+
+  private String buildUsingExpr(String verb, SelectScope scope, String schemaName) {
+    if (INSERT_VERB.equals(verb)) {
+      return null;
+    }
+    return switch (scope) {
+      case ALL -> USING_TRUE;
+      case OWN -> USING_OWN;
+      case GROUP -> groupUsingExpr(schemaName);
+      default -> null;
+    };
+  }
+
+  private String buildWithCheckExpr(String verb, SelectScope scope, String schemaName) {
+    if (SELECT_VERB.equals(verb) || DELETE_VERB.equals(verb)) {
+      return null;
+    }
+    return switch (scope) {
+      case ALL -> WITH_CHECK_TRUE;
+      case OWN -> USING_OWN;
+      case GROUP -> buildGroupWithCheckExpr(verb, schemaName);
+      default -> null;
+    };
+  }
+
+  private String groupUsingExpr(String schemaName) {
+    return "(mg_groups && \"" + MOLGENIS_SCHEMA + "\".current_user_groups('" + schemaName + "'))";
+  }
+
+  private String buildGroupWithCheckExpr(String verb, String schemaName) {
+    String groupCheck = groupUsingExpr(schemaName);
+    if (INSERT_VERB.equals(verb)) {
+      return "("
+          + groupCheck.substring(1, groupCheck.length() - 1)
+          + " AND cardinality(mg_groups) >= 1)";
+    }
+    return groupCheck;
   }
 
   private boolean anyRoleHasScopeOnTable(

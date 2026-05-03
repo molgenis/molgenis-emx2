@@ -10,11 +10,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -551,20 +555,17 @@ class SqlRoleManagerTest {
 
   @Test
   void setPermissions_concurrentCallsDoNotDropNeededColumn() throws Exception {
-    schemaA.create(
-        org.molgenis.emx2.TableMetadata.table("ConcurrentTable", column("id").setPkey()));
+    schemaA.create(org.molgenis.emx2.TableMetadata.table("ConcTable", column("id").setPkey()));
     roleManager.createRole(schemaA, "concRoleA", "concurrent role A");
     roleManager.createRole(schemaA, "concRoleB", "concurrent role B");
     PermissionSet ownPerms =
         new PermissionSet()
-            .putTable(
-                "ConcurrentTable", new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+            .putTable("ConcTable", new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
     roleManager.setPermissions(schemaA, "concRoleA", ownPerms);
 
     PermissionSet noOwnPerms =
         new PermissionSet()
-            .putTable(
-                "ConcurrentTable", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+            .putTable("ConcTable", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
 
     CountDownLatch startLatch = new CountDownLatch(1);
     ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -597,7 +598,7 @@ class SqlRoleManagerTest {
     }
 
     assertTrue(
-        columnExistsInDb(SCHEMA_A, "ConcurrentTable", Constants.MG_OWNER_COLUMN),
+        columnExistsInDb(SCHEMA_A, "ConcTable", Constants.MG_OWNER_COLUMN),
         "mg_owner must be present after concurrent setPermissions: roleB still needs OWN scope");
   }
 
@@ -780,9 +781,9 @@ class SqlRoleManagerTest {
         "INSERT column grants must be revoked after scope flips to NONE");
   }
 
+  @org.junit.jupiter.api.Disabled(
+      "requires SET ROLE to the custom role in the test session — Alice is added as Manager which has BYPASSRLS and full column access, bypassing column-level restrictions; re-enable in Phase 4/5 when session-as-custom-role fixture is available")
   @Test
-  @Disabled(
-      "re-enable in Phase 4/5 once session-as-user fixture grants the custom role table-level INSERT — currently the custom role has no table-level INSERT grant (Phase 3), so the test would fail at the wrong layer")
   void setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag() {
     schemaA.create(table("Specimens", column("name").setPkey()));
     roleManager.createRole(schemaA, "collector", "collector role");
@@ -809,6 +810,404 @@ class SqlRoleManagerTest {
           "UPDATE setting mg_owner without changeOwner flag must throw permission denied");
     } finally {
       db.becomeAdmin();
+    }
+  }
+
+  @Nested
+  class PolicyEmission {
+
+    private static final String POLICY_TABLE = "PolicyTable";
+    private static final String POLICY_ROLE = "policyrole";
+
+    @BeforeEach
+    void setUpTable() {
+      schemaA.create(table(POLICY_TABLE, column("id").setPkey()));
+      roleManager.createRole(schemaA, POLICY_ROLE, "policy emission test role");
+    }
+
+    @Test
+    void selectAll_emitsPolicyWithUsingTrueAndGrantSelect() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "SELECT/ALL policy must exist in pg_policies");
+      String qual = policies.get(0).get("qual", String.class);
+      assertTrue(qual != null && qual.contains("true"), "SELECT/ALL USING must contain 'true'");
+
+      assertTrue(
+          hasTableGrant(
+              SCHEMA_A, POLICY_TABLE, SqlRoleManager.fullRoleName(SCHEMA_A, POLICY_ROLE), "SELECT"),
+          "SELECT table-level GRANT must exist for SELECT/ALL");
+    }
+
+    @Test
+    void selectOwn_emitsPolicyReferencingMgOwner() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "SELECT/OWN policy must exist in pg_policies");
+      String qual = policies.get(0).get("qual", String.class);
+      assertTrue(
+          qual != null && qual.contains("mg_owner"),
+          "SELECT/OWN USING must reference mg_owner, got: " + qual);
+    }
+
+    @Test
+    void selectGroup_emitsPolicyReferencingCurrentUserGroups() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.GROUP));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "SELECT/GROUP policy must exist in pg_policies");
+      String qual = policies.get(0).get("qual", String.class);
+      assertTrue(
+          qual != null && qual.contains("mg_groups"),
+          "SELECT/GROUP USING must reference mg_groups, got: " + qual);
+      assertTrue(
+          qual.contains("current_user_groups"),
+          "SELECT/GROUP USING must reference current_user_groups, got: " + qual);
+    }
+
+    @Test
+    void insertAll_emitsWithCheckTruePolicyAndColumnGrants() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.ALL));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "INSERT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "INSERT/ALL policy must exist in pg_policies");
+      String withCheck = policies.get(0).get("with_check", String.class);
+      assertTrue(
+          withCheck != null && withCheck.contains("true"),
+          "INSERT/ALL WITH CHECK must contain 'true'");
+
+      String fullRole = SqlRoleManager.fullRoleName(SCHEMA_A, POLICY_ROLE);
+      assertFalse(
+          fetchColumnGrants(SCHEMA_A, POLICY_TABLE, fullRole, "INSERT").isEmpty(),
+          "INSERT column-level grants must exist for INSERT/ALL (no table-level grant; column grants preserve mg_owner restriction)");
+    }
+
+    @Test
+    void updateAll_emitsUsingAndWithCheckTrue() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setUpdate(SelectScope.ALL));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "UPDATE");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "UPDATE/ALL policy must exist in pg_policies");
+      String qual = policies.get(0).get("qual", String.class);
+      String withCheck = policies.get(0).get("with_check", String.class);
+      assertTrue(qual != null && qual.contains("true"), "UPDATE/ALL USING must contain 'true'");
+      assertTrue(
+          withCheck != null && withCheck.contains("true"),
+          "UPDATE/ALL WITH CHECK must contain 'true'");
+    }
+
+    @Test
+    void deleteAll_emitsPolicyAndGrantDelete() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setDelete(SelectScope.ALL));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "DELETE");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "DELETE/ALL policy must exist in pg_policies");
+
+      assertTrue(
+          hasTableGrant(
+              SCHEMA_A, POLICY_TABLE, SqlRoleManager.fullRoleName(SCHEMA_A, POLICY_ROLE), "DELETE"),
+          "DELETE table-level GRANT must exist for DELETE/ALL");
+    }
+
+    @Test
+    void scopeAllToNone_dropsPolicyAndRevokesGrant() {
+      PermissionSet withSelect =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+      roleManager.setPermissions(schemaA, POLICY_ROLE, withSelect);
+
+      String fullRole = SqlRoleManager.fullRoleName(SCHEMA_A, POLICY_ROLE);
+      assertTrue(
+          hasTableGrant(SCHEMA_A, POLICY_TABLE, fullRole, "SELECT"),
+          "SELECT grant must exist before NONE transition");
+
+      PermissionSet withNone =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.NONE));
+      roleManager.setPermissions(schemaA, POLICY_ROLE, withNone);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      assertTrue(
+          fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName).isEmpty(),
+          "SELECT policy must be dropped after scope→NONE");
+      assertFalse(
+          hasTableGrant(SCHEMA_A, POLICY_TABLE, fullRole, "SELECT"),
+          "SELECT GRANT must be revoked after scope→NONE");
+    }
+
+    @Test
+    void scopeOwnToGroup_dropsOldPolicyCreatesNewWithGroupUsing() {
+      PermissionSet withOwn =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+      roleManager.setPermissions(schemaA, POLICY_ROLE, withOwn);
+
+      PermissionSet withGroup =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.GROUP));
+      roleManager.setPermissions(schemaA, POLICY_ROLE, withGroup);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "SELECT/GROUP policy must exist after OWN→GROUP transition");
+      String qual = policies.get(0).get("qual", String.class);
+      assertTrue(
+          qual != null && qual.contains("mg_groups"),
+          "New SELECT policy must reference mg_groups after OWN→GROUP, got: " + qual);
+      assertFalse(
+          qual.contains("mg_owner"),
+          "New SELECT policy must not reference mg_owner after OWN→GROUP, got: " + qual);
+    }
+
+    @Test
+    void multiVerbTable_threePoliciesNoDeletePolicyOrGrant() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE,
+                  new PermissionSet.TablePermissions()
+                      .setSelect(SelectScope.ALL)
+                      .setInsert(SelectScope.OWN)
+                      .setUpdate(SelectScope.GROUP)
+                      .setDelete(SelectScope.NONE));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String fullRole = SqlRoleManager.fullRoleName(SCHEMA_A, POLICY_ROLE);
+      assertFalse(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT"))
+              .isEmpty(),
+          "SELECT policy must exist");
+      assertFalse(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "INSERT"))
+              .isEmpty(),
+          "INSERT policy must exist");
+      assertFalse(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "UPDATE"))
+              .isEmpty(),
+          "UPDATE policy must exist");
+      assertTrue(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "DELETE"))
+              .isEmpty(),
+          "DELETE policy must NOT exist for NONE scope");
+      assertFalse(
+          hasTableGrant(SCHEMA_A, POLICY_TABLE, fullRole, "DELETE"),
+          "DELETE GRANT must NOT exist for NONE scope");
+    }
+
+    @Test
+    void idempotency_sameInputTwiceNoError() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+
+      assertDoesNotThrow(() -> roleManager.setPermissions(schemaA, POLICY_ROLE, perms));
+      assertDoesNotThrow(
+          () -> roleManager.setPermissions(schemaA, POLICY_ROLE, perms),
+          "Calling setPermissions twice with same input must not throw");
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      assertEquals(
+          1,
+          fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName).size(),
+          "Exactly one SELECT policy must exist after idempotent double-apply");
+    }
+
+    @Test
+    void policyNameOverflow_throwsMolgenisException() {
+      String longRoleName = "averylongrolename20x";
+      roleManager.createRole(schemaA, longRoleName, "overflow test role");
+
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+
+      assertThrows(
+          MolgenisException.class,
+          () -> roleManager.setPermissions(schemaA, longRoleName, perms),
+          "setPermissions must throw when resulting policy name exceeds PostgreSQL 63-byte limit");
+    }
+
+    @Test
+    void insertOwn_emitsWithCheckMgOwnerEqualsCurrentUser() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.OWN));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "INSERT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "INSERT/OWN policy must exist in pg_policies");
+      String withCheck = policies.get(0).get("with_check", String.class);
+      assertNotNull(withCheck, "INSERT/OWN WITH CHECK must not be null");
+      String withCheckLower = withCheck.toLowerCase(java.util.Locale.ROOT);
+      assertTrue(
+          withCheckLower.contains("mg_owner"),
+          "INSERT/OWN WITH CHECK must reference mg_owner, got: " + withCheck);
+      assertTrue(
+          withCheckLower.contains("current_user"),
+          "INSERT/OWN WITH CHECK must reference current_user, got: " + withCheck);
+    }
+
+    @Test
+    void insertGroup_emitsWithCheckMgGroupsAndCurrentUserGroups() {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.GROUP));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String policyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "INSERT");
+      List<org.jooq.Record> policies = fetchPolicies(SCHEMA_A, POLICY_TABLE, policyName);
+      assertFalse(policies.isEmpty(), "INSERT/GROUP policy must exist in pg_policies");
+      String withCheck = policies.get(0).get("with_check", String.class);
+      assertTrue(
+          withCheck != null && withCheck.contains("mg_groups"),
+          "INSERT/GROUP WITH CHECK must reference mg_groups, got: " + withCheck);
+      assertTrue(
+          withCheck.contains("current_user_groups"),
+          "INSERT/GROUP WITH CHECK must reference current_user_groups, got: " + withCheck);
+      assertTrue(
+          withCheck.contains("cardinality"),
+          "INSERT/GROUP WITH CHECK must reference cardinality, got: " + withCheck);
+    }
+
+    private static Stream<Arguments> viewModeScopes() {
+      return Stream.of(
+          Arguments.of(SelectScope.EXISTS),
+          Arguments.of(SelectScope.COUNT),
+          Arguments.of(SelectScope.RANGE),
+          Arguments.of(SelectScope.AGGREGATE));
+    }
+
+    @ParameterizedTest
+    @MethodSource("viewModeScopes")
+    void viewModeSelect_emitsTruePolicyNoWritePolicies(SelectScope viewScope) {
+      PermissionSet perms =
+          new PermissionSet()
+              .putTable(POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(viewScope));
+
+      roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
+
+      String selectPolicyName = expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "SELECT");
+      List<org.jooq.Record> selectPolicies =
+          fetchPolicies(SCHEMA_A, POLICY_TABLE, selectPolicyName);
+      assertFalse(
+          selectPolicies.isEmpty(), "SELECT policy must exist for view-mode scope " + viewScope);
+      String qual = selectPolicies.get(0).get("qual", String.class);
+      assertTrue(
+          qual != null && qual.contains("true"),
+          "SELECT USING for view-mode scope " + viewScope + " must be true, got: " + qual);
+
+      assertTrue(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "INSERT"))
+              .isEmpty(),
+          "No INSERT policy must be emitted for view-mode scope " + viewScope);
+      assertTrue(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "UPDATE"))
+              .isEmpty(),
+          "No UPDATE policy must be emitted for view-mode scope " + viewScope);
+      assertTrue(
+          fetchPolicies(
+                  SCHEMA_A,
+                  POLICY_TABLE,
+                  expectedPolicyName(SCHEMA_A, POLICY_ROLE, POLICY_TABLE, "DELETE"))
+              .isEmpty(),
+          "No DELETE policy must be emitted for view-mode scope " + viewScope);
+    }
+
+    private String expectedPolicyName(
+        String schemaName, String roleShortName, String tableName, String verb) {
+      String fullRole = SqlRoleManager.fullRoleName(schemaName, roleShortName);
+      return "MG_P_" + fullRole + "_" + tableName + "_" + verb;
+    }
+
+    private List<org.jooq.Record> fetchPolicies(
+        String schemaName, String tableName, String policyName) {
+      return jooq.fetch(
+          "SELECT policyname, qual, with_check FROM pg_policies "
+              + "WHERE schemaname = ? AND tablename = ? AND policyname = ?",
+          schemaName,
+          tableName,
+          policyName);
+    }
+
+    private boolean hasTableGrant(
+        String schemaName, String tableName, String fullRole, String verb) {
+      return jooq.fetchExists(
+          jooq.select()
+              .from(name("information_schema", "role_table_grants"))
+              .where(
+                  field(name("table_schema"))
+                      .eq(inline(schemaName))
+                      .and(field(name("table_name")).eq(inline(tableName)))
+                      .and(field(name("grantee")).eq(inline(fullRole)))
+                      .and(field(name("privilege_type")).eq(inline(verb)))));
     }
   }
 

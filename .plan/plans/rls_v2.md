@@ -66,6 +66,16 @@ write verbs):
 | `NONE` | policy not emitted; verb not granted |
 
 Policy naming: `MG_P_<role>_<table>_<verb>`. Match current branch convention.
+Validated against PG's 63-byte object name limit at emission time.
+
+**Table-level GRANTs paired with policies**: SELECT and DELETE policies are
+paired with `GRANT SELECT/DELETE ON TABLE <schema>.<table> TO <role>`.
+INSERT and UPDATE intentionally do NOT receive a table-level GRANT — column-
+level INSERT/UPDATE grants from `applyColumnGrants` (Phase 2) satisfy PG's
+"some privilege required for RLS" prerequisite while preserving the column-
+level restriction on `mg_owner`/`mg_groups` that drives `changeOwner` /
+`changeGroup` enforcement. A table-level INSERT/UPDATE grant would void the
+column restriction.
 
 **Scaling**: 4 × #custom-roles × #RLS-tables. With 5 roles × 10 tables × 1k
 schemas = 200k policies. PG handles this; auditing remains tractable via the
@@ -133,9 +143,13 @@ separately — they are derivable from the column-level grants. The
 ### View modes (EXISTS / COUNT / RANGE / AGGREGATE)
 
 Java-side enforcement in `SqlQuery`, unchanged from current branch — port
-verbatim. Policies do not participate. Privacy floor for `RANGE`:
-`CEIL(COUNT(*)::numeric / 10) * 10`. View modes are computed against the
-already-filtered row set produced by the row-level policies.
+verbatim. Policies do not filter rows for view-mode scopes — `applyPolicies`
+emits `USING(true)` for SELECT when scope is EXISTS/COUNT/RANGE/AGGREGATE
+(pass-through at the PG layer). INSERT/UPDATE/DELETE policies are not emitted
+for view-mode scopes (those scopes only constrain the SELECT verb's result
+shape, not write verbs). Privacy floor for `RANGE`: `CEIL(COUNT(*)::numeric /
+10) * 10`. View modes are computed against the already-filtered row set
+produced by the row-level policies.
 
 **Encoding** (decided): a single `SelectScope` enum per (role, table) with
 values `NONE | EXISTS | COUNT | RANGE | AGGREGATE | OWN | GROUP | ALL` —
@@ -285,10 +299,11 @@ verified; full combined-suite test floor still green
 
 #### Phase 1 status (2026-05-01)
 
-- Implementation in place: `migration33.sql`, `MetadataUtils` table +
-  `createCurrentUserGroupsFunction`, `Migrations.java` bumped to v33,
-  `GroupsMetadataTest` covering structure / FK cascade / function /
-  GIN index.
+- Implementation in place: `migration33.sql` (table DDL + FK + indexes),
+  `utility-sql/current_user_groups.sql` (function), `Migrations.java` runs
+  both at `version < 33`. `MetadataUtils.init()` no longer contains
+  `groups_metadata` DDL — table creation is exclusively migration-driven.
+  `GroupsMetadataTest` covers structure / FK cascade / function / GIN index.
 - Targeted test: `GroupsMetadataTest` 4/4 pass (~17s).
 - Combined-suite floor verified by user before commit `181e6db44`.
 
@@ -449,6 +464,49 @@ policy CREATE/DROP slots into the same diff loop in Phase 3.
 Exit criteria: policies appear/disappear on grant/revoke; SQL-level
 enforcement matches expectation for each (scope, verb) cell;
 `SqlPermissionExecutor`-equivalent tests green.
+
+#### Phase 3 status (2026-05-03) — GREEN
+
+- Implementation: `SqlRoleManager.applyPolicies` (private), called from
+  `setPermissions` after `applyColumnGrants`. Per-verb helpers: `applyVerbPolicy`,
+  `ensureRlsEnabled`, `emitPolicy`, `grantOrRevokeTableVerb`, `buildPolicyName`,
+  `isViewModeScope`, `buildUsingExpr`, `buildWithCheckExpr`, `groupUsingExpr`,
+  `buildGroupWithCheckExpr`.
+- Policy naming: `MG_P_<fullRole>_<table>_<verb>`.
+- DROP-then-CREATE on every `setPermissions` call (idempotent via `DROP POLICY IF EXISTS`).
+- INSERT/UPDATE verbs: no table-level GRANT emitted — column-level grants from
+  `applyColumnGrants` are sufficient for PG policy evaluation AND preserve
+  `mg_owner`/`mg_groups` column restrictions (table-level grant would override them).
+  SELECT/DELETE: table-level GRANTs emitted (no column-level grant concept).
+- View-mode scopes (EXISTS/COUNT/RANGE/AGGREGATE): mapped to `USING(true)` row policy;
+  Java enforces aggregate-only access in Phase 4.
+- `setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag` remains `@Disabled`:
+  test uses Alice-as-Manager (BYPASSRLS), which is not column-restricted; needs
+  `SET ROLE` to custom role session — Phase 4/5 fixture work.
+- Targeted test: `SqlRoleManagerTest` 56/56 pass, 1 skipped (the disabled
+  Alice-as-Manager BYPASSRLS test), 0 failed.
+- Hygiene pass (review-driven): added `buildPolicyName` UTF-8 length check
+  (PG 63-byte limit; throws `MolgenisException` on overflow); added INSERT/OWN
+  + INSERT/GROUP policy-shape tests; added parameterized view-mode SELECT test
+  (4 invocations: EXISTS/COUNT/RANGE/AGGREGATE → `USING(true)`, no
+  INSERT/UPDATE/DELETE policies); switched `grantColumnPrivileges` /
+  `revokeColumnGrants` to jOOQ `name(col)` quoting. Concurrency test renamed
+  table `ConcurrentTable` → `ConcTable` to fit under the new 63-byte cap.
+
+##### Deferred hygiene (rolled into Phase 7)
+
+- `buildGroupWithCheckExpr` strips outer parens via `substring` from
+  `groupUsingExpr` — fragile coupling. Refactor: have `groupUsingExpr` return
+  the raw predicate without wrapping parens; let callers wrap as needed.
+- `MOLGENIS_SCHEMA` literal hardcoded in `groupUsingExpr` — should reference
+  `Constants.MG_SYSTEM_SCHEMA` (or whichever existing constant names the
+  MOLGENIS schema) so a future rename doesn't silently break policies.
+- `grantOrRevokeTableVerb` uses string concatenation for the verb (verbs are
+  constants, not user input — minor stylistic cleanup).
+- `fetchRegularColumns`'s `NOT LIKE 'mg_%'` filter silently excludes any
+  user-defined column starting with `mg_`. Document the convention or harden
+  to an explicit allow-list of system columns (`mg_owner`, `mg_groups`,
+  `mg_insertedBy`, etc.).
 
 ### Phase 4 — View modes (Java side)
 

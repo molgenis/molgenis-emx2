@@ -277,16 +277,6 @@ public class MetadataUtils {
             t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
                 .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
                 .execute();
-
-            jooq.createTableIfNotExists(GROUPS_METADATA)
-                .columns(GROUP_SCHEMA, GROUP_NAME, GROUP_USERS)
-                .constraints(
-                    primaryKey(GROUP_SCHEMA, GROUP_NAME),
-                    foreignKey(GROUP_SCHEMA)
-                        .references(SCHEMA_METADATA)
-                        .onUpdateCascade()
-                        .onDeleteCascade())
-                .execute();
           });
 
       logger.info("INITIALIZING MOLGENIS METADATA SCHEMA COMPLETE");
