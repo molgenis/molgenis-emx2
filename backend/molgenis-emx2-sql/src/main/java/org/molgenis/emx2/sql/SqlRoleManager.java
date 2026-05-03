@@ -5,11 +5,15 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -20,6 +24,7 @@ public class SqlRoleManager {
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final SqlDatabase database;
 
@@ -272,12 +277,539 @@ public class SqlRoleManager {
         .delete(Boolean.TRUE.equals(a.delete()) || Boolean.TRUE.equals(b.delete()) ? true : null);
   }
 
+  public void createRole(Schema schema, String roleName, String description) {
+    String schemaName = schema.getName();
+    if (roleName == null || roleName.isEmpty()) {
+      throw new MolgenisException("Role name must not be empty");
+    }
+    if (roleName.toUpperCase().startsWith("MG_")) {
+      throw new MolgenisException("Role name must not start with reserved prefix MG_: " + roleName);
+    }
+    String fullRole = fullRoleName(schemaName, roleName);
+    if (fullRole.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException(
+          "Role name '"
+              + roleName
+              + "' is too long: combined identifier exceeds PostgreSQL 63-byte limit");
+    }
+    if (jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role already exists: " + roleName);
+    }
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            jooq.execute("CREATE ROLE {0} NOLOGIN", name(fullRole));
+            jooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline("{}"));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
+  public void deleteRole(Schema schema, String roleName) {
+    String schemaName = schema.getName();
+    String fullRole = fullRoleName(schemaName, roleName);
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext jooq = ((SqlDatabase) db).getJooq();
+            jooq.execute("DROP OWNED BY {0}", name(fullRole));
+            jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
+  public List<String> listRoles(Schema schema) {
+    String schemaName = schema.getName();
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    return jooq()
+        .fetch(
+            "SELECT a.rolname FROM pg_authid a "
+                + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
+                + "WHERE a.rolname LIKE {0} "
+                + "ORDER BY a.rolname",
+            inline(rolePrefix + "%"))
+        .stream()
+        .map(r -> r.get("rolname", String.class).substring(rolePrefix.length()))
+        .filter(roleName -> !isSystemRole(roleName))
+        .toList();
+  }
+
+  public void grantRoleToUser(Schema schema, String roleName, String username) {
+    String schemaName = schema.getName();
+    String fullRole = fullRoleName(schemaName, roleName);
+    String fullUser = MG_USER_PREFIX + username;
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullUser))))) {
+      throw new MolgenisException("User does not exist: " + username);
+    }
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    List<String> existingCustomRoles =
+        jooq()
+            .fetch(
+                "SELECT r.rolname FROM pg_auth_members am "
+                    + "JOIN pg_roles r ON r.oid = am.roleid "
+                    + "JOIN pg_roles m ON m.oid = am.member "
+                    + "WHERE m.rolname = {0} AND r.rolname LIKE {1} AND r.rolname <> {2}",
+                inline(fullUser), inline(rolePrefix + "%"), inline(fullRole))
+            .stream()
+            .map(r -> r.get(0, String.class).substring(rolePrefix.length()))
+            .filter(name -> !isSystemRole(name))
+            .toList();
+    if (!existingCustomRoles.isEmpty()) {
+      throw new MolgenisException(
+          "User '"
+              + username
+              + "' already holds a custom role in schema '"
+              + schemaName
+              + "': one custom role per schema is allowed");
+    }
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            ((SqlDatabase) db)
+                .getJooq()
+                .execute("GRANT {0} TO {1}", name(fullRole), name(fullUser));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
+  public void revokeRoleFromUser(Schema schema, String roleName, String username) {
+    String schemaName = schema.getName();
+    String fullRole = fullRoleName(schemaName, roleName);
+    String fullUser = MG_USER_PREFIX + username;
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
+    boolean isMember =
+        !jooq()
+            .fetch(
+                "SELECT 1 FROM pg_auth_members am "
+                    + "JOIN pg_roles r ON r.oid = am.roleid "
+                    + "JOIN pg_roles m ON m.oid = am.member "
+                    + "WHERE m.rolname = {0} AND r.rolname = {1}",
+                inline(fullUser), inline(fullRole))
+            .isEmpty();
+    if (!isMember) {
+      throw new MolgenisException(
+          "User '" + username + "' is not a member of role '" + roleName + "'");
+    }
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            ((SqlDatabase) db)
+                .getJooq()
+                .execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
   public boolean isSystemRole(String roleName) {
     return Privileges.isSystemRole(roleName);
   }
 
   public static String fullRoleName(String schemaName, String roleName) {
     return MG_ROLE_PREFIX + schemaName + "/" + roleName;
+  }
+
+  public void setPermissions(Schema schema, String roleName, PermissionSet permissions) {
+    String schemaName = schema.getName();
+    String fullRole = fullRoleName(schemaName, roleName);
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
+    String json = serializePermissionSet(permissions);
+    database.tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            DSLContext txJooq = ((SqlDatabase) db).getJooq();
+            // schema-level lock: serializes concurrent setPermissions on the same schema
+            txJooq.execute(
+                "SELECT pg_advisory_xact_lock((SELECT oid::bigint FROM pg_namespace WHERE nspname = {0}))",
+                inline(schemaName));
+            txJooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline(json));
+            Map<String, PermissionSet> allPermissions = buildAllPermissionsSnapshot(txJooq, schema);
+            applyColumnLifecycle(txJooq, schemaName, schema.getTableNames(), allPermissions);
+            applyColumnGrants(txJooq, schemaName, schema.getTableNames(), allPermissions);
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
+  private Map<String, PermissionSet> buildAllPermissionsSnapshot(DSLContext txJooq, Schema schema) {
+    Map<String, PermissionSet> snapshot = new LinkedHashMap<>();
+    for (String role : listRoles(schema)) {
+      snapshot.put(role, getPermissionsViaTx(txJooq, schema.getName(), role));
+    }
+    return snapshot;
+  }
+
+  private PermissionSet getPermissionsViaTx(DSLContext txJooq, String schemaName, String roleName) {
+    String fullRole = fullRoleName(schemaName, roleName);
+    Record commentRecord =
+        txJooq.fetchOne(
+            "SELECT d.description FROM pg_authid a "
+                + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
+                + "WHERE a.rolname = {0}",
+            inline(fullRole));
+    String comment = commentRecord == null ? null : commentRecord.get("description", String.class);
+    if (comment == null || comment.isBlank() || comment.equals("{}")) {
+      return new PermissionSet();
+    }
+    return deserializePermissionSet(comment);
+  }
+
+  private void applyColumnLifecycle(
+      DSLContext txJooq,
+      String schemaName,
+      Collection<String> tableNames,
+      Map<String, PermissionSet> allPermissions) {
+    for (String tableName : tableNames) {
+      boolean needsOwnerColumn =
+          anyRoleHasScopeOnTable(allPermissions, tableName, this::hasOwnScope);
+      boolean needsGroupsColumn =
+          anyRoleHasScopeOnTable(allPermissions, tableName, this::hasGroupScope);
+      boolean ownerExists = columnExists(txJooq, schemaName, tableName, MG_OWNER_COLUMN);
+      boolean groupsExists = columnExists(txJooq, schemaName, tableName, MG_GROUPS_COLUMN);
+      if (needsOwnerColumn && !ownerExists) {
+        addOwnerColumn(txJooq, schemaName, tableName);
+      } else if (!needsOwnerColumn && ownerExists) {
+        dropColumn(txJooq, schemaName, tableName, MG_OWNER_COLUMN);
+      }
+      if (needsGroupsColumn && !groupsExists) {
+        addGroupsColumn(txJooq, schemaName, tableName);
+      } else if (!needsGroupsColumn && groupsExists) {
+        dropColumn(txJooq, schemaName, tableName, MG_GROUPS_COLUMN);
+      }
+    }
+  }
+
+  private void applyColumnGrants(
+      DSLContext txJooq,
+      String schemaName,
+      Collection<String> tableNames,
+      Map<String, PermissionSet> allPermissions) {
+    for (Map.Entry<String, PermissionSet> roleEntry : allPermissions.entrySet()) {
+      String roleShortName = roleEntry.getKey();
+      PermissionSet rolePerms = roleEntry.getValue();
+      String fullRole = fullRoleName(schemaName, roleShortName);
+      for (String tableName : tableNames) {
+        PermissionSet.TablePermissions tablePerms = rolePerms.getTables().get(tableName);
+        applyColumnGrantsForRoleAndTable(
+            txJooq, schemaName, tableName, fullRole, tablePerms, rolePerms);
+      }
+    }
+  }
+
+  private void applyColumnGrantsForRoleAndTable(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      PermissionSet.TablePermissions tablePerms,
+      PermissionSet rolePerms) {
+    applyColumnGrantsForVerb(
+        txJooq, schemaName, tableName, fullRole, "INSERT", tablePerms, rolePerms);
+    applyColumnGrantsForVerb(
+        txJooq, schemaName, tableName, fullRole, "UPDATE", tablePerms, rolePerms);
+  }
+
+  private void applyColumnGrantsForVerb(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      PermissionSet.TablePermissions tablePerms,
+      PermissionSet rolePerms) {
+    boolean hasScope =
+        tablePerms != null
+            && (("INSERT".equals(verb) && tablePerms.getInsert() != SelectScope.NONE)
+                || ("UPDATE".equals(verb) && tablePerms.getUpdate() != SelectScope.NONE));
+
+    List<String> existingGrants =
+        fetchCurrentColumnGrants(txJooq, schemaName, tableName, fullRole, verb);
+
+    if (!hasScope) {
+      if (!existingGrants.isEmpty()) {
+        revokeColumnGrants(txJooq, schemaName, tableName, fullRole, verb, existingGrants);
+      }
+      return;
+    }
+
+    List<String> regularColumns = fetchRegularColumns(txJooq, schemaName, tableName);
+    List<String> desiredColumns = new ArrayList<>(regularColumns);
+    if (rolePerms.isChangeOwner() && columnExists(txJooq, schemaName, tableName, MG_OWNER_COLUMN)) {
+      desiredColumns.add(MG_OWNER_COLUMN);
+    }
+    if (rolePerms.isChangeGroup()
+        && columnExists(txJooq, schemaName, tableName, MG_GROUPS_COLUMN)) {
+      desiredColumns.add(MG_GROUPS_COLUMN);
+    }
+
+    List<String> toGrant = new ArrayList<>(desiredColumns);
+    toGrant.removeAll(existingGrants);
+    List<String> toRevoke = new ArrayList<>(existingGrants);
+    toRevoke.removeAll(desiredColumns);
+
+    if (!toGrant.isEmpty()) {
+      grantColumnPrivileges(txJooq, schemaName, tableName, fullRole, verb, toGrant);
+    }
+    if (!toRevoke.isEmpty()) {
+      revokeColumnGrants(txJooq, schemaName, tableName, fullRole, verb, toRevoke);
+    }
+  }
+
+  private List<String> fetchCurrentColumnGrants(
+      DSLContext txJooq, String schemaName, String tableName, String fullRole, String verb) {
+    return txJooq
+        .fetch(
+            "SELECT column_name FROM information_schema.column_privileges "
+                + "WHERE table_schema = {0} AND table_name = {1} "
+                + "AND grantee = {2} AND privilege_type = {3}",
+            inline(schemaName), inline(tableName), inline(fullRole), inline(verb))
+        .stream()
+        .map(r -> r.get("column_name", String.class))
+        .toList();
+  }
+
+  private List<String> fetchRegularColumns(DSLContext txJooq, String schemaName, String tableName) {
+    return txJooq
+        .fetch(
+            "SELECT column_name FROM information_schema.columns "
+                + "WHERE table_schema = {0} AND table_name = {1} "
+                + "AND column_name NOT LIKE 'mg_%'",
+            inline(schemaName), inline(tableName))
+        .stream()
+        .map(r -> r.get("column_name", String.class))
+        .toList();
+  }
+
+  private void grantColumnPrivileges(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      List<String> columns) {
+    String colList =
+        columns.stream().map(col -> "\"" + col + "\"").collect(Collectors.joining(", "));
+    txJooq.execute(
+        "GRANT "
+            + verb
+            + " ("
+            + colList
+            + ") ON \""
+            + schemaName
+            + "\".\""
+            + tableName
+            + "\" TO \""
+            + fullRole
+            + "\"");
+  }
+
+  private void revokeColumnGrants(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String verb,
+      List<String> columns) {
+    String colList =
+        columns.stream().map(col -> "\"" + col + "\"").collect(Collectors.joining(", "));
+    txJooq.execute(
+        "REVOKE "
+            + verb
+            + " ("
+            + colList
+            + ") ON \""
+            + schemaName
+            + "\".\""
+            + tableName
+            + "\" FROM \""
+            + fullRole
+            + "\"");
+  }
+
+  private boolean anyRoleHasScopeOnTable(
+      Map<String, PermissionSet> allPermissions,
+      String tableName,
+      Predicate<PermissionSet.TablePermissions> scopeCheck) {
+    for (PermissionSet perms : allPermissions.values()) {
+      PermissionSet.TablePermissions tablePerms = perms.getTables().get(tableName);
+      if (tablePerms != null && scopeCheck.test(tablePerms)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean hasOwnScope(PermissionSet.TablePermissions tp) {
+    return tp.getSelect() == SelectScope.OWN
+        || tp.getInsert() == SelectScope.OWN
+        || tp.getUpdate() == SelectScope.OWN
+        || tp.getDelete() == SelectScope.OWN;
+  }
+
+  private boolean hasGroupScope(PermissionSet.TablePermissions tp) {
+    return tp.getSelect() == SelectScope.GROUP
+        || tp.getInsert() == SelectScope.GROUP
+        || tp.getUpdate() == SelectScope.GROUP
+        || tp.getDelete() == SelectScope.GROUP;
+  }
+
+  private boolean columnExists(
+      DSLContext txJooq, String schemaName, String tableName, String columnName) {
+    return txJooq.fetchExists(
+        txJooq
+            .select()
+            .from(name("information_schema", "columns"))
+            .where(
+                field(name("table_schema"))
+                    .eq(inline(schemaName))
+                    .and(field(name("table_name")).eq(inline(tableName)))
+                    .and(field(name("column_name")).eq(inline(columnName)))));
+  }
+
+  private void addOwnerColumn(DSLContext txJooq, String schemaName, String tableName) {
+    txJooq.execute(
+        "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS {1} TEXT DEFAULT current_user",
+        table(name(schemaName, tableName)), name(MG_OWNER_COLUMN));
+    txJooq.execute(
+        "CREATE INDEX IF NOT EXISTS {0} ON {1} ({2})",
+        name(tableName + "_" + MG_OWNER_COLUMN + "_btree"),
+        table(name(schemaName, tableName)),
+        name(MG_OWNER_COLUMN));
+  }
+
+  private void addGroupsColumn(DSLContext txJooq, String schemaName, String tableName) {
+    txJooq.execute(
+        "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS {1} TEXT[]",
+        table(name(schemaName, tableName)), name(MG_GROUPS_COLUMN));
+    txJooq.execute(
+        "CREATE INDEX IF NOT EXISTS {0} ON {1} USING GIN ({2})",
+        name(tableName + "_" + MG_GROUPS_COLUMN + "_gin"),
+        table(name(schemaName, tableName)),
+        name(MG_GROUPS_COLUMN));
+  }
+
+  private void dropColumn(
+      DSLContext txJooq, String schemaName, String tableName, String columnName) {
+    txJooq.execute(
+        "ALTER TABLE {0} DROP COLUMN IF EXISTS {1} CASCADE",
+        table(name(schemaName, tableName)), name(columnName));
+  }
+
+  public PermissionSet getPermissions(Schema schema, String roleName) {
+    String schemaName = schema.getName();
+    String fullRole = fullRoleName(schemaName, roleName);
+    if (!jooq()
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
+      throw new MolgenisException("Role does not exist: " + roleName);
+    }
+    Record commentRecord =
+        jooq()
+            .fetchOne(
+                "SELECT d.description FROM pg_authid a "
+                    + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
+                    + "WHERE a.rolname = {0}",
+                inline(fullRole));
+    String comment = commentRecord == null ? null : commentRecord.get("description", String.class);
+    if (comment == null || comment.isBlank() || comment.equals("{}")) {
+      return new PermissionSet();
+    }
+    return deserializePermissionSet(comment);
+  }
+
+  private static String serializePermissionSet(PermissionSet permissions) {
+    try {
+      ObjectNode root = OBJECT_MAPPER.createObjectNode();
+      ObjectNode tablesNode = root.putObject("tables");
+      for (Map.Entry<String, PermissionSet.TablePermissions> entry :
+          permissions.getTables().entrySet()) {
+        PermissionSet.TablePermissions tp = entry.getValue();
+        ObjectNode tableNode = tablesNode.putObject(entry.getKey());
+        tableNode.put("select", tp.getSelect().name());
+        tableNode.put("insert", tp.getInsert().name());
+        tableNode.put("update", tp.getUpdate().name());
+        tableNode.put("delete", tp.getDelete().name());
+      }
+      root.put("changeOwner", permissions.isChangeOwner());
+      root.put("changeGroup", permissions.isChangeGroup());
+      return OBJECT_MAPPER.writeValueAsString(root);
+    } catch (Exception e) {
+      throw new MolgenisException("Failed to serialize PermissionSet", e);
+    }
+  }
+
+  private static PermissionSet deserializePermissionSet(String json) {
+    try {
+      ObjectNode root = (ObjectNode) OBJECT_MAPPER.readTree(json);
+      PermissionSet result = new PermissionSet();
+      if (root.has("tables")) {
+        ObjectNode tablesNode = (ObjectNode) root.get("tables");
+        tablesNode
+            .fields()
+            .forEachRemaining(
+                entry -> {
+                  ObjectNode tableNode = (ObjectNode) entry.getValue();
+                  PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+                  if (tableNode.has("select")) {
+                    tp.setSelect(SelectScope.fromString(tableNode.get("select").asText()));
+                  }
+                  if (tableNode.has("insert")) {
+                    tp.setInsert(SelectScope.fromString(tableNode.get("insert").asText()));
+                  }
+                  if (tableNode.has("update")) {
+                    tp.setUpdate(SelectScope.fromString(tableNode.get("update").asText()));
+                  }
+                  if (tableNode.has("delete")) {
+                    tp.setDelete(SelectScope.fromString(tableNode.get("delete").asText()));
+                  }
+                  result.putTable(entry.getKey(), tp);
+                });
+      }
+      if (root.has("changeOwner")) {
+        result.setChangeOwner(root.get("changeOwner").asBoolean());
+      }
+      if (root.has("changeGroup")) {
+        result.setChangeGroup(root.get("changeGroup").asBoolean());
+      }
+      return result;
+    } catch (MolgenisException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new MolgenisException("Failed to deserialize PermissionSet", e);
+    }
   }
 
   private List<TablePermission> systemPermissions(String roleName) {

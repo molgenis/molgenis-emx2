@@ -290,8 +290,13 @@ verified; full combined-suite test floor still green
   `GroupsMetadataTest` covering structure / FK cascade / function /
   GIN index.
 - Targeted test: `GroupsMetadataTest` 4/4 pass (~17s).
-- **Pending**: user-run phase-boundary combined-suite from §0.5 to
-  confirm test floor still green.
+- Combined-suite floor verified by user before commit `181e6db44`.
+
+**Fork base**: v2 was cut fresh from master. The prior branch
+`mswertz/poc/rls_using_one_role_and_policies` (still live locally + remote)
+holds the reference implementation for `SqlRoleManager` / per-verb policy
+emission / column-grant logic — 13 commits ahead of v2's fork point.
+Phases 2–6 port from there with naming aligned to the locked v2 design.
 
 Deferred from the original Phase 1 design (now Phase 2):
 
@@ -328,6 +333,101 @@ Deferred from the original Phase 1 design (now Phase 2):
 Exit criteria: roles can be created, listed, granted, revoked, deleted via
 GraphQL; one-role-per-schema constraint enforced; lifecycle round-trip tests
 green.
+
+#### Phase 2 port plan (2026-05-02)
+
+Source-branch reference: `mswertz/poc/rls_using_one_role_and_policies`.
+The port is **not verbatim** — five concrete divergences require adaptation:
+
+1. **Role naming**: source uses global `MG_ROLE_<name>`; v2 needs schema-scoped
+   `MG_ROLE_<schema>/<name>` (already noted Phase 0 scout #4).
+2. **Policy naming**: source emits `MG_P_<role>_<verb>_<scope>`; v2 emits
+   `MG_P_<role>_<table>_<verb>` (per-table, scope in USING).
+3. **Sentinel `USING(false)` policies for changeOwner/changeGroup** are
+   rejected in v2 in favour of column-level INSERT/UPDATE GRANTs. Do not port.
+4. **One-role-per-user-per-schema exclusivity** is new in v2 — source has no
+   such check. Add it in `grantRoleToUser`.
+5. **Column lifecycle (mg_owner/mg_groups add+drop)** is new in v2 — source
+   only adds on first RLS enable, never drops. Drive lifecycle from
+   `setPermissions` diff in v2.
+
+Source files to mine (read-only, do not check out branch):
+- `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlRoleManager.java` — createRole 73, deleteRole 102, listRoles 163, grantRoleToUser 188, revokeRoleFromUser 222, setPermissions 241, emitFlagPolicies 558.
+- `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/rls/SqlPermissionExecutor.java` — createChangeOwnerPolicy 121, createChangeGroupPolicy 130, enableRowLevelSecurity 268 (mg_insertedBy → mg_owner migration is reusable, lines 280–293).
+- Tests: `SqlRoleManagerTest`, `rls/SqlRoleManagerEmissionTest`.
+
+Slice plan (each slice independently testable, RED-GREEN per slice):
+
+- **2.A — Create / list / delete role.** `SqlRoleManager.createRole(schema,
+  name, description)` emits `CREATE ROLE MG_ROLE_<schema>/<name>` with empty
+  COMMENT JSON `{}`. `deleteRole(schema, name)` drops the PG role.
+  `listRoles(schema)` queries `pg_authid` + `pg_shdescription`, filtered on
+  `MG_ROLE_<schema>/` prefix. Tests: round-trip; duplicate rejection; reserved
+  name patterns. **No grants, no policies, no columns** in this slice.
+  **Status (2026-05-02): GREEN — 9/9 tests pass.** Implementation note: emx2
+  system roles (Owner / Manager / Editor / Viewer / Count / Range / Exists /
+  Aggregator) share the `MG_ROLE_<schema>/` prefix, so `listRoles` filters
+  these out by name to return only custom roles. Any future consumer that
+  enumerates custom roles must apply the same filter. `deleteRole` calls
+  `DROP OWNED BY` before `DROP ROLE` so an existing-grants/objects state
+  doesn't block deletion. `deleteRole` of a missing role throws
+  `MolgenisException` (not idempotent).
+- **2.B — Grant / revoke with exclusivity.**
+  `grantRoleToUser(schema, role, user)` checks `pg_auth_members` for any
+  existing `MG_ROLE_<schema>/*` granted to user → reject if found (system
+  roles exempt). `revokeRoleFromUser(schema, role, user)` straight DROP.
+  Tests: round-trip; second-role rejection; system role exempt.
+  **Status (2026-05-02): GREEN — 17/17 tests pass (9 from 2.A + 8 new).**
+  Implementation note: exclusivity scans `pg_auth_members` for any
+  `MG_ROLE_<schema>/*` membership held by `MG_USER_<u>`, strips the prefix,
+  applies the same `isSystemRole` filter from 2.A, and rejects only when a
+  non-system custom-role membership remains. Missing-user / missing-role
+  checks query `pg_roles` directly (no Database context plumbing required).
+- **2.C — `setPermissions` API surface (no policies yet).** Define
+  `PermissionSet` Java type (per-table per-verb scope + `changeOwner` /
+  `changeGroup` booleans). `setPermissions(role, PermissionSet)` writes the
+  full document into `COMMENT ON ROLE`. `getPermissions(role)` reads it back.
+  Tests: round-trip; reject scopes outside enum.
+  **Status (2026-05-02): GREEN — 23/23 tests pass (17 from 2.B + 6 new).**
+  `SelectScope` and `PermissionSet` (with inner `TablePermissions`) placed in
+  `org.molgenis.emx2` (model module). JSON codec lives in `SqlRoleManager`
+  using Jackson. Single `SelectScope` enum: `NONE|EXISTS|COUNT|RANGE|AGGREGATE|OWN|GROUP|ALL`.
+  JSON shape: `{"tables":{"<table>":{"select":"OWN","insert":"GROUP","update":"OWN","delete":"NONE"}},"changeOwner":false,"changeGroup":false}`.
+- **2.D — Column lifecycle (mg_owner / mg_groups).** On `setPermissions`,
+  diff old vs new doc per table: first OWN appears → add `mg_owner` REF
+  (reuse the `enableRowLevelSecurity` migration logic); last OWN goes →
+  drop column. Same for `mg_groups` REF_ARRAY. Existing emx2 row-lifecycle
+  trigger sets `mg_owner = mg_insertedBy` on insert. B-tree index auto via
+  REF column (verify). Tests: column appears/disappears via setPermissions;
+  default value populated by trigger; B-tree index present.
+  **Status (2026-05-01): GREEN — 31/31 tests pass (23 from 2.C + 8 new).**
+  **Concurrency fix (2026-05-01): GREEN — 32/32 tests pass (+1 new).**
+  Column lifecycle lives in `SqlRoleManager.applyColumnLifecycle` (private),
+  called from `setPermissions` inside the tx. `pg_advisory_xact_lock` on the
+  schema oid serializes concurrent `setPermissions` calls; snapshot is built
+  via `txJooq` after the COMMENT is written so the just-written role's
+  permissions are visible without any "inject" hack. `mg_owner` added as TEXT
+  + explicit btree index `<table>_mg_owner_btree`; `mg_groups` added as TEXT[]
+  + explicit GIN index `<table>_mg_groups_gin`. Both dropped via `CASCADE` when
+  last scope is removed. Teardown fix: `dropCustomRolesForSchema` now filters
+  out system roles to avoid `DROP OWNED BY Manager` wiping tables.
+- **2.E — Column-level GRANTs for changeOwner / changeGroup.** On
+  `setPermissions` diff: emit `GRANT INSERT/UPDATE (cols…)` over role's
+  permitted columns excluding `mg_owner` / `mg_groups`; if `changeOwner=true`
+  add grant on `mg_owner`; if `changeGroup=true` add grant on `mg_groups`.
+  Revoke when flag flips false. Tests: SQL-level rejection of `mg_owner`
+  update without flag; allow with flag.
+  **Status (2026-05-02): GREEN — 38/39 tests pass (32 from 2.D + 6 new), 1
+  skipped.** Grant logic in `SqlRoleManager.applyColumnGrants` (private),
+  called from `setPermissions` after `applyColumnLifecycle`. Diff driven by
+  `information_schema.column_privileges`. Regular columns = all non-`mg_*`
+  cols via `information_schema.columns`. Test #7 (`setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag`)
+  is `@Disabled` — requires table-level INSERT grant (Phase 3) before
+  column-level enforcement is observable via emx2 table API.
+
+Phase 2 exits when 2.A–2.E are green. **Policy DDL itself stays Phase 3** —
+`setPermissions` in Phase 2 only writes COMMENT JSON + manages columns/grants;
+policy CREATE/DROP slots into the same diff loop in Phase 3.
 
 ### Phase 3 — Per-verb scope policies
 
