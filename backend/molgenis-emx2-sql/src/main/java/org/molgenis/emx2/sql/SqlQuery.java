@@ -11,6 +11,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
@@ -707,32 +708,36 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
+        if (existsFieldAllowed(table)) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
-      } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
-        checkHasViewPermission(table);
+      } else if (List.of(MAX_FIELD, MIN_FIELD).contains(field.getColumn())) {
+        requireSelectCapability(table, SelectScope::allowsMinMax, "min/max not allowed on table '");
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
-          switch (field.getColumn()) {
-            case MAX_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default ->
-                throw new MolgenisException(
-                    "Unknown aggregate type provided: " + field.getColumn());
+          if (MAX_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+          } else {
+            result.add(
+                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+          }
+        }
+        fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
+      } else if (List.of(AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
+        requireSelectCapability(table, SelectScope::allowsAvgSum, "avg/sum not allowed on table '");
+        List<JSONEntry<?>> result = new ArrayList<>();
+        for (SelectColumn sub : field.getSubselect()) {
+          Column c = getColumnByName(table, sub.getColumn());
+          if (AVG_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier())
+                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+          } else {
+            result.add(
+                key(c.getIdentifier())
+                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -741,19 +746,57 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Integer> getCountField(SqlTableMetadata table) {
-    if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    if (schema.hasActiveUserRole(COUNT.toString())) {
-      return count();
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
-    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+  private void requireSelectCapability(
+      SqlTableMetadata table, Predicate<SelectScope> capability, String errorPrefix) {
+    Set<SelectScope> scopes = effectiveSelectScopes(table);
+    if (scopes.isEmpty()
+        && !schema.getDatabase().getRoleManager().hasCustomRoleForUser(schema.getName())) {
+      return;
     }
-    throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    if (scopes.stream().noneMatch(capability)) {
+      throw new MolgenisException(errorPrefix + table.getTableName() + "'");
+    }
+  }
+
+  private Set<SelectScope> effectiveSelectScopes(SqlTableMetadata table) {
+    return schema.getDatabase().getRoleManager().getEffectiveSelectScopes(schema.getName(), table);
+  }
+
+  private Field<Long> getCountField(SqlTableMetadata table) {
+    if (table.getTableType() == TableType.ONTOLOGIES) return count().cast(Long.class);
+    SelectScope customScope =
+        schema.getDatabase().getRoleManager().getCustomRoleSelectScope(schema.getName(), table);
+    if (customScope != null) {
+      if (customScope.allowsExactCount()) return count().cast(Long.class);
+      if (customScope == SelectScope.RANGE) {
+        return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Long.class, 10L);
+      }
+      throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
+    }
+    if (schema.hasActiveUserRole(COUNT.toString())
+        || getTablesWithSelectPermission().contains("*")
+        || getTablesWithSelectPermission().contains(table.getTableName())) {
+      return count().cast(Long.class);
+    }
+    if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", Long.class, 10L);
+    }
+    if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Long.class, 10L);
+    }
+    throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
+  }
+
+  private boolean existsFieldAllowed(SqlTableMetadata table) {
+    SqlRoleManager roleManager = schema.getDatabase().getRoleManager();
+    SelectScope customScope = roleManager.getCustomRoleSelectScope(schema.getName(), table);
+    if (customScope != null) {
+      return customScope.allowsRowAccess() || customScope == SelectScope.EXISTS;
+    }
+    if (roleManager.hasCustomRoleForUser(schema.getName())) {
+      return false;
+    }
+    return schema.hasActiveUserRole(EXISTS.toString());
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -769,6 +812,7 @@ public class SqlQuery extends QueryBean {
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNt or SUM is required when using group by");
     }
+    requireSelectCapability(table, SelectScope::allowsGroupBy, "groupBy not allowed on table '");
 
     // filter conditions
     Condition condition = null;

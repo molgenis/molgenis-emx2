@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
@@ -964,6 +966,132 @@ public class SqlRoleManager {
       return new PermissionSet();
     }
     return deserializePermissionSet(comment);
+  }
+
+  public Set<SelectScope> getEffectiveSelectScopes(Schema schema, SqlTableMetadata table) {
+    return getEffectiveSelectScopes(schema.getName(), table);
+  }
+
+  public Set<SelectScope> getEffectiveSelectScopes(String schemaName, SqlTableMetadata table) {
+    Set<SelectScope> result = EnumSet.noneOf(SelectScope.class);
+    addCustomRoleScope(schemaName, table, result);
+    addSystemRoleScopes(schemaName, result);
+    return result;
+  }
+
+  public SelectScope getCustomRoleSelectScope(String schemaName, SqlTableMetadata table) {
+    Set<SelectScope> customScopes = EnumSet.noneOf(SelectScope.class);
+    addCustomRoleScope(schemaName, table, customScopes);
+    return customScopes.isEmpty() ? null : customScopes.iterator().next();
+  }
+
+  public boolean hasCustomRoleForUser(String schemaName) {
+    String activeUser = database.getActiveUser();
+    if (activeUser == null) return false;
+    String[] result = {null};
+    database.getJooqAsAdmin(
+        adminJooq -> result[0] = findCustomRoleForUserViaJooq(adminJooq, schemaName, activeUser));
+    return result[0] != null;
+  }
+
+  private void addCustomRoleScope(Schema schema, SqlTableMetadata table, Set<SelectScope> result) {
+    addCustomRoleScope(schema.getName(), table, result);
+  }
+
+  private void addCustomRoleScope(
+      String schemaName, SqlTableMetadata table, Set<SelectScope> result) {
+    String activeUser = database.getActiveUser();
+    if (activeUser == null) return;
+    String[] customRoleAndComment = {null, null};
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          String roleName = findCustomRoleForUserViaJooq(adminJooq, schemaName, activeUser);
+          if (roleName == null) return;
+          String fullRole = fullRoleName(schemaName, roleName);
+          Record commentRecord =
+              adminJooq.fetchOne(
+                  "SELECT d.description FROM pg_authid a "
+                      + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
+                      + "WHERE a.rolname = {0}",
+                  inline(fullRole));
+          customRoleAndComment[0] = roleName;
+          customRoleAndComment[1] =
+              commentRecord == null ? null : commentRecord.get("description", String.class);
+        });
+    if (customRoleAndComment[0] == null) return;
+    String json = customRoleAndComment[1];
+    PermissionSet permissions;
+    if (json == null || json.isBlank() || json.equals("{}")) {
+      permissions = new PermissionSet();
+    } else {
+      permissions = deserializePermissionSet(json);
+    }
+    PermissionSet.TablePermissions tablePerms = permissions.getTables().get(table.getTableName());
+    if (tablePerms == null) return;
+    SelectScope scope = tablePerms.getSelect();
+    if (scope != SelectScope.NONE) {
+      result.add(scope);
+    }
+  }
+
+  private static String findCustomRoleForUserViaJooq(
+      DSLContext jooq, String schemaName, String username) {
+    String fullUser = MG_USER_PREFIX + username;
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    return jooq
+        .fetch(
+            "SELECT r.rolname FROM pg_auth_members am "
+                + "JOIN pg_roles r ON r.oid = am.roleid "
+                + "JOIN pg_roles m ON m.oid = am.member "
+                + "WHERE m.rolname = {0} AND r.rolname LIKE {1}",
+            inline(fullUser), inline(rolePrefix + "%"))
+        .stream()
+        .map(r -> r.get(0, String.class).substring(rolePrefix.length()))
+        .filter(name -> !Privileges.isSystemRole(name))
+        .findFirst()
+        .orElse(null);
+  }
+
+  private void addSystemRoleScopes(String schemaName, Set<SelectScope> result) {
+    String activeUser = database.getActiveUser();
+    if (activeUser == null) return;
+    List<String> directRoles = new ArrayList<>();
+    database.getJooqAsAdmin(
+        adminJooq ->
+            directRoles.addAll(findDirectSystemRolesForUser(adminJooq, schemaName, activeUser)));
+    for (String role : directRoles) {
+      if (role.equals(Privileges.COUNT.toString())) {
+        result.add(SelectScope.COUNT);
+      } else if (role.equals(Privileges.AGGREGATOR.toString())) {
+        result.add(SelectScope.AGGREGATE);
+      } else if (role.equals(Privileges.RANGE.toString())) {
+        result.add(SelectScope.RANGE);
+      } else if (role.equals(Privileges.EXISTS.toString())) {
+        result.add(SelectScope.EXISTS);
+      } else if (role.equals(Privileges.VIEWER.toString())
+          || role.equals(Privileges.EDITOR.toString())
+          || role.equals(Privileges.MANAGER.toString())
+          || role.equals(Privileges.OWNER.toString())) {
+        result.add(SelectScope.ALL);
+      }
+    }
+  }
+
+  private static List<String> findDirectSystemRolesForUser(
+      DSLContext jooq, String schemaName, String username) {
+    String fullUser = MG_USER_PREFIX + username;
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    return jooq
+        .fetch(
+            "SELECT r.rolname FROM pg_auth_members am "
+                + "JOIN pg_roles r ON r.oid = am.roleid "
+                + "JOIN pg_roles m ON m.oid = am.member "
+                + "WHERE m.rolname = {0} AND r.rolname LIKE {1}",
+            inline(fullUser), inline(rolePrefix + "%"))
+        .stream()
+        .map(r -> r.get(0, String.class).substring(rolePrefix.length()))
+        .filter(Privileges::isSystemRole)
+        .toList();
   }
 
   private static String serializePermissionSet(PermissionSet permissions) {

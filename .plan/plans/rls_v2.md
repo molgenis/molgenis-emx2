@@ -527,6 +527,127 @@ enforcement matches expectation for each (scope, verb) cell;
 Exit criteria: privacy modes work as in current branch; aggregate-only and
 range-only queries are correctly enforced; view-mode tests pass.
 
+#### Phase 4 port plan (2026-05-03)
+
+Source-branch reference: `mswertz/poc/rls_using_one_role_and_policies` —
+`SqlQuery.java` `getCountField`, `requireSelectCapability`,
+`getEffectiveSelectScopes`, plus call sites at MIN/MAX/AVG/SUM/GROUP BY.
+
+Pre-state (scout 2026-05-03):
+- `SelectScope` enum + all 6 capability methods already in v2
+  (`backend/molgenis-emx2/src/main/java/org/molgenis/emx2/SelectScope.java`).
+- v2 `SqlQuery.getCountField()` (lines 744–757) currently dispatches on
+  **system roles** via `schema.hasActiveUserRole(COUNT/AGGREGATOR/RANGE)` —
+  legacy code from master, not custom-role aware.
+- v2 `SqlQuery` EXISTS path (lines 709–712) also gated on system role.
+- No `getEffectiveSelectScopes` / `requireSelectCapability` in v2 yet.
+
+Divergences from source-branch port:
+1. **Source enum lives at `TablePermission.SelectScope`**; v2's lives at
+   `org.molgenis.emx2.SelectScope` (already moved in Phase 2.C). Imports differ.
+2. **`getEffectiveSelectScopes`** in v2 must read from `SqlRoleManager`
+   COMMENT-JSON PermissionSet (Phase 2.C storage), not from a metadata table.
+3. **System-role view-mode dispatch** stays for backward compat with master
+   (existing tests rely on it). Custom-role scope is layered on top: if
+   a custom role is granted, its scope wins; else fall back to system-role
+   dispatch (master behaviour).
+4. **Privacy-floor return type**: source `Long`, v2 currently `Integer` at
+   line 754 — align to `Long` to match source semantics and fix overflow on
+   billion-row tables.
+
+Slice plan (each slice independently testable, RED-GREEN per slice):
+
+- **4.A — `getEffectiveSelectScopes(table)` helper.** New private method on
+  `SqlQuery` (or its companion). Returns `Set<SelectScope>` for current user
+  on this table: union of (a) custom-role scope from PermissionSet for the
+  current user's role on this schema/table, plus (b) system-role view-mode
+  scopes (COUNT/AGGREGATOR/RANGE/EXISTS) translated from existing
+  `hasActiveUserRole` checks. Empty set = no access. Tests: per-(role,table)
+  scope returns expected set; user with no role returns empty; system role
+  fallback works when no custom role granted.
+  **Status (2026-05-03): GREEN — 8/8 tests pass.** Implementation landed on
+  `SqlRoleManager` rather than `SqlQuery` — `pg_auth_members` lookups require
+  admin jOOQ access (`database.getJooqAsAdmin`), which the role manager
+  already plumbs. Public method
+  `getEffectiveSelectScopes(Schema, SqlTableMetadata)` returns the union of
+  the user's custom-role `select` scope (read from PermissionSet COMMENT
+  JSON) and any direct system view-mode role grants (Count/Range/Aggregator/
+  Exists, queried from `pg_auth_members` with the system-role hierarchy
+  unflattened — direct grants only). Test class
+  `EffectiveSelectScopesTest`. Pre-existing interaction noted:
+  `executeAddMembers` revokes a user's custom PG role when assigning a new
+  system role — Phase 6 GraphQL work must account for this.
+- **4.B — `requireSelectCapability` + `getCountField` refactor.** Add private
+  helper `requireSelectCapability(table, predicate, message)` that throws
+  `MolgenisException` when no scope in `getEffectiveSelectScopes` satisfies
+  the predicate. Refactor `getCountField` to: if any scope `allowsExactCount`
+  → `count()`; else if `RANGE` present → privacy floor (`CEIL(COUNT(*)::
+  numeric / 10) * 10` as `Long`); else throw. Tests: COUNT returns exact;
+  RANGE returns floored; AGGREGATE returns exact (allowsExactCount=true);
+  EXISTS-only throws; NONE throws.
+  **Status (2026-05-03): GREEN — 9/9 tests pass; 23-test smoke (incl.
+  `TestAggregatePermission`, `EffectiveSelectScopesTest`) all green.**
+  `getCountField` return type changed `Integer` → `Long`; only caller
+  (`jsonAggregateSelect`) takes `List<Field<?>>` so no cascade. Dispatch
+  rule: custom-role scope drives the new exact/floor/throw path; **if no
+  custom role**, falls back to the existing system-role dispatch which
+  preserves master's `GREATEST(COUNT(*),10)` for the AGGREGATOR system role
+  (distinct from custom-scope `AGGREGATE` which routes through
+  `allowsExactCount=true`). New helpers: `SqlQuery.effectiveSelectScopes`,
+  `SqlQuery.requireSelectCapability`; `SqlRoleManager.getEffectiveSelectScopes`
+  gained a `(String schemaName, SqlTableMetadata)` overload to handle
+  cases where the active user lacks schema VIEW (the original `(Schema,
+  ...)` overload may now be unused — review in 4.A cleanup).
+- **4.C — MIN/MAX/AVG/SUM/GROUP BY enforcement.** Identify call sites in
+  v2 `SqlQuery` for these aggregations. Wrap each with the appropriate
+  `requireSelectCapability` predicate (`allowsMinMax`, `allowsAvgSum`,
+  `allowsGroupBy`). Tests: per-aggregation, per-scope allow/deny matrix.
+  **Status (2026-05-03): GREEN — 45/45 parameterized tests pass; 79-test
+  smoke (4.A+4.B+4.C+4.D) all green.** Wraps applied: `jsonAggregateSelect`
+  split the single MAX/MIN/AVG/SUM guard into two `requireSelectCapability`
+  calls (`allowsMinMax` for MAX/MIN, `allowsAvgSum` for AVG/SUM); switch-case
+  refactored to if/else to drop dead `default` arm. `jsonGroupBySelect` adds
+  `allowsGroupBy` check after the existing COUNT/SUM guard. Denial throws
+  `MolgenisException` (not silent omission). Confirmed: RANGE → MIN/MAX
+  allowed, AVG/SUM denied; AGGREGATE → all four allowed; COUNT/EXISTS/NONE
+  → all denied; system Viewer → ALL via 4.D mapping → all allowed.
+- **4.D — EXISTS field refactor.** Replace `schema.hasActiveUserRole(EXISTS)`
+  in `jsonFieldSelect()` (lines 709–712) with effective-scope check. Test:
+  EXISTS field returns boolean for any scope where `allowsRowAccess=true OR
+  EXISTS in set`; absent otherwise.
+  **Status (2026-05-03): GREEN — 10/10 tests pass; 28-test smoke green
+  (ExistsFieldTest + GetCountFieldTest + EffectiveSelectScopesTest).**
+  `SqlQuery.existsFieldAllowed(table)`: custom-role scope wins (NONE / non-
+  row-access non-EXISTS → field omitted); falls back to
+  `schema.hasActiveUserRole(EXISTS)` when no custom role granted.
+  `SqlRoleManager.addSystemRoleScopes` extended to map
+  Viewer/Editor/Manager/Owner → `SelectScope.ALL` so capability checks
+  pass-through for full-access system roles (consistent with their
+  BYPASSRLS at PG layer). New: `SqlRoleManager.hasCustomRoleForUser(
+  schemaName)` to disambiguate "custom-role-with-NONE" from "no custom
+  role at all".
+
+Phase 4 exits when 4.A–4.D are green and the combined-suite floor is still
+zero failures.
+
+**Status (2026-05-03): all four slices GREEN via targeted tests
+(9 + 9 + 50 + 10 = 78 new tests; 86-test cross-module smoke green).
+Awaiting user-run combined-suite at phase boundary (canonical command in §0.5).**
+
+**4.C master-parity fix (2026-05-03)**: combined-suite revealed 14 regressions
+(`TestCompositeForeignKeys`, `TestQueryJsonGraph`, `TestGraphqlSchemaFields`,
+`TestSumQuery`) — `requireSelectCapability` threw for admin/superuser users
+who have neither a custom role nor a view-mode system role. Fix: short-circuit
+`requireSelectCapability` to no-op when `effectiveSelectScopes` is empty AND
+`hasCustomRoleForUser==false`. Preserves master parity. 5 regression tests
+added to `AggregationPermissionTest`. Error-message format also fixed (table
+name was missing from the thrown exception).
+
+**Suspected ordering glitch**: combined-suite also reported
+`TestGraphqlSchemaFields.testMatchInParentsAndChildren` (`Field 'Tag/name'
+undefined`). PASSES on master AND in targeted v2 run. Likely cross-test
+schema pollution; tracked as #6, will re-evaluate at next combined-suite run.
+
 ### Phase 5 — `changeOwner` / `changeGroup` capabilities
 
 Already enforced by column-level INSERT/UPDATE GRANTs emitted in Phase 3.
