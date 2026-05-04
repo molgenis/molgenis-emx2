@@ -1,0 +1,11 @@
+---
+name: Patient registry staging
+description: Staging area for the Patient Registry schema
+
+profileTags: Patient registry staging
+
+settings: _settings/patient_registry_staging
+
+
+ontologiesToFixedSchema: CatalogueOntologies
+additionalFixedSchemaModel: _models/specific/CatalogueOntologies

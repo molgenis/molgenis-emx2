@@ -1263,6 +1263,14 @@ class WebApiSmokeTests extends ApiTestBase {
             .getBody()
             .asString();
 
+    String resultShaclNonTurtleSucceed =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .getBody()
+            .asString();
+
     assertAll(
         // Validate base API.
         () -> assertFalse(resultBase.contains("CatalogueOntologies")),
@@ -1283,7 +1291,14 @@ class WebApiSmokeTests extends ApiTestBase {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")));
+                    - id: hri-v2.0.2""")),
+        () ->
+            assertTrue(
+                resultShaclNonTurtleSucceed.contains(
+                    """
+                            "@type": [
+                                        "http://www.w3.org/ns/shacl#ValidationReport"
+                                    ],""")));
   }
 
   /**
@@ -1497,7 +1512,11 @@ class WebApiSmokeTests extends ApiTestBase {
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
     database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
-    database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    try {
+      database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    } catch (MolgenisException e) {
+      // ignore error when there is nothing to clean up
+    }
 
     String token = getToken("admin", "admin");
     String result;
