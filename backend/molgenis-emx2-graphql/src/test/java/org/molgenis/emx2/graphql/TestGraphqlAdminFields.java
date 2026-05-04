@@ -147,7 +147,8 @@ class TestGraphqlAdminFields {
 
     sessionManager.createSession(ANONYMOUS);
     MolgenisException exception = assertThrows(MolgenisException.class, () -> executeDb(query));
-    assertTrue(exception.getMessage().contains("Listing all tasks is only allowed for admin users"));
+    assertTrue(
+        exception.getMessage().contains("Listing all tasks is only allowed for admin users"));
 
     sessionManager.createSession(ADMIN_USER);
     assertTrue(executeDb(query).contains("\"_tasks\" : [ ]"));
