@@ -9,12 +9,13 @@ CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 def get_data_model(profile_path, path_to_write, profile):
     # get data model from profile and write to file
     data_model = pd.DataFrame()
-    pattern = '|'.join(profile)
     for file_name in os.listdir(profile_path):
         if '.csv' in file_name:
-            file_path = Path.joinpath(profile_path, file_name)
+            file_path = profile_path + '/' + file_name
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
-            df = df[df['profiles'].str.contains(pattern, na=False)]
+            df['new_profiles'] = df['profiles'].apply(lambda x: x.split(','))
+            df = df[df['new_profiles'].apply(lambda x: any(item in profile for item in x))]
+            df = df.drop('new_profiles', axis=1, inplace=False)
             data_model = pd.concat([data_model, df])
 
     data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
