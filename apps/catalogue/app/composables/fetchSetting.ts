@@ -1,6 +1,6 @@
 import { useRuntimeConfig } from "#app";
 
-export const fetchSetting = (settingKey: string) => {
+export const fetchSetting = (settingKey: string): Promise<any> => {
   let body = {
     query: `{_settings (keys: ["${settingKey}"]){ key, value }}`,
   };
