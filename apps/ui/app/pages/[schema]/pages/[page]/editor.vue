@@ -7,6 +7,9 @@ import type {
   Crumb,
   INotificationType,
 } from "../../../../../../tailwind-components/types/types";
+
+import type { IContainerMetadata } from "../../../../../../tailwind-components/types/CmsComponents";
+
 import type { IDeveloperPages } from "../../../../../../tailwind-components/types/cms";
 
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
@@ -40,10 +43,15 @@ const { isAdmin } = await useSession(schema);
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 
+const pageDataSchema = ref<IContainerMetadata>({ page: newDeveloperPage() });
 const pageData = ref<IDeveloperPages>(newDeveloperPage());
 const originalPageData = ref<IDeveloperPages>(newDeveloperPage());
 
-pageData.value = (await getPage(schema as string, page)) as IDeveloperPages;
+pageDataSchema.value = (await getPage(
+  schema as string,
+  page
+)) as IContainerMetadata;
+pageData.value = pageDataSchema.value.page;
 originalPageData.value = { ...pageData.value };
 
 const hasUnsavedHtml = ref<boolean>(false);

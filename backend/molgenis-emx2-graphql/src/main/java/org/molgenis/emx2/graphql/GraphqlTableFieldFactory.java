@@ -949,6 +949,9 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, MutationType.DELETE));
 
+    fieldBuilder.argument(
+        GraphQLArgument.newArgument().name("strict").type(Scalars.GraphQLBoolean).build());
+
     for (Table table : schema.getTablesSorted()) {
       // if no pkey is provided, you cannot delete rows
       if (!schema.getMetadata().getTableMetadata(table.getName()).getPrimaryKeys().isEmpty()) {
@@ -975,22 +978,24 @@ public class GraphqlTableFieldFactory {
         if (rowsAslistOfMaps != null) {
           String tableName = tableMetadata.getTableName();
           Table table = tableMetadata.getTable();
-          int count = 0;
+          int count;
+          List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps);
           switch (mutationType) {
             case UPDATE:
-              count = table.update(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.update(rows);
               result.append("updated " + count + " records to " + tableName + "\n");
               break;
             case INSERT:
-              count = table.insert(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.insert(rows);
               result.append("inserted " + count + " records to " + tableName + "\n");
               break;
             case SAVE:
-              count = table.save(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              count = table.save(rows);
               result.append("upserted " + count + " records to " + tableName + "\n");
               break;
             case DELETE:
-              count = table.delete(TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps));
+              boolean strict = dataFetchingEnvironment.getArgumentOrDefault("strict", false);
+              count = table.delete(rows, strict);
               result.append("delete " + count + " records from " + tableName + "\n");
               break;
           }
