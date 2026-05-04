@@ -63,12 +63,12 @@ public class ReferenceMapper implements ColumnMapper {
 
   private ArrayList<String> columnPath() {
     ArrayList<String> newPath = new ArrayList<>(path);
-    newPath.add(rootColumn.getName());
+    newPath.add(new ColumnVariableName(rootColumn).getSparqlName());
     return newPath;
   }
 
   private Variable extendVar(Variable toExtend, Column column) {
-    return SparqlBuilder.var(toExtend.getVarName() + "_" + column.getName());
+    return SparqlBuilder.var(toExtend.getVarName() + "_" + new ColumnVariableName(column).getSparqlName());
   }
 
   @Override
