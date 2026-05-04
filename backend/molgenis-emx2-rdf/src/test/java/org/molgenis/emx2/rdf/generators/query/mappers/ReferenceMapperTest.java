@@ -16,10 +16,11 @@ class ReferenceMapperTest {
   private static final Variable ORDER_VAR = SparqlBuilder.var("order");
 
   private SchemaMetadata schema;
+  private Database database;
 
   @BeforeEach
   void setUp() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(getClass().getSimpleName()).getMetadata();
   }
 
@@ -170,6 +171,32 @@ class ReferenceMapperTest {
       assertHasSelectors(
           mapper, "( GROUP_CONCAT( ?product_name_single ; SEPARATOR = , ) AS ?product_name )");
     }
+  }
+
+  @Test
+  void shouldResolveCrossSchemaReferences() {
+    Schema productSchema = database.dropCreateSchema(getClass().getSimpleName() + "Products");
+    productSchema.create(productTableWithSemantics("product:name"));
+
+    // To check whether we always check on schema's, not just when we don't find the table.
+    schema.create(productTableWithSemantics("product:invalid"));
+    TableMetadata orders =
+        schema.create(
+            TableMetadata.table(
+                "Order",
+                Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("orders:id"),
+                Column.column("product")
+                    .setType(ColumnType.REF)
+                    .setRefTable("Product")
+                    .setRefSchemaName(productSchema.getName())
+                    .setRequired(true)
+                    .setSemantics("orders:product")));
+    Column column = orders.getColumn("product");
+    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+
+    assertPatternsMatch(
+        mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
+    assertHasSelectors(mapper, "?product_name");
   }
 
   @Nested
