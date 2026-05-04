@@ -28,11 +28,11 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import type { IResources } from "~~/interfaces/catalogue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
+import type { IResources } from "../../../interfaces/catalogue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import StoreModalResourceList from "./ModalResourceList.vue";
 

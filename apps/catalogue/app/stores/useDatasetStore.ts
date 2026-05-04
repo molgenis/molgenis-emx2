@@ -1,4 +1,4 @@
-import { fetchSettings } from "#imports";
+import { fetchSettings } from "../composables/fetchSettings";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";

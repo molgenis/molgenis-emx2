@@ -9,9 +9,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useDatasetStore } from "#imports";
 import { computed } from "vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
+import { useDatasetStore } from "../../stores/useDatasetStore";
 
 const datasetStore = useDatasetStore();
 

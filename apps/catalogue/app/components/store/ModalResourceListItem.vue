@@ -46,12 +46,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useDatasetStore } from "#imports";
-import { ref, onMounted } from "vue";
-import type { IResources, IDatasets } from "../../../interfaces/catalogue";
-import InputLabel from "../../../../tailwind-components/app/components/input/Label.vue";
-import InputCheckboxIcon from "../../../../tailwind-components/app/components/input/CheckboxIcon.vue";
+import { useDatasetStore } from "../../stores/useDatasetStore";
+import { onMounted, ref } from "vue";
 import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
+import type { IDatasets, IResources } from "../../../interfaces/catalogue";
 
 const datasetStore = useDatasetStore();
 const modelValue = ref<string[]>([]);
