@@ -22,6 +22,11 @@ public class CatalogueTest extends TestLoaders {
   }
 
   @Test
+  public void test08DataCatalogueRWEStagingLoader() {
+    assertEquals(19, rweStaging.getTableNames().size());
+  }
+
+  @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     assertEquals(16, networkStaging.getTableNames().size());
   }
