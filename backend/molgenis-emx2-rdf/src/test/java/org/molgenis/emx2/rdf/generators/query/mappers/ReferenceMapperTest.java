@@ -251,6 +251,47 @@ class ReferenceMapperTest {
     }
   }
 
+  @Nested
+  class OntologyReferencesTest {
+
+    private final Variable productVar = SparqlBuilder.var("product");
+
+    @Test
+    void shouldHandleOntologyReferences() {
+      schema.create(TableMetadata.table("ProductType").setTableType(TableType.ONTOLOGIES));
+      TableMetadata product =
+          schema.create(
+              productTableWithSemantics("product:name")
+                  .add(
+                      Column.column("type")
+                          .setType(ColumnType.ONTOLOGY)
+                          .setSemantics("product:type")
+                          .setRefTable("ProductType")));
+
+      Column column = product.getColumn("type");
+      ReferenceMapper mapper = new ReferenceMapper(productVar, column);
+      assertPatternsMatch(mapper, "OPTIONAL { ?product product:type ?type . }");
+      assertHasSelectors(mapper, "?type");
+    }
+
+    @Test
+    void shouldHandleOntologyArrayReferences() {
+      schema.create(TableMetadata.table("ProductTag").setTableType(TableType.ONTOLOGIES));
+      TableMetadata product =
+          productTableWithSemantics("product:name")
+              .add(
+                  Column.column("tag")
+                      .setType(ColumnType.ONTOLOGY_ARRAY)
+                      .setSemantics("product:tag")
+                      .setRefTable("ProductTag"));
+
+      Column column = product.getColumn("tag");
+      ReferenceMapper mapper = new ReferenceMapper(productVar, column);
+      assertPatternsMatch(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
+      assertHasSelectors(mapper, "( GROUP_CONCAT( ?tag_single ; SEPARATOR = , ) AS ?tag )");
+    }
+  }
+
   private TableMetadata orderTable(boolean productRequired) {
     return TableMetadata.table(
         "Order",
