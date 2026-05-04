@@ -31,14 +31,29 @@ public class ReferenceMapper implements ColumnMapper {
   }
 
   private void map() {
-    PlainColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
-    patterns.addAll(mapper.getPattern());
-
     if (rootColumn.isOntology()) {
-      selectors.add(columnVariable());
+      mapOntology();
     } else {
-      mapPrimaryKeys();
+      mapDataColumn();
     }
+  }
+
+  private void mapOntology() {
+    if (Boolean.TRUE.equals(rootColumn.isArray())) {
+      ColumnMapper mapper = new CollectionColumnMapper(variable, rootColumn);
+      patterns.addAll(mapper.getPattern());
+      selectors.addAll(mapper.getSelectors());
+    } else {
+      ColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
+      patterns.addAll(mapper.getPattern());
+      selectors.add(columnVariable());
+    }
+  }
+
+  private void mapDataColumn() {
+    ColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
+    patterns.addAll(mapper.getPattern());
+    mapPrimaryKeys();
   }
 
   private void mapPrimaryKeys() {
