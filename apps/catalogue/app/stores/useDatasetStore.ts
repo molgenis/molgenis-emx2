@@ -2,6 +2,7 @@ import { fetchSettings } from "../composables/fetchSettings";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
+import type { ISetting } from "../../../metadata-utils/src";
 
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
@@ -24,21 +25,13 @@ export const useDatasetStore = defineStore("datasets", () => {
 
     const settings = response.data._settings;
 
-    const isEnabledSetting = settings.find(
-      (setting: { key: string; value: string }) =>
-        setting.key === CATALOGUE_STORE_IS_ENABLED
-    );
+    const isEnabledSetting = findSetting(CATALOGUE_STORE_IS_ENABLED, settings);
 
     if (isEnabledSetting) {
       isEnabled.value = isEnabledSetting.value === "true";
-      const urlSetting = settings.find(
-        (setting: { key: string; value: string }) =>
-          setting.key === CATALOGUE_STORE_URL
-      );
-      const versionSetting = settings.find(
-        (setting: { key: string; value: string }) =>
-          setting.key === CATALOGUE_STORE_VERSION
-      );
+      const urlSetting = findSetting(CATALOGUE_STORE_URL, settings);
+      const versionSetting = findSetting(CATALOGUE_STORE_VERSION, settings);
+
       if (!urlSetting || !versionSetting) {
         throw new Error("Catalogue store URL or version setting not found");
       } else {
@@ -46,6 +39,12 @@ export const useDatasetStore = defineStore("datasets", () => {
         storeVersion.value = versionSetting.value;
       }
     }
+  }
+
+  function findSetting(setting: string, settings: ISetting[]) {
+    return settings.find(
+      (sett: { key: string; value: string }) => sett.key === setting
+    );
   }
 
   function addToCart(resource: IResources) {
@@ -148,12 +147,9 @@ export const useDatasetStore = defineStore("datasets", () => {
       return;
     }
 
-    const version = storeVersion.value;
-    const dataStoreUrl = datasetStoreUrl.value;
-
-    switch (version) {
+    switch (storeVersion.value) {
       case "REMS":
-        window.open(dataStoreUrl, "_blank");
+        window.open(datasetStoreUrl.value, "_blank");
         break;
       case "negotiatorV3":
         return await doNegotiatorV3Request();
