@@ -17,27 +17,23 @@
     </ContentBlockModal>
     <template #footer>
       <Button
-        :label="`Request from ${getSendToText()}`"
+        :label="`Request from ${getVersionText()}`"
         :disabled="!Object.keys(datasetStore.datasets).length"
         icon="external-link"
-        @click="sendToNegotiator"
+        @click="sendToStore"
       />
     </template>
   </SideModal>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
-import type { IResources } from "../../../interfaces/catalogue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import StoreModalResourceList from "./ModalResourceList.vue";
-
-const NEGOTIATOR_ERROR =
-  "An error occurred while communicating with the Negotiator. Please try again later.";
 
 const datasetStore = useDatasetStore();
 
@@ -52,6 +48,11 @@ withDefaults(
 
 const error = ref("");
 
+const storeError = computed(
+  () =>
+    `An error occurred while communicating with the ${getVersionText()}. Please try again later.`
+);
+
 const emit = defineEmits<{
   (e: "close"): void;
 }>();
@@ -61,7 +62,7 @@ function onClose() {
   emit("close");
 }
 
-function getSendToText() {
+function getVersionText() {
   const version = datasetStore.storeVersion;
   switch (version) {
     case "REMS":
@@ -73,104 +74,11 @@ function getSendToText() {
   }
 }
 
-async function sendToNegotiator() {
+async function sendToStore() {
   error.value = "";
-  if (!Object.keys(datasetStore.datasets).length) {
-    return;
+  const responseError = await datasetStore.doStoreRequest();
+  if (responseError) {
+    error.value = storeError.value;
   }
-
-  const version = datasetStore.storeVersion;
-  const dataStoreUrl = datasetStore.datasetStoreUrl;
-
-  switch (version) {
-    case "REMS":
-      window.open(dataStoreUrl, "_blank");
-      break;
-    case "negotiatorV3":
-      doNegotiatorV3Request();
-      break;
-    default:
-      error.value = "Unknown data store version, cannot send to negotiator";
-  }
-}
-
-async function doNegotiatorV3Request() {
-  const url = window.location.origin;
-  const humanReadable = getHumanReadableString();
-  const resources = toNegotiatorFormat(datasetStore.datasets);
-  const payload: Record<string, any> = { url, humanReadable, resources };
-
-  const response = await fetch(datasetStore.datasetStoreUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (response.ok) {
-    datasetStore.clearCart();
-    const body = await response.json();
-    window.location.href = body.redirectUrl;
-  } else {
-    handleV3Error(response);
-  }
-}
-
-async function handleV3Error(response: Response) {
-  const statusCode = response.status;
-  const jsonResponse = await response.json();
-  const detail = jsonResponse.detail ? ` Detail: ${jsonResponse.detail}` : "";
-  error.value = NEGOTIATOR_ERROR;
-  switch (statusCode) {
-    case 400:
-      console.error(
-        `Negotiator responded with code 400, invalid input.${detail}`
-      );
-      break;
-    case 401:
-      console.error(
-        `Negotiator responded with code 401, not authorised.${detail}`
-      );
-      break;
-    case 404:
-      console.error(`Negotiator not found, error code 404.${detail}`);
-      break;
-    case 413:
-      console.error(
-        `Negotiator responded with code 413, request too large.${detail}`
-      );
-      break;
-    case 500:
-      console.error(
-        `Negotiator responded with code 500, internal server error.${detail}`
-      );
-      break;
-    default:
-      console.error(
-        `An unknown error occurred with the Negotiator. Please try again later.${detail}`
-      );
-      break;
-  }
-}
-
-function toNegotiatorFormat(datasets: Record<string, IResources>) {
-  return Object.values(datasets).map((dataset) => ({
-    id: dataset.pid,
-    name: dataset.name,
-  }));
-}
-
-function getHumanReadableString() {
-  const datasetInfo = Object.values(datasetStore.datasets).map((dataset) => {
-    return { pid: dataset.pid, name: dataset.name };
-  });
-  const humanReadableString = datasetInfo
-    .reduce((acc, dataset) => {
-      return acc + `${dataset.name} (${dataset.pid}), `;
-    }, "")
-    .slice(0, -2);
-
-  return humanReadableString;
 }
 </script>
