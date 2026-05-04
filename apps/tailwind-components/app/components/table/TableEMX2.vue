@@ -161,12 +161,13 @@
   </div>
 
   <Pagination
+    v-if="count > settings.pageSize"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
-    :show-page-selector="count > settings.pageSize"
     :page-size="settings.pageSize"
+    :show-page-size-selector="true"
     @update="handlePagingRequest($event)"
     @update:pageSize="handlePageSizeChange($event)"
   />
