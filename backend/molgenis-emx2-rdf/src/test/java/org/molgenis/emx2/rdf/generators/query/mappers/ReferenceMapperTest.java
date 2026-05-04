@@ -13,7 +13,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class ReferenceMapperTest {
 
-  public static final Variable ORDER_VAR = SparqlBuilder.var("order");
+  private static final Variable ORDER_VAR = SparqlBuilder.var("order");
 
   private SchemaMetadata schema;
 
@@ -111,6 +111,65 @@ class ReferenceMapperTest {
         "?product_manufacturer manufacturer:id ?product_manufacturer_id .");
     assertHasSelectors(
         mapper, "?product_name", "?product_manufacturer_name", "?product_manufacturer_id");
+  }
+
+  @Nested
+  class ReferenceArrayTest {
+
+    @Test
+    void givenArrayReference_thenUseCollectionMapper() {
+      schema.create(productTableWithSemantics("product:name"));
+      TableMetadata order =
+          schema.create(
+              TableMetadata.table(
+                  "Order",
+                  Column.column("id")
+                      .setPkey()
+                      .setType(ColumnType.STRING)
+                      .setSemantics("orders:id"),
+                  Column.column("product")
+                      .setType(ColumnType.REF_ARRAY)
+                      .setRefTable("Product")
+                      .setRequired(true)
+                      .setSemantics("orders:product")));
+
+      Column column = order.getColumn("product");
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      assertPatternsMatch(
+          mapper,
+          "?order orders:product ?product .",
+          "?product product:name ?product_name_single .");
+      assertHasSelectors(
+          mapper, "( GROUP_CONCAT( ?product_name_single ; SEPARATOR = , ) AS ?product_name )");
+    }
+
+    @Test
+    void givenArrayReference_whenOptional_thenSurroundWitOptional() {
+      schema.create(productTableWithSemantics("product:name"));
+      TableMetadata order =
+          schema.create(
+              TableMetadata.table(
+                  "Order",
+                  Column.column("id")
+                      .setPkey()
+                      .setType(ColumnType.STRING)
+                      .setSemantics("orders:id"),
+                  Column.column("product")
+                      .setType(ColumnType.REF_ARRAY)
+                      .setRefTable("Product")
+                      .setRequired(false)
+                      .setSemantics("orders:product")));
+
+      Column column = order.getColumn("product");
+      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      assertPatternsMatch(
+          mapper,
+          """
+          OPTIONAL { ?order orders:product ?product .
+          ?product product:name ?product_name_single . }""");
+      assertHasSelectors(
+          mapper, "( GROUP_CONCAT( ?product_name_single ; SEPARATOR = , ) AS ?product_name )");
+    }
   }
 
   @Nested

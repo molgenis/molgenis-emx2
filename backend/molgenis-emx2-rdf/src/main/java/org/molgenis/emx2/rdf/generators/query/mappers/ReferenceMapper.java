@@ -34,7 +34,11 @@ public class ReferenceMapper implements ColumnMapper {
     PlainColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
     patterns.addAll(mapper.getPattern());
 
-    mapPrimaryKeys();
+    if (rootColumn.isOntology()) {
+      selectors.add(columnVariable());
+    } else {
+      mapPrimaryKeys();
+    }
   }
 
   private void mapPrimaryKeys() {
@@ -46,6 +50,9 @@ public class ReferenceMapper implements ColumnMapper {
       ColumnMapper mapper;
       if (column.isReference()) {
         mapper = new ReferenceMapper(subject, column, columnPath);
+      } else if (Boolean.TRUE.equals(rootColumn.isArray())) {
+        Variable ref = SparqlBuilder.var(String.join("_", columnPath));
+        mapper = new CollectionColumnMapper(ref, column, extendVar(subject, column));
       } else {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
         mapper = new PlainColumnMapper(ref, column, extendVar(subject, column), true);
@@ -68,7 +75,8 @@ public class ReferenceMapper implements ColumnMapper {
   }
 
   private Variable extendVar(Variable toExtend, Column column) {
-    return SparqlBuilder.var(toExtend.getVarName() + "_" + new ColumnVariableName(column).getSparqlName());
+    return SparqlBuilder.var(
+        toExtend.getVarName() + "_" + new ColumnVariableName(column).getSparqlName());
   }
 
   @Override
