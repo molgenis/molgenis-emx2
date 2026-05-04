@@ -15,16 +15,19 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SqlTable implements Table {
+public class SqlTable implements Table {
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -335,7 +338,7 @@ class SqlTable implements Table {
       List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
       count.set(
           count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
+              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -376,27 +379,38 @@ class SqlTable implements Table {
     return this.tableListener;
   }
 
-  private static int insertBatch(
+  private List<Record> insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
-    int count = 0;
     if (inherit) {
       SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+      List<Record> records =
+          inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+
+      List<Column> autoIdColumns =
+          inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
+              .filter(c -> AUTO_ID.equals(c.getColumnType()))
+              .toList();
+
+      // Copy the generated auto id's from the parent table
+      for (int i = 0; i < records.size(); i++) {
+        copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
+      }
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
-    List<Field> insertFields =
-        columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
+    if (columns.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     InsertValuesStepN<org.jooq.Record> step =
         table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      // get values
-      Map values = getSelectedRowValues(columns, row);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
         values.put(MG_INSERTEDBY, getActiveUser(table));
         values.put(MG_INSERTEDON, now);
@@ -427,7 +441,13 @@ class SqlTable implements Table {
       }
     }
 
-    return step.execute();
+    return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
+    for (Column column : toCopy) {
+      row.set(column.getName(), from.getValue(column.getName()));
+    }
   }
 
   private static String getActiveUser(SqlTable table) {
@@ -438,7 +458,7 @@ class SqlTable implements Table {
     return user;
   }
 
-  private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
+  private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
     if (inherit) {
@@ -481,9 +501,18 @@ class SqlTable implements Table {
     return expandedColumns;
   }
 
-  private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
+  private Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
-    selection.forEach(c -> selectedValues.put(c.getName(), getTypedValue(c, row)));
+    for (Column column : selection) {
+      if (AUTO_ID.equals(column.getColumnType())
+          && !metadata.getColumn(column.getName()).isReference()
+          && row.isNull(column.getName(), column.getPrimitiveColumnType())) {
+        selectedValues.put(column.getName(), new IdGeneratorService().generateIdForColumn(column));
+      } else {
+        selectedValues.put(column.getName(), getTypedValue(column, row));
+      }
+    }
+
     return selectedValues;
   }
 
@@ -502,33 +531,51 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Iterable<Row> rows) {
+  public int delete(Iterable<Row> rows, boolean strict) {
     long start = System.currentTimeMillis();
 
-    AtomicInteger count = new AtomicInteger(0);
+    AtomicInteger nrDeleted = new AtomicInteger(0);
     try {
       db.tx(
           db2 -> {
-            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
-
-            // delete in batches
             int batchSize = 1000;
+            int currentBatchSize = 0;
+            int nrRowsToDelete = 0;
+
+            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
             List<Row> batch = new ArrayList<>();
+
             for (Row row : rows) {
+              nrRowsToDelete++;
               batch.add(row);
-              count.set(count.get() + 1);
-              if (count.get() % batchSize == 0) {
-                deleteBatch(table, batch);
+              currentBatchSize++;
+              if (currentBatchSize % batchSize == 0) {
+                nrDeleted.addAndGet(deleteBatch(table, batch));
                 batch.clear();
+                currentBatchSize = 0;
               }
             }
 
             // delete remaining elements
-            deleteBatch(table, batch);
+            nrDeleted.addAndGet(deleteBatch(table, batch));
 
             // finally delete in superclass
             if (table.getMetadata().getInheritName() != null) {
               table.getInheritedTable().delete(rows);
+            }
+
+            // Validate that we deleted exactly the number of rows we intended to delete
+            if (nrDeleted.get() != nrRowsToDelete && strict) {
+              throw new MolgenisException(
+                  "Delete failed: attempted to delete "
+                      + nrRowsToDelete
+                      + " rows but only deleted "
+                      + nrDeleted.get()
+                      + " row"
+                      + (nrDeleted.get() == 1 ? "" : "s")
+                      + ". Some specified rows do not exist in table "
+                      + getName()
+                      + ". Transaction rolled back.");
             }
 
             // notify handlers
@@ -540,9 +587,8 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser(), getName(), start, count, "deleted");
-
-    return count.get();
+    log(db.getActiveUser(), getName(), start, nrDeleted, "deleted");
+    return nrDeleted.get();
   }
 
   @Override
@@ -569,12 +615,7 @@ class SqlTable implements Table {
     return query().search(terms);
   }
 
-  @Override
-  public int delete(Row... rows) {
-    return delete(Arrays.asList(rows));
-  }
-
-  private static void deleteBatch(SqlTable table, Collection<Row> rows) {
+  private static int deleteBatch(SqlTable table, Collection<Row> rows) {
     if (!rows.isEmpty()) {
       List<String> keyNames =
           table.getMetadata().getPrimaryKeyFields().stream()
@@ -587,8 +628,10 @@ class SqlTable implements Table {
             "Delete on table " + table.getName() + " failed: no primary key set");
       }
       Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
-      table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
+      return table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
     }
+
+    return 0;
   }
 
   private DSLContext getJooq() {

@@ -246,6 +246,16 @@ function handleSearchInput(input: string) {
 const rootNodes = computed(() => {
   return Object.values(nodeMap.value).filter((node) => !node.parent);
 });
+
+const virtualRootNode = computed<ITreeNodeState>(() => ({
+  name: "__root__",
+  label: "Root",
+  visible: true,
+  children: rootNodes.value,
+  selected: "unselected",
+  expanded: true,
+  selectable: false,
+}));
 </script>
 
 <template>
@@ -278,7 +288,7 @@ const rootNodes = computed(() => {
   </div>
   <TreeNode
     :id="id"
-    :nodes="rootNodes"
+    :parentNode="virtualRootNode"
     :inverted="inverted"
     :isRoot="true"
     @toggleSelect="toggleSelect"

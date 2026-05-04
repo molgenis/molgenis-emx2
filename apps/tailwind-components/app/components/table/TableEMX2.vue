@@ -49,6 +49,12 @@
   <div
     class="relative overflow-auto overflow-y-hidden rounded-b-theme border rounded-t-3px border-color-theme mt-0"
   >
+    <div
+      v-if="guideX !== null"
+      class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
+      :style="{ left: guideX + 'px' }"
+    />
+
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
@@ -64,11 +70,20 @@
             </TableHeadCell>
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
-              :class="{
-                'w-60 lg:w-full': columns.length <= 5,
-                'w-60': columns.length > 5,
+              :style="{
+                width: columnWidths[column.id] + 'px',
+                userSelect: isResizing ? 'none' : 'auto',
               }"
+              class="relative group"
             >
+              <div
+                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
+                @mousedown.stop="startResize($event, column.id)"
+              >
+                <div
+                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
+                />
+              </div>
               <TableHeaderAction
                 :column="column"
                 :schemaId="schemaId"
@@ -99,6 +114,7 @@
 
             <TableCellEMX2
               v-for="(column, colIndex) in sortedVisibleColumns"
+              :style="{ width: columnWidths[column.id] + 'px' }"
               class="text-table-row group-hover:bg-hover"
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
@@ -108,13 +124,14 @@
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column, row)"
+              @cellClicked="handleCellClick($event, column)"
             >
-              <template #row-actions v-if="colIndex === 0 && props.isEditable">
+              <template #row-actions v-if="colIndex === 0">
                 <div
-                  class="absolute left-0 h-10 -mt-2 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                  class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                 >
                   <Button
+                    v-if="isEditable"
                     :id="useId()"
                     :icon-only="true"
                     type="inline"
@@ -129,6 +146,7 @@
                     {{ getRowId(row) }}
                   </Button>
                   <Button
+                    v-if="isEditable"
                     :id="useId()"
                     :icon-only="true"
                     type="inline"
@@ -142,6 +160,8 @@
                   >
                     {{ getRowId(row) }}
                   </Button>
+
+                  <slot name="additional-row-actions" :row="row" />
                 </div>
               </template>
             </TableCellEMX2>
@@ -161,24 +181,47 @@
   </div>
 
   <Pagination
-    v-if="count > settings.pageSize"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
+    :show-page-selector="count > settings.pageSize"
+    :page-size="settings.pageSize"
     @update="handlePagingRequest($event)"
+    @update:pageSize="handlePageSizeChange($event)"
   />
 
-  <TableModalRef
-    :id="`table-emx2-${schemaId}-${tableId}-modal-ref`"
-    v-if="showModal && refTableRow && refTableColumn"
+  <Modal
+    type="right"
     v-model:visible="showModal"
-    :metadata="refTableColumn"
-    :row="refTableRow"
-    :schema="schemaId"
-    :sourceTableId="refSourceTableId"
-    :showDataOwner="false"
-  />
+    :title="cellDetailSubtitle"
+    @closed="showModal = false"
+  >
+    <TableCellDetailRef
+      v-if="
+        cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail && showModal
+      "
+      :metadata="toRefColumn(cellDetailColumn)"
+      :columnValue="toRefColumnValue(cellDetailValue)"
+      :schema="cellDetailSchemaId ?? schemaId"
+      :showDataOwner="false"
+      @onRefClick="handleDetailRefClick"
+    />
+    <template v-else-if="cellDetailValue && isArrayLikeDetail">
+      <ul>
+        <li v-for="(item, index) in cellDetailValue" :key="index">
+          <TableCellDetailRef
+            v-if="cellDetailColumn"
+            :metadata="toRefColumn(cellDetailColumn)"
+            :columnValue="toRefColumnValue(item as columnValue)"
+            :schema="cellDetailSchemaId ?? schemaId"
+            :showDataOwner="false"
+            @onRefClick="handleDetailRefClick"
+          />
+        </li>
+      </ul>
+    </template>
+  </Modal>
 
   <DeleteModal
     v-if="data?.tableMetadata && rowDataForModal"
@@ -215,7 +258,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useId, watch } from "vue";
+import { computed, nextTick, ref, useId, watch } from "vue";
 import type {
   IRow,
   IColumn,
@@ -223,7 +266,10 @@ import type {
   columnValue,
 } from "../../../../metadata-utils/src/types";
 import type {
+  cellPayload,
+  ColumnPayload,
   ITableSettings,
+  ListPayload,
   RefPayload,
   sortDirection,
 } from "../../../types/types";
@@ -237,7 +283,7 @@ import TableHeadCell from "./TableHeadCell.vue";
 
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
-import TableModalRef from "./modal/TableModalRef.vue";
+import Modal from "../Modal.vue";
 import InputSearch from "../input/Search.vue";
 
 import Button from "../Button.vue";
@@ -246,6 +292,10 @@ import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import { useColumnResize } from "../../composables/useColumnResize";
+import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
+import constants from "../../utils/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -263,17 +313,23 @@ const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
-const refTableRow = ref<IRow>();
-const refTableColumn = ref<IRefColumn>();
-// initially set to the current tableId
-const refSourceTableId = ref<string>(props.tableId);
+
+const cellDetailSchemaId = ref<string>();
+const cellDetailColumn = ref<IColumn>();
+const cellDetailSubtitle = ref<string>();
+const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
+
+const tableContainer = ref<HTMLElement | null>(null);
+
+const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
+  useColumnResize(tableContainer);
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
     page: 1,
-    pageSize: 10,
+    pageSize: constants.PAGE_SIZE_DEFAULT,
     orderby: { column: "", direction: "ASC" },
     search: "",
   }),
@@ -301,6 +357,23 @@ const { data, refresh } = useAsyncData(
       tableData,
     };
   }
+);
+
+let widthsInitialized = false;
+
+watch(
+  () => columns.value,
+  (newColumns) => {
+    if (
+      !widthsInitialized &&
+      Array.isArray(newColumns) &&
+      newColumns.length > 0
+    ) {
+      setInitialWidths(newColumns);
+      widthsInitialized = true;
+    }
+  },
+  { immediate: true, deep: true }
 );
 
 const rows = computed(() =>
@@ -375,16 +448,33 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handleCellClick(
-  event: RefPayload,
-  column: IColumn,
-  row: Record<string, any>
+function handlePageSizeChange(pageSize: number) {
+  settings.value.pageSize = pageSize;
+  settings.value.page = 1;
+  refresh();
+}
+
+function handleCellClick(event: cellPayload, column: IColumn) {
+  cellDetailSubtitle.value = column.label;
+  cellDetailColumn.value = column;
+  cellDetailSchemaId.value = column.refSchemaId ?? props.schemaId;
+  cellDetailValue.value = event.data as columnValue;
+  showModal.value = true;
+}
+
+async function handleDetailRefClick(
+  event: RefPayload | ColumnPayload | ListPayload
 ) {
-  refTableRow.value = event.data;
-  refTableColumn.value =
-    column.columnType === "REF"
-      ? (column as IRefColumn)
-      : (column as IRefColumn); // todo other types of column
+  showModal.value = false;
+  await nextTick();
+
+  const columnMetadata = event.metadata;
+
+  cellDetailSubtitle.value = columnMetadata.label;
+  cellDetailColumn.value = columnMetadata;
+  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? props.schemaId;
+
+  cellDetailValue.value = event.data as columnValue;
 
   showModal.value = true;
 }
@@ -427,4 +517,24 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
+
+const isRefLikeDetail = computed(() => {
+  const type = cellDetailColumn.value?.columnType;
+  return (
+    type === "REF" ||
+    type === "RADIO" ||
+    type === "CHECKBOX" ||
+    type === "SELECT" ||
+    type === "ONTOLOGY" ||
+    type === "REFBACK" ||
+    type === "MULTISELECT"
+  );
+});
+
+const isArrayLikeDetail = computed(() => {
+  const type = cellDetailColumn.value?.columnType;
+  return (
+    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+  );
+});
 </script>

@@ -13,6 +13,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   public static final String CSV_EXTENSION = ".csv";

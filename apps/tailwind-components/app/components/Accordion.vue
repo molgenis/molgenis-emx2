@@ -7,10 +7,12 @@ const props = withDefaults(
     label: string;
     openByDefault?: boolean;
     contentIsFullWidth?: boolean;
+    inList?: boolean;
   }>(),
   {
     openByDefault: true,
     contentIsFullWidth: false,
+    inList: false,
   }
 );
 
@@ -21,7 +23,10 @@ const isExpanded = ref<boolean>(props.openByDefault);
 <template>
   <div
     :id="`accordion__${id}`"
-    class="border border-input hover:border-input-focused focus-within:border-input-focused"
+    :class="{
+      'border border-input hover:border-input-focused focus-within:border-input-focused':
+        !inList,
+    }"
   >
     <div
       class="group flex justify-between items-center gap-5 text-button-text p-5 px-7.5"

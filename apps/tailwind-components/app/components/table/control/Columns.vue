@@ -2,94 +2,102 @@
   <Button type="outline" icon="columns" class="h-[50px]" @click="showModal = true">
     Columns
   </Button>
-  <SideModal
-    class="hidden"
-    :slide-in-right="true"
-    :fullScreen="false"
-    button-alignment="left"
-    :show="showModal"
-    @close="showModal = false"
+  <Modal
+    v-model:visible="showModal"
+    type="right"
+    :background-accessible="false"
+    maxWidth="max-w-md"
   >
-    <ContentBlockModal title="Columns">
-      <template v-slot:title-button>
+    <div class="p-8 overflow-x-hidden">
+      <div class="flex flex-row mb-5">
+        <h2
+          id="modal-title"
+          class="uppercase text-heading-4xl font-display text-title-contrast"
+        >
+          Columns
+        </h2>
         <Button
           type="text"
           size="small"
           label="Reset to default"
           icon="RestartAlt"
-          class="leading-9"
+          class="ml-auto mr-0 pr-2 whitespace-nowrap"
           :onclick="resetToDefault"
         />
-      </template>
-
+      </div>
       <InputSelect
         id="column-sorting-select"
         label="Sort by"
+        class="mb-5"
         v-model="selectedSortMethod"
         :options="sortMethods"
         @change="handleSortMethodChanged"
       />
 
-      <draggable
-        tag="ul"
-        :list="columnsInColumnsSelectModal"
-        item-key="id"
-        @change="handleColumnDragEvent"
+      <UseSortable
+        v-model="columnsInColumnsSelectModal"
+        @start="startOrderEvent"
+        :options="{ animation: 150 }"
       >
-        <template #item="{ element }">
-          <li class="mt-2.5 relative hover:bg-tab-hover hover:cursor-grab">
-            <div class="flex justify-between">
-              <div class="flex items-start">
-                <div class="flex items-center">
-                  <InputCheckbox
-                    v-model="element.visible"
-                    :id="element.id"
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
-                  />
-                  <!-- TODO move styling to checkbox component -->
-                </div>
-                <label
-                  class="text-title hover:cursor-pointer text-body-sm group"
-                  :for="element.id"
-                >
-                  {{ element.label }}
-                </label>
-              </div>
-              <BaseIcon name="equal" class="hover:cursor-grab" />
-            </div>
-          </li>
-        </template>
-      </draggable>
-    </ContentBlockModal>
-    <template #footer>
-      <Button type="primary" size="small" label="Save" @click="handleSave" />
-      <Button
-        type="secondary"
-        size="small"
-        label="Cancel"
-        class="ml-2.5"
-        @click="handleCancel"
-      />
+        <div
+          class="flex flex-row hover:cursor-grab"
+          v-for="option in columnsInColumnsSelectModal"
+          :key="option.id"
+        >
+          <InputLabel
+            :for="`column-checkbox-group-${option.label}`"
+            class="group flex justify-start items-center relative text-title-contrast"
+          >
+            <input
+              type="checkbox"
+              :id="`column-checkbox-group-${option.label}`"
+              :value="option.visible"
+              v-model="option.visible"
+              class="ml-4 mt-2 sr-only"
+            />
+            <InputCheckboxIcon :checked="option.visible" />
+            <span class="block hover:cursor-grab truncate max-w-64">
+              {{ option.label }}
+            </span>
+          </InputLabel>
+          <BaseIcon name="equal" class="ml-auto text-border" :width="24" />
+        </div>
+      </UseSortable>
+    </div>
+    <template #header>
+      <div />
     </template>
-  </SideModal>
+    <template #footer>
+      <div class="flex gap-2 justify-start py-5">
+        <Button type="primary" size="small" label="Save" @click="handleSave" />
+        <Button
+          type="secondary"
+          size="small"
+          label="Cancel"
+          @click="handleCancel"
+        />
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { VueDraggableNext as draggable } from "vue-draggable-next";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 import BaseIcon from "../../BaseIcon.vue";
-import SideModal from "../../SideModal.vue";
-import ContentBlockModal from "../../content/ContentBlockModal.vue";
+import Modal from "../../Modal.vue";
 import InputSelect from "../../input/Select.vue";
-import InputCheckbox from "../../input/Checkbox.vue";
+import InputLabel from "../../input/Label.vue";
+import InputCheckboxIcon from "../../input/CheckboxIcon.vue";
 import Button from "../../Button.vue";
+import { UseSortable } from "@vueuse/integrations/useSortable/component";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
 const props = defineProps<{
   columns: IColumn[];
+  tableId?: string;
 }>();
 
 const emits = defineEmits(["update:columns"]);
@@ -114,10 +122,7 @@ function indexColumns(columns: IColumnConfig[]) {
   });
 }
 
-function handleColumnDragEvent() {
-  columnsInColumnsSelectModal.value = indexColumns(
-    columnsInColumnsSelectModal.value
-  );
+function startOrderEvent() {
   selectedSortMethod.value = "Custom";
 }
 
@@ -129,6 +134,12 @@ function handleCancel() {
 }
 
 function handleSave() {
+  if (selectedSortMethod.value === "Custom") {
+    columnsInColumnsSelectModal.value = indexColumns(
+      columnsInColumnsSelectModal.value
+    );
+  }
+
   const updated = props.columns.map((column: IColumn) => {
     const columnConfig = columnsInColumnsSelectModal.value.find(
       (col) => col.id === column.id

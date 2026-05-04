@@ -26,6 +26,9 @@
     var(--color-gradient2) 133.81%
   );
 
+  --text-color-logo-text: var(--color-white);
+  --text-color-logo-text-inverted: var(--color-orange-500);
+
   --background-color-navigation: rgba(0, 0, 0, 0.2);
   --background-color-navigation-sticky: var(--color-blue-800);
 
@@ -53,7 +56,7 @@
 
   --border-radius-3px: 3px;
   --border-radius-50px: 50px;
-  --border-radius-input: 50px;
+  --border-radius-input: 28px;
   --border-radius-textarea-input: 20px;
   --border-radius-search-input: 9999px;
   --border-radius-search-button: 9999px;
@@ -62,4 +65,9 @@
   --border-width-theme: 0px;
 
   --text-color-input-description: var(--color-white);
+  --border-color-button-primary: var(--color-orange-500);
+  --border-color-button-primary-hover: var(--color-orange-200);
+  --background-color-input-focused: var(--color-orange-500);
+  --border-color-input-focused: var(--color-orange-500);
+  --text-color-input-focused: var(--color-white);
 }

@@ -22,6 +22,9 @@ module.exports = {
     {
       pattern: /^antialiased/,
     },
+    {
+      pattern: /^stroke-/,
+    },
   ],
   theme: {
     fontFamily: {
@@ -86,6 +89,7 @@ module.exports = {
     extend: {
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
+        "no-background-modal": "var(--box-shadow-no-background-modal)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
@@ -118,6 +122,7 @@ module.exports = {
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
+        "pg-section": "972px",
       },
       minWidth: {
         95: "23.75rem",
@@ -303,6 +308,7 @@ module.exports = {
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
+        border: "var(--border-color-input)",
         "input-description": "var(--text-color-input-description)",
 
         required: "var(--text-color-required)",
@@ -335,6 +341,7 @@ module.exports = {
         "label-draft": "var(--text-color-label-draft)",
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
+        "chart-text": "var(--chart-text)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
@@ -384,6 +391,10 @@ module.exports = {
         invalid: "var(--color-invalid-foreground)",
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
+        "check-border": "var(--border-color-button-primary)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
+        "chart-gridlines": "var(--chart-gridlines)",
       }),
       fill: () => ({
         input: "var(--background-color-input)",
@@ -398,6 +409,11 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "logo-background": "var(--background-color-logo)",
+        "logo-icon-primary": "var(--logo-icon-primary)",
+        "logo-icon-secondary": "var(--logo-icon-secondary)",
+        "chart-text": "var(--chart-text)",
+        "chart-paths": "var(--chart-paths)",
       }),
       borderRadius: {
         theme: "var(--border-radius-theme)",
@@ -420,6 +436,7 @@ module.exports = {
       },
       outlineColor: {
         select: "var(--outline-color-select)",
+        "pagination-hover": "var(--border-color-pagination-hover)",
       },
       content: () => ({
         required: "var(--text-content-required)",

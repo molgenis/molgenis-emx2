@@ -2,17 +2,12 @@
 import { computed } from "vue";
 import type { INotificationType } from "../../../types/types";
 
-const props = withDefaults(
-  defineProps<{
-    title: string;
-    description?: string;
-    subTitle?: string;
-    type?: INotificationType;
-  }>(),
-  {
-    type: "light",
-  }
-);
+const props = defineProps<{
+  title: string;
+  description?: string;
+  subTitle?: string;
+  type?: INotificationType;
+}>();
 
 const bgClass = computed(() => {
   switch (props.type) {
@@ -28,6 +23,8 @@ const bgClass = computed(() => {
       return "bg-yellow-500";
     case "info":
       return "bg-blue-500";
+    default:
+      return "bg-form";
   }
 });
 </script>
@@ -37,7 +34,10 @@ const bgClass = computed(() => {
     <div v-if="subTitle">{{ subTitle }}</div>
     <div class="flex justify-between">
       <div>
-        <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+        <h2
+          v-if="title"
+          class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
+        >
           {{ title }}
         </h2>
       </div>

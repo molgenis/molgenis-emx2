@@ -43,15 +43,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
-import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
-import org.molgenis.emx2.rdf.generators.RdfGenerator;
-import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
+import org.molgenis.emx2.rdf.generators.*;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
-import org.molgenis.emx2.rdf.writers.RdfModelWriter;
-import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
+import org.molgenis.emx2.rdf.writers.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -360,11 +354,29 @@ public class RDFTest {
             "table3",
             column("p1").setPkey().setType(ColumnType.REF).setRefTable("table1"),
             column("p2").setPkey().setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
-            column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1")));
+            column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
+            column("ref_array")
+                .setType(ColumnType.REF_ARRAY)
+                .setRefTable("table2")
+                .setRefLink("p1")));
 
     refLinkTest.getTable("table1").insert(row("id", "t1First"));
     refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2First"));
-    refLinkTest.getTable("table3").insert(row("p1", "t1First", "p2", "t2First"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Second"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Third"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2Fourth"));
+    refLinkTest
+        .getTable("table3")
+        .insert(
+            row(
+                "p1",
+                "t1First",
+                "p2",
+                "t2First",
+                "ref",
+                "t2Second",
+                "ref_array",
+                "t2Third,t2Fourth"));
 
     // semantic test
     semanticTest = database.dropCreateSchema("semanticTest");
@@ -1179,6 +1191,25 @@ public class RDFTest {
   }
 
   @Test
+  void testDraftRowsAreExcludedEmx2Generator() throws IOException {
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.EMX2, petStore_nr1));
+  }
+
+  @Test
+  void testDraftRowsAreExcludedSemanticGenerator() throws IOException {
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.SEMANTIC, petStore_nr1));
+  }
+
+  private void testDraftRowExcluded(InMemoryRDFHandler handler) {
+    IRI nonDraftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=pooky");
+    IRI draftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=yakul");
+
+    assertAll(
+        () -> assertNotNull(handler.resources.get(nonDraftRowSubject)),
+        () -> assertNull(handler.resources.get(draftRowSubject)));
+  }
+
+  @Test
   void testSubClassesForInheritedTable() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
     Table root = schema.create(table("root", column("id").setPkey()));
@@ -1559,6 +1590,43 @@ example,http://example.com/
   }
 
   @Test
+  void testRefLinkRef() throws IOException {
+    Set<IRI> expectedRefArrayObjects =
+        Set.of(Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Second"));
+
+    InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
+    Set<Value> actualSubjects =
+        handler
+            .resources
+            .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
+            .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref"));
+
+    assertEquals(expectedRefArrayObjects, actualSubjects);
+  }
+
+  /**
+   * Tests that all subjects have full correct IRI (instead of only 1)
+   *
+   * @throws IOException
+   */
+  @Test
+  void testRefLinkRefArray() throws IOException {
+    Set<IRI> expectedRefArrayObjects =
+        Set.of(
+            Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Third"),
+            Values.iri(getApi(refLinkTest) + "Table2/id1=t1First&id2=t2Fourth"));
+
+    InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
+    Set<Value> actualSubjects =
+        handler
+            .resources
+            .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
+            .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref_array"));
+
+    assertEquals(expectedRefArrayObjects, actualSubjects);
+  }
+
+  @Test
   void prefixedNames() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
@@ -1620,15 +1688,24 @@ example,http://example.com/
 
   private InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
-    parseSchemaRdf(handler, schema);
+    parseSchemaRdf(RdfApiGeneratorFactory.EMX2, handler, schema);
     return handler;
   }
 
-  private void parseSchemaRdf(RDFHandler handler, Schema schema) throws IOException {
+  private InMemoryRDFHandler parseSchemaRdf(RdfApiGeneratorFactory generatorFactory, Schema schema)
+      throws IOException {
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseSchemaRdf(generatorFactory, handler, schema);
+    return handler;
+  }
+
+  private void parseSchemaRdf(
+      RdfApiGeneratorFactory generatorFactory, RDFHandler handler, Schema schema)
+      throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(schema);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
+        generator.generate(schema);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1639,9 +1716,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1655,9 +1732,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, primaryKey);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table, primaryKey);
       }
       parseString(handler, outputStream.toString());
     }
@@ -1671,9 +1748,9 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, column);
+      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        generator.generate(table, column);
       }
       parseString(handler, outputStream.toString());
     }

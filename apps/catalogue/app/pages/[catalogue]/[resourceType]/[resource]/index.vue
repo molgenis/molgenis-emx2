@@ -68,11 +68,10 @@ const query = `
       type {
         name
       }
-      typeOther
       cohortType {
         name
       }
-      rWDType {
+      registryOrHealthRecordType {
         name
       }
       networkType {
@@ -92,6 +91,10 @@ const query = `
       dateLastRefresh
       startYear
       endYear
+      continents {
+        name
+        order
+      }
       countries {
         name order
       }
@@ -178,7 +181,7 @@ const query = `
             name
             order
           }
-        } 
+        }
       }
       subpopulations {
           name
@@ -211,7 +214,7 @@ const query = `
         logo {
           url
         }
-        type {
+        catalogueType {
           name
         }
       }
@@ -232,9 +235,9 @@ const query = `
 `;
 const variables = { id: route.params.resource };
 interface IResourceQueryResponseValue extends IResources {
-  publications_agg: { count: number };
-  subpopulations_agg: { count: number };
-  collectionEvents_agg: { count: number };
+  publications_agg?: { count: number };
+  subpopulations_agg?: { count: number };
+  collectionEvents_agg?: { count: number };
 }
 interface IResponse {
   data: {
@@ -254,9 +257,7 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(
-  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
-);
+const resource = computed(() => data.value?.data?.Resources?.[0]);
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
   if (!subpopulations.value || !subpopulations.value.length) {
@@ -380,12 +381,8 @@ async function fetchDatasetOptions() {
 
 fetchDatasetOptions();
 
-const networks = computed(() =>
-  !resource.value?.partOfNetworks
-    ? []
-    : resource.value?.partOfNetworks.filter((c) =>
-        c.type.find((t) => t.name == "Network")
-      )
+const networks = computed(
+  () => (resource.value?.partOfNetworks ?? []) as IResources[]
 );
 
 const tocItems = computed(() => {
@@ -492,6 +489,15 @@ const tocItems = computed(() => {
 });
 
 const population: IDefinitionListItem[] = [
+  {
+    label: "Continents",
+    content: resource.value?.continents
+      ? [...resource.value?.continents]
+          .sort((a, b) => (b.order ?? 0) - (a.order ?? 0))
+          .map((continent) => continent.name)
+          .join(", ")
+      : undefined,
+  },
   {
     label: "Countries",
     content: resource.value?.countries
@@ -708,7 +714,7 @@ const showPopulation = computed(
         :title="
           route.params.resourceType === 'about'
             ? 'About '
-            : resource?.acronym || resource?.name
+            : resource?.acronym || resource?.name || ''
         "
         :description="
           (route.params.resourceType === 'about' ? 'About ' : '') +
@@ -950,7 +956,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.catalogue}/networks/${network.id}`,
                 },
-               network.type?.some( (type) => type.name === 'Catalogue')
+               network.catalogueType
                ? {
                 title: 'Catalogue',
                 url: `/${network.id}`,

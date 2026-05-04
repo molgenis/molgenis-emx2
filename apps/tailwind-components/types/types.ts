@@ -52,6 +52,15 @@ export interface ITreeNodeState extends ITreeNode {
   children: ITreeNodeState[];
   /* if a node is selectable */
   selectable: boolean;
+  /* pagination: current offset for loading more children */
+  loadMoreOffset?: number;
+  /* pagination: total count of children available */
+  loadMoreTotal?: number;
+  /* pagination: whether there are more children to load */
+  loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -129,18 +138,32 @@ export interface IInputProps {
   disabled?: boolean | undefined;
 }
 
+export type schemaId = string;
+
 export interface ISession {
   email: string;
   admin: boolean;
-  roles?: string[];
+  roles: Record<schemaId, string[]>;
   schemas?: string[];
   token?: string;
 }
 
 export interface RefPayload {
   metadata: IRefColumn;
-  data: IRow;
+  data: columnValue;
 }
+
+export interface ColumnPayload {
+  metadata: IColumn;
+  data: columnValue;
+}
+
+export interface ListPayload {
+  metadata: IColumn;
+  data: columnValue[];
+}
+
+export type cellPayload = ColumnPayload | RefPayload | ListPayload;
 
 export interface Section {
   heading: string;
@@ -155,3 +178,14 @@ export interface Crumb {
   url: string;
   label: string;
 }
+
+export interface MenuItem {
+  label: string;
+  link: string;
+  role?: string;
+  key?: string;
+  submenu?: Menu;
+  isSpaLink?: boolean;
+}
+
+export type Menu = MenuItem[];

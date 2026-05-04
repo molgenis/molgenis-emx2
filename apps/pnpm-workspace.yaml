@@ -1,29 +1,44 @@
 packages:
-- metadata-utils
-- molgenis-components
-- emx2-analytics
-- helloworld
-- settings
-- central
-- schema
-- tables
-- updownload
-- pages
-- graphql-playground
-- tailwind-components
-- catalogue
-- molgenis-viz
-- cranio-public
-- cranio-provider
-- ern-genturis
-- ern-ithaca
-- ern-reconnet
-- ern-skin
-- nestor-public
-- reports
-- tasks
-- gportal
-- projectmanager
-- aggregates
-- directory
-- ui
+  - metadata-utils
+  - molgenis-components
+  - emx2-analytics
+  - helloworld
+  - settings
+  - central
+  - schema
+  - tables
+  - updownload
+  - pages
+  - graphql-playground
+  - tailwind-components
+  - catalogue
+  - molgenis-viz
+  - cranio-public
+  - cranio-provider
+  - ern-genturis
+  - ern-ithaca
+  - ern-reconnet
+  - ern-skin
+  - nestor-public
+  - reports
+  - tasks
+  - projectmanager
+  - aggregates
+  - directory
+  - ui
+
+onlyBuiltDependencies:
+  - "@fortawesome/fontawesome-free"
+  - "@parcel/watcher"
+  - core-js
+  - esbuild
+  - vue-demi
+
+overrides:
+  "@tootallnate/once@<3.0.1": ">=3.0.1"
+  cookie@<0.7.0: ">=0.7.0"
+  esbuild@<=0.24.2: ">=0.25.0"
+  happy-dom@<20.8.9: ">=20.8.9"
+  lodash-es@>=4.0.0 <=4.17.22: ">=4.17.23"
+  serialize-javascript@<7.0.5: ">=7.0.5"
+  yaml@>=2.0.0 <2.8.3: ">=2.8.3"

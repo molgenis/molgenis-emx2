@@ -16,6 +16,9 @@
 
   --opacity-background-gradient: 100;
 
+  --text-color-logo-text: var(--color-white);
+  --text-color-logo-text-inverted: var(--color-blue-500);
+
   --background-color-button-primary: var(--color-yellow-500);
   --background-color-button-primary-hover: var(--color-yellow-200);
   --background-color-button-secondary: var(--color-blue-800);
@@ -129,7 +132,7 @@
   --border-radius-theme: 50px;
   --border-radius-3px: 3px;
   --border-radius-50px: 50px;
-  --border-radius-input: 50px;
+  --border-radius-input: 28px;
   --border-radius-textarea-input: 20px;
   --border-radius-search-input: 9999px;
   --border-radius-search-button: 9999px;

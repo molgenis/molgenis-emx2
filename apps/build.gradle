@@ -22,7 +22,7 @@ node {
 
 // we want the javascript build/lint/format to fire on changes in the project folders
 // excluding build and node_modules folders
-def excludeFolders = ["node_modules",".gradle","build",".turbo",".vscode"]
+def excludeFolders = ["node_modules",".gradle","build",".turbo",".vscode", ".nuxt", ".output"]
 
 ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
     def base = project.projectDir
@@ -79,6 +79,8 @@ tasks.register("cleanApps", Delete) {
         delete(project.layout.buildDirectory)
         delete file("${project.projectDir}/node_modules")
         delete file("${project.projectDir}/.turbo")
+        delete file("${project.projectDir}/.nuxt")
+        delete file("${project.projectDir}/.output")
 
 
         // delete only known workspace folders' generated things; no global fileTree over repo
@@ -90,6 +92,8 @@ tasks.register("cleanApps", Delete) {
                 delete new File(dir, "showCase")
                 delete new File(dir, "node_modules") // optional
                 delete new File(dir, "build")
+                delete file("${project.projectDir}/.nuxt")
+                delete file("${project.projectDir}/.output")
             }
         }
     }
@@ -163,7 +167,7 @@ test.dependsOn 'testJavascript'
 sourceSets {
     main {
         resources {
-            srcDir "${buildDir}/generated/main/resources"
+            srcDir "${layout.buildDirectory.get()}/generated/main/resources"
         }
     }
 }

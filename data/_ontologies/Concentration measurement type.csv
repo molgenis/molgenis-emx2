@@ -1,0 +1,3 @@
+order,name,tags,codesystem,code,ontologyTermURI,definition
+1,Fluorescent,erdera,CHMO,CHMO:0000287,http://purl.obolibrary.org/obo/CHMO_0000287,Spectroscopy where the intensity of the fluorescence emitted by molecules excited by ultraviolet light is detected as a function of wavelength or time.
+2,Spectrophotometric,erdera,SNOMED,SNOMED:33139008,http://snomed.info/id/33139008,

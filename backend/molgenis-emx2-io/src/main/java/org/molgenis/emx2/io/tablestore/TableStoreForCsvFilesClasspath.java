@@ -14,6 +14,7 @@ import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

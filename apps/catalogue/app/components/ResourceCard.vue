@@ -68,6 +68,9 @@ watch([datasetStore.datasets], () => {
           <NuxtLink
             :to="`/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
+            data-track-category="CTA"
+            data-track-action="navigate"
+            data-track-name="resource-detail"
           >
             {{ resource?.acronym || resource?.name }}
           </NuxtLink>
@@ -101,6 +104,9 @@ watch([datasetStore.datasets], () => {
           <IconButton
             icon="arrow-right"
             class="text-link hidden xl:flex xl:justify-end"
+            data-track-category="CTA"
+            data-track-action="navigate"
+            data-track-name="resource-detail"
           />
         </NuxtLink>
       </div>

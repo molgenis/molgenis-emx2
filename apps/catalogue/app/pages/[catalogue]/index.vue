@@ -14,8 +14,9 @@ import LandingPrimary from "../../components/landing/Primary.vue";
 import LandingSecondary from "../../components/landing/Secondary.vue";
 import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
+import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -31,10 +32,8 @@ const cohortOnly = computed(() => {
   return routeSetting == "true" || config.public.cohortOnly;
 });
 
-//networksfilter retrieves the catalogues
-//resources are within the current catalogue
-const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
-        Resources(filter:$networksFilter) {
+const query = `query CataloguePage($catalogueFilter:CataloguesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:CollectionsFilter,$subpopulationsCollectionFilter:ResourcesFilter,$networkFilter:NetworksFilter){
+        Catalogues(filter:$catalogueFilter) {
               id,
               acronym,
               name,
@@ -44,21 +43,21 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Collections_agg: Resources_agg(filter:$collectionsFilter) {
+        Collections_agg(filter:$collectionsFilter) {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Networks_agg: Resources_agg(filter:$networkFilter) {
+        Networks_agg(filter:$networkFilter) {
           count
         }
-        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
+        Design_groupBy: Collections_groupBy(filter:$collectionsFilter) {
           design{name}
           count
         }
-        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
+        Subpopulations_agg(filter:{resource: $subpopulationsCollectionFilter}) {
           count
         }
         _settings (keys: [
@@ -88,45 +87,35 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
         }
       }`;
 
-const networksFilter = scoped
+const catalogueFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
 const collectionsFilter = scoped
   ? {
-      _and: [
-        { type: { tags: { equals: "collection" } } },
+      _or: [
+        { partOfNetworks: { id: { equals: catalogueRouteParam } } },
         {
-          _or: [
-            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              partOfNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          partOfNetworks: {
+            parentNetworks: { id: { equals: catalogueRouteParam } },
+          },
         },
       ],
     }
-  : { type: { tags: { equals: "collection" } } };
+  : undefined;
 
 const networkFilter = scoped
   ? {
-      _and: [
-        { type: { tags: { equals: "network" } } },
+      _or: [
+        { parentNetworks: { id: { equals: catalogueRouteParam } } },
         {
-          _or: [
-            { parentNetworks: { id: { equals: catalogueRouteParam } } },
-            {
-              parentNetworks: {
-                parentNetworks: { id: { equals: catalogueRouteParam } },
-              },
-            },
-          ],
+          parentNetworks: {
+            parentNetworks: { id: { equals: catalogueRouteParam } },
+          },
         },
       ],
     }
-  : { type: { tags: { equals: "network" } } };
+  : undefined;
 
 const { data, error } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
@@ -134,17 +123,27 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
   body: {
     query,
     variables: {
-      networksFilter,
+      catalogueFilter,
       collectionsFilter,
+      subpopulationsCollectionFilter: scoped
+        ? {
+            _or: [
+              { partOfNetworks: { id: { equals: catalogueRouteParam } } },
+              {
+                partOfNetworks: {
+                  parentNetworks: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          }
+        : undefined,
       networkFilter,
       variablesFilter: scoped
         ? {
             _or: [
               { resource: { id: { equals: catalogueRouteParam } } },
-              //also include network of networks
               {
                 resource: {
-                  type: { name: { equals: "Network" } },
                   parentNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
@@ -164,8 +163,14 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
               },
             ],
           }
-        : //should only include harmonised variables
-          { resource: { type: { name: { equals: "Network" } } } },
+        : {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
     },
   },
 });
@@ -202,18 +207,19 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  if (!data.value.data?.Resources) {
+  const catalogues = data.value.data?.Catalogues;
+  if (scoped && (!catalogues || catalogues.length === 0)) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
     });
   }
-  return data.value.data?.Resources[0];
+  return catalogues?.[0];
 });
 
 const title = computed(() => {
-  if (catalogue) {
-    return catalogue as string;
+  if (scoped) {
+    return (network.value?.name || catalogue) as string;
   } else if (getSettingValue("CATALOGUE_LANDING_TITLE", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_TITLE", settings.value) as string;
   } else {
@@ -224,13 +230,15 @@ const title = computed(() => {
 const description = computed(() => {
   if (getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value)) {
     return getSettingValue("CATALOGUE_LANDING_DESCRIPTION", settings.value);
+  } else if (scoped && network.value?.description) {
+    return network.value?.description;
   } else {
     return "Select one of the content categories listed below.";
   }
 });
 
 useHead({
-  title: scoped ? `${catalogue} Catalogue` : "Catalogue",
+  title: scoped ? `${network.value?.name || catalogue} Catalogue` : "Catalogue",
   meta: [
     {
       name: "description",
@@ -248,14 +256,16 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 <template>
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
-      <template v-if="scoped" v-slot:description
-        >Welcome to the catalogue of
-        <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
-          network.id
-        }}</NuxtLink
-        >{{ network.id && network.name ? ": " : "" }}{{ network.name }}. Select
-        one of the content categories listed below.</template
-      >
+      <template v-if="scoped" v-slot:description>
+        <ShowMore :lines="5">
+          Welcome to the catalogue of
+          <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
+            network.id
+          }}</NuxtLink
+          >{{ network.id && network.name ? ": " : "" }}{{ network.name }}.
+          {{ description }}.
+        </ShowMore>
+      </template>
       <template v-else v-slot:description>
         <ContentReadMore :text="description" />
       </template>
@@ -306,7 +316,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         :link="`/${catalogueRouteParam}/variables`"
       />
       <LandingCardPrimary
-        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
+        v-if="!cohortOnly && scoped && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"

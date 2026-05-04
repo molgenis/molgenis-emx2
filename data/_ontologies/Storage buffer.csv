@@ -1,0 +1,6 @@
+name,tags,codesystem,code,ontologyTermURI,definition
+nuclease free water,erdera,,,,
+lowTE buffer,erdera,,,,
+TE buffer,erdera,CHMO,CHMO:0002069,http://purl.obolibrary.org/obo/CHMO_0002069,A buffer solution where the pH is maintained by Tris [tris(hydroxymethyl)aminomethane] and EDTA (ethylenediaminetetraacetic acid). TE buffer is used to protect DNA or RNA from degradation.
+EB buffer,erdera,,,,
+Other,erdera,NCIT,Different than the one(s) previously specified or mentioned.,http://purl.obolibrary.org/obo/NCIT_C17649,Different than the one(s) previously specified or mentioned.

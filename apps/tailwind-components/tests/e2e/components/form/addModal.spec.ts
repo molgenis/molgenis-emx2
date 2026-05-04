@@ -6,6 +6,8 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
+test.use({ storageState: "playwright/.auth/user.json" });
+
 test("should show the add modal", async ({ page }) => {
   await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
   await expect(page.getByText("Demo data controls")).toBeVisible();
@@ -44,5 +46,27 @@ test("should prefill default values", async ({ page }) => {
   await page.getByRole("button", { name: "Add Order" }).click();
   await expect(page.getByRole("textbox", { name: "status" })).toHaveValue(
     "hallo"
+  );
+});
+
+test("should re-evaluate required refs after clearing them", async ({
+  page,
+}) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await page.getByRole("button", { name: "Add Pet" }).click();
+  await page.getByText("cat", { exact: true }).click();
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByText("errorcategory is required")).toBeVisible();
+});
+
+test("should show auto id after saving", async ({ page }) => {
+  await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Order`);
+  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await page.getByRole("button", { name: "Add Order" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await expect(page.getByRole("textbox", { name: "orderId" })).toHaveValue(
+    /ORDER:.+/
   );
 });

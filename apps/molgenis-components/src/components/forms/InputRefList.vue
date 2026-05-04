@@ -104,13 +104,13 @@
 </template>
 
 <script lang="ts">
+import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import {
-  KeyObject,
   ITableMetaData,
+  KeyObject,
 } from "../../../../metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
-import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import Client from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
@@ -215,7 +215,11 @@ export default {
       this.loadOptions();
     },
     emitSelection() {
-      this.$emit("update:modelValue", this.selection);
+      if (!this.selection.length) {
+        this.$emit("update:modelValue", []);
+      } else {
+        this.$emit("update:modelValue", this.selection);
+      }
     },
     openSelect() {
       this.showSelect = true;
@@ -262,10 +266,14 @@ export default {
   },
   watch: {
     async modelValue() {
-      const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
-        convertRowToPrimaryKey(row, this.tableId, this.schemaId)
-      );
-      this.selection = await Promise.all(keyList);
+      if (!this.modelValue) {
+        this.selection = [];
+      } else {
+        const keyList = deepClone(this.modelValue).map(async (row: IRow) =>
+          convertRowToPrimaryKey(row, this.tableId, this.schemaId)
+        );
+        this.selection = await Promise.all(keyList);
+      }
     },
     filter() {
       if (!this.loading) {
@@ -307,7 +315,7 @@ export default {
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaId, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path -->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"

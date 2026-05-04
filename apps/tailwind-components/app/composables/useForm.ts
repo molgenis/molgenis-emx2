@@ -1,4 +1,3 @@
-import { useSession } from "./useSession";
 import {
   computed,
   isRef,
@@ -14,20 +13,20 @@ import type {
   columnId,
   columnValue,
   IColumn,
+  IRow,
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
-import {
-  getColumnError,
-  isRequired,
-} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
+import { getColumnError } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import { useSession } from "./useSession";
+import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
+
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
-  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollContainerId: string = ""
-) {
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>
+): UseForm {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
     watch(tableMetadata, (val) => (metadata.value = val), {
@@ -37,6 +36,18 @@ export default function useForm(
   }
 
   const formValues = ref(unref(formValuesRef));
+  const scrollContainerId = ref("");
+
+  const dirtyFields = ref<Set<columnId>>(new Set());
+  const blurredFields = ref<Set<columnId>>(new Set());
+
+  function getScrollContainerId() {
+    return scrollContainerId;
+  }
+
+  function setScrollContainerId(id: string) {
+    scrollContainerId.value = id;
+  }
 
   if (isRef(formValuesRef)) {
     watch(formValuesRef, (val) => (formValues.value = val), {
@@ -58,20 +69,27 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
+  const extractParamsFromExpression = (expression: string) => {
+    const params: string[] = [];
+    if (expression === "") {
+      return params;
+    }
+    for (const key of formValueKeys) {
+      // regex finds formValue keys used inside the expression
+      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
+      if (regex.test(expression)) {
+        params.push(key);
+      }
+    }
+    return params;
+  };
+
   // setup visibility signals
   const visibilityMap = metadata.value.columns.reduce((acc, column) => {
     const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
 
     const exprString = column.visible;
-    const params: string[] = [];
-
-    for (const key of formValueKeys) {
-      // regex finds formValue keys used inside the expression
-      const regex = new RegExp(`(?<!['"])\\b${key}\\b(?!['"])`, "g");
-      if (regex.test(exprString || "")) {
-        params.push(key);
-      }
-    }
+    const params: string[] = extractParamsFromExpression(exprString || "");
 
     const paramsString = params.join(", ");
     const visibilityFunction = new Function(
@@ -88,6 +106,49 @@ export default function useForm(
         )
     );
 
+    return acc;
+  }, {} as Record<columnId, ComputedRef<boolean>>);
+
+  const requiredMap = metadata.value.columns.reduce((acc, column) => {
+    if (typeof column.required === "boolean") {
+      acc[column.id] = computed(() => !!column.required);
+    } else if (
+      column.required?.toLocaleLowerCase() === "true" ||
+      column.required?.toLocaleLowerCase() === "false"
+    ) {
+      const requiredBool = column.required.toLocaleLowerCase() === "true";
+      acc[column.id] = computed(() => requiredBool);
+    } else if (typeof column.required === "string") {
+      try {
+        const requiredExpression = column.required;
+        const cleanExpression =
+          requiredExpression.replaceAll('"', "'") || "false";
+        const params: string[] =
+          extractParamsFromExpression(requiredExpression);
+        const paramsString = params.join(", ");
+        const requiredFunction = new Function(
+          paramsString,
+          "return eval(`" + cleanExpression + "`)"
+        );
+        acc[column.id] = computed(
+          () =>
+            !!requiredFunction.apply(
+              null,
+              params.map((p) => formValues.value[p])
+            )
+        );
+      } catch (e) {
+        console.error(
+          "Error creating required function for column",
+          column.id,
+          e
+        );
+        acc[column.id] = computed(() => false);
+      }
+    } else {
+      // default to not required
+      acc[column.id] = computed(() => false);
+    }
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
 
@@ -115,12 +176,8 @@ export default function useForm(
         isVisible: computed(() =>
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
-        isActive: computed(
-          () =>
-            visibleColumnIds.value.has(column.id) ||
-            section.headers.some((header) =>
-              visibleColumnIds.value.has(header.id)
-            )
+        isActive: computed(() =>
+          section.headers.some((header) => unref(header.isActive))
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -136,7 +193,7 @@ export default function useForm(
     }
   });
 
-  // second pass to get headings and colums
+  // second pass to get headings and columns
   metadata.value.columns.forEach((column) => {
     if (column.columnType !== "SECTION") {
       const section = sections.value.find(
@@ -157,10 +214,8 @@ export default function useForm(
           isVisible: computed(() =>
             headingColumns.some((col) => visibilityMap[col.id]?.value === true)
           ),
-          isActive: computed(
-            () =>
-              visibleColumnIds.value.has(column.id) ||
-              headingColumns.some((col) => visibleColumnIds.value.has(col.id))
+          isActive: computed(() =>
+            headingColumns.some((col) => visibleColumnIds.value.has(col.id))
           ),
           errorCount: computed(() => {
             return headingColumns.reduce((acc, col) => {
@@ -178,11 +233,15 @@ export default function useForm(
   const gotoSection = (id: string) => {
     sections.value.forEach((section) => {
       if (section.id === id) {
-        scrollTo(id + "-form-field");
+        scrollTo(
+          `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+        );
       }
       section.headers.forEach((header) => {
         if (header.id === id) {
-          scrollTo(id + "-form-field");
+          scrollTo(
+            `${metadata.value.schemaId}-${metadata.value.id}-${id}-form-field`
+          );
         }
       });
     });
@@ -192,7 +251,7 @@ export default function useForm(
     return metadata.value?.columns.filter(
       (column: IColumn) =>
         visibilityMap[column.id]?.value === true &&
-        isRequired(column.required) &&
+        requiredMap[column.id]?.value === true &&
         column.columnType !== "AUTO_ID"
     );
   });
@@ -251,7 +310,9 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
   const gotoPreviousRequiredField = () => {
@@ -275,10 +336,14 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
     if (currentRequiredField.value) {
-      scrollTo(`${currentRequiredField.value.id}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${currentRequiredField.value.id}-form-field`
+      );
     }
   };
 
@@ -306,6 +371,17 @@ export default function useForm(
     }
   };
 
+  watch(requiredFields, (_, oldRequiredFields) => {
+    oldRequiredFields.forEach((column) => {
+      if (
+        dirtyFields.value.has(column.id) ||
+        blurredFields.value.has(column.id)
+      ) {
+        validateColumn(column);
+      }
+    });
+  });
+
   const gotoPreviousError = () => {
     const keys = Object.keys(visibleColumnErrors.value);
     if (!keys.length) {
@@ -320,7 +396,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === previousErrorColumnId
       );
-      scrollTo(`${previousErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${previousErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -337,7 +415,9 @@ export default function useForm(
       currentErrorField.value = metadata.value.columns.find(
         (col) => col.id === nextErrorColumnId
       );
-      scrollTo(`${nextErrorColumnId}-form-field`);
+      scrollTo(
+        `${metadata.value.schemaId}-${metadata.value.id}-${nextErrorColumnId}-form-field`
+      );
     }
   };
 
@@ -350,6 +430,8 @@ export default function useForm(
         method: "POST",
         body: formData,
       });
+      // after inserting, we want to set the row key, now we know there is one
+      await resetRowKey();
       return res;
     } catch (error) {
       await handleFetchError(error, "Error on inserting");
@@ -392,10 +474,12 @@ export default function useForm(
   };
 
   const onBlurColumn = (column: IColumn) => {
+    blurredFields.value.add(column.id);
     validateColumn(column);
   };
 
   const onUpdateColumn = (column: IColumn) => {
+    dirtyFields.value.add(column.id);
     //only update error map if error already shown so it is removed
     if (errorMap.value[column.id]) {
       validateColumn(column);
@@ -437,7 +521,7 @@ export default function useForm(
   });
 
   const currentSection = computed(() => {
-    const activeSections = sections.value.filter((s) => s.isActive.value);
+    const activeSections = sections.value.filter((s) => unref(s.isActive));
     if (activeSections.length < 1) {
       return sections.value[0]?.id || null;
     } else {
@@ -477,20 +561,20 @@ export default function useForm(
         );
       }
     }
-    // if we dont suspect a session timeout, rethrow the original error
+    // if we don't suspect a session timeout, rethrow the original error
     throw error;
   }
 
   function scrollTo(elementId: string) {
     lastScrollTo.value = elementId;
-    const container = document.getElementById(scrollContainerId);
+    const container = document.getElementById(scrollContainerId.value);
 
     //lazy scroll, might need to wait for elements to be mounted first
-    function attemptScroll() {
-      if (container && elementId === "mg_top_of_form-form-field") {
+    function attemptScroll(depth = 0) {
+      if (container && elementId.endsWith("mg_top_of_form-form-field")) {
         container.scrollTo({
           top: 0,
-          behavior: "smooth",
+          behavior: "auto",
         });
       } else {
         const target = document.getElementById(elementId);
@@ -498,16 +582,51 @@ export default function useForm(
           const SCROLL_PADDING = 32;
           const offset =
             target.offsetTop - container.offsetTop - SCROLL_PADDING;
-          container.scrollTo({ top: offset, behavior: "smooth" });
+          container.scrollTo({ top: offset, behavior: "auto" });
         } else {
           // try again on the next frame until the element exists
-          requestAnimationFrame(attemptScroll);
+          if (depth < 100) {
+            requestAnimationFrame(() => attemptScroll(depth + 1));
+          }
         }
       }
     }
 
     attemptScroll();
   }
+
+  function isValid() {
+    validateAllColumns();
+    return Object.keys(visibleColumnErrors.value).length < 1;
+  }
+
+  function isDraftValid() {
+    validateKeyColumns();
+    return Object.keys(visibleColumnErrors.value).length < 1;
+  }
+
+  const values = computed(() => formValues.value);
+
+  const rowKey = ref<Record<string, columnValue>>({});
+
+  async function resetRowKey(): Promise<Record<string, columnValue>> {
+    console.log("Resetting row key, based on", values.value);
+    const resp = await fetchRowPrimaryKey(
+      values.value,
+      metadata.value.id,
+      metadata.value.schemaId
+    );
+    rowKey.value = resp;
+    return resp;
+  }
+
+  const showLegend = computed(() =>
+    Boolean(
+      sections.value.length > 1 ||
+        (sections.value.length === 1 &&
+          (sections.value[0]?.headers.length ?? 0) > 0)
+    )
+  );
 
   return {
     requiredFields,
@@ -536,5 +655,76 @@ export default function useForm(
     validateKeyColumns,
     lastScrollTo, //for debug
     visibleColumnIds,
+    requiredMap,
+    isValid,
+    isDraftValid,
+    values,
+    resetRowKey,
+    rowKey,
+    showLegend,
+    getScrollContainerId,
+    setScrollContainerId,
+    metadata: metadata,
   };
+}
+
+export interface UseForm {
+  values: ComputedRef<IRow>;
+  rowKey: Ref<Record<string, columnValue>>;
+  getScrollContainerId: () => Ref<string>;
+  setScrollContainerId: (id: string) => void;
+  metadata: Ref<ITableMetaData>;
+
+  /* ───────────── triggers (re)fetch on demand ───────────── */
+  resetRowKey: () => Promise<Record<string, columnValue>>;
+
+  /* ───────────── Required field state ───────────── */
+  requiredFields: ComputedRef<IColumn[]>;
+  emptyRequiredFields: ComputedRef<IColumn[]>;
+  requiredMessage: ComputedRef<string>;
+
+  /* ───────────── Error state ───────────── */
+  errorMessage: ComputedRef<string>;
+  visibleColumnErrors: ComputedRef<Record<columnId, string>>;
+
+  /* ───────────── Navigation / scrolling ───────────── */
+  gotoSection: (id: string) => void;
+  gotoNextRequiredField: () => void;
+  gotoPreviousRequiredField: () => void;
+  gotoNextError: () => void;
+  gotoPreviousError: () => void;
+
+  nextSection: ComputedRef<LegendSection | null | undefined>;
+  previousSection: ComputedRef<LegendSection | null | undefined>;
+  currentSection: ComputedRef<string | null>;
+
+  lastScrollTo: Ref<string | undefined>; // debug
+
+  /* ───────────── Visibility ───────────── */
+  visibleColumns: ComputedRef<IColumn[]>;
+  visibleColumnIds: Ref<Set<string>>;
+
+  onViewColumn: (column: IColumn) => void;
+  onLeaveViewColumn: (column: IColumn) => void;
+
+  /* ───────────── Sections / layout ───────────── */
+  sections: Ref<LegendSection[]>;
+  showLegend: ComputedRef<boolean>;
+
+  /* ───────────── Validation ───────────── */
+  validateAllColumns: () => void;
+  validateKeyColumns: () => void;
+  isValid: () => boolean;
+  isDraftValid: () => boolean;
+
+  onUpdateColumn: (column: IColumn) => void;
+  onBlurColumn: (column: IColumn) => void;
+
+  /* ───────────── Persistence ───────────── */
+  insertInto: () => Promise<any>;
+  updateInto: () => Promise<any>;
+  deleteRecord: () => Promise<any>;
+
+  /* ───────────── Metadata-derived ───────────── */
+  requiredMap: Record<columnId, ComputedRef<boolean>>;
 }

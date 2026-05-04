@@ -17,8 +17,8 @@ const route = useRoute();
 
 const isEditable = ref(false);
 const metadata = ref<ITableMetaData>();
-const schemaId = ref<string>((route.query.schema as string) || "type test");
-const tableId = ref<string>((route.query.table as string) || "Types");
+const schemaId = ref<string>((route.query.schema as string) || "");
+const tableId = ref<string>((route.query.table as string) || "");
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({
@@ -41,12 +41,13 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
     <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
     <div class="py-10" />
 
-    <TableEMX2
-      v-model:settings="tableSettings"
-      :key="`${schemaId}-${tableId}`"
-      :schema-id="schemaId"
-      :table-id="tableId ?? ''"
-      :is-editable="isEditable"
-    />
+      <TableEMX2
+        v-model:settings="tableSettings"
+        :key="`${schemaId}-${tableId}`"
+        :schema-id="schemaId"
+        :table-id="tableId ?? ''"
+        :is-editable="isEditable"
+      />
+    </div>
   </div>
 </template>

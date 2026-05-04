@@ -1,13 +1,13 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,19 +18,45 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-public class TestGraphqlAdminFields {
+class TestGraphqlAdminFields {
 
-  private static GraphQL grapql;
+  private static GraphqlExecutor graphql;
   private static Database database;
-  private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
+  private static GraphqlSessionHandlerInterface sessionManager;
+  private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
   private static final String ANOTHER_SCHEMA_NAME =
       TestGraphqlAdminFields.class.getSimpleName() + "2";
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(ANOTHER_SCHEMA_NAME);
+
+    graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    sessionManager =
+        new GraphqlSessionHandlerInterface() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+        };
   }
 
   @Test
@@ -39,8 +65,7 @@ public class TestGraphqlAdminFields {
     database.tx(
         tdb -> {
           tdb.becomeAdmin();
-          Schema schema = tdb.dropCreateSchema(schemaName);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          tdb.dropCreateSchema(SCHEMA_NAME);
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
@@ -50,10 +75,10 @@ public class TestGraphqlAdminFields {
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
           try {
-            assertEquals(null, execute("{_admin{userCount}}").textValue());
+            assertNull(execute("{_admin{userCount}}").textValue());
           } catch (Exception e) {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
@@ -62,28 +87,92 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
+  void testSetUserAdmin() throws JsonProcessingException {
+    database.becomeAdmin();
+    graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
+
+    // create and sign in user testAdmin
+    executeDb("mutation{signup(email:\"testAdmin\",password:\"test123456\"){message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+
+    // give testAdmin user admin privileges
+    executeDb(
+        """
+      mutation {
+        updateUser(updateUser:  {
+           email: "testAdmin",
+           admin: true
+        }) {
+          message
+        }
+      }
+
+      """);
+
+    executeDb("mutation{signout{message}}");
+    executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
+    database.setActiveUser("testAdmin");
+
+    // Do an admin only query
+    String lastUpdateResult =
+        executeDb(
+            """
+      query {
+        _lastUpdate {
+          operation
+          stamp
+          userId
+          tableName
+          schemaName
+        }
+      }
+      """);
+    assertTrue(lastUpdateResult.contains("lastUpdate"));
+  }
+
+  private String executeDb(String query) throws JsonProcessingException {
+    return convertExecutionResultToJson(graphql.execute(query, null, sessionManager));
+  }
+
+  @Test
+  void shouldOnlyListTasksAsAdmin() throws JsonProcessingException {
+    String query =
+        """
+        {
+          _tasks {
+            id
+          }
+        }
+        """;
+
+    sessionManager.createSession(ANONYMOUS);
+    MolgenisException exception = assertThrows(MolgenisException.class, () -> executeDb(query));
+    assertTrue(exception.getMessage().contains("task id needs to be provided to specify task"));
+
+    sessionManager.createSession(ADMIN_USER);
+    assertTrue(executeDb(query).contains("\"_tasks\" : [ ]"));
+  }
+
+  @Test
   void testUpdateUser() {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
 
           try {
             // setup
-            testDatabase.dropCreateSchema(schemaName);
-            testDatabase.dropCreateSchema(ANOTHER_SCHEMA_NAME);
             testDatabase.addUser(TEST_PERSOON);
             testDatabase.setEnabledUser(TEST_PERSOON, true);
-            testDatabase.getSchema(schemaName).addMember(TEST_PERSOON, "Owner");
+            testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
             testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
             // test
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
-            ExecutionInput build =
-                ExecutionInput.newExecutionInput().query(query).variables(variables).build();
-            String queryResult = convertExecutionResultToJson(graphql.execute(build));
+            String queryResult =
+                convertExecutionResultToJson(graphql.executeWithoutSession(query, variables));
             JsonNode node = new ObjectMapper().readTree(queryResult);
             if (node.get("errors") != null) {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -94,7 +183,7 @@ public class TestGraphqlAdminFields {
             assertEquals("testPersoon", user.getUsername());
             assertFalse(user.getEnabled());
 
-            List<Member> members = testDatabase.getSchema(schemaName).getMembers();
+            List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
             assertTrue(members.isEmpty());
 
             Member anotherSchemaMember =
@@ -120,7 +209,7 @@ public class TestGraphqlAdminFields {
 
     ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
     Map<String, String> revokedRole = new HashMap<>();
-    revokedRole.put("schemaId", schemaName);
+    revokedRole.put("schemaId", SCHEMA_NAME);
     revokedRole.put("role", "Owner");
     revokedRoles.add(revokedRole);
     updateUser.put("revokedRoles", revokedRoles);
@@ -137,7 +226,7 @@ public class TestGraphqlAdminFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result = convertExecutionResultToJson(graphql.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

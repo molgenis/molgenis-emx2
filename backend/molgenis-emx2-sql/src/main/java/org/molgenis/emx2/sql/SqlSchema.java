@@ -10,8 +10,8 @@ import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 public class SqlSchema implements Schema {
-  private SqlDatabase db;
-  private SqlSchemaMetadata metadata;
+  private final SqlDatabase db;
+  private final SqlSchemaMetadata metadata;
 
   public SqlSchema(SqlDatabase db, SqlSchemaMetadata metadata) {
     this.db = db;
@@ -92,7 +92,7 @@ public class SqlSchema implements Schema {
   public List<String> getInheritedRolesForUser(String user) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user.equals(ADMIN_USER) || user == null) {
+    if (user == null || user.equals(ADMIN_USER)) {
       return getRoles();
     } else {
       return getMetadata().getInheritedRolesForUser(user);
@@ -190,17 +190,14 @@ public class SqlSchema implements Schema {
         .forEach(
             t -> {
               t.drop();
-              t.getColumns().forEach(c -> c.drop());
+              t.getColumns().forEach(Column::drop);
             });
     migrate(mergeSchema);
   }
 
   @Override
   public void migrate(SchemaMetadata mergeSchema) {
-    tx(
-        database -> {
-          migrateTransaction(getName(), mergeSchema, database);
-        });
+    tx(database -> migrateTransaction(getName(), mergeSchema, database));
     this.getMetadata().reload();
     db.getListener().schemaChanged(getName());
   }
@@ -246,9 +243,7 @@ public class SqlSchema implements Schema {
         TableMetadata newTable = targetSchema.create(table);
         // create primary keys immediately to prevent foreign key dependency issues
         if (mergeTable.getInheritName() == null) {
-          mergeTable.getColumns().stream()
-              .filter(c -> c.isPrimaryKey())
-              .forEach(c -> newTable.add(c));
+          mergeTable.getColumns().stream().filter(Column::isPrimaryKey).forEach(newTable::add);
         }
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getTableMetadata(oldTable.getTableName()).alterName(mergeTable.getTableName());
@@ -366,8 +361,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<Change> getChanges(int limit) {
-    return metadata.getChanges(limit);
+  public List<Change> getChanges(int limit, int offset) {
+    return metadata.getChanges(limit, offset);
   }
 
   @Override
@@ -392,8 +387,7 @@ public class SqlSchema implements Schema {
   public SqlTable getTableById(String id) {
     Optional<Table> table =
         getTablesSorted().stream().filter(t -> t.getIdentifier().equals(id)).findFirst();
-    if (table.isPresent()) return (SqlTable) table.get();
-    else return null;
+    return (SqlTable) table.orElse(null);
   }
 
   @Override
@@ -432,5 +426,55 @@ public class SqlSchema implements Schema {
 
   public DSLContext getJooq() {
     return ((SqlDatabase) getDatabase()).getJooq();
+  }
+
+  private SqlRoleManager roleManager() {
+    return db.getRoleManager();
+  }
+
+  private void requireManager() {
+    if (!db.isAdmin() && !hasActiveUserRole(Privileges.MANAGER)) {
+      throw new MolgenisException(
+          "Permission denied: role management requires Manager or Owner privileges");
+    }
+  }
+
+  @Override
+  public void createRole(String roleName) {
+    requireManager();
+    roleManager().createRole(getName(), roleName);
+  }
+
+  @Override
+  public void deleteRole(String roleName) {
+    requireManager();
+    roleManager().deleteRole(getName(), roleName);
+  }
+
+  @Override
+  public void grant(String roleName, TablePermission permission) {
+    requireManager();
+    roleManager().grant(getName(), roleName, permission);
+  }
+
+  @Override
+  public void revoke(String roleName, String tableName) {
+    requireManager();
+    roleManager().revoke(getName(), roleName, tableName);
+  }
+
+  @Override
+  public Role getRoleInfo(String roleName) {
+    return roleManager().getRole(getName(), roleName);
+  }
+
+  @Override
+  public List<Role> getRoleInfos() {
+    return roleManager().getRoles(getName());
+  }
+
+  @Override
+  public List<TablePermission> getPermissionsForActiveUser() {
+    return roleManager().getTablePermissionsForActiveUser(getName());
   }
 }

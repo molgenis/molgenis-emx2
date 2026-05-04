@@ -1,6 +1,6 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID', 'PERIOD'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID', 'PERIOD', 'UUID'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string"
     :valid="valid"
@@ -33,6 +33,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :errorMessage="errorMessage"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -63,13 +64,14 @@
     @blur="emit('blur')"
   />
   <InputInt
-    v-else-if="'INT' === typeUpperCase"
+    v-else-if="['INT', 'NON_NEGATIVE_INT'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as number"
     type="text"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
+    :errorMessage="errorMessage"
     :describedBy="describedBy"
     :placeholder="placeholder"
     @focus="emit('focus')"
@@ -103,7 +105,7 @@
     @blur="emit('blur')"
   />
   <InputTextArea
-    v-else-if="['TEXT'].includes(typeUpperCase)"
+    v-else-if="['TEXT', 'JSON'].includes(typeUpperCase)"
     v-model="modelValue as string"
     :id="id"
     :valid="valid"
@@ -225,9 +227,7 @@
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
-      $event
-        ? (modelValue = { name: $event as string })
-        : (modelValue = undefined)
+      $event ? (modelValue = { name: $event as string }) : (modelValue = null)
     "
     :id="id"
     :valid="valid"
@@ -240,18 +240,13 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
+    :limit="10"
   />
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
     :isArray="true"
     :modelValue="getOntologyArrayValues(modelValue)"
-    @update:modelValue="
-      Array.isArray($event)
-        ? (modelValue = $event.map((value) => {
-            return { name: value };
-          }))
-        : (modelValue = [])
-    "
+    @update:modelValue="updateOntologyArrayValues"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -262,6 +257,7 @@
     :ontologyTableId="refTableId!"
     @focus="emit('focus')"
     @blur="emit('blur')"
+    :limit="10"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -344,6 +340,7 @@ const props = withDefaults(
       falseLabel?: string;
       align?: "horizontal" | "vertical";
       limit?: number;
+      errorMessage?: string | null;
     }
   >(),
   {
@@ -362,9 +359,20 @@ const NON_REF_ARRAY_TYPES = [
   "EMAIL_ARRAY",
   "HYPERLINK_ARRAY",
   "INT_ARRAY",
+  "NON_NEGATIVE_INT_ARRAY",
   "LONG_ARRAY",
   "TEXT_ARRAY",
   "UUID_ARRAY",
   "PERIOD_ARRAY",
 ];
+
+function updateOntologyArrayValues(event?: string | string[] | null) {
+  if (Array.isArray(event) && event.length) {
+    modelValue.value = event.map((value) => {
+      return { name: value };
+    });
+  } else {
+    modelValue.value = null;
+  }
+}
 </script>

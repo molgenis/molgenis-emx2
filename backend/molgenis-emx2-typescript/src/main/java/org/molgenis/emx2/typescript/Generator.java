@@ -8,10 +8,19 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.molgenis.emx2.*;
 
 public class Generator {
+
+  private static final String MG_TABLECLASS_INTERFACE =
+      """
+                    export interface IMgTableClass {
+                        mg_tableclass: string;
+                    }
+                    """;
 
   private static final String FILE_TS_INTERFACE =
       """
@@ -62,6 +71,9 @@ public class Generator {
       writer.println("");
     }
 
+    writer.write(MG_TABLECLASS_INTERFACE);
+    writer.println("");
+
     writer.write(FILE_TS_INTERFACE);
     writer.println("");
 
@@ -75,19 +87,18 @@ public class Generator {
 
     for (TableMetadata table : tables) {
 
-      String tableName = convertToPascalCase(table.getTableName());
-      writer.println(String.format("export interface I%s {", tableName));
+      String tableName =
+          convertToPascalCase(
+              schema.getName().equals(table.getSchemaName())
+                  ? table.getTableName()
+                  : table.getSchemaName() + '_' + table.getTableName());
+      writer.println(String.format("export interface I%s extends IMgTableClass {", tableName));
 
-      for (Column column : table.getColumns()) {
-        if (column.getColumnType().isHeading()) {
-          continue;
-        }
-        if (column.isSystemColumn()) {
-          continue;
-        }
-
+      Set<String> seenColumns = new LinkedHashSet<>();
+      for (Column column : table.getColumnsIncludingSubclasses()) {
         String columnName = convertToCamelCase(column.getName());
-        String fieldValue = toTypeScriptInterfaceFieldValue(column);
+        if (shouldSkipColumn(column, seenColumns, columnName)) continue;
+        String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));
       }
@@ -106,7 +117,13 @@ public class Generator {
     writer.close();
   }
 
-  private String toTypeScriptInterfaceFieldValue(Column column) {
+  private boolean shouldSkipColumn(Column column, Set<String> seenColumns, String columnName) {
+    return column.getColumnType().isHeading()
+        || column.isSystemColumn()
+        || !seenColumns.add(columnName);
+  }
+
+  private String toTypeScriptInterfaceFieldValue(Schema schema, Column column) {
     ColumnType columnType = column.getColumnType();
 
     return switch (columnType) {
@@ -122,11 +139,25 @@ public class Generator {
               HYPERLINK_ARRAY,
               LONG_ARRAY ->
           "string[]";
-      case INT, DECIMAL -> "number";
-      case INT_ARRAY, DECIMAL_ARRAY -> "number[]";
-      case REF -> "I" + convertToPascalCase(column.getRefTable().getTableName());
+      case INT, DECIMAL, NON_NEGATIVE_INT -> "number";
+      case INT_ARRAY, DECIMAL_ARRAY, NON_NEGATIVE_INT_ARRAY -> "number[]";
+      case REF ->
+          "I"
+              + convertToPascalCase(
+                  column.getRefTable().getSchemaName().equals(schema.getName())
+                      ? column.getRefTable().getTableName()
+                      : column.getRefTable().getSchemaName()
+                          + '_'
+                          + column.getRefTable().getTableName());
       case REF_ARRAY, REFBACK ->
-          "I" + convertToPascalCase(column.getRefTable().getTableName()) + "[]";
+          "I"
+              + convertToPascalCase(
+                  column.getRefTable().getSchemaName().equals(schema.getName())
+                      ? column.getRefTable().getTableName()
+                      : column.getRefTable().getSchemaName()
+                          + '_'
+                          + column.getRefTable().getTableName())
+              + "[]";
       case FILE -> "IFile";
       case ONTOLOGY -> "IOntologyNode";
       case ONTOLOGY_ARRAY -> "IOntologyNode[]";

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import type {
   Crumb,
   ITableSettings,
@@ -13,6 +13,11 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
+import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
+import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import constants from "../../../../../tailwind-components/app/utils/constants";
 
 const route = useRoute();
 const router = useRouter();
@@ -28,6 +33,16 @@ const currentPage = computed(() => {
     : 1;
 });
 
+const currentPageSize = computed(() => {
+  const queryPageSizeNumber = Number(route.query?.pagesize);
+  if (!constants.PAGE_SIZE_OPTIONS.includes(queryPageSizeNumber)) {
+    return constants.PAGE_SIZE_DEFAULT;
+  }
+  return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
+    ? Math.round(queryPageSizeNumber)
+    : constants.PAGE_SIZE_DEFAULT;
+});
+
 const orderbyColumn = computed(() => route.query.orderby as string);
 const orderbyDirection = computed(() =>
   route.query.order ? (route.query.order as sortDirection) : "ASC"
@@ -37,7 +52,7 @@ const search = computed(() => route.query.search as string);
 
 const tableSettings = ref<ITableSettings>({
   page: currentPage.value,
-  pageSize: 10,
+  pageSize: currentPageSize.value,
   orderby: {
     column: orderbyColumn.value,
     direction: orderbyDirection.value,
@@ -59,9 +74,24 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    pagesize:
+      tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
+        ? undefined
+        : tableSettings.value.pageSize,
   };
 
   router.push({ query });
+}
+
+async function handleViewRowRequest(row: IRow) {
+  const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
+
+  router.push({
+    path: `/${schemaId}/${tableId}/${keySlug(primaryKeys)}`,
+    query: {
+      keys: JSON.stringify(primaryKeys),
+    },
+  });
 }
 
 const crumbs: Crumb[] = [
@@ -75,10 +105,10 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin, session } = await useSession();
+const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <div class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>
@@ -94,7 +124,19 @@ const { isAdmin, session } = await useSession();
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.includes('Editor') || isAdmin"
-    />
-  </section>
+      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+    >
+      <template #additional-row-actions="{ row }">
+        <Button
+          :id="useId()"
+          :icon-only="true"
+          type="inline"
+          icon="info"
+          size="small"
+          label="view row details"
+          @click="handleViewRowRequest(row)"
+        />
+      </template>
+    </TableEMX2>
+  </div>
 </template>

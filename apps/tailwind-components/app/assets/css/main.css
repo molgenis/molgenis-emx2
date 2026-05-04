@@ -55,13 +55,17 @@
     --color-disabled-foreground: var(--color-gray-400);
     --color-disabled-background: var(--color-gray-100);
 
-    --text-color-logo-text: var(--color-white);
-    --text-color-logo-text-inverted: var(--color-blue-500);
+    --text-color-logo-text: var(--color-blue-500);
+    --text-color-logo-text-inverted: var(--color-white);
+    --background-color-logo: var(--color-white);
+    --logo-icon-primary: var(--color-blue-700);
+    --logo-icon-secondary: var(--color-blue-500);
 
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    --box-shadow-no-background-modal: 0.1rem 0.1rem 6px rgba(0, 0, 0, 0.1);
 
     --background-image-sidebar-gradient: linear-gradient(
       180deg,
@@ -274,5 +278,31 @@
 
     /** tooltips */
     --text-color-icon-neutral: var(--color-blue-200);
+
+    /* visualisations: need css and svg defintions */
+    --chart-text: var(--color-gray-900);
+    --chart-paths: var(--color-gray-600);
+    --chart-gridlines: var(--color-gray-200);
   }
+}
+
+/* viz: chart layouts (only supports top and bottom) */
+.chart_layout_with_legend_top {
+  grid-template-areas:
+    "context"
+    "legend"
+    "chart";
+}
+
+.chart_layout_with_legend_bottom {
+  grid-template-areas:
+    "context"
+    "chart"
+    "legend";
+}
+
+.chart_layout_default {
+  grid-template-areas:
+    "context"
+    "chart";
 }

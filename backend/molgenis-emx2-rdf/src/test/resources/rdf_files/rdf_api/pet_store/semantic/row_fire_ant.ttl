@@ -12,7 +12,7 @@
 @prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
 @prefix fg: <https://w3id.org/fair-genomes/resource/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix healthdcatap: <http://healthdataportal.eu/ns/health#> .
 @prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 @prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
@@ -34,6 +34,9 @@
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>,
-    <https://dbpedia.org/page/Red>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName>
+    "fire ant";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasWeight> "0.01"^^xsd:double .

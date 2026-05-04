@@ -12,7 +12,7 @@
 @prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
 @prefix fg: <https://w3id.org/fair-genomes/resource/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix healthdcatap: <http://healthdataportal.eu/ns/health#> .
 @prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 @prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
@@ -39,30 +39,53 @@
   dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
   dcterms:creator <https://molgenis.org> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky> <http://example.com/petstore#hasName>
+    "pooky";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasWeight> "9.4"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike> <http://example.com/petstore#hasName>
+    "spike";
+  <http://example.com/petstore#hasStatus> "sold";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
+  <http://example.com/petstore#hasWeight> "15.7"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester>
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom> <http://example.com/petstore#hasName>
+    "tom";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  <http://example.com/petstore#hasWeight> "3.14"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry>
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester> <http://example.com/petstore#hasName>
+    "sylvester";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasWeight> "1.337"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry> <http://example.com/petstore#hasName>
+    "jerry";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
+  <http://example.com/petstore#hasWeight> "0.18"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=yakul>
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety> <http://example.com/petstore#hasName>
+    "tweety";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  <http://example.com/petstore#hasWeight> "0.1"^^xsd:double .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>.
+  <http://example.com/petstore#hasName> "the very hungry caterpillar";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
+  <http://example.com/petstore#hasWeight> "0.5"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName>
+    "fire ant";
+  <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
-    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>.
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasWeight> "0.01"^^xsd:double .
 
 <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a foaf:Person;
   foaf:accountName "bofke";

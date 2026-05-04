@@ -10,10 +10,15 @@ import {
   isMissingValue,
   isRequired,
   isJsonObjectOrArray,
-  getBigIntError,
   buildGraphqlFilter,
+  isInvalidBigInt,
+  readableStringArray,
 } from "./formUtils";
-import type { ITableMetaData, IColumn } from "metadata-utils";
+import {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+} from "../../../../../metadata-utils/src/types.js";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -35,7 +40,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({});
   });
 
-  test("it should an error if a required field misses a value", () => {
+  test("it should return an error if a required field misses a value", () => {
     const rowData = { required: undefined };
     const metadata = {
       columns: [
@@ -51,7 +56,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ required: "required is required" });
   });
 
-  test("it should an error if a numerical required field has an invalid value", () => {
+  test("it should return an error if a numerical required field has an invalid value", () => {
     const rowData = { required: NaN };
     const metadata = {
       columns: [
@@ -190,12 +195,41 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid email address array", () => {
-    const rowData = { email: ["in@valid", "val@id.com", null, ""] };
+    const rowData = { email: ["in@valid", "val@id.com", null, ""] } as Record<
+      string,
+      columnValue
+    >;
     const metadata = {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ email: "Invalid email address" });
+    expect(result.email).to.contain("invalid email address");
+  });
+
+  test("it should return no error for a valid UUID ARRAY", () => {
+    const rowData = {
+      uuid: [
+        "123e4567-e89b-12d3-a456-426614174000",
+        "223e4567-e89b-12d3-a456-426614174001",
+      ],
+    };
+    const metadata = {
+      columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid UUID array", () => {
+    const rowData = { uuid: ["invalid", "not valid", null, ""] } as Record<
+      string,
+      columnValue
+    >;
+    const metadata = {
+      columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result.uuid).to.contain("must use a valid UUID format");
   });
 
   test("it should return no error for a valid hyperlink array", () => {
@@ -215,7 +249,7 @@ describe("getRowErrors", () => {
       columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+    expect(result.hyperlink).to.contain("invalid hyperlink");
   });
 
   test("it should return no error for a valid long", () => {
@@ -234,7 +268,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+      long: "Invalid long: must be value from -9223372036854775807 to 9223372036854775807",
     });
   });
 
@@ -254,7 +288,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+      long: "Invalid long: must be value from -9223372036854775807 to 9223372036854775807",
     });
   });
 
@@ -294,7 +328,7 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ decimal: "Invalid number" });
   });
 
-  test("it should return nog error for a valid integer", () => {
+  test("it should return no error for a valid integer", () => {
     const rowData = { integer: 1 };
     const metadata = {
       columns: [{ id: "integer", columnType: "INT" }],
@@ -309,7 +343,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "integer", columnType: "INT" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ integer: "Invalid number" });
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
   });
 
   test("it should return an error for an integer that is too large", () => {
@@ -319,7 +355,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
     });
   });
 
@@ -330,7 +366,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
     });
   });
 
@@ -344,12 +380,14 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid integer array", () => {
-    const rowData = { integer: [".", 2] };
+    const rowData = { integer: [".", 2] } as Record<string, columnValue>;
     const metadata = {
       columns: [{ id: "integer", columnType: "INT_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ integer: "Invalid number" });
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
   });
 
   test("it should return an error for an invalid integer array", () => {
@@ -359,8 +397,93 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
     });
+  });
+
+  test("it should return no error for a valid non negative integer", () => {
+    const rowData = { nonNegativeInteger: 0 };
+    const metadata = {
+      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid non negative integer", () => {
+    const rowData = { nonNegativeInteger: "." };
+    const metadata = {
+      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
+  });
+
+  test("it should return an error for an non negative integer that is too large", () => {
+    const rowData = { nonNegativeInteger: 2147483648 };
+    const metadata = {
+      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
+  });
+
+  test("it should return an error for an non negative integer that is too small", () => {
+    const rowData = { nonNegativeInteger: -1 };
+    const metadata = {
+      columns: [{ id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      nonNegativeInteger:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
+  });
+
+  test("it should return no error for a valid non negative integer array", () => {
+    const rowData = { nonNegativeInteger: [0, 3] };
+    const metadata = {
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid non negative integer array", () => {
+    const rowData = { nonNegativeInteger: [".", 2] } as Record<
+      string,
+      columnValue
+    >;
+    const metadata = {
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
+  });
+
+  test("it should return an error for an invalid non negative integer array", () => {
+    const rowData = { nonNegativeInteger: [-1, 2] };
+    const metadata = {
+      columns: [
+        { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
+      ],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result.nonNegativeInteger).to.contain(
+      "invalid non negative integer"
+    );
   });
 
   test("it should return no error for a successful validation", () => {
@@ -391,7 +514,7 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({
-      validation: "Applying validation rule returned error: validation > 1",
+      validation: "validation > 1",
     });
   });
 
@@ -405,35 +528,35 @@ describe("getRowErrors", () => {
   });
 });
 
-describe("getBigIntError", () => {
-  const BIG_INT_ERROR = `Invalid value: must be value from -9223372036854775807 to 9223372036854775807`;
+describe("isInvalidBigInt", () => {
+  // Accepted range: -9223372036854775807 to 9223372036854775807
 
-  test("it should return undefined for a valid positive long", () => {
-    expect(getBigIntError("9223372036854775807")).toBeUndefined();
+  test("it should return false for a valid positive long", () => {
+    expect(isInvalidBigInt("9223372036854775807")).toBe(false);
   });
 
-  test("it should return undefined for a valid negative long", () => {
-    expect(getBigIntError("-9223372036854775807")).toBeUndefined();
+  test("it should return false for a valid negative long", () => {
+    expect(isInvalidBigInt("-9223372036854775807")).toBe(false);
   });
 
-  test("it should return an error string for a too large long", () => {
-    expect(getBigIntError("9223372036854775808")).toEqual(BIG_INT_ERROR);
+  test("it should return true for a too large long", () => {
+    expect(isInvalidBigInt("9223372036854775808")).toBe(true);
   });
 
-  test("it should return an error string for a too small long", () => {
-    expect(getBigIntError("-9223372036854775808")).toEqual(BIG_INT_ERROR);
+  test("it should return true for a too small long", () => {
+    expect(isInvalidBigInt("-9223372036854775808")).toBe(true);
   });
 
-  test("it should return an error for invalid input", () => {
-    expect(getBigIntError("randomtext")).toEqual(BIG_INT_ERROR);
+  test("it should return true for invalid input", () => {
+    expect(isInvalidBigInt("randomtext")).toBe(true);
   });
 
-  test("it should return an error for empty inputs", () => {
-    expect(getBigIntError("")).toEqual(BIG_INT_ERROR);
+  test("it should return true for empty inputs", () => {
+    expect(isInvalidBigInt("")).toBe(true);
   });
 
-  test("it should return an error for only a minus", () => {
-    expect(getBigIntError("-")).toEqual(BIG_INT_ERROR);
+  test("it should return true for only a minus", () => {
+    expect(isInvalidBigInt("-")).toBe(true);
   });
 });
 
@@ -512,6 +635,32 @@ describe("getSaveDisabledMessage", () => {
   });
 });
 
+describe("readableStringArray", () => {
+  test("it should return a readable string from an array of strings", () => {
+    const array = ["apple", "banana", "cherry"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple', 'banana' and 'cherry' are healthy");
+  });
+
+  test("it should handle arrays with one item", () => {
+    const array = ["apple"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' is healthy");
+  });
+
+  test("it should handle arrays with two items", () => {
+    const array = ["apple", "banana"];
+    const result = readableStringArray(array, "is healthy", "are healthy");
+    expect(result).toEqual("'apple' and 'banana' are healthy");
+  });
+
+  test("it should handle empty arrays", () => {
+    const array: string[] = [];
+    const result = readableStringArray(array);
+    expect(result).toEqual("");
+  });
+});
+
 describe("isMissingValue", () => {
   test("should return true if variable is considered to be missing", () => {
     expect(isMissingValue(undefined)).toBe(true);
@@ -528,9 +677,21 @@ describe("isMissingValue", () => {
   test("should handle (nested) arrays correctly", () => {
     expect(isMissingValue([0])).toBe(false);
     expect(isMissingValue([1, 2, 3])).toBe(false);
-    expect(isMissingValue([null, "field1", ""])).toBe(true);
-    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
-    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+    expect(isMissingValue([null, "field1", ""] as columnValue)).toBe(true);
+    expect(
+      isMissingValue([["field1", "field2"], "field3"] as columnValue)
+    ).toBe(false);
+    expect(
+      isMissingValue([[undefined, "field1"], "field2"] as columnValue)
+    ).toBe(true);
+  });
+
+  test("should return true for an empty array", () => {
+    expect(isMissingValue([])).toBe(true);
+  });
+
+  test("should return true for a nested empty array", () => {
+    expect(isMissingValue(["", []] as columnValue)).toBe(true);
   });
 });
 
@@ -709,14 +870,88 @@ describe("buildGraphqlFilter", () => {
     });
   });
 
+  test("it should set an equals filter for a RADIO filter", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "RADIO",
+        id: "radioColumn",
+        conditions: ["option1"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      radioColumn: { equals: ["option1"] },
+    });
+  });
+
+  test("it should set a like filter for an AUTO_ID column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "AUTO_ID",
+        id: "autoIdColumn",
+        conditions: ["123e4567-e89b-12d3-a456-426614174000"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      autoIdColumn: { like: ["123e4567-e89b-12d3-a456-426614174000"] },
+    });
+  });
+
+  test("it should set an equals filter for a multi select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "MULTISELECT",
+        id: "multiSelectColumn",
+        conditions: ["option1", "option2"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      multiSelectColumn: { equals: ["option1", "option2"] },
+    });
+  });
+
+  test("it should set an equals filter for a select column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "SELECT",
+        id: "selectColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      selectColumn: { equals: ["option1"] },
+    });
+  });
+
+  test("it should set an equals filter for a checkbox column", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "CHECKBOX",
+        id: "checkboxColumn",
+        conditions: ["option1"],
+      } as unknown as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      checkboxColumn: { equals: ["option1"] },
+    });
+  });
+
   test("it should call the error callback for invalid column types", () => {
     const columns: IColumn[] = [
-      //@ts-expect-error
       {
         columnType: "INVALID_TYPE",
         id: "invalidColumn",
         conditions: ["value"],
-      } as IColumn,
+      } as unknown as IColumn,
     ];
 
     const errorCallbackMock = vi.fn();

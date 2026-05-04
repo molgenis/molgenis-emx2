@@ -22,8 +22,7 @@ it inside IntelliJ.
 
 ## Build whole system
 
-Requires [Postgresql 15](https://www.postgresql.org/download/) and java (we use
-[adopt OpenJDK 21](https://adoptium.net/)):
+Requires [Postgresql 15](https://www.postgresql.org/download/) and Java 21 (e.g., [OpenJDK 21](https://adoptium.net/)):
 Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
 
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
@@ -113,6 +112,7 @@ last updated 24 nov 2022
   - google-java-format plugin
   - prettier plugin, set run for files to include '.vue' and 'on save'
   - auto save and auto format using 'save actions' plugin
+  - SonarQube plugin
 
 ### Pre-commit hook
 

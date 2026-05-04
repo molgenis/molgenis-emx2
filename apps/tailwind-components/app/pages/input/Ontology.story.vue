@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import Field from "../../components/Field.vue";
+import InputOntology from "../../components/input/Ontology.vue";
+import InputTestContainer from "../../components/input/TestContainer.vue";
 
 const ontologySchemaId = ref<string>("pet store");
 const ontologyTableId = ref<string>("Tag");
@@ -23,6 +26,11 @@ const modelValueArray3 = ref([
   { name: "Maternal height" },
   { name: "Country of cohort" },
 ]);
+
+const ontologySchemaId4 = ref<string>("CatalogueOntologies");
+const ontologyTableId4 = ref<string>("Keywords");
+const modelValue4 = ref("Maternal height");
+const modelValueArray4 = ref(["Maternal height", "Country of cohort"]);
 </script>
 
 <template>
@@ -33,7 +41,7 @@ const modelValueArray3 = ref([
     v-slot="{ invalid, valid, disabled, onBlur, onFocus }"
   >
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id"
         label="Small tree ontology"
@@ -50,7 +58,7 @@ const modelValueArray3 = ref([
       <p class="mt-4 text-input-description">modelValue = {{ modelValue }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         label="Small tree ontology array"
         description="Small tree ontologies are shown inline"
@@ -69,7 +77,7 @@ const modelValueArray3 = ref([
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id1"
         label="Small flat ontology"
@@ -86,7 +94,7 @@ const modelValueArray3 = ref([
       <p class="mt-4 text-input-description">modelValue = {{ modelValue1 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         id="test-ontology-array-input-id1"
         label="Small flat ontology array"
@@ -104,7 +112,7 @@ const modelValueArray3 = ref([
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         id="test-ontology-input-id2"
         label="Large flat ontology"
@@ -121,7 +129,7 @@ const modelValueArray3 = ref([
       <p class="mt-4 text-input-description">modelValue = {{ modelValue2 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         label="Large flat ontology array"
         description="Large ontologies are shown as select"
         type="ONTOLOGY_ARRAY"
@@ -141,7 +149,7 @@ const modelValueArray3 = ref([
       </p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY"
         label="Large tree ontology"
         description="Large ontologies are shown as select"
@@ -158,7 +166,7 @@ const modelValueArray3 = ref([
       <p class="mt-4 text-input-description">modelValue = {{ modelValue3 }}</p>
     </div>
     <div class="m-4">
-      <FormField
+      <Field
         type="ONTOLOGY_ARRAY"
         label="Large tree ontology array"
         description="Large ontologies are shown as select"
@@ -175,6 +183,45 @@ const modelValueArray3 = ref([
       />
       <p class="mt-4 text-input-description">
         modelValueArray = {{ modelValueArray3 }}
+      </p>
+    </div>
+    <p>
+      Large ontologies forced to show without select and limit=5 (outside of the
+      form field)
+    </p>
+    <div class="m-4">
+      <InputOntology
+        id="test-ontology-input-id3"
+        v-model="modelValue4"
+        :ontology-schema-id="ontologySchemaId4"
+        :ontology-table-id="ontologyTableId4"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onBlur"
+        :force-list="true"
+        :limit="5"
+      />
+      <p class="mt-4 text-input-description">modelValue = {{ modelValue4 }}</p>
+    </div>
+    <div class="m-4">
+      <InputOntology
+        id="test-ontology-array-input-id3"
+        :isArray="true"
+        v-model="modelValueArray4"
+        :ontology-schema-id="ontologySchemaId4"
+        :ontology-table-id="ontologyTableId4"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+        @blur="onBlur"
+        @focus="onFocus"
+        :force-list="true"
+        :limit="5"
+      />
+      <p class="mt-4 text-input-description">
+        modelValueArray = {{ modelValueArray4 }}
       </p>
     </div>
   </InputTestContainer>

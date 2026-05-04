@@ -1,0 +1,4 @@
+title,description,url,url label,url is external,displayed in navigation group,order,id
+Get started,Learn how to use MOLGENIS,https://molgenis.github.io/molgenis-emx2,Read the docs,true,home-section-nav-group,0,mg-get-started-link
+View code,Visit our GitHub repository,https://github.com/molgenis/molgenis-emx2,Go to GitHub,true,home-section-nav-group,1,mg-view-code-link
+Contact us,Get in touch with us,https://molgenis.org,Contact,true,home-section-nav-group,2,mg-contact-us-link
