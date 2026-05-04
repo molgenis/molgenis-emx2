@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +27,7 @@ import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectScope;
+import org.postgresql.util.PSQLException;
 
 class SqlRoleManagerTest {
 
@@ -781,38 +783,6 @@ class SqlRoleManagerTest {
         "INSERT column grants must be revoked after scope flips to NONE");
   }
 
-  @org.junit.jupiter.api.Disabled(
-      "requires SET ROLE to the custom role in the test session — Alice is added as Manager which has BYPASSRLS and full column access, bypassing column-level restrictions; re-enable in Phase 4/5 when session-as-custom-role fixture is available")
-  @Test
-  void setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag() {
-    schemaA.create(table("Specimens", column("name").setPkey()));
-    roleManager.createRole(schemaA, "collector", "collector role");
-    PermissionSet perms =
-        new PermissionSet()
-            .putTable(
-                "Specimens",
-                new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.ALL)
-                    .setSelect(SelectScope.ALL));
-    roleManager.setPermissions(schemaA, "collector", perms);
-    schemaA.addMember(TEST_USER_ALICE, "Manager");
-    schemaA.getTable("Specimens").insert(new Row().setString("name", "s-1"));
-
-    db.setActiveUser(TEST_USER_ALICE);
-    try {
-      assertThrows(
-          Exception.class,
-          () ->
-              schemaA
-                  .getTable("Specimens")
-                  .update(new Row().setString("name", "s-1").setString("mg_owner", "other")),
-          "UPDATE setting mg_owner without changeOwner flag must throw permission denied");
-    } finally {
-      db.becomeAdmin();
-    }
-  }
-
   @Nested
   class PolicyEmission {
 
@@ -1233,5 +1203,15 @@ class SqlRoleManagerTest {
                     .eq(inline(schemaName))
                     .and(field(name("table_name")).eq(inline(tableName)))
                     .and(field(name("column_name")).eq(inline(columnName)))));
+  }
+
+  private static void assertInsufficientPrivilege(DataAccessException thrown) {
+    assertTrue(
+        thrown.getCause() instanceof PSQLException,
+        "DataAccessException cause must be PSQLException, got: " + thrown.getCause());
+    assertEquals(
+        "42501",
+        ((PSQLException) thrown.getCause()).getSQLState(),
+        "PSQLException must carry SQLSTATE 42501 (insufficient_privilege)");
   }
 }

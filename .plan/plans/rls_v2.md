@@ -664,6 +664,112 @@ This phase is reduced to integration testing:
 Exit criteria: change-capability flags enforced via column grants; SQL
 errors translated; tests cover allow/deny per flag.
 
+#### Phase 5 port plan (2026-05-03)
+
+Phase 5 is mostly integration-test work — column-level INSERT/UPDATE GRANTs
+were already emitted in Phase 2.E and policies in Phase 3, so the SQL layer
+already enforces `changeOwner` / `changeGroup`. What's missing: end-to-end
+verification with an actual custom-role SET ROLE session, plus user-facing
+error translation.
+
+Pre-state references:
+- `SqlRoleManager.applyColumnGrants` (Phase 2.E) emits/revokes
+  `GRANT INSERT/UPDATE (mg_owner)` and `(mg_groups)` on flag flips.
+- `SqlRoleManagerTest.setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag`
+  (Phase 2.E + Phase 3) is `@Disabled` because the test ran as Manager
+  (BYPASSRLS) — needs a custom-role SET ROLE fixture.
+
+Scout findings (2026-05-03) simplified the slicing:
+- `SqlUserAwareConnectionProvider.acquire()` already issues `RESET ROLE; SET
+  ROLE MG_USER_<u>` for non-admin active users, so `database.setActiveUser(u)`
+  + a custom-role grant on `u` is the fixture — no new helper needed.
+- `SqlMolgenisException.getTitle()` already switches on
+  `PSQLException.getSQLState()` (currently `57014` timeout only). Adding the
+  `42501` arm with a small lookup on column name produces the friendly message.
+  Result is `MolgenisException` (the parent class) — no new exception type.
+- Source branch has NO prior translation for `mg_owner` / `mg_groups` —
+  Phase 5 work is net-new.
+
+Slice plan (two slices):
+
+- **5.A — Re-enable + extend `setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag`.**
+  Remove `@Disabled`. Fix the existing test setup: grant Alice the **custom
+  role** (not Manager) and call `setActiveUser(alice)` so PG enforces the
+  column-level restriction. Expand into a matrix:
+  - `changeOwner=false` → UPDATE `mg_owner` rejected by PG (SQLSTATE 42501).
+  - `changeOwner=true` → UPDATE `mg_owner` succeeds.
+  - `changeGroup=false` → UPDATE `mg_groups` rejected.
+  - `changeGroup=true` → UPDATE `mg_groups` succeeds.
+  - `changeOwner=false` → INSERT row with explicit `mg_owner` rejected.
+  - `changeOwner=true` → INSERT row with explicit `mg_owner` succeeds.
+  - Round-trip: flip flag false→true→false; verify column grant added then
+    revoked at each transition (read `information_schema.column_privileges`).
+
+  Tests at this slice run via raw jOOQ on the user's connection — they
+  assert PG's behaviour, not the friendly translation.
+
+  **Status (2026-05-03): GREEN — 62/62 tests in SqlRoleManagerTest (was 56/56 + 1
+  skipped); 140/140 smoke (SqlRoleManagerTest + EffectiveSelectScopesTest +
+  GetCountFieldTest + ExistsFieldTest + AggregationPermissionTest).**
+  Implementation: 7 new test methods in a new `ColumnGrantEnforcement` nested
+  class. Fixture: schema USAGE explicitly granted to the custom role
+  (`GRANT USAGE ON SCHEMA ... TO MG_ROLE_.../enforcer`), custom role with
+  `select=OWN, insert=ALL, update=ALL` (OWN scope triggers `mg_owner` column;
+  ALL insert/update scope gives WITH CHECK(true) so policy doesn't interfere
+  with column-level enforcement). Alice uses `db.setActiveUser(alice)` → jOOQ
+  issues `SET ROLE MG_USER_alice` → PG enforces column-level grants inherited
+  from the custom role. SQLSTATE 42501 asserted via PSQLException.getSQLState().
+  No production code changes required — Phase 2.E column-grant logic already
+  enforced correctly; only needed the right test fixture.
+
+- **5.B — User-facing error translation.** Extend `SqlMolgenisException.getTitle()`
+  (`backend/molgenis-emx2-sql/src/main/java/.../SqlMolgenisException.java`
+  lines ~27–37) with a `42501` arm. Structure: a small static
+  `Map<String, String>` (column name → friendly message)
+  with two entries — `mg_owner` → "cannot change row owner", `mg_groups` →
+  "cannot change row groups". Lookup keyed by parsing the column name out
+  of PG's "permission denied for column <col>" message text. If the column
+  isn't in the map, fall through to the original PG message (don't swallow).
+  Add a SQLSTATE constant (`SQLSTATE_INSUFFICIENT_PRIVILEGE = "42501"`) —
+  the codebase has no constants file yet, so add it as a private constant
+  in `SqlMolgenisException` to avoid scope creep. Tests: the same matrix
+  as 5.A but going through the emx2 table API (`SqlTable.update` /
+  `SqlTable.insert`) — assert the message text.
+
+  **Status (2026-05-03): GREEN — 6/6 unit tests pass; 68-test smoke
+  (SqlMolgenisExceptionTest + SqlRoleManagerTest) all green. pmdMain +
+  pmdTest clean.** `SqlMolgenisException.java` adds three private statics:
+  `SQLSTATE_INSUFFICIENT_PRIVILEGE = "42501"`, `COLUMN_DENIED_PREFIX`,
+  `COLUMN_FRIENDLY_MESSAGES` map (`mg_owner` → "cannot change row owner",
+  `mg_groups` → "cannot change row groups"); the 42501 arm in `getTitle()`
+  parses the column name out of PG's "permission denied for column <col>"
+  message and substitutes the friendly text — falls through to the original
+  PG message when the column isn't in the map (so unrelated 42501 errors
+  aren't swallowed). Tests use synthetic `PSQLException` via PG wire format
+  (no DB), keeping the unit fast and isolated.
+
+Phase 5 exits when 5.A and 5.B are green and combined-suite is still zero
+failures.
+
+**Status (2026-05-03): both slices GREEN via targeted tests
+(7 + 6 = 13 new tests; 68-test cross-class smoke green). Awaiting user-run
+combined-suite at phase boundary (canonical command in §0.5).**
+
+**Phase 5 boundary follow-up (2026-05-03)**: first combined-suite run reported
+5 unrelated graphql/webapi failures (`MG_USER_pietje does not exist` etc.).
+Both reproducible-in-isolation tests pass on master AND v2 in full-class runs
+— diagnosis was cross-suite Postgres state leakage from the new
+`@Nested ColumnGrantEnforcement` tests. Fix: moved the 7 column-grant tests
+out of `SqlRoleManagerTest` (sql module) into a new top-level test class
+`TestRoleManagerColumnGrantEnforcement` in the `nonparallel-tests` module,
+which runs LAST in the canonical combined-suite so any state leakage cannot
+affect downstream modules. SQLException supertype used in place of
+PSQLException to avoid pulling the postgres driver into nonparallel-tests'
+classpath. Fixture schema name shortened (`RmColGrantEnfA`) to keep policy
+names under PG's 63-byte object limit. Result counts: sql `SqlRoleManagerTest`
+55/55, nonparallel-tests `TestRoleManagerColumnGrantEnforcement` 7/7, 139-test
+smoke green. `SqlMolgenisExceptionTest` (5.B, pure unit) stays in sql module.
+
 ### Phase 6 — GraphQL surfaces
 
 We adopt the **current branch's existing API design** (already in use in our

@@ -232,6 +232,7 @@ public class SqlRoleManager {
   public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
     String activeUser = database.getActiveUser();
     SqlSchema schema = database.getSchema(schemaName);
+    if (schema == null) return List.of();
     List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
 
     if (roleNames.isEmpty()) return List.of();
