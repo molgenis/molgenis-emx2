@@ -1,6 +1,9 @@
 import { useRuntimeConfig } from "#app";
+import type { ISetting } from "../../../metadata-utils/src";
 
-export const fetchSetting = (settingKey: string): Promise<any> => {
+export const fetchSetting = (
+  settingKey: string
+): Promise<{ data: { _settings: ISetting[] } }> => {
   let body = {
     query: `{_settings (keys: ["${settingKey}"]){ key, value }}`,
   };
