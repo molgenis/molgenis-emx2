@@ -17,6 +17,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 public class TestRoleManagerColumnGrantEnforcement {
 
@@ -74,8 +75,8 @@ public class TestRoleManagerColumnGrantEnforcement {
             OWNER_TABLE,
             new PermissionSet.TablePermissions()
                 .setSelect(SelectScope.OWN)
-                .setInsert(SelectScope.ALL)
-                .setUpdate(SelectScope.ALL));
+                .setInsert(UpdateScope.ALL)
+                .setUpdate(UpdateScope.ALL));
   }
 
   private PermissionSet allScopesWithGroup() {
@@ -84,8 +85,8 @@ public class TestRoleManagerColumnGrantEnforcement {
             GROUP_TABLE,
             new PermissionSet.TablePermissions()
                 .setSelect(SelectScope.GROUP)
-                .setInsert(SelectScope.ALL)
-                .setUpdate(SelectScope.ALL));
+                .setInsert(UpdateScope.ALL)
+                .setUpdate(UpdateScope.ALL));
   }
 
   private void grantSchemaUsage(String roleName) {

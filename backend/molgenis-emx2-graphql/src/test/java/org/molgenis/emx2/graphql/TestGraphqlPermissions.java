@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.UpdateScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -76,9 +77,9 @@ class TestGraphqlPermissions {
     PermissionSet.TablePermissions petPerms = ps.getTables().get(TABLE_PET);
     assertNotNull(petPerms, "Pet table permissions should be present");
     assertEquals(SelectScope.OWN, petPerms.getSelect());
-    assertEquals(SelectScope.OWN, petPerms.getInsert());
-    assertEquals(SelectScope.OWN, petPerms.getUpdate());
-    assertEquals(SelectScope.NONE, petPerms.getDelete());
+    assertEquals(UpdateScope.OWN, petPerms.getInsert());
+    assertEquals(UpdateScope.OWN, petPerms.getUpdate());
+    assertEquals(UpdateScope.NONE, petPerms.getDelete());
     assertFalse(ps.isChangeOwner());
     assertFalse(ps.isChangeGroup());
   }
@@ -114,7 +115,7 @@ class TestGraphqlPermissions {
 
     PermissionSet psSecond = roleManager.getPermissions(schema, roleToUpdate);
     assertEquals(SelectScope.NONE, psSecond.getTables().get(TABLE_PET).getSelect());
-    assertEquals(SelectScope.NONE, psSecond.getTables().get(TABLE_PET).getInsert());
+    assertEquals(UpdateScope.NONE, psSecond.getTables().get(TABLE_PET).getInsert());
   }
 
   @Test
@@ -247,7 +248,7 @@ class TestGraphqlPermissions {
   }
 
   @Test
-  void customRolesQuery_roundTrip_returnsSetPermissions() throws IOException {
+  void rolesQuery_roundTrip_returnsSetPermissions() throws IOException {
     String roleA = "queryRoleA";
     execute(
         "mutation { change(roles: [{"
@@ -260,15 +261,15 @@ class TestGraphqlPermissions {
             + "changeOwner: true, changeGroup: false"
             + "}]) { message } }");
 
-    JsonNode customRoles =
+    JsonNode roles =
         execute(
-                "{_schema { customRoles { name tables { table select insert update delete }"
+                "{_schema { roles { name tables { table select insert update delete }"
                     + " changeOwner changeGroup } } }")
-            .at("/_schema/customRoles");
-    assertFalse(customRoles.isEmpty(), "customRoles should not be empty");
+            .at("/_schema/roles");
+    assertFalse(roles.isEmpty(), "roles should not be empty");
 
-    JsonNode found = findRoleByName(customRoles, roleA);
-    assertNotNull(found, "Role " + roleA + " should appear in customRoles");
+    JsonNode found = findRoleByName(roles, roleA);
+    assertNotNull(found, "Role " + roleA + " should appear in roles");
     assertEquals("GROUP", found.at("/tables/0/select").asText());
     assertEquals("OWN", found.at("/tables/0/insert").asText());
     assertEquals("NONE", found.at("/tables/0/update").asText());
@@ -278,7 +279,7 @@ class TestGraphqlPermissions {
   }
 
   @Test
-  void customRolesQuery_multipleCustomRoles_allListed() throws IOException {
+  void rolesQuery_multipleCustomRoles_allListed() throws IOException {
     String roleB = "multiRoleB";
     String roleC = "multiRoleC";
     execute(
@@ -295,14 +296,13 @@ class TestGraphqlPermissions {
             + "\", select: OWN, insert: NONE, update: NONE, delete: NONE}]}"
             + "]) { message } }");
 
-    JsonNode customRoles =
-        execute("{_schema { customRoles { name } } }").at("/_schema/customRoles");
-    assertNotNull(findRoleByName(customRoles, roleB), "Role " + roleB + " should appear");
-    assertNotNull(findRoleByName(customRoles, roleC), "Role " + roleC + " should appear");
+    JsonNode roles = execute("{_schema { roles { name } } }").at("/_schema/roles");
+    assertNotNull(findRoleByName(roles, roleB), "Role " + roleB + " should appear");
+    assertNotNull(findRoleByName(roles, roleC), "Role " + roleC + " should appear");
   }
 
   @Test
-  void customRolesQuery_noCustomRoles_emptyList() throws IOException {
+  void rolesQuery_noCustomRoles_onlySystemRoles() throws IOException {
     Database emptyDb = TestDatabaseFactory.getTestDatabase();
     String emptySchemaName = "TGraphqlPermEmpty";
     emptyDb.dropSchemaIfExists(emptySchemaName);
@@ -311,25 +311,18 @@ class TestGraphqlPermissions {
 
     String json =
         convertExecutionResultToJson(
-            emptyExecutor.executeWithoutSession("{_schema { customRoles { name } } }"));
-    JsonNode customRoles = new ObjectMapper().readTree(json).at("/data/_schema/customRoles");
-    assertTrue(customRoles.isArray() && customRoles.isEmpty(), "customRoles should be empty");
+            emptyExecutor.executeWithoutSession("{_schema { roles { name } } }"));
+    JsonNode roles = new ObjectMapper().readTree(json).at("/data/_schema/roles");
+    assertTrue(roles.isArray() && !roles.isEmpty(), "roles should contain system roles");
+    for (JsonNode roleNode : roles) {
+      String name = roleNode.at("/name").asText();
+      assertTrue(isSystemRoleName(name), "Only system roles expected; found: " + name);
+    }
     emptyDb.dropSchemaIfExists(emptySchemaName);
   }
 
   @Test
-  void customRolesQuery_systemRolesAbsent_inCustomRoles() throws IOException {
-    JsonNode customRoles =
-        execute("{_schema { customRoles { name } } }").at("/_schema/customRoles");
-    for (JsonNode roleNode : customRoles) {
-      String name = roleNode.at("/name").asText();
-      assertFalse(
-          isSystemRoleName(name), "System role '" + name + "' must not appear in customRoles");
-    }
-  }
-
-  @Test
-  void customRolesQuery_description_roundTrip() throws IOException {
+  void rolesQuery_description_roundTrip() throws IOException {
     String roleWithDesc = "descRole";
     execute(
         "mutation { change(roles: [{"
@@ -341,11 +334,11 @@ class TestGraphqlPermissions {
             + "\", select: ALL}]"
             + "}]) { message } }");
 
-    JsonNode customRoles =
-        execute("{_schema { customRoles { name description tables { table select } } } }")
-            .at("/_schema/customRoles");
-    JsonNode found = findRoleByName(customRoles, roleWithDesc);
-    assertNotNull(found, "Role " + roleWithDesc + " should appear in customRoles");
+    JsonNode roles =
+        execute("{_schema { roles { name description tables { table select } } } }")
+            .at("/_schema/roles");
+    JsonNode found = findRoleByName(roles, roleWithDesc);
+    assertNotNull(found, "Role " + roleWithDesc + " should appear in roles");
     assertEquals("team alpha role", found.at("/description").asText());
 
     execute(
@@ -358,25 +351,47 @@ class TestGraphqlPermissions {
             + "\", select: ALL}]"
             + "}]) { message } }");
 
-    JsonNode customRolesAfter =
-        execute("{_schema { customRoles { name description } } }").at("/_schema/customRoles");
-    JsonNode foundAfter = findRoleByName(customRolesAfter, roleWithDesc);
+    JsonNode rolesAfter = execute("{_schema { roles { name description } } }").at("/_schema/roles");
+    JsonNode foundAfter = findRoleByName(rolesAfter, roleWithDesc);
     assertNotNull(foundAfter, "Role " + roleWithDesc + " should still appear after update");
     assertEquals(
         "", foundAfter.at("/description").asText(), "description_null_input_overwrites_to_empty");
   }
 
   @Test
-  void rolesQuery_systemRolesStillPresent_inLegacyRoles() throws IOException {
-    JsonNode roles = execute("{_schema { roles { name system } } }").at("/_schema/roles");
-    boolean hasSystemRole = false;
+  void rolesQuery_systemRolesPresent_inMergedRoles() throws IOException {
+    JsonNode roles =
+        execute(
+                "{_schema { roles { name description tables { table select insert update delete } } } }")
+            .at("/_schema/roles");
+    boolean hasViewer = false;
     for (JsonNode roleNode : roles) {
-      if (roleNode.at("/system").asBoolean()) {
-        hasSystemRole = true;
+      if ("Viewer".equals(roleNode.at("/name").asText())) {
+        hasViewer = true;
         break;
       }
     }
-    assertTrue(hasSystemRole, "Legacy roles field should still contain system roles");
+    assertTrue(hasViewer, "Merged roles field must contain system role Viewer");
+  }
+
+  @Test
+  void rolesQuery_schemaField_roundTrips() throws IOException {
+    String roleWithSchema = "schemaRoleA";
+    execute(
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleWithSchema
+            + "\", "
+            + "tables: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL}]"
+            + "}]) { message } }");
+
+    JsonNode roles = execute("{_schema { roles { name schemaName } } }").at("/_schema/roles");
+    JsonNode found = findRoleByName(roles, roleWithSchema);
+    assertNotNull(found, "Role should appear in roles");
+    assertEquals(
+        SCHEMA_NAME, found.at("/schemaName").asText(), "schemaName field must match schema name");
   }
 
   private static JsonNode findRoleByName(JsonNode rolesArray, String roleName) {

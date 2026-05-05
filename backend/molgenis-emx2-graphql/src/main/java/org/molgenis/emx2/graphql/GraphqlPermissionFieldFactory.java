@@ -1,35 +1,40 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.MG_CHANGE_GROUP;
+import static org.molgenis.emx2.Constants.MG_CHANGE_OWNER;
 import static org.molgenis.emx2.Constants.TABLE;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 public class GraphqlPermissionFieldFactory {
 
-  private static final Set<SelectScope> VIEW_MODE_SCOPES =
-      EnumSet.of(SelectScope.EXISTS, SelectScope.COUNT, SelectScope.RANGE, SelectScope.AGGREGATE);
-
   static final GraphQLEnumType selectScopeEnumType;
+  static final GraphQLEnumType updateScopeEnumType;
 
   static {
-    GraphQLEnumType.Builder builder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
+    GraphQLEnumType.Builder selectBuilder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
     for (SelectScope scope : SelectScope.values()) {
-      builder.value(scope.name(), scope);
+      selectBuilder.value(scope.name(), scope);
     }
-    selectScopeEnumType = builder.build();
+    selectScopeEnumType = selectBuilder.build();
+
+    GraphQLEnumType.Builder updateBuilder = GraphQLEnumType.newEnum().name("MolgenisUpdateScope");
+    for (UpdateScope scope : UpdateScope.values()) {
+      updateBuilder.value(scope.name(), scope);
+    }
+    updateScopeEnumType = updateBuilder.build();
   }
 
   static final GraphQLInputObjectType tablePermissionInputType =
@@ -42,11 +47,11 @@ public class GraphqlPermissionFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(SELECT).type(selectScopeEnumType))
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(INSERT).type(selectScopeEnumType))
+              GraphQLInputObjectField.newInputObjectField().name(INSERT).type(updateScopeEnumType))
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(selectScopeEnumType))
+              GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(updateScopeEnumType))
           .field(
-              GraphQLInputObjectField.newInputObjectField().name(DELETE).type(selectScopeEnumType))
+              GraphQLInputObjectField.newInputObjectField().name(DELETE).type(updateScopeEnumType))
           .build();
 
   static final GraphQLInputObjectType inputRoleType =
@@ -62,15 +67,19 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(TABLES)
                   .type(GraphQLList.list(tablePermissionInputType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("changeOwner")
+                  .name(MG_CHANGE_OWNER)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name("changeGroup")
+                  .name(MG_CHANGE_GROUP)
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -80,9 +89,9 @@ public class GraphqlPermissionFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(SELECT).type(selectScopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(selectScopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(selectScopeEnumType))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(selectScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(updateScopeEnumType))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(updateScopeEnumType))
           .build();
 
   static final GraphQLObjectType roleOutputType =
@@ -95,15 +104,19 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLES)
                   .type(GraphQLList.list(tablePermissionOutputType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("changeOwner")
+                  .name(MG_CHANGE_OWNER)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("changeGroup")
+                  .name(MG_CHANGE_GROUP)
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -113,6 +126,19 @@ public class GraphqlPermissionFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
+  static final GraphQLInputObjectType groupInputType =
+      GraphQLInputObjectType.newInputObject()
+          .name("MolgenisGroupInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(NAME)
+                  .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(USERS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
@@ -131,22 +157,39 @@ public class GraphqlPermissionFieldFactory {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  static UpdateScope toUpdateScope(Object graphqlValue) {
+    if (graphqlValue == null) {
+      return UpdateScope.NONE;
+    }
+    if (graphqlValue instanceof UpdateScope scope) {
+      return scope;
+    }
+    try {
+      return UpdateScope.fromString(graphqlValue.toString());
+    } catch (MolgenisException ignored) {
+      return UpdateScope.NONE;
+    }
+  }
+
   static PermissionSet toPermissionSet(Map<String, Object> input) {
     PermissionSet ps = new PermissionSet();
     if (input == null) {
       return ps;
     }
 
-    boolean changeOwner = Boolean.TRUE.equals(input.get("changeOwner"));
-    boolean changeGroup = Boolean.TRUE.equals(input.get("changeGroup"));
+    boolean changeOwner = Boolean.TRUE.equals(input.get(MG_CHANGE_OWNER));
+    boolean changeGroup = Boolean.TRUE.equals(input.get(MG_CHANGE_GROUP));
     ps.setChangeOwner(changeOwner);
     ps.setChangeGroup(changeGroup);
-    String description = (String) input.get(DESCRIPTION);
-    ps.setDescription(description != null ? description : "");
+    Object descriptionValue = input.get(DESCRIPTION);
+    ps.setDescription(descriptionValue instanceof String str ? str : "");
+    Object schemaValue = input.get(SCHEMA_NAME);
+    if (schemaValue instanceof String str) {
+      ps.setSchema(str);
+    }
 
     Object tablesValue = input.get(TABLES);
-    if (!(tablesValue instanceof java.util.List<?> tableList)) {
+    if (!(tablesValue instanceof List<?> tableList)) {
       return ps;
     }
 
@@ -154,16 +197,15 @@ public class GraphqlPermissionFieldFactory {
       if (!(entry instanceof Map<?, ?> rawMap)) {
         continue;
       }
-      Map<String, Object> tableMap = (Map<String, Object>) rawMap;
-      String tableName = (String) tableMap.get(TABLE);
+      String tableName = extractString(rawMap, TABLE);
       if (tableName == null) {
         continue;
       }
 
-      SelectScope selectScope = toSelectScope(tableMap.get(SELECT));
-      SelectScope insertScope = toWriteScope(tableMap.get(INSERT));
-      SelectScope updateScope = toWriteScope(tableMap.get(UPDATE));
-      SelectScope deleteScope = toWriteScope(tableMap.get(DELETE));
+      SelectScope selectScope = toSelectScope(rawMap.get(SELECT));
+      UpdateScope insertScope = toUpdateScope(rawMap.get(INSERT));
+      UpdateScope updateScope = toUpdateScope(rawMap.get(UPDATE));
+      UpdateScope deleteScope = toUpdateScope(rawMap.get(DELETE));
 
       PermissionSet.TablePermissions perms =
           new PermissionSet.TablePermissions()
@@ -178,33 +220,29 @@ public class GraphqlPermissionFieldFactory {
     return ps;
   }
 
-  private static SelectScope toWriteScope(Object graphqlValue) {
-    SelectScope scope = toSelectScope(graphqlValue);
-    if (VIEW_MODE_SCOPES.contains(scope)) {
-      throw new MolgenisException(
-          "Scope "
-              + scope.name()
-              + " is not valid for insert/update/delete; allowed: NONE, OWN, GROUP, ALL");
-    }
-    return scope;
+  private static String extractString(Map<?, ?> map, String key) {
+    Object value = map.get(key);
+    return value instanceof String str ? str : null;
   }
 
-  static Map<String, Object> permissionSetToMap(String roleName, PermissionSet ps) {
+  static Map<String, Object> permissionSetToMap(
+      String roleName, String schemaName, PermissionSet ps) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(NAME, roleName);
+    roleMap.put(SCHEMA_NAME, schemaName);
     roleMap.put(DESCRIPTION, ps.getDescription());
-    roleMap.put("changeOwner", ps.isChangeOwner());
-    roleMap.put("changeGroup", ps.isChangeGroup());
+    roleMap.put(MG_CHANGE_OWNER, ps.isChangeOwner());
+    roleMap.put(MG_CHANGE_GROUP, ps.isChangeGroup());
     List<Map<String, Object>> tableList =
         ps.getTables().entrySet().stream()
             .map(
                 entry -> {
                   Map<String, Object> tableMap = new LinkedHashMap<>();
                   tableMap.put(TABLE, entry.getKey());
-                  tableMap.put(SELECT, entry.getValue().getSelect().name());
-                  tableMap.put(INSERT, entry.getValue().getInsert().name());
-                  tableMap.put(UPDATE, entry.getValue().getUpdate().name());
-                  tableMap.put(DELETE, entry.getValue().getDelete().name());
+                  tableMap.put(SELECT, entry.getValue().getSelect());
+                  tableMap.put(INSERT, entry.getValue().getInsert());
+                  tableMap.put(UPDATE, entry.getValue().getUpdate());
+                  tableMap.put(DELETE, entry.getValue().getDelete());
                   return tableMap;
                 })
             .toList();

@@ -27,6 +27,7 @@ import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 import org.postgresql.util.PSQLException;
 
 class SqlRoleManagerTest {
@@ -331,9 +332,9 @@ class SqlRoleManagerTest {
         "pet_store_x",
         new PermissionSet.TablePermissions()
             .setSelect(SelectScope.ALL)
-            .setInsert(SelectScope.OWN)
-            .setUpdate(SelectScope.GROUP)
-            .setDelete(SelectScope.NONE));
+            .setInsert(UpdateScope.OWN)
+            .setUpdate(UpdateScope.GROUP)
+            .setDelete(UpdateScope.NONE));
 
     roleManager.setPermissions(schemaA, "scoped", permissions);
     PermissionSet result = roleManager.getPermissions(schemaA, "scoped");
@@ -341,9 +342,9 @@ class SqlRoleManagerTest {
     assertEquals(permissions, result, "PermissionSet with table scopes must round-trip unchanged");
     PermissionSet.TablePermissions tableResult = result.getTables().get("pet_store_x");
     assertEquals(SelectScope.ALL, tableResult.getSelect());
-    assertEquals(SelectScope.OWN, tableResult.getInsert());
-    assertEquals(SelectScope.GROUP, tableResult.getUpdate());
-    assertEquals(SelectScope.NONE, tableResult.getDelete());
+    assertEquals(UpdateScope.OWN, tableResult.getInsert());
+    assertEquals(UpdateScope.GROUP, tableResult.getUpdate());
+    assertEquals(UpdateScope.NONE, tableResult.getDelete());
   }
 
   @Test
@@ -615,8 +616,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Animals",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.OWN));
+                    .setInsert(UpdateScope.ALL)
+                    .setUpdate(UpdateScope.OWN));
 
     roleManager.setPermissions(schemaA, "curator", perms);
 
@@ -649,8 +650,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Docs",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.OWN)
+                    .setInsert(UpdateScope.ALL)
+                    .setUpdate(UpdateScope.OWN)
                     .setSelect(SelectScope.OWN));
 
     roleManager.setPermissions(schemaA, "doceditor", perms);
@@ -677,8 +678,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Tasks",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.GROUP)
+                    .setInsert(UpdateScope.ALL)
+                    .setUpdate(UpdateScope.GROUP)
                     .setSelect(SelectScope.GROUP));
 
     roleManager.setPermissions(schemaA, "taskowner", perms);
@@ -705,8 +706,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Reports",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.OWN)
+                    .setInsert(UpdateScope.ALL)
+                    .setUpdate(UpdateScope.OWN)
                     .setSelect(SelectScope.OWN));
     roleManager.setPermissions(schemaA, "reporter", withFlag);
 
@@ -722,8 +723,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Reports",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.ALL)
-                    .setUpdate(SelectScope.OWN)
+                    .setInsert(UpdateScope.ALL)
+                    .setUpdate(UpdateScope.OWN)
                     .setSelect(SelectScope.OWN));
     roleManager.setPermissions(schemaA, "reporter", withoutFlag);
 
@@ -746,8 +747,8 @@ class SqlRoleManagerTest {
             .putTable(
                 "Logs",
                 new PermissionSet.TablePermissions()
-                    .setInsert(SelectScope.NONE)
-                    .setUpdate(SelectScope.ALL));
+                    .setInsert(UpdateScope.NONE)
+                    .setUpdate(UpdateScope.ALL));
 
     roleManager.setPermissions(schemaA, "logviewer", perms);
 
@@ -767,7 +768,7 @@ class SqlRoleManagerTest {
     roleManager.createRole(schemaA, "analyst", "analyst role");
     PermissionSet withInsert =
         new PermissionSet()
-            .putTable("Metrics", new PermissionSet.TablePermissions().setInsert(SelectScope.ALL));
+            .putTable("Metrics", new PermissionSet.TablePermissions().setInsert(UpdateScope.ALL));
     roleManager.setPermissions(schemaA, "analyst", withInsert);
 
     String fullRole = SqlRoleManager.fullRoleName(SCHEMA_A, "analyst");
@@ -777,7 +778,7 @@ class SqlRoleManagerTest {
 
     PermissionSet withoutInsert =
         new PermissionSet()
-            .putTable("Metrics", new PermissionSet.TablePermissions().setInsert(SelectScope.NONE));
+            .putTable("Metrics", new PermissionSet.TablePermissions().setInsert(UpdateScope.NONE));
     roleManager.setPermissions(schemaA, "analyst", withoutInsert);
 
     assertTrue(
@@ -862,7 +863,7 @@ class SqlRoleManagerTest {
       PermissionSet perms =
           new PermissionSet()
               .putTable(
-                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.ALL));
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(UpdateScope.ALL));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 
@@ -885,7 +886,7 @@ class SqlRoleManagerTest {
       PermissionSet perms =
           new PermissionSet()
               .putTable(
-                  POLICY_TABLE, new PermissionSet.TablePermissions().setUpdate(SelectScope.ALL));
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setUpdate(UpdateScope.ALL));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 
@@ -905,7 +906,7 @@ class SqlRoleManagerTest {
       PermissionSet perms =
           new PermissionSet()
               .putTable(
-                  POLICY_TABLE, new PermissionSet.TablePermissions().setDelete(SelectScope.ALL));
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setDelete(UpdateScope.ALL));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 
@@ -981,9 +982,9 @@ class SqlRoleManagerTest {
                   POLICY_TABLE,
                   new PermissionSet.TablePermissions()
                       .setSelect(SelectScope.ALL)
-                      .setInsert(SelectScope.OWN)
-                      .setUpdate(SelectScope.GROUP)
-                      .setDelete(SelectScope.NONE));
+                      .setInsert(UpdateScope.OWN)
+                      .setUpdate(UpdateScope.GROUP)
+                      .setDelete(UpdateScope.NONE));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 
@@ -1061,7 +1062,7 @@ class SqlRoleManagerTest {
       PermissionSet perms =
           new PermissionSet()
               .putTable(
-                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.OWN));
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(UpdateScope.OWN));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 
@@ -1084,7 +1085,7 @@ class SqlRoleManagerTest {
       PermissionSet perms =
           new PermissionSet()
               .putTable(
-                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(SelectScope.GROUP));
+                  POLICY_TABLE, new PermissionSet.TablePermissions().setInsert(UpdateScope.GROUP));
 
       roleManager.setPermissions(schemaA, POLICY_ROLE, perms);
 

@@ -445,6 +445,14 @@ public class SqlRoleManager {
 
   public void setPermissions(Schema schema, String roleName, PermissionSet permissions) {
     String schemaName = schema.getName();
+    if (permissions.getSchema() != null && !permissions.getSchema().equals(schemaName)) {
+      throw new MolgenisException(
+          "PermissionSet schema '"
+              + permissions.getSchema()
+              + "' does not match target schema '"
+              + schemaName
+              + "'");
+    }
     String fullRole = fullRoleName(schemaName, roleName);
     if (!jooq()
         .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
@@ -560,8 +568,8 @@ public class SqlRoleManager {
       PermissionSet rolePerms) {
     boolean hasScope =
         tablePerms != null
-            && (("INSERT".equals(verb) && tablePerms.getInsert() != SelectScope.NONE)
-                || ("UPDATE".equals(verb) && tablePerms.getUpdate() != SelectScope.NONE));
+            && (("INSERT".equals(verb) && tablePerms.getInsert() != UpdateScope.NONE)
+                || ("UPDATE".equals(verb) && tablePerms.getUpdate() != UpdateScope.NONE));
 
     List<String> existingGrants =
         fetchCurrentColumnGrants(txJooq, schemaName, tableName, fullRole, verb);
@@ -685,56 +693,84 @@ public class SqlRoleManager {
       String tableName,
       String fullRole,
       PermissionSet.TablePermissions tablePerms) {
-    applyVerbPolicy(
+    applySelectPolicy(
         txJooq,
         schemaName,
         tableName,
         fullRole,
-        SELECT_VERB,
         tablePerms == null ? SelectScope.NONE : tablePerms.getSelect());
-    applyVerbPolicy(
+    applyWritePolicy(
         txJooq,
         schemaName,
         tableName,
         fullRole,
         INSERT_VERB,
-        tablePerms == null ? SelectScope.NONE : tablePerms.getInsert());
-    applyVerbPolicy(
+        tablePerms == null ? UpdateScope.NONE : tablePerms.getInsert());
+    applyWritePolicy(
         txJooq,
         schemaName,
         tableName,
         fullRole,
         UPDATE_VERB,
-        tablePerms == null ? SelectScope.NONE : tablePerms.getUpdate());
-    applyVerbPolicy(
+        tablePerms == null ? UpdateScope.NONE : tablePerms.getUpdate());
+    applyWritePolicy(
         txJooq,
         schemaName,
         tableName,
         fullRole,
         DELETE_VERB,
-        tablePerms == null ? SelectScope.NONE : tablePerms.getDelete());
+        tablePerms == null ? UpdateScope.NONE : tablePerms.getDelete());
   }
 
-  private void applyVerbPolicy(
+  private void applySelectPolicy(
+      DSLContext txJooq, String schemaName, String tableName, String fullRole, SelectScope scope) {
+    String policyName = buildPolicyName(fullRole, tableName, SELECT_VERB);
+    txJooq.execute(
+        "DROP POLICY IF EXISTS {0} ON {1}", name(policyName), table(name(schemaName, tableName)));
+    if (isViewModeScope(scope)) {
+      ensureRlsEnabled(txJooq, schemaName, tableName);
+      grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, SELECT_VERB, true);
+      emitSelectPolicy(txJooq, schemaName, tableName, fullRole, policyName, SelectScope.ALL);
+      return;
+    }
+    if (scope == SelectScope.NONE) {
+      grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, SELECT_VERB, false);
+      return;
+    }
+    ensureRlsEnabled(txJooq, schemaName, tableName);
+    grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, SELECT_VERB, true);
+    emitSelectPolicy(txJooq, schemaName, tableName, fullRole, policyName, scope);
+  }
+
+  private void emitSelectPolicy(
+      DSLContext txJooq,
+      String schemaName,
+      String tableName,
+      String fullRole,
+      String policyName,
+      SelectScope scope) {
+    String usingExpr = buildSelectUsingExpr(scope, schemaName);
+    if (usingExpr != null) {
+      txJooq.execute(
+          "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR SELECT TO {2} USING " + usingExpr,
+          name(policyName),
+          table(name(schemaName, tableName)),
+          name(fullRole));
+    }
+  }
+
+  private void applyWritePolicy(
       DSLContext txJooq,
       String schemaName,
       String tableName,
       String fullRole,
       String verb,
-      SelectScope scope) {
+      UpdateScope scope) {
     String policyName = buildPolicyName(fullRole, tableName, verb);
     txJooq.execute(
         "DROP POLICY IF EXISTS {0} ON {1}", name(policyName), table(name(schemaName, tableName)));
     boolean useColumnLevelGrant = INSERT_VERB.equals(verb) || UPDATE_VERB.equals(verb);
-    if (isViewModeScope(scope)) {
-      ensureRlsEnabled(txJooq, schemaName, tableName);
-      if (!useColumnLevelGrant) {
-        grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, true);
-      }
-      emitPolicy(txJooq, schemaName, tableName, fullRole, verb, policyName, SelectScope.ALL);
-      return;
-    }
-    if (scope == SelectScope.NONE) {
+    if (scope == UpdateScope.NONE) {
       if (!useColumnLevelGrant) {
         grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, false);
       }
@@ -744,7 +780,7 @@ public class SqlRoleManager {
     if (!useColumnLevelGrant) {
       grantOrRevokeTableVerb(txJooq, schemaName, tableName, fullRole, verb, true);
     }
-    emitPolicy(txJooq, schemaName, tableName, fullRole, verb, policyName, scope);
+    emitWritePolicy(txJooq, schemaName, tableName, fullRole, verb, policyName, scope);
   }
 
   private void ensureRlsEnabled(DSLContext txJooq, String schemaName, String tableName) {
@@ -765,16 +801,16 @@ public class SqlRoleManager {
     }
   }
 
-  private void emitPolicy(
+  private void emitWritePolicy(
       DSLContext txJooq,
       String schemaName,
       String tableName,
       String fullRole,
       String verb,
       String policyName,
-      SelectScope scope) {
-    String usingExpr = buildUsingExpr(verb, scope, schemaName);
-    String withCheckExpr = buildWithCheckExpr(verb, scope, schemaName);
+      UpdateScope scope) {
+    String usingExpr = buildWriteUsingExpr(verb, scope, schemaName);
+    String withCheckExpr = buildWriteWithCheckExpr(verb, scope, schemaName);
     if (usingExpr != null && withCheckExpr != null) {
       txJooq.execute(
           "CREATE POLICY {0} ON {1} AS PERMISSIVE FOR "
@@ -844,7 +880,16 @@ public class SqlRoleManager {
         || scope == SelectScope.AGGREGATE;
   }
 
-  private String buildUsingExpr(String verb, SelectScope scope, String schemaName) {
+  private String buildSelectUsingExpr(SelectScope scope, String schemaName) {
+    return switch (scope) {
+      case ALL -> USING_TRUE;
+      case OWN -> USING_OWN;
+      case GROUP -> groupUsingExpr(schemaName);
+      default -> null;
+    };
+  }
+
+  private String buildWriteUsingExpr(String verb, UpdateScope scope, String schemaName) {
     if (INSERT_VERB.equals(verb)) {
       return null;
     }
@@ -856,8 +901,8 @@ public class SqlRoleManager {
     };
   }
 
-  private String buildWithCheckExpr(String verb, SelectScope scope, String schemaName) {
-    if (SELECT_VERB.equals(verb) || DELETE_VERB.equals(verb)) {
+  private String buildWriteWithCheckExpr(String verb, UpdateScope scope, String schemaName) {
+    if (DELETE_VERB.equals(verb)) {
       return null;
     }
     return switch (scope) {
@@ -897,16 +942,16 @@ public class SqlRoleManager {
 
   private boolean hasOwnScope(PermissionSet.TablePermissions tp) {
     return tp.getSelect() == SelectScope.OWN
-        || tp.getInsert() == SelectScope.OWN
-        || tp.getUpdate() == SelectScope.OWN
-        || tp.getDelete() == SelectScope.OWN;
+        || tp.getInsert() == UpdateScope.OWN
+        || tp.getUpdate() == UpdateScope.OWN
+        || tp.getDelete() == UpdateScope.OWN;
   }
 
   private boolean hasGroupScope(PermissionSet.TablePermissions tp) {
     return tp.getSelect() == SelectScope.GROUP
-        || tp.getInsert() == SelectScope.GROUP
-        || tp.getUpdate() == SelectScope.GROUP
-        || tp.getDelete() == SelectScope.GROUP;
+        || tp.getInsert() == UpdateScope.GROUP
+        || tp.getUpdate() == UpdateScope.GROUP
+        || tp.getDelete() == UpdateScope.GROUP;
   }
 
   private boolean columnExists(
@@ -1111,8 +1156,8 @@ public class SqlRoleManager {
         tableNode.put("update", tp.getUpdate().name());
         tableNode.put("delete", tp.getDelete().name());
       }
-      root.put("changeOwner", permissions.isChangeOwner());
-      root.put("changeGroup", permissions.isChangeGroup());
+      root.put(MG_CHANGE_OWNER, permissions.isChangeOwner());
+      root.put(MG_CHANGE_GROUP, permissions.isChangeGroup());
       root.put("description", permissions.getDescription());
       return OBJECT_MAPPER.writeValueAsString(root);
     } catch (Exception e) {
@@ -1136,22 +1181,22 @@ public class SqlRoleManager {
                     tp.setSelect(SelectScope.fromString(tableNode.get("select").asText()));
                   }
                   if (tableNode.has("insert")) {
-                    tp.setInsert(SelectScope.fromString(tableNode.get("insert").asText()));
+                    tp.setInsert(UpdateScope.fromString(tableNode.get("insert").asText()));
                   }
                   if (tableNode.has("update")) {
-                    tp.setUpdate(SelectScope.fromString(tableNode.get("update").asText()));
+                    tp.setUpdate(UpdateScope.fromString(tableNode.get("update").asText()));
                   }
                   if (tableNode.has("delete")) {
-                    tp.setDelete(SelectScope.fromString(tableNode.get("delete").asText()));
+                    tp.setDelete(UpdateScope.fromString(tableNode.get("delete").asText()));
                   }
                   result.putTable(entry.getKey(), tp);
                 });
       }
-      if (root.has("changeOwner")) {
-        result.setChangeOwner(root.get("changeOwner").asBoolean());
+      if (root.has(MG_CHANGE_OWNER)) {
+        result.setChangeOwner(root.get(MG_CHANGE_OWNER).asBoolean());
       }
-      if (root.has("changeGroup")) {
-        result.setChangeGroup(root.get("changeGroup").asBoolean());
+      if (root.has(MG_CHANGE_GROUP)) {
+        result.setChangeGroup(root.get(MG_CHANGE_GROUP).asBoolean());
       }
       if (root.has("description")) {
         result.setDescription(root.get("description").asText(""));

@@ -51,53 +51,48 @@ class TestGraphqlGroups {
   }
 
   @Test
-  void createGroup_roundTrip_rowExistsInGroupsMetadata() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"alpha\") { message } }");
+  void changeGroups_createGroup_rowExistsInGroupsMetadata() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"alpha\"}]) { message } }");
 
     List<Record> rows =
         jooq.fetch(
             "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
             SCHEMA_NAME,
             "alpha");
-    assertEquals(1, rows.size(), "group 'alpha' must exist after createGroup");
+    assertEquals(1, rows.size(), "group 'alpha' must exist after change(groups)");
   }
 
   @Test
-  void createGroup_duplicate_returnsError() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"beta\") { message } }");
-
-    MolgenisException thrown =
-        assertThrows(
-            MolgenisException.class,
-            () -> executeAdmin("mutation { createGroup(name: \"beta\") { message } }"));
-    assertTrue(
-        thrown.getMessage().contains("already exists"),
-        "Duplicate group must produce 'already exists' error");
+  void changeGroups_idempotent_duplicateCreateNoError() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"beta\"}]) { message } }");
+    assertDoesNotThrow(
+        () -> executeAdmin("mutation { change(groups: [{name: \"beta\"}]) { message } }"),
+        "Calling change(groups) twice with same name must be idempotent");
   }
 
   @Test
-  void addGroupMember_addsUserToUsersArray() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"gamma\") { message } }");
+  void changeGroups_setUsers_addsUserToUsersArray() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"gamma\"}]) { message } }");
     executeAdmin(
-        "mutation { addGroupMember(group: \"gamma\", user: \""
+        "mutation { change(groups: [{name: \"gamma\", users: [\""
             + USER_MANAGER
-            + "\") { message } }");
+            + "\"]}]) { message } }");
 
     String[] users = fetchGroupUsers("gamma");
     assertTrue(List.of(users).contains(USER_MANAGER), "Manager must be in group 'gamma'");
   }
 
   @Test
-  void addGroupMember_idempotent_noErrorWhenAlreadyMember() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"delta\") { message } }");
+  void changeGroups_setUsersIdempotent_noErrorWhenAlreadyMember() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"delta\"}]) { message } }");
     executeAdmin(
-        "mutation { addGroupMember(group: \"delta\", user: \""
+        "mutation { change(groups: [{name: \"delta\", users: [\""
             + USER_MANAGER
-            + "\") { message } }");
+            + "\"]}]) { message } }");
     executeAdmin(
-        "mutation { addGroupMember(group: \"delta\", user: \""
+        "mutation { change(groups: [{name: \"delta\", users: [\""
             + USER_MANAGER
-            + "\") { message } }");
+            + "\"]}]) { message } }");
 
     String[] users = fetchGroupUsers("delta");
     long count = List.of(users).stream().filter(u -> u.equals(USER_MANAGER)).count();
@@ -105,73 +100,50 @@ class TestGraphqlGroups {
   }
 
   @Test
-  void addGroupMember_nonExistentUser_returnsError() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"epsilon\") { message } }");
-
-    MolgenisException thrown =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                executeAdmin(
-                    "mutation { addGroupMember(group: \"epsilon\", user: \"no_such_user_xyz\") { message } }"));
-    assertTrue(
-        thrown.getMessage().contains("does not exist"),
-        "Non-existent user must produce 'does not exist' error");
-  }
-
-  @Test
-  void removeGroupMember_removesUserFromUsersArray() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"zeta\") { message } }");
+  void changeGroups_replaceUsers_removesOldAddsNew() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"epsilon\"}]) { message } }");
     executeAdmin(
-        "mutation { addGroupMember(group: \"zeta\", user: \"" + USER_MANAGER + "\") { message } }");
-    executeAdmin(
-        "mutation { removeGroupMember(group: \"zeta\", user: \""
+        "mutation { change(groups: [{name: \"epsilon\", users: [\""
             + USER_MANAGER
-            + "\") { message } }");
+            + "\"]}]) { message } }");
+    executeAdmin(
+        "mutation { change(groups: [{name: \"epsilon\", users: [\""
+            + USER_EDITOR
+            + "\"]}]) { message } }");
 
-    String[] users = fetchGroupUsers("zeta");
-    assertFalse(List.of(users).contains(USER_MANAGER), "Manager must be removed from group 'zeta'");
+    String[] users = fetchGroupUsers("epsilon");
+    assertFalse(
+        List.of(users).contains(USER_MANAGER), "Manager must be removed after user list replaced");
+    assertTrue(
+        List.of(users).contains(USER_EDITOR), "Editor must be present after user list replaced");
   }
 
   @Test
-  void removeGroupMember_idempotent_noErrorWhenNotMember() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"eta\") { message } }");
-
-    assertDoesNotThrow(
-        () ->
-            executeAdmin(
-                "mutation { removeGroupMember(group: \"eta\", user: \""
-                    + USER_MANAGER
-                    + "\") { message } }"));
-  }
-
-  @Test
-  void deleteGroup_removesRowFromGroupsMetadata() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"theta\") { message } }");
-    executeAdmin("mutation { deleteGroup(name: \"theta\") { message } }");
+  void deleteGroups_removesRowFromGroupsMetadata() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"theta\"}]) { message } }");
+    executeAdmin("mutation { drop(groups: [\"theta\"]) { message } }");
 
     List<Record> rows =
         jooq.fetch(
             "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
             SCHEMA_NAME,
             "theta");
-    assertEquals(0, rows.size(), "group 'theta' must not exist after deleteGroup");
+    assertEquals(0, rows.size(), "group 'theta' must not exist after drop(groups)");
   }
 
   @Test
-  void deleteGroup_nonExistent_returnsError() {
+  void deleteGroups_nonExistent_returnsError() {
     MolgenisException thrown =
         assertThrows(
             MolgenisException.class,
-            () ->
-                executeAdmin("mutation { deleteGroup(name: \"no_such_group_xyz\") { message } }"));
+            () -> executeAdmin("mutation { drop(groups: [\"no_such_group_xyz\"]) { message } }"));
     assertTrue(
         thrown.getMessage().contains("not found"),
         "Non-existent group delete must produce 'not found' error");
   }
 
   @Test
-  void createGroup_asEditor_denied() {
+  void changeGroups_asEditor_denied() {
     try {
       database.setActiveUser(USER_EDITOR);
       GraphqlExecutor editorExecutor =
@@ -181,7 +153,8 @@ class TestGraphqlGroups {
               MolgenisException.class,
               () ->
                   executeAs(
-                      editorExecutor, "mutation { createGroup(name: \"iota\") { message } }"));
+                      editorExecutor,
+                      "mutation { change(groups: [{name: \"iota\"}]) { message } }"));
       assertTrue(
           thrown.getMessage().contains("Manager") || thrown.getMessage().contains("Owner"),
           "Editor must be denied with Manager/Owner error");
@@ -191,24 +164,22 @@ class TestGraphqlGroups {
   }
 
   @Test
-  void allMutations_asManager_succeed() throws IOException {
+  void changeGroups_asManager_succeed() throws IOException {
     try {
       database.setActiveUser(USER_MANAGER);
       GraphqlExecutor managerExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
 
-      executeAs(managerExecutor, "mutation { createGroup(name: \"kappa\") { message } }");
+      executeAs(managerExecutor, "mutation { change(groups: [{name: \"kappa\"}]) { message } }");
       executeAs(
           managerExecutor,
-          "mutation { addGroupMember(group: \"kappa\", user: \""
+          "mutation { change(groups: [{name: \"kappa\", users: [\""
               + USER_MANAGER
-              + "\") { message } }");
+              + "\"]}]) { message } }");
       executeAs(
           managerExecutor,
-          "mutation { removeGroupMember(group: \"kappa\", user: \""
-              + USER_MANAGER
-              + "\") { message } }");
-      executeAs(managerExecutor, "mutation { deleteGroup(name: \"kappa\") { message } }");
+          "mutation { change(groups: [{name: \"kappa\", users: []}]) { message } }");
+      executeAs(managerExecutor, "mutation { drop(groups: [\"kappa\"]) { message } }");
     } finally {
       database.becomeAdmin();
     }
@@ -232,8 +203,8 @@ class TestGraphqlGroups {
   }
 
   @Test
-  void queryGroups_afterCreateGroup_returnsGroupWithEmptyUsers() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"lambda\") { message } }");
+  void queryGroups_afterChangeGroup_returnsGroupWithEmptyUsers() throws IOException {
+    executeAdmin("mutation { change(groups: [{name: \"lambda\"}]) { message } }");
     try {
       String json =
           convertExecutionResultToJson(
@@ -260,9 +231,11 @@ class TestGraphqlGroups {
 
   @Test
   void queryGroups_afterAddGroupMember_returnsGroupWithUser() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"mu\") { message } }");
+    executeAdmin("mutation { change(groups: [{name: \"mu\"}]) { message } }");
     executeAdmin(
-        "mutation { addGroupMember(group: \"mu\", user: \"" + USER_MANAGER + "\") { message } }");
+        "mutation { change(groups: [{name: \"mu\", users: [\""
+            + USER_MANAGER
+            + "\"]}]) { message } }");
     try {
       String json =
           convertExecutionResultToJson(
@@ -288,8 +261,7 @@ class TestGraphqlGroups {
 
   @Test
   void queryGroups_multipleGroups_allListed() throws IOException {
-    executeAdmin("mutation { createGroup(name: \"nu\") { message } }");
-    executeAdmin("mutation { createGroup(name: \"xi\") { message } }");
+    executeAdmin("mutation { change(groups: [{name: \"nu\"}, {name: \"xi\"}]) { message } }");
     try {
       String json =
           convertExecutionResultToJson(
@@ -313,7 +285,7 @@ class TestGraphqlGroups {
     database.dropSchemaIfExists("TGraphqlGroupsOther");
     Schema otherSchema = database.createSchema("TGraphqlGroupsOther");
     try {
-      executeAdmin("mutation { createGroup(name: \"omicron\") { message } }");
+      executeAdmin("mutation { change(groups: [{name: \"omicron\"}]) { message } }");
       GraphqlExecutor otherExecutor = new GraphqlExecutor(otherSchema, new TaskServiceInMemory());
       String json =
           convertExecutionResultToJson(

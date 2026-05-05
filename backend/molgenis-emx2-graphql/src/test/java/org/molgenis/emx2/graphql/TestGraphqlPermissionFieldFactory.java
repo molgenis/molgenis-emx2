@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 class TestGraphqlPermissionFieldFactory {
 
@@ -30,6 +30,19 @@ class TestGraphqlPermissionFieldFactory {
   }
 
   @Test
+  void updateScopeEnumType_declaresFourValues() {
+    Set<String> enumValues =
+        GraphqlPermissionFieldFactory.updateScopeEnumType.getValues().stream()
+            .map(GraphQLEnumValueDefinition::getName)
+            .collect(Collectors.toSet());
+
+    for (UpdateScope scope : UpdateScope.values()) {
+      assertTrue(enumValues.contains(scope.name()), "Missing enum value: " + scope.name());
+    }
+    assertEquals(UpdateScope.values().length, enumValues.size());
+  }
+
+  @Test
   void toPermissionSet_roundTrip_preservesAllVerbScopes() {
     Map<String, Object> input =
         Map.of(
@@ -38,15 +51,15 @@ class TestGraphqlPermissionFieldFactory {
                 Map.of(
                     TABLE, "Pet",
                     SELECT, SelectScope.ALL,
-                    INSERT, SelectScope.OWN,
-                    UPDATE, SelectScope.GROUP,
-                    DELETE, SelectScope.NONE),
+                    INSERT, UpdateScope.OWN,
+                    UPDATE, UpdateScope.GROUP,
+                    DELETE, UpdateScope.NONE),
                 Map.of(
                     TABLE, "Order",
                     SELECT, SelectScope.AGGREGATE,
-                    INSERT, SelectScope.NONE,
-                    UPDATE, SelectScope.NONE,
-                    DELETE, SelectScope.NONE)),
+                    INSERT, UpdateScope.NONE,
+                    UPDATE, UpdateScope.NONE,
+                    DELETE, UpdateScope.NONE)),
             "changeOwner",
             true,
             "changeGroup",
@@ -60,43 +73,16 @@ class TestGraphqlPermissionFieldFactory {
     PermissionSet.TablePermissions pet = ps.getTables().get("Pet");
     assertNotNull(pet);
     assertEquals(SelectScope.ALL, pet.getSelect());
-    assertEquals(SelectScope.OWN, pet.getInsert());
-    assertEquals(SelectScope.GROUP, pet.getUpdate());
-    assertEquals(SelectScope.NONE, pet.getDelete());
+    assertEquals(UpdateScope.OWN, pet.getInsert());
+    assertEquals(UpdateScope.GROUP, pet.getUpdate());
+    assertEquals(UpdateScope.NONE, pet.getDelete());
 
     PermissionSet.TablePermissions order = ps.getTables().get("Order");
     assertNotNull(order);
     assertEquals(SelectScope.AGGREGATE, order.getSelect());
-    assertEquals(SelectScope.NONE, order.getInsert());
-    assertEquals(SelectScope.NONE, order.getUpdate());
-    assertEquals(SelectScope.NONE, order.getDelete());
-  }
-
-  @Test
-  void toPermissionSet_viewModeOnInsert_throwsMolgenisException() {
-    Map<String, Object> input =
-        Map.of(TABLES, List.of(Map.of(TABLE, "Pet", INSERT, SelectScope.EXISTS)));
-
-    assertThrows(
-        MolgenisException.class, () -> GraphqlPermissionFieldFactory.toPermissionSet(input));
-  }
-
-  @Test
-  void toPermissionSet_viewModeOnUpdate_throwsMolgenisException() {
-    Map<String, Object> input =
-        Map.of(TABLES, List.of(Map.of(TABLE, "Pet", UPDATE, SelectScope.COUNT)));
-
-    assertThrows(
-        MolgenisException.class, () -> GraphqlPermissionFieldFactory.toPermissionSet(input));
-  }
-
-  @Test
-  void toPermissionSet_viewModeOnDelete_throwsMolgenisException() {
-    Map<String, Object> input =
-        Map.of(TABLES, List.of(Map.of(TABLE, "Pet", DELETE, SelectScope.RANGE)));
-
-    assertThrows(
-        MolgenisException.class, () -> GraphqlPermissionFieldFactory.toPermissionSet(input));
+    assertEquals(UpdateScope.NONE, order.getInsert());
+    assertEquals(UpdateScope.NONE, order.getUpdate());
+    assertEquals(UpdateScope.NONE, order.getDelete());
   }
 
   @Test
@@ -127,9 +113,9 @@ class TestGraphqlPermissionFieldFactory {
 
     assertNotNull(pet);
     assertEquals(SelectScope.NONE, pet.getSelect());
-    assertEquals(SelectScope.NONE, pet.getInsert());
-    assertEquals(SelectScope.NONE, pet.getUpdate());
-    assertEquals(SelectScope.NONE, pet.getDelete());
+    assertEquals(UpdateScope.NONE, pet.getInsert());
+    assertEquals(UpdateScope.NONE, pet.getUpdate());
+    assertEquals(UpdateScope.NONE, pet.getDelete());
     assertFalse(ps.isChangeOwner());
     assertFalse(ps.isChangeGroup());
   }
@@ -147,5 +133,31 @@ class TestGraphqlPermissionFieldFactory {
   @Test
   void toSelectScope_stringValue_parsesCorrectly() {
     assertEquals(SelectScope.AGGREGATE, GraphqlPermissionFieldFactory.toSelectScope("AGGREGATE"));
+  }
+
+  @Test
+  void toUpdateScope_nullValue_returnsNone() {
+    assertEquals(UpdateScope.NONE, GraphqlPermissionFieldFactory.toUpdateScope(null));
+  }
+
+  @Test
+  void toUpdateScope_enumValue_returnsDirectly() {
+    assertEquals(UpdateScope.OWN, GraphqlPermissionFieldFactory.toUpdateScope(UpdateScope.OWN));
+  }
+
+  @Test
+  void toUpdateScope_stringValue_parsesCorrectly() {
+    assertEquals(UpdateScope.GROUP, GraphqlPermissionFieldFactory.toUpdateScope("GROUP"));
+  }
+
+  @Test
+  void permissionSetToMap_includesSchemaName() {
+    PermissionSet ps = new PermissionSet().setDescription("test role");
+    Map<String, Object> map =
+        GraphqlPermissionFieldFactory.permissionSetToMap("myRole", "mySchema", ps);
+
+    assertEquals("myRole", map.get("name"));
+    assertEquals("mySchema", map.get("schemaName"));
+    assertEquals("test role", map.get("description"));
   }
 }

@@ -987,6 +987,43 @@ Four findings from post-phase review addressed:
 - **Fix 4 (NIT) — `deleteGroup` check atomicity.** "not found" `MolgenisException` moved inside
   `getJooqAsAdmin` lambda, matching `createGroup`'s duplicate-check pattern.
 
+#### Phase 6 user-review-comments pass (2026-05-05)
+Seven user review comments applied:
+- **Comment 1 — `UpdateScope` enum.** New `UpdateScope {NONE, OWN, GROUP, ALL}` enum in
+  `org.molgenis.emx2`. `PermissionSet.TablePermissions.insert/update/delete` changed from
+  `SelectScope` to `UpdateScope`. `SqlRoleManager` split `applyVerbPolicy` into
+  `applySelectPolicy(SelectScope)` + `applyWritePolicy(UpdateScope, verb)`. Runtime
+  view-mode rejection in `toPermissionSet` dropped — type system enforces it.
+  `TestRoleManagerColumnGrantEnforcement` updated to `UpdateScope.ALL` for write verbs.
+- **Comment 2 — `PermissionSet.schema` field.** Optional `schema: String` on `PermissionSet`.
+  `SqlRoleManager.setPermissions` throws `MolgenisException` on schema mismatch.
+  `changeRoles` calls `ps.setSchema(schema.getName())`. GraphQL `inputRoleType`/`roleOutputType`
+  gain `schemaName` field. `permissionSetToMap` 3-arg overload includes `schemaName`.
+  New test `rolesQuery_schemaField_roundTrips`.
+- **Comment 3 — Docs.** Two new files: `docs/molgenis/use_customroles.md` (user-facing)
+  and `docs/molgenis/dev_graphql-rls.md` (developer GraphQL reference).
+- **Comment 4 — Constants.** `MG_CHANGE_OWNER = "changeOwner"` and `MG_CHANGE_GROUP = "changeGroup"`
+  added to `Constants.java`. All literal string occurrences replaced.
+- **Comment 5 — Merged `roles` field; `customRoles` fully dropped.** `ROLES` returns system roles
+  (description=roleName, tables=[]) plus custom roles in a single unified list, built via a single
+  pass over `getRoleInfos()` using `role.isSystemRole()` to choose the mapping. `CUSTOM_ROLES`
+  constant, `customRoles` GraphQL field, and the parallel `result.put(CUSTOM_ROLES, ...)` line are
+  all removed. `TestGraphqlPermissions` tests renamed from `customRolesQuery_*` to `rolesQuery_*`;
+  assertions updated to query `_schema { roles { ... } }`. Pre-existing factory bug (duplicate
+  entries for custom roles) fixed as a side-effect. 68/68 targeted tests green.
+- **Comment 6 — Central group management.** `createGroup`/`deleteGroup`/`addGroupMember`/
+  `removeGroupMember` standalone mutations removed from `GraphqlSchemaFieldFactory` and
+  unregistered from `GraphqlFactory`. Group management now via `change(groups: [MolgenisGroupInput])`
+  (idempotent upsert + member replacement) and `drop(groups: [String!])`. `TestGraphqlGroups`
+  fully rewritten to use new syntax.
+- **Comment 7 — No `@SuppressWarnings`.** All unchecked-cast suppressions removed.
+  `toPermissionSet` uses `Map<?,?>` + `extractString()` helper. `changeRoles` uses
+  `instanceof String roleName` pattern matching. `permissionSetToMap` passes enum
+  constants (not `.name()` strings) so GraphQL-Java coerces enum output correctly.
+
+Targeted tests: `TestGraphqlPermissions` 17/17, `TestGraphqlPermissionFieldFactory` 13/13,
+`TestGraphqlGroups` 8/8, `TestGraphqlSchemaFields` 14/14, `SqlRoleManagerTest` 55/55. 0 failed.
+
 Phase 6 exits when 6.A–6.F are green and combined-suite is still zero
 new failures (existing 5 graphql JWT failures stay deferred per user).
 

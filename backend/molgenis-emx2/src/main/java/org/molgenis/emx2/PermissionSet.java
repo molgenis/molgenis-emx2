@@ -9,23 +9,23 @@ public class PermissionSet {
 
   public static class TablePermissions {
     private SelectScope select = SelectScope.NONE;
-    private SelectScope insert = SelectScope.NONE;
-    private SelectScope update = SelectScope.NONE;
-    private SelectScope delete = SelectScope.NONE;
+    private UpdateScope insert = UpdateScope.NONE;
+    private UpdateScope update = UpdateScope.NONE;
+    private UpdateScope delete = UpdateScope.NONE;
 
     public SelectScope getSelect() {
       return select;
     }
 
-    public SelectScope getInsert() {
+    public UpdateScope getInsert() {
       return insert;
     }
 
-    public SelectScope getUpdate() {
+    public UpdateScope getUpdate() {
       return update;
     }
 
-    public SelectScope getDelete() {
+    public UpdateScope getDelete() {
       return delete;
     }
 
@@ -34,18 +34,18 @@ public class PermissionSet {
       return this;
     }
 
-    public TablePermissions setInsert(SelectScope insert) {
-      this.insert = insert == null ? SelectScope.NONE : insert;
+    public TablePermissions setInsert(UpdateScope insert) {
+      this.insert = insert == null ? UpdateScope.NONE : insert;
       return this;
     }
 
-    public TablePermissions setUpdate(SelectScope update) {
-      this.update = update == null ? SelectScope.NONE : update;
+    public TablePermissions setUpdate(UpdateScope update) {
+      this.update = update == null ? UpdateScope.NONE : update;
       return this;
     }
 
-    public TablePermissions setDelete(SelectScope delete) {
-      this.delete = delete == null ? SelectScope.NONE : delete;
+    public TablePermissions setDelete(UpdateScope delete) {
+      this.delete = delete == null ? UpdateScope.NONE : delete;
       return this;
     }
 
@@ -69,6 +69,7 @@ public class PermissionSet {
   private boolean changeOwner = false;
   private boolean changeGroup = false;
   private String description = "";
+  private String schema = null;
 
   public Map<String, TablePermissions> getTables() {
     return Collections.unmodifiableMap(tables);
@@ -84,6 +85,10 @@ public class PermissionSet {
 
   public String getDescription() {
     return description;
+  }
+
+  public String getSchema() {
+    return schema;
   }
 
   public PermissionSet setTables(Map<String, TablePermissions> tables) {
@@ -111,6 +116,11 @@ public class PermissionSet {
     return this;
   }
 
+  public PermissionSet setSchema(String schema) {
+    this.schema = schema;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
@@ -118,11 +128,12 @@ public class PermissionSet {
     return changeOwner == other.changeOwner
         && changeGroup == other.changeGroup
         && Objects.equals(description, other.description)
-        && Objects.equals(tables, other.tables);
+        && Objects.equals(tables, other.tables)
+        && Objects.equals(schema, other.schema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(tables, changeOwner, changeGroup, description);
+    return Objects.hash(tables, changeOwner, changeGroup, description, schema);
   }
 }
