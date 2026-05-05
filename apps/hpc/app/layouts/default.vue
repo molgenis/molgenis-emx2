@@ -170,9 +170,9 @@ watch(
 );
 
 const navigation = computed(() => [
-  { label: "Jobs", link: "/" },
-  { label: "Workers", link: "/workers" },
-  { label: "Artifacts", link: "/artifacts" },
+  { label: "Jobs", link: "/", isSpaLink: true },
+  { label: "Workers", link: "/workers", isSpaLink: true },
+  { label: "Artifacts", link: "/artifacts", isSpaLink: true },
 ]);
 
 onMounted(() => {
