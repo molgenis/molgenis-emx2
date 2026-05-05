@@ -299,6 +299,9 @@ public class SqlRoleManager {
         .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
       throw new MolgenisException("Role already exists: " + roleName);
     }
+    PermissionSet initial =
+        new PermissionSet().setDescription(description != null ? description : "");
+    String initialJson = serializePermissionSet(initial);
     database.tx(
         db -> {
           String currentUser = db.getActiveUser();
@@ -306,7 +309,7 @@ public class SqlRoleManager {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
             jooq.execute("CREATE ROLE {0} NOLOGIN", name(fullRole));
-            jooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline("{}"));
+            jooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline(initialJson));
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -1110,6 +1113,7 @@ public class SqlRoleManager {
       }
       root.put("changeOwner", permissions.isChangeOwner());
       root.put("changeGroup", permissions.isChangeGroup());
+      root.put("description", permissions.getDescription());
       return OBJECT_MAPPER.writeValueAsString(root);
     } catch (Exception e) {
       throw new MolgenisException("Failed to serialize PermissionSet", e);
@@ -1149,6 +1153,9 @@ public class SqlRoleManager {
       if (root.has("changeGroup")) {
         result.setChangeGroup(root.get("changeGroup").asBoolean());
       }
+      if (root.has("description")) {
+        result.setDescription(root.get("description").asText(""));
+      }
       return result;
     } catch (MolgenisException e) {
       throw e;
@@ -1187,18 +1194,18 @@ public class SqlRoleManager {
 
   public void deleteGroup(Schema schema, String groupName) {
     String schemaName = schema.getName();
-    int[] deleted = {0};
     database.getJooqAsAdmin(
-        adminJooq ->
-            deleted[0] =
-                adminJooq.execute(
-                    "DELETE FROM " + GROUPS_METADATA_SQL_TABLE + " WHERE schema = ? AND name = ?",
-                    schemaName,
-                    groupName));
-    if (deleted[0] == 0) {
-      throw new MolgenisException(
-          "Group '" + groupName + "' not found in schema '" + schema.getName() + "'");
-    }
+        adminJooq -> {
+          int deleted =
+              adminJooq.execute(
+                  "DELETE FROM " + GROUPS_METADATA_SQL_TABLE + " WHERE schema = ? AND name = ?",
+                  schemaName,
+                  groupName);
+          if (deleted == 0) {
+            throw new MolgenisException(
+                "Group '" + groupName + "' not found in schema '" + schemaName + "'");
+          }
+        });
   }
 
   public void addGroupMember(Schema schema, String groupName, String username) {

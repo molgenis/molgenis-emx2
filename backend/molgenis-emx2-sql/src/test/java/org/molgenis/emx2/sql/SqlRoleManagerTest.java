@@ -96,7 +96,7 @@ class SqlRoleManagerTest {
   }
 
   @Test
-  void createRole_setsEmptyJsonComment() {
+  void createRole_setsInitialCommentWithDescription() {
     roleManager.createRole(schemaA, "analyst", "test analyst role");
 
     String comment =
@@ -106,7 +106,9 @@ class SqlRoleManagerTest {
                     + "WHERE a.rolname = {0}",
                 inline("MG_ROLE_" + SCHEMA_A + "/analyst"))
             .get(0, String.class);
-    assertEquals("{}", comment, "COMMENT ON ROLE must be set to empty JSON object {}");
+    assertTrue(
+        comment.contains("\"description\":\"test analyst role\""),
+        "COMMENT ON ROLE must contain the description in the initial JSON");
   }
 
   @Test

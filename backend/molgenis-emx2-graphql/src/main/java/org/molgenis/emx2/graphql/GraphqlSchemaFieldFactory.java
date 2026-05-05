@@ -546,7 +546,6 @@ public class GraphqlSchemaFieldFactory {
       result.put(
           ROLES, schema.getRoleInfos().stream().map(GraphqlSchemaFieldFactory::roleToMap).toList());
 
-      // add custom roles with per-verb scopes from PermissionSet
       SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
       result.put(
           CUSTOM_ROLES,
@@ -557,7 +556,6 @@ public class GraphqlSchemaFieldFactory {
                           roleName, roleManager.getPermissions(schema, roleName)))
               .toList());
 
-      // add groups with member lists
       result.put(GROUPS, roleManager.listGroups(schema));
 
       // add settings for the schema
@@ -1001,8 +999,6 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  private static final String ARG_GROUP = "group";
-
   public GraphQLFieldDefinition createGroupMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createGroup")
@@ -1047,7 +1043,7 @@ public class GraphqlSchemaFieldFactory {
         .type(typeForMutationResult)
         .argument(
             GraphQLArgument.newArgument()
-                .name(ARG_GROUP)
+                .name(GROUP)
                 .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
         .argument(
             GraphQLArgument.newArgument()
@@ -1056,7 +1052,7 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             env -> {
               GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
-              String groupName = env.getArgument(ARG_GROUP);
+              String groupName = env.getArgument(GROUP);
               String username = env.getArgument(USER);
               SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
               roleManager.addGroupMember(schema, groupName, username);
@@ -1072,7 +1068,7 @@ public class GraphqlSchemaFieldFactory {
         .type(typeForMutationResult)
         .argument(
             GraphQLArgument.newArgument()
-                .name(ARG_GROUP)
+                .name(GROUP)
                 .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
         .argument(
             GraphQLArgument.newArgument()
@@ -1081,7 +1077,7 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(
             env -> {
               GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
-              String groupName = env.getArgument(ARG_GROUP);
+              String groupName = env.getArgument(GROUP);
               String username = env.getArgument(USER);
               SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
               roleManager.removeGroupMember(schema, groupName, username);

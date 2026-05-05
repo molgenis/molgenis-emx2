@@ -68,6 +68,7 @@ public class PermissionSet {
   private Map<String, TablePermissions> tables = new LinkedHashMap<>();
   private boolean changeOwner = false;
   private boolean changeGroup = false;
+  private String description = "";
 
   public Map<String, TablePermissions> getTables() {
     return Collections.unmodifiableMap(tables);
@@ -79,6 +80,10 @@ public class PermissionSet {
 
   public boolean isChangeGroup() {
     return changeGroup;
+  }
+
+  public String getDescription() {
+    return description;
   }
 
   public PermissionSet setTables(Map<String, TablePermissions> tables) {
@@ -101,17 +106,23 @@ public class PermissionSet {
     return this;
   }
 
+  public PermissionSet setDescription(String description) {
+    this.description = description == null ? "" : description;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (!(obj instanceof PermissionSet other)) return false;
     return changeOwner == other.changeOwner
         && changeGroup == other.changeGroup
+        && Objects.equals(description, other.description)
         && Objects.equals(tables, other.tables);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(tables, changeOwner, changeGroup);
+    return Objects.hash(tables, changeOwner, changeGroup, description);
   }
 }

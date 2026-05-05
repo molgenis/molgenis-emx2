@@ -971,6 +971,22 @@ Slice plan (each slice independently testable, RED-GREEN per slice):
   19/19 including 5 new 6.F tests, TestGraphqlPermissionFieldFactory 11/11,
   TestGraphqlSchemaFields 25/25). 0 failures, 0 skipped.**
 
+#### Phase 6 review-fix pass (2026-05-05)
+Four findings from post-phase review addressed:
+- **Fix 1 (CRITICAL) — `description` round-trip.** `PermissionSet` gains `description: String`
+  (getter/setter, default `""`). `serializePermissionSet` emits `"description"` key; `deserializePermissionSet`
+  reads it. `createRole(Schema, String, String)` builds initial COMMENT JSON via
+  `serializePermissionSet` instead of writing literal `{}`. `toPermissionSet` reads `description`
+  from GraphQL input map (null → `""`). `permissionSetToMap` emits `description` in `customRoles`
+  output. Semantics: null input → overwrite to `""` (explicit field; no implicit preservation).
+  New test `customRolesQuery_description_roundTrip` verifies set→query echo and null-overwrites-to-empty.
+- **Fix 2 (CRITICAL) — inline comments removed.** Two `// add custom roles …` / `// add groups …`
+  lines deleted from `GraphqlSchemaFieldFactory.java:queryFetcher`.
+- **Fix 3 (NIT) — `ARG_GROUP` extracted.** `private static final String ARG_GROUP = "group"` removed
+  from `GraphqlSchemaFieldFactory`; `GROUP = "group"` added to `GraphqlConstants`; all usages updated.
+- **Fix 4 (NIT) — `deleteGroup` check atomicity.** "not found" `MolgenisException` moved inside
+  `getJooqAsAdmin` lambda, matching `createGroup`'s duplicate-check pattern.
+
 Phase 6 exits when 6.A–6.F are green and combined-suite is still zero
 new failures (existing 5 graphql JWT failures stay deferred per user).
 

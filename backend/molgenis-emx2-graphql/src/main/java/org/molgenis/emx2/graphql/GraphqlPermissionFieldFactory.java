@@ -142,6 +142,8 @@ public class GraphqlPermissionFieldFactory {
     boolean changeGroup = Boolean.TRUE.equals(input.get("changeGroup"));
     ps.setChangeOwner(changeOwner);
     ps.setChangeGroup(changeGroup);
+    String description = (String) input.get(DESCRIPTION);
+    ps.setDescription(description != null ? description : "");
 
     Object tablesValue = input.get(TABLES);
     if (!(tablesValue instanceof java.util.List<?> tableList)) {
@@ -190,6 +192,7 @@ public class GraphqlPermissionFieldFactory {
   static Map<String, Object> permissionSetToMap(String roleName, PermissionSet ps) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(NAME, roleName);
+    roleMap.put(DESCRIPTION, ps.getDescription());
     roleMap.put("changeOwner", ps.isChangeOwner());
     roleMap.put("changeGroup", ps.isChangeGroup());
     List<Map<String, Object>> tableList =

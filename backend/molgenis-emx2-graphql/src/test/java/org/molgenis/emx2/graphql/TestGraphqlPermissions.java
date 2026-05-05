@@ -329,6 +329,44 @@ class TestGraphqlPermissions {
   }
 
   @Test
+  void customRolesQuery_description_roundTrip() throws IOException {
+    String roleWithDesc = "descRole";
+    execute(
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleWithDesc
+            + "\", description: \"team alpha role\", "
+            + "tables: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL}]"
+            + "}]) { message } }");
+
+    JsonNode customRoles =
+        execute("{_schema { customRoles { name description tables { table select } } } }")
+            .at("/_schema/customRoles");
+    JsonNode found = findRoleByName(customRoles, roleWithDesc);
+    assertNotNull(found, "Role " + roleWithDesc + " should appear in customRoles");
+    assertEquals("team alpha role", found.at("/description").asText());
+
+    execute(
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleWithDesc
+            + "\", "
+            + "tables: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL}]"
+            + "}]) { message } }");
+
+    JsonNode customRolesAfter =
+        execute("{_schema { customRoles { name description } } }").at("/_schema/customRoles");
+    JsonNode foundAfter = findRoleByName(customRolesAfter, roleWithDesc);
+    assertNotNull(foundAfter, "Role " + roleWithDesc + " should still appear after update");
+    assertEquals(
+        "", foundAfter.at("/description").asText(), "description_null_input_overwrites_to_empty");
+  }
+
+  @Test
   void rolesQuery_systemRolesStillPresent_inLegacyRoles() throws IOException {
     JsonNode roles = execute("{_schema { roles { name system } } }").at("/_schema/roles");
     boolean hasSystemRole = false;
