@@ -150,8 +150,8 @@ class StagingMigrator(Client):
                         try:
                             check_hricore(updated_table, source_profile)
                         except MissingHRICoreException as ve:
-                            self.errors.append(ve)
-                            raise MissingHRICoreException(ve.msg)
+                            self.warnings.append(ve.msg)
+                            log.warning(ve.msg)
 
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv(index=False))
