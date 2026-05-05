@@ -16,7 +16,7 @@ class CollectionColumnMapperTest {
     Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
     ColumnMapper mapper = new CollectionColumnMapper(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
-    assertHasSelectors(mapper, "( GROUP_CONCAT( STR( ?foo_single ) ; SEPARATOR = , ) AS ?foo )");
+    assertHasSelectors(mapper, "( GROUP_CONCAT( STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -36,7 +36,7 @@ class CollectionColumnMapperTest {
             OPTIONAL { ?start foaf:also_alternative ?foo_single2 . }
             BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2 ) AS ?foo_single ) }""",
         "FILTER ( BOUND( ?foo_single ) )");
-    assertHasSelectors(mapper, "( GROUP_CONCAT( STR( ?foo_single ) ; SEPARATOR = , ) AS ?foo )");
+    assertHasSelectors(mapper, "( GROUP_CONCAT( STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 }
