@@ -26,7 +26,7 @@ public class CollectionColumnMapper extends PlainColumnMapper {
 
   @Override
   public List<Projectable> getSelectors() {
-    return List.of(Expressions.group_concat(",", Expressions.str(object)).as(selector));
+    return List.of(Expressions.group_concat("','", Expressions.str(object)).as(selector));
   }
 
   @Override
