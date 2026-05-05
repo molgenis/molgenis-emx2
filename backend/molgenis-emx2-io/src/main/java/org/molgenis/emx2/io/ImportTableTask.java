@@ -8,8 +8,8 @@ import org.molgenis.emx2.io.tablestore.processor.ValidatePkeyProcessor;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportTableTask extends Task {
-  private Table table;
-  private TableStore source;
+  private final Table table;
+  private final TableStore source;
 
   public ImportTableTask(TableStore source, Table table, boolean strict) {
     super("Import table %s".formatted(table.getName()), strict);

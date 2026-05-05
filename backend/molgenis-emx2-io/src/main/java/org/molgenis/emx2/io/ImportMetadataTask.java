@@ -11,8 +11,8 @@ import org.molgenis.emx2.tasks.Task;
 
 public class ImportMetadataTask extends Task {
   public static final String MOLGENIS = "molgenis";
-  private TableStore store;
-  private Schema schema;
+  private final TableStore store;
+  private final Schema schema;
 
   public ImportMetadataTask(Schema schema, TableStore store, boolean strict) {
     super("Import metadata", strict);
