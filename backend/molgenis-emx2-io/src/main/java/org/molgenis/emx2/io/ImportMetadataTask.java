@@ -41,7 +41,8 @@ public class ImportMetadataTask extends Task {
 
         if (store.containsTable("molgenis_members")) {
           int count = Emx2Members.inputRoles(store, schema);
-          this.addSubTask("Loaded " + count + " members from 'molgenis_members' sheet").complete();
+          this.addSubTask("Loaded %s members from 'molgenis_members' sheet".formatted(count))
+              .complete();
         } else {
           this.addSubTask(
                   "Members loading skipped: 'molgenis_members' sheet not included in the file")
