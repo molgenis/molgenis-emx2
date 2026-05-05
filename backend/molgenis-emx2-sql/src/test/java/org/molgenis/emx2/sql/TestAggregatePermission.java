@@ -68,7 +68,7 @@ public class TestAggregatePermission {
         result.get("Pet_groupBy").stream()
             .map(object -> (Integer) object.get(COUNT_FIELD))
             .toList();
-    counts.forEach(count -> assertEquals(count, AGGREGATE_COUNT_THRESHOLD));
+    counts.forEach(count -> assertEquals(AGGREGATE_COUNT_THRESHOLD, count));
 
     json =
         schema
