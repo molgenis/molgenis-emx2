@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf.generators.query.mappers;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
@@ -18,6 +19,7 @@ public class ReferenceMapper implements ColumnMapper {
 
   private final List<GraphPattern> patterns = new ArrayList<>();
   private final List<Projectable> selectors = new ArrayList<>();
+  private final List<Groupable> groupBy = new ArrayList<>();
 
   public ReferenceMapper(Variable variable, Column rootColumn) {
     this(variable, rootColumn, new ArrayList<>());
@@ -43,10 +45,12 @@ public class ReferenceMapper implements ColumnMapper {
       ColumnMapper mapper = new CollectionColumnMapper(variable, rootColumn);
       patterns.addAll(mapper.getPattern());
       selectors.addAll(mapper.getSelectors());
+      groupBy.addAll(mapper.getGroupBy());
     } else {
       ColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
       patterns.addAll(mapper.getPattern());
       selectors.add(columnVariable());
+      groupBy.addAll(mapper.getGroupBy());
     }
   }
 
@@ -75,6 +79,7 @@ public class ReferenceMapper implements ColumnMapper {
 
       patterns.addAll(mapper.getPattern());
       selectors.addAll(mapper.getSelectors());
+      groupBy.addAll(mapper.getGroupBy());
     }
   }
 
@@ -106,5 +111,10 @@ public class ReferenceMapper implements ColumnMapper {
     } else {
       return List.of(GraphPatterns.and(patterns.toArray(new GraphPattern[0])).optional());
     }
+  }
+
+  @Override
+  public List<Groupable> getGroupBy() {
+    return new ArrayList<>(groupBy);
   }
 }

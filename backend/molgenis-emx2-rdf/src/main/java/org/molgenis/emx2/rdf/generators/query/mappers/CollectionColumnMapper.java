@@ -1,7 +1,9 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
+import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
@@ -25,5 +27,10 @@ public class CollectionColumnMapper extends PlainColumnMapper {
   @Override
   public List<Projectable> getSelectors() {
     return List.of(Expressions.group_concat(",", Expressions.str(object)).as(selector));
+  }
+
+  @Override
+  public List<Groupable> getGroupBy() {
+    return new ArrayList<>();
   }
 }

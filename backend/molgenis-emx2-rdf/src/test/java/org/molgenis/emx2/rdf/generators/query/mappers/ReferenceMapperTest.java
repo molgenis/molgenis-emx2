@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertHasSelectors;
-import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
@@ -35,11 +34,12 @@ class ReferenceMapperTest {
     Column column = order.getColumn("product");
     ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
 
-    assertPatternsMatch(
+    assertHasPatterns(
         tableReferenceQuery,
         "?order orders:product ?product .",
         "?product product:name ?product_name .");
     assertHasSelectors(tableReferenceQuery, "?product_name");
+    assertHasGroupBy(tableReferenceQuery, "?product_name");
   }
 
   @Test
@@ -50,12 +50,13 @@ class ReferenceMapperTest {
     Column column = order.getColumn("product");
     ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
 
-    assertPatternsMatch(
+    assertHasPatterns(
         tableReferenceQuery,
         """
         OPTIONAL { ?order orders:product ?product .
         ?product product:name ?product_name . }""");
     assertHasSelectors(tableReferenceQuery, "?product_name");
+    assertHasGroupBy(tableReferenceQuery, "?product_name");
   }
 
   @Test
@@ -72,12 +73,13 @@ class ReferenceMapperTest {
     Column column = order.getColumn("product");
     ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-    assertPatternsMatch(
+    assertHasPatterns(
         mapper,
         "?order orders:product ?product .",
         "?product product:name ?product_name .",
         "?product product:barcode ?product_barcode .");
     assertHasSelectors(mapper, "?product_name", "?product_barcode");
+    assertHasGroupBy(mapper, "?product_name", "?product_barcode");
   }
 
   @Test
@@ -103,7 +105,7 @@ class ReferenceMapperTest {
     Column column = order.getColumn("product");
     ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-    assertPatternsMatch(
+    assertHasPatterns(
         mapper,
         "?order orders:product ?product .",
         "?product product:name ?product_name .",
@@ -111,6 +113,8 @@ class ReferenceMapperTest {
         "?product_manufacturer manufacturer:name ?product_manufacturer_name .",
         "?product_manufacturer manufacturer:id ?product_manufacturer_id .");
     assertHasSelectors(
+        mapper, "?product_name", "?product_manufacturer_name", "?product_manufacturer_id");
+    assertHasGroupBy(
         mapper, "?product_name", "?product_manufacturer_name", "?product_manufacturer_id");
   }
 
@@ -136,12 +140,14 @@ class ReferenceMapperTest {
 
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper,
           "?order orders:product ?product .",
           "?product product:name ?product_name_single .");
       assertHasSelectors(
-          mapper, "( GROUP_CONCAT( ?product_name_single ; SEPARATOR = , ) AS ?product_name )");
+          mapper,
+          "( GROUP_CONCAT( STR( ?product_name_single ) ; SEPARATOR = , ) AS ?product_name )");
+      assertHasGroupBy(mapper);
     }
 
     @Test
@@ -163,13 +169,15 @@ class ReferenceMapperTest {
 
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper,
           """
           OPTIONAL { ?order orders:product ?product .
           ?product product:name ?product_name_single . }""");
       assertHasSelectors(
-          mapper, "( GROUP_CONCAT( ?product_name_single ; SEPARATOR = , ) AS ?product_name )");
+          mapper,
+          "( GROUP_CONCAT( STR( ?product_name_single ) ; SEPARATOR = , ) AS ?product_name )");
+      assertHasGroupBy(mapper);
     }
   }
 
@@ -194,9 +202,10 @@ class ReferenceMapperTest {
     Column column = orders.getColumn("product");
     ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-    assertPatternsMatch(
+    assertHasPatterns(
         mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
     assertHasSelectors(mapper, "?product_name");
+    assertHasGroupBy(mapper, "?product_name");
   }
 
   @Nested
@@ -210,9 +219,10 @@ class ReferenceMapperTest {
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
       assertHasSelectors(mapper, "?product_name");
+      assertHasGroupBy(mapper, "?product_name");
     }
 
     @Test
@@ -223,12 +233,13 @@ class ReferenceMapperTest {
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper,
           """
           OPTIONAL { ?order orders:product ?product .
           ?product product:name ?product_name . }""");
       assertHasSelectors(mapper, "?product_name");
+      assertHasGroupBy(mapper, "?product_name");
     }
   }
 
@@ -244,7 +255,7 @@ class ReferenceMapperTest {
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper,
           """
         OPTIONAL { ?order orders:product ?product .
@@ -254,6 +265,7 @@ class ReferenceMapperTest {
         BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }
         FILTER ( BOUND( ?product_name ) ) }""");
       assertHasSelectors(mapper, "?product_name");
+      assertHasGroupBy(mapper, "?product_name");
     }
 
     @Test
@@ -265,7 +277,7 @@ class ReferenceMapperTest {
       Column column = order.getColumn("product");
       ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
 
-      assertPatternsMatch(
+      assertHasPatterns(
           mapper,
           "?order orders:product ?product .",
           """
@@ -275,6 +287,7 @@ class ReferenceMapperTest {
           BIND( COALESCE( ?product_name0, ?product_name1, ?product_name2 ) AS ?product_name ) }""",
           "FILTER ( BOUND( ?product_name ) )");
       assertHasSelectors(mapper, "?product_name");
+      assertHasGroupBy(mapper, "?product_name");
     }
   }
 
@@ -297,8 +310,9 @@ class ReferenceMapperTest {
 
       Column column = product.getColumn("type");
       ReferenceMapper mapper = new ReferenceMapper(productVar, column);
-      assertPatternsMatch(mapper, "OPTIONAL { ?product product:type ?type . }");
+      assertHasPatterns(mapper, "OPTIONAL { ?product product:type ?type . }");
       assertHasSelectors(mapper, "?type");
+      assertHasGroupBy(mapper, "?type");
     }
 
     @Test
@@ -314,8 +328,9 @@ class ReferenceMapperTest {
 
       Column column = product.getColumn("tag");
       ReferenceMapper mapper = new ReferenceMapper(productVar, column);
-      assertPatternsMatch(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
-      assertHasSelectors(mapper, "( GROUP_CONCAT( ?tag_single ; SEPARATOR = , ) AS ?tag )");
+      assertHasPatterns(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
+      assertHasSelectors(mapper, "( GROUP_CONCAT( STR( ?tag_single ) ; SEPARATOR = , ) AS ?tag )");
+      assertHasGroupBy(mapper);
     }
   }
 

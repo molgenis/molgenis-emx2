@@ -13,9 +13,15 @@ public class MapperAssertions {
         mapper.getSelectors().stream().map(QueryElement::getQueryString).toList());
   }
 
-  public static void assertPatternsMatch(ColumnMapper mapper, String... expectedPatterns) {
+  public static void assertHasPatterns(ColumnMapper mapper, String... expectedPatterns) {
     assertEquals(
         List.of(expectedPatterns),
         mapper.getPattern().stream().map(QueryElement::getQueryString).toList());
+  }
+
+  public static void assertHasGroupBy(ColumnMapper mapper, String... expectedGroupBy) {
+    assertEquals(
+        List.of(expectedGroupBy),
+        mapper.getGroupBy().stream().map(QueryElement::getQueryString).toList());
   }
 }
