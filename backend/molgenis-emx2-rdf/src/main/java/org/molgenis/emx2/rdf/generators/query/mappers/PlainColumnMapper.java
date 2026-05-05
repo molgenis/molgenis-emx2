@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expression;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Operand;
+import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
@@ -45,11 +46,12 @@ public class PlainColumnMapper implements ColumnMapper {
 
   @Override
   public List<Projectable> getSelectors() {
-    if (selector == null) {
-      return Collections.emptyList();
-    }
+    return getSelector().stream().map(Projectable.class::cast).toList();
+  }
 
-    return List.of(selector);
+  @Override
+  public List<Groupable> getGroupBy() {
+    return getSelector().stream().map(Groupable.class::cast).toList();
   }
 
   @Override
@@ -89,5 +91,13 @@ public class PlainColumnMapper implements ColumnMapper {
     }
 
     return List.of(mainPattern);
+  }
+
+  private List<Variable> getSelector() {
+    if (selector == null) {
+      return Collections.emptyList();
+    }
+
+    return List.of(selector);
   }
 }

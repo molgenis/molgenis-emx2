@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertHasSelectors;
-import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.assertPatternsMatch;
+import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
@@ -16,16 +15,18 @@ class PlainColumnMapperTest {
   void shouldHandleRequiredColumn() {
     Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
-    assertPatternsMatch(mapper, "?start foaf:test ?foo .");
+    assertHasPatterns(mapper, "?start foaf:test ?foo .");
     assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
   }
 
   @Test
   void shouldHandleOptionalColumn() {
     Column column = Column.column("foo").setRequired(false).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
-    assertPatternsMatch(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
+    assertHasPatterns(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
     assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
   }
 
   @Test
@@ -35,7 +36,7 @@ class PlainColumnMapperTest {
             .setRequired(false)
             .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
-    assertPatternsMatch(
+    assertHasPatterns(
         mapper,
         """
             OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
@@ -43,6 +44,7 @@ class PlainColumnMapperTest {
             OPTIONAL { ?start foaf:also_alternative ?foo2 . }
             BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""");
     assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
   }
 
   @Test
@@ -52,7 +54,7 @@ class PlainColumnMapperTest {
             .setRequired(true)
             .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
-    assertPatternsMatch(
+    assertHasPatterns(
         mapper,
         """
         OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
@@ -61,13 +63,15 @@ class PlainColumnMapperTest {
         BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""",
         "FILTER ( BOUND( ?foo ) )");
     assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
   }
 
   @Test
   void shouldNormalizeColumnName() {
     Column column = Column.column("foo bar").setRequired(true).setSemantics("foaf:test");
     PlainColumnMapper mapper = new PlainColumnMapper(START, column);
-    assertPatternsMatch(mapper, "?start foaf:test ?foo___bar .");
+    assertHasPatterns(mapper, "?start foaf:test ?foo___bar .");
     assertHasSelectors(mapper, "?foo___bar");
+    assertHasGroupBy(mapper, "?foo___bar");
   }
 }
