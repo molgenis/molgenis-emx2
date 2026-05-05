@@ -770,6 +770,40 @@ names under PG's 63-byte object limit. Result counts: sql `SqlRoleManagerTest`
 55/55, nonparallel-tests `TestRoleManagerColumnGrantEnforcement` 7/7, 139-test
 smoke green. `SqlMolgenisExceptionTest` (5.B, pure unit) stays in sql module.
 
+**Phase 5 boundary follow-up (2026-05-04)** — additional fixes landed this turn:
+
+1. **NPE null-guard at `SqlRoleManager.java:236`** — `getTablePermissionsForActiveUser`
+   was dereferencing `database.getSchema(schemaName)` without a null-check.
+   Returns null when the active user has no schema access (e.g., system-role-only
+   user under a view-mode test). Cascade hid this: NPE in
+   `GetCountFieldTest.systemRoleRange_noCustomRole_returnsPrivacyFloor` aborted
+   the transaction and downstream tests reported "current transaction is aborted".
+   Fix: `if (schema == null) return List.of();`. Targeted tests green
+   (GetCountFieldTest 9/9, EffectiveSelectScopesTest 9/9, AggregationPermissionTest
+   50/50, ExistsFieldTest 10/10, SqlMolgenisExceptionTest 6/6).
+
+2. **`cleandb` `DROP OWNED BY` patch** — `clean-molgenis-database.sql` did bare
+   `DROP ROLE` without first severing role-to-role grants. RLS v2's role grants
+   in migrations 10/21 (Aggregator→Viewer, Exists→Range, Range→Aggregator)
+   stress this hole; pre-existing on master, but exercised harder by v2.
+   Inserted `DROP OWNED BY %I CASCADE;` before each `DROP ROLE`. Verified:
+   `pg_roles MG_*` empty after cleandb (only freshly-recreated system roles
+   remain). Targeted tests still green; TestGraphqlDatabaseFields 8/8.
+
+**Known follow-up — defer to post-PR investigation**: combined-suite still
+reports the same 5 graphql failures (JWT secret null) plus
+`TestColumnTypeIsFile.initializationError` (transaction-aborted cascade).
+Verified root cause: `MOLGENIS.database_metadata.settings` JSONB is being
+truncated mid-suite — after sql:test it shrinks from the full init-key set
+to `{"isOidcEnabled":"false","it-db-setting-key":"it-db-setting-value"}`,
+losing `MOLGENIS_JWT_SHARED_SECRET`. Mechanism is in `SqlDatabase.tx`/`sync()`
+asymmetry: tx-copy and parent settings maps go out of sync, then a subsequent
+`setSettings(map)` saves the truncated map back. Likely culprit is `TestSettings`
+in the sql module. **NEW to v2 per user (baseline test was clean)**, but
+mechanism may be a pre-existing latent bug uncovered by a v2 ordering shift.
+Postpone fix until after Phase 5 PR closes; track as separate workstream
+under "test-isolation hardening" or as Phase 5.C if scope allows.
+
 ### Phase 6 — GraphQL surfaces
 
 We adopt the **current branch's existing API design** (already in use in our
