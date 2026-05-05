@@ -1157,6 +1157,127 @@ public class SqlRoleManager {
     }
   }
 
+  private static final String GROUPS_METADATA_SQL_TABLE = "\"MOLGENIS\".groups_metadata";
+  private static final String USERS_METADATA_SQL_TABLE = "\"MOLGENIS\".users_metadata";
+
+  public void createGroup(Schema schema, String groupName) {
+    String schemaName = schema.getName();
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Record existing =
+              adminJooq.fetchOne(
+                  "SELECT name FROM "
+                      + GROUPS_METADATA_SQL_TABLE
+                      + " WHERE schema = ? AND name = ?",
+                  schemaName,
+                  groupName);
+          if (existing != null) {
+            throw new MolgenisException(
+                "Group '" + groupName + "' already exists in schema '" + schemaName + "'");
+          }
+          adminJooq.execute(
+              "INSERT INTO "
+                  + GROUPS_METADATA_SQL_TABLE
+                  + " (schema, name, users) VALUES (?, ?, ?)",
+              schemaName,
+              groupName,
+              new String[] {});
+        });
+  }
+
+  public void deleteGroup(Schema schema, String groupName) {
+    String schemaName = schema.getName();
+    int[] deleted = {0};
+    database.getJooqAsAdmin(
+        adminJooq ->
+            deleted[0] =
+                adminJooq.execute(
+                    "DELETE FROM " + GROUPS_METADATA_SQL_TABLE + " WHERE schema = ? AND name = ?",
+                    schemaName,
+                    groupName));
+    if (deleted[0] == 0) {
+      throw new MolgenisException(
+          "Group '" + groupName + "' not found in schema '" + schema.getName() + "'");
+    }
+  }
+
+  public void addGroupMember(Schema schema, String groupName, String username) {
+    String schemaName = schema.getName();
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          requireGroupExistsViaJooq(adminJooq, schemaName, groupName);
+          requireUserExistsViaJooq(adminJooq, username);
+          adminJooq.execute(
+              "UPDATE "
+                  + GROUPS_METADATA_SQL_TABLE
+                  + " SET users = array(SELECT DISTINCT unnest(users || ARRAY[?::text]))"
+                  + " WHERE schema = ? AND name = ?",
+              username,
+              schemaName,
+              groupName);
+        });
+  }
+
+  public void removeGroupMember(Schema schema, String groupName, String username) {
+    String schemaName = schema.getName();
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          requireGroupExistsViaJooq(adminJooq, schemaName, groupName);
+          adminJooq.execute(
+              "UPDATE "
+                  + GROUPS_METADATA_SQL_TABLE
+                  + " SET users = array_remove(users, ?::text)"
+                  + " WHERE schema = ? AND name = ?",
+              username,
+              schemaName,
+              groupName);
+        });
+  }
+
+  public List<Map<String, Object>> listGroups(Schema schema) {
+    String schemaName = schema.getName();
+    List<Map<String, Object>> result = new ArrayList<>();
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Result<Record> rows =
+              adminJooq.fetch(
+                  "SELECT name, users FROM "
+                      + GROUPS_METADATA_SQL_TABLE
+                      + " WHERE schema = ? ORDER BY name",
+                  schemaName);
+          for (Record row : rows) {
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("name", row.get("name", String.class));
+            String[] users = row.get("users", String[].class);
+            entry.put("users", users == null ? List.of() : List.of(users));
+            result.add(entry);
+          }
+        });
+    return result;
+  }
+
+  private static void requireGroupExistsViaJooq(
+      DSLContext adminJooq, String schemaName, String groupName) {
+    Record existing =
+        adminJooq.fetchOne(
+            "SELECT name FROM " + GROUPS_METADATA_SQL_TABLE + " WHERE schema = ? AND name = ?",
+            schemaName,
+            groupName);
+    if (existing == null) {
+      throw new MolgenisException(
+          "Group '" + groupName + "' not found in schema '" + schemaName + "'");
+    }
+  }
+
+  private static void requireUserExistsViaJooq(DSLContext adminJooq, String username) {
+    Record existing =
+        adminJooq.fetchOne(
+            "SELECT username FROM " + USERS_METADATA_SQL_TABLE + " WHERE username = ?", username);
+    if (existing == null) {
+      throw new MolgenisException("User '" + username + "' does not exist");
+    }
+  }
+
   private List<TablePermission> systemPermissions(String roleName) {
     if (roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())

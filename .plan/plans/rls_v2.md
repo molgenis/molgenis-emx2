@@ -828,6 +828,152 @@ branch's source):
 Exit criteria: GraphQL surface complete; permission UI in `apps/schema`
 drives the model; e2e tests green.
 
+#### Phase 6 port plan (2026-05-05)
+
+Source-branch reference: `mswertz/poc/rls_using_one_role_and_policies` —
+`GraphqlPermissionFieldFactory.java` (~360 lines) holds the canonical port
+target; do NOT check it out, read via `git show`.
+
+Pre-state (scout 2026-05-05):
+- v2 has NO `GraphqlPermissionFieldFactory` yet.
+- v2 `GraphqlSchemaFieldFactory.java` lines 115–189 declares Boolean-based
+  permission types (`outputPermissionType`, `inputPermissionType`,
+  `inputRoleType`); `changeRoles()` (lines 686–710) calls `schema.grant(...)`
+  with a Boolean→TablePermission mapping. No SqlRoleManager wiring.
+- v2 `_schema.roles` (lines 138–153, 544–581) returns Boolean perms via
+  `roleToMap()`. No `_schema.groups` query.
+- No group CRUD mutations anywhere in v2 GraphQL.
+- v2 backend already has the right model: `PermissionSet` (per-table
+  TablePermissions × per-verb SelectScope + changeOwner/changeGroup),
+  `SqlRoleManager.{set,get}Permissions(role, ps)` round-trip.
+- Existing GraphQL test surface: `TestGraphqlSchemaFields` (integration).
+  No dedicated permission test class yet.
+
+Divergences from source-branch port:
+1. **Source's `inputPermissionFgType` carries SELECT as `[SelectScope]` list**
+   (legacy multi-scope shape). v2's `PermissionSet.TablePermissions.select`
+   is a single `SelectScope`. Port as single-value, not list.
+2. **Source has no group CRUD** — net-new in v2 (slice 6.D) reading/writing
+   `MOLGENIS.groups_metadata` (Phase 1 table).
+3. **Source's `_schema.roles`** returns Boolean perms; v2 must expose the
+   per-verb scope + booleans from PG ROLE COMMENT JSON.
+4. **Storage**: source reads from SqlRoleManager too — keep alignment, no
+   metadata-table fallback.
+
+Slice plan (each slice independently testable, RED-GREEN per slice):
+
+- **6.A — Port `GraphqlPermissionFieldFactory` (types + helpers).** New file
+  `backend/molgenis-emx2-graphql/.../GraphqlPermissionFieldFactory.java`
+  with: `selectScopeEnumType`, `updateScopeEnumType` (DELETE/INSERT/UPDATE
+  use single SelectScope value, restricted via Java-side validation to
+  NONE/OWN/GROUP/ALL), `effectivePermissionType`, `rolePermissionsOutputType`,
+  `inputPermissionType`, `inputRoleType` matching v2's PermissionSet shape
+  (single SelectScope per verb + changeOwner/changeGroup booleans). Helper
+  coercions (`toSelectScope`, `toPermissionSet`). No mutation wiring yet.
+  Tests: factory unit test asserting GraphQL type names + field shapes.
+  **Status (2026-05-05): GREEN — 11/11 tests pass.** Per-table type renamed
+  `tablePermissionInputType` / `tablePermissionOutputType` (clearer than
+  `inputPermissionType` once `inputRoleType` exists alongside). Single
+  `SelectScope` enum reused for all verbs (no separate `UpdateScope`);
+  write-verb validation rejects view-mode scopes (EXISTS/COUNT/RANGE/
+  AGGREGATE). `changeOwner` / `changeGroup` live on outer `inputRoleType`,
+  matching `PermissionSet` shape. Private constructor — all static.
+- **6.B — Replace `change(roles)` mutation with PermissionSet path.**
+  Replace existing `inputRoleType`/`changeRoles` in `GraphqlSchemaFieldFactory`
+  with the 6.A types. `changeRoles` calls `SqlRoleManager.setPermissions(role,
+  ps)` with full per-verb scopes + change flags. Tests in
+  `TestGraphqlPermissions` (new): set per-verb scopes via mutation; round-trip
+  via `_schema.roles`.
+  **Status (2026-05-05): GREEN — 4/4 tests pass.** `inputPermissionType` and
+  old `inputRoleType` (Boolean-based) removed from `GraphqlSchemaFieldFactory`;
+  `change(roles)` arg now uses `GraphqlPermissionFieldFactory.inputRoleType`.
+  `changeRoles` refactored: skips system roles (continue), creates custom role
+  via `SqlRoleManager.createRole(schema, name, desc)` if not present, calls
+  `toPermissionSet` + `setPermissions`. `mapToTablePermission` deleted (no
+  callers). `SqlDatabase`/`SqlRoleManager` imports added. `TestGraphqlPermissions`
+  covers: round-trip via PermissionSet, idempotent overwrite, invalid view-mode
+  scope throws, mixed system+custom input succeeds. Schema name `TGraphqlPermSchema`
+  (short) to keep policy names under 63-byte PG limit. Regression: 11/11
+  `TestGraphqlPermissionFieldFactory` + 25/25 `TestGraphqlSchemaFields` green.
+- **6.C — Scope-ceiling authorization on role grant/edit.** Port
+  `requireManagerOrOwner()` from source into 6.A. Wire into mutation entry
+  points. Tests: Manager/Owner allowed; Editor/Viewer denied; admin allowed.
+  **Status (2026-05-05): GREEN — 10/10 tests in `TestGraphqlPermissions` (4 from
+  6.B + 6 new); 11/11 `TestGraphqlPermissionFieldFactory`; 25/25
+  `TestGraphqlSchemaFields`; total 46→51 tests, 0 failed, 0 skipped.**
+  `requireManagerOrOwner(Database db, Schema schema)` added as public static to
+  `GraphqlPermissionFieldFactory`: admin short-circuits; null schema or schema
+  where active user lacks Manager/Owner throws `MolgenisException("Only Manager
+  or Owner can grant custom roles on schema <name>")`. `changeRoles` in
+  `GraphqlSchemaFieldFactory` checks for any custom role in the input list first;
+  if present, calls `requireManagerOrOwner` before any `SqlRoleManager` work
+  (system-role-only inputs bypass the gate, preserving master-parity for system
+  role assignment). No-role user test exercises `requireManagerOrOwner` directly
+  (user has no schema access so `database.getSchema()` returns null — guard
+  handles the null case correctly). `GraphqlConstants.java` also staged (was
+  unstaged from 6.A/6.B).
+- **6.D — Group CRUD mutations.** Add to schema mutation surface:
+  `createGroup(schema, name)`, `deleteGroup(schema, name)`,
+  `addGroupMember(schema, group, user)`, `removeGroupMember(schema, group,
+  user)`. All write `MOLGENIS.groups_metadata` (Phase 1 table). Apply
+  `requireManagerOrOwner` ceiling. Tests: round-trip create→add→remove→
+  delete; ref_array FK rejects non-existent users; non-Manager denied.
+  **Status (2026-05-05): GREEN — 62/62 tests pass (51 from 6.A–6.C/6.F + 11
+  new in TestGraphqlGroups). 0 failures, 0 skipped.** Implementation:
+  four new `public` methods on `SqlRoleManager` (`createGroup`, `deleteGroup`,
+  `addGroupMember`, `removeGroupMember`) use `getJooqAsAdmin` for admin-level
+  writes to `MOLGENIS.groups_metadata`; four matching `GraphQLFieldDefinition`
+  builders in `GraphqlSchemaFieldFactory` delegate to `SqlRoleManager` and call
+  `requireManagerOrOwner` at entry. Registered in `GraphqlFactory.forSchema`.
+  `addGroupMember` is idempotent via `array(SELECT DISTINCT unnest(users ||
+  ARRAY[user]))`. `removeGroupMember` is idempotent via `array_remove`. Mutation
+  arguments: `createGroup(name)`, `deleteGroup(name)`, `addGroupMember(group,
+  user)`, `removeGroupMember(group, user)`. Non-existent user validated via
+  `MOLGENIS.users_metadata` lookup before array append.
+- **6.E — `_schema.groups` query.** Add `groups: [GroupOutput]` field to
+  `_schema` output. Each entry: `name`, `members: [User]`. Tests: query
+  returns expected groups; visibility: any user can read groups (membership
+  is not sensitive in v2 design — confirm with user if a ceiling is needed).
+  **Status (2026-05-05): GREEN — 67/67 tests pass (TestGraphqlGroups 16/16
+  including 5 new 6.E query tests, TestGraphqlPermissions 19/19,
+  TestGraphqlPermissionFieldFactory 11/11, TestGraphqlSchemaFields 25/25). 0
+  failures, 0 skipped.** Visibility decision: no ceiling — groups are readable
+  by all users with schema access. Rationale: `current_user_groups()` already
+  exposes group names as part of row filtering; gating the listing would be
+  inconsistent without adding privacy. Implementation: `SqlRoleManager.listGroups
+  (Schema)` queries `MOLGENIS.groups_metadata` via `getJooqAsAdmin` and returns
+  `List<Map<String,Object>>` with `name`/`users` entries. `GraphqlConstants.GROUPS`
+  constant added. `GraphqlPermissionFieldFactory.groupOutputType` (`MolgenisGroupOutput`)
+  declared with `name: String` + `users: [String]`. Field `groups:
+  [MolgenisGroupOutput]` added to `MolgenisSchema` unconditionally (parallel to
+  `customRoles`). `queryFetcher` populates `GROUPS` key via `listGroups`. Phase 6
+  complete — all slices 6.A–6.F are green.
+- **6.F — `_schema.customRoles` per-verb scope output.** Decision: parallel
+  field approach. `_schema.roles` unchanged (Boolean shape, system + custom
+  roles, backward compat). New `_schema.customRoles: [MolgenisRoleOutput]`
+  lists only custom roles with full PermissionSet output (per-table per-verb
+  scopes + changeOwner/changeGroup booleans). Implementation:
+  `GraphqlConstants.CUSTOM_ROLES` constant; `GraphqlPermissionFieldFactory
+  .permissionSetToMap(roleName, ps)` converts PermissionSet → GraphQL map;
+  `queryFetcher` in `GraphqlSchemaFieldFactory` calls `roleManager.listRoles(
+  schema)` + `getPermissions(schema, role)` for each custom role and puts the
+  result under `customRoles`. Schema output type gains the new field referencing
+  `roleOutputType` from 6.A. Tests in `TestGraphqlPermissions`: round-trip
+  (set via mutation, query customRoles, assert per-verb scopes + flags);
+  multiple custom roles all listed; schema with no custom roles → empty array;
+  system roles absent from customRoles; legacy `roles` field still contains
+  system roles. Verified grep: no existing test queries `_schema { roles { … }
+  }` → extend-vs-parallel verdict: parallel field is the safe choice (legacy
+  `roles` output type uses Boolean per-verb shape; customRoles uses scope enum
+  — two incompatible shapes, no single-field extension possible without a
+  breaking change to the Boolean shape).
+  **Status (2026-05-05): GREEN — 51/51 tests pass (TestGraphqlPermissions
+  19/19 including 5 new 6.F tests, TestGraphqlPermissionFieldFactory 11/11,
+  TestGraphqlSchemaFields 25/25). 0 failures, 0 skipped.**
+
+Phase 6 exits when 6.A–6.F are green and combined-suite is still zero
+new failures (existing 5 graphql JWT failures stay deferred per user).
+
 ### Phase 7 — Tests, performance, hardening
 
 1. **Continuous master compatibility**: existing master tests must keep
