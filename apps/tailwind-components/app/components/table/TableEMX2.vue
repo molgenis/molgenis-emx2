@@ -39,54 +39,54 @@
       class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
       v-on:scroll.native="handleStickyHeaderOffset"
     >
-      <table
-        id="table-header-static"
-        ref="table-header-static"
-        :class="{ hidden: !showStickyHeader }"
-        class="border text-left w-full table-fixed fixed top-0 z-10 bg-table"
-      >
-        <thead>
-          <tr>
-            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
-              <TableHeaderAction
-                :column="{ id: 'mg_draft', label: 'Draft' }"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-            <TableHeadCell
-              v-for="column in sortedVisibleColumns"
-              :style="{
-                width: columnWidths[column.id] + 'px',
-                userSelect: isResizing ? 'none' : 'auto',
-              }"
-              class="relative group"
-            >
-              <div
-                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
-                @mousedown.stop="startResize($event, column.id)"
+      <div 
+          class="fixed  top-0 z-10 overflow-hidden" :class="{ hidden: !showStickyHeader }">
+        <table
+          ref="tableHeaderFixed"
+          class="border-0 text-left w-full table-fixed bg-table"
+        >
+          <thead>
+            <tr>
+              <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
+                <TableHeaderAction
+                  :column="{ id: 'mg_draft', label: 'Draft' }"
+                  :schemaId="schemaId"
+                  :tableId="tableId"
+                  :settings="settings"
+                  @sort-requested="handleSortRequest"
+                />
+              </TableHeadCell>
+              <TableHeadCell
+                v-for="column in sortedVisibleColumns"
+                :style="{
+                  width: columnWidths[column.id] + 'px',
+                  userSelect: isResizing ? 'none' : 'auto',
+                }"
+                class="relative group"
               >
                 <div
-                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
+                  class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
+                  @mousedown.stop="startResize($event, column.id)"
+                >
+                  <div
+                    class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
+                  />
+                </div>
+                <TableHeaderAction
+                  :column="column"
+                  :schemaId="schemaId"
+                  :tableId="tableId"
+                  :settings="settings"
+                  @sort-requested="handleSortRequest"
                 />
-              </div>
-              <TableHeaderAction
-                :column="column"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-          </tr>
-        </thead>
-      </table>
-
+              </TableHeadCell>
+            </tr>
+          </thead>
+        </table>
+      </div>
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
-          <tr>
+          <tr id="tableHead">
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
               <TableHeaderAction
                 :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -347,6 +347,7 @@ const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const stickyHeaderOffset = ref(0);
 const tableContainer = ref<HTMLElement | null>(null);
+const tableHeaderFixed = ref<HTMLElement | null>(null);
 
 const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
   useColumnResize(tableContainer);
@@ -386,22 +387,40 @@ const { data, refresh } = useAsyncData(
 );
 
 if (process.client) {
+  
+
   window.addEventListener("scroll", (event) => {
+    const target = event.target as HTMLElement;
     const rect = tableContainer?.value?.getBoundingClientRect();
     const top = rect?.top ?? 0;
-    console.log("y-axis: " + top);
     showStickyHeader.value = top <= 0;
-  });
+    updateStickyHeaderWidth();
+
+    const tableHead = target.querySelector(
+      "#tableHead"
+    ) as HTMLElement;
+    
+    const tableHeadHeight=tableHead.getBoundingClientRect().height;
+    if(rect?.bottom &&rect?.bottom <= tableHeadHeight) {
+      showStickyHeader.value = false;
+    }
+});
 }
+
 function handleStickyHeaderOffset(event: Event) {
   const target = event.target as HTMLElement;
   const { scrollLeft } = target;
-  console.log("x-axis: " + scrollLeft);
-  const tableFixed = target.querySelector(
-    "#table-header-static"
-  ) as HTMLElement;
-  if (tableFixed) {
-    tableFixed.style.transform = `translateX(-${scrollLeft}px)`;
+  if(tableHeaderFixed.value) {
+    tableHeaderFixed.value.style.transform = `translateX(-${scrollLeft}px)`;
+  }
+  updateStickyHeaderWidth();
+}
+
+function updateStickyHeaderWidth() {
+  const tableFixedContainer = tableHeaderFixed.value?.parentElement;
+  if (tableFixedContainer) {
+    tableFixedContainer.style.width =
+      tableFixedContainer.parentElement?.clientWidth + "px";
   }
 }
 
