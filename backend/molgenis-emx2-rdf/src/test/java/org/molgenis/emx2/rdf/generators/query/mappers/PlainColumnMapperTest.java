@@ -74,4 +74,31 @@ class PlainColumnMapperTest {
     assertHasSelectors(mapper, "?foo___bar");
     assertHasGroupBy(mapper, "?foo___bar");
   }
+
+  @Test
+  void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
+    Column column =
+        Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test");
+    PlainColumnMapper mapper = new PlainColumnMapper(START, column);
+    assertHasPatterns(mapper, "?start <https://example.org/ns#test> ?foo .");
+    assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
+  }
+
+  @Test
+  void givenColumnWithMultipleSemantics_whenSemanticIsIRI_thenSurroundWithPointyBrackets() {
+    Column column =
+        Column.column("foo")
+            .setRequired(false)
+            .setSemantics("foaf:test", "http://example.org/ns#test");
+    PlainColumnMapper mapper = new PlainColumnMapper(START, column);
+    assertHasPatterns(
+        mapper,
+        """
+            OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
+            OPTIONAL { ?start <http://example.org/ns#test> ?foo1 . }
+            BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo ) }""");
+    assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
+  }
 }

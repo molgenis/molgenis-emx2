@@ -61,7 +61,8 @@ public class PlainColumnMapper implements ColumnMapper {
     }
 
     String semantic = column.getSemantics()[0];
-    GraphPattern pattern = GraphPatterns.tp(subject, () -> semantic, object);
+    GraphPattern pattern =
+        GraphPatterns.tp(subject, ColumnSemanticMapper.resolveIri(semantic), object);
 
     return List.of(isRequired ? pattern : pattern.optional());
   }
@@ -74,7 +75,8 @@ public class PlainColumnMapper implements ColumnMapper {
       String semantic = column.getSemantics()[i];
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
-      GraphPattern pattern = GraphPatterns.tp(subject, () -> semantic, alias).optional();
+      GraphPattern pattern =
+          GraphPatterns.tp(subject, ColumnSemanticMapper.resolveIri(semantic), alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }
