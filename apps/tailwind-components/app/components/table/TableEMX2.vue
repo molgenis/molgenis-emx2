@@ -39,8 +39,10 @@
       class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
       v-on:scroll.native="handleStickyHeaderOffset"
     >
-      <div 
-          class="fixed  top-0 z-10 overflow-hidden" :class="{ hidden: !showStickyHeader }">
+      <div
+        class="fixed top-0 z-10 overflow-hidden aria-hidden=true"
+        :class="{ hidden: !showStickyHeader }"
+      >
         <table
           ref="tableHeaderFixed"
           class="border-0 text-left w-full table-fixed bg-table"
@@ -390,8 +392,6 @@ const { data, refresh } = useAsyncData(
 );
 
 if (process.client) {
-  
-
   window.addEventListener("scroll", (event) => {
     const target = event.target as HTMLElement;
     const rect = tableContainer?.value?.getBoundingClientRect();
@@ -399,21 +399,19 @@ if (process.client) {
     showStickyHeader.value = top <= 0;
     updateStickyHeaderWidth();
 
-    const tableHead = target.querySelector(
-      "#tableHead"
-    ) as HTMLElement;
-    
-    const tableHeadHeight=tableHead.getBoundingClientRect().height;
-    if(rect?.bottom &&rect?.bottom <= tableHeadHeight) {
+    const tableHead = target.querySelector("#tableHead") as HTMLElement;
+
+    const tableHeadHeight = tableHead.getBoundingClientRect().height;
+    if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
       showStickyHeader.value = false;
     }
-});
+  });
 }
 
 function handleStickyHeaderOffset(event: Event) {
   const target = event.target as HTMLElement;
   const { scrollLeft } = target;
-  if(tableHeaderFixed.value) {
+  if (tableHeaderFixed.value) {
     tableHeaderFixed.value.style.transform = `translateX(-${scrollLeft}px)`;
   }
   updateStickyHeaderWidth();
