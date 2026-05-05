@@ -192,21 +192,6 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Set<String> getTablesWithSelectPermission() {
-    if (tablesWithSelectPermission == null) {
-      tablesWithSelectPermission =
-          schema
-              .getDatabase()
-              .getRoleManager()
-              .getTablePermissionsForActiveUser(schema.getName())
-              .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
-              .map(TablePermission::table)
-              .collect(Collectors.toUnmodifiableSet());
-    }
-    return tablesWithSelectPermission;
-  }
-
   private List<Field<?>> rowSelectFields(
       TableMetadata table, String tableAlias, SelectColumn selection) {
 
