@@ -202,11 +202,11 @@ class SqlSchemaMetadataExecutor {
 
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
-
-          db.getJooq()
-              .execute(
-                  "REVOKE {0} FROM {1}",
-                  name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
+          String roleFull = roleprefix + m.getRole();
+          String userFull = userprefix + m.getUser();
+          db.getJooqAsAdmin(
+              adminJooq ->
+                  adminJooq.execute("REVOKE {0} FROM {1}", name(roleFull), name(userFull)));
         }
       }
     } catch (DataAccessException dae) {

@@ -704,9 +704,16 @@ public class MetadataUtils {
   }
 
   public static Map<String, String> loadDatabaseSettings(DSLContext jooq) {
+    if (jooq.meta().getSchemas(MOLGENIS).isEmpty()) {
+      return new LinkedHashMap<>();
+    }
     org.jooq.Record databaseRecord =
         jooq.selectFrom(DATABASE_METADATA).where(DATABASE_ID.eq(1)).fetchOne();
-    return databaseRecord.get(SETTINGS, Map.class);
+    if (databaseRecord == null) {
+      return new LinkedHashMap<>();
+    }
+    Map<String, String> settings = databaseRecord.get(SETTINGS, Map.class);
+    return settings != null ? settings : new LinkedHashMap<>();
   }
 
   public static void saveUserMetadata(DSLContext jooq, User user) {

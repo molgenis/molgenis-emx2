@@ -20,13 +20,18 @@ cut the new worktree from master, copy this file across as the starting point.
   one-role-per-user-per-schema constraint, plus our scope lattice and
   privacy-mode enforcement.
 
-## Model (locked)
+## Model
 
-- **Role**: per-schema named permissionset. **Exactly one per user per schema**.
-  Declares per-table per-verb scope ∈ `{NONE, OWN, GROUP, ALL}` plus
-  `changeOwner` / `changeGroup` boolean flags. Stored as PG role
-  `MG_ROLE_<schema>/<name>`. Permission scopes encoded in emitted policy DDL
-  (no central metadata table).
+> **Phase 7 supersedes parts of this section.** Phases 1–6 were implemented
+> against the v2-shape model below. Phase 7 redesigns Role assignment,
+> Storage, Policy emission, and Custom role exclusivity. See Phase 7 for the
+> canonical current intent. Sections marked **[v2 / superseded]** are kept
+> as the as-built record of Phases 1–6.
+
+- **Role** [v2 / superseded by Phase 7]: per-schema named permissionset, exactly
+  one per user per schema, scope encoded in emitted policy DDL.
+  Phase 7: many memberships per (user, schema) via per-group assignment;
+  scopes stored in `MOLGENIS.role_permission_metadata`.
 - **Group**: per-schema named user-list. **Many memberships per user**. Pure
   membership only — no permissions, no description (just a name; log table can
   come later if needed). Stored as a row in `MOLGENIS.groups_metadata` with
@@ -156,31 +161,42 @@ values `NONE | EXISTS | COUNT | RANGE | AGGREGATE | OWN | GROUP | ALL` —
 same shape as the current branch, conflating row-scope and view-mode in one
 ordered ladder. This serves us today and the test surface already exists.
 
-**Storage** (decided): the JSON document attached to the PG role via
-`COMMENT ON ROLE` is the canonical PermissionSet — full per-table per-verb
-scope record, plus the changeOwner/changeGroup booleans (which are
-double-recorded as column grants for SQL-layer enforcement). Java reads the
-COMMENT for view-mode lookups; policies and grants are derived projections.
-No metadata table.
+**Storage** [v2 / superseded by Phase 7]: v2 used JSON in `COMMENT ON ROLE` as
+the canonical PermissionSet. Phase 7 replaces this with normalized
+`MOLGENIS.role_permission_metadata` (per-table per-verb scopes +
+changeOwner/changeGroup booleans + description) and
+`MOLGENIS.group_membership_metadata` (per-(user, schema, group, role)
+assignment). PG GRANTs and RLS policies become derived projections from
+those tables; column-level GRANTs for changeOwner/changeGroup are
+re-evaluated in 7.A (REQ-3).
 
-### Custom role exclusivity (one per user per schema)
+### Custom role exclusivity [v2 / superseded by Phase 7]
 
-Enforced at grant time in Java (not in PG). Before `GRANT MG_ROLE_<schema>/<x>
-TO MG_USER_<u>`, check `pg_auth_members` for any other `MG_ROLE_<schema>/*`
-already granted to `<u>` and reject. System roles are excluded from this
-check.
+v2 enforced "exactly one custom role per user per schema" at grant time in
+Java by inspecting `pg_auth_members`. Phase 7 drops this rule entirely; a
+user can hold multiple roles in one schema, one per group, via rows in
+`MOLGENIS.group_membership_metadata`. The PK
+`(user, schema, group, role)` enforces uniqueness only at the assignment
+tuple level. This unlocks REQ-1 (asymmetric collaboration).
 
 ### System role coexistence
 
-Owner, Manager, Editor, Viewer at session level have `BYPASSRLS` set on the
-PG role (master behaviour, untouched). Result: when a user is acting through a
-system role, all custom-role policies are skipped. When the same user acts
-through a custom role only, policies apply.
+> **Phase 7 (2026-05-06): BYPASSRLS dropped — Path A locked.** v2 sections
+> below describe the legacy mechanic; Phase 7 unifies system and custom
+> roles through `role_permission_metadata`.
 
-If a user has both a system role and a custom role granted in a schema, PG
-session attribution is by `SET ROLE` (the active role determines BYPASSRLS).
-Default: `SET ROLE` to the most-permissive system role available for ergonomic
-parity with master. Override available via session config if needed.
+[Phase 7] Owner, Manager, Editor, Viewer have **no** `BYPASSRLS`. Their
+authority is materialised as immutable seeded rows in
+`role_permission_metadata` with `table_name='*'` (Owner/Manager/Editor =
+ALL on every verb; Viewer = ALL select, NONE writes). Access functions
+resolve the wildcard row first then fall back to exact-table custom-role
+rows, so a user holding both a system and a custom role in a schema sees
+the union of both authorities through one uniform RLS path.
+
+[v2 / superseded] Owner, Manager, Editor, Viewer at session level had
+`BYPASSRLS` set on the PG role (master behaviour). Mixed-role users
+`SET ROLE`d to the most-permissive system role for ergonomic parity,
+bypassing custom-role policies — the structural defect REQ-2 records.
 
 ## Phases
 
@@ -1027,7 +1043,411 @@ Targeted tests: `TestGraphqlPermissions` 17/17, `TestGraphqlPermissionFieldFacto
 Phase 6 exits when 6.A–6.F are green and combined-suite is still zero
 new failures (existing 5 graphql JWT failures stay deferred per user).
 
-### Phase 7 — Tests, performance, hardening
+#### TestSettings relocate (2026-05-05)
+Addresses the Phase 5 deferred follow-up (documented in "Phase 5 boundary follow-up 2026-05-03"):
+`TestSettings` (sql module) was identified as the likely culprit for `MOLGENIS_JWT_SHARED_SECRET`
+truncation — its `testDatabaseSetting`/`testDeleteDatabaseSetting` tests call `db.setSetting()`
+inside `SqlDatabase.tx()`, which writes a truncated settings map back to `MOLGENIS.database_metadata.settings`,
+losing the JWT secret installed by `InitDatabase`. `TestColumnTypeIsFile` (io module) then fails
+with an init error because the secret is gone.
+
+Fix: `TestSettings.java` moved from `:backend:molgenis-emx2-sql:test` to
+`:backend:molgenis-emx2-nonparallel-tests:test` (same package `org.molgenis.emx2.sql`, same class name).
+`nonparallel-tests` runs last in the canonical combined-suite, after `io`. No code changes — pure
+relocation. `TestDatabaseFactory` is in `molgenis-emx2-sql:main` and already reachable via
+`testImplementation project(':backend:molgenis-emx2-sql')` in `nonparallel-tests/build.gradle`.
+Same precedent as `TestRoleManagerColumnGrantEnforcement` (Phase 5).
+
+User should verify the combined-suite floor at the next phase boundary — specifically confirm
+`TestColumnTypeIsFile` no longer reports `initializationError` and the JWT-secret-null failures
+in graphql tests are reduced (or eliminated if this was their sole cause).
+
+#### SqlDatabaseTest relocate (2026-05-05)
+Addresses the confirmed cascade: `SqlDatabaseTest.OIDCFlagDefaultsFalse` / `enableOIDCFlagViaSettings`
+call `sqlDatabase.setSettings(Maps.newHashMap())` (not `setSetting`, but the bulk-replace overload),
+which truncates `MOLGENIS.database_metadata.settings` and wipes `MOLGENIS_JWT_SHARED_SECRET`. Downstream
+graphql tests (`TestGraphqlAdminFields.testSetUserAdmin`, `TestGraphqlDatabaseFields.testRegisterAndLoginUsers`,
+`TestGraphqlSchemaFields.testSession`, `TestTokenBasedAccess.testJWTgenerator`) then NPE in `JWTgenerator`.
+
+Fix: same pattern as `TestSettings` — moved `SqlDatabaseTest.java` from `:backend:molgenis-emx2-sql:test`
+to `:backend:molgenis-emx2-nonparallel-tests:test`. Added `'uk.org.webcompere:system-stubs-jupiter:2.1.8'`
+to `nonparallel-tests/build.gradle` (was only in `molgenis-emx2-sql/build.gradle`). No code changes.
+
+These repeated relocations point to a real underlying bug in `SqlDatabase.setSettings` / `tx` / `sync`:
+the tx-copy/sync asymmetry means any test calling the bulk `setSettings(Map)` overload at module-test
+scope permanently overwrites the database-level settings row, including keys the test didn't touch.
+Any test in any module that calls `setSettings` will keep finding new ways to leak into later modules.
+Tracked as Phase 7 hardening scope.
+
+### Phase 7 — settings-merge fix (2026-05-05)
+
+Root cause of the repeated settings-truncation failures fixed properly.
+
+**Two-part fix in `SqlDatabase`:**
+
+1. `setSettings(Map)` — MERGE semantics: loads current DB state via `MetadataUtils.loadDatabaseSettings(jooq)`, overlays the caller-supplied keys, persists the merged map. Partial callers (e.g., a test that only supplies `IS_OIDC_ENABLED`) no longer truncate keys they don't know about (e.g., `MOLGENIS_JWT_SHARED_SECRET`).
+
+2. `removeSetting(String)` — new override: loads DB state, removes the key, persists, updates in-memory. Required because the base class `HasSettings.removeSetting` delegates to `setSettings(fullMapMinusKey)`, which under merge semantics would NOT remove the key (the DB-loaded existing state still contains it). The override bypasses that indirection.
+
+3. `tx()` fresh-load: after `db.setJooq(ctx)`, calls `db.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(ctx))` to ensure the tx-copy's in-memory state reflects committed DB state, not potentially stale parent in-memory.
+
+**Test changes:**
+
+- `SqlDatabaseTest.OIDCFlagDefaultsFalse` — replaced `setSettings(emptyMap())` (now a no-op under merge) with `removeSetting(IS_OIDC_ENABLED)`.
+- `SqlDatabaseTest.enableOIDCFlagViaSettings` — replaced `setSettings({key:value})` calls with `setSetting(key, value)`.
+- `TestSettingsMerge` — new test class in `nonparallel-tests` covering: merge-on-top-of-existing-keys, merge verified after `clearCache()`, explicit `removeSetting` deletes key from DB.
+
+**Callers of `setSettings(emptyMap())` found:** `SqlDatabaseTest.OIDCFlagDefaultsFalse` — now fixed. No other production callers found.
+
+**TODO:** evaluate whether `TestSettings` and `SqlDatabaseTest` can move back to the `molgenis-emx2-sql` module (they were relocated as a band-aid). With merge semantics, any test calling `setSettings(partial)` no longer truncates keys — the relocation is no longer strictly necessary for test isolation. A follow-up can confirm at the next combined-suite run.
+
+**Bootstrap-tolerance follow-up (2026-05-05):** `MetadataUtils.loadDatabaseSettings` now guards against missing MOLGENIS schema/table during bootstrap — returns empty `LinkedHashMap` if schema absent or `database_metadata` row missing. Same guard pattern as `getVersion()`. Fixes `AToolToCleanDatabase` / fresh-DB init path that called `tx()` before MOLGENIS schema existed. `nonparallel-tests:test` 12/12 green.
+
+#### Phase 6 `TablePermissionsGraphqlTest` green (2026-05-05)
+`TablePermissionsGraphqlTest` (15 tests in `molgenis-emx2-webapi`) fully green. Five production bugs
+found and fixed:
+
+1. **Policy name overflow → SHA-1 hash fallback.** `buildPolicyName` in `SqlRoleManager` now truncates
+   overlong names (> 63 bytes) to `MG_P_` + 12-char SHA-1 hex instead of throwing. Fixes tests with
+   long schema names like `TablePermissionsGqlTest`.
+
+2. **`pg_authid` permission denied.** `getPermissions(Schema, String)` used user-context jooq to query
+   `pg_authid` (superuser-only). Fixed by using `database.getJooqAsAdmin(...)`.
+
+3. **`createRole(Schema, String, String)` missing grants.** New role-creation path (Phase 6) was missing
+   `GRANT existsRole TO fullRole` (schema visibility) and `GRANT fullRole TO ownerRole WITH ADMIN OPTION`
+   (owner delegation). Added both, matching the old `createRole(String, String)` path.
+
+4. **`grant(String, String, TablePermission)` doesn't update JSON.** The old `SqlSchema.grant()` API only
+   applied PG grants; `resolvePermissionsForRole` reads from the JSON comment in `pg_authid`. Fixed by
+   adding `updateJsonPermission(...)` after `applyPgGrants`. Now `schema.grant()` keeps JSON + PG in sync.
+   Tests 10 and 13 use this path.
+
+5. **Custom role member add/remove requires admin.** Three separate paths now use admin elevation:
+   - `changeMembers` in `GraphqlSchemaFieldFactory`: routes custom-role grants through `SqlRoleManager.grantRoleToUser` (which already calls `becomeAdmin()`) instead of `schema.addMember()`.
+   - `executeRemoveMembers` in `SqlSchemaMetadataExecutor`: `REVOKE role FROM user` now uses `db.getJooqAsAdmin(...)`.
+   - `dropRoles` in `GraphqlSchemaFieldFactory`: uses `roleManager.deleteRole(schema, roleName)` (new `DROP OWNED BY` path) instead of `schema.deleteRole()` (old path that doesn't remove column-level grants, causing `DROP ROLE` to fail).
+
+Targeted tests: `TablePermissionsGraphqlTest` 15/15, `SqlRoleManagerTest` 55/55,
+`TestGraphqlPermissions` 16/16, `TestGraphqlPermissionFieldFactory` 13/13. 0 failed.
+
+### Phase 7 — pg_authid → pg_roles + revoke/drop JSON sync (2026-05-05)
+
+All `pg_authid` table references in `SqlRoleManager` replaced with `pg_roles` (publicly-readable view; same `rolname`/`oid` columns). The `pg_shdescription` join clause retains `classoid = 'pg_authid'::regclass` (catalog class identifier, not a table read). Removes superuser dependency on all comment-read paths; `getJooqAsAdmin` retained only for `COMMENT ON ROLE` writes.
+
+Two additional bugs fixed discovered by this change:
+
+1. **`revoke()` did not update JSON comment.** `REVOKE ALL ON table FROM role` removed PG privilege but left the role's JSON comment intact; `resolvePermissionsForRole` reads that comment, so the user still appeared to have select access. Fixed: `revoke()` now calls `clearJsonPermission(fullRole, tableName)` which removes the table key from the JSON and writes `COMMENT ON ROLE`.
+
+2. **`dropTable()` did not clear JSON.** Dropping and recreating a table cleared PG ACLs (fresh table) but left all custom role comments unchanged; any role that previously had a grant on the table still appeared to have access. Fixed: `SqlSchema.dropTable()` now calls `roleManager().clearTableFromAllRoles(this, tableName)` before the drop.
+
+Targeted tests: `TestTableRoleManagement` 26/26, `SqlRoleManagerTest` 38/38, `TablePermissionsGraphqlTest` 15/15, `TestGraphqlPermissions`+`TestGraphqlPermissionFieldFactory` 29/29. 0 failed.
+
+### Phase 7 — Per-group role model + normalized storage + shared policies
+
+**Goal**: redesign the storage and assignment model in place on this branch
+to fix two structural defects of v2:
+
+1. **v2 cannot express asymmetric collaboration** (REQ-1 in spec). One
+   custom role per user per schema is an invariant baked into the policy
+   generator, not an extension point.
+2. **PG ROLE COMMENT JSON is the wrong storage** for permissions that are
+   themselves a regulated artifact: not queryable in SQL, not indexable,
+   not validatable, no audit trail, no transactional link to the GRANTs
+   it drives.
+
+**Process**: clean-sheet replacement on this branch. **No fresh worktree**,
+**no migration script** — the branch is unreleased. Rewrite v2 Phases 2–3
+in place; Phases 1, 4, 5, 6 mostly port verbatim with the storage swap.
+
+**REQ-2 (BYPASSRLS) — RESOLVED 2026-05-06 (Path A).** Drop `BYPASSRLS`
+from system roles; seed Owner/Manager/Editor/Viewer as immutable rows
+in `role_permission_metadata` with `table_name='*'` (wildcard). Access
+functions resolve `*` first then exact-table match. RLS becomes the
+uniform authorization layer. See `.plan/specs/rls_v2.md` REQ-2.
+
+#### What survives v2 verbatim
+
+- `mg_owner` column + emx2 row-lifecycle trigger.
+- `mg_groups` REF_ARRAY column shape.
+- ref_array FK trigger for `mg_groups` integrity.
+- GIN index on `mg_groups`, B-tree on `mg_owner`.
+- `current_user_groups(schema)` STABLE function (driver changes — reads
+  the new membership table — but signature and call sites are unchanged).
+- View modes (EXISTS / COUNT / RANGE / AGGREGATE) Java enforcement —
+  AGGREGATE / EXISTS stay Java-only.
+- `SqlMolgenisException` 42501 → friendly message translation.
+- GraphQL surface shape from Phase 6 — `PermissionSet`, `inputRoleType`,
+  `roleOutputType`, `groupOutputType`, central change/delete mutations.
+  The types map onto the new tables instead of COMMENT JSON.
+
+#### What changes
+
+##### Storage tables (replace v2 COMMENT JSON)
+
+`MOLGENIS.role_permission_metadata` — canonical permission storage
+- `schema_name` TEXT NOT NULL
+- `role_name` TEXT NOT NULL
+- `table_name` TEXT NOT NULL
+- `select_scope` TEXT NOT NULL DEFAULT 'NONE'
+- `insert_scope` TEXT NOT NULL DEFAULT 'NONE'
+- `update_scope` TEXT NOT NULL DEFAULT 'NONE'
+- `delete_scope` TEXT NOT NULL DEFAULT 'NONE'
+- `change_owner` BOOLEAN NOT NULL DEFAULT FALSE
+- `change_group` BOOLEAN NOT NULL DEFAULT FALSE
+- `description` TEXT
+- `updated_by` TEXT NOT NULL  (set to `current_user` on write)
+- `updated_at` TIMESTAMPTZ NOT NULL DEFAULT now()
+- PK (`schema_name`, `role_name`, `table_name`)
+- FK `schema_name` → `MOLGENIS.schema_metadata(name)` ON DELETE CASCADE
+- FK (`schema_name`, `table_name`) → `MOLGENIS.table_metadata(schema_name, name)` ON DELETE CASCADE — **deferrable, only enforced when `table_name <> '*'`** (wildcard rows for system roles do not reference a specific table)
+- CHECK `select_scope IN ('NONE','EXISTS','COUNT','RANGE','AGGREGATE','OWN','GROUP','ALL')`
+- CHECK each write scope IN `('NONE','OWN','GROUP','ALL')`
+- INDEX (`schema_name`, `table_name`) — policy access function lookup
+- BEFORE UPDATE/DELETE TRIGGER `mg_protect_system_roles` rejecting writes where `role_name IN ('Owner','Manager','Editor','Viewer')`. INSERT permitted (seeder uses it on schema create).
+
+**System-role seeder** (Path A — REQ-2 resolution): on schema create, insert four rows with `table_name='*'`:
+- `Owner`,   `*`, select=ALL, insert=ALL,  update=ALL,  delete=ALL,  change_owner=true,  change_group=true
+- `Manager`, `*`, select=ALL, insert=ALL,  update=ALL,  delete=ALL,  change_owner=true,  change_group=true
+- `Editor`,  `*`, select=ALL, insert=ALL,  update=ALL,  delete=ALL,  change_owner=false, change_group=false
+- `Viewer`,  `*`, select=ALL, insert=NONE, update=NONE, delete=NONE, change_owner=false, change_group=false
+
+Access functions resolve `(schema, role, table='*')` first; if absent fall back to `(schema, role, table=<exact>)`. System roles never have exact-table rows; custom roles never have `*` rows.
+
+`MOLGENIS.group_membership_metadata` — replaces v2's `groups_metadata.users` array
+- `user_name` TEXT NOT NULL
+- `schema_name` TEXT NOT NULL
+- `group_name` TEXT NOT NULL
+- `role_name` TEXT NOT NULL
+- `granted_by` TEXT NOT NULL  (`current_user` at insert time)
+- `granted_at` TIMESTAMPTZ NOT NULL DEFAULT now()
+- PK (`user_name`, `schema_name`, `group_name`, `role_name`)
+- FK (`schema_name`, `group_name`) → `MOLGENIS.groups_metadata(schema, name)` ON DELETE CASCADE
+- FK `user_name` → `MOLGENIS.users_metadata(username)` ON DELETE CASCADE
+- INDEX (`user_name`, `schema_name`)
+
+`MOLGENIS.groups_metadata` — drop the `users` REF_ARRAY column. Membership
+moves to `group_membership_metadata` entirely. (Clean sheet — no backfill.)
+
+**Audit history is deferred** — out of scope for Phase 7. Per-table
+`_history` siblings + AFTER triggers can be added later without changing
+the core storage shape. Tracked as a Phase 8/9 hardening item.
+
+##### Access functions (drive RLS policies)
+
+```sql
+MOLGENIS.mg_can_read(p_schema, p_table, p_groups, p_owner) RETURNS BOOLEAN
+  -- ALL: any membership of the user in this schema whose role has
+  --      select_scope='ALL' on (p_schema, p_table).
+  -- GROUP: membership where role.select_scope='GROUP'
+  --        AND m.group_name = ANY(p_groups).
+  -- OWN: p_owner = current_user AND any membership where role.select_scope='OWN'.
+
+MOLGENIS.mg_can_write(p_schema, p_table, p_groups, p_owner, p_verb) RETURNS BOOLEAN
+  -- USING-side. Same three branches keyed off insert/update/delete_scope.
+
+MOLGENIS.mg_can_write_all(p_schema, p_table, p_groups, p_owner, p_verb) RETURNS BOOLEAN
+  -- WITH-CHECK side. Subset semantics: every group in p_groups must be
+  -- one the user has GROUP-or-ALL write authority in for this verb.
+  -- Closes "share row into a group I'm not in" hole by construction.
+```
+
+LANGUAGE sql STABLE PARALLEL SAFE. All three join `group_membership_metadata`
+to `role_permission_metadata` via `(role_name, schema_name)` and key off
+`current_user`.
+
+##### Per-table policy template (4 policies, never per-role)
+
+```sql
+ALTER TABLE <schema>.<table> ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY mg_p_<table>_select ON <schema>.<table> FOR SELECT
+  USING ( MOLGENIS.mg_can_read(...) );
+
+CREATE POLICY mg_p_<table>_insert ON <schema>.<table> FOR INSERT
+  WITH CHECK ( MOLGENIS.mg_can_write_all(..., 'insert') );
+
+CREATE POLICY mg_p_<table>_update ON <schema>.<table> FOR UPDATE
+  USING      ( MOLGENIS.mg_can_write    (..., 'update') )
+  WITH CHECK ( MOLGENIS.mg_can_write_all(..., 'update') );
+
+CREATE POLICY mg_p_<table>_delete ON <schema>.<table> FOR DELETE
+  USING ( MOLGENIS.mg_can_write(..., 'delete') );
+```
+
+Policy count: O(tables × 4). Independent of roles, groups, users.
+Capability changes never emit policy DDL — policies call functions that
+read current capability state. v2's per-(role × table × verb) emitter is
+deleted.
+
+##### Privacy floor in SQL
+
+`MOLGENIS.mg_privacy_count(p_table TEXT, p_filter TEXT) RETURNS BIGINT`
+returns `CEIL(COUNT(*)/10)*10` over the post-RLS-filtered table.
+`SqlQuery.getCountField` calls this when the user's effective view-mode
+scope is COUNT or RANGE. Direct-SQL `SELECT count(*)` by a COUNT-scoped
+user remains a documented residual gap (out of scope for Phase 7;
+requires column-level approach or wrapping view).
+
+#### Refinements over the raw v3 prompt
+
+1. **REQ-2 BYPASSRLS resolved before 7.B.** Pick option 1, 2, or 3 from
+   the spec. The redesign is incomplete if RLS remains advisory for
+   system roles.
+2. **Column-level `change_owner` / `change_group` GRANTs**: v3 prompt
+   keeps `MG_ROLE_<role>` PG-role inheritance, which makes the column
+   write authority "any group is enough" — a known soft spot v3 itself
+   defers. **Alternative**: drop `MG_ROLE_<role>` GRANT; enforce
+   `mg_owner` / `mg_groups` mutability via a verb-aware predicate inside
+   `mg_can_write_all` that checks the column being changed. Decide in
+   slice 7.A scout; default to the trigger/predicate path unless it
+   benchmarks materially slower than column GRANTs.
+3. **`mg_can_write_all` performance**: `p_groups <@ array_agg(...)`
+   evaluates per-row. Acceptable in spec but BENCHMARK before slice 7.C
+   exits. If the EXPLAIN shows pathological plans, fall back to a
+   precomputed materialized view of `(user, schema, table, verb) →
+   groups[]` updated by trigger on capability/membership changes.
+4. **Schema-wide ALL via capability row**: a user with role X in any
+   group, where X has `select_scope='ALL'` on T, sees ALL rows in T
+   regardless of the row's `mg_groups`. This is intended; write an
+   explicit assertion test so it doesn't read as a bug to a future
+   maintainer.
+5. **`updated_by` / `granted_by` audit columns**: set to `current_user`
+   at write time. Document that this is the SET-ROLE'd identity, not the
+   service account. If MOLGENIS introduces an "actor" concept distinct
+   from `current_user` later, revisit.
+6. **No `role_permission_metadata` row implies role NONE on that table**:
+   a role exists if it has at least one membership row OR at least one
+   capability row in the schema. `listRoles(schema)` → SELECT DISTINCT
+   role across both tables.
+
+#### Implementation slices
+
+**7.A — Lock-in decisions; design scout**
+- **REQ-2 — RESOLVED (Path A)**: drop `BYPASSRLS` from system roles;
+  materialise Owner/Manager/Editor/Viewer as immutable rows in
+  `role_permission_metadata` with `table_name='*'` (wildcard). Access
+  functions resolve `*` first, then exact `table_name` match. System-role
+  authority flows through the same policy predicates as custom roles —
+  no allow-all branch in the policy template. See spec REQ-2 for seed
+  values and immutability enforcement.
+- **System-role-on-RLS-transition behaviour**: when a normal table
+  becomes an RLS table, pre-existing PG GRANTs to system roles persist
+  but are no longer sufficient on their own; the seeded `*`-wildcard
+  rows in `role_permission_metadata` carry the access through the
+  policy predicates. No silent loss of access because the seeder runs
+  on schema create (and on Phase 7 migration of existing schemas).
+- **REQ-3** (column-grant vs predicate for `change_owner`/`change_group`).
+  Default to predicate-in-`mg_can_write_all` unless benchmarked slower.
+  Update spec when locked.
+- Confirm no `role_permission_metadata` / `group_membership_metadata`
+  symbol clashes with master.
+- Confirm `MOLGENIS.users_metadata(username)` PK shape unchanged.
+
+**7.B — Foundation: storage tables, seeder, access functions**
+- Add `createRolePermissionMetadata` and `createGroupMembershipMetadata` to
+  `MetadataUtils`. Wire from `Migrations.initOrMigrate`.
+- Add `mg_protect_system_roles` BEFORE UPDATE/DELETE trigger on
+  `role_permission_metadata` (rejects writes to system role names).
+- Add `seedSystemRoles(schema)` helper in `MetadataUtils`; call from
+  `SqlSchema.create` (and from a one-shot Phase 7 migration loop over
+  existing schemas on this branch).
+- **Drop `BYPASSRLS` and `NOBYPASSRLS` from system role definitions in
+  `MG_ROLE_OWNER_<schema>` / `MG_ROLE_MANAGER_<schema>` / `MG_ROLE_EDITOR_<schema>` / `MG_ROLE_VIEWER_<schema>`.**
+- Drop `users` array from `groups_metadata` schema definition.
+- Emit `mg_can_read`, `mg_can_write`, `mg_can_write_all` functions —
+  resolve `(schema, role, table='*')` first, fall back to exact match.
+- Emit `mg_privacy_count` function.
+- Update `current_user_groups(schema_name)` to read `group_membership_metadata`.
+- Targeted tests: `MetadataUtilsTest` (tables/functions/seed present;
+  trigger rejects system-role mutation), `TestAccessFunctions`
+  (truth-table coverage including system-role wildcard branch).
+
+**7.C — `SqlRoleManager` rewrite**
+- All `pg_shdescription` / `COMMENT ON ROLE` reads/writes deleted.
+- `serializePermissionSet` / `deserializePermissionSet` deleted.
+- `setPermissions(schema, role, PermissionSet)` → idempotent diff +
+  UPSERT/DELETE on `role_permission_metadata`.
+- `getPermissions(schema, role)` → SELECT.
+- `listRoles(schema)` → SELECT DISTINCT.
+- `createRole(schema, name, description)` → INSERT initial NONE row(s)
+  + create `MG_ROLE_<role>` PG role only if column-grant path is chosen
+  in 7.A.
+- `deleteRole(schema, role)` → DELETE rows (FK cascade) + DROP ROLE.
+- New: `addGroupMembership(schema, group, user, role)` /
+  `removeGroupMembership(...)` — write `group_membership_metadata`.
+- v2's `grantRoleToUser` exclusivity check **deleted**. The PK
+  on `group_membership_metadata` enforces uniqueness per (user, schema, group,
+  role) — no schema-wide single-role rule.
+- `getJooqAsAdmin` audit: only `pg_authid`-class operations need elevated
+  access. `role_permission_metadata` reads are normal admin queries.
+- Targeted tests: `SqlRoleManagerTest` rewritten end-to-end against new
+  tables; `TestTableRoleManagement` adapted (revoke/drop semantics now
+  via DELETE on rows).
+
+**7.D — Per-table policy template**
+- Replace v2's per-(role × table × verb) emitter in `SqlRoleManager` /
+  `SqlSchemaMetadataExecutor` with a per-table 4-policy emitter.
+- Policy lifecycle driver: when first non-NONE capability row appears
+  for `(schema, table)`, ENABLE RLS + emit policies. When last non-NONE
+  row disappears, drop policies + DISABLE RLS.
+- Capability changes do NOT regenerate policies; they only INSERT /
+  UPDATE / DELETE capability rows.
+- Targeted tests: `TestTablePolicies` covering ALL/GROUP/OWN/NONE for
+  each verb, both USING and WITH-CHECK paths.
+
+**7.E — View-mode SQL function integration**
+- Update `SqlQuery.getCountField` to emit `MOLGENIS.mg_privacy_count(...)`
+  call when effective scope is COUNT or RANGE.
+- Targeted test: `TestSelectScope` — direct-SQL count via a COUNT-scoped
+  role returns the floored value through the function path.
+
+**7.F — Asymmetric collaboration acceptance**
+- New test class `TestAsymmetricCollaboration` implementing the success
+  scenario from REQ-1 / v3 prompt §"What success looks like":
+  alice editor in study A, viewer in study B; assert read visibility,
+  per-row update authority, and `mg_groups` mutation boundaries.
+- Both unit-level (SqlRoleManager) and end-to-end (GraphQL) coverage.
+
+**7.G — GraphQL surface adaptation**
+- `PermissionSet` GraphQL types map to `role_permission_metadata` rows.
+- `change(groups: ...)` mutation writes `group_membership_metadata` instead
+  of `groups_metadata.users` array.
+- New mutation: `addRoleToGroup(schema, group, user, role)` /
+  `removeRoleFromGroup(...)` — surface for per-group role assignment.
+- `_schema.roles` reads `role_permission_metadata`; `_schema.groups` joins
+  `group_membership_metadata` for member listings.
+- Targeted tests: `TestGraphqlPermissions`, `TestGraphqlGroups`,
+  `TestAsymmetricCollaboration` (e2e).
+
+**7.H — Cleanup**
+- Delete `serializePermissionSet`, `deserializePermissionSet`, Jackson
+  imports if unused.
+- Delete `pg_roles` / `pg_shdescription` SQL fragments from
+  `SqlRoleManager` (kept only for system role display, if anywhere).
+- Delete `updateJsonPermission`, `clearJsonPermission`,
+  `clearTableFromAllRoles` — replaced by row-level CRUD on
+  `role_permission_metadata`.
+- Update Decision log (replace COMMENT-JSON entries with normalized-table
+  + per-group-role entries).
+- Update spec table to reference new tests; flip REQ-1 from open to
+  closed; flip REQ-2 according to 7.A decision.
+
+**7.I — Wipe + reinit**
+- `./gradlew :backend:molgenis-emx2-sql:cleandb`.
+- Re-run targeted suites; combined-suite by user.
+
+Exit criteria:
+- `TestAsymmetricCollaboration` green (the v2-failing scenario).
+- Policy count is exactly 4 per RLS table regardless of roles/groups,
+  verified by `pg_policies` query.
+- No remaining `pg_shdescription`, `COMMENT ON ROLE`,
+  `serializePermissionSet`, or `clearJsonPermission` references in
+  production code.
+- REQ-1 closed in spec; REQ-2 resolved (closed or explicitly accepted).
+- Direct-SQL count via COUNT-scoped role hits the privacy floor.
+
+### Phase 8 — Tests, performance, hardening
 
 1. **Continuous master compatibility**: existing master tests must keep
    passing throughout development — Owner / Manager / Editor / Viewer /
@@ -1049,7 +1469,7 @@ new failures (existing 5 graphql JWT failures stay deferred per user).
 Exit criteria: benchmark target met; full test suite green;
 nonparallel-tests covers wildcard / heavy-DDL cases.
 
-### Phase 8 — Migration & docs
+### Phase 9 — Migration & docs
 
 1. Document the model in `docs/` with worked examples.
 2. Upgrade path from master: existing schemas continue to work unchanged
@@ -1066,19 +1486,32 @@ Exit criteria: docs published; runbook reviewed by data managers.
 - **Branch base**: master (not PR #6058). 6058 architecture diverges too far;
   rebase risk + adversarial PR-back outweighs alignment value. We borrow
   conventions, not code.
-- **Membership storage split**: roles via PG GRANT (exclusive,
-  `pg_auth_members`), groups via `MOLGENIS.groups_metadata` ref_array. Roles
-  and groups are conceptually different; mixing both in `pg_auth_members`
-  blurs the line.
-- **No central role-metadata table**: scope encoded in policy DDL (Option d).
-  Trades constant-policy-count goal for richer per-verb / per-role scope
-  expressivity.
-- **`changeOwner` / `changeGroup` flag storage**: PG ROLE COMMENT JSON.
-  Lightweight; revisitable.
+- **Membership storage** [v2 / superseded by Phase 7]: v2 split roles
+  (PG GRANT, exclusive) from groups (`groups_metadata.users` REF_ARRAY).
+  Phase 7 unifies into `MOLGENIS.group_membership_metadata` carrying per-group
+  role; drops the `users` array from `groups_metadata` and the exclusivity
+  rule.
+- **Role + permission storage** [Phase 7]: `MOLGENIS.role_permission_metadata`
+  (one row per `(schema, role, table)`) is canonical. PG roles
+  `MG_ROLE_<role>` and the policy DDL are derived projections. Replaces v2's
+  PG ROLE COMMENT JSON storage.
+- **Policy count** [Phase 7]: 4 per RLS table (USING/WITH-CHECK over shared
+  access functions), independent of role/group count. Replaces v2's
+  per-(role × table × verb) emission. Capability changes never emit policy
+  DDL after the table is RLS-enabled.
+- **`changeOwner` / `changeGroup` flag storage** [Phase 7]: stored as
+  BOOLEAN columns on `role_permission_metadata`. Column-level GRANT vs
+  trigger-predicate enforcement decided in slice 7.A (REQ-3).
 - **No base role inheritance** (Viewer / NONE): role explicitly lists
   per-table scopes. Few roles per schema, so verbosity is acceptable.
-- **System roles untouched**: Owner / Manager / Editor / Viewer hold
-  BYPASSRLS as in master. Custom-role mechanism is purely additive.
+- **System roles** [v2 / superseded by Phase 7]: held BYPASSRLS as in master;
+  custom-role mechanism was purely additive.
+- **System roles** [Phase 7 — Path A, locked 2026-05-06]: NO BYPASSRLS.
+  Owner / Manager / Editor / Viewer materialised as immutable seeded
+  rows in `role_permission_metadata` with `table_name='*'` (wildcard).
+  Authority flows through the same access functions / 4-policy template
+  as custom roles. RLS is the uniform enforcement layer. Immutability
+  enforced at trigger + Java + GraphQL layers. See spec REQ-2.
 - **View modes Java-side**: privacy modes (EXISTS / COUNT / RANGE / AGGREGATE)
   enforced in `SqlQuery`, not in policies. Same as current branch.
 - **Subgroups dropped as a separate concept**: replaced by flat per-schema

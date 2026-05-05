@@ -1042,7 +1042,7 @@ class SqlRoleManagerTest {
     }
 
     @Test
-    void policyNameOverflow_throwsMolgenisException() {
+    void policyNameOverflow_usesHashBasedName() {
       String longRoleName = "averylongrolename20x";
       roleManager.createRole(schemaA, longRoleName, "overflow test role");
 
@@ -1051,10 +1051,19 @@ class SqlRoleManagerTest {
               .putTable(
                   POLICY_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
 
-      assertThrows(
-          MolgenisException.class,
+      assertDoesNotThrow(
           () -> roleManager.setPermissions(schemaA, longRoleName, perms),
-          "setPermissions must throw when resulting policy name exceeds PostgreSQL 63-byte limit");
+          "setPermissions must succeed even when the natural policy name exceeds PostgreSQL 63-byte limit");
+
+      String fullRole = SqlRoleManager.fullRoleName(SCHEMA_A, longRoleName);
+      List<org.jooq.Record> policies =
+          jooq.fetch(
+              "SELECT policyname FROM pg_policies WHERE schemaname = ? AND tablename = ? AND roles::text LIKE ?",
+              SCHEMA_A,
+              POLICY_TABLE,
+              "%" + fullRole + "%");
+      assertFalse(
+          policies.isEmpty(), "At least one policy must exist for the long role on the table");
     }
 
     @Test

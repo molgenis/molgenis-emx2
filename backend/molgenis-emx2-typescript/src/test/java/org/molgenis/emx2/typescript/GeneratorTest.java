@@ -35,6 +35,7 @@ class GeneratorTest {
   @Order(1)
   void generateTypes() throws IOException {
     String schemaName = GeneratorTest.class.getSimpleName() + "-PetStore";
+    db.dropSchemaIfExists(GeneratorTest.class.getSimpleName() + "TypeTest");
     db.dropSchemaIfExists(schemaName);
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -102,6 +103,8 @@ class GeneratorTest {
     new Generator().generate(schema, printWriter, false);
 
     assertTrue(stringWriter.toString().contains("PetStore_"));
+
+    schema.dropTable("CrossSchemaRef");
   }
 
   private String fileToString(String file) throws IOException {

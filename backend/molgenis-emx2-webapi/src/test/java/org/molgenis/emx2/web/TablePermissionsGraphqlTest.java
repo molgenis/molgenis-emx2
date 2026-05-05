@@ -76,7 +76,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:true}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",tables:[{table:\\"ArticleA\\",select:ALL,insert:NONE,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -91,7 +91,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _schema { roles { name system permissions { table select } } } }"}
+                {"query":"{ _schema { roles { name system tables { table select } } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -100,7 +100,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
     assertTrue(schemaBody.contains("\"ReaderA\""), "Custom role must appear in _schema.roles");
     assertTrue(schemaBody.contains("\"ArticleA\""), "Grant on ArticleA must be reflected");
-    assertTrue(schemaBody.contains("true"), "SELECT grant must be reflected");
+    assertTrue(schemaBody.contains("\"ALL\""), "SELECT ALL grant must be reflected");
     assertTrue(
         schemaBody.contains("\"system\" : false"),
         "Custom role must have system:false, response: " + schemaBody);
@@ -211,7 +211,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",insert:true}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",tables:[{table:\\"ArticleA\\",select:ALL,insert:ALL,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -248,7 +248,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:false}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",tables:[{table:\\"ArticleA\\",select:NONE,insert:NONE,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -320,7 +320,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _schema { roles { name system permissions { table select } } } }"}
+                {"query":"{ _schema { roles { name system tables { table select } } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -348,7 +348,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _schema { roles { name system permissions { table select insert update delete } } } }"}
+                {"query":"{ _schema { roles { name system tables { table select insert update delete } } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -373,7 +373,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"{ _schema { roles { name system permissions { table select insert update delete } } } }"}
+                {"query":"{ _schema { roles { name system tables { table select insert update delete } } } }"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -496,7 +496,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",permissions:[{table:\\"ArticleWithRef\\",select:true}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",tables:[{table:\\"ArticleWithRef\\",select:ALL,insert:NONE,update:NONE,delete:NONE}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()

@@ -547,11 +547,21 @@ public class GraphqlSchemaFieldFactory {
 
       List<Map<String, Object>> allRoles = new ArrayList<>();
       for (Role role : schema.getRoleInfos()) {
-        PermissionSet ps =
-            role.isSystemRole()
-                ? new PermissionSet().setDescription(role.name())
-                : roleManager.getPermissions(schema, role.name());
-        allRoles.add(GraphqlPermissionFieldFactory.permissionSetToMap(role.name(), schemaName, ps));
+        PermissionSet ps;
+        if (role.isSystemRole()) {
+          PermissionSet.TablePermissions wildcard =
+              new PermissionSet.TablePermissions()
+                  .setSelect(SelectScope.ALL)
+                  .setInsert(UpdateScope.ALL)
+                  .setUpdate(UpdateScope.ALL)
+                  .setDelete(UpdateScope.ALL);
+          ps = new PermissionSet().setDescription(role.name()).putTable("*", wildcard);
+        } else {
+          ps = roleManager.getPermissions(schema, role.name());
+        }
+        allRoles.add(
+            GraphqlPermissionFieldFactory.permissionSetToMap(
+                role.name(), schemaName, role.isSystemRole(), ps));
       }
 
       result.put(ROLES, allRoles);
@@ -753,8 +763,10 @@ public class GraphqlSchemaFieldFactory {
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<String> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
     if (roles == null) return;
+    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
+    SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
     for (String roleName : roles) {
-      schema.deleteRole(roleName);
+      roleManager.deleteRole(schema, roleName);
       message.append("Dropped role '").append(roleName).append("'\n");
     }
   }
@@ -989,12 +1001,17 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changeMembers(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    // members
     List<Map<String, String>> members =
         dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-    if (members != null) {
-      for (Map<String, String> m : members) {
-        schema.addMember(m.get(EMAIL), m.get(ROLE));
+    if (members == null) return;
+    SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
+    for (Map<String, String> m : members) {
+      String email = m.get(EMAIL);
+      String role = m.get(ROLE);
+      if (role != null && !roleManager.isSystemRole(role)) {
+        roleManager.grantRoleToUser(schema, role, email);
+      } else {
+        schema.addMember(email, role);
       }
     }
   }

@@ -446,9 +446,28 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
-    super.setSettings(settings);
-    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    Map<String, String> existing = MetadataUtils.loadDatabaseSettings(jooq);
+    Map<String, String> merged = new LinkedHashMap<>(existing != null ? existing : Map.of());
+    if (settings != null) {
+      merged.putAll(settings);
+    }
+    super.setSettings(merged);
+    MetadataUtils.saveDatabaseSettings(jooq, merged);
     // force all sessions to reload
+    this.listener.onSchemaChange();
+    return this;
+  }
+
+  @Override
+  public Database removeSetting(String key) {
+    if (!isAdmin()) {
+      throw new MolgenisException("Insufficient rights to remove database level setting");
+    }
+    Map<String, String> existing = MetadataUtils.loadDatabaseSettings(jooq);
+    Map<String, String> updated = new LinkedHashMap<>(existing != null ? existing : Map.of());
+    updated.remove(key);
+    super.setSettings(updated);
+    MetadataUtils.saveDatabaseSettings(jooq, updated);
     this.listener.onSchemaChange();
     return this;
   }
@@ -664,6 +683,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
+              db.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(ctx));
               transaction.run(db);
               db.tableListenersExecutePostCommit();
             });

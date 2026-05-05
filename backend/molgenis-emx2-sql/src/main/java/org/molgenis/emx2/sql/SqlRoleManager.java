@@ -7,6 +7,8 @@ import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -129,7 +131,60 @@ public class SqlRoleManager {
     }
     String fullRole = fullRoleName(schemaName, roleName);
     applyPgGrants(schemaName, fullRole, tableName, permission);
+    updateJsonPermission(schemaName, fullRole, tableName, permission);
     database.getListener().onSchemaChange();
+  }
+
+  private void updateJsonPermission(
+      String schemaName, String fullRole, String tableName, TablePermission permission) {
+    String[] jsonHolder = {null};
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Record rec =
+              adminJooq.fetchOne(
+                  "SELECT d.description FROM pg_roles a "
+                      + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid "
+                      + "AND d.classoid = 'pg_authid'::regclass "
+                      + "WHERE a.rolname = {0}",
+                  inline(fullRole));
+          jsonHolder[0] = rec == null ? null : rec.get("description", String.class);
+        });
+    String json = jsonHolder[0];
+    PermissionSet ps;
+    if (json == null || json.isBlank() || json.equals("{}")) {
+      ps = new PermissionSet();
+    } else {
+      ps = deserializePermissionSet(json);
+    }
+    PermissionSet.TablePermissions existing = ps.getTables().get(tableName);
+    if (existing == null) {
+      existing = new PermissionSet.TablePermissions();
+    }
+    if (Boolean.TRUE.equals(permission.select())) {
+      existing.setSelect(SelectScope.ALL);
+    } else if (Boolean.FALSE.equals(permission.select())) {
+      existing.setSelect(SelectScope.NONE);
+    }
+    if (Boolean.TRUE.equals(permission.insert())) {
+      existing.setInsert(UpdateScope.ALL);
+    } else if (Boolean.FALSE.equals(permission.insert())) {
+      existing.setInsert(UpdateScope.NONE);
+    }
+    if (Boolean.TRUE.equals(permission.update())) {
+      existing.setUpdate(UpdateScope.ALL);
+    } else if (Boolean.FALSE.equals(permission.update())) {
+      existing.setUpdate(UpdateScope.NONE);
+    }
+    if (Boolean.TRUE.equals(permission.delete())) {
+      existing.setDelete(UpdateScope.ALL);
+    } else if (Boolean.FALSE.equals(permission.delete())) {
+      existing.setDelete(UpdateScope.NONE);
+    }
+    ps.putTable(tableName, existing);
+    String updatedJson = serializePermissionSet(ps);
+    database.getJooqAsAdmin(
+        adminJooq ->
+            adminJooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline(updatedJson)));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -142,7 +197,41 @@ public class SqlRoleManager {
     String fullRole = fullRoleName(schemaName, roleName);
     jooq()
         .execute("REVOKE ALL ON {0} FROM {1}", table(name(schemaName, tableName)), name(fullRole));
+    clearJsonPermission(fullRole, tableName);
     database.getListener().onSchemaChange();
+  }
+
+  public void clearTableFromAllRoles(Schema schema, String tableName) {
+    for (String roleName : listRoles(schema)) {
+      clearJsonPermission(fullRoleName(schema.getName(), roleName), tableName);
+    }
+  }
+
+  private void clearJsonPermission(String fullRole, String tableName) {
+    String[] jsonHolder = {null};
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Record rec =
+              adminJooq.fetchOne(
+                  "SELECT d.description FROM pg_roles a "
+                      + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid "
+                      + "AND d.classoid = 'pg_authid'::regclass "
+                      + "WHERE a.rolname = {0}",
+                  inline(fullRole));
+          jsonHolder[0] = rec == null ? null : rec.get("description", String.class);
+        });
+    String json = jsonHolder[0];
+    if (json == null || json.isBlank() || json.equals("{}")) {
+      return;
+    }
+    PermissionSet ps = deserializePermissionSet(json);
+    Map<String, PermissionSet.TablePermissions> remaining = new LinkedHashMap<>(ps.getTables());
+    remaining.remove(tableName);
+    ps.setTables(remaining);
+    String updatedJson = serializePermissionSet(ps);
+    database.getJooqAsAdmin(
+        adminJooq ->
+            adminJooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline(updatedJson)));
   }
 
   private void applyPgGrants(
@@ -239,7 +328,8 @@ public class SqlRoleManager {
 
     Map<String, TablePermission> merged = new LinkedHashMap<>();
     for (String roleName : roleNames) {
-      for (TablePermission p : getPermissions(schemaName, roleName)) {
+      List<TablePermission> perms = resolvePermissionsForRole(schema, schemaName, roleName);
+      for (TablePermission p : perms) {
         if (hasAnyPermission(p)) {
           merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
         }
@@ -247,6 +337,29 @@ public class SqlRoleManager {
     }
     expandWildcard(merged, schema.getTableNames());
     return new ArrayList<>(merged.values());
+  }
+
+  private List<TablePermission> resolvePermissionsForRole(
+      SqlSchema schema, String schemaName, String roleName) {
+    if (isSystemRole(roleName)) {
+      return systemPermissions(roleName);
+    }
+    PermissionSet ps = getPermissions(schema, roleName);
+    List<TablePermission> result = new ArrayList<>();
+    for (Map.Entry<String, PermissionSet.TablePermissions> entry : ps.getTables().entrySet()) {
+      PermissionSet.TablePermissions tp = entry.getValue();
+      Boolean canSelect = tp.getSelect() != SelectScope.NONE ? true : null;
+      Boolean canInsert = tp.getInsert() != UpdateScope.NONE ? true : null;
+      Boolean canUpdate = tp.getUpdate() != UpdateScope.NONE ? true : null;
+      Boolean canDelete = tp.getDelete() != UpdateScope.NONE ? true : null;
+      result.add(
+          new TablePermission(entry.getKey())
+              .select(canSelect)
+              .insert(canInsert)
+              .update(canUpdate)
+              .delete(canDelete));
+    }
+    return result;
   }
 
   private static void expandWildcard(
@@ -299,6 +412,8 @@ public class SqlRoleManager {
         .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
       throw new MolgenisException("Role already exists: " + roleName);
     }
+    String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
+    String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     PermissionSet initial =
         new PermissionSet().setDescription(description != null ? description : "");
     String initialJson = serializePermissionSet(initial);
@@ -310,6 +425,9 @@ public class SqlRoleManager {
             DSLContext jooq = ((SqlDatabase) db).getJooq();
             jooq.execute("CREATE ROLE {0} NOLOGIN", name(fullRole));
             jooq.execute("COMMENT ON ROLE {0} IS {1}", name(fullRole), inline(initialJson));
+            jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(fullRole));
+            jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(fullRole), name(ownerRole));
+            jooq.execute("GRANT {0} TO {1}", name(existsRole), name(fullRole));
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -342,7 +460,7 @@ public class SqlRoleManager {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
     return jooq()
         .fetch(
-            "SELECT a.rolname FROM pg_authid a "
+            "SELECT a.rolname FROM pg_roles a "
                 + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
                 + "WHERE a.rolname LIKE {0} "
                 + "ORDER BY a.rolname",
@@ -492,7 +610,7 @@ public class SqlRoleManager {
     String fullRole = fullRoleName(schemaName, roleName);
     Record commentRecord =
         txJooq.fetchOne(
-            "SELECT d.description FROM pg_authid a "
+            "SELECT d.description FROM pg_roles a "
                 + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
                 + "WHERE a.rolname = {0}",
             inline(fullRole));
@@ -860,17 +978,29 @@ public class SqlRoleManager {
 
   private static String buildPolicyName(String fullRole, String tableName, String verb) {
     String policyName = POLICY_PREFIX + fullRole + "_" + tableName + "_" + verb;
-    if (policyName.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
-      throw new MolgenisException(
-          "Policy name exceeds PostgreSQL 63-byte limit for role='"
-              + fullRole
-              + "', table='"
-              + tableName
-              + "', verb='"
-              + verb
-              + "'");
+    if (policyName.getBytes(UTF_8).length <= PG_MAX_ID_LENGTH) {
+      return policyName;
     }
-    return policyName;
+    String hash = sha1Hex(fullRole + "_" + tableName + "_" + verb).substring(0, 12);
+    String candidate = POLICY_PREFIX + hash;
+    if (candidate.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+      throw new MolgenisException("Policy prefix + hash exceeds PostgreSQL 63-byte limit");
+    }
+    return candidate;
+  }
+
+  private static String sha1Hex(String input) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA-1");
+      byte[] digest = md.digest(input.getBytes(UTF_8));
+      StringBuilder sb = new StringBuilder();
+      for (byte b : digest) {
+        sb.append(String.format("%02x", b));
+      }
+      return sb.toString();
+    } catch (NoSuchAlgorithmException e) {
+      throw new MolgenisException("SHA-1 not available", e);
+    }
   }
 
   private static boolean isViewModeScope(SelectScope scope) {
@@ -1003,14 +1133,19 @@ public class SqlRoleManager {
         .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRole))))) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
-    Record commentRecord =
-        jooq()
-            .fetchOne(
-                "SELECT d.description FROM pg_authid a "
-                    + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
-                    + "WHERE a.rolname = {0}",
-                inline(fullRole));
-    String comment = commentRecord == null ? null : commentRecord.get("description", String.class);
+    String[] commentHolder = {null};
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Record commentRecord =
+              adminJooq.fetchOne(
+                  "SELECT d.description FROM pg_roles a "
+                      + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
+                      + "WHERE a.rolname = {0}",
+                  inline(fullRole));
+          commentHolder[0] =
+              commentRecord == null ? null : commentRecord.get("description", String.class);
+        });
+    String comment = commentHolder[0];
     if (comment == null || comment.isBlank() || comment.equals("{}")) {
       return new PermissionSet();
     }
@@ -1059,7 +1194,7 @@ public class SqlRoleManager {
           String fullRole = fullRoleName(schemaName, roleName);
           Record commentRecord =
               adminJooq.fetchOne(
-                  "SELECT d.description FROM pg_authid a "
+                  "SELECT d.description FROM pg_roles a "
                       + "LEFT JOIN pg_shdescription d ON d.objoid = a.oid AND d.classoid = 'pg_authid'::regclass "
                       + "WHERE a.rolname = {0}",
                   inline(fullRole));

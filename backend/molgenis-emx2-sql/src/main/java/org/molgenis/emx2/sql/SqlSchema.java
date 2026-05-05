@@ -42,6 +42,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public void dropTable(String name) {
+    roleManager().clearTableFromAllRoles(this, name);
     getMetadata().drop(name);
   }
 

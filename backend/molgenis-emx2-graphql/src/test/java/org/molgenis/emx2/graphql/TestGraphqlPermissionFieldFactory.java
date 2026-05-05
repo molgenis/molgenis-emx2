@@ -154,7 +154,7 @@ class TestGraphqlPermissionFieldFactory {
   void permissionSetToMap_includesSchemaName() {
     PermissionSet ps = new PermissionSet().setDescription("test role");
     Map<String, Object> map =
-        GraphqlPermissionFieldFactory.permissionSetToMap("myRole", "mySchema", ps);
+        GraphqlPermissionFieldFactory.permissionSetToMap("myRole", "mySchema", false, ps);
 
     assertEquals("myRole", map.get("name"));
     assertEquals("mySchema", map.get("schemaName"));

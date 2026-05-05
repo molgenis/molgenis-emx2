@@ -107,6 +107,8 @@ public class GraphqlPermissionFieldFactory {
                   .name(SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(SYSTEM).type(Scalars.GraphQLBoolean))
+          .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLES)
                   .type(GraphQLList.list(tablePermissionOutputType)))
@@ -226,11 +228,12 @@ public class GraphqlPermissionFieldFactory {
   }
 
   static Map<String, Object> permissionSetToMap(
-      String roleName, String schemaName, PermissionSet ps) {
+      String roleName, String schemaName, boolean isSystemRole, PermissionSet ps) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(NAME, roleName);
     roleMap.put(SCHEMA_NAME, schemaName);
     roleMap.put(DESCRIPTION, ps.getDescription());
+    roleMap.put(SYSTEM, isSystemRole);
     roleMap.put(MG_CHANGE_OWNER, ps.isChangeOwner());
     roleMap.put(MG_CHANGE_GROUP, ps.isChangeGroup());
     List<Map<String, Object>> tableList =
