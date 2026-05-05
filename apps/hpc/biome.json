@@ -1,0 +1,30 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.0/schema.json",
+  "overrides": [
+    {
+      "includes": ["app/**/*.vue"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      },
+      "javascript": {
+        "globals": [
+          "defineProps",
+          "defineEmits",
+          "defineExpose",
+          "defineModel",
+          "defineOptions",
+          "defineSlots"
+        ]
+      }
+    }
+  ]
+}

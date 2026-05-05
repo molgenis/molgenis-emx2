@@ -7,8 +7,16 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.*;
+import graphql.language.Argument;
+import graphql.language.Definition;
+import graphql.language.Document;
+import graphql.language.Field;
+import graphql.language.OperationDefinition;
+import graphql.language.Selection;
+import graphql.parser.Parser;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.HandlerType;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
@@ -16,8 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
@@ -35,6 +46,12 @@ public class GraphqlApi {
 
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
+  private static final Set<String> BLOCKED_MUTATION_FIELDS =
+      Set.of("insert", "update", "save", "delete");
+
+  @SuppressWarnings("VulnerableCodeUsages")
+  private static final Parser parser = new Parser();
+
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
 
   private GraphqlApi() {
@@ -89,15 +106,25 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
+    String query = getQueryFromRequest(ctx);
+    if (Constants.SYSTEM_SCHEMA.equals(schemaName)) {
+      enforceSystemHpcMutationPolicy(query);
+    }
+    Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlExecutor graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    ctx.json(executeQuery(graphqlForSchema, ctx));
+    ctx.json(executeQuery(graphqlForSchema, query, variables, ctx));
   }
 
   private static String executeQuery(GraphqlExecutor graphqlApi, Context ctx) throws IOException {
-
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
+    return executeQuery(graphqlApi, query, variables, ctx);
+  }
+
+  private static String executeQuery(
+      GraphqlExecutor graphqlApi, String query, Map<String, Object> variables, Context ctx)
+      throws IOException {
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
     long start = System.currentTimeMillis();
 
@@ -107,6 +134,47 @@ public class GraphqlApi {
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
     return result;
+  }
+
+  private static void enforceSystemHpcMutationPolicy(String query) {
+    Document parsed;
+    try {
+      parsed = parser.parseDocument(query);
+    } catch (Exception e) {
+      // Invalid GraphQL is handled later by the regular executor.
+      return;
+    }
+
+    for (Definition<?> definition : parsed.getDefinitions()) {
+      if (definition instanceof OperationDefinition op
+          && op.getOperation() == OperationDefinition.Operation.MUTATION
+          && op.getSelectionSet() != null) {
+        rejectHpcMutationFields(op.getSelectionSet().getSelections());
+      }
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static void rejectHpcMutationFields(java.util.List<Selection> selections) {
+    for (Selection<?> selection : selections) {
+      if (selection instanceof Field field && isBlockedHpcMutation(field)) {
+        throw new ForbiddenResponse(
+            "Mutations on _SYSTEM_ Hpc* tables are disabled. Use /api/hpc endpoints.");
+      }
+    }
+  }
+
+  private static boolean isBlockedHpcMutation(Field field) {
+    if (!BLOCKED_MUTATION_FIELDS.contains(field.getName().toLowerCase(Locale.ROOT))) {
+      return false;
+    }
+    return field.getArguments().stream()
+        .map(Argument::getName)
+        .anyMatch(GraphqlApi::isHpcTableName);
+  }
+
+  private static boolean isHpcTableName(String argumentName) {
+    return argumentName != null && argumentName.startsWith("Hpc");
   }
 
   private static String getQueryFromRequest(Context ctx) throws IOException {

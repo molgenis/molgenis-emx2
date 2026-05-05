@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://molgenis.org/emx2/hpc-protocol.json",
+  "title": "EMX2 HPC Bridge Protocol",
+  "description": "Single source of truth for protocol constants shared by Java backend, Python daemon, and JS frontend.",
+  "definitions": {
+    "apiVersion": {
+      "const": "2025-01",
+      "description": "Protocol version. All components must agree on this value."
+    },
+    "HpcJobStatus": {
+      "enum": ["PENDING", "CLAIMED", "SUBMITTED", "STARTED", "COMPLETED", "FAILED", "CANCELLED"],
+      "description": "Job lifecycle statuses."
+    },
+    "ArtifactStatus": {
+      "enum": ["CREATED", "UPLOADING", "REGISTERED", "COMMITTED", "FAILED"],
+      "description": "Artifact lifecycle statuses."
+    },
+    "ArtifactResidence": {
+      "enum": ["managed", "posix", "s3", "http", "reference"],
+      "description": "Where artifact content is stored."
+    },
+    "WorkerCredentialStatus": {
+      "enum": ["ACTIVE", "REVOKED", "EXPIRED"],
+      "description": "Worker credential lifecycle statuses."
+    },
+    "transitions": {
+      "description": "Allowed state transitions: status -> list of reachable statuses.",
+      "type": "object",
+      "properties": {
+        "PENDING":    { "type": "array", "items": { "type": "string" }, "const": ["CLAIMED", "CANCELLED"] },
+        "CLAIMED":    { "type": "array", "items": { "type": "string" }, "const": ["SUBMITTED", "FAILED", "CANCELLED"] },
+        "SUBMITTED":  { "type": "array", "items": { "type": "string" }, "const": ["STARTED", "FAILED", "CANCELLED"] },
+        "STARTED":    { "type": "array", "items": { "type": "string" }, "const": ["COMPLETED", "FAILED", "CANCELLED"] },
+        "COMPLETED":  { "type": "array", "items": { "type": "string" }, "const": [] },
+        "FAILED":     { "type": "array", "items": { "type": "string" }, "const": [] },
+        "CANCELLED":  { "type": "array", "items": { "type": "string" }, "const": [] }
+      },
+      "additionalProperties": false
+    },
+    "terminalStatuses": {
+      "const": ["COMPLETED", "FAILED", "CANCELLED"],
+      "description": "Statuses with no outgoing transitions."
+    },
+    "headers": {
+      "description": "Protocol headers. Keys are header names sent over HTTP.",
+      "type": "object",
+      "properties": {
+        "X-EMX2-API-Version": { "required": true,  "format": "version-string" },
+        "X-Request-Id":       { "required": true,  "format": "uuid" },
+        "X-Trace-Id":         { "required": false, "format": "uuid" },
+        "X-Timestamp":        { "required": true,  "format": "unix-epoch-integer" },
+        "X-Nonce":            { "required": false, "format": "uuid" },
+        "X-Worker-Id":        { "required": false, "format": "string" }
+      },
+      "additionalProperties": false
+    },
+    "requiredHeaders": {
+      "description": "Headers required on every authenticated HPC API request.",
+      "const": ["X-EMX2-API-Version", "X-Request-Id", "X-Timestamp"]
+    },
+    "optionalHeaders": {
+      "description": "Headers that may be present depending on request context.",
+      "const": ["X-Trace-Id", "X-Nonce", "X-Worker-Id"]
+    },
+    "binaryBodyHeaders": {
+      "description": "Headers used for raw binary requests.",
+      "const": ["Content-SHA256"]
+    },
+    "ProblemDetail": {
+      "description": "RFC 9457 error response shape.",
+      "type": "object",
+      "properties": {
+        "type":       { "type": "string" },
+        "title":      { "type": "string" },
+        "status":     { "type": "integer" },
+        "detail":     { "type": "string" },
+        "instance":   { "type": "string" },
+        "request_id": { "type": "string" }
+      },
+      "required": ["type", "title", "status", "detail"]
+    },
+    "requestRequiredFields": {
+      "description": "Required JSON request fields per endpoint operation.",
+      "type": "object",
+      "properties": {
+        "registerWorker": { "const": ["worker_id"] },
+        "createJob": { "const": ["processor"] },
+        "claimJob": { "const": ["worker_id"] },
+        "transitionJob": { "const": ["status"] }
+      },
+      "additionalProperties": false
+    },
+    "endpointStatusCodes": {
+      "description": "Expected HTTP status codes for selected endpoint operations.",
+      "type": "object",
+      "properties": {
+        "workerCredentialIssue": { "const": 201 },
+        "workerCredentialRotate": { "const": 200 },
+        "workerCredentialRevoke": { "const": 200 },
+        "workerCredentialList": { "const": 200 }
+      },
+      "additionalProperties": false
+    },
+    "progressFieldLimits": {
+      "description": "Validation bounds for structured progress updates posted by the daemon.",
+      "type": "object",
+      "properties": {
+        "phase_max_length": { "const": 100 },
+        "message_max_length": { "const": 500 },
+        "progress_min": { "const": 0.0 },
+        "progress_max": { "const": 1.0 }
+      },
+      "additionalProperties": false
+    },
+    "responseRequiredFields": {
+      "description": "Required top-level JSON response fields for core endpoint responses.",
+      "type": "object",
+      "properties": {
+        "health": { "const": ["status", "api_version", "database"] },
+        "workerRegister": {
+          "const": ["worker_id", "hostname", "registered_at", "last_heartbeat_at", "_links"]
+        },
+        "job": { "const": ["id", "processor", "status", "phase", "message", "progress", "_links"] },
+        "jobList": { "const": ["items", "count", "total_count", "limit", "offset", "_links"] },
+        "jobTransitions": { "const": ["items", "count"] },
+        "artifact": { "const": ["id", "type", "residence", "status", "_links"] },
+        "artifactFileUpload": { "const": ["id", "artifact_id", "path", "sha256", "size_bytes"] },
+        "artifactFileList": { "const": ["items", "count", "total_count", "limit", "offset"] },
+        "workerCredentialIssue": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "expires_at", "secret", "_links"]
+        },
+        "workerCredentialRotate": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "expires_at", "secret", "_links"]
+        },
+        "workerCredentialRevoke": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "created_by", "last_used_at", "revoked_at", "expires_at"]
+        },
+        "workerCredentialList": { "const": ["items", "count", "_links"] }
+      },
+      "additionalProperties": false
+    },
+    "responseItemRequiredFields": {
+      "description": "Required fields for list item objects returned by core endpoints.",
+      "type": "object",
+      "properties": {
+        "jobTransition": {
+          "const": ["id", "job_id", "from_status", "to_status", "timestamp", "phase", "message", "progress"]
+        },
+        "artifactFile": {
+          "const": ["id", "path", "sha256", "size_bytes", "content_type", "_links"]
+        },
+        "workerCredential": {
+          "const": ["id", "worker_id", "status", "label", "created_at", "created_by", "last_used_at", "revoked_at", "expires_at"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "jobLinksByStatus": {
+      "description": "Expected HATEOAS job link relations by current job status.",
+      "type": "object",
+      "properties": {
+        "PENDING": { "const": ["self", "claim", "cancel", "transitions"] },
+        "CLAIMED": { "const": ["self", "submit", "cancel", "transitions"] },
+        "SUBMITTED": { "const": ["self", "start", "cancel", "transitions"] },
+        "STARTED": { "const": ["self", "complete", "fail", "cancel", "transitions"] },
+        "COMPLETED": { "const": ["self", "transitions"] },
+        "FAILED": { "const": ["self", "transitions"] },
+        "CANCELLED": { "const": ["self", "transitions"] }
+      },
+      "additionalProperties": false
+    },
+    "artifactLinksByStatus": {
+      "description": "Expected HATEOAS artifact link relations by current artifact status.",
+      "type": "object",
+      "properties": {
+        "CREATED": { "const": ["self", "upload", "files"] },
+        "UPLOADING": { "const": ["self", "upload", "commit", "files"] },
+        "REGISTERED": { "const": ["self", "commit", "files"] },
+        "COMMITTED": { "const": ["self", "download", "files"] },
+        "FAILED": { "const": ["self", "files"] }
+      },
+      "additionalProperties": false
+    },
+    "hmacFixtureSecret": {
+      "description": "Shared secret used by protocol-level HMAC contract vectors.",
+      "const": "contract-secret-0123456789abcdef0123456789"
+    },
+    "hmacVectors": {
+      "description": "Cross-language canonical HMAC fixtures (Java + Python must both match).",
+      "const": [
+        {
+          "name": "json-post-create-job",
+          "method": "POST",
+          "path": "/api/hpc/jobs",
+          "body": "{\"processor\":\"embed\",\"profile\":\"gpu-medium\"}",
+          "timestamp": "1735689600",
+          "nonce": "0123456789abcdef0123456789abcdef",
+          "expected_signature": "f5e577a37a695d5ac15bc4757bdc10dec7e52b3942e5be24e580ba95d7ad8842"
+        },
+        {
+          "name": "binary-put-upload",
+          "method": "PUT",
+          "path": "/api/hpc/artifacts/550e8400-e29b-41d4-a716-446655440000/files/results/output.bin",
+          "body": "",
+          "content_sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+          "timestamp": "1735689605",
+          "nonce": "fedcba9876543210fedcba9876543210",
+          "expected_signature": "934dac787d56427cf7f6624a52248e90b7c96b81840790c4bcb0402377a7cdde"
+        },
+        {
+          "name": "get-with-query",
+          "method": "GET",
+          "path": "/api/hpc/jobs?status=PENDING&limit=10",
+          "body": "",
+          "timestamp": "1735689610",
+          "nonce": "00112233445566778899aabbccddeeff",
+          "expected_signature": "85462cb5b2c90e7a741aa8afff3d6cdd5ec482c75d4e841c333a2e442873ad23"
+        }
+      ]
+    }
+  }
+}
