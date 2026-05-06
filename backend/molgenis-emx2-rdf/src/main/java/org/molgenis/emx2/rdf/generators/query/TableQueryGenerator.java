@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
+import org.molgenis.emx2.rdf.generators.query.mappers.CollectionColumnMapper;
 import org.molgenis.emx2.rdf.generators.query.mappers.ColumnMapper;
 import org.molgenis.emx2.rdf.generators.query.mappers.PlainColumnMapper;
 import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceMapper;
@@ -28,6 +29,8 @@ public class TableQueryGenerator {
       ColumnMapper mapper;
       if (column.isReference()) {
         mapper = new ReferenceMapper(tableVar, column);
+      } else if (column.isArray()) {
+        mapper = new CollectionColumnMapper(tableVar, column);
       } else {
         mapper = new PlainColumnMapper(tableVar, column);
       }
