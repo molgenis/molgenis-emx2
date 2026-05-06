@@ -11,7 +11,7 @@ def get_data_model(profile_path, path_to_write, profile):
     data_model = pd.DataFrame()
     for file_name in os.listdir(profile_path):
         if '.csv' in file_name:
-            file_path = profile_path + '/' + file_name
+            file_path = Path.joinpath(profile_path, file_name)
             df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
             df['new_profiles'] = df['profiles'].apply(lambda x: x.split(','))
             df = df[df['new_profiles'].apply(lambda x: any(item in profile for item in x))]
