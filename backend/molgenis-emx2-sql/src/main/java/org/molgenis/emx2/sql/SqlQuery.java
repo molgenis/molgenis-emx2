@@ -1229,7 +1229,7 @@ public class SqlQuery extends QueryBean {
     switch (operator) {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
         return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
-      case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
+      case NOT_EQUALS: // non_equals to be deprecated for ref columns,
         return or(
             whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
             not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
