@@ -668,6 +668,26 @@ class TestGraphqlSchemaFields {
   }
 
   @Test
+  void strictDeleteRows() throws IOException {
+    String message =
+        execute("mutation{delete(Tag:{name:\"non-existent\"}){message}}")
+            .get("delete")
+            .get("message")
+            .textValue();
+    assertEquals("delete 0 records from Tag\n", message);
+  }
+
+  @Test
+  void nonStrictDeleteRows() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () -> execute("mutation{delete(strict: true, Tag:{name:\"non-existent\"}){message}}"));
+    assertTrue(
+        exception.getMessage().contains("attempted to delete 1 rows but only deleted 0 rows"));
+  }
+
+  @Test
   void testAddAlterDropColumn() throws IOException {
     execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
     assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
@@ -829,8 +849,6 @@ class TestGraphqlSchemaFields {
       execute("mutation{delete(Some:{id:\"one\"}){message}}");
       execute(
           "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
-      execute(
-          "mutation{delete(PersonDetails:{firstName:\"blaatb\",last_name:\"blaata2\"}){message}}");
       assertEquals(
           count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
