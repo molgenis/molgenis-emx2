@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import dateUtils from "../utils/dateUtils";
-import type { IResources } from "../../interfaces/catalogue";
-import { computed, ref, watch } from "vue";
 import { useRoute } from "#app";
 import { useDatasetStore } from "#imports";
+import { computed } from "vue";
+import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
-import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
+import type { IResources } from "../../interfaces/catalogue";
+import dateUtils from "../utils/dateUtils";
 
 const datasetStore = useDatasetStore();
 
-const cutoff = 250;
+const CUTOFF = 250;
 
 const route = useRoute();
 
@@ -26,8 +26,11 @@ const props = withDefaults(
   }
 );
 
+const isInShoppingCart = computed(() =>
+  datasetStore.resourceIsInCart(props.resource.id)
+);
+
 const startEndYear = dateUtils.startEndYear;
-const isInShoppingCart = ref<boolean>(false);
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -46,17 +49,12 @@ const headerClasses = computed(() => {
 });
 
 function onInput() {
-  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
   if (isInShoppingCart.value) {
     datasetStore.removeFromCart(props.resource.id);
   } else {
     datasetStore.addToCart(props.resource);
   }
 }
-
-watch([datasetStore.datasets], () => {
-  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
-});
 </script>
 
 <template>
@@ -112,7 +110,7 @@ watch([datasetStore.datasets], () => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="resource.description" :cutoff="cutoff" />
+      <ContentReadMore :text="resource.description" :cutoff="CUTOFF" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
