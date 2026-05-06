@@ -36,7 +36,7 @@
     "@vueuse/components": "10.7.0",
     "@vueuse/core": "10.7.0",
     "@vueuse/integrations": "10.7.0",
-    "axios": "1.15.0",
+    "axios": "1.15.2",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "flatpickr": "4.6.13",
