@@ -1,3 +1,4 @@
+import type { ISetting } from "../../../../metadata-utils/src";
 import type { IResources } from "../../../interfaces/catalogue";
 
 export async function handleV3Error(response: Response) {
@@ -50,4 +51,10 @@ export function getHumanReadableString(datasets: Record<string, IResources>) {
     .slice(0, -2);
 
   return humanReadableString;
+}
+
+export function findSetting(setting: string, settings: ISetting[]) {
+  return settings.find(
+    (sett: { key: string; value: string }) => sett.key === setting
+  );
 }
