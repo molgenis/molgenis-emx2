@@ -9,7 +9,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class HarvestingTestSchema {
 
-  public static SchemaMetadata create() {
+  public static void create() {
     Database database = TestDatabaseFactory.getTestDatabase();
     String schemaName = "harvesting";
     database.dropSchemaIfExists(schemaName);
@@ -47,7 +47,5 @@ public class HarvestingTestSchema {
     Column contactResource = contacts.getColumn("resource");
     contactResource.setSemantics("dcterms:resource");
     contacts.alterColumn(contactResource);
-
-    return schema;
   }
 }
