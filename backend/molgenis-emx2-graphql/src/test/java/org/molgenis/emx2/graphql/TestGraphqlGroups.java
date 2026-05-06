@@ -306,15 +306,39 @@ class TestGraphqlGroups {
     }
   }
 
+  @Test
+  void userInMultipleGroups_userBelongsToTwoGroups() throws IOException {
+    executeAdmin(
+        "mutation { change(groups: [{name: \"groupRho\"}, {name: \"groupSigma\"}]) { message } }");
+    executeAdmin(
+        "mutation { change(groups: [{name: \"groupRho\", users: [\""
+            + USER_MANAGER
+            + "\"]}]) { message } }");
+    executeAdmin(
+        "mutation { change(groups: [{name: \"groupSigma\", users: [\""
+            + USER_MANAGER
+            + "\"]}]) { message } }");
+
+    try {
+      String[] rhoUsers = fetchGroupUsers("groupRho");
+      String[] sigmaUsers = fetchGroupUsers("groupSigma");
+      assertTrue(List.of(rhoUsers).contains(USER_MANAGER), "Manager must be in groupRho");
+      assertTrue(List.of(sigmaUsers).contains(USER_MANAGER), "Manager must be in groupSigma");
+    } finally {
+      jooq.execute(
+          "DELETE FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name IN ('groupRho', 'groupSigma')",
+          SCHEMA_NAME);
+    }
+  }
+
   private String[] fetchGroupUsers(String groupName) {
-    Record rec =
-        jooq.fetchOne(
-            "SELECT users FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
+    List<Record> recs =
+        jooq.fetch(
+            "SELECT user_name FROM \"MOLGENIS\".group_membership_metadata"
+                + " WHERE schema_name = ? AND group_name = ?",
             SCHEMA_NAME,
             groupName);
-    if (rec == null) return new String[] {};
-    String[] result = rec.get(0, String[].class);
-    return result == null ? new String[] {} : result;
+    return recs.stream().map(r -> r.get(0, String.class)).toArray(String[]::new);
   }
 
   private void executeAdmin(String query) throws IOException {

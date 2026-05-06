@@ -791,6 +791,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
+  void runAsAdmin(JooqTransaction transaction) {
+    final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
+    SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
+    adminProvider.setActiveUser(ADMIN_USER);
+    DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
+    transaction.run(adminJooq);
+  }
+
   @Override
   public Integer getDatabaseVersion() {
     return databaseVersion;

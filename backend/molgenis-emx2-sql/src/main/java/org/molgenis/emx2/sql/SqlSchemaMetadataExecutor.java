@@ -94,34 +94,47 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
+    MetadataUtils.seedSystemRoles(db.getJooq(), schema.getName());
+    MetadataUtils.executeCreateMemberRole(db.getJooq(), schema.getName());
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
-    List<String> currentRoles = schema.getRoles();
-    List<Member> currentMembers = schema.getMembers();
+    String schemaName = schema.getMetadata().getName();
+    String roleName = member.getRole();
+    Database db = schema.getDatabase();
+    SqlRoleManager roleManager = ((SqlDatabase) db).getRoleManager();
 
-    if (!currentRoles.contains(member.getRole())) {
-      throw new MolgenisException(
-          "Add member(s) failed: Role '"
-              + member.getRole()
-              + " doesn't exist in schema '"
-              + schema.getMetadata().getName()
-              + "'. Existing roles are: "
-              + currentRoles);
+    if (isSystemRole(roleName)) {
+      List<String> currentRoles = schema.getRoles();
+      if (!currentRoles.contains(roleName)) {
+        throw new MolgenisException(
+            "Add member(s) failed: Role '"
+                + roleName
+                + " doesn't exist in schema '"
+                + schemaName
+                + "'. Existing roles are: "
+                + currentRoles);
+      }
+      List<Member> currentMembers = schema.getMembers();
+      String username = Constants.MG_USER_PREFIX + member.getUser();
+      String rolename = getRolePrefix(schemaName) + roleName;
+      updateMembershipForUser(
+          jooq, db, schema.getMetadata(), currentMembers, member, username, rolename);
+    } else {
+      if (!roleManager.roleExists(schemaName, roleName)) {
+        throw new MolgenisException(
+            "Add member(s) failed: Role '"
+                + roleName
+                + "' doesn't exist in schema '"
+                + schemaName
+                + "'. Existing roles are: "
+                + roleManager.listRoles(schemaName));
+      }
+      if (!db.hasUser(member.getUser())) {
+        db.addUser(member.getUser());
+      }
+      roleManager.grantRoleToUser(schema, roleName, member.getUser());
     }
-    String username = Constants.MG_USER_PREFIX + member.getUser();
-    String roleprefix = getRolePrefix(schema.getMetadata().getName());
-    String rolename = roleprefix + member.getRole();
-
-    // execute updates database
-    updateMembershipForUser(
-        jooq,
-        schema.getDatabase(),
-        schema.getMetadata(),
-        currentMembers,
-        member,
-        username,
-        rolename);
   }
 
   private static void updateMembershipForUser(

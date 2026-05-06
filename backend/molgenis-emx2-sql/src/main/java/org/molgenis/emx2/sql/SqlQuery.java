@@ -769,7 +769,7 @@ public class SqlQuery extends QueryBean {
     if (customScope != null) {
       if (customScope.allowsExactCount()) return count().cast(Long.class);
       if (customScope == SelectScope.RANGE) {
-        return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Long.class, 10L);
+        return field("\"MOLGENIS\".mg_privacy_count(COUNT(*))", Long.class);
       }
       throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
     }
@@ -782,7 +782,7 @@ public class SqlQuery extends QueryBean {
       return field("GREATEST(COUNT(*),{0})", Long.class, 10L);
     }
     if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Long.class, 10L);
+      return field("\"MOLGENIS\".mg_privacy_count(COUNT(*))", Long.class);
     }
     throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
   }

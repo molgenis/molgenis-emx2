@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 33;
+  private static final int SOFTWARE_DATABASE_VERSION = 34;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -199,6 +199,20 @@ public class Migrations {
             executeMigrationFile(tdb, "migration33.sql", "add MOLGENIS.groups_metadata table");
             executeMigrationFile(
                 tdb, "utility-sql/current_user_groups.sql", "add current_user_groups function");
+          }
+
+          if (version < 34) {
+            executeMigrationFile(
+                tdb,
+                "migration34.sql",
+                "RLS v2: role_permission_metadata + group_membership_metadata + system-role trigger");
+            DSLContext jooq = ((SqlDatabase) tdb).getJooq();
+            MetadataUtils.emitAccessFunctions(jooq);
+            MetadataUtils.updateCurrentUserGroupsFunction(jooq);
+            for (String schemaName : tdb.getSchemaNames()) {
+              MetadataUtils.seedSystemRoles(jooq, schemaName);
+              MetadataUtils.executeCreateMemberRole(jooq, schemaName);
+            }
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

@@ -42,7 +42,7 @@ public class Constants {
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
   public static final String MG_UPDATEDON = "mg_updatedOn";
-wh  public static final String MG_OWNER_COLUMN = "mg_owner";
+  public static final String MG_OWNER_COLUMN = "mg_owner";
   public static final String MG_GROUPS_COLUMN = "mg_groups";
   public static final String MG_CHANGE_OWNER = "changeOwner";
   public static final String MG_CHANGE_GROUP = "changeGroup";

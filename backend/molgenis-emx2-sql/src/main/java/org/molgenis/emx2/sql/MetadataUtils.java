@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
@@ -19,6 +20,8 @@ public class MetadataUtils {
 
   static final String MOLGENIS = "MOLGENIS";
   static final String NOT_PROVIDED = "NOT_PROVIDED";
+  private static final String WILDCARD_TABLE = "*";
+  static final String RPM_STUB_TABLE_SENTINEL = "";
   // tables
   private static final org.jooq.Table DATABASE_METADATA =
       table(name(MOLGENIS, "database_metadata"));
@@ -29,12 +32,56 @@ public class MetadataUtils {
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
   static final org.jooq.Table GROUPS_METADATA = table(name(MOLGENIS, "groups_metadata"));
+  static final org.jooq.Table ROLE_PERMISSION_METADATA =
+      table(name(MOLGENIS, "role_permission_metadata"));
+  static final org.jooq.Table GROUP_MEMBERSHIP_METADATA =
+      table(name(MOLGENIS, "group_membership_metadata"));
 
   // groups_metadata columns
   static final Field<String> GROUP_SCHEMA = field(name("schema"), VARCHAR.nullable(false));
   static final Field<String> GROUP_NAME = field(name("name"), VARCHAR.nullable(false));
-  static final Field<String[]> GROUP_USERS =
-      field(name("users"), VARCHAR.nullable(true).getArrayType());
+
+  static final Field<String> RPM_SCHEMA_NAME =
+      field(name(MOLGENIS, "role_permission_metadata", "schema_name"), VARCHAR.nullable(false));
+  static final Field<String> RPM_ROLE_NAME =
+      field(name(MOLGENIS, "role_permission_metadata", "role_name"), VARCHAR.nullable(false));
+  static final Field<String> RPM_TABLE_NAME =
+      field(name(MOLGENIS, "role_permission_metadata", "table_name"), VARCHAR.nullable(false));
+  static final Field<String> RPM_SELECT_SCOPE =
+      field(name(MOLGENIS, "role_permission_metadata", "select_scope"), VARCHAR.nullable(false));
+  static final Field<String> RPM_INSERT_SCOPE =
+      field(name(MOLGENIS, "role_permission_metadata", "insert_scope"), VARCHAR.nullable(false));
+  static final Field<String> RPM_UPDATE_SCOPE =
+      field(name(MOLGENIS, "role_permission_metadata", "update_scope"), VARCHAR.nullable(false));
+  static final Field<String> RPM_DELETE_SCOPE =
+      field(name(MOLGENIS, "role_permission_metadata", "delete_scope"), VARCHAR.nullable(false));
+  static final Field<Boolean> RPM_CHANGE_OWNER =
+      field(name(MOLGENIS, "role_permission_metadata", "change_owner"), BOOLEAN.nullable(false));
+  static final Field<Boolean> RPM_CHANGE_GROUP =
+      field(name(MOLGENIS, "role_permission_metadata", "change_group"), BOOLEAN.nullable(false));
+  static final Field<String> RPM_DESCRIPTION =
+      field(name(MOLGENIS, "role_permission_metadata", "description"), VARCHAR.nullable(true));
+  static final Field<String> RPM_UPDATED_BY =
+      field(name(MOLGENIS, "role_permission_metadata", "updated_by"), VARCHAR.nullable(false));
+  static final Field<OffsetDateTime> RPM_UPDATED_AT =
+      field(
+          name(MOLGENIS, "role_permission_metadata", "updated_at"),
+          TIMESTAMPWITHTIMEZONE.nullable(false));
+
+  static final Field<String> GMM_USER_NAME =
+      field(name(MOLGENIS, "group_membership_metadata", "user_name"), VARCHAR.nullable(false));
+  static final Field<String> GMM_SCHEMA_NAME =
+      field(name(MOLGENIS, "group_membership_metadata", "schema_name"), VARCHAR.nullable(false));
+  static final Field<String> GMM_GROUP_NAME =
+      field(name(MOLGENIS, "group_membership_metadata", "group_name"), VARCHAR.nullable(false));
+  static final Field<String> GMM_ROLE_NAME =
+      field(name(MOLGENIS, "group_membership_metadata", "role_name"), VARCHAR.nullable(false));
+  static final Field<String> GMM_GRANTED_BY =
+      field(name(MOLGENIS, "group_membership_metadata", "granted_by"), VARCHAR.nullable(false));
+  static final Field<OffsetDateTime> GMM_GRANTED_AT =
+      field(
+          name(MOLGENIS, "group_membership_metadata", "granted_at"),
+          TIMESTAMPWITHTIMEZONE.nullable(false));
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
@@ -649,7 +696,6 @@ public class MetadataUtils {
   }
 
   public static void setUserPassword(DSLContext jooq, String user, String password) {
-    // TODO BEFORE MERGE: set USER_ACTIVE to current value and not to "TRUE"
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
@@ -742,5 +788,237 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  static void seedSystemRoles(DSLContext jooq, String schemaName) {
+    jooq.insertInto(ROLE_PERMISSION_METADATA)
+        .columns(
+            RPM_SCHEMA_NAME,
+            RPM_ROLE_NAME,
+            RPM_TABLE_NAME,
+            RPM_SELECT_SCOPE,
+            RPM_INSERT_SCOPE,
+            RPM_UPDATE_SCOPE,
+            RPM_DELETE_SCOPE,
+            RPM_CHANGE_OWNER,
+            RPM_CHANGE_GROUP)
+        .values(schemaName, "Owner", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", true, true)
+        .values(schemaName, "Manager", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", true, true)
+        .values(schemaName, "Editor", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", false, false)
+        .values(schemaName, "Viewer", WILDCARD_TABLE, "ALL", "NONE", "NONE", "NONE", false, false)
+        .onConflictDoNothing()
+        .execute();
+  }
+
+  static void emitAccessFunctions(DSLContext jooq) {
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"MOLGENIS\".mg_can_read("
+            + "  p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT"
+            + ") RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$"
+            + "  SELECT EXISTS ("
+            + "    SELECT 1 FROM \"MOLGENIS\".role_permission_metadata rp"
+            + "    WHERE rp.schema_name = p_schema"
+            + "      AND rp.table_name  = '*'"
+            + "      AND rp.role_name   IN ('Owner','Manager','Editor','Viewer')"
+            + "      AND pg_has_role(current_user,"
+            + "            'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')"
+            + "      AND ("
+            + "           rp.select_scope = 'ALL'"
+            + "        OR (rp.select_scope = 'GROUP' AND p_groups && \"MOLGENIS\".current_user_groups(p_schema))"
+            + "        OR (rp.select_scope = 'OWN'   AND p_owner = current_user)"
+            + "      )"
+            + "    UNION ALL"
+            + "    SELECT 1"
+            + "    FROM \"MOLGENIS\".group_membership_metadata m"
+            + "    JOIN \"MOLGENIS\".role_permission_metadata rp"
+            + "      ON rp.schema_name = m.schema_name"
+            + "     AND rp.role_name   = m.role_name"
+            + "     AND rp.table_name  = p_table"
+            + "    WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "      AND m.schema_name = p_schema"
+            + "      AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')"
+            + "      AND ("
+            + "           rp.select_scope = 'ALL'"
+            + "        OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))"
+            + "        OR (rp.select_scope = 'OWN'   AND p_owner = current_user)"
+            + "        OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')"
+            + "      )"
+            + "  )"
+            + "$$");
+
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"MOLGENIS\".mg_can_write("
+            + "  p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT, p_verb TEXT"
+            + ") RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$"
+            + "  SELECT EXISTS ("
+            + "    SELECT 1 FROM \"MOLGENIS\".role_permission_metadata rp"
+            + "    WHERE rp.schema_name = p_schema"
+            + "      AND rp.table_name  = '*'"
+            + "      AND rp.role_name   IN ('Owner','Manager','Editor','Viewer')"
+            + "      AND pg_has_role(current_user,"
+            + "            'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')"
+            + "      AND CASE p_verb"
+            + "            WHEN 'insert' THEN rp.insert_scope = 'ALL'"
+            + "            WHEN 'update' THEN rp.update_scope = 'ALL'"
+            + "            ELSE               rp.delete_scope = 'ALL'"
+            + "          END"
+            + "    UNION ALL"
+            + "    SELECT 1"
+            + "    FROM \"MOLGENIS\".group_membership_metadata m"
+            + "    JOIN \"MOLGENIS\".role_permission_metadata rp"
+            + "      ON rp.schema_name = m.schema_name"
+            + "     AND rp.role_name   = m.role_name"
+            + "     AND rp.table_name  = p_table"
+            + "    WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "      AND m.schema_name = p_schema"
+            + "      AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')"
+            + "      AND CASE p_verb"
+            + "            WHEN 'insert' THEN"
+            + "              rp.insert_scope = 'ALL'"
+            + "              OR (rp.insert_scope = 'GROUP' AND m.group_name = ANY(p_groups))"
+            + "              OR (rp.insert_scope = 'OWN'   AND p_owner = current_user)"
+            + "            WHEN 'update' THEN"
+            + "              rp.update_scope = 'ALL'"
+            + "              OR (rp.update_scope = 'GROUP' AND m.group_name = ANY(p_groups))"
+            + "              OR (rp.update_scope = 'OWN'   AND p_owner = current_user)"
+            + "            ELSE"
+            + "              rp.delete_scope = 'ALL'"
+            + "              OR (rp.delete_scope = 'GROUP' AND m.group_name = ANY(p_groups))"
+            + "              OR (rp.delete_scope = 'OWN'   AND p_owner = current_user)"
+            + "          END"
+            + "  )"
+            + "$$");
+
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"MOLGENIS\".mg_can_write_all("
+            + "  p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT, p_verb TEXT,"
+            + "  p_changing_owner BOOLEAN, p_changing_group BOOLEAN"
+            + ") RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$"
+            + "  SELECT"
+            + "    (array_length(p_groups, 1) IS NULL OR array_length(p_groups, 1) = 0"
+            + "     OR p_groups <@ ARRAY("
+            + "          SELECT DISTINCT m.group_name"
+            + "          FROM \"MOLGENIS\".group_membership_metadata m"
+            + "          JOIN \"MOLGENIS\".role_permission_metadata rp"
+            + "            ON rp.schema_name = m.schema_name"
+            + "           AND rp.role_name   = m.role_name"
+            + "           AND rp.table_name  = p_table"
+            + "          WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "            AND m.schema_name = p_schema"
+            + "            AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')"
+            + "            AND CASE p_verb"
+            + "                  WHEN 'insert' THEN rp.insert_scope IN ('ALL','GROUP')"
+            + "                  WHEN 'update' THEN rp.update_scope IN ('ALL','GROUP')"
+            + "                  ELSE              rp.delete_scope IN ('ALL','GROUP')"
+            + "                END"
+            + "        )"
+            + "    )"
+            + "    AND (NOT p_changing_owner OR EXISTS ("
+            + "          SELECT 1 FROM \"MOLGENIS\".role_permission_metadata rp"
+            + "          WHERE rp.schema_name = p_schema AND rp.table_name = '*'"
+            + "            AND rp.role_name IN ('Owner','Manager','Editor','Viewer')"
+            + "            AND pg_has_role(current_user,"
+            + "                  'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')"
+            + "            AND rp.change_owner = true"
+            + "          UNION ALL"
+            + "          SELECT 1"
+            + "          FROM \"MOLGENIS\".group_membership_metadata m"
+            + "          JOIN \"MOLGENIS\".role_permission_metadata rp"
+            + "            ON rp.schema_name = m.schema_name"
+            + "           AND rp.role_name   = m.role_name"
+            + "           AND rp.table_name  = p_table"
+            + "          WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "            AND m.schema_name = p_schema"
+            + "            AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')"
+            + "            AND rp.change_owner = true"
+            + "        ))"
+            + "    AND (NOT p_changing_group OR EXISTS ("
+            + "          SELECT 1 FROM \"MOLGENIS\".role_permission_metadata rp"
+            + "          WHERE rp.schema_name = p_schema AND rp.table_name = '*'"
+            + "            AND rp.role_name IN ('Owner','Manager','Editor','Viewer')"
+            + "            AND pg_has_role(current_user,"
+            + "                  'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')"
+            + "            AND rp.change_group = true"
+            + "          UNION ALL"
+            + "          SELECT 1"
+            + "          FROM \"MOLGENIS\".group_membership_metadata m"
+            + "          JOIN \"MOLGENIS\".role_permission_metadata rp"
+            + "            ON rp.schema_name = m.schema_name"
+            + "           AND rp.role_name   = m.role_name"
+            + "           AND rp.table_name  = p_table"
+            + "          WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "            AND m.schema_name = p_schema"
+            + "            AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')"
+            + "            AND rp.change_group = true"
+            + "        ))"
+            + "$$");
+
+    jooq.execute("DROP FUNCTION IF EXISTS \"MOLGENIS\".mg_privacy_count(TEXT, TEXT, TEXT)");
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"MOLGENIS\".mg_privacy_count(p_count BIGINT)"
+            + " RETURNS BIGINT LANGUAGE sql IMMUTABLE PARALLEL SAFE AS $$"
+            + "  SELECT CEIL(p_count::numeric / 10) * 10"
+            + " $$");
+
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"MOLGENIS\".mg_check_change_capability()"
+            + " RETURNS trigger LANGUAGE plpgsql AS $$"
+            + "DECLARE"
+            + "  p_schema TEXT := TG_ARGV[0];"
+            + "  p_table  TEXT := TG_ARGV[1];"
+            + "  p_changing_owner BOOLEAN;"
+            + "  p_changing_group BOOLEAN;"
+            + "  p_verb TEXT;"
+            + "BEGIN"
+            + "  IF pg_has_role(current_user,"
+            + "       'MG_ROLE_' || p_schema || '/Manager', 'MEMBER') THEN"
+            + "    RETURN NEW;"
+            + "  END IF;"
+            + "  IF TG_OP = 'UPDATE' THEN"
+            + "    p_verb           := 'update';"
+            + "    p_changing_owner := (OLD.mg_owner IS DISTINCT FROM NEW.mg_owner);"
+            + "    p_changing_group := (OLD.mg_groups IS DISTINCT FROM NEW.mg_groups);"
+            + "  ELSE"
+            + "    p_verb           := 'insert';"
+            + "    p_changing_owner := (NEW.mg_owner IS NOT NULL"
+            + "                         AND NEW.mg_owner IS DISTINCT FROM current_user);"
+            + "    p_changing_group := FALSE;"
+            + "  END IF;"
+            + "  IF NOT \"MOLGENIS\".mg_can_write_all("
+            + "      p_schema, p_table, NEW.mg_groups, NEW.mg_owner,"
+            + "      p_verb, p_changing_owner, p_changing_group) THEN"
+            + "    RAISE EXCEPTION 'Permission denied: change_owner / change_group capability missing'"
+            + "      USING ERRCODE = '42501';"
+            + "  END IF;"
+            + "  RETURN NEW;"
+            + "END; $$");
+  }
+
+  static void updateCurrentUserGroupsFunction(DSLContext jooq) {
+    jooq.execute("DROP FUNCTION IF EXISTS \"MOLGENIS\".current_user_groups(TEXT)");
+    jooq.execute(
+        "CREATE FUNCTION \"MOLGENIS\".current_user_groups(p_schema TEXT)"
+            + " RETURNS TEXT[] LANGUAGE sql STABLE AS $$"
+            + "   SELECT COALESCE(array_agg(DISTINCT group_name), ARRAY[]::TEXT[])"
+            + "   FROM \"MOLGENIS\".group_membership_metadata"
+            + "   WHERE user_name = regexp_replace(current_user, '^MG_USER_', '')"
+            + "     AND schema_name = p_schema"
+            + " $$");
+  }
+
+  static void executeCreateMemberRole(DSLContext jooq, String schemaName) {
+    String memberRole = MG_ROLE_PREFIX + schemaName + "_MEMBER";
+    String existsRole = MG_ROLE_PREFIX + schemaName + "/Exists";
+    jooq.execute(
+        "DO $$\n"
+            + "BEGIN\n"
+            + "    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {0}) THEN\n"
+            + "        CREATE ROLE {1} NOLOGIN NOBYPASSRLS NOINHERIT;\n"
+            + "    END IF;\n"
+            + "END\n"
+            + "$$;\n",
+        inline(memberRole), name(memberRole));
+    jooq.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(memberRole));
+    jooq.execute("GRANT {0} TO {1}", name(existsRole), name(memberRole));
   }
 }

@@ -69,19 +69,17 @@ public class GroupsMetadataTest {
     String schemaName = schema.getName();
 
     jooq.execute(
-        "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
+        "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)",
         schemaName,
-        "group-alpha",
-        new String[] {"some-user"});
+        "group-alpha");
 
     assertThrows(
         Exception.class,
         () ->
             jooq.execute(
-                "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
+                "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)",
                 "nonexistent-schema-xyz",
-                "group-bogus",
-                new String[] {}),
+                "group-bogus"),
         "insert with non-existent schema must fail due to FK constraint");
 
     List<Record> before =
@@ -103,20 +101,40 @@ public class GroupsMetadataTest {
       String pgCurrentUser = jooq.fetchOne("SELECT current_user").get(0, String.class);
 
       jooq.execute(
-          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
-          schemaName,
-          "group-alpha",
-          new String[] {pgCurrentUser});
+          "INSERT INTO \"MOLGENIS\".users_metadata (username, enabled) VALUES (?, true)"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser);
+
       jooq.execute(
-          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
           schemaName,
-          "group-beta",
-          new String[] {pgCurrentUser, "some-other-user"});
+          "group-alpha");
       jooq.execute(
-          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
           schemaName,
-          "group-gamma",
-          new String[] {"some-other-user"});
+          "group-beta");
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
+          schemaName,
+          "group-gamma");
+
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+              + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser,
+          schemaName,
+          "group-alpha");
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+              + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser,
+          schemaName,
+          "group-beta");
 
       String[] emptyResult =
           jooq.fetchOne("SELECT \"MOLGENIS\".current_user_groups(?)", "no_such_schema_xyz")
@@ -138,10 +156,17 @@ public class GroupsMetadataTest {
       db.createSchema(otherSchemaName);
       try {
         jooq.execute(
-            "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name, users) VALUES (?, ?, ?)",
+            "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+                + " ON CONFLICT DO NOTHING",
             otherSchemaName,
-            "group-other",
-            new String[] {pgCurrentUser});
+            "group-other");
+        jooq.execute(
+            "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+                + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+                + " ON CONFLICT DO NOTHING",
+            pgCurrentUser,
+            otherSchemaName,
+            "group-other");
 
         String[] otherSchemaGroups =
             jooq.fetchOne("SELECT \"MOLGENIS\".current_user_groups(?)", schemaName)

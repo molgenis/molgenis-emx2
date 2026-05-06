@@ -154,13 +154,14 @@ public class GraphqlAdminFieldFactory {
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
         .filter(member -> member.getUser().equals(user.getUsername()))
+        .filter(member -> member.getRole().contains("/"))
         .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }
 
   private static Map<String, String> getUserRoleMap(Member member) {
     String role = member.getRole();
-    String[] parts = role.split("/");
+    String[] parts = role.split("/", 2);
     Map<String, String> roleMap = new HashMap<>();
     roleMap.put(SCHEMA_ID, parts[0]);
     roleMap.put(ROLE, parts[1]);

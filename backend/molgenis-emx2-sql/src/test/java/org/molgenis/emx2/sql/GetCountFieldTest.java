@@ -96,6 +96,22 @@ class GetCountFieldTest {
   }
 
   @Test
+  void customRoleSelectRange_aboveThreshold_appliesCeilFloor() throws Exception {
+    db.becomeAdmin();
+    for (int index = 4; index <= 11; index++) {
+      schema.getTable(TABLE_NAME).insert(new Row().set("id", "r" + index));
+    }
+    grantCustomRole(SelectScope.RANGE);
+    db.setActiveUser(TEST_USER);
+    try {
+      int count = queryCount();
+      assertEquals(20, count);
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
   void customRoleSelectExists_throws() {
     grantCustomRole(SelectScope.EXISTS);
     db.setActiveUser(TEST_USER);

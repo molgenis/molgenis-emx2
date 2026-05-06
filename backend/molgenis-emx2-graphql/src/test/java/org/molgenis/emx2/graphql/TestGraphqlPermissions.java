@@ -135,29 +135,19 @@ class TestGraphqlPermissions {
   }
 
   @Test
-  void changeRoles_systemRoleInInput_noExceptionAndSystemRoleStillPresent() throws IOException {
-    String sysRoleSibling = "sibling";
+  void changeRoles_systemRoleInInput_throwsImmutableError() {
     String mutation =
         "mutation { change(roles: ["
             + "{name: \"Viewer\", tables: [{table: \""
             + TABLE_PET
-            + "\", select: ALL}]}, "
-            + "{name: \""
-            + sysRoleSibling
-            + "\", tables: [{table: \""
-            + TABLE_PET
-            + "\", select: OWN}], changeOwner: false, changeGroup: false}"
+            + "\", select: ALL}]}"
             + "]) { message } }";
 
-    JsonNode result = execute(mutation);
-    assertNotNull(result.at("/change/message").textValue());
-
-    boolean viewerStillPresent =
-        schema.getRoleInfos().stream().anyMatch(role -> "Viewer".equals(role.name()));
-    assertTrue(viewerStillPresent, "Viewer system role should still be visible in getRoleInfos");
-
-    PermissionSet customPs = roleManager.getPermissions(schema, sysRoleSibling);
-    assertEquals(SelectScope.OWN, customPs.getTables().get(TABLE_PET).getSelect());
+    MolgenisException thrown =
+        assertThrows(MolgenisException.class, () -> executor.executeWithoutSession(mutation));
+    assertTrue(
+        thrown.getMessage().contains("immutable"),
+        "Error must mention immutable; got: " + thrown.getMessage());
   }
 
   @Test
@@ -356,6 +346,39 @@ class TestGraphqlPermissions {
     assertNotNull(foundAfter, "Role " + roleWithDesc + " should still appear after update");
     assertEquals(
         "", foundAfter.at("/description").asText(), "description_null_input_overwrites_to_empty");
+  }
+
+  @Test
+  void rolesQuery_returnsMerged() throws IOException {
+    String customRole = "mergedQueryRole";
+    execute(
+        "mutation { change(roles: [{"
+            + "name: \""
+            + customRole
+            + "\", "
+            + "tables: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL}]"
+            + "}]) { message } }");
+
+    JsonNode roles = execute("{_schema { roles { name system } } }").at("/_schema/roles");
+
+    boolean hasSystemRole = false;
+    boolean hasCustomRole = false;
+    for (JsonNode roleNode : roles) {
+      String name = roleNode.at("/name").asText();
+      if (isSystemRoleName(name)) {
+        hasSystemRole = true;
+        assertTrue(
+            roleNode.at("/system").asBoolean(), "System role " + name + " must have system:true");
+      }
+      if (customRole.equals(name)) {
+        hasCustomRole = true;
+        assertFalse(roleNode.at("/system").asBoolean(), "Custom role must have system:false");
+      }
+    }
+    assertTrue(hasSystemRole, "_schema.roles must include system roles");
+    assertTrue(hasCustomRole, "_schema.roles must include custom role " + customRole);
   }
 
   @Test

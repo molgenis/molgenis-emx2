@@ -675,22 +675,17 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
     if (roles == null) return;
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
-    boolean hasCustomRole =
-        roles.stream()
-            .anyMatch(
-                roleMap -> {
-                  Object nameVal = roleMap.get(GraphqlConstants.NAME);
-                  return nameVal instanceof String roleName && !roleManager.isSystemRole(roleName);
-                });
-    if (hasCustomRole) {
-      GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
-    }
     for (Map<String, Object> roleMap : roles) {
       Object nameVal = roleMap.get(GraphqlConstants.NAME);
       if (!(nameVal instanceof String roleName)) continue;
       if (roleManager.isSystemRole(roleName)) {
-        continue;
+        throw new MolgenisException("System roles are immutable: cannot modify '" + roleName + "'");
       }
+    }
+    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
+    for (Map<String, Object> roleMap : roles) {
+      Object nameVal = roleMap.get(GraphqlConstants.NAME);
+      if (!(nameVal instanceof String roleName)) continue;
       Object descVal = roleMap.get(GraphqlConstants.DESCRIPTION);
       String description = descVal instanceof String str ? str : "";
       if (!roleManager.roleExists(schema.getName(), roleName)) {
@@ -961,6 +956,10 @@ public class GraphqlSchemaFieldFactory {
               db -> {
                 try {
                   Schema s = db.getSchema(schema.getName());
+                  if (s == null) {
+                    throw new MolgenisException(
+                        "Not authorized: schema '" + schema.getName() + "' is not accessible");
+                  }
                   changeTables(s, dataFetchingEnvironment);
                   changeRoles(s, dataFetchingEnvironment);
                   changeGroups(s, dataFetchingEnvironment);
@@ -1011,8 +1010,22 @@ public class GraphqlSchemaFieldFactory {
       if (role != null && !roleManager.isSystemRole(role)) {
         roleManager.grantRoleToUser(schema, role, email);
       } else {
+        rejectEscalation(schema, role);
         schema.addMember(email, role);
       }
+    }
+  }
+
+  private static void rejectEscalation(Schema schema, String role) {
+    if (schema.getDatabase().isAdmin()) return;
+    if (schema.hasActiveUserRole(Privileges.OWNER)) return;
+    if (Privileges.OWNER.toString().equals(role) || Privileges.MANAGER.toString().equals(role)) {
+      throw new MolgenisException(
+          "Privilege escalation denied: only admin or Owner can grant "
+              + role
+              + " role in schema '"
+              + schema.getName()
+              + "'");
     }
   }
 
