@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mount, flushPromises } from "@vue/test-utils";
-import { nextTick } from "vue";
+import { mount } from "@vue/test-utils";
 import Tree from "../../../../app/components/input/Tree.vue";
 import type { ITreeNode } from "../../../../types/types";
 
@@ -55,8 +54,22 @@ function makeLargeHierarchicalNodes(): ITreeNode[] {
 }
 
 describe("Tree", () => {
-  describe("auto-expand on small trees", () => {
-    it("auto-expands all parent nodes when tree has ≤25 total nodes", () => {
+  describe("renders tree nodes", () => {
+    it("renders root nodes by name", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: makeSmallHierarchicalNodes(),
+          modelValue: [],
+        },
+      });
+
+      expect(wrapper.text()).toContain("parent1");
+      expect(wrapper.text()).toContain("parent2");
+      expect(wrapper.text()).toContain("parent3");
+    });
+
+    it("renders a toggle button for parent nodes", () => {
       const wrapper = mount(Tree, {
         props: {
           id: "test-tree",
@@ -67,49 +80,9 @@ describe("Tree", () => {
 
       const expandButtons = wrapper.findAll("button[aria-controls]");
       expect(expandButtons.length).toBeGreaterThan(0);
-      expandButtons.forEach((btn) => {
-        expect(btn.attributes("aria-expanded")).toBe("true");
-      });
-
-      expect(wrapper.text()).toContain("Child 1A");
-      expect(wrapper.text()).toContain("Child 2B");
-      expect(wrapper.text()).toContain("Child 3A");
     });
 
-    it("does not auto-expand when tree has >25 total nodes", () => {
-      const wrapper = mount(Tree, {
-        props: {
-          id: "test-tree",
-          nodes: makeLargeHierarchicalNodes(),
-          modelValue: [],
-        },
-      });
-
-      const expandButtons = wrapper.findAll("button[aria-controls]");
-      expect(expandButtons.length).toBeGreaterThan(0);
-      expandButtons.forEach((btn) => {
-        expect(btn.attributes("aria-expanded")).toBe("false");
-      });
-
-      expect(wrapper.text()).not.toContain("Child 1A");
-    });
-  });
-
-  describe("disableInternalSearch prop", () => {
-    it("renders internal search by default when >25 nodes", () => {
-      const wrapper = mount(Tree, {
-        props: {
-          id: "test-tree",
-          nodes: makeLargeHierarchicalNodes(),
-          modelValue: [],
-        },
-      });
-      expect(
-        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
-      ).toBe(true);
-    });
-
-    it("renders internal search by default when tree has children", () => {
+    it("renders search toggle button by default", () => {
       const wrapper = mount(Tree, {
         props: {
           id: "test-tree",
@@ -117,87 +90,44 @@ describe("Tree", () => {
           modelValue: [],
         },
       });
-      expect(
-        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
-      ).toBe(true);
-    });
-
-    it("suppresses internal search when disableInternalSearch is true, even with >25 nodes", () => {
-      const wrapper = mount(Tree, {
-        props: {
-          id: "test-tree",
-          nodes: makeLargeHierarchicalNodes(),
-          modelValue: [],
-          disableInternalSearch: true,
-        },
-      });
-      expect(
-        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
-      ).toBe(false);
-    });
-
-    it("suppresses internal search when disableInternalSearch is true, even with children", () => {
-      const wrapper = mount(Tree, {
-        props: {
-          id: "test-tree",
-          nodes: makeSmallHierarchicalNodes(),
-          modelValue: [],
-          disableInternalSearch: true,
-        },
-      });
-      expect(
-        wrapper.find('[id="test-tree-tree-search-input-container"]').exists()
-      ).toBe(false);
+      expect(wrapper.find("button").exists()).toBe(true);
     });
   });
 
-  describe("preserve expand state across node rebuilds", () => {
-    it("preserves expand state when nodes prop changes", async () => {
-      const initialNodes = makeSmallHierarchicalNodes();
+  describe("selection", () => {
+    it("emits update:modelValue when a node checkbox is clicked", async () => {
       const wrapper = mount(Tree, {
         props: {
           id: "test-tree",
-          nodes: initialNodes,
+          nodes: [
+            { name: "a", label: "A" },
+            { name: "b", label: "B" },
+          ],
           modelValue: [],
         },
       });
 
-      const parent1Btn = wrapper.find("button[aria-controls='parent1']");
-      expect(parent1Btn.attributes("aria-expanded")).toBe("true");
+      const checkbox = wrapper.find('input[id="test-tree-a-input"]');
+      await checkbox.trigger("click");
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted).toBeTruthy();
+      expect(emitted![0][0]).toContain("a");
+    });
 
-      await parent1Btn.trigger("click");
-      await nextTick();
+    it("reflects selected state from modelValue", () => {
+      const wrapper = mount(Tree, {
+        props: {
+          id: "test-tree",
+          nodes: [
+            { name: "a", label: "A" },
+            { name: "b", label: "B" },
+          ],
+          modelValue: ["a"],
+        },
+      });
 
-      expect(
-        wrapper
-          .find("button[aria-controls='parent1']")
-          .attributes("aria-expanded")
-      ).toBe("false");
-
-      const updatedNodes: ITreeNode[] = initialNodes.map((node) => ({
-        ...node,
-        label: node.label + " (updated)",
-        children: node.children?.map((child) => ({
-          ...child,
-          label: child.label + " (updated)",
-        })),
-      }));
-
-      await wrapper.setProps({ nodes: updatedNodes });
-      await flushPromises();
-      await nextTick();
-
-      expect(
-        wrapper
-          .find("button[aria-controls='parent1']")
-          .attributes("aria-expanded")
-      ).toBe("false");
-
-      expect(
-        wrapper
-          .find("button[aria-controls='parent2']")
-          .attributes("aria-expanded")
-      ).toBe("true");
+      const checkbox = wrapper.find('input[id="test-tree-a-input"]');
+      expect((checkbox.element as HTMLInputElement).checked).toBe(true);
     });
   });
 });

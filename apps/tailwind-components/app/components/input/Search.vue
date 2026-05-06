@@ -3,14 +3,18 @@ import { useTemplateRef } from "vue";
 import type { IInputProps, ButtonSize } from "../../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 
-const modelValue = defineModel<string | number>();
-const search = useTemplateRef<HTMLInputElement>("search");
+const emit = defineEmits<{
+  "update:modelValue": [value: string];
+  focus: [event: FocusEvent];
+  blur: [event: FocusEvent];
+}>();
 
-withDefaults(
+const props = withDefaults(
   defineProps<
     IInputProps & {
       type?: string;
       size?: ButtonSize;
+      modelValue?: string | number;
     }
   >(),
   {
@@ -18,7 +22,13 @@ withDefaults(
   }
 );
 
+const search = useTemplateRef<HTMLInputElement>("search");
+
 defineExpose({ search });
+
+function handleInput(event: Event) {
+  emit("update:modelValue", (event.target as HTMLInputElement).value);
+}
 </script>
 <template>
   <div
@@ -58,9 +68,10 @@ defineExpose({ search });
       :id="id"
       ref="search"
       type="search"
-      v-model="modelValue"
+      :value="props.modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
+      @input="handleInput"
       class="w-full h-[100%] pr-4 pl-2 outline-none text-current bg-transparent"
       :class="{
         'cursor-not-allowed': disabled,
