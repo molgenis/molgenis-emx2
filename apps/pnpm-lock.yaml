@@ -62,7 +62,7 @@ importers:
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@4.4.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -600,6 +600,9 @@ importers:
       '@popperjs/core':
         specifier: 2.11.8
         version: 2.11.8
+      '@vueuse/components':
+        specifier: 10.7.0
+        version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/core':
         specifier: 10.7.0
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
@@ -977,7 +980,7 @@ importers:
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@4.4.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       focus-trap:
         specifier: ^8.0.0
         version: 8.0.0
@@ -3853,6 +3856,9 @@ packages:
     engines: {node: '>=18.12.0'}
     peerDependencies:
       vue: '>=3.3.0'
+
+  '@vueuse/components@10.7.0':
+    resolution: {integrity: sha512-ycyF+fZtipP/8WVWZ5y6Cb9twJ0EeVHIqcqkCcTpmAJdheRjorT8v6cHk3h144HHTMgIfBWC6TaSukDG7QFmsw==}
 
   '@vueuse/components@12.8.2':
     resolution: {integrity: sha512-Nj27u1KsDWzoTthlChzVndJ9g0sW5APCXO3EJkSxlG11nN/ANTUlPPeoJOFvtbdDRnvsMJalboJyE0rRyg7yNg==}
@@ -12050,6 +12056,15 @@ snapshots:
     dependencies:
       date-fns: 4.1.0
       vue: 3.5.22(typescript@5.6.2)
+
+  '@vueuse/components@10.7.0(vue@3.5.22(typescript@5.6.2))':
+    dependencies:
+      '@vueuse/core': 10.7.0(vue@3.5.22(typescript@5.6.2))
+      '@vueuse/shared': 10.7.0(vue@3.5.22(typescript@5.6.2))
+      vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
 
   '@vueuse/components@12.8.2(typescript@5.6.2)':
     dependencies:
