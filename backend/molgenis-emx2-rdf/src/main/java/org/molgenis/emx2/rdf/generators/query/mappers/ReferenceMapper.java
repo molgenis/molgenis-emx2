@@ -90,13 +90,13 @@ public class ReferenceMapper implements ColumnMapper {
 
   private ArrayList<String> columnPath() {
     ArrayList<String> newPath = new ArrayList<>(path);
-    newPath.add(new ColumnVariableName(rootColumn).getSparqlName());
+    newPath.add(ColumnVariableNameMapper.columnToSparql(rootColumn));
     return newPath;
   }
 
   private Variable extendVar(Variable toExtend, Column column) {
     return SparqlBuilder.var(
-        toExtend.getVarName() + "_" + new ColumnVariableName(column).getSparqlName());
+        toExtend.getVarName() + "_" + ColumnVariableNameMapper.columnToSparql(column));
   }
 
   @Override

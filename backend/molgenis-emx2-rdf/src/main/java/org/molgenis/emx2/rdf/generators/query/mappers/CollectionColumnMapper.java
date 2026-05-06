@@ -12,7 +12,7 @@ import org.molgenis.emx2.Column;
 public class CollectionColumnMapper extends PlainColumnMapper {
 
   public CollectionColumnMapper(Variable subject, Column column) {
-    this(subject, column, SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()));
+    this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
   }
 
   public CollectionColumnMapper(Variable subject, Column column, Variable object) {
