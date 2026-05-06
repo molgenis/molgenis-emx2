@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.*;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -84,12 +85,12 @@ class TableQueryGeneratorTest {
     StringWriter writer = new StringWriter();
     query.evaluate(new SPARQLResultsCSVWriter(writer));
 
-    String actual = writer.toString();
-    String expected =
-        new String(
-            Objects.requireNonNull(LOADER.getResourceAsStream("queries/expected_pets.csv"))
-                .readAllBytes());
-    assertEquals(expected, actual);
+    byte[] fileBytes =
+        Objects.requireNonNull(LOADER.getResourceAsStream("queries/expected_pets.csv"))
+            .readAllBytes();
+    List<String> expectedLines = new String(fileBytes).lines().toList();
+    List<String> actualLines = writer.toString().lines().toList();
+    assertEquals(expectedLines, actualLines);
   }
 
   private SailRepository setupRepositoryFromFile(String fileName) {
