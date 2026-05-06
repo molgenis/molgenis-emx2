@@ -448,7 +448,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("uses _match_any for RADIO with composite key objects", () => {
+  it("uses _or for RADIO with composite key objects (multi-value)", () => {
     const columns: IColumn[] = [
       makeColumn({
         id: "status",
@@ -472,10 +472,62 @@ describe("buildGraphQLFilter", () => {
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
       status: {
-        _match_any: [
-          { id: "A", code: "1" },
-          { id: "B", code: "2" },
+        _or: [
+          { id: { equals: "A" }, code: { equals: "1" } },
+          { id: { equals: "B" }, code: { equals: "2" } },
         ],
+      },
+    });
+  });
+
+  it("uses _or for RADIO with composite key objects (single-value)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "category",
+        columnType: "RADIO",
+        label: "Category",
+        refTableId: "Category",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "category",
+        {
+          operator: "equals",
+          value: [{ name: "cat" }],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      category: {
+        _or: [{ name: { equals: "cat" } }],
+      },
+    });
+  });
+
+  it("uses _or for CHECKBOX with composite key objects", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "tags",
+        columnType: "CHECKBOX",
+        label: "Tags",
+        refTableId: "Tags",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "tags",
+        {
+          operator: "equals",
+          value: [{ code: "X" }, { code: "Y" }],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: {
+        _or: [{ code: { equals: "X" } }, { code: { equals: "Y" } }],
       },
     });
   });
@@ -537,6 +589,43 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ status: { _match_any: ["active"] } });
   });
 
+  it("nested REF text path like: collectionEvents.name produces no double-name", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "collectionEvents",
+        columnType: "REF_ARRAY",
+        label: "Collection Events",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["collectionEvents.name", { operator: "like", value: "asdf" }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      collectionEvents: { name: { like: "asdf" } },
+    });
+  });
+
+  it("nested REF text path equals: collectionEvents.name produces no double-name", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "collectionEvents",
+        columnType: "REF_ARRAY",
+        label: "Collection Events",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "collectionEvents.name",
+        { operator: "equals", value: [{ name: "asdf" }] },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      collectionEvents: { name: { equals: ["asdf"] } },
+    });
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
@@ -553,5 +642,60 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ name: { equals: [] } });
+  });
+
+  it("H3: INT between [1, 10] produces { age: { between: { min: 1, max: 10 } } }", () => {
+    const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
+    const filters = new Map<string, IFilterValue>([
+      ["age", { operator: "between", value: [1, 10] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ age: { between: { min: 1, max: 10 } } });
+  });
+
+  it("H3: NON_NEGATIVE_INT between [0, 100] produces { count: { between: { min: 0, max: 100 } } }", () => {
+    const columns: IColumn[] = [
+      { id: "count", columnType: "NON_NEGATIVE_INT", label: "Count" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["count", { operator: "between", value: [0, 100] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ count: { between: { min: 0, max: 100 } } });
+  });
+
+  it("H3: DATETIME between two ISO strings produces { between: { min, max } }", () => {
+    const columns: IColumn[] = [
+      { id: "createdAt", columnType: "DATETIME", label: "Created At" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "createdAt",
+        {
+          operator: "between",
+          value: ["2024-01-01T00:00:00.000Z", "2024-12-31T23:59:59.000Z"],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      createdAt: {
+        between: {
+          min: "2024-01-01T00:00:00.000Z",
+          max: "2024-12-31T23:59:59.000Z",
+        },
+      },
+    });
+  });
+
+  it("H3: STRING_ARRAY equals filter produces { tags: { equals: ['a', 'b'] } }", () => {
+    const columns: IColumn[] = [
+      { id: "tags", columnType: "STRING_ARRAY", label: "Tags" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["tags", { operator: "equals", value: ["a", "b"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ tags: { equals: ["a", "b"] } });
   });
 });

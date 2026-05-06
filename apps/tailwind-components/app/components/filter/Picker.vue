@@ -15,21 +15,15 @@ import {
   navDepth,
 } from "../../utils/filterTypes";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import type { NestedColumnMeta } from "../../../types/filters";
 
 interface PickerNode {
   id: string;
   label: string;
-  description?: string | null;
+  description?: string;
   selectable: boolean;
   depth: number;
   column: IColumn;
-}
-
-interface NestedColumnMeta {
-  label: string;
-  columnType: string;
-  refTableId?: string | null;
-  refSchemaId?: string | null;
 }
 
 const props = defineProps<{
@@ -44,6 +38,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   apply: [selectedIds: Set<string>, nestedMeta: Map<string, NestedColumnMeta>];
   cancel: [];
+  reset: [];
 }>();
 
 const searchQuery = ref("");
@@ -198,25 +193,30 @@ function toggleSelection(id: string) {
 }
 
 function buildNestedMeta(): Map<string, NestedColumnMeta> {
-  const nodeById = new Map(allNodes.value.map((n) => [n.id, n]));
-  const meta = new Map<string, NestedColumnMeta>();
-  for (const id of localSelection.value) {
-    if (!id.includes(".")) continue;
-    const node = nodeById.get(id);
-    if (!node) continue;
-    const segments = id.split(".");
-    const labelParts = segments.map((_, idx) => {
-      const pathUpTo = segments.slice(0, idx + 1).join(".");
-      return nodeById.get(pathUpTo)?.label ?? segments[idx]!;
-    });
-    meta.set(id, {
-      label: labelParts.join(" → "),
-      columnType: node.column.columnType,
-      refTableId: node.column.refTableId,
-      refSchemaId: node.column.refSchemaId ?? null,
-    });
-  }
-  return meta;
+  const nodeById = new Map(allNodes.value.map((node) => [node.id, node]));
+  const nestedIds = [...localSelection.value].filter((id) => id.includes("."));
+  const entries = nestedIds
+    .map((id) => {
+      const node = nodeById.get(id);
+      if (!node) return null;
+      const segments = id.split(".");
+      const labelParts = segments.map((_, idx) => {
+        const pathUpTo = segments.slice(0, idx + 1).join(".");
+        return nodeById.get(pathUpTo)?.label ?? segments[idx]!;
+      });
+      const entry: [string, NestedColumnMeta] = [
+        id,
+        {
+          label: labelParts.join(" → "),
+          columnType: node.column.columnType,
+          refTableId: node.column.refTableId,
+          refSchemaId: node.column.refSchemaId ?? null,
+        },
+      ];
+      return entry;
+    })
+    .filter((entry): entry is [string, NestedColumnMeta] => entry !== null);
+  return new Map(entries);
 }
 
 function applyAndClose() {
@@ -231,6 +231,8 @@ function cancelAndClose() {
 
 function resetToDefaults() {
   localSelection.value = new Set(computeDefaultFilters(props.columns));
+  emit("reset");
+  emit("update:modelValue", false);
 }
 
 function clearSelection() {

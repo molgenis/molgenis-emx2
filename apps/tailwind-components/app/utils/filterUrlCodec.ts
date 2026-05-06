@@ -17,6 +17,7 @@ const REF_TYPES = new Set([
 const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
 const SEARCH_PARAM = "mg_search";
+const LIKE_SUFFIX = "~like";
 
 function extractStringKey(v: unknown, depth = 0): string {
   if (v === undefined) return "";
@@ -194,15 +195,21 @@ export function serializeFiltersToUrl(
     const serialized = serializeFilterValue(value);
     if (serialized !== null) {
       if (key.includes(".")) {
-        const val = value.value;
-        const isRefLikeValue =
-          (val !== null && typeof val === "object" && !Array.isArray(val)) ||
-          (Array.isArray(val) && val.length > 0 && typeof val[0] === "object");
-        if (isRefLikeValue) {
-          const refField = extractRefField(value);
-          params[`${key}.${refField}`] = serialized;
+        if (value.operator === "like") {
+          params[`${key}${LIKE_SUFFIX}`] = serialized;
         } else {
-          params[`${key}.name`] = serialized;
+          const val = value.value;
+          const isRefLikeValue =
+            (val !== null && typeof val === "object" && !Array.isArray(val)) ||
+            (Array.isArray(val) &&
+              val.length > 0 &&
+              typeof val[0] === "object");
+          if (isRefLikeValue) {
+            const refField = extractRefField(value);
+            params[`${key}.${refField}`] = serialized;
+          } else {
+            params[`${key}.name`] = serialized;
+          }
         }
       } else if (
         column.columnType === "RADIO" ||
@@ -239,7 +246,20 @@ export function parseFiltersFromUrl(
 
     if (key.startsWith(RESERVED_PREFIX)) continue;
 
-    const segments = key.split(".");
+    const isLikeKey = key.endsWith(LIKE_SUFFIX);
+    const resolvedKey = isLikeKey ? key.slice(0, -LIKE_SUFFIX.length) : key;
+
+    if (isLikeKey) {
+      if (typeof value !== "string") continue;
+      const decodedValue = value.replace(/\+/g, " ");
+      const firstSeg = resolvedKey.split(".")[0]!;
+      const column = columns.find((c) => c.id === firstSeg);
+      if (!column) continue;
+      filters.set(resolvedKey, { operator: "like", value: decodedValue });
+      continue;
+    }
+
+    const segments = resolvedKey.split(".");
     const firstSegment = segments[0]!;
 
     const column = columns.find((c) => c.id === firstSegment);
@@ -250,7 +270,7 @@ export function parseFiltersFromUrl(
     let refField: string | null;
 
     if (!REF_TYPES.has(column.columnType) || segments.length === 1) {
-      filterKey = key;
+      filterKey = resolvedKey;
       refField = null;
     } else if (segments.length === 2) {
       filterKey = firstSegment;

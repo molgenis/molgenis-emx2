@@ -232,7 +232,8 @@ describe("Sidebar", () => {
     expect(hrs.length).toBe(3);
   });
 
-  it("calls setSearch when search value changes", async () => {
+  it("calls setSearch when search value changes (after debounce)", async () => {
+    vi.useFakeTimers();
     const filters = makeFilters(["col1"]);
     const columns = makeColumns(["col1"]);
     const wrapper = mount(Sidebar, {
@@ -243,7 +244,12 @@ describe("Sidebar", () => {
     const searchInput = wrapper.findComponent({ name: "InputSearch" });
     await searchInput.vm.$emit("update:modelValue", "hello");
 
+    expect(filters.setSearch).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(500);
+
     expect(filters.setSearch).toHaveBeenCalledWith("hello");
+    vi.useRealTimers();
   });
 
   it("calls setFilter when Column emits update", async () => {

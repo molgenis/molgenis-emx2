@@ -551,6 +551,45 @@ describe("RADIO flat URL serialization", () => {
   });
 });
 
+describe("nested REF like filter URL round-trip", () => {
+  const refArrayColumn: IColumn = {
+    id: "collectionEvents",
+    columnType: "REF_ARRAY",
+    refTableId: "CollectionEvent",
+  };
+  const columns: IColumn[] = [refArrayColumn];
+
+  it("like filter on nested REF text column round-trips without losing operator", () => {
+    const original = new Map<string, IFilterValue>([
+      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+    ]);
+    const urlParams = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(urlParams, columns);
+    expect(filters.get("collectionEvents.name")).toEqual({
+      operator: "like",
+      value: "Smith",
+    });
+  });
+
+  it("like filter on nested REF text column produces correct URL key", () => {
+    const original = new Map<string, IFilterValue>([
+      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+    ]);
+    const urlParams = serializeFiltersToUrl(original, "", columns);
+    expect(Object.keys(urlParams)).toContain("collectionEvents.name~like");
+    expect(urlParams["collectionEvents.name~like"]).toBe("Smith");
+  });
+
+  it("like filter on nested REF text column does not produce equals operator on parse", () => {
+    const original = new Map<string, IFilterValue>([
+      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+    ]);
+    const urlParams = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(urlParams, columns);
+    expect(filters.get("collectionEvents.name")?.operator).toBe("like");
+  });
+});
+
 describe("string filter round-trip (type → URL → parse → buildFilter)", () => {
   const stringColumn: IColumn = {
     id: "name",

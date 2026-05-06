@@ -87,9 +87,25 @@ export function buildGraphQLFilter(
             const isDirectColumn = !columnTypeMap?.get(columnId);
             const hasPlainStringValues =
               arr.length > 0 && typeof arr[0] === "string";
+            const hasCompositeKeyObjects =
+              arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null;
             if (isDirectColumn && column.refTableId && hasPlainStringValues) {
               filterValueObj = {
                 equals: arr.map((v: any) => ({ name: v })),
+              };
+            } else if (
+              isDirectColumn &&
+              column.refTableId &&
+              hasCompositeKeyObjects
+            ) {
+              filterValueObj = {
+                _or: arr.map((keyObj: any) => {
+                  const entry: Record<string, { equals: unknown }> = {};
+                  for (const key of Object.keys(keyObj)) {
+                    entry[key] = { equals: keyObj[key] };
+                  }
+                  return entry;
+                }),
               };
             } else {
               filterValueObj = { _match_any: arr };
@@ -103,8 +119,11 @@ export function buildGraphQLFilter(
             const refValues = arr.map(
               (v: any) => (v as Record<string, unknown>)[refField]
             );
+            const leafSegment = pathSegments[pathSegments.length - 1];
             if (ONTOLOGY_TYPES.includes(resolvedType)) {
               filterValueObj = { _match_any_including_children: refValues };
+            } else if (leafSegment === refField) {
+              filterValueObj = { equals: refValues };
             } else {
               filterValueObj = { [refField]: { equals: refValues } };
             }

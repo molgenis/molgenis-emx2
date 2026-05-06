@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, useId } from "vue";
+import { ref, computed, watch, useId } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
 import BaseIcon from "../BaseIcon.vue";
@@ -19,9 +20,25 @@ const props = defineProps<{
 const searchInputId = useId();
 const pickerOpen = ref(false);
 
+const localSearchInput = ref(props.filters.searchValue.value ?? "");
+
+watch(
+  () => props.filters.searchValue.value,
+  (val) => {
+    localSearchInput.value = val ?? "";
+  }
+);
+
+const debouncedSetSearch = useDebounceFn((val: string) => {
+  props.filters.setSearch(val);
+}, 500);
+
 const searchValue = computed({
-  get: () => props.filters.searchValue.value,
-  set: (val: string) => props.filters.setSearch(val),
+  get: () => localSearchInput.value,
+  set: (val: string) => {
+    localSearchInput.value = val;
+    debouncedSetSearch(val);
+  },
 });
 
 function pathLabel(id: string): string {
@@ -179,6 +196,7 @@ function handlePickerApply(
       :table-id="tableId"
       @apply="handlePickerApply"
       @cancel="pickerOpen = false"
+      @reset="filters.resetFilters()"
     />
   </div>
 </template>

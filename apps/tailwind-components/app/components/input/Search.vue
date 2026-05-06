@@ -19,16 +19,6 @@ withDefaults(
 );
 
 defineExpose({ search });
-
-const emit = defineEmits(["update:modelValue", "focus", "blur"]);
-
-let timeoutID: number | NodeJS.Timeout | undefined = undefined;
-function handleInput(input: string) {
-  clearTimeout(timeoutID);
-  timeoutID = setTimeout(() => {
-    emit("update:modelValue", input);
-  }, 500);
-}
 </script>
 <template>
   <div
@@ -68,10 +58,9 @@ function handleInput(input: string) {
       :id="id"
       ref="search"
       type="search"
-      :value="modelValue"
+      v-model="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
-      @input="(event) => handleInput((event.target as HTMLInputElement).value)"
       class="w-full h-[100%] pr-4 pl-2 outline-none text-current bg-transparent"
       :class="{
         'cursor-not-allowed': disabled,

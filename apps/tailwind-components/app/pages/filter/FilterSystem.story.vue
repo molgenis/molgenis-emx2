@@ -114,28 +114,48 @@ const mockCounts: Record<string, CountedOption[]> = {
       name: "Mammalia",
       label: "Mammals",
       count: 142,
+      overlap: 0,
       children: [
-        { name: "Homo sapiens", label: "Human", count: 98, children: [] },
-        { name: "Mus musculus", label: "Mouse", count: 44, children: [] },
+        {
+          name: "Homo sapiens",
+          label: "Human",
+          count: 98,
+          overlap: 0,
+          children: [],
+        },
+        {
+          name: "Mus musculus",
+          label: "Mouse",
+          count: 44,
+          overlap: 0,
+          children: [],
+        },
       ],
     },
     {
       name: "Aves",
       label: "Birds",
       count: 27,
+      overlap: 0,
       children: [
-        { name: "Gallus gallus", label: "Chicken", count: 27, children: [] },
+        {
+          name: "Gallus gallus",
+          label: "Chicken",
+          count: 27,
+          overlap: 0,
+          children: [],
+        },
       ],
     },
   ],
   available: [
-    { name: "true", count: 113 },
-    { name: "false", count: 56 },
+    { name: "true", count: 113, overlap: 0 },
+    { name: "false", count: 56, overlap: 0 },
   ],
   status: [
-    { name: "active", label: "Active", count: 89 },
-    { name: "archived", label: "Archived", count: 52 },
-    { name: "pending", label: "Pending", count: 28 },
+    { name: "active", label: "Active", count: 89, overlap: 0 },
+    { name: "archived", label: "Archived", count: 52, overlap: 0 },
+    { name: "pending", label: "Pending", count: 28, overlap: 0 },
   ],
 };
 

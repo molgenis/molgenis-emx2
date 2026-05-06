@@ -40,13 +40,18 @@ export interface IGraphQLFilterMatchAnyIncludingChildren {
   _match_any_including_children: string[];
 }
 
+export interface IGraphQLFilterOr {
+  _or: Record<string, IGraphQLFilterEquals>[];
+}
+
 export type IGraphQLFilterValue =
   | IGraphQLFilterEquals
   | IGraphQLFilterLike
   | IGraphQLFilterBetween
   | IGraphQLFilterNull
   | IGraphQLFilterMatchAny
-  | IGraphQLFilterMatchAnyIncludingChildren;
+  | IGraphQLFilterMatchAnyIncludingChildren
+  | IGraphQLFilterOr;
 
 export interface IGraphQLFilter {
   _search?: string;
@@ -57,6 +62,14 @@ export interface IGraphQLFilter {
     | IGraphQLFilter[]
     | string
     | undefined;
+}
+
+export interface NestedColumnMeta {
+  label: string;
+  columnType: string;
+  refTableId?: string | null;
+  refSchemaId?: string | null;
+  refLabel?: string | null;
 }
 
 export interface UseFilters {
@@ -75,28 +88,8 @@ export interface UseFilters {
   getCountedOptions: (columnId: string) => ComputedRef<CountedOption[]>;
   isCountLoading: (columnId: string) => ComputedRef<boolean>;
   isSaturated: (columnId: string) => ComputedRef<boolean>;
-  nestedColumnMeta: Ref<
-    Map<
-      string,
-      {
-        label: string;
-        columnType: string;
-        refTableId?: string | null;
-        refSchemaId?: string | null;
-        refLabel?: string | null;
-      }
-    >
-  >;
-  registerNestedColumn: (
-    id: string,
-    meta: {
-      label: string;
-      columnType: string;
-      refTableId?: string | null;
-      refSchemaId?: string | null;
-      refLabel?: string | null;
-    }
-  ) => void;
+  nestedColumnMeta: Ref<Map<string, NestedColumnMeta>>;
+  registerNestedColumn: (id: string, meta: NestedColumnMeta) => void;
   schemaId: string;
   tableId: string;
   toggleCollapse: (columnId: string) => void;

@@ -24,10 +24,10 @@ Concerns addressed:
 
 Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs only.
 
-**Countable types (facet counts):** ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX
+**Countable types (facet counts):** ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX, STRING_ARRAY
 **Range types (min/max):** INT, INT_ARRAY, DECIMAL, DECIMAL_ARRAY, LONG, NON_NEGATIVE_INT, NON_NEGATIVE_INT_ARRAY, DATE, DATE_ARRAY, DATETIME, DATETIME_ARRAY
 **Navigable types (expand in picker, not directly filterable):** REF, REF_ARRAY, REFBACK, SELECT, MULTISELECT
-**String-like (shown in picker by default):** STRING, STRING_ARRAY, TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID
+**String-like (shown in picker by default):** STRING, TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID
 **Excluded from defaults:** HEADING, SECTION, FILE, mg_* columns
 **mg_* columns:** hidden by default but revealed when user searches in filter picker (advanced users)
 
@@ -38,6 +38,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
 | Shows INITIALLY only countable + range filters that have any options with count > 0 | Sidebar.vue | Sidebar.spec.ts; filter-sidebar.spec.ts (e2e): "countable filter sections with zero base count are hidden initially" | visual check |
+| After Reset: zero-count countable filters are pruned again (same rule as initial load) | useFilters.ts | useFilters.spec.ts: "resetFilters re-applies count>0 pruning to visibleFilterIds (regression: H5 visual)" | visual check |
 | First 5 filters uncollapsed, rest collapsed | Sidebar.vue | Sidebar.spec.ts | visual check |
 | Filter sections with URL-hydrated filters always start expanded (override collapse) | Sidebar.vue | Sidebar.spec.ts | visual check |
 | Chevron toggle per section, `<hr>` dividers between sections | Sidebar.vue | Sidebar.spec.ts | visual check |
@@ -61,7 +62,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
 | Receives counted options from useFilters (no own data fetching) | Column.vue | Column.spec.ts | - |
-| ALL countable types (ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX): renders Tree with checkboxes | Column.vue | Column.spec.ts | visual check |
+| ALL countable types (ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX, STRING_ARRAY): renders Tree with checkboxes | Column.vue | Column.spec.ts: "H3: STRING_ARRAY renders Tree (countable)…" | visual check |
 | Flat types (BOOL/RADIO/CHECKBOX) rendered as Tree nodes without children | Column.vue | Column.spec.ts | visual check |
 | BOOL filter shows three options: true, false, null (with counts) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
 | Ontology types rendered as Tree preserving hierarchy | Column.vue | Column.spec.ts | visual check |
@@ -74,6 +75,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Selecting a child node does NOT collapse/reset expand state of other nodes (expand state preserved across node rebuilds) | Tree.vue | Tree.spec.ts | visual check |
 | Expand state is local component state only — NOT persisted in URL | Tree.vue | - | - |
 | Emits selection changes; useFilters handles state update | Column.vue | Column.spec.ts | - |
+| H7: removing active text filter (chip-X) clears the input DOM value immediately | Column.vue | Column.spec.ts: "H7: input value clears when modelValue is removed (filter removed from sidebar)" | visual check |
 
 ## Filter Options Display
 
@@ -111,11 +113,18 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Empty branches pruned: parent nodes with 0 count and no counted descendants are hidden | fetchCounts.ts | fetchCounts.spec.ts | - |
 | BOOL counts use `_groupBy` per column (scalar true/false/null) | useFilters.ts | useFilters.spec.ts | - |
 | RADIO/CHECKBOX counts use `_groupBy` with key field expansion via getColumnIds | fetchCounts.ts | fetchCounts.spec.ts | - |
-| RADIO/CHECKBOX filters use `_match_any` operator (backend resolves against primary key) | buildFilter.ts | buildFilter.spec.ts | - |
+| RADIO/CHECKBOX single-key (no refTableId) filters use `_match_any` operator | buildFilter.ts | buildFilter.spec.ts: "generates _match_any filter for RADIO without refTableId" | - |
+| RADIO/CHECKBOX REF with refTableId + composite-key objects → `_or: [{key:{equals:val}},...]` (not `_match_any`) | buildFilter.ts | buildFilter.spec.ts: "uses _or for RADIO with composite key objects (multi-value/single-value)" | - |
 | RADIO/CHECKBOX single-key: plain string values, flat URL (`status=active`) | filterUrlCodec.ts | filterUrlCodec.spec.ts | - |
 | RADIO/CHECKBOX composite-key: key objects with `keyObject` on CountedOption, JSON in URL when needed | fetchCounts.ts, Column.vue | fetchCounts.spec.ts, Column.spec.ts | - |
-| STRING/TEXT filters use `like` operator (no ref key issues) | buildFilter.ts | buildFilter.spec.ts | - |
+| STRING/TEXT filters use `like` operator (no ref key issues) | buildFilter.ts | buildFilter.spec.ts: "nested REF text path like: collectionEvents.name produces no double-name" | - |
 | RANGE filters use `between` operator with min/max (no ref key issues) | buildFilter.ts | buildFilter.spec.ts | - |
+| Unselected options within the active facet display DELTA count (solo − overlap), not solo — so the number equals additional rows that appear on click | useFilters.ts, fetchCounts.ts | useFilters.spec.ts, fetchCounts.spec.ts | visual check (multi-select ONTOLOGY_ARRAY / CHECKBOX with one value already selected) |
+| Selected options within the active facet keep stable solo count — toggling a sibling in the same facet does NOT change the selected option's displayed count | useFilters.ts, Column.vue | useFilters.spec.ts, Column.spec.ts | visual check |
+| Delta = max(0, soloCount − overlapCount). Solo uses crossFilter-excluding-self; overlap uses the full current filter (include-self) | fetchCounts.ts | fetchCounts.spec.ts | - |
+| Overlap groupBy skipped when the facet has zero selections (delta collapses to solo — optimization, no visible change) | useFilters.ts | useFilters.spec.ts | - |
+| Hierarchical ontology: parent delta uses `_match_any_including_children` `_agg` against the full current filter (same per-parent strategy as solo parent counts) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
+| Single-select facets (ONTOLOGY single, RADIO, BOOL): overlap is 0 for unselected options → delta equals solo → no visible change | fetchCounts.ts | fetchCounts.spec.ts | - |
 
 ## Filter Picker (Modal)
 
@@ -154,7 +163,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Single filter value: chip shows actual value (e.g. "Status: active") | ActiveFilters.vue | ActiveFilters.spec.ts | visual check |
 | Hover tooltip shows filter details (individual values) | ActiveFilters.vue | ActiveFilters.spec.ts | visual check |
 | Click X on chip clears that column's filter | ActiveFilters.vue | ActiveFilters.spec.ts | visual check |
-| "Clear all" button removes all filters | ActiveFilters.vue | ActiveFilters.spec.ts | visual check |
+| "Clear all" button removes all filters; uses `<Button type="text" size="tiny">` | ActiveFilters.vue | ActiveFilters.spec.ts | visual check |
 | Chip values show user-facing labels (BOOL Yes/No/Not set, ontology `label`, RADIO/CHECKBOX refLabel), matching sidebar Column display | formatFilterValue.ts, filterLabels.ts | formatFilterValue.spec.ts; filterLabels.spec.ts; ActiveFilters.spec.ts; filter-sidebar.spec.ts (e2e) | visual check |
 
 ## URL Sync
@@ -167,6 +176,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | Collapse state stored in URL (`mg_collapsed` param, comma-separated IDs) | Sidebar.vue | Sidebar.spec.ts | - |
 | Search stored as `mg_search` param | useFilters.ts | filterUrlCodec.spec.ts | - |
 | Range values use `min..max` format | useFilters.ts | filterUrlCodec.spec.ts | - |
+| `like` operator preserved across URL round-trip for nested REF text columns (encoded as `{path}~like={value}`; no `equals` + object-array regression) | filterUrlCodec.ts | filterUrlCodec.spec.ts: "nested REF like filter URL round-trip" | - |
 | Multi-value equals use pipe `|` separator | useFilters.ts | filterUrlCodec.spec.ts | - |
 | Back/forward navigation restores filter state | useFilters.ts | useFilters.spec.ts | visual check |
 | Non-filter URL params preserved (page, sort, view) | useFilters.ts | useFilters.spec.ts | - |
@@ -182,6 +192,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | When enableFilters=true: useFilters initialized internally with table columns | TableEMX2.vue | - | - |
 | When enableFilters=false: no sidebar, no filter composable, filter/hideSearch props work as before | TableEMX2.vue | - | - |
 | Sidebar sits left of table in flex layout (w-80 sidebar + flex-1 table) | TableEMX2.vue | - | visual check |
+| Long filter list scrolls within the sidebar region; table stays in view without full-page scroll (`sticky top-0 max-h-screen overflow-y-auto`) | TableEMX2.vue | - | visual check |
 | ActiveFilters bar between toolbar and table rows (auto-rendered, not via slot) | TableEMX2.vue | - | visual check |
 | Show/hide sidebar: button in table toolbar (outline, filter-alt icon) | TableEMX2.vue | - | visual check |
 | Button label: "Hide filters" when visible, "Show filters" when hidden | TableEMX2.vue | - | visual check |
@@ -209,13 +220,4 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 
 - **BOOL all-NULL columns incorrectly kept visible**: `useFilters.ts:fetchAllBaseCounts` included `_null_` in the total count, causing BOOL columns where every value is NULL to appear as having data and therefore remain visible instead of being hidden. Fixed by excluding `_null_` from the non-zero count check.
 - **`visibleFilterIds` watcher wrongly set `userHasCustomized=true`**: the watcher fired on programmatic changes (e.g. URL hydration), which disabled the auto-hide pruning before base counts arrived. Fixed by moving the `userHasCustomized=true` flag into the explicit user action (`toggleFilter`) only.
-
-## Known Issues (backend — not this PR)
-
-### Backend GraphQL `_agg` filter variable sharing bug
-When the same GraphQL variable (e.g. `$filter`) is referenced in both `Table(filter:$filter)` and `Table_agg(filter:$filter)` in a single query, the `_agg` clause silently ignores the filter value when the filter uses the `_match_any_including_children` ontology operator.
-
-- **Symptom**: pagination count stays at unfiltered total after an ontology filter is applied.
-- **Reproducible with**: catalogue-demo/Resources, any ontology filter on `type` or `country`.
-- **Frontend workaround (Phase 10.12)**: `fetchTableData.ts` introduces a separate `$aggFilter` variable with the same runtime value. A comment in the file documents this and flags it for backend follow-up.
-- **Action needed**: file a separate backend issue; remove the workaround once fixed.
+- **Backend GraphQL `_agg` filter variable sharing bug**: when `$filter` was referenced in both `Table(filter:$filter)` and `Table_agg(filter:$filter)` in one query, `_agg` silently ignored the filter value with the `_match_any_including_children` ontology operator (symptom: pagination count stayed at unfiltered total). Fixed in `GraphqlTableFieldFactory.java:672` by defensive-copying the variable map (`new LinkedHashMap<>((Map) entry.getValue())`) before mutation. Backend test `testAggFilterNotMutatedByMatchIncludingChildren` in `TestGraphqlSchemaFields.java`. Frontend `$aggFilter` workaround removed; `fetchTableData.ts` uses single `$filter` again.

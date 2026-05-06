@@ -79,8 +79,8 @@ function datetimeColumn(): IColumn {
 }
 
 const sampleOptions: CountedOption[] = [
-  { name: "dogs", label: "Dogs", count: 10 },
-  { name: "cats", label: "Cats", count: 5 },
+  { name: "dogs", label: "Dogs", count: 10, overlap: 0 },
+  { name: "cats", label: "Cats", count: 5, overlap: 0 },
 ];
 
 function mountColumn(
@@ -100,6 +100,7 @@ function makeOptions(count: number, withZeros = false): CountedOption[] {
     name: `opt${i}`,
     label: `Option ${i}`,
     count: withZeros && i % 3 === 0 ? 0 : i + 1,
+    overlap: 0,
   }));
 }
 
@@ -286,6 +287,49 @@ describe("Column", () => {
       vi.useRealTimers();
     });
 
+    it("rapid typing: 3 keystrokes within 100ms produce only one emit after 500ms", async () => {
+      vi.useFakeTimers();
+      const wrapper = mountColumn(stringColumn());
+      const input = wrapper.find('input[type="search"]');
+      const el = input.element as HTMLInputElement;
+
+      el.value = "a";
+      await input.trigger("input");
+      vi.advanceTimersByTime(100);
+
+      el.value = "ab";
+      await input.trigger("input");
+      vi.advanceTimersByTime(100);
+
+      el.value = "abc";
+      await input.trigger("input");
+
+      expect(wrapper.emitted("update:modelValue")).toBeFalsy();
+
+      vi.advanceTimersByTime(500);
+
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted).toBeTruthy();
+      expect(emitted!.length).toBe(1);
+      expect(emitted![0][0]).toEqual({ operator: "like", value: "abc" });
+      vi.useRealTimers();
+    });
+
+    it("H7: input value clears when modelValue is removed (filter removed from sidebar)", async () => {
+      const wrapper = mountColumn(stringColumn(), [], {
+        operator: "like",
+        value: "asdf",
+      });
+      const inputBefore = wrapper.find('input[type="search"]');
+      expect((inputBefore.element as HTMLInputElement).value).toBe("asdf");
+
+      await wrapper.setProps({ modelValue: undefined });
+      await wrapper.vm.$nextTick();
+
+      const inputAfter = wrapper.find('input[type="search"]');
+      expect((inputAfter.element as HTMLInputElement).value).toBe("");
+    });
+
     it("emits undefined when text input is cleared", async () => {
       vi.useFakeTimers();
       const wrapper = mountColumn(stringColumn(), [], {
@@ -364,11 +408,23 @@ describe("Column", () => {
   });
 
   describe("empty state", () => {
+    it("H10: shows reworded empty-state message when options array is empty", () => {
+      const wrapper = mountColumn(ontologyColumn(), [], undefined, false);
+      expect(wrapper.text()).toContain(
+        "No options available given current filters"
+      );
+      expect(wrapper.text()).not.toContain(
+        "No matching values for this filter"
+      );
+    });
+
     it("renders empty-state message for countable filter with no options when not loading", () => {
       const wrapper = mountColumn(ontologyColumn(), [], undefined, false);
       expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
       expect(wrapper.find("span.italic").exists()).toBe(true);
-      expect(wrapper.text()).toContain("No matching values for this filter");
+      expect(wrapper.text()).toContain(
+        "No options available given current filters"
+      );
       expect(wrapper.findComponent(Tree).exists()).toBe(false);
     });
 
@@ -377,7 +433,7 @@ describe("Column", () => {
       expect(rangeWrapper.findComponent(NoResultsMessage).exists()).toBe(false);
       expect(rangeWrapper.find("span.italic").exists()).toBe(false);
       expect(rangeWrapper.text()).not.toContain(
-        "No matching values for this filter"
+        "No options available given current filters"
       );
       expect(rangeWrapper.findComponent(FilterRange).exists()).toBe(true);
 
@@ -387,7 +443,7 @@ describe("Column", () => {
       );
       expect(stringWrapper.find("span.italic").exists()).toBe(false);
       expect(stringWrapper.text()).not.toContain(
-        "No matching values for this filter"
+        "No options available given current filters"
       );
       expect(stringWrapper.find('input[type="search"]').exists()).toBe(true);
     });
@@ -734,7 +790,9 @@ describe("Column", () => {
       await searchInput!.vm.$emit("update:modelValue", "xyznotfound");
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
-      expect(wrapper.text()).toContain("No matching values for this filter");
+      expect(wrapper.text()).toContain(
+        "No options available given current filters"
+      );
       expect(wrapper.findComponent(Tree).exists()).toBe(false);
     });
   });
@@ -773,5 +831,173 @@ describe("Column", () => {
       expect(wrapper.findComponent(Tree).exists()).toBe(true);
       expect(wrapper.findAll('[role="status"]').length).toBe(0);
     });
+  });
+});
+
+describe("H3: type routing", () => {
+  it("H3: STRING_ARRAY renders Tree (countable), not text search fallback", () => {
+    const col: IColumn = {
+      id: "tags",
+      label: "Tags",
+      columnType: "STRING_ARRAY",
+    } as IColumn;
+    const opts: CountedOption[] = [
+      { name: "a", count: 3 },
+      { name: "b", count: 1 },
+    ];
+    const wrapper = mountColumn(col, opts);
+    expect(wrapper.findComponent(Tree).exists()).toBe(true);
+    expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+    const allSearch = wrapper
+      .findAllComponents(InputSearch)
+      .filter((w) => w.props("id")?.startsWith("filter-text-"));
+    expect(allSearch.length).toBe(0);
+  });
+
+  it("H3: STRING_ARRAY emits equals filter on tree selection", async () => {
+    const col: IColumn = {
+      id: "tags",
+      label: "Tags",
+      columnType: "STRING_ARRAY",
+    } as IColumn;
+    const opts: CountedOption[] = [
+      { name: "a", count: 3 },
+      { name: "b", count: 1 },
+    ];
+    const wrapper = mountColumn(col, opts);
+    const tree = wrapper.findComponent(Tree);
+    await tree.vm.$emit("update:modelValue", ["a", "b"]);
+    const emitted = wrapper.emitted("update:modelValue");
+    expect(emitted).toBeTruthy();
+    expect(emitted![0][0]).toEqual({ operator: "equals", value: ["a", "b"] });
+  });
+
+  it("H3: INT renders FilterRange, not tree or text", () => {
+    const wrapper = mountColumn(intColumn());
+    expect(wrapper.findComponent(FilterRange).exists()).toBe(true);
+    expect(wrapper.findComponent(Tree).exists()).toBe(false);
+  });
+
+  it("H3: NON_NEGATIVE_INT renders FilterRange", () => {
+    const col: IColumn = {
+      id: "count",
+      label: "Count",
+      columnType: "NON_NEGATIVE_INT",
+    } as IColumn;
+    const wrapper = mountColumn(col);
+    expect(wrapper.findComponent(FilterRange).exists()).toBe(true);
+    expect(wrapper.findComponent(Tree).exists()).toBe(false);
+  });
+
+  it("H3: DATETIME renders FilterRange with DATETIME input type", () => {
+    const wrapper = mountColumn(datetimeColumn());
+    expect(wrapper.findComponent(FilterRange).exists()).toBe(true);
+    const inputs = wrapper.findAllComponents(GenericInput);
+    expect(inputs.length).toBeGreaterThan(0);
+    expect(inputs[0].props("type")).toBe("DATETIME");
+  });
+});
+
+describe("Column — delta display counts", () => {
+  it("unselected option shows delta count (count - overlap) when overlap > 0", () => {
+    const col = ontologyColumn();
+    const options: CountedOption[] = [
+      { name: "Adult", label: "Adult", count: 6, overlap: 2 },
+      { name: "Adolescent", label: "Adolescent", count: 8, overlap: 0 },
+    ];
+    const modelValue: IFilterValue = {
+      operator: "equals",
+      value: ["Adolescent"],
+    };
+    const wrapper = mountColumn(col, options, modelValue);
+    const tree = wrapper.findComponent(Tree);
+    const nodes = tree.props("nodes") as any[];
+    const adultNode = nodes.find((n: any) => n.name === "Adult");
+    expect(adultNode).toBeDefined();
+    expect(adultNode.label).toContain("(4)");
+    expect(adultNode.label).not.toContain("(6)");
+  });
+
+  it("selected option shows solo count (not delta)", () => {
+    const col = ontologyColumn();
+    const options: CountedOption[] = [
+      { name: "Adult", label: "Adult", count: 6, overlap: 2 },
+      { name: "Adolescent", label: "Adolescent", count: 8, overlap: 8 },
+    ];
+    const modelValue: IFilterValue = { operator: "equals", value: ["Adult"] };
+    const wrapper = mountColumn(col, options, modelValue);
+    const tree = wrapper.findComponent(Tree);
+    const nodes = tree.props("nodes") as any[];
+    const adultNode = nodes.find((n: any) => n.name === "Adult");
+    expect(adultNode).toBeDefined();
+    expect(adultNode.label).toContain("(6)");
+  });
+
+  it("parent ontology node unselected shows delta (count - overlap)", () => {
+    const col = ontologyColumn();
+    const options: CountedOption[] = [
+      {
+        name: "AgeGroup",
+        label: "Age Group",
+        count: 10,
+        overlap: 3,
+        children: [{ name: "Adult", label: "Adult", count: 6, overlap: 2 }],
+      },
+    ];
+    const wrapper = mountColumn(col, options, undefined);
+    const tree = wrapper.findComponent(Tree);
+    const nodes = tree.props("nodes") as any[];
+    const parentNode = nodes.find((n: any) => n.name === "AgeGroup");
+    expect(parentNode).toBeDefined();
+    expect(parentNode.label).toContain("(7)");
+    expect(parentNode.label).not.toContain("(10)");
+  });
+
+  it("BOOL single-select unselected option shows solo count when overlap is 0", () => {
+    const col = boolColumn();
+    const options: CountedOption[] = [
+      { name: "true", label: "Yes", count: 3, overlap: 3 },
+      { name: "false", label: "No", count: 5, overlap: 0 },
+      { name: "_null_", label: "Not set", count: 1, overlap: 0 },
+    ];
+    const modelValue: IFilterValue = { operator: "equals", value: ["true"] };
+    const wrapper = mountColumn(col, options, modelValue);
+    const tree = wrapper.findComponent(Tree);
+    const nodes = tree.props("nodes") as any[];
+    const falseNode = nodes.find((n: any) => n.name === "false");
+    expect(falseNode).toBeDefined();
+    expect(falseNode.label).toContain("(5)");
+  });
+
+  it("selected Adolescent count stays stable when Adult is added to selection", () => {
+    const col = ontologyColumn();
+    const options: CountedOption[] = [
+      { name: "Adult", label: "Adult", count: 6, overlap: 2 },
+      { name: "Adolescent", label: "Adolescent", count: 8, overlap: 8 },
+    ];
+    const modelValueAdolescent: IFilterValue = {
+      operator: "equals",
+      value: ["Adolescent"],
+    };
+    const wrapper = mountColumn(col, options, modelValueAdolescent);
+
+    const treeBeforeAdd = wrapper.findComponent(Tree);
+    const nodesBeforeAdd = treeBeforeAdd.props("nodes") as any[];
+    const adolescentBefore = nodesBeforeAdd.find(
+      (n: any) => n.name === "Adolescent"
+    );
+    const countBefore = adolescentBefore?.label;
+
+    wrapper.setProps({
+      modelValue: { operator: "equals", value: ["Adolescent", "Adult"] },
+    });
+
+    const treeAfterAdd = wrapper.findComponent(Tree);
+    const nodesAfterAdd = treeAfterAdd.props("nodes") as any[];
+    const adolescentAfter = nodesAfterAdd.find(
+      (n: any) => n.name === "Adolescent"
+    );
+    expect(adolescentAfter?.label).toBe(countBefore);
+    expect(adolescentAfter?.label).toContain("(8)");
   });
 });

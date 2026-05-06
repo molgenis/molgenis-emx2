@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ref, nextTick } from "vue";
+import { reactive, ref, nextTick } from "vue";
 import { flushPromises } from "@vue/test-utils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
@@ -11,11 +11,20 @@ vi.mock("../../../app/composables/fetchTableMetadata", () => ({
   default: vi.fn().mockResolvedValue({ columns: [] }),
 }));
 
+vi.mock("#app/composables/router", () => ({
+  useRoute: vi.fn(),
+  useRouter: vi.fn(),
+}));
+
+// @ts-ignore
+import { useRoute, useRouter } from "#app/composables/router";
+
 import {
   useFilters,
   MG_FILTERS_PARAM,
   MG_COLLAPSED_PARAM,
 } from "../../../app/composables/useFilters";
+import { computeDefaultFilters } from "../../../app/utils/filterTypes";
 
 const ontologyColumn: IColumn = {
   id: "status",
@@ -48,21 +57,35 @@ const allColumns: IColumn[] = [
   boolColumn,
 ];
 
-function makeUrlSync(queryInit: Record<string, string> = {}) {
-  const mockQuery: Record<string, string> = { ...queryInit };
+function setupMockRouter(queryInit: Record<string, string> = {}) {
+  const mockQuery: Record<string, string | undefined> = reactive({
+    ...queryInit,
+  });
   const replaceCalls: Array<{ query: Record<string, unknown> }> = [];
-  const route = { query: mockQuery };
-  const router = {
+
+  useRoute.mockReturnValue({ query: mockQuery });
+  useRouter.mockReturnValue({
     replace: (opts: any) => {
       replaceCalls.push(opts);
-      Object.assign(mockQuery, opts.query ?? {});
+      const newQuery: Record<string, string | undefined> = opts.query ?? {};
       for (const key of Object.keys(mockQuery)) {
-        if (!(key in (opts.query ?? {}))) delete mockQuery[key];
+        if (!(key in newQuery)) delete mockQuery[key];
       }
+      Object.assign(mockQuery, newQuery);
     },
-  };
-  return { route, router, mockQuery, replaceCalls };
+  });
+
+  return { mockQuery, replaceCalls };
 }
+
+function makeUrlSync(queryInit: Record<string, string> = {}) {
+  return setupMockRouter(queryInit);
+}
+
+beforeEach(() => {
+  useRoute.mockReturnValue({ query: reactive({}) });
+  useRouter.mockReturnValue({ replace: vi.fn() });
+});
 
 describe("useFilters — filter state management", () => {
   it("starts with empty filter states", () => {
@@ -272,34 +295,30 @@ describe("useFilters — visibility management", () => {
 
 describe("useFilters — URL sync", () => {
   it("reads initial filters from URL", () => {
-    const { route, router } = makeUrlSync({ status: "active" });
+    makeUrlSync({ status: "active" });
     const columns = ref<IColumn[]>([ontologyColumn]);
     const { filterStates } = useFilters(columns, {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     expect(filterStates.value.has("status")).toBe(true);
   });
 
   it("setFilter updates URL", () => {
-    const { route, router, replaceCalls } = makeUrlSync();
+    const { replaceCalls } = makeUrlSync();
     const columns = ref<IColumn[]>([ontologyColumn]);
     const { setFilter } = useFilters(columns, {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     setFilter("status", { operator: "equals", value: ["active"] });
     expect(replaceCalls.length).toBeGreaterThan(0);
   });
 
   it("reads mg_filters from URL for visible filter set", () => {
-    const { route, router } = makeUrlSync({
+    makeUrlSync({
       [MG_FILTERS_PARAM]: "status,active",
     });
     const columns = ref(allColumns);
@@ -307,22 +326,18 @@ describe("useFilters — URL sync", () => {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     expect(visibleFilterIds.value).toContain("status");
     expect(visibleFilterIds.value).toContain("active");
   });
 
   it("clearFilters removes filter params from URL", () => {
-    const { route, router, replaceCalls } = makeUrlSync({ status: "active" });
+    const { replaceCalls } = makeUrlSync({ status: "active" });
     const columns = ref<IColumn[]>([ontologyColumn]);
     const { clearFilters } = useFilters(columns, {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     clearFilters();
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -330,7 +345,7 @@ describe("useFilters — URL sync", () => {
   });
 
   it("preserves non-filter URL params", () => {
-    const { route, router, replaceCalls } = makeUrlSync({
+    const { replaceCalls } = makeUrlSync({
       page: "3",
       sort: "name",
     });
@@ -339,8 +354,6 @@ describe("useFilters — URL sync", () => {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     setFilter("status", { operator: "equals", value: ["active"] });
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -349,14 +362,12 @@ describe("useFilters — URL sync", () => {
   });
 
   it("setSearch writes mg_search to URL", () => {
-    const { route, router, replaceCalls } = makeUrlSync();
+    const { replaceCalls } = makeUrlSync();
     const columns = ref<IColumn[]>([ontologyColumn]);
     const { setSearch } = useFilters(columns, {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
     setSearch("diabetes");
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -525,7 +536,7 @@ describe("useFilters — hydrateNestedFilters", () => {
       columns: [ageGroupsColumn],
     } as any);
 
-    const { route, router } = makeUrlSync({
+    makeUrlSync({
       [MG_FILTERS_PARAM]: "subpopulations.ageGroups",
     });
     const rawColumns = ref<IColumn[]>([]);
@@ -534,8 +545,6 @@ describe("useFilters — hydrateNestedFilters", () => {
       schemaId: "catalogue-demo",
       tableId: "Collections",
       urlSync: true,
-      route,
-      router,
     });
 
     await flushPromises();
@@ -570,7 +579,7 @@ describe("useFilters — hydrateNestedFilters", () => {
       columns: [refLeafColumn],
     } as any);
 
-    const { route, router } = makeUrlSync({
+    makeUrlSync({
       [MG_FILTERS_PARAM]: "parent.someRef",
     });
     const rawColumns = ref<IColumn[]>([]);
@@ -579,8 +588,6 @@ describe("useFilters — hydrateNestedFilters", () => {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
 
     await flushPromises();
@@ -613,7 +620,7 @@ describe("useFilters — hydrateNestedFilters", () => {
       columns: [dateLeafColumn],
     } as any);
 
-    const { route, router } = makeUrlSync({
+    makeUrlSync({
       [MG_FILTERS_PARAM]: "parent.someDate",
     });
     const rawColumns = ref<IColumn[]>([]);
@@ -622,8 +629,6 @@ describe("useFilters — hydrateNestedFilters", () => {
       schemaId: "test",
       tableId: "table1",
       urlSync: true,
-      route,
-      router,
     });
 
     await flushPromises();
@@ -735,7 +740,7 @@ describe("useFilters — collapsed state", () => {
 
   it("filters beyond index 5 with active filter state are not collapsed", () => {
     const ids = ["a", "b", "c", "d", "e", "f"];
-    const { route, router } = makeUrlSync({ f: "something" });
+    makeUrlSync({ f: "something" });
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -744,8 +749,6 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     expect(isCollapsed("f")).toBe(false);
   });
@@ -799,7 +802,7 @@ describe("useFilters — collapsed state", () => {
 
   it("reads mg_collapsed from URL on init", () => {
     const ids = ["a", "b", "c"];
-    const { route, router } = makeUrlSync({
+    makeUrlSync({
       [MG_COLLAPSED_PARAM]: "a,c",
     });
     const columns = ref<IColumn[]>(
@@ -810,8 +813,6 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     expect(isCollapsed("a")).toBe(true);
     expect(isCollapsed("b")).toBe(false);
@@ -820,7 +821,7 @@ describe("useFilters — collapsed state", () => {
 
   it("toggleCollapse persists to URL", () => {
     const ids = ["a", "b", "c"];
-    const { route, router, replaceCalls } = makeUrlSync({});
+    const { replaceCalls } = makeUrlSync({});
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -829,8 +830,6 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     toggleCollapse("a");
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -839,7 +838,7 @@ describe("useFilters — collapsed state", () => {
 
   it("removes mg_collapsed from URL when all sections expanded", () => {
     const ids = ["a"];
-    const { route, router, replaceCalls } = makeUrlSync({
+    const { replaceCalls } = makeUrlSync({
       [MG_COLLAPSED_PARAM]: "a",
     });
     const columns = ref<IColumn[]>([
@@ -850,8 +849,6 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     toggleCollapse("a");
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -860,7 +857,7 @@ describe("useFilters — collapsed state", () => {
 
   it("preserves other URL params when updating mg_collapsed", () => {
     const ids = ["a"];
-    const { route, router, replaceCalls } = makeUrlSync({
+    const { replaceCalls } = makeUrlSync({
       page: "2",
       sort: "name",
     });
@@ -872,8 +869,6 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     toggleCollapse("a");
     const lastCall = replaceCalls[replaceCalls.length - 1];
@@ -883,7 +878,7 @@ describe("useFilters — collapsed state", () => {
 
   it("applies first-5 rule when mg_collapsed is absent from URL", () => {
     const ids = ["a", "b", "c", "d", "e", "f", "g"];
-    const { route, router } = makeUrlSync({});
+    makeUrlSync({});
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -892,10 +887,274 @@ describe("useFilters — collapsed state", () => {
       tableId: "table1",
       defaultFilters: ids,
       urlSync: true,
-      route,
-      router,
     });
     expect(isCollapsed("a")).toBe(false);
     expect(isCollapsed("f")).toBe(true);
+  });
+});
+
+describe("useFilters — H5 regression: Reset and Clear URL behavior", () => {
+  it("Reset clears mg_filters from URL and unsets userHasCustomized", async () => {
+    const { replaceCalls } = makeUrlSync({
+      [MG_FILTERS_PARAM]: "status,name",
+    });
+    const columns = ref<IColumn[]>([ontologyColumn, stringColumn]);
+
+    const { resetFilters, visibleFilterIds } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    resetFilters();
+    await nextTick();
+
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    expect(lastCall?.query?.[MG_FILTERS_PARAM]).toBeUndefined();
+
+    const defaultIds = computeDefaultFilters([ontologyColumn, stringColumn]);
+    expect(visibleFilterIds.value).toEqual(defaultIds);
+  });
+
+  it("Clear when not customised does not write mg_filters to URL", () => {
+    const { replaceCalls } = makeUrlSync({});
+    const columns = ref<IColumn[]>([ontologyColumn, stringColumn]);
+
+    const { clearFilters, setFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    setFilter("status", { operator: "equals", value: ["active"] });
+    clearFilters();
+
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    expect(lastCall?.query?.[MG_FILTERS_PARAM]).toBeUndefined();
+  });
+
+  it("visibleFilterIds watcher does not write empty mg_filters when all visible filters removed", async () => {
+    const { replaceCalls } = makeUrlSync({});
+    const columns = ref<IColumn[]>([ontologyColumn]);
+
+    const { toggleFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    toggleFilter("status");
+    await nextTick();
+
+    toggleFilter("status");
+    await nextTick();
+
+    const lastCall = replaceCalls[replaceCalls.length - 1];
+    const mgFilters = lastCall?.query?.[MG_FILTERS_PARAM];
+    expect(mgFilters === undefined || mgFilters === null).toBe(true);
+  });
+});
+
+describe("useFilters — H1 regression: mg_filters survives setFilter after customise", () => {
+  it("updateUrl includes mg_filters immediately when userHasCustomized and no mg_filters in URL yet (regression: H1)", async () => {
+    const { replaceCalls } = makeUrlSync({});
+    const columns = ref<IColumn[]>([ontologyColumn, stringColumn]);
+
+    const { toggleFilter, setFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    toggleFilter("name");
+    const callsBeforeFlush = replaceCalls.length;
+    setFilter("name", { operator: "like", value: "test" });
+
+    const setFilterCall = replaceCalls[callsBeforeFlush];
+    expect(setFilterCall?.query?.[MG_FILTERS_PARAM]).toBeDefined();
+  });
+});
+
+describe("useFilters — delta counts (overlap groupBy calls)", () => {
+  const ageGroupRows = [
+    {
+      count: 8,
+      ageGroup: {
+        name: "Adolescent",
+        label: "Adolescent",
+        parent: null,
+      },
+    },
+    {
+      count: 6,
+      ageGroup: {
+        name: "Adult",
+        label: "Adult",
+        parent: null,
+      },
+    },
+  ];
+
+  beforeEach(async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+    vi.mocked(fetchGraphql).mockClear();
+    vi.mocked(fetchGraphql).mockResolvedValue({
+      Patient_groupBy: ageGroupRows,
+    });
+  });
+
+  it("fires TWO groupBy calls for ONTOLOGY_ARRAY when facet has a selection (overlap fetch)", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    const ageGroupColumn: IColumn = {
+      id: "ageGroup",
+      label: "Age Group",
+      columnType: "ONTOLOGY_ARRAY",
+    } as unknown as IColumn;
+
+    const columns = ref<IColumn[]>([ageGroupColumn]);
+    const { setFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "Patient",
+      debounceMs: 300,
+    });
+
+    await flushPromises();
+    const callsAfterBase = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      ).length;
+    expect(callsAfterBase).toBe(1);
+
+    setFilter("ageGroup", { operator: "equals", value: ["Adolescent"] });
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await flushPromises();
+
+    const totalGroupByCalls = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      ).length;
+    expect(totalGroupByCalls).toBeGreaterThanOrEqual(3);
+  });
+
+  it("fires ONE groupBy call when facet has no selection (no overlap fetch)", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    const ageGroupColumn: IColumn = {
+      id: "ageGroup",
+      label: "Age Group",
+      columnType: "ONTOLOGY_ARRAY",
+    } as unknown as IColumn;
+
+    const columns = ref<IColumn[]>([ageGroupColumn]);
+    useFilters(columns, {
+      schemaId: "test",
+      tableId: "Patient",
+      debounceMs: 300,
+    });
+
+    await flushPromises();
+
+    const groupByCalls = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      );
+    expect(groupByCalls.length).toBe(1);
+  });
+});
+
+describe("useFilters — H4: Picker adds filters in selection order", () => {
+  it("H4: filters added via Picker preserve selection order", () => {
+    const columns = ref<IColumn[]>([
+      { id: "alpha", label: "Alpha", columnType: "INT" } as IColumn,
+      { id: "beta", label: "Beta", columnType: "INT" } as IColumn,
+      { id: "gamma", label: "Gamma", columnType: "INT" } as IColumn,
+    ]);
+    const { visibleFilterIds, toggleFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      defaultFilters: [],
+    });
+
+    expect(visibleFilterIds.value).toEqual([]);
+
+    toggleFilter("alpha");
+    toggleFilter("beta");
+    toggleFilter("gamma");
+
+    expect(visibleFilterIds.value).toEqual(["alpha", "beta", "gamma"]);
+  });
+});
+
+describe("useFilters — H5 regression: resetFilters re-applies count>0 pruning", () => {
+  it("resetFilters re-applies count>0 pruning to visibleFilterIds (regression: H5 visual)", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    const zeroCountColumn: IColumn = {
+      id: "registry",
+      label: "Registry",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+
+    const nonZeroColumn: IColumn = {
+      id: "status",
+      label: "Status",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+
+    vi.mocked(fetchGraphql).mockImplementation(
+      (_schema: string, query: string) => {
+        if (typeof query === "string" && query.includes("registry")) {
+          return Promise.resolve({ Patient_groupBy: [] });
+        }
+        return Promise.resolve({
+          Patient_groupBy: [
+            {
+              count: 5,
+              status: { name: "active", label: "Active", parent: null },
+            },
+          ],
+        });
+      }
+    );
+
+    const columns = ref<IColumn[]>([zeroCountColumn, nonZeroColumn]);
+    const { visibleFilterIds, toggleFilter, resetFilters } = useFilters(
+      columns,
+      {
+        schemaId: "test",
+        tableId: "Patient",
+        defaultFilters: ["registry", "status"],
+      }
+    );
+
+    await flushPromises();
+
+    expect(visibleFilterIds.value).not.toContain("registry");
+    expect(visibleFilterIds.value).toContain("status");
+
+    toggleFilter("registry");
+    expect(visibleFilterIds.value).toContain("registry");
+
+    resetFilters();
+    await flushPromises();
+
+    expect(visibleFilterIds.value).not.toContain("registry");
+    expect(visibleFilterIds.value).toContain("status");
   });
 });

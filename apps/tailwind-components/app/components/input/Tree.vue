@@ -256,10 +256,10 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
 }
 
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
-function handleSearchInput(input: string) {
+function handleSearchInput(input: string | number | undefined) {
   clearTimeout(timeoutID);
   timeoutID = setTimeout(() => {
-    optionsSearch.value = input;
+    optionsSearch.value = input == null ? "" : String(input);
   }, 500);
 }
 

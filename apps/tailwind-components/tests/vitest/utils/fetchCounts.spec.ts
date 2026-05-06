@@ -69,9 +69,9 @@ describe("fetchCounts - nested dotted paths (BOOL)", () => {
     expect(query).toContain("self { active }");
     expect(query).not.toContain("self.active");
     expect(result.options).toEqual([
-      { name: "true", label: "Yes", count: 5 },
-      { name: "false", label: "No", count: 3 },
-      { name: "_null_", label: "Not set", count: 0 },
+      { name: "true", label: "Yes", count: 5, overlap: 0 },
+      { name: "false", label: "No", count: 3, overlap: 0 },
+      { name: "_null_", label: "Not set", count: 0, overlap: 0 },
     ]);
   });
 });
@@ -102,8 +102,13 @@ describe("fetchCounts - RADIO with key field expansion", () => {
     const query: string = fetcher.mock.calls[0][1];
     expect(query).toContain("status { name }");
     expect(result.options).toEqual([
-      { name: "active", keyObject: { name: "active" }, count: 7 },
-      { name: "inactive", keyObject: { name: "inactive" }, count: 1 },
+      { name: "active", keyObject: { name: "active" }, count: 7, overlap: 0 },
+      {
+        name: "inactive",
+        keyObject: { name: "inactive" },
+        count: 1,
+        overlap: 0,
+      },
     ]);
   });
 
@@ -130,8 +135,8 @@ describe("fetchCounts - RADIO with key field expansion", () => {
     );
 
     expect(result.options).toEqual([
-      { name: "A, 1", keyObject: { id: "A", code: "1" }, count: 5 },
-      { name: "B, 2", keyObject: { id: "B", code: "2" }, count: 3 },
+      { name: "A, 1", keyObject: { id: "A", code: "1" }, count: 5, overlap: 0 },
+      { name: "B, 2", keyObject: { id: "B", code: "2" }, count: 3, overlap: 0 },
     ]);
   });
 
@@ -151,8 +156,8 @@ describe("fetchCounts - RADIO with key field expansion", () => {
     );
 
     expect(result.options).toEqual([
-      { name: "active", count: 7 },
-      { name: "inactive", count: 1 },
+      { name: "active", count: 7, overlap: 0 },
+      { name: "inactive", count: 1, overlap: 0 },
     ]);
     expect(result.options[0]).not.toHaveProperty("keyObject");
   });
@@ -202,8 +207,8 @@ describe("fetchCounts - nested dotted paths (RADIO)", () => {
     const query: string = fetcher.mock.calls[0][1];
     expect(query).toContain("self { status }");
     expect(result.options).toEqual([
-      { name: "active", count: 7 },
-      { name: "inactive", count: 1 },
+      { name: "active", count: 7, overlap: 0 },
+      { name: "inactive", count: 1, overlap: 0 },
     ]);
   });
 });
@@ -227,9 +232,9 @@ describe("fetchCounts - BOOL", () => {
       fetcher
     );
     expect(result.options).toEqual([
-      { name: "true", label: "Yes", count: 5 },
-      { name: "false", label: "No", count: 3 },
-      { name: "_null_", label: "Not set", count: 2 },
+      { name: "true", label: "Yes", count: 5, overlap: 0 },
+      { name: "false", label: "No", count: 3, overlap: 0 },
+      { name: "_null_", label: "Not set", count: 2, overlap: 0 },
     ]);
   });
 
@@ -244,9 +249,9 @@ describe("fetchCounts - BOOL", () => {
       fetcher
     );
     expect(result.options).toEqual([
-      { name: "true", label: "Yes", count: 5 },
-      { name: "false", label: "No", count: 0 },
-      { name: "_null_", label: "Not set", count: 0 },
+      { name: "true", label: "Yes", count: 5, overlap: 0 },
+      { name: "false", label: "No", count: 0, overlap: 0 },
+      { name: "_null_", label: "Not set", count: 0, overlap: 0 },
     ]);
   });
 
@@ -261,9 +266,9 @@ describe("fetchCounts - BOOL", () => {
       fetcher
     );
     expect(result.options).toEqual([
-      { name: "true", label: "Yes", count: 0 },
-      { name: "false", label: "No", count: 0 },
-      { name: "_null_", label: "Not set", count: 0 },
+      { name: "true", label: "Yes", count: 0, overlap: 0 },
+      { name: "false", label: "No", count: 0, overlap: 0 },
+      { name: "_null_", label: "Not set", count: 0, overlap: 0 },
     ]);
   });
 
@@ -762,5 +767,165 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
     );
 
     expect(result.options).toEqual([]);
+  });
+});
+
+describe("fetchCounts - delta semantics (overlap parameter)", () => {
+  it("returns overlap counts for ONTOLOGY_ARRAY when crossFilterIncludeAll is provided", async () => {
+    const soloRows = [
+      {
+        count: 6,
+        ageGroup: { name: "Adult", label: "Adult", parent: null },
+      },
+      {
+        count: 8,
+        ageGroup: { name: "Adolescent", label: "Adolescent", parent: null },
+      },
+    ];
+    const overlapRows = [
+      {
+        count: 2,
+        ageGroup: { name: "Adult", label: "Adult", parent: null },
+      },
+      {
+        count: 8,
+        ageGroup: { name: "Adolescent", label: "Adolescent", parent: null },
+      },
+    ];
+
+    let soloCallDone = false;
+    const fetcher = vi.fn().mockImplementation((_s: string, query: string) => {
+      if (query.includes("_groupBy")) {
+        if (!soloCallDone) {
+          soloCallDone = true;
+          return Promise.resolve({ Patient_groupBy: soloRows });
+        }
+        return Promise.resolve({ Patient_groupBy: overlapRows });
+      }
+      return Promise.resolve({});
+    });
+
+    const crossFilterExcludeSelf = {};
+    const crossFilterIncludeAll = {
+      ageGroup: { _match_any_including_children: ["Adolescent"] },
+    };
+
+    const result = await fetchCounts(
+      "mySchema",
+      "Patient",
+      "ageGroup",
+      "ONTOLOGY_ARRAY",
+      crossFilterExcludeSelf,
+      fetcher,
+      undefined,
+      undefined,
+      undefined,
+      crossFilterIncludeAll
+    );
+
+    const adult = result.options.find((o) => o.name === "Adult");
+    const adolescent = result.options.find((o) => o.name === "Adolescent");
+    expect(adult).toBeDefined();
+    expect(adult!.count).toBe(6);
+    expect(adult!.overlap).toBe(2);
+    expect(adolescent).toBeDefined();
+    expect(adolescent!.count).toBe(8);
+    expect(adolescent!.overlap).toBe(8);
+  });
+
+  it("skips overlap groupBy and returns overlap=0 everywhere when crossFilterIncludeAll is undefined", async () => {
+    const rows = [
+      {
+        count: 6,
+        ageGroup: { name: "Adult", label: "Adult", parent: null },
+      },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+
+    const result = await fetchCounts(
+      "mySchema",
+      "Patient",
+      "ageGroup",
+      "ONTOLOGY_ARRAY",
+      {},
+      fetcher
+    );
+
+    const groupByCalls = fetcher.mock.calls.filter(
+      ([_s, q]: [string, string]) => q.includes("_groupBy")
+    );
+    expect(groupByCalls).toHaveLength(1);
+
+    const adult = result.options.find((o) => o.name === "Adult");
+    expect(adult!.overlap).toBe(0);
+  });
+
+  it("uses _match_any_including_children agg against full filter for ONTOLOGY_ARRAY parent overlap", async () => {
+    const soloGroupByRows = [
+      {
+        count: 3,
+        disease: {
+          name: "child1",
+          label: "Child 1",
+          parent: { name: "parent1" },
+        },
+      },
+    ];
+    const overlapGroupByRows = [
+      {
+        count: 2,
+        disease: {
+          name: "child1",
+          label: "Child 1",
+          parent: { name: "parent1" },
+        },
+      },
+    ];
+    const ancestorTerms = [
+      { name: "parent1", label: "Parent 1", parent: null },
+      { name: "child1", label: "Child 1", parent: { name: "parent1" } },
+    ];
+
+    const aggQueries: string[] = [];
+    let soloGroupByDone = false;
+
+    const fetcher = vi.fn().mockImplementation((_s: string, query: string) => {
+      if (query.includes("_match_any_including_parents")) {
+        return Promise.resolve({ OntologyTable: ancestorTerms });
+      }
+      if (query.includes("_groupBy")) {
+        if (!soloGroupByDone) {
+          soloGroupByDone = true;
+          return Promise.resolve({ Patient_groupBy: soloGroupByRows });
+        }
+        return Promise.resolve({ Patient_groupBy: overlapGroupByRows });
+      }
+      if (query.includes("_agg")) {
+        aggQueries.push(query);
+        return Promise.resolve({ Patient_agg: { count: 3 } });
+      }
+      return Promise.resolve({});
+    });
+
+    const crossFilterIncludeAll = { otherCol: { equals: "something" } };
+
+    await fetchCounts(
+      "mySchema",
+      "Patient",
+      "disease",
+      "ONTOLOGY_ARRAY",
+      {},
+      fetcher,
+      "OntologyTable",
+      null,
+      undefined,
+      crossFilterIncludeAll
+    );
+
+    const overlapAggQueries = aggQueries.filter(
+      (q) =>
+        q.includes("_match_any_including_children") && q.includes("otherCol")
+    );
+    expect(overlapAggQueries.length).toBeGreaterThan(0);
   });
 });

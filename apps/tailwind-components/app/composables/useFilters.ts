@@ -7,12 +7,14 @@ import {
   type Ref,
   type ComputedRef,
 } from "vue";
+import { useRoute, useRouter } from "#imports";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type {
   ActiveFilter,
   IFilterValue,
   IGraphQLFilter,
+  NestedColumnMeta,
 } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
@@ -49,8 +51,6 @@ export interface UseFiltersOptions {
   debounceMs?: number;
   defaultFilters?: string[];
   defaultCollapsed?: string[];
-  route?: { query: RouteQuery };
-  router?: { replace: (opts: Record<string, unknown>) => void };
 }
 
 function preserveExternalQueryParams(
@@ -85,21 +85,13 @@ export function useFilters(
   const columns = computed(() => filterColumns(rawColumns.value));
   const urlSync = options.urlSync ?? false;
 
-  if (urlSync && (!options.route || !options.router)) {
-    console.warn(
-      "useFilters: urlSync is true but route/router were not provided. URL sync disabled."
-    );
-  }
+  const route = useRoute();
+  const router = useRouter();
 
-  const route =
-    urlSync && options.route && options.router ? options.route : null;
-  const router =
-    urlSync && options.route && options.router ? options.router : null;
-
-  const urlSyncEnabled = urlSync && !!route && !!router;
+  const urlSyncEnabled = urlSync;
 
   function getCurrentQuery(): RouteQuery {
-    return route?.query ?? {};
+    return route.query as RouteQuery;
   }
 
   const parsedUrlState = computed(() => {
@@ -121,7 +113,7 @@ export function useFilters(
   );
 
   function updateUrl(newFilters: Map<string, IFilterValue>, newSearch: string) {
-    if (!urlSyncEnabled || !route || !router) return;
+    if (!urlSyncEnabled) return;
     const filterParams = serializeFiltersToUrl(
       newFilters,
       newSearch,
@@ -131,11 +123,17 @@ export function useFilters(
       getCurrentQuery(),
       columns.value
     );
-    const mgFiltersParam = getCurrentQuery()[MG_FILTERS_PARAM];
-    if (mgFiltersParam !== undefined) {
-      preserved[MG_FILTERS_PARAM] = mgFiltersParam;
+    if (userHasCustomized.value) {
+      preserved[MG_FILTERS_PARAM] = visibleFilterIds.value.join(",");
+    } else {
+      const mgFiltersParam = getCurrentQuery()[MG_FILTERS_PARAM];
+      if (mgFiltersParam !== undefined) {
+        preserved[MG_FILTERS_PARAM] = mgFiltersParam;
+      }
     }
-    router.replace({ query: { ...preserved, ...filterParams } });
+    router.replace({
+      query: { ...preserved, ...filterParams } as Record<string, string>,
+    });
   }
 
   function commit(newFilters: Map<string, IFilterValue>, newSearch: string) {
@@ -243,9 +241,9 @@ export function useFilters(
     if (!userHasCustomized.value) return;
     const isDefault = arraysEqual(newIds, defaultFilterIds.value);
     await nextTick();
-    if (!urlSyncEnabled || !route || !router) return;
+    if (!urlSyncEnabled) return;
     const currentQuery = { ...getCurrentQuery() };
-    if (isDefault) {
+    if (isDefault || newIds.length === 0) {
       delete currentQuery[MG_FILTERS_PARAM];
     } else {
       currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
@@ -261,7 +259,7 @@ export function useFilters(
       );
       removeFilter(columnId);
     } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
-      visibleFilterIds.value = [columnId, ...visibleFilterIds.value];
+      visibleFilterIds.value = [...visibleFilterIds.value, columnId];
     }
   }
 
@@ -269,7 +267,8 @@ export function useFilters(
     clearFilters();
     userHasCustomized.value = false;
     visibleFilterIds.value = [...defaultFilterIds.value];
-    if (urlSyncEnabled && route && router) {
+    pruneVisibleByBaseCount();
+    if (urlSyncEnabled) {
       const currentQuery = { ...getCurrentQuery() };
       delete currentQuery[MG_FILTERS_PARAM];
       router.replace({ query: currentQuery });
@@ -296,8 +295,8 @@ export function useFilters(
   }
 
   function persistCollapsed(next: Set<string>) {
-    if (!route || !router) return;
-    const currentQuery = { ...(route.query as Record<string, unknown>) };
+    if (!urlSyncEnabled) return;
+    const currentQuery = { ...(route.query as Record<string, string>) };
     if (next.size === 0) {
       delete currentQuery[MG_COLLAPSED_PARAM];
     } else {
@@ -321,7 +320,7 @@ export function useFilters(
     return collapsed.value.has(columnId);
   }
 
-  if (urlSyncEnabled && route) {
+  if (urlSyncEnabled) {
     const urlParam = route.query[MG_COLLAPSED_PARAM];
     if (typeof urlParam === "string" && urlParam.trim()) {
       collapsed.value = new Set(
@@ -337,29 +336,9 @@ export function useFilters(
     applyDefaultCollapse();
   }
 
-  const nestedColumnMeta = ref<
-    Map<
-      string,
-      {
-        label: string;
-        columnType: string;
-        refTableId?: string | null;
-        refSchemaId?: string | null;
-        refLabel?: string | null;
-      }
-    >
-  >(new Map());
+  const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
 
-  function registerNestedColumn(
-    id: string,
-    meta: {
-      label: string;
-      columnType: string;
-      refTableId?: string | null;
-      refSchemaId?: string | null;
-      refLabel?: string | null;
-    }
-  ) {
+  function registerNestedColumn(id: string, meta: NestedColumnMeta) {
     const next = new Map(nestedColumnMeta.value);
     next.set(id, meta);
     nestedColumnMeta.value = next;
@@ -466,6 +445,7 @@ export function useFilters(
       return {
         ...baseOpt,
         count: match?.count ?? 0,
+        overlap: match?.overlap ?? 0,
         ...(children !== undefined ? { children } : {}),
       };
     });
@@ -518,6 +498,16 @@ export function useFilters(
       ): Promise<any> =>
         fetchGraphql(sId, query, variables, { signal: controller.signal });
 
+      const facetHasSelection = !useBase && filterStates.value.has(columnId);
+      const crossFilterIncludeAll = facetHasSelection
+        ? buildGraphQLFilter(
+            filterStates.value,
+            columns.value,
+            searchValue.value,
+            columnTypeMap.value
+          )
+        : undefined;
+
       const result: FetchCountsResult = await fetchCounts(
         schemaId,
         tableId,
@@ -527,7 +517,8 @@ export function useFilters(
         signalledFetcher,
         refTableId,
         refSchemaId,
-        refLabel
+        refLabel,
+        crossFilterIncludeAll
       );
 
       const { options: results, saturated } = result;
@@ -567,6 +558,21 @@ export function useFilters(
     }
   }
 
+  function pruneVisibleByBaseCount() {
+    if (userHasCustomized.value) return;
+    visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      if (!colType || !isCountableType(colType)) return true;
+      const base = baseCounts.value.get(id);
+      if (!base) return true;
+      const totalCount = base.reduce(
+        (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
+        0
+      );
+      return totalCount > 0;
+    });
+  }
+
   async function fetchAllBaseCounts() {
     const countableIds = visibleFilterIds.value.filter((id) => {
       const colType = resolveColumn(id)?.columnType ?? null;
@@ -575,19 +581,7 @@ export function useFilters(
 
     await Promise.all(countableIds.map((id) => fetchColumnCounts(id, true)));
 
-    if (!userHasCustomized.value) {
-      visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
-        const colType = resolveColumn(id)?.columnType ?? null;
-        if (!colType || !isCountableType(colType)) return true;
-        const base = baseCounts.value.get(id);
-        if (!base) return true;
-        const totalCount = base.reduce(
-          (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
-          0
-        );
-        return totalCount > 0;
-      });
-    }
+    pruneVisibleByBaseCount();
   }
 
   const debouncedRefetchCounts = useDebounceFn(async () => {

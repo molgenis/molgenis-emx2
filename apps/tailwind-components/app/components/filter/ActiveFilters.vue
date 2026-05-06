@@ -68,11 +68,8 @@ const emit = defineEmits<{
       </template>
     </VDropdown>
 
-    <button
-      @click="emit('clearAll')"
-      class="whitespace-nowrap text-button-primary text-xs underline hover:no-underline cursor-pointer"
-    >
+    <Button type="text" size="tiny" @click="emit('clearAll')">
       Clear all
-    </button>
+    </Button>
   </div>
 </template>

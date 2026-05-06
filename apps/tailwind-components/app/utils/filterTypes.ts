@@ -18,6 +18,7 @@ export const COUNTABLE_TYPES = new Set([
   "BOOL",
   "RADIO",
   "CHECKBOX",
+  "STRING_ARRAY",
 ]);
 
 export const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
@@ -47,6 +48,7 @@ const SELECTABLE_FILTER_TYPES = new Set([
   "BOOL_ARRAY",
   "RADIO",
   "CHECKBOX",
+  "STRING_ARRAY",
   "DATE",
   "DATE_ARRAY",
   "DATETIME",
@@ -62,7 +64,6 @@ const SELECTABLE_FILTER_TYPES = new Set([
 
 const STRING_FILTER_TYPES = new Set([
   "STRING",
-  "STRING_ARRAY",
   "TEXT",
   "TEXT_ARRAY",
   "EMAIL",

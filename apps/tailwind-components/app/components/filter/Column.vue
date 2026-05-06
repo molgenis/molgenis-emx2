@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type {
   IColumn,
   CellValueType,
@@ -166,22 +167,36 @@ watch(localSearch, (newVal, oldVal) => {
   }
 });
 
-function countedOptionToTreeNode(option: CountedOption): ITreeNode {
+function displayCount(option: CountedOption, selected: string[]): number {
+  if (selected.includes(option.name)) return option.count;
+  return Math.max(0, option.count - (option.overlap ?? 0));
+}
+
+function countedOptionToTreeNode(
+  option: CountedOption,
+  selected: string[]
+): ITreeNode {
+  const count = displayCount(option, selected);
   return {
     ...option,
     label: option.label
-      ? `${option.label} (${option.count})`
-      : `${option.name} (${option.count})`,
-    children: option.children?.map(countedOptionToTreeNode) ?? [],
+      ? `${option.label} (${count})`
+      : `${option.name} (${count})`,
+    children:
+      option.children?.map((child) =>
+        countedOptionToTreeNode(child, selected)
+      ) ?? [],
   };
 }
 
-const treeNodes = computed<ITreeNode[]>(() =>
-  visibleOptions.value.map(countedOptionToTreeNode)
-);
-
 const treeSelection = computed(() =>
   filterValueToTreeSelection(props.modelValue)
+);
+
+const treeNodes = computed<ITreeNode[]>(() =>
+  visibleOptions.value.map((opt) =>
+    countedOptionToTreeNode(opt, treeSelection.value)
+  )
 );
 
 function onTreeSelectionChange(selected: string[]) {
@@ -206,21 +221,30 @@ function onRangeChange(val: [columnValue, columnValue]) {
   }
 }
 
-const textValue = computed<string>(() => {
-  if (!props.modelValue || props.modelValue.operator !== "like") return "";
-  return typeof props.modelValue.value === "string"
-    ? props.modelValue.value
-    : "";
-});
+function textValueFromModelValue(mv: IFilterValue | undefined): string {
+  if (!mv || mv.operator !== "like") return "";
+  return typeof mv.value === "string" ? mv.value : "";
+}
 
-function onSearchInput(val: string | number) {
-  const str = String(val);
-  if (!str) {
+const inputText = ref<string>(textValueFromModelValue(props.modelValue));
+
+watch(
+  () => props.modelValue,
+  (mv) => {
+    const next = textValueFromModelValue(mv);
+    if (inputText.value !== next) inputText.value = next;
+  }
+);
+
+const debouncedEmitText = useDebounceFn((val: string) => {
+  if (!val) {
     emit("update:modelValue", undefined);
   } else {
-    emit("update:modelValue", { operator: "like", value: str });
+    emit("update:modelValue", { operator: "like", value: val });
   }
-}
+}, 500);
+
+watch(inputText, (val) => debouncedEmitText(val));
 </script>
 
 <template>
@@ -229,7 +253,7 @@ function onSearchInput(val: string | number) {
 
     <TextNoResultsMessage
       v-else-if="isCountable && options.length === 0"
-      label="No matching values for this filter"
+      label="No options available given current filters"
       class="!text-search-filter-group-title"
     />
 
@@ -253,7 +277,7 @@ function onSearchInput(val: string | number) {
 
       <TextNoResultsMessage
         v-if="localSearch && visibleOptions.length === 0"
-        label="No matching values for this filter"
+        label="No options available given current filters"
         class="!text-search-filter-group-title"
       />
 
@@ -290,8 +314,7 @@ function onSearchInput(val: string | number) {
     <template v-else>
       <InputSearch
         :id="`filter-text-${column.id}`"
-        :model-value="textValue"
-        @update:model-value="onSearchInput"
+        v-model="inputText"
         :placeholder="`Search ${column.label || column.id}...`"
         :aria-label="column.label || column.id"
         size="tiny"

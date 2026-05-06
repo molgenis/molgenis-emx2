@@ -7,6 +7,7 @@ import { BOOL_LABELS } from "./filterConstants";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
+  overlap: number;
   children?: CountedOption[];
   keyObject?: Record<string, any>;
 }
@@ -32,7 +33,8 @@ export async function fetchCounts(
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
   refTableId?: string | null,
   refSchemaId?: string | null,
-  refLabel?: string | null
+  refLabel?: string | null,
+  crossFilterIncludeAll?: IGraphQLFilter
 ): Promise<FetchCountsResult> {
   if (columnType === "ONTOLOGY" || columnType === "ONTOLOGY_ARRAY") {
     const { options, saturated } = await fetchOntologyWithAncestors(
@@ -43,7 +45,8 @@ export async function fetchCounts(
       crossFilter,
       refSchemaId ?? null,
       refTableId ?? null,
-      fetcher
+      fetcher,
+      crossFilterIncludeAll
     );
     return { options, saturated };
   }
@@ -108,9 +111,9 @@ async function fetchBoolGroupBy(
     );
   } catch {
     return [
-      { name: "true", label: BOOL_LABELS["true"], count: 0 },
-      { name: "false", label: BOOL_LABELS["false"], count: 0 },
-      { name: "_null_", label: BOOL_LABELS["_null_"], count: 0 },
+      { name: "true", label: BOOL_LABELS["true"], count: 0, overlap: 0 },
+      { name: "false", label: BOOL_LABELS["false"], count: 0, overlap: 0 },
+      { name: "_null_", label: BOOL_LABELS["_null_"], count: 0, overlap: 0 },
     ];
   }
 
@@ -127,16 +130,19 @@ async function fetchBoolGroupBy(
       name: "true",
       label: BOOL_LABELS["true"],
       count: countMap.get("true") ?? 0,
+      overlap: 0,
     },
     {
       name: "false",
       label: BOOL_LABELS["false"],
       count: countMap.get("false") ?? 0,
+      overlap: 0,
     },
     {
       name: "_null_",
       label: BOOL_LABELS["_null_"],
       count: countMap.get("_null_") ?? 0,
+      overlap: 0,
     },
   ];
 }
@@ -196,10 +202,10 @@ async function fetchFlatGroupBy(
           : entries.length === 1
           ? String(entries[0]![1])
           : entries.map(([, v]) => String(v)).join(", ");
-        return { name, keyObject, count: row.count };
+        return { name, keyObject, count: row.count, overlap: 0 };
       }
       if (val === null || val === undefined) return null;
-      return { name: String(val), count: row.count };
+      return { name: String(val), count: row.count, overlap: 0 };
     })
     .filter((item): item is CountedOption => item !== null);
   return { options, saturated };
@@ -213,16 +219,30 @@ async function fetchOntologyWithAncestors(
   crossFilter: IGraphQLFilter,
   refSchemaId: string | null,
   refTableId: string | null,
-  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  crossFilterIncludeAll?: IGraphQLFilter
 ): Promise<FetchCountsResult> {
-  const { terms, saturated } = await groupByOntologyTerms(
-    schemaId,
-    tableId,
-    columnId,
-    crossFilter,
-    fetcher
-  );
-  if (terms.size === 0) return { options: [], saturated };
+  const hasOverlap = crossFilterIncludeAll !== undefined;
+
+  const [soloResult, overlapResult] = await Promise.all([
+    groupByOntologyTerms(schemaId, tableId, columnId, crossFilter, fetcher),
+    hasOverlap
+      ? groupByOntologyTerms(
+          schemaId,
+          tableId,
+          columnId,
+          crossFilterIncludeAll!,
+          fetcher
+        )
+      : Promise.resolve(null),
+  ]);
+
+  const { terms, saturated: soloSaturated } = soloResult;
+  if (terms.size === 0) return { options: [], saturated: soloSaturated };
+
+  const overlapTerms =
+    overlapResult?.terms ?? new Map<string, OntologyTermNode>();
+  const overlapSaturated = overlapResult?.saturated ?? false;
 
   const allTerms = await resolveOntologyAncestorChain(
     terms,
@@ -230,22 +250,36 @@ async function fetchOntologyWithAncestors(
     refSchemaId ?? schemaId,
     fetcher
   );
-  const tree = buildTreeFromOntologyTerms(allTerms);
+  const tree = buildTreeFromOntologyTerms(allTerms, overlapTerms);
 
   if (columnType === "ONTOLOGY_ARRAY") {
-    await fetchOntologyParentCountsFromServer(
-      tree,
-      schemaId,
-      tableId,
-      columnId,
-      crossFilter,
-      fetcher
-    );
+    await Promise.all([
+      fetchOntologyParentCountsFromServer(
+        tree,
+        schemaId,
+        tableId,
+        columnId,
+        crossFilter,
+        fetcher,
+        "count"
+      ),
+      hasOverlap
+        ? fetchOntologyParentCountsFromServer(
+            tree,
+            schemaId,
+            tableId,
+            columnId,
+            crossFilterIncludeAll!,
+            fetcher,
+            "overlap"
+          )
+        : Promise.resolve(),
+    ]);
   } else {
     rollupOntologyParentCountsFromChildren(tree);
   }
 
-  return { options: tree, saturated };
+  return { options: tree, saturated: soloSaturated || overlapSaturated };
 }
 
 // === ONTOLOGY SUB-STEPS ===
@@ -339,6 +373,12 @@ function rollupOntologyParentCountsFromChildren(nodes: CountedOption[]): void {
       if (node.count === 0) {
         node.count = node.children.reduce((sum, child) => sum + child.count, 0);
       }
+      if (node.overlap === 0) {
+        node.overlap = node.children.reduce(
+          (sum, child) => sum + child.overlap,
+          0
+        );
+      }
     }
   }
 }
@@ -349,7 +389,8 @@ async function fetchOntologyParentCountsFromServer(
   tableId: string,
   columnId: string,
   crossFilter: IGraphQLFilter,
-  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  field: "count" | "overlap" = "count"
 ): Promise<void> {
   const segments = columnId.split(".");
   const parentNodes = collectTreeNodesWithChildren(tree);
@@ -367,16 +408,17 @@ async function fetchOntologyParentCountsFromServer(
           }`;
       try {
         const aggData = await fetcher(schemaId, aggQuery, null);
-        parentNode.count = aggData?.[`${tableId}_agg`]?.count ?? 0;
+        parentNode[field] = aggData?.[`${tableId}_agg`]?.count ?? 0;
       } catch {
-        parentNode.count = 0;
+        parentNode[field] = 0;
       }
     })
   );
 }
 
 function buildTreeFromOntologyTerms(
-  knownTerms: Map<string, OntologyTermNode>
+  knownTerms: Map<string, OntologyTermNode>,
+  overlapTerms: Map<string, OntologyTermNode> = new Map()
 ): CountedOption[] {
   const nodeMap = new Map<string, CountedOption>();
   for (const term of knownTerms.values()) {
@@ -384,6 +426,7 @@ function buildTreeFromOntologyTerms(
       name: term.name,
       label: term.label,
       count: term.count,
+      overlap: overlapTerms.get(term.name)?.count ?? 0,
       children: [],
     });
   }

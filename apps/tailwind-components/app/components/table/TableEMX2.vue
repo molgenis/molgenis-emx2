@@ -7,7 +7,7 @@
       :columns="filters.columns.value"
       :schemaId="schemaId"
       :tableId="tableId"
-      class="w-80 shrink-0"
+      class="w-80 shrink-0 sticky top-0 max-h-screen overflow-y-auto"
     />
 
     <div :class="{ 'flex-1 min-w-0': enableFilters }">
@@ -275,6 +275,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import type {
   IRow,
   IColumn,
@@ -292,7 +293,6 @@ import type {
 import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
-import { useRoute, useRouter } from "#app/composables/router";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import type { IGraphQLFilter } from "../../../types/filters";
@@ -363,16 +363,11 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const route = useRoute();
-const router = useRouter();
-
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
       computed(() => columns.value),
       {
         urlSync: true,
-        route,
-        router,
         schemaId: props.schemaId,
         tableId: props.tableId,
       }
@@ -507,11 +502,14 @@ function getDirection(columnId: string): sortDirection {
   }
 }
 
-function handleSearchRequest(search: string) {
-  settings.value.search = search;
-  settings.value.page = 1;
-  refresh();
-}
+const handleSearchRequest = useDebounceFn(
+  (search: string | number | undefined) => {
+    settings.value.search = search == null ? "" : String(search);
+    settings.value.page = 1;
+    refresh();
+  },
+  500
+);
 
 function handlePagingRequest(page: number) {
   settings.value.page = page;
