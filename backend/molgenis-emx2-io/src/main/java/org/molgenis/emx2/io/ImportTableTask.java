@@ -44,7 +44,7 @@ public class ImportTableTask extends Task {
     if (getProgress() > 0) {
       this.complete("Modified %s rows in %s".formatted(getProgress(), table.getName()));
     } else {
-      this.setSkipped("Skipped table %s : sheet was empty".formatted(table.getName()));
+      this.setSkipped("Skipped table %s: sheet was empty".formatted(table.getName()));
     }
   }
 }
