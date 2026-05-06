@@ -57,7 +57,7 @@ public class QueryEntryType {
     if (table == null) {
       throw new MolgenisException("Table " + entryType.getId() + " does not exist");
     }
-    if (canQueryAtGranularity(schema, table.getMetadata())) {
+    if (hasPermissionForGranularity(schema, table.getMetadata())) {
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 
@@ -89,7 +89,7 @@ public class QueryEntryType {
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
-    if (!canQueryAtGranularity(table.getSchema(), table.getMetadata())) return 0;
+    if (!hasPermissionForGranularity(table.getSchema(), table.getMetadata())) return 0;
     int numTotalResults = 0;
     ObjectNode resultSet = mapper.createObjectNode();
     resultSet.put("id", table.getSchema().getName());
@@ -235,7 +235,7 @@ public class QueryEntryType {
     return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();
   }
 
-  private boolean canQueryAtGranularity(Schema schema, TableMetadata table) {
+  private boolean hasPermissionForGranularity(Schema schema, TableMetadata table) {
     return switch (this.granularity) {
       case BOOLEAN -> PermissionEvaluator.canExists(schema, table);
       case COUNT, AGGREGATED -> PermissionEvaluator.canRange(schema, table);
