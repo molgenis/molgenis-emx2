@@ -93,7 +93,7 @@ function onInput() {
             type="checkbox"
             :id="`${resource.id}-shopping-cart-input`"
             class="sr-only"
-            v-model="isInShoppingCart"
+            :modelValue="isInShoppingCart"
             @input="onInput"
           />
         </label>
