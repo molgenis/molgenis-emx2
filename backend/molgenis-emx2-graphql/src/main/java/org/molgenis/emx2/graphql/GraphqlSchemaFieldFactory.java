@@ -594,6 +594,7 @@ public class GraphqlSchemaFieldFactory {
                 dropGroups(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
+                // this sync is a bit sad.
                 ((SqlSchemaMetadata) schema.getMetadata())
                     .sync((SqlSchemaMetadata) s.getMetadata());
                 db.getListener().onSchemaChange();
