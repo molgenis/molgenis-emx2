@@ -37,20 +37,61 @@ class TableQueryGeneratorTest {
 
   @BeforeEach
   void setup() {
-    schema.create(
-        TableMetadata.table(
-            "Manufacturer",
-            Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("xsd:name"),
-            Column.column("id").setType(ColumnType.INT).setPkey().setSemantics("xsd:id")));
-    schema.create(
-        productTableWithSemantics("xsd:name")
-            .add(
-                Column.column("manufacturer")
-                    .setType(ColumnType.REF)
-                    .setPkey()
-                    .setRefTable("Manufacturer")
-                    .setSemantics("xsd:manufacturer")));
+    schema.create(productTableWithSemantics("xsd:name"));
     order = schema.create(orderTable(true)).getMetadata();
+  }
+
+  @Test
+  void shouldPropagatePlainColumns() {
+    TableMetadata table =
+        TableMetadata.table(
+            "Propogation",
+            Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("xsd:name"));
+
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    assertEquals(
+        removePrefixesFromQuery(generate.getQueryString()),
+        """
+      SELECT ?Propogation ?name
+      WHERE { ?Propogation xsd:name ?name . }
+      GROUP BY ?Propogation ?name
+      """);
+  }
+
+  @Test
+  void shouldPropagateArrays() {
+    TableMetadata table =
+        TableMetadata.table(
+            "Propogation",
+            Column.column("names").setType(ColumnType.STRING_ARRAY).setSemantics("xsd:name"));
+
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    assertEquals(
+        removePrefixesFromQuery(generate.getQueryString()),
+        """
+          SELECT ?Propogation ( GROUP_CONCAT( STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
+          WHERE { OPTIONAL { ?Propogation xsd:name ?names_single . } }
+          GROUP BY ?Propogation
+          """);
+  }
+
+  @Test
+  void shouldPropagateReferences() {
+    SelectQuery query = new TableQueryGenerator().generate(order);
+
+    assertEquals(
+        """
+        SELECT ?Order ?id ?product_name
+        WHERE { ?Order xsd:id ?id .
+        ?Order xsd:product ?product .
+        ?product xsd:name ?product_name . }
+        GROUP BY ?Order ?id ?product_name
+        """,
+        removePrefixesFromQuery(query.getQueryString()));
+  }
+
+  private String removePrefixesFromQuery(String query) {
+    return query.replaceAll("PREFIX .*\n", "");
   }
 
   @Test
@@ -113,11 +154,7 @@ class TableQueryGeneratorTest {
             .setType(ColumnType.REF)
             .setRefTable("Product")
             .setRequired(productRequired)
-            .setSemantics("xsd:product"),
-        Column.column("quantity")
-            .setType(ColumnType.INT)
-            .setRequired(productRequired)
-            .setSemantics("xsd:quantity"));
+            .setSemantics("xsd:product"));
   }
 
   private TableMetadata productTableWithSemantics(String... semantics) {
