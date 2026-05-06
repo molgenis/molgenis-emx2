@@ -62,7 +62,7 @@ importers:
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@4.4.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -600,15 +600,18 @@ importers:
       '@popperjs/core':
         specifier: 2.11.8
         version: 2.11.8
+      '@vueuse/components':
+        specifier: 10.7.0
+        version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/core':
         specifier: 10.7.0
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/integrations':
         specifier: 10.7.0
-        version: 10.7.0(axios@1.15.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
+        version: 10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       axios:
-        specifier: 1.15.0
-        version: 1.15.0
+        specifier: 1.15.2
+        version: 1.15.2
       click-outside-vue3:
         specifier: 4.0.1
         version: 4.0.1
@@ -971,13 +974,13 @@ importers:
         version: 12.8.2(typescript@5.6.2)
       '@vueuse/integrations':
         specifier: 10.7.0
-        version: 10.7.0(axios@1.15.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
+        version: 10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       consola:
         specifier: 3.2.3
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@4.4.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       focus-trap:
         specifier: ^8.0.0
         version: 8.0.0
@@ -3854,6 +3857,9 @@ packages:
     peerDependencies:
       vue: '>=3.3.0'
 
+  '@vueuse/components@10.7.0':
+    resolution: {integrity: sha512-ycyF+fZtipP/8WVWZ5y6Cb9twJ0EeVHIqcqkCcTpmAJdheRjorT8v6cHk3h144HHTMgIfBWC6TaSukDG7QFmsw==}
+
   '@vueuse/components@12.8.2':
     resolution: {integrity: sha512-Nj27u1KsDWzoTthlChzVndJ9g0sW5APCXO3EJkSxlG11nN/ANTUlPPeoJOFvtbdDRnvsMJalboJyE0rRyg7yNg==}
 
@@ -4087,8 +4093,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.15.0:
-    resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
+  axios@1.15.2:
+    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
 
   b4a@1.8.0:
     resolution: {integrity: sha512-qRuSmNSkGQaHwNbM7J78Wwy+ghLEYF1zNrSeMxj4Kgw6y33O3mXcQ6Ie9fRvfU/YnxWkOchPXbaLb73TkIsfdg==}
@@ -12051,6 +12057,15 @@ snapshots:
       date-fns: 4.1.0
       vue: 3.5.22(typescript@5.6.2)
 
+  '@vueuse/components@10.7.0(vue@3.5.22(typescript@5.6.2))':
+    dependencies:
+      '@vueuse/core': 10.7.0(vue@3.5.22(typescript@5.6.2))
+      '@vueuse/shared': 10.7.0(vue@3.5.22(typescript@5.6.2))
+      vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
   '@vueuse/components@12.8.2(typescript@5.6.2)':
     dependencies:
       '@vueuse/core': 12.8.2(typescript@5.6.2)
@@ -12078,13 +12093,13 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@10.7.0(axios@1.15.0)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
+  '@vueuse/integrations@10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.1.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
     dependencies:
       '@vueuse/core': 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/shared': 10.7.0(vue@3.5.22(typescript@5.6.2))
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.2))
     optionalDependencies:
-      axios: 1.15.0
+      axios: 1.15.2
       focus-trap: 8.0.0
       fuse.js: 7.1.0
       sortablejs: 1.14.0
@@ -12283,7 +12298,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.15.0:
+  axios@1.15.2:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.5
