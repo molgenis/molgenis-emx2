@@ -441,4 +441,282 @@ class TestRowLevelSecurity {
           assertTrue(ids.contains("open"), "Viewer should see public row");
         });
   }
+
+  @Test
+  void grantOnInheritedTableIsRejected() {
+    database.becomeAdmin();
+    Schema schema = database.dropCreateSchema("TestRlsInheritReject");
+    schema.create(table("Root").add(column("id").setPkey()));
+    schema.create(table("Sub").setInheritName("Root"));
+    schema.createRole("RejectRole");
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () -> schema.grant("RejectRole", new TablePermission("Sub").select(true)));
+    assertTrue(
+        ex.getMessage().contains("inherited table"),
+        "error should mention that the table is inherited: " + ex.getMessage());
+
+    // Same restriction applies to row-level grants.
+    assertThrows(
+        MolgenisException.class,
+        () -> schema.grant("RejectRole", new TablePermission("Sub").select(true).rowLevel(true)));
+  }
+
+  @Test
+  void rlsGrantOnRootCrudWorksOnSubclassAcrossInheritanceTree() {
+    database.becomeAdmin();
+    String root = "InheritParent";
+    String child = "InheritChild";
+    String roleA = "InheritTeamA";
+    String roleB = "InheritTeamB";
+    String userA = "rls_inherit_a";
+    String userB = "rls_inherit_b";
+    Schema schema = database.dropCreateSchema("TestRlsInheritSubclass");
+    for (String u : List.of(userA, userB)) {
+      if (!database.hasUser(u)) database.addUser(u);
+    }
+
+    schema.create(table(root).add(column("id").setPkey()).add(column("title")));
+    schema.create(table(child).setInheritName(root).add(column("childField")));
+
+    schema.createRole(roleA);
+    schema.createRole(roleB);
+    // RLS grant on root propagates to every descendant in the tree.
+    schema.grant(
+        roleA,
+        new TablePermission(root)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.grant(roleB, new TablePermission(root).select(true).rowLevel(true));
+
+    schema.addMember(userA, roleA);
+    schema.addMember(userB, roleB);
+
+    // INSERT on subclass via TeamA
+    database.setActiveUser(userA);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName())
+                .getTable(child)
+                .insert(
+                    new Row()
+                        .setString("id", "c1")
+                        .setString("title", "team a child")
+                        .setString("childField", "x")
+                        .set(MG_ROLES, new String[] {roleA})));
+
+    // SELECT on subclass: TeamA sees their row
+    database.setActiveUser(userA);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("c1"), "TeamA should see their inserted row on the subclass");
+        });
+
+    // SELECT on root: TeamA can see the row through the root table too
+    database.setActiveUser(userA);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(schema.getName()).getTable(root).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("c1"), "TeamA should see the row when querying root");
+        });
+
+    // TeamB has no insert grant: should not see TeamA's row
+    database.setActiveUser(userB);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertFalse(ids.contains("c1"), "TeamB should NOT see TeamA's row");
+        });
+
+    // UPDATE through subclass
+    database.setActiveUser(userA);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName())
+                .getTable(child)
+                .update(new Row().setString("id", "c1").setString("title", "updated")));
+    database.becomeAdmin();
+    Row updated =
+        database.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
+            .filter(r -> "c1".equals(r.getString("id")))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("updated", updated.getString("title"));
+
+    // DELETE through subclass
+    database.setActiveUser(userA);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName()).getTable(child).delete(new Row().setString("id", "c1")));
+    database.becomeAdmin();
+    assertTrue(
+        database.getSchema(schema.getName()).getTable(child).retrieveRows().isEmpty(),
+        "subclass row should be deleted");
+    assertTrue(
+        database.getSchema(schema.getName()).getTable(root).retrieveRows().isEmpty(),
+        "root row should be deleted by cascade");
+  }
+
+  @Test
+  void rlsGrantOnRootAllowsAccessIntoSubclasses() {
+    database.becomeAdmin();
+    String root = "RootParent";
+    String child = "RootChild";
+    String roleC = "InheritTeamC";
+    String userC = "rls_inherit_c";
+    Schema schema = database.dropCreateSchema("TestRlsInheritRoot");
+    if (!database.hasUser(userC)) database.addUser(userC);
+
+    schema.create(table(root).add(column("id").setPkey()).add(column("title")));
+    schema.create(table(child).setInheritName(root).add(column("childField")));
+
+    schema.createRole(roleC);
+    // grant on root — must also propagate down so the root-side LEFT JOIN
+    // to subclasses can read them.
+    schema.grant(
+        roleC,
+        new TablePermission(root)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.addMember(userC, roleC);
+
+    // Insert via subclass as TeamC: root insert must satisfy root's RLS
+    database.setActiveUser(userC);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName())
+                .getTable(child)
+                .insert(
+                    new Row()
+                        .setString("id", "k1")
+                        .setString("title", "via subclass")
+                        .setString("childField", "y")
+                        .set(MG_ROLES, new String[] {roleC})));
+
+    // SELECT on root joins all subclasses (LEFT JOIN); user must have grant on subclasses
+    database.setActiveUser(userC);
+    database.tx(
+        db -> {
+          List<Row> rows = db.getSchema(schema.getName()).getTable(root).retrieveRows();
+          assertTrue(rows.stream().anyMatch(r -> "k1".equals(r.getString("id"))));
+        });
+  }
+
+  @Test
+  void rlsGrantPropagatesAcrossMultiLevelChain() {
+    database.becomeAdmin();
+    String grand = "Grand";
+    String mid = "Mid";
+    String leaf = "Leaf";
+    String roleD = "InheritTeamD";
+    String userD = "rls_inherit_d";
+    Schema schema = database.dropCreateSchema("TestRlsInheritMulti");
+    if (!database.hasUser(userD)) database.addUser(userD);
+
+    schema.create(table(grand).add(column("id").setPkey()).add(column("title")));
+    schema.create(table(mid).setInheritName(grand).add(column("midField")));
+    schema.create(table(leaf).setInheritName(mid).add(column("leafField")));
+
+    schema.createRole(roleD);
+    // Grant on the root only — propagation covers mid + leaf.
+    schema.grant(
+        roleD,
+        new TablePermission(grand)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.addMember(userD, roleD);
+
+    // Insert on the leaf — three physical inserts must each satisfy RLS on
+    // grand, mid, and leaf.
+    database.setActiveUser(userD);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName())
+                .getTable(leaf)
+                .insert(
+                    new Row()
+                        .setString("id", "l1")
+                        .setString("title", "deep")
+                        .setString("midField", "m")
+                        .setString("leafField", "l")
+                        .set(MG_ROLES, new String[] {roleD})));
+
+    database.setActiveUser(userD);
+    database.tx(
+        db -> {
+          assertEquals(1, db.getSchema(schema.getName()).getTable(leaf).retrieveRows().size());
+          assertEquals(1, db.getSchema(schema.getName()).getTable(mid).retrieveRows().size());
+          assertEquals(1, db.getSchema(schema.getName()).getTable(grand).retrieveRows().size());
+        });
+  }
+
+  @Test
+  void revokingRlsOnRootRemovesAccessAcrossTree() {
+    database.becomeAdmin();
+    String root = "RevokeParent";
+    String child = "RevokeChild";
+    String roleE = "InheritTeamE";
+    String userE = "rls_inherit_e";
+    Schema schema = database.dropCreateSchema("TestRlsInheritRevoke");
+    if (!database.hasUser(userE)) database.addUser(userE);
+
+    schema.create(table(root).add(column("id").setPkey()).add(column("title")));
+    schema.create(table(child).setInheritName(root).add(column("childField")));
+
+    schema.createRole(roleE);
+    schema.grant(
+        roleE,
+        new TablePermission(root)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.addMember(userE, roleE);
+
+    // Sanity: grant propagated — can read the subclass.
+    database.setActiveUser(userE);
+    database.tx(
+        db ->
+            assertDoesNotThrow(
+                () -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.revoke(roleE, root);
+
+    // getRoleInfo only surfaces root-table grants; after revoke, none remain.
+    Role info = schema.getRoleInfo(roleE);
+    assertTrue(
+        info.permissions().stream().noneMatch(p -> root.equals(p.table())),
+        "revoke should remove the root permission");
+
+    // Subclass access must also be gone — the user should no longer be able to read it.
+    database.setActiveUser(userE);
+    database.tx(
+        db ->
+            assertThrows(
+                Exception.class,
+                () -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
+  }
 }
