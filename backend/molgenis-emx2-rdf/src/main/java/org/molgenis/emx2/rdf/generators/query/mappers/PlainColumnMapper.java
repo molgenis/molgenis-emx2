@@ -24,7 +24,7 @@ public class PlainColumnMapper implements ColumnMapper {
   protected final Variable selector;
 
   public PlainColumnMapper(Variable subject, Column column) {
-    this(subject, column, SparqlBuilder.var(new ColumnVariableName(column).getSparqlName()));
+    this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
   }
 
   public PlainColumnMapper(Variable subject, Column column, Variable object) {
