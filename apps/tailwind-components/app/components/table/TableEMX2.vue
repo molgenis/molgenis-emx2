@@ -161,7 +161,7 @@
   </div>
 
   <Pagination
-    v-if="count > settings.pageSize || settings.page > 1"
+    v-if="count > smallestPageSize"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
@@ -423,6 +423,14 @@ function handleSearchRequest(search: string) {
   settings.value.page = 1;
   refresh();
 }
+
+const smallestPageSize = computed(() =>
+  Math.min(
+    ...constants.PAGE_SIZE_OPTIONS.filter(
+      (size) => size >= settings.value.pageSize
+    )
+  )
+);
 
 function handlePagingRequest(page: number) {
   settings.value.page = page;
