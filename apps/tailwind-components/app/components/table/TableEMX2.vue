@@ -161,7 +161,7 @@
   </div>
 
   <Pagination
-    v-if="count > settings.pageSize"
+    v-if="count > settings.pageSize || settings.page > 1"
     class="pt-[30px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
