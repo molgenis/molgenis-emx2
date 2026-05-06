@@ -13,7 +13,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 
-public class RdfStreamWriter extends RdfWriter {
+public class RdfStreamWriter extends RdfOutputStreamWriter {
   private static final WriterConfig config = new WriterConfig();
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 

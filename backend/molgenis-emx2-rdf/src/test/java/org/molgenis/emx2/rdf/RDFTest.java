@@ -533,7 +533,7 @@ public class RDFTest {
 
   private void compareToValidationFile(
       String validationFilePath,
-      Class<? extends RdfWriter> rdfWriterClass,
+      Class<? extends RdfOutputStreamWriter> rdfWriterClass,
       Class<? extends RdfGenerator> generatorClass,
       Method method,
       Object... methodArgs)
@@ -550,7 +550,7 @@ public class RDFTest {
 
   private void compareToValidationFile(
       String validationFilePath,
-      Class<? extends RdfWriter> rdfWriterClass,
+      Class<? extends RdfOutputStreamWriter> rdfWriterClass,
       List<Class> writerArgClasses,
       List<Object> writerArgs,
       Class<? extends RdfGenerator> generatorClass,
@@ -1703,7 +1703,8 @@ example,http://example.com/
       RdfApiGeneratorFactory generatorFactory, RDFHandler handler, Schema schema)
       throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
         generator.generate(schema);
       }
@@ -1716,7 +1717,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table);
       }
@@ -1732,7 +1734,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, primaryKey);
       }
@@ -1748,7 +1751,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, column);
       }

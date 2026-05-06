@@ -12,13 +12,13 @@ public enum WriterFactory {
 
   private static Logger logger = LoggerFactory.getLogger(WriterFactory.class);
 
-  private final Class<? extends RdfWriter> rdfWriterClass;
+  private final Class<? extends RdfOutputStreamWriter> rdfWriterClass;
 
-  WriterFactory(Class<? extends RdfWriter> rdfWriterClass) {
+  WriterFactory(Class<? extends RdfOutputStreamWriter> rdfWriterClass) {
     this.rdfWriterClass = rdfWriterClass;
   }
 
-  public RdfWriter create(OutputStream out, RDFFormat format) {
+  public RdfOutputStreamWriter create(OutputStream out, RDFFormat format) {
     try {
       return rdfWriterClass
           .getConstructor(OutputStream.class, RDFFormat.class)

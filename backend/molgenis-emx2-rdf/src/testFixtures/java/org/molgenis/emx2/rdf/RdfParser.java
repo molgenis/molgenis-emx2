@@ -17,7 +17,7 @@ import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
 
 public abstract class RdfParser {
   static final ClassLoader classLoader = RdfParser.class.getClassLoader();
@@ -37,7 +37,7 @@ public abstract class RdfParser {
    */
   public static void parseRdf(
       RDFHandler handler,
-      Class<? extends RdfWriter> writerClass,
+      Class<? extends RdfOutputStreamWriter> writerClass,
       List<Class> writerArgClasses,
       List<Object> writerArgs,
       Class<? extends RdfGenerator> generatorClass,
@@ -47,13 +47,13 @@ public abstract class RdfParser {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       writerArgs.set(0, outputStream);
 
-      try (RdfWriter writer =
+      try (RdfOutputStreamWriter writer =
           writerClass
               .getConstructor(writerArgClasses.toArray(Class[]::new))
               .newInstance(writerArgs.toArray())) {
         RdfGenerator generator =
             generatorClass
-                .getConstructor(RdfWriter.class, String.class)
+                .getConstructor(RdfOutputStreamWriter.class, String.class)
                 .newInstance(writer, BASE_URL);
         method.invoke(generator, methodArgs);
       } catch (InvocationTargetException

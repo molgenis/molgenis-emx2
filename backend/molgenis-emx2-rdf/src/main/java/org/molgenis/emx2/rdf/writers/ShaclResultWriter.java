@@ -23,7 +23,7 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ShaclResultWriter extends RdfWriter {
+public class ShaclResultWriter extends RdfOutputStreamWriter {
   private static final Logger logger = LoggerFactory.getLogger(ShaclResultWriter.class);
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
   private static final Model succeedModel;
