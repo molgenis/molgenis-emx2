@@ -29,7 +29,7 @@ public class RdfSailStoreWriter implements RdfWriter {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     connection.close();
   }
 }

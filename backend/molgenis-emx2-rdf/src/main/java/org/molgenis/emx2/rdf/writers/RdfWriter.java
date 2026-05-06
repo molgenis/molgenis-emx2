@@ -8,4 +8,8 @@ public interface RdfWriter extends AutoCloseable {
   void processTriple(Statement statement);
 
   void processTriple(Resource subject, IRI predicate, Value object);
+
+  // Override because no checked exceptions should occur (see API Note of AutoCloseable).
+  @Override
+  void close();
 }
