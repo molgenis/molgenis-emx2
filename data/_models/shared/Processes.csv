@@ -32,7 +32,7 @@ Experiments RNA,NGS sequencing,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0
 Experiments lrGS,NGS sequencing,,,,,,,,,,,,,,http://edamontology.org/topic_4056,A long-read Genome Sequencing (lrGS) experiment,"Patient registry, Patient registry staging"
 Experiments,,local experiment id,string,,,,TRUE,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"An identifier associated with a particular source, used by the data provider or owner","Patient registry, Patient registry staging, FAIR Genomes"
 Experiments,,sample,select,,,,,,Samples,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample","Patient registry, Patient registry staging, FAIR Genomes"
-Experiments RNA,,srDNA sample,select,,,,,,Samples srDNA,,,,,,,,"Patient registry, Patient registry staging"
+Experiments RNA,,srDNA sample,select,,,,,erdera,Samples srDNA,,,,,,,,"Patient registry, Patient registry staging"
 Experiments,,related experiments,multiselect,,,,,,Experiments,,,,,,http://semanticscience.org/resource/SIO_000994,A reference to another experiment or parent experiment,"Patient registry, Patient registry staging"
 NGS sequencing,,Library Preparation,heading,,,,,,,,,,,,,,"Patient registry, Patient registry staging, FAIR Genomes"
 Experiments OGM,,Sample Preparation,heading,,,,,,,,,,,,,,"Patient registry, Patient registry staging"
