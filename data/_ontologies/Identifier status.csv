@@ -1,0 +1,5 @@
+order,name,definition,codesystem,code,ontologyTermURI
+1,Assigned,The value is in use and cannot be assigned to another record,NCIT,NCIT:C126101,http://purl.obolibrary.org/obo/NCIT_C126101
+2,Available,The value is not in use and can be assigned to a record,NCIT,NCIT:C25429,http://purl.obolibrary.org/obo/NCIT_C25429
+3,Deprecated,The value is no longer in use or will no longer be used,NCIT,NCIT:C71491,http://purl.obolibrary.org/obo/NCIT_C71491
+4,Other,Another condition that defines the assignment of a value.,NCIT,NCIT:C17649,http://purl.obolibrary.org/obo/NCIT_C17649
