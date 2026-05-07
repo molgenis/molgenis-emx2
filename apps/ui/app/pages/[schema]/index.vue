@@ -43,7 +43,7 @@ interface Schema {
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: "tables",
+  key: `fetch-tables-for-${schema}`,
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,role,description}}}`,
@@ -103,7 +103,7 @@ crumbs.push({ label: "tables", url: "" });
     <ContentBlock
       v-if="ontologies.length"
       class="mt-1"
-      title="ontolgies"
+      title="ontologies"
       description="description"
     >
       <Table>

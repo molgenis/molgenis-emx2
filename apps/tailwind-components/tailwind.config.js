@@ -436,6 +436,7 @@ module.exports = {
       },
       outlineColor: {
         select: "var(--outline-color-select)",
+        "pagination-hover": "var(--border-color-pagination-hover)",
       },
       content: () => ({
         required: "var(--text-content-required)",

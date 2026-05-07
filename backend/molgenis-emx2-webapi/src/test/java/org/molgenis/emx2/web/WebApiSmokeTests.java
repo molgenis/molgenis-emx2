@@ -1514,7 +1514,11 @@ class WebApiSmokeTests extends ApiTestBase {
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
     database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
-    database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    try {
+      database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    } catch (MolgenisException e) {
+      // ignore error when there is nothing to clean up
+    }
 
     String token = getToken("admin", "admin");
     String result;
