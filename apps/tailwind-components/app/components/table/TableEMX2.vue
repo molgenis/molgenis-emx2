@@ -40,7 +40,8 @@
       v-on:scroll.native="handleStickyHeaderOffset"
     >
       <div
-        class="fixed top-0 z-10 overflow-hidden aria-hidden=true"
+        v-if="useStickyHeader"
+        class="fixed top-0 z-20 overflow-hidden aria-hidden=true"
         :class="{ hidden: !showStickyHeader }"
       >
         <table
@@ -340,9 +341,11 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    useStickyHeader?: boolean;
   }>(),
   {
     isEditable: () => false,
+    useStickyHeader: () => false,
   }
 );
 
@@ -400,19 +403,21 @@ const { data, refresh } = useAsyncData(
 );
 
 onMounted(() => {
-  window.addEventListener("scroll", (event) => {
-    const target = event.target as HTMLElement;
-    const rect = tableContainer?.value?.getBoundingClientRect();
-    const top = rect?.top ?? 0;
-    showStickyHeader.value = top <= 0;
-    updateStickyHeaderWidth();
-    const tableHeadHeight =
-      tableHead.value?.getBoundingClientRect().height ?? 0;
-    if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
-      showStickyHeader.value = false;
-    }
-  });
-  window.addEventListener("resize", updateStickyHeaderWidth);
+  if(props.useStickyHeader){
+    window.addEventListener("scroll", (event) => {
+      const target = event.target as HTMLElement;
+      const rect = tableContainer?.value?.getBoundingClientRect();
+      const top = rect?.top ?? 0;
+      showStickyHeader.value = top <= 0;
+      updateStickyHeaderWidth();
+      const tableHeadHeight =
+        tableHead.value?.getBoundingClientRect().height ?? 0;
+      if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
+        showStickyHeader.value = false;
+      }
+    });
+    window.addEventListener("resize", updateStickyHeaderWidth);
+  }
 });
 
 onUnmounted(() => {
