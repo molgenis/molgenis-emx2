@@ -34,7 +34,7 @@ public class TableQueryGenerator {
       ColumnMapper mapper;
       if (column.isReference()) {
         mapper = new ReferenceMapper(tableVar, column);
-      } else if (column.isArray()) {
+      } else if (Boolean.TRUE.equals(column.isArray())) {
         mapper = new CollectionColumnMapper(tableVar, column);
       } else {
         mapper = new PlainColumnMapper(tableVar, column);
