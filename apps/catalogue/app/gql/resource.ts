@@ -1,6 +1,6 @@
-import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
-import fileFragment from "../../../../gql/fragments/file";
-import ontologyFragment from "../../../../gql/fragments/ontology";
+import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
+import fileFragment from "./fragments/file";
+import ontologyFragment from "./fragments/ontology";
 
 export const resourceQuery = `
   query Resources($id: String) {

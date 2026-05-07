@@ -43,12 +43,12 @@ import TableContent from "../../../../components/table/Content.vue";
 import VariableDisplay from "../../../../components/VariableDisplay.vue";
 import collectionEventsQuery from "../../../../gql/collectionEvents";
 import datasetQuery from "../../../../gql/datasets";
+import { resourceQuery } from "../../../../gql/resource";
 import subpopulationsQuery from "../../../../gql/subpopulations";
 import variablesQuery from "../../../../gql/variables";
 import dateUtils from "../../../../utils/dateUtils";
 import { resourceIdPath } from "../../../../utils/urlHelpers";
 import { getKey } from "../../../../utils/variableUtils";
-import { resourceQuery } from "./resourceQuery";
 
 const config = useRuntimeConfig();
 const route = useRoute();
