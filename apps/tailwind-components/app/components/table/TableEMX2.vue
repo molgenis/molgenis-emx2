@@ -409,7 +409,7 @@ const { data, refresh } = useAsyncData(
 onMounted(async () => {
   if (props.useStickyHeader) {
     window.addEventListener("resize", updateStickyHeaderWidth);
-     window.addEventListener("scroll", handleStickyHeaderScroll);
+    window.addEventListener("scroll", handleStickyHeaderScroll);
   }
 });
 
@@ -418,14 +418,13 @@ onUnmounted(async () => {
   window.removeEventListener("resize", updateStickyHeaderWidth);
 });
 
-function handleStickyHeaderScroll (event: Event) {  
+function handleStickyHeaderScroll(event: Event) {
   const target = event.target as HTMLElement;
   const rect = tableContainer?.value?.getBoundingClientRect();
   const top = rect?.top ?? 0;
   showStickyHeader.value = top <= 0;
   updateStickyHeaderWidth();
-  const tableHeadHeight =
-    tableHead.value?.getBoundingClientRect().height ?? 0;
+  const tableHeadHeight = tableHead.value?.getBoundingClientRect().height ?? 0;
   if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
     showStickyHeader.value = false;
   }
