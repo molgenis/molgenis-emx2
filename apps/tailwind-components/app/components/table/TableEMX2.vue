@@ -88,7 +88,7 @@
       </div>
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
-          <tr id="tableHead">
+          <tr ref="tableHead">
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
               <TableHeaderAction
                 :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -361,7 +361,7 @@ const showStickyHeader = ref(false);
 const stickyHeaderOffset = ref(0);
 const tableContainer = ref<HTMLElement | null>(null);
 const tableHeaderFixed = ref<HTMLElement | null>(null);
-
+const tableHead = ref<HTMLElement | null>(null);
 const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
   useColumnResize(tableContainer);
 
@@ -406,10 +406,8 @@ onMounted(() => {
     const top = rect?.top ?? 0;
     showStickyHeader.value = top <= 0;
     updateStickyHeaderWidth();
-
-    const tableHead = target.querySelector("#tableHead") as HTMLElement;
-
-    const tableHeadHeight = tableHead.getBoundingClientRect().height;
+    const tableHeadHeight =
+      tableHead.value?.getBoundingClientRect().height ?? 0;
     if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
       showStickyHeader.value = false;
     }
