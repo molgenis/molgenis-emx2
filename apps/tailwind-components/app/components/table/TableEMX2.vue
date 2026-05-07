@@ -403,7 +403,7 @@ const { data, refresh } = useAsyncData(
 );
 
 onMounted(() => {
-  if(props.useStickyHeader){
+  if (props.useStickyHeader) {
     window.addEventListener("scroll", (event) => {
       const target = event.target as HTMLElement;
       const rect = tableContainer?.value?.getBoundingClientRect();
