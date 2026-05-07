@@ -281,3 +281,6 @@ BEGIN
         EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', 'MG_ROLE_' || s.table_schema || '_MEMBER', 'MG_ROLE_' || s.table_schema || '/Owner');
     END LOOP;
 END $$;
+
+ALTER TABLE IF EXISTS "MOLGENIS".table_metadata
+    ADD COLUMN IF NOT EXISTS rls_enabled BOOLEAN NOT NULL DEFAULT false;

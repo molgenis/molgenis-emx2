@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 33;
+  private static final int SOFTWARE_DATABASE_VERSION = 32;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -195,11 +195,11 @@ public class Migrations {
             executeMigrationFile(tdb, "migration31.sql", "add mg_generate_autoid function");
           }
 
-          if (version < 33) {
+          if (version < 32) {
             executeMigrationFile(
                 tdb,
                 "migration32.sql",
-                "RLS v2: groups_metadata + role_permission_metadata + group_membership_metadata + access functions + system-role seed");
+                "RLS v2: groups_metadata + role_permission_metadata + group_membership_metadata + access functions + system-role seed + rls_enabled column");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

@@ -1872,6 +1872,115 @@ additive — do NOT bake the assumption "permissions are always within
 current schema" into the data-fetcher signature; keep the row shape
 compatible with future addition of a `schema` key.
 
+### Slice 8.0 — Explicit RLS-enable per table
+
+Implements the design locked in §8.4a. Decouples RLS column/policy
+lifecycle from permission-grant lifecycle.
+
+Order of sub-slices (each independently RED-GREEN):
+
+**8.0.A — Schema column + migration** — **Status: GREEN (2026-05-07)**
+- Added `rls_enabled BOOLEAN NOT NULL DEFAULT false` to
+  `MOLGENIS.table_metadata`.
+- Migration: folded the `ALTER TABLE … ADD COLUMN rls_enabled` into
+  `migration32.sql` (canonical bulk RLS migration). Deleted leftover
+  `migration33.sql` and `migration34.sql` (subsets of 32). Reset
+  `SOFTWARE_DATABASE_VERSION` to 32 and dropped the version<33/34/35
+  steps in `Migrations.java`. Branch is unshipped, so amending is safe.
+- `TableMetadata.rlsEnabled` field + getter/setter; sync()'d.
+- `MetadataUtils.saveTableMetadata` writes; `recordToTable` reads.
+- Test: `TestRlsEnabledMetadataRoundtrip` (2/2 green) — defaults false +
+  round-trips true after save/reload.
+
+**8.0.B — Java API + scope-validation guard**
+- `TableMetadata.setRlsEnabled(boolean)` / `getRlsEnabled()`.
+- New guard in `SqlRoleManager.upsertPermission` (or wherever
+  `role_permission_metadata` rows are written): reject any row whose
+  `select_scope`, `insert_scope`, `update_scope`, or `delete_scope` is
+  `OWN` or `GROUP` if the target table has `rls_enabled = false`.
+  Message: `"OWN/GROUP scope requires RLS-enabled table; enable RLS on
+  '<schema>.<table>' first"`.
+- `changeOwner` / `changeGroup` capabilities also gated: setting either
+  to `true` on a non-RLS table is rejected with the same error.
+- RED: `TestRlsEnabledScopeGuard` — three rejection tests (OWN, GROUP,
+  changeOwner) + one accept test (`ALL` on non-RLS table accepted).
+- GREEN: guard implemented; no other code changes.
+
+**8.0.C — DDL emitter: column + policy lifecycle tied to flag**
+- When `setRlsEnabled(true)` is called on a table:
+  - Add `mg_owner` (REF → users_metadata, default mg_insertedBy) and
+    `mg_groups` (REF_ARRAY → groups_metadata, default `{}`) columns if
+    not already present.
+  - Issue `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`.
+  - Apply the 4-policy template (USING/WITH-CHECK over the access
+    functions).
+  - Backfill `mg_owner` for existing rows from `mg_insertedBy`.
+- When `setRlsEnabled(false)` is called:
+  - **Pre-check**: any `role_permission_metadata` rows referencing this
+    table → reject with "first remove permissions on '<table>'".
+  - Drop the 4 policies.
+  - `ALTER TABLE ... DISABLE ROW LEVEL SECURITY`.
+  - Drop `mg_owner` and `mg_groups` columns.
+- RED: `TestRlsEnableDisableLifecycle` — 5 tests:
+  1. Enable creates columns + policies + backfills mg_owner.
+  2. Enable on table that already has rows: mg_owner populated from
+     mg_insertedBy.
+  3. Disable on a clean table drops columns + policies.
+  4. Disable rejected when permissions exist.
+  5. Re-enable after disable starts from empty mg_groups.
+- GREEN: emitter changes in `SqlSchemaMetadataExecutor` /
+  `SqlTableMetadataExecutor`.
+
+**8.0.D — Inheritance: cascade enable/disable to root + reject non-root**
+- Enable on root: cascades to all current children (recursive walk via
+  `tables_metadata.inherit`). New child added later auto-inherits the
+  flag at creation.
+- Enable directly on a non-root node: reject with "enable RLS on root
+  '<root>' instead".
+- Disable on root cascades atomically (one transaction).
+- RED: `TestRlsInheritanceCascade` — 4 tests:
+  1. Enable on root enables on all existing children.
+  2. New child added under enabled root is created with policies.
+  3. Enable on non-root rejected with clear error.
+  4. Disable on root cascades to children.
+- GREEN: walk inheritance tree in `setRlsEnabled` path; child-create
+  path checks parent's flag.
+
+**8.0.E — GraphQL surface**
+- `_schema.tables[]` exposes `rlsEnabled: Boolean`.
+- `change(tables:[{name, rlsEnabled}])` mutation accepts the flag.
+- `change(roles:[{...}])` server-side validation: same error messages as
+  the Java guard.
+- RED: `TestGraphqlSchemaTables.rlsEnabled_*` — read + write +
+  rejection tests (3-4 tests). New file (also satisfies §7.O split:
+  `TestGraphqlSchemaFields` → `TestGraphqlSchemaTables`).
+- GREEN: GraphQL field + fetcher + mutation handler.
+
+**8.0.F — Migrate existing tests from implicit to explicit RLS-enable**
+- Most likely the largest sub-slice by line count, smallest by risk.
+- Test files that previously relied on first-grant-implicitly-enables-RLS
+  must now call `setRlsEnabled(true)` (or the GraphQL mutation) before
+  granting `OWN`/`GROUP` permissions.
+- Touch list (preliminary, expand during implementation):
+  `TestSelectScope`, `TestChangeGroup`, `TestChangeOwner`,
+  `TestRlsLifecycle`, `TestTablePolicies`, `TestPolicyCount`,
+  `TestAsymmetricCollaboration`, `TestSchemaWideCustomGrants`,
+  `TablePermissionsGraphqlTest`, `TestGraphqlSchemaRoles`.
+- RED: any test that previously implicitly enabled RLS now fails with
+  the new "OWN/GROUP requires RLS-enabled table" error → confirms the
+  guard works.
+- GREEN: add explicit `setRlsEnabled(true)` calls to test setup; tests
+  pass again.
+
+**Order constraint**: 8.0.A → 8.0.B → 8.0.C → 8.0.D → 8.0.E → 8.0.F.
+A and B are pure additive; C is the behavioral pivot; D extends C; E is
+GraphQL on top of A-D; F is mass test migration after the guard exists.
+
+**Phase-boundary verification**: at the end of slice 8.0, run the
+combined-suite invocation (user-driven, per CLAUDE.md). Expect only the
+already-known pre-existing 5 failures in `TablePermissionsGraphqlTest`;
+no new failures introduced.
+
 ### Phase 8 — Tests, performance, hardening
 
 1. **Continuous master compatibility**: existing master tests must keep

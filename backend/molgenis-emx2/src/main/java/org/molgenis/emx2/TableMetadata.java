@@ -38,6 +38,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String[] semantics = null;
   // profiles to which this table belongs
   private String[] profiles;
+  // whether row-level security is enabled for this table
+  private boolean rlsEnabled = false;
 
   public String[] getSemantics() {
     return semantics;
@@ -110,6 +112,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
+      this.rlsEnabled = metadata.getRlsEnabled();
     }
   }
 
@@ -597,6 +600,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata setTableType(TableType tableType) {
     this.tableType = tableType;
+    return this;
+  }
+
+  public boolean getRlsEnabled() {
+    return rlsEnabled;
+  }
+
+  public TableMetadata setRlsEnabled(boolean rlsEnabled) {
+    this.rlsEnabled = rlsEnabled;
     return this;
   }
 

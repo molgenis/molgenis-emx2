@@ -110,6 +110,8 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<Boolean> TABLE_RLS_ENABLED =
+      field(name("rls_enabled"), BOOLEAN.nullable(false));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -413,6 +415,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              TABLE_RLS_ENABLED,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -423,6 +426,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              table.getRlsEnabled(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -432,6 +436,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(TABLE_RLS_ENABLED, table.getRlsEnabled())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -561,6 +566,8 @@ public class MetadataUtils {
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
+    Boolean rlsEnabled = r.get(TABLE_RLS_ENABLED, Boolean.class);
+    table.setRlsEnabled(rlsEnabled != null && rlsEnabled);
     return table;
   }
 
