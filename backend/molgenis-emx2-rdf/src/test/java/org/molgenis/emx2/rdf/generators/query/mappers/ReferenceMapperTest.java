@@ -146,7 +146,7 @@ class ReferenceMapperTest {
           "?product product:name ?product_name_single .");
       assertHasSelectors(
           mapper,
-          "( GROUP_CONCAT( STR( ?product_name_single ) ; SEPARATOR = ',' ) AS ?product_name )");
+          "( GROUP_CONCAT( DISTINCT STR( ?product_name_single ) ; SEPARATOR = ',' ) AS ?product_name )");
       assertHasGroupBy(mapper);
     }
 
@@ -176,7 +176,7 @@ class ReferenceMapperTest {
           ?product product:name ?product_name_single . }""");
       assertHasSelectors(
           mapper,
-          "( GROUP_CONCAT( STR( ?product_name_single ) ; SEPARATOR = ',' ) AS ?product_name )");
+          "( GROUP_CONCAT( DISTINCT STR( ?product_name_single ) ; SEPARATOR = ',' ) AS ?product_name )");
       assertHasGroupBy(mapper);
     }
   }
@@ -330,7 +330,7 @@ class ReferenceMapperTest {
       ReferenceMapper mapper = new ReferenceMapper(productVar, column);
       assertHasPatterns(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
       assertHasSelectors(
-          mapper, "( GROUP_CONCAT( STR( ?tag_single ) ; SEPARATOR = ',' ) AS ?tag )");
+          mapper, "( GROUP_CONCAT( DISTINCT STR( ?tag_single ) ; SEPARATOR = ',' ) AS ?tag )");
       assertHasGroupBy(mapper);
     }
   }
