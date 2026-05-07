@@ -238,6 +238,10 @@ public class SqlRoleManager {
       throw new MolgenisException("System role permissions are immutable: " + roleName);
     }
     Set<String> affectedTables = permissions.getTables().keySet();
+    for (Map.Entry<String, PermissionSet.TablePermissions> entry :
+        permissions.getTables().entrySet()) {
+      rejectRlsScopeOnNonRlsTable(schema, entry.getKey(), entry.getValue(), permissions);
+    }
     Map<String, Boolean> rlsBefore = new java.util.LinkedHashMap<>();
     for (String tableName : affectedTables) {
       rlsBefore.put(tableName, hasNonNoneExactRow(schemaName, tableName));
@@ -305,6 +309,33 @@ public class SqlRoleManager {
       applyRlsTransition(schema, tableName, wasRls, isRls);
     }
     database.getListener().onSchemaChange();
+  }
+
+  private static final String RLS_SCOPE_ERROR =
+      "OWN/GROUP scope requires RLS-enabled table; enable RLS on '%s.%s' first";
+
+  private void rejectRlsScopeOnNonRlsTable(
+      Schema schema,
+      String tableName,
+      PermissionSet.TablePermissions tp,
+      PermissionSet permissions) {
+    TableMetadata meta = schema.getMetadata().getTableMetadata(tableName);
+    if (meta == null || meta.getRlsEnabled()) {
+      return;
+    }
+    boolean hasRlsScope =
+        tp.getSelect() == SelectScope.OWN
+            || tp.getSelect() == SelectScope.GROUP
+            || tp.getUpdate() == UpdateScope.OWN
+            || tp.getUpdate() == UpdateScope.GROUP
+            || tp.getInsert() == UpdateScope.OWN
+            || tp.getInsert() == UpdateScope.GROUP
+            || tp.getDelete() == UpdateScope.OWN
+            || tp.getDelete() == UpdateScope.GROUP;
+    boolean hasChangeFlag = permissions.isChangeOwner() || permissions.isChangeGroup();
+    if (hasRlsScope || hasChangeFlag) {
+      throw new MolgenisException(String.format(RLS_SCOPE_ERROR, schema.getName(), tableName));
+    }
   }
 
   public PermissionSet getPermissionSet(Schema schema, String roleName) {

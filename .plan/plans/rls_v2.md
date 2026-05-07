@@ -1892,19 +1892,21 @@ Order of sub-slices (each independently RED-GREEN):
 - Test: `TestRlsEnabledMetadataRoundtrip` (2/2 green) — defaults false +
   round-trips true after save/reload.
 
-**8.0.B — Java API + scope-validation guard**
-- `TableMetadata.setRlsEnabled(boolean)` / `getRlsEnabled()`.
-- New guard in `SqlRoleManager.upsertPermission` (or wherever
-  `role_permission_metadata` rows are written): reject any row whose
-  `select_scope`, `insert_scope`, `update_scope`, or `delete_scope` is
-  `OWN` or `GROUP` if the target table has `rls_enabled = false`.
-  Message: `"OWN/GROUP scope requires RLS-enabled table; enable RLS on
+**8.0.B — Java API + scope-validation guard** — **Status: GREEN (2026-05-07)**
+- Guard added in `SqlRoleManager.setPermissions` per-table loop: rejects
+  `OWN`/`GROUP` on any of select/insert/update/delete scopes, and
+  `changeOwner`/`changeGroup=true`, when the target table has
+  `rls_enabled = false`.
+- Error: `"OWN/GROUP scope requires RLS-enabled table; enable RLS on
   '<schema>.<table>' first"`.
-- `changeOwner` / `changeGroup` capabilities also gated: setting either
-  to `true` on a non-RLS table is rejected with the same error.
-- RED: `TestRlsEnabledScopeGuard` — three rejection tests (OWN, GROUP,
-  changeOwner) + one accept test (`ALL` on non-RLS table accepted).
-- GREEN: guard implemented; no other code changes.
+- Pass-through: tables absent from schema metadata are not guarded
+  (consistent with rest of `setPermissions`). `changeOwner`/`changeGroup`
+  validated per-table in the loop — if the PermissionSet covers multiple
+  tables and either flag is true, every non-RLS table triggers rejection.
+- Test: `TestRlsEnabledScopeGuard` (4/4 green) — RED→GREEN cycle
+  verified (3 rejection + 1 accept; rejection tests failed before guard).
+- Regression: `TestRlsEnabledMetadataRoundtrip` 2/2, `SqlRoleManagerTest`
+  23/23 — both green.
 
 **8.0.C — DDL emitter: column + policy lifecycle tied to flag**
 - When `setRlsEnabled(true)` is called on a table:
