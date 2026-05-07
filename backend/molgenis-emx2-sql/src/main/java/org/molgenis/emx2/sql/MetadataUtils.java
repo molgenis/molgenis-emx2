@@ -426,7 +426,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
-              table.getRlsEnabled(),
+              table.getInheritName() == null && table.getRlsEnabled(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -436,7 +436,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
-          .set(TABLE_RLS_ENABLED, table.getRlsEnabled())
+          .set(TABLE_RLS_ENABLED, table.getInheritName() == null && table.getRlsEnabled())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {

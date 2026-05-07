@@ -1938,17 +1938,21 @@ Order of sub-slices (each independently RED-GREEN):
   `TestGraphqlSchemaRoles`, `TestTablePolicies`.
 
 **8.0.D — Inheritance: cascade enable/disable to root + reject non-root** — **Status: GREEN (2026-05-07)**
-- `SqlTableMetadata.setRlsEnabled` now cascades from root via
+- `SqlTableMetadata.setRlsEnabled` cascades from root via
   `enableRlsCascade` / `disableRlsCascade` (walks `getSubclassTables()`
-  recursively, all in one transaction).
+  recursively, all in one transaction). DDL applies to every physical
+  table (mandatory — EMX2 uses manual FK inheritance, not PG INHERITS).
 - Non-root call rejected with `"Cannot enable/disable RLS on subclass
   '<name>' — call on root '<root>' instead"`.
-- New child auto-inherits parent's flag: hook in
+- New child auto-inherits via DDL hook in
   `SqlTableMetadataExecutor.executeCreateTable` (after `executeSetInherit`)
-  + second hook in `SqlTableMetadata.setInheritTransaction` (for
-  inheritance set after table creation).
-- Test: `TestRlsInheritanceCascade` (4/4 GREEN) — RED→GREEN cycle
-  verified.
+  + second hook in `SqlTableMetadata.setInheritTransaction`.
+- **Metadata = root-only single source of truth**: `rls_enabled` column
+  in `tables_metadata` is persisted ONLY on root rows; child rows always
+  store `false`. `TableMetadata.getRlsEnabled()` walks parent chain via
+  `getInheritedTable()` until root, returning root's raw flag. Removes
+  the sync invariant that would have plagued a duplicated-flag design.
+- Test: `TestRlsInheritanceCascade` (4/4 GREEN).
 - Regression: `TestRlsEnableDisableLifecycle` 5/5,
   `TestRlsEnabledMetadataRoundtrip` 2/2, `TestRlsEnabledScopeGuard` 4/4,
   `TestInherits` green.

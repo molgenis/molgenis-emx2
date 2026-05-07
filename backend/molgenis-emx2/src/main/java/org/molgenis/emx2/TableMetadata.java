@@ -112,7 +112,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
-      this.rlsEnabled = metadata.getRlsEnabled();
+      this.rlsEnabled = metadata.rlsEnabled;
     }
   }
 
@@ -604,6 +604,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public boolean getRlsEnabled() {
+    if (getInheritName() != null) {
+      TableMetadata parent = getInheritedTable();
+      if (parent != null) {
+        return parent.getRlsEnabled();
+      }
+    }
     return rlsEnabled;
   }
 

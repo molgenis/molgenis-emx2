@@ -538,19 +538,19 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   void enableRlsOnSingleTable() {
-    super.setRlsEnabled(true);
     SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
     Schema schemaInstance = getDatabase().getSchema(getSchemaName());
     roleManager.enableRlsForTable(schemaInstance, getTableName());
     if (getInheritName() == null) {
+      super.setRlsEnabled(true);
       getDatabase()
           .getJooqAsAdmin(
               adminJooq ->
                   adminJooq.execute(
                       "UPDATE {0} SET \"mg_owner\" = \"mg_insertedBy\" WHERE \"mg_owner\" IS NULL",
                       name(getSchemaName(), getTableName())));
+      MetadataUtils.saveTableMetadata(getJooq(), this);
     }
-    MetadataUtils.saveTableMetadata(getJooq(), this);
   }
 
   private void enableRlsCascade() {
@@ -605,7 +605,6 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   void disableRlsOnSingleTable() {
-    super.setRlsEnabled(false);
     SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
     Schema schemaInstance = getDatabase().getSchema(getSchemaName());
     roleManager.disableRlsForTable(schemaInstance, getTableName());
@@ -619,7 +618,10 @@ class SqlTableMetadata extends TableMetadata {
                   "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_groups",
                   name(getSchemaName(), getTableName()));
             });
-    MetadataUtils.saveTableMetadata(getJooq(), this);
+    if (getInheritName() == null) {
+      super.setRlsEnabled(false);
+      MetadataUtils.saveTableMetadata(getJooq(), this);
+    }
   }
 
   @Override
