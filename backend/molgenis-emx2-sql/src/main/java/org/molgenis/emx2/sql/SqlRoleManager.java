@@ -18,6 +18,8 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +27,6 @@ public class SqlRoleManager {
 
   private static final Logger logger = LoggerFactory.getLogger(SqlRoleManager.class);
 
-  public static final String PG_ROLES = "pg_roles";
-  public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
 
   private static final String SYSTEM_ROLE_OWNER = "Owner";
@@ -163,21 +163,31 @@ public class SqlRoleManager {
   private void grantMemberRoleToUser(String schemaName, String userName) {
     String memberRole = memberRoleName(schemaName);
     String fullUser = MG_USER_PREFIX + userName;
-    database.runAsAdmin(
+    database.getJooqAsAdmin(
         adminJooq -> adminJooq.execute("GRANT {0} TO {1}", name(memberRole), name(fullUser)));
   }
 
   private void revokeMemberRoleFromUser(String schemaName, String userName) {
     String memberRole = memberRoleName(schemaName);
     String fullUser = MG_USER_PREFIX + userName;
-    database.runAsAdmin(
+    database.getJooqAsAdmin(
         adminJooq -> adminJooq.execute("REVOKE {0} FROM {1}", name(memberRole), name(fullUser)));
   }
 
   public void addGroupMembership(
       String schemaName, String groupName, String userName, String roleName) {
+    if (DIRECT_GRANT_GROUP.equals(groupName)) {
+      throw new MolgenisException("Reserved group name '__direct__' cannot be used");
+    }
     requireGroupExists(schemaName, groupName);
     requireUserExists(userName);
+    insertGroupMembership(schemaName, groupName, userName, roleName);
+    grantMemberRoleToUser(schemaName, userName);
+    database.getListener().onSchemaChange();
+  }
+
+  private void insertGroupMembership(
+      String schemaName, String groupName, String userName, String roleName) {
     database.getJooqAsAdmin(
         adminJooq ->
             adminJooq
@@ -186,11 +196,21 @@ public class SqlRoleManager {
                 .values(userName, schemaName, groupName, roleName)
                 .onConflictDoNothing()
                 .execute());
-    grantMemberRoleToUser(schemaName, userName);
-    database.getListener().onSchemaChange();
   }
 
   public void removeGroupMembership(
+      String schemaName, String groupName, String userName, String roleName) {
+    if (DIRECT_GRANT_GROUP.equals(groupName)) {
+      throw new MolgenisException("Reserved group name '__direct__' cannot be used");
+    }
+    deleteGroupMembership(schemaName, groupName, userName, roleName);
+    if (!userHasAnyGroupMembershipInSchema(schemaName, userName)) {
+      revokeMemberRoleFromUser(schemaName, userName);
+    }
+    database.getListener().onSchemaChange();
+  }
+
+  private void deleteGroupMembership(
       String schemaName, String groupName, String userName, String roleName) {
     database.getJooqAsAdmin(
         adminJooq ->
@@ -202,10 +222,6 @@ public class SqlRoleManager {
                     GMM_GROUP_NAME.eq(groupName),
                     GMM_ROLE_NAME.eq(roleName))
                 .execute());
-    if (!userHasAnyGroupMembershipInSchema(schemaName, userName)) {
-      revokeMemberRoleFromUser(schemaName, userName);
-    }
-    database.getListener().onSchemaChange();
   }
 
   public void setPermissions(Schema schema, String roleName, PermissionSet permissions) {
@@ -659,11 +675,19 @@ public class SqlRoleManager {
   public void grantRoleToUser(Schema schema, String roleName, String username) {
     String schemaName = schema.getName();
     ensureDirectGrantGroupExists(schemaName);
-    addGroupMembership(schemaName, DIRECT_GRANT_GROUP, username, roleName);
+    requireUserExists(username);
+    insertGroupMembership(schemaName, DIRECT_GRANT_GROUP, username, roleName);
+    grantMemberRoleToUser(schemaName, username);
+    database.getListener().onSchemaChange();
   }
 
   public void revokeRoleFromUser(Schema schema, String roleName, String username) {
-    removeGroupMembership(schema.getName(), DIRECT_GRANT_GROUP, username, roleName);
+    String schemaName = schema.getName();
+    deleteGroupMembership(schemaName, DIRECT_GRANT_GROUP, username, roleName);
+    if (!userHasAnyGroupMembershipInSchema(schemaName, username)) {
+      revokeMemberRoleFromUser(schemaName, username);
+    }
+    database.getListener().onSchemaChange();
   }
 
   private void ensureDirectGrantGroupExists(String schemaName) {
@@ -785,6 +809,10 @@ public class SqlRoleManager {
   }
 
   public void createGroup(Schema schema, String groupName) {
+    if (DIRECT_GRANT_GROUP.equals(groupName)) {
+      throw new MolgenisException(
+          "Group name '" + DIRECT_GRANT_GROUP + "' is reserved and cannot be used");
+    }
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
@@ -805,6 +833,9 @@ public class SqlRoleManager {
   }
 
   public void deleteGroup(Schema schema, String groupName) {
+    if (DIRECT_GRANT_GROUP.equals(groupName)) {
+      throw new MolgenisException("Reserved group name '__direct__' cannot be used");
+    }
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
@@ -837,28 +868,59 @@ public class SqlRoleManager {
         adminJooq -> {
           Result<Record> rows =
               adminJooq.fetch(
-                  "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? ORDER BY name",
-                  schemaName);
+                  "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name != ? ORDER BY name",
+                  schemaName,
+                  DIRECT_GRANT_GROUP);
           for (Record row : rows) {
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("name", row.get("name", String.class));
-            List<String> members =
-                findGroupMembers(adminJooq, schemaName, row.get("name", String.class));
-            entry.put("users", members);
+            List<Map<String, Object>> userRolePairs =
+                findGroupUserRolePairs(adminJooq, schemaName, row.get("name", String.class));
+            entry.put("users", userRolePairs);
             result.add(entry);
           }
         });
     return result;
   }
 
-  private List<String> findGroupMembers(DSLContext adminJooq, String schemaName, String groupName) {
+  public List<Map<String, Object>> listCustomMemberships(String schemaName) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Result<Record> rows =
+              adminJooq.fetch(
+                  "SELECT user_name, role_name, group_name"
+                      + " FROM \"MOLGENIS\".group_membership_metadata"
+                      + " WHERE schema_name = ? AND role_name != ?",
+                  schemaName,
+                  GROUP_MEMBERSHIP_SENTINEL_ROLE);
+          for (Record row : rows) {
+            String groupValue = row.get("group_name", String.class);
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("email", row.get("user_name", String.class));
+            entry.put("role", row.get("role_name", String.class));
+            entry.put("group", DIRECT_GRANT_GROUP.equals(groupValue) ? null : groupValue);
+            result.add(entry);
+          }
+        });
+    return result;
+  }
+
+  private List<Map<String, Object>> findGroupUserRolePairs(
+      DSLContext adminJooq, String schemaName, String groupName) {
     return adminJooq
-        .selectDistinct(GMM_USER_NAME)
+        .select(GMM_USER_NAME, GMM_ROLE_NAME)
         .from(GROUP_MEMBERSHIP_METADATA)
         .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_GROUP_NAME.eq(groupName))
         .fetch()
         .stream()
-        .map(r -> r.get(GMM_USER_NAME))
+        .map(
+            r -> {
+              Map<String, Object> pair = new LinkedHashMap<>();
+              pair.put("name", r.get(GMM_USER_NAME));
+              pair.put("role", r.get(GMM_ROLE_NAME));
+              return (Map<String, Object>) pair;
+            })
         .toList();
   }
 
@@ -953,11 +1015,17 @@ public class SqlRoleManager {
     database.getJooqAsAdmin(
         adminJooq -> {
           adminJooq.execute(
-              "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner TEXT",
+              "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner TEXT DEFAULT current_user",
               name(schemaName, tableName));
           adminJooq.execute(
               "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_groups TEXT[]",
               name(schemaName, tableName));
+          adminJooq.execute(
+              "CREATE INDEX IF NOT EXISTS {0} ON {1} (mg_owner) WHERE mg_owner IS NOT NULL",
+              name(tableName + "_mg_owner_idx"), name(schemaName, tableName));
+          adminJooq.execute(
+              "CREATE INDEX IF NOT EXISTS {0} ON {1} USING GIN (mg_groups)",
+              name(tableName + "_mg_groups_idx"), name(schemaName, tableName));
           adminJooq.execute(
               "ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", name(schemaName, tableName));
           adminJooq.execute(

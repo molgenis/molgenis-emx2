@@ -12,7 +12,7 @@ import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Schema;
 
-class EffectiveSelectScopesTest {
+class TestEffectiveSelectScopes {
 
   private static final String SCHEMA_NAME = "ESSTest";
   private static final String TABLE_NAME = "Obs";

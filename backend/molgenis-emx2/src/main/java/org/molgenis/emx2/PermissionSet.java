@@ -2,10 +2,78 @@ package org.molgenis.emx2;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 public class PermissionSet {
+
+  public enum SelectScope {
+    NONE,
+    EXISTS,
+    COUNT,
+    RANGE,
+    AGGREGATE,
+    OWN,
+    GROUP,
+    ALL;
+
+    public boolean allowsRowAccess() {
+      return this == ALL || this == OWN || this == GROUP;
+    }
+
+    public boolean allowsCount() {
+      return this == ALL
+          || this == OWN
+          || this == GROUP
+          || this == COUNT
+          || this == AGGREGATE
+          || this == RANGE;
+    }
+
+    public boolean allowsMinMax() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE || this == RANGE;
+    }
+
+    public boolean allowsAvgSum() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
+    }
+
+    public boolean allowsGroupBy() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
+    }
+
+    public boolean allowsExactCount() {
+      return this == ALL || this == OWN || this == GROUP || this == COUNT || this == AGGREGATE;
+    }
+
+    public static SelectScope fromString(String name) {
+      String upper = name.toUpperCase(Locale.ROOT);
+      for (SelectScope scope : values()) {
+        if (scope.name().equals(upper)) {
+          return scope;
+        }
+      }
+      throw new MolgenisException("Unknown SelectScope: " + name);
+    }
+  }
+
+  public enum UpdateScope {
+    NONE,
+    OWN,
+    GROUP,
+    ALL;
+
+    public static UpdateScope fromString(String name) {
+      String upper = name.toUpperCase(Locale.ROOT);
+      for (UpdateScope scope : values()) {
+        if (scope.name().equals(upper)) {
+          return scope;
+        }
+      }
+      throw new MolgenisException("Unknown UpdateScope: " + name);
+    }
+  }
 
   public static class TablePermissions {
     private SelectScope select = SelectScope.NONE;

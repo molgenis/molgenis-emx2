@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.MG_CHANGE_GROUP;
 import static org.molgenis.emx2.Constants.MG_CHANGE_OWNER;
+import static org.molgenis.emx2.Constants.ROLE;
 import static org.molgenis.emx2.Constants.TABLE;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 
@@ -13,10 +14,10 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
 
 public class GraphqlPermissionFieldFactory {
 
@@ -71,7 +72,7 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(TABLES)
+                  .name(PERMISSIONS)
                   .type(GraphQLList.list(tablePermissionInputType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -110,7 +111,7 @@ public class GraphqlPermissionFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition().name(SYSTEM).type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(TABLES)
+                  .name(PERMISSIONS)
                   .type(GraphQLList.list(tablePermissionOutputType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -122,6 +123,13 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
+  static final GraphQLObjectType groupUserOutputType =
+      GraphQLObjectType.newObject()
+          .name("MolgenisGroupUserOutput")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .build();
+
   static final GraphQLObjectType groupOutputType =
       GraphQLObjectType.newObject()
           .name("MolgenisGroupOutput")
@@ -129,7 +137,7 @@ public class GraphqlPermissionFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(USERS)
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
+                  .type(GraphQLList.list(groupUserOutputType)))
           .build();
 
   static final GraphQLInputObjectType groupInputType =
@@ -190,7 +198,7 @@ public class GraphqlPermissionFieldFactory {
       ps.setSchema(str);
     }
 
-    Object tablesValue = input.get(TABLES);
+    Object tablesValue = input.get(PERMISSIONS);
     if (!(tablesValue instanceof List<?> tableList)) {
       return ps;
     }
@@ -249,7 +257,7 @@ public class GraphqlPermissionFieldFactory {
                   return tableMap;
                 })
             .toList();
-    roleMap.put(TABLES, tableList);
+    roleMap.put(PERMISSIONS, tableList);
     return roleMap;
   }
 

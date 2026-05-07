@@ -609,7 +609,7 @@ class TestGraphqlSchemaFields {
     assertEquals(count + 1, execute("{_schema{members{email}}}").at("/_schema/members").size());
 
     // remove members
-    execute("mutation{drop(members:\"blaat\"){message}}");
+    execute("mutation{drop(members:[{user:\"blaat\",role:\"Manager\"}]){message}}");
     assertEquals(count, execute("{_schema{members{email}}}").at("/_schema/members").size());
   }
 
@@ -689,54 +689,67 @@ class TestGraphqlSchemaFields {
 
   @Test
   void testAddAlterDropColumn() throws IOException {
+    assertFalse(
+        petColumnNames().contains("test"), "Pre-condition: column 'test' must not exist on Pet");
+
     execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
-    assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertTrue(petColumnNames().contains("test"), "Column 'test' must exist after add");
+
     execute(
         "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, columnType:\"INT\"}){message}}");
-
-    database.clearCache(); // cannot know here, server clears caches
-
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertFalse(petColumnNames().contains("test"), "Column 'test' must be absent after rename");
     assertEquals(
-        ColumnType.INT,
-        database
-            .getSchema(schemaName)
-            .getTable("Pet")
-            .getMetadata()
-            .getColumn("test2")
-            .getColumnType());
+        "INT",
+        petColumnNode("test2").path("columnType").asText(),
+        "Column 'test2' must have columnType INT after alter");
 
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
-
-    database.clearCache(); // cannot know here, server clears caches
-
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
+    assertFalse(petColumnNames().contains("test2"), "Column 'test2' must be absent after drop");
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
-    database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "blaat",
-        database
-            .getSchema(schemaName)
-            .getTable("Pet")
-            .getMetadata()
-            .getColumn("test2")
-            .getVisible());
+        petColumnNode("test2").path("visible").asText(),
+        "Column 'test2' must have visible=blaat");
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", computed:\"blaat2\"}){message}}");
-    database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "blaat2",
-        database
-            .getSchema(schemaName)
-            .getTable("Pet")
-            .getMetadata()
-            .getColumn("test2")
-            .getComputed());
+        petColumnNode("test2").path("computed").asText(),
+        "Column 'test2' must have computed=blaat2");
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+  }
+
+  private java.util.List<String> petColumnNames() throws IOException {
+    java.util.List<String> names = new java.util.ArrayList<>();
+    JsonNode tables = execute("{_schema{tables{name,columns{name}}}}").at("/_schema/tables");
+    for (JsonNode table : tables) {
+      if ("Pet".equals(table.path("name").asText())) {
+        for (JsonNode col : table.path("columns")) {
+          names.add(col.path("name").asText());
+        }
+      }
+    }
+    return names;
+  }
+
+  private JsonNode petColumnNode(String columnName) throws IOException {
+    JsonNode tables =
+        execute("{_schema{tables{name,columns{name,columnType,visible,computed}}}}")
+            .at("/_schema/tables");
+    for (JsonNode table : tables) {
+      if ("Pet".equals(table.path("name").asText())) {
+        for (JsonNode col : table.path("columns")) {
+          if (columnName.equals(col.path("name").asText())) {
+            return col;
+          }
+        }
+      }
+    }
+    return new ObjectMapper().createObjectNode();
   }
 
   @Test
@@ -985,12 +998,15 @@ class TestGraphqlSchemaFields {
 
   @Test
   void testTruncate() throws IOException {
-    List<Row> result = schema.getTable("Order").retrieveRows();
+    int preCount = execute("{Order_agg{count}}").at("/Order_agg/count").intValue();
+    assertTrue(preCount > 0, "Pre-condition: Order table must have rows before truncate");
+
     String message =
         execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
     assertTrue(message.contains("Truncated"));
-    List<Row> result2 = schema.getTable("Order").retrieveRows();
-    assertTrue(result.size() > 0 && result2.size() == 0);
+
+    int postCount = execute("{Order_agg{count}}").at("/Order_agg/count").intValue();
+    assertEquals(0, postCount, "Order table must be empty after truncate");
 
     // restore
     database.dropSchemaIfExists(schemaName);

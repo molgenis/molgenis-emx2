@@ -105,6 +105,7 @@ class SqlSchemaMetadataExecutor {
     SqlRoleManager roleManager = ((SqlDatabase) db).getRoleManager();
 
     if (isSystemRole(roleName)) {
+      rejectEscalation(schema, roleName);
       List<String> currentRoles = schema.getRoles();
       if (!currentRoles.contains(roleName)) {
         throw new MolgenisException(
@@ -118,8 +119,7 @@ class SqlSchemaMetadataExecutor {
       List<Member> currentMembers = schema.getMembers();
       String username = Constants.MG_USER_PREFIX + member.getUser();
       String rolename = getRolePrefix(schemaName) + roleName;
-      updateMembershipForUser(
-          jooq, db, schema.getMetadata(), currentMembers, member, username, rolename);
+      updateMembershipForUser(db, schema.getMetadata(), currentMembers, member, username, rolename);
     } else {
       if (!roleManager.roleExists(schemaName, roleName)) {
         throw new MolgenisException(
@@ -138,7 +138,6 @@ class SqlSchemaMetadataExecutor {
   }
 
   private static void updateMembershipForUser(
-      DSLContext jooq,
       Database db,
       SchemaMetadata schema,
       List<Member> currentMembers,
@@ -146,22 +145,37 @@ class SqlSchemaMetadataExecutor {
       String username,
       String rolename) {
     try {
-      // add user if not exists
       if (!db.hasUser(m.getUser())) {
         db.addUser(m.getUser());
       }
-
-      // revoke other roles if user has them
-      for (Member old : currentMembers) {
-        if (old.getUser().equals(m.getUser())) {
-          jooq.execute(
-              "REVOKE {0} FROM {1}",
-              name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
-        }
-      }
-      jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
+      ((SqlDatabase) db)
+          .getJooqAsAdmin(
+              adminJooq -> {
+                for (Member old : currentMembers) {
+                  if (old.getUser().equals(m.getUser())) {
+                    adminJooq.execute(
+                        "REVOKE {0} FROM {1}",
+                        name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
+                  }
+                }
+                adminJooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
+              });
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add member failed", dae);
+    }
+  }
+
+  private static void rejectEscalation(Schema schema, String roleName) {
+    if (schema.getDatabase().isAdmin()) return;
+    if (schema.hasActiveUserRole(Privileges.OWNER)) return;
+    if (Privileges.OWNER.toString().equals(roleName)
+        || Privileges.MANAGER.toString().equals(roleName)) {
+      throw new MolgenisException(
+          "Privilege escalation denied: only admin or Owner can grant "
+              + roleName
+              + " role in schema '"
+              + schema.getName()
+              + "'");
     }
   }
 
@@ -191,9 +205,10 @@ class SqlSchemaMetadataExecutor {
             "select distinct m.rolname as member, r.rolname as role"
                 + " from pg_catalog.pg_auth_members am "
                 + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
-            roleFilter + "%", userFilter + "%");
+                + " join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + " where r.rolname LIKE {0} and m.rolname LIKE {1}"
+                + " and r.rolname NOT LIKE {2}",
+            roleFilter + "%", userFilter + "%", "%_MEMBER");
     for (Record r : result) {
       String memberName = r.getValue("member", String.class).substring(userFilter.length());
       String roleName = r.getValue("role", String.class).substring(roleFilter.length());

@@ -1598,6 +1598,280 @@ Exit criteria:
 **Phase 7 status (2026-05-06): ALL EXIT CRITERIA MET.** All slices 7.A–7.I
 green via targeted tests. Combined-suite awaiting user-run at phase boundary.
 
+**7.L — Bug fixes: MEMBER role admin option + grantSchemaUsage removal**
+
+Two bugs fixed together as a single slice.
+
+**Bug 1 — Manager/Owner lack ADMIN OPTION on `_MEMBER` role**: `executeCreateMemberRole` created
+the `MG_ROLE_<schema>_MEMBER` PG role but did not grant it to Manager/Owner WITH ADMIN OPTION.
+This caused `TestGraphqlGroups.changeGroups_asManager_succeed` to fail with "must have admin
+option on role". Fix: add two GRANT statements at the end of `executeCreateMemberRole`, and
+matching EXECUTE format statements in the `migration32.sql` DO loop for existing schemas.
+
+**Bug 2 — `grantSchemaUsage` helper used non-existent PG role**: `TestChangeOwnerGroupSqlEnforcement`
+had a helper that called `GRANT USAGE ON SCHEMA ... TO MG_ROLE_<schema>/enforcer`, but in RLS v2
+custom roles are NOT PG roles. Fix: delete the helper and all callsites; `grantRoleToUser` already
+grants the `_MEMBER` umbrella role (which carries schema USAGE) via `addGroupMembership`.
+
+**Additional fixes found during implementation**:
+- `mg_can_read`: added `OR rp.change_owner = true` to the custom-role branch so that users with
+  `change_owner=true` can see rows after an ownership-transfer UPDATE (PostgreSQL implicitly applies
+  SELECT USING to the new row's state during UPDATE WITH CHECK).
+- `mg_privacy_count`: fixed implementation from `GREATEST(p_count, 10)` to
+  `CEIL(p_count::numeric / 10) * 10` to match the intended round-up-to-nearest-10 semantics.
+- `TestSqlRoleManagerEnforcement.java` renamed to `TestAccessFunctions.java` to match the public
+  class name inside (Java requires file == class name).
+
+Acceptance:
+- `TestGraphqlGroups.changeGroups_asManager_succeed` passes — confirmed via targeted tests.
+- `TestChangeOwnerGroupSqlEnforcement` (7 tests, all green).
+- `TestAccessFunctions` (16 tests, all green).
+
+**Status: GREEN** — all targeted tests pass.
+
+**7.K — Unified role-assignment GraphQL mutation**
+
+Data managers need a single `change(members:[...])` mutation that handles both
+system roles (schema-wide) and custom roles (per-group). Currently `changeMembers`
+in `GraphqlSchemaFieldFactory` reads `{email, role}` and routes by `isSystemRole`;
+it cannot accept a `group` field, and `drop(members:[...])` takes plain strings,
+not objects. `addGroupMembership` in `SqlRoleManager` is the correct back-end API
+for custom-role assignment but is not exposed via GraphQL.
+
+Acceptance:
+- `change(members:[{user, role}])` accepts system role (Owner/Manager/Editor/Viewer)
+  without group.
+- `change(members:[{user, role, group}])` accepts custom role within a named group.
+- Validation rejects custom role without group with a domain-level error (not a
+  GraphQL schema-type error).
+- Validation rejects system role supplied with a group (or normalises group to null)
+  with a domain-level error.
+- `drop(members:[{user, role, group}])` symmetric removal for custom-role assignments.
+- Escalation guard: non-Owner/Manager cannot grant Owner or Manager.
+
+Implementation notes:
+- Rename/extend `MolgenisMembersInput` to add `user` (alias of current `email`) and
+  optional `group` field; keep `email` as deprecated alias for back-compat.
+- `changeMembers` routes: isSystemRole → `schema.addMember(user, role)` (existing);
+  custom role → `roleManager.addGroupMembership(schema, group, user, role)`.
+- `dropMembers` changes from `List<String>` to `List<Map<String,String>>` taking
+  the same `{user, role, group?}` shape; system role → `schema.removeMember(user)`;
+  custom role → `roleManager.removeGroupMembership(schema, group, user, role)`.
+- Escalation guard already in `SqlSchemaMetadataExecutor.executeAddMembers`; verify
+  it fires for the custom-role path too.
+
+RED test: `TestGraphqlUnifiedRoleAssignment` (6 tests, all failing until implemented).
+
+**Status: GREEN** — implemented. All 6 tests in `TestGraphqlUnifiedRoleAssignment` pass.
+
+**7.M — Allow null group on custom-role grants (schema-wide custom membership)**
+
+Data managers need a way to grant a custom role schema-wide, not only per-group.
+Today `change(members:[{user, role}])` rejects custom roles without a group, and
+the underlying `addGroupMembership` requires a non-null group. The model:
+`(user, role, group?)` where `group = null` means schema-wide. Combinations with
+`select: GROUP` are silently inert — the grant simply does not match GROUP-scoped
+tables. OWN and ALL scopes work as expected.
+
+Acceptance:
+- `change(members:[{user, role}])` (no group, custom role) is accepted; row
+  written with null `group_name`.
+- `change(members:[{user, role, group}])` continues to work (existing behavior).
+- `(alice, role, null)` where role has `Books select: ALL` → alice reads all rows.
+- `(alice, role, null)` where role has `Books select: OWN` → alice reads own rows.
+- `(alice, role, null)` where role has `Books select: GROUP` → alice sees nothing
+  from this grant. Other grants she holds still apply.
+- `drop(members:[{user, role}])` (no group) drops only the schema-wide row;
+  group-scoped rows for the same `(user, role)` survive.
+- `drop(members:[{user, role, group: "dept1"}])` drops only that group row;
+  schema-wide row survives.
+
+Implementation notes:
+- Storage already supports schema-wide custom grants via the
+  `DIRECT_GRANT_GROUP = "__direct__"` sentinel that `SqlRoleManager.grantRoleToUser`
+  inserts. `addGroupMembership` requires non-null group; the schema-wide path
+  goes through `grantRoleToUser`. No migration; reuse existing mechanism.
+- `GraphqlSchemaFieldFactory.changeMembers`: drop the "custom role requires group"
+  validation. When custom role + null/empty group → call
+  `roleManager.grantRoleToUser(schema, role, user)` instead of
+  `addGroupMembership`. Custom role + group → keep current `addGroupMembership` path.
+- `GraphqlSchemaFieldFactory.dropMembers`: route custom role + null group →
+  `roleManager.revokeRoleFromUser(schema, role, user)`. Custom role + group →
+  keep `removeGroupMembership` path.
+- `mg_can_read` / `mg_can_write`: existing GROUP-scope branch checks
+  `m.group_name = ANY(p_groups)` where `p_groups` is the row's `mg_groups`.
+  The sentinel `__direct__` will not appear in any row's `mg_groups`, so a
+  schema-wide grant is automatically inert for GROUP scope. No SQL change needed.
+- Sentinel hiding: ensure `_schema.groups` query and `Schema.getMembers` do not
+  surface `__direct__` as a real group/membership row. Filter in GraphQL read path
+  if not already filtered.
+- Reserve `__direct__` as a forbidden group name in `addGroup` validation to
+  prevent users from creating a real group that collides with the sentinel.
+
+Tests (`TestSqlRoleManager` extension, Java API level, no mocks):
+- `addGroupMembership_nullGroup_persistsRow`
+- `nullGroupGrant_allScope_userReadsAllRows`
+- `nullGroupGrant_ownScope_userReadsOwnRowsOnly`
+- `nullGroupGrant_groupScope_userSeesNothing`
+- `dropMembership_nullGroup_preservesGroupedRows`
+- `dropMembership_specificGroup_preservesNullRow`
+- One smoke test via GraphQL in `TestGraphqlUnifiedRoleAssignment` for the
+  null-group accept path.
+
+Docs: rewrite §"Groups and role assignment" in `docs/molgenis/dev_graphql-rls.md`
+to explain schema-wide custom grants, GROUP-scope inertness, and partial-drop
+semantics. Add a worked example showing `(alice, staff, null)` on a mixed-scope
+role.
+
+**Status: GREEN** — implemented and reviewed. 38 sql tests + 8 graphql tests pass. Sentinel reservation enforced at public API boundary in `SqlRoleManager.addGroupMembership` / `removeGroupMembership` / `deleteGroup`; internal sentinel path uses private `insertGroupMembership` / `deleteGroupMembership` helpers. `dropMembers` now calls `rejectCustomRoleEscalation` symmetrically with `changeMembers`. Custom-role escalation guard tested for both change and drop paths.
+
+**7.N — Harmonize members & groups GraphQL output (read-side unification)**
+
+After 7.K/7.M the WRITE side is unified — `change(members:[{user, role, group?}])`
+covers system roles, custom roles per group, and schema-wide custom grants. The
+READ side is still split: `_schema.members` returns only system-role grants
+(from `pg_auth_members`) while `_schema.groups[].users` exposes custom-role
+grants in a different shape. Tests cannot positively verify schema-wide custom
+grants, and per-group per-user role information is missing.
+
+Acceptance:
+- `_schema.members` returns the union of system-role grants and custom-role
+  grants from `MOLGENIS.group_membership_metadata`.
+- `MolgenisMembersType` gains a nullable `group: String` field. `null` for
+  system-role rows and for schema-wide custom grants (sentinel `__direct__`
+  mapped to null on output). Set for group-scoped custom-role rows.
+- `_schema.groups[].users` shape changes from `[String]` to
+  `[{ name: String, role: String }]`. Each row is one `(user, role)` pair
+  for that group, since a user can hold multiple custom roles in a group.
+- `TestGraphqlGroups` and `TestGraphqlUnifiedRoleAssignment` updated to use
+  the new shapes for both pre- and post-condition verification.
+- Schema-wide custom grants (slice 7.M) become positively verifiable through
+  the harmonized members endpoint (`group: null` row with custom role).
+
+Implementation notes:
+- Resolver `executeGetMembers` (or its GraphQL counterpart) UNIONs:
+  - existing pg_auth_members source for system roles (group=null)
+  - SELECT user, role, NULLIF(group_name, '__direct__') FROM
+    MOLGENIS.group_membership_metadata WHERE schema = current schema
+- `MolgenisGroupOutput.users` projection: change from raw `listGroups`
+  user-name array to `(user, role)` pairs by querying
+  `group_membership_metadata` grouped by `group_name`.
+- Add new GraphQL output type `MolgenisGroupUserOutput { name, role }`.
+- Backwards-compat sweep: only `apps/settings/src/components/Members.vue`
+  consumes `_schema.members` (queries `{email, role}` — additive `group`
+  field is safe). No frontend consumer of `groups[].users` found; the
+  shape change is internal-test-only.
+- Sentinel `__direct__` continues to be filtered from `_schema.groups`
+  output (already in 7.M).
+
+Tests:
+- Update `TestGraphqlGroups` assertions for new `users { name, role }` shape.
+- Update `TestGraphqlUnifiedRoleAssignment` to verify `members{email,role,group}`
+  for both system and custom grants. Schema-wide custom grants become
+  positively assertable (`group: null` rows).
+- New tests: `members_returnsSystemAndCustomRoles_unionedShape`,
+  `members_schemaWideCustomGrant_groupIsNull`,
+  `groups_users_includeRolePerUser`.
+
+**Status: GREEN** — implemented and reviewed.
+- `MolgenisMembersType` gained nullable `group: String`; resolver UNIONs
+  system-role grants (group=null) with `listCustomMemberships` (custom-role
+  rows; `__direct__` sentinel mapped to null on output).
+- `MolgenisGroupOutput.users` changed from `[String]` to
+  `[MolgenisGroupUserOutput { name, role }]`; new helper
+  `findGroupUserRolePairs` projects `(user, role)` pairs per group.
+- Sentinel-leak guard: `listCustomMemberships` filters
+  `role_name != 'member'` so the bare-membership sentinel role does not
+  surface in the harmonized `_schema.members` output.
+- `findGroupUserRolePairs` keeps sentinel rows so the legacy bare-membership
+  flow (`change(groups: [{users: ["alice"]}])`) continues to display users
+  in `groups[].users`.
+- Frontend `Members.vue` (query `{email, role}`) unaffected (additive `group`).
+- Tests: `TestGraphqlMembersHarmonized` (new, 4 tests including
+  `addGroupMember_sentinelRoleNotInMembers`), `TestGraphqlGroups` (updated
+  shape + new `users_includesRolePerUser`), `TestGraphqlUnifiedRoleAssignment`,
+  `TestGraphqlSchemaFields` — all green.
+
+### Phase 7.O — GraphQL test reorganization (one class per endpoint)
+
+Principle: one `Test*` class per GraphQL endpoint. Class name reflects the
+full GraphQL path: `_schema.X` family → `TestGraphqlSchema<X>`; top-level
+endpoints (`_session`, `_admin`, `_database`) keep bare names.
+
+Done as part of post-7.N sweep:
+- `TestGraphqlSchemaGroups` — `_schema.groups` endpoint. 5/5 green.
+- `TestGraphqlSchemaMembers` — `_schema.members` endpoint. Merged from
+  `TestGraphqlMembersHarmonized` (READ) + `TestGraphqlUnifiedRoleAssignment`
+  (WRITE) + 6 grant-related tests pulled from
+  `TestGraphqlPermissionFieldFactoryIntegration`. 18/18 green, single fixture.
+- `TestGraphqlSchemaRoles` — `_schema.roles` endpoint. 13 tests pulled from
+  `TestGraphqlPermissionFieldFactoryIntegration` into `TestGraphqlPermissions`,
+  then renamed. 30/30 green.
+- `TestGraphqlSession` — new, 2 sessionPermissions tests extracted from the
+  same integration class. 2/2 green.
+- Deleted: `TestGraphqlPermissionFieldFactoryIntegration`,
+  `TestGraphqlPermissions` (renamed to Roles), `TestGraphqlMembersHarmonized`,
+  `TestGraphqlUnifiedRoleAssignment`.
+
+Pending (later slices):
+- Split `TestGraphqlSchemaFields` into `TestGraphqlSchemaTables`,
+  `TestGraphqlSchemaColumns`, `TestGraphqlSchemaSettings` — the file currently
+  mixes table DDL, column DDL, and schema-level settings.
+- Rename `TestGraphqlAdminFields` → `TestGraphqlAdmin` (`_admin` endpoint).
+- Rename `TestGraphqlDatabaseFields` → `TestGraphqlDatabase` (`_database` /
+  `_schemas` endpoint).
+- Keep as-is: `TestGraphqlObjectFilters`, `TestGraphqlCrossSchemaRefs` (query DSL,
+  not endpoint-shape); `TestGraphqlPermissionFieldFactory` (pure unit tests on
+  static helpers).
+
+Status: PARTIAL — `_schema.*` family (groups, members, roles) +
+`_session` complete and Schema-prefixed. `_admin` / `_database` /
+`_schema` (tables/columns/settings) splits + renames deferred.
+
+### Phase 7.P — `roles.tables` → `roles.permissions` rename
+
+**Current shape** (`MolgenisRoleOutput` / `MolgenisRoleInput` in
+`GraphqlPermissionFieldFactory.java`):
+
+```graphql
+roles { name tables { table select insert update delete } changeOwner changeGroup }
+```
+
+**Target shape**:
+
+```graphql
+roles { name permissions { table select insert update delete } changeOwner changeGroup }
+```
+
+**Why**: `tables` reads as "list of tables" but the rows are scoped permissions
+per (table, verb). `permissions` is the accurate noun.
+
+**Touch list**:
+- `GraphqlPermissionFieldFactory.java`:
+  - `roleOutputType.tables` (line ~114) → `permissions`.
+  - `inputRoleType.tables` (line ~75) → `permissions` (mutation symmetry).
+  - Optionally rename type aliases `tablePermissionOutputType` /
+    `tablePermissionInputType` → `permissionOutputType` / `permissionInputType`.
+- Any data-fetcher map keyed `"tables"` for the roles output (search for
+  `Map.of("tables"` in role result assembly).
+- `TestGraphqlSchemaRoles.java` — update query strings.
+- `TablePermissionsGraphqlTest.java` (`molgenis-emx2-webapi` test) — update query strings.
+
+**Future work — global-level roles endpoint**: when the same endpoint is
+raised to global (`_database.roles` or `_admin.roles`), the `permissions`
+block should accept a `schema` field so a single role object can declare
+permissions across multiple schemas:
+
+```graphql
+roles { name permissions { schema table select insert update delete } ... }
+```
+
+At schema-scope the `schema` field would be omitted (defaulted to the
+enclosing schema). Plan the rename so that adding `schema` later is
+additive — do NOT bake the assumption "permissions are always within
+current schema" into the data-fetcher signature; keep the row shape
+compatible with future addition of a `schema` key.
+
 ### Phase 8 — Tests, performance, hardening
 
 1. **Continuous master compatibility**: existing master tests must keep
@@ -1609,8 +1883,173 @@ green via targeted tests. Combined-suite awaiting user-run at phase boundary.
    tested the OLD scope/policy structure that no longer applies.
 3. Cross-schema FK semantics — verify FKs to RLS tables behave correctly
    when row is invisible to current user.
-4. Inheritance semantics — `mg_owner` and `mg_groups` columns on inheriting
-   tables: child inherits via PG inheritance.
+4. **Inheritance semantics — RLS scope across an inheritance tree.**
+   Open question: when an RLS-enabled table has subclasses (or vice versa,
+   a subclass becomes RLS-enabled), does RLS apply to the full inheritance
+   tree, or only from the enabled node downward?
+
+   **Working position** (to verify with tests): RLS must apply to the full
+   tree rooted at the highest RLS-enabled ancestor.
+
+   **Why** — three cases to test:
+
+   - **Parent has RLS, child does not declare RLS**:
+     Child inherits the row-tag columns (`mg_owner`, `mg_groups`) via PG
+     inheritance, and child rows are stored in the child table but visible
+     through `SELECT ... FROM parent` via PG inheritance. If child rows
+     bypass parent's RLS policies, a custom-role user reading the parent
+     can see child rows they shouldn't. Therefore: applying RLS at the
+     parent level MUST also enforce on the child table — the policies
+     have to live on each child too, not only on the parent. Need to
+     verify whether PG inheritance carries policies (it does NOT — RLS is
+     per-table; `ENABLE ROW LEVEL SECURITY` and policies must be issued
+     on every node).
+
+   - **Subclass declares RLS, parent does not**:
+     A user querying via the parent can SELECT from the union of all
+     children. If the parent has no policies, child rows are visible
+     through the parent regardless of the child's policies. So
+     "subclass-only RLS" is semantically incoherent for any client that
+     queries through the parent — and emx2 always exposes both.
+     Therefore: enabling RLS on a subclass should require / propagate
+     RLS upward to the root, not "downward only".
+
+   - **`mg_groups` divergence between parent and child**:
+     A child row's `mg_groups` could in principle differ from any parent
+     row's `mg_groups`, because they are independent rows. But there is
+     no understandable UX for "this row is more restricted because it's
+     a subclass instance" without it also being expressible at the
+     parent. The simplification we should validate: a row's
+     `mg_groups` is a property of THE ROW, not of the leaf-most type;
+     the column is declared once at the root and inherited unchanged.
+
+   **Acceptance tests to write in Phase 8**:
+   1. Parent table RLS-enabled, child table inherits — custom-role user
+      with no group membership SELECTs through parent → must NOT see
+      child rows whose `mg_groups` excludes them. (This is the trap test:
+      verify that PG does NOT auto-propagate RLS through inheritance,
+      and that emx2 issues policies on every child.)
+   2. Same scenario but SELECT directly from child — same result.
+   3. Subclass-only RLS attempt: declaring RLS on a child whose parent
+      has none should either (a) propagate upward to the root, or
+      (b) be rejected with a clear error. Decision needed in Phase 8;
+      working position is (a).
+   4. Insert/update on the child as a custom-role user — `mg_groups`
+      WITH-CHECK enforcement comes from the child's policies; verify
+      it's symmetric with parent.
+   5. Cross-table-tree FK: a ref column from another schema points at
+      the root parent — invisible-to-user rows in any subclass must not
+      leak through the FK. (Composes with §8.3.)
+
+   **Implementation implications**:
+   - emx2's RLS-enable trigger / DDL emitter must walk the inheritance
+     tree and apply `ENABLE ROW LEVEL SECURITY` + the 4-policy template
+     to every node.
+   - Adding a child to an existing RLS-enabled parent must apply the
+     same policies on the new child at creation time.
+   - `mg_owner` / `mg_groups` columns are declared on the root and
+     inherit by PG semantics — no per-subclass copy needed.
+
+4a. **RLS as an explicit table-level setting (raised 2026-05-07).**
+
+   **Current behavior**: RLS is implicit — a table becomes RLS-managed
+   the first time a custom role with non-`NONE` scope references it.
+   `mg_owner` / `mg_groups` columns + the 4-policy template + child-tree
+   propagation all happen as a side effect of granting the first
+   permission.
+
+   **Proposal**: make RLS an explicit table flag, set at table-create or
+   alter time (`rlsEnabled: true` in EMX2 metadata, `ENABLE ROW LEVEL
+   SECURITY` in PG). Permissions are granted independently and only
+   take effect on tables that have RLS enabled.
+
+   **Why this is the right cut-point**:
+   - **Inheritance becomes well-defined.** RLS-enable is a DDL act on
+     the root of an inheritance tree; child tables inherit the flag at
+     creation. No surprise propagation at grant time. Trying to enable
+     RLS on a child whose parent isn't RLS-enabled is rejected with a
+     clear error (or implicitly raised to the root, decided in Phase 8).
+   - **DBA / data-manager control is explicit.** "Is this table
+     row-secured?" is answerable from metadata, not from "did anyone
+     happen to grant a non-NONE custom-role permission on it yet?"
+   - **Policy/column lifecycle is decoupled from permission lifecycle.**
+     Adding/removing a custom role permission is a pure
+     `role_permission_metadata` write — never triggers DDL.
+   - **PG-native semantics.** `ENABLE ROW LEVEL SECURITY` in Postgres
+     is itself an explicit ALTER TABLE; we'd be aligning with PG, not
+     diverging.
+   - **Migration story improves.** Existing schemas remain unchanged
+     until the operator explicitly opts a table in. No "first grant"
+     trap.
+
+   **Cost**:
+   - One extra step in the table-creation UI/API.
+   - Small change to the DDL emitter: split "enable RLS on table" from
+     "grant role X permission Y on table".
+   - Existing implicit-enable code path is removed; tests that rely on
+     the implicit path need to flip an explicit flag instead.
+
+   **Decisions (locked 2026-05-07)**:
+   1. **Flag location**: `MOLGENIS.tables_metadata.rls_enabled BOOLEAN
+      DEFAULT false`. New tables default `false`. Migration: every
+      existing table flips to `false` (no v2-RLS in prod yet).
+   2. **Disable with existing permission rows**: **reject** with "first
+      remove permissions" error. Operator does the cleanup explicitly.
+      Once disable succeeds, drop `mg_owner` / `mg_groups` columns and
+      the policies. Re-enable later starts from scratch (mg_owner
+      defaults to `mg_insertedBy`, `mg_groups` defaults to empty).
+      We can revisit if cascade-style "disable + cleanup in one op"
+      becomes annoying in practice.
+   3. **Inheritance**: enable/disable only on the root of an inheritance
+      tree.
+      - New subclass added under an RLS-enabled root: auto-inherits RLS.
+      - Direct enable/disable on a non-root node: **reject** with
+        "enable on root <X> instead".
+      - Re-parenting an existing RLS-enabled subtree: not applicable —
+        emx2 does not allow re-parenting. (Confirmed by user.)
+      - Disable on a root with N children cascades atomically in one
+        transaction (drops policies + columns on every node).
+      - Existing rows at enable-time: `mg_owner` defaults to
+        `mg_insertedBy`, `mg_groups` defaults to `{}`. **Empty
+        `mg_groups` ⇒ no GROUP-scope role sees the row** until the
+        operator populates it. No automatic "default group" backfill.
+   4. **System-role interaction**: no change to authority resolution.
+      - RLS off ⇒ no policies on the table; system roles use existing
+        table-level GRANTs (master behavior).
+      - RLS on ⇒ same wildcard system-role rows in
+        `role_permission_metadata` drive the access functions called by
+        the 4-policy template. Custom-role users still need a
+        `group_membership_metadata` row to get authority through the
+        `MG_ROLE_<schema>_MEMBER` GRANT.
+      - Pathological state (RLS on, seed wildcard rows hand-deleted):
+        treated as "operator broke things on purpose" — not defended
+        against.
+   5. **Scope availability gated by RLS-enable**:
+      - `ALL` and `NONE` scopes are always allowed on any table.
+      - `OWN` and `GROUP` scopes are only allowed on tables with
+        `rls_enabled = true`.
+      - **Java API**: throw `MolgenisException` when a permission row
+        with `OWN` or `GROUP` scope is set on a table where
+        `rls_enabled = false`. Symmetric for select / insert / update /
+        delete scopes and for `changeOwner` / `changeGroup` capabilities.
+      - **GraphQL API**: enums are static (cannot vary per table at
+        introspection time). The single `SelectScope` / `UpdateScope`
+        enum is exposed; server-side validation rejects `OWN`/`GROUP`
+        on non-RLS tables with the same error as the Java API.
+      - **UI**: reads `tables_metadata.rls_enabled` and greys out the
+        `OWN` / `GROUP` options in the scope dropdown when RLS is off,
+        with a tooltip "enable RLS on this table to use OWN/GROUP scope".
+        Single source of truth = the flag.
+   6. **`mg_owner` / `mg_groups` column lifecycle**: created at
+      RLS-enable time regardless of which scopes are used. Dropped at
+      RLS-disable time. Decoupled from per-role permission grants.
+      Trivial storage cost on tables that only use `ALL`/`NONE` scopes;
+      lifecycle is one-shot.
+
+   **Status**: design locked. Implement as **slice 8.0** before the
+   inheritance acceptance tests in §8.4 — those tests need a way to
+   enable RLS on a parent without granting any permission first.
+
 5. **Benchmark** target: 1M-row table, 5 custom roles, 100 groups, 10k
    users. Query latency < 2× non-RLS baseline. GIN index on `mg_groups`
    verified non-degraded.
@@ -1676,6 +2115,50 @@ Exit criteria: docs published; runbook reviewed by data managers.
   forces small adjustment to ref/ref_array column definitions.
 - Benchmark numbers (Phase 7) once workload data is available — current
   target is < 2× non-RLS baseline; revisit if measured.
+
+### Phase 7 — Post-merge review queue (2026-05-06)
+
+User review of post-merge state. Action items collected; awaiting
+go-ahead before dispatching cleanup agent.
+
+**Definite cleanups (no decision needed):**
+1. Merge `migration33.sql` into `migration34.sql`; drop the `version < 33`
+   step. Single migration since branch ships from clean master.
+2. Fold `SelectScope.java` (53 LOC) and `UpdateScope.java` (20 LOC) into
+   `PermissionSet` as inner enums; delete the two files.
+3. `GraphqlAdminFieldFactory.java:157` `.filter(role.contains("/"))` —
+   band-aid for `MG_ROLE_<schema>_MEMBER` rows. Real fix: filter at the
+   source (`executeGetMembers` SQL) so MEMBER PG role never appears in
+   the user-facing list.
+4. Move `rejectEscalation` from `GraphqlSchemaFieldFactory` into
+   `SqlRoleManager` / `SqlSchema.addMember`. `MolgenisException`
+   propagates up; one enforcement point.
+5. Drop unused constants `PG_ROLES`, `ROLNAME` in `SqlRoleManager.java:28-29`.
+6. Drop `system-stubs-jupiter` from `molgenis-emx2-sql/build.gradle:9`
+   (unused there; legitimately used in `nonparallel-tests` and `webapi`).
+
+**Outcomes (2026-05-06 cleanup pass):**
+1–6. Applied. Files: `migration33.sql` (deleted, folded into 34),
+   `SelectScope.java`/`UpdateScope.java` (deleted, moved into `PermissionSet`),
+   `SqlSchemaMetadataExecutor.executeGetMembers` + `SqlDatabase.loadUserRoles`
+   filter `%_MEMBER` at source (band-aid removed from
+   `GraphqlAdminFieldFactory`), `rejectEscalation` moved to
+   `SqlSchemaMetadataExecutor.executeAddMembers`, `PG_ROLES`/`ROLNAME`
+   constants deleted, unused `system-stubs-jupiter` dep dropped from
+   `molgenis-emx2-sql/build.gradle`.
+7. Reverted. Both `SqlRoleManager.grantMemberRoleToUser` /
+   `revokeMemberRoleFromUser` now use `database.getJooqAsAdmin(...)`;
+   `runAsAdmin` method deleted from `SqlDatabase`. Tests green
+   (`SqlRoleManagerTest`, `TestMemberPgRoleLifecycle`,
+   `TestTablePermissionEnforcement`).
+8. **Real fix — keep.** `setSettings` read-merge-write + `removeSetting`
+   + tx-start reload are exercised by `TestSettingsMerge` (3 tests).
+   Master's overwrite-only `setSettings` would lose unrelated keys when
+   updating one — that test would fail on master.
+9. **Applied.** `updateMembershipForUser` now wraps GRANT/REVOKE in
+   `getJooqAsAdmin`, mirroring `executeRemoveMembers`. Dead `jooq`
+   parameter removed from helper and call site.
+10. Kept. App-layer hook stays.
 
 ## Out of scope
 

@@ -16,7 +16,7 @@ import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
-class ExistsFieldTest {
+class TestExistsField {
 
   private static final String SCHEMA_NAME = "EFTest";
   private static final String TABLE_NAME = "Obs";
@@ -183,7 +183,6 @@ class ExistsFieldTest {
       } catch (Exception ignored) {
       }
     }
-    schema.addMember(TEST_USER, "Exists");
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(scope));

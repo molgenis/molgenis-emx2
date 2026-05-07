@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -220,7 +220,12 @@ class GraphqlPermissionFieldFactoryTest {
             .anyMatch(r -> r.contains(Privileges.VIEWER.toString())),
         "User must be Viewer before drop");
 
-    String mutation = "mutation{drop(members:[\"" + TEST_USER + "\"]){message}}";
+    String mutation =
+        "mutation{drop(members:[{user:\""
+            + TEST_USER
+            + "\",role:\""
+            + Privileges.VIEWER.toString()
+            + "\"}]){message}}";
     executeQuery(executor, mutation);
 
     List<String> rolesAfter = schema.getInheritedRolesForUser(TEST_USER);

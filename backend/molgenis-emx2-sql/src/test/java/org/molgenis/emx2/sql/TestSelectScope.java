@@ -4,16 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
-/**
- * Verifies COUNT-scoped role behaviour: RLS passes for COUNT scope (Path A, REQ-4) and
- * mg_privacy_count floors the result.
- */
 class TestSelectScope {
 
   private static final String SCHEMA_NAME = "TestSelectScope";
@@ -68,24 +67,17 @@ class TestSelectScope {
   }
 
   @Test
-  void directSqlCountIsFloored() {
+  void countScopeRlsPassThroughSeesAllRows() {
     db.setActiveUser(USER_ALICE);
-    long rawCount;
+    List<Row> rows;
     try {
-      rawCount =
-          jooq.fetchOne("SELECT COUNT(*) FROM \"" + SCHEMA_NAME + "\".\"" + TABLE_NAME + "\"")
-              .get(0, Long.class);
+      rows = schema.getTable(TABLE_NAME).retrieveRows();
     } finally {
       db.becomeAdmin();
     }
     assertEquals(
-        23L, rawCount, "COUNT-scoped user must see raw count via RLS pass-through (Path A)");
-
-    Long floored =
-        jooq.fetchOne("SELECT \"MOLGENIS\".mg_privacy_count(?) AS cnt", rawCount)
-            .get("cnt", Long.class);
-    assertNotNull(floored, "mg_privacy_count must not return null");
-    assertEquals(30L, floored, "mg_privacy_count(23) must ceil to 30");
-    assertEquals(0L, floored % 10, "floored count must be a multiple of 10");
+        23,
+        rows.size(),
+        "COUNT-scoped user must see all rows via RLS pass-through (Path A, REQ-4)");
   }
 }

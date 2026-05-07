@@ -9,27 +9,31 @@ requirements (no test yet) live in the **Open requirements** section below.
 
 | Behaviour | Component | Test | Visual |
 |---|---|---|---|
-| System roles (Owner/Manager/Editor/Viewer) behave identically to master | `SqlSchema`, `SqlRoleManager` | `TestSchemaPermissions` | — |
-| Custom roles are schema-local (a role spans only one schema) | `SqlRoleManager.createRole` | `SqlRoleManagerTest.createRole_*` | — |
+| System roles (Owner/Manager/Editor/Viewer) behave identically to master | `SqlSchema`, `SqlRoleManager` | `TestSqlRoleManager.viewerCanReadRows`, `TestSeedSystemRoles` ✓ | — |
+| Viewer can SELECT but not INSERT/UPDATE/DELETE | RLS policies seeded for Viewer | `TestSqlRoleManager.viewerCannotWriteRows` ✓ | — |
+| Editor can SELECT + INSERT + UPDATE + DELETE | RLS policies seeded for Editor | `TestSqlRoleManager.editorCanReadAndWrite` ✓ | — |
+| `mg_owner` column defaults to `current_user` on INSERT | `mg_owner TEXT DEFAULT current_user` added by `enableRlsForTable` | API gap: `mg_owner` not exposed via Java `Row` getter; not testable at this layer | — |
+| System-role names rejected by `deleteRole` Java API | `SqlRoleManager.deleteRole` guard | `TestSqlRoleManager.deleteRoleRejectsSystemRoleNames` ✓ | — |
+| Custom roles are schema-local (a role spans only one schema) | `SqlRoleManager.createRole` | `TestSqlRoleManager.createRole_*` | — |
 | Many roles per (user, schema) via per-group assignment (Phase 7; was: exclusive in v2) | `MOLGENIS.group_membership_metadata` PK | `TestAsymmetricCollaboration` ✓ | — |
-| System roles have NO `BYPASSRLS`; their authority comes from seeded immutable rows in `role_permission_metadata` (Phase 7) | `MetadataUtils.seedSystemRoles`, RLS policy emitter | `TestSeedSystemRoles`, `TestAccessFunctions.systemRoleViaPgHasRole` ✓ | — |
-| System role rows in `role_permission_metadata` are immutable post-seed (UPDATE blocked at SQL trigger; DELETE + role-name validation at Java + GraphQL layers) | `mg_protect_system_roles` trigger (UPDATE only — DELETE intentionally untrapped at SQL layer to permit cascade-delete on schema drop), `SqlRoleManager.upsertPermissions` / `deleteRole`, `GraphqlSchemaFieldFactory.change` | `MetadataUtilsRolePermissionTest` ✓ | — |
+| System roles have NO `BYPASSRLS`; their authority comes from seeded immutable rows in `role_permission_metadata` (Phase 7) | `MetadataUtils.seedSystemRoles`, RLS policy emitter | `TestSeedSystemRoles`, `TestSystemRolesNoBypassRls`, `TestSqlRoleManager.viewerCanReadRows` ✓ | — |
+| System role rows in `role_permission_metadata` are immutable post-seed (UPDATE blocked at SQL trigger; DELETE + role-name validation at Java + GraphQL layers) | `mg_protect_system_roles` trigger (UPDATE only — DELETE intentionally untrapped at SQL layer to permit cascade-delete on schema drop), `SqlRoleManager.upsertPermissions` / `deleteRole`, `GraphqlSchemaFieldFactory.change` | `TestMetadataUtilsRolePermission` ✓ | — |
 
 ## Group-level
 
 | Behaviour | Component | Test | Visual |
 |---|---|---|---|
-| User can belong to multiple groups in one schema | `MOLGENIS.groups_metadata` | `TestGraphqlGroups.userInMultipleGroups` | — |
+| User can belong to multiple groups in one schema | `MOLGENIS.groups_metadata` | `TestAsymmetricCollaboration.readsRowsFromBothGroups` ✓ | — |
 | `GROUP` scope shows rows whose `mg_groups` intersects the user's groups | `current_user_groups()` SQL function | `TestTablePolicies.groupScopeFiltersByMembership` | — |
-| Removing user from group revokes group-scoped row access immediately | `removeGroupMember` | `TestGraphqlGroups.removeMemberRevokesAccess` | — |
+| Removing user from group revokes group-scoped row access immediately | `removeGroupMember` | `TestSqlRoleManager.removeGroupMembership_revokesWhenLastRow` ✓ | — |
 
 ## Per-table per-verb
 
 | Behaviour | Component | Test | Visual |
 |---|---|---|---|
 | `select_scope` ladder NONE/EXISTS/COUNT/RANGE/AGGREGATE/OWN/GROUP/ALL | `SqlQuery` (view modes) + RLS policies | `TestSelectScope.*` | — |
-| `insert/update/delete_scope` ladder NONE/OWN/GROUP/ALL | RLS policies | `TestUpdateScope.*` | — |
-| `OWN` scope enforced via `mg_owner = current_user` | RLS policy emission | `TestRowOwnership.ownScope` | — |
+| `insert/update/delete_scope` ladder NONE/OWN/GROUP/ALL | RLS policies | `TestUpdateScope.*` ✓ | — |
+| `OWN` scope enforced via `mg_owner = current_user` | RLS policy emission | `TestTablePolicies.ownScopeSeesOnlyOwnedRows`, `TestSqlRoleManager.ownScopeSeesOnlyOwnRows` ✓ | — |
 
 ## Capability flags
 
@@ -42,21 +46,59 @@ requirements (no test yet) live in the **Open requirements** section below.
 
 | Behaviour | Component | Test | Visual |
 |---|---|---|---|
-| Role + permission storage in normalized `MOLGENIS.role_permission_metadata` + `MOLGENIS.group_membership_metadata` (Phase 7) | `MetadataUtils`, `SqlRoleManager` | `MetadataUtilsRolePermissionTest`, `SqlRoleManagerTest` ✓ | — |
+| Role + permission storage in normalized `MOLGENIS.role_permission_metadata` + `MOLGENIS.group_membership_metadata` (Phase 7) | `MetadataUtils`, `SqlRoleManager` | `TestMetadataUtilsRolePermission`, `TestSqlRoleManager` ✓ | — |
 | Dropping a schema cascades to its role permission rows and memberships | FK ON DELETE CASCADE | `TestTableRoleManagement` ✓ | — |
 | Dropping a table cascades to its per-role permission rows (application-layer hook, no DB FK) | `SqlSchema.dropTable` (Phase 7 slice 7.C) | `TestTableRoleManagement` ✓ | — |
-| Custom roles are NOT PG roles; only rows in `role_permission_metadata` (Q2 decision) | `SqlRoleManager.createRole` (no DROP/CREATE ROLE for custom roles) | `SqlRoleManagerTest` ✓ | — |
+| Custom roles are NOT PG roles; only rows in `role_permission_metadata` (Q2 decision) | `SqlRoleManager.createRole` (no DROP/CREATE ROLE for custom roles) | `TestSqlRoleManager` ✓ | — |
 | Verb-level GRANT for custom-role users routed via per-schema `MG_ROLE_<schema>_MEMBER` PG role (Q4 decision) | `SqlSchema.addMember`, `addGroupMembership`, slice 7.D RLS-enable hook | `TestMemberPgRoleLifecycle` ✓ | — |
+| Manager and Owner hold `MG_ROLE_<schema>_MEMBER` WITH ADMIN OPTION so they can grant it to users | `MetadataUtils.executeCreateMemberRole`, `migration32.sql` DO loop | `TestGraphqlGroups.changeGroups_asManager_fullLifecycle` ✓ | — |
+| `change_owner=true` on a custom role also grants read-visibility of rows with a different owner (needed for UPDATE ownership-transfer to pass PostgreSQL's implicit SELECT USING check on the new row) | `mg_can_read` custom-role branch: `OR rp.change_owner = true` | `TestChangeOwnerGroupSqlEnforcement.setPermissions_changeOwnerTrueAllowsMgOwnerUpdate` ✓ | — |
+| `mg_privacy_count` floor behavior (count=0 → 10, count=1 → 10; presentation-layer concern) | `mg_privacy_count` SQL function: `GREATEST(p_count, 10)` in `migration32.sql` | No automated API-level test (floor not observable via `retrieveRows()`; behavior dropped per API-only rule) | visual check |
+| COUNT-scoped role sees all rows via RLS pass-through (Path A, REQ-4) | `mg_can_read` COUNT branch | `TestSelectScope.countScopeRlsPassThroughSeesAllRows` ✓ | — |
 | Tables flip to RLS-enabled on first non-NONE EXACT-table row in `role_permission_metadata`; wildcard rows do not trigger RLS (Q3 decision) | slice 7.D policy emitter | `TestRlsLifecycle` ✓ | — |
-| Access functions UNION system-role branch (`pg_has_role` + wildcard rows) and custom-role branch (`group_membership_metadata` + exact-table rows) (Q1 decision) | `mg_can_read`/`mg_can_write`/`mg_can_write_all` | `TestAccessFunctions.systemRoleViaPgHasRole` ✓ | — |
+| Access functions UNION system-role branch (`pg_has_role` + wildcard rows) and custom-role branch (`group_membership_metadata` + exact-table rows) (Q1 decision) | `mg_can_read`/`mg_can_write`/`mg_can_write_all` | `TestSqlRoleManager.viewerCanReadRows`, `noRoleCannotRead` ✓ | — |
 
 ## GraphQL surface
 
 | Behaviour | Component | Test | Visual |
 |---|---|---|---|
 | `_schema.roles` returns merged system + custom roles in one shape | `GraphqlSchemaFieldFactory` | `TestGraphqlPermissions.rolesQuery_returnsMerged` ✓ | — |
-| `change(roles: [...])` mutation upserts role permissions | `GraphqlSchemaFieldFactory.change` | `TablePermissionsGraphqlTest.*` ✓ | — |
-| `change(groups: [...])` / `delete(groups: [...])` use central mutation pattern | `GraphqlSchemaFieldFactory` | `TestGraphqlGroups.*` ✓ | — |
+| `change(roles: [...])` mutation upserts role permissions | `GraphqlSchemaFieldFactory.change` | `TestGraphqlPermissionFieldFactoryIntegration.*` ✓ | — |
+| `change(groups: [...])` / `delete(groups: [...])` use central mutation pattern | `GraphqlSchemaFieldFactory` | `TestGraphqlGroups.createGroup_idempotent_noError`, `TestGraphqlGroups.deleteGroup_nonExistent_returnsError`, `TestGraphqlGroups.changeGroups_asEditor_denied`, `TestGraphqlGroups.changeGroups_asManager_fullLifecycle` ✓ | — |
+
+## GraphQL role assignment (slice 7.K)
+
+| Behaviour | Component | Test | Visual |
+|---|---|---|---|
+| `change(members:[{user, role}])` accepts system role without group | `GraphqlSchemaFieldFactory.changeMembers` | `TestGraphqlUnifiedRoleAssignment.changeMember_systemRole_noGroupRequired` | visual check |
+| `change(members:[{user, role, group}])` accepts custom role with group | `GraphqlSchemaFieldFactory.changeMembers`, `SqlRoleManager.addGroupMembership` | `TestGraphqlUnifiedRoleAssignment.changeMember_customRoleWithGroup_succeeds` | visual check |
+| `change(members:[{user, role}])` (no group, custom role) accepted as schema-wide grant | `GraphqlSchemaFieldFactory.changeMembers`, `SqlRoleManager.grantRoleToUser` | `TestGraphqlUnifiedRoleAssignment.customRoleNoGroup_acceptedAsSchemaWide` | visual check |
+| `change(members:[{user, role, group}])` rejects system role with group (domain error) | `GraphqlSchemaFieldFactory.changeMembers` | `TestGraphqlUnifiedRoleAssignment.changeMember_systemRoleWithGroup_rejected` | visual check |
+| `drop(members:[{user, role, group}])` removes custom-role group membership | `GraphqlSchemaFieldFactory.dropMembers`, `SqlRoleManager.removeGroupMembership` | `TestGraphqlUnifiedRoleAssignment.removeMember_customRoleWithGroup_succeeds` | visual check |
+| Escalation guard: only admin, Owner, or Manager may grant any custom role via unified mutation; Editor and Viewer are rejected | `GraphqlSchemaFieldFactory.rejectCustomRoleEscalation` | `TestGraphqlUnifiedRoleAssignment.changeMember_editorCannotGrantCustomRole_rejected`, `TestGraphqlUnifiedRoleAssignment.changeMember_editorCannotGrantOwner_rejected` | visual check |
+
+## Schema-wide custom-role grants (slice 7.M)
+
+| Behaviour | Component | Test | Visual |
+|---|---|---|---|
+| Schema-wide custom grant with `select: ALL` lets user read all rows | `mg_can_read`, `__direct__` sentinel | `TestSchemaWideCustomGrants.nullGroupGrant_allScope_userReadsAllRows` | — |
+| Schema-wide custom grant with `select: OWN` shows only user's own rows | `mg_can_read`, `__direct__` sentinel | `TestSchemaWideCustomGrants.nullGroupGrant_ownScope_userReadsOwnRowsOnly` | — |
+| Schema-wide custom grant with `select: GROUP` is inert (no rows visible from this grant) | `mg_can_read`, `__direct__` sentinel | `TestSchemaWideCustomGrants.nullGroupGrant_groupScope_userSeesNothing` | — |
+| `drop(members:[{user, role}])` (no group) revokes only schema-wide row; group-scoped survives | `GraphqlSchemaFieldFactory.dropMembers`, `SqlRoleManager.revokeRoleFromUser` | `TestSchemaWideCustomGrants.dropSchemaWideGrant_preservesGroupScopedGrant` | visual check |
+| `drop(members:[{user, role, group}])` revokes only group row; schema-wide survives | `GraphqlSchemaFieldFactory.dropMembers`, `SqlRoleManager.removeGroupMembership` | `TestSchemaWideCustomGrants.dropGroupGrant_preservesSchemaWideGrant` | visual check |
+| `createGroup(schema, "__direct__")` rejected (reserved sentinel name) | `SqlRoleManager.createGroup` | `TestSchemaWideCustomGrants.forbiddenSentinelGroupName` | — |
+| `_schema.groups` does not surface `__direct__` sentinel group | `SqlRoleManager.listGroups` | (filtered in SQL; verified indirectly via name protection) | visual check |
+
+## Harmonized members & groups GraphQL output (slice 7.N)
+
+| Behaviour | Component | Test | Visual |
+|---|---|---|---|
+| `_schema.members` returns system-role grants (group=null) | `executeGetMembers` UNION | `TestGraphqlMembersHarmonized.systemRoleRows_groupIsNull` ✓ | — |
+| `_schema.members` returns custom-role grants per group | `executeGetMembers` UNION | `TestGraphqlMembersHarmonized.customRoleRows_groupSet` ✓ | — |
+| `_schema.members` returns schema-wide custom grants with group=null (sentinel mapped to null) | `executeGetMembers` UNION + sentinel translation | `TestGraphqlMembersHarmonized.schemaWideCustomGrant_groupIsNull` ✓ | — |
+| `_schema.groups[].users` returns `[{name, role}]` pairs, one per `(user, role)` row | `MolgenisGroupOutput.users` resolver | `TestGraphqlGroups.users_includesRolePerUser` ✓ | — |
+| Backwards-compat: existing `members{email,role}` query still parses (group is additive) | GraphQL schema additive change | `TestGraphqlSchemaFields.testMembersOperations` ✓ | visual check (Members.vue) |
+| Pre/post-condition GraphQL roundtrip pattern verified across mutation tests | `TestGraphqlGroups`, `TestGraphqlUnifiedRoleAssignment` | (full file) ✓ | — |
 
 ## Phase 7 acceptance test (asymmetric collaboration)
 
@@ -70,7 +112,7 @@ This is the gate for Phase 7. v2 cannot pass it; v3-shape design must.
 | Alice can move row tagged `[A,B]` to `[A]` (pulling out of B) | `mg_can_write_all` | `TestAsymmetricCollaboration.allowsRemovingGroupSheHasNoAuthorityIn` ✓ | — |
 | Alice cannot share row into group C (no membership in C) | `mg_can_write_all` | `TestAsymmetricCollaboration.rejectsShareIntoForeignGroup` ✓ | — |
 | Policy count per RLS table is exactly 4 (not per-role) | per-table policy emitter | `TestPolicyCount.fourPoliciesPerTable` ✓ | — |
-| Direct-SQL count via COUNT-scoped role returns floored value | `mg_privacy_count` | `TestSelectScope.directSqlCountIsFloored` ✓ | — |
+| COUNT-scoped role sees all rows via RLS pass-through | `mg_can_read` COUNT branch | `TestSelectScope.countScopeRlsPassThroughSeesAllRows` ✓ | — |
 
 ## Open requirements
 
@@ -179,7 +221,7 @@ dropped by `disableRlsForTable`. Trigger bypasses for Manager/Owner system-role 
 group authorization, and Editor — seeded with `change_group=false` — must still be able
 to create group-tagged rows; semantic: `change_group=false` blocks MODIFICATION on
 existing rows, not initial tagging on insert). Trigger function is emitted by
-`emitAccessFunctions` so the single migration v34 step (which calls that method) covers it.
+`migration32.sql` covers it directly.
 Tests: `TestChangeOwner` (5 tests), `TestChangeGroup` (4 tests) — all green.
 
 ### REQ-4: Privacy-view-mode RLS pass-through — RESOLVED (Path A, deferred)

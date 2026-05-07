@@ -160,6 +160,11 @@ class TestGraphqlAdminFields {
         testDatabase -> {
           testDatabase.becomeAdmin();
           graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+          GraphqlExecutor schemaExecutor =
+              new GraphqlExecutor(testDatabase.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
+          GraphqlExecutor anotherSchemaExecutor =
+              new GraphqlExecutor(
+                  testDatabase.getSchema(ANOTHER_SCHEMA_NAME), new TaskServiceInMemory());
 
           try {
             // setup
@@ -168,7 +173,21 @@ class TestGraphqlAdminFields {
             testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
             testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
-            // test
+            // pre-check: user enabled, member of SCHEMA_NAME with Owner, member of
+            // ANOTHER_SCHEMA_NAME with Viewer
+            JsonNode preUser =
+                executeOn(
+                    graphql, "{_admin{users(email:\"" + TEST_PERSOON + "\"){email,enabled}}}");
+            assertEquals(TEST_PERSOON, preUser.at("/_admin/users/0/email").asText());
+            assertTrue(preUser.at("/_admin/users/0/enabled").asBoolean());
+            assertTrue(
+                memberEmailsOn(schemaExecutor).contains(TEST_PERSOON),
+                "Pre-condition: testPersoon must be a member of SCHEMA_NAME");
+            assertTrue(
+                memberEmailsOn(anotherSchemaExecutor).contains(TEST_PERSOON),
+                "Pre-condition: testPersoon must be a member of ANOTHER_SCHEMA_NAME");
+
+            // mutate
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
@@ -179,18 +198,29 @@ class TestGraphqlAdminFields {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
             }
 
-            // assert results
-            User user = testDatabase.getUser(TEST_PERSOON);
-            assertEquals("testPersoon", user.getUsername());
-            assertFalse(user.getEnabled());
+            // post-check: user disabled
+            JsonNode postUser =
+                executeOn(
+                    graphql, "{_admin{users(email:\"" + TEST_PERSOON + "\"){email,enabled}}}");
+            assertEquals(TEST_PERSOON, postUser.at("/_admin/users/0/email").asText());
+            assertFalse(postUser.at("/_admin/users/0/enabled").asBoolean());
 
-            List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
-            assertTrue(members.isEmpty());
+            // post-check: no longer member of SCHEMA_NAME
+            assertTrue(
+                memberEmailsOn(schemaExecutor).stream().noneMatch(TEST_PERSOON::equals),
+                "testPersoon must not be a member of SCHEMA_NAME after revoke");
 
-            Member anotherSchemaMember =
-                testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
-            assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
+            // post-check: now Owner of ANOTHER_SCHEMA_NAME (was Viewer, role updated to Owner)
+            JsonNode anotherMembers =
+                executeOn(anotherSchemaExecutor, "{_schema{members{email,role}}}");
+            boolean hasOwner = false;
+            for (JsonNode m : anotherMembers.at("/_schema/members")) {
+              if (TEST_PERSOON.equals(m.path("email").asText())
+                  && "Owner".equals(m.path("role").asText())) {
+                hasOwner = true;
+              }
+            }
+            assertTrue(hasOwner, "testPersoon must be Owner of ANOTHER_SCHEMA_NAME after update");
 
             // clean up
             testDatabase.removeUser(TEST_PERSOON);
@@ -198,6 +228,24 @@ class TestGraphqlAdminFields {
             throw new RuntimeException(e);
           }
         });
+  }
+
+  private JsonNode executeOn(GraphqlExecutor executor, String query) throws IOException {
+    String result = convertExecutionResultToJson(executor.executeWithoutSession(query));
+    JsonNode node = new ObjectMapper().readTree(result);
+    if (node.get("errors") != null) {
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText());
+    }
+    return new ObjectMapper().readTree(result).get("data");
+  }
+
+  private List<String> memberEmailsOn(GraphqlExecutor executor) throws IOException {
+    JsonNode members = executeOn(executor, "{_schema{members{email}}}").at("/_schema/members");
+    List<String> emails = new ArrayList<>();
+    for (JsonNode m : members) {
+      emails.add(m.path("email").asText());
+    }
+    return emails;
   }
 
   @NotNull

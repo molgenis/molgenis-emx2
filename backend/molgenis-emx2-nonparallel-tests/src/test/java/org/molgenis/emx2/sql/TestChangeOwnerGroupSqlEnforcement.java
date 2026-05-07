@@ -12,14 +12,13 @@ import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Schema;
 
-public class TestRoleManagerColumnGrantEnforcement {
+public class TestChangeOwnerGroupSqlEnforcement {
 
   private static final String SCHEMA_NAME = "RmColGrantEnfA";
   private static final String TEST_USER_ALICE = "RmColGrantEnfAlice";
@@ -84,28 +83,9 @@ public class TestRoleManagerColumnGrantEnforcement {
         .putTable(
             GROUP_TABLE,
             new PermissionSet.TablePermissions()
-                .setSelect(SelectScope.GROUP)
+                .setSelect(SelectScope.ALL)
                 .setInsert(UpdateScope.ALL)
                 .setUpdate(UpdateScope.ALL));
-  }
-
-  private void grantSchemaUsage(String roleName) {
-    jooq.execute(
-        "GRANT USAGE ON SCHEMA {0} TO {1}",
-        name(SCHEMA_NAME), name(SqlRoleManager.fullRoleName(SCHEMA_NAME, roleName)));
-  }
-
-  private List<String> fetchColumnGrants(
-      String schemaName, String tableName, String fullRole, String verb) {
-    return jooq
-        .fetch(
-            "SELECT column_name FROM information_schema.column_privileges "
-                + "WHERE table_schema = {0} AND table_name = {1} "
-                + "AND grantee = {2} AND privilege_type = {3}",
-            inline(schemaName), inline(tableName), inline(fullRole), inline(verb))
-        .stream()
-        .map(r -> r.get("column_name", String.class))
-        .toList();
   }
 
   private static void assertInsufficientPrivilege(DataAccessException thrown) {
@@ -123,11 +103,10 @@ public class TestRoleManagerColumnGrantEnforcement {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
+    db.setActiveUser(TEST_USER_ALICE);
     jooq.execute("INSERT INTO {0} (name) VALUES ('s-1')", name(SCHEMA_NAME, OWNER_TABLE));
 
-    db.setActiveUser(TEST_USER_ALICE);
     try {
       DataAccessException thrown =
           assertThrows(
@@ -149,11 +128,10 @@ public class TestRoleManagerColumnGrantEnforcement {
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withOwnerFlag = allScopesWithOwner().setChangeOwner(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withOwnerFlag);
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
+    db.setActiveUser(TEST_USER_ALICE);
     jooq.execute("INSERT INTO {0} (name) VALUES ('s-1')", name(SCHEMA_NAME, OWNER_TABLE));
 
-    db.setActiveUser(TEST_USER_ALICE);
     try {
       assertDoesNotThrow(
           () ->
@@ -171,9 +149,10 @@ public class TestRoleManagerColumnGrantEnforcement {
     schema.create(table(GROUP_TABLE, column("id").setPkey()));
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithGroup());
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
-    jooq.execute("INSERT INTO {0} (id) VALUES ('g-1')", name(SCHEMA_NAME, GROUP_TABLE));
+    jooq.execute(
+        "INSERT INTO {0} (id, mg_groups) VALUES ('g-1', ARRAY['grp']::TEXT[])",
+        name(SCHEMA_NAME, GROUP_TABLE));
 
     db.setActiveUser(TEST_USER_ALICE);
     try {
@@ -182,9 +161,9 @@ public class TestRoleManagerColumnGrantEnforcement {
               DataAccessException.class,
               () ->
                   jooq.execute(
-                      "UPDATE {0} SET mg_groups = ARRAY['somegroup'] WHERE id = 'g-1'",
+                      "UPDATE {0} SET mg_groups = NULL WHERE id = 'g-1'",
                       name(SCHEMA_NAME, GROUP_TABLE)),
-              "UPDATE setting mg_groups without changeGroup flag must throw permission denied");
+              "UPDATE clearing mg_groups without changeGroup flag must throw permission denied");
       assertInsufficientPrivilege(thrown);
     } finally {
       db.becomeAdmin();
@@ -197,18 +176,19 @@ public class TestRoleManagerColumnGrantEnforcement {
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withGroupFlag = allScopesWithGroup().setChangeGroup(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withGroupFlag);
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
-    jooq.execute("INSERT INTO {0} (id) VALUES ('g-1')", name(SCHEMA_NAME, GROUP_TABLE));
+    jooq.execute(
+        "INSERT INTO {0} (id, mg_groups) VALUES ('g-1', ARRAY['grp']::TEXT[])",
+        name(SCHEMA_NAME, GROUP_TABLE));
 
     db.setActiveUser(TEST_USER_ALICE);
     try {
       assertDoesNotThrow(
           () ->
               jooq.execute(
-                  "UPDATE {0} SET mg_groups = ARRAY['somegroup'] WHERE id = 'g-1'",
+                  "UPDATE {0} SET mg_groups = NULL WHERE id = 'g-1'",
                   name(SCHEMA_NAME, GROUP_TABLE)),
-          "UPDATE setting mg_groups with changeGroup=true must succeed");
+          "UPDATE clearing mg_groups with changeGroup=true must succeed");
     } finally {
       db.becomeAdmin();
     }
@@ -219,7 +199,6 @@ public class TestRoleManagerColumnGrantEnforcement {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
 
     db.setActiveUser(TEST_USER_ALICE);
@@ -244,7 +223,6 @@ public class TestRoleManagerColumnGrantEnforcement {
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withOwnerFlag = allScopesWithOwner().setChangeOwner(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withOwnerFlag);
-    grantSchemaUsage(ENFORCE_ROLE);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
 
     db.setActiveUser(TEST_USER_ALICE);
@@ -261,39 +239,23 @@ public class TestRoleManagerColumnGrantEnforcement {
   }
 
   @Test
-  void setPermissions_changeOwnerFlagRoundTripReflectedInColumnPrivileges() {
+  void setPermissions_changeOwnerFlagRoundTripReflectedInStorage() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
-    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_NAME, ENFORCE_ROLE);
 
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
     assertFalse(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "INSERT")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner INSERT grant must be absent when changeOwner=false");
-    assertFalse(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "UPDATE")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner UPDATE grant must be absent when changeOwner=false");
+        roleManager.getPermissions(schema, ENFORCE_ROLE).isChangeOwner(),
+        "changeOwner must be false when not set");
 
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner().setChangeOwner(true));
     assertTrue(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "INSERT")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner INSERT grant must be present when changeOwner=true");
-    assertTrue(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "UPDATE")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner UPDATE grant must be present when changeOwner=true");
+        roleManager.getPermissions(schema, ENFORCE_ROLE).isChangeOwner(),
+        "changeOwner must be true after setChangeOwner(true)");
 
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
     assertFalse(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "INSERT")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner INSERT grant must be absent after changeOwner flipped back to false");
-    assertFalse(
-        fetchColumnGrants(SCHEMA_NAME, OWNER_TABLE, fullRole, "UPDATE")
-            .contains(Constants.MG_OWNER_COLUMN),
-        "mg_owner UPDATE grant must be absent after changeOwner flipped back to false");
+        roleManager.getPermissions(schema, ENFORCE_ROLE).isChangeOwner(),
+        "changeOwner must be false after flipping back to false");
   }
 }

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestChangeOwner {
 
@@ -109,12 +111,9 @@ class TestChangeOwner {
       db.setActiveUser(USER_ALICE);
       assertDoesNotThrow(
           () ->
-              jooq.execute(
-                  "UPDATE \""
-                      + SCHEMA_NAME
-                      + "\".\""
-                      + TABLE_NAME
-                      + "\" SET val = 'updated' WHERE id = 'row1'"),
+              schema
+                  .getTable(TABLE_NAME)
+                  .update(new Row().setString("id", "row1").setString("val", "updated")),
           "Updating non-owner columns must be allowed even when change_owner=false");
     } finally {
       db.becomeAdmin();

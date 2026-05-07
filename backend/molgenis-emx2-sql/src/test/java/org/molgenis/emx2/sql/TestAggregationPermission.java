@@ -20,7 +20,7 @@ import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
-class AggregationPermissionTest {
+class TestAggregationPermission {
 
   private static final String SCHEMA_NAME = "APTest";
   private static final String TABLE_NAME = "Obs";
@@ -314,7 +314,6 @@ class AggregationPermissionTest {
       } catch (MolgenisException ignored) {
       }
     }
-    schema.addMember(TEST_USER, "Exists");
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(scope));

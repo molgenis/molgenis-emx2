@@ -791,14 +791,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
-  void runAsAdmin(JooqTransaction transaction) {
-    final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
-    SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
-    adminProvider.setActiveUser(ADMIN_USER);
-    DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
-    transaction.run(adminJooq);
-  }
-
   @Override
   public Integer getDatabaseVersion() {
     return databaseVersion;
@@ -905,9 +897,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             "select distinct m.rolname as member, r.rolname as role"
                 + " from pg_catalog.pg_auth_members am "
                 + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
-            roleFilter + "%", userFilter + "%");
+                + " join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + " where r.rolname LIKE {0} and m.rolname LIKE {1}"
+                + " and r.rolname NOT LIKE {2}",
+            roleFilter + "%", userFilter + "%", "%_MEMBER");
 
     for (Record userRecord : allRoles) {
       String memberName =

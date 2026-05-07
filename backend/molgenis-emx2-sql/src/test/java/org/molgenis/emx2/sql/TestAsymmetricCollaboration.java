@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /**
  * Gate test for Phase 7: asymmetric collaboration where Alice is editor in group A and viewer in
@@ -124,13 +126,9 @@ public class TestAsymmetricCollaboration {
     try {
       assertDoesNotThrow(
           () ->
-              jooq.execute(
-                  "UPDATE \""
-                      + SCHEMA_NAME
-                      + "\".\""
-                      + TABLE_NAME
-                      + "\" SET val = 'updated-a' WHERE id = ?",
-                  ROW_A_ONLY),
+              db.getSchema(SCHEMA_NAME)
+                  .getTable(TABLE_NAME)
+                  .update(new Row().setString("id", ROW_A_ONLY).setString("val", "updated-a")),
           "Alice must be able to UPDATE row tagged [A] — editor authority via group A");
     } finally {
       db.becomeAdmin();
@@ -142,13 +140,9 @@ public class TestAsymmetricCollaboration {
     db.setActiveUser(USER_ALICE);
     try {
       int affected =
-          jooq.execute(
-              "UPDATE \""
-                  + SCHEMA_NAME
-                  + "\".\""
-                  + TABLE_NAME
-                  + "\" SET val = 'should-fail' WHERE id = ?",
-              ROW_B_ONLY);
+          db.getSchema(SCHEMA_NAME)
+              .getTable(TABLE_NAME)
+              .update(new Row().setString("id", ROW_B_ONLY).setString("val", "should-fail"));
       assertEquals(
           0, affected, "Alice must not be able to UPDATE row tagged [B] — viewer-only in B");
     } finally {

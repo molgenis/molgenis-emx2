@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -170,6 +172,8 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(EMAIL).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(GROUP).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
@@ -365,7 +369,11 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
           .field(
+              GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(GROUP).type(Scalars.GraphQLString))
           .build();
   private final GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -535,15 +543,21 @@ public class GraphqlSchemaFieldFactory {
       String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
-      // add members
-      List<Map<String, String>> members = new ArrayList<>();
-      for (Member m : schema.getMembers()) {
-        members.add(Map.of("email", m.getUser(), "role", m.getRole()));
-      }
-      result.put(MEMBERS, members);
-
       SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
       String schemaName = schema.getName();
+
+      List<Map<String, Object>> members = new ArrayList<>();
+      for (Member m : schema.getMembers()) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put(EMAIL, m.getUser());
+        row.put(ROLE, m.getRole());
+        row.put(GROUP, null);
+        members.add(row);
+      }
+      for (Map<String, Object> customRow : roleManager.listCustomMemberships(schemaName)) {
+        members.add(customRow);
+      }
+      result.put(MEMBERS, members);
 
       List<Map<String, Object>> allRoles = new ArrayList<>();
       for (Role role : schema.getRoleInfos()) {
@@ -599,9 +613,7 @@ public class GraphqlSchemaFieldFactory {
                     .sync((SqlSchemaMetadata) s.getMetadata());
                 db.getListener().onSchemaChange();
               });
-      Map<String, String> result = new LinkedHashMap<>();
-      result.put(GraphqlConstants.DETAIL, message.toString());
-      return result;
+      return new GraphqlApiMutationResult(SUCCESS, message.toString());
     };
   }
 
@@ -746,6 +758,8 @@ public class GraphqlSchemaFieldFactory {
               Object users = entry.get("users");
               if (users instanceof List<?> list) {
                 return list.stream()
+                    .filter(Map.class::isInstance)
+                    .map(u -> ((Map<?, ?>) u).get("name"))
                     .filter(String.class::isInstance)
                     .map(String.class::cast)
                     .toList();
@@ -781,11 +795,32 @@ public class GraphqlSchemaFieldFactory {
 
   private static void dropMembers(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
-    List<String> members = dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-    if (members != null) {
-      for (String name : members) {
-        schema.removeMember(name);
-        message.append("Dropped member '" + name + "'\n");
+    List<Map<String, String>> members =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
+    if (members == null) return;
+    SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
+    for (Map<String, String> m : members) {
+      String userField = m.get(USER);
+      String resolvedUser = (userField != null && !userField.isEmpty()) ? userField : m.get(EMAIL);
+      String role = m.get(ROLE);
+      String group = m.get(GROUP);
+      if (roleManager.isSystemRole(role)) {
+        schema.removeMember(resolvedUser);
+        message.append("Dropped member '").append(resolvedUser).append("'\n");
+      } else {
+        rejectCustomRoleEscalation(schema, role);
+        if (group == null || group.isEmpty()) {
+          roleManager.revokeRoleFromUser(schema, role, resolvedUser);
+          message.append("Dropped schema-wide member '").append(resolvedUser).append("'\n");
+        } else {
+          roleManager.removeGroupMembership(schema.getName(), group, resolvedUser, role);
+          message
+              .append("Dropped member '")
+              .append(resolvedUser)
+              .append("' from group '")
+              .append(group)
+              .append("'\n");
+        }
       }
     }
   }
@@ -1006,28 +1041,36 @@ public class GraphqlSchemaFieldFactory {
     if (members == null) return;
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
     for (Map<String, String> m : members) {
-      String email = m.get(EMAIL);
+      String userField = m.get(USER);
+      String resolvedUser = (userField != null && !userField.isEmpty()) ? userField : m.get(EMAIL);
       String role = m.get(ROLE);
-      if (role != null && !roleManager.isSystemRole(role)) {
-        roleManager.grantRoleToUser(schema, role, email);
+      String group = m.get(GROUP);
+      if (roleManager.isSystemRole(role)) {
+        if (group != null && !group.isEmpty()) {
+          throw new MolgenisException("System role '" + role + "' cannot be assigned to a group");
+        }
+        schema.addMember(resolvedUser, role);
       } else {
-        rejectEscalation(schema, role);
-        schema.addMember(email, role);
+        rejectCustomRoleEscalation(schema, role);
+        if (group == null || group.isEmpty()) {
+          roleManager.grantRoleToUser(schema, role, resolvedUser);
+        } else {
+          roleManager.addGroupMembership(schema.getName(), group, resolvedUser, role);
+        }
       }
     }
   }
 
-  private static void rejectEscalation(Schema schema, String role) {
+  private static void rejectCustomRoleEscalation(Schema schema, String roleName) {
     if (schema.getDatabase().isAdmin()) return;
     if (schema.hasActiveUserRole(Privileges.OWNER)) return;
-    if (Privileges.OWNER.toString().equals(role) || Privileges.MANAGER.toString().equals(role)) {
-      throw new MolgenisException(
-          "Privilege escalation denied: only admin or Owner can grant "
-              + role
-              + " role in schema '"
-              + schema.getName()
-              + "'");
-    }
+    if (schema.hasActiveUserRole(Privileges.MANAGER)) return;
+    throw new MolgenisException(
+        "Privilege escalation denied: only admin, Owner or Manager can grant custom role '"
+            + roleName
+            + "' in schema '"
+            + schema.getName()
+            + "'");
   }
 
   private void changeTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
@@ -1085,7 +1128,7 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.MEMBERS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
+                .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)

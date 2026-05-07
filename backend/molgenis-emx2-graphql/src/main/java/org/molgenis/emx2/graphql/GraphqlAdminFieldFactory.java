@@ -154,7 +154,6 @@ public class GraphqlAdminFieldFactory {
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
         .filter(member -> member.getUser().equals(user.getUsername()))
-        .filter(member -> member.getRole().contains("/"))
         .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }
