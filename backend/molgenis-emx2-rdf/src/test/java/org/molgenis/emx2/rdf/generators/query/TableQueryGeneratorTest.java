@@ -69,7 +69,7 @@ class TableQueryGeneratorTest {
     assertEquals(
         removePrefixesFromQuery(generate.getQueryString()),
         """
-          SELECT ?Propogation ( GROUP_CONCAT( STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
+          SELECT ?Propogation ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
           WHERE { OPTIONAL { ?Propogation xsd:name ?names_single . } }
           GROUP BY ?Propogation
           """);
