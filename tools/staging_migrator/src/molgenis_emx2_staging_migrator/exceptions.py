@@ -24,3 +24,6 @@ class ReferenceDeleteError(StagingMigratorException):
 
 class NoSuchResourceException(StagingMigratorException):
     """Thrown when a resource is to be edited that is missing in the target's Resources table."""
+
+class DraftException(StagingMigratorException):
+    """Thrown when a table contains one or more draft records."""

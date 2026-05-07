@@ -15,7 +15,7 @@ from .constants import BASE_DIR, changelog_query, SchemaType
 from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, \
     MissingHRICoreException, NoSuchResourceException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
-    set_all_delete, check_hricore, process_contacts
+    set_all_delete, check_hricore, process_contacts, check_draft
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -236,16 +236,14 @@ class StagingMigrator(Client):
         source_df = load_table('source', table)
         target_df = load_table('target', table)
 
+        check_draft(source_df, table.name)
+
         # Filter the rows in the target table that reference the Resource identifiers
         target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
 
         # Return if both tables are empty
         if len(source_df.index) + len(target_df.index) == 0:
             return source_df
-
-        # Skip drafts from the upload
-        if "mg_draft" in source_df.columns:
-            source_df = source_df.loc[~source_df["mg_draft"].replace({np.nan: False})]
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)

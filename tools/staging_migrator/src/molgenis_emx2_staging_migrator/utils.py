@@ -2,11 +2,10 @@
 Utility functions for the StagingMigrator class.
 """
 import logging
-import zipfile
-from io import BytesIO
-
 import numpy as np
 import pandas as pd
+import zipfile
+from io import BytesIO
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table
@@ -15,11 +14,12 @@ from pandas._libs.missing import NAType
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
 from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException, \
-    MissingHRICoreException
+    MissingHRICoreException, DraftException
 from staging_migrator.src.molgenis_emx2_staging_migrator.migrator import SchemaType
 
 log = logging.getLogger(__name__)
 
+MG_DRAFT = "mg_draft"
 
 def prepare_primary_keys(schema: Schema, table_name: str):
     """
@@ -127,3 +127,13 @@ def check_hricore(resources: pd.DataFrame, profile: str):
     missing_hri = resources.loc[resources['hricore'].apply(is_missing), 'id']
     if len(missing_hri.index) != 0:
         raise MissingHRICoreException(f"Value 'hricore' not set to 'Yes' for resource {', '.join(missing_hri.values)!r}")
+
+def check_draft(df: pd.DataFrame, table_name: str):
+    """Checks the presence of draft records in the table.
+    Raises `DraftException` in case a draft record is encountered.
+    """
+    if MG_DRAFT not in df.columns:
+        return
+    num_drafts = df[MG_DRAFT].value_counts().get(True, 0)
+    if num_drafts != 0:
+        raise DraftException(f"Table {table_name!r} contains {num_drafts} draft records.")
