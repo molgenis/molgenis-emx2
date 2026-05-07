@@ -361,6 +361,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.RLS_ENABLED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -509,6 +513,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.RLS_ENABLED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   public GraphqlSchemaFieldFactory() {
@@ -1073,15 +1081,37 @@ public class GraphqlSchemaFieldFactory {
             + "'");
   }
 
+  @SuppressWarnings("unchecked")
   private void changeTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
-    Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-    // tables
+    List<Map<String, Object>> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
     if (tables != null) {
-      Map<String, ?> tableMap = Map.of("tables", tables);
+      Map<String, Object> tableMap = Map.of(GraphqlConstants.TABLES, tables);
       String json = JsonUtil.getWriter().writeValueAsString(tableMap);
       SchemaMetadata otherSchema = jsonToSchema(json);
       schema.migrate(otherSchema);
+      applyRlsEnabledChanges(schema, tables);
+    }
+  }
+
+  private void applyRlsEnabledChanges(Schema schema, List<Map<String, Object>> tables) {
+    for (Map<String, Object> tableInput : tables) {
+      if (!tableInput.containsKey(GraphqlConstants.RLS_ENABLED)) {
+        continue;
+      }
+      Object rlsEnabledRaw = tableInput.get(GraphqlConstants.RLS_ENABLED);
+      if (rlsEnabledRaw == null) {
+        continue;
+      }
+      boolean rlsEnabled = Boolean.TRUE.equals(rlsEnabledRaw);
+      String tableName = (String) tableInput.get(GraphqlConstants.NAME);
+      if (tableName == null) {
+        continue;
+      }
+      TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
+      if (tm != null && tm.getRlsEnabled() != rlsEnabled) {
+        tm.setRlsEnabled(rlsEnabled);
+      }
     }
   }
 

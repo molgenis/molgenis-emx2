@@ -1968,15 +1968,25 @@ moment RLS is flipped on, mg_owner attribution on those child rows is
 "user-who-flipped" rather than "original-creator". A correct fix would
 JOIN child to root via FK during backfill; deferred.
 
-**8.0.E — GraphQL surface**
-- `_schema.tables[]` exposes `rlsEnabled: Boolean`.
-- `change(tables:[{name, rlsEnabled}])` mutation accepts the flag.
-- `change(roles:[{...}])` server-side validation: same error messages as
-  the Java guard.
-- RED: `TestGraphqlSchemaTables.rlsEnabled_*` — read + write +
-  rejection tests (3-4 tests). New file (also satisfies §7.O split:
-  `TestGraphqlSchemaFields` → `TestGraphqlSchemaTables`).
-- GREEN: GraphQL field + fetcher + mutation handler.
+**8.0.E — GraphQL surface** — **Status: GREEN (2026-05-07)**
+- `_schema.tables[].rlsEnabled: Boolean` exposed via `outputTableType`
+  in `GraphqlSchemaFieldFactory`. Wired through `json.Schema` /
+  `json.Table` so the JSON roundtrip carries the field.
+- `change(tables:[{name, rlsEnabled}])` accepts the flag via
+  `inputTableMetadataType`. `applyRlsEnabledChanges` handler invokes
+  `TableMetadata.setRlsEnabled` (which triggers DDL cascade from 8.0.D).
+- `change(roles:[...])` validation already bubbles through from 8.0.B's
+  guard in `SqlRoleManager.setPermissions`. No new code needed.
+- Test: `TestGraphqlSchemaTables` (4/4 GREEN) — read + enable + disable
+  + scope rejection (per graphql-test-pattern SKILL: pre + mutation +
+  post via GraphQL surface). Satisfies §7.O `TestGraphqlSchemaFields` →
+  `TestGraphqlSchemaTables` split.
+- Subtle Jackson finding: `NON_DEFAULT` serialization treats
+  `Boolean.FALSE` as absent. Test uses `asBoolean(false)` default —
+  semantically correct since absent rlsEnabled means false.
+- Regression: `TestGraphqlSchemaGroups` 5/5 green. SQL RLS tests stay
+  green. `TestGraphqlSchemaRoles` / `TestGraphqlSchemaMembers` show
+  expected breakage from 8.0.C — to be migrated in 8.0.F.
 
 **8.0.F — Migrate existing tests from implicit to explicit RLS-enable**
 - Most likely the largest sub-slice by line count, smallest by risk.

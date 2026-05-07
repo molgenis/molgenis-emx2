@@ -101,6 +101,7 @@ public class GraphqlConstants {
   public static final String CAN_INSERT = "canInsert";
   public static final String CAN_UPDATE = "canUpdate";
   public static final String CAN_DELETE = "canDelete";
+  public static final String RLS_ENABLED = "rlsEnabled";
 
   private GraphqlConstants() {
     // hide constructor

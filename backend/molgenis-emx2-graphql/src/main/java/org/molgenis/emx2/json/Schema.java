@@ -55,6 +55,11 @@ public class Schema {
       if (t.getTableType() != null) {
         tm.setTableType(t.getTableType());
       }
+      if (Boolean.TRUE.equals(t.getRlsEnabled())) {
+        tm.setRlsEnabled(true);
+      } else if (Boolean.FALSE.equals(t.getRlsEnabled())) {
+        tm.setRlsEnabled(false);
+      }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
       tm.setLabels(
