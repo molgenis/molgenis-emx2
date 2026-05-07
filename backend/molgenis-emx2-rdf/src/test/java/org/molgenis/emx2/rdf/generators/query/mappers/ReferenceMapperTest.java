@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -40,6 +41,18 @@ class ReferenceMapperTest {
         "?product product:name ?product_name .");
     assertHasSelectors(tableReferenceQuery, "?product_name");
     assertHasGroupBy(tableReferenceQuery, "?product_name");
+  }
+
+  @Test
+  void givenReference_whenPrimaryKeyHasNoSemantics_thenSkip() {
+    schema.create(productTableWithSemantics());
+    TableMetadata order = schema.create(orderTable(true));
+    Column column = order.getColumn("product");
+    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
+
+    assertHasPatterns(tableReferenceQuery, "?order orders:product ?product .");
+    assertTrue(tableReferenceQuery.getSelectors().isEmpty());
+    assertTrue(tableReferenceQuery.getGroupBy().isEmpty());
   }
 
   @Test
