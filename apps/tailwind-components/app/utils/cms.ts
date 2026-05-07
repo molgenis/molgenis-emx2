@@ -3,8 +3,9 @@ import type {
   IDependencies,
   IDependenciesCSS,
   IDependenciesJS,
-  IConfigurablePages,
 } from "../../types/cms";
+
+import type { IContainerMetadata } from "../../types/CmsComponents";
 
 export function newDeveloperPage(): IDeveloperPages {
   return {
@@ -106,6 +107,7 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
                             url
                             urlLabel
                             urlIsExternal
+                            order
                         }
                         
                     }
@@ -113,12 +115,47 @@ const pageQuery = `query getContainers($filter:ContainersFilter) {
             }
         }
     }
+    _schema {
+      tables {
+        id
+        schemaId
+        name
+        label
+        description
+        tableType
+        columns {
+          columnType
+          id
+          label
+          section
+          heading
+          computed
+          description
+          formLabel
+          key
+          position
+          refBackId
+          refLabel
+          refLabelDefault
+          refLinkId
+          refSchemaId
+          refTableId
+          required
+          validation
+          visible
+          table
+          name
+          inherited
+          defaultValue
+        }
+      }
+    }
 }`;
 
 export async function getPage(
   schema: string,
   page: string
-): Promise<IDeveloperPages | IConfigurablePages> {
+): Promise<IContainerMetadata> {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -128,7 +165,7 @@ export async function getPage(
   });
 
   const currentPage = data.Containers[0];
-  return currentPage;
+  return { page: currentPage, metadata: data._schema.tables };
 }
 
 export function generateHtmlPreview(
