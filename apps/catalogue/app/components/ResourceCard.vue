@@ -2,11 +2,11 @@
 import { useRoute } from "#app";
 import { useDatasetStore } from "#imports";
 import { computed } from "vue";
-import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
+import CardButton from "./store/CartButton.vue";
 
 const datasetStore = useDatasetStore();
 
@@ -26,10 +26,6 @@ const props = withDefaults(
   }
 );
 
-const isInShoppingCart = computed(() =>
-  datasetStore.resourceIsInCart(props.resource.id)
-);
-
 const startEndYear = dateUtils.startEndYear;
 
 const articleClasses = computed(() => {
@@ -47,14 +43,6 @@ const titleContainerClasses = computed(() => {
 const headerClasses = computed(() => {
   return props.compact ? "" : "items-start xl:items-center";
 });
-
-function onInput() {
-  if (isInShoppingCart.value) {
-    datasetStore.removeFromCart(props.resource.id);
-  } else {
-    datasetStore.addToCart(props.resource);
-  }
-}
 </script>
 
 <template>
@@ -69,34 +57,20 @@ function onInput() {
             data-track-action="navigate"
             data-track-name="resource-detail"
           >
-            {{ resource?.acronym || resource?.name }}
+            {{ resource.acronym || resource.name }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ resource?.acronym ? resource?.name : "" }}
+          {{ resource.acronym ? resource.name : "" }}
         </span>
       </div>
       <div class="flex">
-        <label
+        <CardButton
           v-if="datasetStore.isEnabled"
-          :for="`${resource.id}-shopping-cart-input`"
-          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
-          :class="{
-            'items-baseline xl:items-center mt-0.5 xl:mt-0': !props.compact,
-            'bg-blue-500 text-white hover:text-white': isInShoppingCart,
-          }"
-        >
-          <BaseIcon name="shopping-cart-add" :width="21" />
-          <span class="sr-only"></span>
-          <input
-            type="checkbox"
-            :id="`${resource.id}-shopping-cart-input`"
-            class="sr-only"
-            :modelValue="isInShoppingCart"
-            @input="onInput"
-          />
-        </label>
+          :resource="resource"
+          :compact="props.compact"
+        />
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
@@ -115,20 +89,20 @@ function onInput() {
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ resource?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ resource.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
-          <dd>{{ resource?.design?.name }}</dd>
+          <dd>{{ resource.design?.name }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Participants</dt>
-          <dd>{{ resource?.numberOfParticipants }}</dd>
+          <dd>{{ resource.numberOfParticipants }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(resource?.startYear, resource?.endYear) }}
+            {{ startEndYear(resource.startYear, resource.endYear) }}
           </dd>
         </div>
       </dl>
