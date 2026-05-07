@@ -288,7 +288,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useId, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  ref,
+  useId,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "vue";
 import type {
   IRow,
   IColumn,
@@ -391,7 +399,7 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-if (process.client) {
+onMounted(() => {
   window.addEventListener("scroll", (event) => {
     const target = event.target as HTMLElement;
     const rect = tableContainer?.value?.getBoundingClientRect();
@@ -406,7 +414,13 @@ if (process.client) {
       showStickyHeader.value = false;
     }
   });
-}
+  window.addEventListener("resize", updateStickyHeaderWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleStickyHeaderOffset);
+  window.removeEventListener("resize", updateStickyHeaderWidth);
+});
 
 function handleStickyHeaderOffset(event: Event) {
   const target = event.target as HTMLElement;
