@@ -68,6 +68,8 @@ class TestGraphqlSchemaMembers {
     roleManager.createGroup(schema, GROUP_RESEARCH_TEAM);
     roleManager.createGroup(schema, GROUP_TEAM_A);
 
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
+
     PermissionSet analystPs = new PermissionSet();
     PermissionSet.TablePermissions analystTp = new PermissionSet.TablePermissions();
     analystTp.setSelect(SelectScope.ALL);

@@ -55,6 +55,7 @@ public class TestAsymmetricCollaboration {
 
     roleManager.createRole(SCHEMA_NAME, ROLE_EDITOR);
     roleManager.createRole(SCHEMA_NAME, ROLE_VIEWER);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet editorPerms = new PermissionSet();
     editorPerms.setChangeGroup(true);

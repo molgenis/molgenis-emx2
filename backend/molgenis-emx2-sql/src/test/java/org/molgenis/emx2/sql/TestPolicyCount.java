@@ -40,6 +40,8 @@ class TestPolicyCount {
     roleManager.createRole(SCHEMA_NAME, ROLE_ONE);
     roleManager.createRole(SCHEMA_NAME, ROLE_TWO);
     roleManager.createRole(SCHEMA_NAME, ROLE_THREE);
+    schema.getTable(TABLE_A).getMetadata().setRlsEnabled(true);
+    schema.getTable(TABLE_B).getMetadata().setRlsEnabled(true);
   }
 
   @AfterEach

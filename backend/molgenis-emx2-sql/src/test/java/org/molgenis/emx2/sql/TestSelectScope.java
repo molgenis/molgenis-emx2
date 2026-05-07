@@ -35,6 +35,7 @@ class TestSelectScope {
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     roleManager.createGroup(schema, GROUP_ALPHA);
     roleManager.createRole(SCHEMA_NAME, ROLE_COUNT);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet ps = new PermissionSet();
     PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();

@@ -39,6 +39,7 @@ class TestChangeOwner {
 
     roleManager.createRole(SCHEMA_NAME, ROLE_NO_CO);
     roleManager.createRole(SCHEMA_NAME, ROLE_YES_CO);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet noCoPerms = new PermissionSet();
     noCoPerms.setChangeOwner(false);

@@ -70,6 +70,7 @@ class TestGraphqlSchemaRoles {
     schema.addMember(USER_VIEWER, "Viewer");
 
     roleManager = ((SqlDatabase) database).getRoleManager();
+    schema.getTable(TABLE_PET).getMetadata().setRlsEnabled(true);
   }
 
   @Test

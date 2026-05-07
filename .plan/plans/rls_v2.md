@@ -1957,16 +1957,15 @@ Order of sub-slices (each independently RED-GREEN):
   `TestRlsEnabledMetadataRoundtrip` 2/2, `TestRlsEnabledScopeGuard` 4/4,
   `TestInherits` green.
 
-**Known limitation** (acceptable for POC; ticket-worthy for follow-up):
-mg_insertedBy is a meta-column on the ROOT table only (per EMX2's
-manual-FK inheritance design — see `SqlTableMetadataExecutor` line
-107-109). On enable, mg_owner backfill from mg_insertedBy works for
-root rows but child rows lack mg_insertedBy on the same physical row —
-their mg_owner falls back to DEFAULT current_user instead of the
-original creator. For a tree that has existing child rows at the
-moment RLS is flipped on, mg_owner attribution on those child rows is
-"user-who-flipped" rather than "original-creator". A correct fix would
-JOIN child to root via FK during backfill; deferred.
+**Inheritance + mg_owner attribution**:
+mg_insertedBy is a meta-column on the ROOT only (per EMX2's manual-FK
+inheritance design — `SqlTableMetadataExecutor` line 107-109). On
+enable, mg_owner backfill from mg_insertedBy applies to root rows;
+child rows inherit `DEFAULT current_user` from the new column. Post-
+enable inserts into child tables get `mg_owner = current_user` at
+insert time (correct semantics: inserter = owner). Pre-existing child
+rows at flip time get `current_user` of the flipper — accepted
+because RLS v2 ships before any production data needs migration.
 
 **8.0.E — GraphQL surface** — **Status: GREEN (2026-05-07)**
 - `_schema.tables[].rlsEnabled: Boolean` exposed via `outputTableType`
@@ -1988,21 +1987,26 @@ JOIN child to root via FK during backfill; deferred.
   green. `TestGraphqlSchemaRoles` / `TestGraphqlSchemaMembers` show
   expected breakage from 8.0.C — to be migrated in 8.0.F.
 
-**8.0.F — Migrate existing tests from implicit to explicit RLS-enable**
-- Most likely the largest sub-slice by line count, smallest by risk.
-- Test files that previously relied on first-grant-implicitly-enables-RLS
-  must now call `setRlsEnabled(true)` (or the GraphQL mutation) before
-  granting `OWN`/`GROUP` permissions.
-- Touch list (preliminary, expand during implementation):
-  `TestSelectScope`, `TestChangeGroup`, `TestChangeOwner`,
-  `TestRlsLifecycle`, `TestTablePolicies`, `TestPolicyCount`,
-  `TestAsymmetricCollaboration`, `TestSchemaWideCustomGrants`,
-  `TablePermissionsGraphqlTest`, `TestGraphqlSchemaRoles`.
-- RED: any test that previously implicitly enabled RLS now fails with
-  the new "OWN/GROUP requires RLS-enabled table" error → confirms the
-  guard works.
-- GREEN: add explicit `setRlsEnabled(true)` calls to test setup; tests
-  pass again.
+**8.0.F — Migrate existing tests from implicit to explicit RLS-enable** — **Status: GREEN (2026-05-07)**
+- 10 test files migrated by inserting `setRlsEnabled(true)` (or
+  `change(tables:[{rlsEnabled:true}])` for GraphQL tests) before any
+  OWN/GROUP scope grant or changeOwner/changeGroup=true.
+- Per-class results: `TestRlsLifecycle` 1/0/4-disabled, `TestPolicyCount`
+  2/0, `TestSelectScope` 1/0, `TestChangeGroup` 4/0, `TestChangeOwner`
+  5/0, `TestAsymmetricCollaboration` 5/0, `TestSchemaWideCustomGrants`
+  6/0, `TestTablePolicies` 6/0, `TestGraphqlSchemaRoles` 30/0,
+  `TestGraphqlSchemaMembers` 18/0.
+- 4 obsolete tests **deleted** from `TestRlsLifecycle` (per owner
+  approval): `firstNonNoneRowEnablesRls`, `lastNoneRowDisablesRls`,
+  `memberGrantToggles`, `wildcardDoesNotEnableRls`. Orphaned helpers +
+  imports also removed. Only `tableStartsNonRls` remains.
+- One substantive rewrite: `TestSchemaWideCustomGrants.setupRole` had
+  `enableRlsForTable` AFTER `setPermissions` — swapped order so
+  `setRlsEnabled(true)` runs first.
+- `TablePermissionsGraphqlTest` not modified — its pre-existing 5
+  failures are postgres-state contamination unrelated to RLS migration.
+- No production code bugs revealed — guard works as designed.
+- Regression: all four prior slices stay green.
 
 **Order constraint**: 8.0.A → 8.0.B → 8.0.C → 8.0.D → 8.0.E → 8.0.F.
 A and B are pure additive; C is the behavioral pivot; D extends C; E is

@@ -176,6 +176,7 @@ class TestSchemaWideCustomGrants {
       UpdateScope updateScope,
       UpdateScope deleteScope) {
     roleManager.createRole(SCHEMA_NAME, roleName);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
     tp.setSelect(selectScope);
@@ -184,6 +185,5 @@ class TestSchemaWideCustomGrants {
     tp.setDelete(deleteScope);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, roleName, ps);
-    roleManager.enableRlsForTable(schema, TABLE_NAME);
   }
 }

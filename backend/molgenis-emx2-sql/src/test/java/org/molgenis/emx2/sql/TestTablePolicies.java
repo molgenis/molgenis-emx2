@@ -45,6 +45,7 @@ class TestTablePolicies {
     roleManager.createRole(SCHEMA_NAME, ROLE_ALL);
     roleManager.createRole(SCHEMA_NAME, ROLE_GROUP);
     roleManager.createRole(SCHEMA_NAME, ROLE_OWN);
+    schema.getTable(TABLE_SECURE).getMetadata().setRlsEnabled(true);
 
     enableAllScope();
     enableGroupScope();

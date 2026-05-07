@@ -40,6 +40,7 @@ class TestChangeGroup {
 
     roleManager.createRole(SCHEMA_NAME, ROLE_NO_CG);
     roleManager.createRole(SCHEMA_NAME, ROLE_YES_CG);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet noCgPerms = new PermissionSet();
     noCgPerms.setChangeGroup(false);
