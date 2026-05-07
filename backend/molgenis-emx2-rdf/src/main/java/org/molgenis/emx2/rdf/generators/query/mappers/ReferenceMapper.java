@@ -10,8 +10,12 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReferenceMapper implements ColumnMapper {
+
+  private static final Logger logger = LoggerFactory.getLogger(ReferenceMapper.class);
 
   private final Variable variable;
   private final Column rootColumn;
@@ -63,6 +67,11 @@ public class ReferenceMapper implements ColumnMapper {
   private void mapPrimaryKeys() {
     TableMetadata refTable = rootColumn.getRefTable();
     for (Column column : refTable.getPrimaryKeyColumns()) {
+      if (column.getSemantics() == null || column.getSemantics().length == 0) {
+        logger.warn("Column {} has no semantics", column.getName());
+        continue;
+      }
+
       ArrayList<String> columnPath = columnPath();
       Variable subject = columnVariable();
 
