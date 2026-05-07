@@ -4,6 +4,9 @@ import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
+import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
+import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
+import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
@@ -20,6 +23,8 @@ public class TableQueryGenerator {
     Variable tableVar = SparqlBuilder.var(tableMetadata.getTableName());
     select.select(tableVar);
     select.groupBy(tableVar);
+
+    addTableTypeSemantics(tableMetadata, tableVar, select);
 
     for (Column column : tableMetadata.getColumns()) {
       if (column.getSemantics() == null || column.getSemantics().length == 0) {
@@ -41,6 +46,19 @@ public class TableQueryGenerator {
     }
 
     return select;
+  }
+
+  private static void addTableTypeSemantics(
+      TableMetadata tableMetadata, Variable tableVar, SelectQuery select) {
+    String[] tableSemantics = tableMetadata.getSemantics();
+    if (tableSemantics != null && tableSemantics.length > 0) {
+      GraphPatternNotTriples union = GraphPatterns.union();
+      Arrays.stream(tableSemantics)
+          .map(SparqlBuilder::var)
+          .map(tableVar::isA)
+          .forEach(union::union);
+      select.where(union);
+    }
   }
 
   private SelectQuery setupQuery() {

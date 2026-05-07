@@ -42,6 +42,26 @@ class TableQueryGeneratorTest {
   }
 
   @Test
+  void shouldAddTypeCheckForTableIfPresent() {
+    TableMetadata table =
+        TableMetadata.table(
+                "TableSemantics",
+                Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("xsd:name"))
+            .setSemantics("xsd:foo", "xsd:bar");
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = removePrefixesFromQuery(generate.getQueryString());
+    System.out.println(query);
+    assertEquals(
+        """
+        SELECT ?TableSemantics ?name
+        WHERE { { ?TableSemantics a ?xsd:foo . } UNION { ?TableSemantics a ?xsd:bar . }
+        ?TableSemantics xsd:name ?name . }
+        GROUP BY ?TableSemantics ?name
+        """,
+        query);
+  }
+
+  @Test
   void shouldPropagatePlainColumns() {
     TableMetadata table =
         TableMetadata.table(
@@ -116,7 +136,6 @@ class TableQueryGeneratorTest {
     Schema petSchema = database.getSchema(schemaName);
     Table pet = petSchema.getTable("Pet");
     SelectQuery generate = new TableQueryGenerator().generate(pet.getMetadata());
-
     SailRepository repository = setupRepositoryFromFile("queries/pets.ttl");
     TupleQuery query =
         repository
