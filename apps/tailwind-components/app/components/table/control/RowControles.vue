@@ -32,7 +32,11 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
     >
       <div class="flex items-center pl-2 pr-2 gap-2 border-r-2">
         <Checkbox> </Checkbox>
-        <BaseIcon name="caret-down" size="medium" />
+        <BaseIcon
+          name="caret-down"
+          size="medium"
+          class="cursor-pointer duration-default ease-in-out tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:bg-none disabled:text-button-disabled disabled:border-0 !disabled:hover:bg-none disabled:hover:text-button-disabled p-[8px] h-10 w-10 transition-colors"
+        />
       </div>
 
       <template #popper>
