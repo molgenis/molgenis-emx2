@@ -82,10 +82,12 @@ async function onDeleteConfirm() {
 
     <section class="grid grid-cols-4 gap-1"></section>
 
-    <div class="w-[90%] m-auto py-4">
-      <p class="text-body-regular text-text-contrast">
-        Are you sure you want to delete the selected {{ keys.size }}
-        {{ keys.size === 1 ? "row" : "rows" }}? This action cannot be undone.
+    <div class="w-[90%] mx-8 my-auto py-4">
+      <p class="text-body-lg text-center text-title-contrast">
+        Are you sure you want to delete the {{ keys.size }} selected rows.
+      </p>
+      <p class="text-body-lg text-center text-title-contrast">
+        This action cannot be undone.
       </p>
     </div>
 
