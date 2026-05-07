@@ -1937,20 +1937,32 @@ Order of sub-slices (each independently RED-GREEN):
   `TestSchemaWideCustomGrants`, `TablePermissionsGraphqlTest`,
   `TestGraphqlSchemaRoles`, `TestTablePolicies`.
 
-**8.0.D — Inheritance: cascade enable/disable to root + reject non-root**
-- Enable on root: cascades to all current children (recursive walk via
-  `tables_metadata.inherit`). New child added later auto-inherits the
-  flag at creation.
-- Enable directly on a non-root node: reject with "enable RLS on root
-  '<root>' instead".
-- Disable on root cascades atomically (one transaction).
-- RED: `TestRlsInheritanceCascade` — 4 tests:
-  1. Enable on root enables on all existing children.
-  2. New child added under enabled root is created with policies.
-  3. Enable on non-root rejected with clear error.
-  4. Disable on root cascades to children.
-- GREEN: walk inheritance tree in `setRlsEnabled` path; child-create
-  path checks parent's flag.
+**8.0.D — Inheritance: cascade enable/disable to root + reject non-root** — **Status: GREEN (2026-05-07)**
+- `SqlTableMetadata.setRlsEnabled` now cascades from root via
+  `enableRlsCascade` / `disableRlsCascade` (walks `getSubclassTables()`
+  recursively, all in one transaction).
+- Non-root call rejected with `"Cannot enable/disable RLS on subclass
+  '<name>' — call on root '<root>' instead"`.
+- New child auto-inherits parent's flag: hook in
+  `SqlTableMetadataExecutor.executeCreateTable` (after `executeSetInherit`)
+  + second hook in `SqlTableMetadata.setInheritTransaction` (for
+  inheritance set after table creation).
+- Test: `TestRlsInheritanceCascade` (4/4 GREEN) — RED→GREEN cycle
+  verified.
+- Regression: `TestRlsEnableDisableLifecycle` 5/5,
+  `TestRlsEnabledMetadataRoundtrip` 2/2, `TestRlsEnabledScopeGuard` 4/4,
+  `TestInherits` green.
+
+**Known limitation** (acceptable for POC; ticket-worthy for follow-up):
+mg_insertedBy is a meta-column on the ROOT table only (per EMX2's
+manual-FK inheritance design — see `SqlTableMetadataExecutor` line
+107-109). On enable, mg_owner backfill from mg_insertedBy works for
+root rows but child rows lack mg_insertedBy on the same physical row —
+their mg_owner falls back to DEFAULT current_user instead of the
+original creator. For a tree that has existing child rows at the
+moment RLS is flipped on, mg_owner attribution on those child rows is
+"user-who-flipped" rather than "original-creator". A correct fix would
+JOIN child to root via FK during backfill; deferred.
 
 **8.0.E — GraphQL surface**
 - `_schema.tables[]` exposes `rlsEnabled: Boolean`.

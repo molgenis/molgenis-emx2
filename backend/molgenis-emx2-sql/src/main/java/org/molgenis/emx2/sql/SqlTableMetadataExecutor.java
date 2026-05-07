@@ -70,6 +70,9 @@ class SqlTableMetadataExecutor {
                 + ": not found");
       }
       executeSetInherit(jooq, table, table.getInheritedTable());
+      if (table.getInheritedTable().getRlsEnabled()) {
+        ((SqlTableMetadata) table).enableRlsOnSingleTable();
+      }
     }
 
     // then create columns

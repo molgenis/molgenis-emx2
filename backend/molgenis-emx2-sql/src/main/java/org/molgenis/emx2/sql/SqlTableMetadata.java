@@ -412,6 +412,9 @@ class SqlTableMetadata extends TableMetadata {
     executeSetInherit(jooq, tm, om);
     tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
+    if (om.getRlsEnabled()) {
+      tm.enableRlsOnSingleTable();
+    }
     return tm;
   }
 
@@ -517,33 +520,93 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setRlsEnabled(boolean enabled) {
+    if (getInheritName() != null) {
+      TableMetadata root = getRootTable();
+      throw new MolgenisException(
+          "Cannot enable/disable RLS on subclass '"
+              + getTableName()
+              + "' — call on root '"
+              + root.getTableName()
+              + "' instead");
+    }
     if (enabled) {
-      enableRls();
+      enableRlsCascade();
     } else {
-      disableRls();
+      disableRlsCascade();
     }
     return this;
   }
 
-  private void enableRls() {
+  void enableRlsOnSingleTable() {
     super.setRlsEnabled(true);
     SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
     Schema schemaInstance = getDatabase().getSchema(getSchemaName());
     roleManager.enableRlsForTable(schemaInstance, getTableName());
-    getDatabase()
-        .getJooqAsAdmin(
-            adminJooq ->
-                adminJooq.execute(
-                    "UPDATE {0} SET \"mg_owner\" = \"mg_insertedBy\" WHERE \"mg_owner\" IS NULL",
-                    name(getSchemaName(), getTableName())));
+    if (getInheritName() == null) {
+      getDatabase()
+          .getJooqAsAdmin(
+              adminJooq ->
+                  adminJooq.execute(
+                      "UPDATE {0} SET \"mg_owner\" = \"mg_insertedBy\" WHERE \"mg_owner\" IS NULL",
+                      name(getSchemaName(), getTableName())));
+    }
     MetadataUtils.saveTableMetadata(getJooq(), this);
+  }
+
+  private void enableRlsCascade() {
+    List<TableMetadata> descendants = getSubclassTables();
+    getDatabase()
+        .tx(
+            tdb -> {
+              SqlTableMetadata root =
+                  (SqlTableMetadata)
+                      tdb.getSchema(getSchemaName()).getMetadata().getTableMetadata(getTableName());
+              root.enableRlsOnSingleTable();
+              sync(root);
+              for (TableMetadata desc : descendants) {
+                SqlTableMetadata child =
+                    (SqlTableMetadata)
+                        tdb.getSchema(getSchemaName())
+                            .getMetadata()
+                            .getTableMetadata(desc.getTableName());
+                child.enableRlsOnSingleTable();
+              }
+            });
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
     getDatabase().getListener().schemaChanged(getSchemaName());
   }
 
-  private void disableRls() {
+  private void disableRlsCascade() {
+    List<TableMetadata> descendants = getSubclassTables();
     SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
     roleManager.rejectDisableIfPermissionsExist(getSchemaName(), getTableName());
+    for (TableMetadata desc : descendants) {
+      roleManager.rejectDisableIfPermissionsExist(getSchemaName(), desc.getTableName());
+    }
+    getDatabase()
+        .tx(
+            tdb -> {
+              SqlTableMetadata root =
+                  (SqlTableMetadata)
+                      tdb.getSchema(getSchemaName()).getMetadata().getTableMetadata(getTableName());
+              root.disableRlsOnSingleTable();
+              sync(root);
+              for (TableMetadata desc : descendants) {
+                SqlTableMetadata child =
+                    (SqlTableMetadata)
+                        tdb.getSchema(getSchemaName())
+                            .getMetadata()
+                            .getTableMetadata(desc.getTableName());
+                child.disableRlsOnSingleTable();
+              }
+            });
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  void disableRlsOnSingleTable() {
     super.setRlsEnabled(false);
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
     Schema schemaInstance = getDatabase().getSchema(getSchemaName());
     roleManager.disableRlsForTable(schemaInstance, getTableName());
     getDatabase()
@@ -557,7 +620,6 @@ class SqlTableMetadata extends TableMetadata {
                   name(getSchemaName(), getTableName()));
             });
     MetadataUtils.saveTableMetadata(getJooq(), this);
-    getDatabase().getListener().schemaChanged(getSchemaName());
   }
 
   @Override
