@@ -516,6 +516,51 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
+  public TableMetadata setRlsEnabled(boolean enabled) {
+    if (enabled) {
+      enableRls();
+    } else {
+      disableRls();
+    }
+    return this;
+  }
+
+  private void enableRls() {
+    super.setRlsEnabled(true);
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
+    Schema schemaInstance = getDatabase().getSchema(getSchemaName());
+    roleManager.enableRlsForTable(schemaInstance, getTableName());
+    getDatabase()
+        .getJooqAsAdmin(
+            adminJooq ->
+                adminJooq.execute(
+                    "UPDATE {0} SET \"mg_owner\" = \"mg_insertedBy\" WHERE \"mg_owner\" IS NULL",
+                    name(getSchemaName(), getTableName())));
+    MetadataUtils.saveTableMetadata(getJooq(), this);
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  private void disableRls() {
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
+    roleManager.rejectDisableIfPermissionsExist(getSchemaName(), getTableName());
+    super.setRlsEnabled(false);
+    Schema schemaInstance = getDatabase().getSchema(getSchemaName());
+    roleManager.disableRlsForTable(schemaInstance, getTableName());
+    getDatabase()
+        .getJooqAsAdmin(
+            adminJooq -> {
+              adminJooq.execute(
+                  "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_owner",
+                  name(getSchemaName(), getTableName()));
+              adminJooq.execute(
+                  "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_groups",
+                  name(getSchemaName(), getTableName()));
+            });
+    MetadataUtils.saveTableMetadata(getJooq(), this);
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  @Override
   public void drop() {
     long start = System.currentTimeMillis();
     getDatabase().tx(db -> dropTransaction(db, getSchemaName(), getTableName()));

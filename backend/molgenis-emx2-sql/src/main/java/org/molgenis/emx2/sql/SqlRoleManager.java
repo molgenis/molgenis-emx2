@@ -97,11 +97,6 @@ public class SqlRoleManager {
       throw new MolgenisException("Cannot delete system role: " + roleName);
     }
     List<String> affectedUsers = findUsersInSchemaWithRole(schemaName, roleName);
-    List<String> affectedTables = findTablesForRole(schemaName, roleName);
-    Map<String, Boolean> rlsBefore = new java.util.LinkedHashMap<>();
-    for (String tableName : affectedTables) {
-      rlsBefore.put(tableName, hasNonNoneExactRow(schemaName, tableName));
-    }
     database.getJooqAsAdmin(
         adminJooq -> {
           adminJooq
@@ -113,14 +108,6 @@ public class SqlRoleManager {
               .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_ROLE_NAME.eq(roleName))
               .execute();
         });
-    Schema schema = database.getSchema(schemaName);
-    if (schema != null) {
-      for (String tableName : affectedTables) {
-        boolean wasRls = rlsBefore.get(tableName);
-        boolean isRls = hasNonNoneExactRow(schemaName, tableName);
-        applyRlsTransition(schema, tableName, wasRls, isRls);
-      }
-    }
     for (String userName : affectedUsers) {
       if (!userHasAnyGroupMembershipInSchema(schemaName, userName)) {
         revokeMemberRoleFromUser(schemaName, userName);
@@ -237,14 +224,9 @@ public class SqlRoleManager {
     if (SYSTEM_ROLE_NAMES.contains(roleName)) {
       throw new MolgenisException("System role permissions are immutable: " + roleName);
     }
-    Set<String> affectedTables = permissions.getTables().keySet();
     for (Map.Entry<String, PermissionSet.TablePermissions> entry :
         permissions.getTables().entrySet()) {
       rejectRlsScopeOnNonRlsTable(schema, entry.getKey(), entry.getValue(), permissions);
-    }
-    Map<String, Boolean> rlsBefore = new java.util.LinkedHashMap<>();
-    for (String tableName : affectedTables) {
-      rlsBefore.put(tableName, hasNonNoneExactRow(schemaName, tableName));
     }
     database.getJooqAsAdmin(
         adminJooq -> {
@@ -303,11 +285,6 @@ public class SqlRoleManager {
                 .execute();
           }
         });
-    for (String tableName : affectedTables) {
-      boolean wasRls = rlsBefore.get(tableName);
-      boolean isRls = hasNonNoneExactRow(schemaName, tableName);
-      applyRlsTransition(schema, tableName, wasRls, isRls);
-    }
     database.getListener().onSchemaChange();
   }
 
@@ -434,7 +411,6 @@ public class SqlRoleManager {
     if (schema == null || !schema.getTableNames().contains(tableName)) {
       throw new MolgenisException("Table does not exist: " + tableName);
     }
-    boolean wasRls = hasNonNoneExactRow(schemaName, tableName);
     database.getJooqAsAdmin(
         adminJooq -> {
           Record existing =
@@ -506,8 +482,6 @@ public class SqlRoleManager {
               .set(RPM_DELETE_SCOPE, deleteScope)
               .execute();
         });
-    boolean isRls = hasNonNoneExactRow(schemaName, tableName);
-    applyRlsTransition(schema, tableName, wasRls, isRls);
     database.getListener().onSchemaChange();
   }
 
@@ -528,7 +502,6 @@ public class SqlRoleManager {
     if (SYSTEM_ROLE_NAMES.contains(roleName)) {
       throw new MolgenisException("Cannot revoke permissions from system role: " + roleName);
     }
-    boolean wasRls = hasNonNoneExactRow(schemaName, tableName);
     database.getJooqAsAdmin(
         adminJooq ->
             adminJooq
@@ -538,11 +511,6 @@ public class SqlRoleManager {
                     RPM_ROLE_NAME.eq(roleName),
                     RPM_TABLE_NAME.eq(tableName))
                 .execute());
-    boolean isRls = hasNonNoneExactRow(schemaName, tableName);
-    Schema schema = database.getSchema(schemaName);
-    if (schema != null) {
-      applyRlsTransition(schema, tableName, wasRls, isRls);
-    }
     database.getListener().onSchemaChange();
   }
 
@@ -1022,7 +990,7 @@ public class SqlRoleManager {
     boolean[] tableExists = {false};
     database.getJooqAsAdmin(
         adminJooq -> {
-          var pgRecord =
+          org.jooq.Record pgRecord =
               adminJooq.fetchOne(
                   "SELECT c.relrowsecurity FROM pg_class c"
                       + " JOIN pg_namespace n ON n.oid = c.relnamespace"
@@ -1147,7 +1115,7 @@ public class SqlRoleManager {
     boolean[] tableExists = {false};
     database.getJooqAsAdmin(
         adminJooq -> {
-          var pgRecord =
+          org.jooq.Record pgRecord =
               adminJooq.fetchOne(
                   "SELECT 1 FROM pg_class c"
                       + " JOIN pg_namespace n ON n.oid = c.relnamespace"
@@ -1207,49 +1175,19 @@ public class SqlRoleManager {
     return "mg_check_change_cap_" + hash;
   }
 
-  private boolean hasNonNoneExactRow(String schemaName, String tableName) {
-    boolean[] found = {false};
+  void rejectDisableIfPermissionsExist(String schemaName, String tableName) {
+    boolean[] hasPermissions = {false};
     database.getJooqAsAdmin(
         adminJooq ->
-            found[0] =
+            hasPermissions[0] =
                 adminJooq.fetchExists(
                     adminJooq
                         .select()
                         .from(ROLE_PERMISSION_METADATA)
-                        .where(
-                            RPM_SCHEMA_NAME.eq(schemaName),
-                            RPM_TABLE_NAME.eq(tableName),
-                            RPM_SELECT_SCOPE
-                                .ne("NONE")
-                                .or(RPM_INSERT_SCOPE.ne("NONE"))
-                                .or(RPM_UPDATE_SCOPE.ne("NONE"))
-                                .or(RPM_DELETE_SCOPE.ne("NONE")))));
-    return found[0];
-  }
-
-  private List<String> findTablesForRole(String schemaName, String roleName) {
-    List<String> result = new ArrayList<>();
-    database.getJooqAsAdmin(
-        adminJooq ->
-            adminJooq
-                .selectDistinct(RPM_TABLE_NAME)
-                .from(ROLE_PERMISSION_METADATA)
-                .where(
-                    RPM_SCHEMA_NAME.eq(schemaName),
-                    RPM_ROLE_NAME.eq(roleName),
-                    RPM_TABLE_NAME.ne("*"),
-                    RPM_TABLE_NAME.ne(RPM_STUB_TABLE_SENTINEL))
-                .fetchStream()
-                .map(row -> row.get(RPM_TABLE_NAME))
-                .forEach(result::add));
-    return result;
-  }
-
-  private void applyRlsTransition(Schema schema, String tableName, boolean wasRls, boolean isRls) {
-    if (!wasRls && isRls) {
-      enableRlsForTable(schema, tableName);
-    } else if (wasRls && !isRls) {
-      disableRlsForTable(schema, tableName);
+                        .where(RPM_SCHEMA_NAME.eq(schemaName), RPM_TABLE_NAME.eq(tableName))));
+    if (hasPermissions[0]) {
+      throw new MolgenisException(
+          "Cannot disable RLS: first remove permissions on '" + schemaName + "." + tableName + "'");
     }
   }
 }

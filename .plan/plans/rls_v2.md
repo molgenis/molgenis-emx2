@@ -1908,30 +1908,34 @@ Order of sub-slices (each independently RED-GREEN):
 - Regression: `TestRlsEnabledMetadataRoundtrip` 2/2, `SqlRoleManagerTest`
   23/23 — both green.
 
-**8.0.C — DDL emitter: column + policy lifecycle tied to flag**
-- When `setRlsEnabled(true)` is called on a table:
-  - Add `mg_owner` (REF → users_metadata, default mg_insertedBy) and
-    `mg_groups` (REF_ARRAY → groups_metadata, default `{}`) columns if
-    not already present.
-  - Issue `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`.
-  - Apply the 4-policy template (USING/WITH-CHECK over the access
-    functions).
-  - Backfill `mg_owner` for existing rows from `mg_insertedBy`.
-- When `setRlsEnabled(false)` is called:
-  - **Pre-check**: any `role_permission_metadata` rows referencing this
-    table → reject with "first remove permissions on '<table>'".
-  - Drop the 4 policies.
-  - `ALTER TABLE ... DISABLE ROW LEVEL SECURITY`.
-  - Drop `mg_owner` and `mg_groups` columns.
-- RED: `TestRlsEnableDisableLifecycle` — 5 tests:
-  1. Enable creates columns + policies + backfills mg_owner.
-  2. Enable on table that already has rows: mg_owner populated from
-     mg_insertedBy.
-  3. Disable on a clean table drops columns + policies.
-  4. Disable rejected when permissions exist.
-  5. Re-enable after disable starts from empty mg_groups.
-- GREEN: emitter changes in `SqlSchemaMetadataExecutor` /
-  `SqlTableMetadataExecutor`.
+**8.0.C — DDL emitter: column + policy lifecycle tied to flag** — **Status: GREEN (2026-05-07)**
+- `SqlTableMetadata.setRlsEnabled(true)`:
+  - Adds `mg_owner` + `mg_groups` columns + indexes.
+  - `ENABLE` + `FORCE ROW LEVEL SECURITY`.
+  - Applies 4-policy template (verbatim from prior `enableRlsForTable`).
+  - Backfills `mg_owner` from `mg_insertedBy` (quoted identifiers).
+  - GRANTs SELECT/INSERT/UPDATE/DELETE to MEMBER role.
+- `SqlTableMetadata.setRlsEnabled(false)`:
+  - Pre-check (`rejectDisableIfPermissionsExist`): any row in
+    `role_permission_metadata` for schema+table → MolgenisException
+    "first remove permissions on '<schema>.<table>'".
+  - Drops 4 policies + `mg_check_change_cap_*` trigger.
+  - `DISABLE ROW LEVEL SECURITY`. REVOKEs grants.
+  - Drops `mg_owner` + `mg_groups` columns (NEW behavior).
+- Implicit triggering REMOVED:
+  - `setPermissions`, `deleteRole`, `grant`, `revoke` no longer call
+    `applyRlsTransition`.
+  - Deleted: `applyRlsTransition`, `hasNonNoneExactRow`,
+    `findTablesForRole`.
+- Test: `TestRlsEnableDisableLifecycle` (5/5 GREEN) — RED→GREEN cycle
+  verified.
+- Regression: `TestRlsEnabledMetadataRoundtrip` 2/2,
+  `TestRlsEnabledScopeGuard` 4/4 — green.
+- **Expected breakage** (to fix in 8.0.F): `TestRlsLifecycle`,
+  `TestPolicyCount`, `TestSelectScope`, `TestChangeGroup`,
+  `TestChangeOwner`, `TestAsymmetricCollaboration`,
+  `TestSchemaWideCustomGrants`, `TablePermissionsGraphqlTest`,
+  `TestGraphqlSchemaRoles`, `TestTablePolicies`.
 
 **8.0.D — Inheritance: cascade enable/disable to root + reject non-root**
 - Enable on root: cascades to all current children (recursive walk via
