@@ -9,6 +9,7 @@ defineProps<{
   };
   schemaId: string;
   tableId: string;
+  namespace: string;
   settings: {
     orderby: {
       column: string;
@@ -29,7 +30,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex justify-start items-center gap-1">
     <button
-      :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
+      :id="`table-emx2-${namespace}-${schemaId}-${tableId}-${column.label}-sort-btn`"
       type="button"
       @click.prevent
       class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
