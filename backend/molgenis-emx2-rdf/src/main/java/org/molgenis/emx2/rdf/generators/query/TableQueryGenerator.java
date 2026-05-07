@@ -1,5 +1,10 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
+import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
@@ -18,13 +23,13 @@ import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceMapper;
 public class TableQueryGenerator {
 
   public SelectQuery generate(TableMetadata tableMetadata) {
-    SelectQuery select = setupQuery();
+    List<GraphPattern> whereClauses = new ArrayList<>();
+    List<Projectable> selectors = new ArrayList<>();
+    List<Groupable> groups = new ArrayList<>();
 
     Variable tableVar = SparqlBuilder.var(tableMetadata.getTableName());
-    select.select(tableVar);
-    select.groupBy(tableVar);
-
-    addTableTypeSemantics(tableMetadata, tableVar, select);
+    selectors.add(tableVar);
+    groups.add(tableVar);
 
     for (Column column : tableMetadata.getColumns()) {
       if (column.getSemantics() == null || column.getSemantics().length == 0) {
@@ -40,15 +45,18 @@ public class TableQueryGenerator {
         mapper = new PlainColumnMapper(tableVar, column);
       }
 
-      mapper.getSelectors().forEach(select::select);
-      mapper.getPattern().forEach(select::where);
-      mapper.getGroupBy().forEach(select::groupBy);
+      whereClauses.addAll(mapper.getPattern());
+      selectors.addAll(mapper.getSelectors());
+      groups.addAll(mapper.getGroupBy());
     }
 
-    return select;
+    return addTableTypeSemantics(tableMetadata, tableVar, setupQuery())
+        .where(whereClauses.toArray(new GraphPattern[0]))
+        .select(selectors.toArray(new Projectable[0]))
+        .groupBy(groups.toArray(new Groupable[0]));
   }
 
-  private static void addTableTypeSemantics(
+  private static SelectQuery addTableTypeSemantics(
       TableMetadata tableMetadata, Variable tableVar, SelectQuery select) {
     String[] tableSemantics = tableMetadata.getSemantics();
     if (tableSemantics != null && tableSemantics.length > 0) {
@@ -59,6 +67,7 @@ public class TableQueryGenerator {
           .forEach(union::union);
       select.where(union);
     }
+    return select;
   }
 
   private SelectQuery setupQuery() {

@@ -62,6 +62,33 @@ class TableQueryGeneratorTest {
   }
 
   @Test
+  void shouldForwardOptionalsProperly() {
+    TableMetadata table =
+        TableMetadata.table(
+            "QueryOptionals",
+            Column.column("foo")
+                .setType(ColumnType.STRING)
+                .setRequired(false)
+                .setSemantics("xsd:foo"),
+            Column.column("bar")
+                .setType(ColumnType.STRING)
+                .setRequired(false)
+                .setSemantics("xsd:bar"),
+            Column.column("baz").setType(ColumnType.STRING).setPkey().setSemantics("xsd:baz"));
+
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    assertEquals(
+        """
+        SELECT ?QueryOptionals ?foo ?bar ?baz
+        WHERE { OPTIONAL { ?QueryOptionals xsd:foo ?foo . }
+        OPTIONAL { ?QueryOptionals xsd:bar ?bar . }
+        ?QueryOptionals xsd:baz ?baz . }
+        GROUP BY ?QueryOptionals ?foo ?bar ?baz
+        """,
+        removePrefixesFromQuery(generate.getQueryString()));
+  }
+
+  @Test
   void shouldPropagatePlainColumns() {
     TableMetadata table =
         TableMetadata.table(
