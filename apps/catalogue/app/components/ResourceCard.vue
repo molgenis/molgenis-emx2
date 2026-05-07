@@ -83,7 +83,7 @@ function onInput() {
           :for="`${resource.id}-shopping-cart-input`"
           class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
           :class="{
-            'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
+            'items-baseline xl:items-center mt-0.5 xl:mt-0': !props.compact,
             'bg-blue-500 text-white hover:text-white': isInShoppingCart,
           }"
         >

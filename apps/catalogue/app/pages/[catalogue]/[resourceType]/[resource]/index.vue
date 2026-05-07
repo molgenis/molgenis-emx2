@@ -1,255 +1,80 @@
 <script setup lang="ts">
-import subpopulationsQuery from "../../../../gql/subpopulations";
-import collectionEventsQuery from "../../../../gql/collectionEvents";
-import datasetQuery from "../../../../gql/datasets";
-import ontologyFragment from "../../../../gql/fragments/ontology";
-import fileFragment from "../../../../gql/fragments/file";
-import variablesQuery from "../../../../gql/variables";
-import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../utils/urlHelpers";
-import type {
-  IDefinitionListItem,
-  IMgError,
-  IOntologyItem,
-  linkTarget,
-  DefinitionListItemType,
-} from "../../../../../interfaces/types";
-import dateUtils from "../../../../utils/dateUtils";
+import { useFetch, useHead, useRoute, useRuntimeConfig } from "#app";
+import {
+  logError,
+  removeChildIfParentSelected,
+  useDatasetStore,
+} from "#imports";
+import { computed, ref } from "vue";
+import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
+import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type {
   IResources,
   IVariables,
 } from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
-import { computed, ref } from "vue";
-import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
-import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
-import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
-import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
-import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
-import SideNavigation from "../../../../components/SideNavigation.vue";
-import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
-import ReferenceCard from "../../../../components/ReferenceCard.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
-import TableContent from "../../../../components/table/Content.vue";
-import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
-import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
-import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
-import VariableDisplay from "../../../../components/VariableDisplay.vue";
-import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
-import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import type {
+  DefinitionListItemType,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+  linkTarget,
+} from "../../../../../interfaces/types";
 import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../tailwind-components/types/types";
+import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
+import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
+import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
+import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
+import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
+import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
+import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
+import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
+import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
+import ReferenceCard from "../../../../components/ReferenceCard.vue";
+import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
+import SideNavigation from "../../../../components/SideNavigation.vue";
+import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
+import TableContent from "../../../../components/table/Content.vue";
+import VariableDisplay from "../../../../components/VariableDisplay.vue";
+import collectionEventsQuery from "../../../../gql/collectionEvents";
+import datasetQuery from "../../../../gql/datasets";
+import subpopulationsQuery from "../../../../gql/subpopulations";
+import variablesQuery from "../../../../gql/variables";
+import dateUtils from "../../../../utils/dateUtils";
+import { resourceIdPath } from "../../../../utils/urlHelpers";
+import { getKey } from "../../../../utils/variableUtils";
+import { resourceQuery } from "./resourceQuery";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
+const datasetStore = useDatasetStore();
 
-const query = `
-  query Resources($id: String) {
-    Resources(filter: { id: { equals: [$id] } }) {
-      id
-      pid
-      acronym
-      name
-      description
-      website
-      logo {
-        url
-      }
-      contactEmail
-      type {
-        name
-      }
-      cohortType {
-        name
-      }
-      registryOrHealthRecordType {
-        name
-      }
-      networkType {
-        name
-      }
-      clinicalStudyType {
-        name
-      }
-      keywords
-      externalIdentifiers {
-        identifier
-        externalIdentifierType{name}
-      }
-      populationAgeGroups {
-        name order code parent { code }
-      }
-      dateLastRefresh
-      startYear
-      endYear
-      continents {
-        name
-        order
-      }
-      countries {
-        name order
-      }
-      regions {
-        name
-        order
-      }
-      numberOfParticipants
-      numberOfParticipantsWithSamples
-      designDescription
-      designSchematic ${moduleToString(fileFragment)}
-      design {
-        definition
-        name
-      }
-      dataCollectionType {
-        definition
-        name
-      }
-      dataCollectionDescription
-      reasonSustained
-      unitOfObservation
-      recordTrigger
-      populationOncologyTopology ${moduleToString(ontologyFragment)}
-      populationOncologyMorphology ${moduleToString(ontologyFragment)}
-      inclusionCriteria ${moduleToString(ontologyFragment)}
-      otherInclusionCriteria
-      exclusionCriteria ${moduleToString(ontologyFragment)}
-      otherExclusionCriteria
-      publications(orderby: {title:ASC}) {
-        doi
-        title
-        isDesignPublication
-      }
-      collectionEvents {
-        name
-        description
-        startDate
-        endDate
-        numberOfParticipants
-        ageGroups ${moduleToString(ontologyFragment)}
-        dataCategories ${moduleToString(ontologyFragment)}
-        sampleCategories ${moduleToString(ontologyFragment)}
-        areasOfInformation ${moduleToString(ontologyFragment)}
-        subpopulations {
-          name
-        }
-        coreVariables
-      }
-      peopleInvolved {
-        roleDescription
-        firstName
-        lastName
-        prefix
-        initials
-        email
-        title {
-          name
-        }
-        organisation {
-          name
-          website
-          organisationWebsite
-          email
-          organisation {
-            name
-            label
-          }
-      }
-        role ${moduleToString(ontologyFragment)}
-      }
-      organisationsInvolved(orderby: {name: ASC})  {
-        id
-        name
-        website
-        isLeadOrganisation
-        role ${moduleToString(ontologyFragment)}
-        otherOrganisation
-        organisation {
-          name
-          acronym
-          website
-          country {
-            name
-            order
-          }
-        }
-      }
-      subpopulations {
-          name
-          mainMedicalCondition ${moduleToString(ontologyFragment)}
-      }
-      dataAccessConditions ${moduleToString(ontologyFragment)}
-      dataAccessConditionsDescription
-      dataUseConditions ${moduleToString(ontologyFragment)}
-      dataAccessFee
-      releaseType ${moduleToString(ontologyFragment)}
-      releaseDescription
-      fundingStatement
-      acknowledgements
-      linkageOptions
-      prelinked
-      documentation {
-        name
-        description
-        url
-        file ${moduleToString(fileFragment)}
-      }
-      datasets {
-        name
-      }
-      partOfNetworks {
-        id
-        name
-        description
-        website
-        logo {
-          url
-        }
-        catalogueType {
-          name
-        }
-      }
-      publications_agg {
-        count
-      }
-      subpopulations_agg {
-        count
-      }
-      collectionEvents_agg{
-        count
-      }
-    }
-    Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
-      count
-    }
-  }
-`;
 const variables = { id: route.params.resource };
+
 interface IResourceQueryResponseValue extends IResources {
   publications_agg?: { count: number };
   subpopulations_agg?: { count: number };
   collectionEvents_agg?: { count: number };
 }
+
 interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
   };
 }
+
 const { data, error } = await useFetch<IResponse, IMgError>(
   `/${schema}/graphql`,
   {
     method: "POST",
-    body: { query, variables },
+    body: { query: resourceQuery, variables },
   }
 );
 
@@ -260,7 +85,7 @@ if (error.value) {
 const resource = computed(() => data.value?.data?.Resources?.[0]);
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
-  if (!subpopulations.value || !subpopulations.value.length) {
+  if (!subpopulations.value?.length) {
     return [];
   } else {
     const allItems = subpopulations.value
@@ -286,6 +111,10 @@ const subpopulationCount = computed(
 );
 
 const variableCount = computed(() => data.value?.data?.Variables_agg.count);
+
+const isInShoppingCart = computed(() =>
+  resource.value?.id ? datasetStore.resourceIsInCart(resource.value?.id) : false
+);
 
 function collectionEventMapper(item: any) {
   return {
@@ -705,6 +534,16 @@ const showPopulation = computed(
       (item) => item.content !== undefined && item.content !== ""
     ).length
 );
+
+function onShoppingCartInput() {
+  if (resource.value) {
+    if (isInShoppingCart.value) {
+      datasetStore.removeFromCart(resource.value.id);
+    } else {
+      datasetStore.addToCart(resource.value);
+    }
+  }
+}
 </script>
 <template>
   <LayoutsDetailPage>
@@ -724,9 +563,27 @@ const showPopulation = computed(
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
-        </template> -->
+        <template #title-suffix>
+          <label
+            v-if="datasetStore.isEnabled"
+            :for="`${resource?.id}-shopping-cart-input`"
+            class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
+            :class="{
+              'items-baseline xl:items-center mt-0.5 xl:mt-0': true,
+              'bg-blue-500 text-white hover:text-white': isInShoppingCart,
+            }"
+          >
+            <BaseIcon name="shopping-cart-add" :width="21" />
+            <span class="sr-only"></span>
+            <input
+              type="checkbox"
+              :id="`${resource?.id}-shopping-cart-input`"
+              class="sr-only"
+              :modelValue="isInShoppingCart"
+              @input="onShoppingCartInput"
+            />
+          </label>
+        </template>
       </PageHeader>
     </template>
     <template #side>
