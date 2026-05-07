@@ -90,6 +90,7 @@ class TestTablePermissionEnforcement {
   void userWithInsertPermissionCanInsertRows() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
+    ((SqlTableMetadata) schema.getTable(TABLE_A).getMetadata()).setRlsEnabled(true);
     schema.createRole("EditorRole");
     schema.grant(
         "EditorRole",

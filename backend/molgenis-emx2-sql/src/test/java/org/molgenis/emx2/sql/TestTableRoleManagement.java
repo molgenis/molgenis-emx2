@@ -108,6 +108,14 @@ class TestTableRoleManagement {
   }
 
   @Test
+  void cannotGrantToNonExistentRole() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
+    assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
+  }
+
+  @Test
   void cannotGrantToNonExistentTable() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
@@ -115,6 +123,60 @@ class TestTableRoleManagement {
     TablePermission permission = new TablePermission("NoSuchTable").select(true);
     assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
     schema.deleteRole("TempRole");
+  }
+
+  @Test
+  void revokeRemovesTableAccess() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("RevokeRole");
+    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(true));
+    schema.addMember(USER_VIEWER, "RevokeRole");
+
+    // Verify access exists
+    database.setActiveUser(USER_VIEWER);
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+
+    // Revoke
+    database.becomeAdmin();
+    schema.revoke("RevokeRole", TABLE_A);
+
+    // Verify access is gone
+    database.setActiveUser(USER_VIEWER);
+
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+  }
+
+  @Test
+  void grantWithFalseRevokesIndividualPrivilege() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("PartialRevokeRole");
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
+    schema.addMember(USER_EDITOR, "PartialRevokeRole");
+
+    database.setActiveUser(USER_EDITOR);
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(TABLE_A)
+        .insert(new Row().setString("id", "r_partial").setString("value", "v"));
+
+    database.becomeAdmin();
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).insert(false));
+
+    database.setActiveUser(USER_EDITOR);
+
+    assertThrows(
+        Exception.class,
+        () ->
+            database
+                .getSchema(SCHEMA)
+                .getTable(TABLE_A)
+                .insert(new Row().setString("id", "r_partial2").setString("value", "v")));
+
+    assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
   }
 
   @Test
@@ -136,6 +198,32 @@ class TestTableRoleManagement {
     assertNull(perm.delete());
 
     schema.deleteRole("FalseNullRole");
+  }
+
+  @Test
+  void grantIsLostAfterTableDropAndRecreate() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("LifecycleRole");
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(true));
+    schema.addMember(USER_VIEWER, "LifecycleRole");
+
+    database.setActiveUser(USER_VIEWER);
+    database.tx(
+        db -> assertDoesNotThrow(() -> db.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows()));
+
+    database.becomeAdmin();
+    schema.dropTable(TABLE_A);
+    schema.create(table(TABLE_A).add(column("id").setPkey()).add(column("value")));
+
+    database.setActiveUser(USER_VIEWER);
+    assertThrows(
+        Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).insert(new Row().setString("id", "r1").setString("value", "hello"));
+    schema.removeMember(USER_VIEWER);
+    schema.deleteRole("LifecycleRole");
   }
 
   @Test
@@ -287,5 +375,39 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     roleManager.removeGroupMembership(SCHEMA, GROUP_X, USER_EDITOR, "MergeGrantRole");
     schema.deleteRole("MergeGrantRole");
+  }
+
+  @Test
+  void anonymousViewerAndCustomRolePermissionsAreMerged() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+
+    // anonymous gets Viewer, so select on all tables
+    schema.addMember("anonymous", "Viewer");
+
+    // custom role only grants insert on TABLE_A
+    schema.createRole("InsertOnly");
+    schema.grant("InsertOnly", new TablePermission(TABLE_A).insert(true));
+    schema.addMember(USER_VIEWER, "InsertOnly");
+
+    // every user inherits anonymous privileges via PostgreSQL role inheritance,
+    // so the user should see merged permissions: select from anonymous + insert from InsertOnly
+    database.setActiveUser(USER_VIEWER);
+    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    TablePermission merged =
+        perms.stream()
+            .filter(p -> TABLE_A.equals(p.table()))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
+    assertEquals(Boolean.TRUE, merged.select(), "select should be merged from anonymous Viewer");
+    assertEquals(Boolean.TRUE, merged.insert(), "insert should be merged from InsertOnly role");
+    assertNull(merged.update());
+    assertNull(merged.delete());
+
+    // clean up to avoid leaking anonymous Viewer into other tests
+    database.becomeAdmin();
+    schema.removeMember("anonymous");
+    schema.removeMember(USER_VIEWER);
+    schema.deleteRole("InsertOnly");
   }
 }

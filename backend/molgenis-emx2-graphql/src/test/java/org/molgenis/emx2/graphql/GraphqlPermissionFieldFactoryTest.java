@@ -154,7 +154,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_ANALYST
-            + "\",tables:[{table:\""
+            + "\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
@@ -243,7 +243,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_ANALYST
-            + "\",tables:[{table:\""
+            + "\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:AGGREGATE}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
@@ -292,7 +292,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",tables:[{table:\""
+            + "\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
     Exception thrown =
@@ -317,7 +317,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",tables:[{table:\""
+            + "\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
@@ -335,7 +335,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",tables:[{table:\""
+            + "\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
@@ -353,7 +353,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",schemaName:\"*\",tables:[{table:\""
+            + "\",schemaName:\"*\",permissions:[{table:\""
             + TABLE_NAME
             + "\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
@@ -377,7 +377,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",tables:[{table:\"*\",select:ALL}]}]){status message}}";
+            + "\",permissions:[{table:\"*\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
     database.becomeAdmin();
     assertEquals("SUCCESS", result.at("/change/status").asText());
@@ -393,7 +393,7 @@ class GraphqlPermissionFieldFactoryTest {
     String mutation =
         "mutation{change(roles:[{name:\""
             + ROLE_GATED
-            + "\",tables:[{table:\"*\",select:ALL}]}]){status message}}";
+            + "\",permissions:[{table:\"*\",select:ALL}]}]){status message}}";
     JsonNode result = executeQuery(executor, mutation);
     database.becomeAdmin();
     assertEquals("SUCCESS", result.at("/change/status").asText());

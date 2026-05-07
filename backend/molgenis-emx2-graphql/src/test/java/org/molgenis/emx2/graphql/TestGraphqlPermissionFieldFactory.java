@@ -46,7 +46,7 @@ class TestGraphqlPermissionFieldFactory {
   void toPermissionSet_roundTrip_preservesAllVerbScopes() {
     Map<String, Object> input =
         Map.of(
-            TABLES,
+            PERMISSIONS,
             List.of(
                 Map.of(
                     TABLE, "Pet",
@@ -88,7 +88,7 @@ class TestGraphqlPermissionFieldFactory {
   @Test
   void toPermissionSet_ownOnSelect_succeeds() {
     Map<String, Object> input =
-        Map.of(TABLES, List.of(Map.of(TABLE, "Pet", SELECT, SelectScope.OWN)));
+        Map.of(PERMISSIONS, List.of(Map.of(TABLE, "Pet", SELECT, SelectScope.OWN)));
 
     PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(input);
     assertEquals(SelectScope.OWN, ps.getTables().get("Pet").getSelect());
@@ -106,7 +106,7 @@ class TestGraphqlPermissionFieldFactory {
 
   @Test
   void toPermissionSet_missingVerbFields_defaultToNone() {
-    Map<String, Object> input = Map.of(TABLES, List.of(Map.of(TABLE, "Pet")));
+    Map<String, Object> input = Map.of(PERMISSIONS, List.of(Map.of(TABLE, "Pet")));
 
     PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(input);
     PermissionSet.TablePermissions pet = ps.getTables().get("Pet");

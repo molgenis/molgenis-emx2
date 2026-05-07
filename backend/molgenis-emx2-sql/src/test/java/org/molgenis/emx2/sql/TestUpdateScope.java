@@ -48,6 +48,8 @@ class TestUpdateScope {
     roleManager.createRole(SCHEMA_NAME, ROLE_OWN);
     roleManager.createRole(SCHEMA_NAME, ROLE_NONE);
 
+    ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
+
     configureRole(ROLE_ALL, SelectScope.ALL, UpdateScope.ALL, UpdateScope.ALL, UpdateScope.ALL);
     configureRole(
         ROLE_GROUP, SelectScope.GROUP, UpdateScope.GROUP, UpdateScope.GROUP, UpdateScope.GROUP);

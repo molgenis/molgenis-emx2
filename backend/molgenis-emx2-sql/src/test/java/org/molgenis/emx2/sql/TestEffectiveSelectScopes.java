@@ -44,6 +44,7 @@ class TestEffectiveSelectScopes {
 
   @Test
   void customRole_withSelectOwn_returnsOwn() {
+    ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
@@ -148,6 +149,7 @@ class TestEffectiveSelectScopes {
   @Test
   void customRoleOwn_andSystemRoleCount_returnsBoth() {
     schema.addMember(TEST_USER, "Count");
+    ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));

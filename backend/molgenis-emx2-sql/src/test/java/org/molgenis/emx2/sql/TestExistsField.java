@@ -183,6 +183,9 @@ class TestExistsField {
       } catch (Exception ignored) {
       }
     }
+    if (scope == SelectScope.OWN || scope == SelectScope.GROUP) {
+      ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
+    }
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(scope));

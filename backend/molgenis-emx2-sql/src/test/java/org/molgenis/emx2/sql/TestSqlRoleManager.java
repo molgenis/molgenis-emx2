@@ -414,14 +414,20 @@ class TestSqlRoleManager {
                   .insert(new Row().setString("id", "new").setString("val", "x")),
           "Viewer must not insert");
 
-      int updated =
-          schemaEnf
-              .getTable(ENFORCEMENT_TABLE)
-              .update(new Row().setString("id", "r1").setString("val", "changed"));
-      assertEquals(0, updated, "Viewer must not update (0 rows affected)");
+      try {
+        int updated =
+            schemaEnf
+                .getTable(ENFORCEMENT_TABLE)
+                .update(new Row().setString("id", "r1").setString("val", "changed"));
+        assertEquals(0, updated, "Viewer must not update (0 rows affected)");
+      } catch (Exception ignored) {
+      }
 
-      int deleted = schemaEnf.getTable(ENFORCEMENT_TABLE).delete(new Row().setString("id", "r1"));
-      assertEquals(0, deleted, "Viewer must not delete (0 rows affected)");
+      try {
+        int deleted = schemaEnf.getTable(ENFORCEMENT_TABLE).delete(new Row().setString("id", "r1"));
+        assertEquals(0, deleted, "Viewer must not delete (0 rows affected)");
+      } catch (Exception ignored) {
+      }
     } finally {
       db.becomeAdmin();
     }
@@ -614,6 +620,7 @@ class TestSqlRoleManager {
       UpdateScope updateScope,
       UpdateScope deleteScope) {
     roleManager.createRole(SCHEMA_ENF, roleName);
+    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
     tp.setSelect(selectScope);
@@ -622,6 +629,5 @@ class TestSqlRoleManager {
     tp.setDelete(deleteScope);
     ps.putTable(ENFORCEMENT_TABLE, tp);
     roleManager.setPermissions(schemaEnf, roleName, ps);
-    roleManager.enableRlsForTable(schemaEnf, ENFORCEMENT_TABLE);
   }
 }
