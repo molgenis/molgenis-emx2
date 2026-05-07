@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import Button from "../../Button.vue";
 import { Dropdown as VDropdown } from "floating-vue";
 import Checkbox from "../../input/Checkbox.vue";
@@ -62,12 +62,6 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
               @click="emit('rowAction', { action: 'select-drafts' })"
             >
               Drafts
-            </li>
-            <li
-              class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
-              @click="emit('rowAction', { action: 'select-approved' })"
-            >
-              Approved
             </li>
           </ul>
         </div>

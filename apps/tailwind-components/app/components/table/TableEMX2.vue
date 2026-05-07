@@ -47,9 +47,9 @@
         <thead>
           <tr>
             <TableHeadCell class="sticky left-0 bg-table z-20 w-12">
-              <div class="flex justify-center items-center">
+              <!-- <div class="flex justify-center items-center">
                 <Checkbox @change="toggleAllRows" />
-              </div>
+              </div> -->
             </TableHeadCell>
             <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
               <TableHeaderAction
@@ -501,13 +501,6 @@ function handleRowAction(payload: { action: string }) {
       selectedRows.value.clear();
       rows.value.forEach((row) => {
         if (row.mg_draft === true) {
-          selectedRows.value.add(row._rowId);
-        }
-      });
-    } else if (action === "select-approved") {
-      selectedRows.value.clear();
-      rows.value.forEach((row) => {
-        if (row.mg_draft !== true) {
           selectedRows.value.add(row._rowId);
         }
       });

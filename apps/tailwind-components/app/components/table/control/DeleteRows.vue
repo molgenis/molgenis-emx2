@@ -11,6 +11,7 @@ import FormError from "../../form/Error.vue";
 import Button from "../../Button.vue";
 import BaseIcon from "../../BaseIcon.vue";
 import Modal from "../../Modal.vue";
+import { isMgError } from "../../../utils/typeUtils";
 
 const session = await useSession();
 const table = useTable();
@@ -39,10 +40,22 @@ function reAuthenticate() {
   session.reAuthenticate(deleteErrorMessage, showReAuthenticateButton, message);
 }
 
-function onDeleteConfirm() {
-  table.deleteRecords(props.schemaId, props.metadata.id, props.keys);
-  emit("update:deleted", true);
-  visible.value = false;
+async function onDeleteConfirm() {
+  try {
+    await table.deleteRecords(props.schemaId, props.metadata.id, props.keys);
+    emit("update:deleted", true);
+    visible.value = false;
+  } catch (error: unknown) {
+    if (isMgError(error)) {
+      deleteErrorMessage.value =
+        error.data?.errors?.[0]?.message ??
+        "An unknown error occurred during deletion.";
+    } else if (error instanceof Error) {
+      deleteErrorMessage.value = error.message;
+    } else {
+      deleteErrorMessage.value = "An unknown error occurred during deletion.";
+    }
+  }
 }
 </script>
 <template>
@@ -68,6 +81,14 @@ function onDeleteConfirm() {
     </template>
 
     <section class="grid grid-cols-4 gap-1"></section>
+
+    <div class="w-[90%] m-auto py-4">
+      <p class="text-body-regular text-text-contrast">
+        Are you sure you want to delete the selected {{ keys.size }}
+        {{ keys.size === 1 ? "row" : "rows" }}? This action cannot be undone.
+      </p>
+    </div>
+
     <Transition name="slide-up">
       <FormError
         v-show="deleteErrorMessage"
@@ -84,14 +105,6 @@ function onDeleteConfirm() {
         >
       </FormError>
     </Transition>
-
-    <div class="w-[90%] m-auto py-4">
-      <p class="text-body-regular text-text-contrast">
-        Are you sure you want to delete the selected {{ keys.size }}
-        {{ keys.size === 1 ? "row" : "rows" }}? This action cannot be undone.
-      </p>
-    </div>
-
     <template #footer>
       <div class="flex justify-between items-center">
         <menu class="flex items-center justify-end h-[116px]">
