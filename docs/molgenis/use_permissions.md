@@ -107,3 +107,5 @@ MOLGENIS_OIDC_CLIENT_SECRET="Secret"
 MOLGENIS_OIDC_DISCOVERY_URI="http://keycloakserver/realms/myrealm/.well-known/openid-configuration"
 MOLGENIS_OIDC_CALLBACK_URL="https://mymolgeniserver"
 ```
+
+For row-level security and per-row scoping, see [use_rls.md](./use_rls.md).

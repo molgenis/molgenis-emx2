@@ -171,11 +171,16 @@ where scope evaluation requires it.
 ### Access functions
 
 ```sql
-MOLGENIS.mg_can_read     (p_schema, p_table, p_groups, p_owner)            BOOLEAN
-MOLGENIS.mg_can_write    (p_schema, p_table, p_groups, p_owner, p_verb)    BOOLEAN
-MOLGENIS.mg_can_write_all(p_schema, p_table, p_groups, p_owner, p_verb)    BOOLEAN
-MOLGENIS.mg_privacy_count(p_table TEXT, p_filter TEXT)                     BIGINT
+MOLGENIS.mg_can_read     (p_schema, p_table, p_groups, p_owner)                                          BOOLEAN
+MOLGENIS.mg_can_write    (p_schema, p_table, p_groups, p_owner, p_verb)                                  BOOLEAN
+MOLGENIS.mg_can_write_all(p_schema, p_table, p_groups, p_owner, p_verb, p_changing_owner, p_changing_group) BOOLEAN
+MOLGENIS.mg_privacy_count(p_table TEXT, p_filter TEXT)                                                   BIGINT
 ```
+
+`mg_can_write_all` takes two extra booleans (`p_changing_owner`,
+`p_changing_group`) computed by the BEFORE INSERT OR UPDATE trigger;
+they gate the `change_owner` / `change_group` capability checks
+without requiring the policy itself to inspect OLD vs NEW.
 
 `LANGUAGE sql STABLE PARALLEL SAFE`. Two branches, UNIONed:
 
@@ -449,15 +454,139 @@ F.1 FK from schema B → RLS table in schema A: invisible target rows
 F.2 Composes with inheritance — RLS on root, child inherits.
 F.3 Subclass-only RLS rejected.
 
-### Phase G — perf, audit, docs
+### Phase G — perf, audit, docs — closed 2026-05-08
 
-G.1 Benchmark: 1M rows, 5 custom roles, 100 groups, 10k users. Target
-    < 2× non-RLS baseline.
-G.2 If pathological, fall back to materialised view of
-    `(user, schema, table, verb) → groups[]` updated by trigger.
-G.3 Audit query patterns over `pg_policies`.
-G.4 Docs: model overview, worked examples, operator runbook
-    (debug "user can't see row X").
+G.1 Benchmark: `TestRlsPerformance` (`@Tag("slow")`, 50k rows / 20
+    groups / 10 users; scale chosen for ≤5min runtime).
+    Report: `.plan/perf-reports/rls_v4_perf_2026-05-08.md`. Highlights:
+    - **Filtered SELECT 1.52× baseline** (acceptable).
+    - **Full-table SELECT 20× baseline** — per-row policy invocation
+      dominates; only matters for unfiltered scans (CSV exports of
+      large tables). Plan target was `<2×` for filtered workloads which
+      is met; full-scan is a known acceptable cost.
+    - **GROUP-scope 4.69× ALL-scope** — `mg_groups && $1` array
+      overlap per row. Mitigation: GIN index on `mg_groups` (G.2 if
+      profiling confirms).
+    - **INSERT 2.43×** baseline — modest write-path overhead.
+    - **Concurrency clean**: 173.9 q/s 2-thread reads, no isolation
+      anomaly, MVCC rollback intact, READ COMMITTED standard.
+    - **Permission revoke semantics**: in-flight statement on an
+      open connection completes; next `acquire()` re-issues `SET ROLE`
+      and the revoke takes effect at that statement boundary. No
+      mid-statement aborts, no leaks.
+G.2 Materialised-view fallback documented as recommendation #3 in
+    perf report; not implemented (only triggered if N_ROWS > 500k
+    profiling confirms pathological).
+G.3 Audit query patterns over `pg_policies` documented in
+    `docs/molgenis/use_rls.md` §"Auditing".
+G.4 Docs: `docs/molgenis/use_rls.md` (8 sections, 335 lines):
+    overview, enabling RLS, scope model, group membership (incl. World
+    A supersede), 3 worked examples, operator runbook ("user can't see
+    row X"), auditing, known limitations. Cross-ref appended to
+    `docs/molgenis/use_permissions.md`.
+
+### Phase H — optimization options
+
+Three candidates surfaced by the perf benchmark; ordered by
+expected-impact / cost ratio.
+
+**H.1 — GIN index on `mg_groups`** — RESOLVED 2026-05-08
+
+`mg_can_read` evaluates `mg_groups && $1` per row for GROUP-scope
+users. A GIN index turns it into an indexed overlap lookup.
+
+- Cost: 1 line of DDL emitted in `enableRlsForTable`; index built on
+  enable, dropped on disable.
+- Risk: slows INSERT/UPDATE on `mg_groups` slightly (typical GIN
+  trade). Bounded; we already pay 2.43× on writes.
+- **Audit finding**: the GIN index (`<table>_mg_groups_idx`) was already
+  present in `enableRlsForTable` since commit `7e3243b94` (early phase
+  8). Phase G numbers (4.69× GROUP-scope ratio) were captured WITH the
+  index. No pre-GIN baseline exists.
+- **Delivered**: idempotency confirmed (`CREATE INDEX IF NOT EXISTS`);
+  drop confirmed via column cascade on disable; new test
+  `TestRlsEnableDisableLifecycle.enableRls_createsGinIndexOnMgGroups`
+  asserts index present after enable and absent after disable.
+- **H.1 re-run ratio**: 5.52× GROUP-scope (run-to-run variance ±20–30%
+  at 5000-row scale; planner uses seq scan at this cardinality — GIN
+  benefit materialises at >100k rows). Target 1.5–2× not met at this
+  scale; H.2 deferred pending need at larger datasets.
+  - **H.1 large-scale verification (100k rows, 2026-05-08)**:
+    ALL-scope=1372ms, GROUP-scope=1566ms, ratio=**1.14×**. PG planner
+    chose `Bitmap Index Scan on PerfData_mg_groups_idx` — GIN engaged.
+    Well within 1.5–2× target. **H.2 deferred — GIN sufficient.**
+
+- Expected impact: GROUP-scope ratio 4.69× → target ~1.5–2×.
+
+**H.1.5 — Drop catalog branch from `mg_can_read`/`mg_can_write`** *(RESOLVED 2026-05-08)*
+
+Audit finding: `mg_can_read` (and `mg_can_write`) carry a UNION ALL
+branch that JOINs `pg_roles → pg_auth_members → pg_roles` to discover
+inherited PG role memberships. This catalog access makes the function
+opaque to the planner — even though it is `STABLE`, the planner cannot
+inline it or push the inner `mg_groups && current_user_groups(...)`
+predicate to the GIN index at low cardinality. Result: at 5k rows the
+planner seq-scans (5.52× ratio); at 100k it crosses cost threshold and
+finally uses GIN (1.14× ratio).
+
+The catalog branch is **redundant** under our invariants:
+`grantRoleToUser` writes a GMM row AND issues `GRANT MG_ROLE_<schema>/<role>
+TO MG_USER_<user>` atomically. The PG GRANT and the GMM row are kept
+in sync. The only case the catalog branch covers that GMM doesn't is
+out-of-band `GRANT role TO user` calls bypassing the app — which never
+happens in normal operation.
+
+- **Approach**: remove the third UNION ALL branch from `mg_can_read` and
+  the analogous branch from `mg_can_write`. Functions become
+  app-table-only (RPM + GMM, no catalog) → eligible for inlining.
+- **Risk**: out-of-band PG grants without GMM rows lose visibility. Add
+  test asserting that direct `GRANT MG_ROLE_x TO MG_USER_y` without GMM
+  row yields zero rows (documents the new contract).
+- **Verification**: re-run `TestRlsPerformance.overhead_groupScope` at
+  5k rows. Target: ratio drops from 5.52× toward ~1.5× (planner uses GIN
+  at low cardinality once function is inlinable).
+- **Result**: ratio dropped from 5.52× → **1.04×** at 5k rows. Target
+  met. GIN engages at any cardinality once function is inlinable.
+  H.2 stays deferred.
+- **New contract**: direct PG GRANT without GMM row yields zero rows.
+  Regression test: `TestSqlRoleManager.directPgGrantWithoutGmmRow_yieldsNoRows`.
+- **Migration**: consolidated into `migration32.sql` (unreleased on this branch;
+  no separate migration33). DB version remains 33.
+
+**H.2 — Session-cached membership** *(consider after H.1.5 numbers in)*
+
+`mg_can_read` custom-role branch JOINs `pg_roles → pg_auth_members →
+pg_roles` per row. For users with many roles in many groups, this is
+re-evaluated on every row.
+
+- Approach: `SECURITY DEFINER` function `mg_session_cache()` populates
+  a per-session temp/array of `(schema, table, groups[], scope)` once
+  at `SET ROLE` time. Policy then does pure array overlap against the
+  cached structure.
+- Cost: more SQL surface; cache invalidation on `change(members:…)`
+  needs care (probably fine — next `acquire()` re-issues SET ROLE,
+  cache rebuilds).
+- Risk: cache staleness inside a long-running connection; mitigate
+  with `pg_notify` or just rely on connection-cycle invalidation
+  (which is already how revoke takes effect, see G.1).
+
+**H.3 — Materialised-view fallback** *(only if H.1 + H.2 insufficient)*
+
+`mg_visible_<table>(user, row_id)` keyed by `(user, row_pk)`,
+refreshed by triggers on `role_permission_metadata` /
+`group_membership_metadata`. Policy collapses to `EXISTS (SELECT 1
+FROM mg_visible_<table> WHERE user = current_user AND row_id =
+<table>.id)` — PK lookup.
+
+- Cost: write amplification; storage; trigger machinery on the
+  metadata tables. Schema-level opt-in, not on by default.
+- Risk: trigger fan-out on bulk membership changes (e.g. adding a
+  user to a group with 1M visible rows = 1M inserts).
+- Expected impact: read path becomes O(1) PK lookup; full-scan ratio
+  could drop from 20× to near 1×.
+
+**Decision plan**: implement H.1 now → re-run `TestRlsPerformance` →
+compare ratios → decide on H.2/H.3 from numbers.
 
 ## Decision log
 

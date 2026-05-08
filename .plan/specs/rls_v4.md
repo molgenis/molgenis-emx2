@@ -31,6 +31,7 @@
 | Root-only metadata; child rows always store `false` | TableMetadata.getRlsEnabled | TestRlsToggle.metadataStoredOnRootOnly | — |
 | `mg_owner` + `mg_groups` columns materialised on enable | SqlTableMetadata | TestRlsToggle.materialisesRowColumnsOnEnable | — |
 | `mg_owner` backfilled from `mg_insertedBy` on enable | SqlTableMetadata | TestRlsToggle.backfillsOwnerOnEnable | — |
+| GIN index `<table>_mg_groups_idx` created on enable, dropped on disable | SqlRoleManager.enableRlsForTable | TestRlsEnableDisableLifecycle.enableRls_createsGinIndexOnMgGroups | — |
 
 ## Policy template (per RLS table)
 

@@ -535,6 +535,37 @@ class TestSqlRoleManager {
     }
   }
 
+  // ── regression: direct PG GRANT without GMM row yields no rows ───────────
+
+  @Test
+  void directPgGrantWithoutGmmRow_yieldsNoRows() {
+    roleManager.createRole(SCHEMA_ENF, "pg-only-role");
+    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    ps.putTable(
+        ENFORCEMENT_TABLE, new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.ALL));
+    roleManager.setPermissions(schemaEnf, "pg-only-role", ps);
+
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "target-row").setString("val", "v"));
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, "pg-only-role");
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    jooq.execute("GRANT {0} TO {1}", name(fullRole), name(fullUser));
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+      assertEquals(0, rows.size(), "Direct PG GRANT without GMM row must yield zero rows");
+    } finally {
+      db.becomeAdmin();
+      jooq.execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
+    }
+  }
+
   // ── scope: SELECT=ALL returns every row ──────────────────────────────────
 
   @Test

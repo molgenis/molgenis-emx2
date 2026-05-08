@@ -146,6 +146,37 @@ class TestRlsEnableDisableLifecycle {
   }
 
   @Test
+  void enableRls_createsGinIndexOnMgGroups() {
+    schema.create(table(TABLE_NAME).add(column("id").setPkey()));
+    SqlTableMetadata meta = (SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata();
+    String expectedIndexName = TABLE_NAME + "_mg_groups_idx";
+
+    meta.setRlsEnabled(true);
+
+    Long indexCountAfterEnable =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_indexes"
+                    + " WHERE schemaname = ? AND tablename = ? AND indexname = ?",
+                SCHEMA_NAME,
+                TABLE_NAME,
+                expectedIndexName)
+            .get(0, Long.class);
+    assertEquals(1L, indexCountAfterEnable, "GIN index on mg_groups must exist after enable");
+
+    meta.setRlsEnabled(false);
+
+    Long indexCountAfterDisable =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_indexes"
+                    + " WHERE schemaname = ? AND tablename = ? AND indexname = ?",
+                SCHEMA_NAME,
+                TABLE_NAME,
+                expectedIndexName)
+            .get(0, Long.class);
+    assertEquals(0L, indexCountAfterDisable, "GIN index on mg_groups must be gone after disable");
+  }
+
+  @Test
   void reEnableAfterDisableStartsEmpty() {
     schema.create(table(TABLE_NAME).add(column("id").setPkey()));
     SqlTableMetadata meta = (SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata();

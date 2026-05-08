@@ -132,20 +132,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_read(
             OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
             OR rp.change_owner = true
           )
-        UNION ALL
-        SELECT 1
-        FROM "MOLGENIS".role_permission_metadata rp
-        JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
-        JOIN pg_auth_members pam ON pam.roleid = pgr.oid
-        JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
-        WHERE rp.schema_name = p_schema
-          AND rp.table_name  = p_table
-          AND (
-               rp.select_scope = 'ALL'
-            OR (rp.select_scope = 'OWN' AND p_owner = current_user)
-            OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
-            OR rp.change_owner = true
-          )
     )
 $$;
 
@@ -182,25 +168,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write(
                   rp.delete_scope = 'ALL'
                   OR (rp.delete_scope = 'GROUP' AND m.group_name = ANY(p_groups))
                   OR (rp.delete_scope = 'OWN'   AND p_owner = current_user)
-              END
-        UNION ALL
-        SELECT 1
-        FROM "MOLGENIS".role_permission_metadata rp
-        JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
-        JOIN pg_auth_members pam ON pam.roleid = pgr.oid
-        JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
-        WHERE rp.schema_name = p_schema
-          AND rp.table_name  = p_table
-          AND CASE p_verb
-                WHEN 'insert' THEN
-                  rp.insert_scope = 'ALL'
-                  OR (rp.insert_scope = 'OWN' AND p_owner = current_user)
-                WHEN 'update' THEN
-                  rp.update_scope = 'ALL'
-                  OR (rp.update_scope = 'OWN' AND p_owner = current_user)
-                ELSE
-                  rp.delete_scope = 'ALL'
-                  OR (rp.delete_scope = 'OWN' AND p_owner = current_user)
               END
     )
 $$;
