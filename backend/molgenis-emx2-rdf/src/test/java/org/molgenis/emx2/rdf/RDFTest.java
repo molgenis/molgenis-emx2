@@ -1704,7 +1704,7 @@ example,http://example.com/
       throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
-          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
         generator.generate(schema);
       }
@@ -1718,7 +1718,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
-          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table);
       }
@@ -1735,7 +1735,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
-          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, primaryKey);
       }
@@ -1752,7 +1752,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
-          WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, column);
       }

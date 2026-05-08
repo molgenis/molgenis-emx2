@@ -6,15 +6,15 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum WriterFactory {
+public enum OutputStreamWriterFactory {
   MODEL(RdfModelWriter.class),
   STREAM(RdfStreamWriter.class);
 
-  private static Logger logger = LoggerFactory.getLogger(WriterFactory.class);
+  private static Logger logger = LoggerFactory.getLogger(OutputStreamWriterFactory.class);
 
   private final Class<? extends RdfOutputStreamWriter> rdfWriterClass;
 
-  WriterFactory(Class<? extends RdfOutputStreamWriter> rdfWriterClass) {
+  OutputStreamWriterFactory(Class<? extends RdfOutputStreamWriter> rdfWriterClass) {
     this.rdfWriterClass = rdfWriterClass;
   }
 
