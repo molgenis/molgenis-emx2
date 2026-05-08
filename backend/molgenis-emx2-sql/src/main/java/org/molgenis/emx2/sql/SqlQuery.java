@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
-import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -22,13 +21,15 @@ import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
+  public static final int AGGREGATE_COUNT_THRESHOLD = 10;
+  public static final int AGGREGATE_RANGE_STEPSIZE = 10;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -185,28 +186,10 @@ public class SqlQuery extends QueryBean {
   }
 
   private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        && !getTablesWithSelectPermission().contains("*")
-        && !getTablesWithSelectPermission().contains(table.getTableName())) {
+    if (!PermissionEvaluator.canView(getSchema(), table)) {
       throw new MolgenisException(
           "Cannot retrieve rows: requires VIEWER permission for table: " + table.getTableName());
     }
-  }
-
-  private Set<String> getTablesWithSelectPermission() {
-    if (tablesWithSelectPermission == null) {
-      tablesWithSelectPermission =
-          schema
-              .getDatabase()
-              .getRoleManager()
-              .getTablePermissionsForActiveUser(schema.getName())
-              .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
-              .map(TablePermission::table)
-              .collect(Collectors.toUnmodifiableSet());
-    }
-    return tablesWithSelectPermission;
   }
 
   private List<Field<?>> rowSelectFields(
@@ -707,7 +690,7 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
+        if (PermissionEvaluator.canExists(getSchema(), table)) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
@@ -742,18 +725,13 @@ public class SqlQuery extends QueryBean {
   }
 
   private Field<Integer> getCountField(SqlTableMetadata table) {
-    if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    if (schema.hasActiveUserRole(COUNT.toString())) {
-      return count();
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
-    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
-    }
-    throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    return switch (PermissionEvaluator.getAggregateLevel(getSchema(), table)) {
+      case COUNT -> count();
+      case AGGREGATOR -> field("GREATEST(COUNT(*),{0})", Integer.class, AGGREGATE_COUNT_THRESHOLD);
+      case RANGE ->
+          field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, AGGREGATE_RANGE_STEPSIZE);
+      default -> throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    };
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -767,7 +745,7 @@ public class SqlQuery extends QueryBean {
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
-      throw new MolgenisException("COUNt or SUM is required when using group by");
+      throw new MolgenisException("COUNT or SUM is required when using group by");
     }
 
     // filter conditions
@@ -785,12 +763,7 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn field : groupBy.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(VIEWER.toString())) {
-          aggregationFields.add(field("COUNT(*)"));
-        } else {
-          aggregationFields.add(
-              field("GREATEST({0},COUNT(*))", AGGREGATE_COUNT_THRESHOLD).as(COUNT_FIELD));
-        }
+        aggregationFields.add(getCountField(table).as(COUNT_FIELD));
       } else if (SUM_FIELD.equals(field.getColumn())) {
         List sumFields = new ArrayList<>();
         // sum precision depends on count
@@ -1219,7 +1192,7 @@ public class SqlQuery extends QueryBean {
     switch (operator) {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
         return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
-      case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
+      case NOT_EQUALS: // non_equals to be deprecated for ref columns,
         return or(
             whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
             not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
@@ -1787,5 +1760,9 @@ public class SqlQuery extends QueryBean {
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
+  }
+
+  private Schema getSchema() {
+    return schema.getDatabase().getSchema(schema.getName());
   }
 }

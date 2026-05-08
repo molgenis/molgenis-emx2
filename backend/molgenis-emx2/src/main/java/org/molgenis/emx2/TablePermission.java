@@ -36,6 +36,22 @@ public class TablePermission {
     return isRowLevel;
   }
 
+  public boolean hasSelect() {
+    return Boolean.TRUE.equals(select);
+  }
+
+  public boolean hasInsert() {
+    return Boolean.TRUE.equals(insert);
+  }
+
+  public boolean hasUpdate() {
+    return Boolean.TRUE.equals(update);
+  }
+
+  public boolean hasDelete() {
+    return Boolean.TRUE.equals(delete);
+  }
+
   public TablePermission select(Boolean select) {
     this.select = select;
     return this;

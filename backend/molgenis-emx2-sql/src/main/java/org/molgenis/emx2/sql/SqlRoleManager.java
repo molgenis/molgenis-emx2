@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
+import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
 public class SqlRoleManager {
@@ -366,25 +367,114 @@ public class SqlRoleManager {
   private void applyPgGrants(
       String schemaName, String fullRole, String tableName, TablePermission p) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    if (Boolean.TRUE.equals(p.select())) {
+    if (p.hasSelect()) {
       jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.select())) {
       jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.insert())) {
+    if (p.hasInsert()) {
       jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.insert())) {
       jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.update())) {
+    if (p.hasUpdate()) {
       jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.update())) {
       jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
-    if (Boolean.TRUE.equals(p.delete())) {
+    if (p.hasDelete()) {
       jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.delete())) {
       jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
+    }
+  }
+
+  public List<String> getRoleNames(String schemaName) {
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    return jooq()
+        .select(field(ROLNAME))
+        .from(PG_ROLES)
+        .where(field(ROLNAME).like(inline(rolePrefix + "%")))
+        .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
+  }
+
+  public void addMember(String schemaName, Member member) {
+    List<String> currentRoles = getRoleNames(schemaName);
+    if (!currentRoles.contains(member.getRole())) {
+      throw new MolgenisException(
+          "Add member(s) failed: Role '"
+              + member.getRole()
+              + "' doesn't exist in schema '"
+              + schemaName
+              + "'. Existing roles are: "
+              + currentRoles);
+    }
+    database.tx(
+        db -> {
+          SqlDatabase txDb = (SqlDatabase) db;
+          List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
+          String username = MG_USER_PREFIX + member.getUser();
+          String roleName = MG_ROLE_PREFIX + schemaName + "/" + member.getRole();
+          if (!db.hasUser(member.getUser())) {
+            db.addUser(member.getUser());
+          }
+          boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
+          for (Member old : currentMembers) {
+            if (old.getUser().equals(member.getUser())
+                && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
+              txDb.getJooq()
+                  .execute(
+                      "REVOKE {0} FROM {1}",
+                      name(MG_ROLE_PREFIX + schemaName + "/" + old.getRole()), name(username));
+            }
+          }
+          try {
+            txDb.getJooq().execute("GRANT {0} TO {1}", name(roleName), name(username));
+          } catch (DataAccessException dae) {
+            throw new SqlMolgenisException("Add member failed", dae);
+          }
+        });
+  }
+
+  public List<Member> getMembers(String schemaName) {
+    return getMembers(jooq(), schemaName);
+  }
+
+  private List<Member> getMembers(DSLContext jooq, String schemaName) {
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String userPrefix = MG_USER_PREFIX;
+    List<Member> members = new ArrayList<>();
+    List<Record> result =
+        jooq.fetch(
+            "select distinct m.rolname as member, r.rolname as role"
+                + " from pg_catalog.pg_auth_members am "
+                + " join pg_catalog.pg_roles m on (m.oid = am.member)"
+                + " join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + " where r.rolname LIKE {0} and m.rolname LIKE {1}",
+            rolePrefix + "%", userPrefix + "%");
+    for (Record r : result) {
+      String memberName = r.getValue("member", String.class).substring(userPrefix.length());
+      String roleName = r.getValue("role", String.class).substring(rolePrefix.length());
+      members.add(new Member(memberName, roleName));
+    }
+    return members;
+  }
+
+  public void removeMembers(String schemaName, List<Member> members) {
+    List<String> usernames = members.stream().map(Member::getUser).toList();
+    String userPrefix = MG_USER_PREFIX;
+    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    try {
+      for (Member m : getMembers(schemaName)) {
+        if (usernames.contains(m.getUser())) {
+          jooq()
+              .execute(
+                  "REVOKE {0} FROM {1}",
+                  name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
+        }
+      }
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Remove of member failed", dae);
     }
   }
 
@@ -411,19 +501,13 @@ public class SqlRoleManager {
                        GROUP BY g.table_name""",
                   inline(fullRole), inline(rlsFullRole), inline(schemaName));
       for (Record row : rows) {
-        Boolean select = Boolean.TRUE.equals(row.get("can_select", Boolean.class)) ? true : null;
-        Boolean insert = Boolean.TRUE.equals(row.get("can_insert", Boolean.class)) ? true : null;
-        Boolean update = Boolean.TRUE.equals(row.get("can_update", Boolean.class)) ? true : null;
-        Boolean delete = Boolean.TRUE.equals(row.get("can_delete", Boolean.class)) ? true : null;
-        Boolean rowLevel =
-            Boolean.TRUE.equals(row.get("is_row_level", Boolean.class)) ? true : null;
         result.add(
             new TablePermission(row.get("table_name", String.class))
-                .select(select)
-                .insert(insert)
-                .update(update)
-                .delete(delete)
-                .rowLevel(rowLevel));
+                .select(trueOrNull(row, "can_select"))
+                .insert(trueOrNull(row, "can_insert"))
+                .update(trueOrNull(row, "can_update"))
+                .delete(trueOrNull(row, "can_delete"))
+                .rowLevel(trueOrNull(row, "is_row_level")));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -449,22 +533,10 @@ public class SqlRoleManager {
   }
 
   public List<Role> getRoles(String schemaName) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
-    List<String> roleNames =
-        jooq()
-            .select(field(ROLNAME))
-            .from(PG_ROLES)
-            .where(
-                field(ROLNAME)
-                    .like(inline(rolePrefix + "%"))
-                    .and(field(ROLNAME).notLike(inline(rlsRolePrefix + "%"))))
-            .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
-    List<Role> result = new ArrayList<>();
-    for (String roleName : roleNames) {
-      result.add(getRole(schemaName, roleName));
-    }
-    return result;
+    return getRoleNames(schemaName).stream()
+        .filter(name -> !name.startsWith(RLS_ROLE_PREFIX))
+        .map(name -> getRole(schemaName, name))
+        .toList();
   }
 
   public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
@@ -528,10 +600,7 @@ public class SqlRoleManager {
   }
 
   private static boolean hasAnyPermission(TablePermission p) {
-    return Boolean.TRUE.equals(p.select())
-        || Boolean.TRUE.equals(p.insert())
-        || Boolean.TRUE.equals(p.update())
-        || Boolean.TRUE.equals(p.delete());
+    return p.hasSelect() || p.hasInsert() || p.hasUpdate() || p.hasDelete();
   }
 
   private static boolean hasAnyDml(TablePermission p) {
@@ -542,6 +611,10 @@ public class SqlRoleManager {
 
   private static Boolean orBool(Boolean a, Boolean b) {
     return Boolean.TRUE.equals(a) || Boolean.TRUE.equals(b) ? true : null;
+  }
+
+  private static Boolean trueOrNull(Record row, String field) {
+    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? true : null;
   }
 
   public boolean isSystemRole(String roleName) {

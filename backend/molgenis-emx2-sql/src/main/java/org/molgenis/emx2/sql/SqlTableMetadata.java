@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
@@ -422,8 +421,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setSettings(Map<String, String> settings) {
-    if (getDatabase().isAdmin()
-        || ((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
+    if (PermissionEvaluator.canUpdate(getDatabase().getSchema(getSchemaName()), this)) {
       getDatabase()
           .tx(
               db ->
