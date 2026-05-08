@@ -12,10 +12,10 @@ from molgenis_emx2_pyclient.metadata import Schema, Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 from pandas._libs.missing import NAType
 
-from staging_migrator.src.molgenis_emx2_staging_migrator.constants import BASE_DIR
-from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException, \
+from .constants import BASE_DIR
+from .exceptions import MissingContactException, \
     MissingHRICoreException, DraftException
-from staging_migrator.src.molgenis_emx2_staging_migrator.migrator import SchemaType
+from .migrator import SchemaType
 
 log = logging.getLogger(__name__)
 
