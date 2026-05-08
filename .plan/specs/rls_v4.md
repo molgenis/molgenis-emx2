@@ -116,15 +116,25 @@
 | `change(tables:[{name, rlsEnabled}])` toggles | GraphqlSchemaMutations | TestGraphqlTables.toggleRls | rlsEnabled toggle |
 | `_schema.members` UNION (system + custom + custom-no-group) | GraphqlSchemaFieldFactory | TestGraphqlMembers.membersUnion | members table |
 | `change(members:[{user, role, group?}])` — system + group rejected | GraphqlSchemaMutations | TestGraphqlMembers.systemRoleNoGroup | — |
-| Custom role no group ⇒ PG GRANT only, no membership row | Schema.changeMembers | TestGraphqlMembers.customRoleNoGroupGrantOnly | — |
-| Custom role with group ⇒ PG GRANT + membership row | Schema.changeMembers | TestGraphqlMembers.customRoleWithGroupBoth | — |
-| `drop(members)` group-aware: present removes that row only; absent revokes role + clears all rows | GraphqlSchemaMutations | TestGraphqlMembers.dropGroupAware | — |
+| Custom role no group ⇒ schema-wide NULL-group row; supersedes any group-bound rows for same (user, role) | Schema.changeMembers / SqlRoleManager.grantRoleToUser | TestGraphqlSchemaMembers.changeMember_customRoleNoGroup_supersedesGroupScopedRows / TestSqlRoleManager.addMember_withoutGroup_supersedesExistingGroupBoundRows / TestSchemaWideCustomGrants.grantSchemaWide_supersedesExistingGroupScopedGrants | — |
+| Custom role with group ⇒ PG GRANT + membership row; leaves other rows alone | Schema.changeMembers | TestGraphqlSchemaMembers.customRoleRows_groupSet | — |
+| `drop(members)` no group: revokes PG role + clears ALL rows for (user, role, schema) | SqlRoleManager.revokeRoleFromUser | TestSqlRoleManager.removeMember_withoutGroup_clearsAllRowsAndRevokesPgRole_evenWhenGroupBoundRowsExist / TestSchemaWideCustomGrants.dropSchemaWideGrant_alsoRemovesGroupScopedGrant | — |
+| `drop(members)` with group: removes only that row; PG REVOKE only if no rows remain | SqlRoleManager.removeGroupMembership | TestGraphqlSchemaMembers.dropMember_withGroup_leavesOtherGroupMembershipIntact | — |
 | Escalation guard: only admin/Owner/Manager grants any custom role | GraphqlSchemaMutations | TestGraphqlMembers.escalationGuard | — |
 | `_schema.groups` + `change/drop(groups)` central mutations | GraphqlSchemaMutations | TestGraphqlGroups.crud | groups admin |
 
+## Cross-schema FK + RLS visibility
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| `retrieveJSON` subfield expansion filters invisible FK targets via auto-join + RLS | SqlQuery.refJoins | TestCrossSchemaFkRlsVisibility.joinResolvesOnlyVisibleParents | — |
+| REF_ARRAY resolution drops invisible elements via auto-join + RLS | SqlQuery.refJoins | TestCrossSchemaFkRlsVisibility.refArrayDropsInvisibleElements | — |
+| RLS-filtered Parent returns only visible rows; invisible parent unreachable via refback path | mg_can_read | TestCrossSchemaFkRlsVisibility.refbackEmptyForInvisibleParent | — |
+| Inheritance composition: subclass rows owned by another user not visible through Parent query | mg_can_read + per-table policy | TestCrossSchemaFkRlsVisibility.inheritanceCompositionFiltersChildSubclass | — |
+| `retrieveRows()` clamps FK scalar to null for invisible RLS-target via LEFT JOIN | SqlQuery.buildRlsClampAliases + addRlsClampJoins | TestCrossSchemaFkRlsVisibility.scalarRefProjectsNullForInvisibleParent | — |
+
 ## Open requirements (to-do, become rows above as implemented)
 
-- REQ-A: Cross-schema FK target visibility (Phase F.1).
 - REQ-B: Performance benchmark < 2× non-RLS baseline at 1M / 5 / 100 / 10k.
 - REQ-C: Operator runbook published in `docs/`.
 - REQ-D: Materialised view fallback decision pending benchmark.

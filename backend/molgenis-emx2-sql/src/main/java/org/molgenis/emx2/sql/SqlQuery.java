@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
+  public static int AGGREGATE_COUNT_THRESHOLD = 10;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -138,12 +138,16 @@ public class SqlQuery extends QueryBean {
       ;
     }
 
+    Map<String, String> rlsClampAliases = buildRlsClampAliases(table, tableAlias, select);
+
     // basequery
     SelectJoinStep<org.jooq.Record> from =
         table
             .getJooq()
-            .select(rowSelectFields(table, tableAlias, select))
+            .select(rowSelectFields(table, tableAlias, select, rlsClampAliases))
             .from(tableWithInheritanceJoin(table).as(alias(tableAlias)));
+
+    from = addRlsClampJoins(table, tableAlias, select, from, rlsClampAliases);
 
     // joins, only filtered tables
     from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
@@ -212,6 +216,14 @@ public class SqlQuery extends QueryBean {
 
   private List<Field<?>> rowSelectFields(
       TableMetadata table, String tableAlias, SelectColumn selection) {
+    return rowSelectFields(table, tableAlias, selection, Map.of());
+  }
+
+  private List<Field<?>> rowSelectFields(
+      TableMetadata table,
+      String tableAlias,
+      SelectColumn selection,
+      Map<String, String> rlsClampAliases) {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
@@ -236,6 +248,19 @@ public class SqlQuery extends QueryBean {
         if (select.has("extension")) {
           fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
+      } else if (column.isRef() && rlsClampAliases.containsKey(column.getName())) {
+        shouldNotExpandBeyondPkey(select, column);
+        String clampAlias = rlsClampAliases.get(column.getName());
+        String nullCheckField = column.getReferences().get(0).getRefTo();
+        Condition targetVisible = field(name(alias(clampAlias), nullCheckField)).isNotNull();
+        fields.addAll(
+            column.getReferences().stream()
+                .map(
+                    ref ->
+                        when(targetVisible, field(name(alias(tableAlias), ref.getName())))
+                            .otherwise((Object) null)
+                            .as(name(ref.getName())))
+                .toList());
       } else if (column.isRef() || column.isRefArray()) {
         shouldNotExpandBeyondPkey(select, column);
         fields.addAll(
@@ -271,6 +296,36 @@ public class SqlQuery extends QueryBean {
                     "Row subselect can only contain primary keys. Found: " + subselect.getColumn());
               }
             });
+  }
+
+  private Map<String, String> buildRlsClampAliases(
+      TableMetadata table, String tableAlias, SelectColumn selection) {
+    Map<String, String> result = new LinkedHashMap<>();
+    for (SelectColumn select : selection.getSubselect()) {
+      Column column = getColumnByName(table, select.getColumn());
+      if (column.isRef() && column.getRefTable().getRlsEnabled()) {
+        result.put(column.getName(), tableAlias + "-rlsclamp-" + column.getName());
+      }
+    }
+    return result;
+  }
+
+  private SelectJoinStep<org.jooq.Record> addRlsClampJoins(
+      TableMetadata table,
+      String tableAlias,
+      SelectColumn selection,
+      SelectJoinStep<org.jooq.Record> join,
+      Map<String, String> rlsClampAliases) {
+    for (SelectColumn select : selection.getSubselect()) {
+      Column column = getColumnByName(table, select.getColumn());
+      if (column.isRef() && rlsClampAliases.containsKey(column.getName())) {
+        String clampAlias = rlsClampAliases.get(column.getName());
+        join =
+            join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(alias(clampAlias)))
+                .on(refJoinCondition(column, tableAlias, clampAlias));
+      }
+    }
+    return join;
   }
 
   private Field<String> intervalField(String tableAlias, Column column) {
@@ -768,6 +823,9 @@ public class SqlQuery extends QueryBean {
         schema.getDatabase().getRoleManager().getCustomRoleSelectScope(schema.getName(), table);
     if (customScope != null) {
       if (customScope.allowsExactCount()) return count().cast(Long.class);
+      if (customScope == SelectScope.COUNT || customScope == SelectScope.AGGREGATE) {
+        return field("GREATEST(COUNT(*),{0})", Long.class, 10L);
+      }
       if (customScope == SelectScope.RANGE) {
         return field("\"MOLGENIS\".mg_privacy_count(COUNT(*))", Long.class);
       }

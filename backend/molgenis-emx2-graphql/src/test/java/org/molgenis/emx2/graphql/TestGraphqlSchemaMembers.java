@@ -325,6 +325,41 @@ class TestGraphqlSchemaMembers {
   }
 
   @Test
+  void changeMember_customRoleNoGroup_supersedesGroupScopedRows() throws IOException {
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_TEAM_A, USER_ALICE, ROLE_REVIEWER);
+
+    assertTrue(
+        queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
+        "Pre-condition: USER_ALICE must be in TeamA before schema-wide grant");
+
+    String mutation =
+        "mutation { change(members: [{user: \""
+            + USER_ALICE
+            + "\", role: \""
+            + ROLE_REVIEWER
+            + "\"}]) { message } }";
+
+    JsonNode result = executeAdmin(mutation);
+    assertFalse(result.has("errors"), "Schema-wide grant (no group) must succeed");
+
+    try {
+      assertFalse(
+          queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
+          "Group-bound row must be superseded: USER_ALICE must no longer appear in TeamA after schema-wide grant");
+
+      List<MemberRow> schemaWideRows =
+          findMemberRows(USER_ALICE, null).stream()
+              .filter(r -> ROLE_REVIEWER.equals(r.role()))
+              .toList();
+      assertFalse(
+          schemaWideRows.isEmpty(),
+          "Schema-wide (null-group) row must exist for USER_ALICE after supersede");
+    } finally {
+      roleManager.revokeRoleFromUser(schema, ROLE_REVIEWER, USER_ALICE);
+    }
+  }
+
+  @Test
   void changeMember_systemRoleWithGroup_rejected() throws IOException {
     assertFalse(
         querySystemMembersByRole("Editor").contains(USER_ALICE),
@@ -381,6 +416,42 @@ class TestGraphqlSchemaMembers {
     assertFalse(
         queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
         "USER_ALICE must no longer appear in _schema.groups[TeamA].users after drop");
+  }
+
+  @Test
+  void dropMember_withGroup_leavesOtherGroupMembershipIntact() throws IOException {
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_RESEARCH_TEAM, USER_ALICE, ROLE_REVIEWER);
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_TEAM_A, USER_ALICE, ROLE_REVIEWER);
+
+    assertTrue(
+        queryGroupUsers(GROUP_RESEARCH_TEAM).contains(USER_ALICE),
+        "Pre-condition: USER_ALICE must be in ResearchTeam before drop");
+    assertTrue(
+        queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
+        "Pre-condition: USER_ALICE must be in TeamA before drop");
+
+    String mutation =
+        "mutation { drop(members: [{user: \""
+            + USER_ALICE
+            + "\", role: \""
+            + ROLE_REVIEWER
+            + "\", group: \""
+            + GROUP_TEAM_A
+            + "\"}]) { message } }";
+
+    executeAdmin(mutation);
+
+    try {
+      assertFalse(
+          queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
+          "drop(members) with group must remove USER_ALICE from TeamA");
+      assertTrue(
+          queryGroupUsers(GROUP_RESEARCH_TEAM).contains(USER_ALICE),
+          "drop(members) with group must not remove USER_ALICE from ResearchTeam");
+    } finally {
+      roleManager.removeGroupMembership(
+          SCHEMA_NAME, GROUP_RESEARCH_TEAM, USER_ALICE, ROLE_REVIEWER);
+    }
   }
 
   @Test

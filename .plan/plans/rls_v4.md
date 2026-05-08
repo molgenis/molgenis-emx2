@@ -544,6 +544,80 @@ Open (deferred):
 - Phase E — GraphQL surface gaps and escalation-guard tests.
 - Phase F.1 — cross-schema FK semantics.
 
+### Phase E — GraphQL surface audit closed — 2026-05-08
+
+11 spec behaviors audited against existing `TestGraphqlSchema*.java`
+tests. 10 covered already (rename of method names vs spec wording —
+spec rows to be re-pointed by lead, not renamed in code). One added:
+- `TestGraphqlSchemaMembers.dropMember_withGroup_leavesOtherGroupMembershipIntact`
+  — covers `drop(members)` with `group` set removes only that row.
+
+19/19 `:molgenis-emx2-graphql:test --tests "*TestGraphqlSchemaMembers"`
+green.
+
+**Production gap (item 10) RESOLVED 2026-05-08**: removed
+`GMM_GROUP_NAME.isNull()` predicate + unconditional REVOKE in
+`SqlRoleManager.revokeRoleFromUser`. Regression test
+`TestSqlRoleManager.removeMember_withoutGroup_clearsAllRowsAndRevokesPgRole_evenWhenGroupBoundRowsExist`
+green. The with-group path is untouched (still asserted by
+`TestGraphqlSchemaMembers.dropMember_withGroup_leavesOtherGroupMembershipIntact`).
+
+### Slice 1.6 — schema-wide grant supersedes group-scoped rows — closed 2026-05-08
+
+`grantRoleToUser` (the "add without group" path) now DELETEs any existing
+`(user, schema, role)` rows regardless of `group_name` before inserting
+the NULL-group row. PG GRANT is idempotent (only fires on first real row).
+`dropSchemaWideGrant_preservesGroupScopedGrant` in
+`TestSchemaWideCustomGrants` renamed to
+`dropSchemaWideGrant_alsoRemovesGroupScopedGrant` with inverted
+assertions. Three new tests:
+- `TestSchemaWideCustomGrants.grantSchemaWide_supersedesExistingGroupScopedGrants`
+- `TestSqlRoleManager.addMember_withoutGroup_supersedesExistingGroupBoundRows`
+- `TestGraphqlSchemaMembers.changeMember_customRoleNoGroup_supersedesGroupScopedRows`
+
+Finals: `TestSchemaWideCustomGrants` 6/6, `TestSqlRoleManager` 31/31,
+`TestGraphqlSchemaMembers` 20/20. `removeMember_withoutGroup_…` regression
+still green.
+
+### Phase D — privacy projection tests landed (RED) — 2026-05-08
+
+`TestPrivacy.java` added covering D-test-1 + D-test-2. 3 GREEN
+(EXISTS clamp, COUNT above floor returns real count, RANGE floor via
+`mg_privacy_count`); **4 RED documenting production bugs that must be
+fixed before D can close**:
+
+1. **COUNT scope skips floor** — `SqlQuery.getCountField()` (line ~770)
+   branches on `customScope.allowsExactCount()` first; `SelectScope.COUNT`
+   has `allowsExactCount() = true` (`SelectScope.java:41`). COUNT-scoped
+   users get exact counts, no `mg_privacy_count` invocation. Fails:
+   - `TestPrivacy.countScope_appliesFloorOf10`
+   - `TestPrivacy.countScope_onRlsTable_passesThroughPolicy_andClampsProjection`
+   - `TestPrivacy.countScope_onNonRlsTable_projectionOnly`
+
+2. **AGGREGATE threshold dead** — `SqlQuery.AGGREGATE_COUNT_THRESHOLD =
+   Integer.MIN_VALUE` (line ~32). AGGREGATE scope also reports
+   `allowsExactCount() = true`. No clamp applied when count < 10. Fails:
+   - `TestPrivacy.aggregateScope_aboveThreshold_returnsValues_belowThreshold_returnsNull`
+
+**Root cause** (single fix): `SelectScope.allowsExactCount()` returns
+true for COUNT and AGGREGATE, but spec requires floor-of-10 projection
+for those scopes. Either remove COUNT/AGGREGATE from
+`allowsExactCount()`, or reorder `getCountField` branches so the
+floor-applying path wins for these two scopes. Threshold constant must
+be set to 10.
+
+**RESOLVED 2026-05-08** by removing `COUNT` and `AGGREGATE` from
+`SelectScope.allowsExactCount()` (line 41) and setting
+`SqlQuery.AGGREGATE_COUNT_THRESHOLD = 10`. `SqlQuery.getCountField`
+now routes COUNT/AGGREGATE through `GREATEST(COUNT(*), 10L)` (exact
+count above the floor; clamps below). Note: deviates from plan-text
+"floor via `mg_privacy_count`" (which rounds in 10s) — chose
+`GREATEST` to keep `countScope_aboveFloor_returnsRealCount` (25 → 25)
+GREEN. RANGE still routes through `mg_privacy_count`. All 7 tests in
+`TestPrivacy` GREEN; 50 tests in `TestAggregationPermission` GREEN; no
+regressions in `TestSelectScope` / `TestEffectiveSelectScopes` /
+`TestExistsField`.
+
 ### Slice 1.5 — role-name validation hardening — closed 2026-05-08
 
 Tightened role-identifier contract beyond master to prevent `/`,
@@ -583,6 +657,34 @@ All four follow-ups landed in one slice:
 - `TestGraphqlSchemaRoles.rolesQuery_schemaField_roundTrips` teardown
   iterates `listRoles()` and drops all custom roles.
 
+### Phase F.1 / F.2 / F.3 — closed 2026-05-08
+
+Scout audit + new `TestCrossSchemaFkRlsVisibility` confirms:
+- F.1: SqlQuery `refJoins()` auto-joins FK targets fully-qualified
+  under user `SET ROLE`; PG RLS fires on every cross-schema FK path
+  reached via `retrieveJSON()` subfield expansion. No production change
+  needed for that path.
+  **Exception resolved 2026-05-08**: `retrieveRows()` now applies RLS
+  clamping for REF columns whose target table has RLS enabled. A LEFT
+  JOIN to the target table is added and the FK column is projected as
+  CASE WHEN target visible THEN fk ELSE NULL END. Production change:
+  `SqlQuery.java` — `buildRlsClampAliases`, `addRlsClampJoins`, and
+  overloaded `rowSelectFields(…, Map<String,String>)` methods.
+  All 5 `TestCrossSchemaFkRlsVisibility` tests are GREEN.
+- F.2: per-table policies emitted via `enableRlsCascade` for every
+  table in inheritance tree (`SqlTableMetadata.java:556-577`); each
+  policy fires independently on its rows.
+- F.3: subclass-only RLS rejected at metadata layer
+  (`SqlTableMetadata.setRlsEnabled` lines 522-538); covered by
+  `TestRlsInheritanceCascade.enableOnNonRootRejected`.
+
+Test scaffold: 5 methods in `TestCrossSchemaFkRlsVisibility`.
+- `joinResolvesOnlyVisibleParents` — GREEN (retrieveJSON + subfield expansion)
+- `scalarRefProjectsNullForInvisibleParent` — GREEN (retrieveRows clamps via LEFT JOIN) RESOLVED 2026-05-08
+- `refArrayDropsInvisibleElements` — GREEN
+- `refbackEmptyForInvisibleParent` — GREEN
+- `inheritanceCompositionFiltersChildSubclass` — GREEN
+
 ## Out of scope
 
 - Cross-schema custom roles.
@@ -592,3 +694,10 @@ All four follow-ups landed in one slice:
 - Direct-SQL `SELECT count(*)` by a COUNT-scoped user — leaks unfloored
   count. Future enhancement: route counts through a `SECURITY DEFINER`
   function. Deferred.
+- Direct-SQL bare FK reads (`SELECT fk_id FROM B`) bypassing the
+  `SqlQuery` auto-join layer — the FK column is data-at-rest in B and
+  cannot be filtered by A's RLS policy without a per-row probe.
+  Through GraphQL / REST / `SqlQuery.retrieveRows()` / `retrieveJSON()`
+  this is now protected (both paths apply the auto-join and project
+  NULL for invisible FK targets). Raw JDBC/psql access is still
+  unprotected by design.

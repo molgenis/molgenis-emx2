@@ -38,7 +38,7 @@ public enum SelectScope {
   }
 
   public boolean allowsExactCount() {
-    return this == ALL || this == OWN || this == GROUP || this == COUNT || this == AGGREGATE;
+    return this == ALL || this == OWN || this == GROUP;
   }
 
   public static SelectScope fromString(String name) {

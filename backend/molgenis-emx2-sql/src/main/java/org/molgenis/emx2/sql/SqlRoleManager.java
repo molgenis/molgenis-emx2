@@ -403,10 +403,16 @@ public class SqlRoleManager {
         adminJooq -> {
           boolean isFirstRow = !membershipRowExists(adminJooq, schemaName, username, roleName);
           adminJooq
+              .deleteFrom(GROUP_MEMBERSHIP_METADATA)
+              .where(
+                  GMM_USER_NAME.eq(username),
+                  GMM_SCHEMA_NAME.eq(schemaName),
+                  GMM_ROLE_NAME.eq(roleName))
+              .execute();
+          adminJooq
               .insertInto(GROUP_MEMBERSHIP_METADATA)
               .columns(GMM_USER_NAME, GMM_SCHEMA_NAME, GMM_GROUP_NAME, GMM_ROLE_NAME)
               .values(username, schemaName, (String) null, roleName)
-              .onConflictDoNothing()
               .execute();
           if (isFirstRow) {
             adminJooq.execute("GRANT {0} TO {1}", name(fullRole), name(fullUser));
@@ -427,12 +433,9 @@ public class SqlRoleManager {
               .where(
                   GMM_USER_NAME.eq(username),
                   GMM_SCHEMA_NAME.eq(schemaName),
-                  GMM_GROUP_NAME.isNull(),
                   GMM_ROLE_NAME.eq(roleName))
               .execute();
-          if (!membershipRowExists(adminJooq, schemaName, username, roleName)) {
-            adminJooq.execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
-          }
+          adminJooq.execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
         });
     database.getListener().onSchemaChange();
   }

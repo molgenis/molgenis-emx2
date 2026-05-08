@@ -61,24 +61,24 @@ class TestGetCountField {
   }
 
   @Test
-  void customRoleSelectCount_returnsExactCount() throws Exception {
+  void customRoleSelectCount_returnsFlooredCount() throws Exception {
     grantCustomRole(SelectScope.COUNT);
     db.setActiveUser(TEST_USER);
     try {
       int count = queryCount();
-      assertEquals(3, count);
+      assertEquals(10, count);
     } finally {
       db.becomeAdmin();
     }
   }
 
   @Test
-  void customRoleSelectAggregate_returnsExactCount() throws Exception {
+  void customRoleSelectAggregate_returnsFlooredCount() throws Exception {
     grantCustomRole(SelectScope.AGGREGATE);
     db.setActiveUser(TEST_USER);
     try {
       int count = queryCount();
-      assertEquals(3, count);
+      assertEquals(10, count);
     } finally {
       db.becomeAdmin();
     }

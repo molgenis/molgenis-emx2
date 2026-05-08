@@ -78,7 +78,7 @@ class TestSqlRoleManager {
   @Test
   void createRole_rejectsInvalidNames() {
     for (String invalid :
-        new String[] {"bad/name", "bad name", "bad_name", "1leading", "-leading"}) {
+        new String[] {"bad/name", "bad name", "1leading", "-leading", "_leading"}) {
       assertThrows(
           MolgenisException.class,
           () -> roleManager.createRole(SCHEMA_A, invalid),
@@ -89,6 +89,11 @@ class TestSqlRoleManager {
   @Test
   void createRole_acceptsValidHyphenatedName() {
     assertDoesNotThrow(() -> roleManager.createRole(SCHEMA_A, "good-name"));
+  }
+
+  @Test
+  void createRole_acceptsUnderscoreInMiddle() {
+    assertDoesNotThrow(() -> roleManager.createRole(SCHEMA_A, "good_name"));
   }
 
   @Test
@@ -558,6 +563,115 @@ class TestSqlRoleManager {
     } finally {
       db.becomeAdmin();
     }
+  }
+
+  // ── revokeRoleFromUser: clears all rows regardless of group_name ──────────
+
+  @Test
+  void removeMember_withoutGroup_clearsAllRowsAndRevokesPgRole_evenWhenGroupBoundRowsExist() {
+    String roleName = "revoke-all-role";
+    roleManager.createRole(SCHEMA_ENF, roleName);
+    roleManager.createGroup(schemaEnf, "g1");
+
+    roleManager.grantRoleToUser(schemaEnf, roleName, USER_ALICE);
+    roleManager.addGroupMembership(SCHEMA_ENF, "g1", USER_ALICE, roleName);
+
+    int rowsBefore =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(2, rowsBefore, "Setup: must have 2 membership rows before revoke");
+
+    roleManager.revokeRoleFromUser(schemaEnf, roleName, USER_ALICE);
+
+    int rowsAfter =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(0, rowsAfter, "All membership rows must be deleted after no-group revoke");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, roleName);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(0, pgGrantCount, "PG role must be revoked after no-group drop");
+
+    roleManager.deleteGroup(schemaEnf, "g1");
+  }
+
+  // ── grantRoleToUser: schema-wide supersedes group-bound rows ─────────────
+
+  @Test
+  void addMember_withoutGroup_supersedesExistingGroupBoundRows() {
+    String roleName = "supersede-role";
+    roleManager.createRole(SCHEMA_ENF, roleName);
+    roleManager.createGroup(schemaEnf, "sg1");
+
+    roleManager.addGroupMembership(SCHEMA_ENF, "sg1", USER_ALICE, roleName);
+
+    int rowsBefore =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(1, rowsBefore, "Setup: one group-bound row must exist before schema-wide grant");
+
+    roleManager.grantRoleToUser(schemaEnf, roleName, USER_ALICE);
+
+    int nullGroupCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name IS NULL",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(
+        1, nullGroupCount, "Exactly one NULL-group row must exist after schema-wide grant");
+
+    int sg1Count =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName,
+                "sg1")
+            .get(0, Integer.class);
+    assertEquals(0, sg1Count, "Group-bound row must be superseded by schema-wide grant");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, roleName);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(1, pgGrantCount, "PG role must still be granted after schema-wide supersede");
+
+    roleManager.deleteGroup(schemaEnf, "sg1");
   }
 
   // ── enforcement helpers ───────────────────────────────────────────────────

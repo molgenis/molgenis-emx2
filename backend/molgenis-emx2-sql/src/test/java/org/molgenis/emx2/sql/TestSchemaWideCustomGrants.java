@@ -116,7 +116,7 @@ class TestSchemaWideCustomGrants {
   }
 
   @Test
-  void dropSchemaWideGrant_preservesGroupScopedGrant() {
+  void dropSchemaWideGrant_alsoRemovesGroupScopedGrant() {
     setupRole(ROLE_STAFF, SelectScope.ALL, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
     db.becomeAdmin();
     schema
@@ -128,14 +128,95 @@ class TestSchemaWideCustomGrants {
 
     roleManager.revokeRoleFromUser(schema, ROLE_STAFF, USER_ALICE);
 
-    db.setActiveUser(USER_ALICE);
-    try {
-      List<Row> rows = schema.getTable(TABLE_NAME).retrieveRows();
-      assertFalse(
-          rows.isEmpty(), "Group-scoped grant must survive revocation of schema-wide grant");
-    } finally {
-      db.becomeAdmin();
-    }
+    int rowCount =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_NAME,
+                USER_ALICE,
+                ROLE_STAFF)
+            .get(0, Integer.class);
+    assertEquals(0, rowCount, "All membership rows must be gone after no-group revoke");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_NAME, ROLE_STAFF);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(0, pgGrantCount, "PG role must be revoked after no-group drop");
+  }
+
+  @Test
+  void grantSchemaWide_supersedesExistingGroupScopedGrants() {
+    setupRole(ROLE_STAFF, SelectScope.ALL, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
+    db.becomeAdmin();
+
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_DEPT1, USER_ALICE, ROLE_STAFF);
+
+    int rowsBefore =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_NAME,
+                USER_ALICE,
+                ROLE_STAFF)
+            .get(0, Integer.class);
+    assertEquals(1, rowsBefore, "Setup: one group-bound row must exist before schema-wide grant");
+
+    roleManager.grantRoleToUser(schema, ROLE_STAFF, USER_ALICE);
+
+    int nullGroupCount =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name IS NULL",
+                SCHEMA_NAME,
+                USER_ALICE,
+                ROLE_STAFF)
+            .get(0, Integer.class);
+    assertEquals(
+        1, nullGroupCount, "Exactly one NULL-group row must exist after schema-wide grant");
+
+    int dept1Count =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name = ?",
+                SCHEMA_NAME,
+                USER_ALICE,
+                ROLE_STAFF,
+                GROUP_DEPT1)
+            .get(0, Integer.class);
+    assertEquals(0, dept1Count, "DEPT1-bound row must be gone after schema-wide grant supersedes");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_NAME, ROLE_STAFF);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        ((SqlDatabase) db)
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(1, pgGrantCount, "PG role must still be granted after schema-wide supersede");
   }
 
   @Test
