@@ -104,4 +104,16 @@ class ServeStaticFileTest {
     verify(ctx).status(404);
     verify(ctx, times(2)).result(NOT_FOUND + ctx.path());
   }
+
+  @Test
+  void testServeAppAsset_WithContextPath() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(anyInt())).thenReturn(ctx);
+    when(ctx.path()).thenReturn("/molgenis/schema/test-app/test-assets/styling.css");
+    when(ctx.contextPath()).thenReturn("/molgenis");
+
+    ServeStaticFile.serve(ctx);
+
+    verify(ctx).header("Content-Type", "text/css");
+  }
 }
