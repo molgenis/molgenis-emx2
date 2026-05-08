@@ -18,6 +18,7 @@ import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
 import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
+import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public abstract class RdfParser {
   static final ClassLoader classLoader = RdfParser.class.getClassLoader();
@@ -53,7 +54,7 @@ public abstract class RdfParser {
               .newInstance(writerArgs.toArray())) {
         RdfGenerator generator =
             generatorClass
-                .getConstructor(RdfOutputStreamWriter.class, String.class)
+                .getConstructor(RdfWriter.class, String.class)
                 .newInstance(writer, BASE_URL);
         method.invoke(generator, methodArgs);
       } catch (InvocationTargetException
