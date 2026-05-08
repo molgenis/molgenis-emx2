@@ -211,14 +211,14 @@ class StagingMigrator(Client):
 
         self.upload_zip_stream(upload_stream)
         if len(self.errors) != 0:
-            if "delete on table \"Resources\" violates foreign key constraint" in self.errors[0]:
-                error_msg = (f"{self.errors[0].split('Details: ')[1].split(' in ')[0]}. "
+            if "delete on table \"Resources\" violates foreign key constraint" in self.errors[-1]:
+                error_msg = (f"{self.errors[-1].split('Details: ')[1].split(' in ')[0]}. "
                              f"First delete it manually from 'Resources.data resources' in the catalogue.")
                 self.cleanup()
                 raise ReferenceDeleteError(error_msg)
             else:
                 self.cleanup()
-                raise StagingMigratorException(self.errors[0])
+                raise StagingMigratorException(self.errors[-1])
         self.cleanup()
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
@@ -236,6 +236,7 @@ class StagingMigrator(Client):
         source_df = load_table('source', table)
         target_df = load_table('target', table)
 
+        # Checks whether the source table contains draft records
         check_draft(source_df, table.name)
 
         # Filter the rows in the target table that reference the Resource identifiers
