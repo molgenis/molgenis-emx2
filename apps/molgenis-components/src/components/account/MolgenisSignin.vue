@@ -58,6 +58,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
+import { getContextPath } from "../../utils/contextPath";
 import { privacyConstants } from "../constants.js";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
@@ -112,7 +113,7 @@ export default defineComponent({
         this.error = "";
         this.loading = true;
         request(
-          "/api/graphql",
+          getContextPath() + "/api/graphql",
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then(

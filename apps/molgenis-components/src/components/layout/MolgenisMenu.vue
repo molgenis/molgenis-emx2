@@ -12,7 +12,7 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a v-if="logo" class="navbar-brand" href="/">
+    <a v-if="logo" class="navbar-brand" :href="homeHref">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <div
@@ -64,6 +64,7 @@
 
 <script>
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import { getContextPath } from "../../utils/contextPath";
 
 /** You can use the slot to put a component in the right of menu, e.g. an 'Account' component */
 export default {
@@ -80,6 +81,11 @@ export default {
     items: Array,
     /** logo to show*/
     logo: String,
+    /** home link href for logo click, defaults to context path root */
+    homeHref: {
+      type: String,
+      default: () => getContextPath() + "/",
+    },
     /** session information, so we can check role permissions */
     session: Object,
     /** prefix for relative href. Will default to schema name, i.e. first directory in path, e.g. "/pet store/ */

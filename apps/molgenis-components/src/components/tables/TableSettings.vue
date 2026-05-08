@@ -36,6 +36,7 @@
 
 <script>
 import { request } from "../../client/client.ts";
+import { getContextPath } from "../../utils/contextPath";
 import IconAction from "../forms/IconAction.vue";
 import InputText from "../forms/InputText.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
@@ -119,7 +120,7 @@ export default {
         };
       });
       const resp = await request(
-        this.schemaId ? "/" + this.schemaId + "/graphql" : "graphql",
+        this.schemaId ? getContextPath() + "/" + this.schemaId + "/graphql" : "graphql",
         `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
         { settings: settings }
       ).catch((error) => {

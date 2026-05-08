@@ -57,6 +57,7 @@ import Spinner from "../layout/Spinner.vue";
 
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
+import { getContextPath } from "../../utils/contextPath";
 
 export default defineComponent({
   components: {
@@ -95,7 +96,7 @@ export default defineComponent({
         this.error = null;
         this.loading = true;
         request(
-          "/api/graphql",
+          getContextPath() + "/api/graphql",
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data: { signup: { status: string; message: string } }) => {

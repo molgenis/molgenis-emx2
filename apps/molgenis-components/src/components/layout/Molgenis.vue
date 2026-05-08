@@ -66,6 +66,7 @@ import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import MolgenisMenu from "./MolgenisMenu.vue";
+import { getContextPath } from "../../utils/contextPath";
 
 const defaultSchemaMenuItems: MenuItem[] = [
   {
@@ -127,6 +128,9 @@ const props = withDefaults(
   { menuItems: () => [], showCrumbs: true }
 );
 
+const session = ref<Record<string, any> | null>(null);
+const logoURL = ref<string | null>(null);
+
 const menu = ref<MenuItem[]>([]);
 
 if (props.menuItems.length) {
@@ -139,25 +143,24 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: Record<string, any> | null): void;
   (e: "error", error: any): void;
 }>();
-
-const session = ref<Record<string, any> | null>(null);
-const logoURL = ref<string | null>(null);
 const timestamp = ref(Date.now());
 const analyticsId = ref<string | null>(null);
 const cookieWallContent = ref<string | null>(null);
 
+const contextPath = computed(() => getContextPath());
+
 const schemaUrlsForCrumbs = computed(() => {
+  const cp = contextPath.value;
   let result: Record<string, any> = {
-    "list all databases": "/apps/central/",
+    "list all databases": cp + "/apps/central/",
   };
-  //all databases
   if (session.value?.schemas) {
     session.value.schemas
       .sort((a: string, b: string) =>
         a.localeCompare(b, undefined, { sensitivity: "base" })
       )
       .forEach((schema: string) => {
-        result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
+        result[schema] = cp + "/" + schema + "/index";
       });
   }
   return result;
@@ -166,17 +169,25 @@ const schemaUrlsForCrumbs = computed(() => {
 const crumbs = computed(() => {
   let result: Record<string, any> = {};
   if (window && location) {
+    const cp = contextPath.value;
+    const contextSegmentCount = cp.split("/").filter(Boolean).length;
+
     let path = decodeURI(
       window.location.pathname.replace(location.search, "")
     ).split("/");
-    let url = "/";
-    if (window.location.pathname != "/apps/central/") {
-      let appPath = "index"; //use to get 'index' added to first breadcrumb
+    let url = cp + "/";
+    if (!window.location.pathname.includes("/apps/central/")) {
+      let appPath = "index";
+      let segIdx = 0;
       path.forEach((el) => {
         if (el !== "") {
+          segIdx++;
+          if (segIdx <= contextSegmentCount) {
+            return; // skip context path segments in breadcrumb
+          }
           url += el + "/";
           result[el] = url + appPath;
-          appPath = ""; //only on /schema/index after that nothing
+          appPath = "";
         }
       });
     }
@@ -196,7 +207,8 @@ const crumbs = computed(() => {
 const logoURLorDefault = computed(() => {
   return (
     logoURL.value ??
-    "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
+    contextPath.value +
+      "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
   );
 });
 
@@ -235,15 +247,39 @@ watch(
   }
 );
 
-function toEmx2AppLocation(menuItems: MenuItem[]) {
-  const schemaName = window?.location?.pathname.split("/")?.filter(Boolean)[0];
+// Re-apply when context path resolves (session schemas loaded)
+watch(contextPath, () => {
+  const items = props.menuItems.length ? props.menuItems : defaultSchemaMenuItems;
+  menu.value = toEmx2AppLocation(items);
+});
 
-  if (!schemaName || schemaName === "apps") {
-    return menuItems;
+function toEmx2AppLocation(menuItems: MenuItem[]) {
+  const cp = getContextPath();
+  const cpSegmentCount = cp.split("/").filter(Boolean).length;
+  const pathSegments =
+    window?.location?.pathname.split("/")?.filter(Boolean) ?? [];
+
+  if (!pathSegments.length) return menuItems;
+
+  // Under /apps/: prefix absolute hrefs with context path
+  if (pathSegments.includes("apps")) {
+    if (!cp) return menuItems;
+    return menuItems.map((menuItem: MenuItem) => ({
+      ...menuItem,
+      href: menuItem.href?.startsWith("/") ? cp + menuItem.href : menuItem.href,
+      submenu: (menuItem.submenu ?? []).map((subItem) => ({
+        ...subItem,
+        href: subItem.href?.startsWith("/") ? cp + subItem.href : subItem.href,
+      })),
+    }));
   }
 
+  // Under /:contextPath*/:schema/:app — skip context path segments to get schema name
+  const schemaName = pathSegments[cpSegmentCount];
+  if (!schemaName) return menuItems;
+
   function rewriteHref(href: string): string {
-    let location = `/${schemaName}/${href}`;
+    let location = `${cp}/${schemaName}/${href}`;
     let hashLocation = location.indexOf("#");
     if (hashLocation !== -1) {
       const charBeforeHash = location.substring(hashLocation - 1, hashLocation);
@@ -264,17 +300,14 @@ function toEmx2AppLocation(menuItems: MenuItem[]) {
     return location;
   }
 
-  const parsed = menuItems.map((menuItem: MenuItem) => {
-    menuItem.href = rewriteHref(menuItem.href);
-
-    menuItem.submenu = menuItem.submenu.map((subItem) => {
-      subItem.href = rewriteHref(subItem.href);
-      return subItem;
-    });
-    return menuItem;
-  });
-
-  return parsed;
+  return menuItems.map((menuItem: MenuItem) => ({
+    ...menuItem,
+    href: rewriteHref(menuItem.href),
+    submenu: (menuItem.submenu ?? []).map((subItem) => ({
+      ...subItem,
+      href: rewriteHref(subItem.href),
+    })),
+  }));
 }
 
 onMounted(async () => {

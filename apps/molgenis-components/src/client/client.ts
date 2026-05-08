@@ -13,6 +13,7 @@ import type { IClient, INewClient } from "./IClient";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
+import { getContextPath } from "../utils/contextPath";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
@@ -223,7 +224,11 @@ const metadataQuery = `{
 }`;
 
 const graphqlURL = (schemaId?: string) => {
-  return schemaId ? "/" + schemaId + "/graphql" : "graphql";
+  const cp = getContextPath();
+  if (schemaId) {
+    return cp + "/" + schemaId + "/graphql";
+  }
+  return "graphql";
 };
 
 const insertDataRow = (rowData: IRow, tableId: string, schemaId: string) => {

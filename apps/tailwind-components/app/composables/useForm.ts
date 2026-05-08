@@ -22,6 +22,7 @@ import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import { useSession } from "./useSession";
 import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
+import { getContextPath } from "../utils/contextPath";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -426,7 +427,7 @@ export default function useForm(
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
-      const res = await $fetch(`/${metadata.value.schemaId}/graphql`, {
+      const res = await $fetch(getContextPath() + `/${metadata.value.schemaId}/graphql`, {
         method: "POST",
         body: formData,
       });
@@ -443,7 +444,7 @@ export default function useForm(
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
-      const res = await $fetch(`/${metadata.value.schemaId}/graphql`, {
+      const res = await $fetch(getContextPath() + `/${metadata.value.schemaId}/graphql`, {
         method: "POST",
         body: formData,
       });
@@ -462,7 +463,7 @@ export default function useForm(
     const query = `mutation delete($pkey:[${metadata.value.id}Input]){delete(${metadata.value.id}:$pkey){message}}`;
     const variables = { pkey: [key] };
 
-    return $fetch(`/${metadata.value.schemaId}/graphql`, {
+    return $fetch(getContextPath() + `/${metadata.value.schemaId}/graphql`, {
       method: "POST",
       body: {
         query,

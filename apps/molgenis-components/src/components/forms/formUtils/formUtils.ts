@@ -7,6 +7,7 @@ import type {
 import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
+import { getContextPath } from "../../../utils/contextPath";
 
 const {
   EMAIL_REGEX,
@@ -350,7 +351,7 @@ export function executeExpression(
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open(
       "POST",
-      schemaId ? "/" + schemaId + "/graphql" : "graphql",
+      schemaId ? getContextPath() + "/" + schemaId + "/graphql" : "graphql",
       false
     );
     xmlHttp.send(

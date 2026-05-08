@@ -2,6 +2,7 @@ import { createError } from "#app";
 import { fetchMetadata } from "#imports";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
+import { getContextPath } from "../utils/contextPath";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -47,7 +48,7 @@ export default async (
   const filter = properties?.filter ? properties?.filter : {};
   const orderby = properties?.orderby ? [properties?.orderby] : [];
 
-  const { data } = await $fetch(`/${schemaId}/graphql`, {
+  const { data } = await $fetch(getContextPath() + `/${schemaId}/graphql`, {
     method: "POST",
     body: {
       query,

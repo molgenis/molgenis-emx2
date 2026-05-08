@@ -142,6 +142,8 @@ import {
   flattenObject,
 } from "../src/components/utils";
 
+import { getContextPath } from "../src/utils/contextPath";
+
 import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
 
 import constants, { privacyConstants } from "../src/components/constants";
@@ -270,6 +272,7 @@ export {
   constants,
   deepClone,
   flattenObject,
+  getContextPath,
   getRowErrors,
   privacyConstants,
   request,
