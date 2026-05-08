@@ -11,8 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 class TestTablePolicies {
 
@@ -58,7 +58,7 @@ class TestTablePolicies {
 
   private void enableAllScope() {
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_SECURE);
     tp.setSelect(SelectScope.ALL);
     tp.setInsert(UpdateScope.ALL);
     tp.setUpdate(UpdateScope.ALL);
@@ -69,7 +69,7 @@ class TestTablePolicies {
 
   private void enableGroupScope() {
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_SECURE);
     tp.setSelect(SelectScope.GROUP);
     tp.setInsert(UpdateScope.GROUP);
     tp.setUpdate(UpdateScope.GROUP);
@@ -80,7 +80,7 @@ class TestTablePolicies {
 
   private void enableOwnScope() {
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_SECURE);
     tp.setSelect(SelectScope.OWN);
     tp.setInsert(UpdateScope.OWN);
     tp.setUpdate(UpdateScope.OWN);
@@ -177,7 +177,7 @@ class TestTablePolicies {
   void noneScopeIsRejectedBeforeRls() {
     roleManager.createRole(SCHEMA_NAME, "roleNone");
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_SECURE);
     tp.setSelect(SelectScope.NONE);
     tp.setInsert(UpdateScope.NONE);
     tp.setUpdate(UpdateScope.NONE);

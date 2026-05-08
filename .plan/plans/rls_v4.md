@@ -135,17 +135,36 @@ stored:
 ### Membership
 
 `MOLGENIS.group_membership_metadata`:
-- PK `(user_name, schema_name, group_name, role_name)`.
+- Columns `(user_name, schema_name, group_name NULLABLE, role_name)`.
+- Uniqueness `(user_name, schema_name, group_name, role_name)` with
+  `NULLS NOT DISTINCT` (PG 15+) so a `(user, schema, NULL, role)` pair
+  is unique.
 - FK `(schema_name, group_name)` → `MOLGENIS.groups_metadata` ON DELETE
-  CASCADE.
+  CASCADE — only enforced when `group_name IS NOT NULL`.
 - FK `user_name` → `MOLGENIS.users_metadata` ON DELETE CASCADE.
 
-Used solely to supply group context for GROUP-scope row evaluation on
-RLS tables. **Not** used for "does the user have role R" — that lives
-in PG (`pg_has_role(current_user, MG_ROLE_<schema>/<role>)`). A user
-becomes a member of a custom role via the standard PG GRANT
-(`GRANT MG_ROLE_<schema>/<role> TO MG_USER_<user>`); the membership
-row is added separately when group binding is needed.
+**Every** user→role binding in the schema gets a row:
+- `group_name = NULL` ⇒ schema-wide binding. The user holds the role
+  with no group context. ALL-scope rules apply uniformly via the
+  custom-role JOIN branch in the access functions; OWN/GROUP scopes
+  resolve to "no row" for this binding (the JOIN against
+  `mg_groups`/`mg_owner` finds nothing). Equivalent to master's
+  "membership without group".
+- `group_name = <name>` ⇒ group-scoped binding. Used for GROUP-scope
+  row evaluation on RLS tables. A user can hold the same role in
+  several groups (multiple rows).
+
+The PG GRANT (`GRANT MG_ROLE_<schema>/<role> TO MG_USER_<user>`) is a
+**derived side-effect** of the first membership row inserted for that
+(user, role); revoked when the last row is dropped. `pg_has_role` is
+the runtime gate ("does the user hold role R at all"); the membership
+table supplies group context to scope evaluation. The two are kept in
+lockstep by `Schema.changeMembers` / `dropMembers`.
+
+This unifies what the previous design called "schema-wide grants"
+(`__direct__`) and "group-bound grants" into one row shape — the access
+function JOIN treats them uniformly, branching on `group_name IS NULL`
+where scope evaluation requires it.
 
 `MOLGENIS.groups_metadata`: `(schema, name)` only. No `users` array.
 
@@ -167,6 +186,13 @@ MOLGENIS.mg_privacy_count(p_table TEXT, p_filter TEXT)                     BIGIN
    `role_permission_metadata` keyed off `current_user`'s role
    memberships in the schema. Scope ladder evaluated against
    `p_owner` / `p_groups` per row.
+
+   Membership lookup uses a `pg_roles → pg_auth_members → pg_roles`
+   catalog JOIN (not `pg_has_role`) so a permission row whose
+   `MG_ROLE_<schema>/<role>` PG role does not exist returns zero rows
+   instead of throwing. Required because policies invoke these
+   functions per-row and must never raise; pg_has_role errors on
+   missing roles.
 
 `mg_can_write_all` enforces subset: every group in `p_groups` (the
 new/updated row's tag) must be one the writer has GROUP-or-ALL write
@@ -227,12 +253,67 @@ implicit SELECT recheck (`mg_can_read` custom-role branch includes
 ## Things explicitly NOT in v4
 
 - `MG_ROLE_<schema>_MEMBER` PG role.
-- `__direct__` sentinel in `group_membership_metadata`.
+- `__direct__` sentinel in `group_membership_metadata` (replaced by
+  nullable `group_name`).
 - `RPM_STUB_TABLE_SENTINEL` row in `role_permission_metadata`.
 - `table_name = '*'` wildcard rows.
 - Auto-GRANT-on-table-create for custom roles. (System roles only,
   matching master.)
 - `BYPASSRLS` flag on any role.
+
+## Test coverage audit (2026-05-07)
+
+Audit of existing tests against the spec axes. Drives concrete work in
+phases C / D.
+
+**Axis 1 — PG-grant on non-RLS tables (master base layer).** Fully
+covered by master tests retained in Phase A:
+`TestTableRoleManagement` (createAndDeleteRole,
+cannotGrantToNonExistentRole, revokeRemovesTableAccess,
+grantWithFalseRevokesIndividualPrivilege,
+grantIsLostAfterTableDropAndRecreate,
+anonymousViewerAndCustomRolePermissionsAreMerged,
+systemRolesAutoGrantedOnTableCreate,
+customRolesNotAutoGrantedOnTableCreate),
+`TestTablePermissionEnforcement` (SELECT/INSERT/UPDATE/DELETE
+enforcement with/without GRANT),
+`TestSqlRoleManager.setPermissions_*` (round-trip).
+No gaps. **No new tests on this axis** — strengthen master tests if
+holes surface.
+
+**Axis 2 — scopes on RLS tables.** Coverage exists but test names
+diverge from the spec labels in `.plan/specs/rls_v4.md`:
+
+| Spec scope | Spec test name | Actual coverage |
+|---|---|---|
+| SELECT=ALL | `TestScopeSelect.allReturnsEverything` | `TestTablePolicies` (setup-only), no dedicated select test |
+| SELECT=GROUP | `TestScopeSelect.groupReturnsOverlap` | `TestSqlRoleManager.groupScopeSeesOnlyGroupRows`, `TestAsymmetricCollaboration` |
+| SELECT=OWN | `TestScopeSelect.ownReturnsOwnerRows` | `TestSqlRoleManager.ownScopeSeesOnlyOwnRows`, `TestSchemaWideCustomGrants.nullGroupGrant_ownScope_userReadsOwnRowsOnly` |
+| SELECT=NONE | `TestScopeSelect.noneReturnsEmpty` | implicit only (no dedicated assertion) |
+| INSERT=GROUP subset | `TestScopeWrite.insertGroupSubsetEnforced` | `TestUpdateScope.groupScope*` (write side only) |
+| UPDATE=OWN reject | `TestScopeWrite.updateOwnRejectsOthers` | `TestUpdateScope.ownScopeCanUpdateOnlyOwnRow`, `TestSqlRoleManager.ownScopeUpdatesOnlyOwnRows` |
+| Missing RPM row ⇒ NONE | `TestScopeMissing.absentRowMeansNone` | **gap** — no test |
+| System role hardcoded scopes | `TestSystemRoles.*` | `TestSqlRoleManager.viewerCanReadRows / editorCanReadAndWrite / noRoleCannotRead / viewerCannotWriteRows` |
+| Privacy floor (EXISTS/COUNT/RANGE/AGGREGATE) | `TestPrivacy.*` | only `TestSelectScope` (COUNT pass-through); rest **gap** |
+
+**Resolution path** (in phase C/D when the relevant code lands):
+
+- Reconcile spec ↔ tests by renaming spec rows to point at the actual
+  test class/method names rather than introducing parallel files. The
+  spec is a living guardrail, so editing it is cheap; renaming tests
+  away from descriptive names like `TestUpdateScope` is not.
+- Add the four real gaps as explicit work items in phases C and D:
+  - C-test-1: `TestSqlRoleManager.absentRpmRowMeansNoRowVisible` —
+    custom role with no `role_permission_metadata` row sees no rows on
+    an RLS table (effective NONE).
+  - C-test-2: `TestSqlRoleManager.selectScopeAllReturnsEveryRow` and
+    `selectScopeNoneReturnsZeroRows` — close the SELECT-only matrix
+    gap; the rest is covered transitively by the write-scope tests.
+  - D-test-1: `TestPrivacy` covering each of EXISTS / COUNT (floor 10) /
+    RANGE / AGGREGATE projection, on both RLS and non-RLS tables.
+  - D-test-2: privacy scope `select_scope=COUNT` on RLS table —
+    `mg_can_read` returns true (pass-through) and projection clamps;
+    counterpart on non-RLS — projection only, no policy.
 
 ## Phases
 
@@ -260,6 +341,10 @@ A.3 **Test triage** — keep tests that exercise legitimate v4 surface;
     | `TestAggregationPermission.java` (rename) | Keep. Verify rename doesn't drop master assertions. |
     | `TestGraphqlPermissionFieldFactory.java` (entirely new) | Keep. GraphQL enum/scope roundtrip. |
     | `GraphqlPermissionFieldFactoryTest.java` (entirely new) | Keep. GraphQL mutation/query integration. |
+    | `MetadataUtilsRolePermissionTest.java` (duplicate of `TestMetadataUtilsRolePermission`) | Graveyarded. `wildcardTableNameDoesNotRequireTableMetadataRow`, `triggerRejectsUpdateOnSystemRole`, `triggerAllowsCascadeDeleteWhenSchemaDropped` all bake wildcard-row / system-row assumptions retired in v4. Valid tests (`tableExists`, `hasCorrectColumns`, `hasPrimaryKey`) ported to `TestMetadataUtilsRolePermission.java`; new `triggerRejectsUpdateOnSystemRoleRow` test added. File deleted. Graveyard: `MetadataUtilsRolePermissionTest.java.txt`. |
+    | `GroupsMetadataTest.java` (duplicate of `TestGroupsMetadata`) | Graveyarded. `groupsMetadataTableHasCorrectStructure` asserted `users` column exists — retired in v4 (`groups_metadata` is `(schema, name)` only). Test ported to `TestGroupsMetadata.java` with inverted assert (`users` must NOT exist). `currentUserGroupsFunctionReturnsCorrectGroups` ported. `Fn` schema teardown added. File deleted. Graveyard: `GroupsMetadataTest.java.txt`. |
+    | `SqlMolgenisExceptionTest.java` (duplicate of `TestSqlMolgenisException`) | Graveyarded — identical content. Kept `TestSqlMolgenisException.java` (canonical `Test*` naming). File deleted. Graveyard: `SqlMolgenisExceptionTest.java.txt`. |
+    | `TestSystemRolesNoBypassRls.java` | Kept. Dropped `memberUmbrellaRoleDoesNotHaveBypassRls` (asserts `MG_ROLE_<schema>_MEMBER` exists — MEMBER role retired in v4). Kept `systemPgRolesDoNotHaveBypassRls` and `eachExpectedSystemRolePgRoleExists`. |
 
 A.4 **No master-duplicating tests.** Any test under triage that
     exercises behaviour already in master (custom-role creation,
@@ -275,7 +360,44 @@ A.4 **No master-duplicating tests.** Any test under triage that
 
 A.5 Run `:molgenis-emx2-sql:test --tests "*"` and
     `:molgenis-emx2-graphql:test --tests "*"` after A.1–A.4. All-green
-    is the gate to start Phase B.
+    is the gate to start A.6.
+
+A.6 **Fold scope enums into master's `TablePermission`** — single
+    permission model class, layered onto master's existing one rather
+    than introducing parallel types.
+
+    - Promote `SelectScope` and `UpdateScope` to top-level files in
+      `org.molgenis.emx2`. Keep the helper methods from
+      `PermissionSet.SelectScope` (`allowsRowAccess`, `allowsCount`,
+      `allowsMinMax`, `allowsAvgSum`, `allowsGroupBy`,
+      `allowsExactCount`).
+    - Replace `TablePermission.select : Boolean` with `select :
+      SelectScope` (full 8-step ladder). Replace
+      `insert/update/delete : Boolean` with `UpdateScope`
+      (`NONE | OWN | GROUP | ALL`).
+    - Backwards-compat: master callers passing `Boolean true` map to
+      `SelectScope.ALL` / `UpdateScope.ALL`; `false` and `null` map to
+      `NONE`. Provide constructor / setter overloads taking `Boolean`
+      that delegate to the scope enum, OR migrate callers to scope
+      enums in this same phase. (Recommend migrate; the API surface is
+      small — `Schema.grant`, `getRoleInfo`, GraphQL field factory.)
+    - Delete `PermissionSet.TablePermissions` inner class. Change
+      `PermissionSet.tables` to `Map<String, TablePermission>`.
+      `PermissionSet` retains role-level fields (`changeOwner`,
+      `changeGroup`, `description`, `schema`).
+    - Delete branch-only top-level `SelectScope.java` /
+      `UpdateScope.java` files if they exist as duplicates (they were
+      flagged as "keep as-is" by scout but are now covered by the
+      promotion step).
+    - Update GraphQL enum exposure (`GraphqlPermissionFieldFactory`)
+      to read from the new top-level enums.
+    - Update tests touching `PermissionSet.TablePermissions` to use
+      `TablePermission`.
+
+A.7 Targeted tests after A.6: `*TestTablePermission*`,
+    `*TestTableRoleManagement*`, `*TestGraphqlPermissionFieldFactory*`,
+    `*TestEffectiveSelectScopes*`, `*TestUpdateScope*`. All-green is
+    the gate to Phase B.
 
 ### Phase B — per-table RLS flag
 
@@ -365,8 +487,24 @@ G.4 Docs: model overview, worked examples, operator runbook
 
 - Performance benchmark numbers (§G.1) and materialised-view fallback
   decision.
-- Cross-schema FK semantics tests (§F.1).
+- Cross-schema FK semantics tests (§F.1) — `GeneratorTest.generateTypes`
+  / `generateCrossSchemaTest` are the canary; deferred from Phase A
+  combined-suite triage.
 - Docs and runbook (§G.4).
+
+### Phase A loose ends — closed 2026-05-08
+
+All four follow-ups landed in one slice:
+- `grant()` enforces OWN/GROUP-on-RLS invariant via
+  `rejectRlsScopeOnNonRlsTable`; new test
+  `TestSqlRoleManager.grant_rlsScopeOnNonRlsTable_throws`.
+- `revoke()` now deletes the matching RPM row; new test
+  `TestSqlRoleManager.revoke_deletesRpmRow`.
+- Dead `RPM_TABLE_NAME.ne("*")` predicates removed from
+  `SqlRoleManager` (two occurrences: `setPermissions` delete block and
+  `getPermissionSet` fetch).
+- `TestGraphqlSchemaRoles.rolesQuery_schemaField_roundTrips` teardown
+  iterates `listRoles()` and drops all custom roles.
 
 ## Out of scope
 

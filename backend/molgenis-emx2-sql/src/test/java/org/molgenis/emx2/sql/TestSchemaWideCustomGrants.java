@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 class TestSchemaWideCustomGrants {
 
@@ -161,14 +161,6 @@ class TestSchemaWideCustomGrants {
     }
   }
 
-  @Test
-  void forbiddenSentinelGroupName() {
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.createGroup(schema, SqlRoleManager.DIRECT_GRANT_GROUP),
-        "Reserved sentinel group name must be rejected by createGroup");
-  }
-
   private void setupRole(
       String roleName,
       SelectScope selectScope,
@@ -178,7 +170,7 @@ class TestSchemaWideCustomGrants {
     roleManager.createRole(SCHEMA_NAME, roleName);
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(selectScope);
     tp.setInsert(insertScope);
     tp.setUpdate(updateScope);

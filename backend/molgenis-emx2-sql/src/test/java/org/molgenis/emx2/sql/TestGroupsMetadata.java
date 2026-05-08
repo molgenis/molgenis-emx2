@@ -29,6 +29,7 @@ public class TestGroupsMetadata {
   @AfterAll
   public static void tearDown() {
     jooq.execute("DELETE FROM \"MOLGENIS\".groups_metadata WHERE schema LIKE ?", SCHEMA_NAME + "%");
+    db.dropSchemaIfExists(SCHEMA_NAME + "Fn");
     db.dropSchemaIfExists(SCHEMA_NAME + "Gin");
     db.dropSchemaIfExists(SCHEMA_NAME);
   }
@@ -45,7 +46,7 @@ public class TestGroupsMetadata {
 
     assertNotNull(groupsTable.field("schema"), "column 'schema' must exist");
     assertNotNull(groupsTable.field("name"), "column 'name' must exist");
-    assertNotNull(groupsTable.field("users"), "column 'users' must exist");
+    assertNull(groupsTable.field("users"), "column 'users' must NOT exist in v4");
 
     List<?> primaryKeys = groupsTable.getKeys();
     assertFalse(primaryKeys.isEmpty(), "groups_metadata must have a primary key");
@@ -90,6 +91,97 @@ public class TestGroupsMetadata {
     List<Record> after =
         jooq.fetch("SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ?", schemaName);
     assertEquals(0, after.size(), "groups must be cascade-deleted when schema is dropped");
+  }
+
+  @Test
+  public void currentUserGroupsFunctionReturnsCorrectGroups() {
+    Schema schema = db.dropCreateSchema(SCHEMA_NAME + "Fn");
+    try {
+      String schemaName = schema.getName();
+      String pgCurrentUser = jooq.fetchOne("SELECT current_user").get(0, String.class);
+
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".users_metadata (username, enabled) VALUES (?, true)"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser);
+
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
+          schemaName,
+          "group-alpha");
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
+          schemaName,
+          "group-beta");
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+              + " ON CONFLICT DO NOTHING",
+          schemaName,
+          "group-gamma");
+
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+              + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser,
+          schemaName,
+          "group-alpha");
+      jooq.execute(
+          "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+              + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+              + " ON CONFLICT DO NOTHING",
+          pgCurrentUser,
+          schemaName,
+          "group-beta");
+
+      String[] emptyResult =
+          jooq.fetchOne("SELECT \"MOLGENIS\".current_user_groups(?)", "no_such_schema_xyz")
+              .get(0, String[].class);
+      assertNotNull(emptyResult);
+      assertEquals(0, emptyResult.length, "unknown schema must return empty array");
+
+      String[] groupsForCurrentUser =
+          jooq.fetchOne("SELECT \"MOLGENIS\".current_user_groups(?)", schemaName)
+              .get(0, String[].class);
+      assertNotNull(groupsForCurrentUser);
+      List<String> groupList = List.of(groupsForCurrentUser);
+      assertTrue(groupList.contains("group-alpha"), "current user must be in group-alpha");
+      assertTrue(groupList.contains("group-beta"), "current user must be in group-beta");
+      assertFalse(groupList.contains("group-gamma"), "current user must NOT be in group-gamma");
+
+      String otherSchemaName = schemaName + "Other";
+      db.dropSchemaIfExists(otherSchemaName);
+      db.createSchema(otherSchemaName);
+      try {
+        jooq.execute(
+            "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)"
+                + " ON CONFLICT DO NOTHING",
+            otherSchemaName,
+            "group-other");
+        jooq.execute(
+            "INSERT INTO \"MOLGENIS\".group_membership_metadata"
+                + " (user_name, schema_name, group_name, role_name) VALUES (?, ?, ?, 'Viewer')"
+                + " ON CONFLICT DO NOTHING",
+            pgCurrentUser,
+            otherSchemaName,
+            "group-other");
+
+        String[] otherSchemaGroups =
+            jooq.fetchOne("SELECT \"MOLGENIS\".current_user_groups(?)", schemaName)
+                .get(0, String[].class);
+        assertFalse(
+            List.of(otherSchemaGroups).contains("group-other"),
+            "function must only return groups for the requested schema");
+      } finally {
+        jooq.execute("DELETE FROM \"MOLGENIS\".groups_metadata WHERE schema = ?", otherSchemaName);
+        db.dropSchema(otherSchemaName);
+      }
+    } finally {
+      jooq.execute("DELETE FROM \"MOLGENIS\".groups_metadata WHERE schema = ?", SCHEMA_NAME + "Fn");
+      db.dropSchemaIfExists(SCHEMA_NAME + "Fn");
+    }
   }
 
   @Test

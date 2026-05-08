@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
 
 class TestSqlRoleManager {
 
@@ -63,7 +63,19 @@ class TestSqlRoleManager {
     db.dropSchemaIfExists(SCHEMA_ENF);
   }
 
-  // ── createRole: validation ─────────────────────────────────────────────────
+  // ── createRole: validation only, no PG role ────────────────────────────────
+
+  @Test
+  void createRole_doesNotCreatePgRole() {
+    roleManager.createRole(SCHEMA_A, "myRole");
+
+    boolean pgRoleExists =
+        jooq.fetchExists(
+            jooq.select()
+                .from("pg_roles")
+                .where(field("rolname").eq(inline("MG_ROLE_" + SCHEMA_A + "/myRole"))));
+    assertFalse(pgRoleExists, "createRole must not create a PG role for custom roles");
+  }
 
   @Test
   void createRole_rejectsSystemRoleName() {
@@ -76,6 +88,16 @@ class TestSqlRoleManager {
   }
 
   @Test
+  void createRole_rejectsEmptyName() {
+    assertThrows(MolgenisException.class, () -> roleManager.createRole(SCHEMA_A, ""));
+  }
+
+  @Test
+  void createRole_rejectsMgPrefix() {
+    assertThrows(MolgenisException.class, () -> roleManager.createRole(SCHEMA_A, "MG_custom"));
+  }
+
+  @Test
   void createRole_rejectsTooLongName() {
     String schemaPrefix = "MG_ROLE_" + SCHEMA_A + "/";
     int prefixBytes = schemaPrefix.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
@@ -83,7 +105,65 @@ class TestSqlRoleManager {
     assertThrows(MolgenisException.class, () -> roleManager.createRole(SCHEMA_A, tooLong));
   }
 
-  // ── deleteRole ─────────────────────────────────────────────────────────────
+  // ── listRoles: driven by role_permission_metadata rows ────────────────────
+
+  @Test
+  void listRoles_emptyBeforeAnyGrant() {
+    assertTrue(roleManager.listRoles(SCHEMA_A).isEmpty());
+  }
+
+  @Test
+  void listRoles_appearsAfterPermissionRowInserted() {
+    roleManager.createRole(SCHEMA_A, "analyst");
+    assertTrue(
+        roleManager.listRoles(SCHEMA_A).isEmpty(),
+        "listRoles must be empty before any permission row is inserted");
+
+    roleManager.setPermissions(
+        schemaA,
+        "analyst",
+        new PermissionSet()
+            .putTable("anyTable", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL)));
+
+    assertTrue(roleManager.listRoles(SCHEMA_A).contains("analyst"));
+  }
+
+  @Test
+  void listRoles_excludesSystemRoles() {
+    for (String name : roleManager.listRoles(SCHEMA_A)) {
+      assertFalse(
+          roleManager.isSystemRole(name), "listRoles must never include system role: " + name);
+    }
+  }
+
+  @Test
+  void listRoles_isolatedPerSchema() {
+    roleManager.createRole(SCHEMA_A, "onlyInA");
+    roleManager.setPermissions(
+        schemaA,
+        "onlyInA",
+        new PermissionSet()
+            .putTable("t", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL)));
+
+    assertFalse(roleManager.listRoles(SCHEMA_B).contains("onlyInA"));
+  }
+
+  // ── deleteRole: removes rows from role_permission_metadata ────────────────
+
+  @Test
+  void deleteRole_removesPermissionRows() {
+    roleManager.createRole(SCHEMA_A, "todelete");
+    roleManager.setPermissions(
+        schemaA,
+        "todelete",
+        new PermissionSet()
+            .putTable("t", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL)));
+    assertTrue(roleManager.listRoles(SCHEMA_A).contains("todelete"));
+
+    roleManager.deleteRole(SCHEMA_A, "todelete");
+
+    assertFalse(roleManager.listRoles(SCHEMA_A).contains("todelete"));
+  }
 
   @Test
   void deleteRole_rejectsSystemRole() {
@@ -117,7 +197,7 @@ class TestSqlRoleManager {
         new PermissionSet()
             .putTable(
                 "myTable",
-                new TablePermission("myTable")
+                new PermissionSet.TablePermissions()
                     .setSelect(SelectScope.ALL)
                     .setInsert(UpdateScope.OWN)
                     .setUpdate(UpdateScope.GROUP)
@@ -126,7 +206,7 @@ class TestSqlRoleManager {
     roleManager.setPermissions(schemaA, "scoped", permissions);
     PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "scoped");
 
-    TablePermission tp = result.getTables().get("myTable");
+    PermissionSet.TablePermissions tp = result.getTables().get("myTable");
     assertNotNull(tp);
     assertEquals(SelectScope.ALL, tp.getSelect());
     assertEquals(UpdateScope.OWN, tp.getInsert());
@@ -141,7 +221,7 @@ class TestSqlRoleManager {
     roleManager.setPermissions(
         schemaA,
         "flagged",
-        permissions.putTable("t", new TablePermission("t").setSelect(SelectScope.ALL)));
+        permissions.putTable("t", new PermissionSet.TablePermissions().setSelect(SelectScope.ALL)));
 
     PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "flagged");
 
@@ -155,10 +235,10 @@ class TestSqlRoleManager {
     PermissionSet first =
         new PermissionSet()
             .setChangeOwner(true)
-            .putTable("tableA", new TablePermission("tableA").setSelect(SelectScope.OWN));
+            .putTable("tableA", new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
     PermissionSet second =
         new PermissionSet()
-            .putTable("tableB", new TablePermission("tableB").setSelect(SelectScope.GROUP));
+            .putTable("tableB", new PermissionSet.TablePermissions().setSelect(SelectScope.GROUP));
 
     roleManager.setPermissions(schemaA, "overwrite", first);
     roleManager.setPermissions(schemaA, "overwrite", second);
@@ -184,7 +264,32 @@ class TestSqlRoleManager {
     assertTrue(result.getTables().isEmpty());
   }
 
-  // ── addGroupMembership idempotency ─────────────────────────────────────────
+  // ── addGroupMembership / removeGroupMembership + MEMBER PG role lifecycle ──
+
+  @Test
+  void addGroupMembership_grantsMemberPgRole() {
+    roleManager.createGroup(schemaA, "groupX");
+    roleManager.createRole(SCHEMA_A, "roleX");
+
+    roleManager.addGroupMembership(SCHEMA_A, "groupX", TEST_USER_ALICE, "roleX");
+
+    String memberRole = SqlRoleManager.memberRoleName(SCHEMA_A);
+    String pgUser = "MG_USER_" + TEST_USER_ALICE;
+    boolean hasMembership =
+        jooq.fetchExists(
+            jooq.select()
+                .from("pg_auth_members am")
+                .join("pg_roles r")
+                .on("r.oid = am.roleid")
+                .join("pg_roles m")
+                .on("m.oid = am.member")
+                .where(field("r.rolname").eq(inline(memberRole)))
+                .and(field("m.rolname").eq(inline(pgUser))));
+    assertTrue(hasMembership, "MEMBER PG role must be granted after first addGroupMembership");
+
+    roleManager.removeGroupMembership(SCHEMA_A, "groupX", TEST_USER_ALICE, "roleX");
+    roleManager.deleteGroup(schemaA, "groupX");
+  }
 
   @Test
   void addGroupMembership_idempotent() {
@@ -198,6 +303,60 @@ class TestSqlRoleManager {
 
     roleManager.removeGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY");
     roleManager.deleteGroup(schemaA, "groupY");
+  }
+
+  @Test
+  void removeGroupMembership_revokesWhenLastRow() {
+    roleManager.createGroup(schemaA, "groupZ");
+    roleManager.createRole(SCHEMA_A, "roleZ");
+
+    roleManager.addGroupMembership(SCHEMA_A, "groupZ", TEST_USER_BOB, "roleZ");
+    roleManager.removeGroupMembership(SCHEMA_A, "groupZ", TEST_USER_BOB, "roleZ");
+
+    String memberRole = SqlRoleManager.memberRoleName(SCHEMA_A);
+    String pgUser = "MG_USER_" + TEST_USER_BOB;
+    boolean stillHasMembership =
+        jooq.fetchExists(
+            jooq.select()
+                .from("pg_auth_members am")
+                .join("pg_roles r")
+                .on("r.oid = am.roleid")
+                .join("pg_roles m")
+                .on("m.oid = am.member")
+                .where(field("r.rolname").eq(inline(memberRole)))
+                .and(field("m.rolname").eq(inline(pgUser))));
+    assertFalse(
+        stillHasMembership,
+        "MEMBER PG role must be revoked when user has no remaining group_membership_metadata rows");
+
+    roleManager.deleteGroup(schemaA, "groupZ");
+  }
+
+  @Test
+  void deleteRole_revokesMemberRoleFromAffectedUsers() {
+    roleManager.createGroup(schemaA, "grpDel");
+    roleManager.createRole(SCHEMA_A, "roleDel");
+
+    roleManager.addGroupMembership(SCHEMA_A, "grpDel", TEST_USER_ALICE, "roleDel");
+    roleManager.deleteRole(SCHEMA_A, "roleDel");
+
+    String memberRole = SqlRoleManager.memberRoleName(SCHEMA_A);
+    String pgUser = "MG_USER_" + TEST_USER_ALICE;
+    boolean hasMembership =
+        jooq.fetchExists(
+            jooq.select()
+                .from("pg_auth_members am")
+                .join("pg_roles r")
+                .on("r.oid = am.roleid")
+                .join("pg_roles m")
+                .on("m.oid = am.member")
+                .where(field("r.rolname").eq(inline(memberRole)))
+                .and(field("m.rolname").eq(inline(pgUser))));
+    assertFalse(
+        hasMembership,
+        "MEMBER PG role must be revoked from user after deleteRole removes last row");
+
+    roleManager.deleteGroup(schemaA, "grpDel");
   }
 
   // ── isSystemRole ──────────────────────────────────────────────────────────
@@ -428,37 +587,6 @@ class TestSqlRoleManager {
   }
 
   @Test
-  void grant_rlsScopeOnNonRlsTable_throws() {
-    roleManager.createRole(SCHEMA_ENF, "grant-rls-guard");
-    TablePermission grouped = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.GROUP);
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", grouped),
-        "Granting GROUP scope on a non-RLS table must throw");
-    TablePermission owned = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.OWN);
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", owned),
-        "Granting OWN scope on a non-RLS table must throw");
-  }
-
-  @Test
-  void revoke_deletesRpmRow() {
-    roleManager.createRole(SCHEMA_ENF, "revoke-test-role");
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
-    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.ALL);
-    roleManager.grant(SCHEMA_ENF, "revoke-test-role", tp);
-
-    PermissionSet before = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
-    assertNotNull(before.getTables().get(ENFORCEMENT_TABLE), "RPM row must exist after grant");
-
-    roleManager.revoke(SCHEMA_ENF, "revoke-test-role", ENFORCEMENT_TABLE);
-
-    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
-    assertNull(after.getTables().get(ENFORCEMENT_TABLE), "RPM row must be deleted after revoke");
-  }
-
-  @Test
   void deleteRoleRejectsSystemRoleNames() {
     assertThrows(
         MolgenisException.class,
@@ -494,7 +622,7 @@ class TestSqlRoleManager {
     roleManager.createRole(SCHEMA_ENF, roleName);
     ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
-    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
     tp.setSelect(selectScope);
     tp.setInsert(insertScope);
     tp.setUpdate(updateScope);

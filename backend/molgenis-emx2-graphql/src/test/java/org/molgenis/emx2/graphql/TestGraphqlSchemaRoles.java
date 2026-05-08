@@ -6,10 +6,12 @@ import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultTo
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -71,6 +73,19 @@ class TestGraphqlSchemaRoles {
 
     roleManager = ((SqlDatabase) database).getRoleManager();
     schema.getTable(TABLE_PET).getMetadata().setRlsEnabled(true);
+  }
+
+  private static final String SCHEMA_ROLE_A = "schemaRoleA";
+
+  @AfterEach
+  void tearDownCustomRoles() {
+    database.becomeAdmin();
+    for (String roleName : roleManager.listRoles(SCHEMA_NAME)) {
+      try {
+        roleManager.deleteRole(SCHEMA_NAME, roleName);
+      } catch (Exception ignored) {
+      }
+    }
   }
 
   @Test
@@ -507,16 +522,13 @@ class TestGraphqlSchemaRoles {
 
   @Test
   void rolesQuery_schemaField_roundTrips() throws IOException {
-    String roleWithSchema = "schemaRoleA";
-
     JsonNode rolesBefore = execute("{_schema { roles { name } } }").at("/_schema/roles");
-    assertNull(
-        findRoleByName(rolesBefore, roleWithSchema), "Role should not exist before mutation");
+    assertNull(findRoleByName(rolesBefore, SCHEMA_ROLE_A), "Role should not exist before mutation");
 
     execute(
         "mutation { change(roles: [{"
             + "name: \""
-            + roleWithSchema
+            + SCHEMA_ROLE_A
             + "\", "
             + "permissions: [{table: \""
             + TABLE_PET
@@ -524,7 +536,7 @@ class TestGraphqlSchemaRoles {
             + "}]) { message } }");
 
     JsonNode roles = execute("{_schema { roles { name schemaName } } }").at("/_schema/roles");
-    JsonNode found = findRoleByName(roles, roleWithSchema);
+    JsonNode found = findRoleByName(roles, SCHEMA_ROLE_A);
     assertNotNull(found, "Role should appear in roles");
     assertEquals(
         SCHEMA_NAME, found.at("/schemaName").asText(), "schemaName field must match schema name");
@@ -539,7 +551,7 @@ class TestGraphqlSchemaRoles {
 
     try {
       PermissionSet ps = new PermissionSet();
-      PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+      TablePermission tp = new TablePermission(TABLE_NAME);
       tp.setSelect(SelectScope.ALL);
       ps.putTable(TABLE_NAME, tp);
       roleManager.setPermissions(schema, ROLE_ANALYST, ps);
@@ -592,7 +604,7 @@ class TestGraphqlSchemaRoles {
       assertEquals("SUCCESS", result.at("/change/status").asText());
 
       PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
-      PermissionSet.TablePermissions tablePerms = perms.getTables().get(TABLE_NAME);
+      TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
       assertNotNull(tablePerms, "Table permissions must be present");
       assertEquals(SelectScope.ALL, tablePerms.getSelect(), "select scope must be ALL");
     } finally {
@@ -630,7 +642,7 @@ class TestGraphqlSchemaRoles {
       assertEquals("SUCCESS", result.at("/change/status").asText());
 
       PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
-      PermissionSet.TablePermissions tablePerms = perms.getTables().get(TABLE_NAME);
+      TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
       assertNotNull(tablePerms, "Table permissions must be present");
       assertEquals(SelectScope.AGGREGATE, tablePerms.getSelect(), "select scope must be AGGREGATE");
     } finally {

@@ -45,22 +45,22 @@
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `select_scope='ALL'` returns every row | mg_can_read | TestScopeSelect.allReturnsEverything | — |
-| `select_scope='GROUP'` returns rows whose `mg_groups` overlap user's memberships | mg_can_read | TestScopeSelect.groupReturnsOverlap | — |
-| `select_scope='OWN'` returns rows whose `mg_owner = current_user` | mg_can_read | TestScopeSelect.ownReturnsOwnerRows | — |
-| `select_scope='NONE'` returns zero rows | mg_can_read | TestScopeSelect.noneReturnsEmpty | — |
-| `insert_scope='GROUP'` requires every group in `NEW.mg_groups` to be one writer holds GROUP/ALL in | mg_can_write_all | TestScopeWrite.insertGroupSubsetEnforced | — |
-| `update_scope='OWN'` rejects update of rows owned by another user | mg_can_write | TestScopeWrite.updateOwnRejectsOthers | — |
-| Custom-role scope row absent ⇒ no row visible (effective NONE) | mg_can_read | TestScopeMissing.absentRowMeansNone | — |
+| `select_scope='ALL'` returns every row | mg_can_read | TestSqlRoleManager.selectScopeAllReturnsEveryRow (gap C-test-2) | — |
+| `select_scope='GROUP'` returns rows whose `mg_groups` overlap user's memberships | mg_can_read | TestSqlRoleManager.groupScopeSeesOnlyGroupRows / TestAsymmetricCollaboration | — |
+| `select_scope='OWN'` returns rows whose `mg_owner = current_user` | mg_can_read | TestSqlRoleManager.ownScopeSeesOnlyOwnRows / TestSchemaWideCustomGrants.nullGroupGrant_ownScope_userReadsOwnRowsOnly | — |
+| `select_scope='NONE'` returns zero rows | mg_can_read | TestSqlRoleManager.selectScopeNoneReturnsZeroRows (gap C-test-2) | — |
+| `insert_scope='GROUP'` requires every group in `NEW.mg_groups` to be one writer holds GROUP/ALL in | mg_can_write_all | TestUpdateScope.groupScopeCanUpdateGroupRow / TestSqlRoleManager.groupScopeUpdatesOnlyGroupRows | — |
+| `update_scope='OWN'` rejects update of rows owned by another user | mg_can_write | TestUpdateScope.ownScopeCanUpdateOnlyOwnRow / TestSqlRoleManager.ownScopeUpdatesOnlyOwnRows | — |
+| Custom-role scope row absent ⇒ no row visible (effective NONE) | mg_can_read | TestSqlRoleManager.absentRpmRowMeansNoRowVisible (gap C-test-1) | — |
 
 ## System roles (hardcoded scopes)
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| Owner/Manager/Editor: every verb = ALL | mg_can_read / mg_can_write | TestSystemRoles.ownerManagerEditorAllScope | — |
-| Viewer: `select=ALL`, others NONE | mg_can_read / mg_can_write | TestSystemRoles.viewerSelectOnly | — |
-| System roles never have rows in `role_permission_metadata` | trigger + Java | TestSystemRoles.noRowsAllowed | — |
-| Granting custom role with system name rejected | Schema.createRole | TestSystemRoles.cannotShadowSystemName | — |
+| Owner/Manager/Editor: every verb = ALL | mg_can_read / mg_can_write | TestSqlRoleManager.editorCanReadAndWrite | — |
+| Viewer: `select=ALL`, others NONE | mg_can_read / mg_can_write | TestSqlRoleManager.viewerCanReadRows / viewerCannotWriteRows | — |
+| System roles never have rows in `role_permission_metadata` | trigger + Java | TestSqlRoleManager.deleteRoleRejectsSystemRoleNames + RPM trigger test (gap C-test-3) | — |
+| Granting custom role with system name rejected | Schema.createRole | TestSqlRoleManager.isSystemRole_rejectsSystemNames | — |
 
 ## Capability flags
 
@@ -96,12 +96,12 @@
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `select_scope='EXISTS'` projection: result clamped to {0, 1} | SqlQuery | TestPrivacy.existsProjection | — |
-| `select_scope='COUNT'` projection: floor of 10 via `mg_privacy_count` | SqlQuery + mg_privacy_count | TestPrivacy.countFloor10 | — |
-| `select_scope='RANGE'` projection: histogram bucket lower-bounded at 10 | SqlQuery | TestPrivacy.rangeFloor10 | — |
-| `select_scope='AGGREGATE'` projection: SUM/AVG only when count ≥ 10 | SqlQuery | TestPrivacy.aggregateFloor10 | — |
-| Policy predicate `true` for privacy scopes on RLS tables (pass-through) | mg_can_read | TestPrivacy.passThroughAtPolicyLayer | — |
-| Privacy scopes valid on non-RLS tables (projection only, no policy) | Schema.upsertRolePermissions | TestPrivacy.privacyOnNonRlsTable | — |
+| `select_scope='EXISTS'` projection: result clamped to {0, 1} | SqlQuery | TestPrivacy.existsProjection (gap D-test-1) | — |
+| `select_scope='COUNT'` projection: floor of 10 via `mg_privacy_count` | SqlQuery + mg_privacy_count | TestSelectScope.countScopeRlsPassThroughSeesAllRows (partial) + TestPrivacy.countFloor10 (gap D-test-1) | — |
+| `select_scope='RANGE'` projection: histogram bucket lower-bounded at 10 | SqlQuery | TestPrivacy.rangeFloor10 (gap D-test-1) | — |
+| `select_scope='AGGREGATE'` projection: SUM/AVG only when count ≥ 10 | SqlQuery | TestPrivacy.aggregateFloor10 (gap D-test-1) | — |
+| Policy predicate `true` for privacy scopes on RLS tables (pass-through) | mg_can_read | TestPrivacy.passThroughAtPolicyLayer (gap D-test-2) | — |
+| Privacy scopes valid on non-RLS tables (projection only, no policy) | Schema.upsertRolePermissions | TestPrivacy.privacyOnNonRlsTable (gap D-test-2) | — |
 | Any non-NONE `select_scope` ⇒ `GRANT SELECT` to role's PG role | SqlRoleManager | TestPrivacy.nonNoneScopeImpliesSelectGrant | — |
 
 ## GraphQL surface

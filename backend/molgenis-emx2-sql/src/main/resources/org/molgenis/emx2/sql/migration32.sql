@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS "MOLGENIS".groups_metadata (
     schema TEXT NOT NULL,
     name TEXT NOT NULL,
-    users TEXT[],
     PRIMARY KEY (schema, name),
     FOREIGN KEY (schema) REFERENCES "MOLGENIS".schema_metadata(table_schema)
         ON UPDATE CASCADE ON DELETE CASCADE
@@ -55,16 +54,44 @@ CREATE OR REPLACE TRIGGER mg_protect_system_roles
 CREATE TABLE IF NOT EXISTS "MOLGENIS".group_membership_metadata (
     user_name   TEXT NOT NULL,
     schema_name TEXT NOT NULL,
-    group_name  TEXT NOT NULL,
+    group_name  TEXT,
     role_name   TEXT NOT NULL,
     granted_by  TEXT NOT NULL DEFAULT current_user,
     granted_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (user_name, schema_name, group_name, role_name),
+    FOREIGN KEY (schema_name)
+        REFERENCES "MOLGENIS".schema_metadata(table_schema) ON DELETE CASCADE,
     FOREIGN KEY (schema_name, group_name)
         REFERENCES "MOLGENIS".groups_metadata(schema, name) ON DELETE CASCADE,
     FOREIGN KEY (user_name)
         REFERENCES "MOLGENIS".users_metadata(username) ON DELETE CASCADE
 );
+
+DO $$
+BEGIN
+    ALTER TABLE "MOLGENIS".group_membership_metadata
+        ALTER COLUMN group_name DROP NOT NULL;
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER TABLE "MOLGENIS".group_membership_metadata
+        ADD CONSTRAINT group_membership_schema_fk
+        FOREIGN KEY (schema_name)
+        REFERENCES "MOLGENIS".schema_metadata(table_schema) ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER TABLE "MOLGENIS".group_membership_metadata
+        DROP CONSTRAINT IF EXISTS group_membership_metadata_pkey;
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS group_membership_uq_idx
+    ON "MOLGENIS".group_membership_metadata (user_name, schema_name, group_name, role_name)
+    NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS group_membership_user_schema_idx
     ON "MOLGENIS".group_membership_metadata (user_name, schema_name);
@@ -77,23 +104,18 @@ CREATE FUNCTION "MOLGENIS".current_user_groups(p_schema TEXT)
     FROM "MOLGENIS".group_membership_metadata
     WHERE user_name = regexp_replace(current_user, '^MG_USER_', '')
       AND schema_name = p_schema
+      AND group_name IS NOT NULL
 $$;
 
 CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_read(
     p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT
 ) RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$
     SELECT EXISTS (
-        SELECT 1 FROM "MOLGENIS".role_permission_metadata rp
-        WHERE rp.schema_name = p_schema
-          AND rp.table_name  = '*'
-          AND rp.role_name   IN ('Owner','Manager','Editor','Viewer')
-          AND pg_has_role(current_user,
-                'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')
-          AND (
-               rp.select_scope = 'ALL'
-            OR (rp.select_scope = 'GROUP' AND p_groups && "MOLGENIS".current_user_groups(p_schema))
-            OR (rp.select_scope = 'OWN'   AND p_owner = current_user)
-          )
+        SELECT 1
+        WHERE pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Editor',  'MEMBER')
+           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Viewer',  'MEMBER')
         UNION ALL
         SELECT 1
         FROM "MOLGENIS".group_membership_metadata m
@@ -103,11 +125,24 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_read(
          AND rp.table_name  = p_table
         WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
           AND m.schema_name = p_schema
-          AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')
           AND (
                rp.select_scope = 'ALL'
             OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))
             OR (rp.select_scope = 'OWN'   AND p_owner = current_user)
+            OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
+            OR rp.change_owner = true
+          )
+        UNION ALL
+        SELECT 1
+        FROM "MOLGENIS".role_permission_metadata rp
+        JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
+        JOIN pg_auth_members pam ON pam.roleid = pgr.oid
+        JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
+        WHERE rp.schema_name = p_schema
+          AND rp.table_name  = p_table
+          AND (
+               rp.select_scope = 'ALL'
+            OR (rp.select_scope = 'OWN' AND p_owner = current_user)
             OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
             OR rp.change_owner = true
           )
@@ -118,17 +153,13 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write(
     p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT, p_verb TEXT
 ) RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$
     SELECT EXISTS (
-        SELECT 1 FROM "MOLGENIS".role_permission_metadata rp
-        WHERE rp.schema_name = p_schema
-          AND rp.table_name  = '*'
-          AND rp.role_name   IN ('Owner','Manager','Editor','Viewer')
-          AND pg_has_role(current_user,
-                'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')
-          AND CASE p_verb
-                WHEN 'insert' THEN rp.insert_scope = 'ALL'
-                WHEN 'update' THEN rp.update_scope = 'ALL'
-                ELSE               rp.delete_scope = 'ALL'
-              END
+        SELECT 1
+        WHERE (p_verb = 'insert' OR p_verb = 'update' OR p_verb = 'delete')
+          AND (
+            pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+         OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+         OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Editor',  'MEMBER')
+          )
         UNION ALL
         SELECT 1
         FROM "MOLGENIS".group_membership_metadata m
@@ -138,7 +169,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write(
          AND rp.table_name  = p_table
         WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
           AND m.schema_name = p_schema
-          AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')
           AND CASE p_verb
                 WHEN 'insert' THEN
                   rp.insert_scope = 'ALL'
@@ -153,6 +183,25 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write(
                   OR (rp.delete_scope = 'GROUP' AND m.group_name = ANY(p_groups))
                   OR (rp.delete_scope = 'OWN'   AND p_owner = current_user)
               END
+        UNION ALL
+        SELECT 1
+        FROM "MOLGENIS".role_permission_metadata rp
+        JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
+        JOIN pg_auth_members pam ON pam.roleid = pgr.oid
+        JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
+        WHERE rp.schema_name = p_schema
+          AND rp.table_name  = p_table
+          AND CASE p_verb
+                WHEN 'insert' THEN
+                  rp.insert_scope = 'ALL'
+                  OR (rp.insert_scope = 'OWN' AND p_owner = current_user)
+                WHEN 'update' THEN
+                  rp.update_scope = 'ALL'
+                  OR (rp.update_scope = 'OWN' AND p_owner = current_user)
+                ELSE
+                  rp.delete_scope = 'ALL'
+                  OR (rp.delete_scope = 'OWN' AND p_owner = current_user)
+              END
     )
 $$;
 
@@ -161,32 +210,58 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write_all(
     p_changing_owner BOOLEAN, p_changing_group BOOLEAN
 ) RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$
     SELECT
-        (array_length(p_groups, 1) IS NULL OR array_length(p_groups, 1) = 0
-         OR p_groups <@ ARRAY(
-              SELECT DISTINCT m.group_name
-              FROM "MOLGENIS".group_membership_metadata m
-              JOIN "MOLGENIS".role_permission_metadata rp
-                ON rp.schema_name = m.schema_name
-               AND rp.role_name   = m.role_name
-               AND rp.table_name  = p_table
-              WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
-                AND m.schema_name = p_schema
-                AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')
+        (
+            pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+         OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+         OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Editor',  'MEMBER')
+         OR EXISTS (
+              SELECT 1
+              FROM "MOLGENIS".role_permission_metadata rp
+              JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
+              JOIN pg_auth_members pam ON pam.roleid = pgr.oid
+              JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
+              WHERE rp.schema_name = p_schema
+                AND rp.table_name  = p_table
                 AND CASE p_verb
-                      WHEN 'insert' THEN rp.insert_scope IN ('ALL','GROUP')
-                      WHEN 'update' THEN rp.update_scope IN ('ALL','GROUP')
-                      ELSE              rp.delete_scope IN ('ALL','GROUP')
+                      WHEN 'insert' THEN rp.insert_scope IN ('ALL','OWN')
+                      WHEN 'update' THEN rp.update_scope IN ('ALL','OWN')
+                      ELSE              rp.delete_scope IN ('ALL','OWN')
                     END
             )
+         OR (
+            array_length(p_groups, 1) IS NULL OR array_length(p_groups, 1) = 0
+            OR p_groups <@ ARRAY(
+                 SELECT DISTINCT m.group_name
+                 FROM "MOLGENIS".group_membership_metadata m
+                 JOIN "MOLGENIS".role_permission_metadata rp
+                   ON rp.schema_name = m.schema_name
+                  AND rp.role_name   = m.role_name
+                  AND rp.table_name  = p_table
+                 WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
+                   AND m.schema_name = p_schema
+                   AND m.group_name IS NOT NULL
+                   AND CASE p_verb
+                         WHEN 'insert' THEN rp.insert_scope IN ('ALL','GROUP')
+                         WHEN 'update' THEN rp.update_scope IN ('ALL','GROUP')
+                         ELSE              rp.delete_scope IN ('ALL','GROUP')
+                       END
+               )
+           )
         )
-        AND (NOT p_changing_owner OR EXISTS (
-              SELECT 1 FROM "MOLGENIS".role_permission_metadata rp
-              WHERE rp.schema_name = p_schema AND rp.table_name = '*'
-                AND rp.role_name IN ('Owner','Manager','Editor','Viewer')
-                AND pg_has_role(current_user,
-                      'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')
+        AND (NOT p_changing_owner OR
+              pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+           OR EXISTS (
+              SELECT 1
+              FROM "MOLGENIS".role_permission_metadata rp
+              JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
+              JOIN pg_auth_members pam ON pam.roleid = pgr.oid
+              JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
+              WHERE rp.schema_name = p_schema
+                AND rp.table_name  = p_table
                 AND rp.change_owner = true
-              UNION ALL
+            )
+           OR EXISTS (
               SELECT 1
               FROM "MOLGENIS".group_membership_metadata m
               JOIN "MOLGENIS".role_permission_metadata rp
@@ -195,17 +270,22 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write_all(
                AND rp.table_name  = p_table
               WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
                 AND m.schema_name = p_schema
-                AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')
                 AND rp.change_owner = true
             ))
-        AND (NOT p_changing_group OR EXISTS (
-              SELECT 1 FROM "MOLGENIS".role_permission_metadata rp
-              WHERE rp.schema_name = p_schema AND rp.table_name = '*'
-                AND rp.role_name IN ('Owner','Manager','Editor','Viewer')
-                AND pg_has_role(current_user,
-                      'MG_ROLE_' || p_schema || '/' || rp.role_name, 'MEMBER')
+        AND (NOT p_changing_group OR
+              pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+           OR EXISTS (
+              SELECT 1
+              FROM "MOLGENIS".role_permission_metadata rp
+              JOIN pg_roles pgr ON pgr.rolname = 'MG_ROLE_' || p_schema || '/' || rp.role_name
+              JOIN pg_auth_members pam ON pam.roleid = pgr.oid
+              JOIN pg_roles usr ON usr.oid = pam.member AND usr.rolname = current_user
+              WHERE rp.schema_name = p_schema
+                AND rp.table_name  = p_table
                 AND rp.change_group = true
-              UNION ALL
+            )
+           OR EXISTS (
               SELECT 1
               FROM "MOLGENIS".group_membership_metadata m
               JOIN "MOLGENIS".role_permission_metadata rp
@@ -214,7 +294,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write_all(
                AND rp.table_name  = p_table
               WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
                 AND m.schema_name = p_schema
-                AND rp.role_name  NOT IN ('Owner','Manager','Editor','Viewer')
                 AND rp.change_group = true
             ))
 $$;
@@ -257,30 +336,6 @@ BEGIN
     END IF;
     RETURN NEW;
 END; $$;
-
-DO $$
-DECLARE
-    s RECORD;
-BEGIN
-    FOR s IN SELECT table_schema FROM "MOLGENIS".schema_metadata LOOP
-        INSERT INTO "MOLGENIS".role_permission_metadata
-            (schema_name, role_name, table_name, select_scope, insert_scope, update_scope, delete_scope, change_owner, change_group)
-        VALUES
-            (s.table_schema, 'Owner',   '*', 'ALL', 'ALL',  'ALL',  'ALL',  TRUE,  TRUE),
-            (s.table_schema, 'Manager', '*', 'ALL', 'ALL',  'ALL',  'ALL',  TRUE,  TRUE),
-            (s.table_schema, 'Editor',  '*', 'ALL', 'ALL',  'ALL',  'ALL',  FALSE, FALSE),
-            (s.table_schema, 'Viewer',  '*', 'ALL', 'NONE', 'NONE', 'NONE', FALSE, FALSE)
-        ON CONFLICT DO NOTHING;
-
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_ROLE_' || s.table_schema || '_MEMBER') THEN
-            EXECUTE format('CREATE ROLE %I NOLOGIN NOBYPASSRLS NOINHERIT', 'MG_ROLE_' || s.table_schema || '_MEMBER');
-        END IF;
-        EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', s.table_schema, 'MG_ROLE_' || s.table_schema || '_MEMBER');
-        EXECUTE format('GRANT %I TO %I', 'MG_ROLE_' || s.table_schema || '/Exists', 'MG_ROLE_' || s.table_schema || '_MEMBER');
-        EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', 'MG_ROLE_' || s.table_schema || '_MEMBER', 'MG_ROLE_' || s.table_schema || '/Manager');
-        EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', 'MG_ROLE_' || s.table_schema || '_MEMBER', 'MG_ROLE_' || s.table_schema || '/Owner');
-    END LOOP;
-END $$;
 
 ALTER TABLE IF EXISTS "MOLGENIS".table_metadata
     ADD COLUMN IF NOT EXISTS rls_enabled BOOLEAN NOT NULL DEFAULT false;

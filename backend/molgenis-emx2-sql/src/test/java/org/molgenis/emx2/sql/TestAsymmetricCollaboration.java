@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 /**
  * Gate test for Phase 7: asymmetric collaboration where Alice is editor in group A and viewer in
@@ -59,7 +59,7 @@ public class TestAsymmetricCollaboration {
 
     PermissionSet editorPerms = new PermissionSet();
     editorPerms.setChangeGroup(true);
-    PermissionSet.TablePermissions editorTp = new PermissionSet.TablePermissions();
+    TablePermission editorTp = new TablePermission(TABLE_NAME);
     editorTp.setSelect(SelectScope.GROUP);
     editorTp.setInsert(UpdateScope.GROUP);
     editorTp.setUpdate(UpdateScope.GROUP);
@@ -68,7 +68,7 @@ public class TestAsymmetricCollaboration {
     roleManager.setPermissions(schema, ROLE_EDITOR, editorPerms);
 
     PermissionSet viewerPerms = new PermissionSet();
-    PermissionSet.TablePermissions viewerTp = new PermissionSet.TablePermissions();
+    TablePermission viewerTp = new TablePermission(TABLE_NAME);
     viewerTp.setSelect(SelectScope.GROUP);
     viewerTp.setInsert(UpdateScope.NONE);
     viewerTp.setUpdate(UpdateScope.NONE);

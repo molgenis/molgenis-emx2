@@ -11,7 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -73,7 +74,7 @@ class GraphqlPermissionFieldFactoryTest {
   void sessionPermissions_currentUserSeesOwnPermissions() throws IOException {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.ALL);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);
@@ -105,7 +106,7 @@ class GraphqlPermissionFieldFactoryTest {
     roleManager.createRole(SCHEMA_NAME, ROLE_REVIEWER);
 
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.ALL);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);
@@ -161,7 +162,7 @@ class GraphqlPermissionFieldFactoryTest {
     assertEquals("SUCCESS", result.at("/change/status").asText());
 
     PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
-    PermissionSet.TablePermissions tablePerms = perms.getTables().get(TABLE_NAME);
+    TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
     assertNotNull(tablePerms, "Table permissions must be present");
     assertEquals(SelectScope.ALL, tablePerms.getSelect(), "select scope must be ALL");
   }
@@ -250,7 +251,7 @@ class GraphqlPermissionFieldFactoryTest {
     assertEquals("SUCCESS", result.at("/change/status").asText());
 
     PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
-    PermissionSet.TablePermissions tablePerms = perms.getTables().get(TABLE_NAME);
+    TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
     assertNotNull(tablePerms, "Table permissions must be present");
     assertEquals(SelectScope.AGGREGATE, tablePerms.getSelect(), "select scope must be AGGREGATE");
   }
@@ -259,7 +260,7 @@ class GraphqlPermissionFieldFactoryTest {
   void sessionPermissions_exposesUnifiedSelect() throws IOException {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.AGGREGATE);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);

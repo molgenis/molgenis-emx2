@@ -207,10 +207,10 @@ public class GraphqlSessionFieldFactory {
                 Map.<String, Object>of(
                     ID, convertToPascalCase(p.table()),
                     NAME, p.table(),
-                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
-                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
-                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
-                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
+                    CAN_VIEW, p.select() != null && p.select() != SelectScope.NONE,
+                    CAN_INSERT, p.insert() != null && p.insert() != UpdateScope.NONE,
+                    CAN_UPDATE, p.update() != null && p.update() != UpdateScope.NONE,
+                    CAN_DELETE, p.delete() != null && p.delete() != UpdateScope.NONE))
         .toList();
   }
 

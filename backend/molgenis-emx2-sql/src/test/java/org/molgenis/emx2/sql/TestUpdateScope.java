@@ -9,8 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 class TestUpdateScope {
 
@@ -67,7 +67,7 @@ class TestUpdateScope {
   private void configureRole(
       String role, SelectScope select, UpdateScope insert, UpdateScope update, UpdateScope delete) {
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(select);
     tp.setInsert(insert);
     tp.setUpdate(update);

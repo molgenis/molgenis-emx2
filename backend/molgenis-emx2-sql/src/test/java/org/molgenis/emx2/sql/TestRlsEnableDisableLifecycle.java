@@ -130,9 +130,7 @@ class TestRlsEnableDisableLifecycle {
     roleManager.createRole(SCHEMA_NAME, ROLE_READER);
     PermissionSet ps =
         new PermissionSet()
-            .putTable(
-                TABLE_NAME,
-                new PermissionSet.TablePermissions().setSelect(PermissionSet.SelectScope.OWN));
+            .putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
     roleManager.setPermissions(schema, ROLE_READER, ps);
 
     MolgenisException ex = assertThrows(MolgenisException.class, () -> meta.setRlsEnabled(false));

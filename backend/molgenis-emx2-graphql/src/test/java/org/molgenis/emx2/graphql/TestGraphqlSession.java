@@ -9,7 +9,8 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -54,7 +55,7 @@ class TestGraphqlSession {
   void sessionPermissions_currentUserSeesOwnPermissions() throws IOException {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.ALL);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);
@@ -88,7 +89,7 @@ class TestGraphqlSession {
   void sessionPermissions_exposesUnifiedSelect() throws IOException {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.AGGREGATE);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);

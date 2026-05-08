@@ -9,8 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 /**
  * Verifies that RLS-enabled tables have exactly 4 policies regardless of how many custom roles are
@@ -60,7 +60,7 @@ class TestPolicyCount {
 
   private PermissionSet groupPermissions(String tableName) {
     PermissionSet ps = new PermissionSet();
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(tableName);
     tp.setSelect(SelectScope.GROUP);
     tp.setInsert(UpdateScope.GROUP);
     tp.setUpdate(UpdateScope.GROUP);

@@ -14,9 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.UpdateScope;
 
 public class TestChangeOwnerGroupSqlEnforcement {
 
@@ -72,7 +73,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
     return new PermissionSet()
         .putTable(
             OWNER_TABLE,
-            new PermissionSet.TablePermissions()
+            new TablePermission(OWNER_TABLE)
                 .setSelect(SelectScope.OWN)
                 .setInsert(UpdateScope.ALL)
                 .setUpdate(UpdateScope.ALL));
@@ -82,7 +83,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
     return new PermissionSet()
         .putTable(
             GROUP_TABLE,
-            new PermissionSet.TablePermissions()
+            new TablePermission(GROUP_TABLE)
                 .setSelect(SelectScope.ALL)
                 .setInsert(UpdateScope.ALL)
                 .setUpdate(UpdateScope.ALL));

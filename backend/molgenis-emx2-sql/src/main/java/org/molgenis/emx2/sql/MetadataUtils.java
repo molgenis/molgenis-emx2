@@ -20,8 +20,6 @@ public class MetadataUtils {
 
   static final String MOLGENIS = "MOLGENIS";
   static final String NOT_PROVIDED = "NOT_PROVIDED";
-  private static final String WILDCARD_TABLE = "*";
-  static final String RPM_STUB_TABLE_SENTINEL = "";
   // tables
   private static final org.jooq.Table DATABASE_METADATA =
       table(name(MOLGENIS, "database_metadata"));
@@ -73,7 +71,7 @@ public class MetadataUtils {
   static final Field<String> GMM_SCHEMA_NAME =
       field(name(MOLGENIS, "group_membership_metadata", "schema_name"), VARCHAR.nullable(false));
   static final Field<String> GMM_GROUP_NAME =
-      field(name(MOLGENIS, "group_membership_metadata", "group_name"), VARCHAR.nullable(false));
+      field(name(MOLGENIS, "group_membership_metadata", "group_name"), VARCHAR.nullable(true));
   static final Field<String> GMM_ROLE_NAME =
       field(name(MOLGENIS, "group_membership_metadata", "role_name"), VARCHAR.nullable(false));
   static final Field<String> GMM_GRANTED_BY =
@@ -795,45 +793,5 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
-  }
-
-  static void seedSystemRoles(DSLContext jooq, String schemaName) {
-    jooq.insertInto(ROLE_PERMISSION_METADATA)
-        .columns(
-            RPM_SCHEMA_NAME,
-            RPM_ROLE_NAME,
-            RPM_TABLE_NAME,
-            RPM_SELECT_SCOPE,
-            RPM_INSERT_SCOPE,
-            RPM_UPDATE_SCOPE,
-            RPM_DELETE_SCOPE,
-            RPM_CHANGE_OWNER,
-            RPM_CHANGE_GROUP)
-        .values(schemaName, "Owner", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", true, true)
-        .values(schemaName, "Manager", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", true, true)
-        .values(schemaName, "Editor", WILDCARD_TABLE, "ALL", "ALL", "ALL", "ALL", false, false)
-        .values(schemaName, "Viewer", WILDCARD_TABLE, "ALL", "NONE", "NONE", "NONE", false, false)
-        .onConflictDoNothing()
-        .execute();
-  }
-
-  static void executeCreateMemberRole(DSLContext jooq, String schemaName) {
-    String memberRole = MG_ROLE_PREFIX + schemaName + "_MEMBER";
-    String existsRole = MG_ROLE_PREFIX + schemaName + "/Exists";
-    String managerRole = MG_ROLE_PREFIX + schemaName + "/Manager";
-    String ownerRole = MG_ROLE_PREFIX + schemaName + "/Owner";
-    jooq.execute(
-        "DO $$\n"
-            + "BEGIN\n"
-            + "    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {0}) THEN\n"
-            + "        CREATE ROLE {1} NOLOGIN NOBYPASSRLS NOINHERIT;\n"
-            + "    END IF;\n"
-            + "END\n"
-            + "$$;\n",
-        inline(memberRole), name(memberRole));
-    jooq.execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schemaName), name(memberRole));
-    jooq.execute("GRANT {0} TO {1}", name(existsRole), name(memberRole));
-    jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(memberRole), name(managerRole));
-    jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(memberRole), name(ownerRole));
   }
 }

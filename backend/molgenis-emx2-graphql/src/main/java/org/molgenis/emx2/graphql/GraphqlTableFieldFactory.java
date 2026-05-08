@@ -67,7 +67,7 @@ public class GraphqlTableFieldFactory {
     this.schema = schema;
     this.tablesWithSelectPermission =
         schema.getPermissionsForActiveUser().stream()
-            .filter(p -> Boolean.TRUE.equals(p.select()))
+            .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
             .map(TablePermission::table)
             .collect(Collectors.toUnmodifiableSet());
   }

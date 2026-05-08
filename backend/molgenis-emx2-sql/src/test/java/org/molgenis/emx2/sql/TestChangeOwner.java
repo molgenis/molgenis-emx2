@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.UpdateScope;
 
 class TestChangeOwner {
 
@@ -43,7 +43,7 @@ class TestChangeOwner {
 
     PermissionSet noCoPerms = new PermissionSet();
     noCoPerms.setChangeOwner(false);
-    PermissionSet.TablePermissions tp = new PermissionSet.TablePermissions();
+    TablePermission tp = new TablePermission(TABLE_NAME);
     tp.setSelect(SelectScope.ALL);
     tp.setInsert(UpdateScope.ALL);
     tp.setUpdate(UpdateScope.ALL);
@@ -53,7 +53,7 @@ class TestChangeOwner {
 
     PermissionSet yesCoPerms = new PermissionSet();
     yesCoPerms.setChangeOwner(true);
-    PermissionSet.TablePermissions tpYes = new PermissionSet.TablePermissions();
+    TablePermission tpYes = new TablePermission(TABLE_NAME);
     tpYes.setSelect(SelectScope.ALL);
     tpYes.setInsert(UpdateScope.ALL);
     tpYes.setUpdate(UpdateScope.ALL);

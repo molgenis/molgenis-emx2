@@ -55,9 +55,6 @@ class SqlTableMetadataExecutor {
     jooq.execute(
         "ALTER TABLE {0} OWNER TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(MG_ROLE_PREFIX + table.getSchema().getName() + "_MEMBER"));
 
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {

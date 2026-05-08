@@ -1,0 +1,11 @@
+// GRAVEYARD: retired in Phase A.3 — `users` column assertion baked in Phase-7 model.
+// `groups_metadata` in v4 is (schema, name) only; no `users` column.
+// Valid tests (groupsMetadataFkCascadesOnSchemaDelete, currentUserGroupsFunction,
+// refArrayColumnHasGinIndex) ported to TestGroupsMetadata.java.
+// groupsMetadataTableHasCorrectStructure rewritten to assert users column absent.
+
+package org.molgenis.emx2.sql;
+
+// Retired assertion:
+//   assertNotNull(groupsTable.field("users"), "column 'users' must exist");
+// v4 spec: groups_metadata columns = (schema, name) only — no users column.

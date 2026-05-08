@@ -14,10 +14,11 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.UpdateScope;
 
 public class GraphqlPermissionFieldFactory {
 
@@ -217,8 +218,8 @@ public class GraphqlPermissionFieldFactory {
       UpdateScope updateScope = toUpdateScope(rawMap.get(UPDATE));
       UpdateScope deleteScope = toUpdateScope(rawMap.get(DELETE));
 
-      PermissionSet.TablePermissions perms =
-          new PermissionSet.TablePermissions()
+      TablePermission perms =
+          new TablePermission(tableName)
               .setSelect(selectScope)
               .setInsert(insertScope)
               .setUpdate(updateScope)

@@ -16,9 +16,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 
 class TestAggregationPermission {
 
@@ -319,7 +320,7 @@ class TestAggregationPermission {
     }
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(scope));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(scope));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
   }

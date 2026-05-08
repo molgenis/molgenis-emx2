@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -571,8 +569,8 @@ public class GraphqlSchemaFieldFactory {
       for (Role role : schema.getRoleInfos()) {
         PermissionSet ps;
         if (role.isSystemRole()) {
-          PermissionSet.TablePermissions wildcard =
-              new PermissionSet.TablePermissions()
+          TablePermission wildcard =
+              new TablePermission("*")
                   .setSelect(SelectScope.ALL)
                   .setInsert(UpdateScope.ALL)
                   .setUpdate(UpdateScope.ALL)
@@ -812,7 +810,7 @@ public class GraphqlSchemaFieldFactory {
       String resolvedUser = (userField != null && !userField.isEmpty()) ? userField : m.get(EMAIL);
       String role = m.get(ROLE);
       String group = m.get(GROUP);
-      if (roleManager.isSystemRole(role)) {
+      if (role == null || roleManager.isSystemRole(role)) {
         schema.removeMember(resolvedUser);
         message.append("Dropped member '").append(resolvedUser).append("'\n");
       } else {

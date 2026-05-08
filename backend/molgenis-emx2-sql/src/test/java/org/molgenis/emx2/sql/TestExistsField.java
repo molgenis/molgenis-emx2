@@ -12,9 +12,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 
 class TestExistsField {
 
@@ -188,7 +189,7 @@ class TestExistsField {
     }
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(scope));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(scope));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
   }

@@ -51,17 +51,6 @@ class TestSystemRolesNoBypassRls {
   }
 
   @Test
-  void memberUmbrellaRoleDoesNotHaveBypassRls() {
-    String memberRole = MG_ROLE_PREFIX + SCHEMA_NAME + "_MEMBER";
-    Record row =
-        jooq.fetchOne("SELECT rolname, rolbypassrls FROM pg_roles WHERE rolname = ?", memberRole);
-    assertNotNull(row, "MG_ROLE_<schema>_MEMBER must exist");
-    assertFalse(
-        Boolean.TRUE.equals(row.get("rolbypassrls", Boolean.class)),
-        "MG_ROLE_<schema>_MEMBER must not have BYPASSRLS");
-  }
-
-  @Test
   void eachExpectedSystemRolePgRoleExists() {
     String rolePrefix = MG_ROLE_PREFIX + SCHEMA_NAME + "/";
     List<String> existingRoles =

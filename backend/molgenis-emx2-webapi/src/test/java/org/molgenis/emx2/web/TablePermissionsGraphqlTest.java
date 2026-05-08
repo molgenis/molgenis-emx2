@@ -16,8 +16,10 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.UpdateScope;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")
@@ -279,7 +281,9 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   @Order(8)
   void dropCustomRoleViaGraphql() {
     database.becomeAdmin();
-    database.getSchema(SCHEMA).grant("ReaderA", new TablePermission(TABLE_A).select(true));
+    database
+        .getSchema(SCHEMA)
+        .grant("ReaderA", new TablePermission(TABLE_A).select(SelectScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -340,7 +344,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MixedRole");
-    schema.grant("MixedRole", new TablePermission(TABLE_A).select(true).insert(true));
+    schema.grant(
+        "MixedRole", new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -424,8 +429,12 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("FalseTestRole");
     schema.grant(
-        "FalseTestRole", new TablePermission(TABLE_A).select(true).insert(true).update(true));
-    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(false));
+        "FalseTestRole",
+        new TablePermission(TABLE_A)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.ALL)
+            .update(UpdateScope.ALL));
+    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(UpdateScope.NONE));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -461,7 +470,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("OntologyTestRole");
-    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(CUSTOM_USER, "OntologyTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -543,7 +552,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
         .sessionId(sessionId)
         .body(
             """
-            {"query":"mutation{drop(members:\\"tpgql_custom\\"){message}}"}
+            {"query":"mutation{drop(members:[{user:\\"tpgql_custom\\"}]){message}}"}
             """)
         .post(SCHEMA_GQL)
         .then()

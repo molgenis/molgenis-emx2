@@ -9,8 +9,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
 
 class TestEffectiveSelectScopes {
 
@@ -47,7 +48,7 @@ class TestEffectiveSelectScopes {
     ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -64,7 +65,7 @@ class TestEffectiveSelectScopes {
   void customRole_withSelectAll_returnsAll() {
     roleManager.createRole(schema, CUSTOM_ROLE, "role with ALL select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.ALL));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -81,7 +82,7 @@ class TestEffectiveSelectScopes {
   void customRole_withSelectNone_returnsEmpty() {
     roleManager.createRole(schema, CUSTOM_ROLE, "role with NONE select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.NONE));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.NONE));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -152,7 +153,7 @@ class TestEffectiveSelectScopes {
     ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 

@@ -446,28 +446,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
-    Map<String, String> existing = MetadataUtils.loadDatabaseSettings(jooq);
-    Map<String, String> merged = new LinkedHashMap<>(existing != null ? existing : Map.of());
-    if (settings != null) {
-      merged.putAll(settings);
-    }
-    super.setSettings(merged);
-    MetadataUtils.saveDatabaseSettings(jooq, merged);
+    super.setSettings(settings);
+    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
-    this.listener.onSchemaChange();
-    return this;
-  }
-
-  @Override
-  public Database removeSetting(String key) {
-    if (!isAdmin()) {
-      throw new MolgenisException("Insufficient rights to remove database level setting");
-    }
-    Map<String, String> existing = MetadataUtils.loadDatabaseSettings(jooq);
-    Map<String, String> updated = new LinkedHashMap<>(existing != null ? existing : Map.of());
-    updated.remove(key);
-    super.setSettings(updated);
-    MetadataUtils.saveDatabaseSettings(jooq, updated);
     this.listener.onSchemaChange();
     return this;
   }
@@ -683,7 +664,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               DSLContext ctx = DSL.using(config);
               ctx.execute("SET CONSTRAINTS ALL DEFERRED");
               db.setJooq(ctx);
-              db.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(ctx));
               transaction.run(db);
               db.tableListenersExecutePostCommit();
             });
@@ -897,10 +877,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             "select distinct m.rolname as member, r.rolname as role"
                 + " from pg_catalog.pg_auth_members am "
                 + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                + " join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + " where r.rolname LIKE {0} and m.rolname LIKE {1}"
-                + " and r.rolname NOT LIKE {2}",
-            roleFilter + "%", userFilter + "%", "%_MEMBER");
+                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
+            roleFilter + "%", userFilter + "%");
 
     for (Record userRecord : allRoles) {
       String memberName =

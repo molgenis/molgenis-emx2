@@ -14,8 +14,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.UpdateScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -71,7 +72,7 @@ class TestGraphqlSchemaMembers {
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet analystPs = new PermissionSet();
-    PermissionSet.TablePermissions analystTp = new PermissionSet.TablePermissions();
+    TablePermission analystTp = new TablePermission(TABLE_NAME);
     analystTp.setSelect(SelectScope.ALL);
     analystTp.setInsert(UpdateScope.NONE);
     analystTp.setUpdate(UpdateScope.NONE);
@@ -80,7 +81,7 @@ class TestGraphqlSchemaMembers {
     roleManager.setPermissions(schema, ROLE_ANALYST, analystPs);
 
     PermissionSet reviewerPs = new PermissionSet();
-    PermissionSet.TablePermissions reviewerTp = new PermissionSet.TablePermissions();
+    TablePermission reviewerTp = new TablePermission(TABLE_NAME);
     reviewerTp.setSelect(SelectScope.GROUP);
     reviewerTp.setInsert(UpdateScope.NONE);
     reviewerTp.setUpdate(UpdateScope.NONE);
@@ -172,7 +173,7 @@ class TestGraphqlSchemaMembers {
       assertFalse(aliceSchemaWideRows.isEmpty(), "Schema-wide custom grant must appear in members");
       assertTrue(
           aliceSchemaWideRows.stream().allMatch(r -> r.group() == null),
-          "Schema-wide custom grant must have group=null, not the __direct__ sentinel");
+          "Schema-wide custom grant must have group=null");
     } finally {
       roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_ALICE);
     }
@@ -317,7 +318,7 @@ class TestGraphqlSchemaMembers {
     try {
       assertFalse(
           queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
-          "Schema-wide grant (__direct__ group, not exposed via _schema.groups) must not leak USER_ALICE into named group TeamA");
+          "Schema-wide grant (null group, not exposed via _schema.groups) must not leak USER_ALICE into named group TeamA");
     } finally {
       roleManager.revokeRoleFromUser(schema, ROLE_REVIEWER, USER_ALICE);
     }

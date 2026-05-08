@@ -609,7 +609,7 @@ class TestGraphqlSchemaFields {
     assertEquals(count + 1, execute("{_schema{members{email}}}").at("/_schema/members").size());
 
     // remove members
-    execute("mutation{drop(members:[{user:\"blaat\",role:\"Manager\"}]){message}}");
+    execute("mutation{drop(members:[{user:\"blaat\"}]){message}}");
     assertEquals(count, execute("{_schema{members{email}}}").at("/_schema/members").size());
   }
 

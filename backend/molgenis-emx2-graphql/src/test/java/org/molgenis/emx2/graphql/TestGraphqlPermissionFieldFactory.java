@@ -11,8 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.UpdateScope;
 
 class TestGraphqlPermissionFieldFactory {
 
@@ -70,14 +71,14 @@ class TestGraphqlPermissionFieldFactory {
     assertTrue(ps.isChangeOwner());
     assertFalse(ps.isChangeGroup());
 
-    PermissionSet.TablePermissions pet = ps.getTables().get("Pet");
+    TablePermission pet = ps.getTables().get("Pet");
     assertNotNull(pet);
     assertEquals(SelectScope.ALL, pet.getSelect());
     assertEquals(UpdateScope.OWN, pet.getInsert());
     assertEquals(UpdateScope.GROUP, pet.getUpdate());
     assertEquals(UpdateScope.NONE, pet.getDelete());
 
-    PermissionSet.TablePermissions order = ps.getTables().get("Order");
+    TablePermission order = ps.getTables().get("Order");
     assertNotNull(order);
     assertEquals(SelectScope.AGGREGATE, order.getSelect());
     assertEquals(UpdateScope.NONE, order.getInsert());
@@ -109,7 +110,7 @@ class TestGraphqlPermissionFieldFactory {
     Map<String, Object> input = Map.of(PERMISSIONS, List.of(Map.of(TABLE, "Pet")));
 
     PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(input);
-    PermissionSet.TablePermissions pet = ps.getTables().get("Pet");
+    TablePermission pet = ps.getTables().get("Pet");
 
     assertNotNull(pet);
     assertEquals(SelectScope.NONE, pet.getSelect());

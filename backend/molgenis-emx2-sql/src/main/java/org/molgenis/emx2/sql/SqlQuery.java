@@ -22,7 +22,6 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
-import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -204,7 +203,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getTablePermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
+              .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }

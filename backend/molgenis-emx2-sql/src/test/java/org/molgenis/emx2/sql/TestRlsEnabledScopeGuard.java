@@ -9,9 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.TablePermission;
+import org.molgenis.emx2.UpdateScope;
 
 public class TestRlsEnabledScopeGuard {
 
@@ -38,8 +39,7 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.getSchema(SCHEMA_NAME);
     PermissionSet permissions =
         new PermissionSet()
-            .putTable(
-                NON_RLS_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.OWN));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.OWN));
 
     MolgenisException ex =
         assertThrows(
@@ -56,7 +56,7 @@ public class TestRlsEnabledScopeGuard {
     PermissionSet permissions =
         new PermissionSet()
             .putTable(
-                NON_RLS_TABLE, new PermissionSet.TablePermissions().setUpdate(UpdateScope.GROUP));
+                NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setUpdate(UpdateScope.GROUP));
 
     MolgenisException ex =
         assertThrows(
@@ -73,8 +73,7 @@ public class TestRlsEnabledScopeGuard {
     PermissionSet permissions =
         new PermissionSet()
             .setChangeOwner(true)
-            .putTable(
-                NON_RLS_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.ALL));
 
     MolgenisException ex =
         assertThrows(
@@ -90,8 +89,7 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.getSchema(SCHEMA_NAME);
     PermissionSet permissions =
         new PermissionSet()
-            .putTable(
-                NON_RLS_TABLE, new PermissionSet.TablePermissions().setSelect(SelectScope.ALL));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.ALL));
 
     assertDoesNotThrow(() -> roleManager.setPermissions(schema, ROLE_NAME, permissions));
 
