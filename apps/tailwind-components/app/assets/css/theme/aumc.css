@@ -26,6 +26,9 @@
     var(--color-gradient2) 133.81%
   );
 
+  --text-color-logo-text: var(--color-white);
+  --text-color-logo-text-inverted: var(--color-orange-500);
+
   --background-color-navigation: rgba(0, 0, 0, 0.2);
   --background-color-navigation-sticky: var(--color-blue-800);
 

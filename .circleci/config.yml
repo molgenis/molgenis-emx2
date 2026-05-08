@@ -15,7 +15,7 @@ parameters:
     default: ""
 
 orbs:
-  slack: circleci/slack@6.1.2
+  slack: circleci/slack@6.1.3
   queue: eddiewebb/queue@3.1.4
 
 definitions:
@@ -80,9 +80,9 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - run:
-        name: run-audit-ci
-        command: npx audit-ci@^7 --config ./audit-ci.jsonc --critical
-        working_directory: apps      
+        name: run-pnpm-audit
+        command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
+        working_directory: apps
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -203,16 +203,6 @@ jobs:
             sleep 10
           done
 
-    - run:
-        name: message slack about preview
-        command: |
-          export $( cat build/ci.properties | xargs )
-          curl -d "token=${SLACK_TOKEN}" \
-          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
-          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
-          -d "channel=C02AZDG6QQ7" \
-          -X POST https://slack.com/api/chat.postMessage
-
     - post_steps
 
   test:
@@ -317,7 +307,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.59.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.59.1-jammy
     steps:
       - checkout
       - run:
@@ -429,6 +419,33 @@ jobs:
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
+
+    - run:
+        name: Wait for pr preview restart, poll every 10 seconds
+        command: |
+          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/directory-demo/directory/"           
+          while true; 
+              do 
+                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                  echo ${STATUS} ${GETURL}
+                  if [[ "$STATUS" == "200" ]]; then 
+                      echo "test data is loaded";
+                      break; 
+                  else 
+                      echo "preview is not ready yet, waiting 10 seconds...";
+                  fi; 
+                  sleep 10; 
+              done
+
+    - run:
+        name: message slack about preview
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -d "token=${SLACK_TOKEN}" \
+          -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
+          PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
+          -d "channel=C02AZDG6QQ7" \
+          -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
 

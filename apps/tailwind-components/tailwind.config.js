@@ -409,6 +409,9 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "logo-background": "var(--background-color-logo)",
+        "logo-icon-primary": "var(--logo-icon-primary)",
+        "logo-icon-secondary": "var(--logo-icon-secondary)",
         "chart-text": "var(--chart-text)",
         "chart-paths": "var(--chart-paths)",
       }),
@@ -433,6 +436,7 @@ module.exports = {
       },
       outlineColor: {
         select: "var(--outline-color-select)",
+        "pagination-hover": "var(--border-color-pagination-hover)",
       },
       content: () => ({
         required: "var(--text-content-required)",

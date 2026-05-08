@@ -251,6 +251,9 @@ const query = computed(() => {
       design {
           name
       }
+      networkType {
+          name
+      }
       datasets {
         name
         label
@@ -270,13 +273,14 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (!result.type) {
-    if (route.params.resourceType === "collections") {
-      result.type = { tags: { equals: "collection" } };
-    }
-    if (route.params.resourceType === "networks") {
-      result.type = { tags: { equals: "network" } };
-    }
+  if (route.params.resourceType === "collections") {
+    result.mg_tableclass = { equals: `${schema}.Collections` };
+  }
+  if (route.params.resourceType === "networks") {
+    result._or = [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ];
   }
 
   // add hard coded page specific filters
