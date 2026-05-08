@@ -136,4 +136,4 @@ def check_draft(df: pd.DataFrame, table_name: str):
         return
     num_drafts = df[MG_DRAFT].value_counts().get(True, 0)
     if num_drafts != 0:
-        raise DraftException(f"Table {table_name!r} contains {num_drafts} draft records.")
+        raise DraftException(f"Table {table_name!r} contains {num_drafts} draft record{'s'*(num_drafts != 1)}.")

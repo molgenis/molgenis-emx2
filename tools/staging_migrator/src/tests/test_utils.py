@@ -6,8 +6,8 @@ import pandas as pd
 import pytest
 
 from staging_migrator.src.molgenis_emx2_staging_migrator.exceptions import MissingContactException, \
-    MissingHRICoreException
-from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_contacts, check_hricore
+    MissingHRICoreException, DraftException
+from staging_migrator.src.molgenis_emx2_staging_migrator.utils import process_contacts, check_hricore, check_draft
 
 
 def test_process_contacts():
@@ -37,8 +37,6 @@ def test_process_contacts():
     processed_contacts = process_contacts(contacts_df, resources_df)
     assert processed_contacts["mg_delete"].values.tolist() == [False, False, True, True]
 
-
-
 def test_check_hricore():
     """Tests the `check_hricore` utility function."""
     resources_csv = (
@@ -52,3 +50,16 @@ def test_check_hricore():
     with pytest.raises(MissingHRICoreException) as e:
         check_hricore(resources_df, "UMCGCohortsStaging")
     assert str(e.value) == "Message: Value 'hricore' not set to 'Yes' for resource 'B, C'\n"
+
+def test_check_draft():
+    """Tests the `check_draft` utility function."""
+    resources_csv = (
+        """hricore,id,name,mg_draft\n"""
+        """true,A,A,\n"""
+        """false,B,B,false\n"""
+        """,C,C,true"""
+    )
+    resources_df = pd.read_csv(io.StringIO(resources_csv))
+    with pytest.raises(DraftException) as e:
+        check_draft(resources_df, "Resources")
+    assert str(e.value) == "Message: Table 'Resources' contains 1 draft record.\n"
