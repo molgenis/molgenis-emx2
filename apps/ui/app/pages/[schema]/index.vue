@@ -43,7 +43,7 @@ interface Schema {
 }
 
 const { data } = await useFetch<Resp<Schema>>(getContextPath() + `/${schema}/graphql`, {
-  key: "tables",
+  key: "fetch-tables-for-${schema}",
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
