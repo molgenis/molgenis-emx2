@@ -2,6 +2,14 @@
 
 See setting menu.
 
+### New ui (tailwind-based) settings (Alpha non-stable feature)
+
+#### Landing page
+Set the landing page with the optional SCHEMA_LANDING_PAGE setting
+
+ - key: ```SCHEMA_LANDING_PAGE```
+ - value: a string containing app route (for example: ```/pet%20store/Pet```)
+
 ## Members
 
 ## Layout
@@ -9,9 +17,9 @@ See setting menu.
 ## Menu
 
 
-### New ui (tailwind based) menu
-With no configuration, the new ui shows a mix of internal and external links .
-Both the default menu and the user defined menu use the following configuration:
+### New ui (tailwind-based) menu (Alpha non-stable feature)
+With no configuration, the new ui shows a mix of internal and external links.
+Both the default menu and the user-defined menu use the following configuration:
 
 ```ts
 type Menu = MenuItem[];
