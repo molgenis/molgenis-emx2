@@ -230,7 +230,10 @@ class StagingMigrator(Client):
         primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
 
         # Find columns that reference 'Resources'
-        ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+        if table.name in ["Collections", "Networks", "Catalogues"]:
+            ref_cols = ["id"]
+        else:
+            ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
 
         # Load the data for the table from the ZIP files
         source_df = load_table('source', table)
