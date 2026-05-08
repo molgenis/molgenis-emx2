@@ -5,10 +5,10 @@ import type { RouteLocationNormalizedGeneric } from "vue-router";
 
 export const useSchemaSettings = async (
   keys: Set<string>,
-  middleWareRoute?: RouteLocationNormalizedGeneric
+  middlewareRoute?: RouteLocationNormalizedGeneric
 ) => {
-  // middleWareRoute is used to get the route in middleware, where useRoute() cannot be used (see: https://nuxt.com/docs/4.x/directory-structure/app/middleware#accessing-route-in-middleware)
-  const route = middleWareRoute ?? useRoute();
+  // middlewareRoute is used to get the route in middleware, where useRoute() cannot be used (see: https://nuxt.com/docs/4.x/directory-structure/app/middleware#accessing-route-in-middleware)
+  const route = middlewareRoute ?? useRoute();
   const schema = computed(() =>
     Array.isArray(route.params.schema)
       ? route.params.schema[0]
