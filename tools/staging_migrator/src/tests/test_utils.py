@@ -22,8 +22,7 @@ def test_process_contacts():
                      """R1,R1,A1,B1\n"""
                      """R2,R2,A2,B2\n"""
                      """R3,R3,A3,B3\n"""
-                     """R4,R4,A4,B4\n"""
-                     """R5,R5,A5,B5\n""")
+                     """R4,R4,A4,B4\n""")
     resources_df = pd.read_csv(io.StringIO(resources_csv))
 
     with pytest.raises(MissingContactException) as e_info:
