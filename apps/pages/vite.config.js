@@ -12,7 +12,7 @@ export default defineConfig((command) => {
         languages: ["editorWorkerService", "html", "css", "typescript"],
     }),
   ],
-  base: command === "serve" ? "/" :"apps/pages/",
+  base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/pages/",
   server: {
     proxy: require("../dev-proxy.config"),
   },

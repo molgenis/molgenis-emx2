@@ -28,6 +28,7 @@ import {
 } from "../../../../../../tailwind-components/app/utils/cms";
 
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
+import { getContextPath } from "../../../../../../tailwind-components/app/utils/contextPath";
 
 interface ModelStatus {
   type: INotificationType;
@@ -69,7 +70,7 @@ async function saveSetting() {
   statusModalData.value.message = "";
   isSaving.value = true;
 
-  const response = await $fetch(`/${schema}/graphql`, {
+  const response = await $fetch(getContextPath() + `/${schema}/graphql`, {
     method: "POST",
     body: {
       query: `mutation save($page:[DeveloperPageInput]){save(DeveloperPage:$page){status message}}`,

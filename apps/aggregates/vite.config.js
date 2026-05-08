@@ -4,6 +4,7 @@ import devProxy from "../dev-proxy.config";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import { viteBase } from "../vite-base.js";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -33,7 +34,7 @@ export default defineConfig(({command}) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/aggregates/",
+    base: viteBase("aggregates", command),
     server: {
       proxy: devProxy
     },

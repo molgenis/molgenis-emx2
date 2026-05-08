@@ -93,6 +93,7 @@
 import { ref, onBeforeMount } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+import { getContextPath } from "molgenis-components";
 
 withDefaults(
   defineProps<{
@@ -132,7 +133,7 @@ async function getManifest() {
       }
     }
   `;
-  const response: IManifestResponse = await request("/api/graphql", query);
+  const response: IManifestResponse = await request(getContextPath() + "/api/graphql", query);
   manifest.value = response._manifest;
 }
 

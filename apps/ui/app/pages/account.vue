@@ -2,6 +2,7 @@
 import { navigateTo, useRoute, useRouter } from "#app/composables/router";
 import { ref } from "vue";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -14,7 +15,7 @@ const { session, reload: reloadSession } = await useSession(
 
 const errorMsg = ref("");
 async function signout() {
-  const { data, error } = await $fetch("/api/graphql", {
+  const { data, error } = await $fetch(getContextPath() + "/api/graphql", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

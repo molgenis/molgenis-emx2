@@ -18,14 +18,14 @@
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
           <ButtonAction
-            :href="`/${schema.name}/schema/#/print`"
+            :href="`${contextPath}/${schema.name}/schema/#/print`"
             target="_blank"
             class="ml-2"
           >
             Show printable table
           </ButtonAction>
           <ButtonAction
-            :href="`/${schema.name}/schema/#/print-list`"
+            :href="`${contextPath}/${schema.name}/schema/#/print-list`"
             target="_blank"
             class="ml-2"
           >
@@ -108,6 +108,7 @@ import {
   Spinner,
   deepClone,
   InputBoolean,
+  getContextPath,
 } from "molgenis-components";
 import VueScrollTo from "vue-scrollto";
 import {
@@ -132,6 +133,11 @@ export default {
   props: {
     session: {
       type: Object,
+    },
+  },
+  computed: {
+    contextPath() {
+      return getContextPath();
     },
   },
   data() {

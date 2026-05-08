@@ -14,6 +14,7 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+import { getContextPath } from "molgenis-components";
 
 let manifest = ref({});
 
@@ -27,7 +28,7 @@ async function getManifest() {
       }
     }
   `;
-  const result = await request("/api/graphql", query);
+  const result = await request(getContextPath() + "/api/graphql", query);
   return result._manifest;
 }
 

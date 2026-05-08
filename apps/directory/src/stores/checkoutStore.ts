@@ -11,6 +11,7 @@ import {
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
 import useErrorHandler from "../composables/errorHandler";
+import { getContextPath } from "molgenis-components";
 
 export interface ILabelValuePair {
   label: string;
@@ -402,7 +403,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       body.nToken = nToken.value;
     }
 
-    const response = await fetch(`/api/podium`, {
+    const response = await fetch(getContextPath() + `/api/podium`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

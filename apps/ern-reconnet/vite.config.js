@@ -4,10 +4,11 @@ import devProxy from "../dev-proxy.config";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import { viteBase } from "../vite-base.js";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((command) => {
+export default defineConfig(({ command }) => {
   // Load environment variables
   dotenv.config({ path: "./.env" });
 
@@ -34,7 +35,7 @@ export default defineConfig((command) => {
       }
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/ern-reconnet/",
+    base: viteBase("ern-reconnet", command),
     server: {
       proxy: devProxy
     },

@@ -50,6 +50,7 @@ import {
   MessageSuccess,
   Spinner,
   InputText,
+  getContextPath,
 } from "molgenis-components";
 
 export default {
@@ -80,7 +81,7 @@ export default {
       return "Edit database";
     },
     endpoint() {
-      return "/api/graphql";
+      return getContextPath() + "/api/graphql";
     },
   },
   methods: {

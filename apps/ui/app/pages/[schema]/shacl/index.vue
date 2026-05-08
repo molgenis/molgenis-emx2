@@ -22,6 +22,7 @@ import {
   runShacl,
 } from "../../../util/shaclUtils";
 import { isSuccess } from "../../../util/processUtils";
+import { getContextPath } from "../../../../../tailwind-components/app/utils/contextPath";
 
 const route = useRoute();
 const routeSchema = (
@@ -37,7 +38,7 @@ const crumbs = [
   { url: `/${routeSchema}/shacl`, label: "shacl" },
 ];
 
-const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
+const { data, status, error } = await useFetch(getContextPath() + `/api/rdf?shacls`, {
   key: "shaclSets",
   getCachedData(key, nuxtApp) {
     return nuxtApp.payload.data[key] || nuxtApp.static.data[key];

@@ -1,5 +1,5 @@
 //@ts-ignore
-import { QueryEMX2 } from "molgenis-components";
+import { QueryEMX2, getContextPath } from "molgenis-components";
 import {
   IFilterFacet,
   IFilterOption,
@@ -286,6 +286,6 @@ function getChildrenPerParent(
 
 export function getSchema(sourceSchema: string | undefined) {
   return sourceSchema
-    ? `${window.location.protocol}//${window.location.host}/${sourceSchema}`
+    ? window.location.origin + getContextPath() + "/" + sourceSchema
     : "graphql";
 }

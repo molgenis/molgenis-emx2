@@ -43,6 +43,7 @@ export default defineNuxtConfig({
     storesDirs: ["./app/stores/**"],
   },
   app: {
+    baseURL: process.env.NUXT_APP_BASE_URL || "/",
     head: {
       htmlAttrs: {
         "data-theme": "",

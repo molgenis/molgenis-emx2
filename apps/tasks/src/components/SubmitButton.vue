@@ -34,6 +34,7 @@ import {
   MessageError,
   Task,
   InputText,
+  getContextPath,
 } from "molgenis-components";
 
 export default {
@@ -71,7 +72,7 @@ export default {
       this.isModalShown = false;
     },
     submitScript() {
-      let url = "/api/scripts/" + this.script.name;
+      let url = getContextPath() + "/api/scripts/" + this.script.name;
       fetch(url, {
         method: "POST",
         body: this.parameters,

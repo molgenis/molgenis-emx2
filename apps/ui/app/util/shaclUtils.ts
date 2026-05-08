@@ -2,6 +2,7 @@ import { useHead, useState } from "#app";
 import type { ProcessData } from "../../../metadata-utils/src/generic";
 import { downloadBlob } from "../../../tailwind-components/app/utils/downloadBlob";
 import { isSuccess } from "./processUtils";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 
 // Structure: routeSchema -> routeShaclSet -> ProcessData
 const shaclSetRuns = useState(
@@ -31,7 +32,7 @@ export async function runShacl(
   processData.error = undefined;
   processData.status = "RUNNING";
 
-  const res = await fetch(`/${schema}/api/rdf?validate=${shaclSet}`);
+  const res = await fetch(getContextPath() + `/${schema}/api/rdf?validate=${shaclSet}`);
   processData.output = await res.text();
 
   if (res.status !== 200) {

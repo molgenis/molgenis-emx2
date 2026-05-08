@@ -8,7 +8,7 @@ import { useBiobanksStore } from "./biobanksStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { useSettingsStore } from "./settingsStore";
 //@ts-ignore
-import { QueryEMX2 } from "molgenis-components";
+import { QueryEMX2, getContextPath } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
 import flattenOntologyBranch from "../functions/flattenOntologyBranch";
 import {
@@ -28,7 +28,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const { baseQuery, getBiobankCards } = biobankStore;
 
-  const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
+  const graphqlEndpointOntologyFilter = getContextPath() + "/DirectoryOntologies/graphql";
 
   const bookmarkWaitingForApplication = ref(false);
   const bookmarkTriggeredFilter = ref(false);

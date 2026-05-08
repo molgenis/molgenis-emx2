@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import $monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import devProxyConfig from '../dev-proxy.config';
+import { viteBase } from '../vite-base.js';
 
 const monacoEditorPlugin = $monacoEditorPlugin.default ?? $monacoEditorPlugin;
 
@@ -23,7 +24,7 @@ export default defineConfig(({ command }) => ({
 
     }),
   ],
-  base: command === "serve" ? "/" : "apps/graphql-playground/",
+  base: viteBase("graphql-playground", command),
   server: {
     port: 3000,
     proxy: devProxyConfig,

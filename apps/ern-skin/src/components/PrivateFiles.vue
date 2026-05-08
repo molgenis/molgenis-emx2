@@ -21,6 +21,7 @@
 import { FileList, MessageBox } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+import { getContextPath } from "molgenis-components";
 import { ref, onMounted } from "vue";
 
 const error = ref<Error | null>(null);
@@ -36,7 +37,7 @@ async function getSession() {
     }
   `;
   const response = await request(
-    "/api/graphql",
+    getContextPath() + "/api/graphql",
     query,
     {},
     { credentials: "include" }
