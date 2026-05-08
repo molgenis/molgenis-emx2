@@ -45,13 +45,13 @@
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `select_scope='ALL'` returns every row | mg_can_read | TestSqlRoleManager.selectScopeAllReturnsEveryRow (gap C-test-2) | — |
+| `select_scope='ALL'` returns every row | mg_can_read | TestSqlRoleManager.selectScopeAllReturnsEveryRow | — |
 | `select_scope='GROUP'` returns rows whose `mg_groups` overlap user's memberships | mg_can_read | TestSqlRoleManager.groupScopeSeesOnlyGroupRows / TestAsymmetricCollaboration | — |
 | `select_scope='OWN'` returns rows whose `mg_owner = current_user` | mg_can_read | TestSqlRoleManager.ownScopeSeesOnlyOwnRows / TestSchemaWideCustomGrants.nullGroupGrant_ownScope_userReadsOwnRowsOnly | — |
-| `select_scope='NONE'` returns zero rows | mg_can_read | TestSqlRoleManager.selectScopeNoneReturnsZeroRows (gap C-test-2) | — |
+| `select_scope='NONE'` rejected at app layer (PG SELECT revoked; query never reaches policy) | SqlQuery.checkHasViewPermission | TestTablePolicies.noneScopeIsRejectedBeforeRls | — |
 | `insert_scope='GROUP'` requires every group in `NEW.mg_groups` to be one writer holds GROUP/ALL in | mg_can_write_all | TestUpdateScope.groupScopeCanUpdateGroupRow / TestSqlRoleManager.groupScopeUpdatesOnlyGroupRows | — |
 | `update_scope='OWN'` rejects update of rows owned by another user | mg_can_write | TestUpdateScope.ownScopeCanUpdateOnlyOwnRow / TestSqlRoleManager.ownScopeUpdatesOnlyOwnRows | — |
-| Custom-role scope row absent ⇒ no row visible (effective NONE) | mg_can_read | TestSqlRoleManager.absentRpmRowMeansNoRowVisible (gap C-test-1) | — |
+| Custom-role scope row absent ⇒ user rejected at app layer (no per-table GRANT issued) | SqlQuery.checkHasViewPermission | TestSqlRoleManager.absentRpmRowMeansNoRowVisible | — |
 
 ## System roles (hardcoded scopes)
 
@@ -59,7 +59,7 @@
 |---|---|---|---|
 | Owner/Manager/Editor: every verb = ALL | mg_can_read / mg_can_write | TestSqlRoleManager.editorCanReadAndWrite | — |
 | Viewer: `select=ALL`, others NONE | mg_can_read / mg_can_write | TestSqlRoleManager.viewerCanReadRows / viewerCannotWriteRows | — |
-| System roles never have rows in `role_permission_metadata` | trigger + Java | TestSqlRoleManager.deleteRoleRejectsSystemRoleNames + RPM trigger test (gap C-test-3) | — |
+| System roles never have rows in `role_permission_metadata` | trigger + Java | TestSqlRoleManager.deleteRoleRejectsSystemRoleNames + TestMetadataUtilsRolePermission.triggerRejectsUpdateOnSystemRoleRow | — |
 | Granting custom role with system name rejected | Schema.createRole | TestSqlRoleManager.isSystemRole_rejectsSystemNames | — |
 
 ## Capability flags
@@ -90,7 +90,8 @@
 | `EXISTS | COUNT | RANGE | AGGREGATE` scope accepted on non-RLS table | Schema.upsertRolePermissions | TestScopeInvariant.privacyAllowedNonRls | — |
 | `change_owner=true` / `change_group=true` on non-RLS table rejected | Schema.upsertRolePermissions | TestScopeInvariant.changeFlagsRequireRls | error toast |
 | Disable RLS rejected when scope rows exist for the table | SqlTableMetadata | TestRlsToggle.disableRejectedWithPermissions | error toast |
-| System role + group binding rejected | GraphQL.changeMembers | TestMembersGraphql.systemRoleNoGroup | error toast |
+| System role + group binding rejected at Java layer | SqlRoleManager.addGroupMembership | TestSqlRoleManager.systemRoleWithGroup_rejected | — |
+| System role + group binding rejected at GraphQL | GraphQL.changeMembers | TestMembersGraphql.systemRoleNoGroup | error toast |
 
 ## Privacy view modes (RLS or non-RLS table)
 
@@ -102,7 +103,7 @@
 | `select_scope='AGGREGATE'` projection: SUM/AVG only when count ≥ 10 | SqlQuery | TestPrivacy.aggregateFloor10 (gap D-test-1) | — |
 | Policy predicate `true` for privacy scopes on RLS tables (pass-through) | mg_can_read | TestPrivacy.passThroughAtPolicyLayer (gap D-test-2) | — |
 | Privacy scopes valid on non-RLS tables (projection only, no policy) | Schema.upsertRolePermissions | TestPrivacy.privacyOnNonRlsTable (gap D-test-2) | — |
-| Any non-NONE `select_scope` ⇒ `GRANT SELECT` to role's PG role | SqlRoleManager | TestPrivacy.nonNoneScopeImpliesSelectGrant | — |
+| Any non-NONE `select_scope` ⇒ `GRANT SELECT` to role's PG role; `NONE` ⇒ REVOKE (RLS or not) | SqlRoleManager | TestPrivacy.nonNoneScopeImpliesSelectGrant | — |
 
 ## GraphQL surface
 

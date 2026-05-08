@@ -18,7 +18,7 @@ import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-class GraphqlPermissionFieldFactoryTest {
+class TestGraphqlPermissionFieldFactoryIntegration {
 
   private static final SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
 

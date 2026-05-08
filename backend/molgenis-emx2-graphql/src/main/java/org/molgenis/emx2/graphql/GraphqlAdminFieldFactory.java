@@ -160,7 +160,7 @@ public class GraphqlAdminFieldFactory {
 
   private static Map<String, String> getUserRoleMap(Member member) {
     String role = member.getRole();
-    String[] parts = role.split("/", 2);
+    String[] parts = role.split("/");
     Map<String, String> roleMap = new HashMap<>();
     roleMap.put(SCHEMA_ID, parts[0]);
     roleMap.put(ROLE, parts[1]);

@@ -492,6 +492,83 @@ G.4 Docs: model overview, worked examples, operator runbook
   combined-suite triage.
 - Docs and runbook (§G.4).
 
+### Slice 1 (B + C gap-close) — closed 2026-05-08
+
+Scout audit showed Phase B 100% landed and Phase C ~95% landed from
+prior cycles; this slice closed the remaining gaps with the smallest
+production change that holds the master rule.
+
+Master rule (canonical, unchanged): `select_scope=NONE` ⇒ `REVOKE
+SELECT`. RLS-table NONE is no exception. Custom-role user without
+per-table GRANT is rejected by `SqlQuery.checkHasViewPermission` with a
+clean `MolgenisException` — same as master. The policy filters rows;
+the GRANT layer gates whether you reach the policy.
+
+Landed (final, post-revert):
+- Invariant 2 confirmed already implemented
+  (`rejectDisableIfPermissionsExist` invoked from disable cascade);
+  covered by
+  `TestRlsEnableDisableLifecycle.disableRejectedWhenPermissionsExist`.
+- Invariant 3: `SqlRoleManager.addGroupMembership` rejects system-role +
+  group binding (+4 lines). Test:
+  `TestSqlRoleManager.systemRoleWithGroup_rejected`.
+- C-test-1 `absentRpmRowMeansNoRowVisible` added — asserts
+  `MolgenisException` thrown (no per-table GRANT ⇒ clean reject).
+- C-test-2 `selectScopeAllReturnsEveryRow` added.
+- C-test-2 NONE half is covered by existing
+  `TestTablePolicies.noneScopeIsRejectedBeforeRls`; no duplicate.
+- C-test-3 covered by
+  `TestMetadataUtilsRolePermission.triggerRejectsUpdateOnSystemRoleRow`.
+- `GraphqlPermissionFieldFactoryTest.java` renamed to
+  `TestGraphqlPermissionFieldFactoryIntegration.java` (491-line file
+  preserved verbatim, only filename + class name changed).
+
+Reverted (over-engineered, master regression source):
+- `SqlRoleManager.buildPgPermission` extraction — DELETED. `grant()` and
+  `setPermissions()` restored to inline pre-Slice-1 form.
+- `SqlRoleManager.hasTableSelectGrantForUser` — DELETED.
+- `SqlRoleManager.grantTableSelectToRole` — DELETED.
+- `SqlQuery.checkHasViewPermission` RLS bypass — DELETED. File is back
+  to master form.
+
+Final staged delta: `SqlRoleManager.java` +4 lines (system-role guard
+only); `TestSqlRoleManager.java` +73 lines (3 new tests); rename only
+elsewhere. 67/67 targeted tests green.
+
+Open (deferred):
+- Clean-error wrapping for "RLS table with no per-table GRANT" path —
+  if/when the raw PG `permission denied` surfaces in user-visible
+  flows. Not yet motivated by a real failing case.
+- Phase D — privacy projections (`SqlQuery` EXISTS / RANGE / AGGREGATE,
+  `mg_privacy_count` floor verification, D-test-1 / D-test-2).
+- Phase E — GraphQL surface gaps and escalation-guard tests.
+- Phase F.1 — cross-schema FK semantics.
+
+### Slice 1.5 — role-name validation hardening — closed 2026-05-08
+
+Tightened role-identifier contract beyond master to prevent `/`,
+whitespace, and other PG-unsafe chars from sneaking through into
+`MG_ROLE_<schema>/<role>` identifiers. Master has no such guard; merge
+back will improve it.
+
+Landed:
+- `Constants.ROLE_NAME_REGEX = "^[a-zA-Z][a-zA-Z0-9-]{0,30}$"` (public,
+  consumed cross-module).
+- `SqlRoleManager.createRole` rejects names not matching the regex
+  with `MolgenisException`.
+- `GraphqlAdminFieldFactory` reverted to master `role.split("/")` —
+  the `split("/", 2)` and `.contains("/")` defensive workarounds added
+  in commit `357479664` are no longer needed once createRole guards
+  the input.
+- `TestSqlRoleManager.createRole_rejectsInvalidNames` covers slash,
+  space, underscore, digit-start, hyphen-start.
+- `TestSqlRoleManager.createRole_acceptsValidHyphenatedName` covers
+  the positive path.
+
+Final staged delta: `Constants.java` +2; `SqlRoleManager.java` +7;
+`GraphqlAdminFieldFactory.java` -1+1 (revert to master);
+`TestSqlRoleManager.java` +89 lines.
+
 ### Phase A loose ends — closed 2026-05-08
 
 All four follow-ups landed in one slice:

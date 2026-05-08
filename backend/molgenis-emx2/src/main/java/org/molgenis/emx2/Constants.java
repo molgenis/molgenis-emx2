@@ -134,6 +134,8 @@ public class Constants {
 
   protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
+  public static final String ROLE_NAME_REGEX = "^[a-zA-Z][a-zA-Z0-9-]{0,30}$";
+
   protected static final String EMAIL_REGEX =
       "^(([^<>()[\\\\]\\\\.,;:\\s@\"]+(\\.[^<>()[\\\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@"
           + "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|"

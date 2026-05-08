@@ -55,6 +55,9 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
+    if (!roleName.matches(Constants.ROLE_NAME_REGEX)) {
+      throw new MolgenisException("Invalid role name '" + roleName + "'");
+    }
     String fullRole = fullRoleName(schemaName, roleName);
     if (fullRole.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
       throw new MolgenisException(
@@ -436,6 +439,10 @@ public class SqlRoleManager {
 
   public void addGroupMembership(
       String schemaName, String groupName, String userName, String roleName) {
+    if (isSystemRole(roleName)) {
+      throw new MolgenisException(
+          "system role '" + roleName + "' cannot be bound to group '" + groupName + "'");
+    }
     requireGroupExists(schemaName, groupName);
     requireUserExists(userName);
     String fullRole = fullRoleName(schemaName, roleName);

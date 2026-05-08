@@ -76,6 +76,22 @@ class TestSqlRoleManager {
   }
 
   @Test
+  void createRole_rejectsInvalidNames() {
+    for (String invalid :
+        new String[] {"bad/name", "bad name", "bad_name", "1leading", "-leading"}) {
+      assertThrows(
+          MolgenisException.class,
+          () -> roleManager.createRole(SCHEMA_A, invalid),
+          "Role name '" + invalid + "' must be rejected");
+    }
+  }
+
+  @Test
+  void createRole_acceptsValidHyphenatedName() {
+    assertDoesNotThrow(() -> roleManager.createRole(SCHEMA_A, "good-name"));
+  }
+
+  @Test
   void createRole_rejectsTooLongName() {
     String schemaPrefix = "MG_ROLE_" + SCHEMA_A + "/";
     int prefixBytes = schemaPrefix.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
@@ -469,6 +485,79 @@ class TestSqlRoleManager {
         MolgenisException.class,
         () -> roleManager.deleteRole(SCHEMA_ENF, "Viewer"),
         "Viewer must be rejected by deleteRole");
+  }
+
+  // ── invariant: system role cannot be bound to group ──────────────────────
+
+  @Test
+  void systemRoleWithGroup_rejected() {
+    roleManager.createGroup(schemaEnf, "gInvariant");
+    for (String sysRole : new String[] {"Owner", "Manager", "Editor", "Viewer"}) {
+      MolgenisException ex =
+          assertThrows(
+              MolgenisException.class,
+              () -> roleManager.addGroupMembership(SCHEMA_ENF, "gInvariant", USER_ALICE, sysRole),
+              "System role '" + sysRole + "' must be rejected when bound to a group");
+      assertTrue(
+          ex.getMessage().contains("cannot be bound to group"),
+          "Message must say 'cannot be bound to group', was: " + ex.getMessage());
+    }
+    roleManager.deleteGroup(schemaEnf, "gInvariant");
+  }
+
+  // ── scope: absent RPM row ⇒ access denied ────────────────────────────────
+
+  @Test
+  void absentRpmRowMeansNoRowVisible() {
+    roleManager.createRole(SCHEMA_ENF, "absent-rpm-role");
+    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "visible-row").setString("val", "v"));
+
+    roleManager.grantRoleToUser(schemaEnf, "absent-rpm-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      assertThrows(
+          MolgenisException.class,
+          () -> schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows(),
+          "Custom role with no RPM row must be denied access (no PG SELECT grant)");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  // ── scope: SELECT=ALL returns every row ──────────────────────────────────
+
+  @Test
+  void selectScopeAllReturnsEveryRow() {
+    setupEnforcementRole(
+        "all-reader", SelectScope.ALL, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    schemaEnf.addMember(USER_BOB, "Editor");
+    db.setActiveUser(USER_BOB);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "row-bob").setString("val", "v1"));
+    db.becomeAdmin();
+
+    insertGroupTaggedRow("row-grouped", "v2", new String[] {GROUP_A});
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_B, USER_ALICE, "all-reader");
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("row-bob"), "SELECT=ALL must return row owned by another user");
+      assertTrue(
+          ids.contains("row-grouped"), "SELECT=ALL must return row tagged with a different group");
+    } finally {
+      db.becomeAdmin();
+    }
   }
 
   // ── enforcement helpers ───────────────────────────────────────────────────
