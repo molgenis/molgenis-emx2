@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
+import { buildGraphQLFilter } from "../../../app/utils/buildGqlFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import { stringColumn as nameColumn, makeColumn } from "../fixtures/columns";

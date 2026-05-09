@@ -35,6 +35,7 @@ const emit = defineEmits<{
 /* --- Main reactive flow --- */
 
 const visibleRootCount = ref(SHOW_MORE_THRESHOLD);
+const hasUserExpanded = ref(false);
 const localSearch = ref("");
 
 const totalOptionCount = computed(() => countAllNodes(props.options));
@@ -64,7 +65,7 @@ const visibleOptions = computed<CountedOption[]>(() => {
     return filterOptionsBySearch(props.options, localSearch.value);
   }
   return applyCollapseView(props.options, {
-    hideZero: !isFullyExpanded.value,
+    hideZero: !hasUserExpanded.value,
     limit: isFullyExpanded.value ? null : visibleRootCount.value,
   });
 });
@@ -240,17 +241,20 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
 function onShowMoreClick() {
   if (isFullyExpanded.value) {
     visibleRootCount.value = SHOW_MORE_THRESHOLD;
+    hasUserExpanded.value = false;
   } else {
     visibleRootCount.value = Math.min(
       visibleRootCount.value + SHOW_MORE_STEP,
       rootOptionCount.value
     );
+    hasUserExpanded.value = true;
   }
 }
 
 watch(localSearch, (newVal, oldVal) => {
   if (oldVal && !newVal) {
     visibleRootCount.value = SHOW_MORE_THRESHOLD;
+    hasUserExpanded.value = false;
   }
 });
 
@@ -379,7 +383,7 @@ function countedOptionToTreeNode(
       />
 
       <TextNoResultsMessage
-        v-if="localSearch && visibleOptions.length === 0"
+        v-if="visibleOptions.length === 0"
         label="No options available given current filters"
         class="!text-search-filter-group-title"
       />

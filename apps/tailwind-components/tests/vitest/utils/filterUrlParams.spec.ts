@@ -5,7 +5,7 @@ import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
 } from "../../../app/utils/filterUrlParams";
-import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
+import { buildGraphQLFilter } from "../../../app/utils/buildGqlFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
@@ -458,9 +458,21 @@ describe("REF filter URL round-trip", () => {
 });
 
 describe("BOOL/RADIO/CHECKBOX URL round-trip", () => {
-  const boolColumn: IColumn = { id: "mainCatalogue", columnType: "BOOL" };
-  const radioColumn: IColumn = { id: "gender", columnType: "RADIO" };
-  const checkboxColumn: IColumn = { id: "options", columnType: "CHECKBOX" };
+  const boolColumn: IColumn = {
+    id: "mainCatalogue",
+    columnType: "BOOL",
+    label: "Main catalogue",
+  };
+  const radioColumn: IColumn = {
+    id: "gender",
+    columnType: "RADIO",
+    label: "Gender",
+  };
+  const checkboxColumn: IColumn = {
+    id: "options",
+    columnType: "CHECKBOX",
+    label: "Options",
+  };
 
   it("BOOL 'true' parses to {operator: 'equals', value: ['true']}", () => {
     expect(parseFilterValue("true", boolColumn)).toEqual({
@@ -556,6 +568,7 @@ describe("nested REF like filter URL round-trip", () => {
     id: "collectionEvents",
     columnType: "REF_ARRAY",
     refTableId: "CollectionEvent",
+    label: "Collection events",
   };
   const columns: IColumn[] = [refArrayColumn];
 

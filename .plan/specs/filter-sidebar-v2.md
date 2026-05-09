@@ -103,10 +103,10 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 |----------|-----------|------|--------|
 | Default: only show options with initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
 | When other filters applied: counts update but initial terms stay visible | useFilters.ts | useFilters.spec.ts | - |
-| Options that reach count 0 due to cross-filter: hidden while filter is collapsed (show-more not clicked), visible when expanded (show-more clicked). Stability preserved within expanded view. | useFilterCounts.ts, filter/Tree.vue | useFilters.spec.ts; Tree.spec.ts | visual check |
+| Options that reach count 0 due to cross-filter: hidden until user explicitly clicks "Show more" (hasUserExpanded=false by default), visible once show-more clicked, hidden again after "Show less". Small trees (≤25 roots, no show-more button) keep zeros hidden permanently. Stability preserved within expanded view. | useFilterCounts.ts, filter/Tree.vue | useFilters.spec.ts; Tree.spec.ts: "BOOL filter with 3 options: zero-count options hidden by default"; "large filter (>25 roots): clicking show-more makes zero-count options visible"; "show-less resets zero-hiding" | visual check |
 | Zero-count hiding is hierarchy-aware: parent with count 0 AND all-zero descendants is hidden; parent with count 0 but non-zero descendants stays | useFilterCounts.ts | useFilters.spec.ts | - |
 | Filter with >25 ROOT options shows first 25 roots + "Show more (+50)" button; each click reveals up to 50 more roots (clamps to remaining count, label becomes "Show N more" when <50 remain); when all visible button becomes "Show less" (resets view to 25) | filter/Tree.vue | Tree.spec.ts | visual check |
-| Zero-count options hidden while view is partially expanded; visible only when all roots are shown ("Show less" state). Searching bypasses both. Clearing search resets view to initial 25 | filter/Tree.vue | Tree.spec.ts | visual check |
+| Zero-count options hidden by default; visible only after user explicitly clicks "Show more" (small trees ≤25 roots have no Show-more button, so zeros stay hidden permanently). Searching bypasses both. Clearing search resets hasUserExpanded to false. | filter/Tree.vue | Tree.spec.ts | visual check |
 | Truncation at 25 root-slices the option array; descendants come with their root intact, no slicing within subtrees | filter/Tree.vue | Tree.spec.ts | - |
 | Search visibility uses total node count (incl. descendants); show-more uses root count only | filter/Tree.vue | Tree.spec.ts | - |
 | Search within filter shows all matching terms regardless of show-more or zero-hiding state | filter/Tree.vue | Tree.spec.ts | visual check |
@@ -212,7 +212,7 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | When enableFilters=true: useFilters initialized internally with table columns | TableEMX2.vue | - | - |
 | When enableFilters=false: no sidebar, no filter composable, filter/hideSearch props work as before | TableEMX2.vue | - | - |
 | Sidebar sits left of table in flex layout (w-80 sidebar + flex-1 table) | TableEMX2.vue | - | visual check |
-| Long filter list scrolls within the sidebar region; table stays in view without full-page scroll (`sticky top-0 max-h-screen overflow-y-auto`) | TableEMX2.vue | - | visual check |
+| Filter sidebar scrolls with the page (no independent scroll); user page-scrolls to reach bottom filters | TableEMX2.vue | - | visual check |
 | ActiveFilters bar between toolbar and table rows (auto-rendered, not via slot) | TableEMX2.vue | - | visual check |
 | Show/hide sidebar: button in table toolbar (outline, filter-alt icon) | TableEMX2.vue | - | visual check |
 | Button label: "Hide filters" when visible, "Show filters" when hidden | TableEMX2.vue | - | visual check |

@@ -2,12 +2,12 @@ import { columnValueToString } from "./columnValueToString";
 import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
-import { setNestedValue } from "./buildFilter";
+import { setNestedValue } from "./buildGqlFilter";
 import { BOOL_LABELS } from "./filterTypes";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
-  overlap: number;
+  overlap?: number;
   children?: CountedOption[];
   keyObject?: Record<string, any>;
 }
@@ -207,7 +207,7 @@ async function fetchFlatGroupBy(
       if (val === null || val === undefined) return null;
       return { name: String(val), count: row.count, overlap: 0 };
     })
-    .filter((item): item is CountedOption => item !== null);
+    .filter((item) => item !== null) as CountedOption[];
   return { options, saturated };
 }
 
@@ -379,7 +379,7 @@ function rollupParentCountsForSingleSelectOntology(
       }
       if (node.overlap === 0) {
         node.overlap = node.children.reduce(
-          (sum, child) => sum + child.overlap,
+          (sum, child) => sum + (child.overlap ?? 0),
           0
         );
       }

@@ -6,7 +6,7 @@ import type {
   IGraphQLFilter,
   NestedColumnMeta,
 } from "../../types/filters";
-import { buildGraphQLFilter } from "../utils/buildFilter";
+import { buildGraphQLFilter } from "../utils/buildGqlFilter";
 import {
   fetchCounts,
   type CountedOption,

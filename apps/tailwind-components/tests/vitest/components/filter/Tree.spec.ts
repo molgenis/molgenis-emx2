@@ -422,11 +422,93 @@ describe("FilterTree", () => {
       );
     });
 
+    it("BOOL filter with 3 options: zero-count options hidden by default (no show-more button)", () => {
+      const opts: CountedOption[] = [
+        { name: "true", label: "Yes", count: 5, overlap: 0 },
+        { name: "false", label: "No", count: 0, overlap: 0 },
+        { name: "_null_", label: "Not set", count: 0, overlap: 0 },
+      ];
+      const wrapper = mountTree(boolColumn(), opts);
+      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+        false
+      );
+      const text = wrapper.text();
+      expect(text).toContain("Yes");
+      expect(text).not.toContain("No (0)");
+      expect(text).not.toContain("Not set (0)");
+    });
+
+    it("large filter (>25 roots): clicking show-more makes zero-count options visible", async () => {
+      const opts: CountedOption[] = [
+        ...Array.from({ length: 45 }, (_, i) => ({
+          name: `opt${i}`,
+          label: `Option ${i}`,
+          count: i + 1,
+          overlap: 0,
+        })),
+        ...Array.from({ length: 5 }, (_, i) => ({
+          name: `zero${i}`,
+          label: `Zero Option ${i}`,
+          count: 0,
+          overlap: 0,
+        })),
+      ];
+      const wrapper = mountTree(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+      expect(btn.exists()).toBe(true);
+
+      const textBefore = wrapper.text();
+      expect(textBefore).not.toContain("Zero Option 0");
+
+      await btn.trigger("click");
+      const textExpanded = wrapper.text();
+      expect(textExpanded).toContain("Zero Option 0");
+    });
+
+    it("show-less resets zero-hiding: zero-count options hidden again after show-less", async () => {
+      const opts: CountedOption[] = [
+        ...Array.from({ length: 45 }, (_, i) => ({
+          name: `opt${i}`,
+          label: `Option ${i}`,
+          count: i + 1,
+          overlap: 0,
+        })),
+        ...Array.from({ length: 5 }, (_, i) => ({
+          name: `zero${i}`,
+          label: `Zero Option ${i}`,
+          count: 0,
+          overlap: 0,
+        })),
+      ];
+      const wrapper = mountTree(ontologyColumn(), opts);
+      const btn = wrapper.find("button.text-search-filter-expand");
+
+      await btn.trigger("click");
+      expect(wrapper.text()).toContain("Zero Option 0");
+
+      await btn.trigger("click");
+      expect(wrapper.text()).not.toContain("Zero Option 0");
+    });
+
     it("searching: no show-more button shown when search active (future: local search)", async () => {
       const opts = makeOptions(30);
       const wrapper = mountTree(ontologyColumn(), opts);
       const btn = wrapper.find("button");
       expect(btn.exists()).toBe(true);
+    });
+
+    it("shows 'No options available given current filters' when all options have count 0 (cross-filter zero)", async () => {
+      const opts: CountedOption[] = [
+        { name: "true", label: "Yes", count: 0, overlap: 0 },
+        { name: "false", label: "No", count: 0, overlap: 0 },
+        { name: "_null_", label: "Not set", count: 0, overlap: 0 },
+      ];
+      const wrapper = mountTree(boolColumn(), opts);
+      expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
+      expect(wrapper.text()).toContain(
+        "No options available given current filters"
+      );
+      expect(wrapper.findComponent(TreeNode).exists()).toBe(false);
     });
 
     it("saturated flag true: hint rendered above tree", () => {

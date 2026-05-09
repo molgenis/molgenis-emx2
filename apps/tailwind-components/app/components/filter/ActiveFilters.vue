@@ -69,7 +69,7 @@ const emit = defineEmits<{
     </VDropdown>
 
     <Button type="text" size="tiny" @click="emit('clearAll')">
-      Clear all
+      Clear all filters
     </Button>
   </div>
 </template>

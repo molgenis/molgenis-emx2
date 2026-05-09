@@ -15,7 +15,7 @@ import type {
   IGraphQLFilter,
   NestedColumnMeta,
 } from "../../types/filters";
-import { buildGraphQLFilter } from "../utils/buildFilter";
+import { buildGraphQLFilter } from "../utils/buildGqlFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
 import {
   computeDefaultFilters,
@@ -191,6 +191,9 @@ export function useFilters(
     columns,
     async (cols) => {
       if (cols.length > 0 && counts.baseCounts.value.size === 0) {
+        if (!userHasCustomized.value && visibleFilterIds.value.length === 0) {
+          visibleFilterIds.value = [...defaultFilterIds.value];
+        }
         await Promise.all(
           visibleFilterIds.value
             .filter((id) => {
@@ -200,6 +203,11 @@ export function useFilters(
             .map((id) => counts.fetchColumnCounts(id, true))
         );
         pruneVisibleByBaseCount();
+        const hasInitialFilters =
+          filterStates.value.size > 0 || (searchValue.value ?? "").length > 0;
+        if (hasInitialFilters) {
+          counts.debouncedRefetchCounts();
+        }
       }
     },
     { immediate: true }

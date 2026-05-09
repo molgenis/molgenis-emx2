@@ -52,7 +52,7 @@ import type {
 import type { CountedOption } from "../../utils/fetchCounts";
 import FilterSidebar from "../../components/filter/Sidebar.vue";
 import FilterActiveFilters from "../../components/filter/ActiveFilters.vue";
-import { buildGraphQLFilter } from "../../utils/buildFilter";
+import { buildGraphQLFilter } from "../../utils/buildGqlFilter";
 import { formatFilterValue } from "../../utils/formatFilterValue";
 import { buildLabelMap } from "../../composables/useFilters";
 

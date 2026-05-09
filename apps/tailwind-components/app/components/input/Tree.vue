@@ -235,10 +235,10 @@ function toggleSearch() {
 }
 
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
-function handleSearchInput(input: string) {
+function handleSearchInput(input: string | undefined) {
   clearTimeout(timeoutID);
   timeoutID = setTimeout(() => {
-    optionsSearch.value = input;
+    optionsSearch.value = input ?? "";
   }, 500);
 }
 

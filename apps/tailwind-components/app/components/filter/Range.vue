@@ -5,7 +5,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import Input from "../Input.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     id: string;
     inputType: CellValueType;

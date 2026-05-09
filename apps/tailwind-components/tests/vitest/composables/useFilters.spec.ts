@@ -1099,6 +1099,126 @@ describe("useFilters — H4: Picker adds filters in selection order", () => {
   });
 });
 
+describe("useFilters — async columns: count fetch fires when columns load after init", () => {
+  it("fetches counts for default columns when columns load asynchronously after init", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    vi.mocked(fetchGraphql).mockClear();
+
+    const ontologyCol: IColumn = {
+      id: "status",
+      label: "Status",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+
+    vi.mocked(fetchGraphql).mockResolvedValue({
+      Resources_groupBy: [
+        { count: 3, status: { name: "active", label: "Active", parent: null } },
+      ],
+    });
+
+    const rawColumns = ref<IColumn[]>([]);
+    useFilters(rawColumns, {
+      schemaId: "catalogue-demo",
+      tableId: "Resources",
+    });
+
+    await flushPromises();
+
+    const callsBefore = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      ).length;
+    expect(callsBefore).toBe(0);
+
+    rawColumns.value = [ontologyCol];
+    await flushPromises();
+
+    const callsAfter = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      ).length;
+    expect(callsAfter).toBeGreaterThan(0);
+  });
+});
+
+describe("useFilters — URL-load cross-filter refetch", () => {
+  it("triggers cross-filter refetch on URL-load when filterStates pre-populated", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    vi.mocked(fetchGraphql).mockClear();
+
+    vi.mocked(fetchGraphql).mockResolvedValue({
+      Resources_groupBy: [
+        {
+          count: 2,
+          continents: { name: "Oceania", label: "Oceania", parent: null },
+        },
+      ],
+    });
+
+    makeUrlSync({
+      [MG_FILTERS_PARAM]: "continents,countries",
+      "continents.0": "Oceania",
+    });
+
+    const continentsColumn: IColumn = {
+      id: "continents",
+      label: "Continents",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+
+    const countriesColumn: IColumn = {
+      id: "countries",
+      label: "Countries",
+      columnType: "ONTOLOGY",
+    } as IColumn;
+
+    const rawColumns = ref<IColumn[]>([]);
+    useFilters(rawColumns, {
+      schemaId: "catalogue-demo",
+      tableId: "Resources",
+      urlSync: true,
+      debounceMs: 0,
+    });
+
+    await flushPromises();
+
+    const callsBeforeColumns = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      ).length;
+    expect(callsBeforeColumns).toBe(0);
+
+    rawColumns.value = [continentsColumn, countriesColumn];
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await flushPromises();
+
+    const groupByCalls = vi
+      .mocked(fetchGraphql)
+      .mock.calls.filter(
+        ([_s, q]: [string, string]) =>
+          typeof q === "string" && q.includes("_groupBy")
+      );
+
+    // 2 columns × 1 base call each = 2 base calls
+    // cross-filter refetch triggers 2 more calls (one per column, useBase=false)
+    // total should be > 2 (i.e., cross-filter calls happened)
+    expect(groupByCalls.length).toBeGreaterThan(2);
+  });
+});
+
 describe("useFilters — H5 regression: resetFilters re-applies count>0 pruning", () => {
   it("resetFilters re-applies count>0 pruning to visibleFilterIds (regression: H5 visual)", async () => {
     const { default: fetchGraphql } = await import(

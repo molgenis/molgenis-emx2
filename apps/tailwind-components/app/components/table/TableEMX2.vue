@@ -7,7 +7,7 @@
       :columns="filters.columns.value"
       :schemaId="schemaId"
       :tableId="tableId"
-      class="w-80 shrink-0 sticky top-0 max-h-screen overflow-y-auto"
+      class="w-80 shrink-0"
     />
 
     <div :class="{ 'flex-1 min-w-0': enableFilters }">

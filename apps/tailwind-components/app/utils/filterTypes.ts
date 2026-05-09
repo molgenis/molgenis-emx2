@@ -8,8 +8,6 @@ export const BOOL_LABELS: Record<string, string> = {
   _null_: "Not set",
 };
 
-export const MAX_NESTING_DEPTH = 5;
-
 export const REF_EXPANDABLE_TYPES = new Set([
   "REF",
   "REF_ARRAY",
@@ -27,9 +25,9 @@ export const COUNTABLE_TYPES = new Set([
   "STRING_ARRAY",
 ]);
 
-export const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
+const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
 
-export const isRefFilterType = (columnType: string): boolean =>
+const isRefFilterType = (columnType: string): boolean =>
   REF_FILTER_TYPES.has(columnType);
 
 export const RANGE_TYPES = new Set([
@@ -47,40 +45,6 @@ export const RANGE_TYPES = new Set([
   "DATETIME_ARRAY",
 ]);
 
-const SELECTABLE_FILTER_TYPES = new Set([
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "BOOL",
-  "BOOL_ARRAY",
-  "RADIO",
-  "CHECKBOX",
-  "STRING_ARRAY",
-  "DATE",
-  "DATE_ARRAY",
-  "DATETIME",
-  "DATETIME_ARRAY",
-  "INT",
-  "INT_ARRAY",
-  "DECIMAL",
-  "DECIMAL_ARRAY",
-  "LONG",
-  "NON_NEGATIVE_INT",
-  "NON_NEGATIVE_INT_ARRAY",
-]);
-
-const STRING_FILTER_TYPES = new Set([
-  "STRING",
-  "TEXT",
-  "TEXT_ARRAY",
-  "EMAIL",
-  "EMAIL_ARRAY",
-  "HYPERLINK",
-  "HYPERLINK_ARRAY",
-  "UUID",
-  "UUID_ARRAY",
-  "AUTO_ID",
-]);
-
 const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
 
 const DEFAULT_FILTER_TYPES = new Set([
@@ -96,14 +60,6 @@ export const isCountableType = (columnType: string): boolean =>
 
 export const isRangeType = (columnType: string): boolean =>
   RANGE_TYPES.has(columnType);
-
-export function isSelectableFilterType(ct: string): boolean {
-  return SELECTABLE_FILTER_TYPES.has(ct);
-}
-
-export function isStringFilterType(ct: string): boolean {
-  return STRING_FILTER_TYPES.has(ct);
-}
 
 export function isRefExpandable(ct: string): boolean {
   return REF_EXPANDABLE_TYPES.has(ct);
