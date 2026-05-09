@@ -13,7 +13,6 @@ target/
 .settings/
 .project
 .classpath
-.claude
 examplefiles
 *.iml
 *.ipr
