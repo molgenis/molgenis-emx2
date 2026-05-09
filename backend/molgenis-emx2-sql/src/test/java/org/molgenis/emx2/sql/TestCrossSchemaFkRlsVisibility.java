@@ -7,11 +7,11 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 public class TestCrossSchemaFkRlsVisibility {
 
@@ -29,9 +29,6 @@ public class TestCrossSchemaFkRlsVisibility {
   private static final String USER_U1 = "TcsFkRlsU1";
   private static final String USER_U2 = "TcsFkRlsU2";
 
-  private static final String MG_USER_U1 = "MG_USER_" + USER_U1;
-  private static final String MG_USER_U2 = "MG_USER_" + USER_U2;
-
   private static final String ROW_P1 = "P1";
   private static final String ROW_P2 = "P2";
   private static final String ROW_C1 = "C1";
@@ -40,7 +37,6 @@ public class TestCrossSchemaFkRlsVisibility {
   private static final String ROW_SAMPLE_U2 = "SampleU2";
 
   private static Database db;
-  private static DSLContext jooq;
   private static SqlRoleManager roleManager;
   private static Schema schemaA;
   private static Schema schemaB;
@@ -48,7 +44,6 @@ public class TestCrossSchemaFkRlsVisibility {
   @BeforeAll
   static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    jooq = ((SqlDatabase) db).getJooq();
     roleManager = new SqlRoleManager((SqlDatabase) db);
 
     db.becomeAdmin();
@@ -108,40 +103,20 @@ public class TestCrossSchemaFkRlsVisibility {
 
     schemaB.addMember(USER_U1, "Editor");
 
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_A_NAME
-            + "\".\""
-            + TABLE_PARENT
-            + "\" (id, mg_owner) VALUES (?, ?)",
-        ROW_P1,
-        MG_USER_U1);
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_A_NAME
-            + "\".\""
-            + TABLE_PARENT
-            + "\" (id, mg_owner) VALUES (?, ?)",
-        ROW_P2,
-        MG_USER_U2);
+    schemaA
+        .getTable(TABLE_PARENT)
+        .insert(new Row().setString("id", ROW_P1).setString("mg_owner", USER_U1));
+    schemaA
+        .getTable(TABLE_PARENT)
+        .insert(new Row().setString("id", ROW_P2).setString("mg_owner", USER_U2));
 
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_A_NAME
-            + "\".\""
-            + TABLE_PARENT
-            + "\" (id, mg_owner) VALUES (?, ?)",
-        ROW_SAMPLE_U2,
-        MG_USER_U2);
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_A_NAME
-            + "\".\""
-            + TABLE_SAMPLE
-            + "\" (id, label, mg_owner) VALUES (?, ?, ?)",
-        ROW_SAMPLE_U2,
-        "u2-sample",
-        MG_USER_U2);
+    schemaA
+        .getTable(TABLE_SAMPLE)
+        .insert(
+            new Row()
+                .setString("id", ROW_SAMPLE_U2)
+                .setString("label", "u2-sample")
+                .setString("mg_owner", USER_U2));
 
     schemaB.getTable(TABLE_CHILD).insert(new Row().set("id", ROW_C1).set("parent", ROW_P1));
     schemaB.getTable(TABLE_CHILD).insert(new Row().set("id", ROW_C2).set("parent", ROW_P2));
@@ -149,13 +124,6 @@ public class TestCrossSchemaFkRlsVisibility {
     schemaB
         .getTable(TABLE_CHILD_ARR)
         .insert(new Row().set("id", ROW_C_ARR).set("parents", new String[] {ROW_P1, ROW_P2}));
-  }
-
-  @AfterAll
-  static void tearDown() {
-    db.becomeAdmin();
-    db.dropSchemaIfExists(SCHEMA_B_NAME);
-    db.dropSchemaIfExists(SCHEMA_A_NAME);
   }
 
   @Test

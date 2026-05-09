@@ -5,13 +5,11 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestSelectScope {
 
@@ -22,7 +20,6 @@ class TestSelectScope {
   private static final String USER_ALICE = "TssAlice";
 
   private static final Database db = TestDatabaseFactory.getTestDatabase();
-  private static final DSLContext jooq = ((SqlDatabase) db).getJooq();
   private static final SqlRoleManager roleManager = new SqlRoleManager((SqlDatabase) db);
 
   private Schema schema;
@@ -47,24 +44,14 @@ class TestSelectScope {
     roleManager.setPermissions(schema, ROLE_COUNT, ps);
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ALPHA, USER_ALICE, ROLE_COUNT);
 
+    Table observationsTable = schema.getTable(TABLE_NAME);
     for (int i = 0; i < 23; i++) {
-      jooq.execute(
-          "INSERT INTO \""
-              + SCHEMA_NAME
-              + "\".\""
-              + TABLE_NAME
-              + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
-          "row-" + i,
-          "val-" + i,
-          "MG_USER_admin",
-          new String[] {GROUP_ALPHA});
+      observationsTable.insert(
+          new Row()
+              .setString("id", "row-" + i)
+              .setString("val", "val-" + i)
+              .setStringArray("mg_groups", GROUP_ALPHA));
     }
-  }
-
-  @AfterEach
-  void tearDown() {
-    db.becomeAdmin();
-    db.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

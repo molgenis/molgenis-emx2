@@ -6,23 +6,23 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
-import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.UpdateScope;
 
 public class TestChangeOwnerGroupSqlEnforcement {
 
   private static final String SCHEMA_NAME = "RmColGrantEnfA";
   private static final String TEST_USER_ALICE = "RmColGrantEnfAlice";
+  private static final String TEST_USER_OTHER = "RmColGrantEnfOther";
 
   private static final String OWNER_TABLE = "OwnerTbl";
   private static final String GROUP_TABLE = "GrpTbl";
@@ -39,34 +39,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
     db.becomeAdmin();
     schema = db.dropCreateSchema(SCHEMA_NAME);
     if (!db.hasUser(TEST_USER_ALICE)) db.addUser(TEST_USER_ALICE);
-  }
-
-  @AfterEach
-  void tearDown() {
-    db.becomeAdmin();
-    dropCustomRolesForSchema(SCHEMA_NAME);
-    db.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
-  private void dropCustomRolesForSchema(String schemaName) {
-    String prefix = "MG_ROLE_" + schemaName + "/";
-    List<String> toClean =
-        jooq
-            .fetch("SELECT rolname FROM pg_roles WHERE rolname LIKE {0}", inline(prefix + "%"))
-            .stream()
-            .map(r -> r.get(0, String.class))
-            .filter(rolName -> !roleManager.isSystemRole(rolName.substring(prefix.length())))
-            .toList();
-    for (String rolName : toClean) {
-      try {
-        jooq.execute("DROP OWNED BY {0}", name(rolName));
-      } catch (Exception ignored) {
-      }
-      try {
-        jooq.execute("DROP ROLE IF EXISTS {0}", name(rolName));
-      } catch (Exception ignored) {
-      }
-    }
+    if (!db.hasUser(TEST_USER_OTHER)) db.addUser(TEST_USER_OTHER);
   }
 
   private PermissionSet allScopesWithOwner() {
@@ -102,11 +75,12 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_sqlLevelRejectsMgOwnerUpdateWithoutFlag() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
+    schema.getTable(OWNER_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
     db.setActiveUser(TEST_USER_ALICE);
-    jooq.execute("INSERT INTO {0} (name) VALUES ('s-1')", name(SCHEMA_NAME, OWNER_TABLE));
+    schema.getTable(OWNER_TABLE).insert(new Row().setString("name", "s-1"));
 
     try {
       DataAccessException thrown =
@@ -114,8 +88,8 @@ public class TestChangeOwnerGroupSqlEnforcement {
               DataAccessException.class,
               () ->
                   jooq.execute(
-                      "UPDATE {0} SET mg_owner = 'other' WHERE name = 's-1'",
-                      name(SCHEMA_NAME, OWNER_TABLE)),
+                      "UPDATE {0} SET mg_owner = {1} WHERE name = 's-1'",
+                      name(SCHEMA_NAME, OWNER_TABLE), inline(TEST_USER_OTHER)),
               "UPDATE setting mg_owner without changeOwner flag must throw permission denied");
       assertInsufficientPrivilege(thrown);
     } finally {
@@ -126,19 +100,20 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_changeOwnerTrueAllowsMgOwnerUpdate() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
+    schema.getTable(OWNER_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withOwnerFlag = allScopesWithOwner().setChangeOwner(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withOwnerFlag);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
     db.setActiveUser(TEST_USER_ALICE);
-    jooq.execute("INSERT INTO {0} (name) VALUES ('s-1')", name(SCHEMA_NAME, OWNER_TABLE));
+    schema.getTable(OWNER_TABLE).insert(new Row().setString("name", "s-1"));
 
     try {
       assertDoesNotThrow(
           () ->
               jooq.execute(
-                  "UPDATE {0} SET mg_owner = 'other' WHERE name = 's-1'",
-                  name(SCHEMA_NAME, OWNER_TABLE)),
+                  "UPDATE {0} SET mg_owner = {1} WHERE name = 's-1'",
+                  name(SCHEMA_NAME, OWNER_TABLE), inline(TEST_USER_OTHER)),
           "UPDATE setting mg_owner with changeOwner=true must succeed");
     } finally {
       db.becomeAdmin();
@@ -148,12 +123,13 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_sqlLevelRejectsMgGroupsUpdateWithoutFlag() {
     schema.create(table(GROUP_TABLE, column("id").setPkey()));
+    schema.getTable(GROUP_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithGroup());
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
-    jooq.execute(
-        "INSERT INTO {0} (id, mg_groups) VALUES ('g-1', ARRAY['grp']::TEXT[])",
-        name(SCHEMA_NAME, GROUP_TABLE));
+    schema
+        .getTable(GROUP_TABLE)
+        .insert(new Row().setString("id", "g-1").setStringArray("mg_groups", new String[] {"grp"}));
 
     db.setActiveUser(TEST_USER_ALICE);
     try {
@@ -174,13 +150,14 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_changeGroupTrueAllowsMgGroupsUpdate() {
     schema.create(table(GROUP_TABLE, column("id").setPkey()));
+    schema.getTable(GROUP_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withGroupFlag = allScopesWithGroup().setChangeGroup(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withGroupFlag);
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
-    jooq.execute(
-        "INSERT INTO {0} (id, mg_groups) VALUES ('g-1', ARRAY['grp']::TEXT[])",
-        name(SCHEMA_NAME, GROUP_TABLE));
+    schema
+        .getTable(GROUP_TABLE)
+        .insert(new Row().setString("id", "g-1").setStringArray("mg_groups", new String[] {"grp"}));
 
     db.setActiveUser(TEST_USER_ALICE);
     try {
@@ -198,6 +175,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_sqlLevelRejectsMgOwnerInsertWithoutFlag() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
+    schema.getTable(OWNER_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());
     roleManager.grantRoleToUser(schema, ENFORCE_ROLE, TEST_USER_ALICE);
@@ -209,8 +187,8 @@ public class TestChangeOwnerGroupSqlEnforcement {
               DataAccessException.class,
               () ->
                   jooq.execute(
-                      "INSERT INTO {0} (name, mg_owner) VALUES ('s-2', 'otheruser')",
-                      name(SCHEMA_NAME, OWNER_TABLE)),
+                      "INSERT INTO {0} (name, mg_owner) VALUES ('s-2', {1})",
+                      name(SCHEMA_NAME, OWNER_TABLE), inline(TEST_USER_OTHER)),
               "INSERT with explicit mg_owner without changeOwner flag must throw permission denied");
       assertInsufficientPrivilege(thrown);
     } finally {
@@ -221,6 +199,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_changeOwnerTrueAllowsMgOwnerInsert() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
+    schema.getTable(OWNER_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
     PermissionSet withOwnerFlag = allScopesWithOwner().setChangeOwner(true);
     roleManager.setPermissions(schema, ENFORCE_ROLE, withOwnerFlag);
@@ -231,8 +210,8 @@ public class TestChangeOwnerGroupSqlEnforcement {
       assertDoesNotThrow(
           () ->
               jooq.execute(
-                  "INSERT INTO {0} (name, mg_owner) VALUES ('s-2', 'otheruser')",
-                  name(SCHEMA_NAME, OWNER_TABLE)),
+                  "INSERT INTO {0} (name, mg_owner) VALUES ('s-2', {1})",
+                  name(SCHEMA_NAME, OWNER_TABLE), inline(TEST_USER_OTHER)),
           "INSERT with explicit mg_owner with changeOwner=true must succeed");
     } finally {
       db.becomeAdmin();
@@ -242,6 +221,7 @@ public class TestChangeOwnerGroupSqlEnforcement {
   @Test
   void setPermissions_changeOwnerFlagRoundTripReflectedInStorage() {
     schema.create(table(OWNER_TABLE, column("name").setPkey()));
+    schema.getTable(OWNER_TABLE).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, ENFORCE_ROLE, "enforcer role");
 
     roleManager.setPermissions(schema, ENFORCE_ROLE, allScopesWithOwner());

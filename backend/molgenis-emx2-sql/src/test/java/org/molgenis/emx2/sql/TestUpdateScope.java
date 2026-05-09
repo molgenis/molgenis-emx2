@@ -9,8 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestUpdateScope {
 
@@ -85,7 +85,7 @@ class TestUpdateScope {
             + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
         id,
         val,
-        "MG_USER_" + owner,
+        owner,
         groups);
   }
 
@@ -115,7 +115,7 @@ class TestUpdateScope {
               + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
           id,
           "v",
-          "MG_USER_" + owner,
+          owner,
           groups);
       return true;
     } catch (Exception ex) {

@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /**
  * Gate test for Phase 7: asymmetric collaboration where Alice is editor in group A and viewer in
@@ -99,7 +99,7 @@ public class TestAsymmetricCollaboration {
             + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
         id,
         val,
-        "MG_USER_admin",
+        "admin",
         groups);
   }
 

@@ -1,5 +1,0 @@
-// GRAVEYARD: duplicate of TestSqlMolgenisException.java — identical content.
-// Deleted in Phase A.3 duplicate-pair cleanup. TestSqlMolgenisException.java is canonical.
-
-package org.molgenis.emx2.sql;
-// Full content was identical to TestSqlMolgenisException.java.

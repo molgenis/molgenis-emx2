@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestChangeOwner {
 
@@ -21,7 +21,7 @@ class TestChangeOwner {
   private static final String ROLE_NO_CO = "roleNoChangeOwner";
   private static final String ROLE_YES_CO = "roleYesChangeOwner";
   private static final String USER_ALICE = "TcoAlice";
-  private static final String OTHER_OWNER = "MG_USER_otherUser";
+  private static final String OTHER_OWNER = "TcoOtherUser";
 
   private static final Database db = TestDatabaseFactory.getTestDatabase();
   private static final DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -36,6 +36,7 @@ class TestChangeOwner {
     schema.create(table(TABLE_NAME).add(column("id").setPkey()).add(column("val")));
     roleManager.createGroup(schema, GROUP_ONE);
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
+    if (!db.hasUser(OTHER_OWNER)) db.addUser(OTHER_OWNER);
 
     roleManager.createRole(SCHEMA_NAME, ROLE_NO_CO);
     roleManager.createRole(SCHEMA_NAME, ROLE_YES_CO);
@@ -61,7 +62,7 @@ class TestChangeOwner {
     yesCoPerms.putTable(TABLE_NAME, tpYes);
     roleManager.setPermissions(schema, ROLE_YES_CO, yesCoPerms);
 
-    insertRowAsAdmin("row1", "val1", "MG_USER_admin", new String[] {GROUP_ONE});
+    insertRowAsAdmin("row1", "val1", "admin", new String[] {GROUP_ONE});
   }
 
   @AfterEach
@@ -71,16 +72,15 @@ class TestChangeOwner {
   }
 
   private void insertRowAsAdmin(String id, String val, String owner, String[] groups) {
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_NAME
-            + "\".\""
-            + TABLE_NAME
-            + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
-        id,
-        val,
-        owner,
-        groups);
+    db.becomeAdmin();
+    schema
+        .getTable(TABLE_NAME)
+        .insert(
+            new Row()
+                .setString("id", id)
+                .setString("val", val)
+                .setString("mg_owner", owner)
+                .setStringArray("mg_groups", groups));
   }
 
   @Test
@@ -145,7 +145,7 @@ class TestChangeOwner {
               + SCHEMA_NAME
               + "\".\""
               + TABLE_NAME
-              + "\" SET mg_owner = 'MG_USER_admin' WHERE id = 'row1'");
+              + "\" SET mg_owner = 'admin' WHERE id = 'row1'");
     }
   }
 
@@ -191,12 +191,7 @@ class TestChangeOwner {
     } finally {
       db.becomeAdmin();
       roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_YES_CO);
-      jooq.execute(
-          "DELETE FROM \""
-              + SCHEMA_NAME
-              + "\".\""
-              + TABLE_NAME
-              + "\" WHERE id = 'row-foreign-owner2'");
+      schema.getTable(TABLE_NAME).delete(new Row().setString("id", "row-foreign-owner2"));
     }
   }
 }

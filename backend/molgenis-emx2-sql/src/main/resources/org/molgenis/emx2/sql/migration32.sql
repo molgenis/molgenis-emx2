@@ -128,7 +128,7 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_read(
           AND (
                rp.select_scope = 'ALL'
             OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-            OR (rp.select_scope = 'OWN'   AND p_owner = current_user)
+            OR (rp.select_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
             OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
             OR rp.change_owner = true
           )
@@ -159,15 +159,15 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write(
                 WHEN 'insert' THEN
                   rp.insert_scope = 'ALL'
                   OR (rp.insert_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-                  OR (rp.insert_scope = 'OWN'   AND p_owner = current_user)
+                  OR (rp.insert_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
                 WHEN 'update' THEN
                   rp.update_scope = 'ALL'
                   OR (rp.update_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-                  OR (rp.update_scope = 'OWN'   AND p_owner = current_user)
+                  OR (rp.update_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
                 ELSE
                   rp.delete_scope = 'ALL'
                   OR (rp.delete_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-                  OR (rp.delete_scope = 'OWN'   AND p_owner = current_user)
+                  OR (rp.delete_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
               END
     )
 $$;
@@ -292,7 +292,7 @@ BEGIN
     ELSE
         p_verb           := 'insert';
         p_changing_owner := (NEW.mg_owner IS NOT NULL
-                             AND NEW.mg_owner IS DISTINCT FROM current_user);
+                             AND 'MG_USER_' || NEW.mg_owner IS DISTINCT FROM current_user);
         p_changing_group := FALSE;
     END IF;
     IF NOT "MOLGENIS".mg_can_write_all(

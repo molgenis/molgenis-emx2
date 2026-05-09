@@ -13,9 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
 
 class TestGetCountField {

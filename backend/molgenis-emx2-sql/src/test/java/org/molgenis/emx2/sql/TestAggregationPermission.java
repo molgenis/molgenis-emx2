@@ -16,9 +16,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
 
 class TestAggregationPermission {

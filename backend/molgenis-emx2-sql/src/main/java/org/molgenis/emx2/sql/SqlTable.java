@@ -409,6 +409,7 @@ public class SqlTable implements Table {
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
+    boolean hasMgOwnerColumn = columns.stream().anyMatch(c -> c.getName().equals(MG_OWNER_COLUMN));
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
@@ -416,6 +417,9 @@ public class SqlTable implements Table {
         values.put(MG_INSERTEDON, now);
         values.put(MG_UPDATEDBY, getActiveUser(table));
         values.put(MG_UPDATEDON, now);
+        if (hasMgOwnerColumn && !row.getColumnNames().contains(MG_OWNER_COLUMN)) {
+          values.put(MG_OWNER_COLUMN, getActiveUser(table));
+        }
       }
       step.values(values.values());
     }

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 
 class TestPrivacy {
 
@@ -136,7 +137,7 @@ class TestPrivacy {
   @Test
   void countScope_onRlsTable_passesThroughPolicy_andClampsProjection() throws Exception {
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
-    insertRowsWithOwner(5, "MG_USER_admin");
+    insertRowsWithOwner(5, "admin");
     grantCustomRole(SelectScope.COUNT, true);
 
     db.setActiveUser(USER_NAME);

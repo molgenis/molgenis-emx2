@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.utils.StopWatch;
 
 @Tag("slow")
@@ -792,13 +794,13 @@ public class TestRlsPerformance {
     String[] groupsArray = allGroups.toArray(new String[0]);
     List<Row> rows = new ArrayList<>();
     for (int rIdx = 0; rIdx < stressRows; rIdx++) {
-      rows.add(new Row().setString("id", "stress-" + rIdx).setString("val", "v"));
+      rows.add(
+          new Row()
+              .setString("id", "stress-" + rIdx)
+              .setString("val", "v")
+              .setStringArray("mg_groups", groupsArray));
     }
     schemaRls.getTable(TABLE_STRESS).insert(rows);
-
-    jooq.execute(
-        "UPDATE \"" + SCHEMA_RLS + "\".\"" + TABLE_STRESS + "\" SET mg_groups = ?",
-        (Object) groupsArray);
 
     StopWatch.start("stressTest_largeMgGroupsArray select");
     db.setActiveUser(USER_GROUP);
@@ -928,12 +930,14 @@ public class TestRlsPerformance {
   private void insertBulkRowsWithGroup(Table table, int count, String groupName) {
     int batchSize = 500;
     List<Row> batch = new ArrayList<>(batchSize);
+    String[] groupArr = new String[] {groupName};
     for (int idx = 0; idx < count; idx++) {
       batch.add(
           new Row()
               .setString("id", "grprow-" + groupName + "-" + idx)
               .setString("grp", groupName)
-              .setString("val", "v" + idx));
+              .setString("val", "v" + idx)
+              .setStringArray("mg_groups", groupArr));
       if (batch.size() == batchSize) {
         table.save(batch);
         batch.clear();
@@ -942,14 +946,6 @@ public class TestRlsPerformance {
     if (!batch.isEmpty()) {
       table.save(batch);
     }
-    jooq.execute(
-        "UPDATE \""
-            + table.getSchema().getName()
-            + "\".\""
-            + table.getName()
-            + "\" SET mg_groups = ? WHERE id LIKE ?",
-        (Object) new String[] {groupName},
-        "grprow-" + groupName + "-%");
   }
 
   private long timeSelectAll(Schema schema, String tableName) {
@@ -1042,10 +1038,21 @@ public class TestRlsPerformance {
       ps.executeBatch();
       conn.commit();
     }
-    jooq.execute(
-        "UPDATE \"" + schema.getName() + "\".\"" + tableName + "\" SET mg_groups = ? WHERE grp = ?",
-        (Object) new String[] {groupName},
-        groupName);
+    String[] groupArr = new String[] {groupName};
+    List<Row> groupRows = new ArrayList<>();
+    for (int idx = 0; idx < count; idx++) {
+      if (idx % 2 == 0) {
+        groupRows.add(
+            new Row().setString("id", "large-" + idx).setStringArray("mg_groups", groupArr));
+      }
+      if (groupRows.size() == batchSize) {
+        schema.getTable(tableName).update(groupRows);
+        groupRows.clear();
+      }
+    }
+    if (!groupRows.isEmpty()) {
+      schema.getTable(tableName).update(groupRows);
+    }
   }
 
   private String captureExplainPlanForGroupScope(Schema schema, String groupName) {

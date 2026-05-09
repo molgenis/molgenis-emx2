@@ -5,13 +5,11 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestSchemaWideCustomGrants {
 
@@ -26,7 +24,6 @@ class TestSchemaWideCustomGrants {
   private static final String USER_BOB = "SwcgBob";
 
   private static final Database db = TestDatabaseFactory.getTestDatabase();
-  private static final DSLContext jooq = ((SqlDatabase) db).getJooq();
   private static final SqlRoleManager roleManager = ((SqlDatabase) db).getRoleManager();
 
   private Schema schema;
@@ -39,12 +36,6 @@ class TestSchemaWideCustomGrants {
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
     roleManager.createGroup(schema, GROUP_DEPT1);
-  }
-
-  @AfterEach
-  void tearDown() {
-    db.becomeAdmin();
-    db.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test
@@ -92,15 +83,13 @@ class TestSchemaWideCustomGrants {
   void nullGroupGrant_groupScope_userSeesNothing() {
     setupRole(ROLE_GROUP, SelectScope.GROUP, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
     db.becomeAdmin();
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_NAME
-            + "\".\""
-            + TABLE_NAME
-            + "\" (id, val, mg_groups) VALUES (?, ?, ?)",
-        "tagged-row",
-        "v",
-        new String[] {GROUP_DEPT1});
+    schema
+        .getTable(TABLE_NAME)
+        .insert(
+            new Row()
+                .setString("id", "tagged-row")
+                .setString("val", "v")
+                .setStringArray("mg_groups", GROUP_DEPT1));
 
     roleManager.grantRoleToUser(schema, ROLE_GROUP, USER_ALICE);
 

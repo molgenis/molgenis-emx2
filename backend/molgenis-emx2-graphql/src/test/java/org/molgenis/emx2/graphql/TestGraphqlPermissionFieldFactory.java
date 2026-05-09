@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.UpdateScope;
 
 class TestGraphqlPermissionFieldFactory {
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -168,7 +168,7 @@ class TestGraphqlPermissionFieldFactoryIntegration {
   }
 
   @Test
-  void changeMembers_grantsRole() throws IOException {
+  void changeMembers_grantsRole_groupIsNull() throws IOException {
     database.becomeAdmin();
 
     String mutation =
@@ -199,7 +199,7 @@ class TestGraphqlPermissionFieldFactoryIntegration {
   }
 
   @Test
-  void dropRoles_tombstonesRole() throws IOException {
+  void dropRoles_removesRoleFromSchema() throws IOException {
     database.becomeAdmin();
 
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);

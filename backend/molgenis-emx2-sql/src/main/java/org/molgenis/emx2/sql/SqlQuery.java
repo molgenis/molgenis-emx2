@@ -22,6 +22,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -1016,9 +1017,13 @@ public class SqlQuery extends QueryBean {
     // root and intermediate levels have mg_tableclass column
     Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
     while (inheritedTable != null) {
-      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
+      List<Field<?>> using = new ArrayList<>(inheritedTable.getPrimaryKeyFields());
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
+      }
+      if (inheritedTable.getRlsEnabled()) {
+        using.add(field(name(MG_OWNER_COLUMN)));
+        using.add(field(name(MG_GROUPS_COLUMN)));
       }
       result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       inheritedTable = inheritedTable.getInheritedTable();
@@ -1028,10 +1033,14 @@ public class SqlQuery extends QueryBean {
     }
     // join subclass tables also
     for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
+      List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
       mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
+      }
+      if (table.getRlsEnabled()) {
+        using.add(field(name(MG_OWNER_COLUMN)));
+        using.add(field(name(MG_GROUPS_COLUMN)));
       }
       result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }

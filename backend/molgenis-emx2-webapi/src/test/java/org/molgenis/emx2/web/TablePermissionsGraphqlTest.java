@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.TableType;
-import org.molgenis.emx2.UpdateScope;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")

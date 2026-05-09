@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /** Tests that table-level permissions are actually enforced at the SQL layer. */
 class TestTablePermissionEnforcement {

@@ -113,6 +113,7 @@ class SqlSchemaMetadataExecutor {
     String roleprefix = getRolePrefix(schema.getMetadata().getName());
     String rolename = roleprefix + member.getRole();
 
+    // execute updates database
     updateMembershipForUser(
         jooq,
         schema.getDatabase(),
@@ -132,10 +133,12 @@ class SqlSchemaMetadataExecutor {
       String username,
       String rolename) {
     try {
+      // add user if not exists
       if (!db.hasUser(m.getUser())) {
         db.addUser(m.getUser());
       }
 
+      // revoke other roles if user has them
       for (Member old : currentMembers) {
         if (old.getUser().equals(m.getUser())) {
           jooq.execute(
@@ -199,11 +202,11 @@ class SqlSchemaMetadataExecutor {
 
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
-          String roleFull = roleprefix + m.getRole();
-          String userFull = userprefix + m.getUser();
-          db.getJooqAsAdmin(
-              adminJooq ->
-                  adminJooq.execute("REVOKE {0} FROM {1}", name(roleFull), name(userFull)));
+
+          db.getJooq()
+              .execute(
+                  "REVOKE {0} FROM {1}",
+                  name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
         }
       }
     } catch (DataAccessException dae) {

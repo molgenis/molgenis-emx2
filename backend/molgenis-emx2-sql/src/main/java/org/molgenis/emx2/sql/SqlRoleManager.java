@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
@@ -19,6 +20,8 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +32,6 @@ public class SqlRoleManager {
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
-
-  private static final List<String> SYSTEM_ROLE_NAMES =
-      List.of("Owner", "Manager", "Editor", "Viewer");
 
   private final SqlDatabase database;
 
@@ -509,8 +509,8 @@ public class SqlRoleManager {
               + schemaName
               + "'");
     }
-    if (SYSTEM_ROLE_NAMES.contains(roleName)) {
-      throw new MolgenisException("System role permissions are immutable: " + roleName);
+    if (isSystemRole(roleName)) {
+      throw new MolgenisException("System roles are immutable: cannot modify '" + roleName + "'");
     }
     for (Map.Entry<String, TablePermission> entry : permissions.getTables().entrySet()) {
       rejectRlsScopeOnNonRlsTable(schema, entry.getKey(), entry.getValue(), permissions);
@@ -1006,14 +1006,18 @@ public class SqlRoleManager {
       return;
     }
     logger.debug("Enabling RLS for {}.{}", schemaName, tableName);
+    TableMetadata tableMetadata = schema.getTable(tableName).getMetadata();
     database.getJooqAsAdmin(
         adminJooq -> {
           adminJooq.execute(
-              "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner TEXT DEFAULT current_user",
+              "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner TEXT",
               name(schemaName, tableName));
           adminJooq.execute(
               "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_groups TEXT[]",
               name(schemaName, tableName));
+          if (tableMetadata.getInheritName() == null) {
+            registerRlsColumnMetadata(adminJooq, tableMetadata);
+          }
           adminJooq.execute(
               "CREATE INDEX IF NOT EXISTS {0} ON {1} (mg_owner) WHERE mg_owner IS NOT NULL",
               name(tableName + "_mg_owner_idx"), name(schemaName, tableName));
@@ -1084,7 +1088,7 @@ public class SqlRoleManager {
                   + "', mg_groups, mg_owner, 'delete') )",
               name(deletePolicy),
               name(schemaName, tableName));
-          String changeTrigger = changeCapTriggerName(tableName);
+          String changeTrigger = changeCapabilityTriggerName(tableName);
           adminJooq.execute(
               "DROP TRIGGER IF EXISTS {0} ON {1}",
               name(changeTrigger), name(schemaName, tableName));
@@ -1136,7 +1140,7 @@ public class SqlRoleManager {
               "DROP POLICY IF EXISTS {0} ON {1}", name(updatePolicy), name(schemaName, tableName));
           adminJooq.execute(
               "DROP POLICY IF EXISTS {0} ON {1}", name(deletePolicy), name(schemaName, tableName));
-          String changeTrigger = changeCapTriggerName(tableName);
+          String changeTrigger = changeCapabilityTriggerName(tableName);
           adminJooq.execute(
               "DROP TRIGGER IF EXISTS {0} ON {1}",
               name(changeTrigger), name(schemaName, tableName));
@@ -1145,21 +1149,36 @@ public class SqlRoleManager {
         });
   }
 
+  static void registerRlsColumnMetadata(DSLContext adminJooq, TableMetadata tableMetadata) {
+    Column ownerCol = new Column(tableMetadata, MG_OWNER_COLUMN).setType(STRING).setPosition(-7);
+    Column groupsCol =
+        new Column(tableMetadata, MG_GROUPS_COLUMN).setType(STRING_ARRAY).setPosition(-6);
+    saveColumnMetadata(adminJooq, ownerCol);
+    saveColumnMetadata(adminJooq, groupsCol);
+  }
+
+  static void deregisterRlsColumnMetadata(DSLContext adminJooq, TableMetadata tableMetadata) {
+    Column ownerCol = new Column(tableMetadata, MG_OWNER_COLUMN);
+    Column groupsCol = new Column(tableMetadata, MG_GROUPS_COLUMN);
+    deleteColumn(adminJooq, ownerCol);
+    deleteColumn(adminJooq, groupsCol);
+  }
+
   private static String tablePolicyName(String tableName, String verb) {
     String candidate = "mg_p_" + tableName + "_" + verb;
     if (candidate.getBytes(UTF_8).length <= PG_MAX_ID_LENGTH) {
       return candidate;
     }
-    String hash = sha1Hex(tableName + "_" + verb).substring(0, 12);
+    String hash = pgIdentifierHash(tableName + "_" + verb).substring(0, 12);
     return "mg_p_" + hash;
   }
 
-  private static String changeCapTriggerName(String tableName) {
+  private static String changeCapabilityTriggerName(String tableName) {
     String candidate = "mg_check_change_cap_" + tableName;
     if (candidate.getBytes(UTF_8).length <= PG_MAX_ID_LENGTH) {
       return candidate;
     }
-    String hash = sha1Hex(tableName).substring(0, 12);
+    String hash = pgIdentifierHash(tableName).substring(0, 12);
     return "mg_check_change_cap_" + hash;
   }
 
@@ -1179,7 +1198,7 @@ public class SqlRoleManager {
     }
   }
 
-  private static String sha1Hex(String input) {
+  private static String pgIdentifierHash(String input) {
     try {
       MessageDigest md = MessageDigest.getInstance("SHA-1");
       byte[] digest = md.digest(input.getBytes(UTF_8));

@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;

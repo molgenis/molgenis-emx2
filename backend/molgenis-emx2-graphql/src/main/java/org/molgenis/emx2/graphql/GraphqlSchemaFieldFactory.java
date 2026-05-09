@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -694,13 +696,6 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
     if (roles == null) return;
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
-    for (Map<String, Object> roleMap : roles) {
-      Object nameVal = roleMap.get(GraphqlConstants.NAME);
-      if (!(nameVal instanceof String roleName)) continue;
-      if (roleManager.isSystemRole(roleName)) {
-        throw new MolgenisException("System roles are immutable: cannot modify '" + roleName + "'");
-      }
-    }
     GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
     for (Map<String, Object> roleMap : roles) {
       Object nameVal = roleMap.get(GraphqlConstants.NAME);

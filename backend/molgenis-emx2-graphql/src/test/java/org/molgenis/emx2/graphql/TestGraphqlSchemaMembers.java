@@ -14,9 +14,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.UpdateScope;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -582,7 +582,7 @@ class TestGraphqlSchemaMembers {
   }
 
   @Test
-  void changeMembers_grantsRole() throws IOException {
+  void changeMembers_grantsRole_groupIsNull() throws IOException {
     assertFalse(
         querySystemMembersByRole(Privileges.VIEWER.toString()).contains(USER_ALICE),
         "Pre-condition: USER_ALICE must not already be a Viewer");

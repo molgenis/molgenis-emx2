@@ -10,7 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlRoleManager;
@@ -613,7 +613,7 @@ class TestGraphqlSchemaRoles {
   }
 
   @Test
-  void dropRoles_tombstonesRole() throws IOException {
+  void dropRoles_removesRoleFromSchema() throws IOException {
     database.becomeAdmin();
 
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);

@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestChangeGroup {
 
@@ -62,7 +62,7 @@ class TestChangeGroup {
     yesCgPerms.putTable(TABLE_NAME, tpYes);
     roleManager.setPermissions(schema, ROLE_YES_CG, yesCgPerms);
 
-    insertRowAsAdmin("row1", "val1", "MG_USER_admin", new String[] {GROUP_ONE});
+    insertRowAsAdmin("row1", "val1", "admin", new String[] {GROUP_ONE});
   }
 
   @AfterEach
@@ -72,16 +72,15 @@ class TestChangeGroup {
   }
 
   private void insertRowAsAdmin(String id, String val, String owner, String[] groups) {
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_NAME
-            + "\".\""
-            + TABLE_NAME
-            + "\" (id, val, mg_owner, mg_groups) VALUES (?, ?, ?, ?)",
-        id,
-        val,
-        owner,
-        groups);
+    db.becomeAdmin();
+    schema
+        .getTable(TABLE_NAME)
+        .insert(
+            new Row()
+                .setString("id", id)
+                .setString("val", val)
+                .setString("mg_owner", owner)
+                .setStringArray("mg_groups", groups));
   }
 
   @Test
@@ -173,8 +172,7 @@ class TestChangeGroup {
     } finally {
       db.becomeAdmin();
       roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
-      jooq.execute(
-          "DELETE FROM \"" + SCHEMA_NAME + "\".\"" + TABLE_NAME + "\" WHERE id = 'row-insert-cg'");
+      schema.getTable(TABLE_NAME).delete(new Row().setString("id", "row-insert-cg"));
     }
   }
 }

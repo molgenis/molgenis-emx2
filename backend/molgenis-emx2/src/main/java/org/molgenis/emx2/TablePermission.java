@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class TablePermission {
   private final String table;
-  private SelectScope select;
-  private UpdateScope insert;
-  private UpdateScope update;
-  private UpdateScope delete;
+  private PermissionSet.SelectScope select;
+  private PermissionSet.UpdateScope insert;
+  private PermissionSet.UpdateScope update;
+  private PermissionSet.UpdateScope delete;
 
   public TablePermission(String table) {
     this.table = table;
@@ -17,75 +17,75 @@ public class TablePermission {
     return table;
   }
 
-  public SelectScope select() {
+  public PermissionSet.SelectScope select() {
     return select;
   }
 
-  public UpdateScope insert() {
+  public PermissionSet.UpdateScope insert() {
     return insert;
   }
 
-  public UpdateScope update() {
+  public PermissionSet.UpdateScope update() {
     return update;
   }
 
-  public UpdateScope delete() {
+  public PermissionSet.UpdateScope delete() {
     return delete;
   }
 
-  public TablePermission select(SelectScope select) {
+  public TablePermission select(PermissionSet.SelectScope select) {
     this.select = select;
     return this;
   }
 
-  public TablePermission insert(UpdateScope insert) {
+  public TablePermission insert(PermissionSet.UpdateScope insert) {
     this.insert = insert;
     return this;
   }
 
-  public TablePermission update(UpdateScope update) {
+  public TablePermission update(PermissionSet.UpdateScope update) {
     this.update = update;
     return this;
   }
 
-  public TablePermission delete(UpdateScope delete) {
+  public TablePermission delete(PermissionSet.UpdateScope delete) {
     this.delete = delete;
     return this;
   }
 
-  public SelectScope getSelect() {
+  public PermissionSet.SelectScope getSelect() {
     return select;
   }
 
-  public UpdateScope getInsert() {
+  public PermissionSet.UpdateScope getInsert() {
     return insert;
   }
 
-  public UpdateScope getUpdate() {
+  public PermissionSet.UpdateScope getUpdate() {
     return update;
   }
 
-  public UpdateScope getDelete() {
+  public PermissionSet.UpdateScope getDelete() {
     return delete;
   }
 
-  public TablePermission setSelect(SelectScope select) {
-    this.select = select == null ? SelectScope.NONE : select;
+  public TablePermission setSelect(PermissionSet.SelectScope select) {
+    this.select = select == null ? PermissionSet.SelectScope.NONE : select;
     return this;
   }
 
-  public TablePermission setInsert(UpdateScope insert) {
-    this.insert = insert == null ? UpdateScope.NONE : insert;
+  public TablePermission setInsert(PermissionSet.UpdateScope insert) {
+    this.insert = insert == null ? PermissionSet.UpdateScope.NONE : insert;
     return this;
   }
 
-  public TablePermission setUpdate(UpdateScope update) {
-    this.update = update == null ? UpdateScope.NONE : update;
+  public TablePermission setUpdate(PermissionSet.UpdateScope update) {
+    this.update = update == null ? PermissionSet.UpdateScope.NONE : update;
     return this;
   }
 
-  public TablePermission setDelete(UpdateScope delete) {
-    this.delete = delete == null ? UpdateScope.NONE : delete;
+  public TablePermission setDelete(PermissionSet.UpdateScope delete) {
+    this.delete = delete == null ? PermissionSet.UpdateScope.NONE : delete;
     return this;
   }
 

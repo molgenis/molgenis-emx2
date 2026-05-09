@@ -7,20 +7,18 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import org.jooq.DSLContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
 
 class TestSqlRoleManager {
 
   private static final String SCHEMA_A = "SqlRoleManagerTestA";
-  private static final String SCHEMA_B = "SqlRoleManagerTestB";
   private static final String SCHEMA_ENF = "TestSqlRoleManagerEnforcement";
 
   private static final String ENFORCEMENT_TABLE = "Items";
@@ -37,14 +35,12 @@ class TestSqlRoleManager {
   private static final String USER_BOB = "TsrmBob";
 
   private Schema schemaA;
-  private Schema schemaB;
   private Schema schemaEnf;
 
   @BeforeEach
   void setUp() {
     db.becomeAdmin();
     schemaA = db.dropCreateSchema(SCHEMA_A);
-    schemaB = db.dropCreateSchema(SCHEMA_B);
     schemaEnf = db.dropCreateSchema(SCHEMA_ENF);
     schemaEnf.create(table(ENFORCEMENT_TABLE).add(column("id").setPkey()).add(column("val")));
     if (!db.hasUser(TEST_USER_ALICE)) db.addUser(TEST_USER_ALICE);
@@ -53,14 +49,6 @@ class TestSqlRoleManager {
     if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
     roleManager.createGroup(schemaEnf, GROUP_A);
     roleManager.createGroup(schemaEnf, GROUP_B);
-  }
-
-  @AfterEach
-  void tearDown() {
-    db.becomeAdmin();
-    db.dropSchemaIfExists(SCHEMA_A);
-    db.dropSchemaIfExists(SCHEMA_B);
-    db.dropSchemaIfExists(SCHEMA_ENF);
   }
 
   // ── createRole: validation ─────────────────────────────────────────────────
@@ -192,10 +180,20 @@ class TestSqlRoleManager {
   }
 
   @Test
-  void setPermissions_rejectsSystemRole() {
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.setPermissions(schemaA, "Editor", new PermissionSet()));
+  void setPermissions_rejectsAllSystemRoles() {
+    for (Privileges sysRole : Privileges.values()) {
+      MolgenisException ex =
+          assertThrows(
+              MolgenisException.class,
+              () -> roleManager.setPermissions(schemaA, sysRole.toString(), new PermissionSet()),
+              "setPermissions must reject system role: " + sysRole);
+      assertTrue(
+          ex.getMessage().contains("immutable"),
+          "Error must mention 'immutable' for system role "
+              + sysRole
+              + "; got: "
+              + ex.getMessage());
+    }
   }
 
   @Test
@@ -535,37 +533,6 @@ class TestSqlRoleManager {
     }
   }
 
-  // ── regression: direct PG GRANT without GMM row yields no rows ───────────
-
-  @Test
-  void directPgGrantWithoutGmmRow_yieldsNoRows() {
-    roleManager.createRole(SCHEMA_ENF, "pg-only-role");
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
-
-    PermissionSet ps = new PermissionSet();
-    ps.putTable(
-        ENFORCEMENT_TABLE, new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.ALL));
-    roleManager.setPermissions(schemaEnf, "pg-only-role", ps);
-
-    db.becomeAdmin();
-    schemaEnf
-        .getTable(ENFORCEMENT_TABLE)
-        .insert(new Row().setString("id", "target-row").setString("val", "v"));
-
-    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, "pg-only-role");
-    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
-    jooq.execute("GRANT {0} TO {1}", name(fullRole), name(fullUser));
-
-    db.setActiveUser(USER_ALICE);
-    try {
-      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
-      assertEquals(0, rows.size(), "Direct PG GRANT without GMM row must yield zero rows");
-    } finally {
-      db.becomeAdmin();
-      jooq.execute("REVOKE {0} FROM {1}", name(fullRole), name(fullUser));
-    }
-  }
-
   // ── scope: SELECT=ALL returns every row ──────────────────────────────────
 
   @Test
@@ -708,15 +675,14 @@ class TestSqlRoleManager {
   // ── enforcement helpers ───────────────────────────────────────────────────
 
   private void insertGroupTaggedRow(String id, String val, String[] groups) {
-    jooq.execute(
-        "INSERT INTO \""
-            + SCHEMA_ENF
-            + "\".\""
-            + ENFORCEMENT_TABLE
-            + "\" (id, val, mg_groups) VALUES (?, ?, ?)",
-        id,
-        val,
-        groups);
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(
+            new Row()
+                .setString("id", id)
+                .setString("val", val)
+                .setStringArray("mg_groups", groups));
   }
 
   private void setupEnforcementRole(

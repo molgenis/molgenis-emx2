@@ -2,7 +2,11 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.Constants.MG_GROUPS_COLUMN;
+import static org.molgenis.emx2.Constants.MG_OWNER_COLUMN;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -542,6 +546,11 @@ class SqlTableMetadata extends TableMetadata {
     Schema schemaInstance = getDatabase().getSchema(getSchemaName());
     roleManager.enableRlsForTable(schemaInstance, getTableName());
     if (getInheritName() == null) {
+      columns.put(
+          MG_OWNER_COLUMN, new Column(this, MG_OWNER_COLUMN).setType(STRING).setPosition(-7));
+      columns.put(
+          MG_GROUPS_COLUMN,
+          new Column(this, MG_GROUPS_COLUMN).setType(STRING_ARRAY).setPosition(-6));
       super.setRlsEnabled(true);
       getDatabase()
           .getJooqAsAdmin(
@@ -611,6 +620,9 @@ class SqlTableMetadata extends TableMetadata {
     getDatabase()
         .getJooqAsAdmin(
             adminJooq -> {
+              if (getInheritName() == null) {
+                SqlRoleManager.deregisterRlsColumnMetadata(adminJooq, this);
+              }
               adminJooq.execute(
                   "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_owner",
                   name(getSchemaName(), getTableName()));
@@ -619,6 +631,8 @@ class SqlTableMetadata extends TableMetadata {
                   name(getSchemaName(), getTableName()));
             });
     if (getInheritName() == null) {
+      columns.remove(MG_OWNER_COLUMN);
+      columns.remove(MG_GROUPS_COLUMN);
       super.setRlsEnabled(false);
       MetadataUtils.saveTableMetadata(getJooq(), this);
     }

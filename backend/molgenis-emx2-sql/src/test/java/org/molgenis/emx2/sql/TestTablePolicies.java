@@ -11,8 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.SelectScope;
-import org.molgenis.emx2.UpdateScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 class TestTablePolicies {
 
@@ -51,9 +51,9 @@ class TestTablePolicies {
     enableGroupScope();
     enableOwnScope();
 
-    insertRow("row-all", "visible-all", "MG_USER_" + USER_ALICE, new String[] {GROUP_RED});
-    insertRow("row-red", "visible-red", "MG_USER_" + USER_BOB, new String[] {GROUP_RED});
-    insertRow("row-blue", "visible-blue", "MG_USER_" + USER_BOB, new String[] {GROUP_BLUE});
+    insertRow("row-all", "visible-all", USER_ALICE, new String[] {GROUP_RED});
+    insertRow("row-red", "visible-red", USER_BOB, new String[] {GROUP_RED});
+    insertRow("row-blue", "visible-blue", USER_BOB, new String[] {GROUP_BLUE});
   }
 
   private void enableAllScope() {
@@ -204,7 +204,7 @@ class TestTablePolicies {
       db.setActiveUser(USER_ALICE);
       assertThrows(
           Exception.class,
-          () -> insertRow("row-foreign", "val", "MG_USER_" + USER_ALICE, new String[] {GROUP_BLUE}),
+          () -> insertRow("row-foreign", "val", USER_ALICE, new String[] {GROUP_BLUE}),
           "Sharing into a group the user is not a member of must be rejected");
     } finally {
       db.becomeAdmin();

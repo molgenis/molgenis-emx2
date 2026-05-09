@@ -9,8 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SelectScope;
 import org.molgenis.emx2.TablePermission;
 
 class TestEffectiveSelectScopes {
@@ -45,7 +45,7 @@ class TestEffectiveSelectScopes {
 
   @Test
   void customRole_withSelectOwn_returnsOwn() {
-    ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
@@ -150,7 +150,7 @@ class TestEffectiveSelectScopes {
   @Test
   void customRoleOwn_andSystemRoleCount_returnsBoth() {
     schema.addMember(TEST_USER, "Count");
-    ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
+    schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
     perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));

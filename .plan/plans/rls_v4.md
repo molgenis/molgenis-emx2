@@ -548,8 +548,7 @@ happens in normal operation.
 - **Result**: ratio dropped from 5.52× → **1.04×** at 5k rows. Target
   met. GIN engages at any cardinality once function is inlinable.
   H.2 stays deferred.
-- **New contract**: direct PG GRANT without GMM row yields zero rows.
-  Regression test: `TestSqlRoleManager.directPgGrantWithoutGmmRow_yieldsNoRows`.
+- **New contract**: direct PG GRANT without GMM row yields zero rows (tested implicitly via `absentRpmRowMeansNoRowVisible`). Dedicated regression test `directPgGrantWithoutGmmRow_yieldsNoRows` was deleted — it violated the project principle that tests must not mutate state via direct SQL.
 - **Migration**: consolidated into `migration32.sql` (unreleased on this branch;
   no separate migration33). DB version remains 33.
 
@@ -588,6 +587,73 @@ FROM mg_visible_<table> WHERE user = current_user AND row_id =
 **Decision plan**: implement H.1 now → re-run `TestRlsPerformance` →
 compare ratios → decide on H.2/H.3 from numbers.
 
+**H.4 — Register `mg_owner` / `mg_groups` as `Column` objects**
+*(in flight 2026-05-08; prerequisite for Phase I.5 forms)*
+
+Today `enableRlsForTable` adds `mg_owner` / `mg_groups` via raw
+`ALTER TABLE … ADD COLUMN` *without* registering them in
+`TableMetadata`. Consequence: `Table.insert(Row)` and `Table.update(Row)`
+silently drop values for these columns. Tests had to reach into raw
+`jooq.execute(INSERT … (mg_owner, mg_groups, …))` — violating the
+"no SQL mutations from tests" principle. Phase I.5 (form editing of
+mg_owner/mg_groups gated by change_owner/change_group) needs them as
+first-class `Column` objects to render.
+
+**Approach**:
+- Mirror existing system-column registration (`executeAddMetaColumns`
+  at negative positions). RLS-only registration: at enable time call
+  the metadata layer to add real Column objects, not raw DDL.
+- `mg_owner`: `REF` → `MOLGENIS.users_metadata`. ON DELETE SET NULL
+  (user deletion nullifies ownership rather than blocking).
+- `mg_groups`: `REF_ARRAY` → `MOLGENIS.groups_metadata`. EMX2's
+  REF_ARRAY machinery already handles array integrity (let it). On
+  group delete, EMX2 cascades — verify behaviour during slice work.
+- `disableRlsForTable` symmetrically removes the columns.
+- Backfill on enable: `mg_owner = mg_insertedBy` for existing rows;
+  type alignment trivial since both are usernames.
+- GIN index on `mg_groups` and partial index on `mg_owner` continue
+  to be emitted (REF_ARRAY column emission may already do GIN — verify).
+
+**Migration**: NOT REQUIRED. Branch is from master; no existing
+schemas have RLS enabled outside tests. Fresh-only path; old raw-DDL
+case doesn't exist in production.
+
+**Test conversion**: with the columns registered, the remaining ~14
+`jooq.execute(INSERT/UPDATE … mg_owner, mg_groups …)` sites in
+`TestRlsPerformance`, `TestChangeOwner`, `TestChangeGroup`,
+`TestSqlRoleManager`, `TestChangeOwnerGroupSqlEnforcement` collapse
+to `table.insert(new Row().set("mg_owner", …).set("mg_groups", …))`.
+Slice fixes the API gap *and* finishes the audit-A cleanup in one go.
+
+**Surfaces verified**:
+- `SqlQuery` already excludes `mg_*` via `EXCLUDE_MG_COLUMNS`.
+- `Emx2.java` already skips system columns on export.
+- `RowEdit.vue` already filters `mg_*` (Phase I.5 will gate them
+  back IN behind permissions; today's filter stays).
+- GraphQL exposes `mg_*` columns for query (consistent with existing
+  `mg_insertedBy` etc.) — needed by Phase I.5 anyway.
+
+**Risks**:
+- ON DELETE SET NULL on `mg_owner` means deleting a user nulls their
+  owned rows. Add test asserting this behaviour.
+- REF_ARRAY group cascade: EMX2 may already cleanup; if not, document
+  as known limitation pending follow-up.
+- `enableRlsForTable` running on a table with existing rows: backfill
+  must complete inside the same tx as column-add, to avoid
+  policies firing against unfilled mg_owner=NULL rows.
+
+**Files (estimated 12-15)**:
+- `SqlRoleManager.enableRlsForTable` — replace raw DDL with Column
+  registration
+- `SqlRoleManager.disableRlsForTable` — symmetric drop
+- `Constants.java` — confirm `MG_OWNER` / `MG_GROUPS` constants exist
+- `~5 test files` — convert remaining raw-SQL mutations to Java APIs
+- 1 new test asserting ON DELETE SET NULL behaviour for mg_owner
+
+**Out of scope for H.4**: GraphQL schema introspection filtering of
+mg_owner/mg_groups (consistent with existing system columns; if
+hiding is wanted, separate slice).
+
 ## Decision log
 
 - **Branch base**: master. Phase 1–8 of the current branch is rolled
@@ -614,12 +680,32 @@ compare ratios → decide on H.2/H.3 from numbers.
 
 ## Open items
 
-- Performance benchmark numbers (§G.1) and materialised-view fallback
-  decision.
-- Cross-schema FK semantics tests (§F.1) — `GeneratorTest.generateTypes`
-  / `generateCrossSchemaTest` are the canary; deferred from Phase A
-  combined-suite triage.
-- Docs and runbook (§G.4).
+All phases A–H closed as of 2026-05-08. Remaining work is bookkeeping
+plus optional optimisation:
+
+- **Canonical combined-suite at phase boundary** — user's job per
+  CLAUDE.md. Lead does not run it; user pastes output, lead dispatches
+  surgical fixes if anything red.
+- **H.2 (session-cached membership)** — deferred. Only needed if
+  large-scale perf regresses or new bottleneck surfaces. Current ratios:
+  1.04× at 5k, 1.14× at 100k.
+- **H.3 (materialised view)** — deferred. Only if H.1+H.1.5 prove
+  insufficient at >1M rows.
+- **Clean-error wrapping** for "RLS table with no per-table GRANT" (raw
+  PG `permission denied` surfacing) — deferred until a real failing case
+  motivates it.
+- **H.4 — `mg_owner` / `mg_groups` registered as `Column` objects** —
+  closed 2026-05-08. `enableRlsForTable` now calls
+  `registerRlsColumnMetadata` to add both as `REF` / `REF_ARRAY` columns
+  to MOLGENIS metadata + the in-memory `TableMetadata`.
+  `Table.insert()` / `Table.update()` carry these values end-to-end.
+  **Format-bridge decision (2026-05-08, option (a))**: `mg_owner` stores
+  the bare EMX2 username (e.g. `alice`), NOT the PG role name
+  (`MG_USER_alice`). RLS policies / access functions add the
+  `MG_USER_` prefix when comparing to `current_user`. This makes the FK
+  to `users_metadata.username` declarable directly with
+  `ON DELETE SET NULL`. Migration: not required (still pre-master,
+  re-create from clean).
 
 ### Slice 1 (B + C gap-close) — closed 2026-05-08
 
@@ -813,6 +899,292 @@ Test scaffold: 5 methods in `TestCrossSchemaFkRlsVisibility`.
 - `refArrayDropsInvisibleElements` — GREEN
 - `refbackEmptyForInvisibleParent` — GREEN
 - `inheritanceCompositionFiltersChildSubclass` — GREEN
+
+### Phase I — UI integration (DRAFT 2026-05-08)
+
+Backend RLS is feature-complete; UI surfaces lag. Five slices, ordered
+small→large. **Backend is presumed already wired via GraphQL**
+(`change(roles:…)`, `change(members:…)`, `change(groups:…)`,
+`tables.rlsEnabled`); slices that find a backend gap promote it to a
+sub-task.
+
+**Terminology to confirm with user**: "old bootstrap" vs "new bootstrap"
+in the user's request maps to which concrete apps?
+
+- `apps/schema/` is Vue3 + Bootstrap CSS (legacy schema editor).
+- `apps/ui/` is the new Nuxt + Tailwind admin app.
+- `apps/molgenis-components/` is the shared form-rendering library
+  (`RowEdit.vue` etc.) used by both — Tailwind-styled in newer surfaces.
+
+Working assumption: "old bootstrap schema app" = `apps/schema/`; "new
+bootstrap forms" = `apps/molgenis-components/RowEdit.vue` rendered
+inside `apps/ui/`. **Confirm before implementing I.5.**
+
+**I.1 — CSV/Excel round-trip of `rls_enabled`**
+
+Smallest slice. EMX2 import/export currently does NOT carry the
+RLS flag.
+
+- File: `backend/molgenis-emx2-io/.../emx2/Emx2.java`.
+- Add `RLS_ENABLED` constant; read in `fromRowList` (table-level
+  property); write in `toRowList` / `getHeaders`.
+- Tests: extend `TestEmx2*` with round-trip — schema with `rlsEnabled=true`
+  on root table; export → re-import → flag preserved; subclass
+  rows always serialise as false.
+- Docs: append `rls_enabled` row to the EMX2 schema-format reference in
+  `docs/molgenis/schema_format.md` (or wherever the row-by-row table
+  doc lives — confirm path via scout when the slice opens).
+
+**I.2 — RLS toggle in legacy schema editor (`apps/schema/`)**
+
+- Component: `apps/schema/src/components/TableEditModal.vue`.
+- Add a labelled boolean input (`rls_enabled`) below the existing
+  Semantics section. Bind to `row.rlsEnabled`.
+- Wire through existing `emitOperation()` so the change(tables:…)
+  mutation carries the flag.
+- Reject UI for subclass tables (existing backend rejection surfaces
+  the message `"enable on root '<X>' instead"` — surface as toast).
+- Test: add to existing `apps/schema/` story / e2e if any; otherwise
+  manual visual check (mark "visual check" in spec).
+
+**I.3 — Tailwind admin: role + permission manager (`apps/ui/`)**
+
+- New page `apps/ui/app/pages/admin/roles/[schema].vue` (or similar).
+- List custom roles for a schema: query `_schema.roles`. Show
+  description, table count.
+- CRUD: create/rename/delete role via `change(roles:…)` /
+  `drop(roles:…)`. Use existing modal pattern (`EditUserModal.vue`).
+- **Permission editor**: select a role → table list with per-table
+  scope dropdowns:
+  - `select_scope`: NONE | EXISTS | COUNT | RANGE | AGGREGATE | OWN
+    | GROUP | ALL
+  - `insert_scope` / `update_scope` / `delete_scope`: NONE | OWN |
+    GROUP | ALL
+  - `change_owner`, `change_group`: booleans
+  - Privacy modes (EXISTS/COUNT/RANGE/AGGREGATE) only available when
+    table has the requisite columns; backend rejects mismatch — surface
+    error.
+- GraphQL: `change(roles:[{name, permissions:[{table, selectScope, …}]}])`.
+  Confirm mutation surface exists before slice opens.
+- Test: at least one playwright e2e covering create-role → set
+  permission → RLS query reflects scope.
+
+**I.4 — Tailwind admin: membership manager (`apps/ui/`)**
+
+- New page `apps/ui/app/pages/admin/members/[schema].vue`.
+- List `(user, role, group?)` triples per schema: query
+  `_schema.members`. Show user, role, group, schema-wide vs group-bound.
+- CRUD: assign / unassign via `change(members:…)` / `drop(members:…)`.
+- Validation surfaces: system-role + group rejected (clean error
+  toast); World A semantics — assigning user to role with no group
+  supersedes existing group-bound rows (warn user with "this will
+  remove existing group-scoped grants" confirmation dialog).
+- Group selector: `_schema.groups` query; allow inline group create.
+- Test: playwright e2e covering schema-wide grant supersedes
+  group-bound (the World A invariant).
+
+**I.5 — `mg_owner` / `mg_groups` editing in forms**
+
+- Component: `apps/molgenis-components/src/components/forms/RowEdit.vue`.
+- Currently filtered out by `!column.id?.startsWith("mg_")` in
+  `shownColumnsWithoutMeta`.
+- Add explicit allow-list for `mg_owner` and `mg_groups` gated on
+  permissions:
+  - Visible only when row's table has RLS enabled.
+  - Editable only when current user has `change_owner` / `change_group`
+    on that table (read from existing `tablePermissions` prop).
+  - When non-editable but visible: render read-only display.
+- Backend already enforces (RLS policy WITH CHECK rejects mutation
+  attempts that change owner/group without permission); UI just hides
+  the input.
+- Test: existing form story file; add story variants
+  `with-rls-and-change-owner-permission`,
+  `with-rls-without-change-owner-permission`.
+
+**Open questions for user before implementing:**
+
+1. Confirm "old bootstrap" = `apps/schema/`, "new bootstrap" =
+   `apps/molgenis-components/` rendered inside `apps/ui/` (tailwind).
+2. Order of slices: I.1 → I.2 (small + low-risk warm-up) → I.3 → I.4 →
+   I.5? Or different order?
+3. Membership UI (I.4): inline group create vs separate group manager?
+4. Permission editor (I.3): per-table grid or per-role-then-table
+   drill-in? Latter is what the sketch above proposes.
+5. Should I.5 also gate display of `mg_owner` / `mg_groups` columns in
+   table list views, not just form modals? (Scope-creep risk.)
+
+**Decision plan**: confirm terminology + open questions → open I.1
+(smallest, clearest backend-touching slice) → close → re-evaluate.
+
+### Phase J — code-review cleanup wave (DRAFT 2026-05-08)
+
+User code-review feedback on Phase H deliverables. Skill
+`backend-test-purity` captures the test rules going forward. This phase
+addresses accumulated debt in waves; each wave dispatches in parallel.
+
+**Wave J.1 — Refactors (touch many tests; do first)**
+
+- **J.1.a** Fold `SelectScope` and `UpdateScope` enums into
+  `PermissionSet` (single source of scope semantics; reduces enum
+  surface). `SelectScope` is the richer ladder (NONE..ALL incl.
+  privacy modes); `UpdateScope` is the subset (NONE/OWN/GROUP/ALL).
+  Decide: nested enums on `PermissionSet`, or flatten into a single
+  `Scope` enum + per-axis allow-list.
+- **J.1.b** Push GraphQL `change(roles:…)` system-role check from
+  `Graphql*FieldFactory` down to `SqlRoleManager` (Java layer is
+  authoritative; GraphQL surfaces the exception).
+- **J.1.c** `allowsCount` audit — currently unused. Either delete or
+  add coverage in `PleasePsqlQuery` (count-floor projection test).
+- **J.1.d** Push `requireManagerOrOwner` and `rejectCustomRoleEscalation`
+  checks from `Graphql*FieldFactory` down to `SqlRoleManager` entry
+  points (createRole, deleteRole, setPermissions, createGroup,
+  deleteGroup, addGroupMembership, grantRoleToUser, addGroupMember,
+  removeGroupMember). Java layer is authoritative. **Plus** filter
+  GraphQL schema generation: omit `change(roles:…)`,
+  `change(groups:…)`, `change(members:…)`, `drop(roles:…)`,
+  `drop(groups:…)` from the schema returned to sessions whose active
+  user is not Admin/Owner/Manager — defense-in-depth so the API does
+  not even surface for non-privileged users.
+
+**Wave J.2 — `mg_owner` format-bridge follow-through (option a)**
+
+Decision: `mg_owner` stores bare EMX2 username (NOT `MG_USER_`-prefixed).
+
+- **J.2.a** `SqlTable.insertBatch` default: store `activeUser` (bare),
+  not `MG_USER_PREFIX + activeUser`.
+- **J.2.b** `mg_can_read` / `mg_can_write` / `mg_can_write_all`:
+  compare `mg_owner` to `current_user` by adding the prefix on the
+  comparison side, OR strip on the column side. Pick simpler.
+- **J.2.c** Declare FK `mg_owner → users_metadata.username` with
+  `ON DELETE SET NULL` (was blocked by format mismatch).
+- **J.2.d** Update existing tests touching `mg_owner` literal values
+  (drop `MG_USER_` prefix in expected values).
+
+**Wave J.3 — Test purity sweep (one agent per file, parallel)**
+
+All cite skill `backend-test-purity`. For each file: drop teardown,
+convert SQL mutations → Java API, rename methods to match assertion,
+remove unused helpers/vars.
+
+- `TestAccessFunctions` — convert SQL setup; convert `insertRow` to
+  `table.insert(Row)`; remove teardown
+- `TestSchemaWideCustomGrants` — assess SQL necessity; convert if
+  possible
+- `TestSelectScope` — convert setup; remove teardown
+- `TestSqlRoleManager` — remove teardown; remove unused `schemaB`;
+  rename `dropRoles_tombstonesRole` → `dropRoles`; rename
+  `changeMembers_grantsRole` → `changeMembers_grantsRole_groupIsNull`;
+  audit `dropMembers_revokesSystemRole` for duplicate coverage
+- `TestCrossSchemaFkRlsVisibility` — convert setup
+- `TestCurrentUserGroups` — convert setup; remove teardown; verify
+  `functionReturnsGroupsForCurrentUser`,
+  `functionReturnsEmptyArrayForUnknownSchema`,
+  `functionOnlyReturnsGroupsForRequestedSchema`,
+  `groupsMetadataFkCascadesOnSchemaDelete`,
+  `triggerRejectsUpdateOnSystemRoleRow` use SQL only for verification
+- `TestRoleManagerColumnGrantEnforcement` — convert to Java API
+- `TestChangeOwnerGroupSqlEnforcement` — convert remaining SQL in
+  `rejectsShareIntoForeignGroup`,
+  `updateGroupsBlockedWhenChangeGroupFalse`,
+  `updateGroupsAllowedWhenChangeGroupTrue`,
+  `insertWithGroupsAllowedWhenChangeGroupFalse`,
+  `updateBlockedWhenChangeOwnerFalse`,
+  `updateOwnerAllowedWhenChangeOwnerTrue`,
+  `insertWithForeignOwnerBlockedWhenChangeOwnerFalse`,
+  `insertWithForeignOwnerAllowedWhenChangeOwnerTrue`
+- Audit aliases / helpers across all RLS tests: drop `sha1Hex`,
+  rename / inline `changeCapTriggerName`
+
+**Wave J.4 — Over-coverage audit**
+
+User concern: "do we really need sooo many tests? seems we are testing
+same on different layers." Spawn scout to map junit ↔ integration
+coverage; flag duplicates; user approves deletes.
+
+- Output: table per behaviour with covering tests across layers
+- Decision rule from skill rule 4: "If a behaviour is tested at the
+  integration / GraphQL layer, do NOT also test it at the SQL layer."
+  Integration wins.
+
+**Wave J.5 — Misc cleanup**
+
+- **J.5.a** Drop `testImplementation
+  'uk.org.webcompere:system-stubs-jupiter:2.1.8'` from
+  `molgenis-emx2-sql/build.gradle` (unused).
+- **J.5.b** Move `SqlDatabaseTest` back to its original package.
+- **J.5.c** `sessionPermissions_currentUserSeesOwnPermissions` —
+  current `canView` boolean assumes binary read scope; rework for the
+  full ladder (`NONE..ALL`). Confirm assertion shape with user before
+  refactor.
+- **J.5.d** `assertTrue(found, "Expected canView=true … with
+  AGGREGATE select scope")` — clarify expected behaviour (AGGREGATE
+  is privacy-projected, not full read; assert may be wrong).
+- **J.5.e** `TestRlsPerformance` — keep, add canary timer (e.g.
+  `assertTrue(elapsed < 5000)` on the GROUP-scope large-scale path).
+  Don't disable.
+
+**Wave J.6 — Docs**
+
+- **J.6.a** Merge `use_permissions.md` + `use_rls.md` into a single
+  RLS / permissions guide.
+- **J.6.b** Delete `dev_graphql-rls.md`.
+
+**Order**: J.1 → J.2 → J.3 (parallel) → J.4 → J.5 → J.6 → J.7.
+
+### Phase J.7 — column-level GRANTs for change_owner / change_group enforcement (DRAFT 2026-05-08)
+
+**Why this slice exists**: during J.3 verification, an agent
+attempting to fix a missing-column bug exceeded scope and bundled
+column-level grant enforcement into a "fix the H.4 gap" task. The
+over-reach was rolled back; this slice captures it as a deliberate
+decision point.
+
+**Current state after rollback** (post-J.3, pre-J.7):
+- Table-level GRANTs: `INSERT/UPDATE/DELETE` on the whole table for
+  the appropriate role.
+- Java layer enforces `change_owner` / `change_group` via the
+  `mg_check_change_capability` trigger (PG-side) AND via SqlTable
+  (Java-side).
+- `TestRoleManagerColumnGrantEnforcement` (which asserts PG-level
+  rejection of raw-SQL `UPDATE mg_groups`) currently fails — it
+  documents the gap.
+
+**Decision required from user before J.7 opens**:
+- Do we want PG-level (column-grant) enforcement of
+  `change_owner`/`change_group`, or is Java-layer + trigger
+  enforcement sufficient?
+- If yes → J.7 plan:
+  1. SqlRoleManager: split table-level
+     `GRANT INSERT/UPDATE` into column-level grants.
+     `mg_owner` excluded from the column list when
+     `changeOwner=false`; `mg_groups` excluded when
+     `changeGroup=false`.
+  2. SqlTable.getInsertColumns: omit `mg_owner`/`mg_groups` from
+     INSERT column list when caller didn't provide them (so PG
+     doesn't see an INSERT with all columns and reject for missing
+     privilege).
+  3. SqlUserAwareConnectionProvider: set `molgenis.active_user`
+     session variable on every connection acquire (admin + user).
+  4. `mg_check_change_capability` trigger: read
+     `current_setting('molgenis.active_user')` to populate
+     `NEW.mg_owner` server-side when not provided.
+  5. Tests:
+     - `TestRoleManagerColumnGrantEnforcement` should pass without
+       further test changes (the assertion is PG-level rejection).
+     - Verify no regressions in TestRlsPerformance,
+       TestEffectiveSelectScopes, full RLS suite.
+- If no → delete `TestRoleManagerColumnGrantEnforcement`; PG-level
+  rejection is not a goal.
+
+**Open question**: does this overlap with J.5.c (canView-as-boolean
+rework)? Both touch the question of how the GraphQL session
+permissions surface enforcement state.
+
+**Open question on J.5.c**: how should `canView` surface non-binary
+scopes in the GraphQL session-permissions response?  Options: enum
+field `viewScope: NONE|EXISTS|...|ALL`; or per-mode booleans
+(`canViewExistsOnly`, `canViewAggregate`, …). Default proposal: enum.
+Confirm before J.5.c opens.
 
 ## Out of scope
 

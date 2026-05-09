@@ -104,6 +104,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.descriptions = metadata.getDescriptions();
       this.oldName = metadata.getOldName();
       this.setSettingsWithoutReload(metadata.getSettings());
+      this.columns.clear();
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
       }

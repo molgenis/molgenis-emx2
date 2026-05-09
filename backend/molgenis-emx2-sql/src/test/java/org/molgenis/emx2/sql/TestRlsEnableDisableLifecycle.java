@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 
 class TestRlsEnableDisableLifecycle {
 
@@ -174,6 +176,43 @@ class TestRlsEnableDisableLifecycle {
                 expectedIndexName)
             .get(0, Long.class);
     assertEquals(0L, indexCountAfterDisable, "GIN index on mg_groups must be gone after disable");
+  }
+
+  @Test
+  void enableRls_registersOwnerAndGroupsAsColumns() {
+    schema.create(table(TABLE_NAME).add(column("id").setPkey()).add(column("val")));
+    SqlTableMetadata meta = (SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata();
+    meta.setRlsEnabled(true);
+
+    assertNotNull(
+        schema.getTable(TABLE_NAME).getMetadata().getColumn("mg_owner"),
+        "mg_owner must be a first-class Column after RLS enable");
+    assertNotNull(
+        schema.getTable(TABLE_NAME).getMetadata().getColumn("mg_groups"),
+        "mg_groups must be a first-class Column after RLS enable");
+
+    String owner = "admin";
+    schema
+        .getTable(TABLE_NAME)
+        .insert(
+            new Row()
+                .setString("id", "r1")
+                .setString("val", "v")
+                .setString("mg_owner", owner)
+                .setStringArray("mg_groups", new String[] {"grp1"}));
+
+    List<Row> rows = schema.getTable(TABLE_NAME).retrieveRows();
+    assertEquals(1, rows.size(), "inserted row must be visible to admin");
+    assertEquals(owner, rows.get(0).getString("mg_owner"), "mg_owner must match inserted value");
+
+    meta.setRlsEnabled(false);
+
+    assertNull(
+        schema.getTable(TABLE_NAME).getMetadata().getColumn("mg_owner"),
+        "mg_owner must be absent from Column metadata after RLS disable");
+    assertNull(
+        schema.getTable(TABLE_NAME).getMetadata().getColumn("mg_groups"),
+        "mg_groups must be absent from Column metadata after RLS disable");
   }
 
   @Test
