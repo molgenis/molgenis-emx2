@@ -71,5 +71,8 @@ test("should disable selection of nodes with invisible children in case of searc
   page,
 }) => {
   await page.getByRole("link", { name: "InputTree" }).click();
-  await expect(page.getByPlaceholder("Search...")).toBeVisible();
+  await page.getByRole("button", { name: "Search for options" }).click();
+  await expect(
+    page.getByPlaceholder("Type to search in options...")
+  ).toBeVisible();
 });
