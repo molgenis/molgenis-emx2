@@ -1045,6 +1045,66 @@ addresses accumulated debt in waves; each wave dispatches in parallel.
   `drop(groups:…)` from the schema returned to sessions whose active
   user is not Admin/Owner/Manager — defense-in-depth so the API does
   not even surface for non-privileged users.
+- **J.1.e** Schema Java-API consolidation (DRAFT 2026-05-09). Move the
+  per-input loops, system-role classification, and list-shape massaging
+  out of `GraphqlSchemaFieldFactory` into `Schema` so the GraphQL layer
+  becomes a thin pass-through and `SqlRoleManager` stays internal.
+    - Extend `Member` record with `groupName` (nullable; set when the
+      membership is via a group) and `isSystemRole` (or surface via the
+      embedded `Role`). Uniform shape for direct + group-scoped members.
+    - Replace `SqlRoleManager.listGroups` `List<Map<String, Object>>`
+      return with a typed `Group` record (`name`, `description`,
+      `members`). Decision 2026-05-09: **eager** — `members` populated
+      on the Group record itself.
+    - `Schema` API additions:
+      - `getMembers()` — fold direct + group memberships into one list.
+      - `getRoles()` — return `List<Role>` (existing record) instead of
+        `List<String>`; include system roles with `isSystemRole=true`.
+      - `getGroups()` — new, `List<Group>`.
+      - `changeRoles(List<Role>)`, `changeGroups(List<Group>)`,
+        `changeMembers(List<Member>)` — batch ops; do
+        Manager/Owner check + system-role gate internally; delegate to
+        `SqlRoleManager` per-item.
+      - `dropRoles(List<String>)`, `dropGroups(List<String>)`,
+        `dropMembers(List<Member>)` — symmetric.
+    - `GraphqlSchemaFieldFactory.changeRoles/changeGroups/changeMembers/
+      dropRoles/dropGroups/dropMembers` become thin: accept input,
+      build the list, call `schema.changeXxx(list)` / `schema.dropXxx(list)`.
+      No loops, no system-role classification, no
+      `SqlRoleManager` reference.
+    - GraphQL schema-filter gate from J.1.d stays (defense-in-depth);
+      Java enforcement remains authoritative.
+    - Migration of existing tests: `TestGraphqlSchemaRoles`,
+      `TestGraphqlSchemaMembers`, `TestSqlRoleManager` may need
+      assertion updates for the new return shapes; do not loosen.
+    - Order (decided 2026-05-09): **before J.4** — audit is more
+      meaningful against the consolidated API.
+    - Backward-compatibility (decided 2026-05-09):
+      - Java: `Schema.getRoles()` signature changes to `List<Role>`
+        (hard break, all callers in-repo updated in the same slice).
+      - GraphQL: ADDITIVE — keep existing `name` field on role type,
+        ADD optional `isSystemRole: Boolean`. Python and other
+        clients that only request `name` continue to work; clients
+        that want the flag opt-in. Run the python-client smoke
+        suite (if present) after the change to verify.
+    - **J.1.e.2** (2026-05-09, in flight). Fold direct + group-mediated
+      memberships into a single `Schema.getMembers()` (`Member.groupName`
+      set on group entries). Delete `Schema.listCustomMemberships`,
+      `SqlSchema.listCustomMemberships`, `SqlRoleManager.listCustomMemberships`.
+      `GraphqlSchemaFieldFactory.queryFetcher` uses only `schema.getMembers()`.
+      Goal: master-level simplicity in queryFetcher.
+    - **J.1.e.3** (2026-05-09, queued). Three follow-ups raised post-J.1.e.2:
+      - Drop `groupsToMapList` (and any sibling `*ToMapList`) helpers in
+        GraphqlSchemaFieldFactory — Jackson serializes the records directly.
+      - Fix `SqlRoleManager.getRole():323` system-role flags: Manager and
+        Owner must report `changeOwner=true, changeGroup=true` (migration32.sql
+        trigger bypasses checks for them). Verify other system roles per
+        `Privileges.java`. Custom roles already correct via
+        `role_permission_metadata`.
+      - Move group-metadata SQL out of `SqlRoleManager.listGroups` (and
+        peers like `listMembersForGroup`, `listGroupNames`) into
+        `MetadataUtils` to match the existing pattern (DDL/DML in
+        MetadataUtils, SqlRoleManager orchestrates).
 
 **Wave J.2 — `mg_owner` format-bridge follow-through (option a)**
 
@@ -1055,8 +1115,12 @@ Decision: `mg_owner` stores bare EMX2 username (NOT `MG_USER_`-prefixed).
 - **J.2.b** `mg_can_read` / `mg_can_write` / `mg_can_write_all`:
   compare `mg_owner` to `current_user` by adding the prefix on the
   comparison side, OR strip on the column side. Pick simpler.
-- **J.2.c** Declare FK `mg_owner → users_metadata.username` with
-  `ON DELETE SET NULL` (was blocked by format mismatch).
+- **J.2.c** Declare raw PG FK `mg_owner → "MOLGENIS".users_metadata(username)`
+  with `ON DELETE SET NULL`. Decision 2026-05-09: keep Column type as STRING —
+  MOLGENIS metadata schema is not exposed as EMX2 tables, so EMX2 REF type
+  cannot be used. Apply the constraint in `SqlRoleManager.enableRlsForTable`
+  alongside the `ALTER TABLE … ADD COLUMN mg_owner TEXT`. Add a migration
+  for tables that already had RLS enabled before this change.
 - **J.2.d** Update existing tests touching `mg_owner` literal values
   (drop `MG_USER_` prefix in expected values).
 
@@ -1129,9 +1193,15 @@ coverage; flag duplicates; user approves deletes.
   RLS / permissions guide.
 - **J.6.b** Delete `dev_graphql-rls.md`.
 
-**Order**: J.1 → J.2 → J.3 (parallel) → J.4 → J.5 → J.6 → J.7.
+**Order**: J.1 → J.2 → J.3 (parallel) → J.4 → J.5 → J.6.
 
-### Phase J.7 — column-level GRANTs for change_owner / change_group enforcement (DRAFT 2026-05-08)
+### Phase J.7 — column-level GRANTs for change_owner / change_group enforcement (OUT OF SCOPE — decided 2026-05-09)
+
+**Decision**: Java-layer + trigger enforcement is sufficient. PG-level
+column-grant rejection is NOT a project goal. `TestRoleManagerColumnGrantEnforcement`
+will be deleted. Section retained below for historical context only.
+
+(Original draft 2026-05-08:)
 
 **Why this slice exists**: during J.3 verification, an agent
 attempting to fix a missing-column bug exceeded scope and bundled
@@ -1185,6 +1255,325 @@ scopes in the GraphQL session-permissions response?  Options: enum
 field `viewScope: NONE|EXISTS|...|ALL`; or per-mode booleans
 (`canViewExistsOnly`, `canViewAggregate`, …). Default proposal: enum.
 Confirm before J.5.c opens.
+
+### Phase L — layering cleanup wave (DRAFT 2026-05-09)
+
+**Why this phase exists**
+
+Deep review (2026-05-09) of `SqlRoleManager` + adjacent code surfaced
+nine concerns around layering, duplication, and naming after the
+RLS v4 build-out. Most are low-risk hygiene that prepares the code
+for **Phase K** (RBAC import/export + bulk apply): K's bulk-apply
+methods naturally land in `MetadataUtils`, but `MetadataUtils`
+hasn't yet absorbed all the metadata-table SQL it should own. Doing
+L first avoids K duplicating extraction work.
+
+**Run L before K.** L #6 is a release blocker; L #8 establishes
+the seam K builds on; L #7 is a cross-cutting correctness issue
+that must be resolved before K touches RLS-tagged data.
+
+**Slices** (priority order from review)
+
+- **L.1 — Merge Migration 33 into Migration 32** (release blocker).
+  This branch hasn't shipped; collapse `migration33.sql` into
+  `migration32.sql`, drop `if (version < 34)` block, set
+  `SOFTWARE_DATABASE_VERSION = 33`. Verified independent: the
+  FK-add in 33 doesn't depend on 32's new metadata tables.
+  ~10 LOC, low risk.
+
+- **L.2 — Push system-role `PermissionSet` synthesis down**.
+  `GraphqlSchemaFieldFactory.java:547–563` currently builds a
+  wildcard `PermissionSet` for system roles inline. Move into
+  `SqlRoleManager.getPermissionSet(schemaName, roleName)` so it
+  returns the synthesized set for system roles and the metadata
+  query for custom roles. Graphql collapses to a single
+  `schema.getPermissions(role.name())`. ~25 LOC, low risk.
+
+- **L.3 — Extract metadata-table SQL → `MetadataUtils`**.
+  ~200 LOC moved. Methods to add:
+  - `upsertRolePermission`, `deleteRolePermission`,
+    `deleteAllRolePermissions`, `loadRolePermission`,
+    `loadPermissionSet`
+  - `upsertGroupMembership`, `deleteGroupMembership`,
+    `membershipRowExists`
+  - `requireUserExists` (consolidates raw String SQL)
+  - Also: extract `executeGetMembers` MOLGENIS half (group
+    membership query lines 190–201 of `SqlSchemaMetadataExecutor`)
+    into `MetadataUtils.fetchDirectAndGroupMembers`.
+  All call sites in `SqlRoleManager.{grant, mergeWithExisting,
+  revoke, setPermissions, getPermissionSet, deleteRole,
+  grantRoleToUser, revokeRoleFromUser, addGroupMembership,
+  removeGroupMembership, addGroupMember, removeGroupMember,
+  rejectDisableIfPermissionsExist, clearTablePermissionsForTable,
+  membershipRowExists}` switch to MetadataUtils calls.
+  Medium risk — many call sites; targeted tests must stay green.
+
+- **L.4 — Resolve `getPermissions` overload confusion + move
+  validation**. Overload bug: `SqlRoleManager.getPermissions(String,
+  String): List<TablePermission>` and `getPermissions(Schema,
+  String): PermissionSet` differ only by first arg type. Rename
+  the List variant to `listTablePermissions`. Also move
+  `rejectRlsScopeOnNonRlsTable` (domain invariant) into
+  `TableMetadata` or `SqlSchema.changeRoles`. ~35 LOC.
+
+- **L.5 — Move `applyRlsEnabledChanges` into `Schema.migrate`**.
+  Currently lives in `GraphqlSchemaFieldFactory.java:983–1002`,
+  re-reading the raw graphql input map to detect rlsEnabled toggles
+  that `migrate(SchemaMetadata)` drops. Either: (a) make
+  `TableMetadata.setRlsEnabled` trigger the SQL, so migrate handles
+  it transparently; or (b) add post-migrate hook in `SqlSchema`.
+  ~30 LOC, medium risk (migrate is a hot path).
+
+- **L.5b — Reject `rlsEnabled: true → false` via migrate path**.
+  Owner decision (2026-05-09): the schema-authoring path
+  (`Schema.migrate` / graphql `change`) must be one-way for RLS.
+  In the same per-table diff loop fixed by L.5, add: if
+  `current.rlsEnabled == true && incoming.rlsEnabled == false`,
+  throw `"Cannot disable RLS via schema migration. Use
+  Schema.disableRls(...) or drop the table."`. Existing
+  `SqlTableMetadata.setRlsEnabled(false)` stays intact at the SQL
+  layer (used by tests + Phase M's explicit API). Adds 1 RED test
+  asserting graphql `change` rejects the transition; ~15 LOC.
+
+- **L.6 — Extract pg_catalog half of `executeGetMembers` cleanup**
+  *(folded into L.3)*.
+
+- **L.7 — RLS FK-clamp write-back hazard (DESIGN OPEN)**.
+  Current `rlsClampAliases` (SqlQuery.java:302+) returns NULL for
+  FK columns whose target is RLS-filtered. Privacy-preserving on
+  read, but **write-back hazard**: user reads row with NULL'd FK,
+  saves row, silently clears the real FK pointer. Three options:
+
+  | Option | Read behaviour | Write-back safety | Existence-leak |
+  |---|---|---|---|
+  | **L.7-a** Keep current NULL clamp + write-time guard | NULL | Reject update if user-supplied NULL but stored FK exists & is invisible | None |
+  | **L.7-b** Hard error on retrieval | Throws | N/A | Leaks (probing) |
+  | **L.7-c** Read-only marker / sentinel value carried as JSON metadata; write-back rejects unless user explicitly clears | Sentinel (e.g. `"_redacted_"` token) | Reject if sentinel modified | None |
+
+  **Recommendation pending user decision.** L.7-a is the smallest
+  diff and preserves current behavior on read; the write-time guard
+  lives in `SqlTable.update` and reads the stored FK value as admin
+  before applying user's NULL. Adds 1 admin-side read per update on
+  RLS tables — quantify cost.
+
+  **Open question for user**: which of a/b/c? `b` is the strictest
+  safety guarantee but breaks current EXISTS/COUNT-scope users who
+  read these rows today. `c` is most precise but biggest plumbing
+  change.
+
+  Also: document `buildRlsClampAliases` purpose in code (5 LOC).
+
+- **L.8 — Reduce `molgenis-emx2-nonparallel-tests` module to its
+  genuine cases**. Move out: `TestGraphqlAggregatePermission` →
+  `molgenis-emx2-graphql`; `TestSettings`,
+  `TestChangeOwnerGroupSqlEnforcement` → `molgenis-emx2-sql`.
+  Keep: `TestSettingsMerge` (database-level setting global state),
+  `TestMigration` (pg_roles global state). Each move requires
+  unique-per-class schema name to avoid concurrency contention.
+  ~30 LOC, low risk.
+
+- **L.9 — Skipped**. `Group` and `Role` are already records;
+  `Member` is the mutable-class outlier. Owner decision (2026-05-09):
+  prefer class over record, no action.
+
+**Out of scope for L**
+
+- Member→record conversion (decision: keep Member as class).
+- `SqlRoleManager.getPermissions` (Schema, String) full audit (covered
+  in L.4 only at signature-renaming level).
+- Anything that touches the public Java API surface beyond the
+  named refactors above.
+
+**Decisions taken (2026-05-09)**
+
+1. **L.7 design = option (a)**: keep current NULL clamp on read, add
+   a write-back guard in `SqlTable.update`/`save`. For each FK column
+   where user explicitly submitted NULL AND stored value is non-NULL
+   AND target row is invisible to active user → reject the entire
+   batch with a clear error. One batched admin SELECT per update tx
+   that touches RLS-FK columns.
+
+   Reference shape:
+   ```java
+   List<RefCheckRow> rlsClampedRefs = collectExplicitNullRefsToRlsTables(rows);
+   if (!rlsClampedRefs.isEmpty()) {
+     Map<PrimaryKey, Map<RefColumn, Object>> stored =
+         adminJooqBatchSelect(rlsClampedRefs);
+     for (RefCheckRow r : rlsClampedRefs) {
+       Object storedFk = stored.get(r.pk).get(r.column);
+       if (storedFk != null && !targetVisibleToActiveUser(r.column.refTable, storedFk)) {
+         throw new MolgenisException(
+             "Cannot null FK '" + r.column.getName() + "': "
+           + "current target is outside your read scope.");
+       }
+     }
+   }
+   ```
+
+   Trade-off: a user who can't see the FK target also can't clear
+   it. Correct semantic — "you can't change what you can't see".
+
+2. **L.5 approach = option (a)**: fix the diff in `migrate` itself
+   (don't add a post-hook in `SqlSchema`). Locate the per-table
+   diff loop in `SqlSchemaMetadata.migrate` and add an
+   `rlsEnabled` diff alongside existing column-diff handling, so
+   `currentSqlTable.setRlsEnabled(incoming.getRlsEnabled())` flows
+   through the SQL-overriding setter naturally. Removes graphql's
+   `applyRlsEnabledChanges` entirely.
+
+   If during L.5 implementation migrate's diff structure won't
+   accept rlsEnabled cleanly without bigger refactor → STOP and
+   surface to lead; either reshape migrate or fall back to a
+   bounded post-hook variant.
+
+3. **Slice order = strict sequential**: L.1 → L.2 → L.3 → L.4 →
+   L.5 → L.7 → L.8. Parallelization rejected (slices interact
+   on `SqlRoleManager` / `MetadataUtils` / migrate seam — bisecting
+   a parallel-batch failure would cost more than the sequential
+   tax).
+
+### Phase M — explicit RLS disable API (DRAFT 2026-05-09)
+
+**Why this phase exists**
+
+Owner decision (2026-05-09): the schema-authoring path (graphql
+`change` / `Schema.migrate`) is one-way for RLS — see L.5b. To
+preserve the ability to genuinely reclassify a table or recover
+from authoring mistakes, a deliberate Owner-only admin API is
+provided as the **only** public path to disable RLS.
+
+This phase is small and depends on L.5b landing first (so the
+authoring path is closed before the deliberate path opens).
+
+**Decisions taken (2026-05-09)**
+
+1. **Owner-only.** Disable is more dangerous than enable
+   (data exposure + destructive column drops); asymmetric
+   authority for asymmetric blast radius. Manager retains all
+   other RBAC operations including `enableRls`.
+2. **Hard block when table has data. No `force` flag.**
+   If user truly wants to declassify a populated table, the
+   path is: export data → drop schema → create new schema
+   without RLS → re-import. No bypass switch.
+3. **GraphQL only. No REST endpoint.** Add later only if a
+   real consumer asks. Symmetric with `enableRls` today which
+   also has no dedicated REST endpoint.
+
+**Slices**
+
+- **M.1 — `Schema.disableRls(String tableName)` public API**.
+  - **Owner-only** gate (tightens existing
+    `requireManagerOrOwner` to Owner for this method).
+  - Preserves all existing guards: subclass-rejection,
+    `rejectDisableIfPermissionsExist`, root-table only.
+  - **New guard: reject if table has any rows.** `SELECT
+    COUNT(*) > 0 FROM <table>` (admin context) → throw
+    `"Cannot disable RLS: table '<name>' has <N> rows. Export,
+    drop, and recreate the schema to declassify populated data."`
+  - GraphQL surface: new Owner-only mutation `disableRls(table:
+    String!): String`. Schema filter omits this mutation from
+    non-Owner sessions.
+  - REST: skipped per decision 3 above.
+
+- **M.2 — Audit log entry on disable**. Every successful disable
+  writes a Change row with `operation = "DISABLE_RLS"`,
+  `tableName`, `actor`, `rowCountAtDisableTime` (always 0 by
+  M.1's guard, but recorded for trail completeness). Existing
+  `getChanges` surfaces it.
+
+- **M.3 — Documentation**. `use_permissions.md` section: "How to
+  reclassify a table from row-secured to public". Cover: only
+  works for empty tables; for populated tables the path is
+  export → drop schema → recreate without RLS → re-import; data
+  loss implications (`mg_owner`/`mg_groups` columns dropped on
+  empty-table disable; full data export needed for populated
+  case).
+
+### Phase K — RBAC import/export + bulk apply (DRAFT 2026-05-09)
+
+**Why this phase exists**
+
+Phase-J combined-suite surfaced contention on shared system catalog
+tables (`MOLGENIS.table_metadata`, `column_metadata`,
+`role_metadata`, `group_metadata`, `table_permission_metadata`).
+The test-side flake (`disableRlsCascade` 10s timeout under
+parallel RLS test classes) is a symptom — not the disease.
+
+The disease: every RBAC mutation today round-trips one DDL/UPSERT
+per change. A real-world bulk import of an RBAC config (groups +
+roles + per-table permissions + group memberships) for a multi-
+schema install would issue thousands of single-row writes against
+those shared tables, each acquiring/releasing locks. Same lock
+class as the test flake, just amplified.
+
+Bumping `disableRlsCascade` to 60s is a band-aid; the real fix is
+batched bulk-apply with one tx-window per import.
+
+**Current import/export coverage (gap analysis)**
+
+| Concept                        | Storage                                                | Import/export today |
+|--------------------------------|--------------------------------------------------------|---------------------|
+| Members (user→role)            | `pg_auth_members`                                      | ✅ `Emx2Members.java` (`molgenis_members.csv`, columns `user,role`) |
+| Custom roles (name + privs)    | `MOLGENIS.role_metadata`                               | ❌                   |
+| Groups (schema-scoped)         | `MOLGENIS.group_metadata` + `pg_auth_members` sentinel | ❌                   |
+| Group memberships (user→group→role) | `MOLGENIS.group_membership_metadata`              | ❌                   |
+| Per-table custom permissions   | `MOLGENIS.table_permission_metadata`                   | ❌                   |
+
+`Emx2Members` only covers the legacy 2-tier role surface; nothing
+RLS v4-introduced is round-trippable.
+
+**Slices**
+
+- **K.1** — Schema CSV format extension. Define filenames + column
+  layouts for the four missing artefacts:
+  - `molgenis_roles.csv` — `name`, `description`, `changeOwner`,
+    `changeGroup`
+  - `molgenis_groups.csv` — `name`
+  - `molgenis_group_members.csv` — `user`, `group`, `role`
+  - `molgenis_permissions.csv` — `role`, `table`, `select`,
+    `insert`, `update`, `delete` (scope names)
+  Reuse existing `Emx2*` IO conventions (`canAccessMembers` gate,
+  `TableStore` round-trip).
+
+- **K.2** — Reader/writer pair per artefact (mirroring
+  `Emx2Members.outputRoles` / `inputRoles` symmetry).
+  Wire into `MolgenisIO.fromSchema(...)` and the import task chain.
+
+- **K.3** — `Schema.bulkApplyRbac(BulkRbacBundle bundle)` API
+  (or analogous) that wraps the entire import in **one** `db.tx()`
+  with `SET CONSTRAINTS ALL DEFERRED` and uses batched UPSERTs
+  (`INSERT … ON CONFLICT DO UPDATE`) instead of per-row method
+  calls. Single lock acquire/release window per bundle.
+
+- **K.4** — REST/CSV endpoint integration: `CsvApi` + zip import
+  paths route RBAC files through `bulkApplyRbac`, not the
+  per-row `addMember` / `grant` / `createRole` calls.
+
+- **K.5** — Round-trip integration test: export a fully-loaded
+  pet store schema's RBAC, drop+recreate schema, re-import,
+  assert identical `getRoles` / `getGroups` / `getMembers` /
+  `getPermissionsForRole` output.
+
+- **K.6** — Documentation: `use_permissions.md` section on bulk
+  import format + lock-window guarantees. Note that `disableRls`
+  on a large cascade still benefits from prolonged 60s timeout
+  (carry-over from J discussion).
+
+**Out of scope for K**
+
+- Inverting the global → per-schema metadata tables (Phase L+ if ever).
+- Streaming/chunked imports (one tx window is fine for typical
+  RBAC sizes; revisit if real install hits >10k permissions).
+- Audit history of RBAC changes (separate concern).
+
+**Open questions for user before K opens**
+
+1. Filename + column conventions OK as proposed in K.1, or rename?
+2. Should K.4 land before K.3 (smaller increments) or after
+   (bulk path stable before public surface flips)?
+3. Should `disableRlsCascade` get the prolonged-60s timeout
+   independently of K, or wait for K landing to remove the
+   per-row pattern first?
 
 ## Out of scope
 

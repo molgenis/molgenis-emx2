@@ -180,8 +180,9 @@ public class SqlRoleManager {
       throw new MolgenisException("Table does not exist: " + tableName);
     }
     rejectRlsScopeOnNonRlsTable(schema, tableName, permission, new PermissionSet());
+    TablePermission merged = mergeWithExisting(schemaName, roleName, tableName, permission);
     String fullRole = fullRoleName(schemaName, roleName);
-    applyPgGrants(schemaName, fullRole, tableName, permission);
+    applyPgGrants(schemaName, fullRole, tableName, merged);
     database.getJooqAsAdmin(
         adminJooq ->
             adminJooq
@@ -201,21 +202,80 @@ public class SqlRoleManager {
                     schemaName,
                     roleName,
                     tableName,
-                    selectScopeName(permission),
-                    updateScopeName(permission.getInsert()),
-                    updateScopeName(permission.getUpdate()),
-                    updateScopeName(permission.getDelete()),
+                    selectScopeName(merged),
+                    updateScopeName(merged.getInsert()),
+                    updateScopeName(merged.getUpdate()),
+                    updateScopeName(merged.getDelete()),
                     false,
                     false,
                     "")
                 .onConflict(RPM_SCHEMA_NAME, RPM_ROLE_NAME, RPM_TABLE_NAME)
                 .doUpdate()
-                .set(RPM_SELECT_SCOPE, selectScopeName(permission))
-                .set(RPM_INSERT_SCOPE, updateScopeName(permission.getInsert()))
-                .set(RPM_UPDATE_SCOPE, updateScopeName(permission.getUpdate()))
-                .set(RPM_DELETE_SCOPE, updateScopeName(permission.getDelete()))
+                .set(RPM_SELECT_SCOPE, selectScopeName(merged))
+                .set(RPM_INSERT_SCOPE, updateScopeName(merged.getInsert()))
+                .set(RPM_UPDATE_SCOPE, updateScopeName(merged.getUpdate()))
+                .set(RPM_DELETE_SCOPE, updateScopeName(merged.getDelete()))
                 .execute());
     database.getListener().onSchemaChange();
+  }
+
+  private TablePermission mergeWithExisting(
+      String schemaName, String roleName, String tableName, TablePermission incoming) {
+    TablePermission existing = loadExistingGrant(schemaName, roleName, tableName);
+    SelectScope mergedSelect =
+        incoming.getSelect() != null
+            ? incoming.getSelect()
+            : coalesceOrNone(existing == null ? null : existing.getSelect());
+    UpdateScope mergedInsert =
+        incoming.getInsert() != null
+            ? incoming.getInsert()
+            : coalesceOrNone(existing == null ? null : existing.getInsert());
+    UpdateScope mergedUpdate =
+        incoming.getUpdate() != null
+            ? incoming.getUpdate()
+            : coalesceOrNone(existing == null ? null : existing.getUpdate());
+    UpdateScope mergedDelete =
+        incoming.getDelete() != null
+            ? incoming.getDelete()
+            : coalesceOrNone(existing == null ? null : existing.getDelete());
+    return new TablePermission(tableName)
+        .select(mergedSelect)
+        .insert(mergedInsert)
+        .update(mergedUpdate)
+        .delete(mergedDelete);
+  }
+
+  private TablePermission loadExistingGrant(String schemaName, String roleName, String tableName) {
+    TablePermission[] found = {null};
+    database.getJooqAsAdmin(
+        adminJooq -> {
+          Record row =
+              adminJooq
+                  .select(RPM_SELECT_SCOPE, RPM_INSERT_SCOPE, RPM_UPDATE_SCOPE, RPM_DELETE_SCOPE)
+                  .from(ROLE_PERMISSION_METADATA)
+                  .where(
+                      RPM_SCHEMA_NAME.eq(schemaName),
+                      RPM_ROLE_NAME.eq(roleName),
+                      RPM_TABLE_NAME.eq(tableName))
+                  .fetchOne();
+          if (row != null) {
+            TablePermission tp = new TablePermission(tableName);
+            tp.setSelect(SelectScope.fromString(row.get(RPM_SELECT_SCOPE)));
+            tp.setInsert(UpdateScope.fromString(row.get(RPM_INSERT_SCOPE)));
+            tp.setUpdate(UpdateScope.fromString(row.get(RPM_UPDATE_SCOPE)));
+            tp.setDelete(UpdateScope.fromString(row.get(RPM_DELETE_SCOPE)));
+            found[0] = tp;
+          }
+        });
+    return found[0];
+  }
+
+  private static SelectScope coalesceOrNone(SelectScope scope) {
+    return scope != null ? scope : SelectScope.NONE;
+  }
+
+  private static UpdateScope coalesceOrNone(UpdateScope scope) {
+    return scope != null ? scope : UpdateScope.NONE;
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
@@ -373,7 +433,7 @@ public class SqlRoleManager {
 
     Map<String, TablePermission> merged = new LinkedHashMap<>();
     for (String roleName : roleNames) {
-      for (TablePermission p : getPermissions(schemaName, roleName)) {
+      for (TablePermission p : getPermissionsForRole(schemaName, roleName)) {
         if (hasAnyPermission(p)) {
           merged.merge(p.table(), p, SqlRoleManager::mergePermissions);
         }
@@ -381,6 +441,23 @@ public class SqlRoleManager {
     }
     expandWildcard(merged, schema.getTableNames());
     return new ArrayList<>(merged.values());
+  }
+
+  private List<TablePermission> getPermissionsForRole(String schemaName, String roleName) {
+    if (isSystemRole(roleName)) {
+      return getPermissions(schemaName, roleName);
+    }
+    return getPermissionSet(schemaName, roleName).getTables().values().stream()
+        .map(SqlRoleManager::normalizeNoneToNull)
+        .toList();
+  }
+
+  private static TablePermission normalizeNoneToNull(TablePermission tp) {
+    return new TablePermission(tp.table())
+        .select(tp.getSelect() == SelectScope.NONE ? null : tp.getSelect())
+        .insert(tp.getInsert() == UpdateScope.NONE ? null : tp.getInsert())
+        .update(tp.getUpdate() == UpdateScope.NONE ? null : tp.getUpdate())
+        .delete(tp.getDelete() == UpdateScope.NONE ? null : tp.getDelete());
   }
 
   private static void expandWildcard(
@@ -400,7 +477,7 @@ public class SqlRoleManager {
   }
 
   private static boolean hasAnyPermission(TablePermission p) {
-    return p.select() == SelectScope.ALL
+    return (p.select() != null && p.select() != SelectScope.NONE)
         || p.insert() == UpdateScope.ALL
         || p.update() == UpdateScope.ALL
         || p.delete() == UpdateScope.ALL;
@@ -416,8 +493,7 @@ public class SqlRoleManager {
 
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
     return new TablePermission(a.table())
-        .select(
-            a.select() == SelectScope.ALL || b.select() == SelectScope.ALL ? SelectScope.ALL : null)
+        .select(higherSelectScope(a.select(), b.select()))
         .insert(
             a.insert() == UpdateScope.ALL || b.insert() == UpdateScope.ALL ? UpdateScope.ALL : null)
         .update(
@@ -426,6 +502,13 @@ public class SqlRoleManager {
             a.delete() == UpdateScope.ALL || b.delete() == UpdateScope.ALL
                 ? UpdateScope.ALL
                 : null);
+  }
+
+  private static SelectScope higherSelectScope(SelectScope a, SelectScope b) {
+    if (a == null && b == null) return null;
+    if (a == null) return b;
+    if (b == null) return a;
+    return a.ordinal() >= b.ordinal() ? a : b;
   }
 
   public void grantRoleToUser(Schema schema, String roleName, String username) {

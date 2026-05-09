@@ -30,6 +30,10 @@ public class PermissionSet {
       return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
     }
 
+    public boolean allowsAggregate() {
+      return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
+    }
+
     public boolean allowsGroupBy() {
       return this == ALL || this == OWN || this == GROUP || this == AGGREGATE;
     }

@@ -36,6 +36,10 @@ public class GraphqlSessionFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_AGGREGATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(CAN_INSERT)
                   .type(Scalars.GraphQLBoolean))
           .field(
@@ -205,14 +209,18 @@ public class GraphqlSessionFieldFactory {
   private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
     return schema.getPermissionsForActiveUser().stream()
         .map(
-            p ->
-                Map.<String, Object>of(
-                    ID, convertToPascalCase(p.table()),
-                    NAME, p.table(),
-                    CAN_VIEW, p.select() != null && p.select() != SelectScope.NONE,
-                    CAN_INSERT, p.insert() != null && p.insert() != UpdateScope.NONE,
-                    CAN_UPDATE, p.update() != null && p.update() != UpdateScope.NONE,
-                    CAN_DELETE, p.delete() != null && p.delete() != UpdateScope.NONE))
+            p -> {
+              SelectScope select = p.select();
+              Map<String, Object> entry = new LinkedHashMap<>();
+              entry.put(ID, convertToPascalCase(p.table()));
+              entry.put(NAME, p.table());
+              entry.put(CAN_VIEW, select != null && select.allowsRowAccess());
+              entry.put(CAN_AGGREGATE, select != null && select.allowsAggregate());
+              entry.put(CAN_INSERT, p.insert() != null && p.insert() != UpdateScope.NONE);
+              entry.put(CAN_UPDATE, p.update() != null && p.update() != UpdateScope.NONE);
+              entry.put(CAN_DELETE, p.delete() != null && p.delete() != UpdateScope.NONE);
+              return entry;
+            })
         .toList();
   }
 

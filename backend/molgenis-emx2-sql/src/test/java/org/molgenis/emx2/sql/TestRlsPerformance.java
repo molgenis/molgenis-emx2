@@ -136,6 +136,9 @@ public class TestRlsPerformance {
             "overhead_selectAll: baseline=%dms rls=%dms ratio=%.2f×", baselineMs, rlsMs, ratio);
     System.err.println(msg);
     report.append("## A1: SELECT ALL — RLS vs Baseline\n").append(msg).append("\n\n");
+    assertTrue(
+        rlsMs < 15000,
+        "RLS ALL-scope SELECT took " + rlsMs + "ms — performance regression? (threshold 15000ms)");
   }
 
   @Test
@@ -158,6 +161,9 @@ public class TestRlsPerformance {
             baselineMs, rlsMs, ratio, targetGroup);
     System.err.println(msg);
     report.append("## A2: Filtered SELECT — RLS vs Baseline\n").append(msg).append("\n\n");
+    assertTrue(
+        rlsMs < 10000,
+        "RLS filtered SELECT took " + rlsMs + "ms — performance regression? (threshold 10000ms)");
   }
 
   @Test
@@ -193,6 +199,11 @@ public class TestRlsPerformance {
             allScopeMs, groupScopeMs, ratio);
     System.err.println(msg);
     report.append("## A3: GROUP-scope vs ALL-scope\n").append(msg).append("\n\n");
+    assertTrue(
+        groupScopeMs < 10000,
+        "RLS GROUP-scope SELECT took "
+            + groupScopeMs
+            + "ms — performance regression? (threshold 10000ms)");
   }
 
   @Test
@@ -272,6 +283,13 @@ public class TestRlsPerformance {
     }
     report.append("**Verdict**: ").append(verdict).append("\n\n");
     System.err.println("Verdict: " + verdict);
+    assertTrue(
+        groupScopeMs < 30000,
+        "RLS GROUP-scope large-scale query ("
+            + N_ROWS_LARGE
+            + " rows) took "
+            + groupScopeMs
+            + "ms — performance regression? (threshold 30000ms)");
   }
 
   @Test
@@ -297,6 +315,13 @@ public class TestRlsPerformance {
             writeN, baselineInsertMs, rlsInsertMs, insertRatio);
     System.err.println(msg);
     report.append("## A4: Write Path INSERT\n").append(msg).append("\n\n");
+    assertTrue(
+        rlsInsertMs < 10000,
+        "RLS INSERT path took "
+            + rlsInsertMs
+            + "ms for "
+            + writeN
+            + " rows — performance regression? (threshold 10000ms)");
   }
 
   // ── B. Concurrency ─────────────────────────────────────────────────────────
@@ -823,6 +848,13 @@ public class TestRlsPerformance {
     assertFalse(
         result.isEmpty(),
         "GROUP-scope user in subset of groups must see rows tagged with those groups");
+    assertTrue(
+        elapsed < 10000,
+        "RLS GROUP-scope stress query ("
+            + STRESS_GROUPS_PER_ROW
+            + " groups/row) took "
+            + elapsed
+            + "ms — performance regression? (threshold 10000ms)");
   }
 
   // ── Report recommendations ─────────────────────────────────────────────────

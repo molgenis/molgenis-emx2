@@ -65,7 +65,8 @@ class TestGraphqlSession {
       database.setActiveUser(USER_TEST);
       JsonNode result =
           executeQuery(
-              executor, "{_session{tablePermissions{name canView canInsert canUpdate canDelete}}}");
+              executor,
+              "{_session{tablePermissions{name canView canAggregate canInsert canUpdate canDelete}}}");
       database.becomeAdmin();
       JsonNode perms = result.at("/_session/tablePermissions");
       assertFalse(perms.isMissingNode(), "tablePermissions must be present");
@@ -73,11 +74,13 @@ class TestGraphqlSession {
 
       boolean found = false;
       for (JsonNode perm : perms) {
-        if (TABLE_NAME.equals(perm.at("/name").asText()) && perm.at("/canView").asBoolean()) {
+        if (TABLE_NAME.equals(perm.at("/name").asText())
+            && perm.at("/canView").asBoolean()
+            && perm.at("/canAggregate").asBoolean()) {
           found = true;
         }
       }
-      assertTrue(found, "Expected canView=true permission entry for " + TABLE_NAME);
+      assertTrue(found, "Expected canView=true and canAggregate=true for " + TABLE_NAME);
     } finally {
       database.becomeAdmin();
       roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);
@@ -99,18 +102,25 @@ class TestGraphqlSession {
       database.setActiveUser(USER_TEST);
       JsonNode result =
           executeQuery(
-              executor, "{_session{tablePermissions{name canView canInsert canUpdate canDelete}}}");
+              executor,
+              "{_session{tablePermissions{name canView canAggregate canInsert canUpdate canDelete}}}");
       database.becomeAdmin();
       JsonNode perms = result.at("/_session/tablePermissions");
       assertFalse(perms.isMissingNode(), "tablePermissions must be present");
 
       boolean found = false;
       for (JsonNode perm : perms) {
-        if (TABLE_NAME.equals(perm.at("/name").asText()) && perm.at("/canView").asBoolean()) {
+        if (TABLE_NAME.equals(perm.at("/name").asText())
+            && !perm.at("/canView").asBoolean()
+            && perm.at("/canAggregate").asBoolean()) {
           found = true;
         }
       }
-      assertTrue(found, "Expected canView=true for " + TABLE_NAME + " with AGGREGATE select scope");
+      assertTrue(
+          found,
+          "Expected canView=false and canAggregate=true for "
+              + TABLE_NAME
+              + " with AGGREGATE select scope");
     } finally {
       database.becomeAdmin();
       roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);

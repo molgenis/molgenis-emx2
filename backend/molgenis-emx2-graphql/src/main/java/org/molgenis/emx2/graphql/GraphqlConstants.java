@@ -99,6 +99,7 @@ public class GraphqlConstants {
   public static final String IS_SYSTEM_ROLE = "isSystemRole";
   public static final String TABLE_PERMISSIONS = "tablePermissions";
   public static final String CAN_VIEW = "canView";
+  public static final String CAN_AGGREGATE = "canAggregate";
   public static final String CAN_INSERT = "canInsert";
   public static final String CAN_UPDATE = "canUpdate";
   public static final String CAN_DELETE = "canDelete";
