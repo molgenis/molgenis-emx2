@@ -1039,6 +1039,14 @@ public class SqlRoleManager {
               "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_owner TEXT",
               name(schemaName, tableName));
           adminJooq.execute(
+              "DO $$ BEGIN "
+                  + "ALTER TABLE {0} ADD CONSTRAINT {1} "
+                  + "FOREIGN KEY (mg_owner) "
+                  + "REFERENCES \"MOLGENIS\".users_metadata(username) "
+                  + "ON DELETE SET NULL ON UPDATE CASCADE; "
+                  + "EXCEPTION WHEN duplicate_object THEN NULL; END $$",
+              name(schemaName, tableName), name(tableName + "_mg_owner_fk"));
+          adminJooq.execute(
               "ALTER TABLE {0} ADD COLUMN IF NOT EXISTS mg_groups TEXT[]",
               name(schemaName, tableName));
           if (tableMetadata.getInheritName() == null) {

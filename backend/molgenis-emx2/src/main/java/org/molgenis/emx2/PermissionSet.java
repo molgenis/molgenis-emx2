@@ -22,15 +22,6 @@ public class PermissionSet {
       return this == ALL || this == OWN || this == GROUP;
     }
 
-    public boolean allowsCount() {
-      return this == ALL
-          || this == OWN
-          || this == GROUP
-          || this == COUNT
-          || this == AGGREGATE
-          || this == RANGE;
-    }
-
     public boolean allowsMinMax() {
       return this == ALL || this == OWN || this == GROUP || this == AGGREGATE || this == RANGE;
     }
