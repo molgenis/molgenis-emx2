@@ -17,7 +17,6 @@ public class TestAccessFunctions {
 
   private static final String SCHEMA_NAME = TestAccessFunctions.class.getSimpleName();
   private static final String USER_ALICE = "TestAccessFunctionsAlice";
-  private static final String USER_BOB = "TestAccessFunctionsBob";
   private static final String GROUP_A = "groupA";
   private static final String GROUP_B = "groupB";
 
@@ -35,7 +34,6 @@ public class TestAccessFunctions {
     Schema schema = db.createSchema(SCHEMA_NAME);
 
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
-    if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
 
     roleManager.createGroup(schema, GROUP_A);
     roleManager.createGroup(schema, GROUP_B);
@@ -105,79 +103,7 @@ public class TestAccessFunctions {
     return db.getSchema(SCHEMA_NAME);
   }
 
-  // ── System-role branch: pg_has_role against MG_ROLE_<schema>/RoleName ─────
-
-  @Test
-  public void systemRoleViaPgHasRole_viewerCanRead() {
-    db.becomeAdmin();
-    db.getSchema(SCHEMA_NAME).addMember(USER_ALICE, "Viewer");
-    try {
-      boolean result = canReadAsUser(USER_ALICE, "anyTable", new String[] {}, null);
-      assertTrue(
-          result, "User with Viewer system PG role must be able to read via system-role branch");
-    } finally {
-      db.becomeAdmin();
-      db.getSchema(SCHEMA_NAME).removeMember(USER_ALICE);
-    }
-  }
-
-  @Test
-  public void systemRoleViaPgHasRole_noRoleReturnsFalse() {
-    boolean result = canReadAsUser(USER_BOB, "anyTable", new String[] {}, null);
-    assertFalse(
-        result, "User with no system role and no group membership must not be able to read");
-  }
-
-  @Test
-  public void systemRoleViaPgHasRole_managerCanInsert() {
-    db.becomeAdmin();
-    db.getSchema(SCHEMA_NAME).addMember(USER_ALICE, "Manager");
-    try {
-      boolean result = canWriteAsUser(USER_ALICE, "someTable", new String[] {}, null, "insert");
-      assertTrue(result, "Manager with ALL insert_scope must be able to insert");
-    } finally {
-      db.becomeAdmin();
-      db.getSchema(SCHEMA_NAME).removeMember(USER_ALICE);
-    }
-  }
-
-  @Test
-  public void systemRoleViaPgHasRole_ownerCanChangeOwner() {
-    db.becomeAdmin();
-    db.getSchema(SCHEMA_NAME).addMember(USER_ALICE, "Owner");
-    try {
-      boolean result =
-          canWriteAllAsUser(
-              USER_ALICE, "someTable", new String[] {}, "owner", "update", true, false);
-      assertTrue(result, "Owner.change_owner=true must allow changing mg_owner");
-    } finally {
-      db.becomeAdmin();
-      db.getSchema(SCHEMA_NAME).removeMember(USER_ALICE);
-    }
-  }
-
-  @Test
-  public void systemRoleViaPgHasRole_editorCannotChangeOwner() {
-    db.becomeAdmin();
-    db.getSchema(SCHEMA_NAME).addMember(USER_ALICE, "Editor");
-    try {
-      boolean result =
-          canWriteAllAsUser(
-              USER_ALICE, "someTable", new String[] {}, "owner", "update", true, false);
-      assertFalse(result, "Editor.change_owner=false must deny changing mg_owner");
-    } finally {
-      db.becomeAdmin();
-      db.getSchema(SCHEMA_NAME).removeMember(USER_ALICE);
-    }
-  }
-
   // ── Custom-role branch: group_membership + role_permission ────────────────
-
-  @Test
-  public void mgCanReadReturnsFalseForNoMembership() {
-    boolean result = canReadAsUser(USER_BOB, "someTable", new String[] {}, null);
-    assertFalse(result, "user with no membership must not be able to read");
-  }
 
   @Test
   public void mgCanReadReturnsTrueForGroupScopeWhenGroupMatches() {

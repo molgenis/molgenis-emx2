@@ -319,7 +319,26 @@ public class SqlRoleManager {
 
   public Role getRole(String schemaName, String roleName) {
     boolean system = isSystemRole(roleName);
-    return new Role(roleName, system, getPermissions(schemaName, roleName));
+    if (system) {
+      boolean canChangeOwnerAndGroup =
+          roleName.equals(Privileges.MANAGER.toString())
+              || roleName.equals(Privileges.OWNER.toString());
+      return new Role(
+          roleName,
+          true,
+          getPermissions(schemaName, roleName),
+          "",
+          canChangeOwnerAndGroup,
+          canChangeOwnerAndGroup);
+    }
+    PermissionSet ps = getPermissionSet(schemaName, roleName);
+    return new Role(
+        roleName,
+        false,
+        getPermissions(schemaName, roleName),
+        ps.getDescription(),
+        ps.isChangeOwner(),
+        ps.isChangeGroup());
   }
 
   public List<String> listRoles(String schemaName) {
@@ -825,19 +844,11 @@ public class SqlRoleManager {
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
-          Record existing =
-              adminJooq.fetchOne(
-                  "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
-                  schemaName,
-                  groupName);
-          if (existing != null) {
+          if (groupExists(adminJooq, schemaName, groupName)) {
             throw new MolgenisException(
                 "Group '" + groupName + "' already exists in schema '" + schemaName + "'");
           }
-          adminJooq.execute(
-              "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)",
-              schemaName,
-              groupName);
+          insertGroup(adminJooq, schemaName, groupName);
         });
   }
 
@@ -846,11 +857,7 @@ public class SqlRoleManager {
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
-          int deleted =
-              adminJooq.execute(
-                  "DELETE FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
-                  schemaName,
-                  groupName);
+          int deleted = MetadataUtils.deleteGroup(adminJooq, schemaName, groupName);
           if (deleted == 0) {
             throw new MolgenisException(
                 "Group '" + groupName + "' not found in schema '" + schemaName + "'");
@@ -892,66 +899,11 @@ public class SqlRoleManager {
     database.getListener().onSchemaChange();
   }
 
-  public List<Map<String, Object>> listGroups(Schema schema) {
+  public List<Group> listGroups(Schema schema) {
     String schemaName = schema.getName();
-    List<Map<String, Object>> result = new ArrayList<>();
-    database.getJooqAsAdmin(
-        adminJooq -> {
-          Result<Record> rows =
-              adminJooq.fetch(
-                  "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? ORDER BY name",
-                  schemaName);
-          for (Record row : rows) {
-            Map<String, Object> entry = new LinkedHashMap<>();
-            entry.put("name", row.get("name", String.class));
-            List<Map<String, Object>> userRolePairs =
-                findGroupUserRolePairs(adminJooq, schemaName, row.get("name", String.class));
-            entry.put("users", userRolePairs);
-            result.add(entry);
-          }
-        });
+    List<Group> result = new ArrayList<>();
+    database.getJooqAsAdmin(adminJooq -> result.addAll(fetchGroups(adminJooq, schemaName)));
     return result;
-  }
-
-  public List<Map<String, Object>> listCustomMemberships(String schemaName) {
-    List<Map<String, Object>> result = new ArrayList<>();
-    database.getJooqAsAdmin(
-        adminJooq -> {
-          Result<Record> rows =
-              adminJooq.fetch(
-                  "SELECT user_name, role_name, group_name"
-                      + " FROM \"MOLGENIS\".group_membership_metadata"
-                      + " WHERE schema_name = ? AND role_name != ?",
-                  schemaName,
-                  GROUP_MEMBERSHIP_SENTINEL_ROLE);
-          for (Record row : rows) {
-            String groupValue = row.get("group_name", String.class);
-            Map<String, Object> entry = new LinkedHashMap<>();
-            entry.put("email", row.get("user_name", String.class));
-            entry.put("role", row.get("role_name", String.class));
-            entry.put("group", groupValue);
-            result.add(entry);
-          }
-        });
-    return result;
-  }
-
-  private List<Map<String, Object>> findGroupUserRolePairs(
-      DSLContext adminJooq, String schemaName, String groupName) {
-    return adminJooq
-        .select(GMM_USER_NAME, GMM_ROLE_NAME)
-        .from(GROUP_MEMBERSHIP_METADATA)
-        .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_GROUP_NAME.eq(groupName))
-        .fetch()
-        .stream()
-        .map(
-            r -> {
-              Map<String, Object> pair = new LinkedHashMap<>();
-              pair.put("name", r.get(GMM_USER_NAME));
-              pair.put("role", r.get(GMM_ROLE_NAME));
-              return (Map<String, Object>) pair;
-            })
-        .toList();
   }
 
   private void requireGroupExists(String schemaName, String groupName) {
@@ -965,12 +917,7 @@ public class SqlRoleManager {
 
   private static void requireGroupExistsViaJooq(
       DSLContext adminJooq, String schemaName, String groupName) {
-    Record existing =
-        adminJooq.fetchOne(
-            "SELECT name FROM \"MOLGENIS\".groups_metadata WHERE schema = ? AND name = ?",
-            schemaName,
-            groupName);
-    if (existing == null) {
+    if (!groupExists(adminJooq, schemaName, groupName)) {
       throw new MolgenisException(
           "Group '" + groupName + "' not found in schema '" + schemaName + "'");
     }

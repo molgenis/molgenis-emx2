@@ -24,7 +24,8 @@ class TestGraphqlSchemaGroups {
   private static final String SCHEMA_NAME = "TGraphqlSchemaGroups";
   private static final String USER_MANAGER = "grp_manager";
   private static final String USER_EDITOR = "grp_editor";
-  private static final String QUERY_GROUPS = "{ _schema { groups { name users { name role } } } }";
+  private static final String QUERY_GROUPS =
+      "{ _schema { groups { name members { email role } } } }";
 
   private static final String USER_DUAL_ROLE = "grp_dual_role";
   private static final String GROUP_DUAL = "gamma_dual";
@@ -109,8 +110,8 @@ class TestGraphqlSchemaGroups {
                       editorExecutor,
                       "mutation { change(groups: [{name: \"iota\"}]) { message } }"));
       assertTrue(
-          thrown.getMessage().contains("Manager") || thrown.getMessage().contains("Owner"),
-          "Editor must be denied with Manager/Owner error");
+          thrown.getMessage().contains("FieldUndefined"),
+          "Editor must be denied: change mutation must be absent from schema");
     } finally {
       database.becomeAdmin();
     }
@@ -202,10 +203,10 @@ class TestGraphqlSchemaGroups {
     if (groups.isArray()) {
       for (JsonNode g : groups) {
         if (groupName.equals(g.path("name").asText())) {
-          JsonNode usersNode = g.path("users");
-          if (usersNode.isArray()) {
-            for (JsonNode u : usersNode) {
-              users.add(u.path("name").asText());
+          JsonNode membersNode = g.path("members");
+          if (membersNode.isArray()) {
+            for (JsonNode u : membersNode) {
+              users.add(u.path("email").asText());
             }
           }
           break;
@@ -220,10 +221,10 @@ class TestGraphqlSchemaGroups {
     if (groups.isArray()) {
       for (JsonNode g : groups) {
         if (groupName.equals(g.path("name").asText())) {
-          JsonNode usersNode = g.path("users");
-          if (usersNode.isArray()) {
-            for (JsonNode u : usersNode) {
-              pairs.add(Map.of("name", u.path("name").asText(), "role", u.path("role").asText()));
+          JsonNode membersNode = g.path("members");
+          if (membersNode.isArray()) {
+            for (JsonNode u : membersNode) {
+              pairs.add(Map.of("user", u.path("email").asText(), "role", u.path("role").asText()));
             }
           }
           break;
@@ -268,11 +269,11 @@ class TestGraphqlSchemaGroups {
       boolean hasRoleOne =
           pairs.stream()
               .anyMatch(
-                  p -> USER_DUAL_ROLE.equals(p.get("name")) && ROLE_ONE.equals(p.get("role")));
+                  p -> USER_DUAL_ROLE.equals(p.get("user")) && ROLE_ONE.equals(p.get("role")));
       boolean hasRoleTwo =
           pairs.stream()
               .anyMatch(
-                  p -> USER_DUAL_ROLE.equals(p.get("name")) && ROLE_TWO.equals(p.get("role")));
+                  p -> USER_DUAL_ROLE.equals(p.get("user")) && ROLE_TWO.equals(p.get("role")));
 
       assertTrue(hasRoleOne, "Must have entry with roleOne");
       assertTrue(hasRoleTwo, "Must have entry with roleTwo");

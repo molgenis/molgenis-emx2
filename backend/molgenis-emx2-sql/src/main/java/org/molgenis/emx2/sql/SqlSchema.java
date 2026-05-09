@@ -80,8 +80,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<String> getRoles() {
-    return executeGetRoles(getMetadata().getJooq(), this.getMetadata().getName());
+  public List<Role> getRoles() {
+    return roleManager().getRoles(getName());
   }
 
   @Override
@@ -94,7 +94,7 @@ public class SqlSchema implements Schema {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
     if (user == null || user.equals(ADMIN_USER)) {
-      return getRoles();
+      return getRoles().stream().map(Role::name).toList();
     } else {
       return getMetadata().getInheritedRolesForUser(user);
     }
@@ -153,7 +153,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
-    if (getRoles().contains("Viewer")) {
+    if (getRoles().stream().anyMatch(r -> r.name().equals("Viewer"))) {
       return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
     } else {
       throw new MolgenisException("No view permissions on this schema");
@@ -470,12 +470,122 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<Role> getRoleInfos() {
-    return roleManager().getRoles(getName());
+  public List<Group> getGroups() {
+    return roleManager().listGroups(this);
+  }
+
+  @Override
+  public void changeRoles(List<Role> roles) {
+    requireManager();
+    for (Role role : roles) {
+      if (!roleManager().roleExists(getName(), role.name())) {
+        roleManager().createRole(getName(), role.name());
+      }
+      PermissionSet ps = new PermissionSet();
+      ps.setSchema(getName());
+      if (role.description() != null) {
+        ps.setDescription(role.description());
+      }
+      ps.setChangeOwner(role.changeOwner());
+      ps.setChangeGroup(role.changeGroup());
+      for (TablePermission tp : role.permissions()) {
+        ps.putTable(tp.table(), tp);
+      }
+      roleManager().setPermissions(this, role.name(), ps);
+    }
+  }
+
+  @Override
+  public void changeGroups(List<Group> groups) {
+    requireManager();
+    List<Group> existing = getGroups();
+    for (Group group : groups) {
+      boolean exists = existing.stream().anyMatch(g -> g.name().equals(group.name()));
+      if (!exists) {
+        roleManager().createGroup(this, group.name());
+      }
+      List<String> desiredMembers = group.members().stream().map(Member::getUser).toList();
+      List<String> currentMembers =
+          existing.stream()
+              .filter(g -> g.name().equals(group.name()))
+              .findFirst()
+              .map(g -> g.members().stream().map(Member::getUser).toList())
+              .orElse(List.of());
+      for (String username : desiredMembers) {
+        if (!currentMembers.contains(username)) {
+          roleManager().addGroupMember(this, group.name(), username);
+        }
+      }
+      for (String username : currentMembers) {
+        if (!desiredMembers.contains(username)) {
+          roleManager().removeGroupMember(this, group.name(), username);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void changeMembers(List<Member> members) {
+    requireManager();
+    for (Member member : members) {
+      if (Privileges.isSystemRole(member.getRole())) {
+        String groupName = member.getGroupName();
+        if (groupName != null && !groupName.isEmpty()) {
+          throw new MolgenisException(
+              "System role '" + member.getRole() + "' cannot be assigned to a group");
+        }
+        addMember(member.getUser(), member.getRole());
+      } else {
+        String groupName = member.getGroupName();
+        if (groupName == null || groupName.isEmpty()) {
+          roleManager().grantRoleToUser(this, member.getRole(), member.getUser());
+        } else {
+          roleManager()
+              .addGroupMembership(getName(), groupName, member.getUser(), member.getRole());
+        }
+      }
+    }
+  }
+
+  @Override
+  public void dropRoles(List<String> roleNames) {
+    requireManager();
+    for (String roleName : roleNames) {
+      roleManager().deleteRole(this, roleName);
+    }
+  }
+
+  @Override
+  public void dropGroups(List<String> groupNames) {
+    requireManager();
+    for (String groupName : groupNames) {
+      roleManager().deleteGroup(this, groupName);
+    }
+  }
+
+  @Override
+  public void dropMembers(List<Member> members) {
+    requireManager();
+    for (Member member : members) {
+      String groupName = member.getGroupName();
+      if (member.getRole() == null || Privileges.isSystemRole(member.getRole())) {
+        removeMember(member.getUser());
+      } else if (groupName == null || groupName.isEmpty()) {
+        roleManager().revokeRoleFromUser(this, member.getRole(), member.getUser());
+      } else {
+        roleManager()
+            .removeGroupMembership(getName(), groupName, member.getUser(), member.getRole());
+      }
+    }
   }
 
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
     return roleManager().getTablePermissionsForActiveUser(getName());
+  }
+
+  @Override
+  public PermissionSet getPermissions(String roleName) {
+    return roleManager().getPermissions(this, roleName);
   }
 }

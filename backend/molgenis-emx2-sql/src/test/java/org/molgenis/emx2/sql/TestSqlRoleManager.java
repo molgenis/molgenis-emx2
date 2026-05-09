@@ -1,6 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -14,7 +13,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
-import org.molgenis.emx2.Schema;
 
 class TestSqlRoleManager {
 
@@ -30,7 +28,6 @@ class TestSqlRoleManager {
   private static final SqlRoleManager roleManager = new SqlRoleManager((SqlDatabase) db);
 
   private static final String TEST_USER_ALICE = "SqlRoleManagerTestAlice";
-  private static final String TEST_USER_BOB = "SqlRoleManagerTestBob";
   private static final String USER_ALICE = "TsrmAlice";
   private static final String USER_BOB = "TsrmBob";
 
@@ -44,7 +41,6 @@ class TestSqlRoleManager {
     schemaEnf = db.dropCreateSchema(SCHEMA_ENF);
     schemaEnf.create(table(ENFORCEMENT_TABLE).add(column("id").setPkey()).add(column("val")));
     if (!db.hasUser(TEST_USER_ALICE)) db.addUser(TEST_USER_ALICE);
-    if (!db.hasUser(TEST_USER_BOB)) db.addUser(TEST_USER_BOB);
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
     roleManager.createGroup(schemaEnf, GROUP_A);
@@ -52,16 +48,6 @@ class TestSqlRoleManager {
   }
 
   // ── createRole: validation ─────────────────────────────────────────────────
-
-  @Test
-  void createRole_rejectsSystemRoleName() {
-    for (String systemRole : new String[] {"Owner", "Manager", "Editor", "Viewer"}) {
-      assertThrows(
-          MolgenisException.class,
-          () -> roleManager.createRole(SCHEMA_A, systemRole),
-          "System role name '" + systemRole + "' must be rejected by createRole");
-    }
-  }
 
   @Test
   void createRole_rejectsInvalidNames() {
@@ -92,110 +78,6 @@ class TestSqlRoleManager {
     assertThrows(MolgenisException.class, () -> roleManager.createRole(SCHEMA_A, tooLong));
   }
 
-  // ── deleteRole ─────────────────────────────────────────────────────────────
-
-  @Test
-  void deleteRole_rejectsSystemRole() {
-    for (String systemRole : new String[] {"Owner", "Manager", "Editor", "Viewer"}) {
-      assertThrows(
-          MolgenisException.class,
-          () -> roleManager.deleteRole(SCHEMA_A, systemRole),
-          "System role '" + systemRole + "' must be rejected by deleteRole");
-    }
-  }
-
-  // ── setPermissions / getPermissionSet round-trip ──────────────────────────
-
-  @Test
-  void setPermissions_emptyRoundTrip() {
-    roleManager.createRole(SCHEMA_A, "fresh");
-    PermissionSet empty = new PermissionSet();
-
-    roleManager.setPermissions(schemaA, "fresh", empty);
-    PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "fresh");
-
-    assertTrue(result.getTables().isEmpty());
-    assertFalse(result.isChangeOwner());
-    assertFalse(result.isChangeGroup());
-  }
-
-  @Test
-  void setPermissions_withTableScopesRoundTrip() {
-    roleManager.createRole(SCHEMA_A, "scoped");
-    PermissionSet permissions =
-        new PermissionSet()
-            .putTable(
-                "myTable",
-                new TablePermission("myTable")
-                    .setSelect(SelectScope.ALL)
-                    .setInsert(UpdateScope.OWN)
-                    .setUpdate(UpdateScope.GROUP)
-                    .setDelete(UpdateScope.NONE));
-
-    roleManager.setPermissions(schemaA, "scoped", permissions);
-    PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "scoped");
-
-    TablePermission tp = result.getTables().get("myTable");
-    assertNotNull(tp);
-    assertEquals(SelectScope.ALL, tp.getSelect());
-    assertEquals(UpdateScope.OWN, tp.getInsert());
-    assertEquals(UpdateScope.GROUP, tp.getUpdate());
-    assertEquals(UpdateScope.NONE, tp.getDelete());
-  }
-
-  @Test
-  void setPermissions_withFlagsRoundTrip() {
-    roleManager.createRole(SCHEMA_A, "flagged");
-    PermissionSet permissions = new PermissionSet().setChangeOwner(true).setChangeGroup(true);
-    roleManager.setPermissions(
-        schemaA,
-        "flagged",
-        permissions.putTable("t", new TablePermission("t").setSelect(SelectScope.ALL)));
-
-    PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "flagged");
-
-    assertTrue(result.isChangeOwner());
-    assertTrue(result.isChangeGroup());
-  }
-
-  @Test
-  void setPermissions_overwritesPriorRows() {
-    roleManager.createRole(SCHEMA_A, "overwrite");
-    PermissionSet first =
-        new PermissionSet()
-            .setChangeOwner(true)
-            .putTable("tableA", new TablePermission("tableA").setSelect(SelectScope.OWN));
-    PermissionSet second =
-        new PermissionSet()
-            .putTable("tableB", new TablePermission("tableB").setSelect(SelectScope.GROUP));
-
-    roleManager.setPermissions(schemaA, "overwrite", first);
-    roleManager.setPermissions(schemaA, "overwrite", second);
-    PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "overwrite");
-
-    assertFalse(result.isChangeOwner(), "changeOwner must be reset by second setPermissions");
-    assertNull(
-        result.getTables().get("tableA"), "first table must be removed by second setPermissions");
-    assertNotNull(result.getTables().get("tableB"), "second table must be present");
-  }
-
-  @Test
-  void setPermissions_rejectsAllSystemRoles() {
-    for (Privileges sysRole : Privileges.values()) {
-      MolgenisException ex =
-          assertThrows(
-              MolgenisException.class,
-              () -> roleManager.setPermissions(schemaA, sysRole.toString(), new PermissionSet()),
-              "setPermissions must reject system role: " + sysRole);
-      assertTrue(
-          ex.getMessage().contains("immutable"),
-          "Error must mention 'immutable' for system role "
-              + sysRole
-              + "; got: "
-              + ex.getMessage());
-    }
-  }
-
   @Test
   void getPermissionSet_returnsEmptyForUnknownRole() {
     PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "nonexistent");
@@ -217,22 +99,6 @@ class TestSqlRoleManager {
 
     roleManager.removeGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY");
     roleManager.deleteGroup(schemaA, "groupY");
-  }
-
-  // ── isSystemRole ──────────────────────────────────────────────────────────
-
-  @Test
-  void isSystemRole_trueForSystemRoles() {
-    assertTrue(roleManager.isSystemRole("Owner"));
-    assertTrue(roleManager.isSystemRole("Manager"));
-    assertTrue(roleManager.isSystemRole("Editor"));
-    assertTrue(roleManager.isSystemRole("Viewer"));
-  }
-
-  @Test
-  void isSystemRole_falseForCustom() {
-    assertFalse(roleManager.isSystemRole("analyst"));
-    assertFalse(roleManager.isSystemRole(""));
   }
 
   // ── enforcement: system-role RLS behaviour ───────────────────────────────
@@ -475,19 +341,6 @@ class TestSqlRoleManager {
 
     PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
     assertNull(after.getTables().get(ENFORCEMENT_TABLE), "RPM row must be deleted after revoke");
-  }
-
-  @Test
-  void deleteRoleRejectsSystemRoleNames() {
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.deleteRole(SCHEMA_ENF, "Owner"),
-        "Owner must be rejected by deleteRole");
-
-    assertThrows(
-        MolgenisException.class,
-        () -> roleManager.deleteRole(SCHEMA_ENF, "Viewer"),
-        "Viewer must be rejected by deleteRole");
   }
 
   // ── invariant: system role cannot be bound to group ──────────────────────

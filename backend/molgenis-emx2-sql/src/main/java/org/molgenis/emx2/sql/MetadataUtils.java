@@ -794,4 +794,49 @@ public class MetadataUtils {
   public static void resetVersion() {
     version = null;
   }
+
+  static List<String> fetchGroupNames(DSLContext jooq, String schemaName) {
+    return jooq.select(GROUP_NAME)
+        .from(GROUPS_METADATA)
+        .where(GROUP_SCHEMA.eq(schemaName))
+        .orderBy(GROUP_NAME)
+        .fetch(GROUP_NAME);
+  }
+
+  static boolean groupExists(DSLContext jooq, String schemaName, String groupName) {
+    return jooq.fetchExists(
+        jooq.select()
+            .from(GROUPS_METADATA)
+            .where(GROUP_SCHEMA.eq(schemaName), GROUP_NAME.eq(groupName)));
+  }
+
+  static void insertGroup(DSLContext jooq, String schemaName, String groupName) {
+    jooq.execute(
+        "INSERT INTO \"MOLGENIS\".groups_metadata (schema, name) VALUES (?, ?)",
+        schemaName,
+        groupName);
+  }
+
+  static int deleteGroup(DSLContext jooq, String schemaName, String groupName) {
+    return jooq.deleteFrom(GROUPS_METADATA)
+        .where(GROUP_SCHEMA.eq(schemaName), GROUP_NAME.eq(groupName))
+        .execute();
+  }
+
+  static List<Member> fetchGroupMembers(DSLContext jooq, String schemaName, String groupName) {
+    return jooq
+        .select(GMM_USER_NAME, GMM_ROLE_NAME)
+        .from(GROUP_MEMBERSHIP_METADATA)
+        .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_GROUP_NAME.eq(groupName))
+        .fetch()
+        .stream()
+        .map(r -> new Member(r.get(GMM_USER_NAME), r.get(GMM_ROLE_NAME), groupName))
+        .toList();
+  }
+
+  static List<Group> fetchGroups(DSLContext jooq, String schemaName) {
+    return fetchGroupNames(jooq, schemaName).stream()
+        .map(groupName -> new Group(groupName, "", fetchGroupMembers(jooq, schemaName, groupName)))
+        .toList();
+  }
 }

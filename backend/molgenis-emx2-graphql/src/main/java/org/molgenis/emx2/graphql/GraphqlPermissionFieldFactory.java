@@ -121,10 +121,14 @@ public class GraphqlPermissionFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
-  static final GraphQLObjectType groupUserOutputType =
+  static final GraphQLObjectType groupMemberOutputType =
       GraphQLObjectType.newObject()
-          .name("MolgenisGroupUserOutput")
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .name("MolgenisGroupMemberOutput")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(EMAIL)
+                  .type(Scalars.GraphQLString)
+                  .dataFetcher(env -> ((org.molgenis.emx2.Member) env.getSource()).getUser()))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
@@ -134,8 +138,8 @@ public class GraphqlPermissionFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(USERS)
-                  .type(GraphQLList.list(groupUserOutputType)))
+                  .name(MEMBERS)
+                  .type(GraphQLList.list(groupMemberOutputType)))
           .build();
 
   static final GraphQLInputObjectType groupInputType =

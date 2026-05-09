@@ -38,7 +38,8 @@ class TestGraphqlSchemaMembers {
   private static final String USER_TARGET = "tgm_target";
 
   private static final String QUERY_MEMBERS = "{ _schema { members { email role group } } }";
-  private static final String QUERY_GROUPS = "{ _schema { groups { name users { name role } } } }";
+  private static final String QUERY_GROUPS =
+      "{ _schema { groups { name members { email role } } } }";
 
   private static Database database;
   private static Schema schema;
@@ -223,8 +224,8 @@ class TestGraphqlSchemaMembers {
       boolean foundInGroup = false;
       for (JsonNode g : groups) {
         if (GROUP_RESEARCH_TEAM.equals(g.path("name").asText())) {
-          for (JsonNode u : g.path("users")) {
-            if (USER_ALICE.equals(u.path("name").asText())) {
+          for (JsonNode u : g.path("members")) {
+            if (USER_ALICE.equals(u.path("email").asText())) {
               foundInGroup = true;
             }
           }
@@ -232,7 +233,7 @@ class TestGraphqlSchemaMembers {
       }
       assertTrue(
           foundInGroup,
-          "Alice must still appear in groups[].users after addGroupMember (bare-membership)");
+          "Alice must still appear in groups[].members after addGroupMember (bare-membership)");
     } finally {
       roleManager.removeGroupMember(schema, GROUP_RESEARCH_TEAM, USER_ALICE);
     }
@@ -290,7 +291,7 @@ class TestGraphqlSchemaMembers {
       List<String> groupUsers = queryGroupUsers(GROUP_TEAM_A);
       assertTrue(
           groupUsers.contains(USER_ALICE),
-          "USER_ALICE must appear in _schema.groups[TeamA].users after assignment");
+          "USER_ALICE must appear in _schema.groups[TeamA].members after assignment");
     } finally {
       roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_TEAM_A, USER_ALICE, ROLE_REVIEWER);
     }
@@ -318,7 +319,7 @@ class TestGraphqlSchemaMembers {
     try {
       assertFalse(
           queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
-          "Schema-wide grant (null group, not exposed via _schema.groups) must not leak USER_ALICE into named group TeamA");
+          "Schema-wide grant (null group) must not leak USER_ALICE into named group TeamA members");
     } finally {
       roleManager.revokeRoleFromUser(schema, ROLE_REVIEWER, USER_ALICE);
     }
@@ -415,7 +416,7 @@ class TestGraphqlSchemaMembers {
 
     assertFalse(
         queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
-        "USER_ALICE must no longer appear in _schema.groups[TeamA].users after drop");
+        "USER_ALICE must no longer appear in _schema.groups[TeamA].members after drop");
   }
 
   @Test
@@ -496,7 +497,7 @@ class TestGraphqlSchemaMembers {
 
     assertFalse(
         queryGroupUsers(GROUP_TEAM_A).contains(USER_ALICE),
-        "Rejected escalation must not have added USER_ALICE to TeamA in _schema.groups");
+        "Rejected escalation must not have added USER_ALICE to TeamA in _schema.groups.members");
   }
 
   @Test
@@ -751,11 +752,11 @@ class TestGraphqlSchemaMembers {
       if (groups.isArray()) {
         for (JsonNode g : groups) {
           if (groupName.equals(g.path("name").asText())) {
-            JsonNode usersNode = g.path("users");
+            JsonNode membersNode = g.path("members");
             List<String> users = new ArrayList<>();
-            if (usersNode.isArray()) {
-              for (JsonNode u : usersNode) {
-                users.add(u.path("name").asText());
+            if (membersNode.isArray()) {
+              for (JsonNode u : membersNode) {
+                users.add(u.path("email").asText());
               }
             }
             return users;

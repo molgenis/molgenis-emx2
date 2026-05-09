@@ -96,6 +96,7 @@ public class GraphqlConstants {
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
   public static final String SYSTEM = "system";
+  public static final String IS_SYSTEM_ROLE = "isSystemRole";
   public static final String TABLE_PERMISSIONS = "tablePermissions";
   public static final String CAN_VIEW = "canView";
   public static final String CAN_INSERT = "canInsert";

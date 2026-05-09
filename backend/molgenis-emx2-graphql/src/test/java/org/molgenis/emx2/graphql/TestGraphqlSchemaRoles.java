@@ -620,6 +620,18 @@ class TestGraphqlSchemaRoles {
   }
 
   @Test
+  void dropRoles_systemRoleName_throwsImmutableError() throws IOException {
+    for (String systemRole : new String[] {"Manager", "Viewer"}) {
+      String mutation = "mutation{drop(roles:[\"" + systemRole + "\"]){message}}";
+      MolgenisException thrown =
+          assertThrows(MolgenisException.class, () -> executor.executeWithoutSession(mutation));
+      assertTrue(
+          thrown.getMessage().contains("Cannot delete system role"),
+          "Error must mention 'Cannot delete system role'; got: " + thrown.getMessage());
+    }
+  }
+
+  @Test
   void changePermissions_acceptsAggregateSelect() throws IOException {
     database.becomeAdmin();
 
@@ -803,6 +815,31 @@ class TestGraphqlSchemaRoles {
       schema.removeMember(USER_TEST);
       deleteRoleIfExists(ROLE_GATED);
     }
+  }
+
+  @Test
+  void rolesQuery_systemRoles_reportChangeFlagsCorrectly() throws IOException {
+    JsonNode roles =
+        execute("{_schema { roles { name system changeOwner changeGroup } } }")
+            .at("/_schema/roles");
+
+    JsonNode manager = findRoleByName(roles, "Manager");
+    assertNotNull(manager, "Manager system role must be present");
+    assertTrue(manager.at("/system").asBoolean(), "Manager must have system:true");
+    assertTrue(manager.at("/changeOwner").asBoolean(), "Manager must have changeOwner:true");
+    assertTrue(manager.at("/changeGroup").asBoolean(), "Manager must have changeGroup:true");
+
+    JsonNode owner = findRoleByName(roles, "Owner");
+    assertNotNull(owner, "Owner system role must be present");
+    assertTrue(owner.at("/system").asBoolean(), "Owner must have system:true");
+    assertTrue(owner.at("/changeOwner").asBoolean(), "Owner must have changeOwner:true");
+    assertTrue(owner.at("/changeGroup").asBoolean(), "Owner must have changeGroup:true");
+
+    JsonNode viewer = findRoleByName(roles, "Viewer");
+    assertNotNull(viewer, "Viewer system role must be present");
+    assertTrue(viewer.at("/system").asBoolean(), "Viewer must have system:true");
+    assertFalse(viewer.at("/changeOwner").asBoolean(), "Viewer must have changeOwner:false");
+    assertFalse(viewer.at("/changeGroup").asBoolean(), "Viewer must have changeGroup:false");
   }
 
   @Test

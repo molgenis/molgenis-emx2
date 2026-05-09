@@ -59,7 +59,7 @@ class TestTableRoleManagement {
     assertFalse(info.isSystemRole());
 
     schema.deleteRole("ReaderA");
-    assertFalse(schema.getRoleInfos().stream().anyMatch(r -> r.name().equals("ReaderA")));
+    assertFalse(schema.getRoles().stream().anyMatch(r -> r.name().equals("ReaderA")));
   }
 
   @Test
@@ -241,11 +241,11 @@ class TestTableRoleManagement {
   }
 
   @Test
-  void getRoleInfosIncludesCustomRoles() {
+  void getRolesIncludesCustomRoles() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ListedRole");
-    List<Role> all = schema.getRoleInfos();
+    List<Role> all = schema.getRoles();
     assertTrue(all.stream().anyMatch(r -> r.name().equals("ListedRole")));
   }
 
