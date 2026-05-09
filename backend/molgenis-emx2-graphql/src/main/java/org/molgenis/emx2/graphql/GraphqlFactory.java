@@ -90,8 +90,13 @@ public class GraphqlFactory {
       mutationBuilder.field(sessionFieldFactory.createTokenField(schema.getDatabase()));
     }
 
-    mutationBuilder.field(schemaFields.changeMutation(schema));
-    mutationBuilder.field(schemaFields.dropMutation(schema));
+    if (schema.getDatabase().isAdmin()
+        || (schema.getRoleForActiveUser() != null
+            && (schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString())
+                || schema.getRoleForActiveUser().equals(Privileges.OWNER.toString())))) {
+      mutationBuilder.field(schemaFields.changeMutation(schema));
+      mutationBuilder.field(schemaFields.dropMutation(schema));
+    }
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
 
     if ((schema.getRoleForActiveUser() != null

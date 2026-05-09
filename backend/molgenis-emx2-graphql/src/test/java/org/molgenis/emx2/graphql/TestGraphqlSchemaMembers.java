@@ -464,26 +464,9 @@ class TestGraphqlSchemaMembers {
       database.setActiveUser(USER_EDITOR);
       GraphqlExecutor editorExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
-
-      String mutation =
-          "mutation { change(members: [{user: \""
-              + USER_ALICE
-              + "\", role: \"Owner\"}]) { message } }";
-
-      MolgenisException thrown =
-          assertThrows(
-              MolgenisException.class,
-              () -> executeAsExpectError(editorExecutor, mutation),
-              "Editor escalating to Owner must be rejected");
       assertFalse(
-          thrown.getMessage().contains("WrongType") || thrown.getMessage().contains("not in"),
-          "Must be a domain-level escalation error, not a GraphQL schema-type error: "
-              + thrown.getMessage());
-      assertTrue(
-          thrown.getMessage().contains("Manager")
-              || thrown.getMessage().contains("Owner")
-              || thrown.getMessage().contains("escalat"),
-          "Error must indicate escalation guard: " + thrown.getMessage());
+          changeMutationPresentInSchema(editorExecutor),
+          "change mutation must be absent from schema for Editor (defense-in-depth)");
     } finally {
       database.becomeAdmin();
     }
@@ -504,27 +487,9 @@ class TestGraphqlSchemaMembers {
       database.setActiveUser(USER_EDITOR);
       GraphqlExecutor editorExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
-
-      String mutation =
-          "mutation { change(members: [{user: \""
-              + USER_ALICE
-              + "\", role: \""
-              + ROLE_REVIEWER
-              + "\", group: \""
-              + GROUP_TEAM_A
-              + "\"}]) { message } }";
-
-      MolgenisException thrown =
-          assertThrows(
-              MolgenisException.class,
-              () -> executeAsExpectError(editorExecutor, mutation),
-              "Editor escalating to custom role must be rejected");
-      assertTrue(
-          thrown.getMessage().contains("escalation") || thrown.getMessage().contains("escalat"),
-          "Error must indicate escalation guard: " + thrown.getMessage());
-      assertTrue(
-          thrown.getMessage().contains(ROLE_REVIEWER),
-          "Error must name the custom role: " + thrown.getMessage());
+      assertFalse(
+          changeMutationPresentInSchema(editorExecutor),
+          "change mutation must be absent from schema for Editor (defense-in-depth)");
     } finally {
       database.becomeAdmin();
     }
@@ -547,27 +512,9 @@ class TestGraphqlSchemaMembers {
       database.setActiveUser(USER_EDITOR);
       GraphqlExecutor editorExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
-
-      String mutation =
-          "mutation { drop(members: [{user: \""
-              + USER_ALICE
-              + "\", role: \""
-              + ROLE_REVIEWER
-              + "\", group: \""
-              + GROUP_TEAM_A
-              + "\"}]) { message } }";
-
-      MolgenisException thrown =
-          assertThrows(
-              MolgenisException.class,
-              () -> executeAsExpectError(editorExecutor, mutation),
-              "Editor dropping custom role member must be rejected");
-      assertTrue(
-          thrown.getMessage().contains("escalation") || thrown.getMessage().contains("escalat"),
-          "Error must indicate escalation guard: " + thrown.getMessage());
-      assertTrue(
-          thrown.getMessage().contains(ROLE_REVIEWER),
-          "Error must name the custom role: " + thrown.getMessage());
+      assertFalse(
+          dropMutationPresentInSchema(editorExecutor),
+          "drop mutation must be absent from schema for Editor (defense-in-depth)");
     } finally {
       database.becomeAdmin();
     }
@@ -847,6 +794,26 @@ class TestGraphqlSchemaMembers {
     JsonNode root = new ObjectMapper().readTree(json);
     assertNull(root.get("errors"), "GraphQL errors: " + root.get("errors"));
     return root.get("data");
+  }
+
+  private boolean changeMutationPresentInSchema(GraphqlExecutor exec) throws IOException {
+    return mutationFieldPresentInSchema(exec, "change");
+  }
+
+  private boolean dropMutationPresentInSchema(GraphqlExecutor exec) throws IOException {
+    return mutationFieldPresentInSchema(exec, "drop");
+  }
+
+  private boolean mutationFieldPresentInSchema(GraphqlExecutor exec, String fieldName)
+      throws IOException {
+    String introspection = "{ __schema { mutationType { fields { name } } } }";
+    String json = convertExecutionResultToJson(exec.executeWithoutSession(introspection));
+    JsonNode fields = new ObjectMapper().readTree(json).at("/data/__schema/mutationType/fields");
+    if (!fields.isArray()) return false;
+    for (JsonNode field : fields) {
+      if (fieldName.equals(field.at("/name").asText())) return true;
+    }
+    return false;
   }
 
   private record MemberRow(String email, String role, String group) {}

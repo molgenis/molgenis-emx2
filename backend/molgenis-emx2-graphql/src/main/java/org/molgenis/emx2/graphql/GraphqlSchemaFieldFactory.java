@@ -696,7 +696,6 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
     if (roles == null) return;
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
-    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
     for (Map<String, Object> roleMap : roles) {
       Object nameVal = roleMap.get(GraphqlConstants.NAME);
       if (!(nameVal instanceof String roleName)) continue;
@@ -714,7 +713,6 @@ public class GraphqlSchemaFieldFactory {
   private static void changeGroups(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, Object>> groups = dataFetchingEnvironment.getArgument(GraphqlConstants.GROUPS);
     if (groups == null) return;
-    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
     for (Map<String, Object> groupMap : groups) {
       Object nameVal = groupMap.get(GraphqlConstants.NAME);
@@ -774,7 +772,6 @@ public class GraphqlSchemaFieldFactory {
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<String> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
     if (roles == null) return;
-    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
     for (String roleName : roles) {
       roleManager.deleteRole(schema, roleName);
@@ -786,7 +783,6 @@ public class GraphqlSchemaFieldFactory {
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<String> groups = dataFetchingEnvironment.getArgument(GraphqlConstants.GROUPS);
     if (groups == null) return;
-    GraphqlPermissionFieldFactory.requireManagerOrOwner(schema.getDatabase(), schema);
     SqlRoleManager roleManager = ((SqlDatabase) schema.getDatabase()).getRoleManager();
     for (String groupName : groups) {
       roleManager.deleteGroup(schema, groupName);
@@ -809,7 +805,6 @@ public class GraphqlSchemaFieldFactory {
         schema.removeMember(resolvedUser);
         message.append("Dropped member '").append(resolvedUser).append("'\n");
       } else {
-        rejectCustomRoleEscalation(schema, role);
         if (group == null || group.isEmpty()) {
           roleManager.revokeRoleFromUser(schema, role, resolvedUser);
           message.append("Dropped schema-wide member '").append(resolvedUser).append("'\n");
@@ -1052,7 +1047,6 @@ public class GraphqlSchemaFieldFactory {
         }
         schema.addMember(resolvedUser, role);
       } else {
-        rejectCustomRoleEscalation(schema, role);
         if (group == null || group.isEmpty()) {
           roleManager.grantRoleToUser(schema, role, resolvedUser);
         } else {
@@ -1060,18 +1054,6 @@ public class GraphqlSchemaFieldFactory {
         }
       }
     }
-  }
-
-  private static void rejectCustomRoleEscalation(Schema schema, String roleName) {
-    if (schema.getDatabase().isAdmin()) return;
-    if (schema.hasActiveUserRole(Privileges.OWNER)) return;
-    if (schema.hasActiveUserRole(Privileges.MANAGER)) return;
-    throw new MolgenisException(
-        "Privilege escalation denied: only admin, Owner or Manager can grant custom role '"
-            + roleName
-            + "' in schema '"
-            + schema.getName()
-            + "'");
   }
 
   @SuppressWarnings("unchecked")

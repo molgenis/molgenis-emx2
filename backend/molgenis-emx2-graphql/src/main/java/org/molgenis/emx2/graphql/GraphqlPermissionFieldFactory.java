@@ -11,13 +11,10 @@ import graphql.schema.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TablePermission;
 
 public class GraphqlPermissionFieldFactory {
@@ -260,17 +257,6 @@ public class GraphqlPermissionFieldFactory {
             .toList();
     roleMap.put(PERMISSIONS, tableList);
     return roleMap;
-  }
-
-  public static void requireManagerOrOwner(Database db, Schema schema) {
-    if (db.isAdmin()) return;
-    if (schema == null
-        || (!schema.hasActiveUserRole(Privileges.MANAGER)
-            && !schema.hasActiveUserRole(Privileges.OWNER))) {
-      String schemaName = schema != null ? schema.getName() : "unknown";
-      throw new MolgenisException(
-          "Only Manager or Owner can grant custom roles on schema " + schemaName);
-    }
   }
 
   private GraphqlPermissionFieldFactory() {}

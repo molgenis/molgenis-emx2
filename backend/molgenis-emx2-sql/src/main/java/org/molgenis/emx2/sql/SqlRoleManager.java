@@ -47,11 +47,22 @@ public class SqlRoleManager {
     return Privileges.isSystemRole(roleName);
   }
 
+  private void requireManagerOrOwner(Schema schema) {
+    if (database.isAdmin()) return;
+    if (schema.hasActiveUserRole(Privileges.MANAGER)) return;
+    if (schema.hasActiveUserRole(Privileges.OWNER)) return;
+    throw new MolgenisException(
+        "Only admin, Owner or Manager can manage roles, groups, and memberships on schema "
+            + schema.getName());
+  }
+
   public static String fullRoleName(String schemaName, String roleName) {
     return MG_ROLE_PREFIX + schemaName + "/" + roleName;
   }
 
   public void createRole(String schemaName, String roleName) {
+    Schema schema = database.getSchema(schemaName);
+    if (schema != null) requireManagerOrOwner(schema);
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
@@ -87,10 +98,13 @@ public class SqlRoleManager {
   }
 
   public void createRole(Schema schema, String roleName, String description) {
+    requireManagerOrOwner(schema);
     createRole(schema.getName(), roleName);
   }
 
   public void deleteRole(String schemaName, String roleName) {
+    Schema schema = database.getSchema(schemaName);
+    if (schema != null) requireManagerOrOwner(schema);
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot delete system role: " + roleName);
     }
@@ -137,6 +151,7 @@ public class SqlRoleManager {
   }
 
   public void deleteRole(Schema schema, String roleName) {
+    requireManagerOrOwner(schema);
     deleteRole(schema.getName(), roleName);
   }
 
@@ -395,6 +410,7 @@ public class SqlRoleManager {
   }
 
   public void grantRoleToUser(Schema schema, String roleName, String username) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     requireUserExists(username);
     String fullRole = fullRoleName(schemaName, roleName);
@@ -422,6 +438,7 @@ public class SqlRoleManager {
   }
 
   public void revokeRoleFromUser(Schema schema, String roleName, String username) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     if (!roleExists(schemaName, roleName)) return;
     String fullRole = fullRoleName(schemaName, roleName);
@@ -442,6 +459,8 @@ public class SqlRoleManager {
 
   public void addGroupMembership(
       String schemaName, String groupName, String userName, String roleName) {
+    Schema schema = database.getSchema(schemaName);
+    if (schema != null) requireManagerOrOwner(schema);
     if (isSystemRole(roleName)) {
       throw new MolgenisException(
           "system role '" + roleName + "' cannot be bound to group '" + groupName + "'");
@@ -468,6 +487,8 @@ public class SqlRoleManager {
 
   public void removeGroupMembership(
       String schemaName, String groupName, String userName, String roleName) {
+    Schema schema = database.getSchema(schemaName);
+    if (schema != null) requireManagerOrOwner(schema);
     String fullRole = fullRoleName(schemaName, roleName);
     String fullUser = MG_USER_PREFIX + userName;
     database.getJooqAsAdmin(
@@ -500,6 +521,7 @@ public class SqlRoleManager {
   }
 
   public void setPermissions(Schema schema, String roleName, PermissionSet permissions) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     if (permissions.getSchema() != null && !permissions.getSchema().equals(schemaName)) {
       throw new MolgenisException(
@@ -799,6 +821,7 @@ public class SqlRoleManager {
   }
 
   public void createGroup(Schema schema, String groupName) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
@@ -819,6 +842,7 @@ public class SqlRoleManager {
   }
 
   public void deleteGroup(Schema schema, String groupName) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq -> {
@@ -837,6 +861,7 @@ public class SqlRoleManager {
   static final String GROUP_MEMBERSHIP_SENTINEL_ROLE = "member";
 
   public void addGroupMember(Schema schema, String groupName, String username) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     requireGroupExists(schemaName, groupName);
     requireUserExists(username);
@@ -852,6 +877,7 @@ public class SqlRoleManager {
   }
 
   public void removeGroupMember(Schema schema, String groupName, String username) {
+    requireManagerOrOwner(schema);
     String schemaName = schema.getName();
     database.getJooqAsAdmin(
         adminJooq ->

@@ -272,16 +272,13 @@ class TestGraphqlSchemaRoles {
     assertNull(
         findRoleByName(rolesBefore, roleName), "Role should not exist before mutation attempt");
 
-    String mutation = buildGrantMutation(roleName);
     try {
       database.setActiveUser(USER_EDITOR);
       GraphqlExecutor userExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
-      MolgenisException thrown =
-          assertThrows(MolgenisException.class, () -> executeAs(userExecutor, mutation));
-      assertTrue(
-          thrown.getMessage().contains("Manager") || thrown.getMessage().contains("Owner"),
-          "Error should mention Manager or Owner requirement");
+      assertFalse(
+          changeMutationPresentInSchema(userExecutor),
+          "change mutation must be absent from schema for Editor");
     } finally {
       database.becomeAdmin();
     }
@@ -298,16 +295,13 @@ class TestGraphqlSchemaRoles {
     assertNull(
         findRoleByName(rolesBefore, roleName), "Role should not exist before mutation attempt");
 
-    String mutation = buildGrantMutation(roleName);
     try {
       database.setActiveUser(USER_VIEWER);
       GraphqlExecutor userExecutor =
           new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
-      MolgenisException thrown =
-          assertThrows(MolgenisException.class, () -> executeAs(userExecutor, mutation));
-      assertTrue(
-          thrown.getMessage().contains("Manager") || thrown.getMessage().contains("Owner"),
-          "Error should mention Manager or Owner requirement");
+      assertFalse(
+          changeMutationPresentInSchema(userExecutor),
+          "change mutation must be absent from schema for Viewer");
     } finally {
       database.becomeAdmin();
     }
@@ -877,5 +871,16 @@ class TestGraphqlSchemaRoles {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());
     }
     return node.get("data");
+  }
+
+  private boolean changeMutationPresentInSchema(GraphqlExecutor exec) throws IOException {
+    String introspection = "{ __schema { mutationType { fields { name } } } }";
+    String json = convertExecutionResultToJson(exec.executeWithoutSession(introspection));
+    JsonNode fields = new ObjectMapper().readTree(json).at("/data/__schema/mutationType/fields");
+    if (!fields.isArray()) return false;
+    for (JsonNode field : fields) {
+      if ("change".equals(field.at("/name").asText())) return true;
+    }
+    return false;
   }
 }
