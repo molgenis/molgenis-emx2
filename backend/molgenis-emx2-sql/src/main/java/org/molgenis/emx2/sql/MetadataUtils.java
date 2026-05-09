@@ -428,7 +428,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
-              table.getInheritName() == null && table.getRlsEnabled(),
+              table.getInheritName() == null && Boolean.TRUE.equals(table.getRlsEnabled()),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -438,7 +438,9 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
-          .set(TABLE_RLS_ENABLED, table.getInheritName() == null && table.getRlsEnabled())
+          .set(
+              TABLE_RLS_ENABLED,
+              table.getInheritName() == null && Boolean.TRUE.equals(table.getRlsEnabled()))
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -568,8 +570,9 @@ public class MetadataUtils {
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
-    Boolean rlsEnabled = r.get(TABLE_RLS_ENABLED, Boolean.class);
-    table.setRlsEnabled(rlsEnabled != null && rlsEnabled);
+    if (Boolean.TRUE.equals(r.get(TABLE_RLS_ENABLED, Boolean.class))) {
+      table.setRlsEnabled(true);
+    }
     return table;
   }
 
@@ -843,4 +846,211 @@ public class MetadataUtils {
         .map(groupName -> new Group(groupName, "", fetchGroupMembers(jooq, schemaName, groupName)))
         .toList();
   }
+
+  static void upsertRolePermission(
+      DSLContext jooq,
+      String schemaName,
+      String roleName,
+      String tableName,
+      String selectScope,
+      String insertScope,
+      String updateScope,
+      String deleteScope,
+      boolean changeOwner,
+      boolean changeGroup,
+      String description) {
+    jooq.insertInto(ROLE_PERMISSION_METADATA)
+        .columns(
+            RPM_SCHEMA_NAME,
+            RPM_ROLE_NAME,
+            RPM_TABLE_NAME,
+            RPM_SELECT_SCOPE,
+            RPM_INSERT_SCOPE,
+            RPM_UPDATE_SCOPE,
+            RPM_DELETE_SCOPE,
+            RPM_CHANGE_OWNER,
+            RPM_CHANGE_GROUP,
+            RPM_DESCRIPTION)
+        .values(
+            schemaName,
+            roleName,
+            tableName,
+            selectScope,
+            insertScope,
+            updateScope,
+            deleteScope,
+            changeOwner,
+            changeGroup,
+            description)
+        .onConflict(RPM_SCHEMA_NAME, RPM_ROLE_NAME, RPM_TABLE_NAME)
+        .doUpdate()
+        .set(RPM_SELECT_SCOPE, selectScope)
+        .set(RPM_INSERT_SCOPE, insertScope)
+        .set(RPM_UPDATE_SCOPE, updateScope)
+        .set(RPM_DELETE_SCOPE, deleteScope)
+        .set(RPM_CHANGE_OWNER, changeOwner)
+        .set(RPM_CHANGE_GROUP, changeGroup)
+        .set(RPM_DESCRIPTION, description)
+        .execute();
+  }
+
+  static void upsertRolePermissionScopes(
+      DSLContext jooq,
+      String schemaName,
+      String roleName,
+      String tableName,
+      String selectScope,
+      String insertScope,
+      String updateScope,
+      String deleteScope) {
+    jooq.insertInto(ROLE_PERMISSION_METADATA)
+        .columns(
+            RPM_SCHEMA_NAME,
+            RPM_ROLE_NAME,
+            RPM_TABLE_NAME,
+            RPM_SELECT_SCOPE,
+            RPM_INSERT_SCOPE,
+            RPM_UPDATE_SCOPE,
+            RPM_DELETE_SCOPE,
+            RPM_CHANGE_OWNER,
+            RPM_CHANGE_GROUP,
+            RPM_DESCRIPTION)
+        .values(
+            schemaName,
+            roleName,
+            tableName,
+            selectScope,
+            insertScope,
+            updateScope,
+            deleteScope,
+            false,
+            false,
+            "")
+        .onConflict(RPM_SCHEMA_NAME, RPM_ROLE_NAME, RPM_TABLE_NAME)
+        .doUpdate()
+        .set(RPM_SELECT_SCOPE, selectScope)
+        .set(RPM_INSERT_SCOPE, insertScope)
+        .set(RPM_UPDATE_SCOPE, updateScope)
+        .set(RPM_DELETE_SCOPE, deleteScope)
+        .execute();
+  }
+
+  static void deleteRolePermission(
+      DSLContext jooq, String schemaName, String roleName, String tableName) {
+    jooq.deleteFrom(ROLE_PERMISSION_METADATA)
+        .where(
+            RPM_SCHEMA_NAME.eq(schemaName),
+            RPM_ROLE_NAME.eq(roleName),
+            RPM_TABLE_NAME.eq(tableName))
+        .execute();
+  }
+
+  static void deleteAllRolePermissions(DSLContext jooq, String schemaName, String roleName) {
+    jooq.deleteFrom(ROLE_PERMISSION_METADATA)
+        .where(RPM_SCHEMA_NAME.eq(schemaName), RPM_ROLE_NAME.eq(roleName))
+        .execute();
+  }
+
+  static void deleteAllRolePermissionsForTable(
+      DSLContext jooq, String schemaName, String tableName) {
+    jooq.deleteFrom(ROLE_PERMISSION_METADATA)
+        .where(RPM_SCHEMA_NAME.eq(schemaName), RPM_TABLE_NAME.eq(tableName))
+        .execute();
+  }
+
+  static org.jooq.Record loadRolePermission(
+      DSLContext jooq, String schemaName, String roleName, String tableName) {
+    return jooq.select()
+        .from(ROLE_PERMISSION_METADATA)
+        .where(
+            RPM_SCHEMA_NAME.eq(schemaName),
+            RPM_ROLE_NAME.eq(roleName),
+            RPM_TABLE_NAME.eq(tableName))
+        .fetchOne();
+  }
+
+  static Result<org.jooq.Record> loadPermissionSet(
+      DSLContext jooq, String schemaName, String roleName) {
+    return jooq.select()
+        .from(ROLE_PERMISSION_METADATA)
+        .where(RPM_SCHEMA_NAME.eq(schemaName), RPM_ROLE_NAME.eq(roleName))
+        .fetch();
+  }
+
+  static boolean rolePermissionExists(DSLContext jooq, String schemaName, String tableName) {
+    return jooq.fetchExists(
+        jooq.select()
+            .from(ROLE_PERMISSION_METADATA)
+            .where(RPM_SCHEMA_NAME.eq(schemaName), RPM_TABLE_NAME.eq(tableName)));
+  }
+
+  static void upsertGroupMembership(
+      DSLContext jooq, String userName, String schemaName, String groupName, String roleName) {
+    jooq.insertInto(GROUP_MEMBERSHIP_METADATA)
+        .columns(GMM_USER_NAME, GMM_SCHEMA_NAME, GMM_GROUP_NAME, GMM_ROLE_NAME)
+        .values(userName, schemaName, groupName, roleName)
+        .onConflictDoNothing()
+        .execute();
+  }
+
+  static void deleteGroupMembership(
+      DSLContext jooq, String userName, String schemaName, String groupName, String roleName) {
+    jooq.deleteFrom(GROUP_MEMBERSHIP_METADATA)
+        .where(
+            GMM_USER_NAME.eq(userName),
+            GMM_SCHEMA_NAME.eq(schemaName),
+            GMM_GROUP_NAME.eq(groupName),
+            GMM_ROLE_NAME.eq(roleName))
+        .execute();
+  }
+
+  static void deleteGroupMembershipForRole(
+      DSLContext jooq, String schemaName, String userName, String roleName) {
+    jooq.deleteFrom(GROUP_MEMBERSHIP_METADATA)
+        .where(
+            GMM_USER_NAME.eq(userName), GMM_SCHEMA_NAME.eq(schemaName), GMM_ROLE_NAME.eq(roleName))
+        .execute();
+  }
+
+  static void deleteAllGroupMembershipsForRole(
+      DSLContext jooq, String schemaName, String roleName) {
+    jooq.deleteFrom(GROUP_MEMBERSHIP_METADATA)
+        .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_ROLE_NAME.eq(roleName))
+        .execute();
+  }
+
+  static boolean membershipRowExists(
+      DSLContext jooq, String schemaName, String userName, String roleName) {
+    return jooq.fetchExists(
+        jooq.select()
+            .from(GROUP_MEMBERSHIP_METADATA)
+            .where(
+                GMM_SCHEMA_NAME.eq(schemaName),
+                GMM_ROLE_NAME.eq(roleName),
+                GMM_USER_NAME.eq(userName)));
+  }
+
+  static void requireUserExists(DSLContext jooq, String username) {
+    boolean exists =
+        jooq.fetchExists(jooq.select().from(USERS_METADATA).where(USER_NAME.eq(username)));
+    if (!exists) {
+      throw new MolgenisException("User '" + username + "' does not exist");
+    }
+  }
+
+  static List<Member> fetchDirectAndGroupMembers(DSLContext jooq, String schemaName) {
+    List<Member> members = new ArrayList<>();
+    List<org.jooq.Record> groupMembers =
+        jooq.select()
+            .from(GROUP_MEMBERSHIP_METADATA)
+            .where(GMM_SCHEMA_NAME.eq(schemaName), GMM_ROLE_NAME.ne(GROUP_MEMBERSHIP_SENTINEL_ROLE))
+            .fetch();
+    for (org.jooq.Record row : groupMembers) {
+      members.add(
+          new Member(row.get(GMM_USER_NAME), row.get(GMM_ROLE_NAME), row.get(GMM_GROUP_NAME)));
+    }
+    return members;
+  }
+
+  static final String GROUP_MEMBERSHIP_SENTINEL_ROLE = "member";
 }

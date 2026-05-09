@@ -31,13 +31,13 @@ public class TestRlsEnabledMetadataRoundtrip {
     schema.create(table("DefaultsTable").add(column("id").setPkey()));
 
     assertFalse(
-        schema.getTable("DefaultsTable").getMetadata().getRlsEnabled(),
+        Boolean.TRUE.equals(schema.getTable("DefaultsTable").getMetadata().getRlsEnabled()),
         "rlsEnabled must default to false on a freshly created table");
 
     db.clearCache();
     Schema reloaded = db.getSchema(SCHEMA_NAME);
     assertFalse(
-        reloaded.getTable("DefaultsTable").getMetadata().getRlsEnabled(),
+        Boolean.TRUE.equals(reloaded.getTable("DefaultsTable").getMetadata().getRlsEnabled()),
         "rlsEnabled must be false after cache reload");
   }
 
@@ -53,7 +53,7 @@ public class TestRlsEnabledMetadataRoundtrip {
     db.clearCache();
     Schema reloaded = db.getSchema(SCHEMA_NAME);
     assertTrue(
-        reloaded.getTable("RlsTable").getMetadata().getRlsEnabled(),
+        Boolean.TRUE.equals(reloaded.getTable("RlsTable").getMetadata().getRlsEnabled()),
         "rlsEnabled must be true after save + cache reload");
   }
 }

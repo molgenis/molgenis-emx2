@@ -1256,6 +1256,38 @@ field `viewScope: NONE|EXISTS|...|ALL`; or per-mode booleans
 (`canViewExistsOnly`, `canViewAggregate`, …). Default proposal: enum.
 Confirm before J.5.c opens.
 
+### Phase L pre-amble — RLS DDL prolonged-timeout bump — closed 2026-05-09
+
+**What landed**
+
+Added `SqlDatabase.txWithProlongedTimeout(Transaction)` helper
+(60s query timeout vs default 10s); routed three admin DDL
+operations through it:
+- `SqlTableMetadata.disableRlsCascade`
+- `SqlTableMetadata.enableRlsCascade`
+- `SqlDatabase.dropSchema`
+
+**Why**
+
+Combined-suite phase-boundary verification (post-Phase-J) flaked on
+`TestRlsEnableDisableLifecycle.tearDown` (`dropSchema`) and earlier
+on `disableRlsCascade` under parallel test-class load. Root cause:
+contention on shared `MOLGENIS.*` metadata tables. Bump is a
+band-aid, not a root-cause fix — but matches reality (admin DDL
+with cascading metadata writes legitimately needs more headroom
+than the default 10s, especially in multi-admin installs with
+heavy concurrent schema editing).
+
+Real-user motivation, not just test motivation.
+
+**Verification**
+
+`./gradlew :backend:molgenis-emx2-sql:test
+--tests "*TestRlsEnableDisableLifecycle"` → 7/7 green.
+Combined-suite re-verification still owed (user-initiated).
+
+Diff: 33 LOC. Files: `SqlDatabase.java`, `SqlTableMetadata.java`.
+
 ### Phase L — layering cleanup wave (DRAFT 2026-05-09)
 
 **Why this phase exists**
@@ -1274,103 +1306,118 @@ that must be resolved before K touches RLS-tagged data.
 
 **Slices** (priority order from review)
 
-- **L.1 — Merge Migration 33 into Migration 32** (release blocker).
-  This branch hasn't shipped; collapse `migration33.sql` into
-  `migration32.sql`, drop `if (version < 34)` block, set
-  `SOFTWARE_DATABASE_VERSION = 33`. Verified independent: the
-  FK-add in 33 doesn't depend on 32's new metadata tables.
-  ~10 LOC, low risk.
+- **L.1 — Merge Migration 33 into Migration 32** — closed 2026-05-09.
+  Collapsed `migration33.sql` into `migration32.sql` (43 lines
+  appended); dropped `if (version < 34)` block from
+  `Migrations.java`; `SOFTWARE_DATABASE_VERSION = 33`.
+  TestMigration + TestRlsEnableDisableLifecycle both green.
+  ~28 LOC.
 
-- **L.2 — Push system-role `PermissionSet` synthesis down**.
-  `GraphqlSchemaFieldFactory.java:547–563` currently builds a
-  wildcard `PermissionSet` for system roles inline. Move into
-  `SqlRoleManager.getPermissionSet(schemaName, roleName)` so it
-  returns the synthesized set for system roles and the metadata
-  query for custom roles. Graphql collapses to a single
-  `schema.getPermissions(role.name())`. ~25 LOC, low risk.
+- **L.2 — Push system-role `PermissionSet` synthesis down** — closed 2026-05-09.
+  Added `SqlRoleManager.synthesizeSystemPermissionSet(roleName)` +
+  early-return guard in `getPermissionSet`. Collapsed
+  `GraphqlSchemaFieldFactory.java:547–563` if/else to single
+  `schema.getPermissions(role.name())`; removed unused
+  `SelectScope`/`UpdateScope` imports. Verified
+  `:backend:molgenis-emx2-sql:test --tests "*TestSqlRoleManager"`
+  → 21/21 pass.
 
-- **L.3 — Extract metadata-table SQL → `MetadataUtils`**.
-  ~200 LOC moved. Methods to add:
-  - `upsertRolePermission`, `deleteRolePermission`,
-    `deleteAllRolePermissions`, `loadRolePermission`,
-    `loadPermissionSet`
-  - `upsertGroupMembership`, `deleteGroupMembership`,
-    `membershipRowExists`
-  - `requireUserExists` (consolidates raw String SQL)
-  - Also: extract `executeGetMembers` MOLGENIS half (group
-    membership query lines 190–201 of `SqlSchemaMetadataExecutor`)
-    into `MetadataUtils.fetchDirectAndGroupMembers`.
-  All call sites in `SqlRoleManager.{grant, mergeWithExisting,
-  revoke, setPermissions, getPermissionSet, deleteRole,
-  grantRoleToUser, revokeRoleFromUser, addGroupMembership,
-  removeGroupMembership, addGroupMember, removeGroupMember,
-  rejectDisableIfPermissionsExist, clearTablePermissionsForTable,
-  membershipRowExists}` switch to MetadataUtils calls.
-  Medium risk — many call sites; targeted tests must stay green.
+- **L.3 — Extract metadata-table SQL → `MetadataUtils`** — closed 2026-05-09.
+  Moved ~190 LOC of metadata-table SQL into `MetadataUtils` as
+  `upsertRolePermission`/`upsertRolePermissionScopes` (split:
+  full upsert vs scope-only on-conflict to preserve original
+  `grantTablePermission` semantics for `changeOwner`/`changeGroup`/
+  `description`), `deleteRolePermission`,
+  `deleteAllRolePermissions`, `deleteAllRolePermissionsForTable`,
+  `loadRolePermission`, `loadPermissionSet`, `rolePermissionExists`,
+  `upsertGroupMembership`, `deleteGroupMembership`,
+  `deleteGroupMembershipForRole`,
+  `deleteAllGroupMembershipsForRole`, `membershipRowExists`,
+  `requireUserExists`, `fetchDirectAndGroupMembers`. Moved
+  `GROUP_MEMBERSHIP_SENTINEL_ROLE` constant. Deleted dead
+  `SqlRoleManager.membershipRowExists` wrapper. Added regression
+  test `grant_scopeOnly_doesNotClobberChangeOwnerOrDescription`.
+  Verified `:backend:molgenis-emx2-sql:test --tests
+  "*TestSqlRoleManager"` 22/22 green;
+  `--tests "*TestGrantRolesToUsers"` 4/4 green.
 
 - **L.4 — Resolve `getPermissions` overload confusion + move
-  validation**. Overload bug: `SqlRoleManager.getPermissions(String,
-  String): List<TablePermission>` and `getPermissions(Schema,
-  String): PermissionSet` differ only by first arg type. Rename
-  the List variant to `listTablePermissions`. Also move
-  `rejectRlsScopeOnNonRlsTable` (domain invariant) into
-  `TableMetadata` or `SqlSchema.changeRoles`. ~35 LOC.
+  validation** — closed 2026-05-09. Renamed
+  `SqlRoleManager.getPermissions(String, String)` →
+  `listTablePermissions(String, String)`. Moved
+  `rejectRlsScopeOnNonRlsTable` to `TableMetadata` as
+  `rejectIfRlsScopeWithoutRls(TablePermission, PermissionSet)` —
+  invariant lives where the `rlsEnabled` field is owned; zero
+  new imports. No interface ripples. Verified
+  `:backend:molgenis-emx2-sql:test --tests "*TestSqlRoleManager"`
+  22/22 green; `--tests "*TestGrantRolesToUsers"` 4/4 green.
 
-- **L.5 — Move `applyRlsEnabledChanges` into `Schema.migrate`**.
-  Currently lives in `GraphqlSchemaFieldFactory.java:983–1002`,
-  re-reading the raw graphql input map to detect rlsEnabled toggles
-  that `migrate(SchemaMetadata)` drops. Either: (a) make
-  `TableMetadata.setRlsEnabled` trigger the SQL, so migrate handles
-  it transparently; or (b) add post-migrate hook in `SqlSchema`.
-  ~30 LOC, medium risk (migrate is a hot path).
+- **L.5 — Move `applyRlsEnabledChanges` into `Schema.migrate`** —
+  closed 2026-05-09. Option (a): added `applyRlsEnabledDiff` in
+  `SqlSchema` per-table diff loop; deleted the
+  `applyRlsEnabledChanges` graphql workaround. RLS enable now
+  triggers from any migrate caller. Verified
+  `:backend:molgenis-emx2-sql:test --tests
+  "*TestRlsEnableDisableLifecycle"` 9/9 green.
 
-- **L.5b — Reject `rlsEnabled: true → false` via migrate path**.
-  Owner decision (2026-05-09): the schema-authoring path
-  (`Schema.migrate` / graphql `change`) must be one-way for RLS.
-  In the same per-table diff loop fixed by L.5, add: if
-  `current.rlsEnabled == true && incoming.rlsEnabled == false`,
-  throw `"Cannot disable RLS via schema migration. Use
-  Schema.disableRls(...) or drop the table."`. Existing
-  `SqlTableMetadata.setRlsEnabled(false)` stays intact at the SQL
-  layer (used by tests + Phase M's explicit API). Adds 1 RED test
-  asserting graphql `change` rejects the transition; ~15 LOC.
+- **L.5b — Reject `rlsEnabled: true → false` via migrate path** —
+  closed 2026-05-09 (graphql-only enforcement; superseded by L.5c).
+  Initial implementation rejected at graphql `changeTables` only
+  via raw-input-map inspection because `TableMetadata.rlsEnabled`
+  was primitive `boolean` (couldn't distinguish "explicit false"
+  from "omitted"). Java/CSV/REST callers bypassed the invariant.
+  Owner rejected this scope — see L.5c.
+
+- **L.5c — Tri-state `rlsEnabled` for uniform migrate-layer
+  enforcement** — closed 2026-05-09. `TableMetadata.rlsEnabled`
+  is now `Boolean` (nullable). Migrate diff loop in
+  `SqlSchema.applyRlsEnabledDiff` enforces: `null` = no-op,
+  `Boolean.FALSE` on RLS table = REJECT, `Boolean.TRUE` on
+  non-RLS table = enable. Deleted graphql
+  `rejectExplicitRlsDisable` workaround. Swept ~12 call sites of
+  `getRlsEnabled()` to use `Boolean.TRUE.equals(...)` (production
+  + tests). New test
+  `TestRlsEnableDisableLifecycle.migrate_rlsEnabled_trueToFalse_isRejected`.
+  Verified `:backend:molgenis-emx2-sql:test --tests
+  "*TestRlsEnableDisableLifecycle"` 9/9 green;
+  `*TestSqlRoleManager` green; `*TestGraphqlSchemaTables` 4/4 green.
 
 - **L.6 — Extract pg_catalog half of `executeGetMembers` cleanup**
   *(folded into L.3)*.
 
-- **L.7 — RLS FK-clamp write-back hazard (DESIGN OPEN)**.
-  Current `rlsClampAliases` (SqlQuery.java:302+) returns NULL for
-  FK columns whose target is RLS-filtered. Privacy-preserving on
-  read, but **write-back hazard**: user reads row with NULL'd FK,
-  saves row, silently clears the real FK pointer. Three options:
+- **L.7 — RLS FK-clamp write-back hazard** — closed 2026-05-09
+  (option a). RED-GREEN: added failing test
+  `TestRlsFkWriteBackGuard.resave_withClampedNull_isRejected`,
+  verified red, then implemented `SqlTable.guardRlsFkWriteBack`
+  called at top of `updateBatch`. Visibility predicate
+  `isRlsFkColumn` reused with `SqlQuery.buildRlsClampAliases`
+  (matched by the same `col.isRef() && Boolean.TRUE.equals(
+  col.getRefTable().getRlsEnabled())` shape). Admin batched
+  SELECT per RLS-FK column followed by user-context IN-visibility
+  check per ref table — no N+1 at the row level (per-column
+  batching could be optimized to per-target-table later if hot).
+  Added 5-LOC javadoc to `buildRlsClampAliases`. Tests:
+  TestRlsFkWriteBackGuard 5/5; TestPrivacy 7/7;
+  TestRlsEnableDisableLifecycle 9/9 — all green.
 
-  | Option | Read behaviour | Write-back safety | Existence-leak |
-  |---|---|---|---|
-  | **L.7-a** Keep current NULL clamp + write-time guard | NULL | Reject update if user-supplied NULL but stored FK exists & is invisible | None |
-  | **L.7-b** Hard error on retrieval | Throws | N/A | Leaks (probing) |
-  | **L.7-c** Read-only marker / sentinel value carried as JSON metadata; write-back rejects unless user explicitly clears | Sentinel (e.g. `"_redacted_"` token) | Reject if sentinel modified | None |
+- **L.8 — Reduce `molgenis-emx2-nonparallel-tests` to genuine
+  cases** — closed 2026-05-09. Relocated 3 tests
+  (`TestGraphqlAggregatePermission` → graphql;
+  `TestSettings`, `TestChangeOwnerGroupSqlEnforcement` → sql).
+  Existing schema-name uniqueness preserved (no rename needed).
+  Removed unused deps from
+  `molgenis-emx2-nonparallel-tests/build.gradle`. Verified:
+  TestSettings, TestChangeOwnerGroupSqlEnforcement,
+  TestGraphqlAggregatePermission, TestMigration → BUILD SUCCESSFUL.
+  TestSettingsMerge (kept in nonparallel) has 2/3 pre-existing
+  failures unrelated to L.8 — see backlog L.10 below.
 
-  **Recommendation pending user decision.** L.7-a is the smallest
-  diff and preserves current behavior on read; the write-time guard
-  lives in `SqlTable.update` and reads the stored FK value as admin
-  before applying user's NULL. Adds 1 admin-side read per update on
-  RLS tables — quantify cost.
-
-  **Open question for user**: which of a/b/c? `b` is the strictest
-  safety guarantee but breaks current EXISTS/COUNT-scope users who
-  read these rows today. `c` is most precise but biggest plumbing
-  change.
-
-  Also: document `buildRlsClampAliases` purpose in code (5 LOC).
-
-- **L.8 — Reduce `molgenis-emx2-nonparallel-tests` module to its
-  genuine cases**. Move out: `TestGraphqlAggregatePermission` →
-  `molgenis-emx2-graphql`; `TestSettings`,
-  `TestChangeOwnerGroupSqlEnforcement` → `molgenis-emx2-sql`.
-  Keep: `TestSettingsMerge` (database-level setting global state),
-  `TestMigration` (pg_roles global state). Each move requires
-  unique-per-class schema name to avoid concurrency contention.
-  ~30 LOC, low risk.
+- **L.10 (backlog) — TestSettingsMerge `merge-key-b null`**.
+  Pre-existing in this branch (introduced commit f6c732ec6
+  "pivot"; not on master, can't master-baseline). 2/3 tests fail
+  on `merge-key-b` null — likely global-state contamination or
+  incomplete settings-merge implementation. Investigate after
+  Phase L closes; not blocking M/K.
 
 - **L.9 — Skipped**. `Group` and `Role` are already records;
   `Member` is the mutable-class outlier. Owner decision (2026-05-09):

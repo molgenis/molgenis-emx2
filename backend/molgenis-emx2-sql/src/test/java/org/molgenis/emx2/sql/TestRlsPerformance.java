@@ -231,7 +231,7 @@ public class TestRlsPerformance {
     }
 
     SqlTableMetadata largeMeta = (SqlTableMetadata) schemaLarge.getTable(TABLE_PERF).getMetadata();
-    if (!largeMeta.getRlsEnabled()) {
+    if (!Boolean.TRUE.equals(largeMeta.getRlsEnabled())) {
       largeMeta.setRlsEnabled(true);
     }
 
@@ -890,7 +890,7 @@ public class TestRlsPerformance {
       roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
     }
     SqlTableMetadata perfMeta = (SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata();
-    if (!perfMeta.getRlsEnabled()) {
+    if (!Boolean.TRUE.equals(perfMeta.getRlsEnabled())) {
       perfMeta.setRlsEnabled(true);
     }
     PermissionSet psAll =
@@ -906,7 +906,8 @@ public class TestRlsPerformance {
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_ALL_READER)) {
       roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
     }
-    if (!((SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata()).getRlsEnabled()) {
+    if (!Boolean.TRUE.equals(
+        ((SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata()).getRlsEnabled())) {
       ((SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata()).setRlsEnabled(true);
     }
     PermissionSet psAll =
@@ -917,7 +918,7 @@ public class TestRlsPerformance {
 
   private void ensureRlsOnWriteTable(Schema schemaRls) {
     SqlTableMetadata meta = (SqlTableMetadata) schemaRls.getTable(TABLE_WRITE).getMetadata();
-    if (!meta.getRlsEnabled()) {
+    if (!Boolean.TRUE.equals(meta.getRlsEnabled())) {
       meta.setRlsEnabled(true);
     }
   }

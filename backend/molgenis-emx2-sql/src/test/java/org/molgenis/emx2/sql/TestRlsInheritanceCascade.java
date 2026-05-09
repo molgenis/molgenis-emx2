@@ -64,7 +64,7 @@ class TestRlsInheritanceCascade {
   }
 
   private boolean metadataRlsEnabled(String tableName) {
-    return schema.getTable(tableName).getMetadata().getRlsEnabled();
+    return Boolean.TRUE.equals(schema.getTable(tableName).getMetadata().getRlsEnabled());
   }
 
   @Test

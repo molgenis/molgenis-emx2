@@ -416,7 +416,7 @@ class SqlTableMetadata extends TableMetadata {
     executeSetInherit(jooq, tm, om);
     tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
-    if (om.getRlsEnabled()) {
+    if (Boolean.TRUE.equals(om.getRlsEnabled())) {
       tm.enableRlsOnSingleTable();
     }
     return tm;
@@ -565,7 +565,7 @@ class SqlTableMetadata extends TableMetadata {
   private void enableRlsCascade() {
     List<TableMetadata> descendants = getSubclassTables();
     getDatabase()
-        .tx(
+        .txWithProlongedTimeout(
             tdb -> {
               SqlTableMetadata root =
                   (SqlTableMetadata)
@@ -593,7 +593,7 @@ class SqlTableMetadata extends TableMetadata {
       roleManager.rejectDisableIfPermissionsExist(getSchemaName(), desc.getTableName());
     }
     getDatabase()
-        .tx(
+        .txWithProlongedTimeout(
             tdb -> {
               SqlTableMetadata root =
                   (SqlTableMetadata)

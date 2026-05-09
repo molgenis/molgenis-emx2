@@ -39,7 +39,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // profiles to which this table belongs
   private String[] profiles;
   // whether row-level security is enabled for this table
-  private boolean rlsEnabled = false;
+  private Boolean rlsEnabled = null;
 
   public String[] getSemantics() {
     return semantics;
@@ -604,7 +604,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this;
   }
 
-  public boolean getRlsEnabled() {
+  public Boolean getRlsEnabled() {
     if (getInheritName() != null) {
       TableMetadata parent = getInheritedTable();
       if (parent != null) {
@@ -615,8 +615,30 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata setRlsEnabled(boolean rlsEnabled) {
-    this.rlsEnabled = rlsEnabled;
+    this.rlsEnabled = rlsEnabled ? Boolean.TRUE : Boolean.FALSE;
     return this;
+  }
+
+  public void rejectIfRlsScopeWithoutRls(TablePermission tp, PermissionSet permissions) {
+    if (Boolean.TRUE.equals(getRlsEnabled())) {
+      return;
+    }
+    boolean hasRlsScope =
+        tp.getSelect() == PermissionSet.SelectScope.OWN
+            || tp.getSelect() == PermissionSet.SelectScope.GROUP
+            || tp.getUpdate() == PermissionSet.UpdateScope.OWN
+            || tp.getUpdate() == PermissionSet.UpdateScope.GROUP
+            || tp.getInsert() == PermissionSet.UpdateScope.OWN
+            || tp.getInsert() == PermissionSet.UpdateScope.GROUP
+            || tp.getDelete() == PermissionSet.UpdateScope.OWN
+            || tp.getDelete() == PermissionSet.UpdateScope.GROUP;
+    boolean hasChangeFlag = permissions.isChangeOwner() || permissions.isChangeGroup();
+    if (hasRlsScope || hasChangeFlag) {
+      throw new MolgenisException(
+          String.format(
+              "OWN/GROUP scope requires RLS-enabled table; enable RLS on '%s.%s' first",
+              getSchemaName(), getTableName()));
+    }
   }
 
   public String getLabel() {

@@ -299,12 +299,18 @@ public class SqlQuery extends QueryBean {
             });
   }
 
+  /**
+   * Identifies REF columns in the selection whose target table has RLS enabled. Returns a map of
+   * column-name → clamp-alias used in {@link #addRlsClampJoins} to LEFT JOIN the RLS-filtered
+   * target, so that {@link #rowSelectFields} can project NULL instead of the real FK value when the
+   * target row is invisible to the active user (privacy-on-read clamp).
+   */
   private Map<String, String> buildRlsClampAliases(
       TableMetadata table, String tableAlias, SelectColumn selection) {
     Map<String, String> result = new LinkedHashMap<>();
     for (SelectColumn select : selection.getSubselect()) {
       Column column = getColumnByName(table, select.getColumn());
-      if (column.isRef() && column.getRefTable().getRlsEnabled()) {
+      if (column.isRef() && Boolean.TRUE.equals(column.getRefTable().getRlsEnabled())) {
         result.put(column.getName(), tableAlias + "-rlsclamp-" + column.getName());
       }
     }
@@ -1021,7 +1027,7 @@ public class SqlQuery extends QueryBean {
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
       }
-      if (inheritedTable.getRlsEnabled()) {
+      if (Boolean.TRUE.equals(inheritedTable.getRlsEnabled())) {
         using.add(field(name(MG_OWNER_COLUMN)));
         using.add(field(name(MG_GROUPS_COLUMN)));
       }
@@ -1038,7 +1044,7 @@ public class SqlQuery extends QueryBean {
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
       }
-      if (table.getRlsEnabled()) {
+      if (Boolean.TRUE.equals(table.getRlsEnabled())) {
         using.add(field(name(MG_OWNER_COLUMN)));
         using.add(field(name(MG_GROUPS_COLUMN)));
       }

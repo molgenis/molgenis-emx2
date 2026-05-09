@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.PermissionSet.SelectScope;
-import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.tasks.Task;
@@ -544,23 +542,7 @@ public class GraphqlSchemaFieldFactory {
 
       List<Map<String, Object>> allRoles = new ArrayList<>();
       for (Role role : schema.getRoles()) {
-        PermissionSet ps;
-        if (role.isSystemRole()) {
-          TablePermission wildcard =
-              new TablePermission("*")
-                  .setSelect(SelectScope.ALL)
-                  .setInsert(UpdateScope.ALL)
-                  .setUpdate(UpdateScope.ALL)
-                  .setDelete(UpdateScope.ALL);
-          ps =
-              new PermissionSet()
-                  .setDescription(role.name())
-                  .putTable("*", wildcard)
-                  .setChangeOwner(role.changeOwner())
-                  .setChangeGroup(role.changeGroup());
-        } else {
-          ps = schema.getPermissions(role.name());
-        }
+        PermissionSet ps = schema.getPermissions(role.name());
         allRoles.add(
             GraphqlPermissionFieldFactory.permissionSetToMap(
                 role.name(), schema.getName(), role.isSystemRole(), ps));
@@ -976,28 +958,6 @@ public class GraphqlSchemaFieldFactory {
       String json = JsonUtil.getWriter().writeValueAsString(tableMap);
       SchemaMetadata otherSchema = jsonToSchema(json);
       schema.migrate(otherSchema);
-      applyRlsEnabledChanges(schema, tables);
-    }
-  }
-
-  private void applyRlsEnabledChanges(Schema schema, List<Map<String, Object>> tables) {
-    for (Map<String, Object> tableInput : tables) {
-      if (!tableInput.containsKey(GraphqlConstants.RLS_ENABLED)) {
-        continue;
-      }
-      Object rlsEnabledRaw = tableInput.get(GraphqlConstants.RLS_ENABLED);
-      if (rlsEnabledRaw == null) {
-        continue;
-      }
-      boolean rlsEnabled = Boolean.TRUE.equals(rlsEnabledRaw);
-      String tableName = (String) tableInput.get(GraphqlConstants.NAME);
-      if (tableName == null) {
-        continue;
-      }
-      TableMetadata tm = schema.getMetadata().getTableMetadata(tableName);
-      if (tm != null && tm.getRlsEnabled() != rlsEnabled) {
-        tm.setRlsEnabled(rlsEnabled);
-      }
     }
   }
 

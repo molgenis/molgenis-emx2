@@ -234,4 +234,49 @@ class TestRlsEnableDisableLifecycle {
             .get(0, Long.class);
     assertEquals(0L, nonNullGroups, "mg_groups must be empty (no stale data) after re-enable");
   }
+
+  @Test
+  void migrate_rlsEnabled_falseToTrue_enablesRls() {
+    schema.create(table(TABLE_NAME).add(column("id").setPkey()));
+
+    assertFalse(tableHasRls(TABLE_NAME), "Pre-condition: RLS must be off before migrate");
+    assertFalse(
+        columnExists(TABLE_NAME, "mg_owner"),
+        "Pre-condition: mg_owner must not exist before migrate");
+
+    SchemaMetadata incoming = new SchemaMetadata();
+    incoming.create(table(TABLE_NAME).setRlsEnabled(true));
+    schema.migrate(incoming);
+
+    assertTrue(tableHasRls(TABLE_NAME), "RLS must be active after migrate with rlsEnabled=true");
+    assertTrue(
+        columnExists(TABLE_NAME, "mg_owner"),
+        "mg_owner must exist after migrate with rlsEnabled=true");
+    assertTrue(
+        columnExists(TABLE_NAME, "mg_groups"),
+        "mg_groups must exist after migrate with rlsEnabled=true");
+    assertEquals(4L, countPoliciesForTable(TABLE_NAME), "4 policies must exist after migrate");
+  }
+
+  @Test
+  void migrate_rlsEnabled_trueToFalse_isRejected() {
+    schema.create(table(TABLE_NAME).add(column("id").setPkey()));
+    SqlTableMetadata meta = (SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata();
+    meta.setRlsEnabled(true);
+    assertTrue(tableHasRls(TABLE_NAME), "Pre-condition: RLS must be on");
+
+    SchemaMetadata incoming = new SchemaMetadata();
+    incoming.create(table(TABLE_NAME).setRlsEnabled(false));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () -> schema.migrate(incoming),
+            "migrate with rlsEnabled=false on RLS table must throw");
+    assertTrue(
+        ex.getMessage().contains("Cannot disable RLS via schema migration"),
+        "Error must mention 'Cannot disable RLS via schema migration'; got: " + ex.getMessage());
+
+    assertTrue(tableHasRls(TABLE_NAME), "RLS must remain active after rejected migrate");
+  }
 }

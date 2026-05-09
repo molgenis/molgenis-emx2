@@ -381,7 +381,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(
+    txWithProlongedTimeout(
         database -> {
           SqlDatabase sqlDatabase = (SqlDatabase) database;
           SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
@@ -668,6 +668,36 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               db.tableListenersExecutePostCommit();
             });
         // only when commit succeeds we copy state to 'this'
+        this.sync(db);
+        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
+          this.getListener().onUserChange();
+        }
+        if (db.getListener().isDirty()) {
+          this.getListener().onSchemaChange();
+        }
+      } catch (Exception e) {
+        throw new SqlMolgenisException("Transaction failed", e);
+      }
+    }
+  }
+
+  void txWithProlongedTimeout(Transaction transaction) {
+    if (inTx) {
+      transaction.run(this);
+    } else {
+      SqlDatabase db = new SqlDatabase(jooq, this);
+      this.tableListeners.forEach(db::addTableListener);
+      try {
+        jooq.transaction(
+            config -> {
+              db.inTx = true;
+              DSLContext ctx =
+                  DSL.using(config).configuration().derive(PROLONGED_TIMEOUT_JOOQ_SETTINGS).dsl();
+              ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+              db.setJooq(ctx);
+              transaction.run(db);
+              db.tableListenersExecutePostCommit();
+            });
         this.sync(db);
         if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
           this.getListener().onUserChange();

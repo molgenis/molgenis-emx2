@@ -17,6 +17,8 @@ class TestGraphqlSchemaTables {
 
   private static final String SCHEMA_NAME = "TGraphqlSchemaTables";
   private static final String TABLE_ITEM = "Item";
+  private static final String TABLE_ITEM_ENABLE = "ItemEnable";
+  private static final String TABLE_ITEM_DISABLE_REJECT = "ItemDisableReject";
   private static final String TABLE_ASSET = "Asset";
   private static final String QUERY_TABLES = "{ _schema { tables { name rlsEnabled } } }";
 
@@ -33,6 +35,16 @@ class TestGraphqlSchemaTables {
         .getMetadata()
         .create(
             TableMetadata.table(TABLE_ITEM)
+                .add(Column.column("name").setType(ColumnType.STRING).setKey(1)));
+    schema
+        .getMetadata()
+        .create(
+            TableMetadata.table(TABLE_ITEM_ENABLE)
+                .add(Column.column("name").setType(ColumnType.STRING).setKey(1)));
+    schema
+        .getMetadata()
+        .create(
+            TableMetadata.table(TABLE_ITEM_DISABLE_REJECT)
                 .add(Column.column("name").setType(ColumnType.STRING).setKey(1)));
     executor = new GraphqlExecutor(schema, new TaskServiceInMemory());
   }
@@ -54,7 +66,7 @@ class TestGraphqlSchemaTables {
   @Test
   void rlsEnabled_setTrueViaMutation_persists() throws IOException {
     JsonNode tablesBefore = queryTablesNode();
-    JsonNode itemBefore = findTableByName(tablesBefore, TABLE_ITEM);
+    JsonNode itemBefore = findTableByName(tablesBefore, TABLE_ITEM_ENABLE);
     assertNotNull(itemBefore, "Pre-condition: table must exist");
     assertFalse(
         itemBefore.path("rlsEnabled").asBoolean(false),
@@ -62,46 +74,49 @@ class TestGraphqlSchemaTables {
 
     execute(
         "mutation { change(tables: [{name: \""
-            + TABLE_ITEM
+            + TABLE_ITEM_ENABLE
             + "\", rlsEnabled: true}]) { message } }");
 
     JsonNode tablesAfter = queryTablesNode();
-    JsonNode itemAfter = findTableByName(tablesAfter, TABLE_ITEM);
+    JsonNode itemAfter = findTableByName(tablesAfter, TABLE_ITEM_ENABLE);
     assertNotNull(itemAfter, "Table must still exist after mutation");
     assertTrue(
         itemAfter.path("rlsEnabled").asBoolean(false), "rlsEnabled must be true after mutation");
-
-    execute(
-        "mutation { change(tables: [{name: \""
-            + TABLE_ITEM
-            + "\", rlsEnabled: false}]) { message } }");
   }
 
   @Test
-  void rlsEnabled_disableViaMutation_persists() throws IOException {
+  void rlsEnabled_disableViaMutation_isRejected() throws IOException {
     execute(
         "mutation { change(tables: [{name: \""
-            + TABLE_ITEM
+            + TABLE_ITEM_DISABLE_REJECT
             + "\", rlsEnabled: true}]) { message } }");
 
     JsonNode tablesMid = queryTablesNode();
-    JsonNode itemMid = findTableByName(tablesMid, TABLE_ITEM);
+    JsonNode itemMid = findTableByName(tablesMid, TABLE_ITEM_DISABLE_REJECT);
     assertNotNull(itemMid, "Table must exist after enable mutation");
     assertTrue(
         itemMid.path("rlsEnabled").asBoolean(false),
         "Mid-state: rlsEnabled must be true after enable mutation");
 
-    execute(
-        "mutation { change(tables: [{name: \""
-            + TABLE_ITEM
-            + "\", rlsEnabled: false}]) { message } }");
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    "mutation { change(tables: [{name: \""
+                        + TABLE_ITEM_DISABLE_REJECT
+                        + "\", rlsEnabled: false}]) { message } }"),
+            "Disabling RLS via migrate must throw MolgenisException");
+    assertTrue(
+        ex.getMessage().contains("Cannot disable RLS via schema migration"),
+        "Error must mention 'Cannot disable RLS via schema migration'; got: " + ex.getMessage());
 
     JsonNode tablesAfter = queryTablesNode();
-    JsonNode itemAfter = findTableByName(tablesAfter, TABLE_ITEM);
-    assertNotNull(itemAfter, "Table must still exist after disable");
-    assertFalse(
+    JsonNode itemAfter = findTableByName(tablesAfter, TABLE_ITEM_DISABLE_REJECT);
+    assertNotNull(itemAfter, "Table must still exist after rejected disable");
+    assertTrue(
         itemAfter.path("rlsEnabled").asBoolean(false),
-        "rlsEnabled must be false after disable mutation");
+        "rlsEnabled must still be true after rejected disable");
   }
 
   @Test

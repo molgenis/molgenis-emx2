@@ -288,6 +288,8 @@ public class SqlSchema implements Schema {
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);
 
+        applyRlsEnabledDiff(oldTable, mergeTable);
+
         // add missing (except refback),
         // remove triggers if existing column if type changed
         // drop columns marked with 'drop'
@@ -354,6 +356,24 @@ public class SqlSchema implements Schema {
     // finally, update settings if changes are provided
     if (!mergeSchema.getSettings().isEmpty()) {
       targetSchema.setSettings(mergeSchema.getSettings());
+    }
+  }
+
+  private static final String DISABLE_RLS_VIA_MIGRATE_ERROR =
+      "Cannot disable RLS via schema migration. Use Schema.disableRls(...) or drop the table.";
+
+  private static void applyRlsEnabledDiff(TableMetadata current, TableMetadata incoming) {
+    if (incoming.getRlsEnabled() == null) {
+      return;
+    }
+    if (Boolean.FALSE.equals(incoming.getRlsEnabled())) {
+      if (Boolean.TRUE.equals(current.getRlsEnabled())) {
+        throw new MolgenisException(DISABLE_RLS_VIA_MIGRATE_ERROR);
+      }
+      return;
+    }
+    if (!Boolean.TRUE.equals(current.getRlsEnabled())) {
+      ((SqlTableMetadata) current).setRlsEnabled(true);
     }
   }
 

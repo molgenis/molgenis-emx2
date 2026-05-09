@@ -462,6 +462,113 @@ public class SqlTable implements Table {
     return user;
   }
 
+  private static boolean isRlsFkColumn(Column column) {
+    return column.isRef() && Boolean.TRUE.equals(column.getRefTable().getRlsEnabled());
+  }
+
+  private static void guardRlsFkWriteBack(
+      SqlTable table, List<Row> rows, List<Column> updateColumns) {
+    List<Column> rlsFkColumns = updateColumns.stream().filter(SqlTable::isRlsFkColumn).toList();
+    if (rlsFkColumns.isEmpty()) {
+      return;
+    }
+
+    List<Column> pkColumns = table.getMetadata().getPrimaryKeyColumns();
+    Map<Column, Map<String, Object>> explicitNullsByColumn = new LinkedHashMap<>();
+
+    for (Column fkColumn : rlsFkColumns) {
+      List<Reference> refs = fkColumn.getReferences();
+      for (Row row : rows) {
+        boolean allRefsExplicitlyNull =
+            refs.stream()
+                .allMatch(ref -> row.containsName(ref.getName()) && !row.notNull(ref.getName()));
+        if (allRefsExplicitlyNull) {
+          String pkValue = buildPkKey(row, pkColumns);
+          explicitNullsByColumn
+              .computeIfAbsent(fkColumn, k -> new LinkedHashMap<>())
+              .put(pkValue, row);
+        }
+      }
+    }
+
+    if (explicitNullsByColumn.isEmpty()) {
+      return;
+    }
+
+    SqlDatabase sqlDb = (SqlDatabase) table.getSchema().getDatabase();
+    org.jooq.Table<Record> jooqTable = table.getJooqTable();
+
+    for (Map.Entry<Column, Map<String, Object>> entry : explicitNullsByColumn.entrySet()) {
+      Column fkColumn = entry.getKey();
+      Map<String, Object> pkToRowMap = entry.getValue();
+      List<Reference> refs = fkColumn.getReferences();
+      String pkColName = pkColumns.get(0).getName();
+
+      List<Object> pkValues =
+          pkToRowMap.values().stream().map(rowObj -> ((Row) rowObj).get(pkColumns.get(0))).toList();
+
+      List<Object> storedFkValues = new ArrayList<>();
+      sqlDb.getJooqAsAdmin(
+          adminJooq -> {
+            List<Field<?>> selectFields = new ArrayList<>();
+            selectFields.add(field(name(pkColName)));
+            refs.forEach(ref -> selectFields.add(field(name(ref.getName()))));
+
+            Result<Record> stored =
+                adminJooq
+                    .select(selectFields)
+                    .from(jooqTable)
+                    .where(field(name(pkColName)).in(pkValues))
+                    .fetch();
+            storedFkValues.addAll(stored);
+          });
+
+      Set<Object> storedNonNullFks =
+          storedFkValues.stream()
+              .map(r -> ((Record) r).get(refs.get(0).getName()))
+              .filter(Objects::nonNull)
+              .collect(Collectors.toSet());
+
+      if (storedNonNullFks.isEmpty()) {
+        continue;
+      }
+
+      TableMetadata refTableMeta = fkColumn.getRefTable();
+      String refSchemaName =
+          fkColumn.getRefSchemaName() != null
+              ? fkColumn.getRefSchemaName()
+              : table.getMetadata().getSchemaName();
+      String refPkColName = refTableMeta.getPrimaryKeyColumns().get(0).getName();
+
+      org.jooq.Table<Record> refJooqTable =
+          org.jooq.impl.DSL.table(
+              org.jooq.impl.DSL.name(refSchemaName, refTableMeta.getTableName()));
+
+      DSLContext userJooq = table.getJooq();
+      Set<Object> visibleFks =
+          userJooq
+              .select(field(name(refPkColName)))
+              .from(refJooqTable)
+              .where(field(name(refPkColName)).in(storedNonNullFks))
+              .fetchSet(field(name(refPkColName)));
+
+      for (Object storedFk : storedNonNullFks) {
+        if (!visibleFks.contains(storedFk)) {
+          throw new MolgenisException(
+              "Cannot null FK '"
+                  + fkColumn.getName()
+                  + "': current target is outside your read scope.");
+        }
+      }
+    }
+  }
+
+  private static String buildPkKey(Row row, List<Column> pkColumns) {
+    return pkColumns.stream()
+        .map(col -> String.valueOf(row.get(col.getName(), col.getColumnType())))
+        .collect(Collectors.joining("|"));
+  }
+
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
@@ -469,6 +576,8 @@ public class SqlTable implements Table {
       SqlTable inheritedTable = table.getInheritedTable();
       count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
     }
+
+    guardRlsFkWriteBack(table, rows, updateColumns);
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
     if (columns.size() == 0) return count;

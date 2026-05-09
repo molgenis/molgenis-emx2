@@ -179,7 +179,10 @@ class TestPrivacy {
   }
 
   private void insertRowsWithOwner(int count, String owner) {
-    String groupSql = schema.getTable(TABLE_NAME).getMetadata().getRlsEnabled() ? GROUP_NAME : null;
+    String groupSql =
+        Boolean.TRUE.equals(schema.getTable(TABLE_NAME).getMetadata().getRlsEnabled())
+            ? GROUP_NAME
+            : null;
     for (int i = 0; i < count; i++) {
       jooq.execute(
           "INSERT INTO \""

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 34;
+  private static final int SOFTWARE_DATABASE_VERSION = 33;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -200,13 +200,6 @@ public class Migrations {
                 tdb,
                 "migration32.sql",
                 "RLS v2: groups_metadata, role_permission_metadata, group_membership_metadata, access functions, rls_enabled column");
-          }
-
-          if (version < 34) {
-            executeMigrationFile(
-                tdb,
-                "migration33.sql",
-                "RLS J.2.c: FK mg_owner -> users_metadata(username) ON DELETE SET NULL ON UPDATE CASCADE");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

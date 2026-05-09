@@ -525,6 +525,40 @@ class TestSqlRoleManager {
     roleManager.deleteGroup(schemaEnf, "sg1");
   }
 
+  // ── grant: scope-only must not clobber changeOwner/changeGroup/description ─
+
+  @Test
+  void grant_scopeOnly_doesNotClobberChangeOwnerOrDescription() {
+    roleManager.createRole(SCHEMA_ENF, "clobber-guard");
+    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+
+    PermissionSet initial = new PermissionSet();
+    initial.setChangeOwner(true);
+    initial.setChangeGroup(true);
+    initial.setDescription("sentinel");
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.setSelect(SelectScope.ALL);
+    initial.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "clobber-guard", initial);
+
+    PermissionSet before = roleManager.getPermissionSet(SCHEMA_ENF, "clobber-guard");
+    assertTrue(before.isChangeOwner(), "changeOwner must be true after setPermissions");
+    assertTrue(before.isChangeGroup(), "changeGroup must be true after setPermissions");
+    assertEquals(
+        "sentinel", before.getDescription(), "description must be 'sentinel' after setPermissions");
+
+    roleManager.grant(
+        SCHEMA_ENF,
+        "clobber-guard",
+        new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.ALL));
+
+    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "clobber-guard");
+    assertTrue(after.isChangeOwner(), "scope-only grant must not clobber changeOwner");
+    assertTrue(after.isChangeGroup(), "scope-only grant must not clobber changeGroup");
+    assertEquals(
+        "sentinel", after.getDescription(), "scope-only grant must not clobber description");
+  }
+
   // ── enforcement helpers ───────────────────────────────────────────────────
 
   private void insertGroupTaggedRow(String id, String val, String[] groups) {

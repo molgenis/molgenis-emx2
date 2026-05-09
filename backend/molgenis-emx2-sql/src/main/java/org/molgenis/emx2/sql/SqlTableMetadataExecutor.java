@@ -67,7 +67,7 @@ class SqlTableMetadataExecutor {
                 + ": not found");
       }
       executeSetInherit(jooq, table, table.getInheritedTable());
-      if (table.getInheritedTable().getRlsEnabled()) {
+      if (Boolean.TRUE.equals(table.getInheritedTable().getRlsEnabled())) {
         table.enableRlsOnSingleTable();
       }
     }
@@ -103,7 +103,7 @@ class SqlTableMetadataExecutor {
     // add meta columns (only superclass table)
     if (table.getInheritName() == null) {
       executeAddMetaColumns(table);
-      if (table.getRlsEnabled()) {
+      if (Boolean.TRUE.equals(table.getRlsEnabled())) {
         table.enableRlsOnSingleTable();
       }
     }

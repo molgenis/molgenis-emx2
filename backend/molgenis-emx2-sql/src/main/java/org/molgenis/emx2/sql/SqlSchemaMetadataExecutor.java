@@ -186,19 +186,7 @@ class SqlSchemaMetadataExecutor {
       members.add(new Member(memberName, roleName));
     }
 
-    List<Record> groupMembers =
-        jooq.fetch(
-            "SELECT user_name, role_name, group_name"
-                + " FROM \"MOLGENIS\".group_membership_metadata"
-                + " WHERE schema_name = {0} AND role_name != {1}",
-            schema.getName(), SqlRoleManager.GROUP_MEMBERSHIP_SENTINEL_ROLE);
-    for (Record r : groupMembers) {
-      members.add(
-          new Member(
-              r.get("user_name", String.class),
-              r.get("role_name", String.class),
-              r.get("group_name", String.class)));
-    }
+    members.addAll(MetadataUtils.fetchDirectAndGroupMembers(jooq, schema.getName()));
 
     return members;
   }
