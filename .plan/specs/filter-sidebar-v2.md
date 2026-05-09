@@ -57,25 +57,45 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 | DateTime input width 14em (Date stays 10em) | DateTime.vue | - | visual check |
 | Styling works in all 5 themes (Light, Dark, Molgenis, UMCG, AUMC) | Sidebar.vue | - | visual check |
 
-## Column Component (NEW — thin rendering wrapper)
+## Column Component (thin dispatcher)
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
 | Receives counted options from useFilters (no own data fetching) | Column.vue | Column.spec.ts | - |
-| ALL countable types (ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX, STRING_ARRAY): renders Tree with checkboxes | Column.vue | Column.spec.ts: "H3: STRING_ARRAY renders Tree (countable)…" | visual check |
-| Flat types (BOOL/RADIO/CHECKBOX) rendered as Tree nodes without children | Column.vue | Column.spec.ts | visual check |
+| ALL countable types → renders FilterTree | Column.vue | Column.spec.ts: "renders FilterTree for ONTOLOGY/BOOL/STRING_ARRAY" | - |
+| Range types → renders FilterRange | Column.vue | Column.spec.ts: "renders FilterRange for INT/NON_NEGATIVE_INT/DATETIME" | - |
+| STRING-like → renders FilterText | Column.vue | Column.spec.ts: "renders FilterText for STRING" | - |
+| Passes range values from between operator to FilterRange | Column.vue | Column.spec.ts | - |
+| Emits between filter when FilterRange changes; emits undefined when both null | Column.vue | Column.spec.ts | - |
+
+## FilterTree Component
+
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| ALL countable types (ONTOLOGY, ONTOLOGY_ARRAY, BOOL, RADIO, CHECKBOX, STRING_ARRAY): renders Tree with checkboxes | filter/Tree.vue | Tree.spec.ts: "renders Tree for ONTOLOGY/BOOL column type" | visual check |
+| Flat types (BOOL/RADIO/CHECKBOX) rendered as Tree nodes without children | filter/Tree.vue | Tree.spec.ts | visual check |
 | BOOL filter shows three options: true, false, null (with counts) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
-| Ontology types rendered as Tree preserving hierarchy | Column.vue | Column.spec.ts | visual check |
-| Range types: renders FilterRange with existing InputDate/InputDateTime for date types, number input for numeric | Column.vue | Column.spec.ts | visual check |
-| Min/max labels use `text-search-filter-group-title` for theme consistency | Column.vue | Column.spec.ts | visual check |
-| STRING-like: renders text input | Column.vue | Column.spec.ts | visual check |
-| Shows loading skeleton while counts are being fetched | Column.vue | Column.spec.ts | visual check |
-| Search input visible only when >25 total options (flat or hierarchical); tiny trees show no search — all nodes auto-expanded instead | Column.vue | Column.spec.ts | visual check |
-| Small trees (≤25 total nodes): all nodes start expanded | Tree.vue | Tree.spec.ts | visual check |
-| Selecting a child node does NOT collapse/reset expand state of other nodes (expand state preserved across node rebuilds) | Tree.vue | Tree.spec.ts | visual check |
-| Expand state is local component state only — NOT persisted in URL | Tree.vue | - | - |
-| Emits selection changes; useFilters handles state update | Column.vue | Column.spec.ts | - |
-| H7: removing active text filter (chip-X) clears the input DOM value immediately | Column.vue | Column.spec.ts: "H7: input value clears when modelValue is removed (filter removed from sidebar)" | visual check |
+| Ontology types rendered as Tree preserving hierarchy | filter/Tree.vue | Tree.spec.ts: "converts children in CountedOption to Tree node children" | visual check |
+| Shows loading skeleton while counts are being fetched | filter/Tree.vue | Tree.spec.ts: "shows loading skeleton when loading is true and no options yet" | visual check |
+| Countable filter with zero options shows "No options available given current filters" | filter/Tree.vue | Tree.spec.ts: "renders empty-state message for countable filter with no options when not loading" | visual check |
+| Search input visible only when >25 total options (flat or hierarchical) | filter/Tree.vue | Tree.spec.ts: "renders search input when totalCount > 25" | visual check |
+| Small trees (≤25 total nodes): all nodes start expanded | filter/Tree.vue | Tree.spec.ts: "≤25 root options: no show-more button" | visual check |
+| Selecting a child node does NOT collapse/reset expand state of other nodes | input/Tree.vue | Tree.spec.ts (input/Tree) | visual check |
+| Expand state is local component state only — NOT persisted in URL | filter/Tree.vue | - | - |
+| Emits selection changes; useFilters handles state update | filter/Tree.vue | Tree.spec.ts | - |
+| Unselected option shows delta count (count - overlap) | filter/Tree.vue | Tree.spec.ts: "unselected option shows delta count" | visual check |
+| Selected option shows solo count (not delta) | filter/Tree.vue | Tree.spec.ts: "selected option shows solo count" | visual check |
+| saturated flag: "too many options, please search" hint shown | filter/Tree.vue | Tree.spec.ts: "saturated flag true: hint rendered above tree" | visual check |
+
+## FilterText Component
+
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| STRING-like: renders text input | filter/Text.vue | Text.spec.ts: "renders search input for STRING column type" | visual check |
+| Emits like filter on text input after 500ms debounce | filter/Text.vue | Text.spec.ts: "emits like filter on text input after debounce" | - |
+| Rapid typing produces only one emit after 500ms | filter/Text.vue | Text.spec.ts: "rapid typing: 3 keystrokes within 100ms produce only one emit" | - |
+| H7: removing active text filter (chip-X) clears the input DOM value immediately | filter/Text.vue | Text.spec.ts: "H7: input value clears when modelValue is removed" | visual check |
+| Emits undefined when text input is cleared | filter/Text.vue | Text.spec.ts: "emits undefined when text input is cleared" | - |
 
 ## Filter Options Display
 
@@ -83,44 +103,44 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 |----------|-----------|------|--------|
 | Default: only show options with initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
 | When other filters applied: counts update but initial terms stay visible | useFilters.ts | useFilters.spec.ts | - |
-| Options that reach count 0 due to cross-filter: hidden while filter is collapsed (show-more not clicked), visible when expanded (show-more clicked). Stability preserved within expanded view. | useFilters.ts, Column.vue | useFilters.spec.ts; Column.spec.ts | visual check |
-| Zero-count hiding is hierarchy-aware: parent with count 0 AND all-zero descendants is hidden; parent with count 0 but non-zero descendants stays | useFilters.ts | useFilters.spec.ts | - |
-| Filter with >25 ROOT options shows first 25 roots + "Show more (+50)" button; each click reveals up to 50 more roots (clamps to remaining count, label becomes "Show N more" when <50 remain); when all visible button becomes "Show less" (resets view to 25) | Column.vue | Column.spec.ts | visual check |
-| Zero-count options hidden while view is partially expanded; visible only when all roots are shown ("Show less" state). Searching bypasses both. Clearing search resets view to initial 25 | Column.vue | Column.spec.ts | visual check |
-| Truncation at 25 root-slices the option array; descendants come with their root intact, no slicing within subtrees | Column.vue | Column.spec.ts | - |
-| Search visibility uses total node count (incl. descendants); show-more uses root count only | Column.vue | Column.spec.ts | - |
-| Search within filter shows all matching terms regardless of show-more or zero-hiding state | Column.vue | Column.spec.ts | visual check |
+| Options that reach count 0 due to cross-filter: hidden while filter is collapsed (show-more not clicked), visible when expanded (show-more clicked). Stability preserved within expanded view. | useFilterCounts.ts, filter/Tree.vue | useFilters.spec.ts; Tree.spec.ts | visual check |
+| Zero-count hiding is hierarchy-aware: parent with count 0 AND all-zero descendants is hidden; parent with count 0 but non-zero descendants stays | useFilterCounts.ts | useFilters.spec.ts | - |
+| Filter with >25 ROOT options shows first 25 roots + "Show more (+50)" button; each click reveals up to 50 more roots (clamps to remaining count, label becomes "Show N more" when <50 remain); when all visible button becomes "Show less" (resets view to 25) | filter/Tree.vue | Tree.spec.ts | visual check |
+| Zero-count options hidden while view is partially expanded; visible only when all roots are shown ("Show less" state). Searching bypasses both. Clearing search resets view to initial 25 | filter/Tree.vue | Tree.spec.ts | visual check |
+| Truncation at 25 root-slices the option array; descendants come with their root intact, no slicing within subtrees | filter/Tree.vue | Tree.spec.ts | - |
+| Search visibility uses total node count (incl. descendants); show-more uses root count only | filter/Tree.vue | Tree.spec.ts | - |
+| Search within filter shows all matching terms regardless of show-more or zero-hiding state | filter/Tree.vue | Tree.spec.ts | visual check |
 | `_groupBy` response with ≥500 rows sets saturated flag → triggers "too many options, please search" hint (payload is post-hoc checked; backend `_groupBy` does NOT support `limit` arg) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
-| Filter-change aborts in-flight count requests for that column (per-column AbortController) | useFilters.ts | useFilters.spec.ts | - |
-| On search within filter: show all matching terms regardless of count | Column.vue | Column.spec.ts | visual check |
-| On clear filters: go back to showing only initial count > 0 | useFilters.ts | useFilters.spec.ts | - |
+| Filter-change aborts in-flight count requests for that column (per-column AbortController) | useFilterCounts.ts | useFilters.spec.ts | - |
+| On search within filter: show all matching terms regardless of count | filter/Tree.vue | Tree.spec.ts | visual check |
+| On clear filters: go back to showing only initial count > 0 | useFilterCounts.ts | useFilters.spec.ts | - |
 | No facet counting on REF/REF_ARRAY (use nested filters via picker instead) | - | - | - |
-| Countable filter with zero options (after load) shows "No matching values for this filter" message | Column.vue | Column.spec.ts | visual check |
-| Empty-state message only renders when `!loading && options.length === 0` for countable filters (not range/text) | Column.vue | Column.spec.ts | - |
+| Countable filter with zero options (after load) shows "No options available given current filters" message | filter/Tree.vue | Tree.spec.ts | visual check |
+| Empty-state message only renders when `!loading && options.length === 0` for countable filters (not range/text) | filter/Tree.vue | Tree.spec.ts | - |
 
 ## Facet Counting (Centralized)
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
-| Counts managed centrally in useFilters, not per-component | useFilters.ts | useFilters.spec.ts | - |
-| Parallel API calls per column (don't wait for slowest) | useFilters.ts | useFilters.spec.ts | - |
-| Cross-filter: each column's count excludes its own filter | useFilters.ts | useFilters.spec.ts | - |
-| Initial (base) counts fetched once, determine which options/filters to show | useFilters.ts | useFilters.spec.ts | - |
+| Counts managed centrally in useFilterCounts sub-composable, not per-component | useFilterCounts.ts | useFilters.spec.ts | - |
+| Parallel API calls per column (don't wait for slowest) | useFilterCounts.ts | useFilters.spec.ts | - |
+| Cross-filter: each column's count excludes its own filter | useFilterCounts.ts | useFilters.spec.ts | - |
+| Initial (base) counts fetched once, determine which options/filters to show | useFilterCounts.ts | useFilters.spec.ts | - |
 | Base counts also shown in sidebar section headers (how many records match) | Sidebar.vue | Sidebar.spec.ts | visual check |
-| Count updates debounced when filters change | useFilters.ts | useFilters.spec.ts | - |
+| Count updates debounced when filters change | useFilterCounts.ts | useFilters.spec.ts | - |
 | ONTOLOGY (single): `_groupBy` for direct counts; ancestor chain resolved via `_match_any_including_parents` in one query; parent counts rolled up client-side (sum of children) | fetchCounts.ts | fetchCounts.spec.ts | - |
 | ONTOLOGY_ARRAY: `_groupBy` for direct counts; parent counts via `_agg` with `_match_any_including_children` (avoids double-counting) | fetchCounts.ts | fetchCounts.spec.ts | - |
 | Empty branches pruned: parent nodes with 0 count and no counted descendants are hidden | fetchCounts.ts | fetchCounts.spec.ts | - |
-| BOOL counts use `_groupBy` per column (scalar true/false/null) | useFilters.ts | useFilters.spec.ts | - |
+| BOOL counts use `_groupBy` per column (scalar true/false/null) | useFilterCounts.ts | useFilters.spec.ts | - |
 | RADIO/CHECKBOX counts use `_groupBy` with key field expansion via getColumnIds | fetchCounts.ts | fetchCounts.spec.ts | - |
 | RADIO/CHECKBOX single-key (no refTableId) filters use `_match_any` operator | buildFilter.ts | buildFilter.spec.ts: "generates _match_any filter for RADIO without refTableId" | - |
 | RADIO/CHECKBOX REF with refTableId + composite-key objects → `_or: [{key:{equals:val}},...]` (not `_match_any`) | buildFilter.ts | buildFilter.spec.ts: "uses _or for RADIO with composite key objects (multi-value/single-value)" | - |
-| RADIO/CHECKBOX single-key: plain string values, flat URL (`status=active`) | filterUrlCodec.ts | filterUrlCodec.spec.ts | - |
+| RADIO/CHECKBOX single-key: plain string values, flat URL (`status=active`) | filterUrlParams.ts | filterUrlParams.spec.ts | - |
 | RADIO/CHECKBOX composite-key: key objects with `keyObject` on CountedOption, JSON in URL when needed | fetchCounts.ts, Column.vue | fetchCounts.spec.ts, Column.spec.ts | - |
 | STRING/TEXT filters use `like` operator (no ref key issues) | buildFilter.ts | buildFilter.spec.ts: "nested REF text path like: collectionEvents.name produces no double-name" | - |
 | RANGE filters use `between` operator with min/max (no ref key issues) | buildFilter.ts | buildFilter.spec.ts | - |
-| Unselected options within the active facet display DELTA count (solo − overlap), not solo — so the number equals additional rows that appear on click | useFilters.ts, fetchCounts.ts | useFilters.spec.ts, fetchCounts.spec.ts | visual check (multi-select ONTOLOGY_ARRAY / CHECKBOX with one value already selected) |
-| Selected options within the active facet keep stable solo count — toggling a sibling in the same facet does NOT change the selected option's displayed count | useFilters.ts, Column.vue | useFilters.spec.ts, Column.spec.ts | visual check |
+| Unselected options within the active facet display DELTA count (solo − overlap), not solo — so the number equals additional rows that appear on click | useFilterCounts.ts, fetchCounts.ts | useFilters.spec.ts, fetchCounts.spec.ts | visual check (multi-select ONTOLOGY_ARRAY / CHECKBOX with one value already selected) |
+| Selected options within the active facet keep stable solo count — toggling a sibling in the same facet does NOT change the selected option's displayed count | useFilterCounts.ts, Column.vue | useFilters.spec.ts, Column.spec.ts | visual check |
 | Delta = max(0, soloCount − overlapCount). Solo uses crossFilter-excluding-self; overlap uses the full current filter (include-self) | fetchCounts.ts | fetchCounts.spec.ts | - |
 | Overlap groupBy skipped when the facet has zero selections (delta collapses to solo — optimization, no visible change) | useFilters.ts | useFilters.spec.ts | - |
 | Hierarchical ontology: parent delta uses `_match_any_including_children` `_agg` against the full current filter (same per-parent strategy as solo parent counts) | fetchCounts.ts | fetchCounts.spec.ts | visual check |
@@ -170,14 +190,14 @@ Existing Ontology.vue and Ref.vue stay untouched — they remain form inputs onl
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
-| Filter state serialized to URL query params | useFilters.ts | filterUrlCodec.spec.ts | - |
-| Path filters supported (e.g. `order.pet.category.name=dogs`) | useFilters.ts | filterUrlCodec.spec.ts | - |
-| Visible filter set stored in URL (`mg_filters` param) | useFilters.ts | filterUrlCodec.spec.ts | - |
+| Filter state serialized to URL query params | useFilters.ts | filterUrlParams.spec.ts | - |
+| Path filters supported (e.g. `order.pet.category.name=dogs`) | useFilters.ts | filterUrlParams.spec.ts | - |
+| Visible filter set stored in URL (`mg_filters` param) | useFilters.ts | filterUrlParams.spec.ts | - |
 | Collapse state stored in URL (`mg_collapsed` param, comma-separated IDs) | Sidebar.vue | Sidebar.spec.ts | - |
-| Search stored as `mg_search` param | useFilters.ts | filterUrlCodec.spec.ts | - |
-| Range values use `min..max` format | useFilters.ts | filterUrlCodec.spec.ts | - |
-| `like` operator preserved across URL round-trip for nested REF text columns (encoded as `{path}~like={value}`; no `equals` + object-array regression) | filterUrlCodec.ts | filterUrlCodec.spec.ts: "nested REF like filter URL round-trip" | - |
-| Multi-value equals use pipe `|` separator | useFilters.ts | filterUrlCodec.spec.ts | - |
+| Search stored as `mg_search` param | useFilters.ts | filterUrlParams.spec.ts | - |
+| Range values use `min..max` format | useFilters.ts | filterUrlParams.spec.ts | - |
+| `like` operator preserved across URL round-trip for nested REF text columns (encoded as `{path}~like={value}`; no `equals` + object-array regression) | filterUrlParams.ts | filterUrlParams.spec.ts: "nested REF like filter URL round-trip" | - |
+| Multi-value equals use pipe `|` separator | useFilters.ts | filterUrlParams.spec.ts | - |
 | Back/forward navigation restores filter state | useFilters.ts | useFilters.spec.ts | visual check |
 | Non-filter URL params preserved (page, sort, view) | useFilters.ts | useFilters.spec.ts | - |
 | Bookmarkable: copy URL reproduces exact filter state including collapse state | useFilters.ts | - | visual check |

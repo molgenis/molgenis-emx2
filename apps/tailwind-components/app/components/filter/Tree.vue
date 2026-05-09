@@ -32,98 +32,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
-function hasNonZeroDescendant(node: CountedOption): boolean {
-  if (!node.children || node.children.length === 0) return false;
-  return node.children.some(
-    (child) => child.count > 0 || hasNonZeroDescendant(child)
-  );
-}
-
-function pruneZeros(nodes: CountedOption[]): CountedOption[] {
-  return nodes
-    .filter((node) => node.count > 0 || hasNonZeroDescendant(node))
-    .map((node) => ({
-      ...node,
-      children:
-        node.children && node.children.length > 0
-          ? pruneZeros(node.children)
-          : node.children,
-    }));
-}
-
-function countAllNodes(nodes: CountedOption[]): number {
-  let total = 0;
-  for (const node of nodes) {
-    total += 1;
-    if (node.children && node.children.length > 0) {
-      total += countAllNodes(node.children);
-    }
-  }
-  return total;
-}
-
-function applyCollapseView(
-  options: CountedOption[],
-  { hideZero, limit }: { hideZero: boolean; limit: number | null }
-): CountedOption[] {
-  const afterZeroFilter = hideZero ? pruneZeros(options) : options;
-  if (limit === null) return afterZeroFilter;
-  if (afterZeroFilter.length <= limit) return afterZeroFilter;
-  return afterZeroFilter.slice(0, limit);
-}
-
-function nodeMatchesQuery(node: CountedOption, query: string): boolean {
-  const lower = query.toLowerCase();
-  const label = (node.label ?? node.name).toLowerCase();
-  return label.includes(lower);
-}
-
-function filterNode(node: CountedOption, query: string): CountedOption | null {
-  const selfMatches = nodeMatchesQuery(node, query);
-  const filteredChildren = (node.children ?? [])
-    .map((child) => filterNode(child, query))
-    .filter((child): child is CountedOption => child !== null);
-
-  if (selfMatches) {
-    return { ...node, children: node.children ? node.children : undefined };
-  }
-  if (filteredChildren.length > 0) {
-    return { ...node, children: filteredChildren };
-  }
-  return null;
-}
-
-function filterOptionsBySearch(
-  options: CountedOption[],
-  query: string
-): CountedOption[] {
-  if (!query) return options;
-  return options
-    .map((node) => filterNode(node, query))
-    .filter((node): node is CountedOption => node !== null);
-}
-
-function displayCount(option: CountedOption, selected: string[]): number {
-  if (selected.includes(option.name)) return option.count;
-  return Math.max(0, option.count - (option.overlap ?? 0));
-}
-
-function countedOptionToTreeNode(
-  option: CountedOption,
-  selected: string[]
-): ITreeNode {
-  const count = displayCount(option, selected);
-  return {
-    ...option,
-    label: option.label
-      ? `${option.label} (${count})`
-      : `${option.name} (${count})`,
-    children:
-      option.children?.map((child) =>
-        countedOptionToTreeNode(child, selected)
-      ) ?? [],
-  };
-}
+/* --- Main reactive flow --- */
 
 const visibleRootCount = ref(SHOW_MORE_THRESHOLD);
 const localSearch = ref("");
@@ -172,24 +81,7 @@ const treeNodes = computed<ITreeNode[]>(() =>
   )
 );
 
-function onShowMoreClick() {
-  if (isFullyExpanded.value) {
-    visibleRootCount.value = SHOW_MORE_THRESHOLD;
-  } else {
-    visibleRootCount.value = Math.min(
-      visibleRootCount.value + SHOW_MORE_STEP,
-      rootOptionCount.value
-    );
-  }
-}
-
-watch(localSearch, (newVal, oldVal) => {
-  if (oldVal && !newVal) {
-    visibleRootCount.value = SHOW_MORE_THRESHOLD;
-  }
-});
-
-/* nodeMap state machine — absorbed from input/Tree.vue */
+/* --- nodeMap state machine --- */
 
 const nodeMap = ref({} as Record<string, ITreeNodeState>);
 
@@ -342,6 +234,120 @@ const virtualRootNode = computed<ITreeNodeState>(() => ({
   expanded: true,
   selectable: false,
 }));
+
+/* --- UI handlers --- */
+
+function onShowMoreClick() {
+  if (isFullyExpanded.value) {
+    visibleRootCount.value = SHOW_MORE_THRESHOLD;
+  } else {
+    visibleRootCount.value = Math.min(
+      visibleRootCount.value + SHOW_MORE_STEP,
+      rootOptionCount.value
+    );
+  }
+}
+
+watch(localSearch, (newVal, oldVal) => {
+  if (oldVal && !newVal) {
+    visibleRootCount.value = SHOW_MORE_THRESHOLD;
+  }
+});
+
+/* --- Low-level pure helpers --- */
+
+function hasNonZeroDescendant(node: CountedOption): boolean {
+  if (!node.children || node.children.length === 0) return false;
+  return node.children.some(
+    (child) => child.count > 0 || hasNonZeroDescendant(child)
+  );
+}
+
+function pruneZeros(nodes: CountedOption[]): CountedOption[] {
+  return nodes
+    .filter((node) => node.count > 0 || hasNonZeroDescendant(node))
+    .map((node) => ({
+      ...node,
+      children:
+        node.children && node.children.length > 0
+          ? pruneZeros(node.children)
+          : node.children,
+    }));
+}
+
+function countAllNodes(nodes: CountedOption[]): number {
+  let total = 0;
+  for (const node of nodes) {
+    total += 1;
+    if (node.children && node.children.length > 0) {
+      total += countAllNodes(node.children);
+    }
+  }
+  return total;
+}
+
+function applyCollapseView(
+  options: CountedOption[],
+  { hideZero, limit }: { hideZero: boolean; limit: number | null }
+): CountedOption[] {
+  const afterZeroFilter = hideZero ? pruneZeros(options) : options;
+  if (limit === null) return afterZeroFilter;
+  if (afterZeroFilter.length <= limit) return afterZeroFilter;
+  return afterZeroFilter.slice(0, limit);
+}
+
+function nodeMatchesQuery(node: CountedOption, query: string): boolean {
+  const lower = query.toLowerCase();
+  const label = (node.label ?? node.name).toLowerCase();
+  return label.includes(lower);
+}
+
+function filterNode(node: CountedOption, query: string): CountedOption | null {
+  const selfMatches = nodeMatchesQuery(node, query);
+  const filteredChildren = (node.children ?? [])
+    .map((child) => filterNode(child, query))
+    .filter((child): child is CountedOption => child !== null);
+
+  if (selfMatches) {
+    return { ...node, children: node.children ? node.children : undefined };
+  }
+  if (filteredChildren.length > 0) {
+    return { ...node, children: filteredChildren };
+  }
+  return null;
+}
+
+function filterOptionsBySearch(
+  options: CountedOption[],
+  query: string
+): CountedOption[] {
+  if (!query) return options;
+  return options
+    .map((node) => filterNode(node, query))
+    .filter((node): node is CountedOption => node !== null);
+}
+
+function displayCount(option: CountedOption, selected: string[]): number {
+  if (selected.includes(option.name)) return option.count;
+  return Math.max(0, option.count - (option.overlap ?? 0));
+}
+
+function countedOptionToTreeNode(
+  option: CountedOption,
+  selected: string[]
+): ITreeNode {
+  const count = displayCount(option, selected);
+  return {
+    ...option,
+    label: option.label
+      ? `${option.label} (${count})`
+      : `${option.name} (${count})`,
+    children:
+      option.children?.map((child) =>
+        countedOptionToTreeNode(child, selected)
+      ) ?? [],
+  };
+}
 </script>
 
 <template>

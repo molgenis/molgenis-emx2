@@ -4,7 +4,7 @@ import {
   parseFilterValue,
   serializeFiltersToUrl,
   parseFiltersFromUrl,
-} from "../../../app/utils/filterUrlCodec";
+} from "../../../app/utils/filterUrlParams";
 import { buildGraphQLFilter } from "../../../app/utils/buildFilter";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";

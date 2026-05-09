@@ -2,6 +2,12 @@ import type { IColumn, columnValue } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
 import type { CountedOption } from "./fetchCounts";
 
+export const BOOL_LABELS: Record<string, string> = {
+  true: "Yes",
+  false: "No",
+  _null_: "Not set",
+};
+
 export const MAX_NESTING_DEPTH = 5;
 
 export const REF_EXPANDABLE_TYPES = new Set([

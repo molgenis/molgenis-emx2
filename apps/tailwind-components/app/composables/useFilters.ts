@@ -8,7 +8,6 @@ import {
   type ComputedRef,
 } from "vue";
 import { useRoute, useRouter } from "#imports";
-import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type {
   ActiveFilter,
@@ -18,21 +17,20 @@ import type {
 } from "../../types/filters";
 import { buildGraphQLFilter } from "../utils/buildFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
-import { computeDefaultFilters } from "../utils/filterTypes";
+import {
+  computeDefaultFilters,
+  isCountableType,
+  isExcludedColumn,
+} from "../utils/filterTypes";
+import { BOOL_LABELS } from "../utils/filterTypes";
 import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
-} from "../utils/filterUrlCodec";
-import {
-  fetchCounts,
-  type CountedOption,
-  type FetchCountsResult,
-} from "../utils/fetchCounts";
-import { isCountableType, isExcludedColumn } from "../utils/filterTypes";
-import { BOOL_LABELS } from "../utils/filterConstants";
+} from "../utils/filterUrlParams";
+import { type CountedOption } from "../utils/fetchCounts";
 import { arraysEqual } from "../utils/compare";
-import fetchGraphql from "./fetchGraphql";
 import fetchTableMetadata from "./fetchTableMetadata";
+import { useFilterCounts } from "./useFilterCounts";
 
 export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
@@ -112,6 +110,101 @@ export function useFilters(
     urlSyncEnabled ? parsedUrlState.value.search : searchValueRef.value
   );
 
+  const defaultFilterIds = computed(() => {
+    if (options.defaultFilters && options.defaultFilters.length > 0) {
+      return options.defaultFilters;
+    }
+    return computeDefaultFilters(columns.value);
+  });
+
+  function getInitialVisibleFilters(): string[] {
+    const urlParam = getCurrentQuery()[MG_FILTERS_PARAM];
+    if (typeof urlParam === "string" && urlParam.trim()) {
+      return urlParam
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
+        .slice(0, MAX_VISIBLE_FILTERS);
+    }
+    return [...defaultFilterIds.value];
+  }
+
+  const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
+  const userHasCustomized = ref(
+    typeof getCurrentQuery()[MG_FILTERS_PARAM] === "string"
+  );
+
+  const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
+
+  const columnTypeMap = computed(() => {
+    const map = new Map<string, string>();
+    for (const [id, meta] of nestedColumnMeta.value) {
+      map.set(id, meta.columnType);
+    }
+    return map;
+  });
+
+  function resolveColumn(columnId: string): IColumn | null {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) return direct;
+    const nested = nestedColumnMeta.value.get(columnId);
+    if (!nested) return null;
+    return {
+      id: columnId,
+      columnType: nested.columnType,
+      label: nested.label,
+      refTableId: nested.refTableId ?? undefined,
+      refSchemaId: nested.refSchemaId ?? undefined,
+      refLabel: nested.refLabel ?? undefined,
+    } as IColumn;
+  }
+
+  const counts = useFilterCounts({
+    schemaId,
+    tableId,
+    debounceMs,
+    columns,
+    visibleFilterIds,
+    filterStates,
+    searchValue,
+    nestedColumnMeta,
+    resolveColumn,
+    columnTypeMap,
+  });
+
+  function pruneVisibleByBaseCount() {
+    if (userHasCustomized.value) return;
+    visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      if (!colType || !isCountableType(colType)) return true;
+      const base = counts.baseCounts.value.get(id);
+      if (!base) return true;
+      const totalCount = base.reduce(
+        (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
+        0
+      );
+      return totalCount > 0;
+    });
+  }
+
+  watch(
+    columns,
+    async (cols) => {
+      if (cols.length > 0 && counts.baseCounts.value.size === 0) {
+        await Promise.all(
+          visibleFilterIds.value
+            .filter((id) => {
+              const colType = resolveColumn(id)?.columnType ?? null;
+              return colType && isCountableType(colType);
+            })
+            .map((id) => counts.fetchColumnCounts(id, true))
+        );
+        pruneVisibleByBaseCount();
+      }
+    },
+    { immediate: true }
+  );
+
   function updateUrl(newFilters: Map<string, IFilterValue>, newSearch: string) {
     if (!urlSyncEnabled) return;
     const filterParams = serializeFiltersToUrl(
@@ -167,90 +260,6 @@ export function useFilters(
     commit(new Map(), "");
   }
 
-  const columnTypeMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const [id, meta] of nestedColumnMeta.value) {
-      map.set(id, meta.columnType);
-    }
-    return map;
-  });
-
-  const gqlFilter = computed<IGraphQLFilter>(() =>
-    buildGraphQLFilter(
-      filterStates.value,
-      columns.value,
-      searchValue.value,
-      columnTypeMap.value
-    )
-  );
-
-  const activeFilters = computed<ActiveFilter[]>(() => {
-    const result: ActiveFilter[] = [];
-    for (const [columnId, filterValue] of filterStates.value) {
-      const column = resolveColumn(columnId);
-      const label = column?.label || column?.id || columnId;
-      if (!column) {
-        const { displayValue, values } = formatFilterValue(filterValue, {});
-        if (displayValue)
-          result.push({ columnId, label, displayValue, values });
-        continue;
-      }
-      const counted = countsMap.value.get(columnId) ?? null;
-      const optionLabels = buildLabelMap(column, counted);
-      const { displayValue, values } = formatFilterValue(
-        filterValue,
-        optionLabels
-      );
-      if (displayValue) {
-        result.push({ columnId, label, displayValue, values });
-      }
-    }
-    return result;
-  });
-
-  const defaultFilterIds = computed(() => {
-    if (options.defaultFilters && options.defaultFilters.length > 0) {
-      return options.defaultFilters;
-    }
-    return computeDefaultFilters(columns.value);
-  });
-
-  function getInitialVisibleFilters(): string[] {
-    const urlParam = getCurrentQuery()[MG_FILTERS_PARAM];
-    if (typeof urlParam === "string" && urlParam.trim()) {
-      return urlParam
-        .split(",")
-        .map((id) => id.trim())
-        .filter(Boolean)
-        .slice(0, MAX_VISIBLE_FILTERS);
-    }
-    return [...defaultFilterIds.value];
-  }
-
-  const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
-  const userHasCustomized = ref(
-    typeof getCurrentQuery()[MG_FILTERS_PARAM] === "string"
-  );
-
-  watch(defaultFilterIds, (newDefaults) => {
-    if (userHasCustomized.value) return;
-    visibleFilterIds.value = [...newDefaults];
-  });
-
-  watch(visibleFilterIds, async (newIds) => {
-    if (!userHasCustomized.value) return;
-    const isDefault = arraysEqual(newIds, defaultFilterIds.value);
-    await nextTick();
-    if (!urlSyncEnabled) return;
-    const currentQuery = { ...getCurrentQuery() };
-    if (isDefault || newIds.length === 0) {
-      delete currentQuery[MG_FILTERS_PARAM];
-    } else {
-      currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
-    }
-    router.replace({ query: currentQuery });
-  });
-
   function toggleFilter(columnId: string) {
     userHasCustomized.value = true;
     if (visibleFilterIds.value.includes(columnId)) {
@@ -274,6 +283,39 @@ export function useFilters(
       router.replace({ query: currentQuery });
     }
   }
+
+  const gqlFilter = computed<IGraphQLFilter>(() =>
+    buildGraphQLFilter(
+      filterStates.value,
+      columns.value,
+      searchValue.value,
+      columnTypeMap.value
+    )
+  );
+
+  const activeFilters = computed<ActiveFilter[]>(() => {
+    const result: ActiveFilter[] = [];
+    for (const [columnId, filterValue] of filterStates.value) {
+      const column = resolveColumn(columnId);
+      const label = column?.label || column?.id || columnId;
+      if (!column) {
+        const { displayValue, values } = formatFilterValue(filterValue, {});
+        if (displayValue)
+          result.push({ columnId, label, displayValue, values });
+        continue;
+      }
+      const counted = counts.baseCounts.value.get(columnId) ?? null;
+      const optionLabels = buildLabelMap(column, counted);
+      const { displayValue, values } = formatFilterValue(
+        filterValue,
+        optionLabels
+      );
+      if (displayValue) {
+        result.push({ columnId, label, displayValue, values });
+      }
+    }
+    return result;
+  });
 
   const collapsed = ref(new Set<string>());
 
@@ -335,8 +377,6 @@ export function useFilters(
   } else {
     applyDefaultCollapse();
   }
-
-  const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
 
   function registerNestedColumn(id: string, meta: NestedColumnMeta) {
     const next = new Map(nestedColumnMeta.value);
@@ -422,225 +462,24 @@ export function useFilters(
     }
   });
 
-  const countsMap = shallowRef<Map<string, CountedOption[]>>(new Map());
-  const loadingSet = shallowRef<Set<string>>(new Set());
-  const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());
-  const saturatedMap = shallowRef<Map<string, boolean>>(new Map());
-  const abortControllers = new Map<string, AbortController>();
-
-  function mergeWithBaseCounts(
-    base: CountedOption[],
-    updated: CountedOption[]
-  ): CountedOption[] {
-    const updatedMap = new Map<string, CountedOption>();
-    for (const opt of updated) {
-      updatedMap.set(opt.name, opt);
-    }
-    return base.map((baseOpt) => {
-      const match = updatedMap.get(baseOpt.name);
-      const children =
-        baseOpt.children && baseOpt.children.length > 0
-          ? mergeWithBaseCounts(baseOpt.children, match?.children ?? [])
-          : undefined;
-      return {
-        ...baseOpt,
-        count: match?.count ?? 0,
-        overlap: match?.overlap ?? 0,
-        ...(children !== undefined ? { children } : {}),
-      };
-    });
-  }
-
-  function buildCrossFilter(excludeColumnId: string): IGraphQLFilter {
-    const crossStates = new Map(filterStates.value);
-    crossStates.delete(excludeColumnId);
-    return buildGraphQLFilter(crossStates, columns.value, searchValue.value);
-  }
-
-  function resolveColumn(columnId: string): IColumn | null {
-    const direct = columns.value.find((c) => c.id === columnId);
-    if (direct) return direct;
-    const nested = nestedColumnMeta.value.get(columnId);
-    if (!nested) return null;
-    return {
-      id: columnId,
-      columnType: nested.columnType,
-      label: nested.label,
-      refTableId: nested.refTableId ?? undefined,
-      refSchemaId: nested.refSchemaId ?? undefined,
-      refLabel: nested.refLabel ?? undefined,
-    } as IColumn;
-  }
-
-  async function fetchColumnCounts(columnId: string, useBase = false) {
-    const col = resolveColumn(columnId);
-    const columnType = col?.columnType ?? null;
-    if (!columnType || !isCountableType(columnType)) return;
-
-    const prior = abortControllers.get(columnId);
-    if (prior) prior.abort();
-    const controller = new AbortController();
-    abortControllers.set(columnId, controller);
-
-    const newLoading = new Set(loadingSet.value);
-    newLoading.add(columnId);
-    loadingSet.value = newLoading;
-
-    try {
-      const crossFilter = useBase ? {} : buildCrossFilter(columnId);
-      const refTableId = col?.refTableId ?? null;
-      const refSchemaId = col?.refSchemaId ?? null;
-      const refLabel = col?.refLabel ?? col?.refLabelDefault ?? null;
-      const signalledFetcher = (
-        sId: string,
-        query: string,
-        variables: any
-      ): Promise<any> =>
-        fetchGraphql(sId, query, variables, { signal: controller.signal });
-
-      const facetHasSelection = !useBase && filterStates.value.has(columnId);
-      const crossFilterIncludeAll = facetHasSelection
-        ? buildGraphQLFilter(
-            filterStates.value,
-            columns.value,
-            searchValue.value,
-            columnTypeMap.value
-          )
-        : undefined;
-
-      const result: FetchCountsResult = await fetchCounts(
-        schemaId,
-        tableId,
-        columnId,
-        columnType,
-        crossFilter,
-        signalledFetcher,
-        refTableId,
-        refSchemaId,
-        refLabel,
-        crossFilterIncludeAll
-      );
-
-      const { options: results, saturated } = result;
-
-      const newSaturated = new Map(saturatedMap.value);
-      newSaturated.set(columnId, saturated);
-      saturatedMap.value = newSaturated;
-
-      let merged = results;
-      if (!useBase) {
-        const base = baseCounts.value.get(columnId);
-        if (base && base.length > 0) {
-          merged = mergeWithBaseCounts(base, results);
-        }
-      }
-
-      const newCounts = new Map(countsMap.value);
-      newCounts.set(columnId, merged);
-      countsMap.value = newCounts;
-
-      if (useBase) {
-        const newBase = new Map(baseCounts.value);
-        newBase.set(columnId, results);
-        baseCounts.value = newBase;
-      }
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
-        console.error(`fetchColumnCounts failed for ${columnId}:`, err);
-      }
-    } finally {
-      const newLoading = new Set(loadingSet.value);
-      newLoading.delete(columnId);
-      loadingSet.value = newLoading;
-      if (abortControllers.get(columnId) === controller) {
-        abortControllers.delete(columnId);
-      }
-    }
-  }
-
-  function pruneVisibleByBaseCount() {
+  watch(defaultFilterIds, (newDefaults) => {
     if (userHasCustomized.value) return;
-    visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
-      const colType = resolveColumn(id)?.columnType ?? null;
-      if (!colType || !isCountableType(colType)) return true;
-      const base = baseCounts.value.get(id);
-      if (!base) return true;
-      const totalCount = base.reduce(
-        (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
-        0
-      );
-      return totalCount > 0;
-    });
-  }
-
-  async function fetchAllBaseCounts() {
-    const countableIds = visibleFilterIds.value.filter((id) => {
-      const colType = resolveColumn(id)?.columnType ?? null;
-      return colType && isCountableType(colType);
-    });
-
-    await Promise.all(countableIds.map((id) => fetchColumnCounts(id, true)));
-
-    pruneVisibleByBaseCount();
-  }
-
-  const debouncedRefetchCounts = useDebounceFn(async () => {
-    const countableIds = visibleFilterIds.value.filter((id) => {
-      const colType = resolveColumn(id)?.columnType ?? null;
-      return colType && isCountableType(colType);
-    });
-    await Promise.all(countableIds.map((id) => fetchColumnCounts(id, false)));
-  }, debounceMs);
-
-  watch(
-    columns,
-    async (cols) => {
-      if (cols.length > 0 && baseCounts.value.size === 0) {
-        await fetchAllBaseCounts();
-      }
-    },
-    { immediate: true }
-  );
-
-  watch(filterStates, () => {
-    if (baseCounts.value.size > 0) {
-      debouncedRefetchCounts();
-    }
+    visibleFilterIds.value = [...newDefaults];
   });
 
-  watch(searchValue, () => {
-    if (baseCounts.value.size > 0) {
-      debouncedRefetchCounts();
+  watch(visibleFilterIds, async (newIds) => {
+    if (!userHasCustomized.value) return;
+    const isDefault = arraysEqual(newIds, defaultFilterIds.value);
+    await nextTick();
+    if (!urlSyncEnabled) return;
+    const currentQuery = { ...getCurrentQuery() };
+    if (isDefault || newIds.length === 0) {
+      delete currentQuery[MG_FILTERS_PARAM];
+    } else {
+      currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
     }
+    router.replace({ query: currentQuery });
   });
-
-  watch(nestedColumnMeta, async (meta) => {
-    const newCountable: string[] = [];
-    for (const [id, m] of meta) {
-      if (
-        isCountableType(m.columnType) &&
-        !baseCounts.value.has(id) &&
-        visibleFilterIds.value.includes(id)
-      ) {
-        newCountable.push(id);
-      }
-    }
-    if (newCountable.length > 0) {
-      await Promise.all(newCountable.map((id) => fetchColumnCounts(id, true)));
-    }
-  });
-
-  function getCountedOptions(columnId: string): ComputedRef<CountedOption[]> {
-    return computed(() => countsMap.value.get(columnId) ?? []);
-  }
-
-  function isCountLoading(columnId: string): ComputedRef<boolean> {
-    return computed(() => loadingSet.value.has(columnId));
-  }
-
-  function isSaturated(columnId: string): ComputedRef<boolean> {
-    return computed(() => saturatedMap.value.get(columnId) === true);
-  }
 
   return {
     filterStates,
@@ -655,9 +494,9 @@ export function useFilters(
     visibleFilterIds,
     toggleFilter,
     resetFilters,
-    getCountedOptions,
-    isCountLoading,
-    isSaturated,
+    getCountedOptions: counts.getCountedOptions,
+    isCountLoading: counts.isCountLoading,
+    isSaturated: counts.isSaturated,
     nestedColumnMeta,
     registerNestedColumn,
     schemaId,

@@ -3,7 +3,7 @@ import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
 import { setNestedValue } from "./buildFilter";
-import { BOOL_LABELS } from "./filterConstants";
+import { BOOL_LABELS } from "./filterTypes";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
@@ -244,7 +244,7 @@ async function fetchOntologyWithAncestors(
     overlapResult?.terms ?? new Map<string, OntologyTermNode>();
   const overlapSaturated = overlapResult?.saturated ?? false;
 
-  const allTerms = await resolveOntologyAncestorChain(
+  const allTerms = await fetchOntologyAncestorsForLeaves(
     terms,
     refTableId,
     refSchemaId ?? schemaId,
@@ -276,7 +276,7 @@ async function fetchOntologyWithAncestors(
         : Promise.resolve(),
     ]);
   } else {
-    rollupOntologyParentCountsFromChildren(tree);
+    rollupParentCountsForSingleSelectOntology(tree);
   }
 
   return { options: tree, saturated: soloSaturated || overlapSaturated };
@@ -329,7 +329,8 @@ async function groupByOntologyTerms(
   return { terms: knownTerms, saturated };
 }
 
-async function resolveOntologyAncestorChain(
+// Loads parent terms so users can drill up from leaf hits even if no parent term appears in the data.
+async function fetchOntologyAncestorsForLeaves(
   directTerms: Map<string, OntologyTermNode>,
   refTableId: string | null,
   refSchemaId: string,
@@ -366,10 +367,13 @@ async function resolveOntologyAncestorChain(
   }
 }
 
-function rollupOntologyParentCountsFromChildren(nodes: CountedOption[]): void {
+// ONTOLOGY single-select shows parent counts client-side; ONTOLOGY_ARRAY gets them via group-by parents on the server.
+function rollupParentCountsForSingleSelectOntology(
+  nodes: CountedOption[]
+): void {
   for (const node of nodes) {
     if (node.children && node.children.length > 0) {
-      rollupOntologyParentCountsFromChildren(node.children);
+      rollupParentCountsForSingleSelectOntology(node.children);
       if (node.count === 0) {
         node.count = node.children.reduce((sum, child) => sum + child.count, 0);
       }

@@ -101,6 +101,36 @@ function toggleExpand(node: PickerNode) {
   expandedRefs.value = newExpanded;
 }
 
+function buildRefPickerNode(
+  col: IColumn,
+  path: string,
+  depth: number
+): PickerNode {
+  return {
+    id: path,
+    label: col.label || col.id,
+    description: col.description,
+    selectable: false,
+    depth,
+    column: col,
+  };
+}
+
+function buildLeafPickerNode(
+  col: IColumn,
+  path: string,
+  depth: number
+): PickerNode {
+  return {
+    id: path,
+    label: col.label || col.id,
+    description: col.description,
+    selectable: true,
+    depth,
+    column: col,
+  };
+}
+
 function buildNodes(
   cols: IColumn[],
   parentTableId: string,
@@ -119,15 +149,7 @@ function buildNodes(
         const maxDepth = navDepth(col.columnType);
         if (depth >= maxDepth) return [];
 
-        const refNode: PickerNode = {
-          id: path,
-          label: col.label || col.id,
-          description: col.description,
-          selectable: false,
-          depth,
-          column: col,
-        };
-
+        const refNode = buildRefPickerNode(col, path, depth);
         const childNodes = expandedRefs.value.has(path)
           ? buildNodes(
               refColumnsCache.value.get(path) ?? [],
@@ -140,16 +162,7 @@ function buildNodes(
         return [refNode, ...childNodes];
       }
 
-      return [
-        {
-          id: path,
-          label: col.label || col.id,
-          description: col.description,
-          selectable: true,
-          depth,
-          column: col,
-        } satisfies PickerNode,
-      ];
+      return [buildLeafPickerNode(col, path, depth)];
     });
 }
 
@@ -159,26 +172,32 @@ const allNodes = computed<PickerNode[]>(() => {
   return buildNodes(props.columns, parentTableId.value, "", 0);
 });
 
-const isMgCol = (id: string) => id.startsWith("mg_");
+function matchesSearchQuery(node: PickerNode, query: string): boolean {
+  return (
+    node.label.toLowerCase().includes(query) ||
+    (node.description ?? "").toLowerCase().includes(query)
+  );
+}
+
+function isInExpandedParent(node: PickerNode): boolean {
+  const parentPath = node.id.substring(0, node.id.lastIndexOf("."));
+  return Boolean(parentPath && expandedRefs.value.has(parentPath));
+}
 
 const displayedNodes = computed<PickerNode[]>(() => {
   const query = searchQuery.value.trim().toLowerCase();
-  const expandedSet = expandedRefs.value;
   if (query) {
-    const matchingIds = new Set<string>();
-    for (const node of allNodes.value) {
-      const labelMatch = node.label.toLowerCase().includes(query);
-      const descMatch = (node.description ?? "").toLowerCase().includes(query);
-      if (labelMatch || descMatch) matchingIds.add(node.id);
-    }
-    return allNodes.value.filter((node) => {
-      if (matchingIds.has(node.id)) return true;
-      const parentPath = node.id.substring(0, node.id.lastIndexOf("."));
-      return parentPath && expandedSet.has(parentPath);
-    });
+    const matchingIds = new Set(
+      allNodes.value
+        .filter((node) => matchesSearchQuery(node, query))
+        .map((node) => node.id)
+    );
+    return allNodes.value.filter(
+      (node) => matchingIds.has(node.id) || isInExpandedParent(node)
+    );
   }
   return allNodes.value.filter(
-    (node) => !isMgCol(node.id.split(".")[0] ?? node.id)
+    (node) => !node.id.split(".")[0]!.startsWith("mg_")
   );
 });
 
@@ -192,6 +211,29 @@ function toggleSelection(id: string) {
   localSelection.value = next;
 }
 
+function selectAll() {
+  const selectableIds = allNodes.value
+    .filter((node) => node.selectable)
+    .map((node) => node.id);
+  localSelection.value = new Set(selectableIds);
+}
+
+function clearSelection() {
+  localSelection.value = new Set();
+}
+
+function buildNestedLabelForId(
+  id: string,
+  nodeById: Map<string, PickerNode>
+): string {
+  const segments = id.split(".");
+  const labelParts = segments.map((_, idx) => {
+    const pathUpTo = segments.slice(0, idx + 1).join(".");
+    return nodeById.get(pathUpTo)?.label ?? segments[idx]!;
+  });
+  return labelParts.join(" → ");
+}
+
 function buildNestedMeta(): Map<string, NestedColumnMeta> {
   const nodeById = new Map(allNodes.value.map((node) => [node.id, node]));
   const nestedIds = [...localSelection.value].filter((id) => id.includes("."));
@@ -199,15 +241,10 @@ function buildNestedMeta(): Map<string, NestedColumnMeta> {
     .map((id) => {
       const node = nodeById.get(id);
       if (!node) return null;
-      const segments = id.split(".");
-      const labelParts = segments.map((_, idx) => {
-        const pathUpTo = segments.slice(0, idx + 1).join(".");
-        return nodeById.get(pathUpTo)?.label ?? segments[idx]!;
-      });
       const entry: [string, NestedColumnMeta] = [
         id,
         {
-          label: labelParts.join(" → "),
+          label: buildNestedLabelForId(id, nodeById),
           columnType: node.column.columnType,
           refTableId: node.column.refTableId,
           refSchemaId: node.column.refSchemaId ?? null,
@@ -235,19 +272,8 @@ function resetToDefaults() {
   emit("update:modelValue", false);
 }
 
-function clearSelection() {
-  localSelection.value = new Set();
-}
-
 function updateVisibility(value: boolean) {
   emit("update:modelValue", value);
-}
-
-function selectAll() {
-  const selectableIds = allNodes.value
-    .filter((node) => node.selectable)
-    .map((node) => node.id);
-  localSelection.value = new Set(selectableIds);
 }
 </script>
 
