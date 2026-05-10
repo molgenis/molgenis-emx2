@@ -8,6 +8,80 @@
 > replace it. RLS adds row-level filtering on top of master's GRANTs
 > for tables that explicitly enable it.
 
+## Status snapshot (2026-05-10)
+
+Use this section as the navigation map. Detailed status per phase
+lives further down in their original sections — do not duplicate
+content here. Update this snapshot whenever a phase closes or moves
+between buckets.
+
+### Done — locked
+
+All implementation slices closed; locked behaviors captured in
+`.plan/specs/rls_v4.md`.
+
+- **Phase A** — branch reset + master test parity
+- **Phase B / C (slice 1)** — per-table RLS flag, scope storage, access functions
+- **Phase D** — privacy projections (EXISTS/COUNT/RANGE/AGGREGATE)
+- **Phase E** — GraphQL surface (incl. surface audit)
+- **Phase F.1/F.2/F.3** — cross-schema FK + inheritance acceptance
+- **Phase G** — perf, audit, docs (pre-Phase-R baseline)
+- **Phase H** — optimization options
+- **Phase L** — layering cleanup (L.7 reverted by design; Phase R replaces it)
+- **Phase R** — explicit REFERENCE permission (R.1 → R.7 + 4 fix-slices)
+- L.7 retired pre-ship — see Phase R retirement note
+
+### Pending — pre-review polish (P0, complete before colleague review)
+
+7-agent cross-cutting review + triage complete (2026-05-10). Full
+findings in `.plan/plans/rls_v4_review_findings_2026-05-10.md`.
+Owner triage closed; J-pre slices below are the work.
+
+**J-pre.1 Security & auth fixes** — DELETE-trigger guard,
+`changePassword` auth gap, ontology marker auth, INSERT mg_groups
+membership check, `mg_can_write_all` empty-array bypass.
+
+**J-pre.2 Delete unused `copyIn`** — orphan method + its only test
+(`SqlTable.copyIn`, `TestCopy.java`).
+
+**J-pre.3 Correctness & contract fixes** — composite-PK FK guard,
+`hasReferencePermission` parity with `canReference`, `mergePermissions`
+OWN/GROUP collapse, migration32 DO-block constraint swallow,
+`MolgenisGroupInput` round-trip, dedup `getPermissions`,
+`createRole(description)` wiring.
+
+**J-pre.4 Docs corrections** — `OWN_OR_GROUP` removal, REFERENCE in
+`use_customroles.md`, `email` vs `user` consistency, `mg_groups`
+data-entry example.
+
+**J-pre.6 Coverage gaps & dead code** — `TestMgCanReference`
+SELECT_GROUP cases, `initSystemSchema` dead branch.
+
+(Test consolidation, perf indexes, polish — deferred to J-post.)
+
+### Deferred — post-review phases (P1)
+
+Useful but not required for first colleague review pass. Land after
+external feedback shapes priorities.
+
+- **Phase I** — UI integration (DRAFT)
+- **Phase K** — RBAC import/export + bulk apply (DRAFT)
+- **Phase M** — explicit RLS disable API (DRAFT)
+
+### Backlog (P2, design-stage or low-impact)
+
+- **L.10 – L.18** — test hygiene, design questions, cache stale-read,
+  enhancement ideas (see Open items section)
+- **L.15** — schema-metadata visibility for FK resolution by users
+  without refSchema membership
+- **L.16** — consolidate column-gating call sites (Variant B from R.4)
+- **L.18** — per-table-type `_meta.permissions` with full scope enums
+  (richer than current `_session.tablePermissions` booleans)
+- **L.21** — frontend UI for explicit REFERENCE-only grants
+- Lock-visible escape hatch (show row, disallow edit) — needs UX
+
+---
+
 ## Status (2026-05-07)
 
 - Phase 7 collapsed master's per-role per-verb `GRANT` machinery into a
@@ -901,7 +975,7 @@ Test scaffold (rebuilt fresh in R.3b — original F.1 test file was deleted at P
 - `refbackEmptyForInvisibleParent` — refback path stable
 - `referenceAllOnRefTable_keepsChildRowVisible` — REFERENCE_ALL keeps row visible despite VIEW_NONE
 
-### Phase I — UI integration (DRAFT 2026-05-08)
+### Phase I — UI integration (DRAFT 2026-05-08; **deferred post-review** per Status snapshot)
 
 Backend RLS is feature-complete; UI surfaces lag. Five slices, ordered
 small→large. **Backend is presumed already wired via GraphQL**
@@ -1017,7 +1091,12 @@ RLS flag.
 **Decision plan**: confirm terminology + open questions → open I.1
 (smallest, clearest backend-touching slice) → close → re-evaluate.
 
-### Phase J — code-review cleanup wave (DRAFT 2026-05-08)
+### Phase J — code-review cleanup wave (DRAFT 2026-05-08; triage in flight 2026-05-10)
+
+> **Triage pending** (see Status snapshot at top of file). Phase J needs
+> to be split into J-pre (must complete before colleague review) and
+> J-post (hygiene that can wait). 6-angle review findings + test
+> consolidation findings (running 2026-05-10) drive the split.
 
 User code-review feedback on Phase H deliverables. Skill
 `backend-test-purity` captures the test rules going forward. This phase
@@ -1546,7 +1625,7 @@ that has since been superseded and reverted (see L.7 entry below).
    a parallel-batch failure would cost more than the sequential
    tax). *(L.7 was subsequently reverted pre-ship; the order is preserved here for archaeological context.)*
 
-### Phase M — explicit RLS disable API (DRAFT 2026-05-09)
+### Phase M — explicit RLS disable API (DRAFT 2026-05-09; **deferred post-review** per Status snapshot)
 
 **Why this phase exists**
 
@@ -1603,7 +1682,7 @@ authoring path is closed before the deliberate path opens).
   empty-table disable; full data export needed for populated
   case).
 
-### Phase K — RBAC import/export + bulk apply (DRAFT 2026-05-09)
+### Phase K — RBAC import/export + bulk apply (DRAFT 2026-05-09; **deferred post-review** per Status snapshot)
 
 **Why this phase exists**
 
