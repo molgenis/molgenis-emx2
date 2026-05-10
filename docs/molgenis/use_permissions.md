@@ -433,6 +433,60 @@ RESET ROLE;
 Note: this raw count is not subject to the `mg_privacy_count` floor — see Known limitations below.
 
 
+## REFERENCE scope
+
+### Overview
+
+Each table has two orthogonal permission axes per role:
+
+- **`view(T, scope)`** — governs direct SELECT on T (`query { T { ... } }`). Scope ladder: `NONE | EXISTS | COUNT | RANGE | AGGREGATE | OWN | GROUP | ALL`.
+- **`reference(T)`** — governs FK traversal into T from other tables (`query { Child { fkToT { pk, label } } }`). Enum: `REFERENCE_NONE | REFERENCE_OWN | REFERENCE_GROUP | REFERENCE_ALL`.
+
+The two axes are set independently per `(schema, role, table)` in `role_permission_metadata`.
+
+**v1 runtime**: only `REFERENCE_NONE` and `REFERENCE_ALL` are evaluated at runtime. `REFERENCE_OWN` and `REFERENCE_GROUP` are present in metadata and import/export so future phases can wire them without a schema migration — but they currently behave like `REFERENCE_NONE`.
+
+### VIEW ⊇ REFERENCE (implicit carry)
+
+Any non-`NONE` view scope implies the same coverage as `REFERENCE_ALL` for that table. A role with `VIEW_ALL` on T can already reference T — no explicit `reference` grant is needed. This is enforced in the `MOLGENIS.mg_can_reference` SQL function via UNION-ALL semantics (the select-scope branch and the reference-scope branch are OR-combined).
+
+### REFERENCE-only use case
+
+Grant `REFERENCE_ALL` with `VIEW_NONE` to expose a "lookup table" where users can resolve FK labels without directly querying the table. The table is absent from the top-level `Query` and `Mutation` types; it appears only as a thin type (primary key fields only) reachable via FK traversal from tables the user can view.
+
+### Permission combination matrix
+
+| Combination | Direct query of T | FK on Child pointing to T |
+|---|---|---|
+| `VIEW_NONE + REFERENCE_ALL` | nothing returned | all Child rows visible; FK resolves to `{pk, label}` only |
+| `VIEW_OWN + REFERENCE_NONE` | own rows, full fields | only Child rows pointing to own targets visible |
+| `VIEW_GROUP + REFERENCE_ALL` | group rows, full fields | all Child rows visible; FK resolves to `{pk, label}` only |
+| `VIEW_ALL` | all rows, full fields | all Child rows visible; FK fully resolvable |
+
+### Child-row visibility rule
+
+A row in Child is hidden if any of its FK targets fall outside (effective view-scope ∪ effective reference-scope) on the refTable.
+
+- **Single FK** (`ref` / `radio` / `select`): row hidden if the target is invisible.
+- **REF_ARRAY** (`ref_array` / `checkbox` / `multiselect`): ALL elements must be in scope. If any element falls outside, the entire Child row is hidden. No partial-visibility arrays.
+- **NULL FK**: treated as always in-scope (the row is kept).
+
+The check is applied in the query layer via `MOLGENIS.mg_can_reference` (same function called from the SELECT policy path). No policy regeneration is needed when FK metadata changes.
+
+### Write-time guard
+
+At INSERT and UPDATE, the server verifies that every FK target referenced by the new or updated row is within the writing user's (effective view ∪ effective reference) scope on the refTable. A violation throws a `MolgenisException` naming the violating primary key. This is defense-in-depth against permission-change races between read and write.
+
+DELETE has no such check: deleting a row introduces no new FK references.
+
+### Privacy modes do not grant REFERENCE
+
+Scopes `EXISTS | COUNT | RANGE | AGGREGATE` allow privacy-preserving aggregates over T but do NOT allow FK dereferencing. A user with `select=COUNT` and `reference=NONE` cannot follow FKs into T — the `MOLGENIS.mg_can_reference` function explicitly excludes privacy-mode scopes from the reference-grant branch. The `MOLGENIS.mg_can_view` function (used by the SELECT policy) does include them; the two functions diverge intentionally.
+
+### Upgrading from pre-Phase-R deployments
+
+No action required. The `reference_scope` column defaults to `NONE` and the VIEW ⊇ REFERENCE carry is automatic. Existing role definitions continue to work exactly as before.
+
 ## Known limitations
 
 The following are explicitly out of scope for RLS v4:

@@ -134,6 +134,82 @@
 | Inheritance composition: subclass rows owned by another user not visible through Parent query | mg_can_read + per-table policy | TestCrossSchemaFkRlsVisibility.inheritanceCompositionFiltersChildSubclass | — |
 | `retrieveRows()` clamps FK scalar to null for invisible RLS-target via LEFT JOIN | SqlQuery.buildRlsClampAliases + addRlsClampJoins | TestCrossSchemaFkRlsVisibility.scalarRefProjectsNullForInvisibleParent | — |
 
+## REFERENCE permission — model and persistence
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| `PermissionSet.ReferenceScope` enum (NONE/OWN/GROUP/ALL) with `fromString` | PermissionSet | TestSqlRoleManager.referenceScope_roundTrip_all / referenceScope_roundTrip_ownGroupNone | — |
+| `TablePermission.reference()` defaults to NONE; fluent setter rejects null | TablePermission | TestSqlRoleManager.fluentSetter_nullArg_throwsNPE | — |
+| `role_permission_metadata.reference_scope TEXT NOT NULL DEFAULT 'NONE'` persisted | MetadataUtils / migration32.sql | TestSqlRoleManager.referenceScope_roundTrip_all | — |
+| `setPermissions` round-trips REFERENCE | SqlRoleManager.setPermissions | TestSqlRoleManager.referenceScope_roundTrip_all | — |
+| Additive `grant` merge preserves REFERENCE | SqlRoleManager.mergeWithExisting | TestSqlRoleManager.referenceOnlyPermission_survivesAggregationPath | — |
+| `getPermissionsForActiveUser` aggregates REFERENCE across roles | SqlRoleManager.hasAnyPermission + mergePermissions | TestSqlRoleManager.referenceOnlyPermission_survivesAggregationPath | — |
+| Wildcard role expansion propagates REFERENCE | SqlRoleManager.expandWildcard | TestSqlRoleManager.referenceOnlyWildcard_survivesExpandWildcard | — |
+| GraphQL `change(roles:…)` accepts `reference` scope | GraphqlPermissionFieldFactory | TestGraphqlSchemaRoles.changeRoles_customRole_includesReferenceScope | role editor |
+
+## REFERENCE permission — SQL predicate (`mg_can_reference`)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| Returns true for REFERENCE_ALL | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeAll | — |
+| Returns true for REFERENCE_OWN on owner-matching row | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeOwnMatches | — |
+| Returns true for REFERENCE_GROUP on group-matching row | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeGroupMatches | — |
+| Returns true for system roles (Owner/Manager/Editor/Viewer) | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_forSystemRole | — |
+| VIEW ⊇ REFERENCE implicit carry: row-access scope grants reference even with REFERENCE_NONE | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenSelectScopeAllButReferenceNone | — |
+| Privacy modes (EXISTS/COUNT/RANGE/AGGREGATE) do NOT grant reference | mg_can_reference | TestMgCanReference.mgCanReference_returnsFalse_whenPrivacyScopeOnly | — |
+| Optional `p_user TEXT DEFAULT current_user` argument honored for delegated checks | mg_can_reference | TestMgCanReference.mgCanReference_withExplicitUser_honorsPassedUser | — |
+
+## Read-path FK visibility (R.3b/c)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| Single-valued FK: Child row hidden when FK target outside (view ∪ reference) scope on refTable | SqlQuery.fkRlsVisibilityConditions | TestCrossSchemaFkRlsVisibility.scalarRef_hidesChildRow_whenFkTargetInvisible | — |
+| REF_ARRAY: Child row hidden if ANY element outside scope (all-or-nothing) | SqlQuery.refArrayRlsVisibilityCondition | TestCrossSchemaFkRlsVisibility.refArray_hidesChildRow_whenAnyElementInvisible | — |
+| REF_ARRAY empty array passes (no elements to check) | SqlQuery.refArrayRlsVisibilityCondition | TestCrossSchemaFkRlsVisibility.refArray_emptyArray_keepsChildRow | — |
+| REFERENCE_ALL on refTable keeps Child row visible even without VIEW | SqlQuery.fkRlsVisibilityConditions | TestCrossSchemaFkRlsVisibility.referenceAllOnRefTable_keepsChildRowVisible / refArray_referenceAllOnRefTable_keepsRow | — |
+| User with zero refSchema membership: `Column.getRefTable()` throws (pre-existing) | Column.getRefTable | TestCrossSchemaFkRlsVisibility.crossSchema_throwsForUserWithNoMembershipInRefSchema | — |
+
+## GraphQL schema reduction (R.4)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| `hasReferencePermission(table)` plumbing populated from `getPermissionsForActiveUser` | GraphqlTableFieldFactory | TestGraphqlTableFieldFactoryReferencePermission | — |
+| REFERENCE-only refTable in nested FK emits thin type (PK fields only) | GraphqlTableFieldFactory.createReferenceOnlyType | TestGraphqlReferenceOnlySchema.referenceOnlyTable_emitsThinTypeOnFkTraversal | — |
+| Full type emitted when refTable has VIEW | GraphqlTableFieldFactory.createTableObjectType | TestGraphqlReferenceOnlySchema | — |
+| FK field omitted when refTable has neither VIEW nor REFERENCE (ontology exception preserved) | GraphqlTableFieldFactory | TestGraphqlReferenceOnlySchema | — |
+| REFERENCE-only table absent from top-level Query (no `query { T { … } }`) | GraphqlFactory.forSchema | TestGraphqlReferenceOnlyTopLevelSuppression.referenceOnlyTable_absentFromTopLevelQuery | — |
+| REFERENCE-only table absent from top-level Mutation (insert/update/upsert/delete) | GraphqlTableFieldFactory.getMutationDefinition / deleteMutation | TestGraphqlReferenceOnlyTopLevelSuppression.referenceOnlyTable_absentFromTopLevelMutation | — |
+| Aggregate/groupBy fields VIEW-gated (not REFERENCE) | GraphqlFactory.forSchema | TestGraphqlReferenceOnlyTopLevelSuppression | — |
+| Cross-schema FK target: thin/full type decided by refSchema's permissions, not factory schema's | GraphqlTableFieldFactory.permissionsFor | TestGraphqlCrossSchemaReferencePermission.thinType_emittedFromCrossSchemaReferenceOnly / fullType_emittedFromCrossSchemaView | — |
+| Cross-schema FK target absent when user has no perms in refSchema | GraphqlTableFieldFactory | TestGraphqlCrossSchemaReferencePermission.field_omitted_whenNoPermissionInRefSchema | — |
+| Cross-schema FK thin type name pattern `<refSchemaIdentifier>_<refTableIdentifier>` (no collision with same-named table in factory schema) | GraphqlTableFieldFactory.createReferenceOnlyType | TestGraphqlCrossSchemaReferencePermission | — |
+| `createRole` / `createGroup` / `deleteGroup` fire `database.getListener().onSchemaChange()` for cache invalidation | SqlRoleManager | TestSqlRoleManager.createRole_firesListener / createGroup_firesListener / deleteGroup_firesListener | — |
+
+## Session permissions surface (R.4e)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| `_session.tablePermissions[].canReference` boolean exposed | GraphqlSessionFieldFactory | TestGraphqlSession.sessionPermissions_canReference_reflectsScope | — |
+| `canReference = select.allowsRowAccess() || reference != NONE` — privacy modes return false | GraphqlSessionFieldFactory.buildTablePermissions | TestGraphqlSession.sessionPermissions_privacyScopeCount_doesNotGrantCanReference | — |
+| Ontology tables always appear in `tablePermissions` with `canView=true, canReference=true` regardless of explicit role grants | GraphqlSessionFieldFactory.buildTablePermissions | TestGraphqlSession.sessionPermissions_ontologyTable_alwaysVisibleWithCanReference | — |
+
+## Write-time FK visibility guard (R.5)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| INSERT throws `MolgenisException` fail-fast when FK target outside (view ∪ reference) scope | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.insert_throws_whenFkTargetOutsideReferenceScope | — |
+| INSERT succeeds with REFERENCE_ALL on refTable | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.insert_succeeds_whenFkTargetWithinReferenceScope | — |
+| INSERT succeeds with VIEW_ALL alone (implicit carry) | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.insert_succeeds_whenViewScopeOnRefTable | — |
+| UPDATE changing FK to invisible target throws | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.update_throws_whenChangingFkToInvisibleTarget | — |
+| UPDATE not touching FK column skips check (validates only changed FK columns) | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.update_skipsCheck_whenFkColumnNotChanged | — |
+| REF_ARRAY: any element outside scope throws | SqlTable.checkRefArrayColumnVisibility | TestFkRlsWriteGuard.refArray_throws_whenAnyElementInvisible | — |
+| REF_ARRAY: all elements visible succeeds | SqlTable.checkRefArrayColumnVisibility | TestFkRlsWriteGuard.refArray_succeeds_whenAllElementsVisible | — |
+| Cross-schema FK target validated against refSchema's permissions | SqlTable.assertAllReferencedKeysVisible | TestFkRlsWriteGuard.crossSchema_throws_whenFkTargetOutsideReferenceScope | — |
+| Admin bypasses write-time check | SqlTable.checkFkRlsWriteVisibility | TestFkRlsWriteGuard.admin_bypassesCheck | — |
+| Non-RLS refTable: no guard fires (write succeeds without REFERENCE permission) | SqlTable.checkRefColumnVisibility | TestFkRlsWriteGuard.rlsDisabledRefTable_noCheck | — |
+| `mg_change_owner=true` alone (no REFERENCE / no VIEW row-access) does NOT grant FK target visibility for writes | SqlTable.assertAllReferencedKeysVisible | TestFkRlsWriteGuard.insert_throws_whenChangeOwnerTrueButNoReferenceOrViewScope | — |
+| DELETE has no FK visibility check (no new FK refs introduced) | SqlTable.executeBatch | — (negative — not exercised) | — |
+
 ## Open requirements (to-do, become rows above as implemented)
 
 - REQ-B: Performance benchmark < 2× non-RLS baseline at 1M / 5 / 100 / 10k.
