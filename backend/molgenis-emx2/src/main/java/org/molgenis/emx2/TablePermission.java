@@ -8,6 +8,7 @@ public class TablePermission {
   private PermissionSet.UpdateScope insert;
   private PermissionSet.UpdateScope update;
   private PermissionSet.UpdateScope delete;
+  private PermissionSet.ReferenceScope reference;
 
   public TablePermission(String table) {
     this.table = table;
@@ -53,6 +54,11 @@ public class TablePermission {
     return this;
   }
 
+  public TablePermission reference(PermissionSet.ReferenceScope reference) {
+    this.reference = reference;
+    return this;
+  }
+
   public PermissionSet.SelectScope getSelect() {
     return select;
   }
@@ -67,6 +73,10 @@ public class TablePermission {
 
   public PermissionSet.UpdateScope getDelete() {
     return delete;
+  }
+
+  public PermissionSet.ReferenceScope getReference() {
+    return reference;
   }
 
   public TablePermission setSelect(PermissionSet.SelectScope select) {
@@ -89,6 +99,11 @@ public class TablePermission {
     return this;
   }
 
+  public TablePermission setReference(PermissionSet.ReferenceScope reference) {
+    this.reference = reference == null ? PermissionSet.ReferenceScope.NONE : reference;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
@@ -97,11 +112,12 @@ public class TablePermission {
         && select == other.select
         && insert == other.insert
         && update == other.update
-        && delete == other.delete;
+        && delete == other.delete
+        && reference == other.reference;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(table, select, insert, update, delete);
+    return Objects.hash(table, select, insert, update, delete, reference);
   }
 }

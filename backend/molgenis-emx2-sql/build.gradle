@@ -24,11 +24,5 @@ tasks.register('initDatabase', JavaExec) {
     mainClass.set('org.molgenis.emx2.sql.InitDatabase')
     classpath = sourceSets.test.runtimeClasspath
 
-    def outputFile = layout.buildDirectory.file('initDatabase.txt')
-    outputs.file(outputFile)
-    outputs.upToDateWhen { outputFile.get().asFile.exists() }
 
-    doLast {
-        outputFile.get().asFile.text = 'This is the output of the initDatabase task.'
-    }
 }

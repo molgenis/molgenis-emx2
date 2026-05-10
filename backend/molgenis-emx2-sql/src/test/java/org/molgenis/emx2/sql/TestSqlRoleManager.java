@@ -330,7 +330,7 @@ class TestSqlRoleManager {
   @Test
   void revoke_deletesRpmRow() {
     roleManager.createRole(SCHEMA_ENF, "revoke-test-role");
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.ALL);
     roleManager.grant(SCHEMA_ENF, "revoke-test-role", tp);
 
@@ -366,7 +366,7 @@ class TestSqlRoleManager {
   @Test
   void absentRpmRowMeansNoRowVisible() {
     roleManager.createRole(SCHEMA_ENF, "absent-rpm-role");
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     db.becomeAdmin();
     schemaEnf
@@ -530,7 +530,7 @@ class TestSqlRoleManager {
   @Test
   void grant_scopeOnly_doesNotClobberChangeOwnerOrDescription() {
     roleManager.createRole(SCHEMA_ENF, "clobber-guard");
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet initial = new PermissionSet();
     initial.setChangeOwner(true);
@@ -559,6 +559,55 @@ class TestSqlRoleManager {
         "sentinel", after.getDescription(), "scope-only grant must not clobber description");
   }
 
+  // ── ReferenceScope round-trip ─────────────────────────────────────────────
+
+  @Test
+  void referenceScope_roundTrip_all() {
+    roleManager.createRole(SCHEMA_ENF, "ref-scope-all");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.setSelect(SelectScope.ALL);
+    tp.setReference(PermissionSet.ReferenceScope.ALL);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-scope-all", ps);
+
+    PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-all");
+    TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
+    assertNotNull(retrievedTp, "table permission must be present after setPermissions");
+    assertEquals(
+        PermissionSet.ReferenceScope.ALL,
+        retrievedTp.getReference(),
+        "reference scope ALL must round-trip");
+  }
+
+  @Test
+  void referenceScope_roundTrip_ownGroupNone() {
+    roleManager.createRole(SCHEMA_ENF, "ref-scope-variants");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    for (PermissionSet.ReferenceScope scope :
+        new PermissionSet.ReferenceScope[] {
+          PermissionSet.ReferenceScope.OWN,
+          PermissionSet.ReferenceScope.GROUP,
+          PermissionSet.ReferenceScope.NONE
+        }) {
+      PermissionSet ps = new PermissionSet();
+      TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+      tp.setSelect(SelectScope.ALL);
+      tp.setReference(scope);
+      ps.putTable(ENFORCEMENT_TABLE, tp);
+      roleManager.setPermissions(schemaEnf, "ref-scope-variants", ps);
+
+      PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-variants");
+      TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
+      assertNotNull(retrievedTp, "table permission must be present for scope " + scope);
+      assertEquals(
+          scope, retrievedTp.getReference(), "reference scope " + scope + " must round-trip");
+    }
+  }
+
   // ── enforcement helpers ───────────────────────────────────────────────────
 
   private void insertGroupTaggedRow(String id, String val, String[] groups) {
@@ -579,7 +628,7 @@ class TestSqlRoleManager {
       UpdateScope updateScope,
       UpdateScope deleteScope) {
     roleManager.createRole(SCHEMA_ENF, roleName);
-    ((SqlTableMetadata) schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata()).setRlsEnabled(true);
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
     tp.setSelect(selectScope);

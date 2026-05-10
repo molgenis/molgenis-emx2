@@ -1444,6 +1444,20 @@ that has since been superseded and reverted (see L.7 entry below).
   - `TestRlsPerformance.overhead_selectAll_rlsVsNoRls`
   - `TestRlsPerformance.overhead_groupScope_vs_allScope`
 
+- **L.13 — Test harness: drop `initDatabase` UpToDate marker**. _Status (2026-05-10): DONE._
+  Removed the `outputs.upToDateWhen` block + marker `doLast` from `initDatabase` in
+  `backend/molgenis-emx2-sql/build.gradle`. Verified: `cleandb` → `test --tests "*TestSqlRoleManager*"`
+  green without manual marker cleanup. The init step is now always run; `Migrations.initOrMigrate`
+  no-ops when stored version equals SOFTWARE_DATABASE_VERSION (Migrations.java:25, MetadataUtils.java:189).
+
+- **L.14 (backlog, non-blocking) — Pre-existing test-order sensitivity in role-grant batch**.
+  `TestGrantRolesToUsers.testRole` and `TestUsersAndPermissions.testActiveUser` fail when run
+  in a wide batch (`*Permission* *Role*`); pass when run in isolation or in narrow pairs. Scout
+  could not reproduce on master with the narrow 2-class form, so failure shape depends on the
+  full class set in the JVM. Pre-existing schema-state coupling, unrelated to Phase R metadata
+  work. Resolve before/after Phase R ships — not blocking R.2/R.3 since those don't touch
+  pre-existence semantics of role grants.
+
 - **L.9 — Skipped**. `Group` and `Role` are already records;
   `Member` is the mutable-class outlier. Owner decision (2026-05-09):
   prefer class over record, no action.
@@ -1695,8 +1709,14 @@ Two orthogonal axes per table, per role:
 
 #### Implementation slices (order suggestive; do not lock sequencing before owner approval)
 
-- **R.1** — Add REFERENCE permission to the perm-set model (Java enum + metadata storage).
+- **R.1** — Add REFERENCE permission to the perm-set model (Java enum + metadata storage). _Status (2026-05-10): DONE._ `PermissionSet.ReferenceScope` (NONE/OWN/GROUP/ALL + `fromString`), `TablePermission.reference` (default NONE, in equals/hashCode), `MetadataUtils.RPM_REFERENCE_SCOPE`, `migration32.sql` extended in place (column added to CREATE TABLE + idempotent ADD COLUMN block; SOFTWARE_DATABASE_VERSION still 33), `SqlRoleManager.setPermissions`/`getPermissionSet`/`loadExistingGrant` round-trip the new column. RED-GREEN tests `referenceScope_roundTrip_all` + `referenceScope_roundTrip_ownGroupNone` in `TestSqlRoleManager`; full class 24/24 green. Sanity sweep flagged 2 failures (`TestGrantRolesToUsers.testRole`, `TestUsersAndPermissions.testActiveUser`) — pass in isolation, pre-existing test-order sensitivity, not R.1-caused. No runtime visibility behavior changes (R.3 wires runtime).
 - **R.2** — Wire REFERENCE into role grants (`SqlRoleManager`, role import/export — depends on Phase K).
+  Includes a scope-defaults refactor decided 2026-05-10: replace the null-as-"unset-preserve" sentinel
+  in `SqlRoleManager.mergeWithExisting` (lines ~197-212) with explicit per-field `wasSet` tracking
+  (or builder-state equivalent). Then default ALL 5 `TablePermission` scope fields (select, insert,
+  update, delete, reference) to their respective `NONE` enum values. Removes the null-vs-NONE dual
+  semantics and lets callers rely on non-null getters. Also wires REFERENCE into the merge logic
+  uniformly with the other scopes.
 - **R.3** — Implement Child-row visibility rule: extend RLS predicates so a Child row is hidden if any FK target falls outside (view ∪ reference) scope on the refTable. Includes REF_ARRAY all-elements-in-scope rule.
 - **R.4** — GraphQL schema generator: per-session schema reflects effective perms (thin types for reference-only, mutations gated on view + write). Resolve server-side vs client-side refLabel projection before starting.
 - **R.5** — (L.7 already reverted pre-ship.) Phase R ships with no read-clamp and no write-back guard from v4. R.5 instead implements the unconditional "all current FK targets visible at ≥REFERENCE scope" check at update/insert/delete time as defense-in-depth only (catches narrow races where perms change between read and write). This reuses the L.7 guard-query shape but fires unconditionally, not gated on null detection.

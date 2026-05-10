@@ -228,6 +228,7 @@ public class SqlRoleManager {
             tp.setInsert(UpdateScope.fromString(row.get(RPM_INSERT_SCOPE)));
             tp.setUpdate(UpdateScope.fromString(row.get(RPM_UPDATE_SCOPE)));
             tp.setDelete(UpdateScope.fromString(row.get(RPM_DELETE_SCOPE)));
+            tp.setReference(PermissionSet.ReferenceScope.fromString(row.get(RPM_REFERENCE_SCOPE)));
             found[0] = tp;
           }
         });
@@ -444,6 +445,12 @@ public class SqlRoleManager {
     return scope == null ? UpdateScope.NONE.name() : scope.name();
   }
 
+  private static String referenceScopeName(TablePermission tp) {
+    return tp.getReference() == null
+        ? PermissionSet.ReferenceScope.NONE.name()
+        : tp.getReference().name();
+  }
+
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
     return new TablePermission(a.table())
         .select(higherSelectScope(a.select(), b.select()))
@@ -570,6 +577,7 @@ public class SqlRoleManager {
                 updateScopeName(tp.getInsert()),
                 updateScopeName(tp.getUpdate()),
                 updateScopeName(tp.getDelete()),
+                referenceScopeName(tp),
                 permissions.isChangeOwner(),
                 permissions.isChangeGroup(),
                 permissions.getDescription());
@@ -629,6 +637,8 @@ public class SqlRoleManager {
                       tp.setInsert(UpdateScope.fromString(row.get(RPM_INSERT_SCOPE)));
                       tp.setUpdate(UpdateScope.fromString(row.get(RPM_UPDATE_SCOPE)));
                       tp.setDelete(UpdateScope.fromString(row.get(RPM_DELETE_SCOPE)));
+                      tp.setReference(
+                          PermissionSet.ReferenceScope.fromString(row.get(RPM_REFERENCE_SCOPE)));
                       result.putTable(row.get(RPM_TABLE_NAME), tp);
                       result.setChangeOwner(Boolean.TRUE.equals(row.get(RPM_CHANGE_OWNER)));
                       result.setChangeGroup(Boolean.TRUE.equals(row.get(RPM_CHANGE_GROUP)));

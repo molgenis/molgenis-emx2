@@ -53,6 +53,8 @@ public class MetadataUtils {
       field(name(MOLGENIS, "role_permission_metadata", "update_scope"), VARCHAR.nullable(false));
   static final Field<String> RPM_DELETE_SCOPE =
       field(name(MOLGENIS, "role_permission_metadata", "delete_scope"), VARCHAR.nullable(false));
+  static final Field<String> RPM_REFERENCE_SCOPE =
+      field(name(MOLGENIS, "role_permission_metadata", "reference_scope"), VARCHAR.nullable(false));
   static final Field<Boolean> RPM_CHANGE_OWNER =
       field(name(MOLGENIS, "role_permission_metadata", "change_owner"), BOOLEAN.nullable(false));
   static final Field<Boolean> RPM_CHANGE_GROUP =
@@ -856,6 +858,7 @@ public class MetadataUtils {
       String insertScope,
       String updateScope,
       String deleteScope,
+      String referenceScope,
       boolean changeOwner,
       boolean changeGroup,
       String description) {
@@ -868,6 +871,7 @@ public class MetadataUtils {
             RPM_INSERT_SCOPE,
             RPM_UPDATE_SCOPE,
             RPM_DELETE_SCOPE,
+            RPM_REFERENCE_SCOPE,
             RPM_CHANGE_OWNER,
             RPM_CHANGE_GROUP,
             RPM_DESCRIPTION)
@@ -879,6 +883,7 @@ public class MetadataUtils {
             insertScope,
             updateScope,
             deleteScope,
+            referenceScope,
             changeOwner,
             changeGroup,
             description)
@@ -888,6 +893,7 @@ public class MetadataUtils {
         .set(RPM_INSERT_SCOPE, insertScope)
         .set(RPM_UPDATE_SCOPE, updateScope)
         .set(RPM_DELETE_SCOPE, deleteScope)
+        .set(RPM_REFERENCE_SCOPE, referenceScope)
         .set(RPM_CHANGE_OWNER, changeOwner)
         .set(RPM_CHANGE_GROUP, changeGroup)
         .set(RPM_DESCRIPTION, description)
@@ -912,6 +918,7 @@ public class MetadataUtils {
             RPM_INSERT_SCOPE,
             RPM_UPDATE_SCOPE,
             RPM_DELETE_SCOPE,
+            RPM_REFERENCE_SCOPE,
             RPM_CHANGE_OWNER,
             RPM_CHANGE_GROUP,
             RPM_DESCRIPTION)
@@ -923,6 +930,7 @@ public class MetadataUtils {
             insertScope,
             updateScope,
             deleteScope,
+            "NONE",
             false,
             false,
             "")

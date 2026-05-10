@@ -29,8 +29,21 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".role_permission_metadata (
     CONSTRAINT role_permission_update_scope_check
         CHECK (update_scope IN ('NONE','OWN','GROUP','ALL')),
     CONSTRAINT role_permission_delete_scope_check
-        CHECK (delete_scope IN ('NONE','OWN','GROUP','ALL'))
+        CHECK (delete_scope IN ('NONE','OWN','GROUP','ALL')),
+    reference_scope TEXT NOT NULL DEFAULT 'NONE',
+    CONSTRAINT role_permission_reference_scope_check
+        CHECK (reference_scope IN ('NONE','OWN','GROUP','ALL'))
 );
+
+DO $$
+BEGIN
+    ALTER TABLE "MOLGENIS".role_permission_metadata
+        ADD COLUMN reference_scope TEXT NOT NULL DEFAULT 'NONE';
+    ALTER TABLE "MOLGENIS".role_permission_metadata
+        ADD CONSTRAINT role_permission_reference_scope_check
+        CHECK (reference_scope IN ('NONE','OWN','GROUP','ALL'));
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
 
 CREATE INDEX IF NOT EXISTS role_permission_schema_table_idx
     ON "MOLGENIS".role_permission_metadata (schema_name, table_name);

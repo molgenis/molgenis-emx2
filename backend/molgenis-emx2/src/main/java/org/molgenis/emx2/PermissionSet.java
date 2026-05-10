@@ -70,6 +70,23 @@ public class PermissionSet {
     }
   }
 
+  public enum ReferenceScope {
+    NONE,
+    OWN,
+    GROUP,
+    ALL;
+
+    public static ReferenceScope fromString(String name) {
+      String upper = name.toUpperCase(Locale.ROOT);
+      for (ReferenceScope scope : values()) {
+        if (scope.name().equals(upper)) {
+          return scope;
+        }
+      }
+      throw new MolgenisException("Unknown ReferenceScope: " + name);
+    }
+  }
+
   private Map<String, TablePermission> tables = new LinkedHashMap<>();
   private boolean changeOwner = false;
   private boolean changeGroup = false;
