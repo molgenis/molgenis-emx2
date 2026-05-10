@@ -14,10 +14,14 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -49,6 +53,10 @@ public class GraphqlSessionFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(CAN_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_REFERENCE)
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -207,21 +215,46 @@ public class GraphqlSessionFieldFactory {
   }
 
   private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
-    return schema.getPermissionsForActiveUser().stream()
-        .map(
-            p -> {
-              SelectScope select = p.select();
-              Map<String, Object> entry = new LinkedHashMap<>();
-              entry.put(ID, convertToPascalCase(p.table()));
-              entry.put(NAME, p.table());
-              entry.put(CAN_VIEW, select != null && select.allowsRowAccess());
-              entry.put(CAN_AGGREGATE, select != null && select.allowsAggregate());
-              entry.put(CAN_INSERT, p.insert() != null && p.insert() != UpdateScope.NONE);
-              entry.put(CAN_UPDATE, p.update() != null && p.update() != UpdateScope.NONE);
-              entry.put(CAN_DELETE, p.delete() != null && p.delete() != UpdateScope.NONE);
-              return entry;
-            })
-        .toList();
+    List<Map<String, Object>> result =
+        new ArrayList<>(
+            schema.getPermissionsForActiveUser().stream()
+                .map(
+                    p -> {
+                      SelectScope select = p.select();
+                      Map<String, Object> entry = new LinkedHashMap<>();
+                      entry.put(ID, convertToPascalCase(p.table()));
+                      entry.put(NAME, p.table());
+                      entry.put(CAN_VIEW, select != null && select.allowsRowAccess());
+                      entry.put(CAN_AGGREGATE, select != null && select.allowsAggregate());
+                      entry.put(CAN_INSERT, p.insert() != null && p.insert() != UpdateScope.NONE);
+                      entry.put(CAN_UPDATE, p.update() != null && p.update() != UpdateScope.NONE);
+                      entry.put(CAN_DELETE, p.delete() != null && p.delete() != UpdateScope.NONE);
+                      entry.put(
+                          CAN_REFERENCE,
+                          (select != null && select.allowsRowAccess())
+                              || (p.reference() != null && p.reference() != ReferenceScope.NONE));
+                      return entry;
+                    })
+                .toList());
+
+    Set<String> alreadyListed =
+        result.stream().map(entry -> (String) entry.get(NAME)).collect(Collectors.toSet());
+
+    for (TableMetadata tm : schema.getMetadata().getTables()) {
+      if (tm.getTableType() == TableType.ONTOLOGIES && !alreadyListed.contains(tm.getTableName())) {
+        Map<String, Object> entry = new LinkedHashMap<>();
+        entry.put(ID, convertToPascalCase(tm.getTableName()));
+        entry.put(NAME, tm.getTableName());
+        entry.put(CAN_VIEW, true);
+        entry.put(CAN_AGGREGATE, false);
+        entry.put(CAN_INSERT, false);
+        entry.put(CAN_UPDATE, false);
+        entry.put(CAN_DELETE, false);
+        entry.put(CAN_REFERENCE, true);
+        result.add(entry);
+      }
+    }
+    return result;
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {

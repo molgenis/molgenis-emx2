@@ -157,6 +157,25 @@ public class TestMgCanReference {
   }
 
   @Test
+  public void mgCanReference_returnsFalse_whenPrivacyScopeOnly() {
+    roleManager.createRole(schema(), "privacy-count-role", "");
+    roleManager.setPermissions(
+        schema(),
+        "privacy-count-role",
+        new PermissionSet()
+            .putTable(
+                "countOnlyTable",
+                new TablePermission("countOnlyTable")
+                    .select(SelectScope.COUNT)
+                    .reference(ReferenceScope.NONE)));
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "privacy-count-role");
+
+    boolean result =
+        canReferenceAsUser(USER_ALICE, "countOnlyTable", new String[] {GROUP_A}, "someone-else");
+    assertFalse(result, "COUNT privacy scope must not grant mg_can_reference");
+  }
+
+  @Test
   public void mgCanReference_returnsTrue_forSystemRole() {
     schema().addMember(USER_SYSTEM, "Owner");
 

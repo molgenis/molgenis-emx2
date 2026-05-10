@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.TablePermission;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -20,8 +21,10 @@ class TestGraphqlSession {
 
   private static final String SCHEMA_NAME = "TGraphqlSession";
   private static final String TABLE_NAME = "SessionItems";
+  private static final String ONTOLOGY_TABLE_NAME = "SessionTerms";
   private static final String ROLE_ANALYST = "sess_analyst";
   private static final String USER_TEST = "sess_test_user";
+  private static final String USER_NO_ROLE = "sess_norole_user";
 
   private static Database database;
   private static SqlRoleManager roleManager;
@@ -35,11 +38,20 @@ class TestGraphqlSession {
     schema = database.createSchema(SCHEMA_NAME);
     schema.create(
         TableMetadata.table(TABLE_NAME).add(Column.column("id", ColumnType.STRING).setKey(1)));
+    schema.create(
+        TableMetadata.table(ONTOLOGY_TABLE_NAME)
+            .setTableType(TableType.ONTOLOGIES)
+            .add(Column.column("name", ColumnType.STRING).setKey(1)));
 
     if (database.hasUser(USER_TEST)) {
       database.removeUser(USER_TEST);
     }
     database.addUser(USER_TEST);
+
+    if (database.hasUser(USER_NO_ROLE)) {
+      database.removeUser(USER_NO_ROLE);
+    }
+    database.addUser(USER_NO_ROLE);
 
     roleManager = ((SqlDatabase) database).getRoleManager();
 
@@ -125,6 +137,139 @@ class TestGraphqlSession {
       database.becomeAdmin();
       roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);
       roleManager.deleteRole(SCHEMA_NAME, ROLE_ANALYST);
+    }
+  }
+
+  private static final String SESSION_QUERY =
+      "{_session{tablePermissions{name canView canAggregate canInsert canUpdate canDelete canReference}}}";
+
+  @Test
+  void sessionPermissions_viewImpliesCanReference() throws IOException {
+    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(TABLE_NAME);
+    tp.select(SelectScope.ALL);
+    ps.putTable(TABLE_NAME, tp);
+    roleManager.setPermissions(schema, ROLE_ANALYST, ps);
+    roleManager.grantRoleToUser(schema, ROLE_ANALYST, USER_TEST);
+
+    try {
+      database.setActiveUser(USER_TEST);
+      JsonNode result = executeQuery(executor, SESSION_QUERY);
+      database.becomeAdmin();
+      JsonNode perms = result.at("/_session/tablePermissions");
+
+      boolean found = false;
+      for (JsonNode perm : perms) {
+        if (TABLE_NAME.equals(perm.at("/name").asText())) {
+          assertTrue(perm.at("/canView").asBoolean(), "VIEW=ALL implies canView");
+          assertTrue(perm.at("/canReference").asBoolean(), "VIEW=ALL implies canReference");
+          found = true;
+        }
+      }
+      assertTrue(found, "Permission entry for " + TABLE_NAME + " must exist");
+    } finally {
+      database.becomeAdmin();
+      roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);
+      roleManager.deleteRole(SCHEMA_NAME, ROLE_ANALYST);
+    }
+  }
+
+  @Test
+  void sessionPermissions_referenceOnlyGivesCanReferenceWithoutCanView() throws IOException {
+    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(TABLE_NAME);
+    tp.reference(ReferenceScope.ALL);
+    ps.putTable(TABLE_NAME, tp);
+    roleManager.setPermissions(schema, ROLE_ANALYST, ps);
+    roleManager.grantRoleToUser(schema, ROLE_ANALYST, USER_TEST);
+
+    try {
+      database.setActiveUser(USER_TEST);
+      JsonNode result = executeQuery(executor, SESSION_QUERY);
+      database.becomeAdmin();
+      JsonNode perms = result.at("/_session/tablePermissions");
+
+      boolean found = false;
+      for (JsonNode perm : perms) {
+        if (TABLE_NAME.equals(perm.at("/name").asText())) {
+          assertFalse(perm.at("/canView").asBoolean(), "REFERENCE-only must not grant canView");
+          assertFalse(perm.at("/canInsert").asBoolean(), "REFERENCE-only must not grant canInsert");
+          assertFalse(perm.at("/canUpdate").asBoolean(), "REFERENCE-only must not grant canUpdate");
+          assertFalse(perm.at("/canDelete").asBoolean(), "REFERENCE-only must not grant canDelete");
+          assertTrue(perm.at("/canReference").asBoolean(), "REFERENCE=ALL grants canReference");
+          found = true;
+        }
+      }
+      assertTrue(found, "Permission entry for " + TABLE_NAME + " must exist");
+    } finally {
+      database.becomeAdmin();
+      roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);
+      roleManager.deleteRole(SCHEMA_NAME, ROLE_ANALYST);
+    }
+  }
+
+  @Test
+  void sessionPermissions_privacyScopeCount_doesNotGrantCanReference() throws IOException {
+    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(TABLE_NAME);
+    tp.select(SelectScope.COUNT);
+    ps.putTable(TABLE_NAME, tp);
+    roleManager.setPermissions(schema, ROLE_ANALYST, ps);
+    roleManager.grantRoleToUser(schema, ROLE_ANALYST, USER_TEST);
+
+    try {
+      database.setActiveUser(USER_TEST);
+      JsonNode result = executeQuery(executor, SESSION_QUERY);
+      database.becomeAdmin();
+      JsonNode perms = result.at("/_session/tablePermissions");
+
+      boolean found = false;
+      for (JsonNode perm : perms) {
+        if (TABLE_NAME.equals(perm.at("/name").asText())) {
+          assertFalse(perm.at("/canView").asBoolean(), "COUNT scope must not grant canView");
+          assertFalse(
+              perm.at("/canReference").asBoolean(),
+              "COUNT privacy scope must not grant canReference");
+          found = true;
+        }
+      }
+      assertTrue(found, "Permission entry for " + TABLE_NAME + " must exist");
+    } finally {
+      database.becomeAdmin();
+      roleManager.revokeRoleFromUser(schema, ROLE_ANALYST, USER_TEST);
+      roleManager.deleteRole(SCHEMA_NAME, ROLE_ANALYST);
+    }
+  }
+
+  @Test
+  void sessionPermissions_ontologyTable_alwaysVisibleWithCanReference() throws IOException {
+    database.setActiveUser(USER_NO_ROLE);
+    try {
+      JsonNode result = executeQuery(executor, SESSION_QUERY);
+      JsonNode perms = result.at("/_session/tablePermissions");
+
+      boolean found = false;
+      for (JsonNode perm : perms) {
+        if (ONTOLOGY_TABLE_NAME.equals(perm.at("/name").asText())) {
+          assertTrue(perm.at("/canView").asBoolean(), "Ontology table must have canView=true");
+          assertTrue(
+              perm.at("/canReference").asBoolean(), "Ontology table must have canReference=true");
+          assertFalse(
+              perm.at("/canInsert").asBoolean(), "Ontology table must have canInsert=false");
+          assertFalse(
+              perm.at("/canUpdate").asBoolean(), "Ontology table must have canUpdate=false");
+          assertFalse(
+              perm.at("/canDelete").asBoolean(), "Ontology table must have canDelete=false");
+          found = true;
+        }
+      }
+      assertTrue(
+          found, "Ontology table " + ONTOLOGY_TABLE_NAME + " must appear in tablePermissions");
+    } finally {
+      database.becomeAdmin();
     }
   }
 

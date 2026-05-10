@@ -173,7 +173,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_reference(
             OR rp.select_scope = 'ALL'
             OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))
             OR (rp.select_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
-            OR rp.select_scope IN ('EXISTS','COUNT','RANGE','AGGREGATE')
             OR rp.change_owner = true
           )
     )
