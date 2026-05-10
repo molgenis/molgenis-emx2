@@ -18,11 +18,13 @@ import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /**
- * Verifies R.3b: a Child row whose single-valued FK target falls outside the user's (view ∪
- * reference) scope on refTable is hidden entirely (row-hide), not projected with a NULL FK.
+ * Verifies the child-row visibility rule: a child row is hidden when any FK target falls outside
+ * the user's (view ∪ reference) scope on the refTable. Single-valued REF and REF_ARRAY are both
+ * covered; REF_ARRAY requires ALL elements to be in scope, otherwise the row is hidden entirely.
  *
- * <p>Schema layout: REF_SCHEMA — "Pet" table, RLS enabled. CHILD_SCHEMA — "Owner" table, FK "pet" →
- * REF_SCHEMA.Pet. Alice has VIEW_OWN on Pet and full access to Owner.
+ * <p>Schema layout: REF_SCHEMA — "Pet" table, RLS enabled. CHILD_SCHEMA — "Owner" table (REF → Pet)
+ * and "PetLover" table (REF_ARRAY → Pet). Alice has VIEW_OWN on Pet and full access to child
+ * tables.
  */
 public class TestCrossSchemaFkRlsVisibility {
 
@@ -94,6 +96,7 @@ public class TestCrossSchemaFkRlsVisibility {
         .getTable(PET_LOVER_TABLE)
         .insert(
             row("name", "alice-lover", "pets", new String[] {"fido", "whiskers"}),
+            row("name", "alice-only-lover", "pets", new String[] {"fido"}),
             row("name", "nobody-lover"));
 
     // Grant Alice VIEW_OWN on Pet in refSchema via group+role
@@ -140,10 +143,6 @@ public class TestCrossSchemaFkRlsVisibility {
     db.dropSchemaIfExists(REF_SCHEMA);
   }
 
-  /**
-   * R.3b: retrieveRows hides Child rows whose FK target is outside the user's view scope on
-   * refTable. The row referencing bob's pet must not appear.
-   */
   @Test
   void scalarRef_hidesChildRow_whenFkTargetInvisible() {
     db.setActiveUser(USER_ALICE);
@@ -180,19 +179,93 @@ public class TestCrossSchemaFkRlsVisibility {
     }
   }
 
-  /**
-   * REF_ARRAY behavior is unchanged in R.3b (R.3c will address it). Array elements referencing
-   * invisible targets are dropped; the row itself remains visible.
-   */
   @Test
-  void refArrayDropsInvisibleElements() {
+  void refArray_hidesChildRow_whenAnyElementInvisible() {
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows =
+          childSchema.getTable(PET_LOVER_TABLE).select(s("name"), s("pets")).retrieveRows();
+      List<String> names = rows.stream().map(r -> r.getString("name")).toList();
+      assertFalse(
+          names.contains("alice-lover"),
+          "Row with any invisible REF_ARRAY element must be hidden entirely");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void refArray_keepsChildRow_whenAllElementsVisible() {
     db.setActiveUser(USER_ALICE);
     try {
       List<Row> rows =
           childSchema.getTable(PET_LOVER_TABLE).select(s("name"), s("pets")).retrieveRows();
       List<String> names = rows.stream().map(r -> r.getString("name")).toList();
       assertTrue(
-          names.contains("alice-lover"), "PetLover row must remain visible (REF_ARRAY unchanged)");
+          names.contains("alice-only-lover"),
+          "Row with all REF_ARRAY elements visible must remain visible");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  /**
+   * A null/empty REF_ARRAY means there are no FK targets to check, so the row must always remain
+   * visible regardless of RLS on the refTable.
+   */
+  @Test
+  void refArray_emptyArray_keepsChildRow() {
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows =
+          childSchema.getTable(PET_LOVER_TABLE).select(s("name"), s("pets")).retrieveRows();
+      List<String> names = rows.stream().map(r -> r.getString("name")).toList();
+      assertTrue(
+          names.contains("nobody-lover"), "Row with null/empty REF_ARRAY must always be visible");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void refArray_referenceAllOnRefTable_keepsRow() {
+    db.becomeAdmin();
+
+    String userRefArray = "CsFkRlsRefArrayUser";
+    if (!db.hasUser(userRefArray)) db.addUser(userRefArray);
+
+    String groupRefArray = "groupRefArray";
+    roleManager.createGroup(refSchema, groupRefArray);
+
+    String roleRefAllArray = "refAllArrayRole";
+    roleManager.createRole(REF_SCHEMA, roleRefAllArray);
+    roleManager.setPermissions(
+        refSchema,
+        roleRefAllArray,
+        new PermissionSet()
+            .putTable(
+                PET_TABLE,
+                new TablePermission(PET_TABLE)
+                    .select(SelectScope.NONE)
+                    .reference(ReferenceScope.ALL)));
+    roleManager.addGroupMembership(REF_SCHEMA, groupRefArray, userRefArray, roleRefAllArray);
+
+    childSchema.addMember(userRefArray, "Viewer");
+
+    db.setActiveUser(userRefArray);
+    try {
+      List<Row> rows =
+          childSchema.getTable(PET_LOVER_TABLE).select(s("name"), s("pets")).retrieveRows();
+      List<String> names = rows.stream().map(r -> r.getString("name")).toList();
+      assertTrue(
+          names.contains("alice-lover"),
+          "REFERENCE_ALL must keep REF_ARRAY row visible even when VIEW_NONE on refTable");
+      assertTrue(
+          names.contains("alice-only-lover"),
+          "REFERENCE_ALL must keep REF_ARRAY row with single element visible");
+      assertTrue(
+          names.contains("nobody-lover"),
+          "REFERENCE_ALL must keep REF_ARRAY row with empty array visible");
     } finally {
       db.becomeAdmin();
     }
@@ -214,7 +287,6 @@ public class TestCrossSchemaFkRlsVisibility {
     }
   }
 
-  /** R.3b: a user with REFERENCE_ALL on refTable (but VIEW_NONE) keeps Child rows visible. */
   @Test
   void referenceAllOnRefTable_keepsChildRowVisible() {
     db.becomeAdmin();
@@ -255,13 +327,11 @@ public class TestCrossSchemaFkRlsVisibility {
   }
 
   /**
-   * Refback field: not impacted by R.3b (the refback side has its own visibility from the parent
-   * schema's RLS policy).
+   * Refback visibility is governed by the parent schema's own RLS policy, not by this child-row
+   * hiding rule. This test pins current behavior; full refback-hide semantics are not implemented.
    */
   @Test
   void refbackEmptyForInvisibleParent() {
-    // REF_BACK behavior is not changed by R.3b; this test verifies stability only.
-    // Full refback-hide semantics are out of scope for this slice.
     db.setActiveUser(USER_ALICE);
     try {
       List<Row> rows = childSchema.getTable(OWNER_TABLE).select(s("name"), s("pet")).retrieveRows();

@@ -1114,37 +1114,73 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn select : selection.getSubselect()) {
       Column column = getColumnByName(table, select.getColumn());
-      if (!column.isRef()) {
-        continue;
+      if (column.isRef()) {
+        Condition c = refRlsVisibilityCondition(column, tableAlias, join);
+        if (c != null) conditions.add(c);
+      } else if (column.isRefArray() && column.getReferences().size() == 1) {
+        Condition c = refArrayRlsVisibilityCondition(column, tableAlias);
+        if (c != null) conditions.add(c);
       }
-      TableMetadata refTable = column.getRefTable();
-      if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
-        continue;
-      }
-
-      String rlsAlias = alias(tableAlias + "-rls-" + column.getName());
-
-      join.leftJoin(refTable.getJooqTable().as(alias(rlsAlias)))
-          .on(refJoinCondition(column, tableAlias, rlsAlias));
-
-      Condition fkIsNull =
-          and(
-              column.getReferences().stream()
-                  .map(ref -> field(name(alias(tableAlias), ref.getName())).isNull())
-                  .toList());
-
-      Condition targetVisible =
-          condition(
-              MG_CAN_REFERENCE_SQL,
-              inline(refTable.getSchemaName()),
-              inline(refTable.getTableName()),
-              field(name(alias(rlsAlias), MG_GROUPS_COLUMN)),
-              field(name(alias(rlsAlias), MG_OWNER_COLUMN)));
-
-      conditions.add(or(fkIsNull, targetVisible));
     }
 
     return conditions;
+  }
+
+  private Condition refRlsVisibilityCondition(
+      Column column, String tableAlias, SelectJoinStep<org.jooq.Record> join) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return null;
+    }
+
+    String rlsAlias = alias(tableAlias + "-rls-" + column.getName());
+
+    join.leftJoin(refTable.getJooqTable().as(alias(rlsAlias)))
+        .on(refJoinCondition(column, tableAlias, rlsAlias));
+
+    Condition fkIsNull =
+        and(
+            column.getReferences().stream()
+                .map(ref -> field(name(alias(tableAlias), ref.getName())).isNull())
+                .toList());
+
+    Condition targetVisible =
+        condition(
+            MG_CAN_REFERENCE_SQL,
+            inline(refTable.getSchemaName()),
+            inline(refTable.getTableName()),
+            field(name(alias(rlsAlias), MG_GROUPS_COLUMN)),
+            field(name(alias(rlsAlias), MG_OWNER_COLUMN)));
+
+    return or(fkIsNull, targetVisible);
+  }
+
+  private static final String REF_ARRAY_ALL_VISIBLE_SQL =
+      "({0} IS NULL OR cardinality({0}) = 0"
+          + " OR NOT EXISTS ("
+          + "SELECT 1 FROM unnest({0}) AS _rls_elem"
+          + " LEFT JOIN {1} _rls_t ON _rls_t.{2} = _rls_elem"
+          + " WHERE NOT \"MOLGENIS\".mg_can_reference({3}, {4}, _rls_t.{5}, _rls_t.{6})"
+          + "))";
+
+  private Condition refArrayRlsVisibilityCondition(Column column, String tableAlias) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return null;
+    }
+
+    Reference ref = column.getReferences().get(0);
+    Field<Object> arrayField = field(name(alias(tableAlias), ref.getName()));
+
+    return condition(
+        REF_ARRAY_ALL_VISIBLE_SQL,
+        arrayField,
+        refTable.getJooqTable(),
+        name(ref.getRefTo()),
+        inline(refTable.getSchemaName()),
+        inline(refTable.getTableName()),
+        name(MG_GROUPS_COLUMN),
+        name(MG_OWNER_COLUMN));
   }
 
   private Condition refJoinCondition(Column column, String tableAlias, String subAlias) {
