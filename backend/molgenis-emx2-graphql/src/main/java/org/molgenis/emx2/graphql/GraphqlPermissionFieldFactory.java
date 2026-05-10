@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.TablePermission;
@@ -21,6 +22,7 @@ public class GraphqlPermissionFieldFactory {
 
   static final GraphQLEnumType selectScopeEnumType;
   static final GraphQLEnumType updateScopeEnumType;
+  static final GraphQLEnumType referenceScopeEnumType;
 
   static {
     GraphQLEnumType.Builder selectBuilder = GraphQLEnumType.newEnum().name("MolgenisSelectScope");
@@ -34,6 +36,12 @@ public class GraphqlPermissionFieldFactory {
       updateBuilder.value(scope.name(), scope);
     }
     updateScopeEnumType = updateBuilder.build();
+
+    GraphQLEnumType.Builder refBuilder = GraphQLEnumType.newEnum().name("MolgenisReferenceScope");
+    for (ReferenceScope scope : ReferenceScope.values()) {
+      refBuilder.value(scope.name(), scope);
+    }
+    referenceScopeEnumType = refBuilder.build();
   }
 
   static final GraphQLInputObjectType tablePermissionInputType =
@@ -51,6 +59,10 @@ public class GraphqlPermissionFieldFactory {
               GraphQLInputObjectField.newInputObjectField().name(UPDATE).type(updateScopeEnumType))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(DELETE).type(updateScopeEnumType))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(REFERENCE)
+                  .type(referenceScopeEnumType))
           .build();
 
   static final GraphQLInputObjectType inputRoleType =
@@ -91,6 +103,10 @@ public class GraphqlPermissionFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(INSERT).type(updateScopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(UPDATE).type(updateScopeEnumType))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(DELETE).type(updateScopeEnumType))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REFERENCE)
+                  .type(referenceScopeEnumType))
           .build();
 
   static final GraphQLObjectType roleOutputType =
@@ -183,6 +199,20 @@ public class GraphqlPermissionFieldFactory {
     }
   }
 
+  static ReferenceScope toReferenceScope(Object graphqlValue) {
+    if (graphqlValue == null) {
+      return ReferenceScope.NONE;
+    }
+    if (graphqlValue instanceof ReferenceScope scope) {
+      return scope;
+    }
+    try {
+      return ReferenceScope.fromString(graphqlValue.toString());
+    } catch (MolgenisException ignored) {
+      return ReferenceScope.NONE;
+    }
+  }
+
   static PermissionSet toPermissionSet(Map<String, Object> input) {
     PermissionSet ps = new PermissionSet();
     if (input == null) {
@@ -218,13 +248,15 @@ public class GraphqlPermissionFieldFactory {
       UpdateScope insertScope = toUpdateScope(rawMap.get(INSERT));
       UpdateScope updateScope = toUpdateScope(rawMap.get(UPDATE));
       UpdateScope deleteScope = toUpdateScope(rawMap.get(DELETE));
+      ReferenceScope referenceScope = toReferenceScope(rawMap.get(REFERENCE));
 
       TablePermission perms =
           new TablePermission(tableName)
               .select(selectScope)
               .insert(insertScope)
               .update(updateScope)
-              .delete(deleteScope);
+              .delete(deleteScope)
+              .reference(referenceScope);
 
       ps.putTable(tableName, perms);
     }
@@ -256,6 +288,7 @@ public class GraphqlPermissionFieldFactory {
                   tableMap.put(INSERT, entry.getValue().insert());
                   tableMap.put(UPDATE, entry.getValue().update());
                   tableMap.put(DELETE, entry.getValue().delete());
+                  tableMap.put(REFERENCE, entry.getValue().reference());
                   return tableMap;
                 })
             .toList();

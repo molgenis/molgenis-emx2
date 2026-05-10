@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.TablePermission;
@@ -160,5 +161,60 @@ class TestGraphqlPermissionFieldFactory {
     assertEquals("myRole", map.get("name"));
     assertEquals("mySchema", map.get("schemaName"));
     assertEquals("test role", map.get("description"));
+  }
+
+  @Test
+  void referenceScopeEnumType_declaresAllValues() {
+    Set<String> enumValues =
+        GraphqlPermissionFieldFactory.referenceScopeEnumType.getValues().stream()
+            .map(GraphQLEnumValueDefinition::getName)
+            .collect(Collectors.toSet());
+
+    for (ReferenceScope scope : ReferenceScope.values()) {
+      assertTrue(enumValues.contains(scope.name()), "Missing enum value: " + scope.name());
+    }
+    assertEquals(ReferenceScope.values().length, enumValues.size());
+  }
+
+  @Test
+  void toReferenceScope_nullValue_returnsNone() {
+    assertEquals(ReferenceScope.NONE, GraphqlPermissionFieldFactory.toReferenceScope(null));
+  }
+
+  @Test
+  void toReferenceScope_enumValue_returnsDirectly() {
+    assertEquals(
+        ReferenceScope.ALL, GraphqlPermissionFieldFactory.toReferenceScope(ReferenceScope.ALL));
+  }
+
+  @Test
+  void toReferenceScope_stringValue_parsesCorrectly() {
+    assertEquals(ReferenceScope.GROUP, GraphqlPermissionFieldFactory.toReferenceScope("GROUP"));
+  }
+
+  @Test
+  void toPermissionSet_referenceScope_roundTrips() {
+    Map<String, Object> input =
+        Map.of(PERMISSIONS, List.of(Map.of(TABLE, "Pet", REFERENCE, ReferenceScope.ALL)));
+
+    PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(input);
+    TablePermission pet = ps.getTables().get("Pet");
+
+    assertNotNull(pet);
+    assertEquals(ReferenceScope.ALL, pet.reference());
+  }
+
+  @Test
+  void permissionSetToMap_emitsReferenceField() {
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission("Pet").reference(ReferenceScope.OWN);
+    ps.putTable("Pet", tp);
+
+    Map<String, Object> map = GraphqlPermissionFieldFactory.permissionSetToMap("r", "s", false, ps);
+
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> tableList = (List<Map<String, Object>>) map.get(PERMISSIONS);
+    assertEquals(1, tableList.size());
+    assertEquals(ReferenceScope.OWN, tableList.get(0).get(REFERENCE));
   }
 }

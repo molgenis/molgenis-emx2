@@ -36,7 +36,7 @@ class TestGraphqlSchemaRoles {
   private static final String TABLE_NAME = "Pet";
 
   private static final String ROLES_QUERY =
-      "{_schema { roles { name permissions { table select insert update delete } changeOwner changeGroup } } }";
+      "{_schema { roles { name permissions { table select insert update delete reference } changeOwner changeGroup } } }";
 
   private static Database database;
   private static SqlRoleManager roleManager;
@@ -116,6 +116,50 @@ class TestGraphqlSchemaRoles {
     assertEquals("NONE", found.at("/permissions/0/delete").asText());
     assertFalse(found.at("/changeOwner").asBoolean());
     assertFalse(found.at("/changeGroup").asBoolean());
+  }
+
+  @Test
+  void changeRoles_customRole_includesReferenceScope() throws IOException {
+    String roleWithRef = "refScopeRole";
+    JsonNode rolesBefore = execute(ROLES_QUERY).at("/_schema/roles");
+    assertNull(findRoleByName(rolesBefore, roleWithRef), "Role should not exist before mutation");
+
+    String mutation =
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleWithRef
+            + "\", "
+            + "permissions: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL, reference: ALL}], "
+            + "changeOwner: false, changeGroup: false"
+            + "}]) { message } }";
+    JsonNode result = execute(mutation);
+    assertNotNull(result.at("/change/message").textValue());
+
+    JsonNode rolesAfter = execute(ROLES_QUERY).at("/_schema/roles");
+    JsonNode found = findRoleByName(rolesAfter, roleWithRef);
+    assertNotNull(found, "Role " + roleWithRef + " should appear after mutation");
+    assertEquals("ALL", found.at("/permissions/0/reference").asText());
+    assertEquals("ALL", found.at("/permissions/0/select").asText());
+
+    String mutationNone =
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleWithRef
+            + "\", "
+            + "permissions: [{table: \""
+            + TABLE_PET
+            + "\", select: OWN}], "
+            + "changeOwner: false, changeGroup: false"
+            + "}]) { message } }";
+    execute(mutationNone);
+
+    JsonNode rolesNone = execute(ROLES_QUERY).at("/_schema/roles");
+    JsonNode foundNone = findRoleByName(rolesNone, roleWithRef);
+    assertNotNull(foundNone, "Role must still exist after update");
+    assertEquals("NONE", foundNone.at("/permissions/0/reference").asText());
+    assertEquals("OWN", foundNone.at("/permissions/0/select").asText());
   }
 
   @Test
