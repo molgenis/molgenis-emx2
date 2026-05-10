@@ -189,7 +189,7 @@ class TestGraphqlPermissionFieldFactory {
 
   @Test
   void toReferenceScope_stringValue_parsesCorrectly() {
-    assertEquals(ReferenceScope.GROUP, GraphqlPermissionFieldFactory.toReferenceScope("GROUP"));
+    assertEquals(ReferenceScope.ALL, GraphqlPermissionFieldFactory.toReferenceScope("ALL"));
   }
 
   @Test
@@ -207,7 +207,7 @@ class TestGraphqlPermissionFieldFactory {
   @Test
   void permissionSetToMap_emitsReferenceField() {
     PermissionSet ps = new PermissionSet();
-    TablePermission tp = new TablePermission("Pet").reference(ReferenceScope.OWN);
+    TablePermission tp = new TablePermission("Pet").reference(ReferenceScope.ALL);
     ps.putTable("Pet", tp);
 
     Map<String, Object> map = GraphqlPermissionFieldFactory.permissionSetToMap("r", "s", false, ps);
@@ -215,6 +215,6 @@ class TestGraphqlPermissionFieldFactory {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> tableList = (List<Map<String, Object>>) map.get(PERMISSIONS);
     assertEquals(1, tableList.size());
-    assertEquals(ReferenceScope.OWN, tableList.get(0).get(REFERENCE));
+    assertEquals(ReferenceScope.ALL, tableList.get(0).get(REFERENCE));
   }
 }

@@ -126,52 +126,6 @@ public class TestMgCanReference {
   }
 
   @Test
-  public void mgCanReference_returnsTrue_whenReferenceOwn_andUserIsOwner() {
-    roleManager.createRole(schema(), "ref-own-role", "");
-    roleManager.setPermissions(
-        schema(),
-        "ref-own-role",
-        new PermissionSet()
-            .putTable(
-                "refOwnTable",
-                new TablePermission("refOwnTable")
-                    .select(SelectScope.NONE)
-                    .reference(ReferenceScope.OWN)));
-    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "ref-own-role");
-
-    boolean resultOwned =
-        canReferenceAsUser(USER_ALICE, "refOwnTable", new String[] {}, USER_ALICE);
-    assertTrue(resultOwned, "REFERENCE_OWN with owner=current_user must allow reference");
-
-    boolean resultOtherOwner =
-        canReferenceAsUser(USER_ALICE, "refOwnTable", new String[] {}, "someone-else");
-    assertFalse(resultOtherOwner, "REFERENCE_OWN with owner != current_user must deny reference");
-  }
-
-  @Test
-  public void mgCanReference_returnsTrue_whenReferenceGroup_andUserInGroup() {
-    roleManager.createRole(schema(), "ref-group-role", "");
-    roleManager.setPermissions(
-        schema(),
-        "ref-group-role",
-        new PermissionSet()
-            .putTable(
-                "refGroupTable",
-                new TablePermission("refGroupTable")
-                    .select(SelectScope.NONE)
-                    .reference(ReferenceScope.GROUP)));
-    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "ref-group-role");
-
-    boolean resultGroupMatch =
-        canReferenceAsUser(USER_ALICE, "refGroupTable", new String[] {GROUP_A}, "someone-else");
-    assertTrue(resultGroupMatch, "REFERENCE_GROUP with matching group must allow reference");
-
-    boolean resultNoGroupMatch =
-        canReferenceAsUser(USER_ALICE, "refGroupTable", new String[] {GROUP_B}, "someone-else");
-    assertFalse(resultNoGroupMatch, "REFERENCE_GROUP with no matching group must deny reference");
-  }
-
-  @Test
   public void mgCanReference_returnsFalse_whenPrivacyScopeOnly() {
     roleManager.createRole(schema(), "privacy-count-role", "");
     roleManager.setPermissions(

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".role_permission_metadata (
         CHECK (delete_scope IN ('NONE','OWN','GROUP','ALL')),
     reference_scope TEXT NOT NULL DEFAULT 'NONE',
     CONSTRAINT role_permission_reference_scope_check
-        CHECK (reference_scope IN ('NONE','OWN','GROUP','ALL'))
+        CHECK (reference_scope IN ('NONE','ALL'))
 );
 
 DO $$
@@ -41,7 +41,7 @@ BEGIN
         ADD COLUMN reference_scope TEXT NOT NULL DEFAULT 'NONE';
     ALTER TABLE "MOLGENIS".role_permission_metadata
         ADD CONSTRAINT role_permission_reference_scope_check
-        CHECK (reference_scope IN ('NONE','OWN','GROUP','ALL'));
+        CHECK (reference_scope IN ('NONE','ALL'));
 EXCEPTION WHEN duplicate_column THEN NULL;
 END $$;
 
@@ -171,8 +171,6 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_reference(
           AND m.schema_name = p_schema
           AND (
                rp.reference_scope = 'ALL'
-            OR (rp.reference_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-            OR (rp.reference_scope = 'OWN'   AND 'MG_USER_' || p_owner = p_user)
             OR rp.select_scope = 'ALL'
             OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))
             OR (rp.select_scope = 'OWN'   AND 'MG_USER_' || p_owner = p_user)

@@ -3,6 +3,21 @@
 > Self-contained successor to `rls_v3.md` spec. Master is the base;
 > this document covers the RLS extension that opts in per table.
 
+## Design overview (read this first)
+
+The 10 things to understand before reviewing:
+
+1. **RLS is per-table opt-in, not global.** Each table has a flag `rls_enabled`. Tables with the flag off behave exactly as in master (no policies, no `mg_owner`/`mg_groups` columns). Tables with the flag on enforce row-level visibility via PostgreSQL RLS policies.
+2. **RLS lives only at the root of an inheritance tree.** If table `B` extends `A`, only `A` carries the `rls_enabled` setting; enabling on `A` cascades policies to `B` automatically. Toggling on a subclass is rejected with `"enable on root '<X>' instead"`. Same rule for disable.
+3. **Two layers of access control compose**: (a) PostgreSQL `GRANT verb ON table TO role` from master — unchanged; gates whether the user can issue the SQL at all. (b) RLS policies — gate which rows the user sees within a granted verb. A user with `GRANT SELECT` but `select_scope=NONE` is rejected at app layer before reaching RLS.
+4. **Custom roles are PG roles.** `Schema.createRole(R)` creates PG role `MG_ROLE_<schema>/<R>`. `grant(R, table, verb)` emits `GRANT verb ON table TO MG_ROLE_<schema>/<R>`. Membership: `GRANT MG_ROLE_<schema>/<R> TO MG_USER_<user>`.
+5. **System roles (Owner/Manager/Editor/Viewer) have hardcoded scopes**, no rows in `role_permission_metadata`. Custom roles store one row per `(schema, role, table)` with five scopes.
+6. **Five scopes per `(role, table)`**: `select_scope`, `insert_scope`, `update_scope`, `delete_scope`, `reference_scope`. SELECT supports privacy modes (EXISTS/COUNT/RANGE/AGGREGATE) plus row-access tiers (OWN/GROUP/ALL); INSERT/UPDATE/DELETE are NONE/OWN/GROUP/ALL; REFERENCE is NONE/ALL only (post-R.7).
+7. **Effective permission across multiple roles = max scope per axis.** A user holding `Role1{select=GROUP}` + `Role2{reference=ALL}` sees group rows directly AND can FK-reference any row.
+8. **Two row-tagging columns on RLS tables**: `mg_owner` (TEXT, the row's owner — defaults to inserting user; backfilled from `mg_insertedBy` on enable) and `mg_groups` (TEXT[], the groups the row belongs to). Indexed via GIN on `mg_groups`.
+9. **REFERENCE is orthogonal to VIEW.** `VIEW(T)` gates direct query of T; `REFERENCE(T)` gates FK traversal into T from other tables. VIEW⊇REFERENCE at runtime — anyone with VIEW automatically gets REFERENCE-equivalent access. REFERENCE-only (`VIEW_NONE + REFERENCE_ALL`) emits a thin GraphQL type (PK + refLabel only) reachable only via FK from another table; T is absent from top-level Query/Mutation. Privacy modes (EXISTS/COUNT/RANGE/AGGREGATE) grant view but NOT reference — can't dereference an FK from privacy-only access.
+10. **Child-row visibility rule (cross-table)**: a row in Child is hidden entirely if ANY of its FK targets falls outside `(view ∪ reference)` scope on the refTable. REF_ARRAY is all-or-nothing — one invisible element hides the row. At write time the server fail-fast rejects INSERT/UPDATE that would create a row pointing at a target outside the writing user's scope (defense in depth; DELETE has no such check). Ontology tables bypass these rules — they're always world-visible.
+
 ## Base layer (master, untouched)
 
 | Behavior | Component | Test | Visual |
@@ -20,18 +35,20 @@
 
 ## Per-table RLS flag
 
+Every table has an `rls_enabled` boolean (default false). Toggling it on is what installs the four PostgreSQL row-level-security policies, materializes the row-tagging columns (`mg_owner`, `mg_groups`), and creates the GIN index used by the group-overlap policy predicate. Toggling off removes them. The flag lives only on the root of an inheritance tree (cascades to subclasses); admins cannot disable a table while custom-role scope rows still reference it.
+
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `tables_metadata.rls_enabled BOOLEAN DEFAULT false` | MetadataUtils | TestRlsToggle.flagDefaultsFalse | — |
-| `change(tables:[{name, rlsEnabled:true}])` enables RLS on root | GraphQL.tableSchema | TestRlsToggleGraphql.enableRlsRoot | rlsEnabled=true in admin UI |
-| Disable rejected when `role_permission_metadata` row exists | SqlTableMetadata | TestRlsToggle.disableRejectedWithPermissions | error toast |
-| Enable on subclass rejected with `"enable on root '<X>' instead"` | SqlTableMetadata | TestRlsToggle.enableSubclassRejected | — |
-| Enable cascades through inheritance tree | SqlTableMetadata | TestRlsToggle.enableCascadesToChildren | — |
-| Disable cascades through inheritance tree | SqlTableMetadata | TestRlsToggle.disableCascadesToChildren | — |
-| Root-only metadata; child rows always store `false` | TableMetadata.getRlsEnabled | TestRlsToggle.metadataStoredOnRootOnly | — |
-| `mg_owner` + `mg_groups` columns materialised on enable | SqlTableMetadata | TestRlsToggle.materialisesRowColumnsOnEnable | — |
-| `mg_owner` backfilled from `mg_insertedBy` on enable | SqlTableMetadata | TestRlsToggle.backfillsOwnerOnEnable | — |
-| GIN index `<table>_mg_groups_idx` created on enable, dropped on disable | SqlRoleManager.enableRlsForTable | TestRlsEnableDisableLifecycle.enableRls_createsGinIndexOnMgGroups | — |
+| The flag column exists on `tables_metadata` and defaults to `false` (existing tables stay unaffected) | MetadataUtils | TestRlsToggle.flagDefaultsFalse | — |
+| Admin enables RLS on a table via the standard schema-change mutation (`change(tables:[{name, rlsEnabled:true}])`) | GraphQL.tableSchema | TestRlsToggleGraphql.enableRlsRoot | rlsEnabled=true in admin UI |
+| Disable rejected when any custom role still has a scope row for the table — protects against accidentally orphaning OWN/GROUP scopes (the `role_permission_metadata` table stores those rows) | SqlTableMetadata | TestRlsToggle.disableRejectedWithPermissions | error toast |
+| Enabling on a subclass is rejected with `"enable on root '<X>' instead"` — RLS state is stored on the inheritance-tree root only | SqlTableMetadata | TestRlsToggle.enableSubclassRejected | — |
+| Enabling on a root cascades policies + columns to all subclasses atomically (one transaction) | SqlTableMetadata | TestRlsToggle.enableCascadesToChildren | — |
+| Disabling on a root cascades the removal to all subclasses | SqlTableMetadata | TestRlsToggle.disableCascadesToChildren | — |
+| Internal storage: subclass rows always carry `rls_enabled=false`; consumers must walk up via `getInheritedTable()` to read the effective flag | TableMetadata.getRlsEnabled | TestRlsToggle.metadataStoredOnRootOnly | — |
+| Enable adds two row-tagging columns to the physical table: `mg_owner TEXT` (the row's owner, defaults to inserting user) and `mg_groups TEXT[]` (groups the row belongs to) | SqlTableMetadata | TestRlsToggle.materialisesRowColumnsOnEnable | — |
+| Enable backfills `mg_owner` from the existing `mg_insertedBy` audit column (so pre-RLS rows have a sensible owner) | SqlTableMetadata | TestRlsToggle.backfillsOwnerOnEnable | — |
+| Enable creates a GIN index on `mg_groups` named `<table>_mg_groups_idx`; disable drops it. Index supports the `mg_groups && user_groups` overlap test in the SELECT policy | SqlRoleManager.enableRlsForTable | TestRlsEnableDisableLifecycle.enableRls_createsGinIndexOnMgGroups | — |
 
 ## Policy template (per RLS table)
 
@@ -138,7 +155,7 @@
 
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
-| `PermissionSet.ReferenceScope` enum (NONE/OWN/GROUP/ALL) with `fromString` | PermissionSet | TestSqlRoleManager.referenceScope_roundTrip_all / referenceScope_roundTrip_ownGroupNone | — |
+| `PermissionSet.ReferenceScope` enum (NONE/ALL) with `fromString` | PermissionSet | TestSqlRoleManager.referenceScope_roundTrip_all / referenceScope_roundTrip_none | — |
 | `TablePermission.reference()` defaults to NONE; fluent setter rejects null | TablePermission | TestSqlRoleManager.fluentSetter_nullArg_throwsNPE | — |
 | `role_permission_metadata.reference_scope TEXT NOT NULL DEFAULT 'NONE'` persisted | MetadataUtils / migration32.sql | TestSqlRoleManager.referenceScope_roundTrip_all | — |
 | `setPermissions` round-trips REFERENCE | SqlRoleManager.setPermissions | TestSqlRoleManager.referenceScope_roundTrip_all | — |
@@ -152,8 +169,6 @@
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
 | Returns true for REFERENCE_ALL | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeAll | — |
-| Returns true for REFERENCE_OWN on owner-matching row | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeOwnMatches | — |
-| Returns true for REFERENCE_GROUP on group-matching row | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenReferenceScopeGroupMatches | — |
 | Returns true for system roles (Owner/Manager/Editor/Viewer) | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_forSystemRole | — |
 | VIEW ⊇ REFERENCE implicit carry: row-access scope grants reference even with REFERENCE_NONE | mg_can_reference | TestMgCanReference.mgCanReference_returnsTrue_whenSelectScopeAllButReferenceNone | — |
 | Privacy modes (EXISTS/COUNT/RANGE/AGGREGATE) do NOT grant reference | mg_can_reference | TestMgCanReference.mgCanReference_returnsFalse_whenPrivacyScopeOnly | — |

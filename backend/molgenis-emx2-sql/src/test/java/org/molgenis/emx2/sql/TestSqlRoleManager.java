@@ -612,28 +612,24 @@ class TestSqlRoleManager {
   }
 
   @Test
-  void referenceScope_roundTrip_ownGroupNone() {
-    roleManager.createRole(SCHEMA_ENF, "ref-scope-variants");
+  void referenceScope_roundTrip_none() {
+    roleManager.createRole(SCHEMA_ENF, "ref-scope-none");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
-    for (PermissionSet.ReferenceScope scope :
-        new PermissionSet.ReferenceScope[] {
-          PermissionSet.ReferenceScope.OWN,
-          PermissionSet.ReferenceScope.GROUP,
-          PermissionSet.ReferenceScope.NONE
-        }) {
-      PermissionSet ps = new PermissionSet();
-      TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
-      tp.select(SelectScope.ALL);
-      tp.reference(scope);
-      ps.putTable(ENFORCEMENT_TABLE, tp);
-      roleManager.setPermissions(schemaEnf, "ref-scope-variants", ps);
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    tp.reference(PermissionSet.ReferenceScope.NONE);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-scope-none", ps);
 
-      PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-variants");
-      TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
-      assertNotNull(retrievedTp, "table permission must be present for scope " + scope);
-      assertEquals(scope, retrievedTp.reference(), "reference scope " + scope + " must round-trip");
-    }
+    PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-none");
+    TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
+    assertNotNull(retrievedTp, "table permission must be present after setPermissions");
+    assertEquals(
+        PermissionSet.ReferenceScope.NONE,
+        retrievedTp.reference(),
+        "reference scope NONE must round-trip");
   }
 
   // ── TablePermission: null arg must throw NPE ─────────────────────────────

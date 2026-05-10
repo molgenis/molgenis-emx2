@@ -72,8 +72,6 @@ public class PermissionSet {
 
   public enum ReferenceScope {
     NONE,
-    OWN,
-    GROUP,
     ALL;
 
     public static ReferenceScope fromString(String name) {

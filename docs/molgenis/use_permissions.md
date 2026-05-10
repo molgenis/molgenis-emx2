@@ -440,11 +440,9 @@ Note: this raw count is not subject to the `mg_privacy_count` floor — see Know
 Each table has two orthogonal permission axes per role:
 
 - **`view(T, scope)`** — governs direct SELECT on T (`query { T { ... } }`). Scope ladder: `NONE | EXISTS | COUNT | RANGE | AGGREGATE | OWN | GROUP | ALL`.
-- **`reference(T)`** — governs FK traversal into T from other tables (`query { Child { fkToT { pk, label } } }`). Enum: `REFERENCE_NONE | REFERENCE_OWN | REFERENCE_GROUP | REFERENCE_ALL`.
+- **`reference(T)`** — governs FK traversal into T from other tables (`query { Child { fkToT { pk, label } } }`). Enum: `REFERENCE_NONE | REFERENCE_ALL` — two states: no FK traversal, or unrestricted FK traversal.
 
 The two axes are set independently per `(schema, role, table)` in `role_permission_metadata`.
-
-**v1 runtime**: only `REFERENCE_NONE` and `REFERENCE_ALL` are evaluated at runtime. `REFERENCE_OWN` and `REFERENCE_GROUP` are present in metadata and import/export so future phases can wire them without a schema migration — but they currently behave like `REFERENCE_NONE`.
 
 ### VIEW ⊇ REFERENCE (implicit carry)
 
@@ -460,7 +458,7 @@ Grant `REFERENCE_ALL` with `VIEW_NONE` to expose a "lookup table" where users ca
 |---|---|---|
 | `VIEW_NONE + REFERENCE_ALL` | nothing returned | all Child rows visible; FK resolves to `{pk, label}` only |
 | `VIEW_OWN + REFERENCE_NONE` | own rows, full fields | only Child rows pointing to own targets visible |
-| `VIEW_GROUP + REFERENCE_ALL` | group rows, full fields | all Child rows visible; FK resolves to `{pk, label}` only |
+| `VIEW_GROUP + REFERENCE_NONE` | group rows, full fields | only Child rows pointing to group-visible targets visible |
 | `VIEW_ALL` | all rows, full fields | all Child rows visible; FK fully resolvable |
 
 ### Child-row visibility rule
