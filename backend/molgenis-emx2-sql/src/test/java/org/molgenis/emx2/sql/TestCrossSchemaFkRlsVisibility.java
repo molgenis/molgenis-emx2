@@ -204,6 +204,9 @@ public class TestCrossSchemaFkRlsVisibility {
       assertTrue(
           names.contains("alice-only-lover"),
           "Row with all REF_ARRAY elements visible must remain visible");
+      assertFalse(
+          names.contains("alice-lover"), "Row with any invisible REF_ARRAY element must be hidden");
+      assertEquals(2, rows.size(), "Only alice-only-lover and nobody-lover must be visible");
     } finally {
       db.becomeAdmin();
     }
@@ -222,6 +225,8 @@ public class TestCrossSchemaFkRlsVisibility {
       List<String> names = rows.stream().map(r -> r.getString("name")).toList();
       assertTrue(
           names.contains("nobody-lover"), "Row with null/empty REF_ARRAY must always be visible");
+      assertFalse(
+          names.contains("alice-lover"), "Row with any invisible REF_ARRAY element must be hidden");
     } finally {
       db.becomeAdmin();
     }
@@ -266,6 +271,7 @@ public class TestCrossSchemaFkRlsVisibility {
       assertTrue(
           names.contains("nobody-lover"),
           "REFERENCE_ALL must keep REF_ARRAY row with empty array visible");
+      assertEquals(3, rows.size(), "REFERENCE_ALL must expose all three PetLover rows");
     } finally {
       db.becomeAdmin();
     }
@@ -321,6 +327,30 @@ public class TestCrossSchemaFkRlsVisibility {
       assertTrue(
           names.contains("bob-owns-whiskers"),
           "REFERENCE_ALL must keep child row visible even with VIEW_NONE on refTable");
+      assertTrue(
+          names.contains("nobody-has-no-pet"),
+          "Null-FK row must remain visible under REFERENCE_ALL");
+      assertEquals(3, rows.size(), "REFERENCE_ALL must expose all three Owner rows");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void crossSchema_throwsForUserWithNoMembershipInRefSchema() {
+    db.becomeAdmin();
+
+    String userNoRef = "CsFkRlsNoRefSchemaUser";
+    if (!db.hasUser(userNoRef)) db.addUser(userNoRef);
+
+    childSchema.addMember(userNoRef, "Viewer");
+
+    db.setActiveUser(userNoRef);
+    try {
+      assertThrows(
+          MolgenisException.class,
+          () -> childSchema.getTable(OWNER_TABLE).select(s("name"), s("pet")).retrieveRows(),
+          "User with no REF_SCHEMA membership cannot resolve cross-schema column metadata");
     } finally {
       db.becomeAdmin();
     }
