@@ -17,6 +17,7 @@ import graphql.Scalars;
 import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
@@ -51,10 +52,14 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
+
+  private record SchemaPermissionView(
+      Set<String> selectTables, Set<String> referenceTables, boolean isSystemViewer) {}
+
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
-  private final Set<String> tablesWithSelectPermission;
-  private final Set<String> tablesWithReferencePermission;
+  private final Map<String, SchemaPermissionView> permissionsBySchemaName =
+      new ConcurrentHashMap<>();
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -68,16 +73,27 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
-    this.tablesWithSelectPermission =
-        schema.getPermissionsForActiveUser().stream()
-            .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
-            .map(TablePermission::table)
-            .collect(Collectors.toUnmodifiableSet());
-    this.tablesWithReferencePermission =
-        schema.getPermissionsForActiveUser().stream()
-            .filter(p -> p.reference() != null && p.reference() != ReferenceScope.NONE)
-            .map(TablePermission::table)
-            .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private SchemaPermissionView permissionsFor(String schemaName) {
+    return permissionsBySchemaName.computeIfAbsent(
+        schemaName,
+        name -> {
+          Schema target =
+              name.equals(schema.getName()) ? schema : schema.getDatabase().getSchema(name);
+          Set<String> sel =
+              target.getPermissionsForActiveUser().stream()
+                  .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
+                  .map(TablePermission::table)
+                  .collect(Collectors.toUnmodifiableSet());
+          Set<String> ref =
+              target.getPermissionsForActiveUser().stream()
+                  .filter(p -> p.reference() != null && p.reference() != ReferenceScope.NONE)
+                  .map(TablePermission::table)
+                  .collect(Collectors.toUnmodifiableSet());
+          boolean isViewer = target.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+          return new SchemaPermissionView(sel, ref, isViewer);
+        });
   }
 
   // helper to generate globally unique identifiers
@@ -339,17 +355,19 @@ public class GraphqlTableFieldFactory {
   }
 
   boolean hasViewPermission(TableMetadata table) {
-    return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        || tablesWithSelectPermission.contains("*")
-        || tablesWithSelectPermission.contains(table.getTableName());
+    if (table.getTableType().equals(ONTOLOGIES)) return true;
+    SchemaPermissionView perm = permissionsFor(table.getSchemaName());
+    return perm.isSystemViewer()
+        || perm.selectTables().contains("*")
+        || perm.selectTables().contains(table.getTableName());
   }
 
   boolean hasReferencePermission(TableMetadata table) {
-    return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        || tablesWithReferencePermission.contains("*")
-        || tablesWithReferencePermission.contains(table.getTableName());
+    if (table.getTableType().equals(ONTOLOGIES)) return true;
+    SchemaPermissionView perm = permissionsFor(table.getSchemaName());
+    return perm.isSystemViewer()
+        || perm.referenceTables().contains("*")
+        || perm.referenceTables().contains(table.getTableName());
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
