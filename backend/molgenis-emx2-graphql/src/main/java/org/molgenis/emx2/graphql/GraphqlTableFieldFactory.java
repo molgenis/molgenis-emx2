@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class GraphqlTableFieldFactory {
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
   private final Set<String> tablesWithSelectPermission;
+  private final Set<String> tablesWithReferencePermission;
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -69,6 +71,11 @@ public class GraphqlTableFieldFactory {
     this.tablesWithSelectPermission =
         schema.getPermissionsForActiveUser().stream()
             .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
+            .map(TablePermission::table)
+            .collect(Collectors.toUnmodifiableSet());
+    this.tablesWithReferencePermission =
+        schema.getPermissionsForActiveUser().stream()
+            .filter(p -> p.reference() != null && p.reference() != ReferenceScope.NONE)
             .map(TablePermission::table)
             .collect(Collectors.toUnmodifiableSet());
   }
@@ -174,6 +181,19 @@ public class GraphqlTableFieldFactory {
     return tableTypes.get(tableObjectType);
   }
 
+  private GraphQLNamedOutputType createReferenceOnlyType(TableMetadata table) {
+    String tableObjectType = getTableTypeIdentifier(table);
+    if (!tableTypes.containsKey(tableObjectType)) {
+      tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
+      GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
+      for (Column col : table.getPrimaryKeyColumns()) {
+        createTableField(col, tableBuilder);
+      }
+      tableTypes.put(tableObjectType, tableBuilder.build());
+    }
+    return tableTypes.get(tableObjectType);
+  }
+
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
     switch (col.getColumnType().getBaseType()) {
@@ -254,6 +274,11 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
+        } else if (hasReferencePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(createReferenceOnlyType(col.getRefTable())));
         }
         break;
       case REF_ARRAY:
@@ -283,6 +308,11 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.ORDERBY)
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
+        } else if (hasReferencePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(GraphQLList.list(createReferenceOnlyType(col.getRefTable()))));
         }
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
@@ -313,6 +343,13 @@ public class GraphqlTableFieldFactory {
         || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
         || tablesWithSelectPermission.contains("*")
         || tablesWithSelectPermission.contains(table.getTableName());
+  }
+
+  boolean hasReferencePermission(TableMetadata table) {
+    return table.getTableType().equals(ONTOLOGIES)
+        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
+        || tablesWithReferencePermission.contains("*")
+        || tablesWithReferencePermission.contains(table.getTableName());
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
 import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.PermissionSet.UpdateScope;
 
@@ -639,6 +640,60 @@ class TestSqlRoleManager {
   @Test
   void fluentSetter_nullArg_throwsNPE() {
     assertThrows(NullPointerException.class, () -> new TablePermission("t").select(null));
+  }
+
+  // ── reference-only permission survives in-memory aggregation path ─────────
+
+  @Test
+  void referenceOnlyPermission_survivesAggregationPath() {
+    roleManager.createRole(SCHEMA_ENF, "ref-only-role");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).reference(ReferenceScope.ALL);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-only-role", ps);
+
+    roleManager.grantRoleToUser(schemaEnf, "ref-only-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission found =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(found, "permission entry for " + ENFORCEMENT_TABLE + " must be present");
+      assertEquals(ReferenceScope.ALL, found.reference(), "reference scope must be ALL");
+      assertEquals(SelectScope.NONE, found.select(), "select scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.insert(), "insert scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.update(), "update scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.delete(), "delete scope must be NONE");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void referenceOnlyWildcard_survivesExpandWildcard() {
+    roleManager.createRole(SCHEMA_ENF, "ref-wildcard-role");
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission wildcard = new TablePermission("*").reference(ReferenceScope.ALL);
+    ps.putTable("*", wildcard);
+    roleManager.setPermissions(schemaEnf, "ref-wildcard-role", ps);
+
+    roleManager.grantRoleToUser(schemaEnf, "ref-wildcard-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission found =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(found, "wildcard reference must expand to " + ENFORCEMENT_TABLE);
+      assertEquals(
+          ReferenceScope.ALL, found.reference(), "reference scope must be ALL after expand");
+    } finally {
+      db.becomeAdmin();
+    }
   }
 
   // ── enforcement helpers ───────────────────────────────────────────────────

@@ -423,7 +423,8 @@ public class SqlRoleManager {
               .select(wildcard.select())
               .insert(wildcard.insert())
               .update(wildcard.update())
-              .delete(wildcard.delete()),
+              .delete(wildcard.delete())
+              .reference(wildcard.reference()),
           SqlRoleManager::mergePermissions);
     }
   }
@@ -432,7 +433,8 @@ public class SqlRoleManager {
     return p.select() != SelectScope.NONE
         || p.insert() == UpdateScope.ALL
         || p.update() == UpdateScope.ALL
-        || p.delete() == UpdateScope.ALL;
+        || p.delete() == UpdateScope.ALL
+        || p.reference() != ReferenceScope.NONE;
   }
 
   private static String selectScopeName(TablePermission tp) {
@@ -461,10 +463,15 @@ public class SqlRoleManager {
         .delete(
             a.delete() == UpdateScope.ALL || b.delete() == UpdateScope.ALL
                 ? UpdateScope.ALL
-                : UpdateScope.NONE);
+                : UpdateScope.NONE)
+        .reference(higherReferenceScope(a.reference(), b.reference()));
   }
 
   private static SelectScope higherSelectScope(SelectScope a, SelectScope b) {
+    return a.ordinal() >= b.ordinal() ? a : b;
+  }
+
+  private static ReferenceScope higherReferenceScope(ReferenceScope a, ReferenceScope b) {
     return a.ordinal() >= b.ordinal() ? a : b;
   }
 
