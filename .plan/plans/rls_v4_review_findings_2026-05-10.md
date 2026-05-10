@@ -282,11 +282,20 @@ Test consolidation (~1225 LOC) moves to **J-post**. Owner direction: get correct
 ## Updated Phase J split (post-triage 2026-05-10)
 
 ### J-pre (must close before colleague review)
-- **J-pre.1 Security & auth fixes** — items #1, #3, #5, #14, #16
-- **J-pre.2 Delete unused `copyIn`** — item #2 (orphan code + its only test)
-- **J-pre.3 Correctness & contract fixes** — items #4, #6, #7, #8, #13, #19, #20
-- **J-pre.4 Docs corrections** — items #9, #10, #11, #12
-- **J-pre.6 Coverage gaps & dead code** — items #17, #21
+- **J-pre.1 Security & auth fixes** — items #1, #3, #5, #14, #16. _Status (2026-05-10): ALL DONE (Agent A: #1, #14, #16 / Agent B: #3, #5)._
+  - **#1 DONE**: `mg_protect_system_roles` extended to `OR TG_OP = 'DELETE'`. Also fixed pre-existing semantic bug: admin bypass changed from `current_user <> 'admin'` to `current_user LIKE 'MG_USER_%'` (PG `current_user` is the PG role, not the app username).
+  - **#3 DONE**: `changePassword` data fetcher in `GraphqlSessionFieldFactory.java` now guards admin before calling `setUserPassword`; non-admin with `email` arg → throw. 9 tests in `TestGraphqlSession`.
+  - **#5 DONE**: `SqlSchema.java` adds Owner+/admin guard before TableType change TO `ONTOLOGIES`; other transitions stay Manager. 8 tests in `TestGraphqlSchemaTables`.
+  - **#14+#16 DONE**: `p_changing_group` computed dynamically (rule A — `mg_groups ⊆ current_user_groups()`); empty-array short-circuit removed from `mg_can_write_all` GROUP-scope branch. 4 new tests in `TestChangeGroup` cover ban/allow paths.
+  - Net diff: `migration32.sql` +18 lines, java auth files ~+57 lines, tests +269 lines.
+- **J-pre.2 Delete unused `copyIn`** — item #2 (orphan code + its only test). _Status (2026-05-10): DONE._ 126 lines deleted: `SqlTable.copyIn` method (45 LOC, incl. `java.io.StringReader` import; retained `CopyManager`/`BaseConnection` imports used by `copyOut`) + `TestCopy.java` (81 LOC, `git rm`). Verified no production callers; compile clean; spec untouched (no rows referenced `copyIn`).
+- **J-pre.3 Correctness & contract fixes** — items #4, #6, #7, #8, #13, #19, #20. _Status (2026-05-10): items #8, #20 DONE; #4, #6, #7, #13, #19 pending Wave 2._
+  - **#8 DONE**: migration32.sql idempotency — split single DO block into two (column ADD vs constraint ADD), each catching its own duplicate exception. Test `migration32RerunRestoresConstraintWhenColumnAlreadyExists` covers re-run scenario.
+  - **#20 DONE** (Agent B): `SqlRoleManager.createRole(Schema, name, description)` persists description via sentinel row in `role_permission_metadata`; `getPermissionSet()` reads it back. 32 tests in `TestSqlRoleManager`.
+- **J-pre.4 Docs corrections** — items #9, #10, #11, #12. _Status (2026-05-10): DONE._ +39 lines (use_customroles.md +27, use_permissions.md +14). `OWN_OR_GROUP` row removed (zero hits in backend); 22-line REFERENCE section added after Ownership columns in `use_customroles.md` (independent axis, NONE default, ALL for lookup tables, VIEW⊇REFERENCE carry, privacy-scope exclusion, mutation example, cross-ref to `use_permissions.md#reference-scope`); 4-line `mg_groups: ["DEPT1"]` insert example added inside worked-example (c) of `use_permissions.md`. **Surface finding**: `MolgenisMembersInput` accepts BOTH `user` and `email` fields (memberInputToMember tries `user` first, falls back to `email`); `user` is canonical. `use_customroles.md:177` corrected `email:` → `user:`; `use_permissions.md` examples already used `user:`. Dual-field acceptance is likely back-compat; flag for J-post review (consider deprecating `email` field on input type if no migration concerns).
+- **J-pre.6 Coverage gaps & dead code** — items #17, #21, **#46 (new)**. _Status (2026-05-10): #21 DONE (Agent B); #17, #46 pending Wave 2._
+  - **#21 DONE** (Agent B): `SqlDatabase.initSystemSchema()` dead branch removed.
+  - **#46 (owner-added 2026-05-10)**: Consolidate `SqlRoleManager.createRole` overloads. Remove `createRole(String schemaName, String roleName)` and keep only `createRole(Schema schema, String roleName, String description)`. Java callers must pass description (empty string acceptable). `Schema.createRole(String roleName)` interface method stays as friendly wrapper delegating with `""`. GraphQL and import layers may continue to omit description (default empty). Rationale: internal duplication; the 2-arg overload silently produces description-less roles. Dispatch as part of Wave 2.
 
 (No J-pre.5 — test consolidation moved to J-post.)
 

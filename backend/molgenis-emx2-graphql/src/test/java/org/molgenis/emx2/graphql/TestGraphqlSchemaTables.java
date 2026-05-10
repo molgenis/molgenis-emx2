@@ -20,7 +20,10 @@ class TestGraphqlSchemaTables {
   private static final String TABLE_ITEM_ENABLE = "ItemEnable";
   private static final String TABLE_ITEM_DISABLE_REJECT = "ItemDisableReject";
   private static final String TABLE_ASSET = "Asset";
-  private static final String QUERY_TABLES = "{ _schema { tables { name rlsEnabled } } }";
+  private static final String TABLE_SENSITIVE = "Sensitive";
+  private static final String QUERY_TABLES = "{ _schema { tables { name rlsEnabled tableType } } }";
+  private static final String USER_MANAGER_TABLES = "tgst_manager";
+  private static final String USER_OWNER_TABLES = "tgst_owner";
 
   private static Database database;
   private static Schema schema;
@@ -46,6 +49,17 @@ class TestGraphqlSchemaTables {
         .create(
             TableMetadata.table(TABLE_ITEM_DISABLE_REJECT)
                 .add(Column.column("name").setType(ColumnType.STRING).setKey(1)));
+    schema
+        .getMetadata()
+        .create(
+            TableMetadata.table(TABLE_SENSITIVE)
+                .add(Column.column("name").setType(ColumnType.STRING).setKey(1)));
+
+    database.setUserPassword(USER_MANAGER_TABLES, USER_MANAGER_TABLES);
+    database.setUserPassword(USER_OWNER_TABLES, USER_OWNER_TABLES);
+    schema.addMember(USER_MANAGER_TABLES, "Manager");
+    schema.addMember(USER_OWNER_TABLES, "Owner");
+
     executor = new GraphqlExecutor(schema, new TaskServiceInMemory());
   }
 
@@ -163,6 +177,140 @@ class TestGraphqlSchemaTables {
     assertNull(
         findRoleByName(rolesAfterNode, "rlsRejectRole"),
         "rlsRejectRole must not exist after rejected mutation");
+  }
+
+  @Test
+  void tableType_changeToOntologies_managerForbidden() throws IOException {
+    JsonNode tablesBefore = queryTablesNode();
+    JsonNode sensitiveBefore = findTableByName(tablesBefore, TABLE_SENSITIVE);
+    assertNotNull(sensitiveBefore, "Pre-condition: " + TABLE_SENSITIVE + " must exist");
+    assertNotEquals(
+        "ONTOLOGIES",
+        sensitiveBefore.path("tableType").asText(),
+        "Pre-condition: tableType must not be ONTOLOGIES");
+
+    database.setActiveUser(USER_MANAGER_TABLES);
+    try {
+      GraphqlExecutor managerExecutor =
+          new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
+      assertThrows(
+          MolgenisException.class,
+          () ->
+              executeWith(
+                  managerExecutor,
+                  "mutation { change(tables: [{name: \""
+                      + TABLE_SENSITIVE
+                      + "\", tableType: \"ONTOLOGIES\"}]) { message } }"),
+          "Manager must not change tableType to ONTOLOGIES");
+    } finally {
+      database.becomeAdmin();
+    }
+
+    JsonNode tablesAfter = queryTablesNode();
+    JsonNode sensitiveAfter = findTableByName(tablesAfter, TABLE_SENSITIVE);
+    assertNotEquals(
+        "ONTOLOGIES",
+        sensitiveAfter.path("tableType").asText(),
+        "tableType must remain unchanged after rejected mutation");
+  }
+
+  @Test
+  void tableType_changeToOntologies_ownerAllowed() throws IOException {
+    JsonNode tablesBefore = queryTablesNode();
+    JsonNode itemBefore = findTableByName(tablesBefore, TABLE_ITEM);
+    assertNotNull(itemBefore, "Pre-condition: " + TABLE_ITEM + " must exist");
+
+    database.setActiveUser(USER_OWNER_TABLES);
+    try {
+      GraphqlExecutor ownerExecutor =
+          new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
+      assertDoesNotThrow(
+          () ->
+              executeWith(
+                  ownerExecutor,
+                  "mutation { change(tables: [{name: \""
+                      + TABLE_ITEM
+                      + "\", tableType: \"ONTOLOGIES\"}]) { message } }"),
+          "Owner must be able to change tableType to ONTOLOGIES");
+    } finally {
+      database.becomeAdmin();
+    }
+
+    database.becomeAdmin();
+    GraphqlExecutor freshExecutor =
+        new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
+    String freshJson =
+        convertExecutionResultToJson(freshExecutor.executeWithoutSession(QUERY_TABLES));
+    JsonNode tablesAfter = new ObjectMapper().readTree(freshJson).at("/data/_schema/tables");
+    JsonNode itemAfter = findTableByName(tablesAfter, TABLE_ITEM);
+    assertNotNull(itemAfter, "Table must still exist after mutation");
+    assertEquals(
+        "ONTOLOGIES",
+        itemAfter.path("tableType").asText(),
+        "tableType must be ONTOLOGIES after owner mutation");
+
+    execute(
+        "mutation { change(tables: [{name: \""
+            + TABLE_ITEM
+            + "\", tableType: \"DATA\"}]) { message } }");
+  }
+
+  @Test
+  void tableType_changeToOntologies_adminAllowed() throws IOException {
+    JsonNode tablesBefore = queryTablesNode();
+    JsonNode sensitiveBefore = findTableByName(tablesBefore, TABLE_SENSITIVE);
+    assertNotNull(sensitiveBefore, "Pre-condition: " + TABLE_SENSITIVE + " must exist");
+
+    execute(
+        "mutation { change(tables: [{name: \""
+            + TABLE_SENSITIVE
+            + "\", tableType: \"ONTOLOGIES\"}]) { message } }");
+
+    JsonNode tablesAfter = queryTablesNode();
+    JsonNode sensitiveAfter = findTableByName(tablesAfter, TABLE_SENSITIVE);
+    assertNotNull(sensitiveAfter, "Table must still exist after mutation");
+    assertEquals(
+        "ONTOLOGIES",
+        sensitiveAfter.path("tableType").asText(),
+        "tableType must be ONTOLOGIES after admin mutation");
+
+    execute(
+        "mutation { change(tables: [{name: \""
+            + TABLE_SENSITIVE
+            + "\", tableType: \"DATA\"}]) { message } }");
+  }
+
+  @Test
+  void tableType_keepData_managerAllowed() throws IOException {
+    JsonNode tablesBefore = queryTablesNode();
+    JsonNode itemBefore = findTableByName(tablesBefore, TABLE_ITEM);
+    assertNotNull(itemBefore, "Pre-condition: " + TABLE_ITEM + " must exist");
+    assertEquals(
+        "DATA", itemBefore.path("tableType").asText(), "Pre-condition: tableType must be DATA");
+
+    database.setActiveUser(USER_MANAGER_TABLES);
+    try {
+      GraphqlExecutor managerExecutor =
+          new GraphqlExecutor(database.getSchema(SCHEMA_NAME), new TaskServiceInMemory());
+      assertDoesNotThrow(
+          () ->
+              executeWith(
+                  managerExecutor,
+                  "mutation { change(tables: [{name: \""
+                      + TABLE_ITEM
+                      + "\", tableType: \"DATA\"}]) { message } }"),
+          "Manager must be able to set tableType to DATA (no escalation, no restriction)");
+    } finally {
+      database.becomeAdmin();
+    }
+  }
+
+  private void executeWith(GraphqlExecutor exec, String mutation) throws IOException {
+    String json = convertExecutionResultToJson(exec.executeWithoutSession(mutation));
+    JsonNode node = new ObjectMapper().readTree(json);
+    if (node.get("errors") != null) {
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText());
+    }
   }
 
   private JsonNode queryTablesNode() throws IOException {

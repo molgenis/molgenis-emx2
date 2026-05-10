@@ -25,6 +25,7 @@ class TestGraphqlSession {
   private static final String ROLE_ANALYST = "sess_analyst";
   private static final String USER_TEST = "sess_test_user";
   private static final String USER_NO_ROLE = "sess_norole_user";
+  private static final String USER_VICTIM = "sess_victim";
 
   private static Database database;
   private static SqlRoleManager roleManager;
@@ -52,6 +53,8 @@ class TestGraphqlSession {
       database.removeUser(USER_NO_ROLE);
     }
     database.addUser(USER_NO_ROLE);
+
+    database.setUserPassword(USER_VICTIM, "initial_password");
 
     roleManager = ((SqlDatabase) database).getRoleManager();
 
@@ -271,6 +274,63 @@ class TestGraphqlSession {
     } finally {
       database.becomeAdmin();
     }
+  }
+
+  @Test
+  void changePassword_nonAdmin_cannotChangeAnotherUsersPassword() {
+    database.setActiveUser(USER_TEST);
+    try {
+      String mutation =
+          "mutation { changePassword(email: \""
+              + USER_VICTIM
+              + "\", password: \"hacked\") { status message } }";
+      assertThrows(
+          MolgenisException.class,
+          () -> executeQuery(executor, mutation),
+          "Non-admin must not change another user's password via email arg");
+    } finally {
+      database.becomeAdmin();
+    }
+
+    database.becomeAdmin();
+    assertTrue(
+        database.checkUserPassword(USER_VICTIM, "initial_password"),
+        "Victim password must remain unchanged after rejected mutation");
+  }
+
+  @Test
+  void changePassword_admin_canChangeAnotherUsersPassword() throws IOException {
+    database.becomeAdmin();
+    String mutation =
+        "mutation { changePassword(email: \""
+            + USER_VICTIM
+            + "\", password: \"admin_changed\") { status message } }";
+    JsonNode result = executeQuery(executor, mutation);
+    assertEquals("SUCCESS", result.at("/changePassword/status").asText());
+
+    assertTrue(
+        database.checkUserPassword(USER_VICTIM, "admin_changed"),
+        "Admin must be able to change victim password");
+
+    database.setUserPassword(USER_VICTIM, "initial_password");
+  }
+
+  @Test
+  void changePassword_nonAdmin_canChangeOwnPassword() throws IOException {
+    database.setUserPassword(USER_TEST, "old_pass");
+    database.setActiveUser(USER_TEST);
+    try {
+      String mutation = "mutation { changePassword(password: \"new_pass\") { status message } }";
+      JsonNode result = executeQuery(executor, mutation);
+      assertEquals("SUCCESS", result.at("/changePassword/status").asText());
+    } finally {
+      database.becomeAdmin();
+    }
+
+    database.becomeAdmin();
+    assertTrue(
+        database.checkUserPassword(USER_TEST, "new_pass"),
+        "Non-admin must be able to change own password");
   }
 
   private JsonNode executeQuery(GraphqlExecutor exec, String query) throws IOException {

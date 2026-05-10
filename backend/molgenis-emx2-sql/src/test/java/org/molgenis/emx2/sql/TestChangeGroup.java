@@ -7,6 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -28,6 +29,12 @@ class TestChangeGroup {
   private static final SqlRoleManager roleManager = new SqlRoleManager((SqlDatabase) db);
 
   private Schema schema;
+
+  @BeforeAll
+  static void applyMigration() {
+    Migrations.executeMigrationFile(
+        db, "migration32.sql", "re-apply migration32 for change_group INSERT fix");
+  }
 
   @BeforeEach
   void setUp() {
@@ -168,11 +175,118 @@ class TestChangeGroup {
                       + TABLE_NAME
                       + "\" (id, val, mg_groups) VALUES ('row-insert-cg', 'v', ?)",
                   new Object[] {new String[] {GROUP_ONE}}),
-          "Inserting with groups must be allowed even when change_group=false (group-subset check handles authorization)");
+          "Inserting with own group must be allowed when change_group=false");
     } finally {
       db.becomeAdmin();
       roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
       schema.getTable(TABLE_NAME).delete(new Row().setString("id", "row-insert-cg"));
+    }
+  }
+
+  @Test
+  void insertWithForeignGroupBlockedWhenChangeGroupFalse() {
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertThrows(
+          DataAccessException.class,
+          () ->
+              jooq.execute(
+                  "INSERT INTO \""
+                      + SCHEMA_NAME
+                      + "\".\""
+                      + TABLE_NAME
+                      + "\" (id, val, mg_groups) VALUES ('row-foreign-group', 'v', ?)",
+                  new Object[] {new String[] {GROUP_TWO}}),
+          "Inserting with a group the user is not a member of must be blocked when change_group=false");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
+      jooq.execute(
+          "DELETE FROM \""
+              + SCHEMA_NAME
+              + "\".\""
+              + TABLE_NAME
+              + "\" WHERE id = 'row-foreign-group'");
+    }
+  }
+
+  @Test
+  void insertWithForeignGroupAllowedWhenChangeGroupTrue() {
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_YES_CG);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertDoesNotThrow(
+          () ->
+              jooq.execute(
+                  "INSERT INTO \""
+                      + SCHEMA_NAME
+                      + "\".\""
+                      + TABLE_NAME
+                      + "\" (id, val, mg_groups) VALUES ('row-delegate-group', 'v', ?)",
+                  new Object[] {new String[] {GROUP_TWO}}),
+          "Inserting with a foreign group must be allowed when change_group=true");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_YES_CG);
+      schema.getTable(TABLE_NAME).delete(new Row().setString("id", "row-delegate-group"));
+    }
+  }
+
+  @Test
+  void insertWithGroupScopeEmptyGroupsBlocked() {
+    String roleGroupScope = "roleGroupScopeInsert";
+    roleManager.createRole(SCHEMA_NAME, roleGroupScope);
+    PermissionSet groupScopePerms = new PermissionSet();
+    groupScopePerms.setChangeGroup(false);
+    TablePermission tpGroup = new TablePermission(TABLE_NAME);
+    tpGroup.select(SelectScope.ALL);
+    tpGroup.insert(UpdateScope.GROUP);
+    groupScopePerms.putTable(TABLE_NAME, tpGroup);
+    roleManager.setPermissions(schema, roleGroupScope, groupScopePerms);
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, roleGroupScope);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertThrows(
+          DataAccessException.class,
+          () ->
+              jooq.execute(
+                  "INSERT INTO \""
+                      + SCHEMA_NAME
+                      + "\".\""
+                      + TABLE_NAME
+                      + "\" (id, val, mg_groups) VALUES ('row-empty-group', 'v', '{}'::text[])"),
+          "INSERT with empty mg_groups must be blocked for GROUP-scoped user (#16 stealth-publish prevention)");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, roleGroupScope);
+      jooq.execute(
+          "DELETE FROM \""
+              + SCHEMA_NAME
+              + "\".\""
+              + TABLE_NAME
+              + "\" WHERE id = 'row-empty-group'");
+    }
+  }
+
+  @Test
+  void insertWithAllScopeEmptyGroupsAllowed() {
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertDoesNotThrow(
+          () ->
+              jooq.execute(
+                  "INSERT INTO \""
+                      + SCHEMA_NAME
+                      + "\".\""
+                      + TABLE_NAME
+                      + "\" (id, val, mg_groups) VALUES ('row-all-scope-empty', 'v', '{}'::text[])"),
+          "INSERT with empty mg_groups must be allowed for ALL-scoped user");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_ONE, USER_ALICE, ROLE_NO_CG);
+      schema.getTable(TABLE_NAME).delete(new Row().setString("id", "row-all-scope-empty"));
     }
   }
 }

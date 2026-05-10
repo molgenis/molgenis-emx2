@@ -81,6 +81,19 @@ class TestSqlRoleManager {
   }
 
   @Test
+  void createRole_withDescription_persistsDescription() {
+    String roleName = "desc-persist-role";
+    roleManager.createRole(schemaA, roleName, "my description");
+    try {
+      Role role = roleManager.getRole(SCHEMA_A, roleName);
+      assertEquals(
+          "my description", role.description(), "description must round-trip via createRole");
+    } finally {
+      roleManager.deleteRole(SCHEMA_A, roleName);
+    }
+  }
+
+  @Test
   void getPermissionSet_returnsEmptyForUnknownRole() {
     PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "nonexistent");
     assertNotNull(result);

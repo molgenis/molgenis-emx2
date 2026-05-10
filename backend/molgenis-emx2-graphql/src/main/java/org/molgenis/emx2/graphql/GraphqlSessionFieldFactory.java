@@ -296,10 +296,12 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
-              if (username == null) {
-                username = database.getActiveUser();
+              String emailArg = dataFetchingEnvironment.getArgument(EMAIL);
+              String activeUser = database.getActiveUser();
+              if (emailArg != null && !emailArg.equals(activeUser) && !database.isAdmin()) {
+                throw new MolgenisException("Only admin can change another user's password");
               }
+              String username = emailArg != null ? emailArg : activeUser;
               if (password != null) {
                 database.setUserPassword(username, password);
                 return new GraphqlApiMutationResult(SUCCESS, "Password changed");

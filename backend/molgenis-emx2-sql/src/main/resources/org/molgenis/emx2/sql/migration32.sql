@@ -39,10 +39,15 @@ DO $$
 BEGIN
     ALTER TABLE "MOLGENIS".role_permission_metadata
         ADD COLUMN reference_scope TEXT NOT NULL DEFAULT 'NONE';
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
+
+DO $$
+BEGIN
     ALTER TABLE "MOLGENIS".role_permission_metadata
         ADD CONSTRAINT role_permission_reference_scope_check
         CHECK (reference_scope IN ('NONE','ALL'));
-EXCEPTION WHEN duplicate_column THEN NULL;
+EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 CREATE INDEX IF NOT EXISTS role_permission_schema_table_idx
@@ -52,8 +57,8 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_protect_system_roles()
     RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     IF OLD.role_name IN ('Owner','Manager','Editor','Viewer')
-        AND current_user <> 'admin'
-        AND TG_OP = 'UPDATE' THEN
+        AND current_user LIKE 'MG_USER_%'
+        AND (TG_OP = 'UPDATE' OR TG_OP = 'DELETE') THEN
         RAISE EXCEPTION 'System role rows are immutable' USING ERRCODE = '23514';
     END IF;
     IF TG_OP = 'UPDATE' THEN RETURN NEW; END IF;
@@ -239,8 +244,8 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_write_all(
                     END
             )
          OR (
-            array_length(p_groups, 1) IS NULL OR array_length(p_groups, 1) = 0
-            OR p_groups <@ ARRAY(
+            array_length(p_groups, 1) > 0
+            AND p_groups <@ ARRAY(
                  SELECT DISTINCT m.group_name
                  FROM "MOLGENIS".group_membership_metadata m
                  JOIN "MOLGENIS".role_permission_metadata rp
@@ -336,7 +341,8 @@ BEGIN
         p_verb           := 'insert';
         p_changing_owner := (NEW.mg_owner IS NOT NULL
                              AND 'MG_USER_' || NEW.mg_owner IS DISTINCT FROM current_user);
-        p_changing_group := FALSE;
+        p_changing_group := NOT (COALESCE(NEW.mg_groups, ARRAY[]::TEXT[])
+                                 <@ "MOLGENIS".current_user_groups(p_schema));
     END IF;
     IF NOT "MOLGENIS".mg_can_write_all(
         p_schema, p_table, NEW.mg_groups, NEW.mg_owner,

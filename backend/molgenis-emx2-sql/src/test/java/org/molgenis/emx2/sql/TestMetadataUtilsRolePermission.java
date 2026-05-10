@@ -19,6 +19,8 @@ public class TestMetadataUtilsRolePermission {
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     jooq = ((SqlDatabase) db).getJooq();
+    Migrations.executeMigrationFile(
+        db, "migration32.sql", "re-apply migration32 for trigger/constraint fixes");
     db.dropCreateSchema(SCHEMA_NAME);
   }
 
@@ -112,5 +114,66 @@ public class TestMetadataUtilsRolePermission {
               + " WHERE schema_name = ? AND role_name = 'Owner'",
           SCHEMA_NAME);
     }
+  }
+
+  @Test
+  public void triggerRejectsDeleteOnSystemRoleRow() {
+    String triggerTestUser = "TriggerDeleteTestUser";
+    if (!db.hasUser(triggerTestUser)) db.addUser(triggerTestUser);
+
+    jooq.execute(
+        "INSERT INTO \"MOLGENIS\".role_permission_metadata"
+            + " (schema_name, role_name, table_name, select_scope)"
+            + " VALUES (?, 'Viewer', 'protectedTable', 'ALL')",
+        SCHEMA_NAME);
+
+    db.setActiveUser(triggerTestUser);
+    try {
+      assertThrows(
+          Exception.class,
+          () ->
+              jooq.execute(
+                  "DELETE FROM \"MOLGENIS\".role_permission_metadata"
+                      + " WHERE schema_name = ? AND role_name = 'Viewer'",
+                  SCHEMA_NAME),
+          "DELETE on system role row must be rejected by trigger mg_protect_system_roles");
+    } finally {
+      db.becomeAdmin();
+      jooq.execute(
+          "DELETE FROM \"MOLGENIS\".role_permission_metadata"
+              + " WHERE schema_name = ? AND role_name = 'Viewer'",
+          SCHEMA_NAME);
+    }
+  }
+
+  @Test
+  public void migration32RerunRestoresConstraintWhenColumnAlreadyExists() {
+    jooq.execute(
+        "ALTER TABLE \"MOLGENIS\".role_permission_metadata"
+            + " DROP CONSTRAINT IF EXISTS role_permission_reference_scope_check");
+
+    List<Record> beforeRerun =
+        jooq.fetch(
+            "SELECT constraint_name FROM information_schema.table_constraints"
+                + " WHERE table_schema = 'MOLGENIS'"
+                + "   AND table_name = 'role_permission_metadata'"
+                + "   AND constraint_name = 'role_permission_reference_scope_check'"
+                + "   AND constraint_type = 'CHECK'");
+    assertEquals(0, beforeRerun.size(), "constraint must be absent before re-run (pre-condition)");
+
+    Migrations.executeMigrationFile(
+        db, "migration32.sql", "re-apply migration32 after constraint dropped");
+
+    List<Record> afterRerun =
+        jooq.fetch(
+            "SELECT constraint_name FROM information_schema.table_constraints"
+                + " WHERE table_schema = 'MOLGENIS'"
+                + "   AND table_name = 'role_permission_metadata'"
+                + "   AND constraint_name = 'role_permission_reference_scope_check'"
+                + "   AND constraint_type = 'CHECK'");
+    assertEquals(
+        1,
+        afterRerun.size(),
+        "role_permission_reference_scope_check constraint must be restored after migration32 re-run");
   }
 }

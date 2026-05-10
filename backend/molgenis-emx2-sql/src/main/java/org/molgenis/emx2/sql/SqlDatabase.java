@@ -253,12 +253,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             this.createSchema(SYSTEM_SCHEMA);
           }
 
-          Schema schema;
-          if (!this.hasSchema(SYSTEM_SCHEMA)) {
-            schema = this.createSchema(SYSTEM_SCHEMA);
-          } else {
-            schema = this.getSchema(SYSTEM_SCHEMA);
-          }
+          Schema schema = this.getSchema(SYSTEM_SCHEMA);
 
           if (!schema.getTableNames().contains("Templates")) {
             schema.create(

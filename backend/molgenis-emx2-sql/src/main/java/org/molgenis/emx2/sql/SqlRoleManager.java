@@ -102,6 +102,23 @@ public class SqlRoleManager {
   public void createRole(Schema schema, String roleName, String description) {
     requireManagerOrOwner(schema);
     createRole(schema.getName(), roleName);
+    if (description != null && !description.isEmpty()) {
+      database.getJooqAsAdmin(
+          adminJooq ->
+              MetadataUtils.upsertRolePermission(
+                  adminJooq,
+                  schema.getName(),
+                  roleName,
+                  "",
+                  "NONE",
+                  "NONE",
+                  "NONE",
+                  "NONE",
+                  "NONE",
+                  false,
+                  false,
+                  description));
+    }
   }
 
   public void deleteRole(String schemaName, String roleName) {
@@ -625,8 +642,16 @@ public class SqlRoleManager {
             loadPermissionSet(adminJooq, schemaName, roleName)
                 .forEach(
                     row -> {
+                      String tableName = row.get(RPM_TABLE_NAME);
+                      String desc = row.get(RPM_DESCRIPTION);
+                      if (desc != null && !desc.isEmpty()) {
+                        result.setDescription(desc);
+                      }
+                      if (tableName == null || tableName.isEmpty()) {
+                        return;
+                      }
                       TablePermission tp =
-                          new TablePermission(row.get(RPM_TABLE_NAME))
+                          new TablePermission(tableName)
                               .select(SelectScope.fromString(row.get(RPM_SELECT_SCOPE)))
                               .insert(UpdateScope.fromString(row.get(RPM_INSERT_SCOPE)))
                               .update(UpdateScope.fromString(row.get(RPM_UPDATE_SCOPE)))
@@ -634,13 +659,9 @@ public class SqlRoleManager {
                               .reference(
                                   PermissionSet.ReferenceScope.fromString(
                                       row.get(RPM_REFERENCE_SCOPE)));
-                      result.putTable(row.get(RPM_TABLE_NAME), tp);
+                      result.putTable(tableName, tp);
                       result.setChangeOwner(Boolean.TRUE.equals(row.get(RPM_CHANGE_OWNER)));
                       result.setChangeGroup(Boolean.TRUE.equals(row.get(RPM_CHANGE_GROUP)));
-                      String desc = row.get(RPM_DESCRIPTION);
-                      if (desc != null && !desc.isEmpty()) {
-                        result.setDescription(desc);
-                      }
                     }));
     return result;
   }

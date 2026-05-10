@@ -293,6 +293,20 @@ mutation {
 }
 ```
 
+When inserting rows into a GROUP-scoped table, include `mg_groups` to tag each row with one or more groups:
+
+```graphql
+mutation {
+  insert(Sample: [{
+    id: "sample-001",
+    name: "Blood sample cohort A",
+    mg_groups: ["DEPT1"]
+  }]) { message }
+}
+```
+
+A row with `mg_groups: ["DEPT1", "DEPT2"]` is visible to users who hold the `researcher` role in either group. A row with an empty `mg_groups` array is visible to no GROUP-scoped user.
+
 U1 sees rows whose `mg_groups` array contains `DEPT1` or `DEPT2`. Rows tagged with other groups are invisible. A row with an empty `mg_groups` array is visible to no GROUP-scoped user.
 
 

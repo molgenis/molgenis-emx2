@@ -13,7 +13,6 @@ Custom roles let a Manager or Owner define fine-grained, per-table access rules 
 | `NONE` | No rows |
 | `OWN` | Rows where `mg_owner` matches the current user |
 | `GROUP` | Rows where `mg_groups` overlaps the current user's groups |
-| `OWN_OR_GROUP` | Union of OWN and GROUP |
 | `EXISTS` | Row exists (no data, only presence) |
 | `COUNT` | Row count only |
 | `RANGE` | Row count rounded to nearest 10 |
@@ -40,6 +39,30 @@ By default a role cannot write to these columns even if it has insert or update 
 
 - `changeOwner: true` — grants column-level INSERT and UPDATE privilege on `mg_owner`.
 - `changeGroup: true` — grants column-level INSERT and UPDATE privilege on `mg_groups`.
+
+### REFERENCE scope
+
+Each table also has a **reference scope** — a separate permission axis that controls FK traversal INTO that table from other tables, independent of the view scopes above.
+
+- `NONE` (default) — blocks FK traversal. Users cannot follow foreign keys that point at this table.
+- `ALL` — allows FK traversal. Used for "lookup table" patterns: the table is reachable via FK from other tables but is not directly browsable.
+
+**VIEW ⊇ REFERENCE implicit carry**: if a role already grants row-access view scope (`OWN`, `GROUP`, or `ALL`) on a table, REFERENCE is automatically implied — no explicit `reference: ALL` is needed. Privacy-only scopes (`EXISTS`, `COUNT`, `RANGE`, `AGGREGATE`) do NOT carry REFERENCE.
+
+Set reference scope in the same `tables` entry when creating or updating a role:
+
+```graphql
+mutation {
+  change(roles: [{
+    name: "lab-reader"
+    tables: [
+      { table: "Ontology", select: NONE, insert: NONE, update: NONE, delete: NONE, reference: ALL }
+    ]
+  }]) { message }
+}
+```
+
+See [`use_permissions.md` — REFERENCE scope](use_permissions.md#reference-scope) for the full permission matrix and child-row visibility rules.
 
 ### Groups
 
@@ -151,7 +174,7 @@ Custom roles are assigned the same way as system roles, via the `members` argume
 
 ```graphql
 mutation {
-  change(members: [{ email: "alice", role: "researcher" }]) {
+  change(members: [{ user: "alice", role: "researcher" }]) {
     message
   }
 }

@@ -285,6 +285,15 @@ public class SqlSchema implements Schema {
           oldTable.setSemantics(mergeTable.getSemantics());
         }
         // TableType is DATA by default and therefore never null
+        if (mergeTable.getTableType() == TableType.ONTOLOGIES
+            && oldTable.getTableType() != TableType.ONTOLOGIES) {
+          Database migrateDb = targetSchema.getDatabase();
+          if (!migrateDb.isAdmin()
+              && !targetSchema.hasActiveUserRole(Privileges.OWNER.toString())) {
+            throw new MolgenisException(
+                "Changing tableType to ONTOLOGIES requires Owner or admin privileges");
+          }
+        }
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);
 
