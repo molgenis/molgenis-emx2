@@ -200,7 +200,7 @@ class TestPrivacy {
     if (withRls) {
       roleManager.createGroup(schema, GROUP_NAME);
     }
-    roleManager.createRole(SCHEMA_NAME, ROLE_NAME);
+    roleManager.createRole(schema, ROLE_NAME, "");
     PermissionSet ps = new PermissionSet();
     ps.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(scope));
     roleManager.setPermissions(schema, ROLE_NAME, ps);

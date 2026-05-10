@@ -57,19 +57,19 @@ class TestSqlRoleManager {
         new String[] {"bad/name", "bad name", "1leading", "-leading", "_leading"}) {
       assertThrows(
           MolgenisException.class,
-          () -> roleManager.createRole(SCHEMA_A, invalid),
+          () -> roleManager.createRole(schemaA, invalid, ""),
           "Role name '" + invalid + "' must be rejected");
     }
   }
 
   @Test
   void createRole_acceptsValidHyphenatedName() {
-    assertDoesNotThrow(() -> roleManager.createRole(SCHEMA_A, "good-name"));
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, "good-name", ""));
   }
 
   @Test
   void createRole_acceptsUnderscoreInMiddle() {
-    assertDoesNotThrow(() -> roleManager.createRole(SCHEMA_A, "good_name"));
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, "good_name", ""));
   }
 
   @Test
@@ -77,7 +77,7 @@ class TestSqlRoleManager {
     String schemaPrefix = "MG_ROLE_" + SCHEMA_A + "/";
     int prefixBytes = schemaPrefix.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
     String tooLong = "a".repeat(SqlRoleManager.PG_MAX_ID_LENGTH - prefixBytes + 1);
-    assertThrows(MolgenisException.class, () -> roleManager.createRole(SCHEMA_A, tooLong));
+    assertThrows(MolgenisException.class, () -> roleManager.createRole(schemaA, tooLong, ""));
   }
 
   @Test
@@ -88,6 +88,18 @@ class TestSqlRoleManager {
       Role role = roleManager.getRole(SCHEMA_A, roleName);
       assertEquals(
           "my description", role.description(), "description must round-trip via createRole");
+    } finally {
+      roleManager.deleteRole(SCHEMA_A, roleName);
+    }
+  }
+
+  @Test
+  void createRole_withNullDescription_doesNotThrow() {
+    String roleName = "null-desc-role";
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, roleName, null));
+    try {
+      Role role = roleManager.getRole(SCHEMA_A, roleName);
+      assertNull(role.description(), "null description must round-trip as null");
     } finally {
       roleManager.deleteRole(SCHEMA_A, roleName);
     }
@@ -105,7 +117,7 @@ class TestSqlRoleManager {
   @Test
   void addGroupMembership_idempotent() {
     roleManager.createGroup(schemaA, "groupY");
-    roleManager.createRole(SCHEMA_A, "roleY");
+    roleManager.createRole(schemaA, "roleY", "");
 
     roleManager.addGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY");
     assertDoesNotThrow(
@@ -329,7 +341,7 @@ class TestSqlRoleManager {
 
   @Test
   void grant_rlsScopeOnNonRlsTable_throws() {
-    roleManager.createRole(SCHEMA_ENF, "grant-rls-guard");
+    roleManager.createRole(schemaEnf, "grant-rls-guard", "");
     TablePermission grouped = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.GROUP);
     assertThrows(
         MolgenisException.class,
@@ -344,7 +356,7 @@ class TestSqlRoleManager {
 
   @Test
   void revoke_deletesRpmRow() {
-    roleManager.createRole(SCHEMA_ENF, "revoke-test-role");
+    roleManager.createRole(schemaEnf, "revoke-test-role", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.ALL);
     roleManager.grant(SCHEMA_ENF, "revoke-test-role", tp);
@@ -380,7 +392,7 @@ class TestSqlRoleManager {
 
   @Test
   void absentRpmRowMeansNoRowVisible() {
-    roleManager.createRole(SCHEMA_ENF, "absent-rpm-role");
+    roleManager.createRole(schemaEnf, "absent-rpm-role", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     db.becomeAdmin();
@@ -436,7 +448,7 @@ class TestSqlRoleManager {
   @Test
   void removeMember_withoutGroup_clearsAllRowsAndRevokesPgRole_evenWhenGroupBoundRowsExist() {
     String roleName = "revoke-all-role";
-    roleManager.createRole(SCHEMA_ENF, roleName);
+    roleManager.createRole(schemaEnf, roleName, "");
     roleManager.createGroup(schemaEnf, "g1");
 
     roleManager.grantRoleToUser(schemaEnf, roleName, USER_ALICE);
@@ -485,7 +497,7 @@ class TestSqlRoleManager {
   @Test
   void addMember_withoutGroup_supersedesExistingGroupBoundRows() {
     String roleName = "supersede-role";
-    roleManager.createRole(SCHEMA_ENF, roleName);
+    roleManager.createRole(schemaEnf, roleName, "");
     roleManager.createGroup(schemaEnf, "sg1");
 
     roleManager.addGroupMembership(SCHEMA_ENF, "sg1", USER_ALICE, roleName);
@@ -544,7 +556,7 @@ class TestSqlRoleManager {
 
   @Test
   void grant_scopeOnly_doesNotClobberChangeOwnerOrDescription() {
-    roleManager.createRole(SCHEMA_ENF, "clobber-guard");
+    roleManager.createRole(schemaEnf, "clobber-guard", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet initial = new PermissionSet();
@@ -576,7 +588,7 @@ class TestSqlRoleManager {
 
   @Test
   void grant_scopeOnly_doesNotClobberSiblingScopes() {
-    roleManager.createRole(SCHEMA_ENF, "sibling-guard");
+    roleManager.createRole(schemaEnf, "sibling-guard", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet initial = new PermissionSet();
@@ -605,7 +617,7 @@ class TestSqlRoleManager {
 
   @Test
   void referenceScope_roundTrip_all() {
-    roleManager.createRole(SCHEMA_ENF, "ref-scope-all");
+    roleManager.createRole(schemaEnf, "ref-scope-all", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet ps = new PermissionSet();
@@ -626,7 +638,7 @@ class TestSqlRoleManager {
 
   @Test
   void referenceScope_roundTrip_none() {
-    roleManager.createRole(SCHEMA_ENF, "ref-scope-none");
+    roleManager.createRole(schemaEnf, "ref-scope-none", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet ps = new PermissionSet();
@@ -656,7 +668,7 @@ class TestSqlRoleManager {
 
   @Test
   void referenceOnlyPermission_survivesAggregationPath() {
-    roleManager.createRole(SCHEMA_ENF, "ref-only-role");
+    roleManager.createRole(schemaEnf, "ref-only-role", "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
 
     PermissionSet ps = new PermissionSet();
@@ -684,7 +696,7 @@ class TestSqlRoleManager {
 
   @Test
   void referenceOnlyWildcard_survivesExpandWildcard() {
-    roleManager.createRole(SCHEMA_ENF, "ref-wildcard-role");
+    roleManager.createRole(schemaEnf, "ref-wildcard-role", "");
 
     PermissionSet ps = new PermissionSet();
     TablePermission wildcard = new TablePermission("*").reference(ReferenceScope.ALL);
@@ -725,7 +737,7 @@ class TestSqlRoleManager {
         };
     sqlDb.setListener(spy);
     try {
-      roleManager.createRole(SCHEMA_A, "listener-role");
+      roleManager.createRole(schemaA, "listener-role", "");
       assertTrue(callCount.get() > 0, "createRole must fire onSchemaChange");
     } finally {
       sqlDb.setListener(
@@ -793,6 +805,61 @@ class TestSqlRoleManager {
     }
   }
 
+  // ── mergePermissions: higher UpdateScope wins across roles ───────────────
+
+  @Test
+  void mergePermissions_keepsHigherUpdateScopeAcrossRoles() {
+    String roleOwnInsert = "merge-own-insert";
+    String roleAllSelect = "merge-all-select";
+    roleManager.createRole(schemaEnf, roleOwnInsert, "");
+    roleManager.createRole(schemaEnf, roleAllSelect, "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet psOwnInsert = new PermissionSet();
+    psOwnInsert.putTable(
+        ENFORCEMENT_TABLE,
+        new TablePermission(ENFORCEMENT_TABLE)
+            .select(SelectScope.OWN)
+            .insert(UpdateScope.OWN)
+            .update(UpdateScope.OWN)
+            .delete(UpdateScope.NONE));
+    roleManager.setPermissions(schemaEnf, roleOwnInsert, psOwnInsert);
+
+    PermissionSet psAllSelect = new PermissionSet();
+    psAllSelect.putTable(
+        ENFORCEMENT_TABLE,
+        new TablePermission(ENFORCEMENT_TABLE)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.NONE)
+            .update(UpdateScope.NONE)
+            .delete(UpdateScope.NONE));
+    roleManager.setPermissions(schemaEnf, roleAllSelect, psAllSelect);
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleOwnInsert);
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleAllSelect);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission merged =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(merged, "merged permission must be present");
+      assertEquals(
+          UpdateScope.OWN,
+          merged.insert(),
+          "insert must be OWN (max of OWN and NONE across both roles)");
+      assertEquals(
+          UpdateScope.OWN,
+          merged.update(),
+          "update must be OWN (max of OWN and NONE across both roles)");
+      assertEquals(UpdateScope.NONE, merged.delete(), "delete must be NONE (max of NONE and NONE)");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleOwnInsert);
+      roleManager.removeGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleAllSelect);
+    }
+  }
+
   // ── enforcement helpers ───────────────────────────────────────────────────
 
   private void insertGroupTaggedRow(String id, String val, String[] groups) {
@@ -812,7 +879,7 @@ class TestSqlRoleManager {
       UpdateScope insertScope,
       UpdateScope updateScope,
       UpdateScope deleteScope) {
-    roleManager.createRole(SCHEMA_ENF, roleName);
+    roleManager.createRole(schemaEnf, roleName, "");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);

@@ -37,9 +37,9 @@ class TestPolicyCount {
     schema = db.dropCreateSchema(SCHEMA_NAME);
     schema.create(table(TABLE_A).add(column("id").setPkey()).add(column("val")));
     schema.create(table(TABLE_B).add(column("id").setPkey()).add(column("val")));
-    roleManager.createRole(SCHEMA_NAME, ROLE_ONE);
-    roleManager.createRole(SCHEMA_NAME, ROLE_TWO);
-    roleManager.createRole(SCHEMA_NAME, ROLE_THREE);
+    roleManager.createRole(schema, ROLE_ONE, "");
+    roleManager.createRole(schema, ROLE_TWO, "");
+    roleManager.createRole(schema, ROLE_THREE, "");
     schema.getTable(TABLE_A).getMetadata().setRlsEnabled(true);
     schema.getTable(TABLE_B).getMetadata().setRlsEnabled(true);
   }

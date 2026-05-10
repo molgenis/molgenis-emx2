@@ -129,7 +129,7 @@ class TestRlsEnableDisableLifecycle {
     SqlTableMetadata meta = (SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata();
     meta.setRlsEnabled(true);
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_READER);
+    roleManager.createRole(schema, ROLE_READER, "");
     PermissionSet ps =
         new PermissionSet()
             .putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(SelectScope.OWN));

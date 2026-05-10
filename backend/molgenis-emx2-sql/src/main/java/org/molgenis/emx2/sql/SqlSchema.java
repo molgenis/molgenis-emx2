@@ -472,7 +472,7 @@ public class SqlSchema implements Schema {
   @Override
   public void createRole(String roleName) {
     requireManager();
-    roleManager().createRole(getName(), roleName);
+    roleManager().createRole(this, roleName, "");
   }
 
   @Override
@@ -508,7 +508,7 @@ public class SqlSchema implements Schema {
     requireManager();
     for (Role role : roles) {
       if (!roleManager().roleExists(getName(), role.name())) {
-        roleManager().createRole(getName(), role.name());
+        roleManager().createRole(this, role.name(), role.description());
       }
       PermissionSet ps = new PermissionSet();
       ps.setSchema(getName());

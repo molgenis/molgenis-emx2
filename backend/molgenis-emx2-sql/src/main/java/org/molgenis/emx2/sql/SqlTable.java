@@ -361,22 +361,23 @@ public class SqlTable implements Table {
     if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
       return;
     }
-    if (column.getReferences().size() != 1) {
-      return;
-    }
-    Reference ref = column.getReferences().get(0);
-    Set<Object> targetKeys = new LinkedHashSet<>();
-    for (Row row : rows) {
-      Object val = row.get(ref.getName(), ref.getPrimitiveType());
-      if (val != null) {
-        targetKeys.add(val);
+    List<Reference> refs = column.getReferences();
+    if (refs.size() == 1) {
+      Reference ref = refs.get(0);
+      Set<Object> targetKeys = new LinkedHashSet<>();
+      for (Row row : rows) {
+        Object val = row.get(ref.getName(), ref.getPrimitiveType());
+        if (val != null) {
+          targetKeys.add(val);
+        }
       }
+      if (!targetKeys.isEmpty()) {
+        assertAllReferencedKeysVisible(
+            sqlDb, table, column, refTable, ref.getRefTo(), activeUser, targetKeys.toArray());
+      }
+    } else {
+      assertCompositeReferencedKeysVisible(sqlDb, table, column, refTable, rows, activeUser);
     }
-    if (targetKeys.isEmpty()) {
-      return;
-    }
-    assertAllReferencedKeysVisible(
-        sqlDb, table, column, refTable, ref.getRefTo(), activeUser, targetKeys.toArray());
   }
 
   private static void checkRefArrayColumnVisibility(
@@ -428,6 +429,74 @@ public class SqlTable implements Table {
               .from(table(name(refSchemaName, refTableName)))
               .where(
                   pkField.in(keyStrings),
+                  not(
+                      condition(
+                          MG_CAN_REFERENCE_CALL,
+                          inline(refSchemaName),
+                          inline(refTableName),
+                          field(name(MG_GROUPS_COLUMN)),
+                          field(name(MG_OWNER_COLUMN)),
+                          inline(pgUser))))
+              .limit(1)
+              .fetchAny();
+      if (violation != null) {
+        throw new MolgenisException(
+            String.format(
+                FK_RLS_VIOLATION_TEMPLATE,
+                column.getName(),
+                table.getMetadata().getSchemaName(),
+                table.getMetadata().getTableName(),
+                violation.value1(),
+                refSchemaName,
+                refTableName));
+      }
+    } finally {
+      jooq.execute("SET ROLE {0}", name(pgUser));
+    }
+  }
+
+  private static void assertCompositeReferencedKeysVisible(
+      SqlDatabase sqlDb,
+      SqlTable table,
+      Column column,
+      TableMetadata refTable,
+      List<Row> rows,
+      String activeUser) {
+    String refSchemaName = refTable.getSchemaName();
+    String refTableName = refTable.getTableName();
+    List<Reference> refs = column.getReferences();
+    String pgUser = MG_USER_PREFIX + activeUser;
+    DSLContext jooq = sqlDb.getJooq();
+    jooq.execute("RESET ROLE");
+    try {
+      List<Condition> tupleConditions = new ArrayList<>();
+      for (Row row : rows) {
+        boolean anyNull =
+            refs.stream().anyMatch(r -> row.get(r.getName(), r.getPrimitiveType()) == null);
+        if (anyNull) {
+          continue;
+        }
+        Condition tupleMatch =
+            and(
+                refs.stream()
+                    .map(
+                        ref ->
+                            field(name(ref.getRefTo()))
+                                .eq(
+                                    inline(
+                                        row.get(ref.getName(), ref.getPrimitiveType()).toString())))
+                    .toList());
+        tupleConditions.add(tupleMatch);
+      }
+      if (tupleConditions.isEmpty()) {
+        return;
+      }
+      Field<String> firstPkField = field(name(refs.get(0).getRefTo()), String.class);
+      Record1<String> violation =
+          jooq.select(firstPkField)
+              .from(table(name(refSchemaName, refTableName)))
+              .where(
+                  or(tupleConditions),
                   not(
                       condition(
                           MG_CAN_REFERENCE_CALL,

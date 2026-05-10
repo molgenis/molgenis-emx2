@@ -88,7 +88,10 @@ public class GraphqlTableFieldFactory {
                   .collect(Collectors.toUnmodifiableSet());
           Set<String> ref =
               target.getPermissionsForActiveUser().stream()
-                  .filter(p -> p.reference() != null && p.reference() != ReferenceScope.NONE)
+                  .filter(
+                      p ->
+                          (p.reference() != null && p.reference() != ReferenceScope.NONE)
+                              || (p.select() != null && p.select().allowsRowAccess()))
                   .map(TablePermission::table)
                   .collect(Collectors.toUnmodifiableSet());
           boolean isViewer = target.getInheritedRolesForActiveUser().contains(VIEWER.toString());

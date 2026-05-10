@@ -31,7 +31,7 @@ class TestSelectScope {
     schema.create(table(TABLE_NAME).add(column("id").setPkey()).add(column("val")));
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     roleManager.createGroup(schema, GROUP_ALPHA);
-    roleManager.createRole(SCHEMA_NAME, ROLE_COUNT);
+    roleManager.createRole(schema, ROLE_COUNT, "");
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet ps = new PermissionSet();

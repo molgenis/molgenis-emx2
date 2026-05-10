@@ -61,9 +61,9 @@ public class SqlRoleManager {
     return MG_ROLE_PREFIX + schemaName + "/" + roleName;
   }
 
-  public void createRole(String schemaName, String roleName) {
-    Schema schema = database.getSchema(schemaName);
-    if (schema != null) requireManagerOrOwner(schema);
+  public void createRole(Schema schema, String roleName, String description) {
+    requireManagerOrOwner(schema);
+    String schemaName = schema.getName();
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
@@ -96,18 +96,12 @@ public class SqlRoleManager {
             db.setActiveUser(currentUser);
           }
         });
-    database.getListener().onSchemaChange();
-  }
-
-  public void createRole(Schema schema, String roleName, String description) {
-    requireManagerOrOwner(schema);
-    createRole(schema.getName(), roleName);
     if (description != null && !description.isEmpty()) {
       database.getJooqAsAdmin(
           adminJooq ->
               MetadataUtils.upsertRolePermission(
                   adminJooq,
-                  schema.getName(),
+                  schemaName,
                   roleName,
                   "",
                   "NONE",
@@ -119,6 +113,7 @@ public class SqlRoleManager {
                   false,
                   description));
     }
+    database.getListener().onSchemaChange();
   }
 
   public void deleteRole(String schemaName, String roleName) {
@@ -449,9 +444,9 @@ public class SqlRoleManager {
 
   private static boolean hasAnyPermission(TablePermission p) {
     return p.select() != SelectScope.NONE
-        || p.insert() == UpdateScope.ALL
-        || p.update() == UpdateScope.ALL
-        || p.delete() == UpdateScope.ALL
+        || p.insert() != UpdateScope.NONE
+        || p.update() != UpdateScope.NONE
+        || p.delete() != UpdateScope.NONE
         || p.reference() != ReferenceScope.NONE;
   }
 
@@ -470,19 +465,14 @@ public class SqlRoleManager {
   private static TablePermission mergePermissions(TablePermission a, TablePermission b) {
     return new TablePermission(a.table())
         .select(higherSelectScope(a.select(), b.select()))
-        .insert(
-            a.insert() == UpdateScope.ALL || b.insert() == UpdateScope.ALL
-                ? UpdateScope.ALL
-                : UpdateScope.NONE)
-        .update(
-            a.update() == UpdateScope.ALL || b.update() == UpdateScope.ALL
-                ? UpdateScope.ALL
-                : UpdateScope.NONE)
-        .delete(
-            a.delete() == UpdateScope.ALL || b.delete() == UpdateScope.ALL
-                ? UpdateScope.ALL
-                : UpdateScope.NONE)
+        .insert(higherUpdateScope(a.insert(), b.insert()))
+        .update(higherUpdateScope(a.update(), b.update()))
+        .delete(higherUpdateScope(a.delete(), b.delete()))
         .reference(higherReferenceScope(a.reference(), b.reference()));
+  }
+
+  private static UpdateScope higherUpdateScope(UpdateScope a, UpdateScope b) {
+    return a.ordinal() >= b.ordinal() ? a : b;
   }
 
   private static SelectScope higherSelectScope(SelectScope a, SelectScope b) {
@@ -622,10 +612,6 @@ public class SqlRoleManager {
       applyPgGrants(schemaName, fullRole, tableName, pg);
     }
     database.getListener().onSchemaChange();
-  }
-
-  public PermissionSet getPermissionSet(Schema schema, String roleName) {
-    return getPermissionSet(schema.getName(), roleName);
   }
 
   public PermissionSet getPermissions(Schema schema, String roleName) {

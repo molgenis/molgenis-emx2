@@ -237,7 +237,7 @@ class TestSchemaWideCustomGrants {
       UpdateScope insertScope,
       UpdateScope updateScope,
       UpdateScope deleteScope) {
-    roleManager.createRole(SCHEMA_NAME, roleName);
+    roleManager.createRole(schema, roleName, "");
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);

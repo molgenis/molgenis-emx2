@@ -38,8 +38,8 @@ class TestChangeOwner {
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(OTHER_OWNER)) db.addUser(OTHER_OWNER);
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_NO_CO);
-    roleManager.createRole(SCHEMA_NAME, ROLE_YES_CO);
+    roleManager.createRole(schema, ROLE_NO_CO, "");
+    roleManager.createRole(schema, ROLE_YES_CO, "");
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet noCoPerms = new PermissionSet();

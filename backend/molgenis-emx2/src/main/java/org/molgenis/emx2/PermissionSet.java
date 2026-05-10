@@ -88,7 +88,7 @@ public class PermissionSet {
   private Map<String, TablePermission> tables = new LinkedHashMap<>();
   private boolean changeOwner = false;
   private boolean changeGroup = false;
-  private String description = "";
+  private String description = null;
   private String schema = null;
 
   public Map<String, TablePermission> getTables() {
@@ -132,7 +132,7 @@ public class PermissionSet {
   }
 
   public PermissionSet setDescription(String description) {
-    this.description = description == null ? "" : description;
+    this.description = description;
     return this;
   }
 

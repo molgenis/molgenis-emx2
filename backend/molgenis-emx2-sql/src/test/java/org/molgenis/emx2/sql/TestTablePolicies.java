@@ -42,9 +42,9 @@ class TestTablePolicies {
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ALL);
-    roleManager.createRole(SCHEMA_NAME, ROLE_GROUP);
-    roleManager.createRole(SCHEMA_NAME, ROLE_OWN);
+    roleManager.createRole(schema, ROLE_ALL, "");
+    roleManager.createRole(schema, ROLE_GROUP, "");
+    roleManager.createRole(schema, ROLE_OWN, "");
     schema.getTable(TABLE_SECURE).getMetadata().setRlsEnabled(true);
 
     enableAllScope();
@@ -175,7 +175,7 @@ class TestTablePolicies {
 
   @Test
   void noneScopeIsRejectedBeforeRls() {
-    roleManager.createRole(SCHEMA_NAME, "roleNone");
+    roleManager.createRole(schema, "roleNone", "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_SECURE);
     tp.select(SelectScope.NONE);

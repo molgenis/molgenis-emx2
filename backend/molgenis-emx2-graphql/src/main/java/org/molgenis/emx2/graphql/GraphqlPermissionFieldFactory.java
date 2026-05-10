@@ -224,7 +224,7 @@ public class GraphqlPermissionFieldFactory {
     ps.setChangeOwner(changeOwner);
     ps.setChangeGroup(changeGroup);
     Object descriptionValue = input.get(DESCRIPTION);
-    ps.setDescription(descriptionValue instanceof String str ? str : "");
+    ps.setDescription(descriptionValue instanceof String str ? str : null);
     Object schemaValue = input.get(SCHEMA_NAME);
     if (schemaValue instanceof String str) {
       ps.setSchema(str);

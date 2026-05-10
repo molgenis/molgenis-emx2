@@ -68,7 +68,7 @@ class TestGraphqlSession {
 
   @Test
   void sessionPermissions_currentUserSeesOwnPermissions() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
     tp.select(SelectScope.ALL);
@@ -105,7 +105,7 @@ class TestGraphqlSession {
 
   @Test
   void sessionPermissions_exposesUnifiedSelect() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
     tp.select(SelectScope.AGGREGATE);
@@ -148,7 +148,7 @@ class TestGraphqlSession {
 
   @Test
   void sessionPermissions_viewImpliesCanReference() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
     tp.select(SelectScope.ALL);
@@ -180,7 +180,7 @@ class TestGraphqlSession {
 
   @Test
   void sessionPermissions_referenceOnlyGivesCanReferenceWithoutCanView() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
     tp.reference(ReferenceScope.ALL);
@@ -215,7 +215,7 @@ class TestGraphqlSession {
 
   @Test
   void sessionPermissions_privacyScopeCount_doesNotGrantCanReference() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
     tp.select(SelectScope.COUNT);

@@ -3,6 +3,35 @@
 > Self-contained successor to `rls_v3.md` spec. Master is the base;
 > this document covers the RLS extension that opts in per table.
 
+## Summary
+
+RLS v4 introduces opt-in PostgreSQL row-level security to MOLGENIS EMX2 with a deliberately small policy surface and a metadata-driven model.
+
+The previous direction (rls_v3) tried to express every permission combination through PostgreSQL `GRANT`s and per-rule policies. That blew up combinatorially as soon as we added per-row ownership, group sharing, and fine-grained reference visibility — each new axis multiplied the number of generated policies and grants per table. RLS v4 inverts the design:
+
+- **Two metadata tables (`role_permission_metadata`, `group_membership_metadata`) + one groups table store the truth.** Custom roles, their five-axis scope per table, and user/group bindings live here as plain rows. The application reads these tables to compose effective permissions.
+- **Exactly four RLS policies per table (SELECT/INSERT/UPDATE/DELETE)** call three SQL helper functions (`mg_can_view`, `mg_can_reference`, `mg_can_write_all`). The functions read the metadata tables at query time. Adding a custom role does not emit DDL beyond a single `GRANT verb` on the table — no new policies, no per-role rules.
+- **System roles (Owner/Manager/Editor/Viewer) keep their existing hardcoded behaviour** and never appear in `role_permission_metadata`.
+- **Two row-tagging columns (`mg_owner`, `mg_groups`) + one GIN index** carry the row-level provenance the policies need. Enable adds them; disable drops them.
+
+Net effect: a schema with 50 custom roles × 20 RLS tables has 4 policies/table (200 total) + 1000 metadata rows — versus the multiplicative explosion the all-grants-and-policies path produced. Permission evaluation cost lives in three SQL functions we can profile and index; policy DDL is constant per table.
+
+This branch closes Phases A–H and pre-review hardening (Phase J-pre): 21 review findings from a 7-agent local review are resolved (security, correctness, docs, dead code), the model is documented, ~46 spec rows below lock the behaviour in tests. Deferred work (Phases I/K/M, test consolidation, polish items #15/#22/#27–45) is captured in `.plan/plans/rls_v4.md` for post-colleague-review iteration.
+
+## Key use cases the design supports
+
+| Use case | How it's expressed |
+|---|---|
+| **Set a role within a group** — "Alice is `Reviewer` for the `OncologyDept` group; Bob is `Reviewer` for the `CardiologyDept` group; same role, different data" | One row per binding in `group_membership_metadata(user, schema, group, role)`. The same custom role is reused across groups; RLS policy filters rows via `mg_groups && current_user_groups(schema)`. |
+| **Schema-wide custom role** — "give Carol the `Analyst` role across all groups in this schema" | `group_membership_metadata` row with `group = NULL`. NULL-group binding supersedes any group-bound rows for the same `(user, role)` pair; effective scope is union of all groups via the role's `mg_groups`-overlap predicate against memberships. |
+| **Per-row ownership transfer** — "this row was owned by user X; user X grants ownership to user Y" | `mg_owner` column on RLS tables; `change_owner=true` capability on the writing role permits `OLD.mg_owner ≠ NEW.mg_owner` updates. Default deny. |
+| **Per-row group sharing** — "this row belongs to groups [DEPT1, DEPT2]; anyone with GROUP scope in either group can see it" | `mg_groups TEXT[]` column; GIN-indexed. SELECT policy uses `mg_groups && current_user_groups(schema)`. INSERT requires `mg_groups ⊆ user's memberships` unless `change_group=true`. |
+| **FK reference without read** — "lookup-table T should be FK-referenceable from S but not directly queryable" | `reference_scope=ALL, select_scope=NONE` on T. Emits a thin GraphQL type (PK + refLabel) reachable only via FK from S; T is absent from top-level Query/Mutation. |
+| **Privacy-preserving aggregates** — "user can see counts/ranges/aggregates over T but no individual rows" | `select_scope` ∈ {EXISTS, COUNT, RANGE, AGGREGATE}. RLS policy is pass-through; projection layer clamps results. Privacy modes do NOT grant FK reference. |
+| **Ontology bypass** — "country list / disease taxonomy is world-readable; don't gate it" | `TableType=ONTOLOGIES` skips RLS evaluation; row visibility = true for everyone. TableType change TO ONTOLOGIES requires Owner+ or admin (anti-escalation guard added 2026-05-10). |
+| **Composite-PK FK targets respect RLS** — "Parent has composite PK; Child's FK to Parent must still be guarded" | `assertCompositeReferencedKeysVisible` builds AND-tuple `mg_can_reference` conditions across PK components (closed 2026-05-10 — was a known gap). |
+| **Inheritance** — "BiomedicalSample extends Sample; RLS toggle on root cascades to subclass" | `rls_enabled` flag lives only on the inheritance-tree root; toggling cascades policies and row-tagging columns to all subclasses atomically. |
+
 ## Design overview (read this first)
 
 The 10 things to understand before reviewing:
@@ -140,6 +169,7 @@ Every table has an `rls_enabled` boolean (default false). Toggling it on is what
 | `drop(members)` with group: removes only that row; PG REVOKE only if no rows remain | SqlRoleManager.removeGroupMembership | TestGraphqlSchemaMembers.dropMember_withGroup_leavesOtherGroupMembershipIntact | — |
 | Escalation guard: only admin/Owner/Manager grants any custom role | GraphqlSchemaMutations | TestGraphqlMembers.escalationGuard | — |
 | `_schema.groups` + `change/drop(groups)` central mutations | GraphqlSchemaMutations | TestGraphqlGroups.crud | groups admin |
+| `MolgenisGroupInput.users:[String]` round-trips to `_schema.groups.members[].{email,role}` — user appears with non-null role (sentinel `member`) | GraphqlSchemaFieldFactory.groupInputToGroup + SqlRoleManager.addGroupMember | TestGraphqlSchemaGroups.groupUsersInput_roundTripsToMembersOutput_withSentinelRole | — |
 
 ## Cross-schema FK + RLS visibility
 
@@ -189,6 +219,7 @@ Every table has an `rls_enabled` boolean (default false). Toggling it on is what
 | Behavior | Component | Test | Visual |
 |---|---|---|---|
 | `hasReferencePermission(table)` plumbing populated from `getPermissionsForActiveUser` | GraphqlTableFieldFactory | TestGraphqlTableFieldFactoryReferencePermission | — |
+| `hasReferencePermission(table)` returns true when `select.allowsRowAccess()` even if `reference=NONE` — matches `canReference` in session (R.4 contract) | GraphqlTableFieldFactory.permissionsFor | TestGraphqlTableFieldFactoryReferencePermission.selectAllReferenceNoneUser_hasReferencePermission_matchingSession_canReference | — |
 | REFERENCE-only refTable in nested FK emits thin type (PK fields only) | GraphqlTableFieldFactory.createReferenceOnlyType | TestGraphqlReferenceOnlySchema.referenceOnlyTable_emitsThinTypeOnFkTraversal | — |
 | Full type emitted when refTable has VIEW | GraphqlTableFieldFactory.createTableObjectType | TestGraphqlReferenceOnlySchema | — |
 | FK field omitted when refTable has neither VIEW nor REFERENCE (ontology exception preserved) | GraphqlTableFieldFactory | TestGraphqlReferenceOnlySchema | — |
@@ -224,6 +255,22 @@ Every table has an `rls_enabled` boolean (default false). Toggling it on is what
 | Non-RLS refTable: no guard fires (write succeeds without REFERENCE permission) | SqlTable.checkRefColumnVisibility | TestFkRlsWriteGuard.rlsDisabledRefTable_noCheck | — |
 | `mg_change_owner=true` alone (no REFERENCE / no VIEW row-access) does NOT grant FK target visibility for writes | SqlTable.assertAllReferencedKeysVisible | TestFkRlsWriteGuard.insert_throws_whenChangeOwnerTrueButNoReferenceOrViewScope | — |
 | DELETE has no FK visibility check (no new FK refs introduced) | SqlTable.executeBatch | — (negative — not exercised) | — |
+| Composite-PK FK target outside reference scope is rejected at write time | SqlTable.assertCompositeReferencedKeysVisible | TestFkRlsWriteGuard.compositePkFk_throws_whenTargetOutsideReferenceScope | — |
+| Composite-PK FK target within reference scope is accepted at write time | SqlTable.assertCompositeReferencedKeysVisible | TestFkRlsWriteGuard.compositePkFk_succeeds_whenTargetWithinReferenceScope | — |
+
+## Role permission merging (R.2)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| Multi-role merge takes higher insert/update/delete scope (OWN+NONE→OWN, not NONE) | SqlRoleManager.mergePermissions / higherUpdateScope | TestSqlRoleManager.mergePermissions_keepsHigherUpdateScopeAcrossRoles | — |
+| `hasAnyPermission` passes rows with OWN/GROUP insert/update/delete (not just ALL) | SqlRoleManager.hasAnyPermission | TestSqlRoleManager.mergePermissions_keepsHigherUpdateScopeAcrossRoles | — |
+
+## SELECT_GROUP RLS policy (R.1)
+
+| Behavior | Component | Test | Visual |
+|---|---|---|---|
+| `mg_can_reference` returns true when select_scope=GROUP and row tagged with user's group | mg_can_reference SQL function | TestMgCanReference.mgCanReference_returnsTrue_whenSelectScopeGroupAndRowInUsersGroup | — |
+| `mg_can_reference` returns false when select_scope=GROUP and row not tagged with user's group | mg_can_reference SQL function | TestMgCanReference.mgCanReference_returnsFalse_whenSelectScopeGroupAndRowNotInUsersGroup | — |
 
 ## Open requirements (to-do, become rows above as implemented)
 

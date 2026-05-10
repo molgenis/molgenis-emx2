@@ -30,11 +30,15 @@ class TestFkRlsWriteGuard {
   private static final String SHELTER_TABLE = "Shelter";
   private static final String NON_RLS_TABLE = "Species";
   private static final String PLAIN_ADOPTION_TABLE = "PlainAdoption";
+  private static final String COMPOSITE_TARGET_TABLE = "CompositePet";
+  private static final String COMPOSITE_CHILD_TABLE = "CompositeFoster";
 
   private static final String ROLE_REF_NONE = "refNoneRole";
   private static final String ROLE_REF_ALL = "refAllRole";
   private static final String ROLE_VIEW_ALL = "viewAllRole";
   private static final String ROLE_CHANGE_OWNER_ONLY = "changeOwnerOnlyRole";
+  private static final String ROLE_COMPOSITE_REF_NONE = "compositeRefNoneRole";
+  private static final String ROLE_COMPOSITE_REF_ALL = "compositeRefAllRole";
   private static final String GROUP_ALICE = "fkGuardGroupAlice";
 
   private static final String USER_ALICE = "FkGuardAlice";
@@ -102,7 +106,7 @@ class TestFkRlsWriteGuard {
             column("species").setType(REF).setRefTable(NON_RLS_TABLE)));
 
     // Role with REFERENCE_NONE on Animal — cannot insert FK pointing anywhere
-    roleManager.createRole(REF_SCHEMA, ROLE_REF_NONE);
+    roleManager.createRole(refSchema, ROLE_REF_NONE, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_REF_NONE,
@@ -114,7 +118,7 @@ class TestFkRlsWriteGuard {
                     .reference(ReferenceScope.NONE)));
 
     // Role with REFERENCE_ALL on Animal — can insert FK pointing to any row
-    roleManager.createRole(REF_SCHEMA, ROLE_REF_ALL);
+    roleManager.createRole(refSchema, ROLE_REF_ALL, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_REF_ALL,
@@ -126,7 +130,7 @@ class TestFkRlsWriteGuard {
                     .reference(ReferenceScope.ALL)));
 
     // Role with VIEW_ALL on Animal (no explicit reference) — view scope covers reference
-    roleManager.createRole(REF_SCHEMA, ROLE_VIEW_ALL);
+    roleManager.createRole(refSchema, ROLE_VIEW_ALL, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_VIEW_ALL,
@@ -137,8 +141,58 @@ class TestFkRlsWriteGuard {
                     .select(SelectScope.ALL)
                     .reference(ReferenceScope.NONE)));
 
+    // CompositePet table in refSchema — composite PK (breed + name), RLS enabled
+    refSchema.create(
+        table(
+            COMPOSITE_TARGET_TABLE,
+            column("breed").setPkey(),
+            column("name").setPkey(),
+            column("age")));
+    refSchema.getTable(COMPOSITE_TARGET_TABLE).getMetadata().setRlsEnabled(true);
+    refSchema
+        .getTable(COMPOSITE_TARGET_TABLE)
+        .insert(
+            row("breed", "labrador", "name", "buddy", "age", 3)
+                .setString(MG_OWNER_COLUMN, USER_ALICE),
+            row("breed", "poodle", "name", "fluffy", "age", 2)
+                .setString(MG_OWNER_COLUMN, USER_BOB));
+
+    // CompositeFoster table in childSchema — scalar REF to CompositePet (composite FK)
+    childSchema.create(
+        table(
+            COMPOSITE_CHILD_TABLE,
+            column("id").setPkey(),
+            column("pet")
+                .setType(REF)
+                .setRefSchemaName(REF_SCHEMA)
+                .setRefTable(COMPOSITE_TARGET_TABLE)));
+
+    // Role with REFERENCE_NONE on CompositePet — composite FK insert must be blocked
+    roleManager.createRole(refSchema, ROLE_COMPOSITE_REF_NONE, "");
+    roleManager.setPermissions(
+        refSchema,
+        ROLE_COMPOSITE_REF_NONE,
+        new PermissionSet()
+            .putTable(
+                COMPOSITE_TARGET_TABLE,
+                new TablePermission(COMPOSITE_TARGET_TABLE)
+                    .select(SelectScope.NONE)
+                    .reference(ReferenceScope.NONE)));
+
+    // Role with REFERENCE_ALL on CompositePet — composite FK insert must succeed
+    roleManager.createRole(refSchema, ROLE_COMPOSITE_REF_ALL, "");
+    roleManager.setPermissions(
+        refSchema,
+        ROLE_COMPOSITE_REF_ALL,
+        new PermissionSet()
+            .putTable(
+                COMPOSITE_TARGET_TABLE,
+                new TablePermission(COMPOSITE_TARGET_TABLE)
+                    .select(SelectScope.ALL)
+                    .reference(ReferenceScope.ALL)));
+
     // Role with change_owner=true but no SELECT or REFERENCE scope — must NOT grant reference
-    roleManager.createRole(REF_SCHEMA, ROLE_CHANGE_OWNER_ONLY);
+    roleManager.createRole(refSchema, ROLE_CHANGE_OWNER_ONLY, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_CHANGE_OWNER_ONLY,
@@ -331,6 +385,45 @@ class TestFkRlsWriteGuard {
       db.becomeAdmin();
       roleManager.removeGroupMembership(
           REF_SCHEMA, changeOwnerGroup, changeOwnerUser, ROLE_CHANGE_OWNER_ONLY);
+    }
+  }
+
+  @Test
+  void compositePkFk_throws_whenTargetOutsideReferenceScope() {
+    db.becomeAdmin();
+    roleManager.addGroupMembership(REF_SCHEMA, GROUP_ALICE, USER_ALICE, ROLE_COMPOSITE_REF_NONE);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertThrows(
+          MolgenisException.class,
+          () ->
+              childSchema
+                  .getTable(COMPOSITE_CHILD_TABLE)
+                  .insert(row("id", "cfos-throw1", "pet.breed", "labrador", "pet.name", "buddy")),
+          "Composite-PK FK insert with REFERENCE_NONE must be rejected by write guard");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(
+          REF_SCHEMA, GROUP_ALICE, USER_ALICE, ROLE_COMPOSITE_REF_NONE);
+    }
+  }
+
+  @Test
+  void compositePkFk_succeeds_whenTargetWithinReferenceScope() {
+    db.becomeAdmin();
+    roleManager.addGroupMembership(REF_SCHEMA, GROUP_ALICE, USER_ALICE, ROLE_COMPOSITE_REF_ALL);
+    try {
+      db.setActiveUser(USER_ALICE);
+      assertDoesNotThrow(
+          () ->
+              childSchema
+                  .getTable(COMPOSITE_CHILD_TABLE)
+                  .insert(row("id", "cfos-ok1", "pet.breed", "labrador", "pet.name", "buddy")),
+          "Composite-PK FK insert with REFERENCE_ALL must succeed");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(
+          REF_SCHEMA, GROUP_ALICE, USER_ALICE, ROLE_COMPOSITE_REF_ALL);
     }
   }
 

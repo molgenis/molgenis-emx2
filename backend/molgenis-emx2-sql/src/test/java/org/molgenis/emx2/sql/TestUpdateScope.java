@@ -43,10 +43,10 @@ class TestUpdateScope {
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ALL);
-    roleManager.createRole(SCHEMA_NAME, ROLE_GROUP);
-    roleManager.createRole(SCHEMA_NAME, ROLE_OWN);
-    roleManager.createRole(SCHEMA_NAME, ROLE_NONE);
+    roleManager.createRole(schema, ROLE_ALL, "");
+    roleManager.createRole(schema, ROLE_GROUP, "");
+    roleManager.createRole(schema, ROLE_OWN, "");
+    roleManager.createRole(schema, ROLE_NONE, "");
 
     ((SqlTableMetadata) schema.getTable(TABLE_NAME).getMetadata()).setRlsEnabled(true);
 

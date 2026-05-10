@@ -65,8 +65,8 @@ class TestGraphqlSchemaMembers {
     schema.addMember(USER_OWNER, "Owner");
 
     roleManager = ((SqlDatabase) database).getRoleManager();
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
-    roleManager.createRole(SCHEMA_NAME, ROLE_REVIEWER);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
+    roleManager.createRole(schema, ROLE_REVIEWER, "");
     roleManager.createGroup(schema, GROUP_RESEARCH_TEAM);
     roleManager.createGroup(schema, GROUP_TEAM_A);
 

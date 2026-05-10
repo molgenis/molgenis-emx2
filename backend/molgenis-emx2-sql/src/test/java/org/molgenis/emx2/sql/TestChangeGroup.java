@@ -45,8 +45,8 @@ class TestChangeGroup {
     roleManager.createGroup(schema, GROUP_TWO);
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_NO_CG);
-    roleManager.createRole(SCHEMA_NAME, ROLE_YES_CG);
+    roleManager.createRole(schema, ROLE_NO_CG, "");
+    roleManager.createRole(schema, ROLE_YES_CG, "");
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
 
     PermissionSet noCgPerms = new PermissionSet();
@@ -236,7 +236,7 @@ class TestChangeGroup {
   @Test
   void insertWithGroupScopeEmptyGroupsBlocked() {
     String roleGroupScope = "roleGroupScopeInsert";
-    roleManager.createRole(SCHEMA_NAME, roleGroupScope);
+    roleManager.createRole(schema, roleGroupScope, "");
     PermissionSet groupScopePerms = new PermissionSet();
     groupScopePerms.setChangeGroup(false);
     TablePermission tpGroup = new TablePermission(TABLE_NAME);

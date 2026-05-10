@@ -31,7 +31,7 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.dropCreateSchema(SCHEMA_NAME);
     schema.create(table(NON_RLS_TABLE).add(column("id").setPkey()));
     roleManager = new SqlRoleManager((SqlDatabase) db);
-    roleManager.createRole(SCHEMA_NAME, ROLE_NAME);
+    roleManager.createRole(schema, ROLE_NAME, "");
   }
 
   @Test

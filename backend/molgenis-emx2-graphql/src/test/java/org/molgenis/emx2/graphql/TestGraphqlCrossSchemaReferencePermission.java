@@ -91,7 +91,7 @@ class TestGraphqlCrossSchemaReferencePermission {
 
     SqlRoleManager roleManager = ((SqlDatabase) database).getRoleManager();
 
-    roleManager.createRole(SCHEMA_A, ROLE_PARENT_VIEWER);
+    roleManager.createRole(schemaA, ROLE_PARENT_VIEWER, "");
     roleManager.setPermissions(
         schemaA,
         ROLE_PARENT_VIEWER,
@@ -102,7 +102,7 @@ class TestGraphqlCrossSchemaReferencePermission {
                     .select(SelectScope.ALL)
                     .reference(ReferenceScope.NONE)));
 
-    roleManager.createRole(SCHEMA_B, ROLE_CHILD_REF_ONLY);
+    roleManager.createRole(schemaB, ROLE_CHILD_REF_ONLY, "");
     roleManager.setPermissions(
         schemaB,
         ROLE_CHILD_REF_ONLY,
@@ -113,7 +113,7 @@ class TestGraphqlCrossSchemaReferencePermission {
                     .select(SelectScope.NONE)
                     .reference(ReferenceScope.ALL)));
 
-    roleManager.createRole(SCHEMA_B, ROLE_CHILD_FULL_VIEWER);
+    roleManager.createRole(schemaB, ROLE_CHILD_FULL_VIEWER, "");
     roleManager.setPermissions(
         schemaB,
         ROLE_CHILD_FULL_VIEWER,
@@ -124,7 +124,7 @@ class TestGraphqlCrossSchemaReferencePermission {
                     .select(SelectScope.ALL)
                     .reference(ReferenceScope.NONE)));
 
-    roleManager.createRole(SCHEMA_B, ROLE_OTHER_REF_ONLY);
+    roleManager.createRole(schemaB, ROLE_OTHER_REF_ONLY, "");
     roleManager.setPermissions(
         schemaB,
         ROLE_OTHER_REF_ONLY,

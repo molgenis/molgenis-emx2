@@ -173,7 +173,7 @@ public class TestRlsPerformance {
 
     if (!db.hasUser(USER_GROUP)) db.addUser(USER_GROUP);
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_GROUP_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_GROUP_READER);
+      roleManager.createRole(schemaRls, ROLE_GROUP_READER, "");
     }
     if (!groupExistsInSchema(SCHEMA_RLS, GROUP_A)) {
       roleManager.createGroup(schemaRls, GROUP_A);
@@ -221,10 +221,10 @@ public class TestRlsPerformance {
       if (!db.hasUser(user)) db.addUser(user);
     }
     if (!roleExistsInSchema(SCHEMA_LARGE, roleAllLarge)) {
-      roleManager.createRole(SCHEMA_LARGE, roleAllLarge);
+      roleManager.createRole(schemaLarge, roleAllLarge, "");
     }
     if (!roleExistsInSchema(SCHEMA_LARGE, roleGroupLarge)) {
-      roleManager.createRole(SCHEMA_LARGE, roleGroupLarge);
+      roleManager.createRole(schemaLarge, roleGroupLarge, "");
     }
     if (!groupExistsInSchema(SCHEMA_LARGE, groupLarge)) {
       roleManager.createGroup(schemaLarge, groupLarge);
@@ -335,7 +335,7 @@ public class TestRlsPerformance {
     if (!db.hasUser(USER_CONC1)) db.addUser(USER_CONC1);
     if (!db.hasUser(USER_CONC2)) db.addUser(USER_CONC2);
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_GROUP_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_GROUP_READER);
+      roleManager.createRole(schemaRls, ROLE_GROUP_READER, "");
     }
     if (!groupExistsInSchema(SCHEMA_RLS, GROUP_A)) {
       roleManager.createGroup(schemaRls, GROUP_A);
@@ -442,12 +442,12 @@ public class TestRlsPerformance {
     if (!db.hasUser(USER_CONC1)) db.addUser(USER_CONC1);
     if (!db.hasUser(USER_CONC2)) db.addUser(USER_CONC2);
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_OWN_WRITER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_OWN_WRITER);
+      roleManager.createRole(schemaRls, ROLE_OWN_WRITER, "");
     }
     ensureRlsOnWriteTable(schemaRls);
 
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_ALL_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
+      roleManager.createRole(schemaRls, ROLE_ALL_READER, "");
     }
     PermissionSet psAllWrite =
         new PermissionSet()
@@ -555,7 +555,7 @@ public class TestRlsPerformance {
 
     if (!db.hasUser(USER_CONC1)) db.addUser(USER_CONC1);
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_ALL_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
+      roleManager.createRole(schemaRls, ROLE_ALL_READER, "");
     }
     ensureRlsGrantOnPerfTable(schemaRls);
     roleManager.grantRoleToUser(schemaRls, ROLE_ALL_READER, USER_CONC1);
@@ -792,7 +792,7 @@ public class TestRlsPerformance {
 
     if (!db.hasUser(USER_GROUP)) db.addUser(USER_GROUP);
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_GROUP_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_GROUP_READER);
+      roleManager.createRole(schemaRls, ROLE_GROUP_READER, "");
     }
 
     List<String> allGroups = new ArrayList<>();
@@ -885,7 +885,7 @@ public class TestRlsPerformance {
 
   private void enableRlsAndSetupAllReader(Schema schemaRls) {
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_ALL_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
+      roleManager.createRole(schemaRls, ROLE_ALL_READER, "");
     }
     SqlTableMetadata perfMeta = (SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata();
     if (!Boolean.TRUE.equals(perfMeta.getRlsEnabled())) {
@@ -902,7 +902,7 @@ public class TestRlsPerformance {
 
   private void ensureRlsGrantOnPerfTable(Schema schemaRls) {
     if (!roleExistsInSchema(SCHEMA_RLS, ROLE_ALL_READER)) {
-      roleManager.createRole(SCHEMA_RLS, ROLE_ALL_READER);
+      roleManager.createRole(schemaRls, ROLE_ALL_READER, "");
     }
     if (!Boolean.TRUE.equals(
         ((SqlTableMetadata) schemaRls.getTable(TABLE_PERF).getMetadata()).getRlsEnabled())) {

@@ -68,7 +68,7 @@ class TestGraphqlReferenceOnlySchema {
     }
 
     SqlRoleManager roleManager = ((SqlDatabase) database).getRoleManager();
-    roleManager.createRole(SCHEMA_NAME, ROLE_REF_VIEWER);
+    roleManager.createRole(schema, ROLE_REF_VIEWER, "");
     roleManager.setPermissions(
         schema,
         ROLE_REF_VIEWER,

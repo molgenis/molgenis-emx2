@@ -236,8 +236,8 @@ class TestGraphqlSchemaGroups {
 
   @Test
   void users_includesRolePerUser() throws IOException {
-    roleManager.createRole(SCHEMA_NAME, ROLE_ONE);
-    roleManager.createRole(SCHEMA_NAME, ROLE_TWO);
+    roleManager.createRole(schema, ROLE_ONE, "");
+    roleManager.createRole(schema, ROLE_TWO, "");
     executeAdmin("mutation { change(groups: [{name: \"" + GROUP_DUAL + "\"}]) { message } }");
 
     assertTrue(
@@ -282,6 +282,61 @@ class TestGraphqlSchemaGroups {
       roleManager.removeGroupMembership(SCHEMA_NAME, GROUP_DUAL, USER_DUAL_ROLE, ROLE_TWO);
       executeAdmin("mutation { drop(groups: [\"" + GROUP_DUAL + "\"]) { message } }");
     }
+  }
+
+  @Test
+  void groupUsersInput_roundTripsToMembersOutput_withSentinelRole() throws IOException {
+    String groupName = "roundtrip_group";
+    String username = USER_MANAGER;
+
+    assertFalse(
+        queryGroupNames().contains(groupName),
+        "Pre-condition: " + groupName + " must not exist before test");
+
+    executeAdmin("mutation { change(groups: [{name: \"" + groupName + "\"}]) { message } }");
+    assertTrue(
+        queryGroupNames().contains(groupName),
+        "Pre-condition: group must exist before adding users");
+    assertTrue(
+        usersForGroup(queryGroupsNode(), groupName).isEmpty(),
+        "Pre-condition: group must be empty before adding users");
+
+    executeAdmin(
+        "mutation { change(groups: [{name: \""
+            + groupName
+            + "\", users: [\""
+            + username
+            + "\"]}]) { message } }");
+
+    JsonNode groupsAfter = queryGroupsNode();
+    List<String> emails = usersForGroup(groupsAfter, groupName);
+    assertTrue(emails.contains(username), "User must appear in members.email after users: input");
+
+    String role = roleForGroupMember(groupsAfter, groupName, username);
+    assertNotNull(role, "role must not be null for sentinel group member");
+    assertFalse(role.isBlank(), "role must not be blank for sentinel group member");
+
+    executeAdmin("mutation { drop(groups: [\"" + groupName + "\"]) { message } }");
+    assertFalse(queryGroupNames().contains(groupName), "Group must be absent after drop (cleanup)");
+  }
+
+  private String roleForGroupMember(JsonNode groups, String groupName, String username) {
+    if (groups.isArray()) {
+      for (JsonNode g : groups) {
+        if (groupName.equals(g.path("name").asText())) {
+          JsonNode membersNode = g.path("members");
+          if (membersNode.isArray()) {
+            for (JsonNode m : membersNode) {
+              if (username.equals(m.path("email").asText())) {
+                String role = m.path("role").asText(null);
+                return role;
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 
   private void executeAdmin(String query) throws IOException {

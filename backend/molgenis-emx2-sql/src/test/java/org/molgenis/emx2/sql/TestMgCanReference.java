@@ -153,6 +153,47 @@ public class TestMgCanReference {
   }
 
   @Test
+  public void mgCanReference_returnsTrue_whenSelectScopeGroupAndRowInUsersGroup() {
+    roleManager.createRole(schema(), "group-select-role", "");
+    roleManager.setPermissions(
+        schema(),
+        "group-select-role",
+        new PermissionSet()
+            .putTable(
+                "groupSelectTable",
+                new TablePermission("groupSelectTable")
+                    .select(SelectScope.GROUP)
+                    .reference(ReferenceScope.NONE)));
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "group-select-role");
+
+    boolean result =
+        canReferenceAsUser(USER_ALICE, "groupSelectTable", new String[] {GROUP_A}, "someone-else");
+    assertTrue(
+        result,
+        "SELECT_GROUP must grant reference when row is in user's group (VIEW >= REFERENCE carry rule)");
+  }
+
+  @Test
+  public void mgCanReference_returnsFalse_whenSelectScopeGroupAndRowNotInUsersGroup() {
+    roleManager.createRole(schema(), "group-select-other-role", "");
+    roleManager.setPermissions(
+        schema(),
+        "group-select-other-role",
+        new PermissionSet()
+            .putTable(
+                "groupSelectOtherTable",
+                new TablePermission("groupSelectOtherTable")
+                    .select(SelectScope.GROUP)
+                    .reference(ReferenceScope.NONE)));
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "group-select-other-role");
+
+    boolean result =
+        canReferenceAsUser(
+            USER_ALICE, "groupSelectOtherTable", new String[] {GROUP_B}, "someone-else");
+    assertFalse(result, "SELECT_GROUP must deny reference when row is NOT in user's group");
+  }
+
+  @Test
   public void mgCanReference_withExplicitUser_honorsPassedUser() {
     roleManager.createRole(schema(), "explicit-user-role", "");
     roleManager.setPermissions(

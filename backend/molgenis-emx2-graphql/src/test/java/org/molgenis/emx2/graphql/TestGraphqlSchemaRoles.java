@@ -500,8 +500,36 @@ class TestGraphqlSchemaRoles {
     JsonNode rolesAfter = execute("{_schema { roles { name description } } }").at("/_schema/roles");
     JsonNode foundAfter = findRoleByName(rolesAfter, roleWithDesc);
     assertNotNull(foundAfter, "Role " + roleWithDesc + " should still appear after update");
-    assertEquals(
-        "", foundAfter.at("/description").asText(), "description_null_input_overwrites_to_empty");
+    JsonNode descAfter = foundAfter.at("/description");
+    assertTrue(
+        descAfter.isNull() || descAfter.isMissingNode(),
+        "omitting description in input must round-trip as absent/null, got: " + descAfter);
+  }
+
+  @Test
+  void changeRole_withoutDescription_roundTripsAsNull() throws IOException {
+    String roleName = "no-desc-role";
+
+    JsonNode rolesBefore = execute("{_schema { roles { name } } }").at("/_schema/roles");
+    assertNull(findRoleByName(rolesBefore, roleName), "Role should not exist before mutation");
+
+    execute(
+        "mutation { change(roles: [{"
+            + "name: \""
+            + roleName
+            + "\", "
+            + "permissions: [{table: \""
+            + TABLE_PET
+            + "\", select: ALL}]"
+            + "}]) { message } }");
+
+    JsonNode roles = execute("{_schema { roles { name description } } }").at("/_schema/roles");
+    JsonNode found = findRoleByName(roles, roleName);
+    assertNotNull(found, "Role " + roleName + " should appear after mutation");
+    JsonNode descNode = found.at("/description");
+    assertTrue(
+        descNode.isNull() || descNode.isMissingNode(),
+        "description must be absent/null when not provided in input, got: " + descNode);
   }
 
   @Test
@@ -584,8 +612,8 @@ class TestGraphqlSchemaRoles {
   void rolesQuery_listsRolesAndPermissions() throws IOException {
     database.becomeAdmin();
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
-    roleManager.createRole(SCHEMA_NAME, ROLE_REVIEWER);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
+    roleManager.createRole(schema, ROLE_REVIEWER, "");
 
     try {
       PermissionSet ps = new PermissionSet();
@@ -629,7 +657,7 @@ class TestGraphqlSchemaRoles {
   void changePermissions_replaceAll() throws IOException {
     database.becomeAdmin();
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
 
     try {
       String mutation =
@@ -654,7 +682,7 @@ class TestGraphqlSchemaRoles {
   void dropRoles_removesRoleFromSchema() throws IOException {
     database.becomeAdmin();
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
 
     String mutation = "mutation{drop(roles:[\"" + ROLE_ANALYST + "\"]){message}}";
     execute(mutation);
@@ -679,7 +707,7 @@ class TestGraphqlSchemaRoles {
   void changePermissions_acceptsAggregateSelect() throws IOException {
     database.becomeAdmin();
 
-    roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
+    roleManager.createRole(schema, ROLE_ANALYST, "");
 
     try {
       String mutation =
@@ -715,7 +743,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsRejectsNonManagerNonOwner() {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.EDITOR.toString());
 
     try {
@@ -747,7 +775,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsAcceptsManager() throws IOException {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.MANAGER.toString());
 
     try {
@@ -770,7 +798,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsAcceptsOwner() throws IOException {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.OWNER.toString());
 
     try {
@@ -793,7 +821,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsSchemaIsolation_managerCannotCrossSchemas() throws IOException {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.MANAGER.toString());
 
     try {
@@ -822,7 +850,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsAcceptsWildcardTableForManager() throws IOException {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.MANAGER.toString());
 
     try {
@@ -843,7 +871,7 @@ class TestGraphqlSchemaRoles {
   @Test
   void setPermissionsAcceptsWildcardTableForOwner() throws IOException {
     database.becomeAdmin();
-    roleManager.createRole(SCHEMA_NAME, ROLE_GATED);
+    roleManager.createRole(schema, ROLE_GATED, "");
     schema.addMember(USER_TEST, Privileges.OWNER.toString());
 
     try {

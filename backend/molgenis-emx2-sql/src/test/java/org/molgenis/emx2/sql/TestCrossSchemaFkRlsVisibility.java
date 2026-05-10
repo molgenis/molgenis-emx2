@@ -101,7 +101,7 @@ public class TestCrossSchemaFkRlsVisibility {
 
     // Grant Alice VIEW_OWN on Pet in refSchema via group+role
     roleManager.createGroup(refSchema, GROUP_ALICE);
-    roleManager.createRole(REF_SCHEMA, ROLE_VIEW_OWN);
+    roleManager.createRole(refSchema, ROLE_VIEW_OWN, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_VIEW_OWN,
@@ -114,7 +114,7 @@ public class TestCrossSchemaFkRlsVisibility {
     roleManager.addGroupMembership(REF_SCHEMA, GROUP_ALICE, USER_ALICE, ROLE_VIEW_OWN);
 
     // Grant Alice VIEW_ALL on Owner in childSchema (full access to child)
-    roleManager.createRole(CHILD_SCHEMA, ROLE_VIEW_ALL);
+    roleManager.createRole(childSchema, ROLE_VIEW_ALL, "");
     roleManager.setPermissions(
         childSchema,
         ROLE_VIEW_ALL,
@@ -243,7 +243,7 @@ public class TestCrossSchemaFkRlsVisibility {
     roleManager.createGroup(refSchema, groupRefArray);
 
     String roleRefAllArray = "refAllArrayRole";
-    roleManager.createRole(REF_SCHEMA, roleRefAllArray);
+    roleManager.createRole(refSchema, roleRefAllArray, "");
     roleManager.setPermissions(
         refSchema,
         roleRefAllArray,
@@ -303,7 +303,7 @@ public class TestCrossSchemaFkRlsVisibility {
     String groupRef = "groupRef";
     roleManager.createGroup(refSchema, groupRef);
 
-    roleManager.createRole(REF_SCHEMA, ROLE_REF_ALL);
+    roleManager.createRole(refSchema, ROLE_REF_ALL, "");
     roleManager.setPermissions(
         refSchema,
         ROLE_REF_ALL,
