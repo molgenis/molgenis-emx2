@@ -96,6 +96,7 @@ public class SqlRoleManager {
             db.setActiveUser(currentUser);
           }
         });
+    database.getListener().onSchemaChange();
   }
 
   public void createRole(Schema schema, String roleName, String description) {
@@ -811,6 +812,7 @@ public class SqlRoleManager {
           }
           insertGroup(adminJooq, schemaName, groupName);
         });
+    database.getListener().onSchemaChange();
   }
 
   public void deleteGroup(Schema schema, String groupName) {
@@ -824,6 +826,7 @@ public class SqlRoleManager {
                 "Group '" + groupName + "' not found in schema '" + schemaName + "'");
           }
         });
+    database.getListener().onSchemaChange();
   }
 
   public void addGroupMember(Schema schema, String groupName, String username) {

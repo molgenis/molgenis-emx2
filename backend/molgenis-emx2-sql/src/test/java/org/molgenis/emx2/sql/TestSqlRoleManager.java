@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -693,6 +694,93 @@ class TestSqlRoleManager {
           ReferenceScope.ALL, found.reference(), "reference scope must be ALL after expand");
     } finally {
       db.becomeAdmin();
+    }
+  }
+
+  // ── listener: createRole / createGroup / deleteGroup fire onSchemaChange ──
+
+  @Test
+  void createRole_firesListener() {
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.createRole(SCHEMA_A, "listener-role");
+      assertTrue(callCount.get() > 0, "createRole must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
+    }
+  }
+
+  @Test
+  void createGroup_firesListener() {
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.createGroup(schemaA, "listener-group");
+      assertTrue(callCount.get() > 0, "createGroup must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
+    }
+  }
+
+  @Test
+  void deleteGroup_firesListener() {
+    roleManager.createGroup(schemaA, "del-listener-group");
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.deleteGroup(schemaA, "del-listener-group");
+      assertTrue(callCount.get() > 0, "deleteGroup must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
     }
   }
 
