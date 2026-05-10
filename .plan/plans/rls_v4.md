@@ -879,13 +879,13 @@ Scout audit + new `TestCrossSchemaFkRlsVisibility` confirms:
   under user `SET ROLE`; PG RLS fires on every cross-schema FK path
   reached via `retrieveJSON()` subfield expansion. No production change
   needed for that path.
-  **Exception resolved 2026-05-08**: `retrieveRows()` now applies RLS
-  clamping for REF columns whose target table has RLS enabled. A LEFT
-  JOIN to the target table is added and the FK column is projected as
-  CASE WHEN target visible THEN fk ELSE NULL END. Production change:
-  `SqlQuery.java` — `buildRlsClampAliases`, `addRlsClampJoins`, and
-  overloaded `rowSelectFields(…, Map<String,String>)` methods.
-  All 5 `TestCrossSchemaFkRlsVisibility` tests are GREEN.
+  **Exception (2026-05-08, since reverted)**: an earlier iteration added
+  RLS NULL-clamping in `retrieveRows()` (`buildRlsClampAliases`,
+  `addRlsClampJoins`, overloaded `rowSelectFields`). That clamp was
+  intentionally removed at the Phase R baseline (commit 76edd816e:
+  -63 SqlQuery, -123 SqlTable, both F.1 test files deleted) so Phase R
+  could ship hide-don't-lock from a clean slate. R.3b reintroduces FK
+  visibility as row-hide (not clamp) using `mg_can_reference`.
 - F.2: per-table policies emitted via `enableRlsCascade` for every
   table in inheritance tree (`SqlTableMetadata.java:556-577`); each
   policy fires independently on its rows.
@@ -893,12 +893,13 @@ Scout audit + new `TestCrossSchemaFkRlsVisibility` confirms:
   (`SqlTableMetadata.setRlsEnabled` lines 522-538); covered by
   `TestRlsInheritanceCascade.enableOnNonRootRejected`.
 
-Test scaffold: 5 methods in `TestCrossSchemaFkRlsVisibility`.
-- `joinResolvesOnlyVisibleParents` — GREEN (retrieveJSON + subfield expansion)
-- `scalarRefProjectsNullForInvisibleParent` — GREEN (retrieveRows clamps via LEFT JOIN) RESOLVED 2026-05-08
-- `refArrayDropsInvisibleElements` — GREEN
-- `refbackEmptyForInvisibleParent` — GREEN
-- `inheritanceCompositionFiltersChildSubclass` — GREEN
+Test scaffold (rebuilt fresh in R.3b — original F.1 test file was deleted at Phase R baseline). New `TestCrossSchemaFkRlsVisibility` has 6 tests, all GREEN:
+- `scalarRef_hidesChildRow_whenFkTargetInvisible` — core R.3b row-hide
+- `joinResolvesOnlyVisibleParents` — JSON path; PG RLS suppresses target data
+- `refArrayDropsInvisibleElements` — REF_ARRAY behavior unchanged in R.3b (R.3c will flip)
+- `nullFkRow_remainsVisible` — null FKs don't hide the row
+- `refbackEmptyForInvisibleParent` — refback path stable
+- `referenceAllOnRefTable_keepsChildRowVisible` — REFERENCE_ALL keeps row visible despite VIEW_NONE
 
 ### Phase I — UI integration (DRAFT 2026-05-08)
 
@@ -1719,7 +1720,7 @@ y  - **R.2b** — Wire REFERENCE into the grant/merge path uniformly with the ot
   - **Read path: no clamp.** F.1's NULL-clamp on FK columns is dropped — replaced by row-hide. Tests in `TestCrossSchemaFkRlsVisibility` flip from null-assertion to row-absence-assertion. Write path keeps a visibility check (R.5).
   - **REFERENCE_ALL semantics in R.3:** at SQL/data layer the row stays visible. Column-level "PK + label only" gating happens at the GraphQL schema layer in R.4 — out of scope for R.3.
   - **R.3a** — SQL function `mg_can_reference(schema, table, groups, owner)`. Mirrors `mg_can_read` shape but reads `RPM_REFERENCE_SCOPE`. v1 returns true for system roles, REFERENCE_ALL, or when `mg_can_read` would (since VIEW ⊇ REFERENCE at same scope). REFERENCE_OWN/GROUP wired now too (small extra cost; aligns SQL with metadata) but not exercised by R.3b/c (which only filter NONE/ALL gates). Pure SQL change + unit tests. _Status (2026-05-10): DONE._ Function added in `migration32.sql` (idempotent CREATE OR REPLACE; no version bump — still 33). Composition implemented inline (one UNION ALL branch combining reference scopes + the full select-scope/change-owner conditions from `mg_can_read`) rather than calling `mg_can_read()` from `mg_can_reference()` — keeps it one query. New `TestMgCanReference` class with 6 tests covering: REFERENCE_NONE → false, REFERENCE_ALL → true any row, REFERENCE_OWN match/no-match, REFERENCE_GROUP match/no-match, system role → true, view-implies-reference (VIEW_ALL → true even with REFERENCE_NONE). Bootstrap re-runs `migration32.sql` in `@BeforeAll` since DB version is already 33 and won't auto-rerun. Test-isolation gotcha surfaced + fixed: dedicated `USER_SYSTEM` for system-role test to avoid contaminating other tests via persistent Owner membership. 6/6 green; TestSqlRoleManager 26/26 unaffected.
-  - **R.3b** — Replace F.1's NULL-clamp with row-hide for single-valued FK (REF). `SqlQuery.refJoins` switches the LEFT JOIN + CASE WHEN to an INNER-style filter: keep row iff `mg_can_read(refTable, ...) OR mg_can_reference(refTable, ...)`. Update `TestCrossSchemaFkRlsVisibility` (5 tests) to assert row-absence instead of null FK. New test: REFERENCE_ALL on refTable keeps the row even when view-scope alone wouldn't.
+  - **R.3b** — Replace F.1's NULL-clamp with row-hide for single-valued FK (REF). `SqlQuery.refJoins` switches the LEFT JOIN + CASE WHEN to an INNER-style filter: keep row iff `mg_can_read(refTable, ...) OR mg_can_reference(refTable, ...)`. Update `TestCrossSchemaFkRlsVisibility` (5 tests) to assert row-absence instead of null FK. New test: REFERENCE_ALL on refTable keeps the row even when view-scope alone wouldn't. _Status (2026-05-10): DONE._ **Surprise discovery:** F.1's clamp was already deleted at the Phase R baseline (commit 76edd816e) — there was nothing to "replace"; R.3b implements visibility from scratch. New `fkRlsVisibilityConditions` method on `SqlQuery` adds, per single-valued FK pointing to an RLS-enabled refTable, a LEFT JOIN exposing target's `mg_groups`/`mg_owner` and a WHERE condition `(fk IS NULL) OR MOLGENIS.mg_can_reference(refSchema, refTable, target.mg_groups, target.mg_owner)`. Note: invokes `mg_can_reference` only — R.3a's function already subsumes `mg_can_read` semantics (UNION ALL of select-scope + reference-scope + system roles), so no separate `mg_can_read` call needed in the predicate. REF_ARRAY skipped (R.3c). New test class `TestCrossSchemaFkRlsVisibility` with 6 tests including `referenceAllOnRefTable_keepsChildRowVisible`. SqlQuery +60 lines, test +273. Tests green: TestCrossSchemaFkRlsVisibility 6/6, TestSqlRoleManager 26/26, TestPolicyCount 2/2, TestSelectScope 1/1.
   - **R.3c** — REF_ARRAY all-elements-in-scope. Extend the UNNEST path so the row is hidden if ANY array element falls outside (view ∪ reference). Update `refArrayDropsInvisibleElements` from element-drop to row-drop semantics.
   - **R.3d** — Cross-schema FK coverage. Likely test-only if R.3a invocation is fully-qualified like `mg_can_read`.
 - **R.4** — GraphQL schema generator: per-session schema reflects effective perms (thin types for reference-only, mutations gated on view + write). Resolve server-side vs client-side refLabel projection before starting.
