@@ -1301,8 +1301,8 @@ hasn't yet absorbed all the metadata-table SQL it should own. Doing
 L first avoids K duplicating extraction work.
 
 **Run L before K.** L #6 is a release blocker; L #8 establishes
-the seam K builds on; L #7 is a cross-cutting correctness issue
-that must be resolved before K touches RLS-tagged data.
+the seam K builds on; L #7 was a cross-cutting correctness issue
+that has since been superseded and reverted (see L.7 entry below).
 
 **Slices** (priority order from review)
 
@@ -1385,7 +1385,12 @@ that must be resolved before K touches RLS-tagged data.
 - **L.6 — Extract pg_catalog half of `executeGetMembers` cleanup**
   *(folded into L.3)*.
 
-- **L.7 — RLS FK-clamp write-back hazard** — closed 2026-05-09
+- **L.7 — RLS FK-clamp write-back hazard**
+
+  > **STATUS: SUPERSEDED PRE-SHIP. Dropped from v4.**
+  > Owner decision: existence privacy for FK-to-RLS-target reads moves entirely to Phase R (explicit REFERENCE permission). v4 ships with FK columns exposing the target PK regardless of RLS visibility — same stance as Hasura / PostgREST / native PG RLS. The L.7 read-clamp (`rlsClampAlias`) and write-back guard (`guardRlsFkWriteBack`) and associated tests have been reverted on this branch.
+
+  Historical record (preserved for plan archaeology): closed 2026-05-09
   (option a). RED-GREEN: added failing test
   `TestRlsFkWriteBackGuard.resave_withClampedNull_isRejected`,
   verified red, then implemented `SqlTable.guardRlsFkWriteBack`
@@ -1398,7 +1403,7 @@ that must be resolved before K touches RLS-tagged data.
   batching could be optimized to per-target-table later if hot).
   Added 5-LOC javadoc to `buildRlsClampAliases`. Tests:
   TestRlsFkWriteBackGuard 5/5; TestPrivacy 7/7;
-  TestRlsEnableDisableLifecycle 9/9 — all green.
+  TestRlsEnableDisableLifecycle 9/9 — all green. **All reverted.**
 
 - **L.8 — Reduce `molgenis-emx2-nonparallel-tests` to genuine
   cases** — closed 2026-05-09. Relocated 3 tests
@@ -1419,6 +1424,26 @@ that must be resolved before K touches RLS-tagged data.
   incomplete settings-merge implementation. Investigate after
   Phase L closes; not blocking M/K.
 
+- **L.11 (backlog, non-blocking) — Pre-existing VIEWER-permission test failures (5 tests)**.
+  Tests fail because their setUp() doesn't grant VIEWER role to the active user before reading
+  from RLS-enabled tables. Pre-dates the L.7 revert (verified against HEAD^). Fix: review each
+  setUp() and add `schema.addMember(user, "Viewer")` (or equivalent) before the read assertions.
+  Affected tests:
+  - `TestPrivacy.countScope_onRlsTable_passesThroughPolicy_andClampsProjection`
+  - `TestSelectScope.countScopeRlsPassThroughSeesAllRows`
+  - `TestRlsPerformance.stressTest_largeMgGroupsArray`
+  - (plus 2 others with the same VIEWER-permission signature — total 5)
+
+- **L.12 (backlog, non-blocking) — Pre-existing `db.getSchema()` NPE in user-switch tests (3 tests)**.
+  Tests call `db.getSchema(SCHEMA_NAME)` after `setActiveUser(user)`; schema lookup returns null
+  and NPEs. Either schema context is lost across user switches (production bug) or tests need to
+  re-fetch the schema with admin context first. Pre-dates L.7 revert.
+  Affected tests:
+  - `TestTablePolicies.noneScopeIsRejectedBeforeRls`
+  - `TestRlsPerformance.overhead_groupScope_atLargeScale`
+  - `TestRlsPerformance.overhead_selectAll_rlsVsNoRls`
+  - `TestRlsPerformance.overhead_groupScope_vs_allScope`
+
 - **L.9 — Skipped**. `Group` and `Role` are already records;
   `Member` is the mutable-class outlier. Owner decision (2026-05-09):
   prefer class over record, no action.
@@ -1433,14 +1458,14 @@ that must be resolved before K touches RLS-tagged data.
 
 **Decisions taken (2026-05-09)**
 
-1. **L.7 design = option (a)**: keep current NULL clamp on read, add
+1. **L.7 design = option (a)** *(superseded — reverted pre-ship 2026-05-09; existence privacy moves to Phase R)*: keep current NULL clamp on read, add
    a write-back guard in `SqlTable.update`/`save`. For each FK column
    where user explicitly submitted NULL AND stored value is non-NULL
    AND target row is invisible to active user → reject the entire
    batch with a clear error. One batched admin SELECT per update tx
    that touches RLS-FK columns.
 
-   Reference shape:
+   Reference shape (historical; all reverted):
    ```java
    List<RefCheckRow> rlsClampedRefs = collectExplicitNullRefsToRlsTables(rows);
    if (!rlsClampedRefs.isEmpty()) {
@@ -1457,8 +1482,10 @@ that must be resolved before K touches RLS-tagged data.
    }
    ```
 
-   Trade-off: a user who can't see the FK target also can't clear
-   it. Correct semantic — "you can't change what you can't see".
+   Trade-off noted: a user who can't see the FK target also can't clear
+   it. Owner rejected this approach in favor of Phase R's cleaner
+   row-visibility rule (FK column exposes target PK regardless of RLS
+   visibility — Hasura/PostgREST/native-PG-RLS stance).
 
 2. **L.5 approach = option (a)**: fix the diff in `migrate` itself
    (don't add a post-hook in `SqlSchema`). Locate the per-table
@@ -1477,7 +1504,7 @@ that must be resolved before K touches RLS-tagged data.
    L.5 → L.7 → L.8. Parallelization rejected (slices interact
    on `SqlRoleManager` / `MetadataUtils` / migrate seam — bisecting
    a parallel-batch failure would cost more than the sequential
-   tax).
+   tax). *(L.7 was subsequently reverted pre-ship; the order is preserved here for archaeological context.)*
 
 ### Phase M — explicit RLS disable API (DRAFT 2026-05-09)
 
@@ -1621,6 +1648,81 @@ RLS v4-introduced is round-trippable.
 3. Should `disableRlsCascade` get the prolonged-60s timeout
    independently of K, or wait for K landing to remove the
    per-row pattern first?
+
+### Phase R — Explicit REFERENCE permission (design approved 2026-05-09, implementation pending)
+
+> **Design approved.** Owner decisions recorded below. Implementation slices not yet started. No code changes permitted until lead issues a start signal.
+
+#### Goal
+
+Introduce an explicit `reference` permission orthogonal to `view`, so schema owners can declare tables as "lookup-only" (resolvable via FK traversal without granting direct SELECT) rather than deriving that capability from existing `view` scopes. Phase R is also the sole existence-privacy mechanism in v4+: L.7 has already been reverted pre-ship; Phase R replaces it with a cleaner row-visibility rule.
+
+#### Permission model
+
+Two orthogonal axes per table, per role:
+
+- **`view(T, scope)`** — governs direct SELECT against T (`query { T { … } }`). Scope: NONE / OWN / GROUP / ALL. Unchanged from current behavior.
+- **`reference(T)`** — governs FK traversal into T from other tables (`query { Child { target { id, label } } }`). `reference` is an enum `REFERENCE_{NONE, OWN, GROUP, ALL}` — same shape as `view`. Phase R v1 wires only `REFERENCE_NONE` and `REFERENCE_ALL` at runtime; the metadata model and import/export include the full enum from day one so future phases adding GROUP/OWN are runtime-only changes (no metadata migration).
+
+**Effective access** = union of all role grants per axis. A user holding multiple groupless roles gets the maximum scope per axis. `VIEW_GROUP + REFERENCE_ALL` is a valid, supported combination.
+
+**Implication**: `VIEW ⊇ REFERENCE` at the same scope tier — if you can directly view a row you can certainly reference it.
+
+**Child-row visibility rule**: a row in Child is visible to the requesting user iff every FK target on that row is within (effective view-scope ∪ effective reference-scope) on the refTable. For REF_ARRAY: ALL elements must be in scope, or the row is hidden entirely. No partial-visibility arrays.
+
+**Hide, don't lock**: rows whose FK targets fall outside scope are simply omitted from results. No synthetic `mg_editable` flag. Clean two-state: visible+editable vs hidden. Lock-visible mode (show but disallow edit) is deferred backlog.
+
+**Permission combination matrix**
+
+| Combination | Direct query of T | FK on Child pointing to T |
+|---|---|---|
+| VIEW_NONE + REFERENCE_ALL | nothing returned | all Child rows visible; FK resolves to `{pk, label}` only |
+| VIEW_OWN + REFERENCE_NONE | own rows, full fields | only Child rows pointing to own targets visible |
+| VIEW_GROUP + REFERENCE_ALL | group rows, full fields | all Child rows visible; FK resolves to `{pk, label}` only |
+| VIEW_ALL | all rows, full fields | all Child rows visible; FK fully resolvable |
+
+**GraphQL schema reduction per session**: the schema served to a session reflects the user's effective perms. Tables for which the user has reference-only access emit a thin type (PK + label fields, no mutations). Full types include all permitted fields and mutations. This is the authoritative signal — frontends introspect, no runtime probing.
+
+**RefLabel**: data-modeler responsibility. EMX2 has no column-level permissions and Phase R does not add them. The refLabel shape is whatever the modeler declared in metadata. If sensitive columns appear in the label, that is the modeler's problem — document loudly.
+
+**Defense-in-depth at write time**: server verifies "all current FK targets are within the user's (view ∪ reference) scope" at update/insert/delete time. Unconditional (not gated on null detection — that was L.7's approach, now reverted). Catches narrow races where perms change between read and write. Implemented as R.5.
+
+#### Scope of v1
+
+- REFERENCE is a four-value enum (`REFERENCE_{NONE, OWN, GROUP, ALL}`) at the metadata level from day one. Only `REFERENCE_NONE` and `REFERENCE_ALL` are wired at runtime in v1; the full enum is present in the metadata model and import/export so future phases adding GROUP/OWN require no metadata migration.
+- VIEW semantics unchanged.
+- Scoped REFERENCE (REFERENCE_GROUP, REFERENCE_OWN) is **out of scope for v1** — runtime-only addition in a later phase (no schema migration needed).
+
+#### Implementation slices (order suggestive; do not lock sequencing before owner approval)
+
+- **R.1** — Add REFERENCE permission to the perm-set model (Java enum + metadata storage).
+- **R.2** — Wire REFERENCE into role grants (`SqlRoleManager`, role import/export — depends on Phase K).
+- **R.3** — Implement Child-row visibility rule: extend RLS predicates so a Child row is hidden if any FK target falls outside (view ∪ reference) scope on the refTable. Includes REF_ARRAY all-elements-in-scope rule.
+- **R.4** — GraphQL schema generator: per-session schema reflects effective perms (thin types for reference-only, mutations gated on view + write). Resolve server-side vs client-side refLabel projection before starting.
+- **R.5** — (L.7 already reverted pre-ship.) Phase R ships with no read-clamp and no write-back guard from v4. R.5 instead implements the unconditional "all current FK targets visible at ≥REFERENCE scope" check at update/insert/delete time as defense-in-depth only (catches narrow races where perms change between read and write). This reuses the L.7 guard-query shape but fires unconditionally, not gated on null detection.
+- **R.6** — Migration and docs: existing VIEW grants implicitly carry REFERENCE at the same scope. Explicit REFERENCE-only requires owner action. Document refLabel modeler responsibility prominently.
+
+#### Open questions
+
+- **Cross-schema REFERENCE** — ANSWERED: same rule applies regardless of schema. To view/edit Child rows referencing schema-other.T, user needs ≥REFERENCE on schema-other.T. Carry-over open detail: how does REFERENCE on schema-other.T compose with schema-level membership? Resolve before R.3 implementation (see new open question below).
+- **Write-time guard scope** — ANSWERED: REFERENCE alone satisfies the "all current FK targets visible" check at write time. VIEW is not required for the visibility check, only for direct table query. Matches the orthogonal-axes design.
+- **RefLabel server-side projection** — ANSWERED: refLabel stays client-side in Phase R. EMX2 has no server-side refLabel today and Phase R does not introduce one. Modeler responsibility: declare label columns that are safe to expose at REFERENCE level. **Document this obligation prominently in user-facing docs when Phase R ships.**
+- **Scoped REFERENCE (REFERENCE_GROUP / REFERENCE_OWN)** — ANSWERED: deferred to a later phase. v1 wires only NONE and ALL. The enum carries all four values (API prepped) so promotion to GROUP/OWN is purely a runtime change.
+- **Cross-schema RBAC composition for REFERENCE** — OPEN: how does REFERENCE on schema-other.T compose with schema-level membership? Does a user need any schema-A membership to receive REFERENCE grants on schema-A.T, or are REFERENCE grants cross-schema-membership-agnostic? Resolve before R.3 implementation.
+- **Lock-visible escape hatch** (show row but disallow edit) — backlog, not v1. Needs separate UX design.
+
+#### Non-goals for v1
+
+- Column-level permissions.
+- Scoped REFERENCE at runtime (REFERENCE_GROUP / REFERENCE_OWN — enum values present in metadata model, but runtime behavior not wired).
+- Lock-visible mode (show row but not allow edit) — deferred backlog, needs separate UX design.
+- Server-side refLabel projection — stays client-side; modeler responsibility to expose only safe columns at REFERENCE level.
+
+#### Retirement note
+
+L.7 is already retired pre-ship (reverted 2026-05-09 per owner decision). Phase R is the sole existence-privacy mechanism in v4+. The `.plan/specs/rls.md` L.7 spec has been deleted. No further retirement action required on L.7; Phase R implementation closes the loop by wiring the REFERENCE permission model.
+
+---
 
 ## Out of scope
 
