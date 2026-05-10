@@ -546,7 +546,7 @@ class TestGraphqlSchemaRoles {
     try {
       PermissionSet ps = new PermissionSet();
       TablePermission tp = new TablePermission(TABLE_NAME);
-      tp.setSelect(SelectScope.ALL);
+      tp.select(SelectScope.ALL);
       ps.putTable(TABLE_NAME, tp);
       roleManager.setPermissions(schema, ROLE_ANALYST, ps);
 
@@ -600,7 +600,7 @@ class TestGraphqlSchemaRoles {
       PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
       TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
       assertNotNull(tablePerms, "Table permissions must be present");
-      assertEquals(SelectScope.ALL, tablePerms.getSelect(), "select scope must be ALL");
+      assertEquals(SelectScope.ALL, tablePerms.select(), "select scope must be ALL");
     } finally {
       deleteRoleIfExists(ROLE_ANALYST);
     }
@@ -650,7 +650,7 @@ class TestGraphqlSchemaRoles {
       PermissionSet perms = roleManager.getPermissions(schema, ROLE_ANALYST);
       TablePermission tablePerms = perms.getTables().get(TABLE_NAME);
       assertNotNull(tablePerms, "Table permissions must be present");
-      assertEquals(SelectScope.AGGREGATE, tablePerms.getSelect(), "select scope must be AGGREGATE");
+      assertEquals(SelectScope.AGGREGATE, tablePerms.select(), "select scope must be AGGREGATE");
     } finally {
       deleteRoleIfExists(ROLE_ANALYST);
     }

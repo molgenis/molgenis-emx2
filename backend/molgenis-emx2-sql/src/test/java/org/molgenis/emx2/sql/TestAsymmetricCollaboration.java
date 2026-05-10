@@ -60,19 +60,19 @@ public class TestAsymmetricCollaboration {
     PermissionSet editorPerms = new PermissionSet();
     editorPerms.setChangeGroup(true);
     TablePermission editorTp = new TablePermission(TABLE_NAME);
-    editorTp.setSelect(SelectScope.GROUP);
-    editorTp.setInsert(UpdateScope.GROUP);
-    editorTp.setUpdate(UpdateScope.GROUP);
-    editorTp.setDelete(UpdateScope.GROUP);
+    editorTp.select(SelectScope.GROUP);
+    editorTp.insert(UpdateScope.GROUP);
+    editorTp.update(UpdateScope.GROUP);
+    editorTp.delete(UpdateScope.GROUP);
     editorPerms.putTable(TABLE_NAME, editorTp);
     roleManager.setPermissions(schema, ROLE_EDITOR, editorPerms);
 
     PermissionSet viewerPerms = new PermissionSet();
     TablePermission viewerTp = new TablePermission(TABLE_NAME);
-    viewerTp.setSelect(SelectScope.GROUP);
-    viewerTp.setInsert(UpdateScope.NONE);
-    viewerTp.setUpdate(UpdateScope.NONE);
-    viewerTp.setDelete(UpdateScope.NONE);
+    viewerTp.select(SelectScope.GROUP);
+    viewerTp.insert(UpdateScope.NONE);
+    viewerTp.update(UpdateScope.NONE);
+    viewerTp.delete(UpdateScope.NONE);
     viewerPerms.putTable(TABLE_NAME, viewerTp);
     roleManager.setPermissions(schema, ROLE_VIEWER, viewerPerms);
 

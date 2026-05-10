@@ -45,20 +45,20 @@ class TestChangeOwner {
     PermissionSet noCoPerms = new PermissionSet();
     noCoPerms.setChangeOwner(false);
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(SelectScope.ALL);
-    tp.setInsert(UpdateScope.ALL);
-    tp.setUpdate(UpdateScope.ALL);
-    tp.setDelete(UpdateScope.ALL);
+    tp.select(SelectScope.ALL);
+    tp.insert(UpdateScope.ALL);
+    tp.update(UpdateScope.ALL);
+    tp.delete(UpdateScope.ALL);
     noCoPerms.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_NO_CO, noCoPerms);
 
     PermissionSet yesCoPerms = new PermissionSet();
     yesCoPerms.setChangeOwner(true);
     TablePermission tpYes = new TablePermission(TABLE_NAME);
-    tpYes.setSelect(SelectScope.ALL);
-    tpYes.setInsert(UpdateScope.ALL);
-    tpYes.setUpdate(UpdateScope.ALL);
-    tpYes.setDelete(UpdateScope.ALL);
+    tpYes.select(SelectScope.ALL);
+    tpYes.insert(UpdateScope.ALL);
+    tpYes.update(UpdateScope.ALL);
+    tpYes.delete(UpdateScope.ALL);
     yesCoPerms.putTable(TABLE_NAME, tpYes);
     roleManager.setPermissions(schema, ROLE_YES_CO, yesCoPerms);
 

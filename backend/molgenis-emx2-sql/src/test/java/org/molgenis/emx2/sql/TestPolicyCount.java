@@ -61,10 +61,10 @@ class TestPolicyCount {
   private PermissionSet groupPermissions(String tableName) {
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(tableName);
-    tp.setSelect(SelectScope.GROUP);
-    tp.setInsert(UpdateScope.GROUP);
-    tp.setUpdate(UpdateScope.GROUP);
-    tp.setDelete(UpdateScope.GROUP);
+    tp.select(SelectScope.GROUP);
+    tp.insert(UpdateScope.GROUP);
+    tp.update(UpdateScope.GROUP);
+    tp.delete(UpdateScope.GROUP);
     ps.putTable(tableName, tp);
     return ps;
   }

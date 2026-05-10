@@ -73,17 +73,17 @@ class TestGraphqlPermissionFieldFactory {
 
     TablePermission pet = ps.getTables().get("Pet");
     assertNotNull(pet);
-    assertEquals(SelectScope.ALL, pet.getSelect());
-    assertEquals(UpdateScope.OWN, pet.getInsert());
-    assertEquals(UpdateScope.GROUP, pet.getUpdate());
-    assertEquals(UpdateScope.NONE, pet.getDelete());
+    assertEquals(SelectScope.ALL, pet.select());
+    assertEquals(UpdateScope.OWN, pet.insert());
+    assertEquals(UpdateScope.GROUP, pet.update());
+    assertEquals(UpdateScope.NONE, pet.delete());
 
     TablePermission order = ps.getTables().get("Order");
     assertNotNull(order);
-    assertEquals(SelectScope.AGGREGATE, order.getSelect());
-    assertEquals(UpdateScope.NONE, order.getInsert());
-    assertEquals(UpdateScope.NONE, order.getUpdate());
-    assertEquals(UpdateScope.NONE, order.getDelete());
+    assertEquals(SelectScope.AGGREGATE, order.select());
+    assertEquals(UpdateScope.NONE, order.insert());
+    assertEquals(UpdateScope.NONE, order.update());
+    assertEquals(UpdateScope.NONE, order.delete());
   }
 
   @Test
@@ -92,7 +92,7 @@ class TestGraphqlPermissionFieldFactory {
         Map.of(PERMISSIONS, List.of(Map.of(TABLE, "Pet", SELECT, SelectScope.OWN)));
 
     PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(input);
-    assertEquals(SelectScope.OWN, ps.getTables().get("Pet").getSelect());
+    assertEquals(SelectScope.OWN, ps.getTables().get("Pet").select());
   }
 
   @Test
@@ -113,10 +113,10 @@ class TestGraphqlPermissionFieldFactory {
     TablePermission pet = ps.getTables().get("Pet");
 
     assertNotNull(pet);
-    assertEquals(SelectScope.NONE, pet.getSelect());
-    assertEquals(UpdateScope.NONE, pet.getInsert());
-    assertEquals(UpdateScope.NONE, pet.getUpdate());
-    assertEquals(UpdateScope.NONE, pet.getDelete());
+    assertEquals(SelectScope.NONE, pet.select());
+    assertEquals(UpdateScope.NONE, pet.insert());
+    assertEquals(UpdateScope.NONE, pet.update());
+    assertEquals(UpdateScope.NONE, pet.delete());
     assertFalse(ps.isChangeOwner());
     assertFalse(ps.isChangeGroup());
   }

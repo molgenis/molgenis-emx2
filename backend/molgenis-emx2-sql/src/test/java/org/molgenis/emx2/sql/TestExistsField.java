@@ -189,7 +189,7 @@ class TestExistsField {
     }
     roleManager.createRole(schema, CUSTOM_ROLE, "test role");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(scope));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(scope));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
   }

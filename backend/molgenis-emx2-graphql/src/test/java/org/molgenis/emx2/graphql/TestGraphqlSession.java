@@ -56,7 +56,7 @@ class TestGraphqlSession {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(SelectScope.ALL);
+    tp.select(SelectScope.ALL);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);
     roleManager.grantRoleToUser(schema, ROLE_ANALYST, USER_TEST);
@@ -93,7 +93,7 @@ class TestGraphqlSession {
     roleManager.createRole(SCHEMA_NAME, ROLE_ANALYST);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(SelectScope.AGGREGATE);
+    tp.select(SelectScope.AGGREGATE);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_ANALYST, ps);
     roleManager.grantRoleToUser(schema, ROLE_ANALYST, USER_TEST);

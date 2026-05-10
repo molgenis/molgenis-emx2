@@ -241,10 +241,10 @@ class TestSchemaWideCustomGrants {
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(selectScope);
-    tp.setInsert(insertScope);
-    tp.setUpdate(updateScope);
-    tp.setDelete(deleteScope);
+    tp.select(selectScope);
+    tp.insert(insertScope);
+    tp.update(updateScope);
+    tp.delete(deleteScope);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, roleName, ps);
   }

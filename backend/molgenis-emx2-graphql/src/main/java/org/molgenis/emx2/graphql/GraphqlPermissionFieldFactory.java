@@ -221,10 +221,10 @@ public class GraphqlPermissionFieldFactory {
 
       TablePermission perms =
           new TablePermission(tableName)
-              .setSelect(selectScope)
-              .setInsert(insertScope)
-              .setUpdate(updateScope)
-              .setDelete(deleteScope);
+              .select(selectScope)
+              .insert(insertScope)
+              .update(updateScope)
+              .delete(deleteScope);
 
       ps.putTable(tableName, perms);
     }
@@ -252,10 +252,10 @@ public class GraphqlPermissionFieldFactory {
                 entry -> {
                   Map<String, Object> tableMap = new LinkedHashMap<>();
                   tableMap.put(TABLE, entry.getKey());
-                  tableMap.put(SELECT, entry.getValue().getSelect());
-                  tableMap.put(INSERT, entry.getValue().getInsert());
-                  tableMap.put(UPDATE, entry.getValue().getUpdate());
-                  tableMap.put(DELETE, entry.getValue().getDelete());
+                  tableMap.put(SELECT, entry.getValue().select());
+                  tableMap.put(INSERT, entry.getValue().insert());
+                  tableMap.put(UPDATE, entry.getValue().update());
+                  tableMap.put(DELETE, entry.getValue().delete());
                   return tableMap;
                 })
             .toList();

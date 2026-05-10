@@ -183,7 +183,7 @@ public class TestRlsPerformance {
 
     PermissionSet psGroup =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.GROUP));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.GROUP));
     roleManager.setPermissions(schemaRls, ROLE_GROUP_READER, psGroup);
     roleManager.addGroupMembership(SCHEMA_RLS, GROUP_A, USER_GROUP, ROLE_GROUP_READER);
 
@@ -237,13 +237,13 @@ public class TestRlsPerformance {
 
     PermissionSet psAll =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.ALL));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.ALL));
     roleManager.setPermissions(schemaLarge, roleAllLarge, psAll);
     roleManager.grantRoleToUser(schemaLarge, roleAllLarge, userAllLarge);
 
     PermissionSet psGroup =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.GROUP));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.GROUP));
     roleManager.setPermissions(schemaLarge, roleGroupLarge, psGroup);
     roleManager.addGroupMembership(SCHEMA_LARGE, groupLarge, userGroupLarge, roleGroupLarge);
 
@@ -346,7 +346,7 @@ public class TestRlsPerformance {
 
     PermissionSet psGroup =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.GROUP));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.GROUP));
     roleManager.setPermissions(schemaRls, ROLE_GROUP_READER, psGroup);
     roleManager.addGroupMembership(SCHEMA_RLS, GROUP_A, USER_CONC2, ROLE_GROUP_READER);
 
@@ -451,7 +451,7 @@ public class TestRlsPerformance {
     }
     PermissionSet psAllWrite =
         new PermissionSet()
-            .putTable(TABLE_WRITE, new TablePermission(TABLE_WRITE).setSelect(SelectScope.ALL));
+            .putTable(TABLE_WRITE, new TablePermission(TABLE_WRITE).select(SelectScope.ALL));
     roleManager.setPermissions(schemaRls, ROLE_ALL_READER, psAllWrite);
     roleManager.grantRoleToUser(schemaRls, ROLE_ALL_READER, USER_CONC1);
 
@@ -459,9 +459,7 @@ public class TestRlsPerformance {
         new PermissionSet()
             .putTable(
                 TABLE_WRITE,
-                new TablePermission(TABLE_WRITE)
-                    .setSelect(SelectScope.OWN)
-                    .setInsert(UpdateScope.OWN));
+                new TablePermission(TABLE_WRITE).select(SelectScope.OWN).insert(UpdateScope.OWN));
     roleManager.setPermissions(schemaRls, ROLE_OWN_WRITER, psOwnWrite);
     roleManager.grantRoleToUser(schemaRls, ROLE_OWN_WRITER, USER_CONC2);
 
@@ -812,7 +810,7 @@ public class TestRlsPerformance {
     ((SqlTableMetadata) schemaRls.getTable(TABLE_STRESS).getMetadata()).setRlsEnabled(true);
     PermissionSet psGroupStress =
         new PermissionSet()
-            .putTable(TABLE_STRESS, new TablePermission(TABLE_STRESS).setSelect(SelectScope.GROUP));
+            .putTable(TABLE_STRESS, new TablePermission(TABLE_STRESS).select(SelectScope.GROUP));
     roleManager.setPermissions(schemaRls, ROLE_GROUP_READER, psGroupStress);
 
     int stressRows = 500;
@@ -895,7 +893,7 @@ public class TestRlsPerformance {
     }
     PermissionSet psAll =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.ALL));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.ALL));
     roleManager.setPermissions(schemaRls, ROLE_ALL_READER, psAll);
     if (!db.hasUser(USER_ALL)) db.addUser(USER_ALL);
     roleManager.grantRoleToUser(schemaRls, ROLE_ALL_READER, USER_ALL);
@@ -912,7 +910,7 @@ public class TestRlsPerformance {
     }
     PermissionSet psAll =
         new PermissionSet()
-            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).setSelect(SelectScope.ALL));
+            .putTable(TABLE_PERF, new TablePermission(TABLE_PERF).select(SelectScope.ALL));
     roleManager.setPermissions(schemaRls, ROLE_ALL_READER, psAll);
   }
 

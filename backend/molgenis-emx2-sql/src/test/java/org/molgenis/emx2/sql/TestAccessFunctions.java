@@ -112,7 +112,7 @@ public class TestAccessFunctions {
         schema(),
         "group-reader",
         new PermissionSet()
-            .putTable("myTable", new TablePermission("myTable").setSelect(SelectScope.GROUP)));
+            .putTable("myTable", new TablePermission("myTable").select(SelectScope.GROUP)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "group-reader");
 
     boolean resultMatch = canReadAsUser(USER_ALICE, "myTable", new String[] {GROUP_A}, "someOwner");
@@ -130,7 +130,7 @@ public class TestAccessFunctions {
         schema(),
         "own-reader",
         new PermissionSet()
-            .putTable("ownTable", new TablePermission("ownTable").setSelect(SelectScope.OWN)));
+            .putTable("ownTable", new TablePermission("ownTable").select(SelectScope.OWN)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "own-reader");
 
     boolean resultOwned = canReadAsUser(USER_ALICE, "ownTable", new String[] {}, USER_ALICE);
@@ -148,7 +148,7 @@ public class TestAccessFunctions {
         schema(),
         "writer",
         new PermissionSet()
-            .putTable("someTable", new TablePermission("someTable").setInsert(UpdateScope.GROUP)));
+            .putTable("someTable", new TablePermission("someTable").insert(UpdateScope.GROUP)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "writer");
 
     boolean result =
@@ -170,7 +170,7 @@ public class TestAccessFunctions {
         schema(),
         "group-updater",
         new PermissionSet()
-            .putTable("upTable", new TablePermission("upTable").setUpdate(UpdateScope.GROUP)));
+            .putTable("upTable", new TablePermission("upTable").update(UpdateScope.GROUP)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "group-updater");
 
     boolean result =
@@ -185,7 +185,7 @@ public class TestAccessFunctions {
         schema(),
         "group-updater2",
         new PermissionSet()
-            .putTable("upTable2", new TablePermission("upTable2").setUpdate(UpdateScope.GROUP)));
+            .putTable("upTable2", new TablePermission("upTable2").update(UpdateScope.GROUP)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "group-updater2");
 
     boolean result =
@@ -200,7 +200,7 @@ public class TestAccessFunctions {
         schema(),
         "own-deleter",
         new PermissionSet()
-            .putTable("delTable", new TablePermission("delTable").setDelete(UpdateScope.OWN)));
+            .putTable("delTable", new TablePermission("delTable").delete(UpdateScope.OWN)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "own-deleter");
 
     boolean result = canWriteAsUser(USER_ALICE, "delTable", new String[] {}, USER_ALICE, "delete");
@@ -214,7 +214,7 @@ public class TestAccessFunctions {
         schema(),
         "own-deleter2",
         new PermissionSet()
-            .putTable("delTable2", new TablePermission("delTable2").setDelete(UpdateScope.OWN)));
+            .putTable("delTable2", new TablePermission("delTable2").delete(UpdateScope.OWN)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "own-deleter2");
 
     boolean result =
@@ -230,7 +230,7 @@ public class TestAccessFunctions {
         "no-inserter",
         new PermissionSet()
             .putTable(
-                "noInsertTable", new TablePermission("noInsertTable").setInsert(UpdateScope.NONE)));
+                "noInsertTable", new TablePermission("noInsertTable").insert(UpdateScope.NONE)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "no-inserter");
 
     boolean result =
@@ -255,7 +255,7 @@ public class TestAccessFunctions {
         schema(),
         "count-reader",
         new PermissionSet()
-            .putTable("cntTable", new TablePermission("cntTable").setSelect(SelectScope.COUNT)));
+            .putTable("cntTable", new TablePermission("cntTable").select(SelectScope.COUNT)));
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "count-reader");
 
     boolean resultAnyRow =

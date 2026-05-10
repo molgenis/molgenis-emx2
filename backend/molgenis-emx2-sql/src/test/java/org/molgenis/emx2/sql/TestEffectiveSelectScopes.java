@@ -48,7 +48,7 @@ class TestEffectiveSelectScopes {
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(SelectScope.OWN));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -65,7 +65,7 @@ class TestEffectiveSelectScopes {
   void customRole_withSelectAll_returnsAll() {
     roleManager.createRole(schema, CUSTOM_ROLE, "role with ALL select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.ALL));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(SelectScope.ALL));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -82,7 +82,7 @@ class TestEffectiveSelectScopes {
   void customRole_withSelectNone_returnsEmpty() {
     roleManager.createRole(schema, CUSTOM_ROLE, "role with NONE select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.NONE));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(SelectScope.NONE));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 
@@ -153,7 +153,7 @@ class TestEffectiveSelectScopes {
     schema.getTable(TABLE_NAME).getMetadata().setRlsEnabled(true);
     roleManager.createRole(schema, CUSTOM_ROLE, "role with OWN select");
     PermissionSet perms = new PermissionSet();
-    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).setSelect(SelectScope.OWN));
+    perms.putTable(TABLE_NAME, new TablePermission(TABLE_NAME).select(SelectScope.OWN));
     roleManager.setPermissions(schema, CUSTOM_ROLE, perms);
     roleManager.grantRoleToUser(schema, CUSTOM_ROLE, TEST_USER);
 

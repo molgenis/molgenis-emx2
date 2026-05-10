@@ -36,10 +36,10 @@ class TestSelectScope {
 
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(SelectScope.COUNT);
-    tp.setInsert(UpdateScope.NONE);
-    tp.setUpdate(UpdateScope.NONE);
-    tp.setDelete(UpdateScope.NONE);
+    tp.select(SelectScope.COUNT);
+    tp.insert(UpdateScope.NONE);
+    tp.update(UpdateScope.NONE);
+    tp.delete(UpdateScope.NONE);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_COUNT, ps);
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_ALPHA, USER_ALICE, ROLE_COUNT);

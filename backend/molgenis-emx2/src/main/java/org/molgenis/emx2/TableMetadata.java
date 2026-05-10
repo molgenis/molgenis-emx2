@@ -624,14 +624,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       return;
     }
     boolean hasRlsScope =
-        tp.getSelect() == PermissionSet.SelectScope.OWN
-            || tp.getSelect() == PermissionSet.SelectScope.GROUP
-            || tp.getUpdate() == PermissionSet.UpdateScope.OWN
-            || tp.getUpdate() == PermissionSet.UpdateScope.GROUP
-            || tp.getInsert() == PermissionSet.UpdateScope.OWN
-            || tp.getInsert() == PermissionSet.UpdateScope.GROUP
-            || tp.getDelete() == PermissionSet.UpdateScope.OWN
-            || tp.getDelete() == PermissionSet.UpdateScope.GROUP;
+        tp.select() == PermissionSet.SelectScope.OWN
+            || tp.select() == PermissionSet.SelectScope.GROUP
+            || tp.update() == PermissionSet.UpdateScope.OWN
+            || tp.update() == PermissionSet.UpdateScope.GROUP
+            || tp.insert() == PermissionSet.UpdateScope.OWN
+            || tp.insert() == PermissionSet.UpdateScope.GROUP
+            || tp.delete() == PermissionSet.UpdateScope.OWN
+            || tp.delete() == PermissionSet.UpdateScope.GROUP;
     boolean hasChangeFlag = permissions.isChangeOwner() || permissions.isChangeGroup();
     if (hasRlsScope || hasChangeFlag) {
       throw new MolgenisException(

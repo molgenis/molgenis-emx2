@@ -39,7 +39,7 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.getSchema(SCHEMA_NAME);
     PermissionSet permissions =
         new PermissionSet()
-            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.OWN));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).select(SelectScope.OWN));
 
     MolgenisException ex =
         assertThrows(
@@ -55,8 +55,7 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.getSchema(SCHEMA_NAME);
     PermissionSet permissions =
         new PermissionSet()
-            .putTable(
-                NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setUpdate(UpdateScope.GROUP));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).update(UpdateScope.GROUP));
 
     MolgenisException ex =
         assertThrows(
@@ -73,7 +72,7 @@ public class TestRlsEnabledScopeGuard {
     PermissionSet permissions =
         new PermissionSet()
             .setChangeOwner(true)
-            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.ALL));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).select(SelectScope.ALL));
 
     MolgenisException ex =
         assertThrows(
@@ -89,14 +88,14 @@ public class TestRlsEnabledScopeGuard {
     Schema schema = db.getSchema(SCHEMA_NAME);
     PermissionSet permissions =
         new PermissionSet()
-            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).setSelect(SelectScope.ALL));
+            .putTable(NON_RLS_TABLE, new TablePermission(NON_RLS_TABLE).select(SelectScope.ALL));
 
     assertDoesNotThrow(() -> roleManager.setPermissions(schema, ROLE_NAME, permissions));
 
     PermissionSet stored = roleManager.getPermissionSet(SCHEMA_NAME, ROLE_NAME);
     assertEquals(
         SelectScope.ALL,
-        stored.getTables().get(NON_RLS_TABLE).getSelect(),
+        stored.getTables().get(NON_RLS_TABLE).select(),
         "SELECT=ALL on non-RLS table must be stored and readable back");
   }
 }

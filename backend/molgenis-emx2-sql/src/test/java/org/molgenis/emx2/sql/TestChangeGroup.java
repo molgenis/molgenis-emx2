@@ -45,20 +45,20 @@ class TestChangeGroup {
     PermissionSet noCgPerms = new PermissionSet();
     noCgPerms.setChangeGroup(false);
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(SelectScope.ALL);
-    tp.setInsert(UpdateScope.ALL);
-    tp.setUpdate(UpdateScope.ALL);
-    tp.setDelete(UpdateScope.ALL);
+    tp.select(SelectScope.ALL);
+    tp.insert(UpdateScope.ALL);
+    tp.update(UpdateScope.ALL);
+    tp.delete(UpdateScope.ALL);
     noCgPerms.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, ROLE_NO_CG, noCgPerms);
 
     PermissionSet yesCgPerms = new PermissionSet();
     yesCgPerms.setChangeGroup(true);
     TablePermission tpYes = new TablePermission(TABLE_NAME);
-    tpYes.setSelect(SelectScope.ALL);
-    tpYes.setInsert(UpdateScope.ALL);
-    tpYes.setUpdate(UpdateScope.ALL);
-    tpYes.setDelete(UpdateScope.ALL);
+    tpYes.select(SelectScope.ALL);
+    tpYes.insert(UpdateScope.ALL);
+    tpYes.update(UpdateScope.ALL);
+    tpYes.delete(UpdateScope.ALL);
     yesCgPerms.putTable(TABLE_NAME, tpYes);
     roleManager.setPermissions(schema, ROLE_YES_CG, yesCgPerms);
 

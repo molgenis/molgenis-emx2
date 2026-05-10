@@ -59,10 +59,10 @@ class TestTablePolicies {
   private void enableAllScope() {
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_SECURE);
-    tp.setSelect(SelectScope.ALL);
-    tp.setInsert(UpdateScope.ALL);
-    tp.setUpdate(UpdateScope.ALL);
-    tp.setDelete(UpdateScope.ALL);
+    tp.select(SelectScope.ALL);
+    tp.insert(UpdateScope.ALL);
+    tp.update(UpdateScope.ALL);
+    tp.delete(UpdateScope.ALL);
     ps.putTable(TABLE_SECURE, tp);
     roleManager.setPermissions(schema, ROLE_ALL, ps);
   }
@@ -70,10 +70,10 @@ class TestTablePolicies {
   private void enableGroupScope() {
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_SECURE);
-    tp.setSelect(SelectScope.GROUP);
-    tp.setInsert(UpdateScope.GROUP);
-    tp.setUpdate(UpdateScope.GROUP);
-    tp.setDelete(UpdateScope.GROUP);
+    tp.select(SelectScope.GROUP);
+    tp.insert(UpdateScope.GROUP);
+    tp.update(UpdateScope.GROUP);
+    tp.delete(UpdateScope.GROUP);
     ps.putTable(TABLE_SECURE, tp);
     roleManager.setPermissions(schema, ROLE_GROUP, ps);
   }
@@ -81,10 +81,10 @@ class TestTablePolicies {
   private void enableOwnScope() {
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_SECURE);
-    tp.setSelect(SelectScope.OWN);
-    tp.setInsert(UpdateScope.OWN);
-    tp.setUpdate(UpdateScope.OWN);
-    tp.setDelete(UpdateScope.OWN);
+    tp.select(SelectScope.OWN);
+    tp.insert(UpdateScope.OWN);
+    tp.update(UpdateScope.OWN);
+    tp.delete(UpdateScope.OWN);
     ps.putTable(TABLE_SECURE, tp);
     roleManager.setPermissions(schema, ROLE_OWN, ps);
   }
@@ -178,10 +178,10 @@ class TestTablePolicies {
     roleManager.createRole(SCHEMA_NAME, "roleNone");
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_SECURE);
-    tp.setSelect(SelectScope.NONE);
-    tp.setInsert(UpdateScope.NONE);
-    tp.setUpdate(UpdateScope.NONE);
-    tp.setDelete(UpdateScope.NONE);
+    tp.select(SelectScope.NONE);
+    tp.insert(UpdateScope.NONE);
+    tp.update(UpdateScope.NONE);
+    tp.delete(UpdateScope.NONE);
     ps.putTable(TABLE_SECURE, tp);
     roleManager.setPermissions(schema, "roleNone", ps);
     roleManager.addGroupMembership(SCHEMA_NAME, GROUP_RED, USER_ALICE, "roleNone");

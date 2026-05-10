@@ -47,9 +47,9 @@ public class TestChangeOwnerGroupSqlEnforcement {
         .putTable(
             OWNER_TABLE,
             new TablePermission(OWNER_TABLE)
-                .setSelect(SelectScope.OWN)
-                .setInsert(UpdateScope.ALL)
-                .setUpdate(UpdateScope.ALL));
+                .select(SelectScope.OWN)
+                .insert(UpdateScope.ALL)
+                .update(UpdateScope.ALL));
   }
 
   private PermissionSet allScopesWithGroup() {
@@ -57,9 +57,9 @@ public class TestChangeOwnerGroupSqlEnforcement {
         .putTable(
             GROUP_TABLE,
             new TablePermission(GROUP_TABLE)
-                .setSelect(SelectScope.ALL)
-                .setInsert(UpdateScope.ALL)
-                .setUpdate(UpdateScope.ALL));
+                .select(SelectScope.ALL)
+                .insert(UpdateScope.ALL)
+                .update(UpdateScope.ALL));
   }
 
   private static void assertInsufficientPrivilege(DataAccessException thrown) {

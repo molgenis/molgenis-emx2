@@ -315,12 +315,12 @@ class TestSqlRoleManager {
   @Test
   void grant_rlsScopeOnNonRlsTable_throws() {
     roleManager.createRole(SCHEMA_ENF, "grant-rls-guard");
-    TablePermission grouped = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.GROUP);
+    TablePermission grouped = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.GROUP);
     assertThrows(
         MolgenisException.class,
         () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", grouped),
         "Granting GROUP scope on a non-RLS table must throw");
-    TablePermission owned = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.OWN);
+    TablePermission owned = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.OWN);
     assertThrows(
         MolgenisException.class,
         () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", owned),
@@ -331,7 +331,7 @@ class TestSqlRoleManager {
   void revoke_deletesRpmRow() {
     roleManager.createRole(SCHEMA_ENF, "revoke-test-role");
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
-    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).setSelect(SelectScope.ALL);
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.ALL);
     roleManager.grant(SCHEMA_ENF, "revoke-test-role", tp);
 
     PermissionSet before = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
@@ -537,7 +537,7 @@ class TestSqlRoleManager {
     initial.setChangeGroup(true);
     initial.setDescription("sentinel");
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
-    tp.setSelect(SelectScope.ALL);
+    tp.select(SelectScope.ALL);
     initial.putTable(ENFORCEMENT_TABLE, tp);
     roleManager.setPermissions(schemaEnf, "clobber-guard", initial);
 
@@ -559,6 +559,33 @@ class TestSqlRoleManager {
         "sentinel", after.getDescription(), "scope-only grant must not clobber description");
   }
 
+  @Test
+  void grant_scopeOnly_doesNotClobberSiblingScopes() {
+    roleManager.createRole(SCHEMA_ENF, "sibling-guard");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet initial = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    tp.insert(UpdateScope.OWN);
+    tp.update(UpdateScope.GROUP);
+    tp.delete(UpdateScope.ALL);
+    initial.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "sibling-guard", initial);
+
+    roleManager.grant(
+        SCHEMA_ENF,
+        "sibling-guard",
+        new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.GROUP));
+
+    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "sibling-guard");
+    TablePermission afterTp = after.getTables().get(ENFORCEMENT_TABLE);
+    assertEquals(SelectScope.GROUP, afterTp.select(), "select updated");
+    assertEquals(UpdateScope.OWN, afterTp.insert(), "insert preserved");
+    assertEquals(UpdateScope.GROUP, afterTp.update(), "update preserved");
+    assertEquals(UpdateScope.ALL, afterTp.delete(), "delete preserved");
+  }
+
   // ── ReferenceScope round-trip ─────────────────────────────────────────────
 
   @Test
@@ -568,8 +595,8 @@ class TestSqlRoleManager {
 
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
-    tp.setSelect(SelectScope.ALL);
-    tp.setReference(PermissionSet.ReferenceScope.ALL);
+    tp.select(SelectScope.ALL);
+    tp.reference(PermissionSet.ReferenceScope.ALL);
     ps.putTable(ENFORCEMENT_TABLE, tp);
     roleManager.setPermissions(schemaEnf, "ref-scope-all", ps);
 
@@ -578,7 +605,7 @@ class TestSqlRoleManager {
     assertNotNull(retrievedTp, "table permission must be present after setPermissions");
     assertEquals(
         PermissionSet.ReferenceScope.ALL,
-        retrievedTp.getReference(),
+        retrievedTp.reference(),
         "reference scope ALL must round-trip");
   }
 
@@ -595,17 +622,23 @@ class TestSqlRoleManager {
         }) {
       PermissionSet ps = new PermissionSet();
       TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
-      tp.setSelect(SelectScope.ALL);
-      tp.setReference(scope);
+      tp.select(SelectScope.ALL);
+      tp.reference(scope);
       ps.putTable(ENFORCEMENT_TABLE, tp);
       roleManager.setPermissions(schemaEnf, "ref-scope-variants", ps);
 
       PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-variants");
       TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
       assertNotNull(retrievedTp, "table permission must be present for scope " + scope);
-      assertEquals(
-          scope, retrievedTp.getReference(), "reference scope " + scope + " must round-trip");
+      assertEquals(scope, retrievedTp.reference(), "reference scope " + scope + " must round-trip");
     }
+  }
+
+  // ── TablePermission: null arg must throw NPE ─────────────────────────────
+
+  @Test
+  void fluentSetter_nullArg_throwsNPE() {
+    assertThrows(NullPointerException.class, () -> new TablePermission("t").select(null));
   }
 
   // ── enforcement helpers ───────────────────────────────────────────────────
@@ -631,10 +664,10 @@ class TestSqlRoleManager {
     schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
-    tp.setSelect(selectScope);
-    tp.setInsert(insertScope);
-    tp.setUpdate(updateScope);
-    tp.setDelete(deleteScope);
+    tp.select(selectScope);
+    tp.insert(insertScope);
+    tp.update(updateScope);
+    tp.delete(deleteScope);
     ps.putTable(ENFORCEMENT_TABLE, tp);
     roleManager.setPermissions(schemaEnf, roleName, ps);
   }

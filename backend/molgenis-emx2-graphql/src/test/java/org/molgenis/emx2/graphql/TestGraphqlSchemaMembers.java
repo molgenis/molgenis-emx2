@@ -74,19 +74,19 @@ class TestGraphqlSchemaMembers {
 
     PermissionSet analystPs = new PermissionSet();
     TablePermission analystTp = new TablePermission(TABLE_NAME);
-    analystTp.setSelect(SelectScope.ALL);
-    analystTp.setInsert(UpdateScope.NONE);
-    analystTp.setUpdate(UpdateScope.NONE);
-    analystTp.setDelete(UpdateScope.NONE);
+    analystTp.select(SelectScope.ALL);
+    analystTp.insert(UpdateScope.NONE);
+    analystTp.update(UpdateScope.NONE);
+    analystTp.delete(UpdateScope.NONE);
     analystPs.putTable(TABLE_NAME, analystTp);
     roleManager.setPermissions(schema, ROLE_ANALYST, analystPs);
 
     PermissionSet reviewerPs = new PermissionSet();
     TablePermission reviewerTp = new TablePermission(TABLE_NAME);
-    reviewerTp.setSelect(SelectScope.GROUP);
-    reviewerTp.setInsert(UpdateScope.NONE);
-    reviewerTp.setUpdate(UpdateScope.NONE);
-    reviewerTp.setDelete(UpdateScope.NONE);
+    reviewerTp.select(SelectScope.GROUP);
+    reviewerTp.insert(UpdateScope.NONE);
+    reviewerTp.update(UpdateScope.NONE);
+    reviewerTp.delete(UpdateScope.NONE);
     reviewerPs.putTable(TABLE_NAME, reviewerTp);
     roleManager.setPermissions(schema, ROLE_REVIEWER, reviewerPs);
 

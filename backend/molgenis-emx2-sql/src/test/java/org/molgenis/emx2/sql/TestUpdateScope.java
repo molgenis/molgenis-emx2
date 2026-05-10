@@ -68,10 +68,10 @@ class TestUpdateScope {
       String role, SelectScope select, UpdateScope insert, UpdateScope update, UpdateScope delete) {
     PermissionSet ps = new PermissionSet();
     TablePermission tp = new TablePermission(TABLE_NAME);
-    tp.setSelect(select);
-    tp.setInsert(insert);
-    tp.setUpdate(update);
-    tp.setDelete(delete);
+    tp.select(select);
+    tp.insert(insert);
+    tp.update(update);
+    tp.delete(delete);
     ps.putTable(TABLE_NAME, tp);
     roleManager.setPermissions(schema, role, ps);
   }
