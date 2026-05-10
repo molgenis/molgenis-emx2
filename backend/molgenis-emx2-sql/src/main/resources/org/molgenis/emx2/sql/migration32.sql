@@ -148,15 +148,18 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_read(
     )
 $$;
 
+DROP FUNCTION IF EXISTS "MOLGENIS".mg_can_reference(TEXT, TEXT, TEXT[], TEXT);
+
 CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_reference(
-    p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT
+    p_schema TEXT, p_table TEXT, p_groups TEXT[], p_owner TEXT,
+    p_user TEXT DEFAULT current_user
 ) RETURNS BOOLEAN LANGUAGE sql STABLE PARALLEL SAFE AS $$
     SELECT EXISTS (
         SELECT 1
-        WHERE pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
-           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
-           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Editor',  'MEMBER')
-           OR pg_has_role(current_user, 'MG_ROLE_' || p_schema || '/Viewer',  'MEMBER')
+        WHERE pg_has_role(p_user, 'MG_ROLE_' || p_schema || '/Owner',   'MEMBER')
+           OR pg_has_role(p_user, 'MG_ROLE_' || p_schema || '/Manager', 'MEMBER')
+           OR pg_has_role(p_user, 'MG_ROLE_' || p_schema || '/Editor',  'MEMBER')
+           OR pg_has_role(p_user, 'MG_ROLE_' || p_schema || '/Viewer',  'MEMBER')
         UNION ALL
         SELECT 1
         FROM "MOLGENIS".group_membership_metadata m
@@ -164,16 +167,15 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".mg_can_reference(
           ON rp.schema_name = m.schema_name
          AND rp.role_name   = m.role_name
          AND rp.table_name  = p_table
-        WHERE m.user_name = regexp_replace(current_user, '^MG_USER_', '')
+        WHERE m.user_name = regexp_replace(p_user, '^MG_USER_', '')
           AND m.schema_name = p_schema
           AND (
                rp.reference_scope = 'ALL'
             OR (rp.reference_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-            OR (rp.reference_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
+            OR (rp.reference_scope = 'OWN'   AND 'MG_USER_' || p_owner = p_user)
             OR rp.select_scope = 'ALL'
             OR (rp.select_scope = 'GROUP' AND m.group_name = ANY(p_groups))
-            OR (rp.select_scope = 'OWN'   AND 'MG_USER_' || p_owner = current_user)
-            OR rp.change_owner = true
+            OR (rp.select_scope = 'OWN'   AND 'MG_USER_' || p_owner = p_user)
           )
     )
 $$;

@@ -17,6 +17,7 @@ public class TestMgCanReference {
   private static final String SCHEMA_NAME = TestMgCanReference.class.getSimpleName();
   private static final String USER_ALICE = "TestMgCanReferenceAlice";
   private static final String USER_SYSTEM = "TestMgCanReferenceSystem";
+  private static final String USER_NOPERM = "TestMgCanReferenceNoPermUser";
   private static final String GROUP_A = "groupA";
   private static final String GROUP_B = "groupB";
 
@@ -38,6 +39,7 @@ public class TestMgCanReference {
 
     if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
     if (!db.hasUser(USER_SYSTEM)) db.addUser(USER_SYSTEM);
+    if (!db.hasUser(USER_NOPERM)) db.addUser(USER_NOPERM);
 
     roleManager.createGroup(schema, GROUP_A);
     roleManager.createGroup(schema, GROUP_B);
@@ -58,6 +60,19 @@ public class TestMgCanReference {
     } finally {
       db.becomeAdmin();
     }
+  }
+
+  private boolean canReferenceWithExplicitUser(
+      String pgUser, String tableName, String[] groups, String owner) {
+    return Boolean.TRUE.equals(
+        jooq.fetchOne(
+                "SELECT \"MOLGENIS\".mg_can_reference(?, ?, ?, ?, ?) AS result",
+                SCHEMA_NAME,
+                tableName,
+                groups,
+                owner,
+                pgUser)
+            .get("result", Boolean.class));
   }
 
   private Schema schema() {
@@ -181,5 +196,35 @@ public class TestMgCanReference {
 
     boolean result = canReferenceAsUser(USER_SYSTEM, "anyTable", new String[] {}, "someone-else");
     assertTrue(result, "Schema Owner system role must always allow reference");
+  }
+
+  @Test
+  public void mgCanReference_withExplicitUser_honorsPassedUser() {
+    roleManager.createRole(schema(), "explicit-user-role", "");
+    roleManager.setPermissions(
+        schema(),
+        "explicit-user-role",
+        new PermissionSet()
+            .putTable(
+                "explicitUserTable",
+                new TablePermission("explicitUserTable")
+                    .select(SelectScope.ALL)
+                    .reference(ReferenceScope.NONE)));
+    roleManager.addGroupMembership(SCHEMA_NAME, GROUP_A, USER_ALICE, "explicit-user-role");
+
+    String pgUserAlice = "MG_USER_" + USER_ALICE;
+    boolean aliceCanReference =
+        canReferenceWithExplicitUser(
+            pgUserAlice, "explicitUserTable", new String[] {GROUP_A}, "someone-else");
+    assertTrue(
+        aliceCanReference,
+        "Explicit p_user for alice's PG role must grant reference when alice has VIEW_ALL");
+
+    String pgUserNoPerm = "MG_USER_" + USER_NOPERM;
+    boolean noPermCanReference =
+        canReferenceWithExplicitUser(
+            pgUserNoPerm, "explicitUserTable", new String[] {}, "someone-else");
+    assertFalse(
+        noPermCanReference, "Explicit p_user for user with no permissions must deny reference");
   }
 }

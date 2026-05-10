@@ -330,10 +330,12 @@ public class SqlTable implements Table {
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
       List<Row> rows = applyValidationAndComputed(updateColumns, subclassRows.get(subclassName));
+      checkFkRlsWriteVisibility(schema, table, rows, updateColumns);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      checkFkRlsWriteVisibility(schema, table, rows, insertColumns);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
@@ -373,6 +375,128 @@ public class SqlTable implements Table {
                                 .anyMatch(r -> columnsProvided.contains(r.getName()))
                             : columnsProvided.contains(c.getName())))
         .toList();
+  }
+
+  private static final String FK_RLS_VIOLATION_TEMPLATE =
+      "Write rejected: FK column '%s' on table '%s.%s' references row '%s'"
+          + " in '%s.%s' that is outside your permission scope";
+
+  private static void checkFkRlsWriteVisibility(
+      SqlSchema schema, SqlTable table, List<Row> rows, List<Column> columns) {
+    SqlDatabase sqlDb = (SqlDatabase) schema.getDatabase();
+    if (sqlDb.isAdmin()) {
+      return;
+    }
+    String activeUser = sqlDb.getActiveUser();
+    if (activeUser == null) {
+      return;
+    }
+    for (Column column : columns) {
+      if (column.isRef()) {
+        checkRefColumnVisibility(table, rows, column, activeUser, sqlDb);
+      } else if (column.isRefArray() && column.getReferences().size() == 1) {
+        checkRefArrayColumnVisibility(table, rows, column, activeUser, sqlDb);
+      }
+    }
+  }
+
+  private static void checkRefColumnVisibility(
+      SqlTable table, List<Row> rows, Column column, String activeUser, SqlDatabase sqlDb) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return;
+    }
+    if (column.getReferences().size() != 1) {
+      return;
+    }
+    Reference ref = column.getReferences().get(0);
+    Set<Object> targetKeys = new LinkedHashSet<>();
+    for (Row row : rows) {
+      Object val = row.get(ref.getName(), ref.getPrimitiveType());
+      if (val != null) {
+        targetKeys.add(val);
+      }
+    }
+    if (targetKeys.isEmpty()) {
+      return;
+    }
+    assertAllReferencedKeysVisible(
+        sqlDb, table, column, refTable, ref.getRefTo(), activeUser, targetKeys.toArray());
+  }
+
+  private static void checkRefArrayColumnVisibility(
+      SqlTable table, List<Row> rows, Column column, String activeUser, SqlDatabase sqlDb) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return;
+    }
+    Reference ref = column.getReferences().get(0);
+    Set<Object> targetKeys = new LinkedHashSet<>();
+    for (Row row : rows) {
+      String[] vals = row.getStringArray(ref.getName());
+      if (vals != null) {
+        for (String val : vals) {
+          if (val != null) {
+            targetKeys.add(val);
+          }
+        }
+      }
+    }
+    if (targetKeys.isEmpty()) {
+      return;
+    }
+    assertAllReferencedKeysVisible(
+        sqlDb, table, column, refTable, ref.getRefTo(), activeUser, targetKeys.toArray());
+  }
+
+  private static final String MG_CAN_REFERENCE_CALL =
+      "\"MOLGENIS\".mg_can_reference({0}, {1}, {2}, {3}, {4})";
+
+  private static void assertAllReferencedKeysVisible(
+      SqlDatabase sqlDb,
+      SqlTable table,
+      Column column,
+      TableMetadata refTable,
+      String refPkColumn,
+      String activeUser,
+      Object[] targetKeys) {
+    String refSchemaName = refTable.getSchemaName();
+    String refTableName = refTable.getTableName();
+    Field<String> pkField = field(name(refPkColumn), String.class);
+    List<String> keyStrings = Arrays.stream(targetKeys).map(Object::toString).toList();
+    String pgUser = MG_USER_PREFIX + activeUser;
+    DSLContext jooq = sqlDb.getJooq();
+    jooq.execute("RESET ROLE");
+    try {
+      Record1<String> violation =
+          jooq.select(pkField)
+              .from(table(name(refSchemaName, refTableName)))
+              .where(
+                  pkField.in(keyStrings),
+                  not(
+                      condition(
+                          MG_CAN_REFERENCE_CALL,
+                          inline(refSchemaName),
+                          inline(refTableName),
+                          field(name(MG_GROUPS_COLUMN)),
+                          field(name(MG_OWNER_COLUMN)),
+                          inline(pgUser))))
+              .limit(1)
+              .fetchAny();
+      if (violation != null) {
+        throw new MolgenisException(
+            String.format(
+                FK_RLS_VIOLATION_TEMPLATE,
+                column.getName(),
+                table.getMetadata().getSchemaName(),
+                table.getMetadata().getTableName(),
+                violation.value1(),
+                refSchemaName,
+                refTableName));
+      }
+    } finally {
+      jooq.execute("SET ROLE {0}", name(pgUser));
+    }
   }
 
   private TableListener getTableListener() {
