@@ -108,10 +108,8 @@ public class GraphqlFactory {
 
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
-        if (tableField.hasViewPermission(table)) {
-          queryBuilder.field(tableField.tableQueryField(table));
-        }
+      if (table.getColumns().size() > 0 && tableField.hasViewPermission(table)) {
+        queryBuilder.field(tableField.tableQueryField(table));
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }

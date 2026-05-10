@@ -968,7 +968,8 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
+      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()
+          && hasViewPermission(table)) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -1001,12 +1002,11 @@ public class GraphqlTableFieldFactory {
         GraphQLArgument.newArgument().name("strict").type(Scalars.GraphQLBoolean).build());
 
     for (Table table : schema.getTablesSorted()) {
-      // if no pkey is provided, you cannot delete rows
-      if (!schema.getMetadata().getTableMetadata(table.getName()).getPrimaryKeys().isEmpty()) {
+      TableMetadata tableMeta = schema.getMetadata().getTableMetadata(table.getName());
+      if (!tableMeta.getPrimaryKeys().isEmpty() && hasViewPermission(tableMeta)) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
-                // reuse same input as insert
                 .type(
                     GraphQLList.list(
                         GraphQLTypeReference.typeRef(
