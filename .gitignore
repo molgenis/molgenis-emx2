@@ -87,3 +87,4 @@ apps/tailwind-components/playwright/.auth/user.json
 .playwright-cli
 apps/**/.nuxtrc
 /data/models/
+/data/models/
