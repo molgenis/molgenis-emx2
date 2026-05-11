@@ -1,0 +1,5 @@
+---
+name: Patient registry id bank
+description: Schema for generating auto IDs across provider schemas
+
+profileTags: Patient registry id bank
