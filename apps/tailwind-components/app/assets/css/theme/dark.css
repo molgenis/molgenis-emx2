@@ -111,6 +111,7 @@
   --border-radius-pagination: 3px;
 
   --border-color-form-required: var(--color-gray-300);
+  --border-color-footer: var(--background-color-footer);
   --border-width-form-required: 1px;
   --background-color-form-required: var(--color-gray-900);
   --background-color-form-required-btn: var(--color-gray-900);
