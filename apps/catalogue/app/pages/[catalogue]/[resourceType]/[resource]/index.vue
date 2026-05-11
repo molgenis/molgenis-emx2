@@ -734,14 +734,7 @@ const showPopulation = computed(
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <template #title-suffix>
-          <CardButton
-            v-if="resource && datasetStore.isEnabled"
-            :resource="resource"
-            :compact="false"
-            :invert="true"
-          />
-        </template>
+        <template #title-suffix> </template>
       </PageHeader>
     </template>
     <template #side>
@@ -761,7 +754,15 @@ const showPopulation = computed(
           :contact-name="resource?.name"
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
-        />
+        >
+          <CardButton
+            v-if="resource && datasetStore.isEnabled"
+            :resource="resource"
+            :compact="false"
+            :invert="false"
+            :isButton="true"
+          />
+        </ContentBlockIntro>
 
         <ContentBlockDescription
           id="Description"

@@ -223,6 +223,7 @@ const submitForm = async () => {
           />
         </template>
       </SideModal>
+      <slot />
       <Button
         v-if="contact"
         @click="showContactInformation = true"
