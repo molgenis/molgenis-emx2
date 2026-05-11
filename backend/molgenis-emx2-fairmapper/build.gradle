@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation('org.eclipse.rdf4j:rdf4j-sparqlbuilder:5.2.2')
+    implementation("org.eclipse.rdf4j:rdf4j-queryresultio-text:5.2.2")
+    implementation project(':backend:molgenis-emx2-io')
+}
+
+test {
+    useJUnitPlatform()
+}
