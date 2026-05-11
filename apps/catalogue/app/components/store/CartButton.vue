@@ -35,7 +35,7 @@ function onInput() {
     <Button
       :type="isInShoppingCart ? 'secondary' : 'primary'"
       size="medium"
-      :label="isInShoppingCart ? 'Remove' : 'Add'"
+      :label="isInShoppingCart ? 'Remove from cart' : 'Add to cart'"
       @click="onInput"
       buttonAlignment="right"
       :icon="isInShoppingCart ? 'shopping-cart-remove' : 'shopping-cart-add'"

@@ -223,7 +223,7 @@ const submitForm = async () => {
           />
         </template>
       </SideModal>
-      <slot />
+
       <Button
         v-if="contact"
         @click="showContactInformation = true"
@@ -234,6 +234,7 @@ const submitForm = async () => {
         type="secondary"
         size="medium"
       />
+      <slot />
     </div>
 
     <NotificationModal
