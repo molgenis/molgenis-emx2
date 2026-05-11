@@ -12,6 +12,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
+import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
@@ -89,11 +90,11 @@ public class TableQueryGenerator {
       TableMetadata tableMetadata, Variable tableVar, SelectQuery select) {
     String[] tableSemantics = tableMetadata.getSemantics();
     if (tableSemantics.length == 1) {
-      select.where(tableVar.isA(SparqlBuilder.var(tableSemantics[0])));
+      select.where(tableVar.isA(() -> tableSemantics[0]));
     } else if (tableSemantics.length > 1) {
       GraphPatternNotTriples union = GraphPatterns.union();
       Arrays.stream(tableSemantics)
-          .map(SparqlBuilder::var)
+          .map(semantic -> (RdfObject) () -> semantic)
           .map(tableVar::isA)
           .forEach(union::union);
       select.where(union);
