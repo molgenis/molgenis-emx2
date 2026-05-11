@@ -34,6 +34,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String oldName;
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
+  private TableRole role = null;
   // table semantics, typically an ontology URI
   private String[] semantics = null;
   // profiles to which this table belongs
@@ -110,6 +111,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
+      this.role = metadata.getRole();
     }
   }
 
@@ -597,6 +599,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata setTableType(TableType tableType) {
     this.tableType = tableType;
+    return this;
+  }
+
+  public TableRole getRole() {
+    return role;
+  }
+
+  public TableMetadata setRole(TableRole role) {
+    this.role = role;
     return this;
   }
 

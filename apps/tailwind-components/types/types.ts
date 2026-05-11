@@ -100,7 +100,8 @@ export interface ITableSettings {
 
 export interface ISectionField {
   meta: IColumn;
-  value: any;
+  value: columnValue;
+  count?: number;
 }
 
 export interface ISection {

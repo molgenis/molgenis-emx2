@@ -1,0 +1,82 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
+import CustomTooltip from "../CustomTooltip.vue";
+import BaseIcon from "../BaseIcon.vue";
+
+const props = withDefaults(
+  defineProps<{
+    node: IOntologyTreeItem;
+    isRootNode?: boolean;
+    collapseAll?: boolean;
+  }>(),
+  {
+    collapseAll: true,
+    isRootNode: false,
+  }
+);
+
+const collapsed = ref(props.collapseAll);
+const toggleCollapse = () => {
+  collapsed.value = !collapsed.value;
+};
+</script>
+
+<template>
+  <li class="relative" :class="{ 'mt-2.5': !isRootNode }">
+    <div class="flex items-center">
+      <span
+        v-if="node.children?.length"
+        class="text-link mr-1 mt-0.5 rounded-full hover:bg-link-hover hover:cursor-pointer p-0.5"
+        :class="{ 'rotate-180': collapsed, 'ml-[-0.5rem]': isRootNode }"
+        @click="toggleCollapse()"
+      >
+        <BaseIcon name="caret-up" :width="20" />
+      </span>
+      <span v-else-if="isRootNode" />
+      <span
+        v-else
+        class="relative"
+        style="top: -0.35rem"
+        :class="{ 'mr-2': isRootNode }"
+      >
+        <BaseIcon
+          name="collapsible-list-item"
+          :width="20"
+          class="text-gray-400"
+          :class="{ invisible: isRootNode }"
+        />
+      </span>
+
+      <span
+        class="flex justify-center items-start hover:cursor-pointer"
+        :class="{ 'cursor-pointer hover:underline': node.children?.length }"
+        @click="toggleCollapse()"
+      >
+        {{ node.name }}
+      </span>
+      <div class="inline-flex items-center whitespace-nowrap">
+        <div v-if="node.definition" class="inline-block ml-1">
+          <CustomTooltip
+            label="Read more"
+            hoverColor="white"
+            :content="node.definition"
+          />
+        </div>
+      </div>
+    </div>
+
+    <ul
+      v-if="node.children?.length"
+      class="break-inside-avoid"
+      :class="{ hidden: collapsed }"
+    >
+      <OntologyTreeNode
+        v-for="child in node.children"
+        :key="child.name"
+        class="pt-1 pl-8"
+        :node="child"
+      />
+    </ul>
+  </li>
+</template>

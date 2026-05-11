@@ -29,6 +29,8 @@ public class Emx2 {
   public static final String REQUIRED = "required";
   public static final String READ_ONLY = "readonly";
   public static final String DEFAULT_VALUE = "defaultValue";
+  private static final String ROLE = "role";
+  private static final String DISPLAY = "display";
   private static final String VALIDATION = "validation";
   private static final String VISIBLE = "visible";
   private static final String COMPUTED = "computed";
@@ -71,6 +73,11 @@ public class Emx2 {
           schema
               .getTableMetadata(tableName)
               .setTableType(TableType.valueOf(row.getString(TABLE_TYPE)));
+        }
+        if (row.notNull(ROLE)) {
+          schema
+              .getTableMetadata(tableName)
+              .setRole(TableRole.valueOf(row.getString(ROLE).toUpperCase().trim()));
         }
 
         if (row.getString(OLD_NAME) != null) {
@@ -142,6 +149,10 @@ public class Emx2 {
           if (row.notNull(OLD_NAME)) column.setOldName(row.getString(OLD_NAME));
           if (row.notNull(READ_ONLY))
             column.setReadonly(TypeUtils.toBool(row.getString(READ_ONLY)));
+          if (row.notNull(ROLE))
+            column.setRole(ColumnRole.valueOf(row.getString(ROLE).toUpperCase().trim()));
+          if (row.notNull(DISPLAY))
+            column.setDisplay(DisplayType.valueOf(row.getString(DISPLAY).toUpperCase().trim()));
 
           if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
             column.drop();
@@ -193,6 +204,8 @@ public class Emx2 {
             KEY,
             REQUIRED,
             READ_ONLY,
+            ROLE,
+            DISPLAY,
             REF_SCHEMA,
             REF_TABLE,
             REF_LINK,
@@ -248,6 +261,7 @@ public class Emx2 {
       row.setString(TABLE_EXTENDS, table.getInheritName());
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
+      if (table.getRole() != null) row.setString(ROLE, table.getRole().name().toLowerCase());
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
@@ -255,6 +269,8 @@ public class Emx2 {
       row.setString(REQUIRED, null);
       row.setString(DEFAULT_VALUE, null);
       row.setString(READ_ONLY, null);
+      row.setString(ROLE, null);
+      row.setString(DISPLAY, null);
       row.setString(REF_SCHEMA, null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
@@ -293,6 +309,8 @@ public class Emx2 {
           row.setString(COLUMN_TYPE, column.getColumnType().toString().toLowerCase());
         if (column.getRequired() != null) row.setString(REQUIRED, column.getRequired());
         if (column.isReadonly()) row.setString(READ_ONLY, column.isReadonly().toString());
+        if (column.getRole() != null) row.set(ROLE, column.getRole().name().toLowerCase());
+        if (column.getDisplay() != null) row.set(DISPLAY, column.getDisplay().name().toLowerCase());
         if (column.getDefaultValue() != null)
           row.setString(DEFAULT_VALUE, column.getDefaultValue());
         if (column.getKey() > 0) row.setInt(KEY, column.getKey());

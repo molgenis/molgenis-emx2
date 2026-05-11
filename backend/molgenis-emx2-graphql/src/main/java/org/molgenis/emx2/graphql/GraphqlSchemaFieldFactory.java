@@ -329,6 +329,12 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(COLUMN_ROLE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(DISPLAY).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(COMPUTED)
                   .type(Scalars.GraphQLString))
           .field(
@@ -390,6 +396,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_ROLE)
                   .type(Scalars.GraphQLString))
           .build();
 
@@ -485,6 +495,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(COLUMN_ROLE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DISPLAY)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(COMPUTED)
                   .type(Scalars.GraphQLString))
           .field(
@@ -534,6 +552,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ROLE)
                   .type(Scalars.GraphQLString))
           .build();
 

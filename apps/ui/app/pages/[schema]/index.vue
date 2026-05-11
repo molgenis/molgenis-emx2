@@ -31,6 +31,7 @@ interface Table {
   id: string;
   label: string;
   tableType: TableType;
+  role?: string;
   schemaId: string;
   description: string;
 }
@@ -45,21 +46,23 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   key: `fetch-tables-for-${schema}`,
   method: "POST",
   body: {
-    query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
+    query: `{_schema{id,label,tables{id,label,tableType,role,description}}}`,
   },
 });
 
 const tables = computed(
   () =>
     data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "DATA")
+      ?.filter((t) => t.tableType === "DATA" && (!t.role || t.role === "MAIN"))
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 
 const ontologies = computed(
   () =>
     data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "ONTOLOGIES")
+      ?.filter(
+        (t) => t.tableType === "ONTOLOGIES" && (!t.role || t.role === "MAIN")
+      )
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 

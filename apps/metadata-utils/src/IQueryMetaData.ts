@@ -8,4 +8,6 @@ export interface IQueryMetaData {
   orderby?: Record<string, string>;
   expandLevel?: number;
   columns?: IColumn[];
+  includeSubclassColumns?: boolean;
+  nestedLimit?: number;
 }
