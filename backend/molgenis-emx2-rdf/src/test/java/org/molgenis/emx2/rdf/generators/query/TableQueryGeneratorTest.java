@@ -42,6 +42,24 @@ class TableQueryGeneratorTest {
   }
 
   @Test
+  void whenNoTableSemantics_thenAnchorRootVariable() {
+    TableMetadata table =
+        TableMetadata.table(
+            "TableSemantics",
+            Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("xsd:name"));
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = removePrefixesFromQuery(generate.getQueryString());
+    assertEquals(
+        """
+              SELECT ?TableSemantics ?name
+              WHERE { ?TableSemantics ?anyPredicate ?anyObject .
+              ?TableSemantics xsd:name ?name . }
+              GROUP BY ?TableSemantics ?name
+              """,
+        query);
+  }
+
+  @Test
   void shouldAddMultipleTypeChecksForTableIfPresent() {
     TableMetadata table =
         TableMetadata.table(
@@ -50,7 +68,6 @@ class TableQueryGeneratorTest {
             .setSemantics("xsd:foo", "xsd:bar");
     SelectQuery generate = new TableQueryGenerator().generate(table);
     String query = removePrefixesFromQuery(generate.getQueryString());
-    System.out.println(query);
     assertEquals(
         """
         SELECT ?TableSemantics ?name
@@ -70,7 +87,6 @@ class TableQueryGeneratorTest {
             .setSemantics("xsd:foo");
     SelectQuery generate = new TableQueryGenerator().generate(table);
     String query = removePrefixesFromQuery(generate.getQueryString());
-    System.out.println(query);
     assertEquals(
         """
             SELECT ?TableSemantics ?name
@@ -100,7 +116,8 @@ class TableQueryGeneratorTest {
     assertEquals(
         """
         SELECT ?QueryOptionals ?foo ?bar ?baz
-        WHERE { OPTIONAL { ?QueryOptionals xsd:foo ?foo . }
+        WHERE { ?QueryOptionals ?anyPredicate ?anyObject .
+        OPTIONAL { ?QueryOptionals xsd:foo ?foo . }
         OPTIONAL { ?QueryOptionals xsd:bar ?bar . }
         ?QueryOptionals xsd:baz ?baz . }
         GROUP BY ?QueryOptionals ?foo ?bar ?baz
@@ -120,7 +137,8 @@ class TableQueryGeneratorTest {
         removePrefixesFromQuery(generate.getQueryString()),
         """
       SELECT ?Propogation ?name
-      WHERE { ?Propogation xsd:name ?name . }
+      WHERE { ?Propogation ?anyPredicate ?anyObject .
+      ?Propogation xsd:name ?name . }
       GROUP BY ?Propogation ?name
       """);
   }
@@ -137,7 +155,8 @@ class TableQueryGeneratorTest {
         removePrefixesFromQuery(generate.getQueryString()),
         """
           SELECT ?Propogation ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
-          WHERE { OPTIONAL { ?Propogation xsd:name ?names_single . } }
+          WHERE { ?Propogation ?anyPredicate ?anyObject .
+          OPTIONAL { ?Propogation xsd:name ?names_single . } }
           GROUP BY ?Propogation
           """);
   }
@@ -149,7 +168,8 @@ class TableQueryGeneratorTest {
     assertEquals(
         """
         SELECT ?Order ?id ?product_name
-        WHERE { ?Order xsd:id ?id .
+        WHERE { ?Order ?anyPredicate ?anyObject .
+        ?Order xsd:id ?id .
         ?Order xsd:product ?product .
         ?product xsd:name ?product_name . }
         GROUP BY ?Order ?id ?product_name
