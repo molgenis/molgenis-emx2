@@ -71,7 +71,7 @@ class TableQueryGeneratorTest {
     assertEquals(
         """
         SELECT ?TableSemantics ?name
-        WHERE { { ?TableSemantics a ?xsd:foo . } UNION { ?TableSemantics a ?xsd:bar . }
+        WHERE { { ?TableSemantics a xsd:foo . } UNION { ?TableSemantics a xsd:bar . }
         ?TableSemantics xsd:name ?name . }
         GROUP BY ?TableSemantics ?name
         """,
@@ -90,7 +90,7 @@ class TableQueryGeneratorTest {
     assertEquals(
         """
             SELECT ?TableSemantics ?name
-            WHERE { ?TableSemantics a ?xsd:foo .
+            WHERE { ?TableSemantics a xsd:foo .
             ?TableSemantics xsd:name ?name . }
             GROUP BY ?TableSemantics ?name
             """,
