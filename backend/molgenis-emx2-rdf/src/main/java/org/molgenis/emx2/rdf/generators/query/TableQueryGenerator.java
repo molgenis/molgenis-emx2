@@ -59,7 +59,14 @@ public class TableQueryGenerator {
   private static SelectQuery addTableTypeSemantics(
       TableMetadata tableMetadata, Variable tableVar, SelectQuery select) {
     String[] tableSemantics = tableMetadata.getSemantics();
-    if (tableSemantics != null && tableSemantics.length > 0) {
+
+    if (tableSemantics == null) {
+      return select;
+    }
+
+    if (tableSemantics.length == 1) {
+      select.where(tableVar.isA(SparqlBuilder.var(tableSemantics[0])));
+    } else if (tableSemantics.length > 1) {
       GraphPatternNotTriples union = GraphPatterns.union();
       Arrays.stream(tableSemantics)
           .map(SparqlBuilder::var)
