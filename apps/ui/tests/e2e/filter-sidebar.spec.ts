@@ -398,7 +398,7 @@ test.describe("filter sidebar", () => {
   test("pagination OF count decreases but stays visible when filter leaves >pageSize results", async ({
     page,
   }) => {
-    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.goto(`${route}catalogue-demo/Resources?pagesize=10`);
     await page.waitForTimeout(5000);
 
     const paginationNav = page.locator('nav[role="navigation"]');
