@@ -42,7 +42,7 @@ class TableQueryGeneratorTest {
   }
 
   @Test
-  void shouldAddTypeCheckForTableIfPresent() {
+  void shouldAddMultipleTypeChecksForTableIfPresent() {
     TableMetadata table =
         TableMetadata.table(
                 "TableSemantics",
@@ -58,6 +58,26 @@ class TableQueryGeneratorTest {
         ?TableSemantics xsd:name ?name . }
         GROUP BY ?TableSemantics ?name
         """,
+        query);
+  }
+
+  @Test
+  void shouldAddSingleTypeCheckForTableIfPresent() {
+    TableMetadata table =
+        TableMetadata.table(
+                "TableSemantics",
+                Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("xsd:name"))
+            .setSemantics("xsd:foo");
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = removePrefixesFromQuery(generate.getQueryString());
+    System.out.println(query);
+    assertEquals(
+        """
+            SELECT ?TableSemantics ?name
+            WHERE { ?TableSemantics a ?xsd:foo .
+            ?TableSemantics xsd:name ?name . }
+            GROUP BY ?TableSemantics ?name
+            """,
         query);
   }
 
