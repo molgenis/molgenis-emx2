@@ -10,36 +10,51 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class SparqlQueryingPocTest {
 
   @Disabled("Used for manual testing purposes")
   @Test
   void testCatalogueQuery() {
-    HarvestingTestSchema.create();
+    assertDoesNotThrow(
+        () -> {
+          Database database = TestDatabaseFactory.getTestDatabase();
+          String schemaName = "harvesting";
+          database.dropSchemaIfExists(schemaName);
+          DataModels.Profile.DATA_CATALOGUE
+              .getImportTask(database, schemaName, "DCAT harvesting test", true)
+              .run();
 
-    SchemaMetadata schema =
-        TestDatabaseFactory.getTestDatabase().getSchema("harvesting").getMetadata();
-    TableQueryGenerator generator = new TableQueryGenerator();
-    SelectQuery query = generator.generate(schema.getTableMetadata("Resources"));
-    System.out.println(query.getQueryString());
+          SchemaMetadata schema =
+              TestDatabaseFactory.getTestDatabase().getSchema("harvesting").getMetadata();
+          TableQueryGenerator generator = new TableQueryGenerator();
+          SelectQuery query = generator.generate(schema.getTableMetadata("Collections"));
+          System.out.println(query.getQueryString());
+        });
   }
 
   @Disabled("Used for manual testing purposes")
   @Test
-  void fileBasedTest() throws IOException {
-    String absoluteQueryPath = "";
-    String query = new String(new FileInputStream(absoluteQueryPath).readAllBytes());
+  void fileBasedTest() {
+    assertDoesNotThrow(
+        () -> {
+          String absoluteQueryPath = "";
+          String query = new String(new FileInputStream(absoluteQueryPath).readAllBytes());
 
-    String absoluteTtlPath = "";
-    SailRepository repository = setupRepositoryFromFile(absoluteTtlPath);
+          String absoluteTtlPath = "";
+          SailRepository repository = setupRepositoryFromFile(absoluteTtlPath);
 
-    repository
-        .getConnection()
-        .prepareTupleQuery(QueryLanguage.SPARQL, query)
-        .evaluate(new SPARQLResultsCSVWriter(new FileOutputStream("results.csv")));
+          repository
+              .getConnection()
+              .prepareTupleQuery(QueryLanguage.SPARQL, query)
+              .evaluate(new SPARQLResultsCSVWriter(new FileOutputStream("results.csv")));
+        });
   }
 
   private static SailRepository setupRepositoryFromFile(String fileName) {
