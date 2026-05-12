@@ -102,8 +102,8 @@
             >
               <div class="flex justify-center items-center h-full">
                 <Checkbox
-                  :model-value="selectedRows.has(row._rowId)"
-                  @update:model-value="toggleRowSelection(row._rowId)"
+                  :model-value="selectedRows.has(row._rowIdString)"
+                  @update:model-value="toggleRowSelection(row)"
                 />
               </div>
             </TableCellEMX2>
@@ -242,7 +242,7 @@
     :showButton="false"
     :schemaId="props.schemaId"
     :metadata="data.tableMetadata"
-    :keys="selectedRows"
+    :keys="new Set(selectedRows.values())"
     v-model:visible="showDeleteMultipleModal"
     @update:deleted="afterRowDeleted"
   />
@@ -341,7 +341,7 @@ const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
-const selectedRows = ref<Set<Record<string, columnValue>>>(new Set());
+const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
 
 const tableContainer = ref<HTMLElement | null>(null);
 
@@ -360,6 +360,7 @@ const settings = defineModel<ITableSettings>("settings", {
 
 export type TableRow = {
   _rowId: Record<string, columnValue>;
+  _rowIdString: string;
 } & Record<string, columnValue>;
 
 const { data, refresh } = useAsyncData(
@@ -382,9 +383,15 @@ const { data, refresh } = useAsyncData(
     // add unique row identifier for selection purposes
     const rows: TableRow[] = await Promise.all(
       tableData.rows.map(async (row) => {
+        const primaryKey = await getPrimaryKey(
+          row,
+          props.tableId,
+          props.schemaId
+        );
         return {
           ...row,
-          _rowId: await getPrimaryKey(row, props.tableId, props.schemaId),
+          _rowId: primaryKey,
+          _rowIdString: JSON.stringify(primaryKey),
         };
       })
     );
@@ -448,7 +455,7 @@ const sortedVisibleColumns = computed(() => {
 const allRowsSelected = computed(() => {
   return (
     rows.value.length > 0 &&
-    rows.value.every((row) => selectedRows.value.has(row._rowId))
+    rows.value.every((row) => selectedRows.value.has(row._rowIdString))
   );
 });
 
@@ -458,11 +465,11 @@ function handleColumnsUpdate(newColumns: IColumn[]) {
   columns.value = newColumns;
 }
 
-function toggleRowSelection(rowId: Record<string, columnValue>) {
-  if (selectedRows.value.has(rowId)) {
-    selectedRows.value.delete(rowId);
+function toggleRowSelection(row: TableRow) {
+  if (selectedRows.value.has(row._rowIdString)) {
+    selectedRows.value.delete(row._rowIdString);
   } else {
-    selectedRows.value.add(rowId);
+    selectedRows.value.set(row._rowIdString, row._rowId);
   }
 }
 
@@ -471,7 +478,7 @@ async function toggleAllRows() {
     selectedRows.value.clear();
   } else {
     rows.value.forEach((row) => {
-      selectedRows.value.add(row._rowId);
+      selectedRows.value.set(row._rowIdString, row._rowId);
     });
   }
 }
@@ -481,7 +488,7 @@ function handleRowAction(payload: { action: string }) {
     const action = payload.action;
     const singleRowSelected =
       selectedRows.value.size === 1
-        ? rows.value.find((row) => selectedRows.value.has(row._rowId))
+        ? rows.value.find((row) => selectedRows.value.has(row._rowIdString))
         : null;
     if (action === "delete-selection" && singleRowSelected) {
       onShowDeleteModal(singleRowSelected);
@@ -493,7 +500,7 @@ function handleRowAction(payload: { action: string }) {
       showDeleteMultipleModal.value = true;
     } else if (action === "select-all") {
       rows.value.forEach((row) => {
-        selectedRows.value.add(row._rowId);
+        selectedRows.value.set(row._rowIdString, row._rowId);
       });
     } else if (action === "select-none") {
       selectedRows.value.clear();
@@ -501,7 +508,7 @@ function handleRowAction(payload: { action: string }) {
       selectedRows.value.clear();
       rows.value.forEach((row) => {
         if (row.mg_draft === true) {
-          selectedRows.value.add(row._rowId);
+          selectedRows.value.set(row._rowIdString, row._rowId);
         }
       });
     }
