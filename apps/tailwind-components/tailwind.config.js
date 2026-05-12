@@ -271,9 +271,9 @@ module.exports = {
         "search-results-view-tabs-hover":
           "var(--text-color-search-results-view-tabs-hover)",
         "search-filter-title": "var(--text-color-search-filter-title)",
-        "search-filter-expand": "var(--text-color-search-filter-expand)",
-        "search-filter-expand-mobile":
-          "var(--text-color-search-filter-expand-mobile)",
+        "search-filter-action": "var(--text-color-search-filter-action)",
+        "search-filter-action-mobile":
+          "var(--text-color-search-filter-action-mobile)",
         "search-filter-group-title":
           "var(--text-color-search-filter-group-title)",
         "search-filter-group-title-mobile":
@@ -284,8 +284,8 @@ module.exports = {
           "var(--text-color-search-filter-group-toggle)",
         "search-filter-title-inverted":
           "var(--text-color-search-filter-title-inverted)",
-        "search-filter-expand-inverted":
-          "var(--text-color-search-filter-expand-inverted)",
+        "search-filter-action-inverted":
+          "var(--text-color-search-filter-action-inverted)",
         "search-filter-group-title-inverted":
           "var(--text-color-search-filter-group-title-inverted)",
         "search-filter-group-checkbox-inverted":

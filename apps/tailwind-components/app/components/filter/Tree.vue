@@ -405,7 +405,7 @@ function countedOptionToTreeNode(
       <button
         v-if="showMoreButton"
         type="button"
-        class="text-body-sm text-search-filter-expand hover:underline cursor-pointer mt-1"
+        class="text-body-sm text-search-filter-action hover:underline cursor-pointer mt-1"
         @click="onShowMoreClick"
       >
         {{ showMoreLabel }}

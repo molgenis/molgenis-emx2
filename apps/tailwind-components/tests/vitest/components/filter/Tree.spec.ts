@@ -294,7 +294,7 @@ describe("FilterTree", () => {
         })),
       }));
       const wrapper = mountTree(ontologyColumn(), opts);
-      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
         false
       );
       const searchInputs = wrapper
@@ -306,7 +306,7 @@ describe("FilterTree", () => {
     it("30 flat roots: initial 25 shown, button shows 'Show 5 more', click shows all 30, click again resets to 25", async () => {
       const opts = makeOptions(30);
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
       expect(btn.text()).toBe("Show 5 more");
       expect(wrapper.text()).not.toContain("Option 25");
@@ -332,7 +332,7 @@ describe("FilterTree", () => {
         ],
       }));
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
       const text = wrapper.text();
       expect(text).toContain("Root 0");
@@ -343,7 +343,7 @@ describe("FilterTree", () => {
     it("100 flat roots: incremental reveal — 25 → 75 → 100 → back to 25", async () => {
       const opts = makeOptions(100);
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
       expect(btn.text()).toBe("Show more (+50)");
       expect(wrapper.text()).not.toContain("Option 25");
@@ -365,7 +365,7 @@ describe("FilterTree", () => {
     it("5 roots: no show-more button", () => {
       const opts = makeOptions(5);
       const wrapper = mountTree(ontologyColumn(), opts);
-      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
         false
       );
     });
@@ -373,7 +373,7 @@ describe("FilterTree", () => {
     it("zero-hiding: zeros hidden while partially expanded, visible when fully expanded, hidden again after Show less", async () => {
       const opts = makeOptions(30, true);
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
 
       const zeroOpts = opts.slice(0, 25).filter((o) => o.count === 0);
       expect(zeroOpts.length).toBeGreaterThan(0);
@@ -400,7 +400,7 @@ describe("FilterTree", () => {
     it("clearing search resets visibleRootCount to 25", async () => {
       const opts = makeOptions(100);
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
 
       await btn.trigger("click");
       expect(wrapper.text()).toContain("Option 74");
@@ -410,14 +410,14 @@ describe("FilterTree", () => {
         .find((w) => w.props("id")?.startsWith("filter-search-"));
       await searchInput!.vm.$emit("update:modelValue", "opt1");
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
         false
       );
 
       await searchInput!.vm.$emit("update:modelValue", "");
       await wrapper.vm.$nextTick();
       expect(wrapper.text()).not.toContain("Option 25");
-      expect(wrapper.find("button.text-search-filter-expand").text()).toBe(
+      expect(wrapper.find("button.text-search-filter-action").text()).toBe(
         "Show more (+50)"
       );
     });
@@ -429,7 +429,7 @@ describe("FilterTree", () => {
         { name: "_null_", label: "Not set", count: 0, overlap: 0 },
       ];
       const wrapper = mountTree(boolColumn(), opts);
-      expect(wrapper.find("button.text-search-filter-expand").exists()).toBe(
+      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
         false
       );
       const text = wrapper.text();
@@ -454,7 +454,7 @@ describe("FilterTree", () => {
         })),
       ];
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
 
       const textBefore = wrapper.text();
@@ -481,7 +481,7 @@ describe("FilterTree", () => {
         })),
       ];
       const wrapper = mountTree(ontologyColumn(), opts);
-      const btn = wrapper.find("button.text-search-filter-expand");
+      const btn = wrapper.find("button.text-search-filter-action");
 
       await btn.trigger("click");
       expect(wrapper.text()).toContain("Zero Option 0");

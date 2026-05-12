@@ -115,7 +115,7 @@ function handlePickerApply(
         </h2>
         <button
           type="button"
-          class="flex items-center gap-1 text-body-sm text-search-filter-expand hover:underline cursor-pointer"
+          class="flex items-center gap-1 text-body-sm text-search-filter-action hover:underline cursor-pointer"
           aria-label="Customize filters"
           @click="pickerOpen = true"
         >
@@ -162,7 +162,7 @@ function handlePickerApply(
           </h3>
           <span
             v-if="filters.filterStates.value.has(column.id)"
-            class="text-body-sm text-search-filter-expand hover:underline cursor-pointer grow text-right"
+            class="text-body-sm text-search-filter-action hover:underline cursor-pointer grow text-right"
             @click.stop="filters.removeFilter(column.id)"
           >
             <template v-if="getFilterSelectionCount(column.id) > 1">
