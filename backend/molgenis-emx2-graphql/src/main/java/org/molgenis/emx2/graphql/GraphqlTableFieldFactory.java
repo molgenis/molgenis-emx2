@@ -669,7 +669,7 @@ public class GraphqlTableFieldFactory {
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
-        Map value = (Map) entry.getValue();
+        Map value = new LinkedHashMap<>((Map) entry.getValue());
         // although nested, this should apply on this level, not sublevel
         if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
           subFilters.add(
