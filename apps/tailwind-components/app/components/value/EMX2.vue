@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import type { ListPayload, RefPayload } from "../../../types/types";
+import type {
+  ColumnPayload,
+  ListPayload,
+  RefPayload,
+} from "../../../types/types";
 import { toRefColumn } from "../../utils/typeUtils";
 import ValueBool from "./Bool.vue";
 import ValueDecimal from "./Decimal.vue";
@@ -30,7 +34,7 @@ withDefaults(
 );
 
 defineEmits<{
-  (e: "valueClick", payload: RefPayload | ListPayload): void;
+  (e: "valueClick", payload: RefPayload | ColumnPayload | ListPayload): void;
 }>();
 </script>
 
@@ -94,6 +98,7 @@ defineEmits<{
     v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
     :metadata="metadata"
     :data="data"
+    @refCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueBool
