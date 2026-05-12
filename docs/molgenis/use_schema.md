@@ -428,6 +428,8 @@ Using 'refLabel' you can change the way on how a reference is being shown on the
 should make sure that the refLabel is unique and not null and only uses fields that are part of a key. To make sure, we recommend you make the fields required 
 and part of a secondary key, or that you use 'computed' to produce you ref_label as a key=x field.
 
+!> **Modeler responsibility — refLabel and REFERENCE permission**: when other tables FK into this table, users with REFERENCE-only permission see the row's primary key fields and its `refLabel` projection. EMX2 has no column-level permissions; the refLabel exposes whatever columns the modeler declared. **Do not put sensitive columns in a refLabel** — they will be exposed at REFERENCE level even to users who cannot directly SELECT the table. The recommended pattern is to declare a dedicated non-sensitive display column (e.g., `name`, `code`) and reference it from `refLabel`.
+
 Example:
 
 | tableName | columnName | type | key | required | refTable | refLabel                 |

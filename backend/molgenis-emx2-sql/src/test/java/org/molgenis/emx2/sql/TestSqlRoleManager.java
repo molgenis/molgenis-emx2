@@ -1,0 +1,893 @@
+package org.molgenis.emx2.sql;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.jooq.DSLContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.PermissionSet;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
+
+class TestSqlRoleManager {
+
+  private static final String SCHEMA_A = "SqlRoleManagerTestA";
+  private static final String SCHEMA_ENF = "TestSqlRoleManagerEnforcement";
+
+  private static final String ENFORCEMENT_TABLE = "Items";
+  private static final String GROUP_A = "groupA";
+  private static final String GROUP_B = "groupB";
+
+  private static final Database db = TestDatabaseFactory.getTestDatabase();
+  private static final DSLContext jooq = ((SqlDatabase) db).getJooq();
+  private static final SqlRoleManager roleManager = new SqlRoleManager((SqlDatabase) db);
+
+  private static final String TEST_USER_ALICE = "SqlRoleManagerTestAlice";
+  private static final String USER_ALICE = "TsrmAlice";
+  private static final String USER_BOB = "TsrmBob";
+
+  private Schema schemaA;
+  private Schema schemaEnf;
+
+  @BeforeEach
+  void setUp() {
+    db.becomeAdmin();
+    schemaA = db.dropCreateSchema(SCHEMA_A);
+    schemaEnf = db.dropCreateSchema(SCHEMA_ENF);
+    schemaEnf.create(table(ENFORCEMENT_TABLE).add(column("id").setPkey()).add(column("val")));
+    if (!db.hasUser(TEST_USER_ALICE)) db.addUser(TEST_USER_ALICE);
+    if (!db.hasUser(USER_ALICE)) db.addUser(USER_ALICE);
+    if (!db.hasUser(USER_BOB)) db.addUser(USER_BOB);
+    roleManager.createGroup(schemaEnf, GROUP_A);
+    roleManager.createGroup(schemaEnf, GROUP_B);
+  }
+
+  // ── createRole: validation ─────────────────────────────────────────────────
+
+  @Test
+  void createRole_rejectsInvalidNames() {
+    for (String invalid :
+        new String[] {"bad/name", "bad name", "1leading", "-leading", "_leading"}) {
+      assertThrows(
+          MolgenisException.class,
+          () -> roleManager.createRole(schemaA, invalid, ""),
+          "Role name '" + invalid + "' must be rejected");
+    }
+  }
+
+  @Test
+  void createRole_acceptsValidHyphenatedName() {
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, "good-name", ""));
+  }
+
+  @Test
+  void createRole_acceptsUnderscoreInMiddle() {
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, "good_name", ""));
+  }
+
+  @Test
+  void createRole_rejectsTooLongName() {
+    String schemaPrefix = "MG_ROLE_" + SCHEMA_A + "/";
+    int prefixBytes = schemaPrefix.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+    String tooLong = "a".repeat(SqlRoleManager.PG_MAX_ID_LENGTH - prefixBytes + 1);
+    assertThrows(MolgenisException.class, () -> roleManager.createRole(schemaA, tooLong, ""));
+  }
+
+  @Test
+  void createRole_withDescription_persistsDescription() {
+    String roleName = "desc-persist-role";
+    roleManager.createRole(schemaA, roleName, "my description");
+    try {
+      Role role = roleManager.getRole(SCHEMA_A, roleName);
+      assertEquals(
+          "my description", role.description(), "description must round-trip via createRole");
+    } finally {
+      roleManager.deleteRole(SCHEMA_A, roleName);
+    }
+  }
+
+  @Test
+  void createRole_withNullDescription_doesNotThrow() {
+    String roleName = "null-desc-role";
+    assertDoesNotThrow(() -> roleManager.createRole(schemaA, roleName, null));
+    try {
+      Role role = roleManager.getRole(SCHEMA_A, roleName);
+      assertNull(role.description(), "null description must round-trip as null");
+    } finally {
+      roleManager.deleteRole(SCHEMA_A, roleName);
+    }
+  }
+
+  @Test
+  void getPermissionSet_returnsEmptyForUnknownRole() {
+    PermissionSet result = roleManager.getPermissionSet(SCHEMA_A, "nonexistent");
+    assertNotNull(result);
+    assertTrue(result.getTables().isEmpty());
+  }
+
+  // ── addGroupMembership idempotency ─────────────────────────────────────────
+
+  @Test
+  void addGroupMembership_idempotent() {
+    roleManager.createGroup(schemaA, "groupY");
+    roleManager.createRole(schemaA, "roleY", "");
+
+    roleManager.addGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY");
+    assertDoesNotThrow(
+        () -> roleManager.addGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY"),
+        "Second addGroupMembership with same params must be idempotent");
+
+    roleManager.removeGroupMembership(SCHEMA_A, "groupY", TEST_USER_ALICE, "roleY");
+    roleManager.deleteGroup(schemaA, "groupY");
+  }
+
+  // ── enforcement: system-role RLS behaviour ───────────────────────────────
+
+  @Test
+  void viewerCanReadRows() {
+    roleManager.enableRlsForTable(schemaEnf, ENFORCEMENT_TABLE);
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "r1").setString("val", "v1"));
+    schemaEnf.addMember(USER_ALICE, "Viewer");
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+      assertFalse(rows.isEmpty(), "Viewer must be able to read rows");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void viewerCannotWriteRows() {
+    roleManager.enableRlsForTable(schemaEnf, ENFORCEMENT_TABLE);
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "r1").setString("val", "v1"));
+    schemaEnf.addMember(USER_ALICE, "Viewer");
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      assertThrows(
+          Exception.class,
+          () ->
+              schemaEnf
+                  .getTable(ENFORCEMENT_TABLE)
+                  .insert(new Row().setString("id", "new").setString("val", "x")),
+          "Viewer must not insert");
+
+      try {
+        int updated =
+            schemaEnf
+                .getTable(ENFORCEMENT_TABLE)
+                .update(new Row().setString("id", "r1").setString("val", "changed"));
+        assertEquals(0, updated, "Viewer must not update (0 rows affected)");
+      } catch (Exception ignored) {
+      }
+
+      try {
+        int deleted = schemaEnf.getTable(ENFORCEMENT_TABLE).delete(new Row().setString("id", "r1"));
+        assertEquals(0, deleted, "Viewer must not delete (0 rows affected)");
+      } catch (Exception ignored) {
+      }
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void noRoleCannotRead() {
+    roleManager.enableRlsForTable(schemaEnf, ENFORCEMENT_TABLE);
+
+    db.setActiveUser(USER_BOB);
+    try {
+      assertThrows(
+          Exception.class,
+          () -> schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows(),
+          "User with no role must not read");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void editorCanReadAndWrite() {
+    roleManager.enableRlsForTable(schemaEnf, ENFORCEMENT_TABLE);
+    db.becomeAdmin();
+    schemaEnf.addMember(USER_ALICE, "Editor");
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      schemaEnf
+          .getTable(ENFORCEMENT_TABLE)
+          .insert(new Row().setString("id", "e1").setString("val", "v"));
+      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+      assertFalse(rows.isEmpty(), "Editor must read rows");
+
+      assertDoesNotThrow(
+          () ->
+              schemaEnf
+                  .getTable(ENFORCEMENT_TABLE)
+                  .update(new Row().setString("id", "e1").setString("val", "updated")),
+          "Editor must update");
+
+      assertDoesNotThrow(
+          () -> schemaEnf.getTable(ENFORCEMENT_TABLE).delete(new Row().setString("id", "e1")),
+          "Editor must delete");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void ownScopeSeesOnlyOwnRows() {
+    setupEnforcementRole(
+        "own-reader", SelectScope.OWN, UpdateScope.OWN, UpdateScope.NONE, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    schemaEnf.addMember(USER_BOB, "Editor");
+    db.setActiveUser(USER_BOB);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "bob-row").setString("val", "v"));
+    db.becomeAdmin();
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, "own-reader");
+    db.setActiveUser(USER_ALICE);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "alice-row").setString("val", "v"));
+
+    List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+    List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+    db.becomeAdmin();
+
+    assertTrue(ids.contains("alice-row"), "OWN scope must show alice's own row");
+    assertFalse(ids.contains("bob-row"), "OWN scope must not show bob's row");
+  }
+
+  @Test
+  void groupScopeSeesOnlyGroupRows() {
+    setupEnforcementRole(
+        "group-reader", SelectScope.GROUP, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    insertGroupTaggedRow("row-a", "va", new String[] {GROUP_A});
+    insertGroupTaggedRow("row-b", "vb", new String[] {GROUP_B});
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, "group-reader");
+    db.setActiveUser(USER_ALICE);
+    List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+    List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+    db.becomeAdmin();
+
+    assertTrue(ids.contains("row-a"), "GROUP scope must show row tagged with user's group");
+    assertFalse(
+        ids.contains("row-b"), "GROUP scope must not show row tagged with a different group");
+  }
+
+  @Test
+  void ownScopeUpdatesOnlyOwnRows() {
+    setupEnforcementRole(
+        "own-updater", SelectScope.OWN, UpdateScope.OWN, UpdateScope.OWN, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    schemaEnf.addMember(USER_BOB, "Editor");
+    db.setActiveUser(USER_BOB);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "bob-row").setString("val", "orig"));
+    db.becomeAdmin();
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, "own-updater");
+    db.setActiveUser(USER_ALICE);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "alice-row").setString("val", "orig"));
+
+    assertDoesNotThrow(
+        () ->
+            schemaEnf
+                .getTable(ENFORCEMENT_TABLE)
+                .update(new Row().setString("id", "alice-row").setString("val", "changed")),
+        "OWN update_scope must allow updating own row");
+
+    int affected =
+        schemaEnf
+            .getTable(ENFORCEMENT_TABLE)
+            .update(new Row().setString("id", "bob-row").setString("val", "hack"));
+    db.becomeAdmin();
+    assertEquals(0, affected, "OWN update_scope must not update another user's row");
+  }
+
+  @Test
+  void groupScopeUpdatesOnlyGroupRows() {
+    setupEnforcementRole(
+        "group-updater", SelectScope.GROUP, UpdateScope.NONE, UpdateScope.GROUP, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    insertGroupTaggedRow("row-a", "v", new String[] {GROUP_A});
+    insertGroupTaggedRow("row-b", "v", new String[] {GROUP_B});
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, "group-updater");
+    db.setActiveUser(USER_ALICE);
+
+    assertDoesNotThrow(
+        () ->
+            schemaEnf
+                .getTable(ENFORCEMENT_TABLE)
+                .update(new Row().setString("id", "row-a").setString("val", "updated")),
+        "GROUP update_scope must allow updating row in user's group");
+
+    int affected =
+        schemaEnf
+            .getTable(ENFORCEMENT_TABLE)
+            .update(new Row().setString("id", "row-b").setString("val", "hack"));
+    db.becomeAdmin();
+    assertEquals(
+        0, affected, "GROUP update_scope must not update row in a group the user is not member of");
+  }
+
+  @Test
+  void grant_rlsScopeOnNonRlsTable_throws() {
+    roleManager.createRole(schemaEnf, "grant-rls-guard", "");
+    TablePermission grouped = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.GROUP);
+    assertThrows(
+        MolgenisException.class,
+        () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", grouped),
+        "Granting GROUP scope on a non-RLS table must throw");
+    TablePermission owned = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.OWN);
+    assertThrows(
+        MolgenisException.class,
+        () -> roleManager.grant(SCHEMA_ENF, "grant-rls-guard", owned),
+        "Granting OWN scope on a non-RLS table must throw");
+  }
+
+  @Test
+  void revoke_deletesRpmRow() {
+    roleManager.createRole(schemaEnf, "revoke-test-role", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.ALL);
+    roleManager.grant(SCHEMA_ENF, "revoke-test-role", tp);
+
+    PermissionSet before = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
+    assertNotNull(before.getTables().get(ENFORCEMENT_TABLE), "RPM row must exist after grant");
+
+    roleManager.revoke(SCHEMA_ENF, "revoke-test-role", ENFORCEMENT_TABLE);
+
+    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "revoke-test-role");
+    assertNull(after.getTables().get(ENFORCEMENT_TABLE), "RPM row must be deleted after revoke");
+  }
+
+  // ── invariant: system role cannot be bound to group ──────────────────────
+
+  @Test
+  void systemRoleWithGroup_rejected() {
+    roleManager.createGroup(schemaEnf, "gInvariant");
+    for (String sysRole : new String[] {"Owner", "Manager", "Editor", "Viewer"}) {
+      MolgenisException ex =
+          assertThrows(
+              MolgenisException.class,
+              () -> roleManager.addGroupMembership(SCHEMA_ENF, "gInvariant", USER_ALICE, sysRole),
+              "System role '" + sysRole + "' must be rejected when bound to a group");
+      assertTrue(
+          ex.getMessage().contains("cannot be bound to group"),
+          "Message must say 'cannot be bound to group', was: " + ex.getMessage());
+    }
+    roleManager.deleteGroup(schemaEnf, "gInvariant");
+  }
+
+  // ── scope: absent RPM row ⇒ access denied ────────────────────────────────
+
+  @Test
+  void absentRpmRowMeansNoRowVisible() {
+    roleManager.createRole(schemaEnf, "absent-rpm-role", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "visible-row").setString("val", "v"));
+
+    roleManager.grantRoleToUser(schemaEnf, "absent-rpm-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      assertThrows(
+          MolgenisException.class,
+          () -> schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows(),
+          "Custom role with no RPM row must be denied access (no PG SELECT grant)");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  // ── scope: SELECT=ALL returns every row ──────────────────────────────────
+
+  @Test
+  void selectScopeAllReturnsEveryRow() {
+    setupEnforcementRole(
+        "all-reader", SelectScope.ALL, UpdateScope.NONE, UpdateScope.NONE, UpdateScope.NONE);
+
+    db.becomeAdmin();
+    schemaEnf.addMember(USER_BOB, "Editor");
+    db.setActiveUser(USER_BOB);
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(new Row().setString("id", "row-bob").setString("val", "v1"));
+    db.becomeAdmin();
+
+    insertGroupTaggedRow("row-grouped", "v2", new String[] {GROUP_A});
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_B, USER_ALICE, "all-reader");
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<Row> rows = schemaEnf.getTable(ENFORCEMENT_TABLE).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("row-bob"), "SELECT=ALL must return row owned by another user");
+      assertTrue(
+          ids.contains("row-grouped"), "SELECT=ALL must return row tagged with a different group");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  // ── revokeRoleFromUser: clears all rows regardless of group_name ──────────
+
+  @Test
+  void removeMember_withoutGroup_clearsAllRowsAndRevokesPgRole_evenWhenGroupBoundRowsExist() {
+    String roleName = "revoke-all-role";
+    roleManager.createRole(schemaEnf, roleName, "");
+    roleManager.createGroup(schemaEnf, "g1");
+
+    roleManager.grantRoleToUser(schemaEnf, roleName, USER_ALICE);
+    roleManager.addGroupMembership(SCHEMA_ENF, "g1", USER_ALICE, roleName);
+
+    int rowsBefore =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(2, rowsBefore, "Setup: must have 2 membership rows before revoke");
+
+    roleManager.revokeRoleFromUser(schemaEnf, roleName, USER_ALICE);
+
+    int rowsAfter =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(0, rowsAfter, "All membership rows must be deleted after no-group revoke");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, roleName);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(0, pgGrantCount, "PG role must be revoked after no-group drop");
+
+    roleManager.deleteGroup(schemaEnf, "g1");
+  }
+
+  // ── grantRoleToUser: schema-wide supersedes group-bound rows ─────────────
+
+  @Test
+  void addMember_withoutGroup_supersedesExistingGroupBoundRows() {
+    String roleName = "supersede-role";
+    roleManager.createRole(schemaEnf, roleName, "");
+    roleManager.createGroup(schemaEnf, "sg1");
+
+    roleManager.addGroupMembership(SCHEMA_ENF, "sg1", USER_ALICE, roleName);
+
+    int rowsBefore =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(1, rowsBefore, "Setup: one group-bound row must exist before schema-wide grant");
+
+    roleManager.grantRoleToUser(schemaEnf, roleName, USER_ALICE);
+
+    int nullGroupCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name IS NULL",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName)
+            .get(0, Integer.class);
+    assertEquals(
+        1, nullGroupCount, "Exactly one NULL-group row must exist after schema-wide grant");
+
+    int sg1Count =
+        jooq.fetchOne(
+                "SELECT count(*) FROM \"MOLGENIS\".group_membership_metadata"
+                    + " WHERE schema_name = ? AND user_name = ? AND role_name = ? AND group_name = ?",
+                SCHEMA_ENF,
+                USER_ALICE,
+                roleName,
+                "sg1")
+            .get(0, Integer.class);
+    assertEquals(0, sg1Count, "Group-bound row must be superseded by schema-wide grant");
+
+    String fullRole = SqlRoleManager.fullRoleName(SCHEMA_ENF, roleName);
+    String fullUser = org.molgenis.emx2.Constants.MG_USER_PREFIX + USER_ALICE;
+    int pgGrantCount =
+        jooq.fetchOne(
+                "SELECT count(*) FROM pg_auth_members am"
+                    + " JOIN pg_roles r ON r.oid = am.roleid"
+                    + " JOIN pg_roles m ON m.oid = am.member"
+                    + " WHERE m.rolname = ? AND r.rolname = ?",
+                fullUser,
+                fullRole)
+            .get(0, Integer.class);
+    assertEquals(1, pgGrantCount, "PG role must still be granted after schema-wide supersede");
+
+    roleManager.deleteGroup(schemaEnf, "sg1");
+  }
+
+  // ── grant: scope-only must not clobber changeOwner/changeGroup/description ─
+
+  @Test
+  void grant_scopeOnly_doesNotClobberChangeOwnerOrDescription() {
+    roleManager.createRole(schemaEnf, "clobber-guard", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet initial = new PermissionSet();
+    initial.setChangeOwner(true);
+    initial.setChangeGroup(true);
+    initial.setDescription("sentinel");
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    initial.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "clobber-guard", initial);
+
+    PermissionSet before = roleManager.getPermissionSet(SCHEMA_ENF, "clobber-guard");
+    assertTrue(before.isChangeOwner(), "changeOwner must be true after setPermissions");
+    assertTrue(before.isChangeGroup(), "changeGroup must be true after setPermissions");
+    assertEquals(
+        "sentinel", before.getDescription(), "description must be 'sentinel' after setPermissions");
+
+    roleManager.grant(
+        SCHEMA_ENF,
+        "clobber-guard",
+        new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.ALL));
+
+    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "clobber-guard");
+    assertTrue(after.isChangeOwner(), "scope-only grant must not clobber changeOwner");
+    assertTrue(after.isChangeGroup(), "scope-only grant must not clobber changeGroup");
+    assertEquals(
+        "sentinel", after.getDescription(), "scope-only grant must not clobber description");
+  }
+
+  @Test
+  void grant_scopeOnly_doesNotClobberSiblingScopes() {
+    roleManager.createRole(schemaEnf, "sibling-guard", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet initial = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    tp.insert(UpdateScope.OWN);
+    tp.update(UpdateScope.GROUP);
+    tp.delete(UpdateScope.ALL);
+    initial.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "sibling-guard", initial);
+
+    roleManager.grant(
+        SCHEMA_ENF,
+        "sibling-guard",
+        new TablePermission(ENFORCEMENT_TABLE).select(SelectScope.GROUP));
+
+    PermissionSet after = roleManager.getPermissionSet(SCHEMA_ENF, "sibling-guard");
+    TablePermission afterTp = after.getTables().get(ENFORCEMENT_TABLE);
+    assertEquals(SelectScope.GROUP, afterTp.select(), "select updated");
+    assertEquals(UpdateScope.OWN, afterTp.insert(), "insert preserved");
+    assertEquals(UpdateScope.GROUP, afterTp.update(), "update preserved");
+    assertEquals(UpdateScope.ALL, afterTp.delete(), "delete preserved");
+  }
+
+  // ── ReferenceScope round-trip ─────────────────────────────────────────────
+
+  @Test
+  void referenceScope_roundTrip_all() {
+    roleManager.createRole(schemaEnf, "ref-scope-all", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    tp.reference(PermissionSet.ReferenceScope.ALL);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-scope-all", ps);
+
+    PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-all");
+    TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
+    assertNotNull(retrievedTp, "table permission must be present after setPermissions");
+    assertEquals(
+        PermissionSet.ReferenceScope.ALL,
+        retrievedTp.reference(),
+        "reference scope ALL must round-trip");
+  }
+
+  @Test
+  void referenceScope_roundTrip_none() {
+    roleManager.createRole(schemaEnf, "ref-scope-none", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(SelectScope.ALL);
+    tp.reference(PermissionSet.ReferenceScope.NONE);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-scope-none", ps);
+
+    PermissionSet retrieved = roleManager.getPermissionSet(SCHEMA_ENF, "ref-scope-none");
+    TablePermission retrievedTp = retrieved.getTables().get(ENFORCEMENT_TABLE);
+    assertNotNull(retrievedTp, "table permission must be present after setPermissions");
+    assertEquals(
+        PermissionSet.ReferenceScope.NONE,
+        retrievedTp.reference(),
+        "reference scope NONE must round-trip");
+  }
+
+  // ── TablePermission: null arg must throw NPE ─────────────────────────────
+
+  @Test
+  void fluentSetter_nullArg_throwsNPE() {
+    assertThrows(NullPointerException.class, () -> new TablePermission("t").select(null));
+  }
+
+  // ── reference-only permission survives in-memory aggregation path ─────────
+
+  @Test
+  void referenceOnlyPermission_survivesAggregationPath() {
+    roleManager.createRole(schemaEnf, "ref-only-role", "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE).reference(ReferenceScope.ALL);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, "ref-only-role", ps);
+
+    roleManager.grantRoleToUser(schemaEnf, "ref-only-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission found =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(found, "permission entry for " + ENFORCEMENT_TABLE + " must be present");
+      assertEquals(ReferenceScope.ALL, found.reference(), "reference scope must be ALL");
+      assertEquals(SelectScope.NONE, found.select(), "select scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.insert(), "insert scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.update(), "update scope must be NONE");
+      assertEquals(UpdateScope.NONE, found.delete(), "delete scope must be NONE");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  @Test
+  void referenceOnlyWildcard_survivesExpandWildcard() {
+    roleManager.createRole(schemaEnf, "ref-wildcard-role", "");
+
+    PermissionSet ps = new PermissionSet();
+    TablePermission wildcard = new TablePermission("*").reference(ReferenceScope.ALL);
+    ps.putTable("*", wildcard);
+    roleManager.setPermissions(schemaEnf, "ref-wildcard-role", ps);
+
+    roleManager.grantRoleToUser(schemaEnf, "ref-wildcard-role", USER_ALICE);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission found =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(found, "wildcard reference must expand to " + ENFORCEMENT_TABLE);
+      assertEquals(
+          ReferenceScope.ALL, found.reference(), "reference scope must be ALL after expand");
+    } finally {
+      db.becomeAdmin();
+    }
+  }
+
+  // ── listener: createRole / createGroup / deleteGroup fire onSchemaChange ──
+
+  @Test
+  void createRole_firesListener() {
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.createRole(schemaA, "listener-role", "");
+      assertTrue(callCount.get() > 0, "createRole must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
+    }
+  }
+
+  @Test
+  void createGroup_firesListener() {
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.createGroup(schemaA, "listener-group");
+      assertTrue(callCount.get() > 0, "createGroup must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
+    }
+  }
+
+  @Test
+  void deleteGroup_firesListener() {
+    roleManager.createGroup(schemaA, "del-listener-group");
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    AtomicInteger callCount = new AtomicInteger();
+    DatabaseListener spy =
+        new DatabaseListener() {
+          @Override
+          public void onUserChange() {}
+
+          @Override
+          public void onSchemaChange() {
+            callCount.incrementAndGet();
+            super.onSchemaChange();
+          }
+        };
+    sqlDb.setListener(spy);
+    try {
+      roleManager.deleteGroup(schemaA, "del-listener-group");
+      assertTrue(callCount.get() > 0, "deleteGroup must fire onSchemaChange");
+    } finally {
+      sqlDb.setListener(
+          new DatabaseListener() {
+            @Override
+            public void onUserChange() {}
+          });
+    }
+  }
+
+  // ── mergePermissions: higher UpdateScope wins across roles ───────────────
+
+  @Test
+  void mergePermissions_keepsHigherUpdateScopeAcrossRoles() {
+    String roleOwnInsert = "merge-own-insert";
+    String roleAllSelect = "merge-all-select";
+    roleManager.createRole(schemaEnf, roleOwnInsert, "");
+    roleManager.createRole(schemaEnf, roleAllSelect, "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+
+    PermissionSet psOwnInsert = new PermissionSet();
+    psOwnInsert.putTable(
+        ENFORCEMENT_TABLE,
+        new TablePermission(ENFORCEMENT_TABLE)
+            .select(SelectScope.OWN)
+            .insert(UpdateScope.OWN)
+            .update(UpdateScope.OWN)
+            .delete(UpdateScope.NONE));
+    roleManager.setPermissions(schemaEnf, roleOwnInsert, psOwnInsert);
+
+    PermissionSet psAllSelect = new PermissionSet();
+    psAllSelect.putTable(
+        ENFORCEMENT_TABLE,
+        new TablePermission(ENFORCEMENT_TABLE)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.NONE)
+            .update(UpdateScope.NONE)
+            .delete(UpdateScope.NONE));
+    roleManager.setPermissions(schemaEnf, roleAllSelect, psAllSelect);
+
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleOwnInsert);
+    roleManager.addGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleAllSelect);
+
+    db.setActiveUser(USER_ALICE);
+    try {
+      List<TablePermission> perms = schemaEnf.getPermissionsForActiveUser();
+      TablePermission merged =
+          perms.stream().filter(p -> ENFORCEMENT_TABLE.equals(p.table())).findFirst().orElse(null);
+      assertNotNull(merged, "merged permission must be present");
+      assertEquals(
+          UpdateScope.OWN,
+          merged.insert(),
+          "insert must be OWN (max of OWN and NONE across both roles)");
+      assertEquals(
+          UpdateScope.OWN,
+          merged.update(),
+          "update must be OWN (max of OWN and NONE across both roles)");
+      assertEquals(UpdateScope.NONE, merged.delete(), "delete must be NONE (max of NONE and NONE)");
+    } finally {
+      db.becomeAdmin();
+      roleManager.removeGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleOwnInsert);
+      roleManager.removeGroupMembership(SCHEMA_ENF, GROUP_A, USER_ALICE, roleAllSelect);
+    }
+  }
+
+  // ── enforcement helpers ───────────────────────────────────────────────────
+
+  private void insertGroupTaggedRow(String id, String val, String[] groups) {
+    db.becomeAdmin();
+    schemaEnf
+        .getTable(ENFORCEMENT_TABLE)
+        .insert(
+            new Row()
+                .setString("id", id)
+                .setString("val", val)
+                .setStringArray("mg_groups", groups));
+  }
+
+  private void setupEnforcementRole(
+      String roleName,
+      SelectScope selectScope,
+      UpdateScope insertScope,
+      UpdateScope updateScope,
+      UpdateScope deleteScope) {
+    roleManager.createRole(schemaEnf, roleName, "");
+    schemaEnf.getTable(ENFORCEMENT_TABLE).getMetadata().setRlsEnabled(true);
+    PermissionSet ps = new PermissionSet();
+    TablePermission tp = new TablePermission(ENFORCEMENT_TABLE);
+    tp.select(selectScope);
+    tp.insert(insertScope);
+    tp.update(updateScope);
+    tp.delete(deleteScope);
+    ps.putTable(ENFORCEMENT_TABLE, tp);
+    roleManager.setPermissions(schemaEnf, roleName, ps);
+  }
+}

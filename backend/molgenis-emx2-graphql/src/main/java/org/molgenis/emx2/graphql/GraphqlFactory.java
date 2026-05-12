@@ -90,8 +90,13 @@ public class GraphqlFactory {
       mutationBuilder.field(sessionFieldFactory.createTokenField(schema.getDatabase()));
     }
 
-    mutationBuilder.field(schemaFields.changeMutation(schema));
-    mutationBuilder.field(schemaFields.dropMutation(schema));
+    if (schema.getDatabase().isAdmin()
+        || (schema.getRoleForActiveUser() != null
+            && (schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString())
+                || schema.getRoleForActiveUser().equals(Privileges.OWNER.toString())))) {
+      mutationBuilder.field(schemaFields.changeMutation(schema));
+      mutationBuilder.field(schemaFields.dropMutation(schema));
+    }
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
 
     if ((schema.getRoleForActiveUser() != null
@@ -103,10 +108,8 @@ public class GraphqlFactory {
 
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
-        if (tableField.hasViewPermission(table)) {
-          queryBuilder.field(tableField.tableQueryField(table));
-        }
+      if (table.getColumns().size() > 0 && tableField.hasViewPermission(table)) {
+        queryBuilder.field(tableField.tableQueryField(table));
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }

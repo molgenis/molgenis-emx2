@@ -27,6 +27,7 @@ public class Table {
   private String[] profiles = null;
   private String id;
   private TableType tableType;
+  private Boolean rlsEnabled;
 
   public Table() {
     // for json serialisation
@@ -91,6 +92,7 @@ public class Table {
     }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();
+    this.rlsEnabled = tableMetadata.getRlsEnabled();
   }
 
   public String getName() {
@@ -235,5 +237,13 @@ public class Table {
 
   public void setSchemaId(String schemaId) {
     this.schemaId = schemaId;
+  }
+
+  public Boolean getRlsEnabled() {
+    return rlsEnabled;
+  }
+
+  public void setRlsEnabled(Boolean rlsEnabled) {
+    this.rlsEnabled = rlsEnabled;
   }
 }

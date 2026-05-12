@@ -2,7 +2,11 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
+import static org.molgenis.emx2.Constants.MG_GROUPS_COLUMN;
+import static org.molgenis.emx2.Constants.MG_OWNER_COLUMN;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
@@ -412,6 +416,9 @@ class SqlTableMetadata extends TableMetadata {
     executeSetInherit(jooq, tm, om);
     tm.inheritName = inheritedName;
     MetadataUtils.saveTableMetadata(jooq, tm);
+    if (Boolean.TRUE.equals(om.getRlsEnabled())) {
+      tm.enableRlsOnSingleTable();
+    }
     return tm;
   }
 
@@ -513,6 +520,122 @@ class SqlTableMetadata extends TableMetadata {
 
   private SqlDatabase getDatabase() {
     return (SqlDatabase) getSchema().getDatabase();
+  }
+
+  @Override
+  public TableMetadata setRlsEnabled(boolean enabled) {
+    if (getInheritName() != null) {
+      TableMetadata root = getRootTable();
+      throw new MolgenisException(
+          "Cannot enable/disable RLS on subclass '"
+              + getTableName()
+              + "' — call on root '"
+              + root.getTableName()
+              + "' instead");
+    }
+    if (enabled) {
+      enableRlsCascade();
+    } else {
+      disableRlsCascade();
+    }
+    return this;
+  }
+
+  void enableRlsOnSingleTable() {
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
+    Schema schemaInstance = getDatabase().getSchema(getSchemaName());
+    roleManager.enableRlsForTable(schemaInstance, getTableName());
+    if (getInheritName() == null) {
+      columns.put(
+          MG_OWNER_COLUMN, new Column(this, MG_OWNER_COLUMN).setType(STRING).setPosition(-7));
+      columns.put(
+          MG_GROUPS_COLUMN,
+          new Column(this, MG_GROUPS_COLUMN).setType(STRING_ARRAY).setPosition(-6));
+      super.setRlsEnabled(true);
+      getDatabase()
+          .getJooqAsAdmin(
+              adminJooq ->
+                  adminJooq.execute(
+                      "UPDATE {0} SET \"mg_owner\" = \"mg_insertedBy\" WHERE \"mg_owner\" IS NULL",
+                      name(getSchemaName(), getTableName())));
+      MetadataUtils.saveTableMetadata(getJooq(), this);
+    }
+  }
+
+  private void enableRlsCascade() {
+    List<TableMetadata> descendants = getSubclassTables();
+    getDatabase()
+        .txWithProlongedTimeout(
+            tdb -> {
+              SqlTableMetadata root =
+                  (SqlTableMetadata)
+                      tdb.getSchema(getSchemaName()).getMetadata().getTableMetadata(getTableName());
+              root.enableRlsOnSingleTable();
+              sync(root);
+              for (TableMetadata desc : descendants) {
+                SqlTableMetadata child =
+                    (SqlTableMetadata)
+                        tdb.getSchema(getSchemaName())
+                            .getMetadata()
+                            .getTableMetadata(desc.getTableName());
+                child.enableRlsOnSingleTable();
+              }
+            });
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  private void disableRlsCascade() {
+    List<TableMetadata> descendants = getSubclassTables();
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
+    roleManager.rejectDisableIfPermissionsExist(getSchemaName(), getTableName());
+    for (TableMetadata desc : descendants) {
+      roleManager.rejectDisableIfPermissionsExist(getSchemaName(), desc.getTableName());
+    }
+    getDatabase()
+        .txWithProlongedTimeout(
+            tdb -> {
+              SqlTableMetadata root =
+                  (SqlTableMetadata)
+                      tdb.getSchema(getSchemaName()).getMetadata().getTableMetadata(getTableName());
+              root.disableRlsOnSingleTable();
+              sync(root);
+              for (TableMetadata desc : descendants) {
+                SqlTableMetadata child =
+                    (SqlTableMetadata)
+                        tdb.getSchema(getSchemaName())
+                            .getMetadata()
+                            .getTableMetadata(desc.getTableName());
+                child.disableRlsOnSingleTable();
+              }
+            });
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
+    getDatabase().getListener().schemaChanged(getSchemaName());
+  }
+
+  void disableRlsOnSingleTable() {
+    SqlRoleManager roleManager = new SqlRoleManager(getDatabase());
+    Schema schemaInstance = getDatabase().getSchema(getSchemaName());
+    roleManager.disableRlsForTable(schemaInstance, getTableName());
+    getDatabase()
+        .getJooqAsAdmin(
+            adminJooq -> {
+              if (getInheritName() == null) {
+                SqlRoleManager.deregisterRlsColumnMetadata(adminJooq, this);
+              }
+              adminJooq.execute(
+                  "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_owner",
+                  name(getSchemaName(), getTableName()));
+              adminJooq.execute(
+                  "ALTER TABLE {0} DROP COLUMN IF EXISTS mg_groups",
+                  name(getSchemaName(), getTableName()));
+            });
+    if (getInheritName() == null) {
+      columns.remove(MG_OWNER_COLUMN);
+      columns.remove(MG_GROUPS_COLUMN);
+      super.setRlsEnabled(false);
+      MetadataUtils.saveTableMetadata(getJooq(), this);
+    }
   }
 
   @Override
