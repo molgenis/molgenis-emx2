@@ -160,9 +160,17 @@
     </div>
   </div>
 
+  <div
+    class="p-2.5 text-right font-normal align-middle text-table-column-header"
+  >
+    Showing {{ (settings.page - 1) * settings.pageSize }} to
+    {{ Math.min(settings.page * settings.pageSize, count) }} of
+    {{ count }} items
+  </div>
+
   <Pagination
     v-if="count > smallestPageSize"
-    class="pt-[30px] pb-[30px]"
+    class="pt-[0px] pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
