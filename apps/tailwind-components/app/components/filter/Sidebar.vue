@@ -3,6 +3,7 @@ import { ref, computed, watch, useId } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters } from "../../../types/filters";
+import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import InputSearch from "../input/Search.vue";
@@ -31,7 +32,7 @@ watch(
 
 const debouncedSetSearch = useDebounceFn((val: string) => {
   props.filters.setSearch(val);
-}, 500);
+}, FILTER_DEBOUNCE);
 
 const searchValue = computed({
   get: () => localSearchInput.value,
@@ -40,10 +41,6 @@ const searchValue = computed({
     debouncedSetSearch(val);
   },
 });
-
-function pathLabel(id: string): string {
-  return id.split(".").join(" → ");
-}
 
 function isNestedPending(id: string): boolean {
   return (
@@ -60,7 +57,7 @@ const visibleColumns = computed(() =>
     const nested = props.filters.nestedColumnMeta.value.get(id);
     return {
       id,
-      label: nested?.label ?? pathLabel(id),
+      label: nested?.label ?? "",
       columnType: nested?.columnType ?? "STRING",
       table: props.tableId,
       position: 0,
@@ -148,8 +145,20 @@ function handlePickerApply(
         >
           <h3
             class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline"
+            :aria-label="column.label || column.id.split('.').join(' → ')"
           >
-            {{ column.label || column.id }}
+            <template v-if="column.label">{{ column.label }}</template>
+            <template v-else>
+              <template v-for="(part, i) in column.id.split('.')" :key="i">
+                <span>{{ part }}</span
+                ><span
+                  v-if="i < column.id.split('.').length - 1"
+                  class="text-gray-400"
+                  aria-hidden="true"
+                  >&nbsp;→&nbsp;</span
+                >
+              </template>
+            </template>
           </h3>
           <span
             v-if="filters.filterStates.value.has(column.id)"

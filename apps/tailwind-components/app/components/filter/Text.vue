@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
+import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import InputSearch from "../input/Search.vue";
 
 const props = defineProps<{
@@ -14,17 +15,17 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
-function textValueFromModelValue(mv: IFilterValue | undefined): string {
-  if (!mv || mv.operator !== "like") return "";
-  return typeof mv.value === "string" ? mv.value : "";
+function textValueFromModelValue(modelValue: IFilterValue | undefined): string {
+  if (!modelValue || modelValue.operator !== "like") return "";
+  return typeof modelValue.value === "string" ? modelValue.value : "";
 }
 
 const inputText = ref<string>(textValueFromModelValue(props.modelValue));
 
 watch(
   () => props.modelValue,
-  (mv) => {
-    const next = textValueFromModelValue(mv);
+  (modelValue) => {
+    const next = textValueFromModelValue(modelValue);
     if (inputText.value !== next) inputText.value = next;
   }
 );
@@ -35,7 +36,7 @@ const debouncedEmitText = useDebounceFn((val: string) => {
   } else {
     emit("update:modelValue", { operator: "like", value: val });
   }
-}, 500);
+}, FILTER_DEBOUNCE);
 
 watch(inputText, (val) => debouncedEmitText(val));
 </script>

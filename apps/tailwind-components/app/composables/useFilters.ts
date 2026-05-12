@@ -41,6 +41,7 @@ export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
 export const MG_COLLAPSED_PARAM = "mg_collapsed";
 export const MAX_VISIBLE_FILTERS = 25;
+export const FILTER_DEBOUNCE = 500;
 
 type RouteQuery = Record<
   string,
@@ -77,6 +78,37 @@ function preserveExternalQueryParams(
 
 function filterColumns(rawColumns: IColumn[]): IColumn[] {
   return rawColumns.filter((c) => !isExcludedColumn(c));
+}
+
+function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
+  return {
+    label: labelParts.join(" → "),
+    columnType: col.columnType,
+    refTableId: col.refTableId ?? null,
+    refSchemaId: col.refSchemaId ?? null,
+  };
+}
+
+function mergeWithBaseCounts(
+  base: CountedOption[],
+  updated: CountedOption[]
+): CountedOption[] {
+  const updatedMap = new Map<string, CountedOption>(
+    updated.map((opt) => [opt.name, opt])
+  );
+  return base.map((baseOpt) => {
+    const match = updatedMap.get(baseOpt.name);
+    const mergedChildren =
+      baseOpt.children && baseOpt.children.length > 0
+        ? mergeWithBaseCounts(baseOpt.children, match?.children ?? [])
+        : undefined;
+    return {
+      ...baseOpt,
+      count: match?.count ?? 0,
+      overlap: match?.overlap ?? 0,
+      ...(mergedChildren !== undefined ? { children: mergedChildren } : {}),
+    };
+  });
 }
 
 export function useFilters(
@@ -170,29 +202,6 @@ export function useFilters(
   const saturatedMap = shallowRef<Map<string, boolean>>(new Map());
   const abortControllers = new Map<string, AbortController>();
 
-  function mergeWithBaseCounts(
-    base: CountedOption[],
-    updated: CountedOption[]
-  ): CountedOption[] {
-    const updatedMap = new Map<string, CountedOption>();
-    for (const opt of updated) {
-      updatedMap.set(opt.name, opt);
-    }
-    return base.map((baseOpt) => {
-      const match = updatedMap.get(baseOpt.name);
-      const children =
-        baseOpt.children && baseOpt.children.length > 0
-          ? mergeWithBaseCounts(baseOpt.children, match?.children ?? [])
-          : undefined;
-      return {
-        ...baseOpt,
-        count: match?.count ?? 0,
-        overlap: match?.overlap ?? 0,
-        ...(children !== undefined ? { children } : {}),
-      };
-    });
-  }
-
   function buildCrossFilter(excludeColumnId: string): IGraphQLFilter {
     const crossStates = new Map(filterStates.value);
     crossStates.delete(excludeColumnId);
@@ -226,14 +235,13 @@ export function useFilters(
         fetchGraphql(sId, query, variables, { signal: controller.signal });
 
       const facetHasSelection = !useBase && filterStates.value.has(columnId);
-      const crossFilterIncludeAll = facetHasSelection
-        ? buildGraphQLFilter(
-            filterStates.value,
-            columns.value,
-            searchValue.value,
-            columnTypeMap.value
-          )
-        : undefined;
+      const allFacetsFilter = buildGraphQLFilter(
+        filterStates.value,
+        columns.value,
+        searchValue.value,
+        columnTypeMap.value
+      );
+      const fullFilter = facetHasSelection ? allFacetsFilter : undefined;
 
       const result: FetchCountsResult = await fetchCounts(
         schemaId,
@@ -245,7 +253,7 @@ export function useFilters(
         refTableId,
         refSchemaId,
         refLabel,
-        crossFilterIncludeAll
+        fullFilter
       );
 
       const { options: results, saturated } = result;
@@ -254,12 +262,10 @@ export function useFilters(
       newSaturated.set(columnId, saturated);
       saturatedMap.value = newSaturated;
 
+      const baseForMerge = useBase ? undefined : baseCounts.value.get(columnId);
       let merged = results;
-      if (!useBase) {
-        const base = baseCounts.value.get(columnId);
-        if (base && base.length > 0) {
-          merged = mergeWithBaseCounts(base, results);
-        }
+      if (baseForMerge && baseForMerge.length > 0) {
+        merged = mergeWithBaseCounts(baseForMerge, results);
       }
 
       const newCounts = new Map(countsMap.value);
@@ -348,31 +354,25 @@ export function useFilters(
     });
   }
 
-  watch(
-    columns,
-    async (cols) => {
-      if (cols.length > 0 && baseCounts.value.size === 0) {
-        if (!userHasCustomized.value && visibleFilterIds.value.length === 0) {
-          visibleFilterIds.value = [...defaultFilterIds.value];
-        }
-        await Promise.all(
-          visibleFilterIds.value
-            .filter((id) => {
-              const colType = resolveColumn(id)?.columnType ?? null;
-              return colType && isCountableType(colType);
-            })
-            .map((id) => fetchColumnCounts(id, true))
-        );
-        pruneVisibleByBaseCount();
-        const hasInitialFilters =
-          filterStates.value.size > 0 || (searchValue.value ?? "").length > 0;
-        if (hasInitialFilters) {
-          debouncedRefetchCounts();
-        }
-      }
-    },
-    { immediate: true }
-  );
+  async function initializeCountsForColumns(cols: IColumn[]) {
+    if (cols.length === 0 || baseCounts.value.size > 0) return;
+    if (!userHasCustomized.value && visibleFilterIds.value.length === 0) {
+      visibleFilterIds.value = [...defaultFilterIds.value];
+    }
+    const countableIds = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      return colType && isCountableType(colType);
+    });
+    await Promise.all(countableIds.map((id) => fetchColumnCounts(id, true)));
+    pruneVisibleByBaseCount();
+    const hasInitialFilters =
+      filterStates.value.size > 0 || (searchValue.value ?? "").length > 0;
+    if (hasInitialFilters) {
+      debouncedRefetchCounts();
+    }
+  }
+
+  watch(columns, initializeCountsForColumns, { immediate: true });
 
   function updateUrl(newFilters: Map<string, IFilterValue>, newSearch: string) {
     if (!urlSyncEnabled) return;
@@ -462,29 +462,30 @@ export function useFilters(
     )
   );
 
-  const activeFilters = computed<ActiveFilter[]>(() => {
-    const result: ActiveFilter[] = [];
-    for (const [columnId, filterValue] of filterStates.value) {
-      const column = resolveColumn(columnId);
-      const label = column?.label || column?.id || columnId;
-      if (!column) {
-        const { displayValue, values } = formatFilterValue(filterValue, {});
-        if (displayValue)
-          result.push({ columnId, label, displayValue, values });
-        continue;
-      }
-      const counted = baseCounts.value.get(columnId) ?? null;
-      const optionLabels = buildLabelMap(column, counted);
-      const { displayValue, values } = formatFilterValue(
-        filterValue,
-        optionLabels
-      );
-      if (displayValue) {
-        result.push({ columnId, label, displayValue, values });
-      }
-    }
-    return result;
-  });
+  function buildActiveFilterEntry(
+    columnId: string,
+    filterValue: IFilterValue
+  ): ActiveFilter | null {
+    const column = resolveColumn(columnId);
+    const label = column?.label || column?.id || columnId;
+    const optionLabels = column
+      ? buildLabelMap(column, baseCounts.value.get(columnId) ?? null)
+      : {};
+    const { displayValue, values } = formatFilterValue(
+      filterValue,
+      optionLabels
+    );
+    if (!displayValue) return null;
+    return { columnId, label, displayValue, values };
+  }
+
+  const activeFilters = computed<ActiveFilter[]>(() =>
+    [...filterStates.value.entries()]
+      .map(([columnId, filterValue]) =>
+        buildActiveFilterEntry(columnId, filterValue)
+      )
+      .filter((entry): entry is ActiveFilter => entry !== null)
+  );
 
   const collapsed = ref(new Set<string>());
 
@@ -534,12 +535,11 @@ export function useFilters(
   if (urlSyncEnabled) {
     const urlParam = route.query[MG_COLLAPSED_PARAM];
     if (typeof urlParam === "string" && urlParam.trim()) {
-      collapsed.value = new Set(
-        urlParam
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-      );
+      const ids = urlParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      collapsed.value = new Set(ids);
     } else {
       applyDefaultCollapse();
     }
@@ -566,49 +566,39 @@ export function useFilters(
     }
   }
 
-  async function hydrateNestedFilters() {
-    const visibleIds = visibleFilterIds.value;
-    const alreadyKnown = nestedColumnMeta.value;
+  async function resolveDottedId(
+    id: string,
+    segments: string[]
+  ): Promise<void> {
+    let currentCols: IColumn[] = rawColumns.value;
+    let currentSchemaId = schemaId;
+    const labelParts: string[] = [];
 
-    const dottedIds = visibleIds.filter(
-      (id) => id.includes(".") && !alreadyKnown.has(id)
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]!;
+      const col = currentCols.find((c) => c.id === seg);
+      if (!col) return;
+      labelParts.push(col.label || col.id);
+
+      if (i === segments.length - 1) {
+        registerNestedColumn(id, buildNestedMeta(labelParts, col));
+        return;
+      }
+      if (!col.refTableId) return;
+      const nextSchemaId = col.refSchemaId || currentSchemaId;
+      currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
+      currentSchemaId = nextSchemaId;
+    }
+  }
+
+  async function hydrateNestedFilters() {
+    const dottedIds = visibleFilterIds.value.filter(
+      (id) => id.includes(".") && !nestedColumnMeta.value.has(id)
     );
     if (dottedIds.length === 0) return;
-
-    for (const id of dottedIds) {
-      const segments = id.split(".");
-      let currentCols: IColumn[] = rawColumns.value;
-      let currentSchemaId = schemaId;
-      const labelParts: string[] = [];
-      let resolved = true;
-
-      for (let i = 0; i < segments.length; i++) {
-        const seg = segments[i]!;
-        const col = currentCols.find((c) => c.id === seg);
-        if (!col) {
-          resolved = false;
-          break;
-        }
-        labelParts.push(col.label || col.id);
-
-        if (i < segments.length - 1) {
-          if (!col.refTableId) {
-            resolved = false;
-            break;
-          }
-          const nextSchemaId = col.refSchemaId || currentSchemaId;
-          currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
-          currentSchemaId = nextSchemaId;
-        } else if (resolved) {
-          registerNestedColumn(id, {
-            label: labelParts.join(" → "),
-            columnType: col.columnType,
-            refTableId: col.refTableId ?? null,
-            refSchemaId: col.refSchemaId ?? null,
-          });
-        }
-      }
-    }
+    await Promise.all(
+      dottedIds.map((id) => resolveDottedId(id, id.split(".")))
+    );
   }
 
   watch(

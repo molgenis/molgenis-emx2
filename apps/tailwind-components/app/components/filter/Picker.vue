@@ -116,21 +116,6 @@ function buildRefPickerNode(
   };
 }
 
-function buildLeafPickerNode(
-  col: IColumn,
-  path: string,
-  depth: number
-): PickerNode {
-  return {
-    id: path,
-    label: col.label || col.id,
-    description: col.description,
-    selectable: true,
-    depth,
-    column: col,
-  };
-}
-
 function buildNodes(
   cols: IColumn[],
   parentTableId: string,
@@ -162,7 +147,16 @@ function buildNodes(
         return [refNode, ...childNodes];
       }
 
-      return [buildLeafPickerNode(col, path, depth)];
+      return [
+        {
+          id: path,
+          label: col.label || col.id,
+          description: col.description,
+          selectable: true,
+          depth,
+          column: col,
+        },
+      ];
     });
 }
 

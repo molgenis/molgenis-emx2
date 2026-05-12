@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ITreeNode, ITreeNodeState } from "../../../types/types";
+import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 import InputSearch from "./Search.vue";
@@ -239,7 +240,7 @@ function handleSearchInput(input: string | undefined) {
   clearTimeout(timeoutID);
   timeoutID = setTimeout(() => {
     optionsSearch.value = input ?? "";
-  }, 500);
+  }, FILTER_DEBOUNCE);
 }
 
 /* provide root nodes to be rendered */

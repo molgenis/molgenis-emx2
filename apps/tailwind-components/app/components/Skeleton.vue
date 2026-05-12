@@ -13,7 +13,7 @@ withDefaults(
       v-for="n in lines"
       :key="n"
       class="h-4 rounded bg-disabled animate-pulse"
-      :style="{ width: `${60 + n * 8}%` }"
+      :style="{ width: `calc(var(--skeleton-bar-base) + ${n * 8}%)` }"
     />
   </div>
 </template>

@@ -166,7 +166,7 @@
     --text-color-search-results-view-tabs: var(--color-blue-500);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --text-color-search-filter-title: var(--text-color-title);
-    --text-color-search-filter-expand: var(--color-blue-500);
+    --text-color-search-filter-expand: var(--color-yellow-500);
     --text-color-search-filter-expand-mobile: var(--text-color-title);
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-search-filter-group-title-mobile: var(--color-black);
@@ -267,6 +267,8 @@
     --border-color-button-switch: var(--color-blue-900);
     --border-color-button-switch-selected: var(--color-gray-400);
     --border-color-button-switch-hover: var(--color-blue-900);
+
+    --skeleton-bar-base: 60%;
 
     /** labels */
     --background-color-label-draft: var(--color-gray-400);
