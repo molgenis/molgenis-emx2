@@ -1,12 +1,11 @@
+from pathlib import Path
+
 import logging
+import pandas as pd
+import time
 import zipfile
 from datetime import datetime
 from io import BytesIO
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import time
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
@@ -141,7 +140,7 @@ class StagingMigrator(Client):
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
-                        collections = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Collections'))
+                        collections = load_table("source", self.get_schema_metadata(self.source).get_table('id', 'Collections'))
                         try:
                             updated_table = process_contacts(updated_table, collections)
                         except MissingContactException as e:
