@@ -15,7 +15,8 @@ import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** can only handle one table */
 public class TableStoreForCsvFile implements TableStore {
-  private Path csvFile;
+
+  private final Path csvFile;
 
   public TableStoreForCsvFile(Path csvFile) {
     this.csvFile = csvFile;
