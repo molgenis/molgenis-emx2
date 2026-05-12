@@ -228,6 +228,8 @@
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
 
+    --accent-color: var(---color-blue-500);
+
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 

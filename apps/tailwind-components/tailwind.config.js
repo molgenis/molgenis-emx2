@@ -87,6 +87,9 @@ module.exports = {
       },
     },
     extend: {
+      accentColor: {
+        theme: "var(--accent-color)",
+      },
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
         "no-background-modal": "var(--box-shadow-no-background-modal)",
