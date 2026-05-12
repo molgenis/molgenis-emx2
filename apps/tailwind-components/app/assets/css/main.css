@@ -136,6 +136,7 @@
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
+    --text-color-button-inline: var(--text-color-button-outline);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
@@ -228,6 +229,8 @@
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-footer: var(--border-color-theme);
 
+    --accent-color: var(---color-blue-500);
+
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 
@@ -255,6 +258,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */

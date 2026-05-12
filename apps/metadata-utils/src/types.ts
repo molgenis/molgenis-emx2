@@ -142,6 +142,8 @@ export type columnValue =
   | columnValueObject[]
   | fileValue;
 
+export type nonEmptyColumnValue = Exclude<columnValue, null | undefined>;
+
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {

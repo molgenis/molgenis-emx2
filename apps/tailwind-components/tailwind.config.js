@@ -87,6 +87,9 @@ module.exports = {
       },
     },
     extend: {
+      accentColor: {
+        theme: "var(--accent-color)",
+      },
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
         "no-background-modal": "var(--box-shadow-no-background-modal)",
@@ -118,6 +121,7 @@ module.exports = {
         input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
+        "input-medium": "var(--height-input-medium)",
         "input-large": "var(--height-input-large)",
       }),
       width: {
@@ -246,6 +250,7 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-inline": "var(--text-color-button-inline)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
         menu: "var(--text-color-menu)",

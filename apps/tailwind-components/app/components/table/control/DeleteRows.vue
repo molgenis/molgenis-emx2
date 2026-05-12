@@ -1,0 +1,121 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import type {
+  columnId,
+  columnValue,
+  ITableMetaData,
+} from "../../../../../metadata-utils/src/types";
+import { useSession } from "../../../composables/useSession";
+import { useTable } from "../../../composables/useTable";
+import FormError from "../../form/Error.vue";
+import Button from "../../Button.vue";
+import BaseIcon from "../../BaseIcon.vue";
+import Modal from "../../Modal.vue";
+import { isMgError } from "../../../utils/typeUtils";
+
+const session = await useSession();
+const table = useTable();
+
+const props = defineProps<{
+  schemaId: string;
+  metadata: ITableMetaData;
+  keys: Set<Record<columnId, columnValue>>;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:deleted", deleted: boolean): void;
+  (e: "update:cancelled", cancelled: boolean): void;
+}>();
+
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: true,
+});
+
+const deleteErrorMessage = ref<string>("");
+const message = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
+function reAuthenticate() {
+  session.reAuthenticate(deleteErrorMessage, showReAuthenticateButton, message);
+}
+
+async function onDeleteConfirm() {
+  try {
+    await table.deleteRecords(props.schemaId, props.metadata.id, props.keys);
+    emit("update:deleted", true);
+    visible.value = false;
+  } catch (error: unknown) {
+    if (isMgError(error)) {
+      deleteErrorMessage.value =
+        error.data?.errors?.[0]?.message ??
+        "An unknown error occurred during deletion.";
+    } else if (error instanceof Error) {
+      deleteErrorMessage.value = error.message;
+    } else {
+      deleteErrorMessage.value = "An unknown error occurred during deletion.";
+    }
+  }
+}
+</script>
+<template>
+  <Modal v-model:visible="visible" max-width="max-w-9/10">
+    <template #header>
+      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+        <div class="mb-5 relative flex items-center">
+          <h2
+            class="uppercase text-heading-4xl font-display text-title-contrast"
+          >
+            Delete {{ keys.size }} {{ keys.size === 1 ? "row" : "rows" }}
+          </h2>
+        </div>
+
+        <button
+          @click="visible = false"
+          aria-label="Close modal"
+          class="absolute top-7 right-8 p-1"
+        >
+          <BaseIcon class="text-gray-400" name="cross" />
+        </button>
+      </header>
+    </template>
+
+    <section class="grid grid-cols-4 gap-1"></section>
+
+    <div class="w-[90%] mx-8 my-auto py-4">
+      <p class="text-body-lg text-center text-title-contrast">
+        Are you sure you want to delete the {{ keys.size }} selected rows.
+      </p>
+      <p class="text-body-lg text-center text-title-contrast">
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <Transition name="slide-up">
+      <FormError
+        v-show="deleteErrorMessage"
+        :message="deleteErrorMessage"
+        :show-prev-next-buttons="false"
+        class="sticky mx-4 bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <template #footer>
+      <div class="flex justify-between items-center">
+        <menu class="flex items-center justify-end h-[116px]">
+          <div class="flex gap-4">
+            <Button type="secondary" @click="visible = false">Cancel</Button>
+            <Button type="primary" @click="onDeleteConfirm">Delete</Button>
+          </div>
+        </menu>
+      </div>
+    </template>
+  </Modal>
+</template>

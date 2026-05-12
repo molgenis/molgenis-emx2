@@ -37,7 +37,7 @@ watchEffect(() => {
   }
 });
 
-const COLOR_MAPPING = {
+const COLOR_MAPPING: Record<ButtonType, string> = {
   primary:
     "tracking-widest uppercase rounded-input font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover",
   secondary:
@@ -47,12 +47,10 @@ const COLOR_MAPPING = {
   text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
   outline:
     "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
-  disabled:
-    "tracking-widest uppercase rounded-input font-display bg-button-disabled text-button-disabled border-button-disabled cursor-not-allowed hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
   filterWell:
     "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
   inline:
-    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
+    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:bg-none disabled:text-button-disabled disabled:border-0 !disabled:hover:bg-none disabled:hover:text-button-disabled",
 };
 
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
@@ -67,8 +65,8 @@ const SIZE_MAPPING = {
 const ICON_ONLY_SIZE_MAPPING = {
   tiny: "p-[8px] h-8 w-8",
   small: "p-[5px] h-10 w-10",
-  medium: "p-[8px] h-14 w-14",
-  large: "p-[8px] h-18 w-18",
+  medium: "p-[8px] h-10 w-10",
+  large: "p-[8px] h-10 w-10",
 };
 
 const ICON_SIZE_MAPPING = {
@@ -82,10 +80,6 @@ const ICON_POSITION_MAPPING = {
   left: "",
   right: "flex-row-reverse",
 };
-
-const colorClasses = computed(() => {
-  return props.disabled ? COLOR_MAPPING["disabled"] : COLOR_MAPPING[props.type];
-});
 
 const sizeClasses = computed(() => {
   return props.iconOnly
@@ -109,8 +103,11 @@ const tooltipText = computed(() => {
 <template>
   <button
     v-tooltip.bottom="tooltipText"
+    :disabled="props.disabled"
     class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
-    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
+    :class="`${
+      COLOR_MAPPING[props.type]
+    } ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
     <span

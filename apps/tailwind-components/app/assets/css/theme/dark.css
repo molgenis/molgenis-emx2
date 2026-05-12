@@ -68,6 +68,8 @@
   --text-color-button-outline: var(--color-green-500);
   --text-color-button-outline-hover: var(--color-green-200);
   --text-color-button-text: var(--color-green-500);
+  --text-color-button-inline: var(--text-color-button-outline);
+  --text-color-button-disabled: var(--color-gray-400);
   --text-color-button-icon: var(--color-green-500);
   --text-color-button-icon-hover: var(--color-green-200);
   --text-color-button-tree-node-toggle: var(--color-white);
@@ -129,6 +131,7 @@
   --border-color-button-switch: var(--color-gray-900);
   --border-color-button-switch-selected: var(--color-green-200);
   --border-color-button-switch-hover: var(--color-green-200);
+  --accent-color: var(--background-color-button-primary);
 
   /** labels */
   --background-color-label-draft: var(--color-stroke-light);
