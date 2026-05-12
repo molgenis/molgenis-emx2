@@ -39,6 +39,9 @@ class StagingMigrator(Client):
 
         self.source = None
         self.resource_ids = None
+        self.warnings = []
+        self.errors = []
+
         if catalogue is not None:
             log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
             self.target = catalogue
@@ -50,8 +53,6 @@ class StagingMigrator(Client):
         elif source is not None:
             self.set_source(source)
         self._verify_schemas()
-        self.warnings = []
-        self.errors = []
 
     def __repr__(self):
         class_name = type(self).__name__
