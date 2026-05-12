@@ -21,7 +21,7 @@
           size="small"
           label="Reset to default"
           icon="RestartAlt"
-          class="ml-auto mr-0 pr-2 whitespace-nowrap"
+          class="leading-9 whitespace-nowrap"
           :onclick="resetToDefault"
         />
       </div>
