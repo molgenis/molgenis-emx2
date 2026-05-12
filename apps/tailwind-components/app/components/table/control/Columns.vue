@@ -110,9 +110,7 @@ const selectedSortMethod = ref<string>("Default");
 watch(() => props.columns, initializeColumns, { immediate: true });
 
 function initializeColumns(newColumns: IColumn[]) {
-  columnsInColumnsSelectModal.value = indexColumns(
-    sortColumns(newColumns.map(columnToColumnConfig))
-  );
+  columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
 }
 
 function indexColumns(columns: IColumnConfig[]) {
@@ -154,7 +152,9 @@ function handleSave() {
     }
   });
 
-  emits("update:columns", updated);
+  updated.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  const visibleSortedColumns = updated.filter((col) => col.visible !== "false");
+  emits("update:columns", visibleSortedColumns);
   showModal.value = false;
 }
 
