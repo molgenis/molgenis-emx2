@@ -316,14 +316,6 @@ jobs:
             corepack enable
             corepack prepare pnpm@latest --activate
             pnpm -v
-      - run: pnpm i -D @playwright/test
-      - run:
-          name: Install dependencies
-          command: |
-            pnpm install -w @playwright/test         
-            pnpm exec playwright install chrome
-            pnpm exec playwright install
-          working_directory: apps
       - run:
           name: Test tailwind components
           command: |
