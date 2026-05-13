@@ -21,25 +21,19 @@ withDefaults(
 );
 const modelValue = defineModel<columnValue>();
 const emit = defineEmits([
-  "update:modelValue",
   "select",
   "deselect",
   "blur",
   "focus",
 ]);
 
-function toggleSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    emit("select", target.value);
-  } else {
-    emit("deselect", target.value);
-  }
-  emit("focus");
-}
-
 function resetModelValue() {
+  emit("deselect", modelValue.value);
   modelValue.value = null;
+}
+function onSelect(value: columnValue) {
+  emit('select', value);
+  emit('focus');
 }
 </script>
 
@@ -70,8 +64,7 @@ function resetModelValue() {
           :value="option.value"
           :name="id"
           v-model="modelValue"
-          @input="toggleSelect"
-          :checked="option.value === modelValue"
+          @update:modelValue="onSelect(option.value)"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"

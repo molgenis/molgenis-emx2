@@ -1,11 +1,13 @@
 <template>
   <input
     :id="id"
-    v-model="modelValue"
     type="radio"
+    :value="value"
+    :checked="modelValue === value"
     :disabled="disabled"
     class="w-5 h-5 ml-[6px] mr-2.5 mt-0.5 hover:cursor-pointer"
     @focus="$emit('focus')"
+    @change="$emit('update:modelValue', value)"
   />
 </template>
 
@@ -13,9 +15,7 @@
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import { type IInputProps } from "../../../types/types";
 
-defineProps<IInputProps>();
-
-const modelValue = defineModel<columnValue>();
-
-const emit = defineEmits(["focus", "update:modelValue"]);
+defineProps<IInputProps & { value: columnValue }>();
+defineModel<columnValue>();
+defineEmits(["focus", "update:modelValue"]);
 </script>
