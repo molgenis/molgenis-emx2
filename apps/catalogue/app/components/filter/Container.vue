@@ -68,14 +68,14 @@ function clearSearch() {
       <span
         v-if="selected.length"
         class="text-body-sm hover:underline hover:cursor-pointer"
-        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        :class="`text-search-filter-action${mobileDisplay ? '-mobile' : ''}`"
         @click="clearSelection()"
       >
         Remove {{ selected?.length }} selected
       </span>
       <span
         class="text-body-sm hover:underline hover:cursor-pointer"
-        :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
+        :class="`text-search-filter-action${mobileDisplay ? '-mobile' : ''}`"
         @click="clearSearch()"
         v-else-if="search"
         >Clear</span

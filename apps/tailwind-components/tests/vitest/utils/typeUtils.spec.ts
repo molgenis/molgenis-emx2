@@ -14,7 +14,7 @@ import {
   toRefColumn,
   toRefColumnValue,
 } from "../../../app/utils/typeUtils";
-import {
+import type {
   columnValue,
   IColumn,
   ITableMetaData,

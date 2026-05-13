@@ -50,6 +50,7 @@
   --text-color-breadcrumb-arrow: var(--text-color-title);
   --text-color-search-results-view-tabs: var(--color-blue-300);
   --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+  --text-color-search-filter-action: var(--color-white);
   --text-color-search-filter-group-title: var(--text-color-title);
   --text-color-pagination: var(--text-color-title);
   --text-color-pagination-input: var(--color-blue-800);

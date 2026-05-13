@@ -1,0 +1,722 @@
+import {
+  ref,
+  shallowRef,
+  computed,
+  watch,
+  nextTick,
+  type Ref,
+  type ComputedRef,
+} from "vue";
+import { useRoute, useRouter } from "#imports";
+import { useDebounceFn } from "@vueuse/core";
+import type { IColumn } from "../../../metadata-utils/src/types";
+import type {
+  ActiveFilter,
+  IFilterValue,
+  IGraphQLFilter,
+  NestedColumnMeta,
+} from "../../types/filters";
+import { buildGraphQLFilter } from "../utils/buildGqlFilter";
+import { formatFilterValue } from "../utils/formatFilterValue";
+import {
+  computeDefaultFilters,
+  isCountableType,
+  isExcludedColumn,
+} from "../utils/filterTypes";
+import { BOOL_LABELS } from "../utils/filterTypes";
+import {
+  serializeFiltersToUrl,
+  parseFiltersFromUrl,
+} from "../utils/filterUrlParams";
+import {
+  fetchCounts,
+  type CountedOption,
+  type FetchCountsResult,
+} from "../utils/fetchCounts";
+import { arraysEqual } from "../utils/compare";
+import fetchTableMetadata from "./fetchTableMetadata";
+import fetchGraphql from "./fetchGraphql";
+
+export const MG_FILTERS_PARAM = "mg_filters";
+export const MG_SEARCH_PARAM = "mg_search";
+export const MG_COLLAPSED_PARAM = "mg_collapsed";
+export const MAX_VISIBLE_FILTERS = 25;
+export const FILTER_DEBOUNCE = 500;
+
+type RouteQuery = Record<
+  string,
+  string | string[] | (string | null)[] | null | undefined
+>;
+
+export interface UseFiltersOptions {
+  urlSync?: boolean;
+  schemaId: string;
+  tableId: string;
+  debounceMs?: number;
+  defaultFilters?: string[];
+  defaultCollapsed?: string[];
+}
+
+function preserveExternalQueryParams(
+  query: RouteQuery,
+  cols: IColumn[]
+): Record<string, unknown> {
+  const columnIds = new Set(cols.map((c) => c.id));
+  const preserved: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(query)) {
+    if (key === MG_SEARCH_PARAM) continue;
+    if (key === MG_COLLAPSED_PARAM) {
+      preserved[key] = value;
+      continue;
+    }
+    const firstSegment = key.split(".")[0] ?? key;
+    if (columnIds.has(firstSegment)) continue;
+    preserved[key] = value;
+  }
+  return preserved;
+}
+
+function filterColumns(rawColumns: IColumn[]): IColumn[] {
+  return rawColumns.filter((c) => !isExcludedColumn(c));
+}
+
+function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
+  return {
+    label: labelParts.join(" → "),
+    columnType: col.columnType,
+    refTableId: col.refTableId ?? null,
+    refSchemaId: col.refSchemaId ?? null,
+  };
+}
+
+function mergeWithBaseCounts(
+  base: CountedOption[],
+  updated: CountedOption[]
+): CountedOption[] {
+  const updatedMap = new Map<string, CountedOption>(
+    updated.map((opt) => [opt.name, opt])
+  );
+  return base.map((baseOpt) => {
+    const match = updatedMap.get(baseOpt.name);
+    const mergedChildren =
+      baseOpt.children && baseOpt.children.length > 0
+        ? mergeWithBaseCounts(baseOpt.children, match?.children ?? [])
+        : undefined;
+    return {
+      ...baseOpt,
+      count: match?.count ?? 0,
+      overlap: match?.overlap ?? 0,
+      ...(mergedChildren !== undefined ? { children: mergedChildren } : {}),
+    };
+  });
+}
+
+export function useFilters(
+  rawColumns: Ref<IColumn[]>,
+  options: UseFiltersOptions
+) {
+  const { schemaId, tableId, debounceMs = 300 } = options;
+
+  const columns = computed(() => filterColumns(rawColumns.value));
+  const urlSync = options.urlSync ?? false;
+
+  const route = useRoute();
+  const router = useRouter();
+
+  const urlSyncEnabled = urlSync;
+
+  function getCurrentQuery(): RouteQuery {
+    return route.query as RouteQuery;
+  }
+
+  const parsedUrlState = computed(() => {
+    if (!urlSyncEnabled) {
+      return { filters: new Map<string, IFilterValue>(), search: "" };
+    }
+    return parseFiltersFromUrl(getCurrentQuery(), columns.value);
+  });
+
+  const filterStatesRef = shallowRef<Map<string, IFilterValue>>(new Map());
+  const searchValueRef = ref("");
+
+  const filterStates: ComputedRef<Map<string, IFilterValue>> = computed(() =>
+    urlSyncEnabled ? parsedUrlState.value.filters : filterStatesRef.value
+  );
+
+  const searchValue: ComputedRef<string> = computed(() =>
+    urlSyncEnabled ? parsedUrlState.value.search : searchValueRef.value
+  );
+
+  const defaultFilterIds = computed(() => {
+    if (options.defaultFilters && options.defaultFilters.length > 0) {
+      return options.defaultFilters;
+    }
+    return computeDefaultFilters(columns.value);
+  });
+
+  function getInitialVisibleFilters(): string[] {
+    const urlParam = getCurrentQuery()[MG_FILTERS_PARAM];
+    if (typeof urlParam === "string" && urlParam.trim()) {
+      return urlParam
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
+        .slice(0, MAX_VISIBLE_FILTERS);
+    }
+    return [...defaultFilterIds.value];
+  }
+
+  const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
+  const userHasCustomized = ref(
+    typeof getCurrentQuery()[MG_FILTERS_PARAM] === "string"
+  );
+
+  const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
+
+  const columnTypeMap = computed(() => {
+    const map = new Map<string, string>();
+    for (const [id, meta] of nestedColumnMeta.value) {
+      map.set(id, meta.columnType);
+    }
+    return map;
+  });
+
+  function resolveColumn(columnId: string): IColumn | null {
+    const direct = columns.value.find((c) => c.id === columnId);
+    if (direct) return direct;
+    const nested = nestedColumnMeta.value.get(columnId);
+    if (!nested) return null;
+    return {
+      id: columnId,
+      columnType: nested.columnType,
+      label: nested.label,
+      refTableId: nested.refTableId ?? undefined,
+      refSchemaId: nested.refSchemaId ?? undefined,
+      refLabel: nested.refLabel ?? undefined,
+    } as IColumn;
+  }
+
+  const countsMap = shallowRef<Map<string, CountedOption[]>>(new Map());
+  const loadingSet = shallowRef<Set<string>>(new Set());
+  const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());
+  const saturatedMap = shallowRef<Map<string, boolean>>(new Map());
+  const abortControllers = new Map<string, AbortController>();
+
+  function buildCrossFilter(excludeColumnId: string): IGraphQLFilter {
+    const crossStates = new Map(filterStates.value);
+    crossStates.delete(excludeColumnId);
+    return buildGraphQLFilter(crossStates, columns.value, searchValue.value);
+  }
+
+  async function fetchColumnCounts(columnId: string, useBase = false) {
+    const col = resolveColumn(columnId);
+    const columnType = col?.columnType ?? null;
+    if (!columnType || !isCountableType(columnType)) return;
+
+    const prior = abortControllers.get(columnId);
+    if (prior) prior.abort();
+    const controller = new AbortController();
+    abortControllers.set(columnId, controller);
+
+    const newLoading = new Set(loadingSet.value);
+    newLoading.add(columnId);
+    loadingSet.value = newLoading;
+
+    try {
+      const crossFilter = useBase ? {} : buildCrossFilter(columnId);
+      const refTableId = col?.refTableId ?? null;
+      const refSchemaId = col?.refSchemaId ?? null;
+      const refLabel = col?.refLabel ?? col?.refLabelDefault ?? null;
+      const signalledFetcher = (
+        sId: string,
+        query: string,
+        variables: any
+      ): Promise<any> =>
+        fetchGraphql(sId, query, variables, { signal: controller.signal });
+
+      const facetHasSelection = !useBase && filterStates.value.has(columnId);
+      const allFacetsFilter = buildGraphQLFilter(
+        filterStates.value,
+        columns.value,
+        searchValue.value,
+        columnTypeMap.value
+      );
+      const fullFilter = facetHasSelection ? allFacetsFilter : undefined;
+
+      const result: FetchCountsResult = await fetchCounts(
+        schemaId,
+        tableId,
+        columnId,
+        columnType,
+        crossFilter,
+        signalledFetcher,
+        refTableId,
+        refSchemaId,
+        refLabel,
+        fullFilter
+      );
+
+      const { options: results, saturated } = result;
+
+      const newSaturated = new Map(saturatedMap.value);
+      newSaturated.set(columnId, saturated);
+      saturatedMap.value = newSaturated;
+
+      const baseForMerge = useBase ? undefined : baseCounts.value.get(columnId);
+      let merged = results;
+      if (baseForMerge && baseForMerge.length > 0) {
+        merged = mergeWithBaseCounts(baseForMerge, results);
+      }
+
+      const newCounts = new Map(countsMap.value);
+      newCounts.set(columnId, merged);
+      countsMap.value = newCounts;
+
+      if (useBase) {
+        const newBase = new Map(baseCounts.value);
+        newBase.set(columnId, results);
+        baseCounts.value = newBase;
+      }
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        console.error(`fetchColumnCounts failed for ${columnId}:`, err);
+      }
+    } finally {
+      const newLoading = new Set(loadingSet.value);
+      newLoading.delete(columnId);
+      loadingSet.value = newLoading;
+      if (abortControllers.get(columnId) === controller) {
+        abortControllers.delete(columnId);
+      }
+    }
+  }
+
+  const debouncedRefetchCounts = useDebounceFn(async () => {
+    const countableIds = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      return colType && isCountableType(colType);
+    });
+    await Promise.all(countableIds.map((id) => fetchColumnCounts(id, false)));
+  }, debounceMs);
+
+  watch(filterStates, () => {
+    if (baseCounts.value.size > 0) {
+      debouncedRefetchCounts();
+    }
+  });
+
+  watch(searchValue, () => {
+    if (baseCounts.value.size > 0) {
+      debouncedRefetchCounts();
+    }
+  });
+
+  watch(nestedColumnMeta, async (meta) => {
+    const newCountable: string[] = [];
+    for (const [id, m] of meta) {
+      if (
+        isCountableType(m.columnType) &&
+        !baseCounts.value.has(id) &&
+        visibleFilterIds.value.includes(id)
+      ) {
+        newCountable.push(id);
+      }
+    }
+    if (newCountable.length > 0) {
+      await Promise.all(newCountable.map((id) => fetchColumnCounts(id, true)));
+    }
+  });
+
+  function getCountedOptions(columnId: string): ComputedRef<CountedOption[]> {
+    return computed(() => countsMap.value.get(columnId) ?? []);
+  }
+
+  function isCountLoading(columnId: string): ComputedRef<boolean> {
+    return computed(() => loadingSet.value.has(columnId));
+  }
+
+  function isSaturated(columnId: string): ComputedRef<boolean> {
+    return computed(() => saturatedMap.value.get(columnId) === true);
+  }
+
+  function pruneVisibleByBaseCount() {
+    if (userHasCustomized.value) return;
+    visibleFilterIds.value = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      if (!colType || !isCountableType(colType)) return true;
+      const base = baseCounts.value.get(id);
+      if (!base) return true;
+      const totalCount = base.reduce(
+        (sum, opt) => (opt.name === "_null_" ? sum : sum + opt.count),
+        0
+      );
+      return totalCount > 0;
+    });
+  }
+
+  async function initializeCountsForColumns(cols: IColumn[]) {
+    if (cols.length === 0 || baseCounts.value.size > 0) return;
+    if (!userHasCustomized.value && visibleFilterIds.value.length === 0) {
+      visibleFilterIds.value = [...defaultFilterIds.value];
+    }
+    const countableIds = visibleFilterIds.value.filter((id) => {
+      const colType = resolveColumn(id)?.columnType ?? null;
+      return colType && isCountableType(colType);
+    });
+    await Promise.all(countableIds.map((id) => fetchColumnCounts(id, true)));
+    pruneVisibleByBaseCount();
+    const hasInitialFilters =
+      filterStates.value.size > 0 || (searchValue.value ?? "").length > 0;
+    if (hasInitialFilters) {
+      debouncedRefetchCounts();
+    }
+  }
+
+  watch(columns, initializeCountsForColumns, { immediate: true });
+
+  function updateUrl(newFilters: Map<string, IFilterValue>, newSearch: string) {
+    if (!urlSyncEnabled) return;
+    const filterParams = serializeFiltersToUrl(
+      newFilters,
+      newSearch,
+      columns.value
+    );
+    const preserved = preserveExternalQueryParams(
+      getCurrentQuery(),
+      columns.value
+    );
+    if (userHasCustomized.value) {
+      preserved[MG_FILTERS_PARAM] = visibleFilterIds.value.join(",");
+    } else {
+      const mgFiltersParam = getCurrentQuery()[MG_FILTERS_PARAM];
+      if (mgFiltersParam !== undefined) {
+        preserved[MG_FILTERS_PARAM] = mgFiltersParam;
+      }
+    }
+    router.replace({
+      query: { ...preserved, ...filterParams } as Record<string, string>,
+    });
+  }
+
+  function commit(newFilters: Map<string, IFilterValue>, newSearch: string) {
+    if (urlSyncEnabled) {
+      updateUrl(newFilters, newSearch);
+    } else {
+      filterStatesRef.value = newFilters;
+      searchValueRef.value = newSearch;
+    }
+  }
+
+  function setFilter(columnId: string, value: IFilterValue | null) {
+    const current = new Map(filterStates.value);
+    if (value === null) {
+      current.delete(columnId);
+    } else {
+      current.set(columnId, value);
+    }
+    commit(current, searchValue.value);
+  }
+
+  function removeFilter(columnId: string) {
+    setFilter(columnId, null);
+  }
+
+  function setSearch(value: string) {
+    commit(filterStates.value, value);
+  }
+
+  function clearFilters() {
+    commit(new Map(), "");
+  }
+
+  function toggleFilter(columnId: string) {
+    userHasCustomized.value = true;
+    if (visibleFilterIds.value.includes(columnId)) {
+      visibleFilterIds.value = visibleFilterIds.value.filter(
+        (id) => id !== columnId
+      );
+      removeFilter(columnId);
+    } else if (visibleFilterIds.value.length < MAX_VISIBLE_FILTERS) {
+      visibleFilterIds.value = [...visibleFilterIds.value, columnId];
+    }
+  }
+
+  function resetFilters() {
+    clearFilters();
+    userHasCustomized.value = false;
+    visibleFilterIds.value = [...defaultFilterIds.value];
+    pruneVisibleByBaseCount();
+    if (urlSyncEnabled) {
+      const currentQuery = { ...getCurrentQuery() };
+      delete currentQuery[MG_FILTERS_PARAM];
+      router.replace({ query: currentQuery });
+    }
+  }
+
+  const gqlFilter = computed<IGraphQLFilter>(() =>
+    buildGraphQLFilter(
+      filterStates.value,
+      columns.value,
+      searchValue.value,
+      columnTypeMap.value
+    )
+  );
+
+  function buildActiveFilterEntry(
+    columnId: string,
+    filterValue: IFilterValue
+  ): ActiveFilter | null {
+    const column = resolveColumn(columnId);
+    const label = column?.label || column?.id || columnId;
+    const optionLabels = column
+      ? buildLabelMap(column, baseCounts.value.get(columnId) ?? null)
+      : {};
+    const { displayValue, values } = formatFilterValue(
+      filterValue,
+      optionLabels
+    );
+    if (!displayValue) return null;
+    return { columnId, label, displayValue, values };
+  }
+
+  const activeFilters = computed<ActiveFilter[]>(() =>
+    [...filterStates.value.entries()]
+      .map(([columnId, filterValue]) =>
+        buildActiveFilterEntry(columnId, filterValue)
+      )
+      .filter((entry): entry is ActiveFilter => entry !== null)
+  );
+
+  const collapsed = ref(new Set<string>());
+
+  const collapsedIds = computed(() => collapsed.value);
+
+  function applyDefaultCollapse() {
+    if (options.defaultCollapsed) {
+      collapsed.value = new Set(options.defaultCollapsed);
+      return;
+    }
+    const ids = visibleFilterIds.value;
+    const next = new Set<string>();
+    ids.forEach((id, index) => {
+      if (index >= 5 && !filterStates.value.has(id)) {
+        next.add(id);
+      }
+    });
+    collapsed.value = next;
+  }
+
+  function persistCollapsed(next: Set<string>) {
+    if (!urlSyncEnabled) return;
+    const currentQuery = { ...(route.query as Record<string, string>) };
+    if (next.size === 0) {
+      delete currentQuery[MG_COLLAPSED_PARAM];
+    } else {
+      currentQuery[MG_COLLAPSED_PARAM] = [...next].join(",");
+    }
+    router.replace({ query: currentQuery });
+  }
+
+  function toggleCollapse(columnId: string) {
+    const next = new Set(collapsed.value);
+    if (next.has(columnId)) {
+      next.delete(columnId);
+    } else {
+      next.add(columnId);
+    }
+    collapsed.value = next;
+    persistCollapsed(next);
+  }
+
+  function isCollapsed(columnId: string): boolean {
+    return collapsed.value.has(columnId);
+  }
+
+  if (urlSyncEnabled) {
+    const urlParam = route.query[MG_COLLAPSED_PARAM];
+    if (typeof urlParam === "string" && urlParam.trim()) {
+      const ids = urlParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      collapsed.value = new Set(ids);
+    } else {
+      applyDefaultCollapse();
+    }
+  } else {
+    applyDefaultCollapse();
+  }
+
+  function registerNestedColumn(id: string, meta: NestedColumnMeta) {
+    const next = new Map(nestedColumnMeta.value);
+    next.set(id, meta);
+    nestedColumnMeta.value = next;
+  }
+
+  async function fetchTableColumns(
+    sId: string,
+    tId: string
+  ): Promise<IColumn[]> {
+    try {
+      const meta = await fetchTableMetadata(sId, tId);
+      return meta.columns ?? [];
+    } catch (e) {
+      console.error("Failed to fetch table columns:", e);
+      return [];
+    }
+  }
+
+  async function resolveDottedId(
+    id: string,
+    segments: string[]
+  ): Promise<void> {
+    let currentCols: IColumn[] = rawColumns.value;
+    let currentSchemaId = schemaId;
+    const labelParts: string[] = [];
+
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]!;
+      const col = currentCols.find((c) => c.id === seg);
+      if (!col) return;
+      labelParts.push(col.label || col.id);
+
+      if (i === segments.length - 1) {
+        registerNestedColumn(id, buildNestedMeta(labelParts, col));
+        return;
+      }
+      if (!col.refTableId) return;
+      const nextSchemaId = col.refSchemaId || currentSchemaId;
+      currentCols = await fetchTableColumns(nextSchemaId, col.refTableId);
+      currentSchemaId = nextSchemaId;
+    }
+  }
+
+  async function hydrateNestedFilters() {
+    const dottedIds = visibleFilterIds.value.filter(
+      (id) => id.includes(".") && !nestedColumnMeta.value.has(id)
+    );
+    if (dottedIds.length === 0) return;
+    await Promise.all(
+      dottedIds.map((id) => resolveDottedId(id, id.split(".")))
+    );
+  }
+
+  watch(
+    visibleFilterIds,
+    async (ids) => {
+      if (ids.some((id) => id.includes("."))) {
+        await hydrateNestedFilters();
+      }
+    },
+    { immediate: true }
+  );
+
+  watch(rawColumns, async (cols) => {
+    if (cols.length === 0) return;
+    const hasUnresolvedDotted = visibleFilterIds.value.some(
+      (id) => id.includes(".") && !nestedColumnMeta.value.has(id)
+    );
+    if (hasUnresolvedDotted) {
+      await hydrateNestedFilters();
+    }
+  });
+
+  watch(defaultFilterIds, (newDefaults) => {
+    if (userHasCustomized.value) return;
+    visibleFilterIds.value = [...newDefaults];
+  });
+
+  watch(visibleFilterIds, async (newIds) => {
+    if (!userHasCustomized.value) return;
+    const isDefault = arraysEqual(newIds, defaultFilterIds.value);
+    await nextTick();
+    if (!urlSyncEnabled) return;
+    const currentQuery = { ...getCurrentQuery() };
+    if (isDefault || newIds.length === 0) {
+      delete currentQuery[MG_FILTERS_PARAM];
+    } else {
+      currentQuery[MG_FILTERS_PARAM] = newIds.join(",");
+    }
+    router.replace({ query: currentQuery });
+  });
+
+  return {
+    filterStates,
+    searchValue,
+    gqlFilter,
+    activeFilters,
+    setFilter,
+    setSearch,
+    clearFilters,
+    removeFilter,
+    columns,
+    visibleFilterIds,
+    toggleFilter,
+    resetFilters,
+    getCountedOptions,
+    isCountLoading,
+    isSaturated,
+    nestedColumnMeta,
+    registerNestedColumn,
+    schemaId,
+    tableId,
+    toggleCollapse,
+    isCollapsed,
+  };
+}
+
+export function buildLabelMap(
+  column: IColumn,
+  counted: CountedOption[] | undefined | null
+): Record<string, string> {
+  if (column.columnType === "BOOL") {
+    return { ...BOOL_LABELS };
+  }
+
+  if (!counted || counted.length === 0) {
+    return {};
+  }
+
+  if (
+    column.columnType === "ONTOLOGY" ||
+    column.columnType === "ONTOLOGY_ARRAY"
+  ) {
+    return flattenOntologyTree(counted);
+  }
+
+  if (column.columnType === "RADIO" || column.columnType === "CHECKBOX") {
+    return flattenRefOptions(counted);
+  }
+
+  return {};
+}
+
+function flattenOntologyTree(nodes: CountedOption[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  collectOntologyNodes(nodes, map);
+  return map;
+}
+
+function collectOntologyNodes(
+  nodes: CountedOption[],
+  map: Record<string, string>
+): void {
+  for (const node of nodes) {
+    map[node.name] = node.label ?? node.name;
+    if (node.children && node.children.length > 0) {
+      collectOntologyNodes(node.children, map);
+    }
+  }
+}
+
+function flattenRefOptions(options: CountedOption[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const option of options) {
+    if (option.keyObject !== undefined) {
+      map[JSON.stringify(option.keyObject)] = option.name;
+    } else {
+      map[option.name] = option.label ?? option.name;
+    }
+  }
+  return map;
+}

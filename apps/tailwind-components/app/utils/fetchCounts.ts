@@ -1,0 +1,521 @@
+import { columnValueToString } from "./columnValueToString";
+import type { IGraphQLFilter } from "../../types/filters";
+import type { ITreeNode } from "../../types/types";
+import { getColumnIds } from "../composables/fetchTableData";
+import { setNestedValue } from "./buildGqlFilter";
+import { BOOL_LABELS } from "./filterTypes";
+
+export interface CountedOption extends Omit<ITreeNode, "children"> {
+  count: number;
+  overlap?: number;
+  children?: CountedOption[];
+  keyObject?: Record<string, any>;
+}
+
+interface OntologyTermNode {
+  name: string;
+  label?: string;
+  parentName: string | null;
+  count: number;
+}
+
+export interface FetchCountsResult {
+  options: CountedOption[];
+  saturated: boolean;
+}
+
+export async function fetchCounts(
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  columnType: string,
+  crossFilter: IGraphQLFilter,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  refTableId?: string | null,
+  refSchemaId?: string | null,
+  refLabel?: string | null,
+  crossFilterIncludeAll?: IGraphQLFilter
+): Promise<FetchCountsResult> {
+  if (columnType === "ONTOLOGY" || columnType === "ONTOLOGY_ARRAY") {
+    const { options, saturated } = await fetchOntologyWithAncestors(
+      schemaId,
+      tableId,
+      columnId,
+      columnType,
+      crossFilter,
+      refSchemaId ?? null,
+      refTableId ?? null,
+      fetcher,
+      crossFilterIncludeAll
+    );
+    return { options, saturated };
+  }
+
+  if (columnType === "BOOL") {
+    const options = await fetchBoolGroupBy(
+      schemaId,
+      tableId,
+      columnId,
+      crossFilter,
+      fetcher
+    );
+    return { options, saturated: false };
+  }
+
+  if (columnType === "RADIO" || columnType === "CHECKBOX") {
+    let keyExpansion: string | undefined;
+    if (refTableId) {
+      keyExpansion = (
+        await getColumnIds(refSchemaId ?? schemaId, refTableId, 0)
+      ).trim();
+    }
+    const { options, saturated } = await fetchFlatGroupBy(
+      schemaId,
+      tableId,
+      columnId,
+      crossFilter,
+      fetcher,
+      keyExpansion,
+      refLabel
+    );
+    return { options, saturated };
+  }
+
+  return { options: [], saturated: false };
+}
+
+const GROUP_BY_SATURATION_THRESHOLD = 500;
+
+// === STRATEGIES ===
+
+async function fetchBoolGroupBy(
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  crossFilter: IGraphQLFilter,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+): Promise<CountedOption[]> {
+  const filterArg = buildFilterArg(crossFilter);
+  const segments = columnId.split(".");
+  const fieldSelection =
+    segments.length > 1 ? buildNestedField(segments, "") : columnId;
+
+  let rows: any[];
+  try {
+    rows = await fireGroupByQuery(
+      schemaId,
+      tableId,
+      fieldSelection,
+      filterArg,
+      fetcher
+    );
+  } catch {
+    return [
+      { name: "true", label: BOOL_LABELS["true"], count: 0, overlap: 0 },
+      { name: "false", label: BOOL_LABELS["false"], count: 0, overlap: 0 },
+      { name: "_null_", label: BOOL_LABELS["_null_"], count: 0, overlap: 0 },
+    ];
+  }
+
+  const countMap = new Map<string, number>();
+  for (const row of rows) {
+    const val =
+      segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
+    const key = val === null || val === undefined ? "_null_" : String(val);
+    countMap.set(key, row.count);
+  }
+
+  return [
+    {
+      name: "true",
+      label: BOOL_LABELS["true"],
+      count: countMap.get("true") ?? 0,
+      overlap: 0,
+    },
+    {
+      name: "false",
+      label: BOOL_LABELS["false"],
+      count: countMap.get("false") ?? 0,
+      overlap: 0,
+    },
+    {
+      name: "_null_",
+      label: BOOL_LABELS["_null_"],
+      count: countMap.get("_null_") ?? 0,
+      overlap: 0,
+    },
+  ];
+}
+
+async function fetchFlatGroupBy(
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  crossFilter: IGraphQLFilter,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  keyFieldExpansion?: string,
+  refLabel?: string | null
+): Promise<FetchCountsResult> {
+  const filterArg = buildFilterArg(crossFilter);
+  const segments = columnId.split(".");
+
+  let fieldSelection: string;
+  if (keyFieldExpansion) {
+    const leaf = `{ ${keyFieldExpansion} }`;
+    fieldSelection =
+      segments.length > 1
+        ? buildNestedField(segments, leaf)
+        : `${columnId} ${leaf}`;
+  } else {
+    fieldSelection =
+      segments.length > 1 ? buildNestedField(segments, "") : columnId;
+  }
+
+  let rows: any[];
+  try {
+    rows = await fireGroupByQuery(
+      schemaId,
+      tableId,
+      fieldSelection,
+      filterArg,
+      fetcher
+    );
+  } catch {
+    return { options: [], saturated: false };
+  }
+
+  const saturated = rows.length >= GROUP_BY_SATURATION_THRESHOLD;
+  const options = rows
+    .map((row) => {
+      const val =
+        segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
+      if (keyFieldExpansion) {
+        if (val === null || val === undefined || typeof val !== "object")
+          return null;
+        const entries = Object.entries(val).filter(
+          ([, v]) => v !== null && v !== undefined
+        );
+        if (entries.length === 0) return null;
+        const keyObject = Object.fromEntries(entries);
+        const name = refLabel
+          ? columnValueToString(val as any, refLabel) ?? ""
+          : entries.length === 1
+          ? String(entries[0]![1])
+          : entries.map(([, v]) => String(v)).join(", ");
+        return { name, keyObject, count: row.count, overlap: 0 };
+      }
+      if (val === null || val === undefined) return null;
+      return { name: String(val), count: row.count, overlap: 0 };
+    })
+    .filter((item) => item !== null) as CountedOption[];
+  return { options, saturated };
+}
+
+async function fetchOntologyWithAncestors(
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  columnType: string,
+  crossFilter: IGraphQLFilter,
+  refSchemaId: string | null,
+  refTableId: string | null,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  crossFilterIncludeAll?: IGraphQLFilter
+): Promise<FetchCountsResult> {
+  const hasOverlap = crossFilterIncludeAll !== undefined;
+
+  const [soloResult, overlapResult] = await Promise.all([
+    groupByOntologyTerms(schemaId, tableId, columnId, crossFilter, fetcher),
+    hasOverlap
+      ? groupByOntologyTerms(
+          schemaId,
+          tableId,
+          columnId,
+          crossFilterIncludeAll!,
+          fetcher
+        )
+      : Promise.resolve(null),
+  ]);
+
+  const { terms, saturated: soloSaturated } = soloResult;
+  if (terms.size === 0) return { options: [], saturated: soloSaturated };
+
+  const overlapTerms =
+    overlapResult?.terms ?? new Map<string, OntologyTermNode>();
+  const overlapSaturated = overlapResult?.saturated ?? false;
+
+  const allTerms = await fetchOntologyAncestorsForLeaves(
+    terms,
+    refTableId,
+    refSchemaId ?? schemaId,
+    fetcher
+  );
+  const tree = buildTreeFromOntologyTerms(allTerms, overlapTerms);
+
+  if (columnType === "ONTOLOGY_ARRAY") {
+    await Promise.all([
+      fetchOntologyParentCountsFromServer(
+        tree,
+        schemaId,
+        tableId,
+        columnId,
+        crossFilter,
+        fetcher,
+        "count"
+      ),
+      hasOverlap
+        ? fetchOntologyParentCountsFromServer(
+            tree,
+            schemaId,
+            tableId,
+            columnId,
+            crossFilterIncludeAll!,
+            fetcher,
+            "overlap"
+          )
+        : Promise.resolve(),
+    ]);
+  } else {
+    rollupParentCountsForSingleSelectOntology(tree);
+  }
+
+  return { options: tree, saturated: soloSaturated || overlapSaturated };
+}
+
+// === ONTOLOGY SUB-STEPS ===
+
+async function groupByOntologyTerms(
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  crossFilter: IGraphQLFilter,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+): Promise<{ terms: Map<string, OntologyTermNode>; saturated: boolean }> {
+  const filterArg = buildFilterArg(crossFilter);
+  const segments = columnId.split(".");
+  const ontologyLeaf = "{ name label parent { name } }";
+  const fieldSelection =
+    segments.length > 1
+      ? buildNestedField(segments, ontologyLeaf)
+      : `${columnId} ${ontologyLeaf}`;
+
+  let rows: any[];
+  try {
+    rows = await fireGroupByQuery(
+      schemaId,
+      tableId,
+      fieldSelection,
+      filterArg,
+      fetcher
+    );
+  } catch {
+    return { terms: new Map(), saturated: false };
+  }
+
+  const saturated = rows.length >= GROUP_BY_SATURATION_THRESHOLD;
+  const knownTerms = new Map<string, OntologyTermNode>();
+  for (const row of rows) {
+    const term =
+      segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
+    if (term?.name) {
+      knownTerms.set(term.name, {
+        name: term.name,
+        label: term.label,
+        parentName: term.parent?.name ?? null,
+        count: row.count,
+      });
+    }
+  }
+  return { terms: knownTerms, saturated };
+}
+
+// Loads parent terms so users can drill up from leaf hits even if no parent term appears in the data.
+async function fetchOntologyAncestorsForLeaves(
+  directTerms: Map<string, OntologyTermNode>,
+  refTableId: string | null,
+  refSchemaId: string,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+): Promise<Map<string, OntologyTermNode>> {
+  if (!refTableId) return directTerms;
+
+  const termNames = [...directTerms.keys()];
+  const namesJson = termNames.map((n) => JSON.stringify(n)).join(", ");
+  const ancestorQuery = `{ ${refTableId}(filter: {_match_any_including_parents: [${namesJson}]}) { name label parent { name } } }`;
+
+  try {
+    const ancData = await fetcher(refSchemaId, ancestorQuery, null);
+    const ancRows: Array<{
+      name: string;
+      label?: string;
+      parent?: { name: string } | null;
+    }> = ancData?.[refTableId] ?? [];
+
+    const allTerms = new Map(directTerms);
+    for (const anc of ancRows) {
+      if (!allTerms.has(anc.name)) {
+        allTerms.set(anc.name, {
+          name: anc.name,
+          label: anc.label,
+          parentName: anc.parent?.name ?? null,
+          count: 0,
+        });
+      }
+    }
+    return allTerms;
+  } catch {
+    return directTerms;
+  }
+}
+
+// ONTOLOGY single-select shows parent counts client-side; ONTOLOGY_ARRAY gets them via group-by parents on the server.
+function rollupParentCountsForSingleSelectOntology(
+  nodes: CountedOption[]
+): void {
+  for (const node of nodes) {
+    if (node.children && node.children.length > 0) {
+      rollupParentCountsForSingleSelectOntology(node.children);
+      if (node.count === 0) {
+        node.count = node.children.reduce((sum, child) => sum + child.count, 0);
+      }
+      if (node.overlap === 0) {
+        node.overlap = node.children.reduce(
+          (sum, child) => sum + (child.overlap ?? 0),
+          0
+        );
+      }
+    }
+  }
+}
+
+async function fetchOntologyParentCountsFromServer(
+  tree: CountedOption[],
+  schemaId: string,
+  tableId: string,
+  columnId: string,
+  crossFilter: IGraphQLFilter,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>,
+  field: "count" | "overlap" = "count"
+): Promise<void> {
+  const segments = columnId.split(".");
+  const parentNodes = collectTreeNodesWithChildren(tree);
+
+  await Promise.all(
+    parentNodes.map(async (parentNode) => {
+      const parentFilter: IGraphQLFilter = { ...crossFilter };
+      setNestedValue(parentFilter, segments, {
+        _match_any_including_children: [parentNode.name],
+      });
+      const aggQuery = `{
+            ${tableId}_agg(filter: {${serializeFilterForQuery(parentFilter)}}) {
+              count
+            }
+          }`;
+      try {
+        const aggData = await fetcher(schemaId, aggQuery, null);
+        parentNode[field] = aggData?.[`${tableId}_agg`]?.count ?? 0;
+      } catch {
+        parentNode[field] = 0;
+      }
+    })
+  );
+}
+
+function buildTreeFromOntologyTerms(
+  knownTerms: Map<string, OntologyTermNode>,
+  overlapTerms: Map<string, OntologyTermNode> = new Map()
+): CountedOption[] {
+  const nodeMap = new Map<string, CountedOption>();
+  for (const term of knownTerms.values()) {
+    nodeMap.set(term.name, {
+      name: term.name,
+      label: term.label,
+      count: term.count,
+      overlap: overlapTerms.get(term.name)?.count ?? 0,
+      children: [],
+    });
+  }
+
+  const roots: CountedOption[] = [];
+  for (const term of knownTerms.values()) {
+    const node = nodeMap.get(term.name)!;
+    if (term.parentName && nodeMap.has(term.parentName)) {
+      nodeMap.get(term.parentName)!.children!.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
+}
+
+function collectTreeNodesWithChildren(nodes: CountedOption[]): CountedOption[] {
+  const parents: CountedOption[] = [];
+  for (const node of nodes) {
+    if (node.children && node.children.length > 0) {
+      parents.push(node);
+      parents.push(...collectTreeNodesWithChildren(node.children));
+    }
+  }
+  return parents;
+}
+
+function serializeFilterForQuery(filter: IGraphQLFilter): string {
+  if (Object.keys(filter).length === 0) return "";
+
+  function valueToGql(val: unknown): string {
+    if (val === null) return "null";
+    if (typeof val === "string") return JSON.stringify(val);
+    if (typeof val === "number" || typeof val === "boolean") return String(val);
+    if (Array.isArray(val)) {
+      return `[${val.map(valueToGql).join(", ")}]`;
+    }
+    if (typeof val === "object") {
+      const obj = val as Record<string, unknown>;
+      const entries = Object.entries(obj)
+        .map(([k, v]) => `${k}: ${valueToGql(v)}`)
+        .join(", ");
+      return `{${entries}}`;
+    }
+    return JSON.stringify(val);
+  }
+
+  return Object.entries(filter)
+    .map(([k, v]) => `${k}: ${valueToGql(v)}`)
+    .join(", ");
+}
+
+function buildFilterArg(filter: IGraphQLFilter): string {
+  const filterStr = serializeFilterForQuery(filter);
+  return filterStr ? `(filter: {${filterStr}})` : "";
+}
+
+function buildNestedField(segments: string[], leaf: string): string {
+  if (segments.length === 1) return `${segments[0]}${leaf ? " " + leaf : ""}`;
+  return `${segments[0]} { ${buildNestedField(segments.slice(1), leaf)} }`;
+}
+
+function getNestedValue(row: any, segments: string[]): any {
+  let current = row;
+  for (const seg of segments) {
+    if (current == null) return null;
+    current = current[seg];
+  }
+  return current;
+}
+
+async function fireGroupByQuery(
+  schemaId: string,
+  tableId: string,
+  fieldSelection: string,
+  filterArg: string,
+  fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
+): Promise<any[]> {
+  const query = `{
+    ${tableId}_groupBy${filterArg} {
+      count
+      ${fieldSelection}
+    }
+  }`;
+  const data = await fetcher(schemaId, query, null);
+  return data?.[`${tableId}_groupBy`] ?? [];
+}
