@@ -56,7 +56,6 @@
                   :schemaId="schemaId"
                   :tableId="tableId"
                   :settings="settings"
-                  namespace="stickyHeader-draft"
                   @sort-requested="handleSortRequest"
                 />
               </TableHeadCell>
@@ -81,7 +80,6 @@
                   :schemaId="schemaId"
                   :tableId="tableId"
                   :settings="settings"
-                  namespace="stickyHeader"
                   @sort-requested="handleSortRequest"
                 />
               </TableHeadCell>
@@ -98,7 +96,6 @@
                 :schemaId="schemaId"
                 :tableId="tableId"
                 :settings="settings"
-                namespace="staticHeader-draft"
                 @sort-requested="handleSortRequest"
               />
             </TableHeadCell>
@@ -123,7 +120,6 @@
                 :schemaId="schemaId"
                 :tableId="tableId"
                 :settings="settings"
-                namespace="staticHeader"
                 @sort-requested="handleSortRequest"
               />
             </TableHeadCell>
