@@ -1,4 +1,4 @@
-import type { Menu } from "../../types/types";
+import type { Link, Menu } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -217,4 +217,26 @@ function isEmptyObject(column: columnValue) {
     !Array.isArray(column) &&
     Object.keys(column).length === 0
   );
+}
+
+export function isLink(value: unknown): value is Link {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "link" in value &&
+    typeof (value as Link).link === "string" &&
+    (typeof (value as Link).isSpaLink === "boolean" ||
+      (value as Link).isSpaLink === undefined)
+  );
+}
+
+export function parseLinkSetting(linkSetting: string): Link {
+  const linkSettingObject = JSON.parse(linkSetting);
+  isLink(linkSettingObject);
+  return {
+    link: linkSettingObject.link,
+    isSpaLink:
+      linkSettingObject.isSpaLink === "true" ||
+      linkSettingObject.isSpaLink === true,
+  };
 }
