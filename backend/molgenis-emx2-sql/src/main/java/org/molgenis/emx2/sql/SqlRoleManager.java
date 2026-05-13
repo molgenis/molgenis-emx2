@@ -5,6 +5,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
 
 import java.util.ArrayList;
@@ -101,9 +102,26 @@ public class SqlRoleManager {
             DSLContext jooq = ((SqlDatabase) db).getJooq();
             Collection<String> tableNames = database.getSchema(schemaName).getTableNames();
             deleteRoleAndGrants(jooq, schemaName, fullRole, tableNames);
-            // Also clean up the companion RLS role if it exists
-            if (jooq.fetchExists(
-                jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))))) {
+
+            if (roleExists(rlsFullRole)) {
+              List<String> rlsTables = getRlsTablesForRole(schemaName, rlsFullRole);
+              for (String tableName : rlsTables) {
+                int count =
+                    jooq.fetchCount(
+                        jooq.selectOne()
+                            .from(table(name(schemaName, tableName)))
+                            .where("{0} = ANY(mg_roles)", inline(roleName)));
+                if (count > 0) {
+                  throw new MolgenisException(
+                      "Cannot delete role '"
+                          + roleName
+                          + "': "
+                          + count
+                          + " row(s) in table '"
+                          + tableName
+                          + "' still reference it in mg_roles");
+                }
+              }
               deleteRoleAndGrants(jooq, schemaName, rlsFullRole, tableNames);
             }
           } finally {
@@ -111,6 +129,15 @@ public class SqlRoleManager {
           }
         });
     database.getListener().onSchemaChange();
+  }
+
+  private List<String> getRlsTablesForRole(String schemaName, String rlsFullRole) {
+    return jooq()
+        .selectDistinct(TABLE_NAME)
+        .from(ROLE_TABLE_GRANTS)
+        .where(field("grantee").eq(inline(rlsFullRole)))
+        .and(TABLE_SCHEMA.eq(inline(schemaName)))
+        .fetch(TABLE_NAME);
   }
 
   private static void deleteRoleAndGrants(
@@ -130,13 +157,13 @@ public class SqlRoleManager {
     jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
   }
 
-  public boolean roleExists(String schemaName, String roleName) {
+  public boolean roleExists(String fullRoleName) {
     return jooq()
-        .fetchExists(
-            jooq()
-                .select()
-                .from(PG_ROLES)
-                .where(field(ROLNAME).eq(inline(fullRoleName(schemaName, roleName)))));
+        .fetchExists(jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(fullRoleName))));
+  }
+
+  public boolean roleExists(String schemaName, String roleName) {
+    return roleExists(fullRoleName(schemaName, roleName));
   }
 
   public void grant(String schemaName, String roleName, TablePermission permission) {
@@ -358,8 +385,8 @@ public class SqlRoleManager {
         jooq.fetchExists(
             jooq.select()
                 .from("information_schema.role_table_grants")
-                .where(field("table_schema").eq(inline(schemaName)))
-                .and(field("table_name").eq(inline(root.getTableName())))
+                .where(TABLE_SCHEMA.eq(inline(schemaName)))
+                .and(TABLE_NAME.eq(inline(root.getTableName())))
                 .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
     if (anyRlsGrantRemains) return;
     for (TableMetadata tableInTree : root.getInheritanceTree()) {
@@ -468,7 +495,6 @@ public class SqlRoleManager {
   public void removeMembers(String schemaName, List<Member> members) {
     List<String> usernames = members.stream().map(Member::getUser).toList();
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    String userPrefix = MG_USER_PREFIX;
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -477,7 +503,7 @@ public class SqlRoleManager {
               if (usernames.contains(m.getUser())) {
                 jooq.execute(
                     "REVOKE {0} FROM {1}",
-                    name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
+                    name(rolePrefix + m.getRole()), name(MG_USER_PREFIX + m.getUser()));
               }
             }
           } catch (DataAccessException dae) {

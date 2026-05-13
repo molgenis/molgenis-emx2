@@ -308,6 +308,7 @@ class TestRowLevelSecurity {
 
     // Cleanup
     database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "wo1"));
     schema.revoke("WriteOnlyRole", table);
     schema.deleteRole("WriteOnlyRole");
   }
@@ -391,6 +392,7 @@ class TestRowLevelSecurity {
 
     // Cleanup
     database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "m1"));
     schema.revoke("MixedRlsRole", table);
     schema.revoke("MixedPlainRole", table);
     schema.deleteRole("MixedRlsRole");
@@ -399,9 +401,6 @@ class TestRowLevelSecurity {
 
   @Test
   void tablePermissionsReportsIsRowLevelTrueForUserWithViewerAndRlsRole() {
-    // Regression: getTablePermissionsForActiveUser must not return isRowLevel=false when the user
-    // holds both VIEWER and a custom RLS role, caused by the internal RLS_ role appearing in the
-    // inherited-roles list and overwriting is_row_level with false.
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     String user = "rls_user_viewer_and_rls";
@@ -636,7 +635,7 @@ class TestRowLevelSecurity {
     schema.create(table(leaf).setInheritName(mid).add(column("leafField")));
 
     schema.createRole(roleD);
-    // Grant on the root only — propagation covers mid + leaf.
+    // Grant on the root only
     schema.grant(
         roleD,
         new TablePermission(grand)
@@ -669,6 +668,31 @@ class TestRowLevelSecurity {
           assertEquals(1, db.getSchema(schema.getName()).getTable(mid).retrieveRows().size());
           assertEquals(1, db.getSchema(schema.getName()).getTable(grand).retrieveRows().size());
         });
+  }
+
+  @Test
+  void deleteRoleFailsWhenRowsStillReferenceItInMgRoles() {
+    database.becomeAdmin();
+    Schema schema = database.dropCreateSchema("TestRlsDeleteRoleBlocked");
+    schema.create(table("Items").add(column("id").setPkey()).add(column("title")));
+    schema.createRole("BlockedRole");
+    schema.grant("BlockedRole", new TablePermission("Items").select(true).rowLevel(true));
+
+    schema
+        .getTable("Items")
+        .insert(
+            new Row()
+                .setString("id", "i1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {"BlockedRole"}));
+    schema.getTable("Items").insert(new Row().setString("id", "i2").setString("title", "unowned"));
+
+    assertThrows(MolgenisException.class, () -> schema.deleteRole("BlockedRole"));
+
+    assertNotNull(schema.getRoleInfo("BlockedRole"), "role should still exist after failed delete");
+
+    schema.getTable("Items").delete(new Row().setString("id", "i1"));
+    assertDoesNotThrow(() -> schema.deleteRole("BlockedRole"));
   }
 
   @Test

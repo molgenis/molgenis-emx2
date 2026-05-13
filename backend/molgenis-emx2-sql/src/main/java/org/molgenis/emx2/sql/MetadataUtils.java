@@ -28,6 +28,8 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+  public static final org.jooq.Table ROLE_TABLE_GRANTS =
+      table("information_schema.role_table_grants");
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
