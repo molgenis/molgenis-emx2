@@ -975,9 +975,6 @@ public class GraphqlTableFieldFactory {
         List<Map<String, Object>> rowsAslistOfMaps =
             dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
         if (rowsAslistOfMaps != null) {
-          if (mutationType == MutationType.INSERT || mutationType == MutationType.SAVE) {
-            addMgRolesWhenAbsent(schema, tableMetadata, rowsAslistOfMaps);
-          }
           String tableName = tableMetadata.getTableName();
           Table table = tableMetadata.getTable();
           int count;
@@ -1007,24 +1004,6 @@ public class GraphqlTableFieldFactory {
       if (!any) throw new MolgenisException("Error with save: no data provided");
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
-  }
-
-  private static void addMgRolesWhenAbsent(
-      Schema schema, TableMetadata tableMetadata, List<Map<String, Object>> rows) {
-    if (schema.getInheritedRolesForActiveUser().contains(Privileges.EDITOR.toString())) return;
-    Column mgRolesColumn = tableMetadata.getColumn(Constants.MG_ROLES);
-    if (mgRolesColumn == null) return;
-
-    List<String> customRoles =
-        schema.getInheritedRolesForActiveUser().stream()
-            .filter(role -> !Privileges.isSystemRole(role))
-            .toList();
-    if (customRoles.isEmpty()) return;
-
-    String key = mgRolesColumn.getIdentifier();
-    for (Map<String, Object> row : rows) {
-      row.putIfAbsent(key, customRoles);
-    }
   }
 
   private GraphQLNamedInputType rowInputType(TableMetadata table) {

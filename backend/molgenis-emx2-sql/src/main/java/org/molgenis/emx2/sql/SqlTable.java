@@ -124,6 +124,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -138,6 +139,7 @@ public class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -152,10 +154,47 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
+    }
+  }
+
+  private void validateMgRoles(Iterable<Row> rows) {
+    if (PermissionEvaluator.canManage(getSchema())) return;
+    if (metadata.getColumn(MG_ROLES) == null) return;
+
+    List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
+    List<String> rolesInSchema = getSchema().getRoles();
+
+    for (Row row : rows) {
+      String[] mgRoles = row.getStringArray(MG_ROLES);
+      if (mgRoles == null) continue;
+
+      if (mgRoles.length > 1) {
+        throw new MolgenisException(
+            "mg_roles can only contain a single role, multiple were provided: "
+                + Arrays.toString(mgRoles));
+      }
+
+      String requestedRole = mgRoles.length == 0 ? null : mgRoles[0];
+      if (requestedRole == null || !rolesInSchema.contains(requestedRole)) {
+        throw new MolgenisException(
+            "mg_roles value '"
+                + requestedRole
+                + "' is not a valid custom role in schema '"
+                + metadata.getSchemaName()
+                + "'");
+      }
+
+      if (!userRoles.contains(requestedRole)) {
+        throw new MolgenisException(
+            "Permission denied: you must be Manager or hold the role '"
+                + requestedRole
+                + "' to set mg_roles");
+      }
     }
   }
 
