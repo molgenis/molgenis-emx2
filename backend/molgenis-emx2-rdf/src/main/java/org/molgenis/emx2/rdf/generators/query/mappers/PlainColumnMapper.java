@@ -89,10 +89,25 @@ public class PlainColumnMapper implements ColumnMapper {
 
     if (isRequired) {
       Expression<?> bound = Expressions.bound(object);
-      return List.of(mainPattern, () -> "FILTER ( " + bound.getQueryString() + " )");
+      return List.of(mainPattern, filter(bound.getQueryString()));
     }
 
     return List.of(mainPattern);
+  }
+
+  /**
+   * The RDF4J SparqlBuilder's {@link GraphPattern} does not support generating a bare {@code
+   * FILTER} statement. Available alternatives either wrap the filter in a group graph pattern
+   * ({@code { FILTER(...) }}) or inside an {@code OPTIONAL} clause, both of which alter the scoping
+   * of variables and produce incorrect query behavior when filtering on variables bound via {@code
+   * OPTIONAL} or {@code BIND}.
+   *
+   * <p>This method works around that limitation by returning a {@link GraphPattern} that renders as
+   * a bare {@code FILTER} statement, ensuring it appears as a sibling pattern in the enclosing
+   * group rather than in an isolated scope.
+   */
+  private static GraphPattern filter(String toFilter) {
+    return () -> "FILTER ( " + toFilter + " )";
   }
 
   private List<Variable> getSelector() {
