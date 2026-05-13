@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import dateUtils from "~/utils/dateUtils";
-import type { IResources } from "../../interfaces/catalogue";
-import { computed, ref, watch } from "vue";
 import { useRoute } from "#app";
 import { useDatasetStore } from "#imports";
+import { computed } from "vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
-import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
+import type { IResources } from "../../interfaces/catalogue";
+import dateUtils from "../utils/dateUtils";
+import CardButton from "./store/CartButton.vue";
 
 const datasetStore = useDatasetStore();
 
-const cutoff = 250;
+const CUTOFF = 250;
 
 const route = useRoute();
 
@@ -27,7 +27,6 @@ const props = withDefaults(
 );
 
 const startEndYear = dateUtils.startEndYear;
-const isInShoppingCart = ref<boolean>(false);
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -44,20 +43,6 @@ const titleContainerClasses = computed(() => {
 const headerClasses = computed(() => {
   return props.compact ? "" : "items-start xl:items-center";
 });
-
-function onInput() {
-  console.log(props.resource);
-  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
-  if (isInShoppingCart.value) {
-    datasetStore.removeFromCart(props.resource.id);
-  } else {
-    datasetStore.addToCart(props.resource);
-  }
-}
-
-watch([datasetStore.datasets], () => {
-  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
-});
 </script>
 
 <template>
@@ -72,34 +57,20 @@ watch([datasetStore.datasets], () => {
             data-track-action="navigate"
             data-track-name="resource-detail"
           >
-            {{ resource?.acronym || resource?.name }}
+            {{ resource.acronym || resource.name }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
-          {{ resource?.acronym ? resource?.name : "" }}
+          {{ resource.acronym ? resource.name : "" }}
         </span>
       </div>
       <div class="flex">
-        <label
+        <CardButton
           v-if="datasetStore.isEnabled"
-          :for="`${resource.id}-shopping-cart-input`"
-          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
-          :class="{
-            'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
-            'bg-blue-500 text-white hover:text-white': isInShoppingCart,
-          }"
-        >
-          <BaseIcon name="shopping-cart-add" :width="21" />
-          <span class="sr-only"></span>
-          <input
-            type="checkbox"
-            :id="`${resource.id}-shopping-cart-input`"
-            class="sr-only"
-            v-model="isInShoppingCart"
-            @input="onInput"
-          />
-        </label>
+          :resource="resource"
+          :compact="props.compact"
+        />
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
@@ -113,25 +84,25 @@ watch([datasetStore.datasets], () => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="resource.description" :cutoff="cutoff" />
+      <ContentReadMore :text="resource.description" :cutoff="CUTOFF" />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ resource?.type?.map((type) => type.name).join(",") }}</dd>
+          <dd>{{ resource.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
-          <dd>{{ resource?.design?.name }}</dd>
+          <dd>{{ resource.design?.name }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Participants</dt>
-          <dd>{{ resource?.numberOfParticipants }}</dd>
+          <dd>{{ resource.numberOfParticipants }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(resource?.startYear, resource?.endYear) }}
+            {{ startEndYear(resource.startYear, resource.endYear) }}
           </dd>
         </div>
       </dl>

@@ -1,52 +1,80 @@
-import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
-import type { IShoppingCart } from "../../interfaces/types";
+import {
+  doNegotiatorV3Request,
+  getStoreVariables,
+} from "./util/datasetStoreClient";
+import { handleV3Error } from "./util/datasetStoreUtils";
 
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
   const isEnabled = ref<boolean>(false);
-  const CATALOGUE_STORE_IS_ENABLED: string = "CATALOGUE_STORE_IS_ENABLED";
+  const datasetStoreUrl = ref<string>("");
+  const storeVersion = ref<string>("");
 
-  async function isDatastoreEnabled() {
-    const response = await fetchSetting(CATALOGUE_STORE_IS_ENABLED);
-    const status = response.data._settings.find(
-      (setting: { key: string; value: string }) => {
-        return setting.key === CATALOGUE_STORE_IS_ENABLED;
-      }
-    );
-    if (status) {
-      isEnabled.value = status.value === "true";
-    }
+  setStoreVariables();
+
+  async function setStoreVariables() {
+    const { enabled, url, version } = await getStoreVariables();
+    isEnabled.value = enabled;
+    datasetStoreUrl.value = url;
+    storeVersion.value = version;
   }
 
   function addToCart(resource: IResources) {
-    const newCartDataset: IShoppingCart = {};
-    newCartDataset[resource.id] = resource;
-    datasets.value = Object.assign(newCartDataset, datasets.value);
+    datasets[resource.id as keyof IResources] = resource;
   }
 
   function removeFromCart(resourceId: string) {
-    if (datasets.value) {
-      delete datasets.value[resourceId as keyof IResources];
-    }
+    delete datasets[resourceId as keyof IResources];
   }
 
   function resourceIsInCart(resourceId: string) {
-    if (datasets.value) {
-      return Object.keys(datasets.value).includes(resourceId);
-    } else {
-      return false;
+    return !!datasets[resourceId as keyof IResources];
+  }
+
+  function clearCart() {
+    for (const key in datasets) {
+      delete datasets[key as keyof IResources];
+    }
+  }
+
+  async function doStoreRequest() {
+    if (!Object.keys(datasets).length) {
+      return;
+    }
+
+    switch (storeVersion.value) {
+      case "REMS":
+        window.open(datasetStoreUrl.value, "_blank");
+        break;
+      case "negotiatorV3":
+        return await doNegotiatorV3Request(
+          datasets,
+          datasetStoreUrl.value
+        ).then(async (response: Response) => {
+          if (response.ok) {
+            clearCart();
+            const body = await response.json();
+            window.location.href = body.redirectUrl;
+          } else {
+            return handleV3Error(response);
+          }
+        });
+      default:
+        return "Unknown data store version, cannot send to store.";
     }
   }
 
   return {
     datasets,
     isEnabled,
+    storeVersion,
     addToCart,
+    clearCart,
+    doStoreRequest,
     removeFromCart,
     resourceIsInCart,
-    isDatastoreEnabled,
   };
 });

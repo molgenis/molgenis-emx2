@@ -1,10 +1,10 @@
 <template>
-  <li>
-    <div class="flex justfy-center items-start">
-      <div class="grow mb-2">
-        <span class="block font-bold">{{ resource.id }}</span>
-        <span>{{ resource.name }}</span>
-        <div v-if="resource.datasets?.length">
+  <div class="flex justify-center items-start">
+    <div class="grow mb-2 self-center">
+      <!-- TODO: Disabled html below is needed when we want to 
+         implement a connection with the REMS store-->
+      <span class="block font-bold">{{ resource.name }}</span>
+      <!-- <div v-if="resource.datasets?.length">
           <div v-for="dataset in resource.datasets">
             <InputLabel
               :for="`${resource.id}-${dataset.name}`"
@@ -29,27 +29,24 @@
               </span>
             </InputLabel>
           </div>
-        </div>
-      </div>
-      <div>
-        <IconButton
-          icon="trash"
-          @click="() => datasetStore.removeFromCart(resource.id)"
-          class="text-red-500"
-          label="remove collection from cart"
-        />
-      </div>
+        </div> -->
     </div>
-  </li>
+    <div>
+      <IconButton
+        icon="trash"
+        @click="() => datasetStore.removeFromCart(resource.id)"
+        class="text-red-500 mb-2"
+        label="remove collection from cart"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { useDatasetStore } from "#imports";
-import { ref, onMounted } from "vue";
-import type { IResources, IDatasets } from "../../../interfaces/catalogue";
-import InputLabel from "../../../../tailwind-components/app/components/input/Label.vue";
-import InputCheckboxIcon from "../../../../tailwind-components/app/components/input/CheckboxIcon.vue";
+import { useDatasetStore } from "../../stores/useDatasetStore";
+import { onMounted, ref } from "vue";
 import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
+import type { IDatasets, IResources } from "../../../interfaces/catalogue";
 
 const datasetStore = useDatasetStore();
 const modelValue = ref<string[]>([]);
