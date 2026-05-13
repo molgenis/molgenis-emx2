@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class ReferenceMapperTest {
+class ReferenceColumnSparqlQueryGeneratorTest {
 
   private static final Variable ORDER_VAR = SparqlBuilder.var("order");
 
@@ -33,7 +33,7 @@ class ReferenceMapperTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         tableReferenceQuery,
@@ -48,7 +48,7 @@ class ReferenceMapperTest {
     schema.create(productTableWithSemantics());
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(tableReferenceQuery, "?order orders:product ?product .");
     assertTrue(tableReferenceQuery.getSelectors().isEmpty());
@@ -61,7 +61,7 @@ class ReferenceMapperTest {
 
     TableMetadata order = schema.create(orderTable(false));
     Column column = order.getColumn("product");
-    ReferenceMapper tableReferenceQuery = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         tableReferenceQuery,
@@ -84,7 +84,7 @@ class ReferenceMapperTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper,
@@ -116,7 +116,7 @@ class ReferenceMapperTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper,
@@ -152,7 +152,7 @@ class ReferenceMapperTest {
                       .setSemantics("orders:product")));
 
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
       assertHasPatterns(
           mapper,
           "?order orders:product ?product .",
@@ -181,7 +181,7 @@ class ReferenceMapperTest {
                       .setSemantics("orders:product")));
 
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
       assertHasPatterns(
           mapper,
           """
@@ -213,7 +213,7 @@ class ReferenceMapperTest {
                     .setRequired(true)
                     .setSemantics("orders:product")));
     Column column = orders.getColumn("product");
-    ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
@@ -230,7 +230,7 @@ class ReferenceMapperTest {
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
@@ -244,7 +244,7 @@ class ReferenceMapperTest {
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -266,7 +266,7 @@ class ReferenceMapperTest {
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -288,7 +288,7 @@ class ReferenceMapperTest {
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      ReferenceMapper mapper = new ReferenceMapper(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -322,7 +322,7 @@ class ReferenceMapperTest {
                           .setRefTable("ProductType")));
 
       Column column = product.getColumn("type");
-      ReferenceMapper mapper = new ReferenceMapper(productVar, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(productVar, column);
       assertHasPatterns(mapper, "OPTIONAL { ?product product:type ?type . }");
       assertHasSelectors(mapper, "?type");
       assertHasGroupBy(mapper, "?type");
@@ -340,7 +340,7 @@ class ReferenceMapperTest {
                       .setRefTable("ProductTag"));
 
       Column column = product.getColumn("tag");
-      ReferenceMapper mapper = new ReferenceMapper(productVar, column);
+      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(productVar, column);
       assertHasPatterns(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
       assertHasSelectors(
           mapper, "( GROUP_CONCAT( DISTINCT STR( ?tag_single ) ; SEPARATOR = ',' ) AS ?tag )");

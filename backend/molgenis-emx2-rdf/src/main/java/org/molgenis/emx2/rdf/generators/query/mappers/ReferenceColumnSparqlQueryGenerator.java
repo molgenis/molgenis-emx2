@@ -13,9 +13,27 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReferenceMapper implements ColumnMapper {
+/**
+ * Generates SPARQL query components for a column that references another table.
+ *
+ * <p>Resolves the referenced table's primary key column(s) and delegates to the appropriate
+ * generator per PK column type:
+ *
+ * <ul>
+ *   <li>{@link ReferenceColumnSparqlQueryGenerator} - for nested references (composite keys)
+ *   <li>{@link ArrayColumnSparqlQueryGenerator} - for array-typed PK columns
+ *   <li>{@link LiteralColumnSparqlQueryGenerator} - for scalar PK columns
+ * </ul>
+ *
+ * <p>Ontology columns are handled separately: array ontologies delegate to {@link
+ * ArrayColumnSparqlQueryGenerator}; scalar ontologies project a single variable.
+ *
+ * <p>If the root column is optional, all patterns are wrapped in an OPTIONAL block.
+ */
+public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
-  private static final Logger logger = LoggerFactory.getLogger(ReferenceMapper.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(ReferenceColumnSparqlQueryGenerator.class);
 
   private final Variable variable;
   private final Column rootColumn;
@@ -25,11 +43,12 @@ public class ReferenceMapper implements ColumnMapper {
   private final List<Projectable> selectors = new ArrayList<>();
   private final List<Groupable> groupBy = new ArrayList<>();
 
-  public ReferenceMapper(Variable variable, Column rootColumn) {
+  public ReferenceColumnSparqlQueryGenerator(Variable variable, Column rootColumn) {
     this(variable, rootColumn, new ArrayList<>());
   }
 
-  private ReferenceMapper(Variable variable, Column rootColumn, List<String> path) {
+  private ReferenceColumnSparqlQueryGenerator(
+      Variable variable, Column rootColumn, List<String> path) {
     this.variable = variable;
     this.rootColumn = rootColumn;
     this.path = path;
@@ -46,21 +65,23 @@ public class ReferenceMapper implements ColumnMapper {
 
   private void mapOntology() {
     if (Boolean.TRUE.equals(rootColumn.isArray())) {
-      ColumnMapper mapper = new CollectionColumnMapper(variable, rootColumn);
-      patterns.addAll(mapper.getPattern());
+      SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
+      patterns.addAll(mapper.getPatterns());
       selectors.addAll(mapper.getSelectors());
       groupBy.addAll(mapper.getGroupBy());
     } else {
-      ColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
-      patterns.addAll(mapper.getPattern());
+      SparqlQueryGenerator mapper =
+          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+      patterns.addAll(mapper.getPatterns());
       selectors.add(columnVariable());
       groupBy.addAll(mapper.getGroupBy());
     }
   }
 
   private void mapDataColumn() {
-    ColumnMapper mapper = new PlainColumnMapper(variable, rootColumn, columnVariable(), true);
-    patterns.addAll(mapper.getPattern());
+    SparqlQueryGenerator mapper =
+        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+    patterns.addAll(mapper.getPatterns());
     mapPrimaryKeys();
   }
 
@@ -75,18 +96,19 @@ public class ReferenceMapper implements ColumnMapper {
       ArrayList<String> columnPath = columnPath();
       Variable subject = columnVariable();
 
-      ColumnMapper mapper;
+      SparqlQueryGenerator mapper;
       if (column.isReference()) {
-        mapper = new ReferenceMapper(subject, column, columnPath);
+        mapper = new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);
       } else if (Boolean.TRUE.equals(rootColumn.isArray())) {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
-        mapper = new CollectionColumnMapper(ref, column, extendVar(subject, column));
+        mapper = new ArrayColumnSparqlQueryGenerator(ref, column, extendVar(subject, column));
       } else {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
-        mapper = new PlainColumnMapper(ref, column, extendVar(subject, column), true);
+        mapper =
+            new LiteralColumnSparqlQueryGenerator(ref, column, extendVar(subject, column), true);
       }
 
-      patterns.addAll(mapper.getPattern());
+      patterns.addAll(mapper.getPatterns());
       selectors.addAll(mapper.getSelectors());
       groupBy.addAll(mapper.getGroupBy());
     }
@@ -114,7 +136,7 @@ public class ReferenceMapper implements ColumnMapper {
   }
 
   @Override
-  public List<GraphPattern> getPattern() {
+  public List<GraphPattern> getPatterns() {
     if (rootColumn.isRequired()) {
       return new ArrayList<>(patterns);
     } else {
