@@ -17,7 +17,7 @@
     "coverage": "vitest run --coverage",
     "test-ci": "vitest run",
     "e2e": "playwright test",
-    "parse-icons": "node ../node_modules/.pnpm/svgo@4.0.1/node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
+    "parse-icons": "node ../node_modules/.pnpm/svgo@2.8.2/node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
