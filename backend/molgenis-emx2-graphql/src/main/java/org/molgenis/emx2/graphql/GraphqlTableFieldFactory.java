@@ -368,7 +368,7 @@ public class GraphqlTableFieldFactory {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (PermissionEvaluator.canCount(schema, table)) {
+    if (PermissionEvaluator.canView(schema, table)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())
