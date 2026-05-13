@@ -8,7 +8,20 @@ See setting menu.
 Set the landing page with the optional SCHEMA_LANDING_PAGE setting
 
  - key: ```SCHEMA_LANDING_PAGE```
- - value: a string containing app route (for example: ```/pet%20store/Pet```)
+ - value: a string containing valid json object with the following properties:
+
+```ts
+interface Link {
+    link: string;
+    isSpaLink?: boolean;
+}
+```
+
+example 
+
+```json
+{"link": "directory-demo/directory#/catalogue", "isSpaLink": true}
+```
 
 ## Members
 
