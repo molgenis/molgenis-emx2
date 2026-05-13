@@ -785,9 +785,7 @@ public class GraphqlSchemaFieldFactory {
                     .name(ROLES)
                     .type(GraphQLList.list(outputRolesType)));
 
-    List<String> roles = schema.getInheritedRolesForActiveUser();
-    if (roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString())) {
+    if (PermissionEvaluator.canManage(schema)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition()
               .name(MEMBERS)

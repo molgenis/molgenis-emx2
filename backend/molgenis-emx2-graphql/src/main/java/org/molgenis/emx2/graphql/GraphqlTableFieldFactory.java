@@ -3,8 +3,6 @@ package org.molgenis.emx2.graphql;
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
-import static org.molgenis.emx2.Privileges.*;
-import static org.molgenis.emx2.TableType.ONTOLOGIES;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -51,7 +49,6 @@ public class GraphqlTableFieldFactory {
           .build();
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
-  private final Set<String> tablesWithSelectPermission;
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -65,11 +62,6 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
-    this.tablesWithSelectPermission =
-        schema.getPermissionsForActiveUser().stream()
-            .filter(p -> Boolean.TRUE.equals(p.select()))
-            .map(TablePermission::table)
-            .collect(Collectors.toUnmodifiableSet());
   }
 
   // helper to generate globally unique identifiers
@@ -308,10 +300,7 @@ public class GraphqlTableFieldFactory {
   }
 
   boolean hasViewPermission(TableMetadata table) {
-    return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        || tablesWithSelectPermission.contains("*")
-        || tablesWithSelectPermission.contains(table.getTableName());
+    return PermissionEvaluator.canView(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -345,12 +334,13 @@ public class GraphqlTableFieldFactory {
     }
 
     for (Column column : table.getColumnsIncludingSubclasses()) {
-      if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
+      if (column.isReference()
+          && (PermissionEvaluator.canView(schema, table) || column.isOntology())) {
         groupByBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
                 .name(column.getIdentifier())
                 .type(createTableObjectType(column.getRefTable())));
-      } else if (!column.isReference() && hasViewPermission(table)) {
+      } else if (!column.isReference() && PermissionEvaluator.canView(schema, table)) {
         createTableField(column, groupByBuilder);
       }
     }
@@ -370,15 +360,15 @@ public class GraphqlTableFieldFactory {
     tableAggTypes.put(tableAggregationType, GraphQLTypeReference.typeRef(tableAggregationType));
     // aggregate type
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableAggregationType);
-    if (schema.hasActiveUserRole(EXISTS) || hasViewPermission(table)) {
+    if (PermissionEvaluator.canExists(schema, table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("exists").type(Scalars.GraphQLBoolean));
     }
-    if (schema.hasActiveUserRole(RANGE) || hasViewPermission(table)) {
+    if (PermissionEvaluator.canRange(schema, table)) {
       builder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     }
-    if (hasViewPermission(table)) {
+    if (PermissionEvaluator.canView(schema, table)) {
       List<Column> aggCols =
           table.getColumnsIncludingSubclasses().stream()
               .filter(c -> c.getColumnType().isNumericType())

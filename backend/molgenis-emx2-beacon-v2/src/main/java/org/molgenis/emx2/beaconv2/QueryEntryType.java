@@ -1,7 +1,6 @@
 package org.molgenis.emx2.beaconv2;
 
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
-import static org.molgenis.emx2.Privileges.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,11 +53,11 @@ public class QueryEntryType {
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    if (isAuthorized(schema.getInheritedRolesForActiveUser())) {
-      Table table = schema.getTable(entryType.getId());
-      if (table == null) {
-        throw new MolgenisException("Table " + entryType.getId() + " does not exist");
-      }
+    Table table = schema.getTable(entryType.getId());
+    if (table == null) {
+      throw new MolgenisException("Table " + entryType.getId() + " does not exist");
+    }
+    if (hasPermissionForGranularity(schema, table.getMetadata())) {
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 
@@ -90,7 +89,7 @@ public class QueryEntryType {
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
-    if (!isAuthorized(table.getSchema().getInheritedRolesForActiveUser())) return 0;
+    if (!hasPermissionForGranularity(table.getSchema(), table.getMetadata())) return 0;
     int numTotalResults = 0;
     ObjectNode resultSet = mapper.createObjectNode();
     resultSet.put("id", table.getSchema().getName());
@@ -236,16 +235,11 @@ public class QueryEntryType {
     return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();
   }
 
-  private boolean isAuthorized(List<String> roles) {
-    switch (this.granularity) {
-      case BOOLEAN:
-        if (roles.contains(EXISTS.toString())) return true;
-      case COUNT, AGGREGATED:
-        if (roles.contains(RANGE.toString())) return true;
-      case RECORD, UNDEFINED:
-        if (roles.contains(VIEWER.toString())) return true;
-      default:
-        return false;
-    }
+  private boolean hasPermissionForGranularity(Schema schema, TableMetadata table) {
+    return switch (this.granularity) {
+      case BOOLEAN -> PermissionEvaluator.canExists(schema, table);
+      case COUNT, AGGREGATED -> PermissionEvaluator.canRange(schema, table);
+      case RECORD, UNDEFINED -> PermissionEvaluator.canView(schema, table);
+    };
   }
 }
