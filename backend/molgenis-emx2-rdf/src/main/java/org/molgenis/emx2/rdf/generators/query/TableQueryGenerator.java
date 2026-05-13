@@ -27,8 +27,8 @@ public class TableQueryGenerator {
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
 
   public SelectQuery generate(TableMetadata tableMetadata) {
-    List<GraphPattern> whereClauses = new ArrayList<>();
     List<Projectable> selectors = new ArrayList<>();
+    List<GraphPattern> whereClauses = new ArrayList<>();
     List<Groupable> groups = new ArrayList<>();
 
     Variable tableVar = SparqlBuilder.var(tableMetadata.getTableName());
@@ -49,8 +49,8 @@ public class TableQueryGenerator {
         mapper = new PlainColumnMapper(tableVar, column);
       }
 
-      whereClauses.addAll(mapper.getPattern());
       selectors.addAll(mapper.getSelectors());
+      whereClauses.addAll(mapper.getPattern());
       groups.addAll(mapper.getGroupBy());
     }
 
@@ -62,8 +62,8 @@ public class TableQueryGenerator {
     }
 
     return query
-        .where(whereClauses.toArray(new GraphPattern[0]))
         .select(selectors.toArray(new Projectable[0]))
+        .where(whereClauses.toArray(new GraphPattern[0]))
         .groupBy(groups.toArray(new Groupable[0]));
   }
 

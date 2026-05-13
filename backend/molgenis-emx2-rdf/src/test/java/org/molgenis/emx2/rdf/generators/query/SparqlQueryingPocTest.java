@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.io.*;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.resultio.text.csv.SPARQLResultsCSVWriter;
@@ -14,8 +16,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class SparqlQueryingPocTest {
 
