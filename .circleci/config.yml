@@ -320,7 +320,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test         
+            pnpm install -w @playwright/test         
             pnpm exec playwright install chrome
             pnpm exec playwright install
           working_directory: apps
