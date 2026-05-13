@@ -151,20 +151,25 @@ public class SqlRoleManager {
       throw new MolgenisException("Table name is required for table-level grant");
     }
     TableMetadata tableMetadata = requireRootTable(schemaName, tableName);
-    String grantRoleName;
-    if (Boolean.TRUE.equals(permission.isRowLevel())) {
-      grantRoleName = RLS_ROLE_PREFIX + roleName;
+    boolean isRowLevel = Boolean.TRUE.equals(permission.isRowLevel());
+    String grantRoleName = isRowLevel ? RLS_ROLE_PREFIX + roleName : roleName;
+    if (isRowLevel) {
       createRlsRole(schemaName, roleName);
-    } else {
-      grantRoleName = roleName;
+      if (tableMetadata.getColumn(MG_ROLES) == null) {
+        tableMetadata.add(column(MG_ROLES).setType(STRING_ARRAY));
+      }
     }
     String fullRole = fullRoleName(schemaName, grantRoleName);
-    for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-      applyPgGrants(schemaName, fullRole, tableInTree.getTableName(), permission);
-    }
-    if (Boolean.TRUE.equals(permission.isRowLevel())) {
-      enableRowLevelSecurityOnTree(schemaName, tableMetadata);
-    }
+    database.tx(
+        db -> {
+          DSLContext jooq = ((SqlDatabase) db).getJooq();
+          for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
+            applyPgGrants(jooq, schemaName, fullRole, tableInTree.getTableName(), permission);
+          }
+          if (isRowLevel) {
+            enableRowLevelSecurityOnTree(jooq, schemaName, tableMetadata);
+          }
+        });
     database.getListener().onSchemaChange();
   }
 
@@ -207,32 +212,35 @@ public class SqlRoleManager {
         });
   }
 
-  private void enableRowLevelSecurityOnTree(String schemaName, TableMetadata root) {
-    if (root.getColumn(MG_ROLES) == null) {
-      root.add(column(MG_ROLES).setType(STRING_ARRAY));
-    }
-    enableRowLevelSecurityOnTable(schemaName, root.getTableName(), rowRoleMatch(schemaName));
+  private void enableRowLevelSecurityOnTree(
+      DSLContext jooq, String schemaName, TableMetadata root) {
+    enableRowLevelSecurityOnTable(jooq, schemaName, root.getTableName(), rowRoleMatch(schemaName));
     for (TableMetadata subclass : root.getSubclassTables()) {
       enableRowLevelSecurityOnTable(
-          schemaName, subclass.getTableName(), rowRoleMatchViaRoot(schemaName, root, subclass));
+          jooq,
+          schemaName,
+          subclass.getTableName(),
+          rowRoleMatchViaRoot(schemaName, root, subclass));
     }
   }
 
   private void enableRowLevelSecurityOnTable(
-      String schemaName, String tableName, String rowMatchExpression) {
+      DSLContext jooq, String schemaName, String tableName, String rowMatchExpression) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    jooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
-    dropRlsPolicies(jooqTable);
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
+    dropRlsPolicies(jooq, jooqTable);
 
     createPolicy(
-        jooqTable, RlsPolicy.VIEWER_BYPASS, systemRoleMember(schemaName, Privileges.VIEWER));
+        jooq, jooqTable, RlsPolicy.VIEWER_BYPASS, systemRoleMember(schemaName, Privileges.VIEWER));
     createPolicy(
-        jooqTable, RlsPolicy.EDITOR_BYPASS, systemRoleMember(schemaName, Privileges.EDITOR));
-    createPolicy(jooqTable, RlsPolicy.TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
-    createPolicy(jooqTable, RlsPolicy.ROW_MATCH, rowMatchExpression);
+        jooq, jooqTable, RlsPolicy.EDITOR_BYPASS, systemRoleMember(schemaName, Privileges.EDITOR));
+    createPolicy(
+        jooq, jooqTable, RlsPolicy.TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
+    createPolicy(jooq, jooqTable, RlsPolicy.ROW_MATCH, rowMatchExpression);
   }
 
-  private void createPolicy(org.jooq.Table<?> jooqTable, RlsPolicy policy, String expression) {
+  private static void createPolicy(
+      DSLContext jooq, org.jooq.Table<?> jooqTable, RlsPolicy policy, String expression) {
     String sql =
         "CREATE POLICY "
             + policy.policyName
@@ -244,17 +252,13 @@ public class SqlRoleManager {
     if (!"SELECT".equals(policy.command)) {
       sql += " WITH CHECK (" + expression + ")";
     }
-    jooq().execute(sql, jooqTable);
+    jooq.execute(sql, jooqTable);
   }
 
   static void dropRlsPolicies(DSLContext jooq, org.jooq.Table<?> jooqTable) {
     for (RlsPolicy policy : RlsPolicy.values()) {
       jooq.execute("DROP POLICY IF EXISTS " + policy.policyName + " ON {0}", jooqTable);
     }
-  }
-
-  private void dropRlsPolicies(org.jooq.Table<?> jooqTable) {
-    dropRlsPolicies(jooq(), jooqTable);
   }
 
   private String systemRoleMember(String schemaName, Privileges role) {
@@ -329,63 +333,64 @@ public class SqlRoleManager {
     TableMetadata tableMetadata = requireRootTable(schemaName, tableName);
     String fullRole = fullRoleName(schemaName, roleName);
     String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
-    boolean rlsRoleExists =
-        jooq()
-            .fetchExists(
-                jooq().select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
-    // Mirror grant: revoke from the entire inheritance tree.
-    for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-      org.jooq.Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
-      jooq().execute("REVOKE ALL ON {0} FROM {1}", jooqTable, name(fullRole));
-      if (rlsRoleExists) {
-        jooq().execute("REVOKE ALL ON {0} FROM {1}", jooqTable, name(rlsFullRole));
-      }
-    }
-    disableRowLevelSecurityIfUnused(schemaName, tableMetadata);
+    database.tx(
+        db -> {
+          DSLContext jooq = ((SqlDatabase) db).getJooq();
+          boolean rlsRoleExists =
+              jooq.fetchExists(
+                  jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
+          for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
+            org.jooq.Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
+            jooq.execute("REVOKE ALL ON {0} FROM {1}", jooqTable, name(fullRole));
+            if (rlsRoleExists) {
+              jooq.execute("REVOKE ALL ON {0} FROM {1}", jooqTable, name(rlsFullRole));
+            }
+          }
+          disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
+        });
     database.getListener().onSchemaChange();
   }
 
-  private void disableRowLevelSecurityIfUnused(String schemaName, TableMetadata root) {
+  private static void disableRowLevelSecurityIfUnused(
+      DSLContext jooq, String schemaName, TableMetadata root) {
     String rlsRolePrefix = MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX;
     boolean anyRlsGrantRemains =
-        jooq()
-            .fetchExists(
-                jooq()
-                    .select()
-                    .from("information_schema.role_table_grants")
-                    .where(field("table_schema").eq(inline(schemaName)))
-                    .and(field("table_name").eq(inline(root.getTableName())))
-                    .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
+        jooq.fetchExists(
+            jooq.select()
+                .from("information_schema.role_table_grants")
+                .where(field("table_schema").eq(inline(schemaName)))
+                .and(field("table_name").eq(inline(root.getTableName())))
+                .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
     if (anyRlsGrantRemains) return;
     for (TableMetadata tableInTree : root.getInheritanceTree()) {
       org.jooq.Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
-      dropRlsPolicies(jooqTable);
-      jooq().execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
+      dropRlsPolicies(jooq, jooqTable);
+      jooq.execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
     }
   }
 
-  private void applyPgGrants(
-      String schemaName, String fullRole, String tableName, TablePermission p) {
+  private static void applyPgGrants(
+      DSLContext jooq, String schemaName, String fullRole, String tableName, TablePermission p) {
     org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
     if (p.hasSelect()) {
-      jooq().execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
+      jooq.execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.select())) {
-      jooq().execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
+      jooq.execute("REVOKE SELECT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (p.hasInsert()) {
-      jooq().execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
+      jooq.execute("GRANT INSERT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.insert())) {
-      jooq().execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
+      jooq.execute("REVOKE INSERT ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (p.hasUpdate()) {
-      jooq().execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
+      jooq.execute("GRANT UPDATE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.update())) {
-      jooq().execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
+      jooq.execute("REVOKE UPDATE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
     if (p.hasDelete()) {
-      jooq().execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
+      jooq.execute("GRANT DELETE ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.delete())) {
-      jooq().execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
+      jooq.execute("REVOKE DELETE ON {0} FROM {1}", jooqTable, name(fullRole));
     }
   }
 
@@ -462,20 +467,23 @@ public class SqlRoleManager {
 
   public void removeMembers(String schemaName, List<Member> members) {
     List<String> usernames = members.stream().map(Member::getUser).toList();
-    String userPrefix = MG_USER_PREFIX;
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    try {
-      for (Member m : getMembers(schemaName)) {
-        if (usernames.contains(m.getUser())) {
-          jooq()
-              .execute(
-                  "REVOKE {0} FROM {1}",
-                  name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
-        }
-      }
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Remove of member failed", dae);
-    }
+    String userPrefix = MG_USER_PREFIX;
+    database.tx(
+        db -> {
+          DSLContext jooq = ((SqlDatabase) db).getJooq();
+          try {
+            for (Member m : getMembers(jooq, schemaName)) {
+              if (usernames.contains(m.getUser())) {
+                jooq.execute(
+                    "REVOKE {0} FROM {1}",
+                    name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
+              }
+            }
+          } catch (DataAccessException dae) {
+            throw new SqlMolgenisException("Remove of member failed", dae);
+          }
+        });
   }
 
   public List<TablePermission> getPermissions(String schemaName, String roleName) {
