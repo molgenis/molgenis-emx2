@@ -44,6 +44,10 @@ public class GraphqlSessionFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(CAN_DELETE)
                   .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(IS_ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   public GraphqlSessionFieldFactory() {
@@ -210,7 +214,8 @@ public class GraphqlSessionFieldFactory {
                     CAN_VIEW, p.hasSelect(),
                     CAN_INSERT, p.hasInsert(),
                     CAN_UPDATE, p.hasUpdate(),
-                    CAN_DELETE, p.hasDelete()))
+                    CAN_DELETE, p.hasDelete(),
+                    IS_ROW_LEVEL, Boolean.TRUE.equals(p.isRowLevel())))
         .toList();
   }
 

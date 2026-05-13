@@ -267,10 +267,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public String getRoleForUser(String user) {
+    SqlRoleManager roleManager = getDatabase().getRoleManager();
     if (user == null) user = ANONYMOUS;
     user = user.trim();
-    for (Member m : getDatabase().getRoleManager().getMembers(getName())) {
-      if (m.getUser().equals(user)) return m.getRole();
+    for (Member m : roleManager.getMembers(getName())) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();
     }
     return null;
   }
