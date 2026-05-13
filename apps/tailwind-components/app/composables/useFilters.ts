@@ -194,6 +194,10 @@ export function parseFilterValue(
     };
   }
 
+  if (columnType === "BOOL" || columnType === "BOOL_ARRAY") {
+    return { operator: "equals", value: urlValue === "true" };
+  }
+
   const STRING_TYPES = [
     "STRING",
     "TEXT",
