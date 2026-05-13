@@ -15,7 +15,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 
-public class PlainColumnMapper implements ColumnMapper {
+public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
   private final Variable subject;
   private final Column column;
@@ -23,19 +23,19 @@ public class PlainColumnMapper implements ColumnMapper {
   private final boolean isRequired;
   protected final Variable selector;
 
-  public PlainColumnMapper(Variable subject, Column column) {
+  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
     this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
   }
 
-  public PlainColumnMapper(Variable subject, Column column, Variable object) {
+  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column, Variable object) {
     this(subject, column, object, object, column.isRequired());
   }
 
-  public PlainColumnMapper(Variable subject, Column column, Variable object, boolean isRequired) {
+  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column, Variable object, boolean isRequired) {
     this(subject, column, object, object, isRequired);
   }
 
-  public PlainColumnMapper(
+  public LiteralColumnSparqlQueryGenerator(
       Variable subject, Column column, Variable object, Variable selector, boolean isRequired) {
     this.subject = subject;
     this.column = column;
@@ -55,7 +55,7 @@ public class PlainColumnMapper implements ColumnMapper {
   }
 
   @Override
-  public List<GraphPattern> getPattern() {
+  public List<GraphPattern> getPatterns() {
     if (column.getSemantics().length > 1) {
       return multiSemanticPattern();
     }

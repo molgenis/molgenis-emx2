@@ -16,10 +16,10 @@ import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
-import org.molgenis.emx2.rdf.generators.query.mappers.CollectionColumnMapper;
-import org.molgenis.emx2.rdf.generators.query.mappers.ColumnMapper;
-import org.molgenis.emx2.rdf.generators.query.mappers.PlainColumnMapper;
-import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceMapper;
+import org.molgenis.emx2.rdf.generators.query.mappers.ArrayColumnSparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.mappers.SparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.mappers.LiteralColumnSparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceColumnSparqlQueryGenerator;
 
 public class TableQueryGenerator {
 
@@ -40,17 +40,17 @@ public class TableQueryGenerator {
         continue;
       }
 
-      ColumnMapper mapper;
+      SparqlQueryGenerator mapper;
       if (column.isReference()) {
-        mapper = new ReferenceMapper(tableVar, column);
+        mapper = new ReferenceColumnSparqlQueryGenerator(tableVar, column);
       } else if (Boolean.TRUE.equals(column.isArray())) {
-        mapper = new CollectionColumnMapper(tableVar, column);
+        mapper = new ArrayColumnSparqlQueryGenerator(tableVar, column);
       } else {
-        mapper = new PlainColumnMapper(tableVar, column);
+        mapper = new LiteralColumnSparqlQueryGenerator(tableVar, column);
       }
 
       selectors.addAll(mapper.getSelectors());
-      whereClauses.addAll(mapper.getPattern());
+      whereClauses.addAll(mapper.getPatterns());
       groups.addAll(mapper.getGroupBy());
     }
 

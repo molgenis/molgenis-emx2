@@ -22,14 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 
-class CollectionColumnMapperTest {
+class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
   private static final Variable START = SparqlBuilder.var("start");
 
   @Test
   void shouldConcatSelectors() {
     Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
-    ColumnMapper mapper = new CollectionColumnMapper(START, column);
+    SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
     assertHasSelectors(
         mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
@@ -42,7 +42,7 @@ class CollectionColumnMapperTest {
         Column.column("foo")
             .setRequired(true)
             .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
-    ColumnMapper mapper = new CollectionColumnMapper(START, column);
+    SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
     assertHasPatterns(
         mapper,
@@ -66,10 +66,10 @@ class CollectionColumnMapperTest {
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {
-      CollectionColumnMapper collectionColumnMapper = new CollectionColumnMapper(START, column);
+      ArrayColumnSparqlQueryGenerator collectionColumnMapper = new ArrayColumnSparqlQueryGenerator(START, column);
       collectionColumnMapper.getSelectors().forEach(query::select);
       collectionColumnMapper.getGroupBy().forEach(query::groupBy);
-      collectionColumnMapper.getPattern().forEach(query::where);
+      collectionColumnMapper.getPatterns().forEach(query::where);
     }
 
     SailRepository repository = new SailRepository(new MemoryStore());

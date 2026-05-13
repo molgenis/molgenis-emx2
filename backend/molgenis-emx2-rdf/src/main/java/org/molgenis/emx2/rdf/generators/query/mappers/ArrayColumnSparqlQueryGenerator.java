@@ -9,21 +9,23 @@ import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.molgenis.emx2.Column;
 
-public class CollectionColumnMapper extends PlainColumnMapper {
+public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGenerator {
 
-  public CollectionColumnMapper(Variable subject, Column column) {
+  public ArrayColumnSparqlQueryGenerator(Variable subject, Column column) {
     this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
   }
 
-  public CollectionColumnMapper(Variable subject, Column column, Variable object) {
+  public ArrayColumnSparqlQueryGenerator(Variable subject, Column column, Variable object) {
     super(
         subject,
         column,
+        // "_single" variable binds each array element before aggregation in getSelectors()
         SparqlBuilder.var(object.getVarName() + "_single"),
         object,
         column.isRequired());
   }
 
+  /** Aggregates multiple values into a comma-separated string, e.g. "val1,val2,val3" */
   @Override
   public List<Projectable> getSelectors() {
     return List.of(
