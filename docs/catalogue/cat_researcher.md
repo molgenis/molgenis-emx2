@@ -131,4 +131,11 @@ or remove all filters at once by clicking **Remove all**.
 
 ## The catalogue store
 
-When the catalogue store is available, it is possible to add resources to the shopping cart in order to request more information about them from external data providers.
+When the catalogue store is available, it is possible to add resources (currently, only collections) to the shopping cart in order to request more information about them from external data providers.
+
+In the collections overview, a collection can be added by pressing the `Add to shopping cart` icon button.
+![Add to shopping cart button](../img/cat_shopping_cart.png)
+After adding the collections you wish to request more information about you can press the `Request` button to get an overview of all added collections.
+![The request button](../img/cat_request_button.png)
+In this overview you can remove selected collections or send the request to the external data provider.
+![Send to data provider](../img/cat_store_request_overview.png)
