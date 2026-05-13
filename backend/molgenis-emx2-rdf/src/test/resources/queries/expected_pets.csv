@@ -1,0 +1,9 @@
+Pet,name,status,tags,weight
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=tom,tom,available,https://dbpedia.org/page/Red,3.14E0
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=sylvester,sylvester,available,http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple,1.337E0
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=spike,spike,sold,,1.57E1
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=pooky,pooky,available,"http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=blue,https://dbpedia.org/page/Red,http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=colors,https://dbpedia.org/page/Green,http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple",9.4E0
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=the%20very%20hungry%20caterpillar,the very hungry caterpillar,available,https://dbpedia.org/page/Green,5.0E-1
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=fire%20ant,fire ant,available,"http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple,https://dbpedia.org/page/Green,https://dbpedia.org/page/Red",1.0E-2
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=tweety,tweety,available,https://dbpedia.org/page/Red,1.0E-1
+http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=jerry,jerry,available,http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=blue,1.8E-1

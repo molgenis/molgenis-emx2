@@ -1,0 +1,66 @@
+@prefix ordo: <http://www.orpha.net/ORDO/> .
+@prefix afr: <http://purl.allotrope.org/ontologies/result#> .
+@prefix edam: <http://edamontology.org/> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix healthdcatap: <http://healthdataportal.eu/ns/health#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix fg: <https://w3id.org/fair-genomes/resource/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcatap: <http://data.europa.eu/r5r/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix mesh: <http://purl.bioontology.org/ontology/MESH/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix PetStore: <http://emx2.dev.molgenis.org/pet%20store/api/rdf/> .
+@prefix schema: <http://schema.org/> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix efo: <http://www.ebi.ac.uk/efo/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
+@prefix ensembl: <http://ensembl.org/glossary/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix ejp: <https://w3id.org/ejp-rd/vocabulary#> .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=tom> <http://example.com/petstore#hasName> "tom";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+<http://example.com/petstore#hasWeight> "3.14"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=sylvester> <http://example.com/petstore#hasName> "sylvester";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple>;
+<http://example.com/petstore#hasWeight> "1.337"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=jerry> <http://example.com/petstore#hasName> "jerry";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=blue>;
+<http://example.com/petstore#hasWeight> "0.18"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=tweety> <http://example.com/petstore#hasName> "tweety";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+<http://example.com/petstore#hasWeight> "0.1"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=the%20very%20hungry%20caterpillar> <http://example.com/petstore#hasName> "the very hungry caterpillar";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
+<http://example.com/petstore#hasWeight> "0.5"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName> "fire ant";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple>,<https://dbpedia.org/page/Green>,<https://dbpedia.org/page/Red>;
+<http://example.com/petstore#hasWeight> "0.01"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=pooky> <http://example.com/petstore#hasName> "pooky";
+<http://example.com/petstore#hasStatus> "available";
+<http://example.com/petstore#hasTags> <http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=blue>,<https://dbpedia.org/page/Red>,<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=colors>,<https://dbpedia.org/page/Green>,<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Tag/name=purple>;
+<http://example.com/petstore#hasWeight> "9.4"^^xsd:double .
+<http://emx2.dev.molgenis.org/pet%20store/api/rdf/Pet/name=spike> <http://example.com/petstore#hasName> "spike";
+<http://example.com/petstore#hasStatus> "sold";
+<http://example.com/petstore#hasWeight> "15.7"^^xsd:double .

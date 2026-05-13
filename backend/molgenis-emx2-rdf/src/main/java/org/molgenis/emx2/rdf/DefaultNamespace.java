@@ -54,4 +54,8 @@ public enum DefaultNamespace {
   public static Stream<Namespace> streamAll() {
     return Arrays.stream(DefaultNamespace.values()).map(DefaultNamespace::getNamespace);
   }
+
+  public String resolve(String toResolve) {
+    return namespace.getName() + toResolve;
+  }
 }
