@@ -1,10 +1,10 @@
 <template>
-    <div class="flex justify-center items-start">
-      <div class="grow mb-2 self-center">
-        <!-- TODO: Disabled html below is needed when we want to 
+  <div class="flex justify-center items-start">
+    <div class="grow mb-2 self-center">
+      <!-- TODO: Disabled html below is needed when we want to 
          implement a connection with the REMS store-->
-        <span class="block font-bold">{{ resource.name }}</span>
-        <!-- <div v-if="resource.datasets?.length">
+      <span class="block font-bold">{{ resource.name }}</span>
+      <!-- <div v-if="resource.datasets?.length">
           <div v-for="dataset in resource.datasets">
             <InputLabel
               :for="`${resource.id}-${dataset.name}`"
@@ -30,16 +30,16 @@
             </InputLabel>
           </div>
         </div> -->
-      </div>
-      <div>
-        <IconButton
-          icon="trash"
-          @click="() => datasetStore.removeFromCart(resource.id)"
-          class="text-red-500 mb-2"
-          label="remove collection from cart"
-        />
-      </div>
     </div>
+    <div>
+      <IconButton
+        icon="trash"
+        @click="() => datasetStore.removeFromCart(resource.id)"
+        class="text-red-500 mb-2"
+        label="remove collection from cart"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
