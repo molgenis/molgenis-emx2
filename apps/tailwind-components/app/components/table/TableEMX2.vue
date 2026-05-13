@@ -48,83 +48,31 @@
           ref="tableHeaderFixed"
           class="border-0 text-left w-full table-fixed bg-table"
         >
-          <thead>
-            <tr>
-              <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
-                <TableHeaderAction
-                  :column="{ id: 'mg_draft', label: 'Draft' }"
-                  :schemaId="schemaId"
-                  :tableId="tableId"
-                  :settings="settings"
-                  @sort-requested="handleSortRequest"
-                />
-              </TableHeadCell>
-              <TableHeadCell
-                v-for="column in sortedVisibleColumns"
-                :style="{
-                  width: columnWidths[column.id] + 'px',
-                  userSelect: isResizing ? 'none' : 'auto',
-                }"
-                class="relative group"
-              >
-                <div
-                  class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
-                  @mousedown.stop="startResize($event, column.id)"
-                >
-                  <div
-                    class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
-                  />
-                </div>
-                <TableHeaderAction
-                  :column="column"
-                  :schemaId="schemaId"
-                  :tableId="tableId"
-                  :settings="settings"
-                  @sort-requested="handleSortRequest"
-                />
-              </TableHeadCell>
-            </tr>
-          </thead>
+          <TableEMX2Head
+            :schemaId="props.schemaId"
+            :tableId="props.tableId"
+            :settings="settings"
+            :columns="sortedVisibleColumns"
+            :showDraftColumn="showDraftColumn"
+            :isResizing="isResizing"
+            :columnWidths="columnWidths"
+            @sort-requested="handleSortRequest"
+            @start-resize="startResize($event.event, $event.id)"
+          />
         </table>
       </div>
       <table ref="table" class="text-left w-full table-fixed">
-        <thead>
-          <tr ref="tableHead">
-            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
-              <TableHeaderAction
-                :column="{ id: 'mg_draft', label: 'Draft' }"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-            <TableHeadCell
-              v-for="column in sortedVisibleColumns"
-              :style="{
-                width: columnWidths[column.id] + 'px',
-                userSelect: isResizing ? 'none' : 'auto',
-              }"
-              class="relative group"
-            >
-              <div
-                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
-                @mousedown.stop="startResize($event, column.id)"
-              >
-                <div
-                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
-                />
-              </div>
-              <TableHeaderAction
-                :column="column"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-          </tr>
-        </thead>
+        <TableEMX2Head
+          :schemaId="props.schemaId"
+          :tableId="props.tableId"
+          :settings="settings"
+          :columns="sortedVisibleColumns"
+          :showDraftColumn="showDraftColumn"
+          :isResizing="isResizing"
+          :columnWidths="columnWidths"
+          @sort-requested="handleSortRequest"
+          @start-resize="startResize($event.event, $event.id)"
+        />
         <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >

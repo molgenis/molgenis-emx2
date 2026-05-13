@@ -10,6 +10,7 @@ defineProps<{
   };
   schemaId: string;
   tableId: string;
+  isResizing?: boolean;
   settings: {
     orderby: {
       column: string;
