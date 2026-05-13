@@ -3,7 +3,7 @@ import BaseIcon from "./BaseIcon.vue";
 </script>
 
 <template>
-  <div class="bg-footer p-6">
+  <div class="bg-footer p-6 border-t-footer border-t">
     <div
       class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >

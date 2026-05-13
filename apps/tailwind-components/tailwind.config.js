@@ -380,6 +380,7 @@ module.exports = {
         "button-switch": "var(--border-color-button-switch)",
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
+        footer: "var(--border-color-footer)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",
