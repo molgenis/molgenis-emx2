@@ -76,6 +76,7 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+import { getContextPath } from "molgenis-components";
 
 const props = defineProps({
   // Set the title of the first set of navigation links
@@ -114,7 +115,7 @@ async function getManifest() {
       }
     }
   `;
-  const response = await request("/api/graphql", query);
+  const response = await request(getContextPath() + "/api/graphql", query);
   return response._manifest;
 }
 

@@ -47,15 +47,20 @@ public class BootstrapThemeService {
     // then override with url query, if any
     params.putAll(splitQuery(ctx.queryString()));
 
+    String contextPath = ctx.contextPath() != null ? ctx.contextPath() : "";
+
     // see if we have it cached, otherwise generate the css
     String key =
         params.entrySet().stream()
             .map(entry -> entry.getKey() + "=" + entry.getValue())
-            .collect(Collectors.joining("&"));
+            .collect(Collectors.joining("&"))
+        + "&_contextPath=" + contextPath;
     if (cache.containsKey(key)) {
       ctx.result(cache.get(key));
     } else {
-      ctx.result(generateCss(params));
+      String css = generateCss(params, contextPath);
+      cache.put(key, css);
+      ctx.result(css);
     }
   }
 
@@ -91,13 +96,19 @@ public class BootstrapThemeService {
    * compiler.
    */
   public static String generateCss(Map<String, String> params) {
+    return generateCss(params, "");
+  }
+
+  public static String generateCss(Map<String, String> params, String contextPath) {
     String primaryColor =
         getColor(params.get("primaryColor"), "#017FFD", "Primary color invalid: ");
     String secondaryColor =
         getColor(params.get("secondaryColor"), "#005EC4", "Secondary color invalid: ");
+    String fontPath = contextPath + "/apps/resources/webfonts";
     String input =
         String.format(
-            "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n", primaryColor, secondaryColor);
+            "$fa-font-path: \"%s\";%n$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n",
+            fontPath, primaryColor, secondaryColor);
     String useMath = "@use \"sass:math\";\n@use \"sass:list\";\n\n";
     StringBuilder CssPlusScss = new StringBuilder();
     CssPlusScss.append(useMath);

@@ -3,6 +3,7 @@ import { useAsyncData } from "#app/composables/asyncData";
 import { useRouter } from "#app/composables/router";
 import { computed, type Ref } from "vue";
 import type { ISession } from "../../types/types";
+import { getContextPath } from "../utils/contextPath";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
@@ -12,7 +13,7 @@ export const useSession = async (schemaId?: string) => {
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
   async function fetchSessionDetails() {
-    return $fetch("/api/graphql", {
+    return $fetch(getContextPath() + "/api/graphql", {
       method: "POST",
       body: JSON.stringify({
         query: `{_session { email, admin, token }}`,
@@ -21,7 +22,7 @@ export const useSession = async (schemaId?: string) => {
   }
 
   async function fetchSchemaRoles(schemaId: string) {
-    return $fetch(`/${schemaId}/graphql`, {
+    return $fetch(getContextPath() + `/${schemaId}/graphql`, {
       method: "POST",
       body: JSON.stringify({
         query: `{_session { roles }}`,
@@ -132,7 +133,7 @@ export const useSession = async (schemaId?: string) => {
   }
 
   async function signOut() {
-    const { data, error } = await $fetch("/api/graphql", {
+    const { data, error } = await $fetch(getContextPath() + "/api/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

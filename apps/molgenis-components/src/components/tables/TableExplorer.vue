@@ -41,20 +41,20 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId">
+                <ButtonAlt :href="contextPath + '/' + schemaId + '/api/zip/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId">
+                <ButtonAlt :href="contextPath + '/' + schemaId + '/api/csv/' + tableId">
                   all rows
                 </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
                     :href="
-                      '/' +
+                      contextPath + '/' +
                       schemaId +
                       '/api/csv/' +
                       tableId +
@@ -68,14 +68,14 @@
               </div>
               <div>
                 <span class="fixed-width">excel</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
+                <ButtonAlt :href="contextPath + '/' + schemaId + '/api/excel/' + tableId"
                   >all rows
                 </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
                     :href="
-                      '/' +
+                      contextPath + '/' +
                       schemaId +
                       '/api/excel/' +
                       tableId +
@@ -89,13 +89,13 @@
               </div>
               <div>
                 <span class="fixed-width">jsonld</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/jsonld/' + tableId">
+                <ButtonAlt :href="contextPath + '/' + schemaId + '/api/jsonld/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">ttl</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/ttl/' + tableId">
+                <ButtonAlt :href="contextPath + '/' + schemaId + '/api/ttl/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
@@ -438,6 +438,7 @@ import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import Task from "../task/Task.vue";
 import { applyComputed, convertRowToPrimaryKey, isRefType } from "../utils";
+import { getContextPath } from "../../utils/contextPath";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -610,6 +611,9 @@ export default {
     },
   },
   computed: {
+    contextPath() {
+      return getContextPath();
+    },
     View() {
       return View;
     },

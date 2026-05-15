@@ -14,6 +14,7 @@ import SideModal from "../../../../tailwind-components/app/components/SideModal.
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import CardList from "../../../../tailwind-components/app/components/CardList.vue";
 import CardListItem from "../../../../tailwind-components/app/components/CardListItem.vue";
+import { getContextPath } from "../../../../tailwind-components/app/utils/contextPath";
 
 definePageMeta({
   middleware: "admin-only",
@@ -25,7 +26,7 @@ interface Trigger {
   cssSelector: string;
 }
 
-const { data, refresh } = await useFetch<Trigger[]>(`/${schema}/api/trigger`);
+const { data, refresh } = await useFetch<Trigger[]>(getContextPath() + `/${schema}/api/trigger`);
 
 const triggers = computed(() => data?.value?.toReversed());
 
@@ -38,7 +39,7 @@ async function saveTrigger() {
     name: formTrigger.value.name,
     cssSelector: formTrigger.value.cssSelector,
   };
-  const resp = await $fetch(`/${schema}/api/trigger`, {
+  const resp = await $fetch(getContextPath() + `/${schema}/api/trigger`, {
     method: "POST",
     body: JSON.stringify(createAction),
   }).catch((error) => {
@@ -58,7 +59,7 @@ async function updateTrigger() {
     cssSelector: formTrigger.value.cssSelector,
   };
   const resp = await $fetch(
-    `/${schema}/api/trigger/${formTrigger.value.name}`,
+    getContextPath() + `/${schema}/api/trigger/${formTrigger.value.name}`,
     {
       method: "PUT",
       body: JSON.stringify(updateAction),
@@ -78,7 +79,7 @@ async function updateTrigger() {
 async function executeDelete() {
   console.log("executeDelete", formTrigger.value);
   const resp = await $fetch(
-    `/${schema}/api/trigger/${formTrigger.value.name}`,
+    getContextPath() + `/${schema}/api/trigger/${formTrigger.value.name}`,
     {
       method: "DELETE",
     }

@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { viteBase } from "../vite-base.js";
 
 export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: command === "serve" ? "/" : "apps/tasks/",
+  base: viteBase("tasks", command),
   server: {
     proxy: require("../dev-proxy.config"),
   },

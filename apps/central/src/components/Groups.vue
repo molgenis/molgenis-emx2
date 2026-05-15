@@ -69,7 +69,7 @@
               </div>
             </td>
             <td>
-              <a :href="'/' + schema.id + '/index'">{{ schema.label }}</a>
+              <a :href="contextPath + '/' + schema.id + '/index'">{{ schema.label }}</a>
             </td>
             <td>
               {{ schema.description }}
@@ -101,6 +101,7 @@
 
 <script>
 import { request } from "graphql-request";
+import { getContextPath } from "molgenis-components";
 
 import SchemaCreateModal from "./SchemaCreateModal.vue";
 import SchemaDeleteModal from "./SchemaDeleteModal.vue";
@@ -151,6 +152,9 @@ export default {
     };
   },
   computed: {
+    contextPath() {
+      return getContextPath();
+    },
     count() {
       return this.schemasFilteredAndSorted.length;
     },

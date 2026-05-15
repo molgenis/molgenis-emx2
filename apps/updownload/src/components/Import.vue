@@ -53,31 +53,31 @@
           <p>Export data by downloading various file formats:</p>
           <div>
             <p>
-              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
-              <a :href="`/${schema}/api/json`">json</a> /
-              <a :href="`/${schema}/api/yaml`">yaml</a>
+              Export schema as <a :href="`${contextPath}/${schema}/api/csv`">csv</a> /
+              <a :href="`${contextPath}/${schema}/api/json`">json</a> /
+              <a :href="`${contextPath}/${schema}/api/yaml`">yaml</a>
             </p>
 
             <p>
               Export schema+data in one file as
-              <a :href="`/${schema}/api/excel`">excel</a> /
-              <a :href="`/${schema}/api/zip`">csv.zip</a> /
-              <a :href="`/${schema}/api/ttl`">ttl</a> /
-              <a :href="`/${schema}/api/jsonld`">jsonld</a>
+              <a :href="`${contextPath}/${schema}/api/excel`">excel</a> /
+              <a :href="`${contextPath}/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`${contextPath}/${schema}/api/ttl`">ttl</a> /
+              <a :href="`${contextPath}/${schema}/api/jsonld`">jsonld</a>
             </p>
 
             <div>
               Export schema information:
               <ul>
                 <li>
-                  Settings: <a :href="`/${schema}/api/csv/settings`">csv</a>
+                  Settings: <a :href="`${contextPath}/${schema}/api/csv/settings`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
-                  Members: <a :href="`/${schema}/api/csv/members`">csv</a>
+                  Members: <a :href="`${contextPath}/${schema}/api/csv/members`">csv</a>
                 </li>
                 <li v-if="isManagerOrOwner">
                   Changelog:
-                  <a :href="`/${schema}/api/csv/changelog?limit=100&offset=0`">
+                  <a :href="`${contextPath}/${schema}/api/csv/changelog?limit=100&offset=0`">
                     csv
                   </a>
                 </li>
@@ -89,8 +89,8 @@
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
-                  <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`${contextPath}/${schema}/api/csv/` + table.id">csv</a> /
+                  <a :href="`${contextPath}/${schema}/api/excel/` + table.id">excel</a>
                 </li>
               </ul>
             </div>
@@ -116,6 +116,7 @@ import {
   MessageWarning,
   Molgenis,
   Task,
+  getContextPath,
 } from "molgenis-components";
 import { request } from "graphql-request";
 
@@ -145,6 +146,9 @@ export default {
     };
   },
   computed: {
+    contextPath() {
+      return getContextPath();
+    },
     visibleTables() {
       if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
@@ -188,7 +192,7 @@ export default {
         const reader = new FileReader();
         reader.readAsText(this.file);
         reader.onload = () => {
-          const url = `/${this.schema}/api/${type}?async=true`;
+          const url = `${this.contextPath}/${this.schema}/api/${type}?async=true`;
           const options = {
             method: "POST",
             body: reader.result,
@@ -227,6 +231,7 @@ export default {
         let formData = new FormData();
         formData.append("file", this.file);
         let url =
+          this.contextPath +
           "/" +
           this.schema +
           "/api/" +

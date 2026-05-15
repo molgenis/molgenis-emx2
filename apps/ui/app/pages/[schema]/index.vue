@@ -13,6 +13,7 @@ import TableRow from "../../../../tailwind-components/app/components/TableRow.vu
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import type { Crumb } from "../../../../tailwind-components/types/types";
+import { getContextPath } from "../../../../tailwind-components/app/utils/contextPath";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -41,8 +42,8 @@ interface Schema {
   tables: Table[];
 }
 
-const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: `fetch-tables-for-${schema}`,
+const { data } = await useFetch<Resp<Schema>>(getContextPath() + `/${schema}/graphql`, {
+  key: "fetch-tables-for-${schema}",
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,description}}}`,

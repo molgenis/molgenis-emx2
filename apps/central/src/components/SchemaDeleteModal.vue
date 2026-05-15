@@ -46,6 +46,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
+  getContextPath,
 } from "molgenis-components";
 
 export default {
@@ -73,7 +74,7 @@ export default {
       return "Delete database";
     },
     endpoint() {
-      return "/api/graphql";
+      return getContextPath() + "/api/graphql";
     },
   },
   methods: {

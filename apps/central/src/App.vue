@@ -66,7 +66,7 @@ export default {
         }
       `
     );
-    if (resp?._settings.map((s) => s.key).includes("menu")) {
+    if (resp?._settings?.map((s) => s.key).includes("menu")) {
       try {
         this.menu = JSON.parse(
           resp._settings.find((s) => s.key === "menu").value

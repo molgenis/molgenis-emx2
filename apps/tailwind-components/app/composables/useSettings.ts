@@ -2,6 +2,7 @@ import { useState } from "#app/composables/state";
 import { ref } from "vue";
 import type { Resp } from "../../types/types";
 import { $fetch } from "ofetch";
+import { getContextPath } from "../utils/contextPath";
 
 export interface Settings {
   isOidcEnabled: boolean;
@@ -11,7 +12,7 @@ const settings = ref<Settings | null>();
 
 async function fetchServerSettings() {
   return await $fetch<Resp<{ _settings: { key: string; value: any }[] }>>(
-    "/api/graphql",
+    getContextPath() + "/api/graphql",
     {
       method: "POST",
       body: JSON.stringify({

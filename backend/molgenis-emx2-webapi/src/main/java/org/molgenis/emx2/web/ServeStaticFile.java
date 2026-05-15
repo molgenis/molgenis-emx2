@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +24,13 @@ public class ServeStaticFile {
 
     public static AppsPath fromContext(Context ctx) {
       // Dissect the path, so we can check for the folder to serve from
-      String[] segments = ctx.path().split("/");
+      // Strip context path prefix so static file resolution is context-path-agnostic
+      String rawPath = ctx.path();
+      String contextPath = Objects.requireNonNullElse(ctx.contextPath(), "");
+      if (!contextPath.isEmpty() && rawPath.startsWith(contextPath)) {
+        rawPath = rawPath.substring(contextPath.length());
+      }
+      String[] segments = rawPath.split("/");
       List<String> parts = new ArrayList<>();
 
       for (String segment : segments) {
@@ -202,8 +209,25 @@ public class ServeStaticFile {
     }
 
     try {
+      byte[] bytes = ByteStreams.toByteArray(in);
       ctx.header("Content-Type", mimeType);
-      ctx.result(ByteStreams.toByteArray(in));
+
+      if ("text/html".equals(mimeType)) {
+        String contextPath = Objects.requireNonNullElse(ctx.contextPath(), "");
+        String safeContextPath = contextPath.replaceAll("[^a-zA-Z0-9/_-]", "");
+        String injection =
+            "<script>window.__molgenisContextPath='" + safeContextPath + "';</script>";
+        String html = new String(bytes, StandardCharsets.UTF_8);
+        int headClose = html.indexOf("</head>");
+        if (headClose >= 0) {
+          html = html.substring(0, headClose) + injection + html.substring(headClose);
+        } else {
+          html = injection + html;
+        }
+        ctx.result(html.getBytes(StandardCharsets.UTF_8));
+      } else {
+        ctx.result(bytes);
+      }
     } catch (Exception e) {
       ctx.status(404).result(NOT_FOUND + ctx.path());
     }

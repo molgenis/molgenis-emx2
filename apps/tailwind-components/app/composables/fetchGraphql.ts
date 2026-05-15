@@ -1,11 +1,12 @@
 import { createError } from "#imports";
+import { getContextPath } from "../utils/contextPath";
 
 export default async (
   schemaId: string,
   query: string,
   variables: any
 ): Promise<any> => {
-  const { data } = await $fetch(`/${schemaId}/graphql`, {
+  const { data } = await $fetch(getContextPath() + `/${schemaId}/graphql`, {
     method: "POST",
     body: {
       query,

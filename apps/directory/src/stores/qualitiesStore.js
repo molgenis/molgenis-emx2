@@ -1,4 +1,4 @@
-import { QueryEMX2 } from "molgenis-components";
+import { QueryEMX2, getContextPath } from "molgenis-components";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import useErrorHandler from "../composables/errorHandler";
@@ -15,7 +15,7 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
       if (!waitingOnResults.value) {
         waitingOnResults.value = true;
 
-        const endpoint = `${window.location.protocol}//${window.location.host}/DirectoryOntologies/graphql`;
+        const endpoint = window.location.origin + getContextPath() + "/DirectoryOntologies/graphql";
 
         let qualityStandardsQueryResult;
         try {

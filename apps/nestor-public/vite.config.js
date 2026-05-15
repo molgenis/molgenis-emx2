@@ -31,7 +31,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/nestor-public/",
+    base: command === "serve" ? "/" : (process.env.VITE_BASE_PATH ?? "") + "/apps/nestor-public/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

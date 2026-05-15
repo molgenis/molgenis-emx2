@@ -83,10 +83,12 @@ public class OIDCController {
     final ProfileManager manager = new ProfileManager(context, sessionStore);
     Optional<UserProfile> oidcProfile = manager.getProfile();
 
+    String cp = ctx.contextPath() != null ? ctx.contextPath() : "";
+
     if (oidcProfile.isEmpty()) {
       logger.error("OIDC sign in failed, no profile found");
       ctx.status(500);
-      ctx.redirect("/");
+      ctx.redirect(cp + "/");
       return;
     }
 
@@ -94,7 +96,7 @@ public class OIDCController {
     if (user == null || user.isEmpty()) {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
-      ctx.redirect("/");
+      ctx.redirect(cp + "/");
       return;
     }
 
@@ -110,11 +112,11 @@ public class OIDCController {
 
     if (requestedUrlList.isPresent()) {
       ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
-      String location = (requestedUrl.size() == 1) ? requestedUrl.get(0) : "/";
+      String location = (requestedUrl.size() == 1) ? requestedUrl.get(0) : cp + "/";
       logger.info("redirect using OIDC requested URL: {}", location);
       ctx.redirect(location);
     } else {
-      ctx.redirect("/");
+      ctx.redirect(cp + "/");
     }
   }
 }

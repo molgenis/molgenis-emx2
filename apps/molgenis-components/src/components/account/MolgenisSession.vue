@@ -64,6 +64,7 @@ import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
 import { ISetting } from "metadata-utils";
+import { getContextPath } from "../../utils/contextPath";
 
 const { cookies } = useCookies();
 const query = `{
@@ -152,7 +153,7 @@ export default defineComponent({
 
       const responses: PromiseSettledResult<IResponse>[] =
         await Promise.allSettled([
-          request("/apps/central/graphql", query),
+          request(getContextPath() + "/apps/central/graphql", query),
           request(this.graphql, query),
         ]);
       const dbSettings =

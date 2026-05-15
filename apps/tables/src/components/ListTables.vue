@@ -3,16 +3,16 @@
     <h1>Tables in '{{ schema.label }}'</h1>
     <MessageWarning v-if="!schema.tables">
       No tables found. You might want to go to design
-      <a :href="`/${schema.id}/schema/`">design</a> or
-      <a :href="`/${schema.id}/updownload/`">upload</a> your schema to create
+      <a :href="`${contextPath}/${schema.id}/schema/`">design</a> or
+      <a :href="`${contextPath}/${schema.id}/updownload/`">upload</a> your schema to create
       them.
     </MessageWarning>
     <div v-else>
       Download all tables:
-      <a :href="`/${schema.id}/api/zip`">zip</a> |
-      <a :href="`/${schema.id}/api/excel`">excel</a> |
-      <a :href="`/${schema.id}/api/jsonld`">jsonld</a> |
-      <a :href="`/${schema.id}/api/ttl`">ttl</a><br />
+      <a :href="`${contextPath}/${schema.id}/api/zip`">zip</a> |
+      <a :href="`${contextPath}/${schema.id}/api/excel`">excel</a> |
+      <a :href="`${contextPath}/${schema.id}/api/jsonld`">jsonld</a> |
+      <a :href="`${contextPath}/${schema.id}/api/ttl`">ttl</a><br />
       <InputSearch
         id="tables-list-search-input"
         placeholder="search in tables"
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { MessageWarning, InputSearch } from "molgenis-components";
+import { MessageWarning, InputSearch, getContextPath } from "molgenis-components";
 import TablesTable from "./TablesTable.vue";
 
 export default {
@@ -62,6 +62,9 @@ export default {
     };
   },
   computed: {
+    contextPath() {
+      return getContextPath();
+    },
     count() {
       if (!this.schema || !this.schema.tables) {
         return 0;

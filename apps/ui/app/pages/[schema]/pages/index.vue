@@ -10,6 +10,7 @@ import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../tailwind-components/types/cms";
+import { getContextPath } from "../../../../../tailwind-components/app/utils/contextPath";
 
 interface ICmsPage extends IContainers {
   mg_tableclass: string;
@@ -28,7 +29,7 @@ interface PagesResponse {
 }
 
 const error = ref<string>("");
-const { data } = await $fetch<PagesResponse>(`/${schema}/graphql`, {
+const { data } = await $fetch<PagesResponse>(getContextPath() + `/${schema}/graphql`, {
   method: "POST",
   body: {
     query: `{ Containers (orderby: { name: ASC }) { name mg_tableclass } }`,

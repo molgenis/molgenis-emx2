@@ -35,6 +35,8 @@ public class SecurityConfigFactory {
       (String)
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_OIDC_CALLBACK_URL, "http://localhost:8080", STRING);
+  private final String contextPath =
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_CONTEXT_PATH, "", STRING);
 
   private Boolean unsignedToken =
       (Boolean)
@@ -53,7 +55,8 @@ public class SecurityConfigFactory {
     final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
-    final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
+    final Clients clients =
+        new Clients(callbackUrl + contextPath + "/" + OIDC_CALLBACK_PATH, oidcClient);
 
     Config config = new Config(clients);
     config.setHttpActionAdapter(JavalinCustomHttpActionAdapter.INSTANCE);

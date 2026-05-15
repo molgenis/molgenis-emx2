@@ -3,6 +3,7 @@ import { useFetch } from "#app/composables/fetch";
 import { computed, ref } from "vue";
 import type { Resp } from "../../../tailwind-components/types/types";
 import { navigateTo } from "#app/composables/router";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 
@@ -20,7 +21,7 @@ interface Schema {
   description: string;
 }
 
-const { data } = await useFetch<Resp<Schema>>("/graphql", {
+const { data } = await useFetch<Resp<Schema>>(getContextPath() + "/graphql", {
   key: "databases",
   method: "POST",
   body: { query: `{ _schemas { id,label,description } }` },

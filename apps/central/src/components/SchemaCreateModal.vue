@@ -25,12 +25,11 @@
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
         <div v-if="template">
-          Go to <a :href="'/' + schemaName">{{ schemaName }}</a
-          ><br />
+          Go to <a :href="contextPath + '/' + schemaName">{{ schemaName }}</a><br />
         </div>
         <div v-else>
-          Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-          Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
+          Go to edit <a :href="contextPath + '/' + schemaName + '/schema/'">schema</a><br />
+          Go to upload <a :href="contextPath + '/' + schemaName + '/updownload/'">files</a>
         </div>
       </template>
       <template v-slot:footer>
@@ -106,6 +105,7 @@ import {
   MessageSuccess,
   Spinner,
   Task,
+  getContextPath,
 } from "molgenis-components";
 
 export default {
@@ -123,6 +123,11 @@ export default {
     LayoutForm,
     Spinner,
     Task,
+  },
+  computed: {
+    contextPath() {
+      return getContextPath();
+    },
   },
   data: function () {
     return {
@@ -167,7 +172,7 @@ export default {
       return "Create database";
     },
     endpoint() {
-      return "/api/graphql";
+      return getContextPath() + "/api/graphql";
     },
   },
   methods: {

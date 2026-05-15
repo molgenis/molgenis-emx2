@@ -7,6 +7,7 @@ import type {
 import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import { createError } from "#app/composables/error";
 import { $fetch } from "ofetch";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 
 const query = moduleToString(metadataGql);
 
@@ -46,7 +47,7 @@ export const useMetaStore = defineStore("metadata", {
 
   actions: {
     async fetchSchemaMetaData(schemaId: string) {
-      const resp = await $fetch<Resp<ISchemaMetaData>>(`/${schemaId}/graphql`, {
+      const resp = await $fetch<Resp<ISchemaMetaData>>(getContextPath() + `/${schemaId}/graphql`, {
         method: "POST",
         body: {
           query,

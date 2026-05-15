@@ -1,6 +1,7 @@
 import { useRoute } from "#app";
 import { computed } from "vue";
 import type { Resp } from "../../types/types";
+import { getContextPath } from "../utils/contextPath";
 
 export const useSchemaSettings = async (keys: Set<string>) => {
   const route = useRoute();
@@ -12,7 +13,7 @@ export const useSchemaSettings = async (keys: Set<string>) => {
   if (schema.value) {
     const response = await $fetch<
       Resp<{ _settings: { key: string; value: string }[] }>
-    >(`/${schema.value}/graphql`, {
+    >(getContextPath() + `/${schema.value}/graphql`, {
       method: "POST",
       body: JSON.stringify({
         query: `{_settings (keys: [${Array.from(keys)

@@ -54,6 +54,7 @@
 import { ISetting } from "metadata-utils";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
+import { getContextPath } from "../../utils/contextPath";
 import { IError } from "../../Interfaces/IError";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
@@ -114,7 +115,7 @@ export default defineComponent({
   },
   methods: {
     async fetchSession() {
-      const resp: IResponse = await request("/api/graphql", query);
+      const resp: IResponse = await request(getContextPath() + "/api/graphql", query);
       this.session = resp._session;
     },
     clean() {
@@ -138,7 +139,7 @@ export default defineComponent({
         },
       };
 
-      request("/api/graphql", changeMutation, variables)
+      request(getContextPath() + "/api/graphql", changeMutation, variables)
         .then(() => {
           this.successMessage = "Token removed";
           this.lastTokenValue = "";
@@ -154,7 +155,7 @@ export default defineComponent({
         email: this.session?.email,
         tokenName: this.tokenName,
       };
-      request("/api/graphql", createMutation, variables)
+      request(getContextPath() + "/api/graphql", createMutation, variables)
         .then((result: { createToken: { message: string; token: string } }) => {
           this.successMessage = result.createToken.message;
           this.lastTokenValue = result.createToken.token;

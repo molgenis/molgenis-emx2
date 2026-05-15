@@ -1,7 +1,8 @@
 import { $fetch } from "ofetch";
 import type { ISetting } from "../../../metadata-utils/src/types";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 const GRAPHQL = "/graphql";
-const API_GRAPHQL = "/api/graphql";
+const API_GRAPHQL = getContextPath() + "/api/graphql";
 
 export async function deleteUser(user: IUser) {
   return $fetch(API_GRAPHQL, {

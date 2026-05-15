@@ -3,6 +3,7 @@ import { navigateTo, useRoute, useRouter } from "#app/composables/router";
 import { ref } from "vue";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
 import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
+import { getContextPath } from "../../../tailwind-components/app/utils/contextPath";
 import { definePageMeta } from "#imports";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
@@ -58,7 +59,7 @@ async function signin() {
     error.value = "";
     loading.value = true;
 
-    const signinResp = await $fetch<SigninResponse>("/api/graphql", {
+    const signinResp = await $fetch<SigninResponse>(getContextPath() + "/api/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
