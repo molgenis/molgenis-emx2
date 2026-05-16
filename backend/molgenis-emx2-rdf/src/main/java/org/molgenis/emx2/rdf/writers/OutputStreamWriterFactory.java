@@ -6,19 +6,19 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum WriterFactory {
+public enum OutputStreamWriterFactory {
   MODEL(RdfModelWriter.class),
   STREAM(RdfStreamWriter.class);
 
-  private static Logger logger = LoggerFactory.getLogger(WriterFactory.class);
+  private static Logger logger = LoggerFactory.getLogger(OutputStreamWriterFactory.class);
 
-  private final Class<? extends RdfWriter> rdfWriterClass;
+  private final Class<? extends RdfOutputStreamWriter> rdfWriterClass;
 
-  WriterFactory(Class<? extends RdfWriter> rdfWriterClass) {
+  OutputStreamWriterFactory(Class<? extends RdfOutputStreamWriter> rdfWriterClass) {
     this.rdfWriterClass = rdfWriterClass;
   }
 
-  public RdfWriter create(OutputStream out, RDFFormat format) {
+  public RdfOutputStreamWriter create(OutputStream out, RDFFormat format) {
     try {
       return rdfWriterClass
           .getConstructor(OutputStream.class, RDFFormat.class)
