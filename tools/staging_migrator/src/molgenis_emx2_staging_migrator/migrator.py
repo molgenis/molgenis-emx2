@@ -1,19 +1,18 @@
+from pathlib import Path
+
 import logging
+import pandas as pd
+import time
 import zipfile
 from datetime import datetime
 from io import BytesIO
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import time
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query, SchemaType
 from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, \
-    MissingHRICoreException, NoSuchResourceException
+    MissingHRICoreException, NoSuchResourceException, DraftException
 from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
     set_all_delete, check_hricore, process_contacts, check_draft
 
@@ -39,6 +38,9 @@ class StagingMigrator(Client):
 
         self.source = None
         self.resource_ids = None
+        self.warnings = []
+        self.errors = []
+
         if catalogue is not None:
             log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
             self.target = catalogue
@@ -50,8 +52,6 @@ class StagingMigrator(Client):
         elif source is not None:
             self.set_source(source)
         self._verify_schemas()
-        self.warnings = []
-        self.errors = []
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -88,7 +88,9 @@ class StagingMigrator(Client):
         try:
             return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
         except KeyError:
-            raise NoSuchColumnException(f"Table 'Resources' in schema {self.source!r} has no column 'id'.")
+            msg = f"Table 'Resources' in schema {self.source!r} has no column 'id'."
+            self.errors.append(msg)
+            raise NoSuchColumnException(msg)
 
     def migrate(self, keep_zips: bool = False):
         """Performs the migration of the source schema to the target schema."""
@@ -138,7 +140,7 @@ class StagingMigrator(Client):
                     if table.id == "Organisations":
                         updated_table = self.process_organisations(updated_table)
                     if table.id == "Contacts":
-                        collections = self._get_filtered(self.get_schema_metadata(self.source).get_table('id', 'Collections'))
+                        collections = load_table("source", self.get_schema_metadata(self.source).get_table('id', 'Collections'))
                         try:
                             updated_table = process_contacts(updated_table, collections)
                         except MissingContactException as e:
@@ -175,8 +177,9 @@ class StagingMigrator(Client):
 
         # Check if software supports deletion through import
         if self.version < "13.8.0":
-            raise NotImplementedError("The delete functionality is not implemented for EMX2 "
-                                      "software running a version below 13.8.0")
+            msg = "The delete functionality is not implemented for EMX2 software running a version below 13.8.0"
+            self.errors.append(msg)
+            raise NotImplementedError(msg)
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
 
@@ -230,14 +233,21 @@ class StagingMigrator(Client):
         primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
 
         # Find columns that reference 'Resources'
-        ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+        if table.name in ["Collections", "Networks", "Catalogues"]:
+            ref_cols = ["id"]
+        else:
+            ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
 
         # Load the data for the table from the ZIP files
         source_df = load_table('source', table)
         target_df = load_table('target', table)
 
         # Checks whether the source table contains draft records
-        check_draft(source_df, table.name)
+        try:
+            check_draft(source_df, table.name)
+        except DraftException as de:
+            self.errors.append(de.msg)
+            raise de
 
         # Filter the rows in the target table that reference the Resource identifiers
         target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
@@ -313,14 +323,18 @@ class StagingMigrator(Client):
         """Ensures the source and target are available."""
         if self.source is not None:
             if self.source not in self.schema_names:
-                raise NoSuchSchemaException(f"Schema {self.source!r} not found on server."
-                                            f" Available schemas: {', '.join(self.schema_names)}.")
+                error_msg = f"Schema {self.source!r} not found on server. Available schemas: {', '.join(self.schema_names)}."
+                self.errors.append(error_msg)
+                raise NoSuchSchemaException(error_msg)
         if self.target not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {self.target!r} not found on server."
-                                        f" Available schemas: {', '.join(self.schema_names)}.")
+            error_msg = f"Schema {self.target!r} not found on server. Available schemas: {', '.join(self.schema_names)}."
+            self.errors.append(error_msg)
+            raise NoSuchSchemaException(error_msg)
 
         if self.source == self.target:
-            raise NoSuchSchemaException(f"Target schema must be different from source schema.")
+            error_msg = "Target schema must be different from source schema."
+            self.errors.append(error_msg)
+            raise NoSuchSchemaException(error_msg)
 
     def add_data_resource(self, resource: str):
         """Adds the source id to the target's data resources."""
@@ -336,7 +350,9 @@ class StagingMigrator(Client):
 
         t_catalogues = self.get(schema=self.target, table="Catalogues", query_filter=f"id == {resource}", as_df=True)
         if len(t_catalogues.index) == 0:
-            raise NoSuchResourceException(f"Resource {resource!r} not found in table 'Catalogues' for target {self.target!r}.")
+            msg = f"Resource {resource!r} not found in table 'Catalogues' for target {self.target!r}."
+            self.errors.append(msg)
+            raise NoSuchResourceException(msg)
 
         if type(t_catalogues["data resources"][0]) != float:
             new_collections = [res for res in u_collections["id"] if res not in t_catalogues["data resources"].str.split(',')]
