@@ -53,14 +53,12 @@ class RdfSailStoreWriterTest {
   }
 
   @Test
-  void test() throws Exception {
-    // Enhance the shaclSail.
+  void testTriplesAreWrittenToSailRepository() {
     try (RdfSailStoreWriter writer = new RdfSailStoreWriter(repository)) {
       SemanticRdfGenerator generator = new SemanticRdfGenerator(writer, BASE_URL);
       generator.generate(petStore.getTable("Tag"));
     }
 
-    // Validate if triples were added.
     Set<Statement> statements =
         Iterations.asSet(repository.getConnection().getStatements(null, null, null));
 
