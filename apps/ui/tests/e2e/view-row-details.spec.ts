@@ -12,11 +12,11 @@ test.describe("entity details page", () => {
     await cellLocator.hover();
     await page.getByRole("button", { name: "view row details" }).click();
     await expect(
-      page.locator("div").filter({ hasText: "jerry" }).nth(4)
+      page.locator("div").filter({ hasText: "spike" }).nth(4)
     ).toBeVisible();
     await expect(page.getByText("name")).toBeVisible();
     await expect(
-      page.locator("span").filter({ hasText: "jerry" })
+      page.locator("span").filter({ hasText: "spike" })
     ).toBeVisible();
     await expect(page.getByText("status")).toBeVisible();
     await expect(page.getByText("sold")).toBeVisible();
