@@ -304,7 +304,7 @@ public class SqlRoleManager {
                 .where(
                     field("oid").eq(field("{0}::regclass", inline(name(schemaName, tableName))))));
 
-    var systemRoles =
+    List<Param<String>> systemRoles =
         Arrays.stream(Privileges.values())
             .map(p -> inline(fullRoleName(schemaName, p.toString())))
             .toList();
