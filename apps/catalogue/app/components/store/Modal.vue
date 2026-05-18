@@ -17,7 +17,7 @@
     </ContentBlockModal>
     <template #footer>
       <Button
-        :label="`Request from ${getVersionText()}`"
+        :label="`Request from ${datasetStore.getVersionText()}`"
         :disabled="!Object.keys(datasetStore.datasets).length"
         icon="external-link"
         @click="sendToStore"
@@ -50,7 +50,7 @@ const error = ref("");
 
 const storeError = computed(
   () =>
-    `An error occurred while communicating with the ${getVersionText()}. Please try again later.`
+    `An error occurred while communicating with the ${datasetStore.getVersionText()}. Please try again later.`
 );
 
 const emit = defineEmits<{
@@ -60,18 +60,6 @@ const emit = defineEmits<{
 function onClose() {
   error.value = "";
   emit("close");
-}
-
-function getVersionText() {
-  const version = datasetStore.storeVersion;
-  switch (version) {
-    case "REMS":
-      return "REMS";
-    case "negotiatorV3":
-      return "Negotiator";
-    default:
-      return "Unknown data store";
-  }
 }
 
 async function sendToStore() {

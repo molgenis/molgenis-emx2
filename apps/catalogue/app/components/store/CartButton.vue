@@ -2,7 +2,6 @@
 import { computed } from "vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import type { IResources } from "../../../interfaces/catalogue";
 import { useDatasetStore } from "../../stores/useDatasetStore";
 
@@ -34,20 +33,22 @@ function onInput() {
   <span v-if="isButton">
     <Button
       :type="isInShoppingCart ? 'secondary' : 'primary'"
-      size="medium"
       :label="isInShoppingCart ? 'Remove from cart' : 'Add to cart'"
-      @click="onInput"
-      buttonAlignment="right"
       :icon="isInShoppingCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
+      size="medium"
+      buttonAlignment="right"
+      @click="onInput"
     />
   </span>
   <label
     v-else
     :for="`${resource.id}-shopping-cart-input`"
-    class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-link hover:text-blue-800 focus:text-blue-800"
+    class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer"
     :class="{
       'items-baseline xl:items-center mt-0.5 xl:mt-0': !props.compact,
-      'bg-blue-500 text-white hover:text-white': isInShoppingCart,
+      'bg-button-tertiary text-button-tertiary hover:text-button-tertiary-hover':
+        isInShoppingCart,
+      'text-link hover:text-link-hover': !isInShoppingCart,
     }"
   >
     <BaseIcon

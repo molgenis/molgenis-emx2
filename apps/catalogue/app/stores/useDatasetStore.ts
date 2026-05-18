@@ -67,6 +67,17 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
   }
 
+  function getVersionText() {
+    switch (storeVersion.value) {
+      case "REMS":
+        return "REMS";
+      case "negotiatorV3":
+        return "Negotiator";
+      default:
+        return "Unknown data store";
+    }
+  }
+
   return {
     datasets,
     isEnabled,
@@ -74,6 +85,7 @@ export const useDatasetStore = defineStore("datasets", () => {
     addToCart,
     clearCart,
     doStoreRequest,
+    getVersionText,
     removeFromCart,
     resourceIsInCart,
   };
