@@ -170,7 +170,7 @@
 
   <Pagination
     v-if="count > smallestPageSize"
-    class="pt-[0px] pb-[30px]"
+    class="pt-0 pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
