@@ -59,17 +59,7 @@ export default defineNuxtConfig({
     },
   },
 
-  components: [
-    {
-      path: "~/components/global/icons",
-      global: true,
-    },
-    {
-      path: "~/components/viz",
-      pathPrefix: false,
-    },
-    "~/components",
-  ],
+  components: ["~/components"],
 
   runtimeConfig: {
     public: {
