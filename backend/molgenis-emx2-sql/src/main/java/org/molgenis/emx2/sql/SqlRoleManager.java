@@ -30,7 +30,7 @@ public class SqlRoleManager {
   public static final int PG_MAX_ID_LENGTH = 63;
   public static final String RLS_ROLE_PREFIX = "RLS_";
 
-  private enum RlsPolicy {
+  enum RlsPolicy {
     VIEWER_BYPASS("mg_roles_viewer_bypass", "SELECT"),
     EDITOR_BYPASS("mg_roles_editor_bypass", "ALL"),
     TABLE_GRANT_BYPASS("mg_roles_table_grant_bypass", "ALL"),
