@@ -397,6 +397,7 @@ class StagingMigrator(Client):
                 log.error(error_msg)
                 self.errors.append(error_msg)
                 log.debug(self.session.get(response_url).json())
+                raise StagingMigratorException(error_msg)
             else:
                 log.info("Upload completed successfully.")
 
