@@ -30,6 +30,9 @@ public class MetadataUtils {
       table(name(MOLGENIS, "settings_metadata"));
   public static final org.jooq.Table ROLE_TABLE_GRANTS =
       table("information_schema.role_table_grants");
+  public static final Field<Object> GRANTEE = field("grantee");
+  public static final org.jooq.Table PG_AUTH_MEMBERS = table(name("pg_catalog", "pg_auth_members"));
+  public static final org.jooq.Table PG_CATALOG_ROLES = table(name("pg_catalog", "pg_roles"));
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));

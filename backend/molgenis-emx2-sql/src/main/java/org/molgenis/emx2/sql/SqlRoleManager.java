@@ -105,7 +105,7 @@ public class SqlRoleManager {
             deleteRoleAndGrants(jooq, schemaName, fullRole, tableNames);
 
             if (roleExists(rlsFullRole)) {
-              List<String> rlsTables = getRlsTablesForRole(schemaName, rlsFullRole);
+              List<String> rlsTables = getTablesForRole(schemaName, rlsFullRole);
               for (String tableName : rlsTables) {
                 int count =
                     jooq.fetchCount(
@@ -132,11 +132,11 @@ public class SqlRoleManager {
     database.getListener().onSchemaChange();
   }
 
-  private List<String> getRlsTablesForRole(String schemaName, String rlsFullRole) {
+  private List<String> getTablesForRole(String schemaName, String role) {
     return jooq()
         .selectDistinct(TABLE_NAME)
         .from(ROLE_TABLE_GRANTS)
-        .where(field("grantee").eq(inline(rlsFullRole)))
+        .where(GRANTEE.eq(inline(role)))
         .and(TABLE_SCHEMA.eq(inline(schemaName)))
         .fetch(TABLE_NAME);
   }
@@ -294,7 +294,7 @@ public class SqlRoleManager {
   }
 
   private Condition tableGrantBypass(String schemaName, String tableName) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rolePrefix = rolePrefix(schemaName);
     String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
 
     Field<Object> accessControlList =
@@ -323,7 +323,7 @@ public class SqlRoleManager {
   }
 
   private Condition rowRoleMatch(String schemaName) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rolePrefix = rolePrefix(schemaName);
     return exists(
         selectOne()
             .from(table("unnest(mg_roles)").as("role_name"))
@@ -334,7 +334,7 @@ public class SqlRoleManager {
 
   private Condition rowRoleMatchViaRoot(
       String schemaName, TableMetadata root, TableMetadata subclass) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rolePrefix = rolePrefix(schemaName);
 
     Condition pkeyJoin =
         and(
@@ -386,7 +386,7 @@ public class SqlRoleManager {
 
   private static void disableRowLevelSecurityIfUnused(
       DSLContext jooq, String schemaName, TableMetadata root) {
-    String rlsRolePrefix = MG_ROLE_PREFIX + schemaName + "/" + RLS_ROLE_PREFIX;
+    String rlsRolePrefix = rolePrefix(schemaName) + RLS_ROLE_PREFIX;
     boolean anyRlsGrantRemains =
         jooq.fetchExists(
             jooq.select()
@@ -428,7 +428,7 @@ public class SqlRoleManager {
   }
 
   public List<String> getRoleNames(String schemaName) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rolePrefix = rolePrefix(schemaName);
     return jooq()
         .select(field(ROLNAME))
         .from(PG_ROLES)
@@ -452,7 +452,7 @@ public class SqlRoleManager {
           SqlDatabase txDb = (SqlDatabase) db;
           List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
           String username = MG_USER_PREFIX + member.getUser();
-          String roleName = MG_ROLE_PREFIX + schemaName + "/" + member.getRole();
+          String roleName = fullRoleName(schemaName, member.getRole());
           if (!db.hasUser(member.getUser())) {
             db.addUser(member.getUser());
           }
@@ -463,7 +463,7 @@ public class SqlRoleManager {
               txDb.getJooq()
                   .execute(
                       "REVOKE {0} FROM {1}",
-                      name(MG_ROLE_PREFIX + schemaName + "/" + old.getRole()), name(username));
+                      name(fullRoleName(schemaName, old.getRole())), name(username));
             }
           }
           try {
@@ -479,28 +479,29 @@ public class SqlRoleManager {
   }
 
   private List<Member> getMembers(DSLContext jooq, String schemaName) {
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    String userPrefix = MG_USER_PREFIX;
-    List<Member> members = new ArrayList<>();
-    List<Record> result =
-        jooq.fetch(
-            "select distinct m.rolname as member, r.rolname as role"
-                + " from pg_catalog.pg_auth_members am "
-                + " join pg_catalog.pg_roles m on (m.oid = am.member)"
-                + " join pg_catalog.pg_roles r on (r.oid = am.roleid)"
-                + " where r.rolname LIKE {0} and m.rolname LIKE {1}",
-            rolePrefix + "%", userPrefix + "%");
-    for (Record r : result) {
-      String memberName = r.getValue("member", String.class).substring(userPrefix.length());
-      String roleName = r.getValue("role", String.class).substring(rolePrefix.length());
-      members.add(new Member(memberName, roleName));
-    }
-    return members;
+    Field<String> memberRolname = field(name("m", ROLNAME), String.class);
+    Field<String> roleRolname = field(name("r", ROLNAME), String.class);
+    Field<String> memberField = memberRolname.as("member");
+    Field<String> roleField = roleRolname.as("role");
+
+    return jooq.selectDistinct(memberField, roleField)
+        .from(PG_AUTH_MEMBERS.as("am"))
+        .join(PG_CATALOG_ROLES.as("m"))
+        .on(field(name("m", "oid")).eq(field(name("am", "member"))))
+        .join(PG_CATALOG_ROLES.as("r"))
+        .on(field(name("r", "oid")).eq(field(name("am", "roleid"))))
+        .where(roleRolname.like(inline(rolePrefix(schemaName) + "%")))
+        .and(memberRolname.like(inline(MG_USER_PREFIX + "%")))
+        .fetch(
+            r ->
+                new Member(
+                    r.get(memberField).substring(MG_USER_PREFIX.length()),
+                    r.get(roleField).substring(rolePrefix(schemaName).length())));
   }
 
   public void removeMembers(String schemaName, List<Member> members) {
     List<String> usernames = members.stream().map(Member::getUser).toList();
-    String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
+    String rolePrefix = rolePrefix(schemaName);
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -661,8 +662,12 @@ public class SqlRoleManager {
     return Privileges.isSystemRole(roleName);
   }
 
+  public static String rolePrefix(String schemaName) {
+    return MG_ROLE_PREFIX + schemaName + "/";
+  }
+
   public static String fullRoleName(String schemaName, String roleName) {
-    return MG_ROLE_PREFIX + schemaName + "/" + roleName;
+    return rolePrefix(schemaName) + roleName;
   }
 
   private List<TablePermission> systemPermissions(String roleName) {
