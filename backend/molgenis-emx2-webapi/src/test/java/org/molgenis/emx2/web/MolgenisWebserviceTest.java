@@ -32,7 +32,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
     Schema schema = setupSchema(getClass().getSimpleName() + "no-match");
-    schema.getMetadata().setSetting("menu", menuForRole(Privileges.EDITOR.toString()));
+    schema.getMetadata().setSetting("menu", menuForRole(ANONYMOUS));
     given()
         .redirects()
         .follow(false)
