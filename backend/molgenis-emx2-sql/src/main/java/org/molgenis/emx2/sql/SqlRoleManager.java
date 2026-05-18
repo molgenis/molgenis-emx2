@@ -7,6 +7,7 @@ import static org.molgenis.emx2.ColumnType.STRING_ARRAY;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.executeCreateRole;
+import static org.molgenis.emx2.sql.SqlRoleManager.RlsPolicy.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,11 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Role;
 
 public class SqlRoleManager {
 
@@ -252,22 +253,20 @@ public class SqlRoleManager {
   }
 
   private void enableRowLevelSecurityOnTable(
-      DSLContext jooq, String schemaName, String tableName, String rowMatchExpression) {
-    org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
-    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", jooqTable);
-    dropRlsPolicies(jooq, jooqTable);
+      DSLContext jooq, String schemaName, String tableName, Condition rowMatchCondition) {
+    org.jooq.Table<?> table = table(name(schemaName, tableName));
+    jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
+    dropRlsPolicies(jooq, table);
 
-    createPolicy(
-        jooq, jooqTable, RlsPolicy.VIEWER_BYPASS, systemRoleMember(schemaName, Privileges.VIEWER));
-    createPolicy(
-        jooq, jooqTable, RlsPolicy.EDITOR_BYPASS, systemRoleMember(schemaName, Privileges.EDITOR));
-    createPolicy(
-        jooq, jooqTable, RlsPolicy.TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
-    createPolicy(jooq, jooqTable, RlsPolicy.ROW_MATCH, rowMatchExpression);
+    createPolicy(jooq, table, VIEWER_BYPASS, hasSystemRoleMember(schemaName, Privileges.VIEWER));
+    createPolicy(jooq, table, EDITOR_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
+    createPolicy(jooq, table, TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
+    createPolicy(jooq, table, ROW_MATCH, rowMatchCondition);
   }
 
   private static void createPolicy(
-      DSLContext jooq, org.jooq.Table<?> jooqTable, RlsPolicy policy, String expression) {
+      DSLContext jooq, org.jooq.Table<?> jooqTable, RlsPolicy policy, Condition condition) {
+    String expression = jooq.render(condition);
     String sql =
         "CREATE POLICY "
             + policy.policyName
@@ -288,66 +287,73 @@ public class SqlRoleManager {
     }
   }
 
-  private String systemRoleMember(String schemaName, Privileges role) {
-    return "pg_has_role(current_user, "
-        + jooq().render(inline(fullRoleName(schemaName, role.toString())))
-        + ", 'member')";
+  private Condition hasSystemRoleMember(String schemaName, Privileges role) {
+    return condition(
+        "pg_has_role(current_user, {0}, 'member')",
+        inline(fullRoleName(schemaName, role.toString())));
   }
 
-  private String tableGrantBypass(String schemaName, String tableName) {
+  private Condition tableGrantBypass(String schemaName, String tableName) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
     String rlsRolePrefix = rolePrefix + RLS_ROLE_PREFIX;
-    String qualifiedTable = jooq().render(name(schemaName, tableName));
-    String systemRoles =
+
+    Field<Object> accessControlList =
+        field(
+            select(field("relacl"))
+                .from(table("pg_class"))
+                .where(
+                    field("oid").eq(field("{0}::regclass", inline(name(schemaName, tableName))))));
+
+    var systemRoles =
         Arrays.stream(Privileges.values())
-            .map(p -> jooq().render(inline(fullRoleName(schemaName, p.toString()))))
-            .collect(Collectors.joining(", "));
-    return """
-        EXISTS (
-          SELECT 1
-          FROM aclexplode((SELECT relacl FROM pg_class WHERE oid = %s::regclass)) ace
-          JOIN pg_roles r ON r.oid = ace.grantee
-          WHERE r.rolname LIKE %s
-            AND r.rolname NOT LIKE %s
-            AND r.rolname NOT IN (%s)
-            AND pg_has_role(current_user, r.oid, 'member')
-        )"""
-        .formatted(
-            jooq().render(inline(qualifiedTable)),
-            jooq().render(inline(rolePrefix + "%")),
-            jooq().render(inline(rlsRolePrefix + "%")),
-            systemRoles);
+            .map(p -> inline(fullRoleName(schemaName, p.toString())))
+            .toList();
+
+    Field<String> rolname = field(name("r", ROLNAME), String.class);
+
+    return exists(
+        selectOne()
+            .from(table("aclexplode({0})", accessControlList).as("ace"))
+            .join(table(PG_ROLES).as("r"))
+            .on(field(name("r", "oid")).eq(field(name("ace", "grantee"))))
+            .where(rolname.like(inline(rolePrefix + "%")))
+            .and(rolname.notLike(inline(rlsRolePrefix + "%")))
+            .and(rolname.notIn(systemRoles))
+            .and(condition("pg_has_role(current_user, {0}, 'member')", field(name("r", "oid")))));
   }
 
-  private String rowRoleMatch(String schemaName) {
+  private Condition rowRoleMatch(String schemaName) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    return "EXISTS (SELECT 1 FROM unnest(mg_roles) role_name"
-        + " WHERE pg_has_role(current_user, "
-        + jooq().render(inline(rolePrefix))
-        + " || role_name, 'member'))";
+    return exists(
+        selectOne()
+            .from(table("unnest(mg_roles)").as("role_name"))
+            .where(
+                condition(
+                    "pg_has_role(current_user, {0} || role_name, 'member')", inline(rolePrefix))));
   }
 
-  private String rowRoleMatchViaRoot(
+  private Condition rowRoleMatchViaRoot(
       String schemaName, TableMetadata root, TableMetadata subclass) {
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    String qualifiedRoot = jooq().render(name(schemaName, root.getTableName()));
-    String pkeyJoin =
-        jooq()
-            .render(
-                and(
-                    subclass.getPrimaryKeyFields().stream()
-                        .map(
-                            pkeyField ->
-                                field(name("root_row", pkeyField.getName()))
-                                    .eq(field(name(pkeyField.getName()))))
-                        .toList()));
-    return "EXISTS (SELECT 1 FROM "
-        + qualifiedRoot
-        + " root_row, unnest(root_row.mg_roles) role_name WHERE "
-        + pkeyJoin
-        + " AND pg_has_role(current_user, "
-        + jooq().render(inline(rolePrefix))
-        + " || role_name, 'member'))";
+
+    Condition pkeyJoin =
+        and(
+            subclass.getPrimaryKeyFields().stream()
+                .map(
+                    pkeyField ->
+                        field(name("root_row", pkeyField.getName()))
+                            .eq(field(name(pkeyField.getName()))))
+                .toList());
+
+    return exists(
+        selectOne()
+            .from(
+                table(name(schemaName, root.getTableName())).as("root_row"),
+                table("unnest(root_row.mg_roles)").as("role_name"))
+            .where(pkeyJoin)
+            .and(
+                condition(
+                    "pg_has_role(current_user, {0} || role_name, 'member')", inline(rolePrefix))));
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {
