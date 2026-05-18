@@ -267,7 +267,6 @@ import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
-import TableHeadCell from "./TableHeadCell.vue";
 
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
@@ -278,12 +277,12 @@ import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import constants from "../../utils/constants";
+import TableEMX2Head from "./TableEMX2Head.vue";
 
 const props = withDefaults(
   defineProps<{
