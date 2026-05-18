@@ -1,5 +1,5 @@
 import type { IResources } from "../../../interfaces/catalogue";
-import { fetchSettings } from "../../composables/fetchSettings";
+import { fetchSettings } from "../../../../tailwind-components/app/utils/fetchSettings";
 import {
   findSetting,
   getHumanReadableString,
