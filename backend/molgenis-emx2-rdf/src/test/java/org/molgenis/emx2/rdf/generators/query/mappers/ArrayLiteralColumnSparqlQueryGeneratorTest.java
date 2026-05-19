@@ -66,7 +66,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {
-      ArrayColumnSparqlQueryGenerator collectionColumnMapper = new ArrayColumnSparqlQueryGenerator(START, column);
+      ArrayColumnSparqlQueryGenerator collectionColumnMapper =
+          new ArrayColumnSparqlQueryGenerator(START, column);
       collectionColumnMapper.getSelectors().forEach(query::select);
       collectionColumnMapper.getGroupBy().forEach(query::groupBy);
       collectionColumnMapper.getPatterns().forEach(query::where);

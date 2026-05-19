@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.query.mappers;
+package org.molgenis.emx2.rdf.generators.query;
 
 import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;

@@ -8,11 +8,12 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGenerator {
 
   public ArrayColumnSparqlQueryGenerator(Variable subject, Column column) {
-    this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
+    this(subject, column, SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(column)));
   }
 
   public ArrayColumnSparqlQueryGenerator(Variable subject, Column column, Variable object) {

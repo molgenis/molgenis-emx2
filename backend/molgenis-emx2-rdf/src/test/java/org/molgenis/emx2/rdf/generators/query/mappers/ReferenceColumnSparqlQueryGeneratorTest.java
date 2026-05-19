@@ -33,7 +33,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         tableReferenceQuery,
@@ -48,7 +49,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     schema.create(productTableWithSemantics());
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(tableReferenceQuery, "?order orders:product ?product .");
     assertTrue(tableReferenceQuery.getSelectors().isEmpty());
@@ -61,7 +63,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     TableMetadata order = schema.create(orderTable(false));
     Column column = order.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator tableReferenceQuery = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator tableReferenceQuery =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         tableReferenceQuery,
@@ -84,7 +87,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper,
@@ -116,7 +120,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper,
@@ -152,7 +157,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                       .setSemantics("orders:product")));
 
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
       assertHasPatterns(
           mapper,
           "?order orders:product ?product .",
@@ -181,7 +187,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                       .setSemantics("orders:product")));
 
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
       assertHasPatterns(
           mapper,
           """
@@ -213,7 +220,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                     .setRequired(true)
                     .setSemantics("orders:product")));
     Column column = orders.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+    ReferenceColumnSparqlQueryGenerator mapper =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
         mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
@@ -230,7 +238,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper, "?order orders:product ?product .", "?product product:name ?product_name .");
@@ -244,7 +253,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -266,7 +276,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -288,7 +299,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
           mapper,
@@ -322,7 +334,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                           .setRefTable("ProductType")));
 
       Column column = product.getColumn("type");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(productVar, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(productVar, column);
       assertHasPatterns(mapper, "OPTIONAL { ?product product:type ?type . }");
       assertHasSelectors(mapper, "?type");
       assertHasGroupBy(mapper, "?type");
@@ -340,7 +353,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                       .setRefTable("ProductTag"));
 
       Column column = product.getColumn("tag");
-      ReferenceColumnSparqlQueryGenerator mapper = new ReferenceColumnSparqlQueryGenerator(productVar, column);
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(productVar, column);
       assertHasPatterns(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
       assertHasSelectors(
           mapper, "( GROUP_CONCAT( DISTINCT STR( ?tag_single ) ; SEPARATOR = ',' ) AS ?tag )");

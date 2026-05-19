@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,11 +102,11 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
         mapper = new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);
       } else if (Boolean.TRUE.equals(rootColumn.isArray())) {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
-        mapper = new ArrayColumnSparqlQueryGenerator(ref, column, extendVar(subject, column));
+        mapper = new ArrayColumnSparqlQueryGenerator(ref, column, extendVariable(subject, column));
       } else {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
         mapper =
-            new LiteralColumnSparqlQueryGenerator(ref, column, extendVar(subject, column), true);
+            new LiteralColumnSparqlQueryGenerator(ref, column, extendVariable(subject, column), true);
       }
 
       patterns.addAll(mapper.getPatterns());
@@ -121,13 +122,13 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
   private ArrayList<String> columnPath() {
     ArrayList<String> newPath = new ArrayList<>(path);
-    newPath.add(ColumnVariableNameMapper.columnToSparql(rootColumn));
+    newPath.add(ColumnNameSparqlEncoder.encodeSparqlVariable(rootColumn));
     return newPath;
   }
 
-  private Variable extendVar(Variable toExtend, Column column) {
+  private Variable extendVariable(Variable toExtend, Column column) {
     return SparqlBuilder.var(
-        toExtend.getVarName() + "_" + ColumnVariableNameMapper.columnToSparql(column));
+        ColumnNameSparqlEncoder.encodeSparqlVariable(toExtend.getVarName() + "." + column.getName()));
   }
 
   @Override

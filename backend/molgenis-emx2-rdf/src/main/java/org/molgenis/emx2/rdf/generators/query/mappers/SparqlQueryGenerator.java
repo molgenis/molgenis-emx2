@@ -27,8 +27,8 @@ public interface SparqlQueryGenerator {
   List<Projectable> getSelectors();
 
   /**
-   * Returns the graph patterns that constrain the input in the WHERE clause.
-   * Multiple patterns are combined conjunctively.
+   * Returns the graph patterns that constrain the input in the WHERE clause. Multiple patterns are
+   * combined conjunctively.
    */
   List<GraphPattern> getPatterns();
 

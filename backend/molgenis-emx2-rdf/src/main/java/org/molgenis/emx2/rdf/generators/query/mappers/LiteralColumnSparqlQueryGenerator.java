@@ -14,6 +14,8 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.rdf.generators.query.ColumnSemanticMapper;
+import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
@@ -24,18 +26,19 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
   protected final Variable selector;
 
   public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
-    this(subject, column, SparqlBuilder.var(ColumnVariableNameMapper.columnToSparql(column)));
-  }
-
-  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column, Variable object) {
-    this(subject, column, object, object, column.isRequired());
-  }
-
-  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column, Variable object, boolean isRequired) {
-    this(subject, column, object, object, isRequired);
+    this(
+        subject,
+        column,
+        SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(column)),
+        column.isRequired());
   }
 
   public LiteralColumnSparqlQueryGenerator(
+      Variable subject, Column column, Variable object, boolean isRequired) {
+    this(subject, column, object, object, isRequired);
+  }
+
+  protected LiteralColumnSparqlQueryGenerator(
       Variable subject, Column column, Variable object, Variable selector, boolean isRequired) {
     this.subject = subject;
     this.column = column;

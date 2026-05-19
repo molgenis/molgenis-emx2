@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.rdf.generators.query.ColumnSemanticMapper;
 
 class ColumnSemanticMapperTest {
 

@@ -17,9 +17,9 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.generators.query.mappers.ArrayColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.mappers.SparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.mappers.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceColumnSparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.mappers.SparqlQueryGenerator;
 
 public class TableQueryGenerator {
 
