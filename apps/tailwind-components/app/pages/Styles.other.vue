@@ -218,6 +218,9 @@
       <ColorTile color="button-disabled-hover" type="text" />
     </li>
     <li>
+      <ColorTile color="menu" type="text" />
+    </li>
+    <li>
       <ColorTile color="button-remove" type="text" />
     </li>
     <li>
