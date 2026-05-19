@@ -35,10 +35,6 @@ class TableQueryGeneratorTest {
   void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(getClass().getSimpleName()).getMetadata();
-  }
-
-  @BeforeEach
-  void setup() {
     schema.create(productTableWithSemantics("xsd:name"));
     order = schema.create(orderTable(true));
   }
