@@ -191,8 +191,7 @@ public class NamespaceMapper {
             }
             namespaces.put(
                 i.get(SEMANTIC_PREFIXES_NAME_PREFIX),
-                Values.namespace(
-                    i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI)));
+                Values.namespace(i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI)));
           });
     } catch (IOException e) {
       // If retrieval fails, use default namespaces instead.
