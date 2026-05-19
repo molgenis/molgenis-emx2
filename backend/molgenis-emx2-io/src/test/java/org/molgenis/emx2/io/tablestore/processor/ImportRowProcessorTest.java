@@ -86,6 +86,32 @@ class ImportRowProcessorTest {
     assertTrue(hexPattern.matcher(uploadedRow.get("passport").toString()).find());
   }
 
+  @Test
+  void givenRow_whenDropping_skipAddFileAttachmentsToRow() {
+    table.getMetadata().add(column("passport").setType(ColumnType.FILE));
+    List<Row> insertRows = List.of(row("name", "Lewis", "passport", "passport_example.txt"));
+
+    Task task = new Task();
+
+    InMemoryTableAndFileStore store = new InMemoryTableAndFileStore();
+    store.writeFile("passport_example.txt", "Hello world".getBytes());
+    ImportRowProcessor processor = new ImportRowProcessor(table, task);
+    processor.process(insertRows.iterator(), store);
+
+    List<Map<String, Object>> list = table.retrieveRows().stream().map(Row::getValueMap).toList();
+    assertEquals(1, list.size());
+
+    List<Row> deleteRows =
+        List.of(row("name", "Lewis", "passport", "passport_example.txt", "mg_delete", "true"));
+    task = new Task();
+    store = new InMemoryTableAndFileStore();
+    processor = new ImportRowProcessor(table, task);
+    processor.process(deleteRows.iterator(), store);
+
+    list = table.retrieveRows().stream().map(Row::getValueMap).toList();
+    assertEquals(0, list.size());
+  }
+
   private List<Map<String, Object>> importRows(Row... rows) {
     Task task = new Task();
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
