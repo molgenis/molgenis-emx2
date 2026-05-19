@@ -1,7 +1,7 @@
 <template>
   <Button label="Request " icon="shopping-cart" @click="$emit('click')">
-    <span class="inline-block w-6 h-6 bg-white rounded-full">
-      <span class="body-xs/1 text-black">
+    <span class="inline-block w-6 h-6 bg-button-cart-count rounded-full">
+      <span class="body-xs/1 text-button-cart-count">
         {{ numberOfItemsInStore }}
       </span>
     </span>
