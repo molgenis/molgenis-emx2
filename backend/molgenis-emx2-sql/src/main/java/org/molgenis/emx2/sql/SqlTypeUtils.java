@@ -187,8 +187,8 @@ public class SqlTypeUtils extends TypeUtils {
       case TEXT_ARRAY -> row.getTextArray(name);
       case DATE -> row.getDate(name);
       case DATE_ARRAY -> row.getDateArray(name);
-      case DATETIME -> InstantToOffsetDateTime(row.getDateTime(name));
-      case DATETIME_ARRAY -> InstantToOffsetDateTime(row.getDateTimeArray(name));
+      case DATETIME -> row.getDateTime(name);
+      case DATETIME_ARRAY -> row.getDateTimeArray(name);
       case PERIOD -> row.getPeriod(name);
       case PERIOD_ARRAY -> row.getPeriodArray(name);
       case JSON -> row.getJsonb(name);
@@ -351,17 +351,5 @@ public class SqlTypeUtils extends TypeUtils {
       }
       putMap((Map) result.get(path.get(0)), path.subList(1, path.size()), value);
     }
-  }
-
-  private static OffsetDateTime InstantToOffsetDateTime(Instant instant) {
-    return instant == null ? null : instant.atOffset(ZoneOffset.UTC);
-  }
-
-  private static OffsetDateTime[] InstantToOffsetDateTime(Instant[] instant) {
-    return instant == null
-        ? null
-        : Arrays.stream(instant)
-            .map(SqlTypeUtils::InstantToOffsetDateTime)
-            .toArray(OffsetDateTime[]::new);
   }
 }
