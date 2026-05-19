@@ -274,9 +274,8 @@ public class TypeUtils {
     }
   }
 
-  public static LocalDateTime[] toDateTimeArray(Object v) {
-    return (LocalDateTime[])
-        processArray(v, TypeUtils::toDateTime, LocalDateTime[]::new, LocalDateTime.class);
+  public static Instant[] toDateTimeArray(Object v) {
+    return (Instant[]) processArray(v, TypeUtils::toDateTime, Instant[]::new, Instant.class);
   }
 
   public static JSONB toJsonb(Object v) {

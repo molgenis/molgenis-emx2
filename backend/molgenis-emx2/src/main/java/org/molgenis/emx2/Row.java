@@ -172,7 +172,7 @@ public class Row {
     return TypeUtils.toDateTime(values.get(name));
   }
 
-  public LocalDateTime[] getDateTimeArray(String name) {
+  public Instant[] getDateTimeArray(String name) {
     return TypeUtils.toDateTimeArray(values.get(name));
   }
 

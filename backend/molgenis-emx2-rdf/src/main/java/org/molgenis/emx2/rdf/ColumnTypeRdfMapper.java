@@ -6,6 +6,7 @@ import static org.molgenis.emx2.rdf.IriGenerator.fileIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -186,7 +187,10 @@ public abstract class ColumnTypeRdfMapper {
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
             row.getDateTimeArray(column.getName()),
-            (i) -> literal(dateTimeFormatter.format((Instant) i), getCoreDatatype()));
+            (i) ->
+                literal(
+                    dateTimeFormatter.format(((Instant) i).atOffset(ZoneOffset.UTC)),
+                    getCoreDatatype()));
       }
     },
     DURATION(CoreDatatype.XSD.DURATION) {
