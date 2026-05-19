@@ -138,13 +138,13 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
   @Override
   public List<Projectable> getSelectors() {
-    return new ArrayList<>(selectors);
+    return List.copyOf(selectors);
   }
 
   @Override
   public List<GraphPattern> getPatterns() {
     if (rootColumn.isRequired()) {
-      return new ArrayList<>(patterns);
+      return List.copyOf(patterns);
     } else {
       return List.of(GraphPatterns.and(patterns.toArray(new GraphPattern[0])).optional());
     }
@@ -152,6 +152,6 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
   @Override
   public List<Groupable> getGroupBy() {
-    return new ArrayList<>(groupBy);
+    return List.copyOf(groupBy);
   }
 }
