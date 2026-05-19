@@ -106,7 +106,8 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
       } else {
         Variable ref = SparqlBuilder.var(String.join("_", columnPath));
         mapper =
-            new LiteralColumnSparqlQueryGenerator(ref, column, extendVariable(subject, column), true);
+            new LiteralColumnSparqlQueryGenerator(
+                ref, column, extendVariable(subject, column), true);
       }
 
       patterns.addAll(mapper.getPatterns());
@@ -128,7 +129,8 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
   private Variable extendVariable(Variable toExtend, Column column) {
     return SparqlBuilder.var(
-        ColumnNameSparqlEncoder.encodeSparqlVariable(toExtend.getVarName() + "." + column.getName()));
+        ColumnNameSparqlEncoder.encodeSparqlVariable(
+            toExtend.getVarName() + "." + column.getName()));
   }
 
   @Override

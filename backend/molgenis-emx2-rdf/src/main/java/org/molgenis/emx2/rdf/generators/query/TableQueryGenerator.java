@@ -1,8 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -15,16 +13,22 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.generators.query.mappers.ArrayColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.mappers.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.mappers.ReferenceColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.mappers.SparqlQueryGenerator;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableQueryGenerator {
 
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
+
+  private final String baseUrl;
+
+  public TableQueryGenerator(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
   public SelectQuery generate(TableMetadata tableMetadata) {
     List<Projectable> selectors = new ArrayList<>();
@@ -54,7 +58,7 @@ public class TableQueryGenerator {
       groups.addAll(mapper.getGroupBy());
     }
 
-    SelectQuery query = setupQuery();
+    SelectQuery query = setupQuery(tableMetadata);
     if (tableMetadata.getSemantics() != null) {
       addTableTypeSemantics(tableMetadata, tableVar, query);
     } else {
@@ -101,9 +105,11 @@ public class TableQueryGenerator {
     }
   }
 
-  private SelectQuery setupQuery() {
+  private SelectQuery setupQuery(TableMetadata tableMetadata) {
     SelectQuery select = Queries.SELECT();
-    DefaultNamespace.streamAll().forEach(select::prefix);
+    NamespaceMapper namespaceMapper =
+        new NamespaceMapper(baseUrl, Set.of(tableMetadata.getSchema()));
+    namespaceMapper.getAllNamespaces().forEach(select::prefix);
     return select;
   }
 }
