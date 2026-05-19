@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf.generators.query.mappers;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
@@ -35,6 +34,6 @@ public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGen
 
   @Override
   public List<Groupable> getGroupBy() {
-    return new ArrayList<>();
+    return List.of();
   }
 }

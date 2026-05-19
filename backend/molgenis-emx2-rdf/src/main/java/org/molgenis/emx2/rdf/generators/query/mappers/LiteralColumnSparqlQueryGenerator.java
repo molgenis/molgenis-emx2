@@ -49,12 +49,12 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
   @Override
   public List<Projectable> getSelectors() {
-    return getSelector().stream().map(Projectable.class::cast).toList();
+    return (selector == null) ? Collections.emptyList() : List.of(selector);
   }
 
   @Override
   public List<Groupable> getGroupBy() {
-    return getSelector().stream().map(Groupable.class::cast).toList();
+    return (selector == null) ? Collections.emptyList() : List.of(selector);
   }
 
   @Override
@@ -111,13 +111,5 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
    */
   private static GraphPattern filter(String toFilter) {
     return () -> "FILTER ( " + toFilter + " )";
-  }
-
-  private List<Variable> getSelector() {
-    if (selector == null) {
-      return Collections.emptyList();
-    }
-
-    return List.of(selector);
   }
 }
