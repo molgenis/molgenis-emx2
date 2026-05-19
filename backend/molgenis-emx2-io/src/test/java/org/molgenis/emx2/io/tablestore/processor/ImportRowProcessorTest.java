@@ -3,6 +3,7 @@ package org.molgenis.emx2.io.tablestore.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.MG_DELETE;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.Row.row;
 
@@ -102,14 +103,15 @@ class ImportRowProcessorTest {
     assertEquals(1, list.size());
 
     List<Row> deleteRows =
-        List.of(row("name", "Lewis", "passport", "passport_example.txt", "mg_delete", "true"));
+        List.of(row("name", "Lewis", "passport", "passport_example.txt", MG_DELETE, "true"));
     task = new Task();
+    // test that row with file is deleted without supplying the files in a store
     store = new InMemoryTableAndFileStore();
     processor = new ImportRowProcessor(table, task);
     processor.process(deleteRows.iterator(), store);
 
     list = table.retrieveRows().stream().map(Row::getValueMap).toList();
-    assertEquals(0, list.size());
+    assertTrue(list.isEmpty());
   }
 
   private List<Map<String, Object>> importRows(Row... rows) {
