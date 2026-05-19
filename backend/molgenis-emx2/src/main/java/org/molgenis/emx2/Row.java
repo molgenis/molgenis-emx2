@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
 import java.io.File;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -167,7 +168,7 @@ public class Row {
     return TypeUtils.toDateArray(values.get(name));
   }
 
-  public LocalDateTime getDateTime(String name) {
+  public Instant getDateTime(String name) {
     return TypeUtils.toDateTime(values.get(name));
   }
 
@@ -361,8 +362,8 @@ public class Row {
       case "Period[]" -> (T) getPeriodArray(name);
       case "LocalDate" -> (T) getDate(name);
       case "LocalDate[]" -> (T) getDateArray(name);
-      case "LocalDateTime" -> (T) getDateTime(name);
-      case "LocalDateTime[]" -> (T) getDateTimeArray(name);
+      case "Instant" -> (T) getDateTime(name);
+      case "Instant[]" -> (T) getDateTimeArray(name);
       case "UUID" -> (T) getUuid(name);
       case "UUID[]" -> (T) getUuidArray(name);
       case "byte[]" -> (T) getBinary(name);

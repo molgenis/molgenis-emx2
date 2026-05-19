@@ -5,7 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.rdf.IriGenerator.fileIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -186,7 +186,7 @@ public abstract class ColumnTypeRdfMapper {
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
             row.getDateTimeArray(column.getName()),
-            (i) -> literal(dateTimeFormatter.format((LocalDateTime) i), getCoreDatatype()));
+            (i) -> literal(dateTimeFormatter.format((Instant) i), getCoreDatatype()));
       }
     },
     DURATION(CoreDatatype.XSD.DURATION) {
@@ -312,7 +312,7 @@ public abstract class ColumnTypeRdfMapper {
     };
 
     private static final DateTimeFormatter dateTimeFormatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
 
     private final CoreDatatype.XSD coreDatatype;
 

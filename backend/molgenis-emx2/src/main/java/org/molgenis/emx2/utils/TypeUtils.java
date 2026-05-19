@@ -195,8 +195,8 @@ public class TypeUtils {
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
-      LocalDateTime ldt = toDateTime(v);
-      if (ldt != null) return ldt.toLocalDate();
+      Instant ldt = toDateTime(v);
+      if (ldt != null) return ldt.atOffset(ZoneOffset.UTC).toLocalDate();
     }
     return null;
   }
@@ -231,29 +231,46 @@ public class TypeUtils {
     return (Period[]) processArray(v, TypeUtils::toPeriod, Period[]::new, Period.class);
   }
 
-  public static LocalDateTime toDateTime(Object v) {
-    if (v == null) return null;
-    if (v instanceof LocalDateTime) return (LocalDateTime) v;
-    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
-    if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
-    // try string
-    String value = toString(v);
-    if (value != null) {
-      // add 'T' because loose users of iso8601 (postgres!) use space instead of T
-      value = value.replace(" ", "T");
-      TemporalAccessor temporalAccessor =
-          DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-              .parseBest(value, ZonedDateTime::from, LocalDateTime::from, LocalDate::from);
-      if (temporalAccessor instanceof ZonedDateTime) {
-        return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
-      } else if (temporalAccessor instanceof LocalDateTime) {
-        return (LocalDateTime) temporalAccessor;
-      } else if (temporalAccessor instanceof LocalDate) {
-        return ((LocalDate) temporalAccessor).atStartOfDay();
+  public static Instant toDateTime(Object v) {
+    switch (v) {
+      case null -> {
+        return null;
       }
-      return LocalDateTime.parse(value);
-    } else {
-      return null;
+      case Instant instant -> {
+        return instant;
+      }
+      case LocalDateTime localDateTime -> {
+        return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+      }
+      case OffsetDateTime offsetDateTime -> {
+        return offsetDateTime.toInstant();
+      }
+      case ZonedDateTime zonedDateTime -> {
+        return zonedDateTime.toInstant();
+      }
+      case Timestamp timestamp -> {
+        return timestamp.toInstant();
+      }
+      default -> {
+        // try string
+        String value = toString(v);
+        if (value != null) {
+          // add 'T' because loose users of iso8601 (postgres!) use space instead of T
+          value = value.replace(" ", "T");
+          TemporalAccessor temporalAccessor =
+              DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
+                  .parseBest(value, Instant::from, LocalDateTime::from, LocalDate::from);
+          return switch (temporalAccessor) {
+            case Instant instant -> instant;
+            case LocalDateTime localDateTime ->
+                localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            case LocalDate localDate -> localDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+            default -> LocalDateTime.parse(value).atZone(ZoneId.systemDefault()).toInstant();
+          };
+        } else {
+          return null;
+        }
+      }
     }
   }
 

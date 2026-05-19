@@ -3,8 +3,8 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Objects;
@@ -36,8 +36,8 @@ public enum ColumnType {
   DECIMAL_ARRAY(Double[].class, ORDINAL_ARRAY_OPERATORS),
   DATE(LocalDate.class, ORDINAL_OPERATORS),
   DATE_ARRAY(LocalDate[].class, ORDINAL_ARRAY_OPERATORS),
-  DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
-  DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_ARRAY_OPERATORS),
+  DATETIME(Instant.class, ORDINAL_OPERATORS),
+  DATETIME_ARRAY(Instant[].class, ORDINAL_ARRAY_OPERATORS),
   PERIOD(Period.class, ORDINAL_OPERATORS),
   PERIOD_ARRAY(Period[].class, ORDINAL_ARRAY_OPERATORS),
 

@@ -10,7 +10,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
 import java.io.Writer;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -408,7 +408,7 @@ public class SqlTable implements Table {
         table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
 
     // add all the rows as steps
-    LocalDateTime now = LocalDateTime.now();
+    Instant now = Instant.now();
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
@@ -472,7 +472,7 @@ public class SqlTable implements Table {
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
-    LocalDateTime now = LocalDateTime.now();
+    Instant now = Instant.now();
     for (Row row : rows) {
       Map values = getSelectedRowValues(columns, row);
       if (!inherit) {

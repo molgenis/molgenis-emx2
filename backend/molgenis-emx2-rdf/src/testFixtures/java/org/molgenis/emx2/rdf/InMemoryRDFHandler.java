@@ -56,8 +56,7 @@ public class InMemoryRDFHandler implements RDFHandler {
     }
 
     REPLACEMENT_DATE =
-        datatypeFactory.newXMLGregorianCalendar(
-            2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, FIELD_UNDEFINED);
+        datatypeFactory.newXMLGregorianCalendar(2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, 0);
   }
 
   InMemoryRDFHandler() {}

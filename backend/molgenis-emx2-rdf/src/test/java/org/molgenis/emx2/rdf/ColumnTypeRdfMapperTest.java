@@ -165,9 +165,9 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.DATE_ARRAY.name(),
                 "2001-01-01,2002-01-01",
                 ColumnType.DATETIME.name(),
-                "3000-01-01T12:30:00",
+                "3000-01-01T12:30:00Z",
                 ColumnType.DATETIME_ARRAY.name(),
-                "3001-01-01T12:30:00,3002-01-01T12:30:00",
+                "3001-01-01T12:30:00Z,3002-01-01T12:30:00Z",
                 ColumnType.PERIOD.name(),
                 "P1D",
                 ColumnType.PERIOD_ARRAY.name(),
@@ -483,13 +483,13 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.DATE_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.literal("3000-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                Set.of(Values.literal("3000-01-01T12:30:00Z", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.literal("3001-01-01T12:30:00", CoreDatatype.XSD.DATETIME),
-                    Values.literal("3002-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                    Values.literal("3001-01-01T12:30:00Z", CoreDatatype.XSD.DATETIME),
+                    Values.literal("3002-01-01T12:30:00Z", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME_ARRAY.name())),
         () ->
             assertEquals(

@@ -285,8 +285,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "cat";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "cat";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog> a PetStoreNr1:Category,
     qb:Observation;
@@ -295,8 +295,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "dog";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "dog";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse> a PetStoreNr1:Category,
     qb:Observation;
@@ -305,8 +305,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "mouse";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "mouse";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird> a PetStoreNr1:Category,
     qb:Observation;
@@ -315,8 +315,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "bird";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "bird";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant> a PetStoreNr1:Category,
     qb:Observation;
@@ -325,8 +325,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "ant";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "ant";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar> a PetStoreNr1:Category,
     qb:Observation;
@@ -335,8 +335,8 @@ rdfs:domain PetStoreNr1:User .
   qb:dataSet PetStoreNr1:Category;
   rdfs:label "caterpillar";
   <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "caterpillar";
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky> a PetStoreNr1:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
@@ -351,8 +351,8 @@ rdfs:domain PetStoreNr1:User .
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "9.4"^^xsd:double;
   <http://example.com/petstore#hasWeight> "9.4"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike> a PetStoreNr1:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
@@ -370,8 +370,8 @@ rdfs:domain PetStoreNr1:User .
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "15.7"^^xsd:double;
   <http://example.com/petstore#hasWeight> "15.7"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom> a PetStoreNr1:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
@@ -387,8 +387,8 @@ rdfs:domain PetStoreNr1:User .
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "3.14"^^xsd:double;
   <http://example.com/petstore#hasWeight> "3.14"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester> a PetStoreNr1:Pet,
     qb:Observation;
@@ -405,8 +405,8 @@ rdfs:domain PetStoreNr1:User .
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "1.337"^^xsd:double;
   <http://example.com/petstore#hasWeight> "1.337"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry> a PetStoreNr1:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
@@ -422,8 +422,8 @@ rdfs:domain PetStoreNr1:User .
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.18"^^xsd:double;
   <http://example.com/petstore#hasWeight> "0.18"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety> a PetStoreNr1:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
@@ -439,8 +439,8 @@ rdfs:domain PetStoreNr1:User .
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.1"^^xsd:double;
   <http://example.com/petstore#hasWeight> "0.1"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
   a PetStoreNr1:Pet, qb:Observation;
@@ -457,8 +457,8 @@ rdfs:domain PetStoreNr1:User .
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.5"^^xsd:double;
   <http://example.com/petstore#hasWeight> "0.5"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> a PetStoreNr1:Pet,
     qb:Observation;
@@ -477,8 +477,8 @@ rdfs:domain PetStoreNr1:User .
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> "0.01"^^xsd:double;
   <http://example.com/petstore#hasWeight> "0.01"^^xsd:double;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a PetStoreNr1:User,
     qb:Observation, foaf:Person;
@@ -496,8 +496,8 @@ rdfs:domain PetStoreNr1:User .
   <http://localhost:8080/petStoreNr1/api/rdf/User/column/pets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
-  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_insertedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_updatedOn> "2025-06-16T15:01:15Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
   a sio:SIO_000396;
@@ -517,8 +517,8 @@ rdfs:domain PetStoreNr1:User .
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> "9.99"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> true;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "delivered";
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>
   a PetStoreNr1:Order, qb:Observation;
@@ -532,8 +532,8 @@ rdfs:domain PetStoreNr1:User .
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> "14.99"^^xsd:double;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> false;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "approved";
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16"^^xsd:dateTime .
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16Z"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16Z"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors> a obo:NCIT_C95637, owl:Class,
     skos:Concept;
