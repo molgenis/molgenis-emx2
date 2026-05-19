@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import java.util.List;
 import org.molgenis.emx2.Column;
 
 /**
@@ -30,7 +31,11 @@ public class ColumnNameSparqlEncoder {
     return encodeSparqlVariable(column.getName());
   }
 
-  public static String encodeSparqlVariable(String... path) {
+  public static String encodeSparqlVariable(String name) {
+    return encodeSparqlVariable(List.of(name));
+  }
+
+  public static String encodeSparqlVariable(List<String> path) {
     return String.join(".", path).replace(".", "__").replace(" ", "___");
   }
 

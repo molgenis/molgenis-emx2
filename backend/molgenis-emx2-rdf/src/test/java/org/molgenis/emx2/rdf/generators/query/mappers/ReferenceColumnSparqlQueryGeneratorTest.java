@@ -130,19 +130,19 @@ class ReferenceColumnSparqlQueryGeneratorTest {
         mapper,
         "?order orders:product ?product .",
         "?product product:name ?product__name .",
-        "?product product:manufacturer ?product_manufacturer .",
-        "?product_manufacturer manufacturer:name ?product_manufacturer__name .",
-        "?product_manufacturer manufacturer:id ?product_manufacturer__manufacturer_id .");
+        "?product product:manufacturer ?product__manufacturer .",
+        "?product__manufacturer manufacturer:name ?product__manufacturer__name .",
+        "?product__manufacturer manufacturer:id ?product__manufacturer__manufacturer_id .");
     assertHasSelectors(
         mapper,
         "?product__name",
-        "?product_manufacturer__name",
-        "?product_manufacturer__manufacturer_id");
+        "?product__manufacturer__name",
+        "?product__manufacturer__manufacturer_id");
     assertHasGroupBy(
         mapper,
         "?product__name",
-        "?product_manufacturer__name",
-        "?product_manufacturer__manufacturer_id");
+        "?product__manufacturer__name",
+        "?product__manufacturer__manufacturer_id");
   }
 
   @Nested
