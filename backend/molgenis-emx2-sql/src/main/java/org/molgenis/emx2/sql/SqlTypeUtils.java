@@ -4,9 +4,6 @@ import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
