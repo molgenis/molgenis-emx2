@@ -1,8 +1,10 @@
 package org.molgenis.emx2.io.tablestore.processor;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Row.*;
+import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
+import static org.molgenis.emx2.Row.row;
 
 import java.util.List;
 import java.util.Map;
@@ -69,7 +71,8 @@ class ImportRowProcessorTest {
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
     processor.process(rows.iterator(), store);
 
-    List<Map<String, Object>> list = table.retrieveRows().stream().map(Row::getValueMap).toList();
+    List<Map<String, Object>> list =
+        table.retrieveRows(INCLUDE_FILE_CONTENTS).stream().map(Row::getValueMap).toList();
     assertEquals(1, list.size());
     Map<String, Object> uploadedRow = list.getFirst();
 
@@ -78,7 +81,7 @@ class ImportRowProcessorTest {
     assertEquals("txt", uploadedRow.get("passport_extension"));
     assertEquals("bytes", uploadedRow.get("passport_mimetype"));
     assertEquals(11, uploadedRow.get("passport_size"));
-    //    assertEquals("Hello world", new String((byte[]) uploadedRow.get("passport_contents")));
+    assertEquals("Hello world", new String((byte[]) uploadedRow.get("passport_contents")));
     Pattern hexPattern = Pattern.compile("\\p{XDigit}{32}");
     assertTrue(hexPattern.matcher(uploadedRow.get("passport").toString()).find());
   }
