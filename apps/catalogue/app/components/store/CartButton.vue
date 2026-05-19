@@ -46,9 +46,9 @@ function onInput() {
     class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer"
     :class="{
       'items-baseline xl:items-center mt-0.5 xl:mt-0': !props.compact,
-      'bg-button-tertiary text-button-tertiary hover:text-button-tertiary-hover':
-        isInShoppingCart,
-      'text-link hover:text-link-hover': !isInShoppingCart,
+      'text-button-cart-add hover:text-button-cart-add-hover':
+        !isInShoppingCart,
+      'text-button-cart-remove bg-button-cart-remove': isInShoppingCart,
     }"
   >
     <BaseIcon

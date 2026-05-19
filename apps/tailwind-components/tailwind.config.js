@@ -171,6 +171,7 @@ module.exports = {
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
         "button-inline-hover": "var(--background-color-button-inline-hover)",
+        "button-cart-remove": "var(--background-color-button-cart-remove)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         "navigation-dynamic": "var(--background-color-navigation-dynamic)",
@@ -248,10 +249,13 @@ module.exports = {
         "button-text": "var(--text-color-button-text)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
-        menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
           "var(--text-color-button-tree-node-toggle-hover)",
+        "button-remove": "var(--text-color-button-remove)",
+        "button-cart-add": "var(--text-color-button-cart-add)",
+        "button-cart-add-hover": "var(--text-color-button-cart-add-hover)",
+        "button-cart-remove": "var(--text-color-button-cart-remove)",
         menu: "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",

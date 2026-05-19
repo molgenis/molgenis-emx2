@@ -7,7 +7,7 @@
       <IconButton
         icon="trash"
         @click="() => datasetStore.removeFromCart(resource.id)"
-        class="text-red-500 mb-2"
+        class="text-button-remove mb-2"
         label="remove collection from cart"
       />
     </div>

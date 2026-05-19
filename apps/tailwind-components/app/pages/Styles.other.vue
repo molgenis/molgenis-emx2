@@ -218,7 +218,7 @@
       <ColorTile color="button-disabled-hover" type="text" />
     </li>
     <li>
-      <ColorTile color="menu" type="text" />
+      <ColorTile color="button-remove" type="text" />
     </li>
     <li>
       <ColorTile color="sub-menu" type="text" />
