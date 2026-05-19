@@ -1,4 +1,3 @@
-import { useRuntimeConfig } from "#app";
 import { fetchSettings } from "#imports";
 import type { ISetting } from "../../../metadata-utils/src";
 
