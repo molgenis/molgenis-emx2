@@ -223,10 +223,18 @@ jobs:
     - run:
         name: start the application in the background
         command: |
-          export $( cat build/ci.properties | xargs )
+          set -a
+          source build/ci.properties
+          set +a
+          ls -l build/libs/
           java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 &
           echo $! > application.pid
-        working_directory: repo
+          echo "Started PID: $(cat application.pid)"
+          sleep 5
+          echo "Checking if process is still running..."
+          ps -p $(cat application.pid) || echo "❌ Process died immediately"
+          echo "Last logs:"
+          tail -200 application.log
 
     - run:
         name: Wait for application to be up, poll every 10 seconds
