@@ -205,6 +205,80 @@ jobs:
 
     - post_steps
 
+  e2e-tests:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
+    - run:
+        name: prepare sql test database
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+    - run:
+        name: build the application without running tests to speed up the e2e tests
+        command: |
+          ./gradlew build -x test
+
+    - run:
+        name: start the application in the background
+        command: |
+          export $( cat build/ci.properties | xargs )
+          java -jar build/libs/molgenis-emx2-*-all.jar
+
+    - run:
+        name: Wait for application to be up, poll every 10 seconds
+        command: |
+          GETURL="http://localhost:8080/pet%20store/tables#/"
+          MAX_RETRIES=120
+          RETRY=0
+          
+          while true; do
+            # Run curl, suppress output, get status code only
+            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+          
+            echo "HTTP status: ${STATUS:-none}"
+            
+            if [[ "$STATUS" == "200" ]]; then
+            echo "✅ Application is up"
+            break
+            else
+            echo "⏳ Application not ready yet, waiting 10 seconds..."
+            fi
+            
+            RETRY=$((RETRY + 1))
+            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+            echo "❌ Gave up after $MAX_RETRIES attempts"
+            exit 1
+            fi
+            
+            sleep 1
+          done
+
+    - run:
+        name: Install dependencies
+        command: |
+          pnpm install @playwright/test         
+          npx playwright install chrome
+          npx playwright install
+        working_directory: apps
+
+    - run:
+        name: Test tailwind components
+        command: |
+          pnpm install
+          pnpm --filter tailwind-components run e2e
+        working_directory: apps
+
+    - store_test_results:
+        path: apps/test-results
+
+    - store_artifacts:
+        path: apps/test-results
+
+    - store_artifacts:
+        path: apps/playwright-report
+
   test:
     <<: *test_config
 
@@ -567,6 +641,10 @@ workflows:
        filters:
          branches:
            ignore: master
+    - e2e-tests:
+        filters:
+          branches:
+            ignore: master
     - emx2-pyclient:
         name: testPyPI release
         filters:
