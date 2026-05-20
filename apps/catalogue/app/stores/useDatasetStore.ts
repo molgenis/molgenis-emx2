@@ -46,22 +46,20 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
 
     switch (storeVersion.value) {
-      case "REMS":
-        window.open(datasetStoreUrl.value, "_blank");
-        break;
       case "negotiatorV3":
-        return await doNegotiatorV3Request(
-          datasets,
-          datasetStoreUrl.value
-        ).then(async (response: Response) => {
-          if (response.ok) {
-            clearCart();
-            const body = await response.json();
-            window.location.href = body.redirectUrl;
-          } else {
-            return handleV3Error(response);
-          }
-        });
+        return await doNegotiatorV3Request(datasets, datasetStoreUrl.value)
+          .then(async (response: Response) => {
+            if (response.ok) {
+              clearCart();
+              const body = await response.json();
+              window.location.href = body.redirectUrl;
+            } else {
+              return handleV3Error(response);
+            }
+          })
+          .catch((error) => {
+            console.error("Error during Negotiator V3 request:", error);
+          });
       default:
         return "Unknown data store version, cannot send to store.";
     }
@@ -69,8 +67,6 @@ export const useDatasetStore = defineStore("datasets", () => {
 
   function getVersionText() {
     switch (storeVersion.value) {
-      case "REMS":
-        return "REMS";
       case "negotiatorV3":
         return "Negotiator";
       default:

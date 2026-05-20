@@ -41,16 +41,9 @@ export function toNegotiatorFormat(datasets: Record<string, IResources>) {
 }
 
 export function getHumanReadableString(datasets: Record<string, IResources>) {
-  const datasetInfo = Object.values(datasets).map((dataset) => {
-    return { pid: dataset.pid, name: dataset.name };
-  });
-  const humanReadableString = datasetInfo
-    .reduce((acc, dataset) => {
-      return acc + `${dataset.name} (${dataset.pid}), `;
-    }, "")
-    .slice(0, -2);
-
-  return humanReadableString;
+  return Object.values(datasets)
+    .map((dataset) => `${dataset.name} (${dataset.pid})`)
+    .join(", ");
 }
 
 export function findSetting(setting: string, settings: ISetting[]) {

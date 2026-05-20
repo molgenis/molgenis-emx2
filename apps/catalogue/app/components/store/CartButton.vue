@@ -16,11 +16,12 @@ const props = withDefaults(
   }
 );
 
+const datasetStore = useDatasetStore();
+
 const isInShoppingCart = computed(() =>
   datasetStore.resourceIsInCart(props.resource.id)
 );
 
-const datasetStore = useDatasetStore();
 function onInput() {
   if (isInShoppingCart.value) {
     datasetStore.removeFromCart(props.resource.id);

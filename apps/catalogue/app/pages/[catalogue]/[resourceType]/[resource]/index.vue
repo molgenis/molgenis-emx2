@@ -39,7 +39,7 @@ import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
 import ReferenceCard from "../../../../components/ReferenceCard.vue";
 import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
 import SideNavigation from "../../../../components/SideNavigation.vue";
-import CardButton from "../../../../components/store/CartButton.vue";
+import CartButton from "../../../../components/store/CartButton.vue";
 import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
 import TableContent from "../../../../components/table/Content.vue";
 import VariableDisplay from "../../../../components/VariableDisplay.vue";
@@ -734,7 +734,6 @@ const showPopulation = computed(
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <template #title-suffix> </template>
       </PageHeader>
     </template>
     <template #side>
@@ -755,7 +754,7 @@ const showPopulation = computed(
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
         >
-          <CardButton
+          <CartButton
             v-if="resource && datasetStore.isEnabled"
             :resource="resource"
             :compact="false"

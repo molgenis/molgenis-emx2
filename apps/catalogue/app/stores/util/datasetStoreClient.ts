@@ -22,11 +22,11 @@ export async function getStoreVariables() {
   const urlSetting = findSetting(CATALOGUE_STORE_URL, settings);
   const versionSetting = findSetting(CATALOGUE_STORE_VERSION, settings);
 
-  if (isEnabledSetting && (!urlSetting || !versionSetting)) {
+  if (isEnabledSetting?.value === "true" && (!urlSetting || !versionSetting)) {
     throw new Error("Catalogue store URL or version setting not found");
   } else {
     return {
-      enabled: isEnabledSetting?.value === "true",
+      enabled: true,
       url: urlSetting?.value || "",
       version: versionSetting?.value || "",
     };
