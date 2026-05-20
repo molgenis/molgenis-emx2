@@ -7,7 +7,8 @@ import org.slf4j.LoggerFactory;
 
 public enum RdfApiGeneratorFactory {
   EMX2(Emx2RdfGenerator.class),
-  SEMANTIC(SemanticRdfGenerator.class);
+  SEMANTIC(SemanticRdfGenerator.class),
+  DATA_CATALOGUE(DataCatalogueRdfGenerator.class);
 
   private static Logger logger = LoggerFactory.getLogger(RdfApiGeneratorFactory.class);
 
