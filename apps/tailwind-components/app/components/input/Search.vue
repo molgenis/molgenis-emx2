@@ -20,7 +20,11 @@ withDefaults(
 
 defineExpose({ search });
 
-const emit = defineEmits(["update:modelValue", "focus", "blur"]);
+const emit = defineEmits<{
+  "update:modelValue": [value: string];
+  focus: [event: FocusEvent];
+  blur: [event: FocusEvent];
+}>();
 
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
 function handleInput(input: string) {

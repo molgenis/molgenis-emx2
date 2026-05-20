@@ -10,7 +10,7 @@ import sys
 
 from dotenv import load_dotenv
 
-from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
+from staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
 CATALOGUE = 'catalogue'
 
@@ -27,6 +27,10 @@ def main(args):
     load_dotenv()
     server_url = os.environ.get('MG_URL')
     token = os.environ.get('MG_TOKEN')
+    target_resource = os.environ.get('MG_TARGET_RESOURCE')
+
+    if not server_url:
+        raise ValueError("Did not get value for server url.")
 
     staging_areas = args[-1].split(',')
 
@@ -35,7 +39,9 @@ def main(args):
         for sa in staging_areas:
             log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
             migrator.set_source(sa)
-            migrator.migrate()
+            migrator.migrate(keep_zips=True)
+            if target_resource is not None:
+                migrator.add_data_resource(target_resource)
 
 
 if __name__ == '__main__':
