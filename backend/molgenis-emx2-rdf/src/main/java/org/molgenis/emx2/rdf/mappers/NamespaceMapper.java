@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
 public class NamespaceMapper {
   private static final Logger logger = LoggerFactory.getLogger(NamespaceMapper.class);
 
-  private static final String PREFIX_COLUMN_NAME = "prefix";
+  private static final String SEMANTIC_PREFIXES_NAME_PREFIX = "prefix";
+  private static final String SEMANTIC_PREFIXES_NAME_IRI = "iri";
 
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
@@ -45,7 +46,10 @@ public class NamespaceMapper {
       DefaultNamespace.streamAll().collect(Collectors.toUnmodifiableSet());
 
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
-      CsvSchema.builder().addColumn(PREFIX_COLUMN_NAME).addColumn("iri").build();
+      CsvSchema.builder()
+          .addColumn(SEMANTIC_PREFIXES_NAME_PREFIX)
+          .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
+          .build();
 
   private final String baseUrl;
 
@@ -174,19 +178,21 @@ public class NamespaceMapper {
             .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
       iterator.forEachRemaining(
           i -> {
-            if (isIllegalPrefix(i.get(PREFIX_COLUMN_NAME))) {
+            if (isIllegalPrefix(i.get(SEMANTIC_PREFIXES_NAME_PREFIX))) {
               throw new MolgenisException(
                   "Schema \""
                       + schema.getName()
                       + "\" contains a prefix that is not allowed: "
-                      + i.get(PREFIX_COLUMN_NAME));
+                      + i.get(SEMANTIC_PREFIXES_NAME_PREFIX));
             }
-            if (isIllegalIri(i.get("iri"))) {
-              throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
+            if (isIllegalIri(i.get(SEMANTIC_PREFIXES_NAME_IRI))) {
+              throw new MolgenisException(
+                  i.get(SEMANTIC_PREFIXES_NAME_IRI) + " must be a valid (absolute) IRI");
             }
             namespaces.put(
-                i.get(PREFIX_COLUMN_NAME),
-                Values.namespace(i.get(PREFIX_COLUMN_NAME), i.get("iri")));
+                i.get(SEMANTIC_PREFIXES_NAME_PREFIX),
+                Values.namespace(
+                    i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI)));
           });
     } catch (IOException e) {
       // If retrieval fails, use default namespaces instead.
