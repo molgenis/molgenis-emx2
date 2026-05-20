@@ -21,6 +21,7 @@ public class DataModels {
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
     PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
+    PATIENT_REGISTRY_ID_BANK("_profiles/PatientRegistryIdBank.yaml"),
     PATIENT_REGISTRY_STAGING("_profiles/PatientRegistryStaging.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
