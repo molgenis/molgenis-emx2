@@ -217,13 +217,11 @@ jobs:
 
     - run:
         name: build the application without running tests to speed up the e2e tests
-        command: |
-          ./gradlew build -x test
+        command: ./gradlew build -x test
 
-    - run:
-      name: Load env vars
-      command: |
-        cat build/ci.properties >> $BASH_ENV
+    - run: 
+       name: set env
+       command: cat build/ci.properties >> $BASH_ENV
 
     - run:
         name: start the application in the background
