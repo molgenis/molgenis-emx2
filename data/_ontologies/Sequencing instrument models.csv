@@ -26,7 +26,7 @@ Illumina NextSeq 1000,,Illumina NextSeq 1000,FG,11,https://w3id.org/fair-genomes
 Illumina NextSeq 2000,,Illumina NextSeq 2000,FG,9,https://w3id.org/fair-genomes/resource/FG_0000009
 Illumina NextSeq 550,,Illumina NextSeq 550,FG,8,https://w3id.org/fair-genomes/resource/FG_0000008
 Illumina NextSeq 550Dx,,Illumina NextSeq 550Dx,FG,12,https://w3id.org/fair-genomes/resource/FG_0000012
-Illumina NovaSeq 6000,,Illumina NovaSeq 6000,FG,10,https://w3id.org/fair-genomes/resource/FG_0000010
+Illumina NovaSeq 6000,"erdera,RNA",Illumina NovaSeq 6000,FG,10,https://w3id.org/fair-genomes/resource/FG_0000010
 Ion Torrent PGM,,Ion Torrent PGM,GENEPIO,1935,http://purl.obolibrary.org/obo/GENEPIO_0001935
 IonTorrent,,,,,
 Li-Cor 4300 DNA Analysis System,,Li-Cor 4300 DNA Analysis System,OBI,710,http://purl.obolibrary.org/obo/OBI_0000710
@@ -35,11 +35,12 @@ Nanopore,,,,,
 NextSeq 500,,NextSeq 500,OBI,2021,http://purl.obolibrary.org/obo/OBI_0002021
 Oxford Nanopore GridION Mk1,,Oxford Nanopore GridION Mk1,OBI,2751,http://purl.obolibrary.org/obo/OBI_0002751
 Oxford Nanopore MinION,,Oxford Nanopore MinION,OBI,2750,http://purl.obolibrary.org/obo/OBI_0002750
-Oxford Nanopore PromethION,erdera,Oxford Nanopore PromethION,OBI,2752,http://purl.obolibrary.org/obo/OBI_0002752
-PacBio Revio,erdera,PacBio Revio,,,
+Oxford Nanopore PromethION,"erdera,lrGS",Oxford Nanopore PromethION,OBI,2752,http://purl.obolibrary.org/obo/OBI_0002752
+PacBio Revio,"erdera,lrGS",PacBio Revio,,,
 PacBio RS II,,PacBio RS II,OBI,2012,http://purl.obolibrary.org/obo/OBI_0002012
 PacBio Sequel,,PacBio Sequel,OBI,2632,http://purl.obolibrary.org/obo/OBI_0002632
 PacBio Sequel II,,PacBio Sequel II,OBI,2633,http://purl.obolibrary.org/obo/OBI_0002633
+PacBio Sequel IIe,"erdera,lrGS",PacBio Sequel IIe,GENEPIO,GENEPIO_0102157,http://purl.obolibrary.org/obo/GENEPIO_0102157
 SOLiD 3 Plus System,,SOLiD 3 Plus System,OBI,2007,http://purl.obolibrary.org/obo/OBI_0002007
 SOLiD 4 System,,SOLiD 4 System,OBI,2024,http://purl.obolibrary.org/obo/OBI_0002024
 SOLiD 4hq System,,SOLiD 4hq System,GENEPIO,1928,http://purl.obolibrary.org/obo/GENEPIO_0001928
@@ -48,3 +49,5 @@ SOLiD 5500xl,,SOLiD 5500xl,GENEPIO,1930,http://purl.obolibrary.org/obo/GENEPIO_0
 SOLiD PI System,,SOLiD PI System,GENEPIO,1931,http://purl.obolibrary.org/obo/GENEPIO_0001931
 SOLiD System 2.0,,SOLiD System 2.0,GENEPIO,1932,http://purl.obolibrary.org/obo/GENEPIO_0001932
 SOLiD System 3.0,,SOLiD System 3.0,GENEPIO,1933,http://purl.obolibrary.org/obo/GENEPIO_0001933
+MGI DNBSEQ-G400,"erdera,RNA",MGI DNBSEQ-G400,GENEPIO,GENEPIO_0100148,http://purl.obolibrary.org/obo/GENEPIO_0100148
+AVITI,"erdera,RNA","AVITI",,,
