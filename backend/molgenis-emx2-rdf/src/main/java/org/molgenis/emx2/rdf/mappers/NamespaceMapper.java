@@ -5,7 +5,6 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalIri;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalPrefix;
-import static org.molgenis.emx2.utils.URLUtils.validateUrl;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -51,8 +50,6 @@ public class NamespaceMapper {
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
 
-  private final String baseUrl;
-
   // We need to store the namespaces per schema to ensure each prefix is processed correctly
   // (as different schema's can have a different namespace URL for the same prefix and vice versa).
   // Outer map uses SortedMap to ensure schema's are always processed in the same order.
@@ -65,31 +62,32 @@ public class NamespaceMapper {
   // schema identifier -> schema namespace
   private final Map<String, Namespace> schemaNamespaces = new HashMap<>();
 
-  public NamespaceMapper(String baseUrl, Collection<SchemaMetadata> schemas) {
-    this.baseUrl = validateUrl(baseUrl);
-    addAll(schemas);
-  }
-
   public NamespaceMapper(String baseUrl, Schema schema) {
     this(baseUrl, schema.getMetadata());
   }
 
   public NamespaceMapper(String baseUrl, SchemaMetadata schema) {
-    this.baseUrl = validateUrl(baseUrl);
-    add(schema);
+    addNamespaces(schema);
+    addSchemaNamespace(baseUrl, schema);
   }
 
-  public NamespaceMapper(String baseUrl) {
-    this.baseUrl = validateUrl(baseUrl);
+  public NamespaceMapper(String baseUrl, Collection<SchemaMetadata> schemas) {
+    for (SchemaMetadata schema : schemas) {
+      addNamespaces(schema);
+      addSchemaNamespace(baseUrl, schema);
+    }
   }
 
-  private void add(SchemaMetadata schema) {
+  public NamespaceMapper(SchemaMetadata schema) {
+    addNamespaces(schema);
+  }
+
+  private void addNamespaces(SchemaMetadata schema) {
     namespaces.put(schema.getName(), getCustomPrefixes(schema));
-    schemaNamespaces.put(schema.getIdentifier(), getSchemaNamespace(baseUrl, schema));
   }
 
-  private void addAll(Collection<SchemaMetadata> schemas) {
-    schemas.forEach(this::add);
+  private void addSchemaNamespace(String baseUrl, SchemaMetadata schema) {
+    schemaNamespaces.put(schema.getIdentifier(), getSchemaNamespace(baseUrl, schema));
   }
 
   public Set<Namespace> getAllNamespaces(Schema schema) {
@@ -240,10 +238,7 @@ public class NamespaceMapper {
   @Override
   public String toString() {
     return "NamespaceMapper{"
-        + "baseUrl='"
-        + baseUrl
-        + '\''
-        + ", namespaces="
+        + "namespaces="
         + namespaces
         + ", schemaNamespaces="
         + schemaNamespaces
