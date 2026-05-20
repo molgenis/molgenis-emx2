@@ -32,8 +32,12 @@ import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 public class NamespaceMapper {
   private static final Logger logger = LoggerFactory.getLogger(NamespaceMapper.class);
+
+  private static final String PREFIX_COLUMN_NAME = "prefix";
 
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
@@ -42,7 +46,7 @@ public class NamespaceMapper {
       DefaultNamespace.streamAll().collect(Collectors.toUnmodifiableSet());
 
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
-      CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
+      CsvSchema.builder().addColumn(PREFIX_COLUMN_NAME).addColumn("iri").build();
 
   private final String baseUrl;
 
@@ -58,12 +62,16 @@ public class NamespaceMapper {
   // schema identifier -> schema namespace
   private final Map<String, Namespace> schemaNamespaces = new HashMap<>();
 
-  public NamespaceMapper(String baseUrl, Collection<Schema> schemas) {
+  public NamespaceMapper(String baseUrl, Collection<SchemaMetadata> schemas) {
     this.baseUrl = validateUrl(baseUrl);
     addAll(schemas);
   }
 
   public NamespaceMapper(String baseUrl, Schema schema) {
+    this(baseUrl, schema.getMetadata());
+  }
+
+  public NamespaceMapper(String baseUrl, SchemaMetadata schema) {
     this.baseUrl = validateUrl(baseUrl);
     add(schema);
   }
@@ -72,21 +80,25 @@ public class NamespaceMapper {
     this.baseUrl = validateUrl(baseUrl);
   }
 
-  private void add(Schema schema) {
+  private void add(SchemaMetadata schema) {
     namespaces.put(schema.getName(), getCustomPrefixes(schema));
-    schemaNamespaces.put(schema.getMetadata().getIdentifier(), getSchemaNamespace(baseUrl, schema));
+    schemaNamespaces.put(schema.getIdentifier(), getSchemaNamespace(baseUrl, schema));
   }
 
-  private void addAll(Collection<Schema> schemas) {
+  private void addAll(Collection<SchemaMetadata> schemas) {
     schemas.forEach(this::add);
   }
 
   public Set<Namespace> getAllNamespaces(Schema schema) {
+    return getAllNamespaces(schema.getMetadata());
+  }
+
+  public Set<Namespace> getAllNamespaces(SchemaMetadata schema) {
     Set<Namespace> namespaceSet = new HashSet<>();
-    Namespace schemaNamespace = schemaNamespaces.get(schema.getMetadata().getIdentifier());
+    Namespace schemaNamespace = schemaNamespaces.get(schema.getIdentifier());
     if (schemaNamespace == null) {
       throw new IllegalArgumentException(
-          "Schema \"" + schema.getMetadata().getIdentifier() + "\" was not processed for mapping");
+          "Schema \"" + schema.getIdentifier() + "\" was not processed for mapping");
     }
     namespaceSet.add(schemaNamespace);
 
@@ -149,8 +161,9 @@ public class NamespaceMapper {
     return combinedNameSpaces;
   }
 
-  private static Map<String, Namespace> getCustomPrefixes(Schema schema) {
-    if (!schema.hasSetting(SETTING_SEMANTIC_PREFIXES)) {
+  @Nullable
+  private static Map<String, Namespace> getCustomPrefixes(SchemaMetadata schema) {
+    if (!schema.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES)) {
       return null;
     }
 
@@ -159,26 +172,26 @@ public class NamespaceMapper {
         new CsvMapper()
             .readerForMapOf(String.class)
             .with(SEMANTIC_PREFIXES_CSV_SCHEMA)
-            .readValues(schema.getSettingValue(SETTING_SEMANTIC_PREFIXES))) {
+            .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
       iterator.forEachRemaining(
           i -> {
-            if (isIllegalPrefix(i.get("prefix"))) {
+            if (isIllegalPrefix(i.get(PREFIX_COLUMN_NAME))) {
               throw new MolgenisException(
                   "Schema \""
                       + schema.getName()
                       + "\" contains a prefix that is not allowed: "
-                      + i.get("prefix"));
+                      + i.get(PREFIX_COLUMN_NAME));
             }
             if (isIllegalIri(i.get("iri"))) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
             }
-            namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri")));
+            namespaces.put(i.get(PREFIX_COLUMN_NAME), Values.namespace(i.get(PREFIX_COLUMN_NAME), i.get("iri")));
           });
     } catch (IOException e) {
       // If retrieval fails, use default namespaces instead.
       logger.error(
-          "An error occurred while trying to process the custom namespaces (using no namespaces instead): "
-              + e.getMessage());
+          "An error occurred while trying to process the custom namespaces (using no namespaces instead): {}",
+          e.getMessage());
     }
 
     return namespaces;
@@ -207,7 +220,7 @@ public class NamespaceMapper {
     Namespace foundNamespace = namespacesToSearch.get(semanticSplit[0]);
     if (foundNamespace == null) {
       if (logger.isDebugEnabled() && !hasIllegalPrefix(semantic)) {
-        logger.debug("Found undefined prefix (unless IRI is expected): \"" + semantic + "\"");
+        logger.debug("Found undefined prefix (unless IRI is expected): \"{}\"", semantic);
       }
       return Values.iri(semantic);
     }
