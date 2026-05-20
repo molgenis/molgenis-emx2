@@ -33,9 +33,7 @@ test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
     await expect(
       page.locator("#pie-chart-demo").getByText("Other")
     ).toBeVisible();
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Other")
-    ).toBeVisible();
+    await expect(page.locator("#pie-chart-demo ul li")).toHaveCount(4);
 
     await expect(
       page.locator("#pie-chart-demo").getByText("Group A")
