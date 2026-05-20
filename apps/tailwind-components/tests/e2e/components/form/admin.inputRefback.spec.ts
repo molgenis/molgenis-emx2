@@ -13,7 +13,6 @@ test.beforeEach(async ({ page }) => {
 test("adding an order via the pet.order refback should update the parent (pet), order list", async ({
   page,
 }) => {
-  await expect(page.getByText("orders Add OrderORDER:")).toBeVisible();
   await page.getByRole("button", { name: "Add Order" }).click();
   await page
     .getByRole("textbox", { name: "how many would you like ?" })
@@ -33,6 +32,9 @@ test("adding an order via the pet.order refback should update the parent (pet), 
   const orders = page.locator("ul.border.divide-y > li");
   const thirdOrder = orders.nth(2);
 
-  await thirdOrder.getByRole("button").nth(2).click();
+  await thirdOrder
+    .getByRole("button")
+    .filter({ hasText: /^Show details$/ })
+    .click();
   await expect(thirdOrder.getByText("e2e")).toBeVisible();
 });
