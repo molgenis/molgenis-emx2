@@ -10,8 +10,12 @@ import org.molgenis.emx2.Schema;
 class MolgenisWebserviceTest extends ApiTestBase {
 
   @BeforeAll
-  static void login() {
+  static void setup() {
     database.setUserPassword("foo", "testtest");
+  }
+
+  @BeforeEach
+  void login() {
     login("foo", "testtest");
   }
 
@@ -32,7 +36,10 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
     Schema schema = setupSchema(getClass().getSimpleName() + "no-match");
-    schema.getMetadata().setSetting("menu", menuForRole(ANONYMOUS));
+    database.addUser("testAnonymous");
+    database.setUserPassword("testAnonymous", "testtest");
+    schema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
+    login("testAnonymous", "testtest");
     given()
         .redirects()
         .follow(false)
