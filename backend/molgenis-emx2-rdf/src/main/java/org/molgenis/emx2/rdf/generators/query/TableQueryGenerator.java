@@ -24,12 +24,6 @@ public class TableQueryGenerator {
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
 
-  private final String baseUrl;
-
-  public TableQueryGenerator(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-
   public SelectQuery generate(TableMetadata tableMetadata) {
     List<Projectable> selectors = new ArrayList<>();
     List<GraphPattern> whereClauses = new ArrayList<>();
@@ -107,8 +101,7 @@ public class TableQueryGenerator {
 
   private SelectQuery setupQuery(TableMetadata tableMetadata) {
     SelectQuery select = Queries.SELECT();
-    NamespaceMapper namespaceMapper =
-        new NamespaceMapper(baseUrl, Set.of(tableMetadata.getSchema()));
+    NamespaceMapper namespaceMapper = new NamespaceMapper(tableMetadata.getSchema());
     namespaceMapper.getAllNamespaces().forEach(select::prefix);
     return select;
   }

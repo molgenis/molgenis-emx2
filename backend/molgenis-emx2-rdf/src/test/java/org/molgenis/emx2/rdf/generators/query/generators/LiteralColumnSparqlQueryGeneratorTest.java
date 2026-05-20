@@ -4,16 +4,26 @@ import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 
 class LiteralColumnSparqlQueryGeneratorTest {
 
   private static final Variable START = SparqlBuilder.var("start");
+  private TableMetadata table;
+
+  @BeforeEach
+  void setUp() {
+    table =
+        new SchemaMetadata(getClass().getSimpleName()).create(new TableMetadata("arrayliterals"));
+  }
 
   @Test
   void shouldHandleRequiredColumn() {
-    Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
+    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo .");
     assertHasSelectors(mapper, "?foo");
@@ -22,7 +32,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldHandleOptionalColumn() {
-    Column column = Column.column("foo").setRequired(false).setSemantics("foaf:test");
+    Column column = createColumn(Column.column("foo").setRequired(false).setSemantics("foaf:test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
     assertHasSelectors(mapper, "?foo");
@@ -32,9 +42,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void givenColumnWithMultipleSemantics_thenReturnCoalesce() {
     Column column =
-        Column.column("foo")
-            .setRequired(false)
-            .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
+        createColumn(
+            Column.column("foo")
+                .setRequired(false)
+                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(
         mapper,
@@ -50,9 +61,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void givenColumnWithMultipleSemantics_whenRequired_thenReturnCoalesceWithFilter() {
     Column column =
-        Column.column("foo")
-            .setRequired(true)
-            .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
+        createColumn(
+            Column.column("foo")
+                .setRequired(true)
+                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(
         mapper,
@@ -68,7 +80,8 @@ class LiteralColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldNormalizeColumnName() {
-    Column column = Column.column("foo bar").setRequired(true).setSemantics("foaf:test");
+    Column column =
+        createColumn(Column.column("foo bar").setRequired(true).setSemantics("foaf:test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo___bar .");
     assertHasSelectors(mapper, "?foo___bar");
@@ -78,7 +91,8 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
     Column column =
-        Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test");
+        createColumn(
+            Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start <https://example.org/ns#test> ?foo .");
     assertHasSelectors(mapper, "?foo");
@@ -88,9 +102,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void givenColumnWithMultipleSemantics_whenSemanticIsIRI_thenSurroundWithPointyBrackets() {
     Column column =
-        Column.column("foo")
-            .setRequired(false)
-            .setSemantics("foaf:test", "http://example.org/ns#test");
+        createColumn(
+            Column.column("foo")
+                .setRequired(false)
+                .setSemantics("foaf:test", "http://example.org/ns#test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(
         mapper,
@@ -100,5 +115,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
             BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo ) }""");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
+  }
+
+  private Column createColumn(Column column) {
+    table.add(column);
+    return table.getColumn(column.getName());
   }
 }

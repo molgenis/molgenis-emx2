@@ -18,17 +18,27 @@ import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 
 class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
   private static final Variable START = SparqlBuilder.var("start");
+  private TableMetadata table;
+
+  @BeforeEach
+  void setUp() {
+    table =
+        new SchemaMetadata(getClass().getSimpleName()).create(new TableMetadata("arrayliterals"));
+  }
 
   @Test
   void shouldConcatSelectors() {
-    Column column = Column.column("foo").setRequired(true).setSemantics("foaf:test");
+    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
     SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
     assertHasSelectors(
@@ -39,9 +49,10 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   @Test
   void givenMultipleSemantics_thenConcatBindValue() {
     Column column =
-        Column.column("foo")
-            .setRequired(true)
-            .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative");
+        createColumn(
+            Column.column("foo")
+                .setRequired(true)
+                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
     SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
     assertHasPatterns(
@@ -61,8 +72,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   void givenCollection_whenValueAppearsMultipleTimes_thenDistinct() {
     List<Column> columns =
         List.of(
-            Column.column("foo").setRequired(true).setSemantics("foaf:foo"),
-            Column.column("bar").setRequired(true).setSemantics("foaf:bar"));
+            createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:foo")),
+            createColumn(Column.column("bar").setRequired(true).setSemantics("foaf:bar")));
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {
@@ -99,5 +110,10 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
             iri(DefaultNamespace.FOAF.resolve(predicate)),
             literal(object),
             null));
+  }
+
+  private Column createColumn(Column column) {
+    table.add(column);
+    return table.getColumn(column.getName());
   }
 }

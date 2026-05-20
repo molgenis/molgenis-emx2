@@ -13,9 +13,11 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
+import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.RdfPredicateResolver;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
@@ -24,6 +26,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
   protected final Variable object;
   private final boolean isRequired;
   protected final Variable selector;
+  private final NamespaceMapper nameSpaceMapper;
 
   public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
     this(
@@ -45,6 +48,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
     this.object = object;
     this.selector = selector;
     this.isRequired = isRequired;
+    this.nameSpaceMapper = new NamespaceMapper(column.getTable().getSchema());
   }
 
   @Override
@@ -64,8 +68,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
     }
 
     String semantic = column.getSemantics()[0];
-    GraphPattern pattern =
-        GraphPatterns.tp(subject, RdfPredicateResolver.resolve(semantic), object);
+    GraphPattern pattern = GraphPatterns.tp(subject, resolveSemantic(semantic), object);
 
     return List.of(isRequired ? pattern : pattern.optional());
   }
@@ -78,8 +81,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
       String semantic = column.getSemantics()[i];
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
-      GraphPattern pattern =
-          GraphPatterns.tp(subject, RdfPredicateResolver.resolve(semantic), alias).optional();
+      GraphPattern pattern = GraphPatterns.tp(subject, resolveSemantic(semantic), alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }
@@ -96,6 +98,10 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
     }
 
     return List.of(mainPattern);
+  }
+
+  private RdfPredicate resolveSemantic(String semantic) {
+    return RdfPredicateResolver.resolve(semantic, nameSpaceMapper);
   }
 
   /**

@@ -33,7 +33,7 @@ class SparqlQueryingPocTest {
 
           SchemaMetadata schema =
               TestDatabaseFactory.getTestDatabase().getSchema("harvesting").getMetadata();
-          TableQueryGenerator generator = new TableQueryGenerator("localhost:8008");
+          TableQueryGenerator generator = new TableQueryGenerator();
           SelectQuery query = generator.generate(schema.getTableMetadata("Collections"));
           System.out.println(query.getQueryString());
         });

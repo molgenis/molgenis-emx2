@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.resultio.text.csv.SPARQLResultsCSVWriter;
@@ -25,7 +24,6 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TableQueryGeneratorTest {
 
-  private static final String BASE_URL = "http://localhost:8008";
   private static final ClassLoader LOADER = TableQueryGeneratorTest.class.getClassLoader();
   private SchemaMetadata schema;
   private TableMetadata order;
@@ -49,7 +47,7 @@ class TableQueryGeneratorTest {
                     .setType(ColumnType.STRING)
                     .setPkey()
                     .setSemantics("xsd:name")));
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     String query = removePrefixesFromQuery(generate.getQueryString());
     assertEquals(
         """
@@ -73,7 +71,7 @@ class TableQueryGeneratorTest {
                         .setSemantics("xsd:name"))
                 .setSemantics("xsd:foo", "xsd:bar"));
 
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     String query = removePrefixesFromQuery(generate.getQueryString());
     assertEquals(
         """
@@ -97,7 +95,7 @@ class TableQueryGeneratorTest {
                         .setSemantics("xsd:name"))
                 .setSemantics("xsd:foo"));
 
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     String query = removePrefixesFromQuery(generate.getQueryString());
     assertEquals(
         """
@@ -125,7 +123,7 @@ class TableQueryGeneratorTest {
                     .setSemantics("xsd:bar"),
                 Column.column("baz").setType(ColumnType.STRING).setPkey().setSemantics("xsd:baz")));
 
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     assertEquals(
         """
         SELECT ?QueryOptionals ?foo ?bar ?baz
@@ -149,7 +147,7 @@ class TableQueryGeneratorTest {
                     .setPkey()
                     .setSemantics("xsd:name")));
 
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     assertEquals(
         removePrefixesFromQuery(generate.getQueryString()),
         """
@@ -168,7 +166,7 @@ class TableQueryGeneratorTest {
                 "Propogation",
                 Column.column("names").setType(ColumnType.STRING_ARRAY).setSemantics("xsd:name")));
 
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(table);
+    SelectQuery generate = new TableQueryGenerator().generate(table);
     assertEquals(
         removePrefixesFromQuery(generate.getQueryString()),
         """
@@ -181,7 +179,7 @@ class TableQueryGeneratorTest {
 
   @Test
   void shouldPropagateReferences() {
-    SelectQuery query = new TableQueryGenerator(BASE_URL).generate(order);
+    SelectQuery query = new TableQueryGenerator().generate(order);
 
     assertEquals(
         """
@@ -202,12 +200,10 @@ class TableQueryGeneratorTest {
   @Test
   void shouldSetUpPrefixes() {
     SelectQuery select = Queries.SELECT();
-    new NamespaceMapper(BASE_URL, Set.of(order.getSchema()))
-        .getAllNamespaces()
-        .forEach(select::prefix);
+    new NamespaceMapper(order.getSchema()).getAllNamespaces().forEach(select::prefix);
 
     String prefixes = select.getQueryString().replace("SELECT * \n" + "WHERE {}", "").trim();
-    TableQueryGenerator generator = new TableQueryGenerator(BASE_URL);
+    TableQueryGenerator generator = new TableQueryGenerator();
     String actualQuery = generator.generate(order).getQueryString();
     assertTrue(actualQuery.startsWith(prefixes));
   }
@@ -222,7 +218,7 @@ class TableQueryGeneratorTest {
 
     Schema petSchema = database.getSchema(schemaName);
     Table pet = petSchema.getTable("Pet");
-    SelectQuery generate = new TableQueryGenerator(BASE_URL).generate(pet.getMetadata());
+    SelectQuery generate = new TableQueryGenerator().generate(pet.getMetadata());
     SailRepository repository = setupRepositoryFromFile("queries/pets.ttl");
     TupleQuery query =
         repository

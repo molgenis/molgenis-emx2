@@ -27,9 +27,9 @@ class ReferenceColumnSparqlQueryGeneratorTest {
   @Test
   void givenReference_thenOnlyUseKey() {
     schema.create(
-        productTableWithSemantics("product:name")
+        productTableWithSemantics("schema:name")
             // Skip barcode because it is not a key
-            .add(Column.column("barcode").setType(ColumnType.INT).setSemantics("product:barcode")));
+            .add(Column.column("barcode").setType(ColumnType.INT).setSemantics("schema:barcode")));
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
@@ -38,8 +38,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     assertHasPatterns(
         tableReferenceQuery,
-        "?order orders:product ?product .",
-        "?product product:name ?product__name .");
+        "?order schema:product ?product .",
+        "?product schema:name ?product__name .");
     assertHasSelectors(tableReferenceQuery, "?product__name");
     assertHasGroupBy(tableReferenceQuery, "?product__name");
   }
@@ -52,14 +52,14 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     ReferenceColumnSparqlQueryGenerator tableReferenceQuery =
         new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
-    assertHasPatterns(tableReferenceQuery, "?order orders:product ?product .");
+    assertHasPatterns(tableReferenceQuery, "?order schema:product ?product .");
     assertTrue(tableReferenceQuery.getSelectors().isEmpty());
     assertTrue(tableReferenceQuery.getGroupBy().isEmpty());
   }
 
   @Test
   void givenReference_whenOptional_thenAddOptional() {
-    schema.create(productTableWithSemantics("product:name"));
+    schema.create(productTableWithSemantics("schema:name"));
 
     TableMetadata order = schema.create(orderTable(false));
     Column column = order.getColumn("product");
@@ -69,8 +69,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     assertHasPatterns(
         tableReferenceQuery,
         """
-        OPTIONAL { ?order orders:product ?product .
-        ?product product:name ?product__name . }""");
+        OPTIONAL { ?order schema:product ?product .
+        ?product schema:name ?product__name . }""");
     assertHasSelectors(tableReferenceQuery, "?product__name");
     assertHasGroupBy(tableReferenceQuery, "?product__name");
   }
@@ -78,12 +78,12 @@ class ReferenceColumnSparqlQueryGeneratorTest {
   @Test
   void givenReference_whenCompositeKey_thenUseAllKeys() {
     schema.create(
-        productTableWithSemantics("product:name")
+        productTableWithSemantics("schema:name")
             .add(
                 Column.column("barcode")
                     .setType(ColumnType.INT)
                     .setPkey()
-                    .setSemantics("product:barcode")));
+                    .setSemantics("schema:barcode")));
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
@@ -92,9 +92,9 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     assertHasPatterns(
         mapper,
-        "?order orders:product ?product .",
-        "?product product:name ?product__name .",
-        "?product product:barcode ?product__barcode .");
+        "?order schema:product ?product .",
+        "?product schema:name ?product__name .",
+        "?product schema:barcode ?product__barcode .");
     assertHasSelectors(mapper, "?product__name", "?product__barcode");
     assertHasGroupBy(mapper, "?product__name", "?product__barcode");
   }
@@ -104,22 +104,19 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     schema.create(
         TableMetadata.table(
             "Manufacturer",
-            Column.column("name")
-                .setType(ColumnType.STRING)
-                .setPkey()
-                .setSemantics("manufacturer:name"),
+            Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics("schema:name"),
             Column.column("manufacturer_id")
                 .setType(ColumnType.INT)
                 .setPkey()
-                .setSemantics("manufacturer:id")));
+                .setSemantics("schema:id")));
     schema.create(
-        productTableWithSemantics("product:name")
+        productTableWithSemantics("schema:name")
             .add(
                 Column.column("manufacturer")
                     .setType(ColumnType.REF)
                     .setPkey()
                     .setRefTable("Manufacturer")
-                    .setSemantics("product:manufacturer")));
+                    .setSemantics("schema:manufacturer")));
 
     TableMetadata order = schema.create(orderTable(true));
     Column column = order.getColumn("product");
@@ -128,11 +125,11 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     assertHasPatterns(
         mapper,
-        "?order orders:product ?product .",
-        "?product product:name ?product__name .",
-        "?product product:manufacturer ?product__manufacturer .",
-        "?product__manufacturer manufacturer:name ?product__manufacturer__name .",
-        "?product__manufacturer manufacturer:id ?product__manufacturer__manufacturer_id .");
+        "?order schema:product ?product .",
+        "?product schema:name ?product__name .",
+        "?product schema:manufacturer ?product__manufacturer .",
+        "?product__manufacturer schema:name ?product__manufacturer__name .",
+        "?product__manufacturer schema:id ?product__manufacturer__manufacturer_id .");
     assertHasSelectors(
         mapper,
         "?product__name",
@@ -150,7 +147,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     @Test
     void givenArrayReference_thenUseCollectionMapper() {
-      schema.create(productTableWithSemantics("product:name"));
+      schema.create(productTableWithSemantics("schema:name"));
       TableMetadata order =
           schema.create(
               TableMetadata.table(
@@ -158,20 +155,20 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                   Column.column("id")
                       .setPkey()
                       .setType(ColumnType.STRING)
-                      .setSemantics("orders:id"),
+                      .setSemantics("schema:id"),
                   Column.column("product")
                       .setType(ColumnType.REF_ARRAY)
                       .setRefTable("Product")
                       .setRequired(true)
-                      .setSemantics("orders:product")));
+                      .setSemantics("schema:product")));
 
       Column column = order.getColumn("product");
       ReferenceColumnSparqlQueryGenerator mapper =
           new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
       assertHasPatterns(
           mapper,
-          "?order orders:product ?product .",
-          "?product product:name ?product__name_single .");
+          "?order schema:product ?product .",
+          "?product schema:name ?product__name_single .");
       assertHasSelectors(
           mapper,
           "( GROUP_CONCAT( DISTINCT STR( ?product__name_single ) ; SEPARATOR = ',' ) AS ?product__name )");
@@ -180,7 +177,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     @Test
     void givenArrayReference_whenOptional_thenSurroundWitOptional() {
-      schema.create(productTableWithSemantics("product:name"));
+      schema.create(productTableWithSemantics("schema:name"));
       TableMetadata order =
           schema.create(
               TableMetadata.table(
@@ -188,12 +185,12 @@ class ReferenceColumnSparqlQueryGeneratorTest {
                   Column.column("id")
                       .setPkey()
                       .setType(ColumnType.STRING)
-                      .setSemantics("orders:id"),
+                      .setSemantics("schema:id"),
                   Column.column("product")
                       .setType(ColumnType.REF_ARRAY)
                       .setRefTable("Product")
                       .setRequired(false)
-                      .setSemantics("orders:product")));
+                      .setSemantics("schema:product")));
 
       Column column = order.getColumn("product");
       ReferenceColumnSparqlQueryGenerator mapper =
@@ -201,8 +198,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       assertHasPatterns(
           mapper,
           """
-          OPTIONAL { ?order orders:product ?product .
-          ?product product:name ?product__name_single . }""");
+          OPTIONAL { ?order schema:product ?product .
+          ?product schema:name ?product__name_single . }""");
       assertHasSelectors(
           mapper,
           "( GROUP_CONCAT( DISTINCT STR( ?product__name_single ) ; SEPARATOR = ',' ) AS ?product__name )");
@@ -213,27 +210,27 @@ class ReferenceColumnSparqlQueryGeneratorTest {
   @Test
   void shouldResolveCrossSchemaReferences() {
     Schema productSchema = database.dropCreateSchema(getClass().getSimpleName() + "Products");
-    productSchema.create(productTableWithSemantics("product:name"));
+    productSchema.create(productTableWithSemantics("schema:name"));
 
     // To check whether we always check on schema's, not just when we don't find the table.
-    schema.create(productTableWithSemantics("product:invalid"));
+    schema.create(productTableWithSemantics("schema:invalid"));
     TableMetadata orders =
         schema.create(
             TableMetadata.table(
                 "Order",
-                Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("orders:id"),
+                Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("schema:id"),
                 Column.column("product")
                     .setType(ColumnType.REF)
                     .setRefTable("Product")
                     .setRefSchemaName(productSchema.getName())
                     .setRequired(true)
-                    .setSemantics("orders:product")));
+                    .setSemantics("schema:product")));
     Column column = orders.getColumn("product");
     ReferenceColumnSparqlQueryGenerator mapper =
         new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
     assertHasPatterns(
-        mapper, "?order orders:product ?product .", "?product product:name ?product__name .");
+        mapper, "?order schema:product ?product .", "?product schema:name ?product__name .");
     assertHasSelectors(mapper, "?product__name");
     assertHasGroupBy(mapper, "?product__name");
     database.dropSchemaIfExists(getClass().getSimpleName() + "Products");
@@ -245,7 +242,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
     @Test
     void shouldDoSimplifiedPatternOnSingleSemantic() {
-      schema.create(productTableWithSemantics("product:name"));
+      schema.create(productTableWithSemantics("schema:name"));
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
@@ -253,14 +250,14 @@ class ReferenceColumnSparqlQueryGeneratorTest {
           new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
 
       assertHasPatterns(
-          mapper, "?order orders:product ?product .", "?product product:name ?product__name .");
+          mapper, "?order schema:product ?product .", "?product schema:name ?product__name .");
       assertHasSelectors(mapper, "?product__name");
       assertHasGroupBy(mapper, "?product__name");
     }
 
     @Test
     void whenRelationIsOptional_thenAddOptionalClause() {
-      schema.create(productTableWithSemantics("product:name"));
+      schema.create(productTableWithSemantics("schema:name"));
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
@@ -270,8 +267,8 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       assertHasPatterns(
           mapper,
           """
-          OPTIONAL { ?order orders:product ?product .
-          ?product product:name ?product__name . }""");
+          OPTIONAL { ?order schema:product ?product .
+          ?product schema:name ?product__name . }""");
       assertHasSelectors(mapper, "?product__name");
       assertHasGroupBy(mapper, "?product__name");
     }
@@ -283,7 +280,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     @Test
     void shouldUseOrCoalesce() {
       schema.create(
-          productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
+          productTableWithSemantics("schema:name", "schema:alternativeName", "schema:altName"));
 
       TableMetadata order = schema.create(orderTable(false));
       Column column = order.getColumn("product");
@@ -293,10 +290,10 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       assertHasPatterns(
           mapper,
           """
-        OPTIONAL { ?order orders:product ?product .
-        OPTIONAL { OPTIONAL { ?product product:name ?product__name0 . }
-        OPTIONAL { ?product product:alternativeName ?product__name1 . }
-        OPTIONAL { ?product product:altName ?product__name2 . }
+        OPTIONAL { ?order schema:product ?product .
+        OPTIONAL { OPTIONAL { ?product schema:name ?product__name0 . }
+        OPTIONAL { ?product schema:alternativeName ?product__name1 . }
+        OPTIONAL { ?product schema:altName ?product__name2 . }
         BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name ) }
         FILTER ( BOUND( ?product__name ) ) }""");
       assertHasSelectors(mapper, "?product__name");
@@ -306,7 +303,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     @Test
     void whenRequired_thenIncludeFilter() {
       schema.create(
-          productTableWithSemantics("product:name", "product:alternativeName", "product:altName"));
+          productTableWithSemantics("schema:name", "schema:alternativeName", "schema:altName"));
 
       TableMetadata order = schema.create(orderTable(true));
       Column column = order.getColumn("product");
@@ -315,11 +312,11 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
       assertHasPatterns(
           mapper,
-          "?order orders:product ?product .",
+          "?order schema:product ?product .",
           """
-          OPTIONAL { OPTIONAL { ?product product:name ?product__name0 . }
-          OPTIONAL { ?product product:alternativeName ?product__name1 . }
-          OPTIONAL { ?product product:altName ?product__name2 . }
+          OPTIONAL { OPTIONAL { ?product schema:name ?product__name0 . }
+          OPTIONAL { ?product schema:alternativeName ?product__name1 . }
+          OPTIONAL { ?product schema:altName ?product__name2 . }
           BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name ) }""",
           "FILTER ( BOUND( ?product__name ) )");
       assertHasSelectors(mapper, "?product__name");
@@ -337,17 +334,17 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       schema.create(TableMetadata.table("ProductType").setTableType(TableType.ONTOLOGIES));
       TableMetadata product =
           schema.create(
-              productTableWithSemantics("product:name")
+              productTableWithSemantics("schema:name")
                   .add(
                       Column.column("type")
                           .setType(ColumnType.ONTOLOGY)
-                          .setSemantics("product:type")
+                          .setSemantics("schema:type")
                           .setRefTable("ProductType")));
 
       Column column = product.getColumn("type");
       ReferenceColumnSparqlQueryGenerator mapper =
           new ReferenceColumnSparqlQueryGenerator(productVar, column);
-      assertHasPatterns(mapper, "OPTIONAL { ?product product:type ?type . }");
+      assertHasPatterns(mapper, "OPTIONAL { ?product schema:type ?type . }");
       assertHasSelectors(mapper, "?type");
       assertHasGroupBy(mapper, "?type");
     }
@@ -356,17 +353,18 @@ class ReferenceColumnSparqlQueryGeneratorTest {
     void shouldHandleOntologyArrayReferences() {
       schema.create(TableMetadata.table("ProductTag").setTableType(TableType.ONTOLOGIES));
       TableMetadata product =
-          productTableWithSemantics("product:name")
-              .add(
-                  Column.column("tag")
-                      .setType(ColumnType.ONTOLOGY_ARRAY)
-                      .setSemantics("product:tag")
-                      .setRefTable("ProductTag"));
+          schema.create(
+              productTableWithSemantics("schema:name")
+                  .add(
+                      Column.column("tag")
+                          .setType(ColumnType.ONTOLOGY_ARRAY)
+                          .setSemantics("schema:tag")
+                          .setRefTable("ProductTag")));
 
       Column column = product.getColumn("tag");
       ReferenceColumnSparqlQueryGenerator mapper =
           new ReferenceColumnSparqlQueryGenerator(productVar, column);
-      assertHasPatterns(mapper, "OPTIONAL { ?product product:tag ?tag_single . }");
+      assertHasPatterns(mapper, "OPTIONAL { ?product schema:tag ?tag_single . }");
       assertHasSelectors(
           mapper, "( GROUP_CONCAT( DISTINCT STR( ?tag_single ) ; SEPARATOR = ',' ) AS ?tag )");
       assertHasGroupBy(mapper);
@@ -376,12 +374,12 @@ class ReferenceColumnSparqlQueryGeneratorTest {
   private TableMetadata orderTable(boolean productRequired) {
     return TableMetadata.table(
         "Order",
-        Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("orders:id"),
+        Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("schema:id"),
         Column.column("product")
             .setType(ColumnType.REF)
             .setRefTable("Product")
             .setRequired(productRequired)
-            .setSemantics("orders:product"));
+            .setSemantics("schema:product"));
   }
 
   private TableMetadata productTableWithSemantics(String... semantics) {

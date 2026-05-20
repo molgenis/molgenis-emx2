@@ -1,7 +1,14 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 /**
  * Resolves semantic annotations on columns to their appropriate RDF predicate representation.
@@ -24,10 +31,23 @@ public class RdfPredicateResolver {
     throw new IllegalStateException("Utility class");
   }
 
-  public static RdfPredicate resolve(String value) {
-    if (value.startsWith("http://") || value.startsWith("https://")) {
-      return Rdf.iri(value);
+  public static RdfPredicate resolve(String value, NamespaceMapper namespaceMapper) {
+    IRI iri = getIriValue(value);
+    Set<String> prefixes =
+        namespaceMapper.getAllNamespaces().stream()
+            .map(Namespace::getPrefix)
+            // RDF4J IRI returns the prefix concatenated with a semicolon (e.g. `foaf:`)
+            .map(prefix -> prefix + ":")
+            .collect(Collectors.toSet());
+
+    return (prefixes.contains(iri.getNamespace())) ? () -> value : Rdf.iri(value);
+  }
+
+  private static IRI getIriValue(String value) {
+    try {
+      return Values.iri(value);
+    } catch (IllegalArgumentException e) {
+      throw new MolgenisException("Invalid IRI provided: " + value, e);
     }
-    return () -> value;
   }
 }
