@@ -5,7 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.molgenis.emx2.rdf.generators.query.generators.MapperAssertions.*;
+import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import java.util.List;
 import org.eclipse.rdf4j.query.BindingSet;

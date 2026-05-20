@@ -1,9 +1,10 @@
-package org.molgenis.emx2.rdf.generators.query.generators;
+package org.molgenis.emx2.rdf.generators;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.core.QueryElement;
+import org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryGenerator;
 
 public class MapperAssertions {
 

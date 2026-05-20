@@ -1,6 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
-import static org.molgenis.emx2.rdf.generators.query.generators.MapperAssertions.*;
+import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
