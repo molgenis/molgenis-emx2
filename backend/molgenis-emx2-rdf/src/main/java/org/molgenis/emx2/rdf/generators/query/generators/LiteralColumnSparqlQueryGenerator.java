@@ -15,7 +15,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
-import org.molgenis.emx2.rdf.generators.query.ColumnSemanticMapper;
+import org.molgenis.emx2.rdf.generators.query.RdfPredicateResolver;
 
 public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
@@ -65,7 +65,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
 
     String semantic = column.getSemantics()[0];
     GraphPattern pattern =
-        GraphPatterns.tp(subject, ColumnSemanticMapper.resolveIri(semantic), object);
+        GraphPatterns.tp(subject, RdfPredicateResolver.resolve(semantic), object);
 
     return List.of(isRequired ? pattern : pattern.optional());
   }
@@ -79,7 +79,7 @@ public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
       GraphPattern pattern =
-          GraphPatterns.tp(subject, ColumnSemanticMapper.resolveIri(semantic), alias).optional();
+          GraphPatterns.tp(subject, RdfPredicateResolver.resolve(semantic), alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }
