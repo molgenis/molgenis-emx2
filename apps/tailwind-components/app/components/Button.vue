@@ -109,7 +109,7 @@ const tag = computed(() => (props.href ? "a" : "button"));
     :href="props.href"
     v-tooltip.bottom="tooltipText"
     :disabled="props.disabled"
-    class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
+    class="flex items-center justify-center border box-border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${
       COLOR_MAPPING[props.type]
     } ${sizeClasses} ${iconPositionClass} transition-colors`"

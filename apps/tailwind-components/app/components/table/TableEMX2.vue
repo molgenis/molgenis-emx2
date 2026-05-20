@@ -33,6 +33,7 @@
       <Button
         v-if="data?.tableMetadata"
         type="outline"
+        class="h-50px"
         :href="`/${schemaId}/api/csv/${tableId}`"
         icon="Download"
         download
