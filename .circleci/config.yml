@@ -224,7 +224,7 @@ jobs:
         name: start the application in the background
         command: |
           export $( cat build/ci.properties | xargs )
-          java -jar build/libs/molgenis-emx2-*-all.jar
+          java -jar build/libs/molgenis-emx2-*-all.jar &
 
     - run:
         name: Wait for application to be up, poll every 10 seconds
