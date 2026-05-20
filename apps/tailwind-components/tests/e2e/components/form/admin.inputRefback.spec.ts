@@ -29,12 +29,13 @@ test("adding an order via the pet.order refback should update the parent (pet), 
   await statusInput.fill("e2e");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   // test the order appears in the pet order refback list
-  const orders = page.locator("ul.border.divide-y > li");
-  const thirdOrder = orders.nth(2);
-
-  await thirdOrder
+  await page
+    .locator("ul.border.divide-y > li")
+    .nth(2)
     .getByRole("button")
     .filter({ hasText: /^Show details$/ })
     .click();
-  await expect(thirdOrder.getByText("e2e")).toBeVisible();
+  await expect(
+    page.locator("ul.border.divide-y > li").nth(2).getByText("e2e")
+  ).toBeVisible();
 });
