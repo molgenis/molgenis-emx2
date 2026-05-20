@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
@@ -31,8 +32,6 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 
 public class NamespaceMapper {
   private static final Logger logger = LoggerFactory.getLogger(NamespaceMapper.class);
@@ -185,7 +184,9 @@ public class NamespaceMapper {
             if (isIllegalIri(i.get("iri"))) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
             }
-            namespaces.put(i.get(PREFIX_COLUMN_NAME), Values.namespace(i.get(PREFIX_COLUMN_NAME), i.get("iri")));
+            namespaces.put(
+                i.get(PREFIX_COLUMN_NAME),
+                Values.namespace(i.get(PREFIX_COLUMN_NAME), i.get("iri")));
           });
     } catch (IOException e) {
       // If retrieval fails, use default namespaces instead.
