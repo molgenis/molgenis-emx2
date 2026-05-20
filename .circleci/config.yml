@@ -220,6 +220,11 @@ jobs:
         command: |
           ./gradlew build -x test
 
+    - persist_to_workspace:
+        root: .
+        paths:
+          - build/ci.properties
+
     - run:
         name: start the application in the background
         command: |
