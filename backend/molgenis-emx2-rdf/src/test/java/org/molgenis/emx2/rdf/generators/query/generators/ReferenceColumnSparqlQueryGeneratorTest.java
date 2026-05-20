@@ -1,7 +1,7 @@
-package org.molgenis.emx2.rdf.generators.query.mappers;
+package org.molgenis.emx2.rdf.generators.query.generators;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.rdf.generators.query.mappers.MapperAssertions.*;
+import static org.molgenis.emx2.rdf.generators.query.generators.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;

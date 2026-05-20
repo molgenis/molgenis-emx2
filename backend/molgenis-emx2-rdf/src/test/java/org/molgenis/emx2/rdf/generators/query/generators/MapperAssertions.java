@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.query.mappers;
+package org.molgenis.emx2.rdf.generators.query.generators;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

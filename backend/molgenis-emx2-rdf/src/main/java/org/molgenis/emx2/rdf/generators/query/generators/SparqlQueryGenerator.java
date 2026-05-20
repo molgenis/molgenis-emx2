@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.query.mappers;
+package org.molgenis.emx2.rdf.generators.query.generators;
 
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
