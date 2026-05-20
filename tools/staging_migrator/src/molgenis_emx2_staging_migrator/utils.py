@@ -74,8 +74,8 @@ def process_contacts(contacts: pd.DataFrame, resources: pd.DataFrame) -> pd.Data
     contacts["key"] = contacts[c_cols].apply(lambda row: '(' + ', '.join(row.values.astype(str)) + ')', axis=1)
 
     r_contacts["mg_delete"] = r_contacts["key"].map(contacts.set_index("key")["mg_delete"].to_dict())
-    if any(r_contacts["mg_delete"]):
-        missing = r_contacts.loc[r_contacts["mg_delete"]]
+    if any(r_contacts["mg_delete"] == True):
+        missing = r_contacts.loc[r_contacts["mg_delete"] == True]
         values = ', '.join(missing["key"].values)
         raise MissingContactException(f"Cannot migrate resource due to missing email or consent "
                                       f"for contact (Resource, first name, last name) = {values}.")
