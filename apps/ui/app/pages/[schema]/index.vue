@@ -13,6 +13,11 @@ import TableRow from "../../../../tailwind-components/app/components/TableRow.vu
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import type { Crumb } from "../../../../tailwind-components/types/types";
+import { definePageMeta } from "#imports";
+
+definePageMeta({
+  middleware: ["landing-page"],
+});
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
