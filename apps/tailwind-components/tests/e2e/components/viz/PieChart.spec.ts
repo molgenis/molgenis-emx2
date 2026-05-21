@@ -30,24 +30,6 @@ test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("legend is rendered", async ({ page }) => {
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Other")
-    ).toBeVisible();
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Other")
-    ).toBeVisible();
-
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Group A")
-    ).toBeVisible();
-
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Group B")
-    ).toBeVisible();
-    await expect(
-      page.locator("#pie-chart-demo").getByText("Group C")
-    ).toBeVisible();
-
     await expect(page.locator("#pie-chart-demo")).toMatchAriaSnapshot(
       `- img: Group A48% Group B32% Group C11% Other9%`
     );
