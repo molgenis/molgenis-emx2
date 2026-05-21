@@ -221,6 +221,11 @@ jobs:
           ./gradlew build -x test
 
     - run:
+      name: Load env vars
+      command: |
+        cat build/ci.properties >> $BASH_ENV
+
+    - run:
         name: start the application in the background
         command: |
           export $( cat build/ci.properties | xargs )
@@ -628,46 +633,46 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
-#    - preview:
-#        filters:
-#          branches:
-#            ignore: master
-#    - e2e-test:
-#        requires:
-#          - preview
-#        filters:
-#            branches:
-#              ignore: master
-#    - pr-preview:
-#        requires:
-#          - e2e-test
-#        filters:
-#          branches:
-#            ignore: master
-#    - test:
-#       filters:
-#         branches:
-#           ignore: master
+    - preview:
+        filters:
+          branches:
+            ignore: master
+    - e2e-test:
+        requires:
+          - preview
+        filters:
+            branches:
+              ignore: master
+    - pr-preview:
+        requires:
+          - e2e-test
+        filters:
+          branches:
+            ignore: master
+    - test:
+       filters:
+         branches:
+           ignore: master
     - e2e-tests:
         filters:
           branches:
             ignore: master
-#    - emx2-pyclient:
-#        name: testPyPI release
-#        filters:
-#          branches:
-#            ignore: master
-#    - release:
-#       filters:
-#         branches:
-#           only: master
-#    - emx2-pyclient:
-#        name: PyPI release
-#        requires:
-#          - release
-#        filters:
-#          branches:
-#            only: master
+    - emx2-pyclient:
+        name: testPyPI release
+        filters:
+          branches:
+            ignore: master
+    - release:
+       filters:
+         branches:
+           only: master
+    - emx2-pyclient:
+        name: PyPI release
+        requires:
+          - release
+        filters:
+          branches:
+            only: master
 
   delete_preview:
     when:
