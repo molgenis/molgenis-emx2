@@ -44,9 +44,8 @@ function onInput() {
   <label
     v-else
     :for="`${resource.id}-shopping-cart-input`"
-    class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer"
+    class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer items-baseline xl:items-center mt-0.5 xl:mt-0"
     :class="{
-      'items-baseline xl:items-center mt-0.5 xl:mt-0': !props.compact,
       'text-button-cart-add hover:text-button-cart-add-hover':
         !isInShoppingCart,
       'text-button-cart-remove bg-button-cart-remove': isInShoppingCart,

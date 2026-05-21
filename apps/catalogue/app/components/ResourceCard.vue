@@ -6,7 +6,7 @@ import IconButton from "../../../tailwind-components/app/components/button/IconB
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
-import CardButton from "./store/CartButton.vue";
+import CartButton from "./store/CartButton.vue";
 
 const datasetStore = useDatasetStore();
 
@@ -65,8 +65,8 @@ const headerClasses = computed(() => {
           {{ resource.acronym ? resource.name : "" }}
         </span>
       </div>
-      <div class="flex">
-        <CardButton
+      <div class="flex self-start">
+        <CartButton
           v-if="datasetStore.isEnabled"
           :resource="resource"
           :compact="props.compact"
