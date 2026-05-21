@@ -409,18 +409,25 @@ This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are
 
 ### Row-level security (RLS)
 
-When `isRowLevel: true` is set on a permission, each row is then only visible to roles whose name is listed in the row's `mg_roles` column.
+When `isRowLevel: true` is set on a permission, each row is then only visible to the role whose name is stored in the row's `mg_roles` column.
 
 **How it works:**
 
 - A `mg_roles` column (type `string[]`) is added to the table the first time any role is granted
   `isRowLevel: true`.
 - A PostgreSQL policy is created that filters rows for SELECT, UPDATE, and DELETE:
-  - Rows where `mg_roles` is `null` (no restriction) are visible to everyone with table access.
-  - Rows where `mg_roles` lists one or more role names are visible only to users who hold one of
-    those roles.
+  - Rows where `mg_roles` is `null` (empty) are **not** visible to users who only hold an RLS role.
+    They are visible only to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+  - Rows where `mg_roles` contains a role name are visible only to users who hold that role
+    (or to schema-level Viewer/Editor/Manager/Owner via bypass).
   - Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) bypass the filter
-    and always see all rows.
+    and always see all rows, including those with an empty `mg_roles`.
+  - A user can hold both an RLS role and the schema **Viewer** role simultaneously. In that case the
+    Viewer bypass applies to reads, so they see every row (including those with an empty `mg_roles`);
+    their writes are still restricted to rows tagged with their RLS role.
+
+> **Current limitation:** `mg_roles` is a `string[]` column, but only **one role per row** is
+> currently supported. Do not set multiple values in the array — the behaviour is undefined.
 
 **Enable RLS for a role:**
 
@@ -443,7 +450,7 @@ mutation {
 
 **Insert a row restricted to a specific role:**
 
-Set the `mg_roles` field when inserting rows to control which roles can see them.
+Set the `mg_roles` field to an array containing exactly one role name when inserting rows.
 
 ```graphql
 mutation {
@@ -457,8 +464,10 @@ mutation {
 }
 ```
 
-A row with `mg_roles: ["TeamA", "TeamB"]` is visible to members of either role. A row with no
-`mg_roles` value is visible to all users who have access to the table.
+A row tagged with `mg_roles: ["TeamA"]` is visible only to members of `TeamA` (and to users with
+a schema-level Viewer role or higher). A row with no `mg_roles` value is **not** visible to users
+who only hold an RLS role — it is visible exclusively to users with a schema-level role (Viewer,
+Editor, Manager, or Owner).
 
 **Disabling RLS:**
 

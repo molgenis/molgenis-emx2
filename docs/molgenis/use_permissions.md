@@ -42,33 +42,41 @@ table — not just whether they can access the table at all.
 
 When RLS is enabled for a role on a table:
 
-1. A `mg_roles` column (a list of role names) is added to the table.
-2. Each row can be tagged with the roles allowed to see it by setting `mg_roles: ["RoleA", "RoleB"]`.
-3. A user can only see, update, or delete rows where their role appears in `mg_roles`.
-4. Rows with no `mg_roles` value are visible only to users who bypass RLS (see below).
+1. A `mg_roles` column (a string array) is added to the table.
+2. Each row is tagged with exactly one role name that owns it, e.g. `mg_roles: ["TeamA"]`.
+3. A user with only an RLS role can see, update, or delete rows where their role appears in `mg_roles`.
+4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
+   visible exclusively to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+
+> **Current limitation:** `mg_roles` is stored as an array for future extensibility, but at present
+> only **one role per row** is supported. Setting more than one value in `mg_roles` is not yet
+> supported and the behaviour is undefined.
 
 **Who bypasses row-level security:**
 
 RLS is bypassed in three cases:
 
-- **Viewer** role: bypass for SELECT only. Viewers see all rows, but if they also hold a row-level
-  role, mutations still go through row matching — they can only update or delete rows tagged with
-  their role.
+- **Viewer** role: bypass for SELECT only. Viewers see all rows regardless of `mg_roles`. A user
+  can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
+  (including rows with an empty `mg_roles`) but their write operations are still limited to rows
+  tagged with their RLS role.
 - **Editor**, **Manager**, or **Owner** role: bypass for all operations.
 - A non-RLS custom role granted on the same table: bypass for all operations on that table.
   Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
 
 **Example:**
 
-| id | title | mg_roles |
-|----|-------|----------|
-| a1 | Team A only | `["TeamA"]` |
-| b1 | Team B only | `["TeamB"]` |
-| ab1 | Shared | `["TeamA", "TeamB"]` |
-| open | Public | *(empty)* |
+| id | title | mg_roles | Who can see it |
+|----|-------|----------|----------------|
+| a1 | Team A only | `["TeamA"]` | Members of `TeamA`; schema Viewer/Editor/Manager/Owner |
+| b1 | Team B only | `["TeamB"]` | Members of `TeamB`; schema Viewer/Editor/Manager/Owner |
+| open | No role set | *(empty)* | Schema Viewer/Editor/Manager/Owner **only** |
 
-A user whose only role is `TeamA` sees rows `a1` and `ab1`. They do not see `b1` or `open` —
-empty `mg_roles` is not visible to row-level-only users. A schema Viewer sees all four rows.
+- A user with **only** the `TeamA` role sees `a1` but not `b1` or `open`.
+- A user with the `TeamA` role **and** the schema Viewer role sees all three rows (`a1`, `b1`, and
+  `open`), because the Viewer role grants a bypass for reads. Their writes are still restricted to
+  rows tagged `TeamA`.
+- A user with **only** a schema Viewer role (no RLS role) also sees all rows.
 
 RLS is automatically disabled on a table when the last role with row-level access is revoked. The
 `mg_roles` column and any data in it are kept; only the row filter is removed.
