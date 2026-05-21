@@ -265,6 +265,8 @@ jobs:
     - run:
         name: Test tailwind components
         command: |
+          export PNPM_HOME="."
+          export PATH="$PNPM_HOME/bin:$PATH
           pnpm install
           pnpm install -g @playwright/cli
           pnpm playwright-cli install-browser
