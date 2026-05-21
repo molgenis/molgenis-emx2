@@ -489,6 +489,15 @@ mutation {
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
 
+**Deleting an RLS role that is still referenced in `mg_roles`** is blocked. Before the role is
+dropped, every table it has access to is checked for rows that still name the role in `mg_roles`.
+If any such rows are found the operation fails with an error:
+
+> *"Cannot delete role 'X': N row(s) in table 'T' still reference it in mg_roles"*
+
+Clear all `mg_roles` references to the role first (set the field to `null` or reassign to another
+role), then retry the drop.
+
 ## change schema elements
 
 You can change objects from schema query above and then pass them into the change function.
