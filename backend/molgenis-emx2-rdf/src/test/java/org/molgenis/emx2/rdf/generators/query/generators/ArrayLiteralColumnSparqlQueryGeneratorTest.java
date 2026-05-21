@@ -52,14 +52,17 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         createColumn(
             Column.column("foo")
                 .setRequired(true)
-                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
+                .setSemantics(
+                    "foaf:test",
+                    "https://xmlns.com/foaf/0.1/alternative",
+                    "foaf:also_alternative"));
     SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
     assertHasPatterns(
         mapper,
         """
         OPTIONAL { OPTIONAL { ?start foaf:test ?foo_single0 . }
-        OPTIONAL { ?start foaf:alternative ?foo_single1 . }
+        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }
         OPTIONAL { ?start foaf:also_alternative ?foo_single2 . }
         BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2 ) AS ?foo_single ) }""",
         "FILTER ( BOUND( ?foo_single ) )");
@@ -106,7 +109,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
       SailRepositoryConnection connection, String predicate, String object) {
     connection.add(
         statement(
-            iri(DefaultNamespace.FOAF.resolve("bob")),
+            iri("https://example.com/bob"),
             iri(DefaultNamespace.FOAF.resolve(predicate)),
             literal(object),
             null));
