@@ -263,16 +263,10 @@ jobs:
           done
 
     - run:
-      name: Install Playwright browsers
-      command: |
-        pnpm install
-        npx playwright install --with-deps chrome
-      working_directory: apps
-
-    - run:
         name: Test tailwind components
         command: |
           pnpm install
+          npx playwright install --with-deps chrome
           pnpm --filter tailwind-components run e2e
         working_directory: apps
 
