@@ -1,6 +1,6 @@
 name,tags,definition,codesystem,code,ontologyTermURI
 Next Generation Sequencing,,Next Generation Sequencing,NCIT,C101293,http://purl.obolibrary.org/obo/NCIT_C101293
-Whole Genome Sequencing,erdera,Whole Genome Sequencing,NCIT,C101294,http://purl.obolibrary.org/obo/NCIT_C101294
+Whole Genome Sequencing,"erdera",Whole Genome Sequencing,NCIT,C101294,http://purl.obolibrary.org/obo/NCIT_C101294
 Whole Exome Sequencing,erdera,Whole Exome Sequencing,NCIT,C101295,http://purl.obolibrary.org/obo/NCIT_C101295
 Large-Scale Sequencing,,Large-Scale Sequencing,NCIT,C19645,http://purl.obolibrary.org/obo/NCIT_C19645
 454 Sequencing,,454 Sequencing,NCIT,C146809,http://purl.obolibrary.org/obo/NCIT_C146809

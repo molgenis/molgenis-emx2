@@ -5,7 +5,8 @@ name,tags,definition,codesystem,code,ontologyTermURI
 454 Genome Sequencer FLX Titanium,,454 Genome Sequencer FLX Titanium,GENEPIO,1936,http://purl.obolibrary.org/obo/GENEPIO_0001936
 454 Genome Sequencer Junior,,454 Genome Sequencer Junior,GENEPIO,1938,http://purl.obolibrary.org/obo/GENEPIO_0001938
 AB SOLiD System,,AB SOLiD System,OBI,696,http://purl.obolibrary.org/obo/OBI_0000696
-Bionano Stratys,erdera,Bionano Stratys,,,
+Bionano Stratys,"erdera,OGM",Bionano Stratys,,,
+Bionano Saphyr,"erdera,OGM",Bionano Saphyr,,,
 Genome Analyzer IIe,,Genome Analyzer IIe,OBI,2027,http://purl.obolibrary.org/obo/OBI_0002027
 Genome Analyzer IIx,,Genome Analyzer IIx,OBI,2000,http://purl.obolibrary.org/obo/OBI_0002000
 HeliScope Single Molecule Sequencer,,HeliScope Single Molecule Sequencer,OBI,717,http://purl.obolibrary.org/obo/OBI_0000717

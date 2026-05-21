@@ -1,5 +1,5 @@
 name,definition,tags,codesystem,code,ontologyTermURI
-"BioNano Genomics","BioNano Genomics",,"ROR","ROR:014pv7733","https://ror.org/014pv7733"
+"BioNano Genomics","BioNano Genomics","erdera,OGM","ROR","ROR:014pv7733","https://ror.org/014pv7733"
 Complete Genomics platform,Complete Genomics platform,"erdera,RNA",GENEPIO,0001924,http://purl.obolibrary.org/obo/GENEPIO_0001924
 "Helicos platform","Helicos platform","erdera,RNA","GENEPIO","0002682","http://purl.obolibrary.org/obo/GENEPIO_0002682"
 "Illumina platform","Illumina platform","erdera,RNA","GENEPIO","0001923","http://purl.obolibrary.org/obo/GENEPIO_0001923"

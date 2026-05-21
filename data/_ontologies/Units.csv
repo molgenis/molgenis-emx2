@@ -162,7 +162,7 @@ Hour,Hour,,NCIT,NCIT_C25529,http://purl.obolibrary.org/obo/NCIT_C25529
 Millimeter,Millimeter,,NCIT,NCIT_C28251,http://purl.obolibrary.org/obo/NCIT_C28251
 Kilogram,Kilogram,,NCIT,NCIT_C28252,http://purl.obolibrary.org/obo/NCIT_C28252
 Milligram,Milligram,,NCIT,NCIT_C28253,http://purl.obolibrary.org/obo/NCIT_C28253
-Milliliter,Milliliter,"erdera,RNA",NCIT,NCIT_C28254,http://purl.obolibrary.org/obo/NCIT_C28254
+Milliliter,Milliliter,"erdera,RNA,lrGS,OGM",NCIT,NCIT_C28254,http://purl.obolibrary.org/obo/NCIT_C28254
 Frames Per Second,Frames Per Second,,NCIT,NCIT_C106524,http://purl.obolibrary.org/obo/NCIT_C106524
 Milliliters Per Millimeter of Mercury,Milliliters Per Millimeter of Mercury,,NCIT,NCIT_C106542,http://purl.obolibrary.org/obo/NCIT_C106542
 Miscellaneous Unit,Miscellaneous Unit,,NCIT,NCIT_C48572,http://purl.obolibrary.org/obo/NCIT_C48572
@@ -1296,7 +1296,7 @@ Month,Month,,NCIT,NCIT_C29846,http://purl.obolibrary.org/obo/NCIT_C29846
 Year,Year,,NCIT,NCIT_C29848,http://purl.obolibrary.org/obo/NCIT_C29848
 Byte,Byte,,NCIT,NCIT_C48047,http://purl.obolibrary.org/obo/NCIT_C48047
 Microgram,Microgram,,NCIT,NCIT_C48152,http://purl.obolibrary.org/obo/NCIT_C48152
-Microliter,Microliter,"erdera,RNA",NCIT,NCIT_C48153,http://purl.obolibrary.org/obo/NCIT_C48153
+Microliter,Microliter,"erdera,RNA,lrGS,OGM",NCIT,NCIT_C48153,http://purl.obolibrary.org/obo/NCIT_C48153
 Minute,Minute,,NCIT,NCIT_C48154,http://purl.obolibrary.org/obo/NCIT_C48154
 Gram,Gram,,NCIT,NCIT_C48155,http://purl.obolibrary.org/obo/NCIT_C48155
 Square Centimeter,Square Centimeter,,NCIT,NCIT_C48460,http://purl.obolibrary.org/obo/NCIT_C48460
@@ -1778,4 +1778,4 @@ pmol/L,Picomole per Liter,,NCIT,NCIT_C67434,http://purl.obolibrary.org/obo/NCIT_
 ug/g,,,,,
 radiation,,,,,http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation
 pmol/l,Picomole per Liter,,NCIT,NCIT_C67434,http://purl.obolibrary.org/obo/NCIT_C67434
-nanogram per microliter (ng/µl),nanogram per microliter,"erdera,RNA",UO,UO_0010050,http://purl.obolibrary.org/obo/UO_0010050
+nanogram per microliter (ng/µl),nanogram per microliter,"erdera,RNA,lrGS",UO,UO_0010050,http://purl.obolibrary.org/obo/UO_0010050
