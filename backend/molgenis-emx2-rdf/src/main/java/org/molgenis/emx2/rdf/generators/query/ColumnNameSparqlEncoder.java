@@ -18,8 +18,13 @@ import org.molgenis.emx2.Column;
  *   <li>{@code ' '} is encoded as {@code "___"} (triple underscore)
  * </ul>
  *
- * <p><b>Limitation:</b> column names that already contain {@code "__"} or {@code "___"} will not
- * round-trip correctly through encode and decode.
+ * <p><b>Limitation:</b> The following column names will not round-trip correctly through encode and
+ * decode.
+ *
+ * <ul>
+ *   <li>column names that already contain {@code "__"} or {@code "___"}
+ *   <li>column names that end with {@code "_"}
+ * </ul>
  */
 public class ColumnNameSparqlEncoder {
 
