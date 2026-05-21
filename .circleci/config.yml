@@ -266,6 +266,8 @@ jobs:
         name: Test tailwind components
         command: |
           pnpm install
+          pnpm install -g @playwright/cli
+          pnpm playwright-cli install-browser
           export E2E_BASE_URL=http://localhost:8080/
           echo $E2E_BASE_URL
           export PLAYWRIGHT_BROWSERS_PATH=0
