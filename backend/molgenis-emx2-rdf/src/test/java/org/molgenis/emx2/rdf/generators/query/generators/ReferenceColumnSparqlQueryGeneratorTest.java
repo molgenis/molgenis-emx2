@@ -209,22 +209,30 @@ class ReferenceColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldResolveCrossSchemaReferences() {
-    Schema productSchema = database.dropCreateSchema(getClass().getSimpleName() + "Products");
-    productSchema.create(productTableWithSemantics("schema:name"));
+    Schema schemaA = database.dropCreateSchema(getClass().getSimpleName() + "ref_a");
+    Schema schemaB = database.dropCreateSchema(getClass().getSimpleName() + "ref_b");
 
+    schemaB.create(productTableWithSemantics("schema:name"));
     // To check whether we always check on schema's, not just when we don't find the table.
-    schema.create(productTableWithSemantics("schema:invalid"));
+    schemaA.create(productTableWithSemantics("schema:invalid"));
+
     TableMetadata orders =
-        schema.create(
-            TableMetadata.table(
-                "Order",
-                Column.column("id").setPkey().setType(ColumnType.STRING).setSemantics("schema:id"),
-                Column.column("product")
-                    .setType(ColumnType.REF)
-                    .setRefTable("Product")
-                    .setRefSchemaName(productSchema.getName())
-                    .setRequired(true)
-                    .setSemantics("schema:product")));
+        schemaA
+            .create(
+                TableMetadata.table(
+                    "Order",
+                    Column.column("id")
+                        .setPkey()
+                        .setType(ColumnType.STRING)
+                        .setSemantics("schema:id"),
+                    Column.column("product")
+                        .setType(ColumnType.REF)
+                        .setRefTable("Product")
+                        .setRefSchemaName(schemaB.getName())
+                        .setRequired(true)
+                        .setSemantics("schema:product")))
+            .getMetadata();
+
     Column column = orders.getColumn("product");
     ReferenceColumnSparqlQueryGenerator mapper =
         new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
@@ -233,8 +241,6 @@ class ReferenceColumnSparqlQueryGeneratorTest {
         mapper, "?order schema:product ?product .", "?product schema:name ?product__name .");
     assertHasSelectors(mapper, "?product__name");
     assertHasGroupBy(mapper, "?product__name");
-    database.dropSchemaIfExists(getClass().getSimpleName() + "Products");
-    database.dropSchemaIfExists(getClass().getSimpleName());
   }
 
   @Nested
