@@ -265,7 +265,7 @@ jobs:
     - run:
         name: Install dependencies
         command: |
-          pnpm install @playwright/test         
+          pnpm install -w @playwright/test         
           npx playwright install chrome
           npx playwright install
         working_directory: apps
