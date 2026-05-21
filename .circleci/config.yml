@@ -266,6 +266,8 @@ jobs:
         name: Test tailwind components
         command: |
           pnpm install
+          export E2E_BASE_URL=http://localhost:8080/
+          echo $E2E_BASE_URL
           pnpm --filter tailwind-components run e2e
         working_directory: apps
 
