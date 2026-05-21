@@ -268,6 +268,8 @@ jobs:
           pnpm install
           export E2E_BASE_URL=http://localhost:8080/
           echo $E2E_BASE_URL
+          export PLAYWRIGHT_BROWSERS_PATH=0
+          pnpm --filter tailwind-components exec playwright install chromium
           pnpm --filter tailwind-components run e2e
         working_directory: apps
 
