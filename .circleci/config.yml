@@ -266,7 +266,6 @@ jobs:
         name: Test tailwind components
         command: |
           pnpm install
-          pnpm --filter tailwind-components exec playwright install chrome
           pnpm --filter tailwind-components run e2e
         working_directory: apps
 
