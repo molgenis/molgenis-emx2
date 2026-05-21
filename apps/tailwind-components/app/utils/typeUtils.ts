@@ -1,4 +1,4 @@
-import type { Menu, MgError } from "../../types/types";
+import type { Link, Menu, MgError } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -244,4 +244,26 @@ export function isMgError(error: unknown): error is MgError {
 
 export function isError(error: unknown): error is Error {
   return error instanceof Error;
+}
+
+export function isLink(value: unknown): value is Link {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "link" in value &&
+    typeof (value as Link).link === "string" &&
+    (typeof (value as Link).isSpaLink === "boolean" ||
+      (value as Link).isSpaLink === undefined)
+  );
+}
+
+export function parseLinkSetting(linkSetting: string): Link {
+  const linkSettingObject = JSON.parse(linkSetting);
+  isLink(linkSettingObject);
+  return {
+    link: linkSettingObject.link,
+    isSpaLink:
+      linkSettingObject.isSpaLink === "true" ||
+      linkSettingObject.isSpaLink === true,
+  };
 }
