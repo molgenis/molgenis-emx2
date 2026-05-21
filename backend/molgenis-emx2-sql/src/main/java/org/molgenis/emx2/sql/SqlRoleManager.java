@@ -596,7 +596,7 @@ public class SqlRoleManager {
         roleNames.stream()
             .filter(this::isSystemRole)
             .flatMap(r -> systemPermissions(r).stream())
-            .filter(p -> "*".equals(p.table()) && hasAnyPermission(p))
+            .filter(p -> "*".equals(p.table()) && p.hasAny())
             .reduce(
                 (a, b) ->
                     new TablePermission("*")
@@ -610,12 +610,12 @@ public class SqlRoleManager {
 
     if (customRoleName != null) {
       getPermissions(schemaName, customRoleName).stream()
-          .filter(SqlRoleManager::hasAnyPermission)
+          .filter(TablePermission::hasAny)
           .forEach(p -> result.put(p.table(), p));
     }
 
     if (systemWildcard != null) {
-      boolean systemHasDml = hasAnyDml(systemWildcard);
+      boolean systemHasDml = systemWildcard.hasModify();
       result.replaceAll(
           (table, p) ->
               new TablePermission(table)
@@ -632,22 +632,12 @@ public class SqlRoleManager {
                   .insert(systemWildcard.insert())
                   .update(systemWildcard.update())
                   .delete(systemWildcard.delete());
-          if (hasAnyPermission(tp)) result.put(tableName, tp);
+          if (tp.hasAny()) result.put(tableName, tp);
         }
       }
     }
 
     return new ArrayList<>(result.values());
-  }
-
-  private static boolean hasAnyPermission(TablePermission p) {
-    return p.hasSelect() || p.hasInsert() || p.hasUpdate() || p.hasDelete();
-  }
-
-  private static boolean hasAnyDml(TablePermission p) {
-    return Boolean.TRUE.equals(p.insert())
-        || Boolean.TRUE.equals(p.update())
-        || Boolean.TRUE.equals(p.delete());
   }
 
   private static Boolean orBool(Boolean a, Boolean b) {

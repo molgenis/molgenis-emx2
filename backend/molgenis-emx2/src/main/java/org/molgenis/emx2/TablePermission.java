@@ -52,6 +52,14 @@ public class TablePermission {
     return Boolean.TRUE.equals(delete);
   }
 
+  public boolean hasAny() {
+    return hasSelect() || hasInsert() || hasUpdate() || hasDelete();
+  }
+
+  public boolean hasModify() {
+    return hasInsert() || hasUpdate() || hasDelete();
+  }
+
   public TablePermission select(Boolean select) {
     this.select = select;
     return this;
