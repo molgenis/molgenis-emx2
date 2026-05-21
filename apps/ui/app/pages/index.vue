@@ -13,17 +13,12 @@ import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
 import InputSearch from "../../../tailwind-components/app/components/input/Search.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
-import { definePageMeta } from "#imports";
 
 interface Schema {
   id: string;
   label: string;
   description: string;
 }
-
-definePageMeta({
-  middleware: ["system-landing-page"],
-});
 
 const { data } = await useFetch<Resp<Schema>>("/graphql", {
   key: "databases",
