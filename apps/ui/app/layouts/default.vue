@@ -10,7 +10,7 @@
     <div class="z-30 relative min-h-screen flex flex-col">
       <Header>
         <template #logo>
-          <Logo link="/" />
+          <Logo link="/" :image="logoUrl" />
         </template>
         <template #nav>
           <Navigation :navigation="userMenuItems" />
@@ -83,11 +83,22 @@ import FooterVersion from "../../../tailwind-components/app/components/FooterVer
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 import type { MenuItem } from "../../../tailwind-components/types/types";
+import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
+
+const LOGO_URL_SETTING = "logoUrl";
+const settings = await useSettings(new Set([LOGO_URL_SETTING]));
+let logoUrl: string | undefined = undefined;
+if (
+  settings.value?.[LOGO_URL_SETTING] &&
+  typeof settings.value[LOGO_URL_SETTING] === "string"
+) {
+  logoUrl = settings.value[LOGO_URL_SETTING];
+}
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
