@@ -221,11 +221,6 @@ jobs:
           ./gradlew build -x test
 
     - run:
-      name: Load env vars
-      command: |
-        cat build/ci.properties >> $BASH_ENV
-
-    - run:
         name: start the application in the background
         command: |
           export $( cat build/ci.properties | xargs )
