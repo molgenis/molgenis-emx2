@@ -20,7 +20,7 @@ interface Link {
 example with external link ( i.e. all links outside of the 'ui' app)
 
 ```json
-{"link": "directory-demo/directory#/catalogue", "isSpaLink": false}
+{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
 ```
 
 example with internal link ( i.e. all within of the 'ui' app)
