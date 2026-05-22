@@ -716,8 +716,13 @@ workflows:
           branches:
             ignore: master
         jobs:
-         - build
-         - my-e2e-test
+    - build:
+        filters:
+          branches:
+            ignore: master
+    - my-e2e-test:
+        requires:
+          - build
     - emx2-pyclient:
         name: testPyPI release
         filters:
