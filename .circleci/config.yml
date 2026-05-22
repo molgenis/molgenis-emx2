@@ -323,7 +323,7 @@ jobs:
       - run:
           name: Test tailwind components
           command: |
-            export E2E_BASE_URL=http://localhost:8080/
+            export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
             echo $E2E_BASE_URL
             pnpm install
             pnpm --filter tailwind-components run e2e
