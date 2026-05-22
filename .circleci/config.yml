@@ -711,11 +711,6 @@ workflows:
        filters:
          branches:
            ignore: master
-    - e2e-tests:
-        filters:
-          branches:
-            ignore: master
-        jobs:
     - build:
         filters:
           branches:
