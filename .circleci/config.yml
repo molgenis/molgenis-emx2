@@ -253,8 +253,7 @@ jobs:
 
       - run:
           name: build the application without running tests to speed up the e2e tests
-          command: |
-            ./gradlew build -x test   
+          command: ./gradlew build -x test -x pmdMain -x pmdTest -x format -x spotlessApply --no-daemon
 
       - run:
           name: start the application in the background
