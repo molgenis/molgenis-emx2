@@ -233,6 +233,10 @@ jobs:
             npx playwright install
 
       - run:
+          name: install postgres client
+          command: apt-get update && apt-get install -y postgresql-client
+
+      - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
