@@ -206,85 +206,118 @@ jobs:
     - post_steps
 
   e2e-tests:
-    <<: *test_config
-
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.60.0-jammy
+      - image: postgres:15-alpine
     steps:
-    - pre_steps
+      - checkout
 
-    - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+      - run:
+          name: Enable pnpm
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
 
-    - run:
-        name: build the application without running tests to speed up the e2e tests
-        command: |
-          ./gradlew build -x test
+      - run: pnpm i -D @playwright/test
 
-    - run:
-        name: start the application in the background
-        command: |
-          export $( cat build/ci.properties | xargs )
-          nohup java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
-          echo $! > application.pid
-          echo "Started PID: $(cat application.pid)"
-          sleep 5
-          echo "Checking if process is still running..."
-          ps -p $(cat application.pid) || echo "❌ Process died immediately"
-          echo "Last logs:"
-          tail -200 application.log
+      - run:
+          name: Install dependencies
+          command: |
+            pnpm install @playwright/test         
+            npx playwright install chrome
+            npx playwright install
 
-    - run:
-        name: Wait for application to be up, poll every 10 seconds
-        command: |
-          GETURL="http://localhost:8080/pet%20store/tables#/"
-          MAX_RETRIES=120
-          RETRY=0
-          
-          while true; do
-            # Run curl, suppress output, get status code only
-            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
-          
-            echo "HTTP status: ${STATUS:-none}"
-            
-            if [[ "$STATUS" == "200" ]]; then
-            echo "✅ Application is up"
-            break
-            else
-            echo "⏳ Application not ready yet, waiting 10 seconds..."
-            fi
-            
-            RETRY=$((RETRY + 1))
-            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
-            echo "❌ Gave up after $MAX_RETRIES attempts"
-            exit 1
-            fi
-            
-            sleep 1
-          done
+      - run:
+          name: prepare sql test database
+          command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-    - run:
-        name: Test tailwind components
-        command: |
-          export PNPM_HOME="."
-          export PATH="$PNPM_HOME/bin:$PATH"
-          pnpm install
-          pnpm install -g @playwright/cli
-          pnpm playwright-cli install-browser
-          export E2E_BASE_URL=http://localhost:8080/
-          echo $E2E_BASE_URL
-          export PLAYWRIGHT_BROWSERS_PATH=0
-          pnpm --filter tailwind-components exec playwright install --with-deps chromium
-          pnpm --filter tailwind-components run e2e
-        working_directory: apps
+      - run:
+          name: Install Java
+          command: |
+            apt-get update
+            apt-get install -y openjdk-21-jdk
 
-    - store_test_results:
-        path: apps/test-results
+      - run:
+          name: build the application without running tests to speed up the e2e tests
+          command: |
+            ./gradlew build -x test      
 
-    - store_artifacts:
-        path: apps/test-results
+      - run:
+          name: Test tailwind components
+          command: |
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            pnpm install
+            pnpm --filter tailwind-components run e2e
+          working_directory: apps
 
-    - store_artifacts:
-        path: apps/playwright-report
+#    - run:
+#        name: start the application in the background
+#        command: |
+#          export $( cat build/ci.properties | xargs )
+#          nohup java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+#          echo $! > application.pid
+#          echo "Started PID: $(cat application.pid)"
+#          sleep 5
+#          echo "Checking if process is still running..."
+#          ps -p $(cat application.pid) || echo "❌ Process died immediately"
+#          echo "Last logs:"
+#          tail -200 application.log
+
+#    - run:
+#        name: Wait for application to be up, poll every 10 seconds
+#        command: |
+#          GETURL="http://localhost:8080/pet%20store/tables#/"
+#          MAX_RETRIES=120
+#          RETRY=0
+#
+#          while true; do
+#            # Run curl, suppress output, get status code only
+#            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+#
+#            echo "HTTP status: ${STATUS:-none}"
+#
+#            if [[ "$STATUS" == "200" ]]; then
+#            echo "✅ Application is up"
+#            break
+#            else
+#            echo "⏳ Application not ready yet, waiting 10 seconds..."
+#            fi
+#
+#            RETRY=$((RETRY + 1))
+#            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+#            echo "❌ Gave up after $MAX_RETRIES attempts"
+#            exit 1
+#            fi
+#
+#            sleep 1
+#          done
+
+#    - run:
+#        name: Test tailwind components
+#        command: |
+#          export PNPM_HOME="."
+#          export PATH="$PNPM_HOME/bin:$PATH"
+#          pnpm install
+#          pnpm install -g @playwright/cli
+#          pnpm playwright-cli install-browser
+#          export E2E_BASE_URL=http://localhost:8080/
+#          echo $E2E_BASE_URL
+#          export PLAYWRIGHT_BROWSERS_PATH=0
+#          pnpm --filter tailwind-components exec playwright install --with-deps chromium
+#          pnpm --filter tailwind-components run e2e
+#        working_directory: apps
+
+      - store_test_results:
+          path: apps/test-results
+
+      - store_artifacts:
+          path: apps/test-results
+
+      - store_artifacts:
+          path: apps/playwright-report
 
   test:
     <<: *test_config
