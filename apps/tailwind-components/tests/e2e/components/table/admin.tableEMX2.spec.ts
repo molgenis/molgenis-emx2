@@ -43,5 +43,8 @@ test("the row should be removed from the table after deletion", async ({
   await page.getByRole("row").nth(1).hover();
   await page.getByRole("button", { name: 'delete{"name":"deltest"}' }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(page.getByRole("row")).toHaveCount(1);
+  await page.waitForTimeout(500);
+  await expect(
+    page.getByRole("cell", { name: "view row details deltest" })
+  ).toBeHidden();
 });
