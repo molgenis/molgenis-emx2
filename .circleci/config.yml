@@ -209,6 +209,10 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.60.0-jammy
       - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
     steps:
       - checkout
 
