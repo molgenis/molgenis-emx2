@@ -206,9 +206,9 @@ jobs:
     - post_steps
 
   e2e-tests:
+    resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.60.0-jammy
-        resource_class: large
         environment:
           JVM_OPTS: -Xmx6400m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
