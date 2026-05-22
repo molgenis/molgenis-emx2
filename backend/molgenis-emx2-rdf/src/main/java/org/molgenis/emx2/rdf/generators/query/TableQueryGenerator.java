@@ -18,11 +18,12 @@ import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQuer
 import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
-public class TableQueryGenerator {
+public class TableQueryGenerator implements QueryGenerator {
 
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
 
+  @Override
   public SelectQuery generate(TableMetadata tableMetadata) {
     List<Projectable> selectors = new ArrayList<>();
     List<GraphPattern> whereClauses = new ArrayList<>();

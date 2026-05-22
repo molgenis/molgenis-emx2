@@ -24,7 +24,7 @@ import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
  * same data are required, consider a {@link TableStore} implementation that materialises rows (e.g.
  * backed by a {@link List}).
  */
-public class StreamingTableStore implements TableStore {
+class StreamingTableStore implements TableStore, AutoCloseable {
 
   private final Map<String, Stream<Row>> store = new HashMap<>();
 
@@ -72,5 +72,10 @@ public class StreamingTableStore implements TableStore {
   @Override
   public Collection<String> getTableNames() {
     return store.keySet();
+  }
+
+  @Override
+  public void close() {
+    store.forEach((key, value) -> value.close());
   }
 }
