@@ -25,6 +25,7 @@ test("Can change order of columns", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Pet");
 
   await expect(page.getByRole("columnheader")).toHaveText([
+    "",
     "Draft",
     "name",
     "category",
@@ -40,6 +41,7 @@ test("Can change order of columns", async ({ page }) => {
     .dragTo(page.locator('label:has-text("tags")'));
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("columnheader")).toHaveText([
+    "",
     "Draft",
     "category",
     "photoUrls",
