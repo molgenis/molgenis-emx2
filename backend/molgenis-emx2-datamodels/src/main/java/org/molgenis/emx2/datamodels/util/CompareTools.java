@@ -32,6 +32,10 @@ public class CompareTools {
     // hide constructor
   }
 
+  public static void assertEquals(Row row1, Row row2) {
+    assertEquals(List.of(row1), List.of(row2));
+  }
+
   public static void assertEquals(List<Row> list1, List<Row> list2) {
 
     if (list1.size() != list2.size()) fail("List<Row> have different length ");
