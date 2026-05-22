@@ -323,36 +323,20 @@ jobs:
       - run:
           name: Test tailwind components
           command: |
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            export E2E_BASE_URL=http://localhost:8080/
             echo $E2E_BASE_URL
             pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
-#    - run:
-#        name: Test tailwind components
-#        command: |
-#          export PNPM_HOME="."
-#          export PATH="$PNPM_HOME/bin:$PATH"
-#          pnpm install
-#          pnpm install -g @playwright/cli
-#          pnpm playwright-cli install-browser
-#          export E2E_BASE_URL=http://localhost:8080/
-#          echo $E2E_BASE_URL
-#          export PLAYWRIGHT_BROWSERS_PATH=0
-#          pnpm --filter tailwind-components exec playwright install --with-deps chromium
-#          pnpm --filter tailwind-components run e2e
-#        working_directory: apps
-
       - store_test_results:
-          path: apps/test-results
+          path: apps/tailwind-components/test-results
 
       - store_artifacts:
-          path: apps/test-results
+          path: apps/tailwind-components/test-results
 
       - store_artifacts:
-          path: apps/playwright-report
+          path: apps/tailwind-components/playwright-report
 
   test:
     <<: *test_config
