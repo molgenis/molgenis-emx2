@@ -205,7 +205,22 @@ jobs:
 
     - post_steps
 
-  e2e-tests:
+
+  build:
+    <<: *build_config
+
+    steps:
+      - pre_steps
+      - run:
+          name: build the application without running tests to speed up the e2e tests
+          command: ./gradlew shadowJar -x test ci --no-daemon
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/libs
+
+  my-e2e-test:
     resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.60.0-jammy
@@ -220,6 +235,8 @@ jobs:
           POSTGRES_DB: postgres
     steps:
       - checkout
+      - attach_workspace:
+            at: /workspace
 
       - run:
           name: Enable pnpm
@@ -252,8 +269,9 @@ jobs:
             apt-get install -y openjdk-21-jdk
 
       - run:
-          name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew build -x test -x pmdMain -x pmdTest -x format -x spotlessApply --no-daemon
+          name: Show jars
+          command: |
+            ls -la /workspace/build/libs
 
       - run:
           name: start the application in the background
@@ -697,6 +715,9 @@ workflows:
         filters:
           branches:
             ignore: master
+        jobs:
+         - build
+         - my-e2e-test
     - emx2-pyclient:
         name: testPyPI release
         filters:
