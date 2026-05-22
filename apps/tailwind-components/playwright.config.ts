@@ -3,6 +3,7 @@ import type { ConfigOptions } from "@nuxt/test-utils/playwright";
 
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e",
+  maxFailures: process.env.CI ? 1 : 5,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

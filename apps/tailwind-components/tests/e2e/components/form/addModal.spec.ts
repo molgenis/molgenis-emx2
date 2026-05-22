@@ -6,9 +6,13 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
+console.log('route', route);
+console.log('process base url', process.env.E2E_BASE_URL)
+
 test.use({ storageState: "playwright/.auth/user.json" });
 
 test("should show the add modal", async ({ page }) => {
+  console.log('goto', `${route}form/AddModal.story?schema=pet+store&table=Pet`);
   await page.goto(`${route}form/AddModal.story?schema=pet+store&table=Pet`);
   await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Pet" }).click();
