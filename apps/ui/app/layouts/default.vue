@@ -49,7 +49,7 @@
           />
         </template>
         <template #logo-mobile>
-          <LogoMobile link="/" />
+          <LogoMobile link="/" :image="logoUrl" />
         </template>
         <template #nav-mobile>
           <Navigation :navigation="menuItems" />
@@ -90,7 +90,7 @@ const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
 
-const LOGO_URL_SETTING = "logoUrl";
+const LOGO_URL_SETTING = "logoURL";
 const settings = await useSettings(new Set([LOGO_URL_SETTING]));
 let logoUrl: string | undefined = undefined;
 if (
