@@ -2,16 +2,10 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
-console.log("route", route);
-console.log("process base url", process.env.E2E_BASE_URL);
-console.log("playwright config", playwrightConfig);
-console.log("playwrightConfig use", playwrightConfig?.use);
-
 test.beforeEach(async ({ page }) => {
-    console.log("going to page", page);
   await page.goto(`${route}ButtonBar.story`);
 });
 
