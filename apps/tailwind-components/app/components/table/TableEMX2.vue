@@ -22,6 +22,16 @@
         :columns="columns"
         @update:columns="handleColumnsUpdate"
       />
+
+      <Button
+        v-if="data?.tableMetadata"
+        type="outline"
+        :href="`/${schemaId}/api/csv/${tableId}`"
+        icon="Download"
+        download
+      >
+        Download
+      </Button>
     </div>
   </div>
 
@@ -35,45 +45,44 @@
       :style="{ left: guideX + 'px' }"
     />
 
-    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
+    <div
+      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
+      v-on:scroll.native="handleStickyHeaderOffset"
+    >
+      <div
+        v-if="useStickyHeader"
+        class="fixed top-0 z-20 overflow-hidden aria-hidden=true"
+        :class="{ hidden: !showStickyHeader }"
+      >
+        <table
+          ref="tableHeaderFixed"
+          class="border-0 text-left w-full table-fixed bg-table"
+        >
+          <TableEMX2Head
+            :schemaId="props.schemaId"
+            :tableId="props.tableId"
+            :settings="settings"
+            :columns="sortedVisibleColumns"
+            :showDraftColumn="showDraftColumn"
+            :isResizing="isResizing"
+            :columnWidths="columnWidths"
+            @sort-requested="handleSortRequest"
+            @start-resize="startResize($event.event, $event.id)"
+          />
+        </table>
+      </div>
       <table ref="table" class="text-left w-full table-fixed">
-        <thead>
-          <tr>
-            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
-              <TableHeaderAction
-                :column="{ id: 'mg_draft', label: 'Draft' }"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-            <TableHeadCell
-              v-for="column in sortedVisibleColumns"
-              :style="{
-                width: columnWidths[column.id] + 'px',
-                userSelect: isResizing ? 'none' : 'auto',
-              }"
-              class="relative group"
-            >
-              <div
-                class="absolute right-0 top-0 h-full w-4 cursor-col-resize group"
-                @mousedown.stop="startResize($event, column.id)"
-              >
-                <div
-                  class="absolute right-0 top-0 h-full w-[2px] bg-transparent hover:bg-button-primary"
-                />
-              </div>
-              <TableHeaderAction
-                :column="column"
-                :schemaId="schemaId"
-                :tableId="tableId"
-                :settings="settings"
-                @sort-requested="handleSortRequest"
-              />
-            </TableHeadCell>
-          </tr>
-        </thead>
+        <TableEMX2Head
+          :schemaId="props.schemaId"
+          :tableId="props.tableId"
+          :settings="settings"
+          :columns="sortedVisibleColumns"
+          :showDraftColumn="showDraftColumn"
+          :isResizing="isResizing"
+          :columnWidths="columnWidths"
+          @sort-requested="handleSortRequest"
+          @start-resize="startResize($event.event, $event.id)"
+        />
         <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >
@@ -160,13 +169,22 @@
     </div>
   </div>
 
+  <div
+    class="p-2.5 text-right font-normal align-middle text-table-column-header"
+  >
+    Showing {{ (settings.page - 1) * settings.pageSize }} to
+    {{ Math.min(settings.page * settings.pageSize, count) }} of
+    {{ count }} items
+  </div>
+
   <Pagination
-    class="pt-[30px] pb-[30px]"
+    v-if="count > smallestPageSize"
+    class="pt-0 pb-[30px]"
     :current-page="settings.page"
     :totalPages="Math.ceil(count / settings.pageSize)"
     :jump-to-edge="true"
-    :show-page-selector="count > settings.pageSize"
     :page-size="settings.pageSize"
+    :show-page-size-selector="true"
     @update="handlePagingRequest($event)"
     @update:pageSize="handlePageSizeChange($event)"
   />
@@ -238,7 +256,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useId, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  ref,
+  useId,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "vue";
 import type {
   IRow,
   IColumn,
@@ -259,7 +285,6 @@ import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
-import TableHeadCell from "./TableHeadCell.vue";
 
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
@@ -270,21 +295,23 @@ import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import TableHeaderAction from "./TableHeaderAction.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import constants from "../../utils/constants";
+import TableEMX2Head from "./TableEMX2Head.vue";
 
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
     isEditable?: boolean;
+    useStickyHeader?: boolean;
   }>(),
   {
     isEditable: () => false,
+    useStickyHeader: () => true,
   }
 );
 
@@ -299,9 +326,11 @@ const cellDetailColumn = ref<IColumn>();
 const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
-
+const showStickyHeader = ref(false);
+const stickyHeaderOffset = ref(0);
 const tableContainer = ref<HTMLElement | null>(null);
-
+const tableHeaderFixed = ref<HTMLElement | null>(null);
+const tableHead = ref<HTMLElement | null>(null);
 const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
   useColumnResize(tableContainer);
 
@@ -339,8 +368,48 @@ const { data, refresh } = useAsyncData(
   }
 );
 
-let widthsInitialized = false;
+onMounted(async () => {
+  if (props.useStickyHeader) {
+    window.addEventListener("resize", updateStickyHeaderWidth);
+    window.addEventListener("scroll", handleStickyHeaderScroll);
+  }
+});
 
+onUnmounted(async () => {
+  window.removeEventListener("scroll", handleStickyHeaderScroll);
+  window.removeEventListener("resize", updateStickyHeaderWidth);
+});
+
+function handleStickyHeaderScroll(event: Event) {
+  const target = event.target as HTMLElement;
+  const rect = tableContainer?.value?.getBoundingClientRect();
+  const top = rect?.top ?? 0;
+  showStickyHeader.value = top <= 0;
+  updateStickyHeaderWidth();
+  const tableHeadHeight = tableHead.value?.getBoundingClientRect().height ?? 0;
+  if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
+    showStickyHeader.value = false;
+  }
+}
+
+function handleStickyHeaderOffset(event: Event) {
+  const target = event.target as HTMLElement;
+  const { scrollLeft } = target;
+  if (tableHeaderFixed.value) {
+    tableHeaderFixed.value.style.transform = `translateX(-${scrollLeft}px)`;
+  }
+  updateStickyHeaderWidth();
+}
+
+function updateStickyHeaderWidth() {
+  const tableFixedContainer = tableHeaderFixed.value?.parentElement;
+  if (tableFixedContainer) {
+    tableFixedContainer.style.width =
+      tableFixedContainer.parentElement?.clientWidth + "px";
+  }
+}
+
+let widthsInitialized = false;
 watch(
   () => columns.value,
   (newColumns) => {
@@ -422,6 +491,14 @@ function handleSearchRequest(search: string) {
   settings.value.page = 1;
   refresh();
 }
+
+const smallestPageSize = computed(() =>
+  Math.min(
+    ...constants.PAGE_SIZE_OPTIONS.filter(
+      (size) => size >= settings.value.pageSize
+    )
+  )
+);
 
 function handlePagingRequest(page: number) {
   settings.value.page = page;

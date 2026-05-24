@@ -15,12 +15,14 @@ const props = withDefaults(
     inverted?: boolean;
     jumpToEdge?: boolean;
     showPageSelector?: boolean;
+    showPageSizeSelector?: boolean;
   }>(),
   {
     preventDefault: false,
     inverted: false,
     jumpToEdge: false,
     showPageSelector: true,
+    showPageSizeSelector: false,
     pageSize: constants.PAGE_SIZE_DEFAULT,
   }
 );
@@ -179,7 +181,7 @@ function changeCurrentPage(event: Event) {
         </a>
       </li>
 
-      <li class="flex justify-center items-center">
+      <li class="flex justify-center items-center" v-if="showPageSizeSelector">
         <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
           <span
             class="text-pagination"
@@ -192,7 +194,7 @@ function changeCurrentPage(event: Event) {
         </div>
       </li>
 
-      <li class="flex justify-center items-center">
+      <li class="flex justify-center items-center" v-if="showPageSizeSelector">
         <div class="tracking-widest whitespace-nowrap w-32">
           <span
             class="text-pagination"

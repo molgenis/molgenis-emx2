@@ -6,6 +6,11 @@ plugins {
     id 'application'
 }
 
+// In specific scenario's (f.e. macOS with docker through colima), `which docker` works yet it fails
+// when trying to run docker commands. This allows for a manual override to include a hard coded
+// path instead. Example (.bash_profile): export DOCKER_PATH="/usr/local/bin/docker"
+def docker = System.getenv("DOCKER_PATH") ?: "docker"
+
 ext {
     javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
     javaVersion = JavaVersion.VERSION_21
@@ -99,7 +104,7 @@ tasks.register('dockerBuild', Exec) {
         logger.lifecycle("Using JAR file: ${shadowJar.archiveFile.get().asFile.name}")
     }
 
-    commandLine 'docker', 'build',
+    commandLine docker, 'build',
         '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
         '-t', "${imageName}:${tagName}",
         '-t', "${imageName}:latest",
@@ -114,7 +119,7 @@ tasks.register('dockerPush', Exec) {
         logger.lifecycle("Pushing Docker image: ${imageName} with tags: ${tagName}, latest")
     }
 
-    commandLine 'docker', 'push', imageName, '--all-tags'
+    commandLine docker, 'push', imageName, '--all-tags'
 }
 
 tasks.register('dockerClean', Delete) {

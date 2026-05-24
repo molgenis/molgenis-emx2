@@ -222,7 +222,7 @@ public class GraphqlDatabaseFieldFactory {
                 return taskService.listTasks();
               }
 
-              throw new MolgenisException("task id needs to be provided to specify task");
+              throw new MolgenisException("Listing all tasks is only allowed for admin users");
             })
         .build();
   }

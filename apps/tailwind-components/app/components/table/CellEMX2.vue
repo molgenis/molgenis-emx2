@@ -104,12 +104,11 @@
         />
       </template>
       <template v-else>
-        <span></span>
+        <span class="min-h-4 inline-block"></span>
       </template>
     </slot>
   </td>
 </template>
-
 <script setup lang="ts">
 import type {
   columnValue,
