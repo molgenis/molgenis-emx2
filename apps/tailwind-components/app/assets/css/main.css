@@ -226,6 +226,7 @@
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-footer: var(--border-color-theme);
 
     --border-width-theme: 1px;
     --border-width-form-required: 1px;

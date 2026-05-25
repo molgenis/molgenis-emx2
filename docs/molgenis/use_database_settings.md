@@ -2,6 +2,33 @@
 
 See setting menu.
 
+### New ui (tailwind-based) settings (Alpha non-stable feature)
+
+#### Landing page
+Set the landing page with the optional SCHEMA_LANDING_PAGE setting
+
+ - key: ```SCHEMA_LANDING_PAGE```
+ - value: a string containing valid json object with the following properties:
+
+```ts
+interface Link {
+    link: string;
+    isSpaLink?: boolean;
+}
+```
+
+example with external link ( i.e. all links outside of the 'ui' app)
+
+```json
+{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+```
+
+example with internal link ( i.e. all within of the 'ui' app)
+
+```json
+{"link": "pet%20store/Pet", "isSpaLink": true}
+```
+
 ## Members
 
 ## Layout
@@ -9,9 +36,9 @@ See setting menu.
 ## Menu
 
 
-### New ui (tailwind based) menu
-With no configuration, the new ui shows a mix of internal and external links .
-Both the default menu and the user defined menu use the following configuration:
+### New ui (tailwind-based) menu (Alpha non-stable feature)
+With no configuration, the new ui shows a mix of internal and external links.
+Both the default menu and the user-defined menu use the following configuration:
 
 ```ts
 type Menu = MenuItem[];
