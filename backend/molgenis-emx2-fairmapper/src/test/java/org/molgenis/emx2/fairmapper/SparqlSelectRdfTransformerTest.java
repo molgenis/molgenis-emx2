@@ -86,6 +86,7 @@ class SparqlSelectRdfTransformerTest {
 
     @BeforeAll
     void queryTestData() {
+
       // Set up a SailRepository with a single statement to test against
       SailRepository repository = setupRepository();
       SchemaMetadata schema = setupSchema();
