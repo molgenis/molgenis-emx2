@@ -16,7 +16,10 @@ const props = defineProps<{
   columns: IColumn[];
   schemaId: string;
   tableId: string;
+  collapsed?: boolean;
 }>();
+
+const emit = defineEmits<{ "update:collapsed": [value: boolean] }>();
 
 const searchInputId = useId();
 const pickerOpen = ref(false);
@@ -104,6 +107,27 @@ function handlePickerApply(
 <template>
   <div>
     <div
+      v-if="props.collapsed"
+      class="rounded-t-3px rounded-b-50px pt-5 bg-sidebar-gradient w-16 flex flex-col items-center justify-start pt-4gap-2 cursor-pointer"
+      role="button"
+      tabindex="0"
+      aria-label="Show filters"
+      @click="emit('update:collapsed', false)"
+      @keydown.enter.space.prevent="emit('update:collapsed', false)"
+    >
+      <Button
+          type="secondary"
+          :icon-only="true"
+          icon="double-arrow-right"
+          label="Show filters"
+          size="small"
+          @click="emit('update:collapsed', false)"
+      />
+      <h2 class="font-display text-heading-2xl  [writing-mode:vertical-rl] rotate-180 text-search-filter-title font-bold uppercase mt-4">Show filters</h2>
+    </div>
+
+    <div
+      v-else
       id="filter-sidebar-content"
       class="rounded-t-3px rounded-b-50px bg-sidebar-gradient pb-8"
     >
@@ -113,15 +137,25 @@ function handlePickerApply(
         >
           Filters
         </h2>
-        <button
-          type="button"
-          class="flex items-center gap-1 text-body-sm text-search-filter-action hover:underline cursor-pointer"
-          aria-label="Customize filters"
-          @click="pickerOpen = true"
-        >
-          <BaseIcon name="filter" :width="16" />
-          Customize
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="flex items-center gap-1 text-body-sm text-search-filter-action hover:underline cursor-pointer"
+            aria-label="Customize filters"
+            @click="pickerOpen = true"
+          >
+            <BaseIcon name="filter" :width="16" />
+            Customize
+          </button>
+          <Button
+            type="secondary"
+            :icon-only="true"
+            icon="double-arrow-left"
+            label="Hide filters"
+            size="small"
+            @click="emit('update:collapsed', true)"
+          />
+        </div>
       </div>
 
       <div class="px-5 pb-4">
