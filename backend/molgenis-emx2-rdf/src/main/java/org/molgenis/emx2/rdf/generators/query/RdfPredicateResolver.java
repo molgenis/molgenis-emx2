@@ -1,7 +1,5 @@
 package org.molgenis.emx2.rdf.generators.query;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
@@ -21,8 +19,8 @@ import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
  * <p>Example:
  *
  * <ul>
- *   <li>{@code "https://schema.org/name"} → {@code <https://schema.org/name>}
- *   <li>{@code "schema:name"} → {@code schema:name}
+ *   <li>{@code "https://schema.org/name"} -> {@code <https://schema.org/name>}
+ *   <li>{@code "schema:name"} -> {@code schema:name}
  * </ul>
  */
 public class RdfPredicateResolver {
@@ -32,15 +30,20 @@ public class RdfPredicateResolver {
   }
 
   public static RdfPredicate resolve(String value, NamespaceMapper namespaceMapper) {
-    IRI iri = getIriValue(value);
-    Set<String> prefixes =
+    String namespace = getNamespace(value);
+    boolean containsPrefix =
         namespaceMapper.getAllNamespaces().stream()
             .map(Namespace::getPrefix)
-            // RDF4J IRI returns the prefix concatenated with a semicolon (e.g. `foaf:`)
-            .map(prefix -> prefix + ":")
-            .collect(Collectors.toSet());
+            .anyMatch(namespace::equals);
 
-    return (prefixes.contains(iri.getNamespace())) ? () -> value : Rdf.iri(value);
+    return (containsPrefix) ? () -> value : Rdf.iri(value);
+  }
+
+  private static String getNamespace(String value) {
+    IRI iri = getIriValue(value);
+    String namespace = iri.getNamespace();
+    namespace = namespace.substring(0, namespace.length() - 1);
+    return namespace;
   }
 
   private static IRI getIriValue(String value) {
