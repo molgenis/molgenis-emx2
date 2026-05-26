@@ -41,7 +41,7 @@ public class TableQueryGenerator {
       ColumnSparqlQueryGenerator mapper;
       if (column.isReference()) {
         mapper = new ReferenceColumnSparqlQueryGenerator(tableVar, column);
-      } else if (Boolean.TRUE.equals(column.isArray())) {
+      } else if (column.isArray()) {
         mapper = new ArrayColumnSparqlQueryGenerator(tableVar, column);
       } else {
         mapper = new LiteralColumnSparqlQueryGenerator(tableVar, column);
