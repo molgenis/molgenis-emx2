@@ -28,28 +28,25 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   @Override
   public TableStore transform(SailRepository repository) {
     StreamingTableStore tableStore = new StreamingTableStore();
-    try (SailRepositoryConnection conn = repository.getConnection()) {
-      tables.forEach(table -> addTableDataToStore(table, conn, tableStore));
-    }
-
+    tables.forEach(table -> addTableDataToStore(table, repository, tableStore));
     return tableStore;
   }
 
   private void addTableDataToStore(
-      String table, SailRepositoryConnection conn, StreamingTableStore tableStore) {
+      String table, SailRepository repository, StreamingTableStore tableStore) {
+    SailRepositoryConnection conn = repository.getConnection();
     SelectQuery query = queryGenerator.generate(schema.getTableMetadata(table));
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString());
+
     TupleQueryResult evaluate = prepared.evaluate();
-    List<BindingSet> bindingset = evaluate.stream().toList();
-    //    try (TupleQueryResult evaluate = prepared.evaluate()) {
     List<String> columnNames =
         evaluate.getBindingNames().stream()
             .map(ColumnNameSparqlEncoder::decodeSparqlVariable)
             .toList();
 
-    Stream<Row> rowStream = evaluate.stream().map(this::mapToRow);
+    Stream<Row> rowStream =
+        evaluate.stream().map(this::mapToRow).onClose(evaluate::close).onClose(conn::close);
     tableStore.writeTable(table, columnNames, rowStream);
-    //    }
   }
 
   private Row mapToRow(BindingSet bindings) {
