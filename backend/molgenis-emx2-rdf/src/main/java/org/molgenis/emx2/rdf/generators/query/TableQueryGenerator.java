@@ -34,7 +34,7 @@ public class TableQueryGenerator {
     groups.add(tableVar);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (column.getSemantics() == null || column.getSemantics().length == 0) {
+      if (hasSemantics(column.getSemantics())) {
         continue;
       }
 
@@ -53,16 +53,20 @@ public class TableQueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics() != null) {
-      addTableTypeSemantics(tableMetadata, tableVar, query);
-    } else {
+    if (hasSemantics(tableMetadata.getSemantics())) {
       anchorTableVar(tableVar, query);
+    } else {
+      addTableTypeSemantics(tableMetadata, tableVar, query);
     }
 
     return query
         .select(selectors.toArray(new Projectable[0]))
         .where(whereClauses.toArray(new GraphPattern[0]))
         .groupBy(groups.toArray(new Groupable[0]));
+  }
+
+  private static boolean hasSemantics(String[] semantics) {
+    return semantics == null || semantics.length == 0;
   }
 
   /**

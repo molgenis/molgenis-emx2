@@ -65,19 +65,19 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   }
 
   private void mapOntology() {
+    ColumnSparqlQueryGenerator generator;
     if (rootColumn.isArray()) {
-      ColumnSparqlQueryGenerator generator =
-          new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
-      patterns.addAll(generator.getPatterns());
+      generator = new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
       selectors.addAll(generator.getSelectors());
-      groupBy.addAll(generator.getGroupBy());
     } else {
-      ColumnSparqlQueryGenerator generator =
+      generator =
           new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
-      patterns.addAll(generator.getPatterns());
+
       selectors.add(columnVariable());
-      groupBy.addAll(generator.getGroupBy());
     }
+
+    patterns.addAll(generator.getPatterns());
+    groupBy.addAll(generator.getGroupBy());
   }
 
   private void mapDataColumn() {

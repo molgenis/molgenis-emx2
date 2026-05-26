@@ -60,6 +60,30 @@ class TableQueryGeneratorTest {
   }
 
   @Test
+  void whenTableSemanticsEmpty_thenAnchorRootVariable() {
+    TableMetadata table =
+        schema.create(
+            TableMetadata.table(
+                    "TableSemantics",
+                    Column.column("name")
+                        .setType(ColumnType.STRING)
+                        .setPkey()
+                        .setSemantics("xsd:name"))
+                .setSemantics());
+
+    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = removePrefixesFromQuery(generate.getQueryString());
+    assertEquals(
+        """
+                  SELECT ?TableSemantics ?name
+                  WHERE { ?TableSemantics ?anyPredicate ?anyObject .
+                  ?TableSemantics xsd:name ?name . }
+                  GROUP BY ?TableSemantics ?name
+                  """,
+        query);
+  }
+
+  @Test
   void shouldAddMultipleTypeChecksForTableIfPresent() {
     TableMetadata table =
         schema.create(

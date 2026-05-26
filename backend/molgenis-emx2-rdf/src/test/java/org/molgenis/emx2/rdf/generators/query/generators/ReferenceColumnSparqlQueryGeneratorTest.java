@@ -146,6 +146,31 @@ class ReferenceColumnSparqlQueryGeneratorTest {
   class ReferenceArrayTest {
 
     @Test
+    void givenArrayReference_whenSemanticsEmpty_thenDontMap() {
+      schema.create(productTableWithSemantics());
+      TableMetadata order =
+          schema.create(
+              TableMetadata.table(
+                  "Order",
+                  Column.column("id")
+                      .setPkey()
+                      .setType(ColumnType.STRING)
+                      .setSemantics("schema:id"),
+                  Column.column("product")
+                      .setType(ColumnType.REF_ARRAY)
+                      .setRefTable("Product")
+                      .setRequired(true)
+                      .setSemantics()));
+
+      Column column = order.getColumn("product");
+      ReferenceColumnSparqlQueryGenerator mapper =
+          new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+      assertTrue(mapper.getPatterns().isEmpty());
+      assertTrue(mapper.getGroupBy().isEmpty());
+      assertTrue(mapper.getSelectors().isEmpty());
+    }
+
+    @Test
     void givenArrayReference_thenUseCollectionMapper() {
       schema.create(productTableWithSemantics("schema:name"));
       TableMetadata order =

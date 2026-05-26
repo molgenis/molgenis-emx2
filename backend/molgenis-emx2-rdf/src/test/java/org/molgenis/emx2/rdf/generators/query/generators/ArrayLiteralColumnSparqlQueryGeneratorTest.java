@@ -3,8 +3,7 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import java.util.List;
@@ -41,6 +40,16 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
+    assertHasSelectors(
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+    assertHasGroupBy(mapper);
+  }
+
+  @Test
+  void shouldHandleNoSemantics() {
+    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
+    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
+    assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(
         mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
     assertHasGroupBy(mapper);

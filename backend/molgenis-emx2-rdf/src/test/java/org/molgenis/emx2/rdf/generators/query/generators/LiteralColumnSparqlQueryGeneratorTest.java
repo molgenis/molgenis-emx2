@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -26,6 +27,15 @@ class LiteralColumnSparqlQueryGeneratorTest {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo .");
+    assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
+  }
+
+  @Test
+  void shouldHandleNoSemanticsForColumn() {
+    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
+    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
   }
