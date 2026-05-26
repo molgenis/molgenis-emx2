@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>If the root column is optional, all patterns are wrapped in an OPTIONAL block.
  */
-public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator {
+public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
 
   private static final Logger logger =
       LoggerFactory.getLogger(ReferenceColumnSparqlQueryGenerator.class);
@@ -66,21 +66,21 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
   private void mapOntology() {
     if (Boolean.TRUE.equals(rootColumn.isArray())) {
-      SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
-      patterns.addAll(mapper.getPatterns());
-      selectors.addAll(mapper.getSelectors());
-      groupBy.addAll(mapper.getGroupBy());
+      ColumnSparqlQueryGenerator generator = new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
+      patterns.addAll(generator.getPatterns());
+      selectors.addAll(generator.getSelectors());
+      groupBy.addAll(generator.getGroupBy());
     } else {
-      SparqlQueryGenerator mapper =
+      ColumnSparqlQueryGenerator generator =
           new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
-      patterns.addAll(mapper.getPatterns());
+      patterns.addAll(generator.getPatterns());
       selectors.add(columnVariable());
-      groupBy.addAll(mapper.getGroupBy());
+      groupBy.addAll(generator.getGroupBy());
     }
   }
 
   private void mapDataColumn() {
-    SparqlQueryGenerator mapper =
+    ColumnSparqlQueryGenerator mapper =
         new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
     patterns.addAll(mapper.getPatterns());
     mapPrimaryKeys();
@@ -96,7 +96,7 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
 
       ArrayList<String> columnPath = columnPath();
       Variable subject = columnVariable();
-      SparqlQueryGenerator mapper = getMapperForColumn(column, subject, columnPath);
+      ColumnSparqlQueryGenerator mapper = getMapperForColumn(column, subject, columnPath);
 
       patterns.addAll(mapper.getPatterns());
       selectors.addAll(mapper.getSelectors());
@@ -104,7 +104,7 @@ public class ReferenceColumnSparqlQueryGenerator implements SparqlQueryGenerator
     }
   }
 
-  private SparqlQueryGenerator getMapperForColumn(
+  private ColumnSparqlQueryGenerator getMapperForColumn(
       Column column, Variable subject, ArrayList<String> columnPath) {
     if (column.isReference()) {
       return new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);

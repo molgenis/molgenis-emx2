@@ -19,7 +19,7 @@ import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.RdfPredicateResolver;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
-public class LiteralColumnSparqlQueryGenerator implements SparqlQueryGenerator {
+public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
 
   private final Variable subject;
   private final Column column;

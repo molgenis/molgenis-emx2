@@ -39,7 +39,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   @Test
   void shouldConcatSelectors() {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
-    SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
+    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
     assertHasSelectors(
         mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
@@ -56,7 +56,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
                     "foaf:test",
                     "https://xmlns.com/foaf/0.1/alternative",
                     "foaf:also_alternative"));
-    SparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
+    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
     assertHasPatterns(
         mapper,

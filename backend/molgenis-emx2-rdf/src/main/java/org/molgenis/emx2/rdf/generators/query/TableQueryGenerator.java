@@ -16,7 +16,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableQueryGenerator {
@@ -38,7 +38,7 @@ public class TableQueryGenerator {
         continue;
       }
 
-      SparqlQueryGenerator mapper;
+      ColumnSparqlQueryGenerator mapper;
       if (column.isReference()) {
         mapper = new ReferenceColumnSparqlQueryGenerator(tableVar, column);
       } else if (Boolean.TRUE.equals(column.isArray())) {

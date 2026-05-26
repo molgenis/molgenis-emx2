@@ -16,12 +16,8 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
  *   <li>graph patterns (WHERE clause)
  *   <li>and GROUP BY expressions
  * </ul>
- *
- * @see ArrayColumnSparqlQueryGenerator
- * @see LiteralColumnSparqlQueryGenerator
- * @see ReferenceColumnSparqlQueryGenerator
  */
-public interface SparqlQueryGenerator {
+public interface ColumnSparqlQueryGenerator {
 
   /** Returns the variables or expressions projected in the SELECT clause. */
   List<Projectable> getSelectors();

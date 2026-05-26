@@ -4,23 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.core.QueryElement;
-import org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 
 public class MapperAssertions {
 
-  public static void assertHasSelectors(SparqlQueryGenerator mapper, String... expectedSelectors) {
+  public static void assertHasSelectors(ColumnSparqlQueryGenerator mapper, String... expectedSelectors) {
     assertEquals(
         List.of(expectedSelectors),
         mapper.getSelectors().stream().map(QueryElement::getQueryString).toList());
   }
 
-  public static void assertHasPatterns(SparqlQueryGenerator mapper, String... expectedPatterns) {
+  public static void assertHasPatterns(ColumnSparqlQueryGenerator mapper, String... expectedPatterns) {
     assertEquals(
         List.of(expectedPatterns),
         mapper.getPatterns().stream().map(QueryElement::getQueryString).toList());
   }
 
-  public static void assertHasGroupBy(SparqlQueryGenerator mapper, String... expectedGroupBy) {
+  public static void assertHasGroupBy(ColumnSparqlQueryGenerator mapper, String... expectedGroupBy) {
     assertEquals(
         List.of(expectedGroupBy),
         mapper.getGroupBy().stream().map(QueryElement::getQueryString).toList());
