@@ -268,7 +268,6 @@ import {
 import type {
   IRow,
   IColumn,
-  IRefColumn,
   columnValue,
 } from "../../../../metadata-utils/src/types";
 import type {
@@ -327,7 +326,6 @@ const cellDetailSubtitle = ref<string>();
 const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
-const stickyHeaderOffset = ref(0);
 const tableContainer = ref<HTMLElement | null>(null);
 const tableHeaderFixed = ref<HTMLElement | null>(null);
 const tableHead = ref<HTMLElement | null>(null);
@@ -381,7 +379,6 @@ onUnmounted(async () => {
 });
 
 function handleStickyHeaderScroll(event: Event) {
-  const target = event.target as HTMLElement;
   const rect = tableContainer?.value?.getBoundingClientRect();
   const top = rect?.top ?? 0;
   showStickyHeader.value = top <= 0;
@@ -430,7 +427,7 @@ const rows = computed(() =>
 );
 
 const showDraftColumn = computed(() =>
-  rows.value.some((row) => row?.mg_draft === true)
+  rows.value.some((row: IRow) => row?.mg_draft === true)
 );
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
@@ -450,7 +447,7 @@ watch(
   (newMetadata) => {
     if (newMetadata) {
       columns.value = newMetadata.columns.filter(
-        (c) =>
+        (c: IColumn) =>
           !c.id.startsWith("mg") &&
           !["HEADING", "SECTION"].includes(c.columnType)
       );
@@ -493,11 +490,7 @@ function handleSearchRequest(search: string) {
 }
 
 const smallestPageSize = computed(() =>
-  Math.min(
-    ...constants.PAGE_SIZE_OPTIONS.filter(
-      (size) => size >= settings.value.pageSize
-    )
-  )
+  Math.min(...constants.PAGE_SIZE_OPTIONS)
 );
 
 function handlePagingRequest(page: number) {
