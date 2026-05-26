@@ -544,7 +544,7 @@ public class SqlQuery extends QueryBean {
           .forEach(
               ontologyColumn -> {
                 Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
-                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
+                if (ontologyColumn.isArray()) {
                   // include if array overlap between ontology table and our selected values in our
                   // ref_array
                   search.add(
