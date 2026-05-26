@@ -425,7 +425,7 @@ watch(
   { immediate: true, deep: true }
 );
 
-const rows = computed(() =>
+const rows = computed((): IRow[] =>
   Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
 );
 
