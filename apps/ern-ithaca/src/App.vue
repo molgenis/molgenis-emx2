@@ -2,8 +2,6 @@
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page"></router-view>
     <AppFooter />
-
-    sjdpiqwjfiojqwjoij
   </Molgenis>
 </template>
 

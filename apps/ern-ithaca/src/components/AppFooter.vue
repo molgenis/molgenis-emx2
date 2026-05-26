@@ -9,7 +9,10 @@
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'about' }"> About </router-link>
+              <a href="https://ern-ithaca.eu/about-us/" target="_blank"
+                rel="noopener">
+                About
+              </a>
             </li>
             <li>
               <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
@@ -18,9 +21,10 @@
               <router-link :to="{ name: 'documents' }"> Documents </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'transparency' }">
+              <a href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-transparency/" target="_blank"
+                rel="noopener">
                 Transparency Statement
-              </router-link>
+              </a>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -36,11 +40,8 @@
             <li id="project-logo-link">
               <router-link :to="{ name: 'home' }">
                 <!-- insert project logo here -->
-                <img
-                  src="/img/ern-ithaca-logo.png"
-                  class="project-logo"
-                  alt="ERN Ithaca: an international library of intellectual disability and anomalies of development"
-                />
+                <img src="/img/ern-ithaca-logo.png" class="project-logo"
+                  alt="ERN Ithaca: an international library of intellectual disability and anomalies of development" />
               </router-link>
             </li>
             <li>
@@ -48,14 +49,11 @@
                 <span class="visually-hidden">
                   visit the molgenis website to learn more
                 </span>
-                <li>
-                  <img
-                    src="/img/molgenis-logo-blue-text.png"
-                    class="molgenis-logo"
-                    alt="molgenis open source data platform"
-                  />
-                </li>
-              </a>
+            <li>
+              <img src="/img/molgenis-logo-blue-text.png" class="molgenis-logo"
+                alt="molgenis open source data platform" />
+            </li>
+            </a>
             </li>
           </UnorderedList>
         </div>
@@ -105,6 +103,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
         border-bottom-color: currentColor;
       }
     }
+
     .heroicons {
       position: absolute;
       top: 0;
