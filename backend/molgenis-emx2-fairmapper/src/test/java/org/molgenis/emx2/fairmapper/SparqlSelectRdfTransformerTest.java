@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -18,7 +20,6 @@ import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -48,7 +49,7 @@ class SparqlSelectRdfTransformerTest {
     SailRepository repository = readTtl("petstore.ttl");
     TableStore store = transformer.transform(repository);
 
-    assertEquals(new ArrayList<>(store.getTableNames()), List.of("Order", "Pet", "User"));
+    assertEquals(new HashSet<>(store.getTableNames()), Set.of("Order", "Pet", "User"));
     System.out.println("-".repeat(50) + " Order " + "-".repeat(50));
     store.processTable(
         "Order", (iterator, source) -> iterator.forEachRemaining(System.out::println));
@@ -77,8 +78,9 @@ class SparqlSelectRdfTransformerTest {
   class NameMappingTest {
 
     private static final IRI SUBJECT = iri("https://example.com/bob");
-    private static final String FIRST_NAME_SEMANTIC = DefaultNamespace.FOAF.resolve("first_name");
-    private static final String LAST_NAME_SEMANTIC = DefaultNamespace.FOAF.resolve("last_name");
+
+    private static final IRI FIRST_NAME_SEMANTIC = FOAF.FIRST_NAME;
+    private static final IRI LAST_NAME_SEMANTIC = FOAF.LAST_NAME;
 
     private Row testData;
 
@@ -99,8 +101,8 @@ class SparqlSelectRdfTransformerTest {
       schema.create(
           TableMetadata.table(
               "testTable",
-              Column.column("first name").setSemantics(FIRST_NAME_SEMANTIC),
-              Column.column("last_name").setSemantics(LAST_NAME_SEMANTIC)));
+              Column.column("first name").setSemantics(FIRST_NAME_SEMANTIC.toString()),
+              Column.column("last_name").setSemantics(LAST_NAME_SEMANTIC.toString())));
       return schema;
     }
 
@@ -108,8 +110,8 @@ class SparqlSelectRdfTransformerTest {
       SailRepository repository = new SailRepository(new MemoryStore());
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
-        connection.add(statement(SUBJECT, iri(FIRST_NAME_SEMANTIC), literal("Bob"), null));
-        connection.add(statement(SUBJECT, iri(LAST_NAME_SEMANTIC), literal("Ross"), null));
+        connection.add(statement(SUBJECT, FIRST_NAME_SEMANTIC, literal("Bob"), null));
+        connection.add(statement(SUBJECT, LAST_NAME_SEMANTIC, literal("Ross"), null));
         connection.commit();
       }
       return repository;
