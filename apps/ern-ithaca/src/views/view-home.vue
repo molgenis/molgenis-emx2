@@ -30,19 +30,11 @@
       </h2>
       <div class="quick-links-container ithaca-quick-links">
         <LinkCard>
-          <router-link :to="{ name: 'about' }">About Us</router-link>
-          <PlusIcon />
-        </LinkCard>
-        <LinkCard>
           <router-link :to="{ name: 'documents' }">Documents</router-link>
           <PlusIcon />
         </LinkCard>
         <LinkCard>
           <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
-          <PlusIcon />
-        </LinkCard>
-        <LinkCard>
-          <router-link :to="{ name: 'transparency' }">Transparency</router-link>
           <PlusIcon />
         </LinkCard>
       </div>
