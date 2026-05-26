@@ -22,13 +22,21 @@ export async function getStoreVariables() {
   const urlSetting = findSetting(CATALOGUE_STORE_URL, settings);
   const versionSetting = findSetting(CATALOGUE_STORE_VERSION, settings);
 
-  if (isEnabledSetting?.value === "true" && (!urlSetting || !versionSetting)) {
-    throw new Error("Catalogue store URL or version setting not found");
+  if (isEnabledSetting?.value === "true") {
+    if (!urlSetting?.value || !versionSetting?.value) {
+      throw new Error("Catalogue store URL or version setting not found");
+    } else {
+      return {
+        enabled: true,
+        url: urlSetting.value,
+        version: versionSetting.value,
+      };
+    }
   } else {
     return {
-      enabled: true,
-      url: urlSetting?.value || "",
-      version: versionSetting?.value || "",
+      enabled: false,
+      url: "",
+      version: "",
     };
   }
 }
