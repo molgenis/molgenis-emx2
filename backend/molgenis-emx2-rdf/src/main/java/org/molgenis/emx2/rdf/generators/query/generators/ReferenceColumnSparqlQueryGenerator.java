@@ -66,7 +66,8 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
 
   private void mapOntology() {
     if (rootColumn.isArray()) {
-      ColumnSparqlQueryGenerator generator = new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
+      ColumnSparqlQueryGenerator generator =
+          new ArrayColumnSparqlQueryGenerator(variable, rootColumn);
       patterns.addAll(generator.getPatterns());
       selectors.addAll(generator.getSelectors());
       groupBy.addAll(generator.getGroupBy());

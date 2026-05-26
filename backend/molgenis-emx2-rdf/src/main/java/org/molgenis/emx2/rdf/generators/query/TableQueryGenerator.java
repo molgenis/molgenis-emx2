@@ -14,9 +14,9 @@ import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfObject;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableQueryGenerator {

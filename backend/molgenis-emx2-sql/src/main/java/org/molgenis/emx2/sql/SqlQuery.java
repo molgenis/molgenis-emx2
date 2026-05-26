@@ -501,10 +501,10 @@ public class SqlQuery extends QueryBean {
         case TRIGRAM_SEARCH, TEXT_SEARCH:
           return jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
         case MATCH_ANY_INCLUDING_PARENTS,
-        MATCH_PATH,
-        MATCH_ALL,
-        MATCH_ANY_INCLUDING_CHILDREN,
-        SEARCH_INCLUDING_PARENTS:
+            MATCH_PATH,
+            MATCH_ALL,
+            MATCH_ANY_INCLUDING_CHILDREN,
+            SEARCH_INCLUDING_PARENTS:
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereCondition(
@@ -517,7 +517,7 @@ public class SqlQuery extends QueryBean {
                 filter.getOperator(),
                 filter.getValues());
           }
-        // else use default
+          // else use default
         default:
           // then it must be a column filter
           return whereCondition(

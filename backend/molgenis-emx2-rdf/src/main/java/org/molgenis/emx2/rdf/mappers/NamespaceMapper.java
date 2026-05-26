@@ -5,6 +5,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalIri;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalPrefix;
+import static org.molgenis.emx2.utils.URLUtils.validateUrl;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -67,11 +68,11 @@ public class NamespaceMapper {
   }
 
   public NamespaceMapper(String baseUrl, SchemaMetadata schema) {
-    addNamespaces(schema);
-    addSchemaNamespace(baseUrl, schema);
+    this(baseUrl, Set.of(schema));
   }
 
   public NamespaceMapper(String baseUrl, Collection<SchemaMetadata> schemas) {
+    validateUrl(baseUrl);
     for (SchemaMetadata schema : schemas) {
       addNamespaces(schema);
       addSchemaNamespace(baseUrl, schema);
