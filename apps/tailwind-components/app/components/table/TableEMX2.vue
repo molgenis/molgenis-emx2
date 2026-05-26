@@ -259,16 +259,16 @@
 import {
   computed,
   nextTick,
+  onMounted,
+  onUnmounted,
   ref,
   useId,
   watch,
-  onMounted,
-  onUnmounted,
 } from "vue";
 import type {
-  IRow,
-  IColumn,
   columnValue,
+  IColumn,
+  IRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
@@ -285,22 +285,21 @@ import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 
-import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
-import Modal from "../Modal.vue";
+import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
+import Modal from "../Modal.vue";
 
-import Button from "../Button.vue";
-import Pagination from "../Pagination.vue";
-import TableControlColumns from "./control/Columns.vue";
-import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import { useColumnResize } from "../../composables/useColumnResize";
-import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
-import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import constants from "../../utils/constants";
+import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
+import Button from "../Button.vue";
+import DraftLabel from "../label/DraftLabel.vue";
+import Pagination from "../Pagination.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
-import type { s } from "vitest/dist/chunks/reporters.QZ837uWx.js";
 
 const props = withDefaults(
   defineProps<{
