@@ -300,6 +300,7 @@ import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import constants from "../../utils/constants";
 import TableEMX2Head from "./TableEMX2Head.vue";
+import type { s } from "vitest/dist/chunks/reporters.QZ837uWx.js";
 
 const props = withDefaults(
   defineProps<{
@@ -498,8 +499,8 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handlePageSizeChange(pageSize: number) {
-  settings.value.pageSize = pageSize;
+function handlePageSizeChange(pageSize: string) {
+  settings.value.pageSize = Number.parseInt(pageSize);
   settings.value.page = 1;
   refresh();
 }
