@@ -17,7 +17,7 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class SparqlQueryingPocTest {
+class SparqlQueryingExampleTest {
 
   @Disabled("Used for manual testing purposes")
   @Test
