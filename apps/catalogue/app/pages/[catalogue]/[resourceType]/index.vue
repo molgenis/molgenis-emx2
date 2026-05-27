@@ -219,6 +219,7 @@ const query = computed(() => {
   query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
+      pid
       name
       acronym
       description
