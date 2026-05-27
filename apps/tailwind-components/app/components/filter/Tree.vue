@@ -11,7 +11,7 @@ import type {
 import {
   filterValueToTreeSelection,
   treeSelectionToFilterValue,
-} from "../../utils/filterTypes";
+} from "../../utils/filterUtils";
 import TreeNode from "../input/TreeNode.vue";
 import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";

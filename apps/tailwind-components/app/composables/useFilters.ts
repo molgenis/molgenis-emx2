@@ -22,8 +22,8 @@ import {
   computeDefaultFilters,
   isCountableType,
   isExcludedColumn,
-} from "../utils/filterTypes";
-import { BOOL_LABELS } from "../utils/filterTypes";
+} from "../utils/filterUtils";
+import { BOOL_LABELS } from "../utils/filterUtils";
 import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,

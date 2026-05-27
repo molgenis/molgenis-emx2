@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import { computeDefaultFilters } from "../../../app/utils/filterTypes";
+import { computeDefaultFilters } from "../../../app/utils/filterUtils";
 
 describe("computeDefaultFilters logic", () => {
   it("returns all ontology columns", () => {

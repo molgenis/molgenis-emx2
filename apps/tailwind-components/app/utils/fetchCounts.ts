@@ -3,7 +3,7 @@ import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
 import { setNestedValue } from "./buildGqlFilter";
-import { BOOL_LABELS } from "./filterTypes";
+import { BOOL_LABELS } from "./filterUtils";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;

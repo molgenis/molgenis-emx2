@@ -14,7 +14,7 @@ import {
   shouldExcludeSelfRef,
   navDepth,
   isCountableType,
-} from "../../utils/filterTypes";
+} from "../../utils/filterUtils";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import type { NestedColumnMeta } from "../../../types/filters";
 

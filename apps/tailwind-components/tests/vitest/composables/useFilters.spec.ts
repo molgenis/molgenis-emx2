@@ -23,7 +23,7 @@ import {
   useFilters,
   MG_FILTERS_PARAM,
 } from "../../../app/composables/useFilters";
-import { computeDefaultFilters } from "../../../app/utils/filterTypes";
+import { computeDefaultFilters } from "../../../app/utils/filterUtils";
 
 const ontologyColumn: IColumn = {
   id: "status",

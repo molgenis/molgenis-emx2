@@ -1,6 +1,6 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
-import { RANGE_TYPES } from "./filterTypes";
+import { RANGE_TYPES } from "./filterUtils";
 
 const REF_TYPES = new Set([
   "REF",

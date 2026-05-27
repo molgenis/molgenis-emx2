@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   filterValueToTreeSelection,
   treeSelectionToFilterValue,
-} from "../../../app/utils/filterTypes";
+} from "../../../app/utils/filterUtils";
 import type { IFilterValue } from "../../../types/filters";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { CountedOption } from "../../../app/utils/fetchCounts";

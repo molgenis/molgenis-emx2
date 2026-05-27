@@ -11,7 +11,7 @@ import {
   isCountableType,
   isRangeType,
   treeSelectionToFilterValue,
-} from "../../utils/filterTypes";
+} from "../../utils/filterUtils";
 import FilterTree from "./Tree.vue";
 import FilterRange from "./Range.vue";
 import FilterText from "./Text.vue";
