@@ -544,7 +544,7 @@ public class SqlQuery extends QueryBean {
           .forEach(
               ontologyColumn -> {
                 Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
-                if (Boolean.TRUE.equals(ontologyColumn.isArray())) {
+                if (ontologyColumn.isArray()) {
                   // include if array overlap between ontology table and our selected values in our
                   // ref_array
                   search.add(
@@ -1254,17 +1254,17 @@ public class SqlQuery extends QueryBean {
       case SEARCH_INCLUDING_PARENTS:
         return whereColumnSearchIncludingParents(column, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIncludingChilderen(column, values);
+        return whereColumnMatchAnyIncludingChildren(column, values);
       case MATCH_PATH:
         return or(
             whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIncludingChilderen(column, values));
+            whereColumnMatchAnyIncludingChildren(column, values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
+  private Condition whereColumnMatchAnyIncludingChildren(Column column, Object[] values) {
     if (column.isArray()) {
       return whereColumnInSubquery(
           column,

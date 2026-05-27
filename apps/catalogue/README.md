@@ -60,8 +60,10 @@ EMX2_THEME=umcg pnpm dev
 
 The following feature flag(s) are used to toggle certain app features via the runtime config
 
-- `cohortOnly` boolean when set to true the networks part is hidden ( see docker file for passing flag via container)
+- `cohortOnly` (boolean): when set to true the networks part is hidden ( see docker file for passing flag via container)
 - `CATALOGUE_STORE_IS_ENABLED` (boolean): when enabled, the shopping cart will be activated on the collections page (defined in the advanced settings tab)
+- `CATALOGUE_STORE_URL` (string/url): when the store is enabled it needs a url to send the request to
+- `CATALOGUE_STORE_VERSION` (string): when the store is enabled it needs to know the version of the request api it communicates to. Currently allowed versions are: [`negotiatorV3`]
 
 ### debug/test options
 

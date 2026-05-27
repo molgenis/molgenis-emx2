@@ -221,6 +221,9 @@
       <ColorTile color="menu" type="text" />
     </li>
     <li>
+      <ColorTile color="button-remove" type="text" />
+    </li>
+    <li>
       <ColorTile color="sub-menu" type="text" />
     </li>
     <li>
