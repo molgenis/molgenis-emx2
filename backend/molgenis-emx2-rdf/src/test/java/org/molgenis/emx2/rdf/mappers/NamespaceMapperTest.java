@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.rdf.DefaultNamespace;
+import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.rdf.RdfUtils;
 
 class NamespaceMapperTest {

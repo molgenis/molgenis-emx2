@@ -15,17 +15,21 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   protected String description;
   // optional
   protected Database database;
+  // retrieved (default or advanced setting if present)
+  protected SemanticPrefixes semanticPrefixes;
 
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
     validateSchemaName(name);
     this.name = name;
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(String name, String description) {
     this(name);
     this.description = description;
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(SchemaMetadata schema) {
@@ -33,6 +37,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.description = schema.getDescription();
     this.database = schema.getDatabase();
     this.setSettingsWithoutReload(schema.getSettings());
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
@@ -40,6 +45,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.description = schema.getDescription();
     this.database = db;
     this.setSettingsWithoutReload(schema.getSettings());
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   private void validateSchemaName(String name) {
