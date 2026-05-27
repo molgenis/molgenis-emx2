@@ -10,7 +10,7 @@ import BreadCrumbs from "../../../../../tailwind-components/app/components/Bread
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
-import { computed, ref, useId } from "vue";
+import { computed, nextTick, ref, useId } from "vue";
 import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
 import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
@@ -21,6 +21,22 @@ import ContentBlock from "../../../../../tailwind-components/app/components/cont
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import { useAsyncData } from "#app";
+import Modal from "../../../../../tailwind-components/app/components/Modal.vue";
+import TableCellDetailRef from "../../../../../tailwind-components/app/components/table/cellDetail/TableCellDetailRef.vue";
+import {
+  toRefColumn,
+  toRefColumnValue,
+} from "../../../../../tailwind-components/app/utils/typeUtils";
+import {
+  isArrayLikeDetail,
+  isRefLikeDetail,
+} from "../../../../../tailwind-components/app/utils/refUtils";
+import type {
+  cellPayload,
+  ColumnPayload,
+  ListPayload,
+  RefPayload,
+} from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -122,6 +138,47 @@ const enableEditing = computed(() => {
 const enableDeleting = computed(() => {
   return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
 });
+
+const showModal = ref(false);
+
+const cellDetailSchemaId = ref<string>();
+const cellDetailColumn = ref<IColumn>();
+const cellDetailSubtitle = ref<string>();
+const cellDetailValue = ref<columnValue>();
+
+const showRefDetailModal = computed(() => {
+  return (
+    cellDetailColumn.value &&
+    isRefLikeDetail(cellDetailColumn.value) &&
+    !isArrayLikeDetail(cellDetailColumn.value) &&
+    showModal.value
+  );
+});
+
+function handleCellClick(event: cellPayload, column: IColumn) {
+  cellDetailSubtitle.value = column.label;
+  cellDetailColumn.value = column;
+  cellDetailSchemaId.value = column.refSchemaId ?? schemaId;
+  cellDetailValue.value = event.data as columnValue;
+  showModal.value = true;
+}
+
+async function handleDetailRefClick(
+  event: RefPayload | ColumnPayload | ListPayload
+) {
+  showModal.value = false;
+  await nextTick();
+
+  const columnMetadata = event.metadata;
+
+  cellDetailSubtitle.value = columnMetadata.label;
+  cellDetailColumn.value = columnMetadata;
+  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? schemaId;
+
+  cellDetailValue.value = event.data as columnValue;
+
+  showModal.value = true;
+}
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -185,13 +242,53 @@ const enableDeleting = computed(() => {
               >{{ field.metadata.label }}
             </DefinitionListTerm>
             <DefinitionListDefinition class="text-title-contrast">
-              <ValueEMX2 :data="field.value" :metadata="field.metadata" />
+              <ValueEMX2
+                :data="field.value"
+                :metadata="field.metadata"
+                @valueClick="handleCellClick($event, field.metadata)"
+              />
             </DefinitionListDefinition>
           </template>
         </DefinitionList>
       </section>
     </ContentBlock>
   </section>
+
+  <Modal
+    type="right"
+    v-model:visible="showModal"
+    :title="cellDetailSubtitle"
+    @closed="showModal = false"
+  >
+    <TableCellDetailRef
+      v-if="cellDetailColumn && showRefDetailModal"
+      :metadata="toRefColumn(cellDetailColumn)"
+      :columnValue="toRefColumnValue(cellDetailValue)"
+      :schema="cellDetailSchemaId ?? schemaId"
+      :showDataOwner="false"
+      @onRefClick="handleDetailRefClick"
+    />
+    <template
+      v-else-if="
+        cellDetailValue &&
+        cellDetailColumn &&
+        isArrayLikeDetail(cellDetailColumn)
+      "
+    >
+      <ul>
+        <li v-for="(item, index) in cellDetailValue" :key="index">
+          <TableCellDetailRef
+            v-if="cellDetailColumn"
+            :metadata="toRefColumn(cellDetailColumn)"
+            :columnValue="toRefColumnValue(item as columnValue)"
+            :schema="cellDetailSchemaId ?? schemaId"
+            :showDataOwner="false"
+            @onRefClick="handleDetailRefClick"
+          />
+        </li>
+      </ul>
+    </template>
+  </Modal>
 
   <DeleteModal
     v-if="tableMetadata && rowData && showDeleteModal"
