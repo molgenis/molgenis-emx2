@@ -90,7 +90,7 @@ public class Row {
   // If a value contains a comma but is not of type array, only return that single value without
   // forcing it into becoming an array, creating a wrongful representation of that value
   public String[] getStringArrayPreserveDelimiter(Column column) {
-    return Boolean.TRUE.equals(column.isArray())
+    return column.isArray()
         ? getStringArray(column.getName(), true)
         : new String[] {getString(column.getName())};
   }
