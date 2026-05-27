@@ -17,12 +17,6 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-/**
- * Verifies role-based access control on {@link JsonYamlApi}. The handlers don't perform an explicit
- * {@code PermissionEvaluator} check; protection comes from the transactional DB role enforcement
- * inside {@code schema.migrate}/{@code schema.discard}. These tests pin that down at the HTTP
- * boundary so a regression there doesn't pass silently.
- */
 @Tag("slow")
 class JsonYamlApiAuthorizationTest extends ApiTestBase {
 

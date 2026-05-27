@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -19,6 +18,8 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
 public class TestAggregatePermission {
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
   private static Database db;
   static Schema schema;
   static String schemaName = TestAggregatePermission.class.getSimpleName();
@@ -63,10 +64,12 @@ public class TestAggregatePermission {
   @Test
   public void testAggregatorPermissionGroupByThresholds() throws JsonProcessingException {
     String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
-    Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
     List<Integer> counts =
-        result.get("Pet_groupBy").stream()
-            .map(object -> (Integer) object.get(COUNT_FIELD))
+        MAPPER
+            .readTree(json)
+            .get("Pet_groupBy")
+            .valueStream()
+            .map(node -> node.get(COUNT_FIELD).asInt())
             .toList();
     counts.forEach(count -> assertEquals(AGGREGATE_COUNT_THRESHOLD, count));
 

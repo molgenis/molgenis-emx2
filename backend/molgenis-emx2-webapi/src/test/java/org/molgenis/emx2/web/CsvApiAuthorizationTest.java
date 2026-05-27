@@ -21,8 +21,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /**
- * Verifies role-based access control on {@link CsvApi}, whose handlers do an explicit {@code
- * PermissionEvaluator.canManage} check.
+ * Verifies role-based access control on {@link CsvApi}.
  */
 @Tag("slow")
 class CsvApiAuthorizationTest extends ApiTestBase {
@@ -55,8 +54,6 @@ class CsvApiAuthorizationTest extends ApiTestBase {
     database.becomeAdmin();
     database.dropSchemaIfExists(SCHEMA);
   }
-
-  // --- /api/csv/changelog: handler does explicit canManage ---
 
   @Test
   void changelogAsAdmin_succeeds() {
