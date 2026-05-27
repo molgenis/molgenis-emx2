@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import java.util.List;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -84,8 +86,10 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   void givenCollection_whenValueAppearsMultipleTimes_thenDistinct() {
     List<Column> columns =
         List.of(
-            createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:foo")),
-            createColumn(Column.column("bar").setRequired(true).setSemantics("foaf:bar")));
+            createColumn(
+                Column.column("foo").setRequired(true).setSemantics(FOAF.FIRST_NAME.toString())),
+            createColumn(
+                Column.column("bar").setRequired(true).setSemantics(FOAF.LAST_NAME.toString())));
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {
@@ -98,10 +102,10 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      addTripletToRepository(connection, "foo", "foo1");
-      addTripletToRepository(connection, "foo", "foo2");
-      addTripletToRepository(connection, "bar", "bar1");
-      addTripletToRepository(connection, "bar", "bar2");
+      addTripletToRepository(connection, FOAF.FIRST_NAME, "foo1");
+      addTripletToRepository(connection, FOAF.FIRST_NAME, "foo2");
+      addTripletToRepository(connection, FOAF.LAST_NAME, "bar1");
+      addTripletToRepository(connection, FOAF.LAST_NAME, "bar2");
       connection.commit();
 
       try (TupleQueryResult queryResult =
@@ -115,13 +119,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   }
 
   private void addTripletToRepository(
-      SailRepositoryConnection connection, String predicate, String object) {
-    connection.add(
-        statement(
-            iri("https://example.com/bob"),
-            iri(DefaultNamespace.FOAF.resolve(predicate)),
-            literal(object),
-            null));
+      SailRepositoryConnection connection, IRI predicate, String object) {
+    connection.add(statement(iri("https://example.com/bob"), predicate, literal(object), null));
   }
 
   private Column createColumn(Column column) {
