@@ -29,28 +29,30 @@ public class RdfPredicateResolver {
     throw new IllegalStateException("Utility class");
   }
 
-  public static RdfPredicate resolve(String value, NamespaceMapper namespaceMapper) {
-    String namespace = getNamespace(value);
+  public static RdfPredicate resolve(String semantic, NamespaceMapper namespaceMapper) {
+    String namespace = getNamespace(semantic);
     boolean containsPrefix =
         namespaceMapper.getAllNamespaces().stream()
             .map(Namespace::getPrefix)
             .anyMatch(namespace::equals);
 
-    return (containsPrefix) ? () -> value : Rdf.iri(value);
+    return (containsPrefix) ? () -> semantic : Rdf.iri(semantic);
   }
 
-  private static String getNamespace(String value) {
-    IRI iri = getIriValue(value);
+  private static String getNamespace(String semantic) {
+    IRI iri = getIriValue(semantic);
     String namespace = iri.getNamespace();
     namespace = namespace.substring(0, namespace.length() - 1);
     return namespace;
   }
 
-  private static IRI getIriValue(String value) {
+  private static IRI getIriValue(String semantic) {
     try {
-      return Values.iri(value);
+      // This is technically not an IRI but can be a prefixed name.
+      // Due to blank nodes story and already well tested, will be left as-is for now.
+      return Values.iri(semantic);
     } catch (IllegalArgumentException e) {
-      throw new MolgenisException("Invalid IRI provided: " + value, e);
+      throw new MolgenisException("Invalid IRI provided: " + semantic, e);
     }
   }
 }
