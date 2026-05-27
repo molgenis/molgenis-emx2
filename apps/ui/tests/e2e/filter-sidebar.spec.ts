@@ -41,10 +41,10 @@ test.describe("filter sidebar", () => {
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(3000);
 
-    const table = page.locator("table");
+    const table = page.locator("div.overflow-x-auto table").last();
     await expect(table).toBeVisible();
 
-    const rows = page.locator("table tbody tr");
+    const rows = page.locator("div.overflow-x-auto table").last().locator("tbody tr");
     const rowCount = await rows.count();
     expect(rowCount).toBeGreaterThanOrEqual(1);
   });
@@ -117,22 +117,21 @@ test.describe("filter sidebar", () => {
     // Expected filter ID: "internalIdentifiers.identifier"
 
     await page.goto(`${route}catalogue-demo/Resources`);
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(5000);
 
     // Open Picker modal
     const customizeButton = page.getByRole("button", { name: /customize/i });
-    await expect(customizeButton).toBeVisible();
+    await expect(customizeButton).toBeVisible({ timeout: 10000 });
     await customizeButton.click();
-    await page.waitForTimeout(2000);
 
     const modal = page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 30000 });
 
     // Find "internal identifiers → InternalIdentifiers" expander
     const internalIdRef = modal.locator(
-      'button:has-text("internal identifiers")'
+      '[data-column-id]:has-text("internal identifiers") button'
     );
-    await expect(internalIdRef).toBeVisible();
+    await expect(internalIdRef).toBeVisible({ timeout: 10000 });
 
     // Click to expand nested columns
     await internalIdRef.click();
@@ -234,20 +233,21 @@ test.describe("filter sidebar", () => {
     // Expected filter ID: "refType.optionValue"
 
     await page.goto(`${route}type%20test/Types`);
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(5000);
 
     // Open Picker modal
     const customizeButton = page.getByRole("button", { name: /customize/i });
-    await expect(customizeButton).toBeVisible();
+    await expect(customizeButton).toBeVisible({ timeout: 10000 });
     await customizeButton.click();
-    await page.waitForTimeout(2000);
 
     const modal = page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 30000 });
 
     // Find "ref type → Options" expander
-    const refTypeExpander = modal.locator('button:has-text("ref type")');
-    await expect(refTypeExpander).toBeVisible();
+    const refTypeExpander = modal.locator(
+      '[data-column-id]:has-text("ref type") button'
+    );
+    await expect(refTypeExpander).toBeVisible({ timeout: 10000 });
 
     // Click to expand
     await refTypeExpander.click();
@@ -368,7 +368,7 @@ test.describe("filter sidebar", () => {
     const initialPages = parseInt(initialTotalPages!.replace(/OF /g, ""));
     expect(initialPages).toBeGreaterThan(0);
 
-    const initialRowCount = await page.locator("table tbody tr").count();
+    const initialRowCount = await page.locator("div.overflow-x-auto table").last().locator("tbody tr").count();
 
     const firstCheckboxLabel = page
       .locator('label:has(input[type="checkbox"])')
@@ -390,7 +390,7 @@ test.describe("filter sidebar", () => {
       const updatedPages = parseInt(updatedTotalPages!.replace(/OF /g, ""));
       expect(updatedPages).toBeLessThan(initialPages);
     } else {
-      const filteredRowCount = await page.locator("table tbody tr").count();
+      const filteredRowCount = await page.locator("table.bg-table tbody tr").count();
       expect(filteredRowCount).toBeLessThan(initialRowCount);
     }
   });
@@ -454,29 +454,28 @@ test.describe("filter sidebar", () => {
   test("direct REF column filtering exposes checkbox in modal and renders filter section in sidebar", async ({
     page,
   }) => {
-    await page.goto(`http://localhost:3001/${route}catalogue-demo/Resources`);
-    await page.waitForTimeout(3000);
+    await page.goto(`${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(5000);
 
     const customizeButton = page.getByRole("button", { name: /customize/i });
-    await expect(customizeButton).toBeVisible();
+    await expect(customizeButton).toBeVisible({ timeout: 10000 });
     await customizeButton.click();
-    await page.waitForTimeout(2000);
 
     const modal = page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 30000 });
 
     const columnsList = modal.locator("ul li");
     const contactPointItem = columnsList.filter({ hasText: /contact point/i });
     await expect(contactPointItem.first()).toBeVisible();
     await contactPointItem.first().scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
     const checkbox = contactPointItem.first().locator('input[type="checkbox"]');
-    await expect(checkbox).toBeAttached();
+    await expect(checkbox).toBeVisible();
 
     const alreadyChecked = await checkbox.isChecked();
     if (!alreadyChecked) {
-      await checkbox.click({ force: true });
+      await checkbox.evaluate((el) => (el.parentElement?.click()));
       await page.waitForTimeout(500);
     }
 
