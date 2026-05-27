@@ -173,6 +173,21 @@ export function useFilters(
 
   const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
 
+  const visibleColumns = computed<IColumn[]>(() =>
+    visibleFilterIds.value.map((id) => {
+      const found = columns.value.find((col) => col.id === id);
+      if (found) return found;
+      const nested = nestedColumnMeta.value.get(id);
+      return {
+        id,
+        label: nested?.label ?? "",
+        columnType: nested?.columnType ?? "STRING",
+        table: tableId,
+        position: 0,
+      } as IColumn;
+    })
+  );
+
   const columnTypeMap = computed(() => {
     const map = new Map<string, string>();
     for (const [id, meta] of nestedColumnMeta.value) {
@@ -651,6 +666,7 @@ export function useFilters(
     removeFilter,
     columns,
     visibleFilterIds,
+    visibleColumns,
     toggleFilter,
     resetFilters,
     getCountedOptions,

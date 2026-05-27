@@ -252,20 +252,20 @@ const multiselectColumn: IColumn = {
 };
 
 describe("useFilters — visibility management", () => {
-  it("defaults include ontology/bool/REF columns", () => {
+  it("defaults include ONTOLOGY columns but exclude BOOL/REF", () => {
     const columnsWithRef = ref([...allColumns, refColumn]);
     const { visibleFilterIds } = useFilters(columnsWithRef, {
       schemaId: "test",
       tableId: "table1",
     });
     expect(visibleFilterIds.value).toContain("status");
-    expect(visibleFilterIds.value).toContain("active");
-    expect(visibleFilterIds.value).toContain("category");
+    expect(visibleFilterIds.value).not.toContain("active");
+    expect(visibleFilterIds.value).not.toContain("category");
     expect(visibleFilterIds.value).not.toContain("name");
     expect(visibleFilterIds.value).not.toContain("age");
   });
 
-  it("defaults include SELECT and MULTISELECT columns", () => {
+  it("defaults include SELECT but exclude MULTISELECT", () => {
     const columnsWithSelect = ref([
       ...allColumns,
       selectColumn,
@@ -276,7 +276,7 @@ describe("useFilters — visibility management", () => {
       tableId: "table1",
     });
     expect(visibleFilterIds.value).toContain("contactPoint");
-    expect(visibleFilterIds.value).toContain("tags");
+    expect(visibleFilterIds.value).not.toContain("tags");
   });
 
   it("toggleFilter adds a non-visible column", () => {
@@ -435,6 +435,46 @@ describe("useFilters — defaultFilters option", () => {
     toggleFilter("status");
     resetFilters();
     expect(visibleFilterIds.value).toEqual(["name", "age"]);
+  });
+});
+
+describe("useFilters — visibleColumns synthesis", () => {
+  it("returns real column for direct id and synthesized column for nested meta id", () => {
+    const countryColumn: IColumn = {
+      id: "country",
+      label: "Country",
+      columnType: "ONTOLOGY",
+    };
+    const columns = ref<IColumn[]>([countryColumn]);
+    const { visibleColumns, toggleFilter, registerNestedColumn } = useFilters(
+      columns,
+      {
+        schemaId: "test",
+        tableId: "table1",
+        defaultFilters: ["country"],
+      }
+    );
+
+    registerNestedColumn("contact.email", {
+      label: "Contact → Email",
+      columnType: "STRING",
+    });
+    toggleFilter("contact.email");
+
+    const result = visibleColumns.value;
+    expect(result).toHaveLength(2);
+
+    const realCol = result.find((c) => c.id === "country");
+    expect(realCol).toMatchObject(countryColumn);
+
+    const synthesized = result.find((c) => c.id === "contact.email");
+    expect(synthesized).toEqual({
+      id: "contact.email",
+      label: "Contact → Email",
+      columnType: "STRING",
+      table: "table1",
+      position: 0,
+    });
   });
 });
 

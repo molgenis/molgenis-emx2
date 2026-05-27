@@ -237,6 +237,12 @@ function isCountLoading(columnId: string) {
 
 const collapsedRef = ref(new Set<string>());
 
+const visibleColumns = computed<IColumn[]>(() =>
+  visibleFilterIdsRef.value
+    .map((id) => columnsRef.value.find((col) => col.id === id))
+    .filter((c): c is IColumn => c !== undefined)
+);
+
 const mockFilters: UseFilters = {
   filterStates: filterStatesRef,
   searchValue: searchValueRef,
@@ -250,6 +256,7 @@ const mockFilters: UseFilters = {
   removeFilter,
   columns: columnsRef,
   visibleFilterIds: visibleFilterIdsRef,
+  visibleColumns,
   toggleFilter,
   resetFilters,
   getCountedOptions,

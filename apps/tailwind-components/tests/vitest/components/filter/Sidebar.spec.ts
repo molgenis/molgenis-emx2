@@ -42,6 +42,20 @@ vi.mock("../../../../app/components/input/Search.vue", () => ({
   },
 }));
 
+function synthesizeMockColumn(
+  id: string,
+  nestedMeta: Map<string, { label: string; columnType: string }>
+): IColumn {
+  const nested = nestedMeta.get(id);
+  return {
+    id,
+    label: nested?.label ?? (id.includes(".") ? "" : `Label ${id}`),
+    columnType: nested?.columnType ?? "ONTOLOGY",
+    table: "TestTable",
+    position: 0,
+  } as IColumn;
+}
+
 function makeCountedOptions(names: string[]): CountedOption[] {
   return names.map((name) => ({ name, label: name, count: 5 }));
 }
@@ -68,6 +82,9 @@ function makeFilters(
     removeFilter: vi.fn(),
     columns: ref([]),
     visibleFilterIds,
+    visibleColumns: computed(() =>
+      visibleIds.map((id) => synthesizeMockColumn(id, nestedMeta))
+    ),
     toggleFilter: vi.fn(),
     resetFilters: vi.fn(),
     getCountedOptions: (_columnId: string) =>

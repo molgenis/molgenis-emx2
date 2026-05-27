@@ -83,6 +83,7 @@ export interface UseFilters {
   removeFilter: (columnId: string) => void;
   columns: Ref<IColumn[]>;
   visibleFilterIds: Ref<string[]>;
+  visibleColumns: ComputedRef<IColumn[]>;
   toggleFilter: (columnId: string) => void;
   resetFilters: () => void;
   getCountedOptions: (columnId: string) => ComputedRef<CountedOption[]>;

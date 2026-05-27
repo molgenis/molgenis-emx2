@@ -53,21 +53,6 @@ function isNestedPending(id: string): boolean {
   );
 }
 
-const visibleColumns = computed(() =>
-  props.filters.visibleFilterIds.value.map((id) => {
-    const found = props.columns.find((col) => col.id === id);
-    if (found) return found;
-    const nested = props.filters.nestedColumnMeta.value.get(id);
-    return {
-      id,
-      label: nested?.label ?? "",
-      columnType: nested?.columnType ?? "STRING",
-      table: props.tableId,
-      position: 0,
-    } as IColumn;
-  })
-);
-
 const visibleFilterIdsSet = computed(
   () => new Set(props.filters.visibleFilterIds.value)
 );
@@ -170,7 +155,10 @@ function handlePickerApply(
         />
       </div>
 
-      <template v-for="column in visibleColumns" :key="column.id">
+      <template
+        v-for="column in props.filters.visibleColumns.value"
+        :key="column.id"
+      >
         <hr class="border-black opacity-10 mx-5" />
         <div
           class="p-5 flex items-center gap-1 cursor-pointer group"
