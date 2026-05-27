@@ -22,6 +22,7 @@ public class TableQueryGenerator {
 
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
+  private static final Variable TYPE_VARIABLE = SparqlBuilder.var("_type_");
 
   public SelectQuery generate(TableMetadata tableMetadata) {
     List<Projectable> selectors = new ArrayList<>();
@@ -93,13 +94,14 @@ public class TableQueryGenerator {
     if (tableSemantics.length == 1) {
       select.where(tableVar.isA(() -> tableSemantics[0]));
     } else if (tableSemantics.length > 1) {
-      RdfValue[] list =
+      RdfValue[] semantics =
           Arrays.stream(tableSemantics)
               .map(semantic -> (RdfValue) () -> semantic)
               .toArray(RdfValue[]::new);
 
-      Variable type = SparqlBuilder.var("type");
-      select.where(tableVar.isA(type)).values(value -> value.variables(type).values(list));
+      select
+          .where(tableVar.isA(TYPE_VARIABLE))
+          .values(value -> value.variables(TYPE_VARIABLE).values(semantics));
     }
   }
 

@@ -100,10 +100,10 @@ class TableQueryGeneratorTest {
     assertEquals(
         """
         SELECT ?TableSemantics ?name
-        WHERE { ?TableSemantics a ?type .
+        WHERE { ?TableSemantics a ?_type_ .
         ?TableSemantics xsd:name ?name . }
         GROUP BY ?TableSemantics ?name
-        VALUES ?type {
+        VALUES ?_type_ {
           xsd:foo\s
           xsd:bar\s
         }
