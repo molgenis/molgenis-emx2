@@ -302,8 +302,6 @@ import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
-import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
-import constants from "../../utils/constants";
 import { isRefLikeDetail, isArrayLikeDetail } from "../../utils/refUtils";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
