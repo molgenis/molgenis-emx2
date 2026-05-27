@@ -1,6 +1,6 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
-import { RANGE_TYPES } from "./filterUtils";
+import { RANGE_TYPES, REF_EXPANDABLE_TYPES } from "./filterUtils";
 
 const REF_TYPES = new Set([
   "REF",
@@ -102,11 +102,7 @@ export function parseFilterValue(
   const columnType = column.columnType;
 
   const isDirectRefType =
-    (columnType === "REF" ||
-      columnType === "REF_ARRAY" ||
-      columnType === "REFBACK" ||
-      columnType === "SELECT" ||
-      columnType === "MULTISELECT") &&
+    REF_EXPANDABLE_TYPES.has(columnType) &&
     Boolean(column.refTableId) &&
     refField === null;
 
