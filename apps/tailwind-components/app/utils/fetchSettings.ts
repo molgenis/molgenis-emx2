@@ -1,8 +1,8 @@
 import { useRuntimeConfig } from "#app";
 
-export const fetchSetting = (settingKey: string) => {
-  let body = {
-    query: `{_settings (keys: ["${settingKey}"]){ key, value }}`,
+export const fetchSettings = (settingKeys: string[]) => {
+  const body = {
+    query: `{_settings (keys: ${JSON.stringify(settingKeys)}){ key, value }}`,
   };
 
   const config = useRuntimeConfig();
