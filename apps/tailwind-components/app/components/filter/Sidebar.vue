@@ -116,14 +116,18 @@ function handlePickerApply(
       @keydown.enter.space.prevent="emit('update:collapsed', false)"
     >
       <Button
-          type="secondary"
-          :icon-only="true"
-          icon="double-arrow-right"
-          label="Show filters"
-          size="small"
-          @click="emit('update:collapsed', false)"
+        type="secondary"
+        :icon-only="true"
+        icon="double-arrow-right"
+        label="Show filters"
+        size="small"
+        @click="emit('update:collapsed', false)"
       />
-      <h2 class="font-display text-heading-2xl  [writing-mode:vertical-rl] rotate-180 text-search-filter-title font-bold uppercase mt-4">Show filters</h2>
+      <h2
+        class="font-display text-heading-2xl [writing-mode:vertical-rl] rotate-180 text-search-filter-title font-bold uppercase mt-4 mb-4"
+      >
+        Show filters
+      </h2>
     </div>
 
     <div

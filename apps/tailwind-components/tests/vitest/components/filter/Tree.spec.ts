@@ -259,12 +259,12 @@ describe("FilterTree", () => {
       });
     });
 
-    it(">25 root options collapsed: shows first 25 roots, button shows 'Show 5 more'", async () => {
+    it(">25 root options collapsed: shows first 25 roots, button shows 'Show more'", async () => {
       const opts = makeOptions(30);
       const wrapper = mountTree(ontologyColumn(), opts);
       const btn = wrapper.find("button");
       expect(btn.exists()).toBe(true);
-      expect(btn.text()).toBe("Show 5 more");
+      expect(btn.text()).toBe("Show more");
       const text = wrapper.text();
       expect(text).toContain("Option 0");
       expect(text).toContain("Option 24");
@@ -303,12 +303,12 @@ describe("FilterTree", () => {
       expect(searchInputs.length).toBeGreaterThan(0);
     });
 
-    it("30 flat roots: initial 25 shown, button shows 'Show 5 more', click shows all 30, click again resets to 25", async () => {
+    it("30 flat roots: initial 25 shown, button shows 'Show more', click shows all 30, click again resets to 25", async () => {
       const opts = makeOptions(30);
       const wrapper = mountTree(ontologyColumn(), opts);
       const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
-      expect(btn.text()).toBe("Show 5 more");
+      expect(btn.text()).toBe("Show more");
       expect(wrapper.text()).not.toContain("Option 25");
 
       await btn.trigger("click");
@@ -317,7 +317,7 @@ describe("FilterTree", () => {
       expect(wrapper.text()).toContain("Option 29");
 
       await btn.trigger("click");
-      expect(btn.text()).toBe("Show 5 more");
+      expect(btn.text()).toBe("Show more");
       expect(wrapper.text()).not.toContain("Option 25");
     });
 
@@ -345,11 +345,11 @@ describe("FilterTree", () => {
       const wrapper = mountTree(ontologyColumn(), opts);
       const btn = wrapper.find("button.text-search-filter-action");
       expect(btn.exists()).toBe(true);
-      expect(btn.text()).toBe("Show more (+50)");
+      expect(btn.text()).toBe("Show more");
       expect(wrapper.text()).not.toContain("Option 25");
 
       await btn.trigger("click");
-      expect(btn.text()).toBe("Show 25 more");
+      expect(btn.text()).toBe("Show more");
       expect(wrapper.text()).toContain("Option 74");
       expect(wrapper.text()).not.toContain("Option 75");
 
@@ -358,7 +358,7 @@ describe("FilterTree", () => {
       expect(wrapper.text()).toContain("Option 99");
 
       await btn.trigger("click");
-      expect(btn.text()).toBe("Show more (+50)");
+      expect(btn.text()).toBe("Show more");
       expect(wrapper.text()).not.toContain("Option 25");
     });
 
@@ -418,7 +418,7 @@ describe("FilterTree", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.text()).not.toContain("Option 25");
       expect(wrapper.find("button.text-search-filter-action").text()).toBe(
-        "Show more (+50)"
+        "Show more"
       );
     });
 

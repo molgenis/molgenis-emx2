@@ -563,6 +563,110 @@ describe("RADIO flat URL serialization", () => {
   });
 });
 
+describe("REF flat URL serialization (same path as RADIO/CHECKBOX)", () => {
+  it("REF serializes with flat key when value is plain strings (no .name suffix)", () => {
+    const columns = [
+      { id: "category", columnType: "REF", refTableId: "Category" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("category", {
+      operator: "equals",
+      value: ["Cohort study", "Registry"],
+    });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("category", "Cohort study|Registry");
+    expect(params).not.toHaveProperty("category.name");
+  });
+
+  it("REF roundtrips flat single-key through URL", () => {
+    const columns = [
+      { id: "category", columnType: "REF", refTableId: "Category" },
+    ] as IColumn[];
+    const original = new Map<string, IFilterValue>();
+    original.set("category", { operator: "equals", value: ["Cohort study"] });
+
+    const params = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(params, columns);
+    expect(filters.get("category")).toEqual(original.get("category"));
+  });
+
+  it("REF_ARRAY serializes flat (same as RADIO)", () => {
+    const columns = [
+      { id: "tags", columnType: "REF_ARRAY", refTableId: "Tag" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("tags", { operator: "equals", value: ["human", "mouse"] });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("tags", "human|mouse");
+    expect(params).not.toHaveProperty("tags.name");
+  });
+
+  it("REFBACK serializes flat (same as RADIO)", () => {
+    const columns = [
+      { id: "events", columnType: "REFBACK", refTableId: "Event" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("events", { operator: "equals", value: ["eventA"] });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("events", "eventA");
+    expect(params).not.toHaveProperty("events.name");
+  });
+
+  it("SELECT serializes flat (same as REF)", () => {
+    const columns = [
+      { id: "contactPoint", columnType: "SELECT", refTableId: "Persons" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("contactPoint", {
+      operator: "equals",
+      value: ["Alice", "Bob"],
+    });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("contactPoint", "Alice|Bob");
+    expect(params).not.toHaveProperty("contactPoint.name");
+  });
+
+  it("SELECT roundtrips flat single-key through URL", () => {
+    const columns = [
+      { id: "contactPoint", columnType: "SELECT", refTableId: "Persons" },
+    ] as IColumn[];
+    const original = new Map<string, IFilterValue>();
+    original.set("contactPoint", { operator: "equals", value: ["Alice"] });
+
+    const params = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(params, columns);
+    expect(filters.get("contactPoint")).toEqual(original.get("contactPoint"));
+  });
+
+  it("MULTISELECT serializes flat (same as REF_ARRAY)", () => {
+    const columns = [
+      { id: "tags", columnType: "MULTISELECT", refTableId: "Tag" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("tags", { operator: "equals", value: ["human", "mouse"] });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("tags", "human|mouse");
+    expect(params).not.toHaveProperty("tags.name");
+  });
+
+  it("MULTISELECT roundtrips flat single-key through URL", () => {
+    const columns = [
+      { id: "tags", columnType: "MULTISELECT", refTableId: "Tag" },
+    ] as IColumn[];
+    const original = new Map<string, IFilterValue>();
+    original.set("tags", { operator: "equals", value: ["human"] });
+
+    const params = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(params, columns);
+    expect(filters.get("tags")).toEqual(original.get("tags"));
+  });
+});
+
 describe("nested REF like filter URL round-trip", () => {
   const refArrayColumn: IColumn = {
     id: "collectionEvents",

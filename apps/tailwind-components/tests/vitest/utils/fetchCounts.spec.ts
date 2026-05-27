@@ -770,6 +770,293 @@ describe("fetchCounts - hierarchical ontology (refTableId provided)", () => {
   });
 });
 
+describe("fetchCounts - REF / REF_ARRAY / REFBACK / SELECT / MULTISELECT via fetchFlatGroupBy strategy", () => {
+  it("REF column uses RADIO/CHECKBOX shape: Resources_groupBy { count, <col> { key } }", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [
+      { count: 5, category: { name: "Cohort study" } },
+      { count: 3, category: { name: "Registry" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "category",
+      "REF",
+      {},
+      fetcher,
+      "CategoryTable",
+      null
+    );
+
+    expect(result.options).toEqual([
+      {
+        name: "Cohort study",
+        keyObject: { name: "Cohort study" },
+        count: 5,
+        overlap: 0,
+      },
+      {
+        name: "Registry",
+        keyObject: { name: "Registry" },
+        count: 3,
+        overlap: 0,
+      },
+    ]);
+    expect(fetcher).toHaveBeenCalled();
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("Patient_groupBy");
+    expect(query).toContain("category { name }");
+    expect(query).not.toContain("category_groupBy");
+  });
+
+  it("REF column with composite key sets keyObject on each CountedOption", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" id code");
+
+    const rows = [
+      { count: 7, category: { id: "A", code: "1" } },
+      { count: 2, category: { id: "B", code: "2" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "category",
+      "REF",
+      {},
+      fetcher,
+      "CategoryTable",
+      null
+    );
+
+    expect(result.options).toEqual([
+      { name: "A, 1", keyObject: { id: "A", code: "1" }, count: 7, overlap: 0 },
+      { name: "B, 2", keyObject: { id: "B", code: "2" }, count: 2, overlap: 0 },
+    ]);
+  });
+
+  it("REF_ARRAY column uses fetchFlatGroupBy (same shape as REF)", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [{ count: 4, tag: { name: "human" } }];
+    const fetcher = vi.fn().mockResolvedValue({ Sample_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Sample",
+      "tag",
+      "REF_ARRAY",
+      {},
+      fetcher,
+      "TagTable",
+      null
+    );
+
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0]).toMatchObject({
+      name: "human",
+      keyObject: { name: "human" },
+      count: 4,
+    });
+    expect(fetcher).toHaveBeenCalled();
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("Sample_groupBy");
+    expect(query).toContain("tag { name }");
+    expect(query).not.toContain("tag_groupBy");
+  });
+
+  it("REFBACK column uses fetchFlatGroupBy (same shape as REF)", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [{ count: 6, events: { name: "eventA" } }];
+    const fetcher = vi.fn().mockResolvedValue({ Resource_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Resource",
+      "events",
+      "REFBACK",
+      {},
+      fetcher,
+      "EventTable",
+      null
+    );
+
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0]).toMatchObject({
+      name: "eventA",
+      keyObject: { name: "eventA" },
+      count: 6,
+    });
+    expect(fetcher).toHaveBeenCalled();
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("Resource_groupBy");
+    expect(query).toContain("events { name }");
+    expect(query).not.toContain("events_groupBy");
+  });
+
+  it("SELECT column uses same shape as REF", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [
+      { count: 5, contactPoint: { name: "Alice" } },
+      { count: 3, contactPoint: { name: "Bob" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Resources_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Resources",
+      "contactPoint",
+      "SELECT",
+      {},
+      fetcher,
+      "Persons",
+      null
+    );
+
+    expect(result.options).toEqual([
+      {
+        name: "Alice",
+        keyObject: { name: "Alice" },
+        count: 5,
+        overlap: 0,
+      },
+      {
+        name: "Bob",
+        keyObject: { name: "Bob" },
+        count: 3,
+        overlap: 0,
+      },
+    ]);
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("Resources_groupBy");
+    expect(query).toContain("contactPoint { name }");
+    expect(query).not.toContain("contactPoint_groupBy");
+  });
+
+  it("MULTISELECT column uses same shape as REF_ARRAY", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = [
+      { count: 4, tags: { name: "human" } },
+      { count: 2, tags: { name: "mouse" } },
+    ];
+    const fetcher = vi.fn().mockResolvedValue({ Sample_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Sample",
+      "tags",
+      "MULTISELECT",
+      {},
+      fetcher,
+      "TagTable",
+      null
+    );
+
+    expect(result.options).toHaveLength(2);
+    expect(result.options[0]).toMatchObject({
+      name: "human",
+      keyObject: { name: "human" },
+      count: 4,
+    });
+    const query: string = fetcher.mock.calls[0][1];
+    expect(query).toContain("Sample_groupBy");
+    expect(query).toContain("tags { name }");
+    expect(query).not.toContain("tags_groupBy");
+  });
+
+  it("REF saturation: >=500 rows sets saturated: true", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = Array.from({ length: 500 }, (_, idx) => ({
+      count: 1,
+      category: { name: `val${idx}` },
+    }));
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "category",
+      "REF",
+      {},
+      fetcher,
+      "CategoryTable",
+      null
+    );
+
+    expect(result.saturated).toBe(true);
+  });
+
+  it("SELECT saturation: >=500 rows sets saturated: true", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name");
+
+    const rows = Array.from({ length: 500 }, (_, idx) => ({
+      count: 1,
+      contactPoint: { name: `person${idx}` },
+    }));
+    const fetcher = vi.fn().mockResolvedValue({ Resources_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Resources",
+      "contactPoint",
+      "SELECT",
+      {},
+      fetcher,
+      "Persons",
+      null
+    );
+
+    expect(result.saturated).toBe(true);
+  });
+
+  it("REF uses refLabelDefault template for option labels when provided", async () => {
+    const { getColumnIds } = await import(
+      "../../../app/composables/fetchTableData"
+    );
+    vi.mocked(getColumnIds).mockResolvedValue(" name code");
+
+    const rows = [{ count: 3, category: { name: "Cohort", code: "COH" } }];
+    const fetcher = vi.fn().mockResolvedValue({ Patient_groupBy: rows });
+    const result = await fetchCounts(
+      "s",
+      "Patient",
+      "category",
+      "REF",
+      {},
+      fetcher,
+      "CategoryTable",
+      null,
+      "${name} (${code})"
+    );
+
+    expect(result.options).toHaveLength(1);
+    expect(result.options[0].name).toBe("Cohort (COH)");
+  });
+});
+
 describe("fetchCounts - delta semantics (overlap parameter)", () => {
   it("returns overlap counts for ONTOLOGY_ARRAY when crossFilterIncludeAll is provided", async () => {
     const soloRows = [

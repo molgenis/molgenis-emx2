@@ -83,11 +83,31 @@ export function buildGraphQLFilter(
             } else if (boolValues.length > 1) {
               filterValueObj = { equals: boolValues };
             }
-          } else if (resolvedType === "RADIO" || resolvedType === "CHECKBOX") {
+          } else if (
+            resolvedType === "RADIO" ||
+            resolvedType === "CHECKBOX" ||
+            ((resolvedType === "REF" ||
+              resolvedType === "REF_ARRAY" ||
+              resolvedType === "REFBACK" ||
+              resolvedType === "SELECT" ||
+              resolvedType === "MULTISELECT") &&
+              pathSegments.length === 1)
+          ) {
             const isDirectColumn = !columnTypeMap?.get(columnId);
             const hasPlainStringValues =
               arr.length > 0 && typeof arr[0] === "string";
-            const hasCompositeKeyObjects =
+            const isRefType =
+              resolvedType === "REF" ||
+              resolvedType === "REF_ARRAY" ||
+              resolvedType === "REFBACK" ||
+              resolvedType === "SELECT" ||
+              resolvedType === "MULTISELECT";
+            const hasMultiKeyObjects =
+              arr.length > 0 &&
+              typeof arr[0] === "object" &&
+              arr[0] !== null &&
+              Object.keys(arr[0] as Record<string, unknown>).length > 1;
+            const hasAnyObjects =
               arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null;
             if (isDirectColumn && column.refTableId && hasPlainStringValues) {
               filterValueObj = {
@@ -96,7 +116,7 @@ export function buildGraphQLFilter(
             } else if (
               isDirectColumn &&
               column.refTableId &&
-              hasCompositeKeyObjects
+              (hasMultiKeyObjects || (!isRefType && hasAnyObjects))
             ) {
               filterValueObj = {
                 _or: arr.map((keyObj: any) => {
@@ -107,6 +127,14 @@ export function buildGraphQLFilter(
                   return entry;
                 }),
               };
+            } else if (isRefType && hasAnyObjects) {
+              const refField = Object.keys(
+                arr[0] as Record<string, unknown>
+              )[0]!;
+              const refValues = arr.map(
+                (v: any) => (v as Record<string, unknown>)[refField]
+              );
+              filterValueObj = { [refField]: { equals: refValues } };
             } else {
               filterValueObj = { _match_any: arr };
             }

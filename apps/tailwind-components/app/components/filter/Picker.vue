@@ -13,6 +13,7 @@ import {
   isExcludedColumn,
   shouldExcludeSelfRef,
   navDepth,
+  isCountableType,
 } from "../../utils/filterTypes";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import type { NestedColumnMeta } from "../../../types/filters";
@@ -22,6 +23,7 @@ interface PickerNode {
   label: string;
   description?: string;
   selectable: boolean;
+  expandable: boolean;
   depth: number;
   column: IColumn;
 }
@@ -110,7 +112,8 @@ function buildRefPickerNode(
     id: path,
     label: col.label || col.id,
     description: col.description,
-    selectable: false,
+    selectable: isCountableType(col.columnType),
+    expandable: true,
     depth,
     column: col,
   };
@@ -153,6 +156,7 @@ function buildNodes(
           label: col.label || col.id,
           description: col.description,
           selectable: true,
+          expandable: false,
           depth,
           column: col,
         },
@@ -293,20 +297,21 @@ function updateVisibility(value: boolean) {
             :style="{ paddingLeft: `${node.depth * 1.5}rem` }"
           >
             <div
-              v-if="!node.selectable"
-              class="flex items-center justify-between gap-2 py-1.5 px-2 text-body-sm text-title-contrast"
+              v-if="node.selectable && node.expandable"
+              :data-column-id="node.id"
+              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast hover:bg-hover rounded-input"
             >
-              <button
-                type="button"
-                class="flex items-center gap-1.5 text-left cursor-pointer hover:underline flex-1 min-w-0"
-                :aria-expanded="expandedRefs.has(node.id)"
-                @click="toggleExpand(node)"
-              >
-                <BaseIcon
-                  name="caret-right"
-                  :width="20"
-                  class="shrink-0 min-w-[20px] transition-transform"
-                  :class="{ 'rotate-90': expandedRefs.has(node.id) }"
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  :checked="localSelection.has(node.id)"
+                  :aria-label="node.label"
+                  class="sr-only"
+                  @change="toggleSelection(node.id)"
+                />
+                <InputCheckboxIcon
+                  :checked="localSelection.has(node.id)"
+                  class="shrink-0"
                 />
                 <span class="font-medium">{{ node.label }}</span>
                 <span
@@ -319,13 +324,60 @@ function updateVisibility(value: boolean) {
                   class="text-xs text-disabled"
                   >Loading...</span
                 >
+              </label>
+              <button
+                type="button"
+                class="flex items-center shrink-0 cursor-pointer"
+                :aria-expanded="expandedRefs.has(node.id)"
+                :aria-label="`Expand ${node.label}`"
+                @click.stop="toggleExpand(node)"
+              >
+                <BaseIcon
+                  name="caret-right"
+                  :width="20"
+                  class="shrink-0 min-w-[20px] transition-transform"
+                  :class="{ 'rotate-90': expandedRefs.has(node.id) }"
+                />
               </button>
               <Well class="shrink-0 text-xs">{{ node.column.columnType }}</Well>
             </div>
 
+            <div
+              v-else-if="!node.selectable"
+              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast"
+            >
+              <button
+                type="button"
+                class="flex items-center gap-1.5 text-left cursor-pointer hover:underline"
+                :aria-expanded="expandedRefs.has(node.id)"
+                @click="toggleExpand(node)"
+              >
+                <span class="font-medium">{{ node.label }}</span>
+                <span
+                  v-if="!loadingRefs.has(node.id) && node.column.refTableId"
+                  class="text-xs text-disabled"
+                  >&rarr; {{ node.column.refTableId }}</span
+                >
+                <span
+                  v-if="loadingRefs.has(node.id)"
+                  class="text-xs text-disabled"
+                  >Loading...</span
+                >
+                <BaseIcon
+                  name="caret-right"
+                  :width="20"
+                  class="shrink-0 min-w-[20px] transition-transform"
+                  :class="{ 'rotate-90': expandedRefs.has(node.id) }"
+                />
+                <Well class="shrink-0 text-xs">{{
+                  node.column.columnType
+                }}</Well>
+              </button>
+            </div>
+
             <label
               v-else
-              class="flex items-center justify-between gap-2 w-full py-1.5 px-2 text-body-sm text-title-contrast cursor-pointer hover:bg-hover rounded-input"
+              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast cursor-pointer hover:bg-hover rounded-input"
             >
               <input
                 type="checkbox"
@@ -334,23 +386,21 @@ function updateVisibility(value: boolean) {
                 class="sr-only"
                 @change="toggleSelection(node.id)"
               />
-              <div class="flex items-center gap-2 flex-1 min-w-0">
-                <InputCheckboxIcon
-                  :checked="localSelection.has(node.id)"
-                  class="shrink-0"
-                />
-                <div class="flex-1 min-w-0 text-left">
-                  <span class="font-medium text-body-sm text-title-contrast">{{
-                    node.label
-                  }}</span>
-                  <span
-                    v-if="node.description"
-                    class="text-xs text-disabled truncate block"
-                    :title="node.description"
-                  >
-                    {{ node.description }}
-                  </span>
-                </div>
+              <InputCheckboxIcon
+                :checked="localSelection.has(node.id)"
+                class="shrink-0"
+              />
+              <div class="text-left">
+                <span class="font-medium text-body-sm text-title-contrast">{{
+                  node.label
+                }}</span>
+                <span
+                  v-if="node.description"
+                  class="text-xs text-disabled truncate block"
+                  :title="node.description"
+                >
+                  {{ node.description }}
+                </span>
               </div>
               <Well class="shrink-0 text-xs">{{ node.column.columnType }}</Well>
             </label>

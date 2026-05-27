@@ -7,7 +7,11 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type { CountedOption } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
-import { isCountableType, isRangeType } from "../../utils/filterTypes";
+import {
+  isCountableType,
+  isRangeType,
+  treeSelectionToFilterValue,
+} from "../../utils/filterTypes";
 import FilterTree from "./Tree.vue";
 import FilterRange from "./Range.vue";
 import FilterText from "./Text.vue";
@@ -44,6 +48,17 @@ function onRangeChange(val: [columnValue, columnValue]) {
     emit("update:modelValue", { operator: "between", value: [min, max] });
   }
 }
+
+function onTreeChange(val: IFilterValue | string[] | undefined) {
+  if (Array.isArray(val)) {
+    emit(
+      "update:modelValue",
+      treeSelectionToFilterValue(val, props.column, props.options)
+    );
+  } else {
+    emit("update:modelValue", val);
+  }
+}
 </script>
 
 <template>
@@ -55,7 +70,7 @@ function onRangeChange(val: [columnValue, columnValue]) {
       :model-value="modelValue"
       :loading="loading"
       :saturated="saturated"
-      @update:model-value="emit('update:modelValue', $event)"
+      @update:model-value="onTreeChange($event)"
     />
     <FilterRange
       v-else-if="isRange"

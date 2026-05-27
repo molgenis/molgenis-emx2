@@ -230,17 +230,53 @@ describe("useFilters — gqlFilter computation", () => {
   });
 });
 
+const refColumn: IColumn = {
+  id: "category",
+  label: "Category",
+  columnType: "REF",
+  refTableId: "Category",
+};
+
+const selectColumn: IColumn = {
+  id: "contactPoint",
+  label: "Contact Point",
+  columnType: "SELECT",
+  refTableId: "Persons",
+};
+
+const multiselectColumn: IColumn = {
+  id: "tags",
+  label: "Tags",
+  columnType: "MULTISELECT",
+  refTableId: "Tag",
+};
+
 describe("useFilters — visibility management", () => {
-  it("defaults to ontology/bool columns", () => {
-    const columns = ref(allColumns);
-    const { visibleFilterIds } = useFilters(columns, {
+  it("defaults include ontology/bool/REF columns", () => {
+    const columnsWithRef = ref([...allColumns, refColumn]);
+    const { visibleFilterIds } = useFilters(columnsWithRef, {
       schemaId: "test",
       tableId: "table1",
     });
     expect(visibleFilterIds.value).toContain("status");
     expect(visibleFilterIds.value).toContain("active");
+    expect(visibleFilterIds.value).toContain("category");
     expect(visibleFilterIds.value).not.toContain("name");
     expect(visibleFilterIds.value).not.toContain("age");
+  });
+
+  it("defaults include SELECT and MULTISELECT columns", () => {
+    const columnsWithSelect = ref([
+      ...allColumns,
+      selectColumn,
+      multiselectColumn,
+    ]);
+    const { visibleFilterIds } = useFilters(columnsWithSelect, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+    expect(visibleFilterIds.value).toContain("contactPoint");
+    expect(visibleFilterIds.value).toContain("tags");
   });
 
   it("toggleFilter adds a non-visible column", () => {

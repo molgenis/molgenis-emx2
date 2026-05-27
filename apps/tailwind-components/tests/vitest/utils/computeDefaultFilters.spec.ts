@@ -17,30 +17,48 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1", "ont2", "ont3", "ont4", "ont5", "ont6"]);
   });
 
-  it("returns BOOL, CHECKBOX, RADIO but not REF types", () => {
+  it("returns RADIO and SELECT as default filters", () => {
+    const columns: IColumn[] = [
+      { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
+      { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
+      { id: "radio1", label: "Radio 1", columnType: "RADIO" },
+      { id: "sel1", label: "Select 1", columnType: "SELECT" },
+    ];
+
+    const result = computeDefaultFilters(columns);
+    expect(result).toEqual(["ont1", "ont2", "radio1", "sel1"]);
+  });
+
+  it("excludes REF, REF_ARRAY, REFBACK, BOOL, CHECKBOX, MULTISELECT from defaults (regression guard)", () => {
+    const columns: IColumn[] = [
+      { id: "ref1", label: "Ref 1", columnType: "REF" },
+      { id: "ref2", label: "Ref 2", columnType: "REF_ARRAY" },
+      { id: "refback1", label: "Refback 1", columnType: "REFBACK" },
+      { id: "bool1", label: "Bool 1", columnType: "BOOL" },
+      { id: "cb1", label: "Checkbox 1", columnType: "CHECKBOX" },
+      { id: "multi1", label: "Multi 1", columnType: "MULTISELECT" },
+    ];
+
+    const result = computeDefaultFilters(columns);
+    expect(result).toEqual([]);
+  });
+
+  it("only ONTOLOGY/ONTOLOGY_ARRAY/RADIO/SELECT are auto-defaulted in a mixed list", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
       { id: "ref1", label: "Ref 1", columnType: "REF" },
       { id: "ref2", label: "Ref 2", columnType: "REF_ARRAY" },
+      { id: "refback1", label: "Refback 1", columnType: "REFBACK" },
       { id: "bool1", label: "Bool 1", columnType: "BOOL" },
       { id: "cb1", label: "Checkbox 1", columnType: "CHECKBOX" },
       { id: "radio1", label: "Radio 1", columnType: "RADIO" },
-    ];
-
-    const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1", "ont2", "bool1", "cb1", "radio1"]);
-  });
-
-  it("does not include SELECT columns as default filters", () => {
-    const columns: IColumn[] = [
-      { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "sel1", label: "Select 1", columnType: "SELECT" },
-      { id: "sel2", label: "Select 2", columnType: "SELECT" },
+      { id: "multi1", label: "Multi 1", columnType: "MULTISELECT" },
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1"]);
+    expect(result).toEqual(["ont1", "ont2", "radio1", "sel1"]);
   });
 
   it("excludes HEADING and SECTION columns", () => {
@@ -85,7 +103,7 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual([]);
   });
 
-  it("excludes all string-like types (TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID) and includes only BOOL from mixed list", () => {
+  it("excludes all string-like types (TEXT, EMAIL, HYPERLINK, UUID, AUTO_ID) and BOOL from mixed list", () => {
     const columns: IColumn[] = [
       { id: "text1", label: "Text", columnType: "TEXT" },
       { id: "email1", label: "Email", columnType: "EMAIL" },
@@ -97,6 +115,6 @@ describe("computeDefaultFilters logic", () => {
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["bool1"]);
+    expect(result).toEqual([]);
   });
 });

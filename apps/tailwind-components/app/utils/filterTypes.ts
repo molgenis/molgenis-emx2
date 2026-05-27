@@ -23,9 +23,22 @@ export const COUNTABLE_TYPES = new Set([
   "RADIO",
   "CHECKBOX",
   "STRING_ARRAY",
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "SELECT",
+  "MULTISELECT",
 ]);
 
-const REF_FILTER_TYPES = new Set(["RADIO", "CHECKBOX"]);
+const REF_FILTER_TYPES = new Set([
+  "RADIO",
+  "CHECKBOX",
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "SELECT",
+  "MULTISELECT",
+]);
 
 const isRefFilterType = (columnType: string): boolean =>
   REF_FILTER_TYPES.has(columnType);
@@ -50,9 +63,8 @@ const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
 const DEFAULT_FILTER_TYPES = new Set([
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
-  "BOOL",
-  "CHECKBOX",
   "RADIO",
+  "SELECT",
 ]);
 
 export const isCountableType = (columnType: string): boolean =>

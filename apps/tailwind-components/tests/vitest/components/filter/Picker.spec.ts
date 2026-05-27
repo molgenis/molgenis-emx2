@@ -49,12 +49,30 @@ const refCol: IColumn = {
   position: 3,
 } as IColumn;
 
+const selectCol: IColumn = {
+  id: "contactPoint",
+  label: "Contact Point",
+  columnType: "SELECT",
+  table: "MyTable",
+  refTableId: "Persons",
+  position: 4,
+} as IColumn;
+
+const multiselectCol: IColumn = {
+  id: "tags",
+  label: "Tags",
+  columnType: "MULTISELECT",
+  table: "MyTable",
+  refTableId: "Tag",
+  position: 5,
+} as IColumn;
+
 const headingCol: IColumn = {
   id: "section1",
   label: "Section",
   columnType: "HEADING",
   table: "MyTable",
-  position: 4,
+  position: 6,
 } as IColumn;
 
 const mgCol: IColumn = {
@@ -62,7 +80,7 @@ const mgCol: IColumn = {
   label: "Inserted on",
   columnType: "DATETIME",
   table: "MyTable",
-  position: 5,
+  position: 7,
 } as IColumn;
 
 const allColumns: IColumn[] = [
@@ -70,6 +88,8 @@ const allColumns: IColumn[] = [
   stringCol,
   boolCol,
   refCol,
+  selectCol,
+  multiselectCol,
   headingCol,
   mgCol,
 ];
@@ -112,12 +132,19 @@ describe("Picker", () => {
     wrapper.unmount();
   });
 
-  it("shows countable columns (ONTOLOGY, BOOL) with checkboxes by default", async () => {
+  it("shows countable columns (ONTOLOGY, BOOL, REF) with checkboxes by default", async () => {
     const wrapper = mountPicker({ modelValue: true });
     await nextTick();
     const html = document.body.innerHTML;
     expect(html).toContain("Status");
     expect(html).toContain("Active");
+    const checkboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const categoryCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Category")
+    );
+    expect(categoryCheckbox).toBeTruthy();
     wrapper.unmount();
   });
 
@@ -317,13 +344,21 @@ describe("Picker", () => {
     wrapper.unmount();
   });
 
-  it("shows REF columns with arrow indicator", async () => {
+  it("REF columns show BOTH a checkbox AND an expand arrow", async () => {
     const wrapper = mountPicker({ modelValue: true });
     await nextTick();
 
     const html = document.body.innerHTML;
     expect(html).toContain("Category");
     expect(html).toContain("→");
+
+    const checkboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const categoryCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Category")
+    );
+    expect(categoryCheckbox).toBeTruthy();
     wrapper.unmount();
   });
 
@@ -353,7 +388,7 @@ describe("Picker", () => {
     wrapper.unmount();
   });
 
-  it("Select all button selects all selectable columns", async () => {
+  it("Select all button selects all selectable columns including REF", async () => {
     const wrapper = mountPicker({
       modelValue: true,
       visibleFilterIds: new Set(),
@@ -376,6 +411,96 @@ describe("Picker", () => {
     const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
     expect(allChecked).toBe(true);
     expect(checkboxes.length).toBeGreaterThan(0);
+
+    const categoryCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Category")
+    );
+    expect(categoryCheckbox?.checked).toBe(true);
+    wrapper.unmount();
+  });
+
+  it("label click on REF row toggles checkbox; caret click only expands without toggling checkbox", async () => {
+    const wrapper = mountPicker({
+      modelValue: true,
+      visibleFilterIds: new Set(),
+    });
+    await nextTick();
+
+    const checkboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const categoryCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Category")
+    );
+    expect(categoryCheckbox).toBeTruthy();
+    expect(categoryCheckbox?.checked).toBe(false);
+
+    categoryCheckbox?.click();
+    await nextTick();
+
+    const updatedCheckboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const updatedCategory = Array.from(updatedCheckboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Category")
+    );
+    expect(updatedCategory?.checked).toBe(true);
+
+    const caretButton = Array.from(
+      document.body.querySelectorAll("button, [data-icon]")
+    ).find((el) => {
+      const row = el.closest("[data-column-id='category']");
+      return row !== null;
+    });
+    if (caretButton) {
+      (caretButton as HTMLElement).click();
+      await nextTick();
+
+      const afterCaretCheckboxes = document.body.querySelectorAll(
+        'input[type="checkbox"]'
+      ) as NodeListOf<HTMLInputElement>;
+      const afterCaretCategory = Array.from(afterCaretCheckboxes).find((cb) =>
+        cb.closest("label")?.textContent?.includes("Category")
+      );
+      expect(afterCaretCategory?.checked).toBe(true);
+    }
+
+    wrapper.unmount();
+  });
+
+  it("SELECT columns show BOTH a checkbox AND an expand arrow (same as REF)", async () => {
+    const wrapper = mountPicker({ modelValue: true });
+    await nextTick();
+
+    const html = document.body.innerHTML;
+    expect(html).toContain("Contact Point");
+    expect(html).toContain("→");
+
+    const checkboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const contactPointCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Contact Point")
+    );
+    expect(contactPointCheckbox).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("MULTISELECT columns show BOTH a checkbox AND an expand arrow (same as REF_ARRAY)", async () => {
+    const wrapper = mountPicker({ modelValue: true });
+    await nextTick();
+
+    const html = document.body.innerHTML;
+    expect(html).toContain("Tags");
+    expect(html).toContain("→");
+
+    const checkboxes = document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const tagsCheckbox = Array.from(checkboxes).find((cb) =>
+      cb.closest("label")?.textContent?.includes("Tags")
+    );
+    expect(tagsCheckbox).toBeTruthy();
     wrapper.unmount();
   });
 

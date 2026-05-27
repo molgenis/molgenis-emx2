@@ -53,12 +53,9 @@ const isFullyExpanded = computed(
   () => visibleRootCount.value >= rootOptionCount.value
 );
 
-const showMoreLabel = computed(() => {
-  if (isFullyExpanded.value) return "Show less";
-  const remaining = rootOptionCount.value - visibleRootCount.value;
-  if (remaining >= SHOW_MORE_STEP) return `Show more (+${SHOW_MORE_STEP})`;
-  return `Show ${remaining} more`;
-});
+const showMoreLabel = computed(() =>
+  isFullyExpanded.value ? "Show less" : "Show more"
+);
 
 const visibleOptions = computed<CountedOption[]>(() => {
   if (localSearch.value) {

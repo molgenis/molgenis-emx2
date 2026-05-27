@@ -101,6 +101,15 @@ export function parseFilterValue(
 
   const columnType = column.columnType;
 
+  const isDirectRefType =
+    (columnType === "REF" ||
+      columnType === "REF_ARRAY" ||
+      columnType === "REFBACK" ||
+      columnType === "SELECT" ||
+      columnType === "MULTISELECT") &&
+    Boolean(column.refTableId) &&
+    refField === null;
+
   const MULTI_VALUE_TYPES = new Set([
     "ONTOLOGY",
     "ONTOLOGY_ARRAY",
@@ -109,7 +118,7 @@ export function parseFilterValue(
     "CHECKBOX",
   ]);
 
-  if (MULTI_VALUE_TYPES.has(columnType)) {
+  if (MULTI_VALUE_TYPES.has(columnType) || isDirectRefType) {
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       return {
         operator: "equals",
@@ -213,7 +222,16 @@ export function serializeFiltersToUrl(
         }
       } else if (
         column.columnType === "RADIO" ||
-        column.columnType === "CHECKBOX"
+        column.columnType === "CHECKBOX" ||
+        ((column.columnType === "REF" ||
+          column.columnType === "REF_ARRAY" ||
+          column.columnType === "REFBACK" ||
+          column.columnType === "SELECT" ||
+          column.columnType === "MULTISELECT") &&
+          column.refTableId &&
+          Array.isArray(value.value) &&
+          value.value.length > 0 &&
+          typeof value.value[0] === "string")
       ) {
         params[key] = serialized;
       } else if (REF_TYPES.has(column.columnType)) {

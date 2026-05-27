@@ -113,6 +113,96 @@ describe("Column dispatcher", () => {
       expect(wrapper.findComponent(FilterText).exists()).toBe(false);
     });
 
+    it("renders FilterTree for REF column type", () => {
+      const col: IColumn = {
+        id: "category",
+        label: "Category",
+        columnType: "REF",
+        refTableId: "Category",
+      } as IColumn;
+      const wrapper = mountColumn(col, sampleOptions);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+    });
+
+    it("renders FilterTree for REF_ARRAY column type", () => {
+      const col: IColumn = {
+        id: "tags",
+        label: "Tags",
+        columnType: "REF_ARRAY",
+        refTableId: "Tag",
+      } as IColumn;
+      const wrapper = mountColumn(col, sampleOptions);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+    });
+
+    it("renders FilterTree for REFBACK column type", () => {
+      const col: IColumn = {
+        id: "events",
+        label: "Events",
+        columnType: "REFBACK",
+        refTableId: "Event",
+      } as IColumn;
+      const wrapper = mountColumn(col, sampleOptions);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+    });
+
+    it("REF single-key emits plain string array wrapped in equals operator", async () => {
+      const col: IColumn = {
+        id: "category",
+        label: "Category",
+        columnType: "REF",
+        refTableId: "Category",
+      } as IColumn;
+      const singleKeyOptions: CountedOption[] = [
+        { name: "dogs", keyObject: { name: "dogs" }, count: 5, overlap: 0 },
+        { name: "cats", keyObject: { name: "cats" }, count: 3, overlap: 0 },
+      ];
+      const wrapper = mountColumn(col, singleKeyOptions);
+      const tree = wrapper.findComponent(FilterTree);
+      await tree.vm.$emit("update:modelValue", ["dogs"]);
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted).toBeTruthy();
+      expect(emitted![0][0]).toEqual({ operator: "equals", value: ["dogs"] });
+    });
+
+    it("REF composite-key emits keyObjects in equals operator", async () => {
+      const col: IColumn = {
+        id: "category",
+        label: "Category",
+        columnType: "REF",
+        refTableId: "Category",
+      } as IColumn;
+      const compositeKeyOptions: CountedOption[] = [
+        {
+          name: "A, 1",
+          keyObject: { id: "A", code: "1" },
+          count: 5,
+          overlap: 0,
+        },
+        {
+          name: "B, 2",
+          keyObject: { id: "B", code: "2" },
+          count: 3,
+          overlap: 0,
+        },
+      ];
+      const wrapper = mountColumn(col, compositeKeyOptions);
+      const tree = wrapper.findComponent(FilterTree);
+      await tree.vm.$emit("update:modelValue", ["A, 1"]);
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted).toBeTruthy();
+      expect(emitted![0][0]).toEqual({
+        operator: "equals",
+        value: [{ id: "A", code: "1" }],
+      });
+    });
+
     it("H3: STRING_ARRAY renders FilterTree (countable), not text search fallback", () => {
       const col: IColumn = {
         id: "tags",
@@ -124,6 +214,32 @@ describe("Column dispatcher", () => {
         { name: "b", count: 1 },
       ];
       const wrapper = mountColumn(col, opts);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+    });
+
+    it("renders FilterTree for SELECT column type", () => {
+      const col: IColumn = {
+        id: "contactPoint",
+        label: "Contact Point",
+        columnType: "SELECT",
+        refTableId: "Persons",
+      } as IColumn;
+      const wrapper = mountColumn(col, sampleOptions);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+    });
+
+    it("renders FilterTree for MULTISELECT column type", () => {
+      const col: IColumn = {
+        id: "tags",
+        label: "Tags",
+        columnType: "MULTISELECT",
+        refTableId: "Tag",
+      } as IColumn;
+      const wrapper = mountColumn(col, sampleOptions);
       expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
       expect(wrapper.findComponent(FilterText).exists()).toBe(false);

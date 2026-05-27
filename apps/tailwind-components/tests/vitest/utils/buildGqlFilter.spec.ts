@@ -626,6 +626,92 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
+  it("REF single-key plain string uses equals with name key (mirrors RADIO)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "category",
+        columnType: "REF",
+        label: "Category",
+        refTableId: "Category",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["category", { operator: "equals", value: ["Cohort study"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      category: { equals: [{ name: "Cohort study" }] },
+    });
+  });
+
+  it("REF composite key objects use _or (mirrors RADIO composite)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "category",
+        columnType: "REF",
+        label: "Category",
+        refTableId: "Category",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "category",
+        {
+          operator: "equals",
+          value: [
+            { id: "A", code: "1" },
+            { id: "B", code: "2" },
+          ],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      category: {
+        _or: [
+          { id: { equals: "A" }, code: { equals: "1" } },
+          { id: { equals: "B" }, code: { equals: "2" } },
+        ],
+      },
+    });
+  });
+
+  it("REF_ARRAY single-key plain string uses equals with name key (mirrors RADIO)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "tags",
+        columnType: "REF_ARRAY",
+        label: "Tags",
+        refTableId: "Tag",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["tags", { operator: "equals", value: ["human", "mouse"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: { equals: [{ name: "human" }, { name: "mouse" }] },
+    });
+  });
+
+  it("REFBACK single-key plain string uses equals with name key (mirrors RADIO)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "events",
+        columnType: "REFBACK",
+        label: "Events",
+        refTableId: "Event",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["events", { operator: "equals", value: ["eventA"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      events: { equals: [{ name: "eventA" }] },
+    });
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
@@ -697,5 +783,73 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ tags: { equals: ["a", "b"] } });
+  });
+
+  it("SELECT single-key plain string uses equals with name key (mirrors REF)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "contactPoint",
+        columnType: "SELECT",
+        label: "Contact Point",
+        refTableId: "Persons",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["contactPoint", { operator: "equals", value: ["Alice"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      contactPoint: { equals: [{ name: "Alice" }] },
+    });
+  });
+
+  it("MULTISELECT single-key plain string uses equals with name key (mirrors REF_ARRAY)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "tags",
+        columnType: "MULTISELECT",
+        label: "Tags",
+        refTableId: "Tag",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["tags", { operator: "equals", value: ["human", "mouse"] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: { equals: [{ name: "human" }, { name: "mouse" }] },
+    });
+  });
+
+  it("SELECT composite key objects use _or (mirrors REF composite)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "contactPoint",
+        columnType: "SELECT",
+        label: "Contact Point",
+        refTableId: "Persons",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "contactPoint",
+        {
+          operator: "equals",
+          value: [
+            { id: "A", code: "1" },
+            { id: "B", code: "2" },
+          ],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      contactPoint: {
+        _or: [
+          { id: { equals: "A" }, code: { equals: "1" } },
+          { id: { equals: "B" }, code: { equals: "2" } },
+        ],
+      },
+    });
   });
 });

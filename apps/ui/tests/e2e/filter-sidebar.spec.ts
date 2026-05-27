@@ -450,6 +450,51 @@ test.describe("filter sidebar", () => {
       )
       .toBeLessThan(initialPages);
   });
+
+  test("direct REF column filtering exposes checkbox in modal and renders filter section in sidebar", async ({
+    page,
+  }) => {
+    await page.goto(`http://localhost:3001/${route}catalogue-demo/Resources`);
+    await page.waitForTimeout(3000);
+
+    const customizeButton = page.getByRole("button", { name: /customize/i });
+    await expect(customizeButton).toBeVisible();
+    await customizeButton.click();
+    await page.waitForTimeout(2000);
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+
+    const columnsList = modal.locator("ul li");
+    const contactPointItem = columnsList.filter({ hasText: /contact point/i });
+    await expect(contactPointItem.first()).toBeVisible();
+    await contactPointItem.first().scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+
+    const checkbox = contactPointItem.first().locator('input[type="checkbox"]');
+    await expect(checkbox).toBeAttached();
+
+    const alreadyChecked = await checkbox.isChecked();
+    if (!alreadyChecked) {
+      await checkbox.click({ force: true });
+      await page.waitForTimeout(500);
+    }
+
+    const isChecked = await checkbox.isChecked();
+    expect(isChecked).toBe(true);
+
+    const applyBtn = page.getByRole("button", { name: /apply/i });
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
+    await page.waitForTimeout(2000);
+
+    await expect(modal).not.toBeVisible();
+
+    const contactPointHeading = page
+      .locator("h3")
+      .filter({ hasText: /^contact point$/i });
+    await expect(contactPointHeading).toBeVisible();
+  });
 });
 
 test("countable filter sections with zero base count are hidden initially", async ({

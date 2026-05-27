@@ -62,7 +62,15 @@ export async function fetchCounts(
     return { options, saturated: false };
   }
 
-  if (columnType === "RADIO" || columnType === "CHECKBOX") {
+  if (
+    columnType === "RADIO" ||
+    columnType === "CHECKBOX" ||
+    columnType === "REF" ||
+    columnType === "REF_ARRAY" ||
+    columnType === "REFBACK" ||
+    columnType === "SELECT" ||
+    columnType === "MULTISELECT"
+  ) {
     let keyExpansion: string | undefined;
     if (refTableId) {
       keyExpansion = (
