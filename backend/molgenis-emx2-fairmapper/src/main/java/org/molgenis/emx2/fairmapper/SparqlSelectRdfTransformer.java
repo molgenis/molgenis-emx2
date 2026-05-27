@@ -1,13 +1,13 @@
 package org.molgenis.emx2.fairmapper;
 
 import java.util.List;
-import java.util.stream.Stream;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
@@ -27,26 +27,26 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
 
   @Override
   public TableStore transform(SailRepository repository) {
-    StreamingTableStore tableStore = new StreamingTableStore();
-    tables.forEach(table -> addTableDataToStore(table, repository, tableStore));
+    InMemoryTableStore tableStore = new InMemoryTableStore();
+    try (SailRepositoryConnection conn = repository.getConnection()) {
+      tables.forEach(table -> addTableDataToStore(table, conn, tableStore));
+    }
     return tableStore;
   }
 
   private void addTableDataToStore(
-      String table, SailRepository repository, StreamingTableStore tableStore) {
-    SailRepositoryConnection conn = repository.getConnection();
+      String table, SailRepositoryConnection conn, InMemoryTableStore tableStore) {
     SelectQuery query = queryGenerator.generate(schema.getTableMetadata(table));
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString());
 
-    TupleQueryResult evaluate = prepared.evaluate();
-    List<String> columnNames =
-        evaluate.getBindingNames().stream()
-            .map(ColumnNameSparqlEncoder::decodeSparqlVariable)
-            .toList();
+    try (TupleQueryResult evaluate = prepared.evaluate()) {
+      List<String> columnNames =
+          evaluate.getBindingNames().stream()
+              .map(ColumnNameSparqlEncoder::decodeSparqlVariable)
+              .toList();
 
-    Stream<Row> rowStream =
-        evaluate.stream().map(this::mapToRow).onClose(evaluate::close).onClose(conn::close);
-    tableStore.writeTable(table, columnNames, rowStream);
+      tableStore.writeTable(table, columnNames, evaluate.stream().map(this::mapToRow).toList());
+    }
   }
 
   private Row mapToRow(BindingSet bindings) {
