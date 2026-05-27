@@ -22,7 +22,6 @@ import { useRoute, useRouter } from "#app/composables/router";
 import {
   useFilters,
   MG_FILTERS_PARAM,
-  MG_COLLAPSED_PARAM,
 } from "../../../app/composables/useFilters";
 import { computeDefaultFilters } from "../../../app/utils/filterTypes";
 
@@ -85,6 +84,7 @@ function makeUrlSync(queryInit: Record<string, string> = {}) {
 beforeEach(() => {
   useRoute.mockReturnValue({ query: reactive({}) });
   useRouter.mockReturnValue({ replace: vi.fn() });
+  sessionStorage.clear();
 });
 
 describe("useFilters — filter state management", () => {
@@ -876,11 +876,9 @@ describe("useFilters — collapsed state", () => {
     expect(isCollapsed("f")).toBe(false);
   });
 
-  it("reads mg_collapsed from URL on init", () => {
+  it("reads mg_collapsed from sessionStorage on init", () => {
     const ids = ["a", "b", "c"];
-    makeUrlSync({
-      [MG_COLLAPSED_PARAM]: "a,c",
-    });
+    sessionStorage.setItem("mg_collapsed:test:table1", "a,c");
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -888,16 +886,15 @@ describe("useFilters — collapsed state", () => {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ids,
-      urlSync: true,
     });
     expect(isCollapsed("a")).toBe(true);
     expect(isCollapsed("b")).toBe(false);
     expect(isCollapsed("c")).toBe(true);
+    sessionStorage.removeItem("mg_collapsed:test:table1");
   });
 
-  it("toggleCollapse persists to URL", () => {
+  it("toggleCollapse persists to sessionStorage", () => {
     const ids = ["a", "b", "c"];
-    const { replaceCalls } = makeUrlSync({});
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -905,18 +902,15 @@ describe("useFilters — collapsed state", () => {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ids,
-      urlSync: true,
     });
     toggleCollapse("a");
-    const lastCall = replaceCalls[replaceCalls.length - 1];
-    expect(lastCall?.query?.[MG_COLLAPSED_PARAM]).toContain("a");
+    expect(sessionStorage.getItem("mg_collapsed:test:table1")).toContain("a");
+    sessionStorage.removeItem("mg_collapsed:test:table1");
   });
 
-  it("removes mg_collapsed from URL when all sections expanded", () => {
+  it("removes mg_collapsed from sessionStorage when all sections expanded", () => {
     const ids = ["a"];
-    const { replaceCalls } = makeUrlSync({
-      [MG_COLLAPSED_PARAM]: "a",
-    });
+    sessionStorage.setItem("mg_collapsed:test:table1", "a");
     const columns = ref<IColumn[]>([
       { id: "a", label: "a", columnType: "ONTOLOGY" },
     ]);
@@ -924,14 +918,12 @@ describe("useFilters — collapsed state", () => {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ids,
-      urlSync: true,
     });
     toggleCollapse("a");
-    const lastCall = replaceCalls[replaceCalls.length - 1];
-    expect(lastCall?.query?.[MG_COLLAPSED_PARAM]).toBeUndefined();
+    expect(sessionStorage.getItem("mg_collapsed:test:table1")).toBeNull();
   });
 
-  it("preserves other URL params when updating mg_collapsed", () => {
+  it("toggleCollapse does not touch URL params", () => {
     const ids = ["a"];
     const { replaceCalls } = makeUrlSync({
       page: "2",
@@ -946,15 +938,14 @@ describe("useFilters — collapsed state", () => {
       defaultFilters: ids,
       urlSync: true,
     });
+    const callCountBefore = replaceCalls.length;
     toggleCollapse("a");
-    const lastCall = replaceCalls[replaceCalls.length - 1];
-    expect(lastCall?.query?.["page"]).toBe("2");
-    expect(lastCall?.query?.["sort"]).toBe("name");
+    expect(replaceCalls.length).toBe(callCountBefore);
+    sessionStorage.removeItem("mg_collapsed:test:table1");
   });
 
-  it("applies first-5 rule when mg_collapsed is absent from URL", () => {
+  it("applies first-5 rule when sessionStorage has no collapsed entry", () => {
     const ids = ["a", "b", "c", "d", "e", "f", "g"];
-    makeUrlSync({});
     const columns = ref<IColumn[]>(
       ids.map((id) => ({ id, label: id, columnType: "ONTOLOGY" }))
     );
@@ -962,7 +953,6 @@ describe("useFilters — collapsed state", () => {
       schemaId: "test",
       tableId: "table1",
       defaultFilters: ids,
-      urlSync: true,
     });
     expect(isCollapsed("a")).toBe(false);
     expect(isCollapsed("f")).toBe(true);

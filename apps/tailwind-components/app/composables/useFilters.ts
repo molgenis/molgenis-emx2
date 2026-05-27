@@ -39,7 +39,6 @@ import fetchGraphql from "./fetchGraphql";
 
 export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
-export const MG_COLLAPSED_PARAM = "mg_collapsed";
 export const MAX_VISIBLE_FILTERS = 25;
 export const FILTER_DEBOUNCE = 500;
 
@@ -65,10 +64,6 @@ function preserveExternalQueryParams(
   const preserved: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(query)) {
     if (key === MG_SEARCH_PARAM) continue;
-    if (key === MG_COLLAPSED_PARAM) {
-      preserved[key] = value;
-      continue;
-    }
     const firstSegment = key.split(".")[0] ?? key;
     if (columnIds.has(firstSegment)) continue;
     preserved[key] = value;
@@ -342,16 +337,32 @@ export function useFilters(
     }
   });
 
+  const countedOptionsCache = new Map<string, ComputedRef<CountedOption[]>>();
+  const countLoadingCache = new Map<string, ComputedRef<boolean>>();
+  const saturatedCache = new Map<string, ComputedRef<boolean>>();
+
   function getCountedOptions(columnId: string): ComputedRef<CountedOption[]> {
-    return computed(() => countsMap.value.get(columnId) ?? []);
+    const cached = countedOptionsCache.get(columnId);
+    if (cached) return cached;
+    const c = computed(() => countsMap.value.get(columnId) ?? []);
+    countedOptionsCache.set(columnId, c);
+    return c;
   }
 
   function isCountLoading(columnId: string): ComputedRef<boolean> {
-    return computed(() => loadingSet.value.has(columnId));
+    const cached = countLoadingCache.get(columnId);
+    if (cached) return cached;
+    const c = computed(() => loadingSet.value.has(columnId));
+    countLoadingCache.set(columnId, c);
+    return c;
   }
 
   function isSaturated(columnId: string): ComputedRef<boolean> {
-    return computed(() => saturatedMap.value.get(columnId) === true);
+    const cached = saturatedCache.get(columnId);
+    if (cached) return cached;
+    const c = computed(() => saturatedMap.value.get(columnId) === true);
+    saturatedCache.set(columnId, c);
+    return c;
   }
 
   function pruneVisibleByBaseCount() {
@@ -521,15 +532,15 @@ export function useFilters(
     collapsed.value = next;
   }
 
+  const collapsedStorageKey = `mg_collapsed:${schemaId}:${tableId}`;
+
   function persistCollapsed(next: Set<string>) {
-    if (!urlSyncEnabled) return;
-    const currentQuery = { ...(route.query as Record<string, string>) };
+    if (typeof window === "undefined") return;
     if (next.size === 0) {
-      delete currentQuery[MG_COLLAPSED_PARAM];
+      sessionStorage.removeItem(collapsedStorageKey);
     } else {
-      currentQuery[MG_COLLAPSED_PARAM] = [...next].join(",");
+      sessionStorage.setItem(collapsedStorageKey, [...next].join(","));
     }
-    router.replace({ query: currentQuery });
   }
 
   function toggleCollapse(columnId: string) {
@@ -547,10 +558,13 @@ export function useFilters(
     return collapsed.value.has(columnId);
   }
 
-  if (urlSyncEnabled) {
-    const urlParam = route.query[MG_COLLAPSED_PARAM];
-    if (typeof urlParam === "string" && urlParam.trim()) {
-      const ids = urlParam
+  {
+    const stored =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem(collapsedStorageKey)
+        : null;
+    if (stored && stored.trim()) {
+      const ids = stored
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
@@ -558,8 +572,6 @@ export function useFilters(
     } else {
       applyDefaultCollapse();
     }
-  } else {
-    applyDefaultCollapse();
   }
 
   function registerNestedColumn(id: string, meta: NestedColumnMeta) {
