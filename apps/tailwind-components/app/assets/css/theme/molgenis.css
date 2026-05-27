@@ -140,6 +140,7 @@
   --border-radius-landing: 50px;
 
   --border-width-theme: 0px;
+  --border-color-footer: var(--background-color-footer);
 
   --outline-color-select: var(--color-gray-200);
 

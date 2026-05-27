@@ -112,8 +112,8 @@ if (!cohortOnly.value) {
         </div>-->
 
         <StoreHeaderButton
-          @click="showCartModal = !showCartModal"
           v-if="datasetStore.isEnabled"
+          @click="showCartModal = !showCartModal"
         />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
@@ -127,7 +127,6 @@ if (!cohortOnly.value) {
               :image="catalogue?.logo?.url ?? logoSrc"
             />
           </div>
-
           <div class="flex gap-3">
             <StoreHeaderButton
               @click="showCartModal = !showCartModal"

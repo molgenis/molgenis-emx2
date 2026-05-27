@@ -2,11 +2,7 @@ package org.molgenis.emx2.rdf.mappers;
 
 import static org.eclipse.rdf4j.model.util.Values.namespace;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,7 +11,6 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.RdfUtils;
@@ -25,9 +20,9 @@ class NamespaceMapperTest {
   static final ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
   @Test
-  void testValidCustomPrefixes() throws IOException {
-    Schema schema =
-        mockSchema(
+  void testValidCustomPrefixes() {
+    SchemaMetadata schema =
+        createSchemaWithSemantics(
             "mySchema",
             """
 rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
@@ -65,8 +60,8 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
 
   @Test
   void testInvalidCustomPrefixes() {
-    Schema schema =
-        mockSchema(
+    SchemaMetadata schema =
+        createSchemaWithSemantics(
             "mySchema",
             """
     invalid,thisFieldIsInvalid
@@ -75,7 +70,7 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
   }
 
   @Test
-  void testMultiSchemaWithCustomConfig() throws IOException {
+  void testMultiSchemaWithCustomConfig() {
     // prefix 1 -> only in schema 1
     // prefix 2 -> same prefix, different URL
     // prefix 3 -> only in schema 1, same URL als prefix 4 in schema 2
@@ -83,8 +78,8 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
     // prefix 5 -> duplicate in both
     // prefix 6 -> only in schema 2
 
-    Schema schema1 =
-        mockSchema(
+    SchemaMetadata schema1 =
+        createSchemaWithSemantics(
             "schema1",
             """
             prefix1,http://example.com/schema1only#
@@ -93,8 +88,8 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
             prefix5,http://example.com/duplicate#
             """);
 
-    Schema schema2 =
-        mockSchema(
+    SchemaMetadata schema2 =
+        createSchemaWithSemantics(
             "schema2",
             """
                 prefix2,http://example.com/conflicting_url2#
@@ -125,15 +120,7 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
     String schemaName = "missingSettingSchema";
     String schemaId = "MissingSettingSchema";
 
-    SchemaMetadata schemaMetadata = mock(SchemaMetadata.class);
-    when(schemaMetadata.getIdentifier()).thenReturn(convertToPascalCase(schemaName));
-    when(schemaMetadata.getName()).thenReturn(schemaName);
-
-    Schema schema = mock(Schema.class);
-    when(schema.getMetadata()).thenReturn(schemaMetadata);
-    when(schema.getName()).thenReturn("missingSettingSchema");
-    when(schema.hasSetting(RdfUtils.SETTING_SEMANTIC_PREFIXES)).thenReturn(false);
-
+    SchemaMetadata schema = new SchemaMetadata(schemaName);
     NamespaceMapper mapper = new NamespaceMapper(BASE_URL, schema);
 
     Set<Namespace> expectedNamespaces = DefaultNamespace.streamAll().collect(Collectors.toSet());
@@ -144,17 +131,9 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
         () -> assertEquals(expectedNamespaces, mapper.getAllNamespaces(schema)));
   }
 
-  private Schema mockSchema(String schemaName, String semanticPrefixesSetting) {
-    SchemaMetadata schemaMetadata = mock(SchemaMetadata.class);
-    when(schemaMetadata.getIdentifier()).thenReturn(convertToPascalCase(schemaName));
-    when(schemaMetadata.getName()).thenReturn(schemaName);
-
-    Schema schema = mock(Schema.class);
-    when(schema.getMetadata()).thenReturn(schemaMetadata);
-    when(schema.getName()).thenReturn(schemaName);
-    when(schema.hasSetting(RdfUtils.SETTING_SEMANTIC_PREFIXES)).thenReturn(true);
-    when(schema.getSettingValue(RdfUtils.SETTING_SEMANTIC_PREFIXES))
-        .thenReturn(semanticPrefixesSetting);
-    return schema;
+  private SchemaMetadata createSchemaWithSemantics(
+      String schemaName, String semanticPrefixesSetting) {
+    return new SchemaMetadata(schemaName)
+        .setSetting(RdfUtils.SETTING_SEMANTIC_PREFIXES, semanticPrefixesSetting);
   }
 }
