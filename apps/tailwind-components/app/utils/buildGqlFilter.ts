@@ -30,6 +30,100 @@ export function setNestedValue(obj: any, path: string[], value: any): void {
   current[lastKey] = value;
 }
 
+export function equalsForBool(
+  arr: string[],
+  pathSegments: string[]
+): { filterValueObj?: any; orClause?: any[] } {
+  const hasNull = arr.includes("_null_");
+  const boolValues = arr
+    .filter((v) => v === "true" || v === "false")
+    .map((v) => v === "true");
+
+  if (hasNull && boolValues.length > 0) {
+    const boolFilter: any = {};
+    setNestedValue(boolFilter, pathSegments, {
+      equals: boolValues.length === 1 ? boolValues[0] : boolValues,
+    });
+    const nullFilter: any = {};
+    setNestedValue(nullFilter, pathSegments, { is_null: true });
+    return { orClause: [boolFilter, nullFilter] };
+  }
+
+  if (hasNull) {
+    return { filterValueObj: { is_null: true } };
+  }
+  if (boolValues.length === 1) {
+    return { filterValueObj: { equals: boolValues[0] } };
+  }
+  return { filterValueObj: { equals: boolValues } };
+}
+
+export function equalsForDirectRef(
+  arr: any[],
+  column: IColumn,
+  isDirectColumn: boolean,
+  isRefType: boolean
+): any {
+  const hasPlainStringValues = arr.length > 0 && typeof arr[0] === "string";
+  const hasMultiKeyObjects =
+    arr.length > 0 &&
+    typeof arr[0] === "object" &&
+    arr[0] !== null &&
+    Object.keys(arr[0] as Record<string, unknown>).length > 1;
+  const hasAnyObjects =
+    arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null;
+
+  if (isDirectColumn && column.refTableId && hasPlainStringValues) {
+    return { equals: arr.map((v: any) => ({ name: v })) };
+  }
+
+  if (
+    isDirectColumn &&
+    column.refTableId &&
+    (hasMultiKeyObjects || (!isRefType && hasAnyObjects))
+  ) {
+    return {
+      _or: arr.map((keyObj: any) => {
+        const entry: Record<string, { equals: unknown }> = {};
+        for (const key of Object.keys(keyObj)) {
+          entry[key] = { equals: keyObj[key] };
+        }
+        return entry;
+      }),
+    };
+  }
+
+  if (isRefType && hasAnyObjects) {
+    const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
+    const refValues = arr.map(
+      (v: any) => (v as Record<string, unknown>)[refField]
+    );
+    return { [refField]: { equals: refValues } };
+  }
+
+  return { _match_any: arr };
+}
+
+export function equalsForNestedRef(
+  arr: any[],
+  pathSegments: string[],
+  resolvedType: string
+): any {
+  const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
+  const refValues = arr.map(
+    (v: any) => (v as Record<string, unknown>)[refField]
+  );
+  const leafSegment = pathSegments[pathSegments.length - 1];
+
+  if (ONTOLOGY_TYPES.includes(resolvedType)) {
+    return { _match_any_including_children: refValues };
+  }
+  if (leafSegment === refField) {
+    return { equals: refValues };
+  }
+  return { [refField]: { equals: refValues } };
+}
+
 export function buildGraphQLFilter(
   filterStates: Map<string, IFilterValue>,
   columns: IColumn[],
@@ -57,32 +151,15 @@ export function buildGraphQLFilter(
           const arr = Array.isArray(value) ? value : [value];
           const resolvedType =
             columnTypeMap?.get(columnId) || column.columnType;
+
           if (resolvedType === "BOOL") {
-            const strArr = arr as string[];
-            const hasNull = strArr.includes("_null_");
-            const boolValues = strArr
-              .filter((v) => v === "true" || v === "false")
-              .map((v) => v === "true");
-            if (hasNull && boolValues.length > 0) {
-              const orClause: any[] = [];
-              const boolFilter: any = {};
-              setNestedValue(boolFilter, pathSegments, {
-                equals: boolValues.length === 1 ? boolValues[0] : boolValues,
-              });
-              orClause.push(boolFilter);
-              const nullFilter: any = {};
-              setNestedValue(nullFilter, pathSegments, { is_null: true });
-              orClause.push(nullFilter);
+            const boolResult = equalsForBool(arr as string[], pathSegments);
+            if (boolResult.orClause) {
               if (!filter._or) filter._or = [] as any;
-              (filter._or as any[]).push(...orClause);
+              (filter._or as any[]).push(...boolResult.orClause);
               return;
-            } else if (hasNull) {
-              filterValueObj = { is_null: true };
-            } else if (boolValues.length === 1) {
-              filterValueObj = { equals: boolValues[0] };
-            } else if (boolValues.length > 1) {
-              filterValueObj = { equals: boolValues };
             }
+            filterValueObj = boolResult.filterValueObj;
           } else if (
             resolvedType === "RADIO" ||
             resolvedType === "CHECKBOX" ||
@@ -94,67 +171,28 @@ export function buildGraphQLFilter(
               pathSegments.length === 1)
           ) {
             const isDirectColumn = !columnTypeMap?.get(columnId);
-            const hasPlainStringValues =
-              arr.length > 0 && typeof arr[0] === "string";
             const isRefType =
               resolvedType === "REF" ||
               resolvedType === "REF_ARRAY" ||
               resolvedType === "REFBACK" ||
               resolvedType === "SELECT" ||
               resolvedType === "MULTISELECT";
-            const hasMultiKeyObjects =
-              arr.length > 0 &&
-              typeof arr[0] === "object" &&
-              arr[0] !== null &&
-              Object.keys(arr[0] as Record<string, unknown>).length > 1;
-            const hasAnyObjects =
-              arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null;
-            if (isDirectColumn && column.refTableId && hasPlainStringValues) {
-              filterValueObj = {
-                equals: arr.map((v: any) => ({ name: v })),
-              };
-            } else if (
-              isDirectColumn &&
-              column.refTableId &&
-              (hasMultiKeyObjects || (!isRefType && hasAnyObjects))
-            ) {
-              filterValueObj = {
-                _or: arr.map((keyObj: any) => {
-                  const entry: Record<string, { equals: unknown }> = {};
-                  for (const key of Object.keys(keyObj)) {
-                    entry[key] = { equals: keyObj[key] };
-                  }
-                  return entry;
-                }),
-              };
-            } else if (isRefType && hasAnyObjects) {
-              const refField = Object.keys(
-                arr[0] as Record<string, unknown>
-              )[0]!;
-              const refValues = arr.map(
-                (v: any) => (v as Record<string, unknown>)[refField]
-              );
-              filterValueObj = { [refField]: { equals: refValues } };
-            } else {
-              filterValueObj = { _match_any: arr };
-            }
+            filterValueObj = equalsForDirectRef(
+              arr,
+              column,
+              isDirectColumn,
+              isRefType
+            );
           } else if (
             arr.length > 0 &&
             typeof arr[0] === "object" &&
             arr[0] !== null
           ) {
-            const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
-            const refValues = arr.map(
-              (v: any) => (v as Record<string, unknown>)[refField]
+            filterValueObj = equalsForNestedRef(
+              arr,
+              pathSegments,
+              resolvedType
             );
-            const leafSegment = pathSegments[pathSegments.length - 1];
-            if (ONTOLOGY_TYPES.includes(resolvedType)) {
-              filterValueObj = { _match_any_including_children: refValues };
-            } else if (leafSegment === refField) {
-              filterValueObj = { equals: refValues };
-            } else {
-              filterValueObj = { [refField]: { equals: refValues } };
-            }
           } else if (ONTOLOGY_TYPES.includes(resolvedType)) {
             filterValueObj = { _match_any_including_children: arr };
           } else {
