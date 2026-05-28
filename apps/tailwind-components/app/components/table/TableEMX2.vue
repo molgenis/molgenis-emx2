@@ -7,7 +7,7 @@
       :columns="filters.columns.value"
       :schemaId="schemaId"
       :tableId="tableId"
-      class="shrink-0"
+      :class="['shrink-0', sidebarCollapsed ? '' : 'w-80 xl:w-96 min-w-80']"
     />
 
     <div :class="{ 'flex-1 min-w-0': enableFilters }">
@@ -399,6 +399,10 @@ const filters: UseFilters | null = props.enableFilters
   : null;
 
 const sidebarCollapsed = ref(false);
+
+onMounted(() => {
+  sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;
+});
 
 if (filters) {
   watch(

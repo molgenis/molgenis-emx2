@@ -170,7 +170,7 @@ function handlePickerApply(
           @keydown.enter.space.prevent="filters.toggleCollapse(column.id)"
         >
           <h3
-            class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline"
+            class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
             :aria-label="column.label || column.id.split('.').join(' → ')"
           >
             <template v-if="column.label">{{ column.label }}</template>
