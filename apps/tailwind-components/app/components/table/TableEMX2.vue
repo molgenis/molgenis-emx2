@@ -215,16 +215,20 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="
-        cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail && showModal
-      "
+      v-if="cellDetailColumn && showRefDetailModal"
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="cellDetailSchemaId ?? schemaId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
     />
-    <template v-else-if="cellDetailValue && isArrayLikeDetail">
+    <template
+      v-else-if="
+        cellDetailValue &&
+        cellDetailColumn &&
+        isArrayLikeDetail(cellDetailColumn)
+      "
+    >
       <ul>
         <li v-for="(item, index) in cellDetailValue" :key="index">
           <TableCellDetailRef
@@ -288,15 +292,16 @@
 import {
   computed,
   nextTick,
+  onMounted,
+  onUnmounted,
   ref,
   useId,
   watch,
-  onMounted,
-  onUnmounted,
 } from "vue";
 import type {
-  IColumn,
   columnValue,
+  IColumn,
+  IRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
@@ -315,23 +320,24 @@ import { getPrimaryKey } from "../../utils/getPrimaryKey";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 
-import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
-import Modal from "../Modal.vue";
+import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
+import Modal from "../Modal.vue";
 
+import { useColumnResize } from "../../composables/useColumnResize";
+import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
-import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Checkbox from "../input/Checkbox.vue";
-import { useColumnResize } from "../../composables/useColumnResize";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
-import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import RowControles from "./control/RowControles.vue";
 import DeleteRows from "./control/DeleteRows.vue";
 import constants from "../../utils/constants";
+import { isRefLikeDetail, isArrayLikeDetail } from "../../utils/refUtils";
+import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
 const props = withDefaults(
@@ -489,7 +495,7 @@ const rows = computed(() =>
 );
 
 const showDraftColumn = computed(() =>
-  rows.value.some((row) => row?.mg_draft === true)
+  rows.value.some((row: IRow) => row?.mg_draft === true)
 );
 
 const count = computed(() => data.value?.count ?? 0);
@@ -499,7 +505,7 @@ watch(
   (newMetadata) => {
     if (newMetadata) {
       columns.value = newMetadata.columns.filter(
-        (c) =>
+        (c: IColumn) =>
           !c.id.startsWith("mg") &&
           !["HEADING", "SECTION"].includes(c.columnType)
       );
@@ -601,11 +607,7 @@ function handleSearchRequest(search: unknown) {
 }
 
 const smallestPageSize = computed(() =>
-  Math.min(
-    ...constants.PAGE_SIZE_OPTIONS.filter(
-      (size) => size >= settings.value.pageSize
-    )
-  )
+  Math.min(...constants.PAGE_SIZE_OPTIONS)
 );
 
 function handlePagingRequest(page: number) {
@@ -613,8 +615,8 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handlePageSizeChange(pageSize: number) {
-  settings.value.pageSize = pageSize;
+function handlePageSizeChange(pageSize: string) {
+  settings.value.pageSize = Number.parseInt(pageSize);
   settings.value.page = 1;
   refresh();
 }
@@ -676,23 +678,12 @@ async function afterRowDeleted() {
   await refresh();
 }
 
-const isRefLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
+const showRefDetailModal = computed(() => {
   return (
-    type === "REF" ||
-    type === "RADIO" ||
-    type === "CHECKBOX" ||
-    type === "SELECT" ||
-    type === "ONTOLOGY" ||
-    type === "REFBACK" ||
-    type === "MULTISELECT"
-  );
-});
-
-const isArrayLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
-  return (
-    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+    cellDetailColumn.value &&
+    isRefLikeDetail(cellDetailColumn.value) &&
+    !isArrayLikeDetail(cellDetailColumn.value) &&
+    showModal.value
   );
 });
 </script>
