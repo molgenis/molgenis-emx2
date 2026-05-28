@@ -301,7 +301,7 @@ function updateVisibility(value: boolean) {
               :data-column-id="node.id"
               class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast hover:bg-hover rounded-input"
             >
-              <label class="flex items-center gap-2 cursor-pointer">
+              <label class="flex items-center gap-2 cursor-pointer min-w-0">
                 <input
                   type="checkbox"
                   :checked="localSelection.has(node.id)"
@@ -313,17 +313,22 @@ function updateVisibility(value: boolean) {
                   :checked="localSelection.has(node.id)"
                   class="shrink-0"
                 />
-                <span class="font-medium">{{ node.label }}</span>
-                <span
-                  v-if="!loadingRefs.has(node.id) && node.column.refTableId"
-                  class="text-xs text-disabled"
-                  >&rarr; {{ node.column.refTableId }}</span
-                >
-                <span
-                  v-if="loadingRefs.has(node.id)"
-                  class="text-xs text-disabled"
-                  >Loading...</span
-                >
+                <div class="min-w-0">
+                  <span
+                    class="font-medium block whitespace-nowrap overflow-hidden text-ellipsis"
+                    >{{ node.label }}</span
+                  >
+                  <span
+                    v-if="!loadingRefs.has(node.id) && node.column.refTableId"
+                    class="text-xs text-disabled"
+                    >&rarr; {{ node.column.refTableId }}</span
+                  >
+                  <span
+                    v-if="loadingRefs.has(node.id)"
+                    class="text-xs text-disabled"
+                    >Loading...</span
+                  >
+                </div>
               </label>
               <button
                 type="button"
@@ -348,19 +353,22 @@ function updateVisibility(value: boolean) {
             >
               <button
                 type="button"
-                class="flex items-center gap-1.5 text-left cursor-pointer hover:underline"
+                class="flex items-center gap-1.5 text-left cursor-pointer hover:underline min-w-0"
                 :aria-expanded="expandedRefs.has(node.id)"
                 @click="toggleExpand(node)"
               >
-                <span class="font-medium">{{ node.label }}</span>
+                <span
+                  class="font-medium whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{ node.label }}</span
+                >
                 <span
                   v-if="!loadingRefs.has(node.id) && node.column.refTableId"
-                  class="text-xs text-disabled"
+                  class="text-xs text-disabled shrink-0"
                   >&rarr; {{ node.column.refTableId }}</span
                 >
                 <span
                   v-if="loadingRefs.has(node.id)"
-                  class="text-xs text-disabled"
+                  class="text-xs text-disabled shrink-0"
                   >Loading...</span
                 >
                 <BaseIcon
@@ -390,13 +398,14 @@ function updateVisibility(value: boolean) {
                 :checked="localSelection.has(node.id)"
                 class="shrink-0"
               />
-              <div class="text-left">
-                <span class="font-medium text-body-sm text-title-contrast">{{
-                  node.label
-                }}</span>
+              <div class="text-left min-w-0">
+                <span
+                  class="font-medium text-body-sm text-title-contrast block whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{ node.label }}</span
+                >
                 <span
                   v-if="node.description"
-                  class="text-xs text-disabled truncate block"
+                  class="text-xs text-disabled block break-words"
                   :title="node.description"
                 >
                   {{ node.description }}
