@@ -24,7 +24,7 @@ public class TableQueryGenerator {
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
   private static final Variable TYPE_VARIABLE = SparqlBuilder.var("_type_");
 
-  public SelectQuery generate(TableMetadata tableMetadata) {
+  public String generate(TableMetadata tableMetadata) {
     List<Projectable> selectors = new ArrayList<>();
     List<GraphPattern> whereClauses = new ArrayList<>();
     List<Groupable> groups = new ArrayList<>();
@@ -62,7 +62,8 @@ public class TableQueryGenerator {
     return query
         .select(selectors.toArray(new Projectable[0]))
         .where(whereClauses.toArray(new GraphPattern[0]))
-        .groupBy(groups.toArray(new Groupable[0]));
+        .groupBy(groups.toArray(new Groupable[0]))
+        .getQueryString();
   }
 
   private static boolean hasSemantics(String[] semantics) {
