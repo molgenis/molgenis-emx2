@@ -45,15 +45,15 @@ public class CompareTools {
       ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
 
       if (!row1.get(colName, columnType).equals(row2.get(colName, columnType))
-              && !Arrays.equals(
+          && !Arrays.equals(
               (Object[]) row1.get(colName, columnType), (Object[]) row2.get(colName, columnType))) {
         fail(
-                "List<Row> has different value for row, column "
-                        + colName
-                        + ": "
-                        + TypeUtils.toString(row1.get(colName, columnType))
-                        + "\nversus\n"
-                        + TypeUtils.toString(row2.get(colName, columnType)));
+            "List<Row> has different value for row, column "
+                + colName
+                + ": "
+                + TypeUtils.toString(row1.get(colName, columnType))
+                + "\nversus\n"
+                + TypeUtils.toString(row2.get(colName, columnType)));
       }
     }
   }
