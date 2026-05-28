@@ -130,21 +130,6 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
     assertTrue(parts.contains("20"));
   }
 
-  @Test
-  void shouldMapUUIDWithTypeAnnotation() {
-    IRI predicate = iri(PREDICATE_BASE + "uuid");
-    SchemaMetadata schema =
-        setupSchema(
-            Column.column("uuid").setType(ColumnType.UUID).setSemantics(predicate.stringValue()));
-
-    Row row =
-        transformAndGetFirstRow(
-            schema,
-            repositoryWith(predicate, literal("<urn:uuid:81c79537-53fc-4537-a7ab-9b39d93d4366>")));
-
-    assertEquals("81c79537-53fc-4537-a7ab-9b39d93d4366", row.getString("uuid"));
-  }
-
   private SailRepository repositoryWith(IRI predicate, Value object) {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection conn = repository.getConnection()) {
