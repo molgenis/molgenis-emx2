@@ -6,10 +6,9 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -19,7 +18,9 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -33,7 +34,7 @@ class SparqlSelectRdfTransformerTest {
   }
 
   @Test
-  void givenData_thenQueryForAllTables() {
+  void givenData_thenQueryTable() throws IOException {
     String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
@@ -42,22 +43,19 @@ class SparqlSelectRdfTransformerTest {
 
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
-            new TableQueryGenerator(),
+            new StaticQueryGenerator("query.sparql"),
             database.getSchema(schemaName).getMetadata(),
-            List.of("Order", "Pet", "User"));
+            List.of("Pet"));
 
     SailRepository repository = readTtl("petstore.ttl");
     TableStore store = transformer.transform(repository);
 
-    assertEquals(new HashSet<>(store.getTableNames()), Set.of("Order", "Pet", "User"));
-    System.out.println("-".repeat(50) + " Order " + "-".repeat(50));
-    store.processTable(
-        "Order", (iterator, source) -> iterator.forEachRemaining(System.out::println));
-    System.out.println("-".repeat(50) + " Pet " + "-".repeat(50));
-    store.processTable("Pet", (iterator, source) -> iterator.forEachRemaining(System.out::println));
-    System.out.println("-".repeat(50) + " User " + "-".repeat(50));
-    store.processTable(
-        "User", (iterator, source) -> iterator.forEachRemaining(System.out::println));
+    StringWriter writer = new StringWriter();
+    CsvTableWriter.write(
+        store.readTable("Pet"), List.of("Pet", "name", "status", "weight", "tags"), writer, ',');
+
+    String expected = readFile("pets.csv");
+    assertEquals(expected, writer.toString());
   }
 
   private SailRepository readTtl(String filename) {
@@ -132,5 +130,28 @@ class SparqlSelectRdfTransformerTest {
     void shouldMapUnderScores() {
       assertEquals("Ross", testData.getString("last_name"));
     }
+  }
+
+  private static class StaticQueryGenerator implements QueryGenerator {
+
+    private final String filename;
+
+    private StaticQueryGenerator(String filename) {
+      this.filename = filename;
+    }
+
+    @Override
+    public String generate(TableMetadata tableMetadata) {
+      try {
+        return readFile(filename);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  private static String readFile(String filename) throws IOException {
+    return new String(
+        SparqlSelectRdfTransformerTest.class.getResourceAsStream(filename).readAllBytes());
   }
 }

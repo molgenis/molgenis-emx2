@@ -4,7 +4,6 @@ import java.util.List;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
@@ -35,7 +34,7 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   }
 
   private void addTableDataToStore(
-      String table, SailRepositoryConnection conn, StreamingTableStore tableStore) {
+      String table, SailRepositoryConnection conn, InMemoryTableStore tableStore) {
     String query = queryGenerator.generate(schema.getTableMetadata(table));
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
 
