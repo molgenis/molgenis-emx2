@@ -5,14 +5,17 @@
     </h2>
 
     <div class="flex gap-6">
-      <div class="w-80 shrink-0">
-        <FilterSidebar
+      <Sidebar
+        v-model:collapsed="storySidebarCollapsed"
+        collapsed-label="Show filters"
+      >
+        <FilterSidebarContent
           :filters="mockFilters"
           :columns="columns"
           schema-id="demo"
           table-id="Samples"
         />
-      </div>
+      </Sidebar>
 
       <div class="flex-1 min-w-0">
         <FilterActiveFilters
@@ -50,7 +53,8 @@ import type {
   IGraphQLFilter,
 } from "../../../types/filters";
 import type { CountedOption } from "../../utils/fetchCounts";
-import FilterSidebar from "../../components/filter/Sidebar.vue";
+import Sidebar from "../../components/Sidebar.vue";
+import FilterSidebarContent from "../../components/filter/SidebarContent.vue";
 import FilterActiveFilters from "../../components/filter/ActiveFilters.vue";
 import { buildGraphQLFilter } from "../../utils/buildGqlFilter";
 import { formatFilterValue } from "../../utils/formatFilterValue";
@@ -266,6 +270,7 @@ function isCountLoading(columnId: string) {
 }
 
 const collapsedRef = ref(new Set<string>());
+const storySidebarCollapsed = ref(false);
 
 const visibleColumns = computed<IColumn[]>(() =>
   visibleFilterIdsRef.value.map((id) => {

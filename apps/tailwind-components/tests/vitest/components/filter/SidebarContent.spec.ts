@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { ref, computed } from "vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { UseFilters, IFilterValue } from "../../../../types/filters";
 import type { CountedOption } from "../../../../app/utils/fetchCounts";
-import Sidebar from "../../../../app/components/filter/Sidebar.vue";
+import SidebarContent from "../../../../app/components/filter/SidebarContent.vue";
 import FilterPicker from "../../../../app/components/filter/Picker.vue";
 
 vi.mock("../../../../app/components/filter/Column.vue", () => ({
@@ -122,7 +122,7 @@ function makeColumns(ids: string[]): IColumn[] {
   }));
 }
 
-function mountSidebar(
+function mountSidebarContent(
   visibleIds: string[],
   filterStatesMap: Map<string, IFilterValue> = new Map(),
   collapsedSet: Set<string> = new Set()
@@ -134,7 +134,7 @@ function mountSidebar(
     collapsedSet
   );
   const columns = makeColumns(visibleIds);
-  return mount(Sidebar, {
+  return mount(SidebarContent, {
     props: {
       filters,
       columns,
@@ -144,27 +144,27 @@ function mountSidebar(
   });
 }
 
-describe("Sidebar", () => {
+describe("SidebarContent", () => {
   it("renders search input", () => {
-    const wrapper = mountSidebar(["col1"]);
+    const wrapper = mountSidebarContent(["col1"]);
     expect(wrapper.find('[data-testid="search-input"]').exists()).toBe(true);
   });
 
   it("renders collapsible sections for visible filters", () => {
-    const wrapper = mountSidebar(["col1", "col2", "col3"]);
+    const wrapper = mountSidebarContent(["col1", "col2", "col3"]);
     const sections = wrapper.findAll('[aria-controls^="filter-section-"]');
     expect(sections.length).toBe(3);
   });
 
   it("renders column labels in section headers", () => {
-    const wrapper = mountSidebar(["col1", "col2"]);
+    const wrapper = mountSidebarContent(["col1", "col2"]);
     expect(wrapper.html()).toContain("Label col1");
     expect(wrapper.html()).toContain("Label col2");
   });
 
   it("expanded sections show aria-expanded=true", async () => {
     const ids = ["a", "b", "c", "d", "e"];
-    const wrapper = mountSidebar(ids);
+    const wrapper = mountSidebarContent(ids);
     await wrapper.vm.$nextTick();
 
     for (const id of ids) {
@@ -175,7 +175,7 @@ describe("Sidebar", () => {
 
   it("collapsed sections show aria-expanded=false", async () => {
     const ids = ["a", "b", "c", "d", "e", "f", "g"];
-    const wrapper = mountSidebar(ids, new Map(), new Set(["f", "g"]));
+    const wrapper = mountSidebarContent(ids, new Map(), new Set(["f", "g"]));
     await wrapper.vm.$nextTick();
 
     const fBtn = wrapper.find('[aria-controls="filter-section-f"]');
@@ -188,7 +188,7 @@ describe("Sidebar", () => {
     const ids = ["col1"];
     const filters = makeFilters(ids);
     const columns = makeColumns(ids);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -201,7 +201,7 @@ describe("Sidebar", () => {
 
   it("toggles section collapse on click via mock", async () => {
     const collapsed = new Set<string>();
-    const wrapper = mountSidebar(["col1"], new Map(), collapsed);
+    const wrapper = mountSidebarContent(["col1"], new Map(), collapsed);
     await wrapper.vm.$nextTick();
 
     const btn = wrapper.find('[aria-controls="filter-section-col1"]');
@@ -218,7 +218,7 @@ describe("Sidebar", () => {
 
   it("Column not rendered for collapsed sections (lazy mount)", async () => {
     const ids = ["a", "b", "c", "d", "e", "f"];
-    const wrapper = mountSidebar(ids, new Map(), new Set(["f"]));
+    const wrapper = mountSidebarContent(ids, new Map(), new Set(["f"]));
     await wrapper.vm.$nextTick();
 
     const filterOptions = wrapper.findAll(".filter-options-stub");
@@ -227,21 +227,14 @@ describe("Sidebar", () => {
   });
 
   it("Column rendered for expanded sections", async () => {
-    const wrapper = mountSidebar(["col1"]);
+    const wrapper = mountSidebarContent(["col1"]);
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find('[data-column="col1"]').exists()).toBe(true);
   });
 
-  it("sidebar content is always rendered (visibility controlled by parent)", async () => {
-    const wrapper = mountSidebar(["col1"]);
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.find("#filter-sidebar-content").exists()).toBe(true);
-  });
-
   it("Customize button is present", () => {
-    const wrapper = mountSidebar(["col1"]);
+    const wrapper = mountSidebarContent(["col1"]);
     const buttons = wrapper.findAll("button");
     const customizeBtn = buttons.find((b) =>
       b.text().toLowerCase().includes("customize")
@@ -250,7 +243,7 @@ describe("Sidebar", () => {
   });
 
   it("renders hr dividers between sections", () => {
-    const wrapper = mountSidebar(["col1", "col2", "col3"]);
+    const wrapper = mountSidebarContent(["col1", "col2", "col3"]);
     const hrs = wrapper.findAll("hr");
     expect(hrs.length).toBe(3);
   });
@@ -259,7 +252,7 @@ describe("Sidebar", () => {
     vi.useFakeTimers();
     const filters = makeFilters(["col1"]);
     const columns = makeColumns(["col1"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -278,7 +271,7 @@ describe("Sidebar", () => {
   it("calls setFilter when Column emits update", async () => {
     const filters = makeFilters(["col1"]);
     const columns = makeColumns(["col1"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -293,7 +286,7 @@ describe("Sidebar", () => {
   it("nested column shows dotted id as label when nestedColumnMeta is not yet resolved", async () => {
     const filters = makeFilters(["publisher.country"]);
     const columns = makeColumns(["publisher"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -314,7 +307,7 @@ describe("Sidebar", () => {
     ]);
     const filters = makeFilters(["publisher.country"], new Map(), nestedMeta);
     const columns = makeColumns(["publisher"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -326,7 +319,7 @@ describe("Sidebar", () => {
   it("handlePickerApply with empty set calls toggleFilter for all currently visible filters", async () => {
     const filters = makeFilters(["tags", "status"]);
     const columns = makeColumns(["tags", "status"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -346,7 +339,7 @@ describe("Sidebar", () => {
   it("renders skeleton for dotted id without nestedColumnMeta entry (pending)", async () => {
     const filters = makeFilters(["publisher.country"]);
     const columns = makeColumns(["publisher"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();
@@ -376,7 +369,7 @@ describe("Sidebar", () => {
       nestedMeta.value
     );
     const columns = makeColumns(["publisher"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: {
         filters: filtersWithMeta,
         columns,
@@ -405,7 +398,7 @@ describe("Sidebar", () => {
     ]);
     const filters = makeFilters(["publisher.country"], new Map(), nestedMeta);
     const columns = makeColumns(["publisher"]);
-    const wrapper = mount(Sidebar, {
+    const wrapper = mount(SidebarContent, {
       props: { filters, columns, schemaId: "test", tableId: "TestTable" },
     });
     await wrapper.vm.$nextTick();

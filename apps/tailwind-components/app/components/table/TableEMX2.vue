@@ -1,13 +1,18 @@
 <template>
   <div :class="{ 'flex gap-6': enableFilters }">
-    <FilterSidebar
+    only
+    <Sidebar
       v-if="enableFilters && filters"
       v-model:collapsed="sidebarCollapsed"
-      :filters="filters"
-      :columns="filters.columns.value"
-      :schemaId="schemaId"
-      :tableId="tableId"
-    />
+      collapsed-label="Show filters"
+    >
+      <FilterSidebarContent
+        :filters="filters"
+        :columns="filters.columns.value"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
+    </Sidebar>
 
     <div :class="{ 'flex-1 min-w-0': enableFilters }">
       <div class="flex-1 min-w-0">
@@ -323,7 +328,8 @@ import TableCellEMX2 from "./CellEMX2.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
-import FilterSidebar from "../filter/Sidebar.vue";
+import Sidebar from "../Sidebar.vue";
+import FilterSidebarContent from "../filter/SidebarContent.vue";
 import ActiveFilters from "../filter/ActiveFilters.vue";
 import Modal from "../Modal.vue";
 
