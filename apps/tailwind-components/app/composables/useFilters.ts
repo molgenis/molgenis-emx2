@@ -56,6 +56,16 @@ export interface UseFiltersOptions {
   defaultCollapsed?: string[];
 }
 
+function queryParamsEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>
+): boolean {
+  const aKeys = Object.keys(a).filter((k) => a[k] !== undefined);
+  const bKeys = Object.keys(b).filter((k) => b[k] !== undefined);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) => a[k] === b[k]);
+}
+
 function preserveExternalQueryParams(
   query: RouteQuery,
   cols: IColumn[]
@@ -124,11 +134,30 @@ export function useFilters(
     return route.query as RouteQuery;
   }
 
+  const cachedParsedFilters = shallowRef<Map<string, IFilterValue>>(new Map());
+  const cachedParsedSearch = ref("");
+  let lastParsedStateKey = "";
+
   const parsedUrlState = computed(() => {
     if (!urlSyncEnabled) {
-      return { filters: new Map<string, IFilterValue>(), search: "" };
+      return {
+        filters: cachedParsedFilters.value,
+        search: cachedParsedSearch.value,
+      };
     }
-    return parseFiltersFromUrl(getCurrentQuery(), columns.value);
+    const query = getCurrentQuery();
+    const stateKey =
+      JSON.stringify(query) + "||" + columns.value.map((c) => c.id).join(",");
+    if (stateKey !== lastParsedStateKey) {
+      lastParsedStateKey = stateKey;
+      const parsed = parseFiltersFromUrl(query, columns.value);
+      cachedParsedFilters.value = parsed.filters;
+      cachedParsedSearch.value = parsed.search;
+    }
+    return {
+      filters: cachedParsedFilters.value,
+      search: cachedParsedSearch.value,
+    };
   });
 
   const filterStatesRef = shallowRef<Map<string, IFilterValue>>(new Map());
@@ -419,9 +448,12 @@ export function useFilters(
         preserved[MG_FILTERS_PARAM] = mgFiltersParam;
       }
     }
-    router.replace({
-      query: { ...preserved, ...filterParams } as Record<string, string>,
-    });
+    const nextQuery = { ...preserved, ...filterParams } as Record<
+      string,
+      string
+    >;
+    if (queryParamsEqual(nextQuery, getCurrentQuery())) return;
+    router.replace({ query: nextQuery });
   }
 
   function commit(newFilters: Map<string, IFilterValue>, newSearch: string) {

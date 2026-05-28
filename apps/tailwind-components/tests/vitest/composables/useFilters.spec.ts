@@ -1344,3 +1344,43 @@ describe("useFilters — H5 regression: resetFilters re-applies count>0 pruning"
     expect(visibleFilterIds.value).toContain("status");
   });
 });
+
+describe("useFilters — reference stability / no-redundant-navigation loop guard", () => {
+  it("filterStates returns the same Map reference after router.replace with identical query params", async () => {
+    const { mockQuery } = makeUrlSync({ status: "active" });
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    const { filterStates } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    const refBefore = filterStates.value;
+
+    Object.assign(mockQuery, { status: "active" });
+    await nextTick();
+
+    const refAfter = filterStates.value;
+
+    expect(refBefore).toBe(refAfter);
+  });
+
+  it("setting the same filter value a second time does not emit an additional router.replace", async () => {
+    const { replaceCalls } = makeUrlSync({});
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    const { setFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    setFilter("status", { operator: "equals", value: ["active"] });
+    await nextTick();
+    const callsAfterFirst = replaceCalls.length;
+
+    setFilter("status", { operator: "equals", value: ["active"] });
+    await nextTick();
+
+    expect(replaceCalls.length).toBe(callsAfterFirst);
+  });
+});
