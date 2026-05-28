@@ -93,7 +93,7 @@ function handlePickerApply(
   <div>
     <div
       v-if="props.collapsed"
-      class="rounded-t-3px rounded-b-50px pt-5 bg-sidebar-gradient w-16 flex flex-col items-center justify-start pt-4gap-2 cursor-pointer"
+      class="rounded-t-3px rounded-b-theme pt-5 bg-sidebar-gradient w-16 flex flex-col items-center justify-start pt-4gap-2 cursor-pointer"
       role="button"
       tabindex="0"
       aria-label="Show filters"
@@ -118,7 +118,7 @@ function handlePickerApply(
     <div
       v-else
       id="filter-sidebar-content"
-      class="rounded-t-3px rounded-b-50px bg-sidebar-gradient pb-8"
+      class="rounded-t-3px rounded-b-theme bg-sidebar-gradient pb-8"
     >
       <div class="px-5 pt-5 pb-3 flex items-center justify-between">
         <h2

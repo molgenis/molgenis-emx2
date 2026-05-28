@@ -44,7 +44,10 @@ test.describe("filter sidebar", () => {
     const table = page.locator("div.overflow-x-auto table").last();
     await expect(table).toBeVisible();
 
-    const rows = page.locator("div.overflow-x-auto table").last().locator("tbody tr");
+    const rows = page
+      .locator("div.overflow-x-auto table")
+      .last()
+      .locator("tbody tr");
     const rowCount = await rows.count();
     expect(rowCount).toBeGreaterThanOrEqual(1);
   });
@@ -368,7 +371,11 @@ test.describe("filter sidebar", () => {
     const initialPages = parseInt(initialTotalPages!.replace(/OF /g, ""));
     expect(initialPages).toBeGreaterThan(0);
 
-    const initialRowCount = await page.locator("div.overflow-x-auto table").last().locator("tbody tr").count();
+    const initialRowCount = await page
+      .locator("div.overflow-x-auto table")
+      .last()
+      .locator("tbody tr")
+      .count();
 
     const firstCheckboxLabel = page
       .locator('label:has(input[type="checkbox"])')
@@ -390,7 +397,9 @@ test.describe("filter sidebar", () => {
       const updatedPages = parseInt(updatedTotalPages!.replace(/OF /g, ""));
       expect(updatedPages).toBeLessThan(initialPages);
     } else {
-      const filteredRowCount = await page.locator("table.bg-table tbody tr").count();
+      const filteredRowCount = await page
+        .locator("table.bg-table tbody tr")
+        .count();
       expect(filteredRowCount).toBeLessThan(initialRowCount);
     }
   });
@@ -475,7 +484,7 @@ test.describe("filter sidebar", () => {
 
     const alreadyChecked = await checkbox.isChecked();
     if (!alreadyChecked) {
-      await checkbox.evaluate((el) => (el.parentElement?.click()));
+      await checkbox.evaluate((el) => el.parentElement?.click());
       await page.waitForTimeout(500);
     }
 
