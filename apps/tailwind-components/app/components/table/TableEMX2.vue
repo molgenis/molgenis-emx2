@@ -172,7 +172,7 @@
   <div
     class="p-2.5 text-right font-normal align-middle text-table-column-header"
   >
-    Showing {{ (settings.page - 1) * settings.pageSize }} to
+    Showing {{ (settings.page - 1) * settings.pageSize + 1 }} to
     {{ Math.min(settings.page * settings.pageSize, count) }} of
     {{ count }} items
   </div>
