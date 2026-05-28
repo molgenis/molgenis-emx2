@@ -2,7 +2,7 @@
 import { ref, computed, watch, useId } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { UseFilters } from "../../../types/filters";
+import type { UseFilters, NestedColumnMeta } from "../../../types/filters";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
@@ -10,6 +10,7 @@ import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
+import ColumnLabel from "./ColumnLabel.vue";
 
 const props = defineProps<{
   filters: UseFilters;
@@ -66,15 +67,7 @@ function getFilterSelectionCount(columnId: string): number {
 
 function handlePickerApply(
   selectedIds: Set<string>,
-  nestedMeta: Map<
-    string,
-    {
-      label: string;
-      columnType: string;
-      refTableId?: string | null;
-      refSchemaId?: string | null;
-    }
-  >
+  nestedMeta: Map<string, NestedColumnMeta>
 ) {
   for (const [id, meta] of nestedMeta) {
     props.filters.registerNestedColumn(id, meta);
@@ -90,7 +83,7 @@ function handlePickerApply(
 </script>
 
 <template>
-  <div>
+  <div :class="['shrink-0', collapsed ? '' : 'w-80 xl:w-96 min-w-80']">
     <div
       v-if="props.collapsed"
       class="rounded-t-3px rounded-b-theme pt-5 bg-sidebar-gradient w-16 flex flex-col items-center justify-start pt-4gap-2 cursor-pointer"
@@ -171,20 +164,13 @@ function handlePickerApply(
         >
           <h3
             class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
-            :aria-label="column.label || column.id.split('.').join(' → ')"
           >
-            <template v-if="column.label">{{ column.label }}</template>
-            <template v-else>
-              <template v-for="(part, i) in column.id.split('.')" :key="i">
-                <span>{{ part }}</span
-                ><span
-                  v-if="i < column.id.split('.').length - 1"
-                  class="text-gray-400"
-                  aria-hidden="true"
-                  >&nbsp;→&nbsp;</span
-                >
-              </template>
-            </template>
+            <ColumnLabel
+              :label="column.label || column.id"
+              :label-parts="
+                filters.nestedColumnMeta.value.get(column.id)?.labelParts
+              "
+            />
           </h3>
           <span
             v-if="filters.filterStates.value.has(column.id)"

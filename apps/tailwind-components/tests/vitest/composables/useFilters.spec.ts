@@ -22,6 +22,8 @@ import { useRoute, useRouter } from "#app/composables/router";
 import {
   useFilters,
   MG_FILTERS_PARAM,
+  MG_SEARCH_PARAM,
+  preserveExternalQueryParams,
 } from "../../../app/composables/useFilters";
 import { computeDefaultFilters } from "../../../app/utils/filterUtils";
 
@@ -1382,5 +1384,49 @@ describe("useFilters — reference stability / no-redundant-navigation loop guar
     await nextTick();
 
     expect(replaceCalls.length).toBe(callsAfterFirst);
+  });
+});
+
+describe("preserveExternalQueryParams", () => {
+  const cols: IColumn[] = [
+    { id: "status", label: "Status", columnType: "ONTOLOGY" },
+    { id: "country", label: "Country", columnType: "ONTOLOGY" },
+  ];
+
+  it("drops keys matching a column id directly", () => {
+    const result = preserveExternalQueryParams({ status: "active" }, cols);
+    expect(result["status"]).toBeUndefined();
+  });
+
+  it("drops keys whose first dotted segment matches a column id (nested)", () => {
+    const result = preserveExternalQueryParams({ "country.name": "NL" }, cols);
+    expect(result["country.name"]).toBeUndefined();
+  });
+
+  it("drops the mg_search param key", () => {
+    const result = preserveExternalQueryParams(
+      { [MG_SEARCH_PARAM]: "diabetes" },
+      cols
+    );
+    expect(result[MG_SEARCH_PARAM]).toBeUndefined();
+  });
+
+  it("passes through unrelated external query keys", () => {
+    const result = preserveExternalQueryParams(
+      { page: "3", arbitrary: "value" },
+      cols
+    );
+    expect(result["page"]).toBe("3");
+    expect(result["arbitrary"]).toBe("value");
+  });
+
+  it("passes through external keys while dropping column keys in the same query", () => {
+    const result = preserveExternalQueryParams(
+      { page: "2", status: "active", sort: "name" },
+      cols
+    );
+    expect(result["page"]).toBe("2");
+    expect(result["sort"]).toBe("name");
+    expect(result["status"]).toBeUndefined();
   });
 });

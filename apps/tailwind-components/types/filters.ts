@@ -5,6 +5,7 @@ import type { CountedOption } from "../app/utils/fetchCounts";
 export interface ActiveFilter {
   columnId: string;
   label: string;
+  labelParts?: string[];
   displayValue: string;
   values: string[];
 }
@@ -66,6 +67,7 @@ export interface IGraphQLFilter {
 
 export interface NestedColumnMeta {
   label: string;
+  labelParts?: string[];
   columnType: string;
   refTableId?: string | null;
   refSchemaId?: string | null;

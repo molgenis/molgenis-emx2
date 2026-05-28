@@ -109,6 +109,10 @@ const columns: IColumn[] = [
 ];
 
 const mockCounts: Record<string, CountedOption[]> = {
+  "owner.city": [
+    { name: "amsterdam", label: "Amsterdam", count: 34, overlap: 0 },
+    { name: "rotterdam", label: "Rotterdam", count: 21, overlap: 0 },
+  ],
   species: [
     {
       name: "Mammalia",
@@ -159,9 +163,27 @@ const mockCounts: Record<string, CountedOption[]> = {
   ],
 };
 
-const filterStatesRef = ref<Map<string, IFilterValue>>(new Map());
+const nestedColumnMetaRef = ref(
+  new Map([
+    [
+      "owner.city",
+      {
+        label: "owner → city",
+        labelParts: ["Owner", "City"],
+        columnType: "ONTOLOGY",
+        refTableId: "Cities",
+        refSchemaId: null as string | null,
+      },
+    ],
+  ])
+);
+
+const filterStatesRef = ref<Map<string, IFilterValue>>(
+  new Map([["owner.city", { operator: "equals", value: ["amsterdam"] }]])
+);
 const searchValueRef = ref("");
 const visibleFilterIdsRef = ref<string[]>([
+  "owner.city",
   "species",
   "available",
   "status",
@@ -177,7 +199,9 @@ const activeFilters = computed<ActiveFilter[]>(() => {
   const result: ActiveFilter[] = [];
   for (const [columnId, filterValue] of filterStatesRef.value) {
     const column = columns.find((col) => col.id === columnId);
-    const label = column?.label || column?.id || columnId;
+    const nestedMeta = nestedColumnMetaRef.value.get(columnId);
+    const label = nestedMeta?.label ?? column?.label ?? column?.id ?? columnId;
+    const labelParts = nestedMeta?.labelParts;
     const effectiveColumn =
       column ?? ({ id: columnId, columnType: "STRING" } as IColumn);
     const optionLabels = buildLabelMap(effectiveColumn, null);
@@ -186,7 +210,7 @@ const activeFilters = computed<ActiveFilter[]>(() => {
       optionLabels
     );
     if (displayValue) {
-      result.push({ columnId, label, displayValue, values });
+      result.push({ columnId, label, labelParts, displayValue, values });
     }
   }
   return result;
@@ -224,7 +248,13 @@ function toggleFilter(columnId: string) {
 
 function resetFilters() {
   clearFilters();
-  visibleFilterIdsRef.value = ["species", "available", "status", "age"];
+  visibleFilterIdsRef.value = [
+    "owner.city",
+    "species",
+    "available",
+    "status",
+    "age",
+  ];
 }
 
 function getCountedOptions(columnId: string) {
@@ -238,9 +268,19 @@ function isCountLoading(columnId: string) {
 const collapsedRef = ref(new Set<string>());
 
 const visibleColumns = computed<IColumn[]>(() =>
-  visibleFilterIdsRef.value
-    .map((id) => columnsRef.value.find((col) => col.id === id))
-    .filter((c): c is IColumn => c !== undefined)
+  visibleFilterIdsRef.value.map((id) => {
+    const flat = columnsRef.value.find((col) => col.id === id);
+    if (flat) return flat;
+    const nested = nestedColumnMetaRef.value.get(id);
+    return {
+      id,
+      name: id,
+      label: nested?.label ?? id,
+      columnType: (nested?.columnType ?? "STRING") as IColumn["columnType"],
+      table: "Samples",
+      position: 0,
+    } as IColumn;
+  })
 );
 
 const mockFilters: UseFilters = {
@@ -262,7 +302,7 @@ const mockFilters: UseFilters = {
   getCountedOptions,
   isCountLoading,
   isSaturated: (_columnId: string) => computed(() => false),
-  nestedColumnMeta: ref(new Map()),
+  nestedColumnMeta: nestedColumnMetaRef,
   registerNestedColumn: () => {},
   schemaId: "demo",
   tableId: "Samples",

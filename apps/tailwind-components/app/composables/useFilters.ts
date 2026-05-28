@@ -41,6 +41,7 @@ export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
 export const MAX_VISIBLE_FILTERS = 25;
 export const FILTER_DEBOUNCE = 500;
+export const NESTED_LABEL_SEPARATOR = " → ";
 
 type RouteQuery = Record<
   string,
@@ -66,7 +67,7 @@ function queryParamsEqual(
   return aKeys.every((k) => a[k] === b[k]);
 }
 
-function preserveExternalQueryParams(
+export function preserveExternalQueryParams(
   query: RouteQuery,
   cols: IColumn[]
 ): Record<string, unknown> {
@@ -87,7 +88,8 @@ function filterColumns(rawColumns: IColumn[]): IColumn[] {
 
 function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
   return {
-    label: labelParts.join(" → "),
+    label: labelParts.join(NESTED_LABEL_SEPARATOR),
+    labelParts,
     columnType: col.columnType,
     refTableId: col.refTableId ?? null,
     refSchemaId: col.refSchemaId ?? null,
@@ -128,8 +130,6 @@ export function useFilters(
   const route = useRoute();
   const router = useRouter();
 
-  const urlSyncEnabled = urlSync;
-
   function getCurrentQuery(): RouteQuery {
     return route.query as RouteQuery;
   }
@@ -139,7 +139,7 @@ export function useFilters(
   let lastParsedStateKey = "";
 
   const parsedUrlState = computed(() => {
-    if (!urlSyncEnabled) {
+    if (!urlSync) {
       return {
         filters: cachedParsedFilters.value,
         search: cachedParsedSearch.value,
@@ -164,11 +164,11 @@ export function useFilters(
   const searchValueRef = ref("");
 
   const filterStates: ComputedRef<Map<string, IFilterValue>> = computed(() =>
-    urlSyncEnabled ? parsedUrlState.value.filters : filterStatesRef.value
+    urlSync ? parsedUrlState.value.filters : filterStatesRef.value
   );
 
   const searchValue: ComputedRef<string> = computed(() =>
-    urlSyncEnabled ? parsedUrlState.value.search : searchValueRef.value
+    urlSync ? parsedUrlState.value.search : searchValueRef.value
   );
 
   const defaultFilterIds = computed(() => {
@@ -371,27 +371,30 @@ export function useFilters(
   const saturatedCache = new Map<string, ComputedRef<boolean>>();
 
   function getCountedOptions(columnId: string): ComputedRef<CountedOption[]> {
-    const cached = countedOptionsCache.get(columnId);
-    if (cached) return cached;
-    const c = computed(() => countsMap.value.get(columnId) ?? []);
-    countedOptionsCache.set(columnId, c);
-    return c;
+    if (!countedOptionsCache.has(columnId))
+      countedOptionsCache.set(
+        columnId,
+        computed(() => countsMap.value.get(columnId) ?? [])
+      );
+    return countedOptionsCache.get(columnId)!;
   }
 
   function isCountLoading(columnId: string): ComputedRef<boolean> {
-    const cached = countLoadingCache.get(columnId);
-    if (cached) return cached;
-    const c = computed(() => loadingSet.value.has(columnId));
-    countLoadingCache.set(columnId, c);
-    return c;
+    if (!countLoadingCache.has(columnId))
+      countLoadingCache.set(
+        columnId,
+        computed(() => loadingSet.value.has(columnId))
+      );
+    return countLoadingCache.get(columnId)!;
   }
 
   function isSaturated(columnId: string): ComputedRef<boolean> {
-    const cached = saturatedCache.get(columnId);
-    if (cached) return cached;
-    const c = computed(() => saturatedMap.value.get(columnId) === true);
-    saturatedCache.set(columnId, c);
-    return c;
+    if (!saturatedCache.has(columnId))
+      saturatedCache.set(
+        columnId,
+        computed(() => saturatedMap.value.get(columnId) === true)
+      );
+    return saturatedCache.get(columnId)!;
   }
 
   function pruneVisibleByBaseCount() {
@@ -430,7 +433,7 @@ export function useFilters(
   watch(columns, initializeCountsForColumns, { immediate: true });
 
   function updateUrl(newFilters: Map<string, IFilterValue>, newSearch: string) {
-    if (!urlSyncEnabled) return;
+    if (!urlSync) return;
     const filterParams = serializeFiltersToUrl(
       newFilters,
       newSearch,
@@ -457,7 +460,7 @@ export function useFilters(
   }
 
   function commit(newFilters: Map<string, IFilterValue>, newSearch: string) {
-    if (urlSyncEnabled) {
+    if (urlSync) {
       updateUrl(newFilters, newSearch);
     } else {
       filterStatesRef.value = newFilters;
@@ -504,7 +507,7 @@ export function useFilters(
     userHasCustomized.value = false;
     visibleFilterIds.value = [...defaultFilterIds.value];
     pruneVisibleByBaseCount();
-    if (urlSyncEnabled) {
+    if (urlSync) {
       const currentQuery = { ...getCurrentQuery() };
       delete currentQuery[MG_FILTERS_PARAM];
       router.replace({ query: currentQuery });
@@ -534,7 +537,15 @@ export function useFilters(
       optionLabels
     );
     if (!displayValue) return null;
-    return { columnId, label, displayValue, values };
+    const nested = nestedColumnMeta.value.get(columnId);
+    const labelParts = nested?.labelParts;
+    return {
+      columnId,
+      label,
+      ...(labelParts ? { labelParts } : {}),
+      displayValue,
+      values,
+    };
   }
 
   const activeFilters = computed<ActiveFilter[]>(() =>
@@ -689,7 +700,7 @@ export function useFilters(
     if (!userHasCustomized.value) return;
     const isDefault = arraysEqual(newIds, defaultFilterIds.value);
     await nextTick();
-    if (!urlSyncEnabled) return;
+    if (!urlSync) return;
     const currentQuery = { ...getCurrentQuery() };
     if (isDefault || newIds.length === 0) {
       delete currentQuery[MG_FILTERS_PARAM];

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from "../Button.vue";
+import ColumnLabel from "./ColumnLabel.vue";
 import type { ActiveFilter } from "../../../types/filters";
 
 const props = defineProps<{
@@ -37,9 +38,9 @@ const emit = defineEmits<{
         icon-position="right"
         :aria-label="`Remove filter: ${filter.label}`"
       >
-        <span class="inline-block font-bold max-w-48 truncate align-bottom">{{
-          filter.label
-        }}</span>
+        <span class="inline-block font-bold max-w-48 truncate align-bottom">
+          <ColumnLabel :label="filter.label" :label-parts="filter.labelParts" />
+        </span>
         <span
           v-if="filter.values.length <= 1"
           class="inline-block max-w-32 truncate align-bottom ml-1.5"
@@ -53,7 +54,12 @@ const emit = defineEmits<{
       </Button>
       <template #popper>
         <div class="px-1 py-0.5">
-          <div class="font-bold">{{ filter.label }}</div>
+          <div class="font-bold">
+            <ColumnLabel
+              :label="filter.label"
+              :label-parts="filter.labelParts"
+            />
+          </div>
           <ul
             v-if="filter.values.length > 1"
             style="list-style-type: disc"

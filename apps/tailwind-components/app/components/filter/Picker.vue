@@ -17,6 +17,7 @@ import {
 } from "../../utils/filterUtils";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import type { NestedColumnMeta } from "../../../types/filters";
+import { NESTED_LABEL_SEPARATOR } from "../../composables/useFilters";
 
 interface PickerNode {
   id: string;
@@ -220,16 +221,15 @@ function clearSelection() {
   localSelection.value = new Set();
 }
 
-function buildNestedLabelForId(
+function buildNestedLabelPartsForId(
   id: string,
   nodeById: Map<string, PickerNode>
-): string {
+): string[] {
   const segments = id.split(".");
-  const labelParts = segments.map((_, idx) => {
+  return segments.map((_, idx) => {
     const pathUpTo = segments.slice(0, idx + 1).join(".");
     return nodeById.get(pathUpTo)?.label ?? segments[idx]!;
   });
-  return labelParts.join(" → ");
 }
 
 function buildNestedMeta(): Map<string, NestedColumnMeta> {
@@ -239,10 +239,12 @@ function buildNestedMeta(): Map<string, NestedColumnMeta> {
     .map((id) => {
       const node = nodeById.get(id);
       if (!node) return null;
+      const labelParts = buildNestedLabelPartsForId(id, nodeById);
       const entry: [string, NestedColumnMeta] = [
         id,
         {
-          label: buildNestedLabelForId(id, nodeById),
+          label: labelParts.join(NESTED_LABEL_SEPARATOR),
+          labelParts,
           columnType: node.column.columnType,
           refTableId: node.column.refTableId,
           refSchemaId: node.column.refSchemaId ?? null,

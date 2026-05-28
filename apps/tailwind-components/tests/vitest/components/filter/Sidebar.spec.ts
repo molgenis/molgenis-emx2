@@ -44,7 +44,10 @@ vi.mock("../../../../app/components/input/Search.vue", () => ({
 
 function synthesizeMockColumn(
   id: string,
-  nestedMeta: Map<string, { label: string; columnType: string }>
+  nestedMeta: Map<
+    string,
+    { label: string; labelParts?: string[]; columnType: string }
+  >
 ): IColumn {
   const nested = nestedMeta.get(id);
   return {
@@ -63,7 +66,10 @@ function makeCountedOptions(names: string[]): CountedOption[] {
 function makeFilters(
   visibleIds: string[],
   filterStatesMap: Map<string, IFilterValue> = new Map(),
-  nestedMeta: Map<string, { label: string; columnType: string }> = new Map(),
+  nestedMeta: Map<
+    string,
+    { label: string; labelParts?: string[]; columnType: string }
+  > = new Map(),
   collapsedSet: Set<string> = new Set()
 ): UseFilters {
   const visibleFilterIds = ref(visibleIds);
@@ -284,7 +290,7 @@ describe("Sidebar", () => {
     expect(filters.setFilter).toHaveBeenCalledWith("col1", newValue);
   });
 
-  it("nested column shows path label as 'root → child' in sidebar", async () => {
+  it("nested column shows dotted id as label when nestedColumnMeta is not yet resolved", async () => {
     const filters = makeFilters(["publisher.country"]);
     const columns = makeColumns(["publisher"]);
     const wrapper = mount(Sidebar, {
@@ -292,14 +298,18 @@ describe("Sidebar", () => {
     });
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.html()).toContain("publisher → country");
+    expect(wrapper.html()).toContain("publisher.country");
   });
 
   it("nested column columnType comes from nestedColumnMeta when available", async () => {
     const nestedMeta = new Map([
       [
         "publisher.country",
-        { label: "publisher → country", columnType: "ONTOLOGY" },
+        {
+          label: "publisher → country",
+          labelParts: ["Publisher", "Country"],
+          columnType: "ONTOLOGY",
+        },
       ],
     ]);
     const filters = makeFilters(["publisher.country"], new Map(), nestedMeta);
@@ -352,7 +362,11 @@ describe("Sidebar", () => {
       new Map([
         [
           "publisher.country",
-          { label: "publisher → country", columnType: "ONTOLOGY" },
+          {
+            label: "publisher → country",
+            labelParts: ["Publisher", "Country"],
+            columnType: "ONTOLOGY",
+          },
         ],
       ])
     );
@@ -376,5 +390,35 @@ describe("Sidebar", () => {
     expect(wrapper.find('[data-column="publisher.country"]').exists()).toBe(
       true
     );
+  });
+
+  it("nested column with labelParts renders breadcrumb with separator and aria-label", async () => {
+    const nestedMeta = new Map([
+      [
+        "publisher.country",
+        {
+          label: "publisher → country",
+          labelParts: ["Publisher", "Country"],
+          columnType: "ONTOLOGY",
+        },
+      ],
+    ]);
+    const filters = makeFilters(["publisher.country"], new Map(), nestedMeta);
+    const columns = makeColumns(["publisher"]);
+    const wrapper = mount(Sidebar, {
+      props: { filters, columns, schemaId: "test", tableId: "TestTable" },
+    });
+    await wrapper.vm.$nextTick();
+
+    const html = wrapper.html();
+    expect(html).toContain("Publisher");
+    expect(html).toContain("Country");
+
+    const separators = wrapper.findAll('span[aria-hidden="true"]');
+    expect(separators.length).toBeGreaterThan(0);
+    expect(separators[0].text()).toContain("→");
+
+    const labelHost = wrapper.find('[aria-label="Publisher → Country"]');
+    expect(labelHost.exists()).toBe(true);
   });
 });
