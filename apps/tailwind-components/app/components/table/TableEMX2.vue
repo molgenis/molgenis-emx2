@@ -2,6 +2,9 @@
   <div class="flex mb-[30px] justify-between h-50px">
     <RowControles
       :number-of-selected-rows="numberOfSelectedRows"
+      :all-rows-selected="
+        numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+      "
       :can-edit="props.isEditable"
       @row-action="handleRowAction"
     />
@@ -567,7 +570,7 @@ function handleRowAction(payload: { action: string }) {
       emit("view-details", singleRowSelected);
     } else if (action === "delete-selection" && selectedRows.value.size > 1) {
       showDeleteMultipleModal.value = true;
-    } else if (action === "select-all") {
+    } else if (action === "select-all-on-page") {
       rows.value.forEach((row) => {
         selectedRows.value.set(row._rowIdString, row._rowId);
       });

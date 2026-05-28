@@ -6,6 +6,7 @@ import Checkbox from "../../input/Checkbox.vue";
 import BaseIcon from "../../BaseIcon.vue";
 const props = defineProps<{
   numberOfSelectedRows: number;
+  allRowsSelected: boolean;
   canEdit: boolean;
 }>();
 
@@ -27,11 +28,16 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
       :distance="18"
       :skidding="-4"
       placement="bottom-start"
-      :triggers="['hover', 'click']"
+      :triggers="['click']"
       :popper-triggers="['hover', 'click']"
     >
       <div class="flex items-center pl-2 pr-2 gap-2 border-r-2">
-        <Checkbox> </Checkbox>
+        <Checkbox
+          :model-value="allRowsSelected"
+          :indeterminate="!allRowsSelected && numberOfSelectedRows > 0"
+          :prevent-click="true"
+        >
+        </Checkbox>
         <BaseIcon
           name="caret-down"
           size="medium"
@@ -48,12 +54,6 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
               @click="emit('rowAction', { action: 'select-all-on-page' })"
             >
               All on this page
-            </li>
-            <li
-              class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
-              @click="emit('rowAction', { action: 'select-all' })"
-            >
-              All
             </li>
             <li
               class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
