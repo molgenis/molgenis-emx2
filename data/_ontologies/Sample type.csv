@@ -76,7 +76,7 @@ Frozen Tissue,,NCIT,C158417,http://purl.obolibrary.org/obo/NCIT_C158417,Frozen T
 Stained Specimen,,NCIT,C158418,http://purl.obolibrary.org/obo/NCIT_C158418,Stained Specimen
 Citrate Blood Cell Fraction,,NCIT,C158461,http://purl.obolibrary.org/obo/NCIT_C158461,Citrate Blood Cell Fraction
 DNA,"erdera,lrGS",MIABIS-2.0-17,DNA,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type,A long linear double-stranded polymer formed from nucleotides attached to a deoxyribose backbone and found in the nucleus of a cell; associated with the transmission of genetic information.
-EDTA Blood,"erdera,lrGS,OGM",NCIT,C158462,http://purl.obolibrary.org/obo/NCIT_C158462,EDTA Blood Cell Fraction
+EDTA Blood,"erdera,lrGS,OGM",SNOMED,SNOMED_445295009,http://snomed.info/id/445295009,Blood specimen with EDTA
 Ascites Fluid Sample,,NCIT,C159203,http://purl.obolibrary.org/obo/NCIT_C159203,Ascites Fluid Sample
 Bone Marrow Core Biopsy Sample,,NCIT,C159488,http://purl.obolibrary.org/obo/NCIT_C159488,Bone Marrow Core Biopsy Sample
 Archival Tissue,,NCIT,C160656,http://purl.obolibrary.org/obo/NCIT_C160656,Archival Tissue

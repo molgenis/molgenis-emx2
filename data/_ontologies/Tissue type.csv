@@ -24,7 +24,7 @@ order,name,tags,codesystem,code,ontologyTermURI,definition
 23,EBV Cells,"erdera,RNA,lrGS,OGM",,,,
 24,EBV Immortalized Lymphocytes,,NCIT,NCIT:C163993,http://purl.obolibrary.org/obo/NCIT_C163993,A biospecimen consisting of lymphocytes that have been isolated from whole blood and are then infected in vitro by Epstein-Barr virus (EBV; HHV4). The infected cells are then cultured to select indefinitely proliferating colonies that can be maintained in tissue culture.
 25,ectocervix,,UBERON,UBERON:0012249,http://purl.obolibrary.org/obo/uberon.owl,The part of the cervix uteri that protrudes into the vagina and is lined with stratified squamous epithelium. GTex: Cervix - Ectocervix
-26,EDTA blood,"erdera,lrGS,OGM",NCIT,NCIT:C158462,http://purl.obolibrary.org/obo/NCIT_C158462,The blood cells that are harvested from a cell collection tube containing EDTA
+26,EDTA blood,"erdera,lrGS,OGM",SNOMED,SNOMED_445295009,http://snomed.info/id/445295009,Blood specimen with EDTA
 27,esophagus muscularis mucosa,,UBERON,UBERON:0004648,http://purl.obolibrary.org/obo/uberon.owl,A muscularis mucosa that is part of a esophagus. GTex: Esophagus - Muscularis
 28,esophagus squamous epithelium,,UBERON,UBERON:0006920,http://purl.obolibrary.org/obo/uberon.owl,A squamous epithelium that is part of a esophagus. GTex: Esophagus - Mucosa
 29,fallopian tube,,UBERON,UBERON:0003889,http://purl.obolibrary.org/obo/uberon.owl,Initial section of the oviduct through which the ova pass from the ovary to the uterus. GTex: Fallopian Tube
