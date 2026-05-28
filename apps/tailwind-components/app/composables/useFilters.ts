@@ -131,7 +131,7 @@ export function useFilters(
   const router = useRouter();
 
   function getCurrentQuery(): RouteQuery {
-    return route.query as RouteQuery;
+    return route.query;
   }
 
   const cachedParsedFilters = shallowRef<Map<string, IFilterValue>>(new Map());

@@ -83,7 +83,7 @@ function handlePickerApply(
 </script>
 
 <template>
-  <div :class="['shrink-0', collapsed ? '' : 'w-80 xl:w-96 min-w-80']">
+  <div :class="['shrink-0', collapsed ? '' : 'w-80 xl:w-96']">
     <div
       v-if="props.collapsed"
       class="rounded-t-3px rounded-b-theme pt-5 bg-sidebar-gradient w-16 flex flex-col items-center justify-start pt-4gap-2 cursor-pointer"
