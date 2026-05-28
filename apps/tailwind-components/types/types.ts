@@ -95,7 +95,7 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  search: string;
+  search?: string;
 }
 
 export interface ISectionField {

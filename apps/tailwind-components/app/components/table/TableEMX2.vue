@@ -88,7 +88,7 @@
         >
           <tr
             v-if="rows"
-            v-for="row in rows"
+            v-for="(row, rowIndex) in rows"
             class="group h-[50px]"
             :class="{
               'hover:cursor-pointer': props.isEditable,
@@ -108,13 +108,15 @@
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
                 'w-60': columns.length > 5,
-                'h-11': !row[column.id] || row[column.id] === '',
+                'h-11': !row[column.id],
               }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column)"
+              :ref="`cell-${column.id}-${rowIndex}`"
             >
+              <span v-if="isEllipsisActive(rowIndex, column)"></span>
               <template #row-actions v-if="colIndex === 0">
                 <div
                   class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
@@ -213,7 +215,7 @@
       <ul>
         <li v-for="(item, index) in cellDetailValue" :key="index">
           <TableCellDetailRef
-            v-if="cellDetailColumn"
+            v-if="cellDetailColumn && isRefLikeDetail(cellDetailColumn)"
             :metadata="toRefColumn(cellDetailColumn)"
             :columnValue="toRefColumnValue(item as columnValue)"
             :schema="cellDetailSchemaId ?? schemaId"
@@ -222,6 +224,14 @@
           />
         </li>
       </ul>
+    </template>
+    <template v-else>
+      <div
+        class="px-8 first:pt-[50px] last:pb-[50px]"
+        style="overflow-wrap: break-word"
+      >
+        {{ cellDetailValue }}
+      </div>
     </template>
   </Modal>
 
@@ -284,7 +294,6 @@ import type {
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
@@ -294,6 +303,7 @@ import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
 import Modal from "../Modal.vue";
 
+import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
@@ -488,7 +498,10 @@ function getDirection(columnId: string): sortDirection {
   }
 }
 
-function handleSearchRequest(search: string) {
+function handleSearchRequest(search?: string | number) {
+  if (typeof search === "number") {
+    search = search.toString();
+  }
   settings.value.search = search;
   settings.value.page = 1;
   refresh();
@@ -581,4 +594,14 @@ const showRefDetailModal = computed(() => {
     showModal.value
   );
 });
+
+function isEllipsisActive(rowIndex: number, column: IColumn) {
+  const cellRef = `cell-${column.id}-${rowIndex}`;
+  const cellElement = document.getElementById(cellRef);
+  console.log("Checking ellipsis for cell:", cellElement);
+
+  return cellElement
+    ? cellElement.offsetWidth < cellElement.scrollWidth
+    : false;
+}
 </script>
