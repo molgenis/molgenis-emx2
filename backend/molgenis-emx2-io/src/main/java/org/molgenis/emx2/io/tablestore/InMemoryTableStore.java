@@ -13,12 +13,12 @@ public class InMemoryTableStore implements TableStore {
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     List<Row> materialized =
         StreamSupport.stream(rows.spliterator(), false)
-            .map(row -> normalise(row, columnNames))
+            .map(row -> alignRowToColumns(row, columnNames))
             .toList();
     store.put(name, materialized);
   }
 
-  private static Row normalise(Row row, List<String> columnNames) {
+  private Row alignRowToColumns(Row row, List<String> columnNames) {
     for (String columnName : columnNames) {
       if (!row.containsName(columnName)) {
         row.set(columnName, null);
