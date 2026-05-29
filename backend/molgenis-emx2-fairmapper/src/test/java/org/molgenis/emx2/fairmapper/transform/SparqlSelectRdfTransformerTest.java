@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.transform;
 
 import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper;
+package org.molgenis.emx2.fairmapper.transform;
 
 import java.util.List;
 import org.eclipse.rdf4j.query.*;
