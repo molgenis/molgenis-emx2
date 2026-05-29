@@ -4,6 +4,11 @@
       Filter System Demo
     </h2>
 
+    <label class="flex items-center gap-2 mb-4 text-sm text-title-contrast">
+      <input type="checkbox" v-model="showCountError" />
+      Simulate count-fetch failure on "species"
+    </label>
+
     <div class="flex gap-6">
       <Sidebar
         v-model:collapsed="storySidebarCollapsed"
@@ -271,6 +276,7 @@ function isCountLoading(columnId: string) {
 
 const collapsedRef = ref(new Set<string>());
 const storySidebarCollapsed = ref(false);
+const showCountError = ref(false);
 
 const visibleColumns = computed<IColumn[]>(() =>
   visibleFilterIdsRef.value.map((id) => {
@@ -307,6 +313,8 @@ const mockFilters: UseFilters = {
   getCountedOptions,
   isCountLoading,
   isSaturated: (_columnId: string) => computed(() => false),
+  hasCountError: (columnId: string) =>
+    computed(() => showCountError.value && columnId === "species"),
   nestedColumnMeta: nestedColumnMetaRef,
   registerNestedColumn: () => {},
   schemaId: "demo",

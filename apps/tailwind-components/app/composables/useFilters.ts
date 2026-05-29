@@ -243,6 +243,7 @@ export function useFilters(
   const loadingSet = shallowRef<Set<string>>(new Set());
   const baseCounts = shallowRef<Map<string, CountedOption[]>>(new Map());
   const saturatedMap = shallowRef<Map<string, boolean>>(new Map());
+  const countErrors = ref<Set<string>>(new Set());
   const abortControllers = new Map<string, AbortController>();
 
   function buildCrossFilter(excludeColumnId: string): IGraphQLFilter {
@@ -265,17 +266,30 @@ export function useFilters(
     newLoading.add(columnId);
     loadingSet.value = newLoading;
 
+    const clearedErrors = new Set(countErrors.value);
+    clearedErrors.delete(columnId);
+    countErrors.value = clearedErrors;
+
     try {
       const crossFilter = useBase ? {} : buildCrossFilter(columnId);
       const refTableId = col?.refTableId ?? null;
       const refSchemaId = col?.refSchemaId ?? null;
       const refLabel = col?.refLabel ?? col?.refLabelDefault ?? null;
-      const signalledFetcher = (
+      let fetchFailed = false;
+      const signalledFetcher = async (
         sId: string,
         query: string,
         variables: any
-      ): Promise<any> =>
-        fetchGraphql(sId, query, variables, { signal: controller.signal });
+      ): Promise<any> => {
+        try {
+          return await fetchGraphql(sId, query, variables, {
+            signal: controller.signal,
+          });
+        } catch (e: any) {
+          if (e?.name !== "AbortError") fetchFailed = true;
+          throw e;
+        }
+      };
 
       const facetHasSelection = !useBase && filterStates.value.has(columnId);
       const allFacetsFilter = buildGraphQLFilter(
@@ -299,30 +313,37 @@ export function useFilters(
         fullFilter
       );
 
-      const { options: results, saturated } = result;
+      if (fetchFailed) {
+        countErrors.value = new Set(countErrors.value).add(columnId);
+      } else {
+        const { options: results, saturated } = result;
 
-      const newSaturated = new Map(saturatedMap.value);
-      newSaturated.set(columnId, saturated);
-      saturatedMap.value = newSaturated;
+        const newSaturated = new Map(saturatedMap.value);
+        newSaturated.set(columnId, saturated);
+        saturatedMap.value = newSaturated;
 
-      const baseForMerge = useBase ? undefined : baseCounts.value.get(columnId);
-      let merged = results;
-      if (baseForMerge && baseForMerge.length > 0) {
-        merged = mergeWithBaseCounts(baseForMerge, results);
-      }
+        const baseForMerge = useBase
+          ? undefined
+          : baseCounts.value.get(columnId);
+        let merged = results;
+        if (baseForMerge && baseForMerge.length > 0) {
+          merged = mergeWithBaseCounts(baseForMerge, results);
+        }
 
-      const newCounts = new Map(countsMap.value);
-      newCounts.set(columnId, merged);
-      countsMap.value = newCounts;
+        const newCounts = new Map(countsMap.value);
+        newCounts.set(columnId, merged);
+        countsMap.value = newCounts;
 
-      if (useBase) {
-        const newBase = new Map(baseCounts.value);
-        newBase.set(columnId, results);
-        baseCounts.value = newBase;
+        if (useBase) {
+          const newBase = new Map(baseCounts.value);
+          newBase.set(columnId, results);
+          baseCounts.value = newBase;
+        }
       }
     } catch (err: any) {
       if (err?.name !== "AbortError") {
         console.error(`fetchColumnCounts failed for ${columnId}:`, err);
+        countErrors.value = new Set(countErrors.value).add(columnId);
       }
     } finally {
       const newLoading = new Set(loadingSet.value);
@@ -373,6 +394,7 @@ export function useFilters(
   const countedOptionsCache = new Map<string, ComputedRef<CountedOption[]>>();
   const countLoadingCache = new Map<string, ComputedRef<boolean>>();
   const saturatedCache = new Map<string, ComputedRef<boolean>>();
+  const countErrorCache = new Map<string, ComputedRef<boolean>>();
 
   function getCountedOptions(columnId: string): ComputedRef<CountedOption[]> {
     if (!countedOptionsCache.has(columnId))
@@ -399,6 +421,15 @@ export function useFilters(
         computed(() => saturatedMap.value.get(columnId) === true)
       );
     return saturatedCache.get(columnId)!;
+  }
+
+  function hasCountError(columnId: string): ComputedRef<boolean> {
+    if (!countErrorCache.has(columnId))
+      countErrorCache.set(
+        columnId,
+        computed(() => countErrors.value.has(columnId))
+      );
+    return countErrorCache.get(columnId)!;
   }
 
   function pruneVisibleByBaseCount() {
@@ -721,9 +752,11 @@ export function useFilters(
     baseCounts.value = new Map();
     saturatedMap.value = new Map();
     loadingSet.value = new Set();
+    countErrors.value = new Set();
     countedOptionsCache.clear();
     countLoadingCache.clear();
     saturatedCache.clear();
+    countErrorCache.clear();
   }
 
   watch(
@@ -762,6 +795,7 @@ export function useFilters(
     getCountedOptions,
     isCountLoading,
     isSaturated,
+    hasCountError,
     nestedColumnMeta,
     registerNestedColumn,
     schemaId: schemaId.value,

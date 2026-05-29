@@ -1486,3 +1486,29 @@ describe("useFilters — reactive schemaId/tableId reset", () => {
     expect(visibleFilterIds.value).toContain("status");
   });
 });
+
+describe("useFilters — count error surfacing", () => {
+  it("hasCountError is true after fetch rejects with non-Abort error, then false after successful refetch", async () => {
+    const { default: fetchGraphql } = await import(
+      "../../../app/composables/fetchGraphql"
+    );
+
+    vi.mocked(fetchGraphql).mockRejectedValue(new Error("network failure"));
+
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    const { hasCountError } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+
+    await flushPromises();
+
+    expect(hasCountError("status").value).toBe(true);
+
+    vi.mocked(fetchGraphql).mockResolvedValue({ status_groupBy: [] });
+    columns.value = [...columns.value];
+    await flushPromises();
+
+    expect(hasCountError("status").value).toBe(false);
+  });
+});

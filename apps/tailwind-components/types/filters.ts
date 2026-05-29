@@ -91,6 +91,7 @@ export interface UseFilters {
   getCountedOptions: (columnId: string) => ComputedRef<CountedOption[]>;
   isCountLoading: (columnId: string) => ComputedRef<boolean>;
   isSaturated: (columnId: string) => ComputedRef<boolean>;
+  hasCountError: (columnId: string) => ComputedRef<boolean>;
   nestedColumnMeta: Ref<Map<string, NestedColumnMeta>>;
   registerNestedColumn: (id: string, meta: NestedColumnMeta) => void;
   schemaId: string;

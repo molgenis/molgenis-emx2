@@ -26,6 +26,7 @@ const props = defineProps<{
   modelValue: IFilterValue | undefined;
   loading: boolean;
   saturated?: boolean;
+  hasCountError?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -354,6 +355,12 @@ function countedOptionToTreeNode(
 <template>
   <div>
     <Skeleton v-if="loading && options.length === 0" :lines="4" />
+
+    <TextNoResultsMessage
+      v-else-if="hasCountError && !loading"
+      label="Couldn't load options for this filter."
+      class="!text-invalid"
+    />
 
     <TextNoResultsMessage
       v-else-if="options.length === 0"

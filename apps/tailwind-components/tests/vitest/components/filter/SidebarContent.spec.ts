@@ -10,7 +10,14 @@ import FilterPicker from "../../../../app/components/filter/Picker.vue";
 vi.mock("../../../../app/components/filter/Column.vue", () => ({
   default: {
     name: "Column",
-    props: ["column", "options", "loading", "modelValue", "saturated"],
+    props: [
+      "column",
+      "options",
+      "loading",
+      "modelValue",
+      "saturated",
+      "hasCountError",
+    ],
     emits: ["update:modelValue"],
     template:
       '<div class="filter-options-stub" :data-column="column.id"></div>',
@@ -97,6 +104,7 @@ function makeFilters(
       computed(() => makeCountedOptions(["opt1", "opt2"])),
     isCountLoading: (_columnId: string) => computed(() => false),
     isSaturated: (_columnId: string) => computed(() => false),
+    hasCountError: (_columnId: string) => computed(() => false),
     nestedColumnMeta,
     registerNestedColumn: vi.fn(),
     schemaId: "test",

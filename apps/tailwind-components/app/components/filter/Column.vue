@@ -22,6 +22,7 @@ const props = defineProps<{
   modelValue: IFilterValue | undefined;
   loading: boolean;
   saturated?: boolean;
+  hasCountError?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -70,6 +71,7 @@ function onTreeChange(val: IFilterValue | string[] | undefined) {
       :model-value="modelValue"
       :loading="loading"
       :saturated="saturated"
+      :has-count-error="hasCountError"
       @update:model-value="onTreeChange($event)"
     />
     <FilterRange

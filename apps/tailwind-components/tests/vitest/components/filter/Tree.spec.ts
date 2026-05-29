@@ -850,6 +850,36 @@ describe("auto-expand on small trees", () => {
   });
 });
 
+describe("count error display", () => {
+  it("shows 'Couldn't load options' message and hides options when hasCountError=true and loading=false", () => {
+    const wrapper = mount(FilterTree, {
+      props: {
+        column: ontologyColumn(),
+        options: sampleOptions,
+        modelValue: undefined,
+        loading: false,
+        hasCountError: true,
+      },
+    });
+    expect(wrapper.text()).toContain("Couldn't load options for this filter");
+    expect(wrapper.findComponent(TreeNode).exists()).toBe(false);
+  });
+
+  it("does not show count-error message when hasCountError=false", () => {
+    const wrapper = mount(FilterTree, {
+      props: {
+        column: ontologyColumn(),
+        options: sampleOptions,
+        modelValue: undefined,
+        loading: false,
+        hasCountError: false,
+      },
+    });
+    expect(wrapper.text()).not.toContain("Couldn't load options");
+    expect(wrapper.findComponent(TreeNode).exists()).toBe(true);
+  });
+});
+
 describe("expand state preserved across options updates", () => {
   function makeHierarchicalOptions(
     parentCount: number,
