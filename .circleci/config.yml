@@ -287,10 +287,7 @@ jobs:
       - run:
           name: Run container
           command: |
-            docker run --rm 
-              --env-file build/ci.properties
-               -v "/workspace/build/libs/molgenis-emx2-13.133.3-SNAPSHOT-all.jar:/app/app.jar" 
-              molgenis/ci-emx2-runner:0.0.1   
+            docker run --env-file build/ci.properties -v /workspace/build/libs/molgenis-emx2-13.133.3-SNAPSHOT-all.jar:/app/app.jar molgenis/ci-emx2-runner:0.0.1   
 
       - run:
           name: Wait for application to be up, poll every 10 seconds
