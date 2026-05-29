@@ -160,5 +160,6 @@
 159,Metals & elements,,Chemicals,,Exposure to metals and elements
 160,Other chemicals,,Chemicals,,"Exposure to other chemicals, such as PAHs, VOCs, THMs, etc."
 161,Water DBPs,Water_DBPs,Chemicals,,"Water desinfection by products (Trihalomethanes (THMs), haloacetic acids, chlorate, bromate)"
-162,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
-163,Light,Light,Other physical environment characteristics,,
+162,Natural toxins,Chemicals,,"Exposure to natural toxins (mycotoxins, plants toxins, algae toxins)"
+163,Non-targeted / suspect screening of chemicals,Nontargeted_suspect_screening_of_chemicals,Chemicals,,"High-resolution mass spectrometry (HRMS), untargeted exposomics"
+164,Light,Light,Other physical environment characteristics,,
