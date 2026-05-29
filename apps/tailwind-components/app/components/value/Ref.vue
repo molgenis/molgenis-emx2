@@ -11,7 +11,6 @@ import { computed } from "vue";
 import type {
   columnValue,
   IRefColumn,
-  IRow,
 } from "../../../../metadata-utils/src/types";
 import { columnValueToString } from "../../utils/columnValueToString";
 import type { RefPayload } from "../../../types/types";
