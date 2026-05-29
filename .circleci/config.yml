@@ -251,7 +251,7 @@ jobs:
       - run:
           name: Build test image
           command: | 
-            docker build -t molgenis-test -f- . <<'EOF'
+            docker build -t molgenis-test -f- . \<<'EOF'
             FROM ubuntu:24.04
 
             RUN apt update && \
