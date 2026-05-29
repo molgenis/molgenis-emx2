@@ -246,7 +246,9 @@ jobs:
       - run:
           name: Make jar executable
           command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar      
+            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar 
+
+      - setup_remote_docker           
 
       - run:
           name: Build test image
