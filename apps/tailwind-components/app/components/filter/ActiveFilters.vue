@@ -16,9 +16,9 @@ const emit = defineEmits<{
 <template>
   <div
     v-if="props.filters.length > 0"
-    class="flex flex-wrap items-center gap-3 bg-button-primary rounded-input px-3 py-2 mb-2"
+    class="flex flex-wrap items-center gap-3 bg-sidebar-gradient rounded-input px-3 py-2 mb-2"
   >
-    <span class="text-button-primary text-xs whitespace-nowrap mr-1"
+    <span class="text-search-filter-group-title text-xs whitespace-nowrap mr-1"
       >Active filters</span
     >
 

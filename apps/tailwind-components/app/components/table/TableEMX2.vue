@@ -1,6 +1,5 @@
 <template>
   <div :class="{ 'flex gap-6': enableFilters }">
-    only
     <Sidebar
       v-if="enableFilters && filters"
       v-model:collapsed="sidebarCollapsed"
