@@ -1430,3 +1430,59 @@ describe("preserveExternalQueryParams", () => {
     expect(result["status"]).toBeUndefined();
   });
 });
+
+describe("useFilters — reactive schemaId/tableId reset", () => {
+  it("resets filterStates, userHasCustomized and visibleFilterIds when schemaId ref changes", async () => {
+    const schemaId = ref("schemaA");
+    const tableId = ref("tableA");
+    const columns = ref([ontologyColumn, intColumn, stringColumn]);
+
+    const { filterStates, visibleFilterIds, toggleFilter, setFilter } =
+      useFilters(columns, { schemaId, tableId });
+
+    toggleFilter("age");
+    setFilter("status", { operator: "equals", value: ["active"] });
+    expect(filterStates.value.size).toBeGreaterThan(0);
+    expect(visibleFilterIds.value).toContain("age");
+
+    schemaId.value = "schemaB";
+    await nextTick();
+    await nextTick();
+
+    expect(filterStates.value.size).toBe(0);
+    expect(visibleFilterIds.value).not.toContain("age");
+    expect(visibleFilterIds.value).toEqual(expect.arrayContaining(["status"]));
+  });
+
+  it("resets when tableId ref changes", async () => {
+    const schemaId = ref("schemaA");
+    const tableId = ref("tableA");
+    const columns = ref([ontologyColumn, intColumn]);
+
+    const { filterStates, setFilter } = useFilters(columns, {
+      schemaId,
+      tableId,
+    });
+
+    setFilter("status", { operator: "equals", value: ["active"] });
+    expect(filterStates.value.size).toBe(1);
+
+    tableId.value = "tableB";
+    await nextTick();
+    await nextTick();
+
+    expect(filterStates.value.size).toBe(0);
+  });
+
+  it("plain string schemaId/tableId still works without reset machinery interfering", () => {
+    const columns = ref([ontologyColumn, intColumn]);
+    const { filterStates, setFilter, visibleFilterIds } = useFilters(columns, {
+      schemaId: "static-schema",
+      tableId: "static-table",
+    });
+
+    setFilter("status", { operator: "equals", value: ["active"] });
+    expect(filterStates.value.size).toBe(1);
+    expect(visibleFilterIds.value).toContain("status");
+  });
+});

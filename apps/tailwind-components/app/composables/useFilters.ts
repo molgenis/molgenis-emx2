@@ -4,6 +4,8 @@ import {
   computed,
   watch,
   nextTick,
+  toValue,
+  type MaybeRefOrGetter,
   type Ref,
   type ComputedRef,
 } from "vue";
@@ -50,8 +52,8 @@ type RouteQuery = Record<
 
 export interface UseFiltersOptions {
   urlSync?: boolean;
-  schemaId: string;
-  tableId: string;
+  schemaId: MaybeRefOrGetter<string>;
+  tableId: MaybeRefOrGetter<string>;
   debounceMs?: number;
   defaultFilters?: string[];
   defaultCollapsed?: string[];
@@ -122,7 +124,9 @@ export function useFilters(
   rawColumns: Ref<IColumn[]>,
   options: UseFiltersOptions
 ) {
-  const { schemaId, tableId, debounceMs = 300 } = options;
+  const { debounceMs = 300 } = options;
+  const schemaId = computed(() => toValue(options.schemaId));
+  const tableId = computed(() => toValue(options.tableId));
 
   const columns = computed(() => filterColumns(rawColumns.value));
   const urlSync = options.urlSync ?? false;
@@ -206,7 +210,7 @@ export function useFilters(
         id,
         label: nested?.label ?? "",
         columnType: nested?.columnType ?? "STRING",
-        table: tableId,
+        table: tableId.value,
         position: 0,
       } as IColumn;
     })
@@ -283,8 +287,8 @@ export function useFilters(
       const fullFilter = facetHasSelection ? allFacetsFilter : undefined;
 
       const result: FetchCountsResult = await fetchCounts(
-        schemaId,
-        tableId,
+        schemaId.value,
+        tableId.value,
         columnId,
         columnType,
         crossFilter,
@@ -575,7 +579,7 @@ export function useFilters(
     collapsed.value = next;
   }
 
-  const collapsedStorageKey = `mg_collapsed:${schemaId}:${tableId}`;
+  const collapsedStorageKey = `mg_collapsed:${schemaId.value}:${tableId.value}`;
 
   function persistCollapsed(next: Set<string>) {
     if (typeof window === "undefined") return;
@@ -641,7 +645,7 @@ export function useFilters(
     segments: string[]
   ): Promise<void> {
     let currentCols: IColumn[] = rawColumns.value;
-    let currentSchemaId = schemaId;
+    let currentSchemaId = schemaId.value;
     const labelParts: string[] = [];
 
     for (let i = 0; i < segments.length; i++) {
@@ -710,6 +714,37 @@ export function useFilters(
     router.replace({ query: currentQuery });
   });
 
+  function clearCounts() {
+    for (const controller of abortControllers.values()) controller.abort();
+    abortControllers.clear();
+    countsMap.value = new Map();
+    baseCounts.value = new Map();
+    saturatedMap.value = new Map();
+    loadingSet.value = new Set();
+    countedOptionsCache.clear();
+    countLoadingCache.clear();
+    saturatedCache.clear();
+  }
+
+  watch(
+    [() => toValue(options.schemaId), () => toValue(options.tableId)],
+    () => {
+      userHasCustomized.value = false;
+      filterStatesRef.value = new Map();
+      searchValueRef.value = "";
+      nestedColumnMeta.value = new Map();
+      collapsed.value = new Set();
+      clearCounts();
+      visibleFilterIds.value = [...defaultFilterIds.value];
+      if (urlSync) {
+        const currentQuery = { ...getCurrentQuery() };
+        delete currentQuery[MG_FILTERS_PARAM];
+        delete currentQuery[MG_SEARCH_PARAM];
+        router.replace({ query: currentQuery });
+      }
+    }
+  );
+
   return {
     filterStates,
     searchValue,
@@ -729,8 +764,8 @@ export function useFilters(
     isSaturated,
     nestedColumnMeta,
     registerNestedColumn,
-    schemaId,
-    tableId,
+    schemaId: schemaId.value,
+    tableId: tableId.value,
     toggleCollapse,
     isCollapsed,
   };
