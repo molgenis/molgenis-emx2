@@ -608,10 +608,10 @@ importers:
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/integrations':
         specifier: 10.7.0
-        version: 10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
+        version: 10.7.0(axios@1.16.0)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       axios:
-        specifier: 1.15.2
-        version: 1.15.2
+        specifier: 1.16.0
+        version: 1.16.0
       click-outside-vue3:
         specifier: 4.0.1
         version: 4.0.1
@@ -974,7 +974,7 @@ importers:
         version: 12.8.2(typescript@5.6.2)
       '@vueuse/integrations':
         specifier: 10.7.0
-        version: 10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
+        version: 10.7.0(axios@1.16.0)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))
       consola:
         specifier: 3.2.3
         version: 3.2.3
@@ -4476,8 +4476,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.15.2:
-    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
+  axios@1.16.0:
+    resolution: {integrity: sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==}
 
   b4a@1.8.0:
     resolution: {integrity: sha512-qRuSmNSkGQaHwNbM7J78Wwy+ghLEYF1zNrSeMxj4Kgw6y33O3mXcQ6Ie9fRvfU/YnxWkOchPXbaLb73TkIsfdg==}
@@ -5785,6 +5785,15 @@ packages:
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -13052,13 +13061,13 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@10.7.0(axios@1.15.2)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
+  '@vueuse/integrations@10.7.0(axios@1.16.0)(focus-trap@8.0.0)(fuse.js@7.3.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.6.2))':
     dependencies:
       '@vueuse/core': 10.7.0(vue@3.5.22(typescript@5.6.2))
       '@vueuse/shared': 10.7.0(vue@3.5.22(typescript@5.6.2))
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.6.2))
     optionalDependencies:
-      axios: 1.15.2
+      axios: 1.16.0
       focus-trap: 8.0.0
       fuse.js: 7.3.0
       sortablejs: 1.14.0
@@ -13266,9 +13275,9 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.15.2:
+  axios@1.16.0:
     dependencies:
-      follow-redirects: 1.15.11
+      follow-redirects: 1.16.0
       form-data: 4.0.5
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
@@ -14774,6 +14783,8 @@ snapshots:
 
   follow-redirects@1.15.11: {}
 
+  follow-redirects@1.16.0: {}
+
   for-each@0.3.5:
     dependencies:
       is-callable: 1.2.7
@@ -15473,7 +15484,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.29.0
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.3
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -15483,10 +15494,10 @@ snapshots:
   istanbul-lib-instrument@6.0.3:
     dependencies:
       '@babel/core': 7.29.0
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.3
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.7.4
+      semver: 7.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -15777,7 +15788,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.7.4
+      semver: 7.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -16112,7 +16123,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.0
 
   makeerror@1.0.12:
     dependencies:
