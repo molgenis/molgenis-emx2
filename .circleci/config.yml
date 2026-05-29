@@ -237,6 +237,17 @@ jobs:
       - checkout
       - attach_workspace:
             at: /workspace
+      - run:
+          name: Install Docker CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+
+      - setup_remote_docker
+
+      - run:
+          name: Verify Docker
+          command: docker version      
 
       - run:
           name: Show jars
@@ -246,22 +257,8 @@ jobs:
       - run:
           name: Make jar executable
           command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar 
+            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar      
 
-      - setup_remote_docker           
-
-      - run:
-          name: Build test image
-          command: | 
-            docker build -t molgenis-test -f- . \<<'EOF'
-            FROM ubuntu:24.04
-
-            RUN apt update && \
-                apt -y install openjdk-21-jre-headless
-            USER 1000
-
-            ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-            EOF
       - run:
           name: Enable pnpm
           command: |
@@ -286,24 +283,6 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-      # - run:
-      #     name: Install Java
-      #     command: |
-      #       apt-get update
-      #       apt-get install -y openjdk-21-jdk
-
-      # - run:
-      #     name: start the application in the background
-      #     command: |
-      #       export $( cat build/ci.properties | xargs )
-      #       nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
-      #       echo $! > application.pid
-      #       echo "Started PID: $(cat application.pid)"
-      #       sleep 5
-      #       echo "Checking if process is still running..."
-      #       ps -p $(cat application.pid) || echo "❌ Process died immediately"
-      #       echo "Last logs:"
-      #       tail -200 application.log
 
       - run:
           name: Run container
@@ -311,7 +290,7 @@ jobs:
             docker run --rm 
               --env-file build/ci.properties
                -v "/workspace/build/libs/molgenis-emx2-13.133.3-SNAPSHOT-all.jar:/app/app.jar" 
-              molgenis-test      
+              molgenis/ci-emx2-runner:0.0.1   
 
       - run:
           name: Wait for application to be up, poll every 10 seconds
