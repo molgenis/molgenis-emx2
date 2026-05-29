@@ -240,8 +240,8 @@ jobs:
       - run:
           name: Install Docker CLI
           command: |
-            sudo apt-get update
-            sudo apt-get install -y docker.io
+            apt-get update
+            apt-get install -y docker.io
 
       - setup_remote_docker
 
