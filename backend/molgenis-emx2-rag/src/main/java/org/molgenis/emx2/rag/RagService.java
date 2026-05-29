@@ -67,7 +67,7 @@ public class RagService {
             .toList();
     results.forEach(QueryResult::printResults);
 
-    // maps to embbeding result
+    // maps to embedding results
     return results;
   }
 
