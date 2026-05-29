@@ -239,6 +239,28 @@ jobs:
             at: /workspace
 
       - run:
+          name: Show jars
+          command: |
+            ls -la /workspace/build/libs
+
+      - run:
+          name: Make jar executable
+          command: |
+            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar      
+
+      - run:
+          name: Build test image
+          command: | 
+            docker build -t molgenis-test -f- . <<'EOF'
+            FROM ubuntu:24.04
+
+            RUN apt update && \
+                apt -y install openjdk-21-jre-headless
+            USER 1000
+
+            ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+            EOF
+      - run:
           name: Enable pnpm
           command: |
             corepack enable
@@ -262,34 +284,32 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-      - run:
-          name: Install Java
-          command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
+      # - run:
+      #     name: Install Java
+      #     command: |
+      #       apt-get update
+      #       apt-get install -y openjdk-21-jdk
+
+      # - run:
+      #     name: start the application in the background
+      #     command: |
+      #       export $( cat build/ci.properties | xargs )
+      #       nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+      #       echo $! > application.pid
+      #       echo "Started PID: $(cat application.pid)"
+      #       sleep 5
+      #       echo "Checking if process is still running..."
+      #       ps -p $(cat application.pid) || echo "❌ Process died immediately"
+      #       echo "Last logs:"
+      #       tail -200 application.log
 
       - run:
-          name: Show jars
+          name: Run container
           command: |
-            ls -la /workspace/build/libs
-
-      - run:
-          name: Make jar executable
-          command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar
-
-      - run:
-          name: start the application in the background
-          command: |
-            export $( cat build/ci.properties | xargs )
-            nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
-            echo $! > application.pid
-            echo "Started PID: $(cat application.pid)"
-            sleep 5
-            echo "Checking if process is still running..."
-            ps -p $(cat application.pid) || echo "❌ Process died immediately"
-            echo "Last logs:"
-            tail -200 application.log
+            docker run --rm 
+              --env-file build/ci.properties
+               -v "/workspace/build/libs/molgenis-emx2-13.133.3-SNAPSHOT-all.jar:/app/app.jar" 
+              molgenis-test      
 
       - run:
           name: Wait for application to be up, poll every 10 seconds
