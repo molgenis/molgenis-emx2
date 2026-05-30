@@ -51,9 +51,9 @@ public class TestLoaders {
       database.dropSchemaIfExists(PORTAL_TEST);
       database.dropSchemaIfExists(COHORT_STAGING);
       database.dropSchemaIfExists(NETWORK_STAGING);
-      database.dropSchemaIfExists(DATA_CATALOGUE);
-      database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
       database.dropSchemaIfExists(RWE_STAGING);
+      database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
+      database.dropSchemaIfExists(DATA_CATALOGUE);
       database.dropSchemaIfExists(DIRECTORY_TEST);
       database.dropSchemaIfExists(DIRECTORY_STAGING);
       database.dropSchemaIfExists(FAIR_GENOMES);

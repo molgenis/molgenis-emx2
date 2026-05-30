@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -76,7 +78,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:true}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:ALL,insert:NONE,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -100,7 +102,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
 
     assertTrue(schemaBody.contains("\"ReaderA\""), "Custom role must appear in _schema.roles");
     assertTrue(schemaBody.contains("\"ArticleA\""), "Grant on ArticleA must be reflected");
-    assertTrue(schemaBody.contains("true"), "SELECT grant must be reflected");
+    assertTrue(schemaBody.contains("\"ALL\""), "SELECT ALL grant must be reflected");
     assertTrue(
         schemaBody.contains("\"system\" : false"),
         "Custom role must have system:false, response: " + schemaBody);
@@ -211,7 +213,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",insert:true}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:ALL,insert:ALL,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -248,7 +250,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:false}]}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"ReaderA\\",permissions:[{table:\\"ArticleA\\",select:NONE,insert:NONE,update:NONE,delete:NONE}]}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -279,7 +281,9 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   @Order(8)
   void dropCustomRoleViaGraphql() {
     database.becomeAdmin();
-    database.getSchema(SCHEMA).grant("ReaderA", new TablePermission(TABLE_A).select(true));
+    database
+        .getSchema(SCHEMA)
+        .grant("ReaderA", new TablePermission(TABLE_A).select(SelectScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -340,7 +344,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MixedRole");
-    schema.grant("MixedRole", new TablePermission(TABLE_A).select(true).insert(true));
+    schema.grant(
+        "MixedRole", new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
 
     login(OWNER_USER, OWNER_PASS);
     String body =
@@ -424,8 +429,12 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("FalseTestRole");
     schema.grant(
-        "FalseTestRole", new TablePermission(TABLE_A).select(true).insert(true).update(true));
-    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(false));
+        "FalseTestRole",
+        new TablePermission(TABLE_A)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.ALL)
+            .update(UpdateScope.ALL));
+    schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(UpdateScope.NONE));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -461,7 +470,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("OntologyTestRole");
-    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("OntologyTestRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(CUSTOM_USER, "OntologyTestRole");
 
     login(CUSTOM_USER, CUSTOM_PASS);
@@ -496,7 +505,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
             .sessionId(sessionId)
             .body(
                 """
-                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",permissions:[{table:\\"ArticleWithRef\\",select:true}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
+                {"query":"mutation{change(roles:[{name:\\"RefTestRole\\",permissions:[{table:\\"ArticleWithRef\\",select:ALL,insert:NONE,update:NONE,delete:NONE}]}],members:[{email:\\"tpgql_custom\\",role:\\"RefTestRole\\"}]){message}}"}
                 """)
             .post(SCHEMA_GQL)
             .then()
@@ -543,7 +552,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
         .sessionId(sessionId)
         .body(
             """
-            {"query":"mutation{drop(members:\\"tpgql_custom\\"){message}}"}
+            {"query":"mutation{drop(members:[{user:\\"tpgql_custom\\"}]){message}}"}
             """)
         .post(SCHEMA_GQL)
         .then()

@@ -148,44 +148,12 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.IS_SYSTEM_ROLE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.PERMISSIONS)
                   .type(GraphQLList.list(outputPermissionType)))
-          .build();
-
-  private static final GraphQLInputObjectType inputPermissionType =
-      new GraphQLInputObjectType.Builder()
-          .name("MolgenisPermissionInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.SELECT)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.INSERT)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.UPDATE)
-                  .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.DELETE)
-                  .type(Scalars.GraphQLBoolean))
-          .build();
-
-  private static final GraphQLInputObjectType inputRoleType =
-      new GraphQLInputObjectType.Builder()
-          .name("MolgenisRoleInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(GraphqlConstants.PERMISSIONS)
-                  .type(GraphQLList.list(inputPermissionType)))
           .build();
 
   static final GraphQLType userRolesType =
@@ -204,6 +172,8 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(EMAIL).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(GROUP).type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
@@ -391,6 +361,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.RLS_ENABLED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -399,7 +373,11 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
           .field(
+              GraphQLInputObjectField.newInputObjectField().name(USER).type(Scalars.GraphQLString))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(GROUP).type(Scalars.GraphQLString))
           .build();
   private final GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -535,31 +513,14 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.RLS_ENABLED)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   public GraphqlSchemaFieldFactory() {
     // hide constructor
-  }
-
-  static Map<String, Object> roleToMap(Role role) {
-    Map<String, Object> roleMap = new LinkedHashMap<>();
-    roleMap.put(GraphqlConstants.NAME, role.name());
-    roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
-    roleMap.put(
-        GraphqlConstants.PERMISSIONS,
-        role.permissions().stream()
-            .map(
-                p -> {
-                  Map<String, Object> permMap = new LinkedHashMap<>();
-                  permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select());
-                  permMap.put(GraphqlConstants.INSERT, p.insert());
-                  permMap.put(GraphqlConstants.UPDATE, p.update());
-                  permMap.put(GraphqlConstants.DELETE, p.delete());
-                  return permMap;
-                })
-            .toList());
-    return roleMap;
   }
 
   private static DataFetcher<?> queryFetcher(Schema schema) {
@@ -569,16 +530,27 @@ public class GraphqlSchemaFieldFactory {
       String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
-      // add members
-      List<Map<String, String>> members = new ArrayList<>();
+      List<Map<String, Object>> members = new ArrayList<>();
       for (Member m : schema.getMembers()) {
-        members.add(Map.of("email", m.getUser(), "role", m.getRole()));
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put(EMAIL, m.getUser());
+        row.put(ROLE, m.getRole());
+        row.put(GROUP, m.getGroupName());
+        members.add(row);
       }
       result.put(MEMBERS, members);
 
-      // add roles with permissions (visible to all; system roles show their effective permissions)
-      result.put(
-          ROLES, schema.getRoleInfos().stream().map(GraphqlSchemaFieldFactory::roleToMap).toList());
+      List<Map<String, Object>> allRoles = new ArrayList<>();
+      for (Role role : schema.getRoles()) {
+        PermissionSet ps = schema.getPermissions(role.name());
+        allRoles.add(
+            GraphqlPermissionFieldFactory.permissionSetToMap(
+                role.name(), schema.getName(), role.isSystemRole(), ps));
+      }
+
+      result.put(ROLES, allRoles);
+
+      result.put(GROUPS, schema.getGroups());
 
       // add settings for the schema
       result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
@@ -603,6 +575,7 @@ public class GraphqlSchemaFieldFactory {
                 dropTables(s, dataFetchingEnvironment, message);
                 dropMembers(s, dataFetchingEnvironment, message);
                 dropRoles(s, dataFetchingEnvironment, message);
+                dropGroups(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
                 // this sync is a bit sad.
@@ -610,9 +583,7 @@ public class GraphqlSchemaFieldFactory {
                     .sync((SqlSchemaMetadata) s.getMetadata());
                 db.getListener().onSchemaChange();
               });
-      Map<String, String> result = new LinkedHashMap<>();
-      result.put(GraphqlConstants.DETAIL, message.toString());
-      return result;
+      return new GraphqlApiMutationResult(SUCCESS, message.toString());
     };
   }
 
@@ -684,51 +655,79 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static void changeRoles(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
-    if (roles == null) return;
-    for (Map<String, Object> roleMap : roles) {
-      String roleName = (String) roleMap.get(GraphqlConstants.NAME);
-      if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
-        schema.createRole(roleName);
-      }
-      List<Map<String, Object>> perms =
-          (List<Map<String, Object>>) roleMap.get(GraphqlConstants.PERMISSIONS);
-      if (perms != null) {
-        for (Map<String, Object> permMap : perms) {
-          schema.grant(roleName, mapToTablePermission(permMap));
+    List<Map<String, Object>> rolesInput =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
+    if (rolesInput == null) return;
+    List<Role> roles = rolesInput.stream().map(GraphqlSchemaFieldFactory::roleInputToRole).toList();
+    schema.changeRoles(roles);
+  }
+
+  private static Role roleInputToRole(Map<String, Object> roleMap) {
+    String roleName = (String) roleMap.get(GraphqlConstants.NAME);
+    PermissionSet ps = GraphqlPermissionFieldFactory.toPermissionSet(roleMap);
+    List<TablePermission> permissions = new ArrayList<>(ps.getTables().values());
+    return new Role(
+        roleName, false, permissions, ps.getDescription(), ps.isChangeOwner(), ps.isChangeGroup());
+  }
+
+  private static void changeGroups(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<Map<String, Object>> groupsInput =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.GROUPS);
+    if (groupsInput == null) return;
+    List<Group> groups =
+        groupsInput.stream().map(GraphqlSchemaFieldFactory::groupInputToGroup).toList();
+    schema.changeGroups(groups);
+  }
+
+  private static Group groupInputToGroup(Map<String, Object> groupMap) {
+    String groupName = (String) groupMap.get(GraphqlConstants.NAME);
+    List<Member> members = new ArrayList<>();
+    Object usersVal = groupMap.get(GraphqlConstants.USERS);
+    if (usersVal instanceof List<?> userList) {
+      for (Object userEntry : userList) {
+        if (userEntry instanceof String username) {
+          members.add(new Member(username, null, groupName));
         }
       }
     }
-  }
-
-  private static TablePermission mapToTablePermission(Map<String, Object> permMap) {
-    String table = (String) permMap.get(TABLE);
-    Boolean select = (Boolean) permMap.get(GraphqlConstants.SELECT);
-    Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
-    Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
-    Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(table).select(select).insert(insert).update(update).delete(delete);
+    return new Group(groupName, "", members);
   }
 
   private static void dropRoles(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
-    List<String> roles = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
-    if (roles == null) return;
-    for (String roleName : roles) {
-      schema.deleteRole(roleName);
-      message.append("Dropped role '").append(roleName).append("'\n");
-    }
+    List<String> roleNames = dataFetchingEnvironment.getArgument(GraphqlConstants.ROLES);
+    if (roleNames == null) return;
+    schema.dropRoles(roleNames);
+    roleNames.forEach(name -> message.append("Dropped role '").append(name).append("'\n"));
+  }
+
+  private static void dropGroups(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<String> groupNames = dataFetchingEnvironment.getArgument(GraphqlConstants.GROUPS);
+    if (groupNames == null) return;
+    schema.dropGroups(groupNames);
+    groupNames.forEach(name -> message.append("Dropped group '").append(name).append("'\n"));
   }
 
   private static void dropMembers(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
-    List<String> members = dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-    if (members != null) {
-      for (String name : members) {
-        schema.removeMember(name);
-        message.append("Dropped member '" + name + "'\n");
-      }
-    }
+    List<Map<String, String>> membersInput =
+        dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
+    if (membersInput == null) return;
+    List<Member> members =
+        membersInput.stream().map(GraphqlSchemaFieldFactory::memberInputToMember).toList();
+    schema.dropMembers(members);
+    members.forEach(
+        member -> message.append("Dropped member '").append(member.getUser()).append("'\n"));
+  }
+
+  private static Member memberInputToMember(Map<String, String> memberInput) {
+    String userField = memberInput.get(USER);
+    String resolvedUser =
+        (userField != null && !userField.isEmpty()) ? userField : memberInput.get(EMAIL);
+    String role = memberInput.get(ROLE);
+    String group = memberInput.get(GROUP);
+    return new Member(resolvedUser, role, group);
   }
 
   private static void dropSettings(
@@ -783,7 +782,11 @@ public class GraphqlSchemaFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(ROLES)
-                    .type(GraphQLList.list(outputRolesType)));
+                    .type(GraphQLList.list(GraphqlPermissionFieldFactory.roleOutputType)))
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(GROUPS)
+                    .type(GraphQLList.list(GraphqlPermissionFieldFactory.groupOutputType)));
 
     List<String> roles = schema.getInheritedRolesForActiveUser();
     if (roles.contains(Privileges.MANAGER.toString())
@@ -878,7 +881,11 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ROLES)
-                .type(GraphQLList.list(inputRoleType)))
+                .type(GraphQLList.list(GraphqlPermissionFieldFactory.inputRoleType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.GROUPS)
+                .type(GraphQLList.list(GraphqlPermissionFieldFactory.groupInputType)))
         .build();
   }
 
@@ -890,12 +897,16 @@ public class GraphqlSchemaFieldFactory {
               db -> {
                 try {
                   Schema s = db.getSchema(schema.getName());
+                  if (s == null) {
+                    throw new MolgenisException(
+                        "Not authorized: schema '" + schema.getName() + "' is not accessible");
+                  }
                   changeTables(s, dataFetchingEnvironment);
                   changeRoles(s, dataFetchingEnvironment);
+                  changeGroups(s, dataFetchingEnvironment);
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
-                  // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
                   db.getListener().onSchemaChange();
@@ -930,22 +941,20 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changeMembers(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    // members
-    List<Map<String, String>> members =
+    List<Map<String, String>> membersInput =
         dataFetchingEnvironment.getArgument(GraphqlConstants.MEMBERS);
-    if (members != null) {
-      for (Map<String, String> m : members) {
-        schema.addMember(m.get(EMAIL), m.get(ROLE));
-      }
-    }
+    if (membersInput == null) return;
+    List<Member> members =
+        membersInput.stream().map(GraphqlSchemaFieldFactory::memberInputToMember).toList();
+    schema.changeMembers(members);
   }
 
+  @SuppressWarnings("unchecked")
   private void changeTables(Schema schema, DataFetchingEnvironment dataFetchingEnvironment)
       throws IOException {
-    Object tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-    // tables
+    List<Map<String, Object>> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
     if (tables != null) {
-      Map<String, ?> tableMap = Map.of("tables", tables);
+      Map<String, Object> tableMap = Map.of(GraphqlConstants.TABLES, tables);
       String json = JsonUtil.getWriter().writeValueAsString(tableMap);
       SchemaMetadata otherSchema = jsonToSchema(json);
       schema.migrate(otherSchema);
@@ -995,7 +1004,7 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.MEMBERS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
+                .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
@@ -1007,6 +1016,10 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ROLES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.GROUPS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }

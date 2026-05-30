@@ -38,6 +38,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String[] semantics = null;
   // profiles to which this table belongs
   private String[] profiles;
+  // whether row-level security is enabled for this table
+  private Boolean rlsEnabled = null;
 
   public String[] getSemantics() {
     return semantics;
@@ -102,6 +104,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.descriptions = metadata.getDescriptions();
       this.oldName = metadata.getOldName();
       this.setSettingsWithoutReload(metadata.getSettings());
+      this.columns.clear();
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
       }
@@ -110,6 +113,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
+      this.rlsEnabled = metadata.rlsEnabled;
     }
   }
 
@@ -598,6 +602,43 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata setTableType(TableType tableType) {
     this.tableType = tableType;
     return this;
+  }
+
+  public Boolean getRlsEnabled() {
+    if (getInheritName() != null) {
+      TableMetadata parent = getInheritedTable();
+      if (parent != null) {
+        return parent.getRlsEnabled();
+      }
+    }
+    return rlsEnabled;
+  }
+
+  public TableMetadata setRlsEnabled(boolean rlsEnabled) {
+    this.rlsEnabled = rlsEnabled ? Boolean.TRUE : Boolean.FALSE;
+    return this;
+  }
+
+  public void rejectIfRlsScopeWithoutRls(TablePermission tp, PermissionSet permissions) {
+    if (Boolean.TRUE.equals(getRlsEnabled())) {
+      return;
+    }
+    boolean hasRlsScope =
+        tp.select() == PermissionSet.SelectScope.OWN
+            || tp.select() == PermissionSet.SelectScope.GROUP
+            || tp.update() == PermissionSet.UpdateScope.OWN
+            || tp.update() == PermissionSet.UpdateScope.GROUP
+            || tp.insert() == PermissionSet.UpdateScope.OWN
+            || tp.insert() == PermissionSet.UpdateScope.GROUP
+            || tp.delete() == PermissionSet.UpdateScope.OWN
+            || tp.delete() == PermissionSet.UpdateScope.GROUP;
+    boolean hasChangeFlag = permissions.isChangeOwner() || permissions.isChangeGroup();
+    if (hasRlsScope || hasChangeFlag) {
+      throw new MolgenisException(
+          String.format(
+              "OWN/GROUP scope requires RLS-enabled table; enable RLS on '%s.%s' first",
+              getSchemaName(), getTableName()));
+    }
   }
 
   public String getLabel() {

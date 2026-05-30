@@ -12,6 +12,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /** Tests for role CRUD, grant/revoke, role info queries, and permission merging. */
 class TestTableRoleManagement {
@@ -57,7 +59,7 @@ class TestTableRoleManagement {
     assertFalse(info.isSystemRole());
 
     schema.deleteRole("ReaderA");
-    assertFalse(schema.getRoleInfos().stream().anyMatch(r -> r.name().equals("ReaderA")));
+    assertFalse(schema.getRoles().stream().anyMatch(r -> r.name().equals("ReaderA")));
   }
 
   @Test
@@ -98,7 +100,7 @@ class TestTableRoleManagement {
   void cannotGrantToSystemRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("Viewer", selectPermission));
   }
 
@@ -106,7 +108,7 @@ class TestTableRoleManagement {
   void cannotGrantToNonExistentRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    TablePermission selectPermission = new TablePermission(TABLE_A).select(true);
+    TablePermission selectPermission = new TablePermission(TABLE_A).select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("NonExistentRole", selectPermission));
   }
 
@@ -115,7 +117,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("TempRole");
-    TablePermission permission = new TablePermission("NoSuchTable").select(true);
+    TablePermission permission = new TablePermission("NoSuchTable").select(SelectScope.ALL);
     assertThrows(MolgenisException.class, () -> schema.grant("TempRole", permission));
   }
 
@@ -124,18 +126,15 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("RevokeRole");
-    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("RevokeRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "RevokeRole");
 
-    // Verify access exists
     database.setActiveUser(USER_VIEWER);
     assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
 
-    // Revoke
     database.becomeAdmin();
     schema.revoke("RevokeRole", TABLE_A);
 
-    // Verify access is gone
     database.setActiveUser(USER_VIEWER);
 
     assertThrows(
@@ -147,7 +146,9 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRevokeRole");
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
+    schema.grant(
+        "PartialRevokeRole",
+        new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -158,7 +159,7 @@ class TestTableRoleManagement {
         .insert(new Row().setString("id", "r_partial").setString("value", "v"));
 
     database.becomeAdmin();
-    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).insert(false));
+    schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).insert(UpdateScope.NONE));
 
     database.setActiveUser(USER_EDITOR);
 
@@ -178,17 +179,16 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("FalseNullRole");
-    // Grant select=true, insert=true, then revoke insert with false
-    schema.grant("FalseNullRole", new TablePermission(TABLE_A).select(true).insert(true));
-    schema.grant("FalseNullRole", new TablePermission(TABLE_A).insert(false));
+    schema.grant(
+        "FalseNullRole",
+        new TablePermission(TABLE_A).select(SelectScope.ALL).insert(UpdateScope.ALL));
+    schema.grant("FalseNullRole", new TablePermission(TABLE_A).insert(UpdateScope.NONE));
 
     Role info = schema.getRoleInfo("FalseNullRole");
     TablePermission p = info.permissions().getFirst();
     assertEquals(TABLE_A, p.table());
-    assertEquals(Boolean.TRUE, p.select(), "select should still be true");
-    // After revoking insert, it should no longer appear as true
-    assertNull(p.insert(), "insert should be null after revoke (not true)");
-    // update and delete were never granted
+    assertEquals(SelectScope.ALL, p.select(), "select should still be ALL");
+    assertNull(p.insert(), "insert should be null after revoke (not granted)");
     assertNull(p.update());
     assertNull(p.delete());
   }
@@ -198,7 +198,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("LifecycleRole");
-    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "LifecycleRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -226,34 +226,35 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MetaRole");
-    schema.grant("MetaRole", new TablePermission(TABLE_A).select(true).update(true));
+    schema.grant(
+        "MetaRole", new TablePermission(TABLE_A).select(SelectScope.ALL).update(UpdateScope.ALL));
 
     Role info = schema.getRoleInfo("MetaRole");
     assertEquals(1, info.permissions().size());
 
     TablePermission p = info.permissions().getFirst();
     assertEquals(TABLE_A, p.table());
-    assertEquals(Boolean.TRUE, p.select());
-    assertEquals(Boolean.TRUE, p.update());
+    assertEquals(SelectScope.ALL, p.select());
+    assertEquals(UpdateScope.ALL, p.update());
     assertNull(p.insert());
     assertNull(p.delete());
   }
 
   @Test
-  void getRoleInfosIncludesCustomRoles() {
+  void getRolesIncludesCustomRoles() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ListedRole");
-    List<Role> all = schema.getRoleInfos();
+    List<Role> all = schema.getRoles();
     assertTrue(all.stream().anyMatch(r -> r.name().equals("ListedRole")));
   }
 
   static Stream<Arguments> systemRolePermissions() {
     return Stream.of(
-        Arguments.of("Viewer", true, null, null, null),
-        Arguments.of("Editor", true, true, true, true),
-        Arguments.of("Manager", true, true, true, true),
-        Arguments.of("Owner", true, true, true, true),
+        Arguments.of("Viewer", SelectScope.ALL, null, null, null),
+        Arguments.of("Editor", SelectScope.ALL, UpdateScope.ALL, UpdateScope.ALL, UpdateScope.ALL),
+        Arguments.of("Manager", SelectScope.ALL, UpdateScope.ALL, UpdateScope.ALL, UpdateScope.ALL),
+        Arguments.of("Owner", SelectScope.ALL, UpdateScope.ALL, UpdateScope.ALL, UpdateScope.ALL),
         Arguments.of("Exists", null, null, null, null),
         Arguments.of("Range", null, null, null, null),
         Arguments.of("Aggregator", null, null, null, null),
@@ -263,7 +264,11 @@ class TestTableRoleManagement {
   @ParameterizedTest
   @MethodSource("systemRolePermissions")
   void systemRoleReturnsExpectedPermissions(
-      String roleName, Boolean select, Boolean insert, Boolean update, Boolean delete) {
+      String roleName,
+      SelectScope select,
+      UpdateScope insert,
+      UpdateScope update,
+      UpdateScope delete) {
     database.becomeAdmin();
     Role role = database.getSchema(SCHEMA).getRoleInfo(roleName);
     assertTrue(role.isSystemRole());
@@ -283,7 +288,9 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ActiveUserRole");
-    schema.grant("ActiveUserRole", new TablePermission(TABLE_B).select(true).delete(true));
+    schema.grant(
+        "ActiveUserRole",
+        new TablePermission(TABLE_B).select(SelectScope.ALL).delete(UpdateScope.ALL));
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -291,8 +298,8 @@ class TestTableRoleManagement {
     assertEquals(1, perms.size());
     TablePermission p = perms.getFirst();
     assertEquals(TABLE_B, p.table());
-    assertEquals(Boolean.TRUE, p.select());
-    assertEquals(Boolean.TRUE, p.delete());
+    assertEquals(SelectScope.ALL, p.select());
+    assertEquals(UpdateScope.ALL, p.delete());
     assertNull(p.insert());
     assertNull(p.update());
   }
@@ -307,7 +314,7 @@ class TestTableRoleManagement {
     database.setActiveUser(USER_NO_ACCESS);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
     assertTrue(
-        perms.isEmpty() || perms.stream().noneMatch(p -> Boolean.TRUE.equals(p.select())),
+        perms.isEmpty() || perms.stream().noneMatch(p -> p.select() == SelectScope.ALL),
         "User with no grants should have no select permissions");
   }
 
@@ -316,8 +323,8 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("MergeGrantRole");
-    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).select(true));
-    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).insert(true));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
+    schema.grant("MergeGrantRole", new TablePermission(TABLE_A).insert(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "MergeGrantRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -327,8 +334,8 @@ class TestTableRoleManagement {
             .filter(p -> TABLE_A.equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
-    assertEquals(Boolean.TRUE, merged.select());
-    assertEquals(Boolean.TRUE, merged.insert());
+    assertEquals(SelectScope.ALL, merged.select());
+    assertEquals(UpdateScope.ALL, merged.insert());
     assertNull(merged.update());
     assertNull(merged.delete());
 
@@ -349,16 +356,12 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
 
-    // anonymous gets Viewer, so select on all tables
     schema.addMember("anonymous", "Viewer");
 
-    // custom role only grants insert on TABLE_A
     schema.createRole("InsertOnly");
-    schema.grant("InsertOnly", new TablePermission(TABLE_A).insert(true));
+    schema.grant("InsertOnly", new TablePermission(TABLE_A).insert(UpdateScope.ALL));
     schema.addMember(USER_VIEWER, "InsertOnly");
 
-    // every user inherits anonymous privileges via PostgreSQL role inheritance,
-    // so the user should see merged permissions: select from anonymous + insert from InsertOnly
     database.setActiveUser(USER_VIEWER);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
     TablePermission merged =
@@ -366,12 +369,11 @@ class TestTableRoleManagement {
             .filter(p -> TABLE_A.equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("No permission entry for " + TABLE_A));
-    assertEquals(Boolean.TRUE, merged.select(), "select should be merged from anonymous Viewer");
-    assertEquals(Boolean.TRUE, merged.insert(), "insert should be merged from InsertOnly role");
+    assertEquals(SelectScope.ALL, merged.select(), "select should be merged from anonymous Viewer");
+    assertEquals(UpdateScope.ALL, merged.insert(), "insert should be merged from InsertOnly role");
     assertNull(merged.update());
     assertNull(merged.delete());
 
-    // clean up to avoid leaking anonymous Viewer into other tests
     database.becomeAdmin();
     schema.removeMember("anonymous");
     schema.removeMember(USER_VIEWER);

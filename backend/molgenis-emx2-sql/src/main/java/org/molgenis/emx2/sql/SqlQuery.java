@@ -11,6 +11,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
@@ -21,6 +22,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -28,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
-  public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
+  public static int AGGREGATE_COUNT_THRESHOLD = 10;
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
   public static final String MAX_FIELD = "max";
@@ -147,9 +149,18 @@ public class SqlQuery extends QueryBean {
     // joins, only filtered tables
     from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
 
+    // row-hide: for each single-valued FK targeting an RLS-enabled table, join to expose
+    // mg_groups/mg_owner and build a visibility predicate
+    List<Condition> fkVisibility = fkRlsVisibilityConditions(table, tableAlias, select, from);
+
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
-    SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
+    List<Condition> allConditions = new ArrayList<>(fkVisibility);
+    if (condition != null) {
+      allConditions.add(condition);
+    }
+    SelectConnectByStep<org.jooq.Record> where =
+        allConditions.isEmpty() ? from : from.where(allConditions);
     SelectConnectByStep<org.jooq.Record> query =
         limitOffsetOrderBy(table, select, where, tableAlias);
 
@@ -202,7 +213,7 @@ public class SqlQuery extends QueryBean {
               .getRoleManager()
               .getTablePermissionsForActiveUser(schema.getName())
               .stream()
-              .filter(p -> Boolean.TRUE.equals(p.select()))
+              .filter(p -> p.select() != SelectScope.NONE)
               .map(TablePermission::table)
               .collect(Collectors.toUnmodifiableSet());
     }
@@ -707,32 +718,36 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(getCountField(table).as(COUNT_FIELD));
       } else if (EXISTS_FIELD.equals(field.getColumn())) {
-        if (schema.hasActiveUserRole(EXISTS.toString())) {
+        if (existsFieldAllowed(table)) {
           fields.add(field("COUNT(*) > 0").as(EXISTS_FIELD));
         }
-      } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
-        checkHasViewPermission(table);
+      } else if (List.of(MAX_FIELD, MIN_FIELD).contains(field.getColumn())) {
+        requireSelectCapability(table, SelectScope::allowsMinMax, "min/max not allowed on table '");
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = getColumnByName(table, sub.getColumn());
-          switch (field.getColumn()) {
-            case MAX_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
-            case MIN_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
-            case AVG_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            case SUM_FIELD ->
-                result.add(
-                    key(c.getIdentifier())
-                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default ->
-                throw new MolgenisException(
-                    "Unknown aggregate type provided: " + field.getColumn());
+          if (MAX_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+          } else {
+            result.add(
+                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+          }
+        }
+        fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
+      } else if (List.of(AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
+        requireSelectCapability(table, SelectScope::allowsAvgSum, "avg/sum not allowed on table '");
+        List<JSONEntry<?>> result = new ArrayList<>();
+        for (SelectColumn sub : field.getSubselect()) {
+          Column c = getColumnByName(table, sub.getColumn());
+          if (AVG_FIELD.equals(field.getColumn())) {
+            result.add(
+                key(c.getIdentifier())
+                    .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+          } else {
+            result.add(
+                key(c.getIdentifier())
+                    .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -741,19 +756,60 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Integer> getCountField(SqlTableMetadata table) {
-    if (table.getTableType() == TableType.ONTOLOGIES) return count();
-    if (schema.hasActiveUserRole(COUNT.toString())) {
-      return count();
-    } else if (getTablesWithSelectPermission().contains("*")
-        || getTablesWithSelectPermission().contains(table.getTableName())) {
-      return count();
-    } else if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
-      return field("GREATEST(COUNT(*),{0})", Integer.class, 10L);
-    } else if (schema.hasActiveUserRole(RANGE.toString())) {
-      return field("CEIL(COUNT(*)::numeric / {0}) * {0}", Integer.class, 10L);
+  private void requireSelectCapability(
+      SqlTableMetadata table, Predicate<SelectScope> capability, String errorPrefix) {
+    Set<SelectScope> scopes = effectiveSelectScopes(table);
+    if (scopes.isEmpty()
+        && !schema.getDatabase().getRoleManager().hasCustomRoleForUser(schema.getName())) {
+      return;
     }
-    throw new MolgenisException("Need permission >= RANGE to perform count queries");
+    if (scopes.stream().noneMatch(capability)) {
+      throw new MolgenisException(errorPrefix + table.getTableName() + "'");
+    }
+  }
+
+  private Set<SelectScope> effectiveSelectScopes(SqlTableMetadata table) {
+    return schema.getDatabase().getRoleManager().getEffectiveSelectScopes(schema.getName(), table);
+  }
+
+  private Field<Long> getCountField(SqlTableMetadata table) {
+    if (table.getTableType() == TableType.ONTOLOGIES) return count().cast(Long.class);
+    SelectScope customScope =
+        schema.getDatabase().getRoleManager().getCustomRoleSelectScope(schema.getName(), table);
+    if (customScope != null) {
+      if (customScope.allowsExactCount()) return count().cast(Long.class);
+      if (customScope == SelectScope.COUNT || customScope == SelectScope.AGGREGATE) {
+        return field("GREATEST(COUNT(*),{0})", Long.class, 10L);
+      }
+      if (customScope == SelectScope.RANGE) {
+        return field("\"MOLGENIS\".mg_privacy_count(COUNT(*))", Long.class);
+      }
+      throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
+    }
+    if (schema.hasActiveUserRole(COUNT.toString())
+        || getTablesWithSelectPermission().contains("*")
+        || getTablesWithSelectPermission().contains(table.getTableName())) {
+      return count().cast(Long.class);
+    }
+    if (schema.hasActiveUserRole(AGGREGATOR.toString())) {
+      return field("GREATEST(COUNT(*),{0})", Long.class, 10L);
+    }
+    if (schema.hasActiveUserRole(RANGE.toString())) {
+      return field("\"MOLGENIS\".mg_privacy_count(COUNT(*))", Long.class);
+    }
+    throw new MolgenisException("Count not allowed on table '" + table.getTableName() + "'");
+  }
+
+  private boolean existsFieldAllowed(SqlTableMetadata table) {
+    SqlRoleManager roleManager = schema.getDatabase().getRoleManager();
+    SelectScope customScope = roleManager.getCustomRoleSelectScope(schema.getName(), table);
+    if (customScope != null) {
+      return customScope.allowsRowAccess() || customScope == SelectScope.EXISTS;
+    }
+    if (roleManager.hasCustomRoleForUser(schema.getName())) {
+      return false;
+    }
+    return schema.hasActiveUserRole(EXISTS.toString());
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -769,6 +825,7 @@ public class SqlQuery extends QueryBean {
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNt or SUM is required when using group by");
     }
+    requireSelectCapability(table, SelectScope::allowsGroupBy, "groupBy not allowed on table '");
 
     // filter conditions
     Condition condition = null;
@@ -914,9 +971,13 @@ public class SqlQuery extends QueryBean {
     // root and intermediate levels have mg_tableclass column
     Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
     while (inheritedTable != null) {
-      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
+      List<Field<?>> using = new ArrayList<>(inheritedTable.getPrimaryKeyFields());
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
+      }
+      if (Boolean.TRUE.equals(inheritedTable.getRlsEnabled())) {
+        using.add(field(name(MG_OWNER_COLUMN)));
+        using.add(field(name(MG_GROUPS_COLUMN)));
       }
       result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       inheritedTable = inheritedTable.getInheritedTable();
@@ -926,10 +987,14 @@ public class SqlQuery extends QueryBean {
     }
     // join subclass tables also
     for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
+      List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
       mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
+      }
+      if (Boolean.TRUE.equals(table.getRlsEnabled())) {
+        using.add(field(name(MG_OWNER_COLUMN)));
+        using.add(field(name(MG_GROUPS_COLUMN)));
       }
       result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
@@ -1031,6 +1096,91 @@ public class SqlQuery extends QueryBean {
       }
     }
     return join;
+  }
+
+  private static final String MG_CAN_REFERENCE_SQL =
+      "\"MOLGENIS\".mg_can_reference({0}, {1}, {2}, {3})";
+
+  private List<Condition> fkRlsVisibilityConditions(
+      TableMetadata table,
+      String tableAlias,
+      SelectColumn selection,
+      SelectJoinStep<org.jooq.Record> join) {
+
+    List<Condition> conditions = new ArrayList<>();
+    if (selection == null) {
+      return conditions;
+    }
+
+    for (SelectColumn select : selection.getSubselect()) {
+      Column column = getColumnByName(table, select.getColumn());
+      if (column.isRef()) {
+        Condition c = refRlsVisibilityCondition(column, tableAlias, join);
+        if (c != null) conditions.add(c);
+      } else if (column.isRefArray() && column.getReferences().size() == 1) {
+        Condition c = refArrayRlsVisibilityCondition(column, tableAlias);
+        if (c != null) conditions.add(c);
+      }
+    }
+
+    return conditions;
+  }
+
+  private Condition refRlsVisibilityCondition(
+      Column column, String tableAlias, SelectJoinStep<org.jooq.Record> join) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return null;
+    }
+
+    String rlsAlias = alias(tableAlias + "-rls-" + column.getName());
+
+    join.leftJoin(refTable.getJooqTable().as(alias(rlsAlias)))
+        .on(refJoinCondition(column, tableAlias, rlsAlias));
+
+    Condition fkIsNull =
+        and(
+            column.getReferences().stream()
+                .map(ref -> field(name(alias(tableAlias), ref.getName())).isNull())
+                .toList());
+
+    Condition targetVisible =
+        condition(
+            MG_CAN_REFERENCE_SQL,
+            inline(refTable.getSchemaName()),
+            inline(refTable.getTableName()),
+            field(name(alias(rlsAlias), MG_GROUPS_COLUMN)),
+            field(name(alias(rlsAlias), MG_OWNER_COLUMN)));
+
+    return or(fkIsNull, targetVisible);
+  }
+
+  private static final String REF_ARRAY_ALL_VISIBLE_SQL =
+      "({0} IS NULL OR cardinality({0}) = 0"
+          + " OR NOT EXISTS ("
+          + "SELECT 1 FROM unnest({0}) AS _rls_elem"
+          + " LEFT JOIN {1} _rls_t ON _rls_t.{2} = _rls_elem"
+          + " WHERE NOT \"MOLGENIS\".mg_can_reference({3}, {4}, _rls_t.{5}, _rls_t.{6})"
+          + "))";
+
+  private Condition refArrayRlsVisibilityCondition(Column column, String tableAlias) {
+    TableMetadata refTable = column.getRefTable();
+    if (!Boolean.TRUE.equals(refTable.getRlsEnabled())) {
+      return null;
+    }
+
+    Reference ref = column.getReferences().get(0);
+    Field<Object> arrayField = field(name(alias(tableAlias), ref.getName()));
+
+    return condition(
+        REF_ARRAY_ALL_VISIBLE_SQL,
+        arrayField,
+        refTable.getJooqTable(),
+        name(ref.getRefTo()),
+        inline(refTable.getSchemaName()),
+        inline(refTable.getTableName()),
+        name(MG_GROUPS_COLUMN),
+        name(MG_OWNER_COLUMN));
   }
 
   private Condition refJoinCondition(Column column, String tableAlias, String subAlias) {

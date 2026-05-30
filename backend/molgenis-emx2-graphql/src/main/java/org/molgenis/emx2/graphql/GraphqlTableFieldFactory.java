@@ -17,9 +17,12 @@ import graphql.Scalars;
 import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.ReferenceScope;
+import org.molgenis.emx2.PermissionSet.SelectScope;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +52,14 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
+
+  private record SchemaPermissionView(
+      Set<String> selectTables, Set<String> referenceTables, boolean isSystemViewer) {}
+
   final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
-  private final Set<String> tablesWithSelectPermission;
+  private final Map<String, SchemaPermissionView> permissionsBySchemaName =
+      new ConcurrentHashMap<>();
 
   // cache so we can reuse types between tables
   private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
@@ -65,11 +73,30 @@ public class GraphqlTableFieldFactory {
 
   public GraphqlTableFieldFactory(Schema schema) {
     this.schema = schema;
-    this.tablesWithSelectPermission =
-        schema.getPermissionsForActiveUser().stream()
-            .filter(p -> Boolean.TRUE.equals(p.select()))
-            .map(TablePermission::table)
-            .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private SchemaPermissionView permissionsFor(String schemaName) {
+    return permissionsBySchemaName.computeIfAbsent(
+        schemaName,
+        name -> {
+          Schema target =
+              name.equals(schema.getName()) ? schema : schema.getDatabase().getSchema(name);
+          Set<String> sel =
+              target.getPermissionsForActiveUser().stream()
+                  .filter(p -> p.select() != null && p.select() != SelectScope.NONE)
+                  .map(TablePermission::table)
+                  .collect(Collectors.toUnmodifiableSet());
+          Set<String> ref =
+              target.getPermissionsForActiveUser().stream()
+                  .filter(
+                      p ->
+                          (p.reference() != null && p.reference() != ReferenceScope.NONE)
+                              || (p.select() != null && p.select().allowsRowAccess()))
+                  .map(TablePermission::table)
+                  .collect(Collectors.toUnmodifiableSet());
+          boolean isViewer = target.getInheritedRolesForActiveUser().contains(VIEWER.toString());
+          return new SchemaPermissionView(sel, ref, isViewer);
+        });
   }
 
   // helper to generate globally unique identifiers
@@ -173,6 +200,19 @@ public class GraphqlTableFieldFactory {
     return tableTypes.get(tableObjectType);
   }
 
+  private GraphQLNamedOutputType createReferenceOnlyType(TableMetadata table) {
+    String tableObjectType = getTableTypeIdentifier(table);
+    if (!tableTypes.containsKey(tableObjectType)) {
+      tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
+      GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
+      for (Column col : table.getPrimaryKeyColumns()) {
+        createTableField(col, tableBuilder);
+      }
+      tableTypes.put(tableObjectType, tableBuilder.build());
+    }
+    return tableTypes.get(tableObjectType);
+  }
+
   private void createTableField(Column col, GraphQLObjectType.Builder tableBuilder) {
     String id = col.getIdentifier();
     switch (col.getColumnType().getBaseType()) {
@@ -253,6 +293,11 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
+        } else if (hasReferencePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(createReferenceOnlyType(col.getRefTable())));
         }
         break;
       case REF_ARRAY:
@@ -282,6 +327,11 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.ORDERBY)
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
+        } else if (hasReferencePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(GraphQLList.list(createReferenceOnlyType(col.getRefTable()))));
         }
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
@@ -308,10 +358,19 @@ public class GraphqlTableFieldFactory {
   }
 
   boolean hasViewPermission(TableMetadata table) {
-    return table.getTableType().equals(ONTOLOGIES)
-        || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())
-        || tablesWithSelectPermission.contains("*")
-        || tablesWithSelectPermission.contains(table.getTableName());
+    if (table.getTableType().equals(ONTOLOGIES)) return true;
+    SchemaPermissionView perm = permissionsFor(table.getSchemaName());
+    return perm.isSystemViewer()
+        || perm.selectTables().contains("*")
+        || perm.selectTables().contains(table.getTableName());
+  }
+
+  boolean hasReferencePermission(TableMetadata table) {
+    if (table.getTableType().equals(ONTOLOGIES)) return true;
+    SchemaPermissionView perm = permissionsFor(table.getSchemaName());
+    return perm.isSystemViewer()
+        || perm.referenceTables().contains("*")
+        || perm.referenceTables().contains(table.getTableName());
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -930,7 +989,8 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
+      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()
+          && hasViewPermission(table)) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -963,12 +1023,11 @@ public class GraphqlTableFieldFactory {
         GraphQLArgument.newArgument().name("strict").type(Scalars.GraphQLBoolean).build());
 
     for (Table table : schema.getTablesSorted()) {
-      // if no pkey is provided, you cannot delete rows
-      if (!schema.getMetadata().getTableMetadata(table.getName()).getPrimaryKeys().isEmpty()) {
+      TableMetadata tableMeta = schema.getMetadata().getTableMetadata(table.getName());
+      if (!tableMeta.getPrimaryKeys().isEmpty() && hasViewPermission(tableMeta)) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
-                // reuse same input as insert
                 .type(
                     GraphQLList.list(
                         GraphQLTypeReference.typeRef(

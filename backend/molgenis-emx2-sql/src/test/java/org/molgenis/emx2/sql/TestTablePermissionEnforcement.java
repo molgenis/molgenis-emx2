@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.PermissionSet.SelectScope;
+import org.molgenis.emx2.PermissionSet.UpdateScope;
 
 /** Tests that table-level permissions are actually enforced at the SQL layer. */
 class TestTablePermissionEnforcement {
@@ -47,7 +49,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ViewerRole");
-    schema.grant("ViewerRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("ViewerRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "ViewerRole");
 
     database.setActiveUser(USER_VIEWER);
@@ -73,15 +75,12 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRole");
-    // Grant access to TABLE_A only
-    schema.grant("PartialRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("PartialRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "PartialRole");
 
     database.setActiveUser(USER_VIEWER);
 
-    // TABLE_A: should succeed
     assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
-    // TABLE_B: should fail – no grant
     assertThrows(
         Exception.class, () -> database.getSchema(SCHEMA).getTable(TABLE_B).retrieveRows());
   }
@@ -93,7 +92,11 @@ class TestTablePermissionEnforcement {
     schema.createRole("EditorRole");
     schema.grant(
         "EditorRole",
-        new TablePermission(TABLE_A).select(true).insert(true).update(true).delete(true));
+        new TablePermission(TABLE_A)
+            .select(SelectScope.ALL)
+            .insert(UpdateScope.ALL)
+            .update(UpdateScope.ALL)
+            .delete(UpdateScope.ALL));
     schema.addMember(USER_EDITOR, "EditorRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -107,7 +110,6 @@ class TestTablePermissionEnforcement {
     List<Row> rows = schema.getTable(TABLE_A).retrieveRows();
     assertTrue(rows.stream().anyMatch(r -> "r_editor".equals(r.getString("id"))));
 
-    // Cleanup
     schema.getTable(TABLE_A).delete(new Row().setString("id", "r_editor"));
   }
 
@@ -116,8 +118,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ReadOnlyRole");
-    // Only SELECT – no insert/update/delete
-    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_EDITOR, "ReadOnlyRole");
 
     database.setActiveUser(USER_EDITOR);
@@ -138,7 +139,6 @@ class TestTablePermissionEnforcement {
     schema.addMember(USER_NO_ACCESS, "EmptyRole");
 
     database.setActiveUser(USER_NO_ACCESS);
-    // Ontology tables should be accessible regardless of grants
     List<Row> rows = database.getSchema(SCHEMA).getTable(ONTOLOGY_TABLE).retrieveRows();
     assertNotNull(rows);
   }
@@ -148,11 +148,10 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("CountRole");
-    schema.grant("CountRole", new TablePermission(TABLE_A).select(true));
+    schema.grant("CountRole", new TablePermission(TABLE_A).select(SelectScope.ALL));
     schema.addMember(USER_VIEWER, "CountRole");
 
     database.setActiveUser(USER_VIEWER);
-    // A user with table-level SELECT (but no VIEWER/COUNT role) should be able to query
     List<Row> rows = database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows();
     assertFalse(rows.isEmpty(), "User with SELECT permission should see rows and thus count > 0");
   }

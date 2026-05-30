@@ -67,6 +67,9 @@ class SqlTableMetadataExecutor {
                 + ": not found");
       }
       executeSetInherit(jooq, table, table.getInheritedTable());
+      if (Boolean.TRUE.equals(table.getInheritedTable().getRlsEnabled())) {
+        table.enableRlsOnSingleTable();
+      }
     }
 
     // then create columns
@@ -100,6 +103,9 @@ class SqlTableMetadataExecutor {
     // add meta columns (only superclass table)
     if (table.getInheritName() == null) {
       executeAddMetaColumns(table);
+      if (Boolean.TRUE.equals(table.getRlsEnabled())) {
+        table.enableRlsOnSingleTable();
+      }
     }
 
     if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
@@ -279,6 +285,12 @@ class SqlTableMetadataExecutor {
     try {
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
+
+      // drop RLS policies/triggers before touching columns they reference
+      // (use IF-EXISTS drops, safe even when RLS is not enabled)
+      SqlDatabase sqlDb = (SqlDatabase) table.getSchema().getDatabase();
+      SqlRoleManager roleManager = new SqlRoleManager(sqlDb);
+      roleManager.disableRlsForTable(sqlDb.getSchema(table.getSchemaName()), table.getTableName());
 
       // drop search trigger
       jooq.execute(

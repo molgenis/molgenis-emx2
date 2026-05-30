@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import org.jooq.exception.DataAccessException;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.postgresql.util.PSQLException;
 
@@ -24,15 +25,24 @@ public class SqlMolgenisException extends MolgenisException {
             : title + ": " + e.getMessage());
   }
 
+  private static final String COLUMN_DENIED_PREFIX = "permission denied for column ";
+
   private static String getTitle(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       PSQLException cause = (PSQLException) dae.getCause();
       if (cause.getServerErrorMessage() != null) {
         String message = cause.getServerErrorMessage().getMessage();
         if (cause.getSQLState().equals("57014")) {
-          // i.e. message.equals("canceling statement due to user request")
-          // might because of our timeout setting in SqlDatabase, therefore rewrite:
           message = "canceling statement due to timeout or by user request";
+        } else if (cause.getSQLState().equals("42501")
+            && message != null
+            && message.startsWith(COLUMN_DENIED_PREFIX)) {
+          String columnName = message.substring(COLUMN_DENIED_PREFIX.length());
+          if (Constants.MG_OWNER_COLUMN.equals(columnName)) {
+            return "cannot change row owner";
+          } else if (Constants.MG_GROUPS_COLUMN.equals(columnName)) {
+            return "cannot change row groups";
+          }
         }
         return message;
       } else {

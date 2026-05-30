@@ -89,19 +89,33 @@ public class TestGraphqlDatabaseFields {
     assertFalse(result.contains(SCHEMA_NAME + "B"));
 
     execute("mutation{createSchema(name:\"" + SCHEMA_NAME + "B\"){message}}");
-    assertNotNull(database.getSchema(SCHEMA_NAME + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(SCHEMA_NAME + "B"));
+
+    assertFalse(
+        result.contains("updated description"),
+        "Pre-condition: schema must not have description before update");
 
     execute(
         "mutation{updateSchema(name:\""
             + SCHEMA_NAME
             + "B\", description: \"updated description\"){message}}");
-    String description = database.getSchemaInfo(SCHEMA_NAME + "B").description();
-    assertEquals("updated description", description);
+
+    String descriptionAfterUpdate = schemaDescriptionViaGraphql(SCHEMA_NAME + "B");
+    assertEquals("updated description", descriptionAfterUpdate);
 
     execute("mutation{deleteSchema(id:\"" + SCHEMA_NAME + "B\"){message}}");
     assertNull(database.getSchema(SCHEMA_NAME + "B"));
+  }
+
+  private String schemaDescriptionViaGraphql(String schemaName) throws IOException {
+    JsonNode schemas = execute("{_schemas{name,description}}").at("/data/_schemas");
+    for (JsonNode schema : schemas) {
+      if (schemaName.equals(schema.path("name").asText())) {
+        return schema.path("description").asText(null);
+      }
+    }
+    return null;
   }
 
   @Test

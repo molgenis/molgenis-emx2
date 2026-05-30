@@ -54,7 +54,21 @@ public interface Schema {
 
   void removeMember(String user);
 
-  List<String> getRoles();
+  List<Role> getRoles();
+
+  List<Group> getGroups();
+
+  void changeRoles(List<Role> roles);
+
+  void changeGroups(List<Group> groups);
+
+  void changeMembers(List<Member> members);
+
+  void dropRoles(List<String> roleNames);
+
+  void dropGroups(List<String> groupNames);
+
+  void dropMembers(List<Member> members);
 
   String getRoleForUser(String user);
 
@@ -92,7 +106,7 @@ public interface Schema {
 
   Role getRoleInfo(String roleName);
 
-  List<Role> getRoleInfos();
-
   List<TablePermission> getPermissionsForActiveUser();
+
+  PermissionSet getPermissions(String roleName);
 }

@@ -97,7 +97,7 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
-    List<String> currentRoles = schema.getRoles();
+    List<String> currentRoles = schema.getRoles().stream().map(Role::name).toList();
     List<Member> currentMembers = schema.getMembers();
 
     if (!currentRoles.contains(member.getRole())) {
@@ -170,10 +170,9 @@ class SqlSchemaMetadataExecutor {
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {
     List<Member> members = new ArrayList<>();
 
-    // retrieve all role members
     String roleFilter = getRolePrefix(schema.getName());
     String userFilter = Constants.MG_USER_PREFIX;
-    List<Record> result =
+    List<Record> directMembers =
         jooq.fetch(
             "select distinct m.rolname as member, r.rolname as role"
                 + " from pg_catalog.pg_auth_members am "
@@ -181,11 +180,13 @@ class SqlSchemaMetadataExecutor {
                 + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
                 + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
             roleFilter + "%", userFilter + "%");
-    for (Record r : result) {
+    for (Record r : directMembers) {
       String memberName = r.getValue("member", String.class).substring(userFilter.length());
       String roleName = r.getValue("role", String.class).substring(roleFilter.length());
       members.add(new Member(memberName, roleName));
     }
+
+    members.addAll(MetadataUtils.fetchDirectAndGroupMembers(jooq, schema.getName()));
 
     return members;
   }

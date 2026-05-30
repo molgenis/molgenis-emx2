@@ -2,8 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +22,7 @@ class SqlDatabaseTest {
 
   @Test
   void OIDCFlagDefaultsFalse() {
-    Map<String, String> settings = Maps.newHashMap();
-    sqlDatabase.setSettings(settings);
+    sqlDatabase.removeSetting(Constants.IS_OIDC_ENABLED);
     assertFalse(sqlDatabase.isOidcEnabled());
   }
 
@@ -33,12 +30,9 @@ class SqlDatabaseTest {
   void enableOIDCFlagViaSettings() {
     environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_ID, "id");
     environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "ssst");
-    Map<String, String> settings = Maps.newHashMap();
-    settings.put(Constants.IS_OIDC_ENABLED, "true");
-    sqlDatabase.setSettings(settings);
+    sqlDatabase.setSetting(Constants.IS_OIDC_ENABLED, "true");
     assertTrue(sqlDatabase.isOidcEnabled());
-    settings.put(Constants.IS_OIDC_ENABLED, "false");
-    sqlDatabase.setSettings(settings);
+    sqlDatabase.setSetting(Constants.IS_OIDC_ENABLED, "false");
     assertFalse(sqlDatabase.isOidcEnabled());
   }
 }
