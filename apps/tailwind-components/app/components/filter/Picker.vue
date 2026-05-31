@@ -332,7 +332,7 @@ function updateVisibility(value: boolean) {
               </label>
               <button
                 type="button"
-                class="flex items-center shrink-0 cursor-pointer"
+                class="rounded-full h-6 w-6 flex items-center justify-center shrink-0 cursor-pointer text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover"
                 :aria-expanded="expandedRefs.has(node.id)"
                 :aria-label="`Expand ${node.label}`"
                 @click.stop="toggleExpand(node)"
@@ -355,6 +355,7 @@ function updateVisibility(value: boolean) {
                 type="button"
                 class="flex items-center gap-1.5 text-left cursor-pointer hover:underline min-w-0"
                 :aria-expanded="expandedRefs.has(node.id)"
+                :aria-label="`Expand ${node.label}`"
                 @click="toggleExpand(node)"
               >
                 <span

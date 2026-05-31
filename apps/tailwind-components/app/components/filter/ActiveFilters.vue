@@ -26,7 +26,8 @@ const hasAnyContent = computed(
     v-if="hasAnyContent"
     class="flex flex-wrap items-center gap-3 bg-sidebar-gradient rounded-input px-3 py-2 mb-2"
   >
-    <span class="text-search-filter-group-title text-xs whitespace-nowrap mr-1"
+    <span
+      class="text-search-filter-group-title text-body-sm whitespace-nowrap mr-1"
       >Active filters</span
     >
 
@@ -82,11 +83,7 @@ const hasAnyContent = computed(
           <div class="font-bold">
             <ColumnLabel :label-parts="filter.labelParts" />
           </div>
-          <ul
-            v-if="filter.values.length > 1"
-            style="list-style-type: disc"
-            class="pl-3"
-          >
+          <ul v-if="filter.values.length > 1" class="list-disc pl-3">
             <li v-for="item in filter.values" :key="item">
               {{ item }}
             </li>

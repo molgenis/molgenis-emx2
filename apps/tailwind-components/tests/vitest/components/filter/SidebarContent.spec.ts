@@ -392,6 +392,19 @@ describe("SidebarContent", () => {
   });
 
   describe("Clear / Remove N selected label", () => {
+    it("remove/clear action is a <button> element (keyboard-reachable)", async () => {
+      const filterStates = new Map<string, IFilterValue>([
+        ["col1", { operator: "equals", value: ["termA"] }],
+      ]);
+      const wrapper = mountSidebarContent(["col1"], filterStates);
+      await wrapper.vm.$nextTick();
+      const removeBtn = wrapper
+        .findAll("button")
+        .find((b) => b.text().includes("selected") || b.text() === "Clear");
+      expect(removeBtn).toBeDefined();
+      expect(removeBtn!.element.tagName.toLowerCase()).toBe("button");
+    });
+
     it("single selection (array of 1) renders 'Remove 1 selected'", async () => {
       const filterStates = new Map<string, IFilterValue>([
         ["col1", { operator: "equals", value: ["termA"] }],

@@ -18,7 +18,7 @@ const ariaLabel = computed(() =>
         <span>{{ part }}</span
         ><span
           v-if="i < labelParts.length - 1"
-          class="text-gray-400"
+          class="text-breadcrumb-arrow"
           aria-hidden="true"
           >&nbsp;→&nbsp;</span
         >

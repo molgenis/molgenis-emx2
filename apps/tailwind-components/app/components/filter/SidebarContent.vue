@@ -140,8 +140,9 @@ function handlePickerApply(
           "
         />
       </h3>
-      <span
+      <button
         v-if="filters.filterStates.value.has(column.id)"
+        type="button"
         class="text-body-sm text-search-filter-action hover:underline cursor-pointer grow text-right"
         @click.stop="filters.removeFilter(column.id)"
       >
@@ -149,7 +150,7 @@ function handlePickerApply(
           Remove {{ getFilterSelectionCount(column.id) }} selected
         </template>
         <template v-else>Clear</template>
-      </span>
+      </button>
       <span
         class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
         :class="{ 'rotate-180': filters.isCollapsed(column.id) }"
