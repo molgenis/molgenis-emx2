@@ -58,8 +58,10 @@
         <ActiveFilters
           v-if="enableFilters && filters"
           :filters="filters.activeFilters.value"
+          :search-value="filters.searchValue.value"
           @remove="filters.removeFilter"
           @clear-all="filters.clearFilters"
+          @clear-search="filters.setSearch('')"
         />
         <slot v-else name="active-filters" />
 
@@ -187,11 +189,11 @@
             </table>
             <div
               class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="!rows"
+              v-if="rows.length === 0"
             >
               <TextNoResultsMessage
                 class="w-full text-center"
-                label="No records found"
+                :label="emptyRowsLabel"
               />
             </div>
           </div>
@@ -289,6 +291,14 @@
     @update:cancelled="afterClose"
   />
 </template>
+
+<script lang="ts">
+export function resolveEmptyRowsLabel(hasFiltersOrSearch: boolean): string {
+  return hasFiltersOrSearch
+    ? "No data matched the filters"
+    : "No records found";
+}
+</script>
 
 <script setup lang="ts">
 import {
@@ -505,6 +515,16 @@ watch(
 
 const rows = computed(() =>
   Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+);
+
+const hasFiltersOrSearch = computed(
+  () =>
+    (filters?.activeFilters.value.length ?? 0) > 0 ||
+    (filters?.searchValue.value ?? "").length > 0
+);
+
+const emptyRowsLabel = computed(() =>
+  resolveEmptyRowsLabel(hasFiltersOrSearch.value)
 );
 
 const showDraftColumn = computed(() =>

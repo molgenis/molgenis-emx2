@@ -387,6 +387,7 @@ module.exports = {
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
         footer: "var(--border-color-footer)",
+        "filter-divider": "var(--border-color-filter-divider)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",

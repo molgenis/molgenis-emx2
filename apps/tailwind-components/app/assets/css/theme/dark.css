@@ -53,6 +53,7 @@
   --background-color-pagination: var(--color-gray-600);
   --background-color-pagination-hover: var(--color-gray-700);
   --background-color-hover: var(--color-gray-900);
+  --background-color-search-filter-group-toggle: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
   --background-color-table: var(--color-gray-700);
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);

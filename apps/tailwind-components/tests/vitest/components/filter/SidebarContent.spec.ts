@@ -391,6 +391,46 @@ describe("SidebarContent", () => {
     );
   });
 
+  describe("Clear / Remove N selected label", () => {
+    it("single selection (array of 1) renders 'Remove 1 selected'", async () => {
+      const filterStates = new Map<string, IFilterValue>([
+        ["col1", { operator: "equals", value: ["termA"] }],
+      ]);
+      const wrapper = mountSidebarContent(["col1"], filterStates);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.html()).toContain("Remove 1 selected");
+    });
+
+    it("two selections (array of 2) renders 'Remove 2 selected'", async () => {
+      const filterStates = new Map<string, IFilterValue>([
+        ["col1", { operator: "equals", value: ["termA", "termB"] }],
+      ]);
+      const wrapper = mountSidebarContent(["col1"], filterStates);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.html()).toContain("Remove 2 selected");
+    });
+
+    it("text filter (string value) renders 'Clear', not 'Remove 1 selected'", async () => {
+      const filterStates = new Map<string, IFilterValue>([
+        ["col1", { operator: "like", value: "hello" }],
+      ]);
+      const wrapper = mountSidebarContent(["col1"], filterStates);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.html()).toContain("Clear");
+      expect(wrapper.html()).not.toContain("Remove 1 selected");
+    });
+
+    it("range filter ({between, [min,max]}) renders 'Clear', not 'Remove N selected'", async () => {
+      const filterStates = new Map<string, IFilterValue>([
+        ["col1", { operator: "between", value: [1, 100] }],
+      ]);
+      const wrapper = mountSidebarContent(["col1"], filterStates);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.html()).toContain("Clear");
+      expect(wrapper.html()).not.toContain("Remove");
+    });
+  });
+
   it("nested column with labelParts renders breadcrumb with separator and aria-label", async () => {
     const nestedMeta = new Map<string, NestedColumnMeta>([
       [
@@ -414,7 +454,7 @@ describe("SidebarContent", () => {
 
     const separators = wrapper.findAll('span[aria-hidden="true"]');
     expect(separators.length).toBeGreaterThan(0);
-    expect(separators[0].text()).toContain("→");
+    expect(separators[0]!.text()).toContain("→");
 
     const labelHost = wrapper.find('[aria-label="Publisher / Country"]');
     expect(labelHost.exists()).toBe(true);

@@ -61,6 +61,15 @@ function getFilterSelectionCount(columnId: string): number {
   return filterValue.value ? 1 : 0;
 }
 
+function isSelectionFilter(columnId: string): boolean {
+  const filterValue = props.filters.filterStates.value.get(columnId);
+  return (
+    filterValue !== undefined &&
+    filterValue.operator === "equals" &&
+    Array.isArray(filterValue.value)
+  );
+}
+
 function handlePickerApply(
   selectedIds: Set<string>,
   nestedMeta: Map<string, NestedColumnMeta>
@@ -110,7 +119,7 @@ function handlePickerApply(
     v-for="column in props.filters.visibleColumns.value"
     :key="column.id"
   >
-    <hr class="border-black opacity-10 mx-5" />
+    <hr class="border-t border-filter-divider mx-5" />
     <div
       class="p-5 flex items-center gap-1 cursor-pointer group"
       role="button"
@@ -136,13 +145,13 @@ function handlePickerApply(
         class="text-body-sm text-search-filter-action hover:underline cursor-pointer grow text-right"
         @click.stop="filters.removeFilter(column.id)"
       >
-        <template v-if="getFilterSelectionCount(column.id) > 1">
+        <template v-if="isSelectionFilter(column.id)">
           Remove {{ getFilterSelectionCount(column.id) }} selected
         </template>
         <template v-else>Clear</template>
       </span>
       <span
-        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle transition-transform shrink-0"
+        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
         :class="{ 'rotate-180': filters.isCollapsed(column.id) }"
       >
         <BaseIcon name="caret-up" :width="26" />

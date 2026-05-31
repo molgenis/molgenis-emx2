@@ -108,7 +108,7 @@
     --background-color-navigation-dynamic: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
-    --background-color-search-filter-group-toggle: var(--color-blue-800);
+    --background-color-search-filter-group-toggle: var(--color-blue-50);
     --background-color-pagination: var(--color-white);
     --background-color-pagination-hover: var(--color-white);
     --background-color-pagination-input: var(--color-white);
@@ -234,6 +234,7 @@
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-footer: var(--border-color-theme);
+    --border-color-filter-divider: var(--color-gray-200);
 
     --border-width-theme: 1px;
     --border-width-form-required: 1px;

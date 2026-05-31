@@ -5,9 +5,9 @@ import "floating-vue/dist/style.css";
 import ActiveFilters from "../../../../app/components/filter/ActiveFilters.vue";
 import type { ActiveFilter } from "../../../../types/filters";
 
-function mountComponent(filters: ActiveFilter[]) {
+function mountComponent(filters: ActiveFilter[], searchValue?: string) {
   return mount(ActiveFilters, {
-    props: { filters },
+    props: { filters, searchValue },
     global: { plugins: [FloatingVue] },
   });
 }
@@ -116,5 +116,48 @@ describe("ActiveFilters", () => {
     const wrapper = mountComponent([ontologyFilter]);
     expect(wrapper.html()).toContain("Heart Disease");
     expect(wrapper.html()).not.toContain("ncit_C123");
+  });
+});
+
+describe("ActiveFilters — search chip", () => {
+  it("search term appears as an active filter chip when searchValue is non-empty", () => {
+    const wrapper = mountComponent([], "hello world");
+    expect(wrapper.find("div").exists()).toBe(true);
+    expect(wrapper.html()).toContain("Search");
+    expect(wrapper.html()).toContain("hello world");
+  });
+
+  it("clicking the search chip X clears the search via clearSearch emit", async () => {
+    const wrapper = mountComponent([], "my query");
+    const buttons = wrapper.findAll("button");
+    const searchChipButton = buttons[0]!;
+    await searchChipButton.trigger("click");
+    expect(wrapper.emitted("clearSearch")).toBeTruthy();
+  });
+
+  it("existing column chips are unaffected when searchValue is also present", () => {
+    const wrapper = mountComponent([singleFilter], "term");
+    expect(wrapper.html()).toContain("Status");
+    expect(wrapper.html()).toContain("active");
+    expect(wrapper.html()).toContain("Search");
+    expect(wrapper.html()).toContain("term");
+  });
+
+  it("no search chip rendered when searchValue is empty string", () => {
+    const wrapper = mountComponent([singleFilter], "");
+    const searchChips = wrapper
+      .findAll("button")
+      .filter((b) => b.text().includes("Search"));
+    expect(searchChips).toHaveLength(0);
+    expect(wrapper.html()).toContain("Status");
+  });
+
+  it("no search chip rendered when searchValue is undefined", () => {
+    const wrapper = mountComponent([singleFilter], undefined);
+    const html = wrapper.html();
+    const searchChips = wrapper
+      .findAll("button")
+      .filter((b) => b.text().includes("Search"));
+    expect(searchChips).toHaveLength(0);
   });
 });

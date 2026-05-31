@@ -47,6 +47,5 @@ watch(inputText, (val) => debouncedEmitText(val));
     v-model="inputText"
     :placeholder="`Search ${column.label || column.id}...`"
     :aria-label="column.label || column.id"
-    size="tiny"
   />
 </template>

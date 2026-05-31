@@ -48,7 +48,7 @@
   --text-color-button-primary: var(--color-white);
   --text-color-button-primary-hover: var(--color-orange-500);
   --text-color-button-secondary: var(--color-white);
-  --text-color-button-secondary-hover: var(--color-white);
+  --text-color-button-secondary-hover: var(--color-gray-900);
   --text-color-button-tertiary: var(--color-white);
   --text-color-button-tertiary-hover: var(--color-white);
   --text-color-button-outline: var(--color-umcg-dark-blue);

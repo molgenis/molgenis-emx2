@@ -53,7 +53,7 @@
   --text-color-button-primary: var(--color-gray-900);
   --text-color-button-primary-hover: var(--color-gray-900);
   --text-color-button-secondary: var(--color-white);
-  --text-color-button-secondary-hover: var(--color-white);
+  --text-color-button-secondary-hover: var(--color-gray-900);
   --text-color-button-tertiary: var(--color-white);
   --text-color-button-tertiary-hover: var(--color-white);
   --text-color-button-outline: var(--color-blue-500);
@@ -141,6 +141,7 @@
 
   --border-width-theme: 0px;
   --border-color-footer: var(--background-color-footer);
+  --border-color-filter-divider: rgba(51, 51, 51, 0.1);
 
   --outline-color-select: var(--color-gray-200);
 

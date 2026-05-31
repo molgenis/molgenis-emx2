@@ -35,6 +35,7 @@
   --background-color-button-primary: var(--color-orange-500);
   --background-color-button-primary-hover: var(--color-orange-200);
   --background-color-search-results-view-tabs: var(--color-blue-300);
+  --background-color-search-filter-group-toggle: var(--color-blue-500);
 
   --background-color-footer: var(--color-blue-800);
   --background-color-modal-footer: var(--color-blue-800);

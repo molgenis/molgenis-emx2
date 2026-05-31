@@ -106,6 +106,7 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+const enableFilters = true;
 </script>
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
@@ -119,23 +120,26 @@ const { isAdmin, session } = await useSession(schemaId);
       </template>
     </PageHeader>
 
-    <TableEMX2
-      :schemaId="schemaId"
-      :tableId="tableId"
-      v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-    >
-      <template #additional-row-actions="{ row }">
-        <Button
-          :id="useId()"
-          :icon-only="true"
-          type="inline"
-          icon="info"
-          size="small"
-          label="view row details"
-          @click="handleViewRowRequest(row)"
-        />
-      </template>
-    </TableEMX2>
+    <div :class="enableFilters ? 'lg:-ml-[30px] lg:w-[calc(100%+30px)]' : ''">
+      <TableEMX2
+        :schemaId="schemaId"
+        :tableId="tableId"
+        :enable-filters="enableFilters"
+        v-model:settings="tableSettings"
+        :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      >
+        <template #additional-row-actions="{ row }">
+          <Button
+            :id="useId()"
+            :icon-only="true"
+            type="inline"
+            icon="info"
+            size="small"
+            label="view row details"
+            @click="handleViewRowRequest(row)"
+          />
+        </template>
+      </TableEMX2>
+    </div>
   </div>
 </template>
