@@ -2,7 +2,11 @@ import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { ref, computed } from "vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
-import type { UseFilters, IFilterValue } from "../../../../types/filters";
+import type {
+  UseFilters,
+  IFilterValue,
+  NestedColumnMeta,
+} from "../../../../types/filters";
 import type { CountedOption } from "../../../../app/utils/fetchCounts";
 import SidebarContent from "../../../../app/components/filter/SidebarContent.vue";
 import FilterPicker from "../../../../app/components/filter/Picker.vue";
@@ -51,15 +55,14 @@ vi.mock("../../../../app/components/input/Search.vue", () => ({
 
 function synthesizeMockColumn(
   id: string,
-  nestedMeta: Map<
-    string,
-    { label: string; labelParts?: string[]; columnType: string }
-  >
+  nestedMeta: Map<string, NestedColumnMeta>
 ): IColumn {
   const nested = nestedMeta.get(id);
   return {
     id,
-    label: nested?.label ?? (id.includes(".") ? "" : `Label ${id}`),
+    label:
+      nested?.labelParts?.join(" / ") ??
+      (id.includes(".") ? "" : `Label ${id}`),
     columnType: nested?.columnType ?? "ONTOLOGY",
     table: "TestTable",
     position: 0,
@@ -73,10 +76,7 @@ function makeCountedOptions(names: string[]): CountedOption[] {
 function makeFilters(
   visibleIds: string[],
   filterStatesMap: Map<string, IFilterValue> = new Map(),
-  nestedMeta: Map<
-    string,
-    { label: string; labelParts?: string[]; columnType: string }
-  > = new Map(),
+  nestedMeta: Map<string, NestedColumnMeta> = new Map(),
   collapsedSet: Set<string> = new Set()
 ): UseFilters {
   const visibleFilterIds = ref(visibleIds);
@@ -303,11 +303,10 @@ describe("SidebarContent", () => {
   });
 
   it("nested column columnType comes from nestedColumnMeta when available", async () => {
-    const nestedMeta = new Map([
+    const nestedMeta = new Map<string, NestedColumnMeta>([
       [
         "publisher.country",
         {
-          label: "publisher → country",
           labelParts: ["Publisher", "Country"],
           columnType: "ONTOLOGY",
         },
@@ -336,7 +335,7 @@ describe("SidebarContent", () => {
     await pickerComponent.vm.$emit(
       "apply",
       new Set<string>(),
-      new Map<string, { label: string; columnType: string }>()
+      new Map<string, NestedColumnMeta>()
     );
     await wrapper.vm.$nextTick();
 
@@ -360,11 +359,10 @@ describe("SidebarContent", () => {
 
   it("renders Column (not skeleton) for dotted id once nestedColumnMeta resolves", async () => {
     const nestedMeta = ref(
-      new Map([
+      new Map<string, NestedColumnMeta>([
         [
           "publisher.country",
           {
-            label: "publisher → country",
             labelParts: ["Publisher", "Country"],
             columnType: "ONTOLOGY",
           },
@@ -394,11 +392,10 @@ describe("SidebarContent", () => {
   });
 
   it("nested column with labelParts renders breadcrumb with separator and aria-label", async () => {
-    const nestedMeta = new Map([
+    const nestedMeta = new Map<string, NestedColumnMeta>([
       [
         "publisher.country",
         {
-          label: "publisher → country",
           labelParts: ["Publisher", "Country"],
           columnType: "ONTOLOGY",
         },
@@ -419,7 +416,7 @@ describe("SidebarContent", () => {
     expect(separators.length).toBeGreaterThan(0);
     expect(separators[0].text()).toContain("→");
 
-    const labelHost = wrapper.find('[aria-label="Publisher → Country"]');
+    const labelHost = wrapper.find('[aria-label="Publisher / Country"]');
     expect(labelHost.exists()).toBe(true);
   });
 });

@@ -177,7 +177,6 @@ const nestedColumnMetaRef = ref(
     [
       "owner.city",
       {
-        label: "owner → city",
         labelParts: ["Owner", "City"],
         columnType: "ONTOLOGY",
         refTableId: "Cities",
@@ -209,8 +208,9 @@ const activeFilters = computed<ActiveFilter[]>(() => {
   for (const [columnId, filterValue] of filterStatesRef.value) {
     const column = columns.find((col) => col.id === columnId);
     const nestedMeta = nestedColumnMetaRef.value.get(columnId);
-    const label = nestedMeta?.label ?? column?.label ?? column?.id ?? columnId;
-    const labelParts = nestedMeta?.labelParts;
+    const labelParts = nestedMeta?.labelParts ?? [
+      column?.label ?? column?.id ?? columnId,
+    ];
     const effectiveColumn =
       column ?? ({ id: columnId, columnType: "STRING" } as IColumn);
     const optionLabels = buildLabelMap(effectiveColumn, null);
@@ -219,7 +219,7 @@ const activeFilters = computed<ActiveFilter[]>(() => {
       optionLabels
     );
     if (displayValue) {
-      result.push({ columnId, label, labelParts, displayValue, values });
+      result.push({ columnId, labelParts, displayValue, values });
     }
   }
   return result;
@@ -286,7 +286,7 @@ const visibleColumns = computed<IColumn[]>(() =>
     return {
       id,
       name: id,
-      label: nested?.label ?? id,
+      label: nested?.labelParts?.join(" / ") ?? id,
       columnType: (nested?.columnType ?? "STRING") as IColumn["columnType"],
       table: "Samples",
       position: 0,
@@ -317,8 +317,8 @@ const mockFilters: UseFilters = {
     computed(() => showCountError.value && columnId === "species"),
   nestedColumnMeta: nestedColumnMetaRef,
   registerNestedColumn: () => {},
-  schemaId: "demo",
-  tableId: "Samples",
+  schemaId: ref("demo"),
+  tableId: ref("Samples"),
   toggleCollapse: (id: string) => {
     const next = new Set(collapsedRef.value);
     if (next.has(id)) {

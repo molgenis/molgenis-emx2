@@ -43,8 +43,6 @@ export const MG_FILTERS_PARAM = "mg_filters";
 export const MG_SEARCH_PARAM = "mg_search";
 export const MAX_VISIBLE_FILTERS = 25;
 export const FILTER_DEBOUNCE = 500;
-export const NESTED_LABEL_SEPARATOR = " → ";
-
 type RouteQuery = Record<
   string,
   string | string[] | (string | null)[] | null | undefined
@@ -90,7 +88,6 @@ function filterColumns(rawColumns: IColumn[]): IColumn[] {
 
 function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
   return {
-    label: labelParts.join(NESTED_LABEL_SEPARATOR),
     labelParts,
     columnType: col.columnType,
     refTableId: col.refTableId ?? null,
@@ -134,10 +131,6 @@ export function useFilters(
   const route = useRoute();
   const router = useRouter();
 
-  function getCurrentQuery(): RouteQuery {
-    return route.query;
-  }
-
   const cachedParsedFilters = shallowRef<Map<string, IFilterValue>>(new Map());
   const cachedParsedSearch = ref("");
   let lastParsedStateKey = "";
@@ -149,7 +142,7 @@ export function useFilters(
         search: cachedParsedSearch.value,
       };
     }
-    const query = getCurrentQuery();
+    const query = route.query;
     const stateKey =
       JSON.stringify(query) + "||" + columns.value.map((c) => c.id).join(",");
     if (stateKey !== lastParsedStateKey) {
@@ -183,7 +176,7 @@ export function useFilters(
   });
 
   function getInitialVisibleFilters(): string[] {
-    const urlParam = getCurrentQuery()[MG_FILTERS_PARAM];
+    const urlParam = route.query[MG_FILTERS_PARAM];
     if (typeof urlParam === "string" && urlParam.trim()) {
       return urlParam
         .split(",")
@@ -196,7 +189,7 @@ export function useFilters(
 
   const visibleFilterIds = ref<string[]>(getInitialVisibleFilters());
   const userHasCustomized = ref(
-    typeof getCurrentQuery()[MG_FILTERS_PARAM] === "string"
+    typeof route.query[MG_FILTERS_PARAM] === "string"
   );
 
   const nestedColumnMeta = ref<Map<string, NestedColumnMeta>>(new Map());
@@ -208,7 +201,7 @@ export function useFilters(
       const nested = nestedColumnMeta.value.get(id);
       return {
         id,
-        label: nested?.label ?? "",
+        label: nested?.labelParts?.join(" / ") ?? "",
         columnType: nested?.columnType ?? "STRING",
         table: tableId.value,
         position: 0,
@@ -232,7 +225,7 @@ export function useFilters(
     return {
       id: columnId,
       columnType: nested.columnType,
-      label: nested.label,
+      label: nested.labelParts.join(" / "),
       refTableId: nested.refTableId ?? undefined,
       refSchemaId: nested.refSchemaId ?? undefined,
       refLabel: nested.refLabel ?? undefined,
@@ -474,14 +467,11 @@ export function useFilters(
       newSearch,
       columns.value
     );
-    const preserved = preserveExternalQueryParams(
-      getCurrentQuery(),
-      columns.value
-    );
+    const preserved = preserveExternalQueryParams(route.query, columns.value);
     if (userHasCustomized.value) {
       preserved[MG_FILTERS_PARAM] = visibleFilterIds.value.join(",");
     } else {
-      const mgFiltersParam = getCurrentQuery()[MG_FILTERS_PARAM];
+      const mgFiltersParam = route.query[MG_FILTERS_PARAM];
       if (mgFiltersParam !== undefined) {
         preserved[MG_FILTERS_PARAM] = mgFiltersParam;
       }
@@ -490,7 +480,7 @@ export function useFilters(
       string,
       string
     >;
-    if (queryParamsEqual(nextQuery, getCurrentQuery())) return;
+    if (queryParamsEqual(nextQuery, route.query)) return;
     router.replace({ query: nextQuery });
   }
 
@@ -543,7 +533,7 @@ export function useFilters(
     visibleFilterIds.value = [...defaultFilterIds.value];
     pruneVisibleByBaseCount();
     if (urlSync) {
-      const currentQuery = { ...getCurrentQuery() };
+      const currentQuery = { ...route.query };
       delete currentQuery[MG_FILTERS_PARAM];
       router.replace({ query: currentQuery });
     }
@@ -563,7 +553,6 @@ export function useFilters(
     filterValue: IFilterValue
   ): ActiveFilter | null {
     const column = resolveColumn(columnId);
-    const label = column?.label || column?.id || columnId;
     const optionLabels = column
       ? buildLabelMap(column, baseCounts.value.get(columnId) ?? null)
       : {};
@@ -573,11 +562,12 @@ export function useFilters(
     );
     if (!displayValue) return null;
     const nested = nestedColumnMeta.value.get(columnId);
-    const labelParts = nested?.labelParts;
+    const labelParts = nested?.labelParts ?? [
+      column?.label || column?.id || columnId,
+    ];
     return {
       columnId,
-      label,
-      ...(labelParts ? { labelParts } : {}),
+      labelParts,
       displayValue,
       values,
     };
@@ -610,14 +600,16 @@ export function useFilters(
     collapsed.value = next;
   }
 
-  const collapsedStorageKey = `mg_collapsed:${schemaId.value}:${tableId.value}`;
+  const collapsedStorageKey = computed(
+    () => `mg_collapsed:${schemaId.value}:${tableId.value}`
+  );
 
   function persistCollapsed(next: Set<string>) {
     if (typeof window === "undefined") return;
     if (next.size === 0) {
-      sessionStorage.removeItem(collapsedStorageKey);
+      sessionStorage.removeItem(collapsedStorageKey.value);
     } else {
-      sessionStorage.setItem(collapsedStorageKey, [...next].join(","));
+      sessionStorage.setItem(collapsedStorageKey.value, [...next].join(","));
     }
   }
 
@@ -639,7 +631,7 @@ export function useFilters(
   {
     const stored =
       typeof window !== "undefined"
-        ? sessionStorage.getItem(collapsedStorageKey)
+        ? sessionStorage.getItem(collapsedStorageKey.value)
         : null;
     if (stored && stored.trim()) {
       const ids = stored
@@ -736,7 +728,7 @@ export function useFilters(
     const isDefault = arraysEqual(newIds, defaultFilterIds.value);
     await nextTick();
     if (!urlSync) return;
-    const currentQuery = { ...getCurrentQuery() };
+    const currentQuery = { ...route.query };
     if (isDefault || newIds.length === 0) {
       delete currentQuery[MG_FILTERS_PARAM];
     } else {
@@ -770,7 +762,7 @@ export function useFilters(
       clearCounts();
       visibleFilterIds.value = [...defaultFilterIds.value];
       if (urlSync) {
-        const currentQuery = { ...getCurrentQuery() };
+        const currentQuery = { ...route.query };
         delete currentQuery[MG_FILTERS_PARAM];
         delete currentQuery[MG_SEARCH_PARAM];
         router.replace({ query: currentQuery });
@@ -798,8 +790,8 @@ export function useFilters(
     hasCountError,
     nestedColumnMeta,
     registerNestedColumn,
-    schemaId: schemaId.value,
-    tableId: tableId.value,
+    schemaId,
+    tableId,
     toggleCollapse,
     isCollapsed,
   };

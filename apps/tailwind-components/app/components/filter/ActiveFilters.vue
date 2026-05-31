@@ -36,10 +36,10 @@ const emit = defineEmits<{
         size="tiny"
         icon="cross"
         icon-position="right"
-        :aria-label="`Remove filter: ${filter.label}`"
+        :aria-label="`Remove filter: ${filter.labelParts.join(' / ')}`"
       >
         <span class="inline-block font-bold max-w-48 truncate align-bottom">
-          <ColumnLabel :label="filter.label" :label-parts="filter.labelParts" />
+          <ColumnLabel :label-parts="filter.labelParts" />
         </span>
         <span
           v-if="filter.values.length <= 1"
@@ -55,10 +55,7 @@ const emit = defineEmits<{
       <template #popper>
         <div class="px-1 py-0.5">
           <div class="font-bold">
-            <ColumnLabel
-              :label="filter.label"
-              :label-parts="filter.labelParts"
-            />
+            <ColumnLabel :label-parts="filter.labelParts" />
           </div>
           <ul
             v-if="filter.values.length > 1"

@@ -14,14 +14,14 @@ function mountComponent(filters: ActiveFilter[]) {
 
 const singleFilter: ActiveFilter = {
   columnId: "status",
-  label: "Status",
+  labelParts: ["Status"],
   displayValue: "active",
   values: ["active"],
 };
 
 const multiFilter: ActiveFilter = {
   columnId: "category",
-  label: "Category",
+  labelParts: ["Category"],
   displayValue: "(2)",
   values: ["dogs", "cats"],
 };
@@ -82,7 +82,7 @@ describe("ActiveFilters", () => {
   it("renders BOOL chip with 'Yes' display value (not raw 'true')", () => {
     const boolFilter: ActiveFilter = {
       columnId: "active",
-      label: "Active",
+      labelParts: ["Active"],
       displayValue: "Yes",
       values: [],
     };
@@ -94,7 +94,7 @@ describe("ActiveFilters", () => {
   it("renders multi-value BOOL chip showing 'Yes', 'No', 'Not set' in tooltip values", () => {
     const boolFilter: ActiveFilter = {
       columnId: "active",
-      label: "Active",
+      labelParts: ["Active"],
       displayValue: "3",
       values: ["Yes", "No", "Not set"],
     };
@@ -109,7 +109,7 @@ describe("ActiveFilters", () => {
   it("renders ONTOLOGY chip with label instead of name", () => {
     const ontologyFilter: ActiveFilter = {
       columnId: "type",
-      label: "Type",
+      labelParts: ["Type"],
       displayValue: "Heart Disease",
       values: [],
     };

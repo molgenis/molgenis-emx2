@@ -124,9 +124,10 @@ function handlePickerApply(
         class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
       >
         <ColumnLabel
-          :label="column.label || column.id"
           :label-parts="
-            filters.nestedColumnMeta.value.get(column.id)?.labelParts
+            filters.nestedColumnMeta.value.get(column.id)?.labelParts ?? [
+              column.label || column.id,
+            ]
           "
         />
       </h3>

@@ -22,27 +22,26 @@ describe("ColumnLabel", () => {
     expect(separator.attributes("aria-hidden")).toBe("true");
   });
 
-  it("host aria-label is the joined path when nested", () => {
+  it("host aria-label is the joined path (slash separator) when nested", () => {
     const wrapper = mount(ColumnLabel, {
       props: { labelParts: ["Owner", "City"] },
     });
-    expect(wrapper.attributes("aria-label")).toBe("Owner → City");
-  });
-
-  it("renders plain text and no separator when only label is given", () => {
-    const wrapper = mount(ColumnLabel, {
-      props: { label: "Species" },
-    });
-    expect(wrapper.text()).toBe("Species");
-    expect(wrapper.find('[aria-hidden="true"]').exists()).toBe(false);
+    expect(wrapper.attributes("aria-label")).toBe("Owner / City");
   });
 
   it("renders plain text and no separator for single-element labelParts", () => {
     const wrapper = mount(ColumnLabel, {
-      props: { label: "Species", labelParts: ["Species"] },
+      props: { labelParts: ["Species"] },
     });
     expect(wrapper.text()).toBe("Species");
     expect(wrapper.find('[aria-hidden="true"]').exists()).toBe(false);
+  });
+
+  it("single-element labelParts: no aria-label attribute on host (not needed for non-nested)", () => {
+    const wrapper = mount(ColumnLabel, {
+      props: { labelParts: ["Species"] },
+    });
+    expect(wrapper.attributes("aria-label")).toBeUndefined();
   });
 
   it("renders N-1 separators for N-part labelParts", () => {
@@ -51,6 +50,6 @@ describe("ColumnLabel", () => {
     });
     const separators = wrapper.findAll('[aria-hidden="true"]');
     expect(separators).toHaveLength(2);
-    expect(wrapper.attributes("aria-label")).toBe("A → B → C");
+    expect(wrapper.attributes("aria-label")).toBe("A / B / C");
   });
 });

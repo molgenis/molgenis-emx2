@@ -1,32 +1,29 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NESTED_LABEL_SEPARATOR } from "../../composables/useFilters";
 
 const props = defineProps<{
-  label?: string;
-  labelParts?: string[];
+  labelParts: string[];
 }>();
 
-const safeParts = computed(() => props.labelParts ?? []);
-const isNested = computed(() => safeParts.value.length > 1);
+const isNested = computed(() => props.labelParts.length > 1);
 const ariaLabel = computed(() =>
-  isNested.value ? safeParts.value.join(NESTED_LABEL_SEPARATOR) : undefined
+  isNested.value ? props.labelParts.join(" / ") : undefined
 );
 </script>
 
 <template>
   <span :aria-label="ariaLabel">
     <template v-if="isNested">
-      <template v-for="(part, i) in safeParts" :key="i">
+      <template v-for="(part, i) in labelParts" :key="i">
         <span>{{ part }}</span
         ><span
-          v-if="i < safeParts.length - 1"
+          v-if="i < labelParts.length - 1"
           class="text-gray-400"
           aria-hidden="true"
           >&nbsp;→&nbsp;</span
         >
       </template>
     </template>
-    <template v-else>{{ label }}</template>
+    <template v-else>{{ labelParts[0] }}</template>
   </span>
 </template>

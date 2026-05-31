@@ -4,8 +4,7 @@ import type { CountedOption } from "../app/utils/fetchCounts";
 
 export interface ActiveFilter {
   columnId: string;
-  label: string;
-  labelParts?: string[];
+  labelParts: string[];
   displayValue: string;
   values: string[];
 }
@@ -66,8 +65,7 @@ export interface IGraphQLFilter {
 }
 
 export interface NestedColumnMeta {
-  label: string;
-  labelParts?: string[];
+  labelParts: string[];
   columnType: string;
   refTableId?: string | null;
   refSchemaId?: string | null;
@@ -94,8 +92,8 @@ export interface UseFilters {
   hasCountError: (columnId: string) => ComputedRef<boolean>;
   nestedColumnMeta: Ref<Map<string, NestedColumnMeta>>;
   registerNestedColumn: (id: string, meta: NestedColumnMeta) => void;
-  schemaId: string;
-  tableId: string;
+  schemaId: Ref<string> | ComputedRef<string>;
+  tableId: Ref<string> | ComputedRef<string>;
   toggleCollapse: (columnId: string) => void;
   isCollapsed: (columnId: string) => boolean;
 }

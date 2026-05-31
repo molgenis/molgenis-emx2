@@ -17,7 +17,6 @@ import {
 } from "../../utils/filterUtils";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import type { NestedColumnMeta } from "../../../types/filters";
-import { NESTED_LABEL_SEPARATOR } from "../../composables/useFilters";
 
 interface PickerNode {
   id: string;
@@ -243,7 +242,6 @@ function buildNestedMeta(): Map<string, NestedColumnMeta> {
       const entry: [string, NestedColumnMeta] = [
         id,
         {
-          label: labelParts.join(NESTED_LABEL_SEPARATOR),
           labelParts,
           columnType: node.column.columnType,
           refTableId: node.column.refTableId,

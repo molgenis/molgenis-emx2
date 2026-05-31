@@ -164,7 +164,7 @@ describe("useFilters — activeFilters computation", () => {
     expect(activeFilters.value).toEqual([]);
   });
 
-  it("builds active filter with label and displayValue", () => {
+  it("builds active filter with labelParts and displayValue", () => {
     const columns = ref(allColumns);
     const { activeFilters, setFilter } = useFilters(columns, {
       schemaId: "test",
@@ -173,7 +173,7 @@ describe("useFilters — activeFilters computation", () => {
     setFilter("status", { operator: "equals", value: ["active"] });
     expect(activeFilters.value).toHaveLength(1);
     expect(activeFilters.value[0]!.columnId).toBe("status");
-    expect(activeFilters.value[0]!.label).toBe("Status");
+    expect(activeFilters.value[0]!.labelParts).toEqual(["Status"]);
     expect(activeFilters.value[0]!.displayValue).toBe("active");
   });
 
@@ -188,7 +188,7 @@ describe("useFilters — activeFilters computation", () => {
     expect(activeFilters.value[0]!.values).toEqual(["active", "inactive"]);
   });
 
-  it("falls back to columnId as label when column has no label", () => {
+  it("falls back to columnId as labelParts when column has no label", () => {
     const columns = ref<IColumn[]>([
       { id: "status", columnType: "ONTOLOGY" } as IColumn,
     ]);
@@ -197,7 +197,7 @@ describe("useFilters — activeFilters computation", () => {
       tableId: "table1",
     });
     setFilter("status", { operator: "equals", value: ["active"] });
-    expect(activeFilters.value[0]!.label).toBe("status");
+    expect(activeFilters.value[0]!.labelParts).toEqual(["status"]);
   });
 });
 
@@ -458,7 +458,7 @@ describe("useFilters — visibleColumns synthesis", () => {
     );
 
     registerNestedColumn("contact.email", {
-      label: "Contact → Email",
+      labelParts: ["Contact", "Email"],
       columnType: "STRING",
     });
     toggleFilter("contact.email");
@@ -472,7 +472,7 @@ describe("useFilters — visibleColumns synthesis", () => {
     const synthesized = result.find((c) => c.id === "contact.email");
     expect(synthesized).toEqual({
       id: "contact.email",
-      label: "Contact → Email",
+      label: "Contact / Email",
       columnType: "STRING",
       table: "table1",
       position: 0,
@@ -488,11 +488,11 @@ describe("useFilters — nested column meta", () => {
       tableId: "table1",
     });
     registerNestedColumn("publisher.country", {
-      label: "publisher → country",
+      labelParts: ["publisher", "country"],
       columnType: "ONTOLOGY",
     });
     expect(nestedColumnMeta.value.get("publisher.country")).toEqual({
-      label: "publisher → country",
+      labelParts: ["publisher", "country"],
       columnType: "ONTOLOGY",
     });
   });
@@ -521,7 +521,7 @@ describe("useFilters — nested column meta", () => {
       tableId: "table1",
     });
     registerNestedColumn("publisher.country", {
-      label: "publisher → country",
+      labelParts: ["publisher", "country"],
       columnType: "ONTOLOGY",
     });
     setFilter("publisher.country", {
@@ -564,7 +564,7 @@ describe("useFilters — hydrateNestedFilters", () => {
     await flushPromises();
 
     const meta = nestedColumnMeta.value.get("publisher.country");
-    expect(meta?.label).toBe("Publisher → Country");
+    expect(meta?.labelParts).toEqual(["Publisher", "Country"]);
     expect(meta?.columnType).toBe("ONTOLOGY");
   });
 
@@ -588,7 +588,10 @@ describe("useFilters — hydrateNestedFilters", () => {
       defaultFilters: ["a.b"],
     });
 
-    registerNestedColumn("a.b", { label: "A → B", columnType: "STRING" });
+    registerNestedColumn("a.b", {
+      labelParts: ["A", "B"],
+      columnType: "STRING",
+    });
     rawColumns.value = [parentCol];
     await flushPromises();
 
