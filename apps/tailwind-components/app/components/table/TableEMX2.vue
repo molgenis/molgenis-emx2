@@ -161,7 +161,7 @@
       </table>
       <div
         class="sticky left-0 flex justify-center items-center py-2.5"
-        v-if="!rows?.length"
+        v-if="!rows"
       >
         <TextNoResultsMessage
           class="w-full text-center"
@@ -174,7 +174,7 @@
   <div
     class="p-2.5 text-right font-normal align-middle text-table-column-header"
   >
-    Showing {{ Math.min((settings.page - 1) * settings.pageSize, count) }} to
+    Showing {{ (settings.page - 1) * settings.pageSize }} to
     {{ Math.min(settings.page * settings.pageSize, count) }} of
     {{ count }} items
   </div>
