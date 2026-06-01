@@ -342,7 +342,7 @@ jobs:
       - run:
           name: UI tests
           command: |
-            export E2E_BASE_URL=http://localhost:8080/
+            export E2E_BASE_URL=http://localhost:8080/apps/ui/
             pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
