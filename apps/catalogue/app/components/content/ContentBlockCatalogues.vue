@@ -48,7 +48,7 @@ defineProps<{
             <NuxtLink :to="`/${catalogue.id}`">
               <span
                 class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
-                >{{ catalogue.acronym ?? catalogue.id }}</span
+                >{{ catalogue.acronym || catalogue.id }}</span
               >
             </NuxtLink>
           </TableCell>
