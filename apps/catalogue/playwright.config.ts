@@ -2,6 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
 
 export default defineConfig<ConfigOptions>({
+  webServer: {
+    command: "node .output/server/index.mjs",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -13,7 +19,7 @@ export default defineConfig<ConfigOptions>({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
-    ? [["list"], ["junit", { outputFile: "results.xml" }]]
+    ? [["list"], ["junit", { outputFile: "test-results/results.xml" }]]
     : "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

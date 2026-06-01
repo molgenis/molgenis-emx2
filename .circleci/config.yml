@@ -215,10 +215,16 @@ jobs:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
 
+      - run:
+          name: build ssr catalogue
+          command: pnpm build
+          working_directory: apps/catalogue
+
       - persist_to_workspace:
           root: .
           paths:
             - build/libs
+            - apps/catalogue/.output
 
   my-e2e-test:
     resource_class: large
@@ -355,6 +361,12 @@ jobs:
             export MOLGENIS_OIDC_DISCOVERY_URL=${OIDC_DISCOVERYURL}
             pnpm install
             npx playwright test --config e2e e2e/tests     
+
+      - run:
+          name: Test nuxt ssr catalogue tests
+          command: |
+            pnpm exec playwright test
+          working_directory: apps/catalogue
 
       - store_test_results:
           path: apps/tailwind-components/test-results
