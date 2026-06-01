@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
-defineProps<{
+const props = defineProps<{
   columns: any[];
   rows: any[];
 }>();
@@ -41,6 +41,39 @@ function calculateVerticalBarHeight(event: MouseEvent) {
     bar.style.bottom = Math.floor(offset) + "px";
   }
 }
+const hasHorizontalScrollbar = ref(false);
+const hasVerticalScrollbar = ref(false);
+
+function checkScrollbars() {
+  const el = scrollElement.value;
+  if (el) {
+    hasHorizontalScrollbar.value = el.scrollWidth > el.clientWidth;
+    hasVerticalScrollbar.value = el.scrollHeight > el.clientHeight;
+  }
+}
+
+let resizeObserver: ResizeObserver;
+
+onMounted(() => {
+  checkScrollbars();
+  if (scrollElement.value) {
+    resizeObserver = new ResizeObserver(checkScrollbars);
+    resizeObserver.observe(scrollElement.value);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+});
+
+watch(
+  () => [props.columns, props.rows],
+  async () => {
+    await nextTick();
+    checkScrollbars();
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -101,11 +134,11 @@ function calculateVerticalBarHeight(event: MouseEvent) {
       </tbody>
     </table>
     <div
-      v-if="!scrollYAtEnd"
+      v-if="hasHorizontalScrollbar && !scrollXAtEnd"
       class="flex items-center justify-items-end absolute z-100 right-0 inset-y-0 w-10 bg-gradient-to-r from-[rgba(255,255,255,0)] to-white pointer-events-none transition-opacity"
     ></div>
     <div
-      v-if="!scrollXAtEnd"
+      v-if="hasVerticalScrollbar && !scrollYAtEnd"
       class="flex items-center justify-items-end absolute z-100 bottom-0 inset-x-0 h-10 bg-gradient-to-b from-[rgba(255,255,255,0)] to-white pointer-events-none transition-opacity"
     ></div>
   </div>
