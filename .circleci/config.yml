@@ -282,6 +282,10 @@ jobs:
           name: start the application in the background
           command: |
             export $( cat build/ci.properties | xargs )
+            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
             nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
