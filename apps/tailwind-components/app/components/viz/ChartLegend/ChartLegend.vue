@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import ChartLegendMarker from "./ChartLegendMarker.vue";
 
 interface ILegendProps {
   legendId: string;
