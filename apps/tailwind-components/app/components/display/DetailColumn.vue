@@ -17,6 +17,13 @@ import type {
   IColumn,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
+import type {
+  cellPayload,
+} from "../../../types/types";
+
+const emit = defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
 const props = withDefaults(
   defineProps<{
@@ -162,12 +169,12 @@ function handleRefClick() {
     class="text-link hover:underline"
     @click.prevent="handleRefClick"
   >
-    <ValueEMX2 :metadata="column" :data="value" />
+    <ValueEMX2 :metadata="column" :data="value" @valueClick="emit('valueClick', $event)" />
   </a>
   <OntologyTreeDisplay
     v-else-if="isHierarchicalOntology"
     :value="value"
     :maxItems="maxItems"
   />
-  <ValueEMX2 v-else :metadata="column" :data="value" :maxItems="maxItems" />
+  <ValueEMX2 v-else :metadata="column" :data="value" :maxItems="maxItems" @valueClick="emit('valueClick', $event)" />
 </template>

@@ -62,16 +62,16 @@ const columnName = computed<string>(() => {
 });
 
 //computed elements to translate to CheckboxGroup or
-const listOptions = computed(() => {
+const listOptions = computed((): IValueLabel[] => {
   return Object.keys(optionMap.value).map((label) => {
-    return { value: label } as IValueLabel;
+    return { value: label };
   });
 });
 
-const selection = computed(() =>
+const selection = computed((): string | string[] | undefined =>
   props.isArray
-    ? (Object.keys(selectionMap.value) as string[])
-    : (Object.keys(selectionMap.value)[0] as string)
+    ? Object.keys(selectionMap.value)
+    : Object.keys(selectionMap.value)[0]
 );
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
@@ -84,8 +84,6 @@ watch(
   () => props.refTableId,
   () => init
 );
-
-// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
 watch(
   () => modelValue.value,
   () => init
@@ -100,14 +98,12 @@ async function init() {
     props.refSchemaId,
     props.refTableId
   );
-
+  const isModalValueArray = Array.isArray(modelValue.value);
   if (
     modelValue.value &&
-    (Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value)
+    (isModalValueArray ? modelValue.value.length : modelValue.value)
   ) {
-    const keys = Array.isArray(modelValue.value)
+    const keys = isModalValueArray
       ? await Promise.all(
           (modelValue.value as []).map((row) => extractPrimaryKey(row))
         )
@@ -244,6 +240,7 @@ async function select(label: string) {
       ? Object.values(selectionMap.value)
       : Object.values(selectionMap.value)[0]
   );
+  onBlur();
 }
 
 async function extractPrimaryKey(row: recordValue) {
@@ -265,13 +262,14 @@ function deselect(label: string) {
     selectionMap.value = {};
     emit("update:modelValue", null);
   }
+  onBlur();
 }
 
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : null);
   onBlur();
-  updateSearch(""); //reset
+  updateSearch("");
 }
 
 function loadMore() {
@@ -436,7 +434,7 @@ const onBlur = useDebounceFn(() => {
     <TextNoResultsMessage label="No options available" />
   </div>
   <Button
-    v-if="isArray ? selection.length : selection"
+    v-if="isArray ? selection?.length : selection"
     @click="clearSelection"
     type="text"
     size="tiny"

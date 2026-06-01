@@ -42,6 +42,14 @@ const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
   { label: "Pages", url: "" },
 ];
+
+function setNuxtLink(value: string, page: string): string | undefined {
+  if (value.endsWith(".Developer pages")) {
+    return `/${schema}/pages/${page}/editor`;
+  } else {
+    return `/${schema}/pages/${page}/configure`;
+  }
+}
 </script>
 
 <template>
@@ -60,12 +68,11 @@ const crumbs: Crumb[] = [
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
-          v-if="container.mg_tableclass === 'cms.Developer pages'"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="`/${schema}/pages/${container.name}/edit`"
+            :to="setNuxtLink(container.mg_tableclass, container.name)"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />

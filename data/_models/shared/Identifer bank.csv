@@ -1,0 +1,5 @@
+tableName,tableExtends,columnName,columnType,label,computed,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,defaultValue,visible,semantics,description,profiles
+Sample identifiers,,,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,Auto-generated sample identifiers,Patient registry id bank
+Sample identifiers,,id,auto_id,,"ERD-S-${mg_autoid(format=numbers,length=6)}",1,true,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"An auto generated ID that follows this format: ""ERD-S-*""",Patient registry id bank
+Experiment identifiers,,,,,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,Auto-generated experiment identifiers,Patient registry id bank
+Experiment identifiers,,id,auto_id,,"ERD-E-${mg_autoid(format=numbers,length=6)}",1,true,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"An auto generated ID that follows this format: ""ERD-E-*""",Patient registry id bank

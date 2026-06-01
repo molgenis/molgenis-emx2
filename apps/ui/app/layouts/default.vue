@@ -10,7 +10,7 @@
     <div class="z-30 relative min-h-screen flex flex-col">
       <Header>
         <template #logo>
-          <Logo link="/" />
+          <Logo link="/" :image="logoUrl" />
         </template>
         <template #nav>
           <Navigation :navigation="userMenuItems" />
@@ -49,7 +49,7 @@
           />
         </template>
         <template #logo-mobile>
-          <LogoMobile link="/" />
+          <LogoMobile link="/" :image="logoUrl" />
         </template>
         <template #nav-mobile>
           <Navigation :navigation="menuItems" />
@@ -71,7 +71,7 @@
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -83,11 +83,22 @@ import FooterVersion from "../../../tailwind-components/app/components/FooterVer
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 import type { MenuItem } from "../../../tailwind-components/types/types";
+import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
+
+const LOGO_URL_SETTING = "logoURL";
+const settings = await useSettings(new Set([LOGO_URL_SETTING]));
+let logoUrl: string | undefined = undefined;
+if (
+  settings.value?.[LOGO_URL_SETTING] &&
+  typeof settings.value[LOGO_URL_SETTING] === "string"
+) {
+  logoUrl = settings.value[LOGO_URL_SETTING];
+}
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -206,6 +217,7 @@ const menuItems: Ref<MenuItem[]> = computed(() => {
       link: item.link,
       isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
       role: item.role,
+      submenu: item.submenu,
     };
   });
 });
@@ -215,17 +227,31 @@ const userMenuItems = computed(() => {
     return menuItems.value;
   }
 
-  return menuItems.value.filter((item) => {
+  const isVisibleToUser = (item: MenuItem): boolean => {
     if (item.role) {
       if (session.value?.roles && Array.isArray(session.value.roles)) {
         return session.value.roles.includes(item.role);
       } else {
-        // used for system app where user has no schema role
-        return item.role === "Admin" && isAdmin.value;
+        return item.role === "Admin" && isAdmin.value === true;
       }
     }
-    return true; // If no role is specified, show the item
-  });
+    return true;
+  };
+
+  const removeInvisibleSubmenus = (items: MenuItem[]): MenuItem[] => {
+    return items
+      .filter(isVisibleToUser)
+      .map((item) => {
+        if (item.submenu && item.submenu.length > 0) {
+          return { ...item, submenu: removeInvisibleSubmenus(item.submenu) };
+        }
+        return item;
+      })
+      .filter((item) => !item.submenu || item.submenu.length > 0);
+  };
+
+  const visibleMenuItems = menuItems.value.filter(isVisibleToUser);
+  return removeInvisibleSubmenus(visibleMenuItems);
 });
 </script>
 

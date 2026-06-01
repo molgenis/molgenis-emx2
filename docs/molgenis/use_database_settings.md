@@ -2,6 +2,40 @@
 
 See setting menu.
 
+### New ui (tailwind-based) settings (Alpha non-stable feature)
+
+#### Landing page
+Set the landing page with the optional SCHEMA_LANDING_PAGE setting
+
+ - key: ```SCHEMA_LANDING_PAGE```
+ - value: a string containing valid json object with the following properties:
+
+```ts
+interface Link {
+    link: string;
+    isSpaLink?: boolean;
+}
+```
+
+example with external link ( i.e. all links outside of the 'ui' app)
+
+```json
+{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+```
+
+example with internal link ( i.e. all within of the 'ui' app)
+
+```json
+{"link": "pet%20store/Pet", "isSpaLink": true}
+```
+
+
+#### Main menu logo
+Set a custom logo in the main menu with the optional logoURL setting
+
+- key: ```logoURL```
+- value: a string containing logo location
+
 ## Members
 
 ## Layout
@@ -9,9 +43,9 @@ See setting menu.
 ## Menu
 
 
-### New ui (tailwind based) menu
-With no configuration, the new ui shows a fix of internal and external links .
-Both the default menu and the user defined menu use the following configuration:
+### New ui (tailwind-based) menu (Alpha non-stable feature)
+With no configuration, the new ui shows a mix of internal and external links.
+Both the default menu and the user-defined menu use the following configuration:
 
 ```ts
 type Menu = MenuItem[];
@@ -35,7 +69,7 @@ The user defined menu is stored in the database in the schema settings.
 **Important**: 
  - The settings key used is ```tw-menu```
  - The settings value should be a valid JSON array
- - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab. and so should not have a schema prefix
+ - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab. Schema prefix should be included preceded by a slash.
  - External links should have the property ```isSpaLink``` set to false, and should have a schema prefix if they are related to a specific schema. The schema prefix is the name of the schema followed by a slash, for example: ```pet%20store/schema```. If the link is not related to a specific schema, it should not have a schema prefix, for example: ```https://www.google.com```.
 
 Example: 
@@ -66,7 +100,7 @@ Example:
     "isSpaLink": false,
     "role": "Manager"
   },
-
+  { "label": "My Pets", "link": "/pet%20store/Pet", "isSpaLink": true },
   {
     "label": "Help",
     "link": "pet%20store/docs",

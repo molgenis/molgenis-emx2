@@ -70,4 +70,5 @@
   --background-color-input-focused: var(--color-orange-500);
   --border-color-input-focused: var(--color-orange-500);
   --text-color-input-focused: var(--color-white);
+  --border-color-footer: var(--background-color-footer);
 }

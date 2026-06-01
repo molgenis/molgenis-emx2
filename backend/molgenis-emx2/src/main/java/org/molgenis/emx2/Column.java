@@ -471,7 +471,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         field(name(getName() + "_contents"), SQLDataType.BINARY));
   }
 
-  public Boolean isArray() {
+  public boolean isArray() {
     return this.columnType.isArray();
   }
 

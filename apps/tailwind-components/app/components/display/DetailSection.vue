@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ISectionField } from "../../../types/types";
+import type { ISectionField, cellPayload } from "../../../types/types";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
 import RecordColumn from "./DetailColumn.vue";
+
+const emit = defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
 const props = withDefaults(
   defineProps<{
@@ -85,6 +89,7 @@ const isSingleListSection = computed(
             :show-empty="showEmpty"
             :schema-id="schemaId"
             :parent-row-id="parentRowId"
+            @valueClick="emit('valueClick', $event)"
           />
         </DefinitionListDefinition>
       </template>
@@ -113,6 +118,7 @@ const isSingleListSection = computed(
             :show-empty="showEmpty"
             :schema-id="schemaId"
             :parent-row-id="parentRowId"
+            @valueClick="emit('valueClick', $event)"
           />
         </dd>
       </div>

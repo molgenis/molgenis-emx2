@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.hostUrl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,11 +20,8 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 
-// TODO make the tasks private to schema; then you need schema edit or manager to view them
-// TODO move into graphql api, so it is documentation and less silly
 public class TaskApi {
 
-  // todo, make jobs private to the user?
   public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
@@ -49,7 +47,6 @@ public class TaskApi {
     app.get("/api/tasks/{id}/delete", TaskApi::deleteTask);
 
     // also works in context schema
-    // todo: make tasks scoped?
     app.get("/{schema}/api/tasks", TaskApi::listTasks);
     app.get("/{schema}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/api/tasks/{id}", TaskApi::getTask);
@@ -72,14 +69,17 @@ public class TaskApi {
   }
 
   private static void viewScheduledTasks(Context ctx) throws JsonProcessingException {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to view scheduled tasks: can only be done by admin");
+    }
+
     // mainly for testing/verification purposes
     ctx.json(new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames()));
   }
 
   private static void postScript(Context ctx) {
-    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
-    if (!database.isAdmin()) {
-      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Submit task failed: can only be done by admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
     String parameters = ctx.body();
@@ -89,10 +89,10 @@ public class TaskApi {
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
-    if (!database.isAdmin()) {
-      throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Retrieve task failed: can only be done by admin");
     }
+
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
     String parameters =
         ctx.queryParam("parameters") != null
@@ -125,6 +125,10 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Retrieve task output failed: can only be done by admin");
+    }
+
     Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     Schema adminSchema = database.getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
@@ -147,17 +151,34 @@ public class TaskApi {
   }
 
   private static void clearTasks(Context ctx) {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to clear tasks: can only be done by admin");
+    }
+
     taskService.clear();
     ctx.result("{status: 'SUCCESS'}");
   }
 
   private static void deleteTask(Context ctx) {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to delete task: can only be done by admin");
+    }
+
     taskService.removeTask(ctx.pathParam("id"));
     ctx.result("{status: 'SUCCESS'}");
   }
 
+  private static boolean isAdminRequest(Context ctx) {
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
+    return database.isAdmin();
+  }
+
   private static void listTasks(Context ctx) {
-    String schema = ctx.pathParamMap().get("schema");
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to list tasks: can only be done by admin");
+    }
+
+    String schema = ctx.pathParamMap().get(SCHEMA);
     String urlRoot = schema == null ? "api/tasks/" : schema + "/api/tasks/";
     String clearUrl = urlRoot + "clear";
 
@@ -185,6 +206,10 @@ public class TaskApi {
   }
 
   private static void getTask(Context ctx) {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to get task: can only be done by admin");
+    }
+
     Task step = taskService.getTask(ctx.pathParam("id"));
     if (step == null) {
       step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);

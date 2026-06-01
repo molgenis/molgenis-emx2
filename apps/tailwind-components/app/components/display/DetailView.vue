@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useAsyncData, useHead } from "#app";
-import type { ISectionField } from "../../../types/types";
+import type { ISectionField, cellPayload } from "../../../types/types";
 import type {
   IColumn,
   IRow,
@@ -282,6 +282,10 @@ const isReady = computed(() => {
   if (!isSmartMode.value) return true;
   return processedColumns.value.length > 0 && rowData.value;
 });
+
+const emit = defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 </script>
 
 <template>
@@ -325,6 +329,7 @@ const isReady = computed(() => {
               :show-empty="showEmpty"
               :schema-id="schemaId"
               :parent-row-id="rowId"
+              @valueClick="emit('valueClick', $event)"
             />
           </div>
 

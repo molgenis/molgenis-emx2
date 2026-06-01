@@ -65,7 +65,8 @@ public class ImportDataTask extends Task {
             && !"molgenis_members".equals(sheet)
             && !schema.hasTableWithNameOrIdCaseInsensitive(sheet)) {
           this.addSubTask(
-                  "Sheet with name '" + sheet + "' was skipped: no table with that name found")
+                  "Skipped sheet with name '%s': no table with that name found"
+                      .formatted(tableName))
               .setSkipped();
         }
       }

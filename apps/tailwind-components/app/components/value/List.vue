@@ -37,10 +37,6 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "listRefCellClicked", data: ListPayload): void;
-}>();
-
 const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
@@ -56,6 +52,10 @@ const hiddenCount = computed(() => {
   if (!props.maxItems || !props.data) return 0;
   return Math.max(0, props.data.length - props.maxItems);
 });
+
+const emit = defineEmits<{
+  (e: "listRefCellClicked", data: ListPayload): void;
+}>();
 
 function handleCellClick() {
   if (!props.data) {
