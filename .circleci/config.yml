@@ -226,6 +226,7 @@ jobs:
             - build/libs
             - build/ci.properties
             - apps/catalogue/.output
+            - custom-app/
 
   my-e2e-test:
     resource_class: large
@@ -260,6 +261,10 @@ jobs:
             pnpm install @playwright/test         
             npx playwright install chrome
             npx playwright install
+
+      - run:
+          name: Put custom app next to jar
+          command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
       - run:
           name: install postgres client
