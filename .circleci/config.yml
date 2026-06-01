@@ -296,10 +296,10 @@ jobs:
             tail -200 application.log
 
       - run:
-          name: Wait for application to be up, poll every 10 seconds
+          name: Wait for application to be up, poll every 5 seconds
           command: |
             GETURL="http://localhost:8080/pet%20store/tables#/"
-            MAX_RETRIES=120
+            MAX_RETRIES=480
             RETRY=0
 
             while true; do
@@ -328,10 +328,30 @@ jobs:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            echo $E2E_BASE_URL
             pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
+
+      - run:
+          name: Directory e2e tests
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/
+            pnpm install
+            pnpm --filter directory run e2e
+          working_directory: apps
+      - run:
+          name: UI tests
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/
+            pnpm install
+            pnpm --filter ui run e2e
+          working_directory: apps
+      - run:
+          name: Run non ssr e2e tests
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/
+            pnpm install
+            npx playwright test --config e2e e2e/tests     
 
       - store_test_results:
           path: apps/tailwind-components/test-results
