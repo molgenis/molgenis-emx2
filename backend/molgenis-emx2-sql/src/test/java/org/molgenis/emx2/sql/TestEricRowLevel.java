@@ -194,9 +194,8 @@ class TestEricRowLevel {
     otherBiobank.setString("description", "HACKED_BY_" + TEST_COUNTRY + "_USER");
 
     database.setActiveUser(TEST_USER);
-    assertThrows(
-        MolgenisException.class,
-        () -> database.getSchema(SCHEMA).getTable(BIOBANKS).update(otherBiobank));
+    Table biobankTable = database.getSchema(SCHEMA).getTable(BIOBANKS);
+    assertThrows(MolgenisException.class, () -> biobankTable.update(otherBiobank));
     database.becomeAdmin();
   }
 }

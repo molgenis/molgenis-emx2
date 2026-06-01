@@ -449,18 +449,16 @@ class TestRowLevelSecurity {
     schema.create(table("Sub").setInheritName("Root"));
     schema.createRole("RejectRole");
 
+    TablePermission subPermission = new TablePermission("Sub").select(true);
     MolgenisException ex =
-        assertThrows(
-            MolgenisException.class,
-            () -> schema.grant("RejectRole", new TablePermission("Sub").select(true)));
+        assertThrows(MolgenisException.class, () -> schema.grant("RejectRole", subPermission));
     assertTrue(
         ex.getMessage().contains("inherited table"),
         "error should mention that the table is inherited: " + ex.getMessage());
 
     // Same restriction applies to row-level grants.
-    assertThrows(
-        MolgenisException.class,
-        () -> schema.grant("RejectRole", new TablePermission("Sub").select(true).rowLevel(true)));
+    TablePermission rowLevelSubPermission = new TablePermission("Sub").select(true).rowLevel(true);
+    assertThrows(MolgenisException.class, () -> schema.grant("RejectRole", rowLevelSubPermission));
   }
 
   @Test
