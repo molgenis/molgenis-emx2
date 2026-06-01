@@ -370,6 +370,7 @@ export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
 
 export interface UIResource {
   id: string;
+  name: string;
   logo: { url: string };
 }
 

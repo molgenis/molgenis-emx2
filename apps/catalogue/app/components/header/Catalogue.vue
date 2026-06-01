@@ -5,7 +5,6 @@ import { computed, ref } from "vue";
 import type { UIResource } from "../../../interfaces/types";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import Logo from "../../../../tailwind-components/app/components/Logo.vue";
-import LogoMobile from "../../../../tailwind-components/app/components/LogoMobile.vue";
 import MainNavigation from "../../components/MainNavigation.vue";
 import HamburgerMenu from "../../components/HamburgerMenu.vue";
 import StoreHeaderButton from "../../components/store/HeaderButton.vue";
@@ -21,6 +20,7 @@ const props = defineProps<{
   collectionCount: number;
   networkCount: number;
   logoSrc?: string;
+  logoTitle?: string;
 }>();
 
 const cohortOnly = computed(() => {
@@ -122,10 +122,11 @@ if (!cohortOnly.value) {
         <div class="relative flex items-center h-12.5 justify-between mb-4">
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile
-              :link="`/${catalogueRouteParam}`"
-              :image="catalogue?.logo?.url ?? logoSrc"
-            />
+            <a
+              :href="`/${catalogueRouteParam}`"
+              class="flex items-center gap-1 tracking-widest transition-colors font-display text-heading-xl hover:underline text-menu"
+              >{{ logoTitle }}</a
+            >
           </div>
           <div class="flex gap-3">
             <StoreHeaderButton
