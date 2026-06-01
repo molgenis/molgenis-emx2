@@ -224,6 +224,7 @@ jobs:
           root: .
           paths:
             - build/libs
+            - build/ci.properties
             - apps/catalogue/.output
 
   my-e2e-test:
@@ -338,6 +339,12 @@ jobs:
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
+      - store_test_results:
+          path: apps/tailwind-components/test-results
+
+      - store_artifacts:
+          path: apps/tailwind-components/test-results
+
       - run:
           name: Directory e2e tests
           command: |
@@ -345,6 +352,13 @@ jobs:
             pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
+
+      - store_test_results:
+          path: apps/directory/test-results
+
+      - store_artifacts:
+          path: apps/directory/test-results
+
       - run:
           name: UI tests
           command: |
@@ -352,27 +366,35 @@ jobs:
             pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
+
+      - store_test_results:
+          path: apps/ui/test-results
+
+      - store_artifacts:
+          path: apps/ui/test-results
+
       - run:
           name: Run non ssr e2e tests
           command: |
+            export $( cat build/ci.properties | xargs )
             export E2E_BASE_URL=http://localhost:8080/
             export MOLGENIS_OIDC_CLIENT_ID=${OIDC_CLIENTID}
             export MOLGENIS_OIDC_CLIENT_SECRET=${OIDC_SECRET}
             export MOLGENIS_OIDC_DISCOVERY_URL=${OIDC_DISCOVERYURL}
             pnpm install
-            npx playwright test --config e2e e2e/tests     
+            npx playwright test --config e2e e2e/tests 
+
+      - store_test_results:
+          path: e2e/test-results
+
+      - store_artifacts:
+          path: e2e/test-results
 
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
             pnpm exec playwright test
           working_directory: apps/catalogue
-
-      - store_test_results:
-          path: apps/tailwind-components/test-results
-
-      - store_artifacts:
-          path: apps/tailwind-components/test-results
 
       - store_artifacts:
           path: apps/tailwind-components/playwright-report
