@@ -237,18 +237,22 @@ public class SqlRoleManager {
     List<String> usernames = members.stream().map(Member::getUser).toList();
     String userPrefix = MG_USER_PREFIX;
     String rolePrefix = MG_ROLE_PREFIX + schemaName + "/";
-    try {
-      for (Member m : getMembers(schemaName)) {
-        if (usernames.contains(m.getUser())) {
-          jooq()
-              .execute(
-                  "REVOKE {0} FROM {1}",
-                  name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
-        }
-      }
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Remove of member failed", dae);
-    }
+    database.tx(
+        db -> {
+          SqlDatabase txDb = (SqlDatabase) db;
+          try {
+            for (Member m : getMembers(txDb.getJooq(), schemaName)) {
+              if (usernames.contains(m.getUser())) {
+                txDb.getJooq()
+                    .execute(
+                        "REVOKE {0} FROM {1}",
+                        name(rolePrefix + m.getRole()), name(userPrefix + m.getUser()));
+              }
+            }
+          } catch (DataAccessException dae) {
+            throw new SqlMolgenisException("Remove of member failed", dae);
+          }
+        });
   }
 
   public List<TablePermission> getPermissions(String schemaName, String roleName) {
