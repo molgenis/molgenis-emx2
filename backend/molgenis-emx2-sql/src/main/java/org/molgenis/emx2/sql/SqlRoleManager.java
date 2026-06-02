@@ -274,10 +274,10 @@ public class SqlRoleManager {
       for (Record row : rows) {
         result.add(
             new TablePermission(row.get("table_name", String.class))
-                .select(trueOrNull(row, "can_select"))
-                .insert(trueOrNull(row, "can_insert"))
-                .update(trueOrNull(row, "can_update"))
-                .delete(trueOrNull(row, "can_delete")));
+                .select(grantedOrNull(row, "can_select"))
+                .insert(grantedOrNull(row, "can_insert"))
+                .update(grantedOrNull(row, "can_update"))
+                .delete(grantedOrNull(row, "can_delete")));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -340,8 +340,13 @@ public class SqlRoleManager {
         .delete(a.hasDelete() || b.hasDelete() ? true : null);
   }
 
-  private static Boolean trueOrNull(Record row, String field) {
-    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? true : null;
+  /**
+   * Reads a granted-privilege flag, normalizing FALSE to null. TablePermission is tri-state (true =
+   * grant, false = explicit revoke, null = absent), so an absent grant must be null and never false
+   * — otherwise the permission could round-trip into applyPgGrants as an accidental REVOKE.
+   */
+  private static Boolean grantedOrNull(Record row, String field) {
+    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? Boolean.TRUE : null;
   }
 
   public boolean isSystemRole(String roleName) {
