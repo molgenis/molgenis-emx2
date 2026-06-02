@@ -29,7 +29,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
   - [Table-level permissions API](#table-level-permissions-api)
 - [Table query and mutation functions](#table-query-and-mutation-functions)
 - [Implementation hints](#implementation-hints)
-- [Developing 'apps'](#developing-apps)
+- [GraphQL endpoints for apps](#graphql-endpoints-for-apps)
 - [GraphQL JavaScript Library (Query EMX2)](#graphql-javascript-library-query-emx2)
 
 ## Functions available on all APIs.
@@ -748,9 +748,10 @@ Will return:
 }
 ```
 
-## Developing 'apps'
+## GraphQL endpoints for apps
 
-When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
+When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps), a GraphQL
+endpoint is automatically served relative to where the app runs:
 
 - You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
 - In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
