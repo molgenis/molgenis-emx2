@@ -376,4 +376,89 @@ class TestPermissionEvaluator {
       assertFalse(PermissionEvaluator.isAdmin(s));
     }
   }
+
+  /**
+   * Guards the lazy permission caches (rolesCache / permissionsCache / permissionsByTableCache on
+   * SqlSchemaMetadata): a grant or revoke must be reflected for the user once the schema is
+   * re-resolved, and must never be served from a stale (or process-wide) cache.
+   */
+  @Nested
+  class CacheInvalidation {
+
+    @Test
+    void grantedTablePermissionBecomesVisibleAfterReResolve() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("CacheGrantRole");
+      schema.grant("CacheGrantRole", new TablePermission(TABLE_A).select(true));
+      schema.addMember(USER_NO_ROLE, "CacheGrantRole");
+
+      try {
+        // warm the caches for the user: A visible, B not yet
+        Schema s = schemaFor(USER_NO_ROLE);
+        assertTrue(PermissionEvaluator.canView(s, s.getMetadata().getTableMetadata(TABLE_A)));
+        assertFalse(PermissionEvaluator.canView(s, s.getMetadata().getTableMetadata(TABLE_B)));
+
+        // admin grants SELECT on B (fires onSchemaChange -> clearCache)
+        database.becomeAdmin();
+        database
+            .getSchema(SCHEMA)
+            .grant("CacheGrantRole", new TablePermission(TABLE_B).select(true));
+
+        // re-resolve as the user (as the web layer does per request): new grant must be visible
+        Schema s2 = schemaFor(USER_NO_ROLE);
+        assertTrue(
+            PermissionEvaluator.canView(s2, s2.getMetadata().getTableMetadata(TABLE_B)),
+            "newly granted SELECT on TABLE_B should be visible, not served from a stale cache");
+      } finally {
+        database.becomeAdmin();
+        Schema cleanup = database.getSchema(SCHEMA);
+        cleanup.removeMember(USER_NO_ROLE);
+        cleanup.deleteRole("CacheGrantRole");
+      }
+    }
+
+    @Test
+    void revokedTablePermissionIsNoLongerVisibleAfterReResolve() {
+      database.becomeAdmin();
+      Schema schema = database.getSchema(SCHEMA);
+      schema.createRole("CacheRevokeRole");
+      schema.grant("CacheRevokeRole", new TablePermission(TABLE_A).select(true));
+      schema.addMember(USER_NO_ROLE, "CacheRevokeRole");
+
+      try {
+        // warm the caches: A visible
+        Schema s = schemaFor(USER_NO_ROLE);
+        assertTrue(PermissionEvaluator.canView(s, s.getMetadata().getTableMetadata(TABLE_A)));
+
+        // admin revokes SELECT on A (select(false) -> REVOKE; fires onSchemaChange)
+        database.becomeAdmin();
+        database
+            .getSchema(SCHEMA)
+            .grant("CacheRevokeRole", new TablePermission(TABLE_A).select(false));
+
+        // re-resolve as the user: revoked permission must be gone, not served from a stale cache
+        Schema s2 = schemaFor(USER_NO_ROLE);
+        assertFalse(
+            PermissionEvaluator.canView(s2, s2.getMetadata().getTableMetadata(TABLE_A)),
+            "revoked SELECT on TABLE_A should no longer be visible");
+      } finally {
+        database.becomeAdmin();
+        Schema cleanup = database.getSchema(SCHEMA);
+        cleanup.removeMember(USER_NO_ROLE);
+        cleanup.deleteRole("CacheRevokeRole");
+      }
+    }
+
+    @Test
+    void permissionsByTableCacheIsStableWithinSchemaInstance() {
+      Schema s = schemaFor(USER_CUSTOM);
+      // repeated calls within the same (metadata) lifecycle return the cached index
+      assertSame(s.getPermissionsByTableForActiveUser(), s.getPermissionsByTableForActiveUser());
+      // and the index is consistent with the list it is derived from
+      assertEquals(
+          s.getPermissionsForActiveUser().size(), s.getPermissionsByTableForActiveUser().size());
+      assertTrue(s.getPermissionsByTableForActiveUser().containsKey(TABLE_A));
+    }
+  }
 }

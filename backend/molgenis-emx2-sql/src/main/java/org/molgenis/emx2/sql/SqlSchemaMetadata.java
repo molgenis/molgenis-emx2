@@ -21,6 +21,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private List<String> rolesCache = null;
   // cache for retrieved table permissions of the active user
   private List<TablePermission> permissionsCache = null;
+  // cache for the same permissions indexed by table name (derived from permissionsCache)
+  private Map<String, TablePermission> permissionsByTableCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -82,6 +84,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     this.tables.clear();
     this.rolesCache = null;
     this.permissionsCache = null;
+    this.permissionsByTableCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -277,6 +280,18 @@ public class SqlSchemaMetadata extends SchemaMetadata {
           List.copyOf(getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName()));
     }
     return permissionsCache;
+  }
+
+  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
+    // derived index over permissionsCache so per-table lookups in PermissionEvaluator don't rebuild
+    // the map on every canView/canInsert/... call; cleared together with permissionsCache in
+    // reload()
+    if (permissionsByTableCache == null) {
+      permissionsByTableCache =
+          getPermissionsForActiveUser().stream()
+              .collect(Collectors.toUnmodifiableMap(TablePermission::table, p -> p, (a, b) -> a));
+    }
+    return permissionsByTableCache;
   }
 
   public String getRoleForUser(String user) {

@@ -2,9 +2,7 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Privileges.*;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class PermissionEvaluator {
 
@@ -23,10 +21,6 @@ public final class PermissionEvaluator {
     if (hasRole(schema, RANGE)) return AggregateLevel.RANGE;
     if (hasRole(schema, EXISTS)) return AggregateLevel.EXISTS;
     return AggregateLevel.NONE;
-  }
-
-  public static boolean canCount(Schema schema, TableMetadata table) {
-    return tablePermissionAtLeast(schema, table, AggregateLevel.COUNT);
   }
 
   public static boolean canRange(Schema schema, TableMetadata table) {
@@ -70,11 +64,7 @@ public final class PermissionEvaluator {
   }
 
   private static Optional<TablePermission> permissionFor(Schema schema, TableMetadata table) {
-    return Optional.ofNullable(getPermissionsByTable(schema).get(table.getTableName()));
-  }
-
-  private static Map<String, TablePermission> getPermissionsByTable(Schema schema) {
-    return schema.getPermissionsForActiveUser().stream()
-        .collect(Collectors.toUnmodifiableMap(TablePermission::table, p -> p));
+    return Optional.ofNullable(
+        schema.getPermissionsByTableForActiveUser().get(table.getTableName()));
   }
 }
