@@ -58,6 +58,7 @@ async function onDeleteConfirm() {
   }
 }
 </script>
+
 <template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
@@ -103,8 +104,9 @@ async function onDeleteConfirm() {
           type="outline"
           size="small"
           @click="reAuthenticate"
-          >Re-authenticate</Button
         >
+          Re-authenticate
+        </Button>
       </FormError>
     </Transition>
     <template #footer>

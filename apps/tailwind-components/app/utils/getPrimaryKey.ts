@@ -1,6 +1,5 @@
 import { fetchMetadata } from "#imports";
 import type {
-  columnValue,
   IColumn,
   IRow,
   ITableMetaData,

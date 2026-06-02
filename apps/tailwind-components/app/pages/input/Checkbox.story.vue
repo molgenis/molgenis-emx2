@@ -13,8 +13,8 @@
     <Checkbox :model-value="true" :indeterminate="true"></Checkbox>
   </div>
 
-  <label class="text-title"
-    >Prevent Click / take over mode ( left = checked, middle = indeterminate,
+  <label class="text-title">
+    Prevent Click / take over mode ( left = checked, middle = indeterminate,
     right = unchecked )
   </label>
   <div>
