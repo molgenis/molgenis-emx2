@@ -13,6 +13,20 @@ Full documentation can be found while visiting the graphql-playground app. You c
 - https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' API
 - https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for 'pet store' database
 
+## Table of contents
+
+- [Functions available on all APIs](#functions-available-on-all-apis)
+  - [Sign in](#sign-in) · [Sign up](#sign-up) · [Sign out](#sign-out) · [changePassword](#changepassword) · [createToken](#createtoken) · [session object](#session-object) · [settings](#settings)
+- [Functions available for each database](#functions-available-for-each-database)
+  - [query schema](#query-schema)
+  - [change schema elements](#change-schema-elements)
+  - [drop/remove schema elements](#dropremove-schema-elements)
+  - [Table-level permissions API](#table-level-permissions-api)
+- [Table query and mutation functions](#table-query-and-mutation-functions)
+- [Implementation hints](#implementation-hints)
+- [Developing 'apps'](#developing-apps)
+- [GraphQL JavaScript Library (Query EMX2)](#graphql-javascript-library-query-emx2)
+
 ## Functions available on all APIs.
 
 These functionalities are available for both the 'root' API and the database API.
@@ -301,13 +315,48 @@ mutation {
 > **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
 > schema.
 
-## Table-level permissions API
+### change schema elements
+
+You can change objects from schema query above and then pass them into the change function.
+
+```graphql
+mutation{
+    change(
+        tables: [...],
+        members: [...]
+        settings: [...]
+        columns: [...]
+    ){
+        message
+    }
+}
+```
+
+### drop/remove schema elements
+
+Note that settings can be on level of schema, or level of tables. In that later case you need to provide the table as
+well.
+
+```graphql
+mutation {
+  drop(
+    tables: ["table1", "table2"]
+    members: ["email1", "email2"]
+    settings: [{ key: "key1" }, { key: "key2", table: "table1" }]
+    columns: [{ table: "table1", column: "column1" }]
+  ) {
+    message
+  }
+}
+```
+
+### Table-level permissions API
 
 Custom roles with per-table grants can be managed through GraphQL. This is distinct from the standard
 schema-wide roles (Viewer, Editor, Manager, etc.) — it allows a role to have access to only specific
 tables, with independent SELECT / INSERT / UPDATE / DELETE control.
 
-### Query roles and their permissions
+#### Query roles and their permissions
 
 The `roles` field in `_schema` returns all roles — both system roles and custom roles — with their
 effective permissions.
@@ -335,7 +384,7 @@ effective permissions.
 - `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
 
-### Create a custom role and grant permissions
+#### Create a custom role and grant permissions
 
 Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
 listed permissions are applied per field:
@@ -382,7 +431,7 @@ mutation {
 }
 ```
 
-### Revoke individual privileges
+#### Revoke individual privileges
 
 Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
 
@@ -405,7 +454,7 @@ mutation {
 
 This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
 
-### Delete a custom role
+#### Delete a custom role
 
 ```graphql
 mutation {
@@ -420,42 +469,7 @@ mutation {
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
 
-## change schema elements
-
-You can change objects from schema query above and then pass them into the change function.
-
-```graphql
-mutation{
-    change(
-        tables: [...],
-        members: [...]
-        settings: [...]
-        columns: [...]
-    ){
-        message
-    }
-}
-```
-
-## drop/remove schema elements
-
-Note that settings can be on level of schema, or level of tables. In that later case you need to provide the table as
-well.
-
-```graphql
-mutation {
-  drop(
-    tables: ["table1", "table2"]
-    members: ["email1", "email2"]
-    settings: [{ key: "key1" }, { key: "key2", table: "table1" }]
-    columns: [{ table: "table1", column: "column1" }]
-  ) {
-    message
-  }
-}
-```
-
-## Example functions that will be available for each table in the database
+## Table query and mutation functions
 
 Finally, for each table there are the following functions:
 
@@ -745,7 +759,7 @@ Will return:
 }
 ```
 
-# Developing 'apps'
+## Developing 'apps'
 
 When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
 
@@ -756,12 +770,12 @@ When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/mas
 <br />
 <br />
 
-# GraphQL JavaScript Library (Query EMX2)
+## GraphQL JavaScript Library (Query EMX2)
 
 Inside the molgenis-components library there is library to make
 querying emx2 with graphQL a breeze.
 
-## Installation
+### Installation
 
 Given the fact that you have an application under the app folder like so:
 
@@ -789,7 +803,7 @@ Now you can import the library as follows:
 
 Now you have access to the QueryEMX2 class!
 
-## Usage
+### Usage
 
 Create a new connection:
 
@@ -817,7 +831,7 @@ to get the results:
 
 > For debugging purposes you can use `query.getQuery()` to see how to graphQL query has been formed.
 
-### Filters
+#### Filters
 
 When you specify a table using `.table("MyTable")` MyTable is in the case of QueryEMX2 seen as 'root' table.
 
@@ -852,7 +866,7 @@ If you want to filter a ref/mref/categorial or any other 'nested' table result, 
 
 which will apply the filters on that table.
 
-## Examples
+### Examples
 
 **Multiple or Query**
 
