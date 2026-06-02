@@ -196,16 +196,20 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="
-        cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail && showModal
-      "
+      v-if="cellDetailColumn && showRefDetailModal"
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="cellDetailSchemaId ?? schemaId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
     />
-    <template v-else-if="cellDetailValue && isArrayLikeDetail">
+    <template
+      v-else-if="
+        cellDetailValue &&
+        cellDetailColumn &&
+        isArrayLikeDetail(cellDetailColumn)
+      "
+    >
       <ul>
         <li v-for="(item, index) in cellDetailValue" :key="index">
           <TableCellDetailRef
@@ -298,6 +302,7 @@ import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import { isRefLikeDetail, isArrayLikeDetail } from "../../utils/refUtils";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
@@ -568,23 +573,12 @@ async function afterRowDeleted() {
   await refresh();
 }
 
-const isRefLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
+const showRefDetailModal = computed(() => {
   return (
-    type === "REF" ||
-    type === "RADIO" ||
-    type === "CHECKBOX" ||
-    type === "SELECT" ||
-    type === "ONTOLOGY" ||
-    type === "REFBACK" ||
-    type === "MULTISELECT"
-  );
-});
-
-const isArrayLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
-  return (
-    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+    cellDetailColumn.value &&
+    isRefLikeDetail(cellDetailColumn.value) &&
+    !isArrayLikeDetail(cellDetailColumn.value) &&
+    showModal.value
   );
 });
 </script>

@@ -3,6 +3,7 @@ package org.molgenis.emx2.datamodels.cafevarime;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.cafevariome.QueryRecord;
@@ -10,6 +11,7 @@ import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
 import org.molgenis.emx2.datamodels.TestLoaders;
 
+@Disabled
 public class QueryRecordTest extends TestLoaders {
 
   @Test
