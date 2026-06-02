@@ -1,23 +1,28 @@
 # GraphQL in MOLGENIS
 
-Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database. 
-In addition, at the root there is a generic API.
+Each schema in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that schema.
+In addition, at the root there is a database-level (instance-wide) API.
 
 For example:
 
-- https://emx2.dev.molgenis.org/api/graphql - root API
-- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
+- https://emx2.dev.molgenis.org/api/graphql - root (database-level) API
+- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for schema 'pet store'
 
 Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
 
-- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' API
-- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for 'pet store' database
+- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for the root API
+- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for schema 'pet store'
+
+> **Terminology:** a **schema** is a single dataset with its own data model and GraphQL endpoint
+> (the API and fields use `schema` / `_schema` / `schemas`). Historically schemas were also called
+> "databases", so you may still encounter that term. The **database-level** (or "root") API operates
+> across the whole instance rather than on one schema.
 
 ## Table of contents
 
 - [Functions available on all APIs](#functions-available-on-all-apis)
   - [Sign in](#sign-in) · [Sign up](#sign-up) · [Sign out](#sign-out) · [changePassword](#changepassword) · [createToken](#createtoken) · [session object](#session-object) · [settings](#settings)
-- [Functions available for each database](#functions-available-for-each-database)
+- [Functions available per schema](#functions-available-per-schema)
   - [query schema](#query-schema)
   - [change schema elements](#change-schema-elements)
   - [drop/remove schema elements](#dropremove-schema-elements)
@@ -29,7 +34,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
 
 ## Functions available on all APIs.
 
-These functionalities are available for both the 'root' API and the database API.
+These functionalities are available for both the root (database-level) API and the per-schema API.
 
 ### Sign in
 
@@ -88,34 +93,9 @@ mutation {
 }
 ```
 
-See tokens for current user
-
-```graphql
-{
-  _session {
-    settings {
-      key
-      value
-    }
-  }
-}
-```
-
-See tokens for all users, in settings 'access-tokens'
-
-```graphql
-{
-  _admin {
-    users {
-      email
-      settings {
-        key
-        value
-      }
-    }
-  }
-}
-```
+Tokens are stored as user settings (under the key `access-tokens`). To list them, query the current
+user's settings with `_session { settings }`, or all users' settings with `_admin { users { settings } }`
+— see [settings](#settings) for both queries.
 
 ### session object
 
@@ -261,7 +241,7 @@ mutation {
 }
 ```
 
-## Functions available for each database
+## Functions available per schema
 
 ### query schema
 
@@ -482,10 +462,18 @@ Finally, for each table there are the following functions:
 ### query example
 
 A query can be performed by referring to a table name.
-For every table, aggregate functionality is available by adding <code>_agg</code> to the table name.
-This will expose the </code>count</code> and <code>exists</code> variables.
 
-A simple query, including count:
+For every table, two aggregate companions are also available:
+
+- `<table>_agg` — exposes the `count` and `exists` fields over the (optionally filtered) table.
+- `<table>_groupBy` — returns `count` and numeric aggregates (`sum`, …) grouped by one or more
+  columns or referenced tables.
+
+What each aggregate returns can be obfuscated depending on the user's permission level (see
+[Table-level permissions API](#table-level-permissions-api)); e.g. lower tiers receive bucketed
+counts instead of exact values.
+
+A simple query combining a row selection, `_agg` and `_groupBy`:
 
 ```graphql
 {
@@ -500,6 +488,7 @@ A simple query, including count:
   }
   Pet_agg {
     count
+    exists
   }
   Pet_groupBy {
     sum{weight},
