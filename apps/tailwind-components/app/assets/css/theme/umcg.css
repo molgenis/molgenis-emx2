@@ -107,6 +107,7 @@
   --border-color-search-input-mobile: var(--color-gray.100);
   --border-color-pagination: var(--color-umcg-dark-blue);
   --border-color-checkbox: #cccccc;
+  --border-color-footer: var(--background-color-footer);
 
   --border-radius-3px: 3px;
   --border-radius-50px: 50px;
