@@ -75,11 +75,6 @@ public class ServeStaticFile {
         // Running from IDE/CLI (classes folder)
         Path emx2Home = jarPath.getParent();
 
-        // for when we are in a docker container
-        if (emx2Home.toString().endsWith("lib")) {
-          return emx2Home;
-        }
-
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("backend"));

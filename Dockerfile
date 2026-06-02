@@ -9,6 +9,8 @@ COPY --link build/docker/deps/ /app/lib/
 COPY --link build/docker/app/ /app/lib/
 COPY --link custom-app /app/lib/custom-app
 
+ENV CUSTOM_APP_PATH="/app/lib/custom-app"
+
 USER molgenis
 EXPOSE 8080
 ENTRYPOINT ["java"]
