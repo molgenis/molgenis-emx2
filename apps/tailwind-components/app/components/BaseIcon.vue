@@ -23,7 +23,6 @@ function toPascalCase(text: string): string {
   return text.replace(/(^\w|-\w)/g, clearAndUpper);
 }
 
-const componentName = toPascalCase(props.name);
 const iconComp = computed(() => {
   const componentName = toPascalCase(props.name);
   return defineAsyncComponent(

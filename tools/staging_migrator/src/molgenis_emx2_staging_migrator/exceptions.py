@@ -10,7 +10,7 @@ class StagingMigratorException(PyclientException):
         self.msg = msg
 
     def __str__(self) -> str:
-        exception_msg = f"Message: {self.msg}\n"
+        exception_msg = f"Message: {self.msg}"
         return exception_msg
 
 class MissingContactException(StagingMigratorException):
