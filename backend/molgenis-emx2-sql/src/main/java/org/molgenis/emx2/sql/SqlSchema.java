@@ -466,6 +466,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<TablePermission> getPermissionsForActiveUser() {
-    return roleManager().getTablePermissionsForActiveUser(getName());
+    // delegate to metadata so the result is cached (and reloaded) alongside rolesCache
+    return getMetadata().getPermissionsForActiveUser();
   }
 }

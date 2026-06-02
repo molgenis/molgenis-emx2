@@ -19,6 +19,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
   private List<String> rolesCache = null;
+  // cache for retrieved table permissions of the active user
+  private List<TablePermission> permissionsCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -79,6 +81,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
+    this.permissionsCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -264,6 +267,16 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
+  }
+
+  public List<TablePermission> getPermissionsForActiveUser() {
+    // add cache because this function is called often during query and schema building;
+    // mirrors rolesCache and is cleared together with it in reload()
+    if (permissionsCache == null) {
+      permissionsCache =
+          List.copyOf(getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName()));
+    }
+    return permissionsCache;
   }
 
   public String getRoleForUser(String user) {
