@@ -18,7 +18,7 @@ class ServeStaticFileTest {
 
     ServeStaticFile.serve(ctx, path);
 
-    verify(ctx).contentType("text/plain");
+    verify(ctx).header("Content-Type", "text/plain");
     verify(ctx).result("test".getBytes());
   }
 
@@ -42,7 +42,7 @@ class ServeStaticFileTest {
 
     ServeStaticFile.serve(ctx);
 
-    verify(ctx).contentType("text/css");
+    verify(ctx).header("Content-Type", "text/css");
   }
 
   @Test

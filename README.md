@@ -33,6 +33,7 @@ the data, and use VueJS to create your own 'apps'.
 
 ## How to contribute
 
+* [Overview & terms](CONTRIBUTING.md)
 * [Build the source code](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_quickstart)
 * [Technologies we use](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_technologies)
 

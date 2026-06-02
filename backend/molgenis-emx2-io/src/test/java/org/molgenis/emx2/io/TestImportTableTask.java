@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.SqlMolgenisException;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TestImportTableTask {
@@ -111,14 +112,7 @@ class TestImportTableTask {
 
   @Test
   void givenStoreWithEmptyRows_whenNotStrict_thenSkip() throws IOException {
-    Path path =
-        Path.of(
-            Objects.requireNonNull(getClass().getClassLoader().getResource("TestImportTableTask"))
-                .getPath());
-    String csv = Files.readString(path.resolve("empty-rows.csv"));
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(',');
-    store.setCsvString("Person", csv);
-
+    TableStoreForCsvInMemory store = getCsvStoreForTableFromFile("Person", "empty-rows.csv");
     database.dropCreateSchema(SCHEMA_NAME);
     schema = database.getSchema(SCHEMA_NAME);
     Table table =
@@ -135,5 +129,38 @@ class TestImportTableTask {
     List<Map<String, Object>> expected =
         List.of(Map.of("name", "john", "age", 42), Map.of("name", "doe", "age", 24));
     assertEquals(expected, values);
+  }
+
+  @Test
+  void givenStoreThatWillExceedIdPoolSize_thenFail() throws IOException {
+    database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.getSchema(SCHEMA_NAME);
+    Table table =
+        schema.create(
+            TableMetadata.table(
+                "autoid",
+                Column.column("id", ColumnType.AUTO_ID)
+                    .setComputed("${mg_autoid(format=numbers, length=1)}")
+                    .setPkey(),
+                Column.column("name", ColumnType.STRING)));
+
+    TableStoreForCsvInMemory store = getCsvStoreForTableFromFile("autoid", "exceeding-id-pool.csv");
+    ImportTableTask tasks = new ImportTableTask(store, table, false);
+    assertThrows(
+        SqlMolgenisException.class,
+        tasks::run,
+        "Transaction failed: mg_generate_autoid: failed to generate unique ID after 100 attempts for TestImportTableTask.autoid.id.");
+  }
+
+  private TableStoreForCsvInMemory getCsvStoreForTableFromFile(String table, String file)
+      throws IOException {
+    Path path =
+        Path.of(
+            Objects.requireNonNull(getClass().getClassLoader().getResource("TestImportTableTask"))
+                .getPath());
+    String csv = Files.readString(path.resolve(file));
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(',');
+    store.setCsvString(table, csv);
+    return store;
   }
 }

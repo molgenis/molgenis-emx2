@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryError
-from molgenis_emx2.directory_client.pid_service import (
+from src.molgenis_emx2.directory_client.errors import DirectoryError
+from src.molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
     NoOpPidService,
     PidService,

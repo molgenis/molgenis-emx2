@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
+  onMounted,
   ref,
   useTemplateRef,
   watch,
   type Ref,
-  onMounted,
-  nextTick,
 } from "vue";
+import type { IOntologyNode } from "../../../types/cms";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
+import fetchGraphql from "../../composables/fetchGraphql";
+import { useClickOutside } from "../../composables/useClickOutside";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
 import InputSearch from "../input/Search.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import { useClickOutside } from "../../composables/useClickOutside";
-import fetchGraphql from "../../composables/fetchGraphql";
 
 const props = withDefaults(
   defineProps<
@@ -51,6 +52,7 @@ const totalCount = ref<number>(0);
 const rootCount = ref<number>(0);
 
 const loadingNodes = ref<Set<string>>(new Set());
+const searchInput = ref<HTMLInputElement | null>(null);
 
 // Virtual root node to hold the ontology tree and its pagination state
 const rootNode = ref<ITreeNodeState>({
@@ -62,6 +64,81 @@ const rootNode = ref<ITreeNodeState>({
   loadMoreOffset: 0,
   loadMoreTotal: 0,
   loadMoreHasMore: false,
+});
+
+const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
+useClickOutside(wrapperRef, () => {
+  if (showSelect.value) {
+    toggleSelect();
+  }
+});
+
+const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
+
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSearchValue: string = "";
+let isSearching = false;
+
+const hasChildren = computed(() =>
+  rootNode.value.children?.some((node) => node.children?.length)
+);
+
+const displayAsSelect = computed(() => {
+  if (props.forceList) {
+    return false;
+  }
+
+  return (
+    totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
+  );
+});
+
+const enableAutoLoad = computed(() => {
+  return !props.forceList;
+});
+
+const ontologyTree = computed(() => rootNode.value.children || []);
+
+watch(() => props.ontologySchemaId, reset);
+watch(() => props.ontologyTableId, reset);
+watch(
+  () => modelValue.value,
+  () => {
+    applyModelValue();
+  }
+);
+watch(searchTerms, (newValue, oldValue) => {
+  if (isSearching) {
+    return;
+  }
+
+  if (oldValue === undefined) {
+    lastSearchValue = newValue;
+    return;
+  }
+
+  if (newValue === lastSearchValue) {
+    return;
+  }
+
+  const selectModeCheck =
+    displayAsSelect.value && !showSelect.value && !props.forceList;
+  if (selectModeCheck) {
+    return;
+  }
+
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
+
+  searchDebounceTimer = setTimeout(() => {
+    lastSearchValue = newValue;
+    updateSearch(newValue);
+  }, 500);
+});
+
+onMounted(() => {
+  reload();
 });
 
 function reset() {
@@ -88,15 +165,6 @@ function reset() {
   loadingNodes.value.clear();
   reload();
 }
-
-watch(() => props.ontologySchemaId, reset);
-watch(() => props.ontologyTableId, reset);
-watch(
-  () => modelValue.value,
-  () => {
-    applyModelValue();
-  }
-);
 
 async function reload() {
   //goal is to have only one query to server as the network has most performance impact
@@ -143,7 +211,7 @@ async function reload() {
   ) {
     // Load entire small ontology in one go
     const query = `query {
-      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:{order:ASC,name:ASC}){
+      allTerms: ${props.ontologyTableId}(limit: ${totalCount.value}, orderby:[{order:ASC},{name:ASC}]){
         name,parent{name},label,definition,code,codesystem,ontologyTermURI
       }
     }`;
@@ -159,12 +227,12 @@ async function reload() {
 }
 
 function assembleTree(
-  data: any[],
+  data: IOntologyNode[],
   parentNode: ITreeNodeState | undefined = undefined
 ): ITreeNodeState[] {
   return (
     data
-      .filter((row) => row.parent?.name == parentNode?.name)
+      .filter((row) => row.parent?.name === parentNode?.name)
       .map((row: any) => {
         const node: ITreeNodeState = {
           name: row.name,
@@ -229,7 +297,7 @@ async function loadPage(
     .replace(/false/g, "false");
 
   const query = `query myquery(${variableDeclaration}) {
-    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:{order:ASC,name:ASC}, limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+    retrieveTerms: ${props.ontologyTableId}(filter:${retrieveTermsFilter}, orderby:[{order:ASC},{name:ASC}], limit:${props.limit}, offset:${offset}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
     count: ${props.ontologyTableId}_agg(filter:${countFilterInline}){count}
     totalCount: ${props.ontologyTableId}_agg(filter:${totalCountFilterInline}){count}
   }`;
@@ -407,6 +475,7 @@ async function toggleTermSelect(node: ITreeNodeState) {
       ];
     }
     searchTerms.value = "";
+    emit("blur");
   }
   emit("focus");
 }
@@ -484,45 +553,9 @@ function clearSelection() {
   if (props.disabled) {
     return;
   }
-  modelValue.value = props.isArray ? [] : null;
-
+  modelValue.value = null;
   emit("blur");
 }
-
-let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-let lastSearchValue: string = "";
-let isSearching = false;
-
-watch(searchTerms, (newValue, oldValue) => {
-  if (isSearching) {
-    return;
-  }
-
-  if (oldValue === undefined) {
-    lastSearchValue = newValue;
-    return;
-  }
-
-  if (newValue === lastSearchValue) {
-    return;
-  }
-
-  const selectModeCheck =
-    displayAsSelect.value && !showSelect.value && !props.forceList;
-
-  if (selectModeCheck) {
-    return;
-  }
-
-  if (searchDebounceTimer) {
-    clearTimeout(searchDebounceTimer);
-  }
-
-  searchDebounceTimer = setTimeout(() => {
-    lastSearchValue = newValue;
-    updateSearch(newValue);
-  }, 500);
-});
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
@@ -546,31 +579,11 @@ async function updateSearch(value: string) {
   }
 }
 
-const hasChildren = computed(() =>
-  rootNode.value.children?.some((node) => node.children?.length)
-);
-
-const displayAsSelect = computed(() => {
-  if (props.forceList) {
-    return false;
-  }
-
-  return (
-    totalCount.value >= props.selectCutOff || rootCount.value >= props.limit
-  );
-});
-
-const enableAutoLoad = computed(() => {
-  return !props.forceList;
-});
-
-const ontologyTree = computed(() => rootNode.value.children || []);
-
-const searchInput = ref<HTMLInputElement | null>(null);
 async function toggleSelect() {
   if (showSelect.value) {
     showSelect.value = false;
     searchTerms.value = "";
+    emit("blur");
   } else {
     if (!rootNode.value.children || rootNode.value.children.length === 0) {
       await loadPage(rootNode.value, 0);
@@ -582,18 +595,15 @@ async function toggleSelect() {
   }
 }
 
-const wrapperRef = useTemplateRef<HTMLElement>("wrapperRef");
-useClickOutside(wrapperRef, () => {
-  if (showSelect.value) {
-    toggleSelect();
+function toStringArray(value: string | string[]): string[] {
+  if (typeof value === "string") {
+    return (value = [value]);
+  } else if (Array.isArray(value)) {
+    return value;
+  } else {
+    throw new Error("Value must be a string or an array of strings");
   }
-});
-
-const scrollContainerRef = useTemplateRef<HTMLElement>("scrollContainerRef");
-
-onMounted(() => {
-  reload();
-});
+}
 </script>
 
 <template>
@@ -643,9 +653,7 @@ onMounted(() => {
         class="flex flex-wrap items-center gap-2"
       >
         <Button
-          v-for="name in Array.isArray(modelValue)
-              ? (modelValue as string[]).sort()
-              : modelValue ? [modelValue] : []"
+          v-for="name in toStringArray(modelValue).sort()"
           :key="name"
           icon="cross"
           iconPosition="right"
@@ -656,7 +664,7 @@ onMounted(() => {
             'text-valid bg-valid': valid,
             'text-invalid bg-invalid': invalid,
           }"
-          @click.stop="deselect(name as string)"
+          @click.stop="deselect(name)"
         >
           {{ valueLabels[name] }}
         </Button>
@@ -784,7 +792,7 @@ onMounted(() => {
     />
   </div>
   <Button
-    v-if="isArray ? (modelValue || []).length > 0 : modelValue"
+    v-if="isArray ? modelValue?.length : modelValue"
     @click="clearSelection"
     type="text"
     size="tiny"

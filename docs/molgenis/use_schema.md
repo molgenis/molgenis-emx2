@@ -66,7 +66,7 @@ names are case insensitive):
 
 #### Special types
 
-- auto_id: will be set to an automatically assigned value. Use in combination with key=1 for autommatic primary key. Use in combination with 'computed' to add
+- auto_id: will be set to an automatically assigned value. Use in combination with key=1 for automatic primary key. Use in combination with 'computed' to add
   pre/postfix to your auto_id.
 - email: string that displays as email link
 - hyperlink: string that displays as url link
@@ -297,7 +297,7 @@ Example usage of `simplePostClient` as a default value expression.
 =(function () {
 
   let result = simplePostClient(
-    `query Visits_synostosis( $filter:Visits_synostosisFilter, $orderby:Visits_synostosisorderby ) { Visits_synostosis( filter:$filter, limit:20, offset:0, orderby:$orderby ) { suture {name, label} mg_insertedOn }}`,
+    `query Visits_synostosis( $filter:Visits_synostosisFilter, $orderby:[Visits_synostosisorderby] ) { Visits_synostosis( filter:$filter, limit:20, offset:0, orderby:$orderby ) { suture {name, label} mg_insertedOn }}`,
     {
       filter: { belongsToSubject: { equals: [{ id: belongsToSubject.id }] } },
       orderby: { mg_insertedOn: "ASC" },
@@ -325,15 +325,50 @@ For example:
 
 #### in combination with type=AUTO_ID
 
-In combination with data type AUTO_ID this will generate an value for a column by using the special ${mg_autoid} token in the computed expression. For example:
-
-For example:
+This will generate a value for a column by using the special `${mg_autoid}` token in the computed expression. For 
+example:
 
 | tableName | columnName | key | type    | computed             |
-| --------- | ---------- | --- | ------- | -------------------- |
+|-----------|------------|-----|---------|----------------------|
 | parts     | id         | 1   | AUTO_ID | foo-${mg_autoid}-bar |
 
-Auto id with pre and post fix `foo-${mg_autoid}-bar'` would result in something like `foo-ae6e3b15-c9e2-4d16-8ab3-5984ba64ce09-bar`
+${mg_autoid} with prefix and postfix `foo-${mg_autoid}-bar` would result in something like `foo-QJdAS6LqfA-bar`
+
+By default, the `${mg_autoid}` token is parsed to an encoded snowflake value. But it also accepts optional parameters to
+customize the generated ID. When called in a function-like manner, e.g. `${mg_autoid()}`, the generated value is no
+longer an encoded snowflake but a randomized value based on the token parameters:
+
+- **format**: Character set to use (`letters`, `numbers`, or `mixed`)
+    - `letters`: A-Z, a-z only
+    - `numbers`: 0-9 only
+    - `mixed`: Letters and numbers (default)
+- **length**: Number of characters to generate (default: 12)
+
+| computed expression                           | example output          |
+|-----------------------------------------------|-------------------------|
+| `${mg_autoid}`                                | `QJdAS6LqfA`            |
+| `${mg_autoid()}`                              | `1hsZ5aK3wqUA`          |
+| `${mg_autoid(length=8)}`                      | `xK1pQw9m`              |
+| `${mg_autoid(format=letters)}`                | `aBxZmKpQwRtY`          |
+| `${mg_autoid(format=numbers)}`                | `394857261039`          |
+| `${mg_autoid(format=letters, length=6)}`      | `aBxZmK`                |
+| `user-${mg_autoid(format=numbers, length=8)}` | `user-39485726`         |
+| `${mg_autoid(format=mixed, length=16)}-prod`  | `aB3xZ9mK1pQw5tYu-prod` |
+
+**Choosing an auto id Format**
+
+When selecting an auto id format, consider the **expected number of rows** in your dataset.
+
+- IDs are generated randomly to support data anonymization.
+- If 50% of the ID pool is already in use, there is a 50% chance of generating a duplicate ID.
+- The system automatically retries a limited number of times to find a unique ID.
+- **Note**: Retries are not guaranteed to succeed if the ID pool is nearly exhausted.
+  
+
+?>**Best Practice**: Choose an id format with a sufficiently large pool to minimize collision risk. For example,
+  if you expect around 10,000 records, choose a format that allows for at least 10,000,000 rows. The number of
+  available rows can be calculated using the number of the chosen character set to the power of the length of the
+  format (excluding prefix and suffix).
 
 ### validation expression, visible expression
 

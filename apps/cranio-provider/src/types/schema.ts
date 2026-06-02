@@ -1,4 +1,8 @@
-// Generated (on: 2024-11-19T14:49:53.211482) from Generator.java for schema: dashboard
+// Generated (on: 2026-03-12T13:14:59.424968) from Generator.java for schema: Dashboard
+
+export interface IMgTableClass {
+  mg_tableclass: string;
+}
 
 export interface IFile {
   id?: string;
@@ -22,7 +26,7 @@ export interface IOntologyNode extends ITreeNode {
   order?: number;
 }
 
-export interface IChartData {
+export interface IChartData extends IMgTableClass {
   dataPointId: string;
   dataPointName?: string;
   dataPointValue?: number;
@@ -32,7 +36,7 @@ export interface IChartData {
   dataPointSecondaryCategory?: string;
   dataPointPrimaryCategoryLabel?: string;
   dataPointSecondaryCategoryLabel?: string;
-  dataPointTime?: string | number;
+  dataPointTime?: string;
   dataPointTimeUnit?: string;
   dataPointColor?: string;
   dataPointDescription?: string;
@@ -40,7 +44,11 @@ export interface IChartData {
   includedInChart?: ICharts;
 }
 
-export interface IChartTypes {
+export interface IChartData_agg {
+  count: number;
+}
+
+export interface IChartTypes extends IMgTableClass {
   order?: number;
   name: string;
   label?: string;
@@ -53,7 +61,11 @@ export interface IChartTypes {
   children?: IChartTypes[];
 }
 
-export interface ICharts {
+export interface IChartTypes_agg {
+  count: number;
+}
+
+export interface ICharts extends IMgTableClass {
   chartId: string;
   chartType?: IOntologyNode;
   chartTitle?: string;
@@ -75,48 +87,16 @@ export interface ICharts {
   dashboardPage?: IDashboardPages;
 }
 
-export interface IDashboardPages {
+export interface ICharts_agg {
+  count: number;
+}
+
+export interface IDashboardPages extends IMgTableClass {
   name: string;
   description?: string;
   charts?: ICharts[];
 }
 
-export interface IDataproviders {
-  providerIdentifier: string;
-  organisation?: IOrganisations;
-  hasSubmittedData?: boolean;
-}
-
-export interface IOrganisations {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IOrganisations;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IOrganisations[];
-  city?: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-  organisationType?: string;
-  providerInformation: IDataproviders[];
-  image?: IFile;
-  hasSchema?: boolean;
-  schemaName?: string;
-}
-
-export interface IOrganisationsResponse {
-  Organisations: IOrganisations[];
-}
-
-export interface IDashboardPagesResponse {
-  DashboardPages: IDashboardPages[];
-}
-
-export interface IChartsResponse {
-  Charts: ICharts[];
+export interface IDashboardPages_agg {
+  count: number;
 }

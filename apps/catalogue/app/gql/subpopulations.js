@@ -4,7 +4,7 @@ export default gql`
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: Subpopulationsorderby
+    $orderby: [Subpopulationsorderby]
   ) {
     Subpopulations(
       limit: $limit

@@ -9,7 +9,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.RdfUtils;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
+import org.molgenis.emx2.rdf.writers.OutputStreamWriterFactory;
 
 class RdfConfigReaderTest {
   @Test
@@ -25,7 +25,7 @@ generator: sEMantic
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.MODEL, config.getWriterFactory()),
+        () -> assertEquals(OutputStreamWriterFactory.MODEL, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
@@ -40,8 +40,8 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test
@@ -51,8 +51,8 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test
@@ -63,8 +63,8 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
-        () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
   @Test

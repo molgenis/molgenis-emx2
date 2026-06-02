@@ -6,7 +6,7 @@ import HeaderCatalogue from "../header/Catalogue.vue";
 import HeaderGlobal from "../header/Global.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import FooterComponent from "../../../../tailwind-components/app/components/FooterComponent.vue";
-import FooterVersion from "../footer/FooterVersion.vue";
+import FooterVersion from "../../../../tailwind-components/app/components/FooterVersion.vue";
 import Banner from "../../../../tailwind-components/app/components/Banner.vue";
 
 const route = useRoute();

@@ -260,6 +260,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       final RdfMapData rdfMapData,
       final Table table,
       final Row row) {
+    if (row.isDraft()) return;
+
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 

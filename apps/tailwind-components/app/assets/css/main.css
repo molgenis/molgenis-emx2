@@ -55,13 +55,17 @@
     --color-disabled-foreground: var(--color-gray-400);
     --color-disabled-background: var(--color-gray-100);
 
-    --text-color-logo-text: var(--color-white);
-    --text-color-logo-text-inverted: var(--color-blue-500);
+    --text-color-logo-text: var(--color-blue-500);
+    --text-color-logo-text-inverted: var(--color-white);
+    --background-color-logo: var(--color-white);
+    --logo-icon-primary: var(--color-blue-700);
+    --logo-icon-secondary: var(--color-blue-500);
 
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    --box-shadow-no-background-modal: 0.1rem 0.1rem 6px rgba(0, 0, 0, 0.1);
 
     --background-image-sidebar-gradient: linear-gradient(
       180deg,
@@ -95,6 +99,8 @@
     --background-color-button-filter-hover: var(--color-white);
     --background-color-button-tree-node-toggle: var(--color-blue-800);
     --background-color-button-inline-hover: var(--color-gray-200);
+    --background-color-button-cart-remove: var(--color-blue-500);
+    --background-color-button-cart-count: var(--color-white);
 
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);
@@ -139,6 +145,11 @@
     --text-color-button-tree-node-toggle-hover: var(--color-white);
     --text-color-button-toggle-active: var(--text-color-button-secondary);
     --text-color-button-toggle-inactive: var(--color-blue-200);
+    --text-color-button-remove: var(--color-red-500);
+    --text-color-button-cart-add: var(--color-blue-500);
+    --text-color-button-cart-add-hover: var(--color-blue-800);
+    --text-color-button-cart-remove: var(--color-white);
+    --text-color-button-cart-count: var(--color-black);
 
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
@@ -222,6 +233,7 @@
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-footer: var(--border-color-theme);
 
     --border-width-theme: 1px;
     --border-width-form-required: 1px;

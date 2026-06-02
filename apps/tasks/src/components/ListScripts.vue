@@ -5,6 +5,9 @@
     tableId="Scripts"
     schemaId="_SYSTEM_"
     :canEdit="true"
+    :canUpdate="true"
+    :canDelete="true"
+    :canInsert="true"
     :canManage="false"
   >
     <template v-slot:rowheader="slotProps">

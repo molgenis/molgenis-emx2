@@ -22,6 +22,7 @@
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"
+      :tablePermissions="tablePermissions"
       :filter="refFilter[column.id]"
       @update:modelValue="handleModelValueUpdate($event, column)"
     />
@@ -95,6 +96,11 @@ export default {
       type: Boolean,
       required: false,
       default: () => true,
+    },
+    tablePermissions: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
     errorPerColumn: {
       type: Object,

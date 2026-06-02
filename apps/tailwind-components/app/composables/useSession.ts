@@ -1,9 +1,9 @@
+import { useState } from "#app";
 import { useAsyncData } from "#app/composables/asyncData";
+import { useRouter } from "#app/composables/router";
 import { computed, type Ref } from "vue";
-import { useRoute, useRouter } from "#app/composables/router";
 import type { ISession } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
-import { useState } from "#app";
 
 export const useSession = async (schemaId?: string) => {
   const router = useRouter();
@@ -55,7 +55,7 @@ export const useSession = async (schemaId?: string) => {
         session.value.roles = {};
       }
       session.value.roles[schemaId] =
-        schemaRolesResult?.data.value?.data._session.roles;
+        schemaRolesResult?.data.value?.data?._session?.roles;
     }
   }
 
@@ -78,7 +78,7 @@ export const useSession = async (schemaId?: string) => {
       if (!session.value.roles) {
         session.value.roles = {};
       }
-      session.value.roles[schemaId] = schemaRolesResult.data._session.roles;
+      session.value.roles[schemaId] = schemaRolesResult.data?._session?.roles;
     }
   }
 

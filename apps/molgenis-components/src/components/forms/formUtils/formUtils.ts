@@ -261,7 +261,7 @@ export function isInvalidNonNegativeInt(value: columnValue): boolean {
 
 export function isMissingValue(value: columnValue): boolean {
   if (Array.isArray(value)) {
-    return value.some((element) => isMissingValue(element));
+    return !value.length || value.some((element) => isMissingValue(element));
   } else {
     return value === undefined || value === null || value === "";
   }

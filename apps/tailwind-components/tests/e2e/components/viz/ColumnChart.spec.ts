@@ -8,16 +8,15 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${route}viz/ColumnChart.story`);
-    await page
-      .getByRole("heading", { name: "VizColumnChart" })
-      .click({ delay: 500 });
+    const title = await page.getByRole("heading", { name: "VizColumnChart" });
+    await title.waitFor();
   });
 
   test("columns and labels are rendered:", async ({ page }) => {
     const columns = await page.locator("g.columns rect").all();
     const columnLabels = await page.locator("g.columns text").all();
-    expect(columns.length).toEqual(4);
-    expect(columnLabels.length).toEqual(4);
+    expect(columns.length).toEqual(6);
+    expect(columnLabels.length).toEqual(6);
     expect(await columnLabels[0].getAttribute("class")).toContain(
       "fill-chart-text"
     );
@@ -45,9 +44,6 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     expect(yAxisTicks.length).toEqual(5);
     expect(yAxisTickLines.length).toEqual(5);
     expect(yAxisTickLabels.length).toEqual(5);
-    expect(await yAxisTickLabels[0].getAttribute("class")).toContain(
-      "fill-chart-text"
-    );
 
     const xAxisTicks = await page.locator("g.axes g.x-axis g.tick").all();
     const xAxisTickLines = await page
@@ -56,11 +52,13 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const xAxisTickLabels = await page
       .locator("g.axes g.x-axis g.tick text")
       .all();
-    expect(xAxisTicks.length).toEqual(4);
-    expect(xAxisTickLines.length).toEqual(4);
-    expect(xAxisTickLabels.length).toEqual(4);
-    expect(await xAxisTickLabels[0].getAttribute("class")).toContain(
-      "fill-chart-text"
+    expect(xAxisTicks.length).toEqual(6);
+    expect(xAxisTickLines.length).toEqual(6);
+    expect(xAxisTickLabels.length).toEqual(6);
+
+    const axes = await page.locator("g.axes");
+    expect(await axes.getAttribute("class")).toBe(
+      "axes [&_text]:fill-chart-text [&_text]:text-body-sm [&_line]:stroke-chart-paths [&_path]:stroke-chart-paths"
     );
   });
 

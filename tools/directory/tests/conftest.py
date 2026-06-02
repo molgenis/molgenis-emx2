@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from molgenis_emx2.directory_client.model import (
+from src.molgenis_emx2.directory_client.model import (
     Node,
     NodeData,
     Source,

@@ -1,58 +1,66 @@
 <script setup lang="ts">
-import subpopulationsQuery from "../../../../gql/subpopulations";
-import collectionEventsQuery from "../../../../gql/collectionEvents";
-import datasetQuery from "../../../../gql/datasets";
-import ontologyFragment from "../../../../gql/fragments/ontology";
-import fileFragment from "../../../../gql/fragments/file";
-import variablesQuery from "../../../../gql/variables";
-import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../utils/urlHelpers";
-import type {
-  IDefinitionListItem,
-  IMgError,
-  IOntologyItem,
-  linkTarget,
-  DefinitionListItemType,
-} from "../../../../../interfaces/types";
-import dateUtils from "../../../../utils/dateUtils";
+import { useFetch, useHead, useRoute, useRuntimeConfig } from "#app";
+import {
+  logError,
+  moduleToString,
+  removeChildIfParentSelected,
+  useDatasetStore,
+} from "#imports";
+import { computed, ref } from "vue";
+import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
+import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type {
   IResources,
   IVariables,
 } from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
-import { computed, ref } from "vue";
-import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
-import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
-import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
-import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
-import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
-import SideNavigation from "../../../../components/SideNavigation.vue";
-import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
-import ReferenceCard from "../../../../components/ReferenceCard.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
-import TableContent from "../../../../components/table/Content.vue";
-import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
-import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
-import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
-import VariableDisplay from "../../../../components/VariableDisplay.vue";
-import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
-import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import type {
+  DefinitionListItemType,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+  linkTarget,
+} from "../../../../../interfaces/types";
 import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../tailwind-components/types/types";
+import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
+import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
+import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
+import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
+import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
+import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
+import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
+import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
+import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
+import ReferenceCard from "../../../../components/ReferenceCard.vue";
+import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
+import SideNavigation from "../../../../components/SideNavigation.vue";
+import CartButton from "../../../../components/store/CartButton.vue";
+import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
+import TableContent from "../../../../components/table/Content.vue";
+import VariableDisplay from "../../../../components/VariableDisplay.vue";
+import collectionEventsQuery from "../../../../gql/collectionEvents";
+import datasetQuery from "../../../../gql/datasets";
+import fileFragment from "../../../../gql/fragments/file";
+import ontologyFragment from "../../../../gql/fragments/ontology";
+import subpopulationsQuery from "../../../../gql/subpopulations";
+import variablesQuery from "../../../../gql/variables";
+import dateUtils from "../../../../utils/dateUtils";
+import { resourceIdPath } from "../../../../utils/urlHelpers";
+import { getKey } from "../../../../utils/variableUtils";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const schema = config.public.schema as string;
+const schema = config.public.schema;
+const datasetStore = useDatasetStore();
 
-const query = `
+const variables = { id: route.params.resource };
+
+const resourceQuery = `
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
       id
@@ -181,7 +189,7 @@ const query = `
             name
             order
           }
-        } 
+        }
       }
       subpopulations {
           name
@@ -214,7 +222,7 @@ const query = `
         logo {
           url
         }
-        type {
+        catalogueType {
           name
         }
       }
@@ -233,23 +241,25 @@ const query = `
     }
   }
 `;
-const variables = { id: route.params.resource };
+
 interface IResourceQueryResponseValue extends IResources {
-  publications_agg: { count: number };
-  subpopulations_agg: { count: number };
-  collectionEvents_agg: { count: number };
+  publications_agg?: { count: number };
+  subpopulations_agg?: { count: number };
+  collectionEvents_agg?: { count: number };
 }
+
 interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
   };
 }
+
 const { data, error } = await useFetch<IResponse, IMgError>(
   `/${schema}/graphql`,
   {
     method: "POST",
-    body: { query, variables },
+    body: { query: resourceQuery, variables },
   }
 );
 
@@ -257,12 +267,10 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(
-  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
-);
+const resource = computed(() => data.value?.data?.Resources?.[0]);
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
-  if (!subpopulations.value || !subpopulations.value.length) {
+  if (!subpopulations.value?.length) {
     return [];
   } else {
     const allItems = subpopulations.value
@@ -383,12 +391,8 @@ async function fetchDatasetOptions() {
 
 fetchDatasetOptions();
 
-const networks = computed(() =>
-  !resource.value?.partOfNetworks
-    ? []
-    : resource.value?.partOfNetworks.filter((c) =>
-        c.type.find((t) => t.name == "Network")
-      )
+const networks = computed(
+  () => (resource.value?.partOfNetworks ?? []) as IResources[]
 );
 
 const tocItems = computed(() => {
@@ -720,7 +724,7 @@ const showPopulation = computed(
         :title="
           route.params.resourceType === 'about'
             ? 'About '
-            : resource?.acronym || resource?.name
+            : resource?.acronym || resource?.name || ''
         "
         :description="
           (route.params.resourceType === 'about' ? 'About ' : '') +
@@ -730,9 +734,6 @@ const showPopulation = computed(
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
-        </template> -->
       </PageHeader>
     </template>
     <template #side>
@@ -752,7 +753,15 @@ const showPopulation = computed(
           :contact-name="resource?.name"
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
-        />
+        >
+          <CartButton
+            v-if="resource && datasetStore.isEnabled"
+            :resource="resource"
+            :compact="false"
+            :invert="false"
+            :isButton="true"
+          />
+        </ContentBlockIntro>
 
         <ContentBlockDescription
           id="Description"
@@ -962,7 +971,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.catalogue}/networks/${network.id}`,
                 },
-               network.type?.some( (type) => type.name === 'Catalogue')
+               network.catalogueType
                ? {
                 title: 'Catalogue',
                 url: `/${network.id}`,

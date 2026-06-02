@@ -119,6 +119,37 @@ system.
 }
 ```
 
+The `roles` field returns the names of the roles assigned to the current user as a plain list of strings (e.g.
+`["Viewer", "Editor"]`). Use this for schema-level role checks such as `Manager` or `Editor`.
+
+To retrieve computed per-table permissions for the current user, use `tablePermissions`:
+
+```graphql
+{
+  _session {
+    email
+    admin
+    roles
+    tablePermissions {
+      name
+      canView
+      canInsert
+      canUpdate
+      canDelete
+    }
+    schemas
+  }
+}
+```
+
+- `roles` — list of role name strings for the current user. Use for schema-level checks (e.g. `roles.includes("Manager")`).
+- `tablePermissions` — effective permissions per table, computed from all inherited roles. Each entry contains:
+  - `name` — table name
+  - `canView` — user can read rows from this table
+  - `canInsert` — user can insert rows into this table
+  - `canUpdate` — user can update rows in this table
+  - `canDelete` — user can delete rows from this table
+
 ### settings
 
 MOLGENIS has a generic key/value settings query for storing settings on database level
@@ -269,6 +300,125 @@ mutation {
 > The `members` field is only accessible to users with sufficient permissions (e.g. admin users or users with an 
 > **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
 > schema.
+
+## Table-level permissions API
+
+Custom roles with per-table grants can be managed through GraphQL. This is distinct from the standard
+schema-wide roles (Viewer, Editor, Manager, etc.) — it allows a role to have access to only specific
+tables, with independent SELECT / INSERT / UPDATE / DELETE control.
+
+### Query roles and their permissions
+
+The `roles` field in `_schema` returns all roles — both system roles and custom roles — with their
+effective permissions.
+
+```graphql
+{
+  _schema {
+    roles {
+      name
+      system
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+      }
+    }
+  }
+}
+```
+
+- `system: true` — built-in role (Viewer, Editor, Manager, …). Its permissions apply to all tables (`table: "*"`).
+- `system: false` — custom role. Each entry in `permissions` targets a specific table.
+- `select` — `true` when SELECT is granted, `null` when not.
+- `insert` / `update` / `delete` — `true` when granted, `null` when not.
+
+### Create a custom role and grant permissions
+
+Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
+listed permissions are applied per field:
+
+| Field value | Effect |
+|---|---|
+| `true` | Grant the privilege |
+| `false` | Revoke the privilege |
+| `null` / omitted | Leave the existing grant unchanged |
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+Grant write access to a second table on an existing role:
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableB", select: true, insert: true, update: true, delete: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+### Revoke individual privileges
+
+Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TableAViewer"
+        permissions: [
+          { table: "TableA", select: false, insert: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
+
+### Delete a custom role
+
+```graphql
+mutation {
+  drop(
+    roles: ["TableAViewer"]
+  ) {
+    message
+  }
+}
+```
+
+> **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
+> System roles cannot be created or deleted through this API.
 
 ## change schema elements
 
@@ -691,7 +841,6 @@ the following function are available:
 - _is_null - use this filter to find null (true) or not null (false) values
 - _match_any(value)
 - _match_all(value)
-- _match_none(value)
 - _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
 - _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 - _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term

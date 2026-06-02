@@ -19,6 +19,6 @@ Download the appropriate *.jar release and run command:
 ```java -cp molgenis-emx2-<version>-all.jar org.molgenis.emx2.sql.AToolToCleanDatabase```
 
 If you have the sourcecode you can also run:
-```gradle cleandb```
+```./gradlew cleandb```
 
 Currently there is no know way to execute this via docker image.

@@ -26,7 +26,7 @@
         <slot></slot>
       </main>
 
-      <FooterComponent />
+      <FooterComponent><FooterVersion /></FooterComponent>
     </div>
   </div>
 </template>

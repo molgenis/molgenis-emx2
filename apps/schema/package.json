@@ -13,7 +13,7 @@
     "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "graphql-tag": "2.12.6",
-    "mermaid": "11.10.0",
+    "mermaid": "11.15.0",
     "metadata-utils": "workspace:*",
     "molgenis-components": "workspace:*",
     "nomnoml": "1.6.2",
@@ -23,8 +23,8 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.6.2",
+    "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "5.4.21"
+    "vite": "7.3.2"
   }
 }

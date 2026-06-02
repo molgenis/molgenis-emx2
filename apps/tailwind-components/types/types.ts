@@ -150,8 +150,20 @@ export interface ISession {
 
 export interface RefPayload {
   metadata: IRefColumn;
-  data: IRow;
+  data: columnValue;
 }
+
+export interface ColumnPayload {
+  metadata: IColumn;
+  data: columnValue;
+}
+
+export interface ListPayload {
+  metadata: IColumn;
+  data: columnValue[];
+}
+
+export type cellPayload = ColumnPayload | RefPayload | ListPayload;
 
 export interface Section {
   heading: string;
@@ -166,3 +178,15 @@ export interface Crumb {
   url: string;
   label: string;
 }
+export interface Link {
+  link: string;
+  isSpaLink?: boolean;
+}
+export interface MenuItem extends Link {
+  label: string;
+  role?: string;
+  key?: string;
+  submenu?: Menu;
+}
+
+export type Menu = MenuItem[];

@@ -89,6 +89,7 @@ module.exports = {
     extend: {
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
+        "no-background-modal": "var(--box-shadow-no-background-modal)",
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
@@ -170,6 +171,8 @@ module.exports = {
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
         "button-inline-hover": "var(--background-color-button-inline-hover)",
+        "button-cart-remove": "var(--background-color-button-cart-remove)",
+        "button-cart-count": "var(--background-color-button-cart-count)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         "navigation-dynamic": "var(--background-color-navigation-dynamic)",
@@ -247,10 +250,14 @@ module.exports = {
         "button-text": "var(--text-color-button-text)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
-        menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
           "var(--text-color-button-tree-node-toggle-hover)",
+        "button-remove": "var(--text-color-button-remove)",
+        "button-cart-add": "var(--text-color-button-cart-add)",
+        "button-cart-add-hover": "var(--text-color-button-cart-add-hover)",
+        "button-cart-remove": "var(--text-color-button-cart-remove)",
+        "button-cart-count": "var(--text-color-button-cart-count)",
         menu: "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
@@ -307,6 +314,7 @@ module.exports = {
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
+        border: "var(--border-color-input)",
         "input-description": "var(--text-color-input-description)",
 
         required: "var(--text-color-required)",
@@ -378,6 +386,7 @@ module.exports = {
         "button-switch": "var(--border-color-button-switch)",
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
+        footer: "var(--border-color-footer)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",
@@ -407,6 +416,9 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
         "logo-text": "var(--text-color-logo-text)",
         "logo-text-inverted": "var(--text-color-logo-text-inverted)",
+        "logo-background": "var(--background-color-logo)",
+        "logo-icon-primary": "var(--logo-icon-primary)",
+        "logo-icon-secondary": "var(--logo-icon-secondary)",
         "chart-text": "var(--chart-text)",
         "chart-paths": "var(--chart-paths)",
       }),
@@ -431,6 +443,7 @@ module.exports = {
       },
       outlineColor: {
         select: "var(--outline-color-select)",
+        "pagination-hover": "var(--border-color-pagination-hover)",
       },
       content: () => ({
         required: "var(--text-content-required)",

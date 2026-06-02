@@ -55,6 +55,7 @@ Catalogs,,conforms_to,,hyperlink,,true,,The specification of the catalog metadat
 Catalogs,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
 Catalogs,,access_rights,,ontology_array,,,,"Information about who can access the resource or an indication of its security status. Access rights may include information regarding access or restrictions based on privacy, security, or other policies.",DirectoryOntologies,AccessRights,,,,,,,dcterms:accessRights
 Catalogs,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
+Catalogs,,data_services,,refback,,,,The data services listed in this catalog.,,DataServices,part_of,,,,,,"ldp:contains,dcat:service"
 Catalogs,,theme_taxonomy,,ontology_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",DirectoryOntologies,Themes,,,,,,,dcat:themeTaxonomy
 Catalogs,,theme,,ontology_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,DirectoryOntologies,Themes,,,,,,,dcat:theme
 Catalogs,,keyword,,string_array,,,,Keyword(s) describing the catalog,,,,,,,,,dcat:keyword

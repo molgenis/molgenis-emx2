@@ -104,7 +104,7 @@ export default {
     canEdit() {
       return (
         this.session?.email === "admin" ||
-        this.session?.roles.includes("Manager")
+        this.session?.roles?.includes("Manager")
       );
     },
   },

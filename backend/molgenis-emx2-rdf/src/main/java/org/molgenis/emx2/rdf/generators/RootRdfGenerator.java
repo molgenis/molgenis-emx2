@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
@@ -23,7 +24,10 @@ public class RootRdfGenerator extends RdfGenerator {
   }
 
   public void generate(Collection<Schema> schemas) {
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schemas);
+    NamespaceMapper namespaces =
+        new NamespaceMapper(
+            getBaseURL(), schemas.stream().map(Schema::getMetadata).collect(Collectors.toSet()));
+
     List<Table> tables =
         schemas.stream()
             .map(Schema::getTablesSorted)

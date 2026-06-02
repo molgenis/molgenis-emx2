@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web.service;
 
 import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
@@ -8,8 +9,6 @@ import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.List;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,20 +16,32 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String TYPE_NETWORK = "Network";
   private static final String RESOURCE = "resource";
 
   private enum ResourcePath {
-    networks,
-    collections,
+    NETWORKS("networks"),
+    CATALOGUES("catalogues"),
+    COLLECTIONS("collections");
+
+    public final String value;
+
+    ResourcePath(String value) {
+      this.value = value;
+    }
   }
 
   private final Schema schema;
   private final String baseUrl;
+  private final String networkTableClass;
+  private final String catalogueTableClass;
+  private final String collectionTableClass;
 
   public CatalogueSiteMap(Schema schema, String baseUrl) {
     this.schema = schema;
     this.baseUrl = baseUrl;
+    networkTableClass = "%s.%s".formatted(schema.getName(), "Networks");
+    catalogueTableClass = "%s.%s".formatted(schema.getName(), "Catalogues");
+    collectionTableClass = "%s.%s".formatted(schema.getName(), "Collections");
   }
 
   public String buildSiteMap() {
@@ -42,29 +53,43 @@ public class CatalogueSiteMap {
             "Expected table 'Resources' not found in schema: %s".formatted(schema.getName()));
       }
       resourceTable
-          .select(s("id"), s("type"))
+          .select(s("id"), s(Constants.MG_TABLECLASS))
           .retrieveRows()
           .forEach(
               resource -> {
                 String collectionId = resource.getString("id");
                 ResourcePath resourcePath = getResourcePath(resource);
-                try {
-                  wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
-                } catch (MalformedURLException e) {
-                  logger.error(
-                      "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
-                      schema.getName(),
-                      resourcePath.name(),
-                      collectionId,
-                      e);
+                if (resourcePath != null) {
+                  try {
+                    wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
+                  } catch (MalformedURLException e) {
+                    logger.error(
+                        "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
+                        schema.getName(),
+                        resourcePath.value,
+                        collectionId,
+                        e);
+                  }
                 }
               });
 
-      if (schema.getTable("Variables") != null) {
-        schema
-            .query("Variables")
+      Table variableTable = schema.getTable("Variables");
+
+      if (variableTable != null) {
+        variableTable
             .select(s("name"), s(RESOURCE), s("dataset"))
-            .where(f(RESOURCE, f("type", f("name", Operator.EQUALS, TYPE_NETWORK))))
+            .where(
+                f(
+                    RESOURCE,
+                    or(
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Networks"),
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Catalogues"))))
             .retrieveRows()
             .forEach(
                 variable -> {
@@ -90,12 +115,15 @@ public class CatalogueSiteMap {
   }
 
   private ResourcePath getResourcePath(Row resource) {
-    List<String> types = Arrays.asList(resource.getStringArray("type", false));
-    // no switch bool in java 21
-    if (types.contains(TYPE_NETWORK)) {
-      return ResourcePath.networks;
+    String tableClass = resource.getString(Constants.MG_TABLECLASS);
+    if (networkTableClass.equals(tableClass)) {
+      return ResourcePath.NETWORKS;
+    } else if (catalogueTableClass.equals(tableClass)) {
+      return ResourcePath.CATALOGUES;
+    } else if (collectionTableClass.equals(tableClass)) {
+      return ResourcePath.COLLECTIONS;
     } else {
-      return ResourcePath.collections;
+      return null;
     }
   }
 
@@ -106,7 +134,7 @@ public class CatalogueSiteMap {
             "%s/all/%s/%s"
                 .formatted(
                     resourceBasePath,
-                    encodePathSegment(resourcePath.name()),
+                    encodePathSegment(resourcePath.value),
                     encodePathSegment(resourceId)))
         .build();
   }

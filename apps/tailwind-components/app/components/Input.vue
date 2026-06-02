@@ -246,13 +246,7 @@
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
     :isArray="true"
     :modelValue="getOntologyArrayValues(modelValue)"
-    @update:modelValue="
-      Array.isArray($event)
-        ? (modelValue = $event.map((value) => {
-            return { name: value };
-          }))
-        : (modelValue = [])
-    "
+    @update:modelValue="updateOntologyArrayValues"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -371,4 +365,14 @@ const NON_REF_ARRAY_TYPES = [
   "UUID_ARRAY",
   "PERIOD_ARRAY",
 ];
+
+function updateOntologyArrayValues(event?: string | string[] | null) {
+  if (Array.isArray(event) && event.length) {
+    modelValue.value = event.map((value) => {
+      return { name: value };
+    });
+  } else {
+    modelValue.value = null;
+  }
+}
 </script>

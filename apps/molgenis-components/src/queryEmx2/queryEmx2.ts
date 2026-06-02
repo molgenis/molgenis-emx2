@@ -3,7 +3,7 @@
  */
 
 import { request } from "graphql-request";
-import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
+import { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 
 class QueryEMX2 {
   tableId = "";

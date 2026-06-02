@@ -223,13 +223,18 @@ const submitForm = async () => {
           />
         </template>
       </SideModal>
+
       <Button
         v-if="contact"
         @click="showContactInformation = true"
+        data-track-category="CTA"
+        data-track-action="click"
+        data-track-name="contact-button"
         label="Contact"
         type="secondary"
         size="medium"
       />
+      <slot />
     </div>
 
     <NotificationModal

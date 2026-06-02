@@ -13,15 +13,7 @@
       </div>
       <div v-else class="pb-3">
         <h4>Upload</h4>
-        <MessageWarning
-          v-if="
-            !session ||
-            !session.roles ||
-            !['Manager', 'Editor', 'Owner'].some((r) =>
-              session.roles.includes(r)
-            )
-          "
-        >
+        <MessageWarning v-if="!session?.roles?.includes('Editor')">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -48,9 +40,7 @@
           v-if="
             session &&
             session.roles &&
-            ['Manager', 'Editor', 'Viewer', 'Aggregator', 'Owner'].some((r) =>
-              session.roles.includes(r)
-            )
+            session.roles?.some((r) => r === 'Viewer' || r === 'Aggregator')
           "
         ></div>
         <h4>Download</h4>
@@ -156,14 +146,14 @@ export default {
   },
   computed: {
     visibleTables() {
-      if (this.session?.roles.includes("Viewer")) {
+      if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
       } else {
         return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
       }
     },
     isManagerOrOwner() {
-      return this.session?.roles.some((r) => ["Manager", "Owner"].includes(r));
+      return this.session?.roles?.includes("Manager");
     },
     tablesHash() {
       if (this.tables) {

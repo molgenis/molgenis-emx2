@@ -56,7 +56,7 @@ async function fetchRows() {
     ...props.filter,
     limit: pageSize,
     offset: offset.value,
-    orderby,
+    orderby: [orderby],
     search: props.searchFilterValue ?? undefined,
   });
 

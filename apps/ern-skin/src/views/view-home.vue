@@ -44,7 +44,7 @@
         </LinkCard>
         <LinkCard id="quicklink-dashboard">
           <DocumentTextIcon />
-          <h3>View Documents</h3>
+          <h3>Documents</h3>
           <p>Find and download ERRAS documents</p>
           <router-link :to="{ name: 'documents' }">View Documents</router-link>
         </LinkCard>

@@ -10,7 +10,7 @@ withDefaults(defineProps<INavigationCards>(), {
 <template>
   <div
     :id="id"
-    class="grid grid-cols-1 gap-1.5 px-5 py-7.5 text-title-contrast text-center border border-button-tertiary"
+    class="relative grid grid-cols-1 gap-1.5 px-5 py-7.5 text-title-contrast text-center border border-button-tertiary"
   >
     <h3 v-if="title" class="text-title text-heading-lg font-bold">
       {{ title }}
@@ -29,5 +29,6 @@ withDefaults(defineProps<INavigationCards>(), {
         <ExternalLink class="w-6 h-6" />
       </template>
     </a>
+    <slot></slot>
   </div>
 </template>

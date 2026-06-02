@@ -1,3 +1,7 @@
+export interface IMgTableClass {
+    mg_tableclass: string;
+}
+
 export interface IFile {
     id?: string;
     size?: number;
@@ -20,7 +24,7 @@ export interface IOntologyNode extends ITreeNode {
     order?: number;
 }
 
-export interface ICategory {
+export interface ICategory extends IMgTableClass {
     name: string;
 }
 
@@ -28,7 +32,7 @@ export interface ICategory_agg {
     count: number
 }
 
-export interface IOrder {
+export interface IOrder extends IMgTableClass {
     orderId: string;
     pet?: any;
     quantity?: string;
@@ -41,7 +45,7 @@ export interface IOrder_agg {
     count: number
 }
 
-export interface IPet {
+export interface IPet extends IMgTableClass {
     name: string;
     category: any;
     photoUrls?: string[];
@@ -55,7 +59,7 @@ export interface IPet_agg {
     count: number
 }
 
-export interface ITag {
+export interface ITag extends IMgTableClass {
     order?: number;
     name: string;
     label?: string;
@@ -72,7 +76,7 @@ export interface ITag_agg {
     count: number
 }
 
-export interface IUser {
+export interface IUser extends IMgTableClass {
     username: string;
     firstName?: string;
     lastName?: string;

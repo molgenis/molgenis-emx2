@@ -49,7 +49,7 @@
               water: '#061428',
             }"
             :tooltipTemplate="
-              (row) => {
+              (row: Organisations) => {
                 return `
               <p class='title'>
                 ${row.name}
@@ -88,10 +88,11 @@
             xvar="category"
             yvar="value"
             xAxisLineBreaker=";"
-            :yMax="ageByGroupMax"
-            :yTickValues="ageByGroupTicks"
+            :yMin="0"
+            :yMax="ageByGroupYAxis.limit"
+            :yTickValues="ageByGroupYAxis.ticks"
             :chartHeight="225"
-            :chartMargins="{ top: 10, right: 5, bottom: 40, left: 25 }"
+            :chartMargins="{ top: 25, right: 5, bottom: 40, left: 50 }"
             :columnPaddingInner="0.2"
           />
         </DashboardChart>
@@ -112,7 +113,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
@@ -129,23 +130,50 @@ import {
   PieChart2,
   ColumnChart,
   WorldGeoJson,
+  // @ts-ignore
 } from "molgenis-viz";
 
-import { seqAlong } from "../utils/utils";
-import { max } from "d3";
-const d3 = { max };
+import type { IStatistics } from "../types/ernskin";
+import type {
+  IKeyValuePair,
+  sexAtBirthData,
+  OrganisationsResponse,
+  Organisations,
+  ComponentsResponse,
+  Components,
+  DashboardHighlights,
+  PatientsByGroup,
+  IAgeByGroup,
+} from "../types/dashboard";
 
-let loading = ref(true);
-let error = ref(null);
-let registryHighlights = ref({});
-let organisations = ref([]);
-let ageByGroup = ref([]);
-let ageByGroupMax = ref(0);
-let ageByGroupTicks = ref([]);
-let patientsByGroup = ref([]);
-let sexAtBirth = ref([]);
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
-async function getOrganisations() {
+const loading = ref<boolean>(true);
+const error = ref<string>();
+const registryHighlights = ref<DashboardHighlights>({
+  Patients: 0,
+  "Member countries": 0,
+  "Healthcare providers": 0,
+});
+const organisations = ref<Organisations[]>([]);
+const ageByGroup = ref<IAgeByGroup[]>([]);
+const patientsByGroup = ref<PatientsByGroup>();
+const sexAtBirth = ref<sexAtBirthData>({
+  Female: 0,
+  Intersex: 0,
+  Male: 0,
+  Undetermined: 0,
+});
+
+const ageByGroupYAxis = ref<NumericAxisTickData>({
+  limit: 0,
+  ticks: [] as number[],
+  min: 0,
+  max: 0,
+});
+
+async function getOrganisations(): Promise<Organisations[]> {
   const query = gql`
     {
       Organisations {
@@ -162,19 +190,14 @@ async function getOrganisations() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
-  organisations.value = response.Organisations.map((row) => {
-    return {
-      ...row,
-      hasSubmittedData: row.providerInformation[0].hasSubmittedData
-        ? "Submitted"
-        : "Not Submitted",
-      providerIdentifier: row.providerInformation[0].providerIdentifier,
-    };
-  });
+  const response: OrganisationsResponse = await request(
+    "../api/graphql",
+    query
+  );
+  return response.Organisations;
 }
 
-async function getStatistics() {
+async function getComponents(): Promise<Components[]> {
   const query = gql`
     {
       Components {
@@ -188,63 +211,103 @@ async function getStatistics() {
       }
     }
   `;
-  const response = await request("../api/graphql", query);
-  const data = response.Components;
+  const response: ComponentsResponse = await request("../api/graphql", query);
+  return response.Components as Components[];
+}
 
-  const highlights = data
-    .filter((row) => row.name === "highlights")[0]
-    ["statistics"].map((row) => [row.label, row.value]);
-  registryHighlights.value = Object.fromEntries(highlights);
+function prepDataHighlights(data: Components) {
+  const highlightValues = data.statistics.map((row: IStatistics) => [
+    row.label,
+    row.value,
+  ]);
+  registryHighlights.value = Object.fromEntries(highlightValues);
+}
 
-  patientsByGroup.value = data
-    .filter((row) => row.name === "enrolment")[0]
-    ["statistics"].map((row) => {
-      return {
-        ...row,
-        "thematic disease group": row.label,
-        patients: row.value,
-      };
-    });
+function prepEnrolment(data: Components) {
+  const enrolmentData = data.statistics.map((row) => {
+    return {
+      ...row,
+      "thematic disease group": row.label,
+      patients: row.value,
+    };
+  });
+  patientsByGroup.value = enrolmentData as unknown as PatientsByGroup;
+}
 
-  ageByGroup.value = data
-    .filter((row) => row.name === "age")[0]
-    ["statistics"].sort((current, next) =>
-      current.valueOrder < next.valueOrder ? -1 : 1
+function prepAgeByGroup(data: Components) {
+  const ageByGroupData = data.statistics
+    .sort((current: IStatistics, next: IStatistics) =>
+      (current.valueOrder as number) < (next.valueOrder as number) ? -1 : 1
     )
-    .map((row) => {
+    .map((row: IStatistics) => {
       return {
         ...row,
         category: `${row.label};${row.description}`,
       };
     });
-
-  const maxvalue = d3.max(ageByGroup.value, (row) => row.value);
-  ageByGroupMax.value = Math.round(maxvalue / 10) * 10;
-
-  ageByGroupTicks.value = seqAlong(0, ageByGroupMax.value, 2);
-
-  const patientsBySex = data
-    .filter((row) => row.name === "sex")[0]
-    ["statistics"].map((row) => [row.label, row.value])
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  sexAtBirth.value = Object.fromEntries(patientsBySex);
+  ageByGroup.value = ageByGroupData;
 }
 
-async function loadData() {
-  await getOrganisations();
-  await getStatistics();
+function prepGender(data: Components) {
+  const genderData = data.statistics
+    .filter((row: IStatistics) => row.value && row.value > 0)
+    .map((row: IStatistics) => [row.label, row.value])
+    .sort((current, next) => {
+      return (current[1] as number) < (next[1] as number) ? 1 : -1;
+    });
+  sexAtBirth.value = Object.fromEntries(genderData);
 }
 
-onMounted(() => {
-  loadData()
-    .catch((err) => {
-      if (err.response) {
-        error.value = err.response.errors[0].message;
-      } else {
-        error.value = err;
-      }
-    })
-    .finally(() => (loading.value = false));
+onMounted(async () => {
+  try {
+    const orgData = await getOrganisations();
+    const components = await getComponents();
+
+    organisations.value = orgData.map((row: Organisations) => {
+      const providerInformation =
+        row.providerInformation && row.providerInformation[0]
+          ? row.providerInformation[0]
+          : undefined;
+
+      return {
+        ...row,
+        hasSubmittedData: providerInformation?.hasSubmittedData
+          ? "Submitted"
+          : "Not Submitted",
+        providerIdentifier: providerInformation?.providerIdentifier,
+      };
+    });
+
+    const ageChart = components.filter(
+      (row: Components) => row.name === "age"
+    )[0];
+    const highlights = components.filter(
+      (row: Components) => row.name === "highlights"
+    )[0];
+    const enrolment = components.filter(
+      (row: Components) => row.name === "enrolment"
+    )[0];
+    const gender = components.filter(
+      (row: Components) => row.name === "sex"
+    )[0];
+
+    prepDataHighlights(highlights);
+    prepEnrolment(enrolment);
+    prepAgeByGroup(ageChart);
+    prepGender(gender);
+
+    if (ageByGroup.value) {
+      ageByGroupYAxis.value = generateAxisTickData(ageByGroup.value, "value");
+    }
+
+    loading.value = false;
+  } catch (err: any) {
+    if (err.response) {
+      error.value = err.response.errors[0].message;
+    } else {
+      error.value = err as string;
+    }
+  }
 });
 </script>
 

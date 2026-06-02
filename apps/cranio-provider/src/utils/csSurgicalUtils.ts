@@ -14,7 +14,10 @@ export function filterAgeAtSurgeryData(data: IChartData[], diagnosis: string) {
       return row.dataPointPrimaryCategory === diagnosis;
     })
     .sort((a: IChartData, b: IChartData) => {
-      return (a.dataPointTime as number) - (b.dataPointTime as number);
+      return (
+        (a.dataPointTime as unknown as number) -
+        (b.dataPointTime as unknown as number)
+      );
     });
 }
 

@@ -10,6 +10,7 @@ const links = [
     url: "https://molgenis.github.io/molgenis-emx2/#/",
     urlLabel: "Read the docs",
     urlIsExternal: true,
+    order: 0,
   },
   {
     id: "2UoF7nu62PnR",
@@ -19,6 +20,7 @@ const links = [
     url: "https://github.com/molgenis/molgenis-emx2",
     urlLabel: "Go to github",
     urlIsExternal: true,
+    order: 1,
   },
   {
     id: "UKX8WqOxwP9a",
@@ -28,6 +30,7 @@ const links = [
     url: "mailto:some.email@test.com",
     urlLabel: "Contact",
     urlIsExternal: true,
+    order: 2,
   },
 ];
 </script>

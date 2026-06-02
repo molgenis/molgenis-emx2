@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { rowToString } from "../../../utils/rowToString";
+import { columnValueToString } from "../../../utils/columnValueToString";
 import Button from "../../Button.vue";
 import Accordion from "../../Accordion.vue";
 import DisplayRecord from "../../display/Record.vue";
@@ -36,7 +36,7 @@ const label = computed<string | undefined>(() => {
 });
 
 function toLabel(row: columnValueObject) {
-  return rowToString(row, props.refLabel ?? "");
+  return columnValueToString(row, props.refLabel ?? "");
 }
 </script>
 

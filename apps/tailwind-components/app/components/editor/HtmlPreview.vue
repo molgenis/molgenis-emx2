@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useTemplateRef, watch } from "vue";
 import type { IDeveloperPages } from "../../../types/cms";
-import { generateHtmlPreview } from "../../utils/Pages";
+import { generateHtmlPreview } from "../../utils/cms";
 
 const props = defineProps<{
   content: IDeveloperPages;

@@ -9,6 +9,7 @@ import {
 } from "#app";
 import type {
   IFilter,
+  IFilterCondition,
   IMgError,
   activeTabType,
 } from "../../../../interfaces/types";
@@ -117,6 +118,28 @@ pageFilterTemplate = pageFilterTemplate.concat([
     conditions: [],
   },
   {
+    id: "continent",
+    config: {
+      label: "Continents",
+      type: "ONTOLOGY",
+      ontologyTableId: "Continents",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "continents",
+    },
+    conditions: [],
+  },
+  {
+    id: "country",
+    config: {
+      label: "Countries",
+      type: "ONTOLOGY",
+      ontologyTableId: "Countries",
+      ontologySchema: "CatalogueOntologies",
+      columnId: "countries",
+    },
+    conditions: [],
+  },
+  {
     id: "dataCategories",
     config: {
       label: "Data categories",
@@ -148,7 +171,25 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
       columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => ({
+        ...filterBuilder,
+        _and: [
+          ...(Array.isArray(filterBuilder._and) ? filterBuilder._and : []),
+          {
+            _or: [
+              { areasOfInformation: { equals: conditions } },
+              {
+                collectionEvents: {
+                  areasOfInformation: { equals: conditions },
+                },
+              },
+            ],
+          },
+        ],
+      }),
     },
     conditions: [],
   },
@@ -194,9 +235,10 @@ const filters = computed(() => {
 
 const query = computed(() => {
   return `
-  query Resources($filter:ResourcesFilter, $orderby:Resourcesorderby){
+  query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
+      pid
       name
       acronym
       description
@@ -208,6 +250,9 @@ const query = computed(() => {
           name
       }
       design {
+          name
+      }
+      networkType {
           name
       }
       datasets {
@@ -229,13 +274,14 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (!result.type) {
-    if (route.params.resourceType === "collections") {
-      result.type = { tags: { equals: "collection" } };
-    }
-    if (route.params.resourceType === "networks") {
-      result.type = { tags: { equals: "network" } };
-    }
+  if (route.params.resourceType === "collections") {
+    result.mg_tableclass = { equals: `${schema}.Collections` };
+  }
+  if (route.params.resourceType === "networks") {
+    result._or = [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ];
   }
 
   // add hard coded page specific filters
@@ -280,7 +326,7 @@ const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
   method: "POST",
   body: {
     query: query,
-    variables: { filter: gqlFilter, orderby },
+    variables: { filter: gqlFilter, orderby: [orderby] },
   },
   onResponseError(_ctx) {
     logError({

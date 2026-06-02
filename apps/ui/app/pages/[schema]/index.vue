@@ -13,6 +13,11 @@ import TableRow from "../../../../tailwind-components/app/components/TableRow.vu
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import type { Crumb } from "../../../../tailwind-components/types/types";
+import { definePageMeta } from "#imports";
+
+definePageMeta({
+  middleware: ["landing-page"],
+});
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -42,7 +47,7 @@ interface Schema {
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: "tables",
+  key: `fetch-tables-for-${schema}`,
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
@@ -100,7 +105,7 @@ crumbs.push({ label: "tables", url: "" });
     <ContentBlock
       v-if="ontologies.length"
       class="mt-1"
-      title="ontolgies"
+      title="ontologies"
       description="description"
     >
       <Table>

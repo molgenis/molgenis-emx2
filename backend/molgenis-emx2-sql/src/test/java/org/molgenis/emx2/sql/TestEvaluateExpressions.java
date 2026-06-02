@@ -12,21 +12,23 @@ import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.molgenis.emx2.*;
 
-public class TestEvaluateExpressions {
+class TestEvaluateExpressions {
 
   private static Database db;
   private static Schema schema;
 
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());
   }
 
   @Test
-  public void testCheckValidationColumnsSuccess() {
+  void testCheckValidationColumnsSuccess() {
 
     // should not throw exception
     executeJavascriptOnMap("columnName2", Map.of("columnName2", true));
@@ -55,45 +57,33 @@ public class TestEvaluateExpressions {
   }
 
   @Test
-  public void testCheckValidationColumnsFailure() {
-    try {
-      checkValidation("columnName2", Map.of());
-      fail("should throw exception");
-    } catch (MolgenisException exception) {
-      String expectedError = "script failed: ReferenceError: columnName2 is not defined";
-      assertEquals(expectedError, exception.getMessage());
-    }
+  void testCheckValidationColumnsFailure() {
+    String expectedError = "script failed: ReferenceError: columnName2 is not defined";
+    Map<String, Object> values = Map.of();
+    assertThrows(
+        MolgenisException.class, () -> checkValidation("columnName2", values), expectedError);
   }
 
-  @Test
-  public void evaluateValidationExpressionTestSuccessLogical() {
-    String expression = "false && true";
-    Row row = new Row();
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "false && true",
+        "5 + 37",
+        "new Date()",
+      })
+  void evaluateValidationExpressionTestSuccess(String expression) {
     assertNotNull(checkValidation(expression, Map.of()));
   }
 
   @Test
-  public void evaluateValidationExpressionTestSuccessNumerical() {
-    String expression = "5 + 37";
-    Row row = new Row();
-    assertNotNull(checkValidation(expression, Map.of()));
-  }
-
-  @Test
-  public void evaluateValidationExpressionTestSuccessFunctionCall() {
-    String expression = "new Date()";
-    assertNotNull(checkValidation(expression, Map.of()));
-  }
-
-  @Test
-  public void testCalculateComputedExpression() {
+  void testCalculateComputedExpression() {
     String expression = "5 + 7";
     Object outcome = executeJavascriptOnMap(expression, Map.of());
     assertEquals(12, outcome);
   }
 
   @Test
-  public void testCalculateComputedExpressionFailure() {
+  void testCalculateComputedExpressionFailure() {
     String expression = "5 + YAAARGH";
     try {
       checkValidation(expression, Map.of());
@@ -103,46 +93,46 @@ public class TestEvaluateExpressions {
   }
 
   @Test
-  public void testCheckValidationSuccess() {
+  void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    applyValidationAndComputed(tableMetadata.getColumns(), new Row());
+    assertDoesNotThrow(() -> applyValidationAndComputed(tableMetadata.getColumns(), new Row()));
   }
 
   @Test
-  public void testCheckValidationWithCapitalColumnNameSuccess() {
+  void testCheckValidationWithCapitalColumnNameSuccess() {
     String validation = "name === 'pietje'";
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
-    applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "pietje"));
+    assertDoesNotThrow(
+        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "pietje")));
   }
 
   @Test
-  public void testCheckValidationWithCapitalColumnNameFail() {
+  void testCheckValidationWithCapitalColumnNameFail() {
     String validation = "name === 'pietje'";
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
-    assertThrows(
-        MolgenisException.class,
-        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "piet")));
+    List<Column> columns = tableMetadata.getColumns();
+    Row row = new Row("Name", "piet");
+    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row));
   }
 
   @Tag("windowsFail")
   @Test
-  public void testCheckValidationInvalidExpression() {
+  void testCheckValidationInvalidExpression() {
     String validation = "this is very invalid";
-    TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    try {
-      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
-    } catch (MolgenisException exception) {
-      assertEquals(
-          "script failed: SyntaxError: Unnamed:1:5 Expected ; but found is\n"
-              + "this is very invalid\n"
-              + "     ^\n",
-          exception.getMessage());
-    }
+    List<Column> columns = table("Test", new Column("name").setValidation(validation)).getColumns();
+    Row row = new Row("name", "test");
+    String expected =
+        """
+        script failed: SyntaxError: Unnamed:1:5 Expected ; but found is
+        this is very invalid\\n
+             ^\\n,
+        """;
+    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row), expected);
   }
 
   @Test
-  public void testCheckValidationTurnToBoolIsFalse() {
+  void testCheckValidationTurnToBoolIsFalse() {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
@@ -153,7 +143,7 @@ public class TestEvaluateExpressions {
   }
 
   @Test
-  public void testInvisibleAreNotUpdated() {
+  void testInvisibleAreNotUpdated() {
     Table test1 =
         schema.create(
             table(

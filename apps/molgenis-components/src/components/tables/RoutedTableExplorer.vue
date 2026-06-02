@@ -5,7 +5,11 @@
       :schemaId="schemaId"
       :canView="canView"
       :canEdit="canEdit"
+      :canInsert="canInsert"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
       :canManage="canManage"
+      :tablePermissions="tablePermissions"
       @updateConditions="updateConditions"
       @updateShowColumns="updateColumns"
       @updateShowFilters="updateFilters"
@@ -69,9 +73,25 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    canInsert: {
+      type: Boolean,
+      default: () => false,
+    },
+    canUpdate: {
+      type: Boolean,
+      default: () => false,
+    },
+    canDelete: {
+      type: Boolean,
+      default: () => false,
+    },
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    tablePermissions: {
+      type: Array,
+      default: () => [],
     },
     showOrderBy: {
       type: String,

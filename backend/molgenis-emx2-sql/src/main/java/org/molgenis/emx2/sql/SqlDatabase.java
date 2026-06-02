@@ -906,6 +906,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
+  public SqlRoleManager getRoleManager() {
+    return new SqlRoleManager(this);
+  }
+
   public void updateRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(

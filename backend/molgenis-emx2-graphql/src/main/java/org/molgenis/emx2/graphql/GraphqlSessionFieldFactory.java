@@ -7,6 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -14,12 +15,36 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
+
+  static final GraphQLObjectType outputTablePermissionsType =
+      GraphQLObjectType.newObject()
+          .name("MolgenisTablePermission")
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_VIEW)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CAN_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -140,6 +165,10 @@ public class GraphqlSessionFieldFactory {
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
+                        .name(TABLE_PERMISSIONS)
+                        .type(GraphQLList.list(outputTablePermissionsType)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
@@ -158,6 +187,7 @@ public class GraphqlSessionFieldFactory {
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
+                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
               User user = database.getUser(database.getActiveUser());
@@ -168,6 +198,20 @@ public class GraphqlSessionFieldFactory {
               return result;
             })
         .build();
+  }
+
+  private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
+    return schema.getPermissionsForActiveUser().stream()
+        .map(
+            p ->
+                Map.<String, Object>of(
+                    ID, convertToPascalCase(p.table()),
+                    NAME, p.table(),
+                    CAN_VIEW, Boolean.TRUE.equals(p.select()),
+                    CAN_INSERT, Boolean.TRUE.equals(p.insert()),
+                    CAN_UPDATE, Boolean.TRUE.equals(p.update()),
+                    CAN_DELETE, Boolean.TRUE.equals(p.delete())))
+        .toList();
   }
 
   public GraphQLFieldDefinition createTokenField(Database database) {

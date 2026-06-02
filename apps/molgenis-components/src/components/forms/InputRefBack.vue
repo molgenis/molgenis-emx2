@@ -18,7 +18,7 @@
           :schemaId="schemaId"
         />
         <RowButton
-          v-if="canEdit"
+          v-if="canInsert"
           type="add"
           @add="handleRowAction('add')"
           class="d-inline p-0"
@@ -32,7 +32,7 @@
           :rowKey="slotProps.rowKey"
         />
         <RowButton
-          v-if="canEdit"
+          v-if="canModify"
           type="edit"
           :table="tableId"
           :schemaId="schemaId"
@@ -42,7 +42,7 @@
           @edit="handleRowAction('edit', slotProps.rowKey)"
         />
         <RowButton
-          v-if="canEdit"
+          v-if="canInsert"
           type="clone"
           :table="tableId"
           :schemaId="schemaId"
@@ -52,7 +52,7 @@
           @clone="handleRowAction('clone', slotProps.rowKey)"
         />
         <RowButton
-          v-if="canEdit"
+          v-if="canRemove"
           type="delete"
           @delete="handleDeleteRowRequest(slotProps.rowKey)"
         />
@@ -150,6 +150,11 @@ export default {
       required: false,
       default: () => false,
     },
+    tablePermissions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -166,6 +171,18 @@ export default {
     };
   },
   computed: {
+    tablePermission() {
+      return this.tablePermissions?.find((p) => p.name === this.tableId);
+    },
+    canInsert() {
+      return this.tablePermission?.canInsert ?? this.canEdit;
+    },
+    canModify() {
+      return this.tablePermission?.canUpdate ?? this.canEdit;
+    },
+    canRemove() {
+      return this.tablePermission?.canDelete ?? this.canEdit;
+    },
     graphqlFilter() {
       return {
         [this.refBackId]: {

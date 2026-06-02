@@ -112,7 +112,7 @@ function scrollToTop() {
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName" class="w-full">
+          <Story :title="storyName">
             <slot></slot>
           </Story>
         </div>

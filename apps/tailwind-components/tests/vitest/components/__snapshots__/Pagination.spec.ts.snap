@@ -19,6 +19,8 @@ exports[`should render the pagination component with jump to edge 1`] = `
     <li><a href="#" class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to last page</span>
         <!---->
       </a></li>
+    <!--v-if-->
+    <!--v-if-->
   </ul>
 </nav>"
 `;

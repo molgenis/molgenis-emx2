@@ -9,10 +9,13 @@
       :class="svgClassNames"
       width="100%"
       height="100%"
-      :viewBox="`0 0 ${chartWidth} ${chartHeight}`"
+      :viewBox="`0 0 ${chartWidth + margins} ${chartHeight}`"
       preserveAspectRatio="xMinYMin"
     >
-      <g class="chart-area" :transform="`translate(0, ${barHeight * 0.15})`">
+      <g
+        class="chart-area"
+        :transform="`translate(${margins}, ${barHeight * 0.15})`"
+      >
         <rect
           :x="xAxis(0)"
           :y="yAxis(title)"
@@ -87,6 +90,7 @@ export default {
   data() {
     return {
       chartWidth: 500,
+      margins: 5,
     };
   },
   computed: {

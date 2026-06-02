@@ -12,53 +12,58 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-public class TestCreateForeignKeys {
+class TestCreateForeignKeys {
 
   static Database db;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
-  public void testInt() {
+  void testInt() {
     executeTest(INT, 5, 6);
   }
 
   @Test
-  public void testString() {
+  void testString() {
     executeTest(STRING, "test", "DependencyOrderOutsideTransactionFails");
   }
 
   @Test
-  public void testDate() {
+  void testDate() {
     executeTest(DATE, "2013-01-01", "2013-01-02");
   }
 
   @Test
-  public void testDateTime() {
+  void testDateTime() {
     executeTest(DATETIME, "2013-01-01T18:00:00", "2013-01-01T18:00:01");
   }
 
   @Test
-  public void testDecimal() {
+  void testDecimal() {
     executeTest(DECIMAL, 5.0, 6.0);
   }
 
   @Test
-  public void testText() {
+  void testText() {
     executeTest(TEXT, "This is a hello world", "This is a hello back to you");
   }
 
   @Test
-  public void testUUID() {
+  void testAutoId() {
+    executeTest(AUTO_ID, "test-auto-id", "test-another-auto-id4");
+  }
+
+  @Test
+  void testUUID() {
     executeTest(
         UUID, "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce4", "f83133cc-aeaa-11e9-a2a3-2a2ae2dbcce5");
   }
 
   @Test
-  public void testJSON() {
+  void testJSON() {
     executeTest(JSON, "{\"key\": \"value1\"}", "{\"key\": \"value2\"}");
   }
 
@@ -129,5 +134,21 @@ public class TestCreateForeignKeys {
 
     bTable.delete(bRow);
     aTable.delete(aRow);
+  }
+
+  @Test
+  void givenOptionalAutoIdReference_whenAutoIdIsNull_thenLeaveBlank() {
+    Schema schema = db.dropCreateSchema("TestCreateForeignKeysAutoId");
+    schema.create(table("A").add(column("id").setType(AUTO_ID).setPkey()));
+    Table tableB =
+        schema.create(
+            table("B")
+                .add(column("id").setType(INT).setPkey())
+                .add(column("a").setType(REF).setRefTable("A").setRequired(false)));
+    Row row = new Row().setInt("id", 2);
+    tableB.insert(row);
+
+    Row result = tableB.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).getFirst();
+    assertNull(result.get("a", AUTO_ID));
   }
 }

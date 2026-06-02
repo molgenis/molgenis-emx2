@@ -34,6 +34,9 @@
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
-  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>,
-    <https://dbpedia.org/page/Red>.
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName>
+    "fire ant";
+  <http://example.com/petstore#hasStatus> "available";
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasWeight> "0.01"^^xsd:double .

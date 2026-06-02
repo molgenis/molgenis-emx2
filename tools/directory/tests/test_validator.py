@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from molgenis_emx2.directory_client.errors import DirectoryWarning
-from molgenis_emx2.directory_client.printer import Printer
-from molgenis_emx2.directory_client.validation import Validator
+from src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from src.molgenis_emx2.directory_client.printer import Printer
+from src.molgenis_emx2.directory_client.validation import Validator
 
 
 @pytest.fixture

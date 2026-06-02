@@ -1,7 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Privileges.VIEWER;
-
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.GraphQLObjectType;
@@ -33,7 +31,7 @@ public class GraphqlFactory {
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
-    queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.tasksQueryField(taskService, database));
     if (database.isAdmin()) {
       queryBuilder.field(db.lastUpdateQuery(database));
     }
@@ -79,7 +77,7 @@ public class GraphqlFactory {
     queryBuilder.field(schemaFields.schemaReportsField(schema));
 
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.tasksQueryField(taskService, schema.getDatabase()));
 
     GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
@@ -106,8 +104,7 @@ public class GraphqlFactory {
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
-        if (table.getTableType().equals(TableType.ONTOLOGIES)
-            || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+        if (tableField.hasViewPermission(table)) {
           queryBuilder.field(tableField.tableQueryField(table));
         }
         queryBuilder.field(tableField.tableAggField(table));
