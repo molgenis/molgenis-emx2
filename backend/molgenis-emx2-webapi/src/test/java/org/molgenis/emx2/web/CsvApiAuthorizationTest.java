@@ -20,9 +20,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-/**
- * Verifies role-based access control on {@link CsvApi}.
- */
+/** Verifies role-based access control on {@link CsvApi}. */
 @Tag("slow")
 class CsvApiAuthorizationTest extends ApiTestBase {
 
