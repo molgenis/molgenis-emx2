@@ -460,10 +460,14 @@ mutation {
 Finally, for each table there are the following functions:
 
 - query (has the name of the table)
+- `<table>_agg` - aggregate companion query: `count` / `exists` over the (optionally filtered) table
+- `<table>_groupBy` - grouped `count` and numeric aggregates (`sum`, …) per column or referenced table
 - insert - to add rows
 - update - to update rows
 - save - to insert or if exist update rows
 - delete - to remove rows
+
+The aggregate companions are detailed under [query example](#query-example) below.
 
 ### query example
 
