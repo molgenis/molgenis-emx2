@@ -21,7 +21,13 @@ Full documentation can be found while visiting the graphql-playground app. You c
 ## Table of contents
 
 - [Functions available on all APIs](#functions-available-on-all-apis)
-  - [Sign in](#sign-in) · [Sign up](#sign-up) · [Sign out](#sign-out) · [changePassword](#changepassword) · [createToken](#createtoken) · [session object](#session-object) · [settings](#settings)
+  - [Sign in](#sign-in) 
+  - [Sign up](#sign-up) 
+  - [Sign out](#sign-out) 
+  - [changePassword](#changepassword) 
+  - [createToken](#createtoken) 
+  - [session object](#session-object) 
+  - [settings](#settings)
 - [Functions available per schema](#functions-available-per-schema)
   - [query schema](#query-schema)
   - [change schema elements](#change-schema-elements)
