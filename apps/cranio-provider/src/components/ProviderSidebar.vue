@@ -74,13 +74,6 @@
             <ul>
               <li>
                 <router-link
-                  :to="{ name: 'provider-facial-dysostosis-your-center' }"
-                >
-                  Your center's overview
-                </router-link>
-              </li>
-              <li>
-                <router-link
                   :to="{ name: 'provider-facial-dysostosis-level-1' }"
                 >
                   Level 1
@@ -103,13 +96,6 @@
             :isOpenByDefault="true"
           >
             <ul>
-              <li>
-                <router-link
-                  :to="{ name: 'provider-craniofacial-microsomia-your-center' }"
-                >
-                  Your center's overview
-                </router-link>
-              </li>
               <li>
                 <router-link
                   :to="{ name: 'provider-craniofacial-microsomia-level-1' }"

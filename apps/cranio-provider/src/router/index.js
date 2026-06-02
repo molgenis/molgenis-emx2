@@ -11,12 +11,6 @@ import CraniosynostosisCenterSurgical from "../views/craniosynostosis/your_cente
 // cleft lip and palate pages (id: `-clp-`)
 import CleftLipPalateYourCenter from "../views/cleft_lip_palate/your_center.vue";
 
-// Facial dysostosis pages (id: `-facial-dysostosis-`)
-import FacialDysostosisYourCenter from "../views/facial_dysostosis/your_center.vue";
-
-// Craniofacial microsomia pages (id: `-craniofacial-microsomia-`)
-import CraniofacialMicrosomiaYourCenter from "../views/craniofacial-microsomia/your_center.vue";
-
 // genetic hearing loss
 import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
 import GeneticHearingLossAllCenters from "../views/genetic_hearing_loss/all_centers.vue";
@@ -119,16 +113,8 @@ const router = createRouter({
     {
       name: "provider-facial-dysostosis",
       path: "/facial-dysostosis",
-      redirect: { name: "provider-facial-dysostosis-your-center" },
+      redirect: { name: "provider-facial-dysostosis-level-1" },
       children: [
-        {
-          name: "provider-facial-dysostosis-your-center",
-          path: "center",
-          component: FacialDysostosisYourCenter,
-          meta: {
-            title: "Your Center | Facial Dysostosis",
-          },
-        },
         {
           name: "provider-facial-dysostosis-level-1",
           path: "level-1",
@@ -152,16 +138,8 @@ const router = createRouter({
     {
       name: "provider-craniofacial-microsomia",
       path: "/craniofacial-microsomia",
-      redirect: { name: "provider-craniofacial-microsomia-your-center" },
+      redirect: { name: "provider-craniofacial-microsomia-level-1" },
       children: [
-        {
-          name: "provider-craniofacial-microsomia-your-center",
-          path: "center",
-          component: CraniofacialMicrosomiaYourCenter,
-          meta: {
-            title: "Your Center | Craniofacial Microsomia",
-          },
-        },
         {
           name: "provider-craniofacial-microsomia-level-1",
           path: "level-1",
