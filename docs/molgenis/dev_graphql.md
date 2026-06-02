@@ -514,7 +514,7 @@ Query including search
 }
 ```
 
-Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators. 
+Query using filters, limit, offset. Note that filter enables quite complex queries using `_or` and `_and` operators.
 
 Field-level filters apply comparison operators directly to individual fields.
 
@@ -538,7 +538,7 @@ Field-level filters apply comparison operators directly to individual fields.
 ```
 
 Object-level filters apply logical or comparison operators to the object as a whole, rather than to individual fields. 
-In this case, `not_equals` compares primary keys, `name` for Pet.
+In this case, `not_equals` compares against the primary key (`name` for Pet).
 
 ```graphql
 {
@@ -598,7 +598,7 @@ update, save, delete work exactly the same.
 
 ## Implementation hints
 
-Below some implentation hints
+Below some implementation hints
 
 ### Javascript
 
@@ -629,7 +629,7 @@ Go to the [Pet Store playground](https://emx2.dev.molgenis.org/pet%20store/graph
 
 Get the name of all the pets
 
-```
+```graphql
 {
   Pet {
     name
@@ -641,7 +641,7 @@ Get the name of all the pets
 
 Get only the pet named Pooky
 
-```
+```graphql
 {
   Pet(filter: { name: { equals: "pooky" } }){
     name,
@@ -654,7 +654,7 @@ Get only the pet named Pooky
 
 Get all the pets that have the letter K in them
 
-```
+```graphql
 {
   Pet(filter: { name: { like: "k" } }){
     name,
@@ -667,7 +667,7 @@ Get all the pets that have the letter K in them
 
 Get all the pets that have the letter k and are sold
 
-```
+```graphql
 {
   Pet(filter: { name: { like: "k" }, _and: { status: { like: "sold" } } } ) {
     name,
@@ -681,7 +681,7 @@ Get all the pets that have the letter k and are sold
 You can also filter the subsets in your result.
 Given the pet Spike in the petstore, he has two tags:
 
-```
+```graphql
 {
   Pet(filter: {name: {equals: "spike"}}) {
     name,
@@ -694,7 +694,7 @@ Given the pet Spike in the petstore, he has two tags:
 
 Results in:
 
-```
+```json
 {
   "data": {
     "Pet": [
@@ -718,7 +718,7 @@ If you only want to have the green tag in your result, you can also apply a filt
 
 example:
 
-```
+```graphql
 {
   Pet(filter: {name: {equals: "spike"}}) {
     name,
@@ -731,7 +731,7 @@ example:
 
 Will return:
 
-```
+```json
 {
   "data": {
     "Pet": [
@@ -775,7 +775,7 @@ Go to the `package.json` inside the `%myApp%` folder.
 
 add the following to the dependancies section
 
-```
+```json
   "dependencies": {
     ...other things you might have,
     "molgenis-components": "*"
@@ -808,7 +808,7 @@ To proceed we have to specify a table:
 
 Add a selection, this can either be an array of strings or a single string, or blank to get everything.
 
-`query.select(["id","name'])`
+`query.select(["id", "name"])`
 
 You can even query nested properties using the _dot_ notation, just like how you would access a JSON object.
 
@@ -833,8 +833,7 @@ the following function are available:
 - find(value)
 - search(value)
 - equals(value)
-- in(value) / orLike(value)
-  /\*_ custom type, to make it into a bracket type query: { like: ["red", "green"] } _/
+- in(value) / orLike(value) — custom type that produces a bracket-style query, e.g. `{ like: ["red", "green"] }`
 - like(value)
 - notLike(value)
 - triagramSearch(value)
@@ -846,7 +845,7 @@ the following function are available:
 - _match_all(value)
 - _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
 - _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
-- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in parents of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 
@@ -859,7 +858,7 @@ which will apply the filters on that table.
 
 **Multiple or Query**
 
-```
+```javascript
 const query = new QueryEMX2("graphql")
       .table("Biobanks")
       .select(["id", "name"])
@@ -876,7 +875,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } } ] }) {
     id,
@@ -887,7 +886,7 @@ Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { 
 
 **Nested Query**
 
-```
+```javascript
 const basic = ["id", "name"];
 const selection = [
   ...basic,
@@ -916,7 +915,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 NestedExample {
     id,
@@ -939,7 +938,7 @@ NestedExample {
 
 Limit, orderBy
 
-```
+```javascript
     const query = new QueryEMX2("graphql")
       .table("Biobanks")
       .select(["id", "name"])
@@ -952,7 +951,7 @@ Limit, orderBy
 
 Output:
 
-```
+```graphql
 {
 Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
@@ -963,7 +962,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "
 
 Filter on nested properties
 
-```
+```javascript
 const query = new QueryEMX2("graphql")
   .table("Biobanks")
   .select(["id", "name"])
@@ -976,7 +975,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 Biobanks(filter: { _and: [ { collections: { id: { like: "eric" } } }, { collections: { name: { like: "Lifelines" } } } ] }) {
     id,
