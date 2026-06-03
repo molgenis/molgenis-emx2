@@ -37,14 +37,12 @@ export const useSession = async (schemaId?: string) => {
       : Promise.resolve(null);
 
     const sessionPromise = useAsyncData("session", () => fetchSessionDetails());
-    console.log("sessionPromise:", sessionPromise);
+
     // parallel requests
     const [schemaRolesResult, sessionResult] = await Promise.all([
       schemaRolesPromise,
       sessionPromise,
     ]);
-
-    console.log("Session result:", sessionResult);
 
     if (sessionResult.error.value || schemaRolesResult?.error.value) {
       console.error("Error fetching session", sessionResult.error.value);
