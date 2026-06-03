@@ -5,6 +5,7 @@ import { computed } from "vue";
 import type {
   ICatalogues,
   ICatalogues_agg,
+  INetworks_agg,
   IResources,
 } from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
@@ -29,9 +30,21 @@ definePageMeta({
   ],
 });
 
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
+
+const variablesFilter = {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          };
+
 const query = computed(() => {
   return `
-  query Catalogues{
+  query Catalogues($variablesFilter:VariablesFilter){
     Catalogues {
       id
       name
@@ -48,13 +61,26 @@ const query = computed(() => {
         url
       }
     }
+    Variables_agg(filter: $variablesFilter) {
+      count
+    }
+    Collections_agg {
+      count
+    }
+    Networks_agg {
+      count
+    }
   }
   `;
 });
 
 interface Resp<T, U> {
-  data: Record<string, T[]>;
-  data_agg: Record<string, U>;
+  data: {
+    Catalogues: T[];
+    Variables_agg: U;
+    Collections_agg: INetworks_agg;
+    Networks_agg: INetworks_agg;
+  };
 }
 
 const graphqlURL = computed(
@@ -64,7 +90,12 @@ const { data } = await useFetch<Resp<ICatalogues, ICatalogues_agg>>(
   graphqlURL.value,
   {
     method: "POST",
-    body: { query },
+    body: { 
+      query,
+      variables: {
+        variablesFilter
+      }
+    },
   }
 );
 
@@ -93,6 +124,14 @@ const pageTitle = computed(
   () => mainCatalogue.value?.name || "Health Data and Samples Catalogue"
 );
 
+const counts = computed(() => {
+  return {
+    variables: data.value?.data.Variables_agg?.count ?? 0,
+    collections: data.value?.data.Collections_agg?.count ?? 0,
+    networks: data.value?.data.Networks_agg?.count ?? 0,
+  };
+});
+
 useHead(() => ({
   title: pageTitle.value,
   meta: [
@@ -115,6 +154,11 @@ useHead(() => ({
         <div
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
+        <div>
+          {{ counts.variables }} variables,
+          {{ counts.collections }} collections,
+          {{ counts.networks }} networks
+        </div>
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/all`">
               <Button label="Search all" />
@@ -122,9 +166,7 @@ useHead(() => ({
             <p
               class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
               v-if="catalogues?.length"
-            >
-              or select a specific catalogue below:
-            </p>
+            ></p>
           </div>
         </div>
       </template>
