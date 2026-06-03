@@ -44,7 +44,7 @@ import { getSchemaName } from "./utils/getSchemaName";
 import { getOrganisation } from "./utils/getOrganisation";
 
 import type { IMgErrorResponse, ICranioSchemas } from "./types";
-import type { IOrganisations } from "./types/schema";
+import type { IOrganisations } from "./types/ErnDashboard";
 
 // @ts-ignore
 import { Molgenis } from "molgenis-components";
