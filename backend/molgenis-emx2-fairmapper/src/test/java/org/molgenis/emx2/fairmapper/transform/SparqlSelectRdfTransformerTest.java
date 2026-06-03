@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
@@ -20,7 +23,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -36,15 +39,13 @@ class SparqlSelectRdfTransformerTest {
   @Test
   void givenUnknownTable_thenThrow() {
     String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_unknowntable";
-    Schema schema = database.dropCreateSchema(schemaName);
+    SchemaMetadata schema = database.dropCreateSchema(schemaName).getMetadata();
+    TableQueryGenerator generator = new TableQueryGenerator();
+    List<String> tables = List.of("unknown-1", "unknown-2");
     MolgenisException exception =
         assertThrows(
             MolgenisException.class,
-            () ->
-                new SparqlSelectRdfTransformer(
-                    new TableQueryGenerator(),
-                    schema.getMetadata(),
-                    List.of("unknown-1", "unknown-2")));
+            () -> new SparqlSelectRdfTransformer(generator, schema, tables));
     assertEquals(
         "Unknown table(s) provided to transformer: unknown-1, unknown-2", exception.getMessage());
   }
@@ -59,29 +60,29 @@ class SparqlSelectRdfTransformerTest {
 
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
-            new StaticQueryGenerator("query.sparql"),
+            new FileBasedQueryGenerator(getQueryFilePath()),
             database.getSchema(schemaName).getMetadata(),
             List.of("Pet"));
 
-    SailRepository repository = readTtl("petstore.ttl");
+    SailRepository repository = readPetStoreTtl();
     TableStore store = transformer.transform(repository);
 
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
         store.readTable("Pet"), List.of("Pet", "name", "status", "weight", "tags"), writer, ',');
 
-    String expected = readFile("pets.csv");
+    String expected = readPetsCsv();
     assertEquals(expected, writer.toString());
   }
 
-  private SailRepository readTtl(String filename) {
+  private SailRepository readPetStoreTtl() {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      URL url = SparqlSelectRdfTransformerTest.class.getResource(filename);
+      URL url = SparqlSelectRdfTransformerTest.class.getResource("petstore.ttl");
       connection.add(url, RDFFormat.TURTLE);
       connection.commit();
     } catch (IOException e) {
-      fail("Unable to set up SailRepository for file: " + filename, e);
+      fail("Unable to set up SailRepository for petstore.ttl", e);
     }
 
     return repository;
@@ -148,26 +149,15 @@ class SparqlSelectRdfTransformerTest {
     }
   }
 
-  private static class StaticQueryGenerator implements QueryGenerator {
-
-    private final String filename;
-
-    private StaticQueryGenerator(String filename) {
-      this.filename = filename;
-    }
-
-    @Override
-    public String generate(TableMetadata tableMetadata) {
-      try {
-        return readFile(filename);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
+  private static String readPetsCsv() throws IOException {
+    return new String(
+        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResourceAsStream("pets.csv"))
+            .readAllBytes());
   }
 
-  private static String readFile(String filename) throws IOException {
-    return new String(
-        SparqlSelectRdfTransformerTest.class.getResourceAsStream(filename).readAllBytes());
+  private static Path getQueryFilePath() {
+    return Paths.get(
+        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResource("query.rq"))
+            .getPath());
   }
 }
