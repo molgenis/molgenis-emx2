@@ -8,7 +8,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
@@ -118,6 +117,8 @@ public class SemanticPrefixes {
    * {@code >}. Note that this old format does not allow sequence paths and assumes the semantic
    * field contains only 1 semantic part.
    *
+   * TODO: Support???
+   *
    * @return the IRI as {@code <R>} or null if there was no legacy format found.
    * @param <R>
    */
@@ -132,41 +133,62 @@ public class SemanticPrefixes {
       final String semantic,
       Function<String, R> iriOperator,
       Function<String, R> prefixedNameOperator) {
-    // Legacy support behaviour (does not allow sequence paths!).
-    R legacyIri = legacyMap(semantic, iriOperator);
-    if (legacyIri != null) {
-      return Collections.singletonList(legacyIri);
-    }
-
     // New semantic field format.
     List<R> sequencePath = new ArrayList<>();
 
-    Matcher matcher = SEMANTIC_PATTERN.matcher(semantic);
-    while (matcher.find()) {
-      String semanticPart = matcher.group(1);
-      if (semanticPart.startsWith("<")) {
-        try {
-          sequencePath.add(iriOperator.apply(semanticPart.substring(1, semanticPart.length() - 1)));
-        } catch (IllegalArgumentException e) {
-          throw new MolgenisException(
-              "Semantics contains an incorrect IRI: %s".formatted(semantic));
+    int sequenceItemStart = 0;
+    boolean foundIri = false;
+    int length = semantic.length();
+    for (int i = 0; i < length; i++) {
+      char curChar = semantic.charAt(i);
+
+      switch (curChar) {
+        case '<' -> {
+          if (foundIri)
+            throw new MolgenisException(
+                "Invalid semantic: Found new IRI opening bracket ('<') before previous IRI was closed.");
+          sequenceItemStart = i + 1;
+          foundIri = true;
         }
-      } else {
-        try {
-          sequencePath.add(prefixedNameOperator.apply(semanticPart));
-        } catch (IllegalArgumentException e) {
-          throw new MolgenisException(
-              "Semantics contains an incorrect prefixed name or prefix is not defined: %s"
-                  .formatted(semantic));
+        case '>' -> {
+          if (!foundIri)
+            throw new MolgenisException(
+                "Invalid semantic: IRI closing bracket ('>') without opening bracket ('<').");
+          if (i + 1 != length && semantic.charAt(i + 1) != '/')
+            throw new MolgenisException(
+                "Invalid semantic: Missing sequence path separator ('/') after IRI closing bracket ('>').");
+          addToSequencePath(sequencePath, iriOperator, semantic.substring(sequenceItemStart, i));
+          sequenceItemStart = i + 2;
+          i++;
+          foundIri = false;
+        }
+        case '/' -> {
+          if (!foundIri) {
+            addToSequencePath(
+                sequencePath, prefixedNameOperator, semantic.substring(sequenceItemStart, i));
+            sequenceItemStart = i + 1;
+          }
         }
       }
     }
-
-    if (sequencePath.isEmpty()) {
-      throw new MolgenisException("Could not match any individual parts in the provided semantic.");
+    // Ensure last item is added when not IRI
+    if (semantic.charAt(length - 1) != '>') {
+      addToSequencePath(
+          sequencePath, prefixedNameOperator, semantic.substring(sequenceItemStart, length));
     }
 
     return sequencePath;
+  }
+
+  private <R> void addToSequencePath(
+      List<R> sequencePath, Function<String, R> function, String semanticPart) {
+    try {
+      sequencePath.add(function.apply(semanticPart));
+    } catch (IllegalArgumentException e) {
+      throw new MolgenisException(
+          "Semantics contains an incorrect prefixed name or prefix is not defined: %s"
+              .formatted(semanticPart));
+    }
   }
 
   /** Maps a semantic to a list of {@link IRI}@code s} that represent a sequence path. */
