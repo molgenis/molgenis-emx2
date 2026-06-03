@@ -39,14 +39,17 @@ class SparqlQueryingExampleTest {
   }
 
   /**
-   * Manual test that executes a SPARQL SELECT query from a file against a Turtle RDF dataset
-   * loaded from a file, writing the results to a CSV file.
+   * Manual test that executes a SPARQL SELECT query from a file against a Turtle RDF dataset loaded
+   * from a file, writing the results to a CSV file.
    *
    * <p>To use this test:
+   *
    * <ol>
-   *   <li>Set {@code absoluteQueryPath} to the absolute path of a file containing a SPARQL SELECT query.</li>
-   *   <li>Set {@code absoluteTtlPath} to the absolute path of a file containing RDF data in Turtle (.ttl) format.</li>
-   *   <li>Results will be written to {@code results.csv} in the working directory.</li>
+   *   <li>Set {@code absoluteQueryPath} to the absolute path of a file containing a SPARQL SELECT
+   *       query.
+   *   <li>Set {@code absoluteTtlPath} to the absolute path of a file containing RDF data in Turtle
+   *       (.ttl) format.
+   *   <li>Results will be written to {@code results.csv} in the working directory.
    * </ol>
    */
   @Disabled("Used for manual testing purposes")
