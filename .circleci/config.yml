@@ -298,6 +298,10 @@ jobs:
             export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
             export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
             export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            export E2E_BASE_URL=http://localhost:8080/
+            export MOLGENIS_OIDC_CLIENT_ID=${OIDC_CLIENTID}
+            export MOLGENIS_OIDC_CLIENT_SECRET=${OIDC_SECRET}
+            export MOLGENIS_OIDC_DISCOVERY_URL=${OIDC_DISCOVERYURL}
             nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
@@ -382,10 +386,6 @@ jobs:
           name: Run non ssr e2e tests
           command: |
             export $( cat build/ci.properties | xargs )
-            export E2E_BASE_URL=http://localhost:8080/
-            export MOLGENIS_OIDC_CLIENT_ID=${OIDC_CLIENTID}
-            export MOLGENIS_OIDC_CLIENT_SECRET=${OIDC_SECRET}
-            export MOLGENIS_OIDC_DISCOVERY_URL=${OIDC_DISCOVERYURL}
             pnpm install
             npx playwright test --config e2e e2e/tests 
 
