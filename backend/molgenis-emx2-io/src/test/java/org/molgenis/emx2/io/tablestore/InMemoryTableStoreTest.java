@@ -99,7 +99,7 @@ class InMemoryTableStoreTest {
   void givenMultipleTables_whenGettingTableNames_thenReturnAll() {
     store.writeTable("Product", List.of("name"), List.of(Row.row("name", "Bread")));
     store.writeTable("Order", List.of("id"), List.of(Row.row("id", 1)));
-    assertEquals(Set.of("Product", "Order"), Set.copyOf(store.getTableNames()));
+    assertEquals(Set.of("Product", "Order"), store.getTableNames());
   }
 
   @Test
