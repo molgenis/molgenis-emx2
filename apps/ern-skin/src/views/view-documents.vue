@@ -56,13 +56,38 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <PrivateFiles />
-        <strong>Publications</strong>
-        <Publications
-          table="Publications"
-          labelsColumn="title"
-          doiColumn="doi"
-        />
+        <Accordion
+          id="mySubfolder-nav"
+          title="Informed consents"
+          :isOpenByDefault="false"
+        >
+          <label for="language-select">Select ICF language:</label>
+          <select id="language-select" v-model="selectedLanguage" size="7">
+            <option
+              v-for="option in languageOptions"
+              :key="option"
+              :value="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+          <div v-if="selectedLanguage">
+            <p>Selected language: {{ selectedLanguage }}</p>
+            <PrivateFiles :labelValue="selectedLanguage" />
+          </div>
+        </Accordion>
+        <Accordion
+          id="mySubfolder-nav"
+          title="Other general documents"
+          :isOpenByDefault="false"
+        >
+          <strong>Publications</strong>
+          <Publications
+            table="Publications"
+            labelsColumn="title"
+            doiColumn="doi"
+          />
+        </Accordion>
       </Accordion>
     </PageSection>
   </Page>
@@ -80,6 +105,19 @@ import {
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
+import { ref } from "vue";
+
+const selectedLanguage = ref("");
+const languageOptions = [
+  "Arabic",
+  "English",
+  "Dutch",
+  "French",
+  "Spanish",
+  "Chinese",
+  "Russian",
+  "German",
+];
 </script>
 
 <style lang="scss">
