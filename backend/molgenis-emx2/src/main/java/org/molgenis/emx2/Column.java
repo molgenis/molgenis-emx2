@@ -41,7 +41,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private Semantics semantics = null; // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -94,12 +94,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public Semantics getSemantics() {
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
   public Column setSemantics(String... semantics) {
-    this.semantics = new Semantics(this.getSchema().semanticPrefixes, semantics);
+    this.semantics =
+        Arrays.stream(semantics)
+            .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
+            .toArray(Semantic[]::new);
     return this;
   }
 

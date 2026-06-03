@@ -136,6 +136,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.database = database;
   }
 
+  public SemanticPrefixes getSemanticPrefixes() {
+    return semanticPrefixes;
+  }
+
   public List<TableMetadata> getTablesIncludingExternal() {
     Map<String, TableMetadata> tables = new LinkedHashMap<>();
     for (String tableName : getTableNames()) {

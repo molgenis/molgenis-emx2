@@ -5,13 +5,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.Test;
 
 class SemanticPrefixesTest {
-  static final ValueFactory valueFactory = SimpleValueFactory.getInstance();
+  SemanticPrefixes prefixes =
+      new SemanticPrefixes(
+          Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+          Values.namespace("dcat", "http://www.w3.org/ns/dcat#"),
+          Values.namespace("dcterms", "http://purl.org/dc/terms/"),
+          Values.namespace("time", "http://www.w3.org/2006/time#"),
+          Values.namespace("http", "http://example.com/fromPrefix#"));
 
   @Test
   void testSemanticMapping() {
@@ -22,16 +26,8 @@ class SemanticPrefixesTest {
             Values.namespace("dcterms", "http://purl.org/dc/terms/"),
             Values.namespace("time", "http://www.w3.org/2006/time#"));
 
-    SemanticPrefixes prefixes =
-        new SemanticPrefixes(
-            Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-            Values.namespace("dcat", "http://www.w3.org/ns/dcat#"),
-            Values.namespace("dcterms", "http://purl.org/dc/terms/"),
-            Values.namespace("time", "http://www.w3.org/2006/time#"),
-            Values.namespace("http", "http://example.com/fromPrefix#"));
-
     List<IRI> rdfExpected = List.of(Values.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
-    List<IRI> httpIriExpected = List.of(valueFactory.createIRI("http://example.com/fromIri#test"));
+    List<IRI> httpIriExpected = List.of(Values.iri("http://example.com/fromIri#test"));
     List<IRI> httpPrefixExpected = List.of(Values.iri("http://example.com/fromPrefix#test"));
 
     List<IRI> rdfLength2Expected =
@@ -155,6 +151,20 @@ class SemanticPrefixesTest {
                 rdfLength3Expected,
                 prefixes.map(
                     "<http://purl.org/dc/terms/temporal>/<http://www.w3.org/2006/time#hasBeginning>/<http://www.w3.org/2006/time#inXSDDate>")));
+  }
+
+  @Test
+  void testSemanticMappingString() {
+    List<String> expected = List.of("<http://purl.org/dc/terms/temporal>", "dcat:startDate");
+    assertEquals(
+        expected, prefixes.mapAsString("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
+  }
+
+  @Test
+  void testSemanticMappingPrefixedName() {
+    List<String> expected = List.of("dcterms:temporal", "dcat:startDate");
+    assertEquals(
+        expected, prefixes.mapAsPrefixedName("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
   }
 
   @Test
