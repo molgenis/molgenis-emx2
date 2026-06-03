@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import InputFile from "../../../../app/components/input/File.vue";
 
 const wrapper = mount(InputFile, {
@@ -10,13 +10,20 @@ const wrapper = mount(InputFile, {
 });
 
 describe("input file", () => {
+  beforeEach(() => {
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test-url");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   it("should show an empty input when modelValue is null", () => {
     expect(wrapper.exists()).toBe(true);
     expect(wrapper.find("input").attributes("value")).toBe(undefined);
   });
 
   it("should render the correct modelValue filename", async () => {
-    const file = new File(["file content"], "test-document.txt", {
+    const file = new window.File(["test"], "test-document.txt", {
       type: "text/plain",
     });
     await wrapper.setProps({ modelValue: file });
@@ -26,7 +33,7 @@ describe("input file", () => {
   });
 
   it("should show a link to file value in the component", async () => {
-    const file = new File(["file content"], "test-document.txt", {
+    const file = new Blob(["file content"], {
       type: "text/plain",
     });
     Object.defineProperty(file, "url", {
@@ -36,7 +43,9 @@ describe("input file", () => {
     const link = wrapper.find("a");
 
     expect(link.exists()).toBe(true);
-    expect(link.attributes("href")).toMatch(/^blob:/);
+    expect(link.attributes("href")).toMatch(
+      "http://example.com/test-document.txt"
+    );
   });
 
   it("should not show a link when modelValue is null", async () => {
