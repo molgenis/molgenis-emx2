@@ -32,6 +32,7 @@ export async function useHeaderData() {
               Catalogues(filter:$catalogueFilter) {
                 id,
                 name,
+                acronym,
                 logo { url }
               }
               Variables_agg(filter:$variablesFilter) {
@@ -143,6 +144,6 @@ export async function useHeaderData() {
     collectionCount,
     networkCount,
     logoSrc,
-    logoTitle: catalogue?.name,
+    logoTitle: catalogue?.acronym || catalogue?.name,
   };
 }
