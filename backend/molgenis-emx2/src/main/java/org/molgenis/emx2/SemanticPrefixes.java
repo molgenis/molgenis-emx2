@@ -8,7 +8,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -40,17 +39,14 @@ public class SemanticPrefixes {
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
 
-  private static final Set<Namespace> DEFAULT_NAMESPACES_SET =
-      DefaultNamespace.streamAll().collect(Collectors.toUnmodifiableSet());
+  private static final List<String> LEGACY_FORBIDDEN_PREFIXES =
+      List.of("http", "https", "urn", "tag");
 
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder()
           .addColumn(SEMANTIC_PREFIXES_NAME_PREFIX)
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
-
-  // Matches per IRI/prefixed name in semantic field, NOT full field.
-  public static final Pattern SEMANTIC_PATTERN = Pattern.compile("(<.*?>|.*?:.*?)(/|$)");
 
   // TreeMap for consistency in case it's used for generating output
   private final Map<String, Namespace> namespaces;
@@ -115,16 +111,16 @@ public class SemanticPrefixes {
   /**
    * Support for old semantic format where an IRI did not need to be surrounded by {@code <} and
    * {@code >}. Note that this old format does not allow sequence paths and assumes the semantic
-   * field contains only 1 semantic part.
-   *
-   * TODO: Support???
+   * field contains only 1 semantic part. We should deprecate this ASAP to prevent unexpected
+   * behavior!
    *
    * @return the IRI as {@code <R>} or null if there was no legacy format found.
-   * @param <R>
    */
   private <R> R legacyMap(final String semantic, Function<String, R> iriOperator) {
-    if (semantic.startsWith("http://") || semantic.startsWith("https://")) {
-      return iriOperator.apply(semantic);
+    for (String prefix : LEGACY_FORBIDDEN_PREFIXES) {
+      if (semantic.startsWith(prefix) && !namespaces.containsKey(prefix)) {
+        return iriOperator.apply(semantic);
+      }
     }
     return null;
   }
@@ -133,6 +129,10 @@ public class SemanticPrefixes {
       final String semantic,
       Function<String, R> iriOperator,
       Function<String, R> prefixedNameOperator) {
+    // Legacy support
+    R sequenceItem = legacyMap(semantic, iriOperator);
+    if (sequenceItem != null) return Collections.singletonList(sequenceItem);
+
     // New semantic field format.
     List<R> sequencePath = new ArrayList<>();
 

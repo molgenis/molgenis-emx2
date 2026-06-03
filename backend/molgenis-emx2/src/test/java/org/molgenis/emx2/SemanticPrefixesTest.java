@@ -15,12 +15,19 @@ class SemanticPrefixesTest {
 
   @Test
   void testSemanticMapping() {
+    SemanticPrefixes prefixesLegacy =
+        new SemanticPrefixes(
+            Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+            Values.namespace("dcat", "http://www.w3.org/ns/dcat#"),
+            Values.namespace("dcterms", "http://purl.org/dc/terms/"),
+            Values.namespace("time", "http://www.w3.org/2006/time#"));
+
     SemanticPrefixes prefixes =
         new SemanticPrefixes(
             Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
             Values.namespace("dcat", "http://www.w3.org/ns/dcat#"),
             Values.namespace("dcterms", "http://purl.org/dc/terms/"),
-//            Values.namespace("time", "http://www.w3.org/2006/time#"),
+            Values.namespace("time", "http://www.w3.org/2006/time#"),
             Values.namespace("http", "http://example.com/fromPrefix#"));
 
     List<IRI> rdfExpected = List.of(Values.iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
@@ -32,29 +39,40 @@ class SemanticPrefixesTest {
             Values.iri("http://purl.org/dc/terms/temporal"),
             Values.iri("http://www.w3.org/ns/dcat#startDate"));
 
-//    List<IRI> rdfLength3Expected =
-//        List.of(
-//            Values.iri("http://purl.org/dc/terms/temporal"),
-//            Values.iri("http://www.w3.org/2006/time#hasBeginning"),
-//            Values.iri("http://www.w3.org/2006/time#inXSDDate"));
+    List<IRI> rdfLength3Expected =
+        List.of(
+            Values.iri("http://purl.org/dc/terms/temporal"),
+            Values.iri("http://www.w3.org/2006/time#hasBeginning"),
+            Values.iri("http://www.w3.org/2006/time#inXSDDate"));
 
     assertAll(
-        // Backwards compatibility
-        //        () ->
-        //            assertEquals(
-        //                rdfExpected,
-        // prefixes.map("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")),
-        //        () -> assertEquals(httpIriExpected,
-        // prefixes.map("http://example.com/fromIri#test")),
+        // Backwards compatibility (no http(s)/urn/tag can be defined as semantic prefix as this
+        // disables backwards compatibility due overlap with prefixed names)
+        () ->
+            assertEquals(
+                rdfExpected, prefixesLegacy.map("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")),
+        () -> assertEquals(httpIriExpected, prefixesLegacy.map("http://example.com/fromIri#test")),
 
-        // Semantic containing a sequence length of 1
+        // Length 1: valid
         () ->
             assertEquals(
                 rdfExpected, prefixes.map("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")),
         () -> assertEquals(rdfExpected, prefixes.map("rdf:type")),
         () -> assertEquals(httpIriExpected, prefixes.map("<http://example.com/fromIri#test>")),
         () -> assertEquals(httpPrefixExpected, prefixes.map("http:test")),
-        // Semantic containing a sequence length of 2
+
+        // Length 1: invalid legacy IRI
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map("http://invalid")),
+        // Length 1: invalid IRI
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map("<invalid>")),
+        // Length 1: invalid prefixed name
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map("undefinedPrefix:test")),
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map("rdf:")),
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map(":test")),
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map("test")),
+        () -> assertThrows(MolgenisException.class, () -> prefixes.map(":")),
+
+        // Length 2: valid
         () ->
             assertEquals(
                 rdfLength2Expected,
@@ -69,6 +87,7 @@ class SemanticPrefixesTest {
             assertEquals(
                 rdfLength2Expected,
                 prefixes.map("dcterms:temporal/<http://www.w3.org/ns/dcat#startDate>")),
+        // Length 2: incorrect prefixed name
         () -> assertThrows(MolgenisException.class, () -> prefixes.map(":temporal/dcat:startDate")),
         () -> assertThrows(MolgenisException.class, () -> prefixes.map("dcterms:/dcat:startDate")),
         () ->
@@ -80,6 +99,7 @@ class SemanticPrefixesTest {
         () -> assertThrows(MolgenisException.class, () -> prefixes.map("temporal/dcat:startDate")),
         () ->
             assertThrows(MolgenisException.class, () -> prefixes.map("dcterms:temporal/startDate")),
+        // Length 2: incorrect IRI
         () ->
             assertThrows(
                 MolgenisException.class,
@@ -114,23 +134,27 @@ class SemanticPrefixesTest {
             assertThrows(
                 MolgenisException.class,
                 () -> prefixes.map("<http://purl.org/dc/terms/temporal>/startDate")),
+
+        // Length 3: valid
         () ->
-            assertThrows(
-                MolgenisException.class,
-                () -> prefixes.map("<http://purl.org/dc/terms/temporal/<startDate>")),
-
-        // Semantic containing a sequence length of 3
-
-        // Invalid legacy IRI
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map("http://invalid")),
-        // Invalid IRI
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map("<invalid>")),
-        // Invalid prefixed name
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map("undefinedPrefix:test")),
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map("rdf:")),
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map(":test")),
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map("test")),
-        () -> assertThrows(MolgenisException.class, () -> prefixes.map(":")));
+            assertEquals(
+                rdfLength3Expected,
+                prefixes.map(
+                    "<http://purl.org/dc/terms/temporal>/time:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>")),
+        () ->
+            assertEquals(
+                rdfLength3Expected,
+                prefixes.map(
+                    "dcterms:temporal/<http://www.w3.org/2006/time#hasBeginning>/time:inXSDDate")),
+        () ->
+            assertEquals(
+                rdfLength3Expected,
+                prefixes.map("dcterms:temporal/time:hasBeginning/time:inXSDDate")),
+        () ->
+            assertEquals(
+                rdfLength3Expected,
+                prefixes.map(
+                    "<http://purl.org/dc/terms/temporal>/<http://www.w3.org/2006/time#hasBeginning>/<http://www.w3.org/2006/time#inXSDDate>")));
   }
 
   @Test
