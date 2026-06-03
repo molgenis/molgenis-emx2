@@ -1,7 +1,6 @@
 package org.molgenis.emx2.datamodels.util;
 
 import java.util.*;
-
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
