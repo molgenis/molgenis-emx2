@@ -1,2 +1,3 @@
 username,firstName,lastName,picture,picture_filename,email,password,phone,userStatus,pets
-bofke,"",,65c0628c9e94414d877e4a51cf5dc3ac,8hlbnm.jpg,,,,,"pooky,spike,the very hungry caterpillar,fire ant"
+bofke,"",,65c0628c9e94414d877e4a51cf5dc3ac,8hlbnm.jpg,,,,1,"pooky,spike,the very hungry caterpillar,fire ant"
+not_bofke,,,,,,,,,
