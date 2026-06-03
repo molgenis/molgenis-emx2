@@ -24,7 +24,7 @@ public class InMemoryTableStore implements TableStore {
         row.set(columnName, null);
       }
     }
-    for (String columnName : new ArrayList<>(row.getColumnNames())) {
+    for (String columnName : row.getColumnNames()) {
       if (!columnNames.contains(columnName)) {
         row.clear(columnName);
       }
