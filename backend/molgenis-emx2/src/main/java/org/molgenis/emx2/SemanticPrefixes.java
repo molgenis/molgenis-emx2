@@ -186,7 +186,7 @@ public class SemanticPrefixes {
       sequencePath.add(function.apply(semanticPart));
     } catch (IllegalArgumentException e) {
       throw new MolgenisException(
-          "Semantics contains an incorrect prefixed name or prefix is not defined: %s"
+          "Part of semantic sequence path is invalid: %s"
               .formatted(semanticPart));
     }
   }
