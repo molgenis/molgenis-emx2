@@ -37,7 +37,11 @@ const showCartModal = ref<boolean>(false);
 // the variable route does not set the resourceType param, therefore check the route name
 if (
   route.params.resourceType ||
-  route.name === "schema-catalogue-catalogue-variables"
+  [
+    "schema-catalogue-catalogue-variables",
+    "catalogue-variables",
+    "catalogue-variables-variable",
+  ].includes(route.name as string)
 ) {
   menu.push({
     label: "overview",
