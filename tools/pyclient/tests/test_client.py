@@ -567,3 +567,20 @@ async def test_export_schema(caplog):
         assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (24, 2)
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
         (Path(__file__).parent.parent / "catalogue.yaml").unlink()
+
+
+def test_symmetry():
+    """Test symmetry of get and save_table (list format)."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Get all tables 
+        # TODO: extend to all tables
+        user = client.get(schema="pet store", table="User")
+        # TODO: compare all rows
+        row_of_comparison = user[0] 
+        # Save table
+        client.save_table(table = 'User', schema="pet store", data = user)
+        # Get again
+        user = client.get(schema="pet store", table="User")
+        assert user[0] == row_of_comparison
