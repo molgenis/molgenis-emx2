@@ -576,14 +576,12 @@ def test_symmetry():
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
-        # Get all tables 
+        # Get all tables
         meta = client.get_schema_metadata(name = schema)
-        for table in meta.tables:          
-            user = client.get(schema=schema, table=table.name, as_df = False)
-            # TODO: compare all rows
-            row_of_comparison = user[0]
+        for table in meta.tables:
+            user_before = client.get(schema=schema, table=table.name, as_df = False)
             # Save table
-            client.save_table(table = table.name, schema=schema, data = user)
+            client.save_table(table = table.name, schema=schema, data = user_before)
             # Get again
-            user = client.get(schema=schema, table=table.name, as_df = False)
-            assert user[0] == row_of_comparison
+            user_after = client.get(schema=schema, table=table.name, as_df = False)
+            assert user_before == user_after#user[0] == row_of_comparison
