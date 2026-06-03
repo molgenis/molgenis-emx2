@@ -181,7 +181,7 @@
       </table>
       <div
         class="sticky left-0 flex justify-center items-center py-2.5"
-        v-if="!rows"
+        v-if="!rows?.length"
       >
         <TextNoResultsMessage
           class="w-full text-center"
@@ -194,9 +194,7 @@
   <div
     class="p-2.5 text-right font-normal align-middle text-table-column-header"
   >
-    Showing {{ (settings.page - 1) * settings.pageSize }} to
-    {{ Math.min(settings.page * settings.pageSize, count) }} of
-    {{ count }} items
+    {{ countMessage }}
   </div>
 
   <Pagination
@@ -329,6 +327,9 @@ import InputSearch from "../input/Search.vue";
 import Modal from "../Modal.vue";
 
 import { useColumnResize } from "../../composables/useColumnResize";
+import constants from "../../utils/constants";
+import { getCountMessage } from "../../utils/getCountMessage";
+import { isArrayLikeDetail, isRefLikeDetail } from "../../utils/refUtils";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
@@ -338,8 +339,6 @@ import Checkbox from "../input/Checkbox.vue";
 import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
 import RowControles from "./control/RowControles.vue";
 import DeleteRows from "./control/DeleteRows.vue";
-import constants from "../../utils/constants";
-import { isRefLikeDetail, isArrayLikeDetail } from "../../utils/refUtils";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
@@ -448,6 +447,10 @@ onUnmounted(async () => {
   window.removeEventListener("scroll", handleStickyHeaderScroll);
   window.removeEventListener("resize", updateStickyHeaderWidth);
 });
+
+const countMessage = computed(() =>
+  getCountMessage(settings.value.page, settings.value.pageSize, count.value)
+);
 
 function handleStickyHeaderScroll(event: Event) {
   const rect = tableContainer?.value?.getBoundingClientRect();
