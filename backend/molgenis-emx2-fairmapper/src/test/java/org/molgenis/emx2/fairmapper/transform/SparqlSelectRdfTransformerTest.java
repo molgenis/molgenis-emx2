@@ -34,6 +34,22 @@ class SparqlSelectRdfTransformerTest {
   }
 
   @Test
+  void givenUnknownTable_thenThrow() {
+    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_unknowntable";
+    Schema schema = database.dropCreateSchema(schemaName);
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                new SparqlSelectRdfTransformer(
+                    new TableQueryGenerator(),
+                    schema.getMetadata(),
+                    List.of("unknown-1", "unknown-2")));
+    assertEquals(
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2", exception.getMessage());
+  }
+
+  @Test
   void givenData_thenQueryTable() throws IOException {
     String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);

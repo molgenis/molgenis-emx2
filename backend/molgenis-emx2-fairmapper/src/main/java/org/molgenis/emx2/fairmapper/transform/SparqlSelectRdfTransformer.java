@@ -1,9 +1,11 @@
 package org.molgenis.emx2.fairmapper.transform;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
@@ -22,6 +24,18 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
     this.queryGenerator = queryGenerator;
     this.schema = schema;
     this.tables = tables;
+
+    checkTableExistence(schema, tables);
+  }
+
+  private static void checkTableExistence(SchemaMetadata schema, List<String> tables) {
+    String missing =
+        tables.stream()
+            .filter(name -> null == schema.getTableMetadata(name))
+            .collect(Collectors.joining(", "));
+    if (!missing.isBlank()) {
+      throw new MolgenisException("Unknown table(s) provided to transformer: " + missing);
+    }
   }
 
   @Override
