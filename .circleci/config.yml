@@ -399,7 +399,7 @@ jobs:
           name: Test nuxt ssr catalogue tests
           command: |
             pnpm exec playwright test
-          working_directory: apps/catalogue
+          working_directory: /workspace/apps/catalogue
 
       - store_artifacts:
           path: apps/tailwind-components/playwright-report
