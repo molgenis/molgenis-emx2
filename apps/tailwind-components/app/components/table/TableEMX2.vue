@@ -1,60 +1,65 @@
 <template>
-  <div :class="{ 'flex gap-6': enableFilters }">
-    <Sidebar
-      v-if="enableFilters && filters"
-      v-model:collapsed="sidebarCollapsed"
-      collapsed-label="Show filters"
-    >
-      <FilterSidebarContent
-        :filters="filters"
-        :columns="filters.columns.value"
-        :schema-id="schemaId"
-        :table-id="tableId"
-      />
-    </Sidebar>
+  <div>
+    <div class="flex pb-[30px] justify-between">
+      <div class="flex gap-[10px]">
+        <Button
+          v-if="enableFilters"
+          type="outline"
+          icon="filterAlt"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+          >{{ sidebarCollapsed ? "Show filters" : "Hide filters" }}</Button
+        >
+        <TableControlColumns
+          :columns="columns"
+          @update:columns="handleColumnsUpdate"
+        />
+        <InputSearch
+          v-if="!enableFilters && !props.hideSearch"
+          class="w-3/5 xl:w-2/5 2xl:w-1/5"
+          v-model="settings.search"
+          @update:modelValue="handleSearchRequest"
+          :placeholder="`Search ${props.tableId}`"
+          id="search-input"
+        />
+        <slot name="toolbar-end" />
+      </div>
 
-    <div :class="{ 'flex-1 min-w-0': enableFilters }">
+      <div class="flex gap-[10px]">
+        <Button
+          v-if="props.isEditable && data?.tableMetadata"
+          type="primary"
+          icon="add-circle"
+          @click="onAddRowClicked"
+        >
+          Add {{ tableId }}
+        </Button>
+
+        <Button
+          v-if="data?.tableMetadata"
+          type="outline"
+          :href="`/${schemaId}/api/csv/${tableId}`"
+          icon="Download"
+          download
+        >
+          Download
+        </Button>
+      </div>
+    </div>
+
+    <div :class="{ 'flex gap-6': enableFilters }">
+      <Sidebar
+        v-if="enableFilters && filters && !sidebarCollapsed"
+        class="lg:-ml-[30px]"
+      >
+        <FilterSidebarContent
+          :filters="filters"
+          :columns="filters.columns.value"
+          :schema-id="schemaId"
+          :table-id="tableId"
+        />
+      </Sidebar>
+
       <div class="flex-1 min-w-0">
-        <div class="flex pb-[30px] justify-between">
-          <div class="flex gap-[10px]">
-            <InputSearch
-              v-if="!enableFilters && !props.hideSearch"
-              class="w-3/5 xl:w-2/5 2xl:w-1/5"
-              v-model="settings.search"
-              @update:modelValue="handleSearchRequest"
-              :placeholder="`Search ${props.tableId}`"
-              id="search-input"
-            />
-            <slot name="toolbar-end" />
-          </div>
-
-          <div class="flex gap-[10px]">
-            <Button
-              v-if="props.isEditable && data?.tableMetadata"
-              type="primary"
-              icon="add-circle"
-              @click="onAddRowClicked"
-            >
-              Add {{ tableId }}
-            </Button>
-
-            <TableControlColumns
-              :columns="columns"
-              @update:columns="handleColumnsUpdate"
-            />
-
-            <Button
-              v-if="data?.tableMetadata"
-              type="outline"
-              :href="`/${schemaId}/api/csv/${tableId}`"
-              icon="Download"
-              download
-            >
-              Download
-            </Button>
-          </div>
-        </div>
-
         <ActiveFilters
           v-if="enableFilters && filters"
           :filters="filters.activeFilters.value"

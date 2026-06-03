@@ -120,7 +120,7 @@ const enableFilters = true;
       </template>
     </PageHeader>
 
-    <div :class="enableFilters ? 'lg:-ml-[30px] lg:w-[calc(100%+30px)]' : ''">
+    <div>
       <TableEMX2
         :schemaId="schemaId"
         :tableId="tableId"

@@ -10,10 +10,7 @@
     </label>
 
     <div class="flex gap-6">
-      <Sidebar
-        v-model:collapsed="storySidebarCollapsed"
-        collapsed-label="Show filters"
-      >
+      <Sidebar>
         <FilterSidebarContent
           :filters="mockFilters"
           :columns="columns"
@@ -275,7 +272,6 @@ function isCountLoading(columnId: string) {
 }
 
 const collapsedRef = ref(new Set<string>());
-const storySidebarCollapsed = ref(false);
 const showCountError = ref(false);
 
 const visibleColumns = computed<IColumn[]>(() =>
