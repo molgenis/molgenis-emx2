@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { useRoute, useAsyncData } from "#app";
 // Mock the router composables before importing useSession
-vi.mock("#app", () => ({
-  useRoute: vi.fn(),
-  useRouter: vi.fn(),
-  useAsyncData: vi.fn(),
-  defineNuxtPlugin: vi.fn(),
-}));
+vi.mock("vue-router", async (importOriginal) => {
+  const actual: Object = await importOriginal();
+  return { ...actual, useRoute: vi.fn(), useRouter: vi.fn() };
+});
+vi.mock("nuxt/app", async (importOriginal) => {
+  const actual: Object = await importOriginal();
+  return { ...actual, useAsyncData: vi.fn() };
+});
+import { useRoute } from "vue-router";
+import { useAsyncData } from "nuxt/app";
 import { useSession } from "../../../app/composables/useSession";
 import { ref } from "vue";
 
@@ -14,12 +17,14 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe.only("useSession for non schema path", () => {
+describe("useSession for non schema path", () => {
   test("should fetch session details if session is empty", async () => {
+    //@ts-expect-error
     useRoute.mockReturnValue({
       params: {},
     });
 
+    //@ts-expect-error
     useAsyncData.mockResolvedValueOnce({
       data: ref({
         data: {
