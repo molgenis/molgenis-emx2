@@ -23,6 +23,7 @@ public class TableQueryGenerator implements QueryGenerator {
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
   private static final Variable TYPE_VARIABLE = SparqlBuilder.var("_type_");
+  private static final Variable SUBJECT_VARIABLE = SparqlBuilder.var("_subject");
 
   @Override
   public String generate(TableMetadata tableMetadata) {
@@ -30,9 +31,8 @@ public class TableQueryGenerator implements QueryGenerator {
     List<GraphPattern> whereClauses = new ArrayList<>();
     List<Groupable> groups = new ArrayList<>();
 
-    Variable tableVar = SparqlBuilder.var(tableMetadata.getTableName());
-    selectors.add(tableVar);
-    groups.add(tableVar);
+    selectors.add(SUBJECT_VARIABLE);
+    groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
       if (hasSemantics(column.getSemantics())) {
@@ -41,11 +41,11 @@ public class TableQueryGenerator implements QueryGenerator {
 
       ColumnSparqlQueryGenerator mapper;
       if (column.isReference()) {
-        mapper = new ReferenceColumnSparqlQueryGenerator(tableVar, column);
+        mapper = new ReferenceColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
       } else if (column.isArray()) {
-        mapper = new ArrayColumnSparqlQueryGenerator(tableVar, column);
+        mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
       } else {
-        mapper = new LiteralColumnSparqlQueryGenerator(tableVar, column);
+        mapper = new LiteralColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
       }
 
       selectors.addAll(mapper.getSelectors());
@@ -55,9 +55,9 @@ public class TableQueryGenerator implements QueryGenerator {
 
     SelectQuery query = setupQuery(tableMetadata);
     if (hasSemantics(tableMetadata.getSemantics())) {
-      anchorTableVar(tableVar, query);
+      anchorTableVar(SUBJECT_VARIABLE, query);
     } else {
-      addTableTypeSemantics(tableMetadata, tableVar, query);
+      addTableTypeSemantics(tableMetadata, SUBJECT_VARIABLE, query);
     }
 
     return query
