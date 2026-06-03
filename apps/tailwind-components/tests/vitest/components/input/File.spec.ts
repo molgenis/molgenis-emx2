@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import InputFile from "../../../../app/components/input/File.vue";
 
 const wrapper = mount(InputFile, {
@@ -10,6 +10,12 @@ const wrapper = mount(InputFile, {
 });
 
 describe("input file", () => {
+  beforeEach(() => {
+    vi.spyOn(window.URL, "createObjectURL").mockImplementation(
+      () => "http://fake.url"
+    );
+  });
+
   it("should show an empty input when modelValue is null", () => {
     expect(wrapper.exists()).toBe(true);
     expect(wrapper.find("input").attributes("value")).toBe(undefined);
@@ -36,7 +42,7 @@ describe("input file", () => {
     const link = wrapper.find("a");
 
     expect(link.exists()).toBe(true);
-    expect(link.attributes("href")).toMatch(/^blob:/);
+    expect(link.attributes("href")).toBe("http://fake.url");
   });
 
   it("should not show a link when modelValue is null", async () => {

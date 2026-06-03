@@ -3,11 +3,15 @@ import { defineComponent } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import Navigation from "../../../app/components/Navigation.vue";
 
-vi.mock("#app", () => ({
-  useAppConfig: () => ({
-    basePath: "/",
-  }),
-}));
+vi.mock("#app", async (importOriginal) => {
+  const actual: Object = await importOriginal();
+  return {
+    ...actual,
+    useAppConfig: () => ({
+      basePath: "/",
+    }),
+  };
+});
 
 const VMenuStub = defineComponent({
   template: `
