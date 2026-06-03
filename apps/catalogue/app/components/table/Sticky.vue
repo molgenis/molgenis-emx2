@@ -71,8 +71,7 @@ watch(
   async () => {
     await nextTick();
     checkScrollbars();
-  },
-  { deep: true }
+  }
 );
 </script>
 
