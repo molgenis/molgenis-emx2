@@ -8,9 +8,8 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${route}viz/ColumnChart.story`);
-    await page
-      .getByRole("heading", { name: "VizColumnChart" })
-      .click({ delay: 500 });
+    const title = await page.getByRole("heading", { name: "VizColumnChart" });
+    await title.waitFor();
   });
 
   test("columns and labels are rendered:", async ({ page }) => {

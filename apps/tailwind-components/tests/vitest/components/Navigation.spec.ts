@@ -1,13 +1,7 @@
-import { mount } from "@vue/test-utils";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { defineComponent } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import Navigation from "../../../app/components/Navigation.vue";
-
-vi.mock("#app", () => ({
-  useAppConfig: () => ({
-    basePath: "/",
-  }),
-}));
 
 const VMenuStub = defineComponent({
   template: `
@@ -19,8 +13,8 @@ const VMenuStub = defineComponent({
 });
 
 describe("Navigation", () => {
-  it("renders menu html with submenu and sub-submenu items", () => {
-    const wrapper = mount(Navigation, {
+  it("renders menu html with submenu and sub-submenu items", async () => {
+    const wrapper = await mountSuspended(Navigation, {
       props: {
         maximumButtonShown: 4,
         navigation: [
