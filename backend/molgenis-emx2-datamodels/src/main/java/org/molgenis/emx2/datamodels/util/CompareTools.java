@@ -1,9 +1,7 @@
 package org.molgenis.emx2.datamodels.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
@@ -33,8 +31,8 @@ public class CompareTools {
   }
 
   public static void assertEquals(Row row1, Row row2) {
-    Collection<String> colNames1 = row1.getColumnNames();
-    Collection<String> colNames2 = row2.getColumnNames();
+    Set<String> colNames1 = row1.getColumnNames();
+    Set<String> colNames2 = row2.getColumnNames();
 
     if (!colNames1.equals(colNames2)) {
       fail("List<Row> has different column names on row: " + row1 + "+\nversus\n" + row2);
