@@ -225,7 +225,7 @@ jobs:
           paths:
             - build/libs
             - build/ci.properties
-            - apps/catalogue/.output
+            - apps/catalogue
             - custom-app/
 
   my-e2e-test:
