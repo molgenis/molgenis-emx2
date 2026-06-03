@@ -151,7 +151,7 @@ describe("useForm", () => {
         required: true,
       },
       {
-        columnType: "String",
+        columnType: "STRING",
         id: "col7",
         label: "conditionally required column",
         required: "!!col2",
@@ -219,7 +219,7 @@ describe("useForm", () => {
         required: true,
       },
       {
-        columnType: "String",
+        columnType: "STRING",
         id: "col7",
         label: "conditionally required column",
         required: "!!col2",
