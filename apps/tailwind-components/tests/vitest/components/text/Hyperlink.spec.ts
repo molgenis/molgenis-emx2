@@ -3,14 +3,14 @@ import { describe, expect, test } from "vitest";
 import Hyperlink from "../../../../app/components/text/Hyperlink.vue";
 import BaseIcon from "../../../../app/components/BaseIcon.vue";
 
-describe("Hyperlink", () => {
-  const hyperlinkExternal = mount(Hyperlink, {
-    props: {
-      to: "https://molgenis.org",
-      type: "external",
-    },
-  });
+const hyperlinkExternal = mount(Hyperlink, {
+  props: {
+    to: "https://molgenis.org",
+    type: "external",
+  },
+});
 
+describe("Hyperlink", () => {
   test("External links should have specific rels for security/privacy", async () => {
     expect(hyperlinkExternal.html()).toContain(
       'rel="external noopener noreferrer"'

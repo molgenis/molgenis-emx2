@@ -52,11 +52,13 @@ describe("useSession for non schema path", () => {
 
 describe("useSession for schema path", () => {
   test("should fetch session details if session is empty", async () => {
+    //@ts-expect-error
     useRoute.mockReturnValue({
       params: { schema: "abc" },
     });
 
     useAsyncData
+      //@ts-expect-error
       .mockResolvedValueOnce({
         data: ref({
           data: { _session: { roles: ["Editor"] } },
