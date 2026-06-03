@@ -5,7 +5,7 @@ import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
 
 describe("useForm", () => {
-  const tableMetadata: Ref<ITableMetaData> = ref({
+  const tableMetadata = ref<ITableMetaData>({
     id: "vi test table metadata",
     name: "vi test table metadata",
     schemaId: "vi test table metadata",
@@ -47,7 +47,7 @@ describe("useForm", () => {
         required: "true",
       },
       {
-        columnType: "String",
+        columnType: "STRING",
         id: "col7",
         label: "conditionally required column",
         required: "!!col2",
