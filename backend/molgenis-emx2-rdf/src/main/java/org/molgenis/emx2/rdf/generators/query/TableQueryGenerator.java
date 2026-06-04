@@ -87,8 +87,7 @@ public class TableQueryGenerator {
     query.where(GraphPatterns.tp(SUBJECT_VARIABLE, ANY_PREDICATE, ANY_OBJECT));
   }
 
-  private static void addTableTypeSemantics(
-          TableMetadata tableMetadata, SelectQuery select) {
+  private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
     String[] tableSemantics = tableMetadata.getSemantics();
     if (tableSemantics.length == 1) {
       select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0]));
