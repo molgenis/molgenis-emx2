@@ -92,7 +92,5 @@ public interface Schema {
 
   List<Role> getRoleInfos();
 
-  List<TablePermission> getPermissionsForActiveUser();
-
-  Map<String, TablePermission> getPermissionsByTableForActiveUser();
+  UserPermissions getUserPermissions();
 }

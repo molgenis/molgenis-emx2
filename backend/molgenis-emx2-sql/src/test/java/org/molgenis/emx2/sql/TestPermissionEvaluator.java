@@ -452,13 +452,13 @@ class TestPermissionEvaluator {
 
     @Test
     void permissionsByTableCacheIsStableWithinSchemaInstance() {
-      Schema s = schemaFor(USER_CUSTOM);
+      Schema schema = schemaFor(USER_CUSTOM);
+      UserPermissions permissions = schema.getUserPermissions();
       // repeated calls within the same (metadata) lifecycle return the cached index
-      assertSame(s.getPermissionsByTableForActiveUser(), s.getPermissionsByTableForActiveUser());
+      assertSame(permissions.getByTable(), permissions.getByTable());
       // and the index is consistent with the list it is derived from
-      assertEquals(
-          s.getPermissionsForActiveUser().size(), s.getPermissionsByTableForActiveUser().size());
-      assertTrue(s.getPermissionsByTableForActiveUser().containsKey(TABLE_A));
+      assertEquals(permissions.getAll().size(), permissions.getByTable().size());
+      assertTrue(permissions.getByTable().containsKey(TABLE_A));
     }
   }
 }

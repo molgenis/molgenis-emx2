@@ -201,7 +201,7 @@ public class GraphqlSessionFieldFactory {
   }
 
   private static List<Map<String, Object>> buildTablePermissions(Schema schema) {
-    return schema.getPermissionsForActiveUser().stream()
+    return schema.getUserPermissions().getAll().stream()
         .map(
             p ->
                 Map.<String, Object>of(

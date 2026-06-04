@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.cache.CachedUserPermissions;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private List<String> rolesCache = null;
   // cache for the active user's table permissions, indexed by table name (insertion order
   // preserved)
-  private Map<String, TablePermission> permissionsByTableCache = null;
+  private final CachedUserPermissions permissions = new CachedUserPermissions(this);
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -82,7 +83,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
-    this.permissionsByTableCache = null;
+    permissions.clearCache();
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -270,22 +271,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return rolesCache;
   }
 
-  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
-    // cached because per-table lookups in PermissionEvaluator are called very often during query
-    // and schema building; is cleared along with rolesCache in reload()
-    if (permissionsByTableCache == null) {
-      Map<String, TablePermission> byTable = new LinkedHashMap<>();
-      for (TablePermission p :
-          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
-        byTable.putIfAbsent(p.table(), p);
-      }
-      permissionsByTableCache = Collections.unmodifiableMap(byTable);
-    }
-    return permissionsByTableCache;
+  public UserPermissions getTablePermissions() {
+    return permissions;
   }
 
-  public List<TablePermission> getPermissionsForActiveUser() {
-    return List.copyOf(getPermissionsByTableForActiveUser().values());
+  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
+    return permissions.getByTable();
   }
 
   public String getRoleForUser(String user) {

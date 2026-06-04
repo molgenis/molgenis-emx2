@@ -64,7 +64,6 @@ public final class PermissionEvaluator {
   }
 
   private static Optional<TablePermission> permissionFor(Schema schema, TableMetadata table) {
-    return Optional.ofNullable(
-        schema.getPermissionsByTableForActiveUser().get(table.getTableName()));
+    return Optional.ofNullable(schema.getUserPermissions().getByTable().get(table.getTableName()));
   }
 }
