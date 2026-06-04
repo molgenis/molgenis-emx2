@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -34,19 +33,35 @@ class SparqlQueryingExampleTest {
           SchemaMetadata schema =
               TestDatabaseFactory.getTestDatabase().getSchema("harvesting").getMetadata();
           TableQueryGenerator generator = new TableQueryGenerator();
-          SelectQuery query = generator.generate(schema.getTableMetadata("Collections"));
-          System.out.println(query.getQueryString());
+          String query = generator.generate(schema.getTableMetadata("Collections"));
+          System.out.println(query);
         });
   }
 
+  /**
+   * Manual test that executes a SPARQL SELECT query from a file against a Turtle RDF dataset loaded
+   * from a file, writing the results to a CSV file.
+   *
+   * <p>To use this test:
+   *
+   * <ol>
+   *   <li>Set {@code absoluteQueryPath} to the absolute path of a file containing a SPARQL SELECT
+   *       query.
+   *   <li>Set {@code absoluteTtlPath} to the absolute path of a file containing RDF data in Turtle
+   *       (.ttl) format.
+   *   <li>Results will be written to {@code results.csv} in the working directory.
+   * </ol>
+   */
   @Disabled("Used for manual testing purposes")
   @Test
   void fileBasedTest() {
     assertDoesNotThrow(
         () -> {
+          // Absolute path of a file containing a SPARQL SELECT query.
           String absoluteQueryPath = "";
           String query = new String(new FileInputStream(absoluteQueryPath).readAllBytes());
 
+          // Absolute path of a file containing RDF data in Turtle (.ttl) format.
           String absoluteTtlPath = "";
           SailRepository repository = setupRepositoryFromFile(absoluteTtlPath);
 
