@@ -128,7 +128,7 @@ if (!cohortOnly.value) {
           <div class="absolute -translate-x-1/2 left-1/2">
             <a
               :href="`/${catalogueRouteParam}`"
-              class="flex items-center gap-1 tracking-widest transition-colors font-display text-heading-xl hover:underline text-menu"
+              class="flex items-center text-center gap-1 tracking-widest transition-colors font-display text-heading-xl hover:underline text-menu"
               >{{ logoTitle }}</a
             >
           </div>
