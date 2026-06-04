@@ -354,6 +354,9 @@ jobs:
       - store_artifacts:
           path: apps/tailwind-components/test-results
 
+      - store_artifacts:
+          path: apps/tailwind-components/playwright-report
+
       - run:
           name: Directory e2e tests
           command: |
@@ -396,13 +399,21 @@ jobs:
           path: e2e/test-results
 
       - run:
-          name: Test nuxt ssr catalogue tests
-          command: |
-            pnpm exec playwright test
+          name: Start Nuxt
+          command: node .output/server/index.mjs > nuxt.log 2>&1 &
           working_directory: /workspace/apps/catalogue
 
-      - store_artifacts:
-          path: apps/tailwind-components/playwright-report
+      - run:
+          name: Wait for Nuxt
+          command: |
+            npx wait-on http://localhost:3000    
+
+      - run:
+          name: Catalogue ssr tests
+          command: |
+            pnpm install
+            pnpm --filter catalogue run e2e
+          working_directory: apps
 
   test:
     <<: *test_config
