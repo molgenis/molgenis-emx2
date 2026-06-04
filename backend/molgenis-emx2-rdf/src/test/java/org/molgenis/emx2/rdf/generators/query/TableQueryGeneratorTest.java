@@ -47,16 +47,15 @@ class TableQueryGeneratorTest {
                     .setType(ColumnType.STRING)
                     .setPkey()
                     .setSemantics("xsd:name")));
-    SelectQuery generate = new TableQueryGenerator().generate(table);
-    String query = removePrefixesFromQuery(generate.getQueryString());
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-              SELECT ?TableSemantics ?name
-              WHERE { ?TableSemantics ?anyPredicate ?anyObject .
-              ?TableSemantics xsd:name ?name . }
-              GROUP BY ?TableSemantics ?name
-              """,
-        query);
+        SELECT ?_subject ?name
+        WHERE { ?_subject ?anyPredicate ?anyObject .
+        ?_subject xsd:name ?name . }
+        GROUP BY ?_subject ?name
+        """,
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -71,16 +70,15 @@ class TableQueryGeneratorTest {
                         .setSemantics("xsd:name"))
                 .setSemantics());
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
-    String query = removePrefixesFromQuery(generate.getQueryString());
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-                  SELECT ?TableSemantics ?name
-                  WHERE { ?TableSemantics ?anyPredicate ?anyObject .
-                  ?TableSemantics xsd:name ?name . }
-                  GROUP BY ?TableSemantics ?name
+                  SELECT ?_subject ?name
+                  WHERE { ?_subject ?anyPredicate ?anyObject .
+                  ?_subject xsd:name ?name . }
+                  GROUP BY ?_subject ?name
                   """,
-        query);
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -95,21 +93,20 @@ class TableQueryGeneratorTest {
                         .setSemantics("xsd:name"))
                 .setSemantics("xsd:foo", "xsd:bar"));
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
-    String query = removePrefixesFromQuery(generate.getQueryString());
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-        SELECT ?TableSemantics ?name
-        WHERE { ?TableSemantics a ?_type_ .
-        ?TableSemantics xsd:name ?name . }
-        GROUP BY ?TableSemantics ?name
+        SELECT ?_subject ?name
+        WHERE { ?_subject a ?_type_ .
+        ?_subject xsd:name ?name . }
+        GROUP BY ?_subject ?name
         VALUES ?_type_ {
           xsd:foo\s
           xsd:bar\s
         }
 
         """,
-        query);
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -124,16 +121,15 @@ class TableQueryGeneratorTest {
                         .setSemantics("xsd:name"))
                 .setSemantics("xsd:foo"));
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
-    String query = removePrefixesFromQuery(generate.getQueryString());
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-            SELECT ?TableSemantics ?name
-            WHERE { ?TableSemantics a xsd:foo .
-            ?TableSemantics xsd:name ?name . }
-            GROUP BY ?TableSemantics ?name
+            SELECT ?_subject ?name
+            WHERE { ?_subject a xsd:foo .
+            ?_subject xsd:name ?name . }
+            GROUP BY ?_subject ?name
             """,
-        query);
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -152,17 +148,17 @@ class TableQueryGeneratorTest {
                     .setSemantics("xsd:bar"),
                 Column.column("baz").setType(ColumnType.STRING).setPkey().setSemantics("xsd:baz")));
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-        SELECT ?QueryOptionals ?foo ?bar ?baz
-        WHERE { ?QueryOptionals ?anyPredicate ?anyObject .
-        OPTIONAL { ?QueryOptionals xsd:foo ?foo . }
-        OPTIONAL { ?QueryOptionals xsd:bar ?bar . }
-        ?QueryOptionals xsd:baz ?baz . }
-        GROUP BY ?QueryOptionals ?foo ?bar ?baz
+        SELECT ?_subject ?foo ?bar ?baz
+        WHERE { ?_subject ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject xsd:foo ?foo . }
+        OPTIONAL { ?_subject xsd:bar ?bar . }
+        ?_subject xsd:baz ?baz . }
+        GROUP BY ?_subject ?foo ?bar ?baz
         """,
-        removePrefixesFromQuery(generate.getQueryString()));
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -176,15 +172,15 @@ class TableQueryGeneratorTest {
                     .setPkey()
                     .setSemantics("xsd:name")));
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
-        removePrefixesFromQuery(generate.getQueryString()),
         """
-      SELECT ?Propogation ?name
-      WHERE { ?Propogation ?anyPredicate ?anyObject .
-      ?Propogation xsd:name ?name . }
-      GROUP BY ?Propogation ?name
-      """);
+      SELECT ?_subject ?name
+      WHERE { ?_subject ?anyPredicate ?anyObject .
+      ?_subject xsd:name ?name . }
+      GROUP BY ?_subject ?name
+      """,
+        removePrefixesFromQuery(query));
   }
 
   @Test
@@ -195,31 +191,31 @@ class TableQueryGeneratorTest {
                 "Propogation",
                 Column.column("names").setType(ColumnType.STRING_ARRAY).setSemantics("xsd:name")));
 
-    SelectQuery generate = new TableQueryGenerator().generate(table);
+    String query = new TableQueryGenerator().generate(table);
     assertEquals(
-        removePrefixesFromQuery(generate.getQueryString()),
         """
-          SELECT ?Propogation ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
-          WHERE { ?Propogation ?anyPredicate ?anyObject .
-          OPTIONAL { ?Propogation xsd:name ?names_single . } }
-          GROUP BY ?Propogation
-          """);
+          SELECT ?_subject ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
+          WHERE { ?_subject ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject xsd:name ?names_single . } }
+          GROUP BY ?_subject
+          """,
+        removePrefixesFromQuery(query));
   }
 
   @Test
   void shouldPropagateReferences() {
-    SelectQuery query = new TableQueryGenerator().generate(order);
+    String query = new TableQueryGenerator().generate(order);
 
     assertEquals(
         """
-        SELECT ?Order ?id ?product__name
-        WHERE { ?Order ?anyPredicate ?anyObject .
-        ?Order xsd:id ?id .
-        ?Order xsd:product ?product .
+        SELECT ?_subject ?id ?product__name
+        WHERE { ?_subject ?anyPredicate ?anyObject .
+        ?_subject xsd:id ?id .
+        ?_subject xsd:product ?product .
         ?product xsd:name ?product__name . }
-        GROUP BY ?Order ?id ?product__name
+        GROUP BY ?_subject ?id ?product__name
         """,
-        removePrefixesFromQuery(query.getQueryString()));
+        removePrefixesFromQuery(query));
   }
 
   private String removePrefixesFromQuery(String query) {
@@ -233,7 +229,7 @@ class TableQueryGeneratorTest {
 
     String prefixes = select.getQueryString().replace("SELECT * \n" + "WHERE {}", "").trim();
     TableQueryGenerator generator = new TableQueryGenerator();
-    String actualQuery = generator.generate(order).getQueryString();
+    String actualQuery = generator.generate(order);
     assertTrue(actualQuery.startsWith(prefixes));
   }
 
@@ -247,12 +243,12 @@ class TableQueryGeneratorTest {
 
     Schema petSchema = database.getSchema(schemaName);
     Table pet = petSchema.getTable("Pet");
-    SelectQuery generate = new TableQueryGenerator().generate(pet.getMetadata());
     SailRepository repository = setupRepositoryFromFile("queries/pets.ttl");
     TupleQuery query =
         repository
             .getConnection()
-            .prepareTupleQuery(QueryLanguage.SPARQL, generate.getQueryString());
+            .prepareTupleQuery(
+                QueryLanguage.SPARQL, new TableQueryGenerator().generate(pet.getMetadata()));
 
     StringWriter writer = new StringWriter();
     query.evaluate(new SPARQLResultsCSVWriter(writer));
