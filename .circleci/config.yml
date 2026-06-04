@@ -328,7 +328,7 @@ jobs:
               echo "✅ Application is up"
               break
               else
-              echo "⏳ Application not ready yet, waiting 10 seconds..."
+              echo "⏳ Application not ready yet, waiting 5 seconds..."
               fi
 
               RETRY=$((RETRY + 1))
@@ -404,9 +404,33 @@ jobs:
           working_directory: /workspace/apps/catalogue
 
       - run:
-          name: Wait for Nuxt
+          name: Wait catalogue app to be up, poll every 5 seconds
           command: |
-            npx wait-on http://localhost:3000    
+            GETURL="http://localhost:3000"
+            MAX_RETRIES=240
+            RETRY=0
+
+            while true; do
+              # Run curl, suppress output, get status code only
+              STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+
+              echo "HTTP status: ${STATUS:-none}"
+
+              if [[ "$STATUS" == "200" ]]; then
+              echo "✅ Application is up"
+              break
+              else
+              echo "⏳ Application not ready yet, waiting 5 seconds..."
+              fi
+
+              RETRY=$((RETRY + 1))
+              if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+              echo "❌ Gave up after $MAX_RETRIES attempts"
+              exit 1
+              fi
+
+              sleep 1
+            done           
 
       - run:
           name: Catalogue ssr tests
