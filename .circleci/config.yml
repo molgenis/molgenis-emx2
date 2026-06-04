@@ -435,7 +435,7 @@ jobs:
       - run:
           name: Catalogue ssr tests
           command: |
-            cp -r /workspace/apps/catalogue /apps/catalogue
+            cp -r /workspace/apps/catalogue /project/apps/catalogue
             pnpm install
             pnpm --filter catalogue run e2e
           working_directory: apps
