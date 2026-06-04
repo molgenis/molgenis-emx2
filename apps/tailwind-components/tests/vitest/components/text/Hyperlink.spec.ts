@@ -1,7 +1,7 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { expect, test } from "vitest";
-import BaseIcon from "../../../../app/components/BaseIcon.vue";
 import Hyperlink from "../../../../app/components/text/Hyperlink.vue";
+import BaseIcon from "../../../../app/components/BaseIcon.vue";
 
 test("External links should have specific rels for security/privacy", async () => {
   const hyperlinkExternal = await mountSuspended(Hyperlink, {
