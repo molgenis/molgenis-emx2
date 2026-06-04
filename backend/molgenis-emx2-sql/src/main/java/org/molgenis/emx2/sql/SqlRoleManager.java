@@ -561,11 +561,11 @@ public class SqlRoleManager {
       for (Record row : rows) {
         result.add(
             new TablePermission(row.get("table_name", String.class))
-                .select(trueOrNull(row, "can_select"))
-                .insert(trueOrNull(row, "can_insert"))
-                .update(trueOrNull(row, "can_update"))
-                .delete(trueOrNull(row, "can_delete"))
-                .rowLevel(trueOrNull(row, "is_row_level")));
+                .select(grantedOrNull(row, "can_select"))
+                .insert(grantedOrNull(row, "can_insert"))
+                .update(grantedOrNull(row, "can_update"))
+                .delete(grantedOrNull(row, "can_delete"))
+                .rowLevel(grantedOrNull(row, "is_row_level")));
       }
     } catch (Exception e) {
       throw new SqlMolgenisException("Failed to get permissions for " + roleName, e);
@@ -574,9 +574,8 @@ public class SqlRoleManager {
   }
 
   public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
-    String activeUser = database.getActiveUser();
     SqlSchema schema = database.getSchema(schemaName);
-    List<String> roleNames = schema.getInheritedRolesForUser(activeUser);
+    List<String> roleNames = schema.getInheritedRolesForActiveUser();
     if (roleNames.isEmpty()) return List.of();
 
     String customRoleName =
@@ -633,6 +632,15 @@ public class SqlRoleManager {
     return new ArrayList<>(result.values());
   }
 
+  /**
+   * Reads a granted-privilege flag, normalizing FALSE to null. TablePermission is tri-state (true =
+   * grant, false = explicit revoke, null = absent), so an absent grant must be null and never false
+   * — otherwise the permission could round-trip into applyPgGrants as an accidental REVOKE.
+   */
+  private static Boolean grantedOrNull(Record row, String field) {
+    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? Boolean.TRUE : null;
+  }
+
   private List<TablePermission> systemPermissions(String roleName) {
     if (roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())
@@ -679,9 +687,5 @@ public class SqlRoleManager {
 
   private static Boolean orBool(Boolean a, Boolean b) {
     return Boolean.TRUE.equals(a) || Boolean.TRUE.equals(b) ? true : null;
-  }
-
-  private static Boolean trueOrNull(Record row, String field) {
-    return Boolean.TRUE.equals(row.get(field, Boolean.class)) ? true : null;
   }
 }
