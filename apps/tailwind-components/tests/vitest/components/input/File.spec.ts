@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import InputFile from "../../../../app/components/input/File.vue";
 
 const wrapper = mount(InputFile, {
@@ -46,7 +46,6 @@ describe("input file", () => {
     expect(link.attributes("href")).toMatch(
       "http://example.com/test-document.txt"
     );
-    expect(link.attributes("href")).toBe("http://fake.url");
   });
 
   it("should not show a link when modelValue is null", async () => {
