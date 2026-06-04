@@ -184,7 +184,7 @@ jobs:
             - apps/catalogue
             - custom-app/
 
-  e2e-test:
+  e2e-tests:
     resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.60.0-jammy
