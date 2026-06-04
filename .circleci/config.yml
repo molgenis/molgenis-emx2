@@ -224,6 +224,11 @@ jobs:
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: <apps> unit test the code
+        command: ./gradlew :apps:test
+
     - run:
         name: <backend> check code format
         command: |
@@ -235,7 +240,7 @@ jobs:
     - run:
         name: run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
