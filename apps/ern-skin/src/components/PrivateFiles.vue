@@ -3,7 +3,11 @@
     <p><strong>Unable to get active user: </strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!user && !error" class="study-list-error">
+  <MessageBox
+    type="error"
+    v-else-if="!user && !error && !loading"
+    class="study-list-error"
+  >
     <p><strong>No active user found</strong></p>
   </MessageBox>
   <p v-if="user !== 'anonymous' && user">

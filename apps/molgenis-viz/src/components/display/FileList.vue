@@ -3,7 +3,7 @@
     <p><strong>Unable to retrieve files:</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!data" class="file-list-error">
+  <MessageBox type="error" v-else-if="!loading && !data" class="file-list-error">
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the steps
@@ -104,6 +104,7 @@ interface FilesResponse {
 }
 
 const error = ref<Error | null>(null);
+const loading = ref(true);
 const data = ref<FilesData[]>();
 
 async function getFiles() {
@@ -134,8 +135,12 @@ onMounted(() => {
     } else {
       error.value = err?.message || "An unexpected error occurred.";
     }
-  });
+  })
+  .finally(() => {
+      loading.value = false;
+    });
 });
+
 </script>
 
 <style lang="scss">
