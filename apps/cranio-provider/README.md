@@ -22,6 +22,14 @@ The app has the following pages. There are several _mini dashboards_ that are sp
             - Surgical overview
     - Cleft lip and palate
         - Overview for the current center
+        - Level 1
+        - Level 2
+    - Facial Dysostosis
+        - Level 1
+        - Level 2
+    - Craniofacial Microsomia
+        - Level 1
+        - Level 2
     - Genetic hearing loss
         - All centers overview
         - Your center overview
