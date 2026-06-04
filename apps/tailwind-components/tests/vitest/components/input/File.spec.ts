@@ -11,18 +11,19 @@ const wrapper = mount(InputFile, {
 
 describe("input file", () => {
   beforeEach(() => {
-    vi.spyOn(window.URL, "createObjectURL").mockImplementation(
-      () => "http://fake.url"
-    );
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test-url");
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   it("should show an empty input when modelValue is null", () => {
     expect(wrapper.exists()).toBe(true);
     expect(wrapper.find("input").attributes("value")).toBe(undefined);
   });
 
   it("should render the correct modelValue filename", async () => {
-    const file = new File(["file content"], "test-document.txt", {
+    const file = new window.File(["test"], "test-document.txt", {
       type: "text/plain",
     });
     await wrapper.setProps({ modelValue: file });
@@ -32,7 +33,7 @@ describe("input file", () => {
   });
 
   it("should show a link to file value in the component", async () => {
-    const file = new File(["file content"], "test-document.txt", {
+    const file = new Blob(["file content"], {
       type: "text/plain",
     });
     Object.defineProperty(file, "url", {
@@ -42,6 +43,9 @@ describe("input file", () => {
     const link = wrapper.find("a");
 
     expect(link.exists()).toBe(true);
+    expect(link.attributes("href")).toMatch(
+      "http://example.com/test-document.txt"
+    );
     expect(link.attributes("href")).toBe("http://fake.url");
   });
 
