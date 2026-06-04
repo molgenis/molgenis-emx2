@@ -158,10 +158,6 @@ useHead(() => ({
             <NuxtLink :to="`/all`">
               <Button label="Search all" />
             </NuxtLink>
-            <p
-              class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
-              v-if="catalogues?.length"
-            ></p>
           </div>
         </div>
       </template>
