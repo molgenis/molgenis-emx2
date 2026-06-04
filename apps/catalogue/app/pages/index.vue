@@ -34,13 +34,13 @@ const config = useRuntimeConfig();
 const schema = config.public.schema as string;
 
 const variablesFilter = {
-            resource: {
-              _or: [
-                { mg_tableclass: { equals: `${schema}.Networks` } },
-                { mg_tableclass: { equals: `${schema}.Catalogues` } },
-              ],
-            },
-          };
+  resource: {
+    _or: [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ],
+  },
+};
 
 const query = computed(() => {
   return `
@@ -90,11 +90,11 @@ const { data } = await useFetch<Resp<ICatalogues, ICatalogues_agg>>(
   graphqlURL.value,
   {
     method: "POST",
-    body: { 
+    body: {
       query,
       variables: {
-        variablesFilter
-      }
+        variablesFilter,
+      },
     },
   }
 );
@@ -117,7 +117,7 @@ const mainCatalogue = computed<ICatalogues | null>(() => {
 const pageDescription = computed(
   () =>
     mainCatalogue.value?.description ||
-    "A collaborative effort to integrate the catalogues of diverse EU research projects and (global) networks to accelerate reuse and improve citizens' health."
+    `Welcome to the European Health Research Data and Samples Catalogue. A growing collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens' health. Click on the ‘Search all’ button to browse through all ${counts.value.collections} collections, ${counts.value.networks} networks and ${counts.value.variables} variables to find the data you are looking for or select one of the individual catalogues below.`
 );
 
 const pageTitle = computed(
@@ -154,11 +154,6 @@ useHead(() => ({
         <div
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
-        <div>
-          {{ counts.variables }} variables,
-          {{ counts.collections }} collections,
-          {{ counts.networks }} networks
-        </div>
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/all`">
               <Button label="Search all" />
