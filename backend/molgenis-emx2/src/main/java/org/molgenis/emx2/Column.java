@@ -98,11 +98,17 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return semantics;
   }
 
+  public void setSemantics(Semantic[] semantics) {
+    this.semantics = semantics;
+  }
+
   public Column setSemantics(String... semantics) {
-    this.semantics =
-        Arrays.stream(semantics)
-            .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
-            .toArray(Semantic[]::new);
+    if (this.semantics != null) {
+      this.semantics =
+          Arrays.stream(semantics)
+              .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
+              .toArray(Semantic[]::new);
+    }
     return this;
   }
 
