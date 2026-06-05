@@ -3,9 +3,9 @@ Utility functions for the Molgenis EMX2 Pyclient package
 """
 import csv
 import io
-import math
 import json
 import logging
+import math
 import pathlib
 
 import pandas as pd
