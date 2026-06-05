@@ -14,9 +14,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
