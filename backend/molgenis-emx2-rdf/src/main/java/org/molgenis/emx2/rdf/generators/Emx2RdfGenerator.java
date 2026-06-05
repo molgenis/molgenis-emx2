@@ -26,7 +26,6 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.RdfMapData;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
@@ -53,9 +52,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   public void generate(Table table) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
+    generatePrefixes(table.getSchema().getMetadata().getSemanticPrefixes().getAllNamespaces());
     generateCustomRdf(table.getSchema());
     describeTable(table);
     describeColumns(table, null);
@@ -64,7 +62,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table, Column column) {
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
+    generatePrefixes(table.getSchema().getMetadata().getSemanticPrefixes().getAllNamespaces());
     describeTable(table);
     describeColumns(table, column.getName());
   }

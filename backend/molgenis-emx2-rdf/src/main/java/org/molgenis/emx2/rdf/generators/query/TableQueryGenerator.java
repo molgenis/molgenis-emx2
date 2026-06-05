@@ -11,12 +11,12 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableQueryGenerator {
 
@@ -66,7 +66,7 @@ public class TableQueryGenerator {
         .getQueryString();
   }
 
-  private static boolean hasSemantics(String[] semantics) {
+  private static boolean hasSemantics(Semantic[] semantics) {
     return semantics == null || semantics.length == 0;
   }
 
@@ -88,13 +88,13 @@ public class TableQueryGenerator {
   }
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
-    String[] tableSemantics = tableMetadata.getSemantics();
+    Semantic[] tableSemantics = tableMetadata.getSemantics();
     if (tableSemantics.length == 1) {
-      select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0]));
+      select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0].asOptimizedString().getFirst()));
     } else if (tableSemantics.length > 1) {
       RdfValue[] semantics =
           Arrays.stream(tableSemantics)
-              .map(semantic -> (RdfValue) () -> semantic)
+              .map(semantic -> (RdfValue) () -> semantic.asOptimizedString().getFirst())
               .toArray(RdfValue[]::new);
 
       select
@@ -105,8 +105,7 @@ public class TableQueryGenerator {
 
   private SelectQuery setupQuery(TableMetadata tableMetadata) {
     SelectQuery select = Queries.SELECT();
-    NamespaceMapper namespaceMapper = new NamespaceMapper(tableMetadata.getSchema());
-    namespaceMapper.getAllNamespaces().forEach(select::prefix);
+    tableMetadata.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
     return select;
   }
 }
