@@ -98,8 +98,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return semantics;
   }
 
-  public void setSemantics(Semantic[] semantics) {
+  public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
+    return this;
   }
 
   public Column setSemantics(String... semantics) {
