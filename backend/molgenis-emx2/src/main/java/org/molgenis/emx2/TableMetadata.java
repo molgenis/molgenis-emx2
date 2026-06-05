@@ -43,8 +43,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return semantics;
   }
 
-  public void setSemantics(Semantic[] semantics) {
+  public TableMetadata setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
+    return this;
   }
 
   public TableMetadata setSemantics(String... semantics) {
