@@ -568,16 +568,14 @@ async def test_export_schema(caplog):
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
         (Path(__file__).parent.parent / "catalogue.yaml").unlink()
 
-
 def test_symmetry():
-    """Test symmetry of get and save_table (list format)."""
-    #TODO make asynchronous?
+    """Test symmetry of download and upload with get and save_table."""
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
         # Get all tables
         meta = client.get_schema_metadata(name = schema)
-        for as_df in [True, False, True]:
+        for as_df in [False, True]:
             for table in meta.tables:
                 table_before = client.get(schema=schema, table=table.name, as_df = as_df)
                 # Save table
