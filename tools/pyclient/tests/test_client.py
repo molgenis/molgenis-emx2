@@ -78,7 +78,6 @@ def test_set_token():
         assert client._token == token
 
 
-
 def test_upload_csv():
     """Tests the `upload_csv` method."""
     with Client(url=server_url) as client:
@@ -143,7 +142,6 @@ async def test_upload_file():
         with pytest.raises(NotImplementedError) as excinfo:
             await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.txt", schema="pet store")
         assert str(excinfo.value) == "Uploading files with extension '.txt' is not supported."
-
 
 
 def test_truncate():
@@ -568,20 +566,19 @@ async def test_export_schema(caplog):
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
         (Path(__file__).parent.parent / "catalogue.yaml").unlink()
 
+
 def test_symmetry():
     """Test symmetry of download and upload with get and save_table."""
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
         # Get all tables
-        meta = client.get_schema_metadata(name = schema)
+        meta = client.get_schema_metadata(name=schema)
         for as_df in [False, True]:
             for table in meta.tables:
-                table_before = client.get(schema=schema, table=table.name, as_df = as_df)
-                # Save table
-                client.save_table(table = table.name, schema=schema, data = table_before)
-                # Get again
-                table_after = client.get(schema=schema, table=table.name, as_df = as_df)
+                table_before = client.get(schema=schema, table=table.name, as_df=as_df)
+                client.save_table(table=table.name, schema=schema, data=table_before)
+                table_after = client.get(schema=schema, table=table.name, as_df=as_df)
                 if as_df:
                     assert table_before.equals(table_after)
                 else:
