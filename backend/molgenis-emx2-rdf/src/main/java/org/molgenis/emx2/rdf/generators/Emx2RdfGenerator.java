@@ -107,9 +107,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (table.getMetadata().getSemantics() != null) {
       for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
         try {
-          getWriter()
-              .processTriple(
-                  subject, RDFS.ISDEFINEDBY, tableSemantic.asIRI().getFirst());
+          getWriter().processTriple(subject, RDFS.ISDEFINEDBY, tableSemantic.asIRI().getFirst());
         } catch (Exception e) {
           throw new MolgenisException(
               "Table annotation '"
@@ -139,8 +137,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  void describeColumns(
-      final Table table, final String columnName) {
+  void describeColumns(final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
@@ -175,9 +172,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (column.getSemantics() != null) {
       for (Semantic columnSemantic : column.getSemantics()) {
         try {
-          getWriter()
-              .processTriple(
-                  subject, RDFS.ISDEFINEDBY, columnSemantic.asIRI().getFirst());
+          getWriter().processTriple(subject, RDFS.ISDEFINEDBY, columnSemantic.asIRI().getFirst());
         } catch (Exception e) {
           throw new MolgenisException(
               "Semantic tag '"
@@ -244,10 +239,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   }
 
   @Override
-  protected void dataRowToRdf(
-      final RdfMapData rdfMapData,
-      final Table table,
-      final Row row) {
+  protected void dataRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
     if (row.isDraft()) return;
 
     final IRI tableIRI = tableIRI(getBaseURL(), table);

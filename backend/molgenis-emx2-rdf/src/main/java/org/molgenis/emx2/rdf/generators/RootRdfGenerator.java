@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
