@@ -157,14 +157,15 @@ class SemanticPrefixesTest {
   void testSemanticMappingString() {
     List<String> expected = List.of("<http://purl.org/dc/terms/temporal>", "dcat:startDate");
     assertEquals(
-        expected, prefixes.mapAsString("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
+        expected, prefixes.mapAsStrings("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
   }
 
   @Test
   void testSemanticMappingPrefixedName() {
     List<String> expected = List.of("dcterms:temporal", "dcat:startDate");
     assertEquals(
-        expected, prefixes.mapAsPrefixedName("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
+        expected,
+        prefixes.mapAsOptimizedStrings("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
   }
 
   @Test

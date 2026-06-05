@@ -4,10 +4,7 @@ import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.Model;
@@ -55,9 +52,13 @@ public abstract class RdfUtils {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
-  public static List<Namespace> getMultiSchemaNamespaces(final String baseURL, Collection<Schema> schemas) {
-    List<Namespace> namespaces = new ArrayList<>();
-    for (Schema schema : schemas) {
+  public static Set<Namespace> getMultiSchemaNamespaces(
+      final String baseURL, Collection<Schema> schemas) {
+    // Ensure same collection always returns exact same namespaces.
+    Set<Namespace> namespaces = new LinkedHashSet<>() {};
+    List<Schema> sortedSchemas =
+        schemas.stream().sorted(Comparator.comparing(Schema::getName)).toList();
+    for (Schema schema : sortedSchemas) {
       SchemaMetadata metadata = schema.getMetadata();
       namespaces.add(getSchemaNamespace(baseURL, metadata));
       namespaces.addAll(metadata.getSemanticPrefixes().getAllNamespaces());

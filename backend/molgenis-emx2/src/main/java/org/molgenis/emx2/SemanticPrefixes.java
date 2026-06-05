@@ -125,6 +125,11 @@ public class SemanticPrefixes {
     return null;
   }
 
+  /**
+   * To ensure the semantic is validated, make sure {@link #processIri(String)} & {@link
+   * #processPrefixedName(String)} are called witin the {@code iriOperator} & {@code
+   * prefixedNameOperator} respectively.
+   */
   private <R> List<R> map(
       final String semantic,
       Function<String, R> iriOperator,
@@ -157,15 +162,14 @@ public class SemanticPrefixes {
           if (i + 1 != length && semantic.charAt(i + 1) != '/')
             throw new MolgenisException(
                 "Invalid semantic: Missing sequence path separator ('/') after IRI closing bracket ('>').");
-          addToSequencePath(sequencePath, iriOperator, semantic.substring(sequenceItemStart, i));
+          sequencePath.add(iriOperator.apply(semantic.substring(sequenceItemStart, i)));
           sequenceItemStart = i + 2;
           i++;
           foundIri = false;
         }
         case '/' -> {
           if (!foundIri) {
-            addToSequencePath(
-                sequencePath, prefixedNameOperator, semantic.substring(sequenceItemStart, i));
+            sequencePath.add(prefixedNameOperator.apply(semantic.substring(sequenceItemStart, i)));
             sequenceItemStart = i + 1;
           }
         }
@@ -173,55 +177,64 @@ public class SemanticPrefixes {
     }
     // Ensure last item is added when not IRI
     if (semantic.charAt(length - 1) != '>') {
-      addToSequencePath(
-          sequencePath, prefixedNameOperator, semantic.substring(sequenceItemStart, length));
+      sequencePath.add(prefixedNameOperator.apply(semantic.substring(sequenceItemStart, length)));
     }
 
     return sequencePath;
   }
 
-  private <R> void addToSequencePath(
-      List<R> sequencePath, Function<String, R> function, String semanticPart) {
+  private IRI processIri(final String semanticPart) {
     try {
-      sequencePath.add(function.apply(semanticPart));
+      return Values.iri(semanticPart);
     } catch (IllegalArgumentException e) {
-      throw new MolgenisException(
-          "Part of semantic sequence path is invalid: %s"
-              .formatted(semanticPart));
+      throw new MolgenisException("Found IRI is malformed:" + semanticPart, e);
     }
   }
 
-  /** Maps a semantic to a list of {@link IRI}@code s} that represent a sequence path. */
+  private IRI processPrefixedName(final String semanticPart) {
+    String[] prefixedNameSplit = semanticPart.split(":");
+    if (prefixedNameSplit.length != 2)
+      throw new MolgenisException("Could not split prefixed name into prefix label & local part");
+    Namespace namespace = namespaces.get(prefixedNameSplit[0]);
+    if (namespace == null)
+      throw new MolgenisException(
+          "Semantic uses a non-defined prefix label: " + prefixedNameSplit[0]);
+    try {
+      return Values.iri(namespace, prefixedNameSplit[1]);
+    } catch (IllegalArgumentException e) {
+      throw new MolgenisException(
+          "Could not generate valid IRI from prefixed name: " + semanticPart, e);
+    }
+  }
+
+  /** Maps a semantic to a list of {@link IRI}{@code s} that represent a sequence path. */
   public List<IRI> map(final String semantic) {
-    return map(
-        semantic,
-        Values::iri,
-        prefixedName -> {
-          String[] prefixedNameSplit = prefixedName.split(":");
-          if (prefixedNameSplit.length != 2)
-            throw new IllegalArgumentException(
-                "Could not split prefixed name into prefix label & local part");
-          Namespace namespace = namespaces.get(prefixedNameSplit[0]);
-          if (namespace == null)
-            throw new IllegalArgumentException(
-                "Semantic uses a non-defined prefix label: " + prefixedNameSplit[0]);
-          return Values.iri(namespace, prefixedNameSplit[1]);
-        });
+    return map(semantic, this::processIri, this::processPrefixedName);
   }
 
   /** Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. */
-  public List<String> mapAsString(final String semantic) {
-    return map(semantic, "<%s>"::formatted, String::toString);
+  public List<String> mapAsStrings(final String semantic) {
+    return map(
+        semantic,
+        iri -> {
+          processIri(iri);
+          return "<%s>".formatted(iri);
+        },
+        prefixedName -> {
+          processPrefixedName(prefixedName);
+          return prefixedName;
+        });
   }
 
   /**
    * Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. If a full
    * IRI is used where a prefixed name could have been used, returns the prefixed name instead.
    */
-  public List<String> mapAsPrefixedName(final String semantic) {
+  public List<String> mapAsOptimizedStrings(final String semantic) {
     return map(
         semantic,
         iri -> {
+          processIri(iri);
           Namespace foundNamespace =
               namespaces.values().stream()
                   .filter(namespace -> iri.startsWith(namespace.getName()))
@@ -234,6 +247,9 @@ public class SemanticPrefixes {
                       foundNamespace.getPrefix(),
                       iri.substring(foundNamespace.getName().length())));
         },
-        String::toString);
+        prefixedName -> {
+          processPrefixedName(prefixedName);
+          return prefixedName;
+        });
   }
 }
