@@ -257,14 +257,17 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
 
     if data is not None:
         if isinstance(data, pd.DataFrame):
-            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
-        else: #FIXME
+            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="UTF-8")
+        else:
             columns = {column for row in data for column in row}
             with io.StringIO() as csv_string:
                 writer = csv.DictWriter(csv_string, fieldnames=columns, dialect=csv.excel)
                 writer.writeheader()
                 for row in data:
-                    row = {k: None if isinstance(v, float) and math.isnan(v) else v for k, v in row.items()}
+                    row = {
+                        k: None if isinstance(v, float) and math.isnan(v) else v
+                        for k, v in row.items()
+                    }
                     writer.writerow(row)
                 return csv_string.getvalue()
 
