@@ -159,7 +159,7 @@
       </table>
       <div
         class="sticky left-0 flex justify-center items-center py-2.5"
-        v-if="!rows"
+        v-if="!rows?.length"
       >
         <TextNoResultsMessage
           class="w-full text-center"
@@ -172,9 +172,7 @@
   <div
     class="p-2.5 text-right font-normal align-middle text-table-column-header"
   >
-    Showing {{ (settings.page - 1) * settings.pageSize }} to
-    {{ Math.min(settings.page * settings.pageSize, count) }} of
-    {{ count }} items
+    {{ countMessage }}
   </div>
 
   <Pagination
@@ -196,16 +194,20 @@
     @closed="showModal = false"
   >
     <TableCellDetailRef
-      v-if="
-        cellDetailColumn && isRefLikeDetail && !isArrayLikeDetail && showModal
-      "
+      v-if="cellDetailColumn && showRefDetailModal"
       :metadata="toRefColumn(cellDetailColumn)"
       :columnValue="toRefColumnValue(cellDetailValue)"
       :schema="cellDetailSchemaId ?? schemaId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
     />
-    <template v-else-if="cellDetailValue && isArrayLikeDetail">
+    <template
+      v-else-if="
+        cellDetailValue &&
+        cellDetailColumn &&
+        isArrayLikeDetail(cellDetailColumn)
+      "
+    >
       <ul>
         <li v-for="(item, index) in cellDetailValue" :key="index">
           <TableCellDetailRef
@@ -292,6 +294,8 @@ import Modal from "../Modal.vue";
 
 import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
+import { getCountMessage } from "../../utils/getCountMessage";
+import { isArrayLikeDetail, isRefLikeDetail } from "../../utils/refUtils";
 import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
@@ -377,6 +381,10 @@ onUnmounted(async () => {
   window.removeEventListener("scroll", handleStickyHeaderScroll);
   window.removeEventListener("resize", updateStickyHeaderWidth);
 });
+
+const countMessage = computed(() =>
+  getCountMessage(settings.value.page, settings.value.pageSize, count.value)
+);
 
 function handleStickyHeaderScroll(event: Event) {
   const rect = tableContainer?.value?.getBoundingClientRect();
@@ -568,23 +576,12 @@ async function afterRowDeleted() {
   await refresh();
 }
 
-const isRefLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
+const showRefDetailModal = computed(() => {
   return (
-    type === "REF" ||
-    type === "RADIO" ||
-    type === "CHECKBOX" ||
-    type === "SELECT" ||
-    type === "ONTOLOGY" ||
-    type === "REFBACK" ||
-    type === "MULTISELECT"
-  );
-});
-
-const isArrayLikeDetail = computed(() => {
-  const type = cellDetailColumn.value?.columnType;
-  return (
-    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+    cellDetailColumn.value &&
+    isRefLikeDetail(cellDetailColumn.value) &&
+    !isArrayLikeDetail(cellDetailColumn.value) &&
+    showModal.value
   );
 });
 </script>
