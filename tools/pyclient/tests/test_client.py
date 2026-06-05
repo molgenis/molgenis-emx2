@@ -557,12 +557,12 @@ async def test_export_schema(caplog):
 
         json_bytes: BytesIO = await client.export_schema("catalogue", "json")
         json_schema = json.load(json_bytes)
-        assert (len(json_schema['tables']), len(json_schema['settings'])) == (24, 2)
-        assert not (Path(__file__).parent.parent / "catalogue.json").exists()
+        assert (len(json_schema['tables']), len(json_schema['settings'])) == (27, 4)
+        assert not (Path(__file__).parent.parent / "catalogue-.json").exists()
 
         yaml_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.yaml")
         yaml_schema = yaml.safe_load(yaml_bytes)
-        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (24, 2)
+        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (27, 4)
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
         (Path(__file__).parent.parent / "catalogue.yaml").unlink()
 
