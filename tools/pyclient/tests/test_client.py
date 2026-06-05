@@ -571,17 +571,20 @@ async def test_export_schema(caplog):
 
 def test_symmetry():
     """Test symmetry of get and save_table (list format)."""
-    #TODO versions with and without as_df=True
     #TODO make asynchronous?
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
         # Get all tables
         meta = client.get_schema_metadata(name = schema)
-        for table in meta.tables:
-            user_before = client.get(schema=schema, table=table.name, as_df = False)
-            # Save table
-            client.save_table(table = table.name, schema=schema, data = user_before)
-            # Get again
-            user_after = client.get(schema=schema, table=table.name, as_df = False)
-            assert user_before == user_after#user[0] == row_of_comparison
+        for as_df in [True, False, True]:
+            for table in meta.tables:
+                table_before = client.get(schema=schema, table=table.name, as_df = as_df)
+                # Save table
+                client.save_table(table = table.name, schema=schema, data = table_before)
+                # Get again
+                table_after = client.get(schema=schema, table=table.name, as_df = as_df)
+                if as_df:
+                    assert table_before.equals(table_after)
+                else:
+                    assert table_before == table_after
