@@ -10,5 +10,6 @@ const props = defineProps<IAppPage>();
     :props="props"
     :enable-filter="true"
     filter-property="dataPointPrimaryCategory"
+    filter-title="Filter by cleft type"
   />
 </template>
