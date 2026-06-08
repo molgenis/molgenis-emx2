@@ -1,4 +1,7 @@
-export async function postQuery(url, query) {
+export async function postQuery(
+  url: string,
+  query: string
+): Promise<Record<string, any>> {
   const response = await fetch(url, {
     method: "POST",
     headers: {
