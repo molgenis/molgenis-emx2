@@ -29,6 +29,13 @@ example with internal link ( i.e. all within of the 'ui' app)
 {"link": "pet%20store/Pet", "isSpaLink": true}
 ```
 
+
+#### Main menu logo
+Set a custom logo in the main menu with the optional logoURL setting
+
+- key: ```logoURL```
+- value: a string containing logo location
+
 ## Members
 
 ## Layout

@@ -26,7 +26,7 @@ Original primary container (-35) to (-18)°C or (-85) to (-60)°C,,Original prim
 4 Degrees Celsius (fridge),,A temperature of 4 degrees celsius (fridge),NCIT,NCIT:C185332,http://purl.obolibrary.org/obo/NCIT_C185332
 Unknown,,Unknown,SPRECv3.0,X,https://medical-data-models.org/details/40242#Storage_X
 Other,,Other,SPRECv3.0,Z,https://medical-data-models.org/details/40242#Storage_Z
-cold (3 to 10°C),erdera,,,,
-frozen (-18 to -35°C),erdera,A specimen that has been subjected to and immobilized by severe cold.,NCIT,NCIT:C70717,http://purl.obolibrary.org/obo/NCIT_C70717
-ultra frozen ( -60 to -85°C),erdera,,,,
-ambient (15 to 25°C),erdera,"A specimen that has been subjected to and adjusted to the average ambient temperature of a room, usually considered to be around 20 degrees C (68 degrees F).",NCIT,NCIT:C70719,http://purl.obolibrary.org/obo/NCIT_C70719
+cold (3 to 10°C),"erdera,RNA,lrGS,OGM",,,,
+frozen (-18 to -35°C),"erdera,RNA,lrGS,OGM",A specimen that has been subjected to and immobilized by severe cold.,NCIT,NCIT:C70717,http://purl.obolibrary.org/obo/NCIT_C70717
+ultra frozen ( -60 to -85°C),"erdera,RNA,lrGS,OGM",,,,
+ambient (15 to 25°C),"erdera,RNA,lrGS,OGM","A specimen that has been subjected to and adjusted to the average ambient temperature of a room, usually considered to be around 20 degrees C (68 degrees F).",NCIT,NCIT:C70719,http://purl.obolibrary.org/obo/NCIT_C70719

@@ -94,14 +94,5 @@ public interface Schema {
 
   List<TablePermission> getPermissionsForActiveUser();
 
-  /**
-   * Table permissions of the active user indexed by table name. Implementations are encouraged to
-   * cache the result; the default rebuilds it from {@link #getPermissionsForActiveUser()}.
-   */
-  default Map<String, TablePermission> getPermissionsByTableForActiveUser() {
-    return getPermissionsForActiveUser().stream()
-        .collect(
-            java.util.stream.Collectors.toUnmodifiableMap(
-                TablePermission::table, p -> p, (a, b) -> a));
-  }
+  Map<String, TablePermission> getPermissionsByTableForActiveUser();
 }

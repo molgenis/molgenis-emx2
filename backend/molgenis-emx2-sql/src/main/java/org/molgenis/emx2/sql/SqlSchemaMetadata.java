@@ -19,9 +19,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
   private List<String> rolesCache = null;
-  // cache for retrieved table permissions of the active user
-  private List<TablePermission> permissionsCache = null;
-  // cache for the same permissions indexed by table name (derived from permissionsCache)
+  // cache for the active user's table permissions, indexed by table name (insertion order
+  // preserved)
   private Map<String, TablePermission> permissionsByTableCache = null;
 
   // copy constructor
@@ -83,7 +82,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
-    this.permissionsCache = null;
     this.permissionsByTableCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
@@ -272,26 +270,22 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return rolesCache;
   }
 
-  public List<TablePermission> getPermissionsForActiveUser() {
-    // add cache because this function is called often during query and schema building;
-    // mirrors rolesCache and is cleared together with it in reload()
-    if (permissionsCache == null) {
-      permissionsCache =
-          List.copyOf(getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName()));
-    }
-    return permissionsCache;
-  }
-
   public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
-    // derived index over permissionsCache so per-table lookups in PermissionEvaluator don't rebuild
-    // the map on every canView/canInsert/... call; cleared together with permissionsCache in
-    // reload()
+    // cached because per-table lookups in PermissionEvaluator are called very often during query
+    // and schema building; is cleared along with rolesCache in reload()
     if (permissionsByTableCache == null) {
-      permissionsByTableCache =
-          getPermissionsForActiveUser().stream()
-              .collect(Collectors.toUnmodifiableMap(TablePermission::table, p -> p, (a, b) -> a));
+      Map<String, TablePermission> byTable = new LinkedHashMap<>();
+      for (TablePermission p :
+          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
+        byTable.putIfAbsent(p.table(), p);
+      }
+      permissionsByTableCache = Collections.unmodifiableMap(byTable);
     }
     return permissionsByTableCache;
+  }
+
+  public List<TablePermission> getPermissionsForActiveUser() {
+    return List.copyOf(getPermissionsByTableForActiveUser().values());
   }
 
   public String getRoleForUser(String user) {
