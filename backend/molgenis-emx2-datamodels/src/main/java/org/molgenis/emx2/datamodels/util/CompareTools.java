@@ -50,6 +50,22 @@ public class CompareTools {
 
       Map<String, Object> values1 = r1.getValueMap();
       for (String colName : colNames1) {
+        if (r1.getValueMap().get(colName) == null) {
+          if (r2.getValueMap().get(colName) == null) {
+            continue;
+          } else {
+            fail(
+                "List<Row> has different value for row "
+                    + i
+                    + ", one row contains column "
+                    + colName
+                    + ", while the other doesn't: r1 -> "
+                    + r1.getValueMap().get(colName)
+                    + "\nversus\n r2 -> "
+                    + r2.getValueMap().get(colName));
+          }
+        }
+
         ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
 
         if (!r1.get(colName, columnType).equals(r2.get(colName, columnType))
