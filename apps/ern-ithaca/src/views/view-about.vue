@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -17,8 +22,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-</script>
