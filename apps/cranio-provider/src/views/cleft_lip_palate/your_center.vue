@@ -75,33 +75,6 @@
         />
       </DashboardChart>
     </DashboardRow>
-    <DashboardRow :columns="1">
-      <LoadingScreen v-if="loading" style="height: 100%" />
-      <template v-else>
-        <DashboardChart>
-          <h3 class="dashboard-h3" style="margin-bottom: 1em">
-            Completeness of questionnaires
-          </h3>
-          <ProgressMeter
-            :chartId="icsCompletionChart?.chartId"
-            :title="icsCompletionChart?.chartTitle?.replace('${ageGroup}', (selectedCleftType as string))"
-            :value="icsCompletionChartData?.dataPointValue"
-            :totalValue="100"
-            :barHeight="20"
-            barFill="#9f6491"
-          />
-          <ProgressMeter
-            :chartId="cleftqCompletionChart?.chartId"
-            :title="cleftqCompletionChart?.chartTitle?.replace('${ageGroup}', (selectedCleftType as string))"
-            :value="cleftqCompletionChartData?.dataPointValue"
-            :totalValue="100"
-            :barHeight="20"
-            barFill="#66c2a4"
-            style="margin-top: 1em"
-          />
-        </DashboardChart>
-      </template>
-    </DashboardRow>
   </ProviderDashboard>
 </template>
 
@@ -112,7 +85,6 @@ import {
   DashboardChart,
   ColumnChart,
   PieChart2,
-  ProgressMeter,
   InputLabel,
   LoadingScreen,
   // @ts-expect-error
@@ -121,7 +93,7 @@ import LoadingBlock from "../../components/LoadingBlock.vue";
 import ProviderDashboard from "../../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../../utils/generateAxisTicks";
-import { asKeyValuePairs, sum, uniqueValues } from "../../utils";
+import { asKeyValuePairs, uniqueValues } from "../../utils";
 import { generateColorPalette } from "../../utils/generateColorPalette";
 import { getDashboardChart } from "../../utils/getDashboardData";
 
@@ -152,10 +124,6 @@ const patientsByPhenotypePalette = ref<IKeyValuePair>();
 const patientsByGenderChart = ref<ICharts>();
 const patientsByGenderChartData = ref<IKeyValuePair>();
 const patientsByGenderPalette = ref<IKeyValuePair>();
-const icsCompletionChart = ref<ICharts>();
-const icsCompletionChartData = ref<IChartData>();
-const cleftqCompletionChart = ref<ICharts>();
-const cleftqCompletionChartData = ref<IChartData>();
 
 async function getPageData() {
   const phenotypesResponse = await getDashboardChart(
@@ -168,20 +136,8 @@ async function getPageData() {
     "clp-provider-patients-by-gender"
   );
 
-  const icsResponse = await getDashboardChart(
-    props.api.graphql.current,
-    "clp-provider-ics-completed"
-  );
-
-  const cleftqResponse = await getDashboardChart(
-    props.api.graphql.current,
-    "clp-provider-cleft-q-completed"
-  );
-
   patientsByPhenotypeChart.value = phenotypesResponse[0];
   patientsByGenderChart.value = genderResponse[0];
-  icsCompletionChart.value = icsResponse[0];
-  cleftqCompletionChart.value = cleftqResponse[0];
 }
 
 function updateGenderChart() {
@@ -200,22 +156,8 @@ function updateGenderChart() {
   );
 }
 
-function updateProgressMeter() {
-  icsCompletionChartData.value = icsCompletionChart.value?.dataPoints?.filter(
-    (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedCleftType.value;
-    }
-  )[0] as IChartData;
-
-  cleftqCompletionChartData.value =
-    cleftqCompletionChart.value?.dataPoints?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedCleftType.value;
-    })[0] as IChartData;
-}
-
 function updateCharts() {
   updateGenderChart();
-  updateProgressMeter();
 }
 
 onMounted(() => {

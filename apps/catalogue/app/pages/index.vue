@@ -170,15 +170,9 @@ useHead(() => ({
     />
     <ContentBlockCatalogues
       v-if="groupedCatalogues?.project?.length"
-      title="Project catalogues"
-      description="Catalogues maintained by individual research projects or consortia:"
-      :catalogues="groupedCatalogues?.project as IResources[]"
-    />
-    <ContentBlockCatalogues
-      v-if="groupedCatalogues?.organisation?.length"
-      title="Organisation catalogues"
-      description="Catalogues maintained by organisations:"
-      :catalogues="groupedCatalogues?.organisation as IResources[]"
+      title="Project and organisation catalogues"
+      description="Catalogues maintained by organisations and individual research projects or consortia:"
+      :catalogues="[...groupedCatalogues?.project as IResources[], ...groupedCatalogues?.organisation as IResources[]]"
     />
     <ContentBlock
       v-if="!catalogues?.length"
