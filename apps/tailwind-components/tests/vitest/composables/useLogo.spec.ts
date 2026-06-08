@@ -7,7 +7,7 @@ vi.mock("../../../app/composables/useSchemaSettings", () => ({
   useSchemaSettings: vi.fn(),
 }));
 
-import { useSettings } from "../../../app/composables/useSettings.ts";
+import { useSettings } from "../../../app/composables/useSettings";
 import { useSchemaSettings } from "../../../app/composables/useSchemaSettings";
 import { useLogo } from "../../../app/composables/useLogo";
 
