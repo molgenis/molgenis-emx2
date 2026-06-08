@@ -88,7 +88,7 @@
         >
           <tr
             v-if="rows"
-            v-for="(row, rowIndex) in rows"
+            v-for="row in rows"
             class="group h-[50px]"
             :class="{
               'hover:cursor-pointer': props.isEditable,
