@@ -113,14 +113,8 @@
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              :ref="`cell-${column.id}-${rowIndex}`"
+              @cellClicked="handleCellClick"
             >
-              <span>
-                <Button type="inline" @click="handleCellClick($event, column)">
-                  Show more
-                </Button>
-              </span>
-              <span v-if="isEllipsisActive(rowIndex, column)"></span>
               <template #row-actions v-if="colIndex === 0">
                 <div
                   class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
@@ -194,11 +188,16 @@
   />
 
   <CellDetailModal
-    :payload="cellDetailPayload"
+    :value="cellDetailValue"
     :column="cellDetailColumn"
     :schemaId="props.schemaId"
     v-model:showModal="showModal"
-    @update:payload="(event) => (cellDetailPayload = event)"
+    @update:cellDetailValue="
+      (event) => {
+        cellDetailValue = event.data;
+        cellDetailColumn = event.column;
+      }
+    "
   />
 
   <DeleteModal
@@ -288,7 +287,7 @@ const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
-const cellDetailPayload = ref<cellPayload>();
+const cellDetailValue = ref<columnValue | columnValue[]>();
 const cellDetailColumn = ref<IColumn>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
@@ -477,9 +476,10 @@ function handlePageSizeChange(pageSize: string) {
   refresh();
 }
 
-function handleCellClick(event: cellPayload, column: IColumn) {
-  cellDetailPayload.value = event;
-  cellDetailColumn.value = column;
+function handleCellClick(payload: cellPayload) {
+  console.log("Cell clicked with payload:", payload);
+  cellDetailValue.value = payload.data;
+  cellDetailColumn.value = payload.metadata;
   showModal.value = true;
 }
 
@@ -504,15 +504,6 @@ function onAddRowClicked() {
   showAddModal.value = true;
 }
 
-async function afterRowAdded() {
-  // todo reset filters and search, goto page with added item, flash row with add item
-  await refresh();
-}
-
-async function afterRowUpdated() {
-  await refresh();
-}
-
 async function afterClose() {
   await refresh();
 }
@@ -520,15 +511,5 @@ async function afterClose() {
 async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
-}
-
-function isEllipsisActive(rowIndex: number, column: IColumn) {
-  const cellRef = `cell-${column.id}-${rowIndex}`;
-  const cellElement = document.getElementById(cellRef);
-  console.log("Checking ellipsis for cell:", cellElement);
-
-  return cellElement
-    ? cellElement.offsetWidth < cellElement.scrollWidth
-    : false;
 }
 </script>

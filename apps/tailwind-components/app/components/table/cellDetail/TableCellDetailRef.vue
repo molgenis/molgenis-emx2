@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DefinitionListTerm from "../../DefinitionListTerm.vue";
+import { computed, ref } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -7,24 +7,23 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
-import { computed, ref } from "vue";
-import fetchRowData from "../../../composables/fetchRowData";
-import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
-import ValueEMX2 from "../../value/EMX2.vue";
-import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import type {
   ColumnPayload,
   ListPayload,
   RefPayload,
 } from "../../../../types/types";
+import fetchRowData from "../../../composables/fetchRowData";
+import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
+import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import DefinitionList from "../../DefinitionList.vue";
-import { toRefColumnValue } from "../../../utils/typeUtils";
+import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
+import DefinitionListTerm from "../../DefinitionListTerm.vue";
+import ValueEMX2 from "../../value/EMX2.vue";
 
 const props = withDefaults(
   defineProps<{
     metadata: IRefColumn;
-    columnValue: columnValue;
+    columnValue: IRow;
     schema: string;
     showDataOwner?: boolean;
   }>(),
@@ -41,11 +40,7 @@ const emit = defineEmits<{
   (e: "onRefClick", payload: RefPayload | ColumnPayload | ListPayload): void;
 }>();
 
-await fetchData(
-  toRefColumnValue(props.columnValue),
-  props.metadata.refTableId,
-  props.schema
-);
+await fetchData(props.columnValue, props.metadata.refTableId, props.schema);
 
 async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;

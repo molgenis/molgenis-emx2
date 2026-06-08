@@ -8,7 +8,6 @@ export function isRefLikeDetail(cellDetailColumn: IColumn) {
     type === "CHECKBOX" ||
     type === "SELECT" ||
     type === "ONTOLOGY" ||
-    type === "REFBACK" ||
     type === "MULTISELECT"
   );
 }
@@ -16,6 +15,9 @@ export function isRefLikeDetail(cellDetailColumn: IColumn) {
 export const isArrayLikeDetail = (cellDetailColumn: IColumn) => {
   const type = cellDetailColumn.columnType;
   return (
-    type?.endsWith("_ARRAY") || type === "MULTISELECT" || type === "CHECKBOX"
+    type?.endsWith("_ARRAY") ||
+    type === "MULTISELECT" ||
+    type === "CHECKBOX" ||
+    type === "REFBACK"
   );
 };

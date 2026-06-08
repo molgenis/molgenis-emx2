@@ -106,6 +106,11 @@
       <template v-else>
         <span class="min-h-4 inline-block"></span>
       </template>
+      <span v-if="data">
+        <Button type="inline" size="tiny" @click="handleShowMore">
+          Show more
+        </Button>
+      </span>
     </slot>
   </td>
 </template>
@@ -116,11 +121,7 @@ import type {
   IColumn,
   IRefColumn,
 } from "../../../../metadata-utils/src/types";
-import type {
-  ColumnPayload,
-  ListPayload,
-  RefPayload,
-} from "../../../types/types";
+import type { cellPayload } from "../../../types/types";
 import ValueList from "../value/List.vue";
 import ValueString from "../value/String.vue";
 import ValueText from "../value/Text.vue";
@@ -149,7 +150,26 @@ const props = defineProps<{
   data?: columnValue;
 }>();
 
-defineEmits<{
-  (e: "cellClicked", payload: RefPayload | ColumnPayload | ListPayload): void;
+const emit = defineEmits<{
+  (e: "cellClicked", payload: cellPayload): void;
 }>();
+
+function handleShowMore() {
+  if (props.metadata) {
+    emit("cellClicked", {
+      data: props.data,
+      metadata: props.metadata,
+    });
+  }
+}
+
+// function isEllipsisActive() {
+//   const cellRef = `cell-${column.id}-${rowIndex}`;
+//   const cellElement = document.getElementById(cellRef);
+//   console.log("Checking ellipsis for cell:", cellElement);
+
+//   return cellElement
+//     ? cellElement.offsetWidth < cellElement.scrollWidth
+//     : false;
+// }
 </script>
