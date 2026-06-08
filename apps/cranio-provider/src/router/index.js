@@ -10,6 +10,7 @@ import CraniosynostosisCenterSurgical from "../views/craniosynostosis/your_cente
 
 // cleft lip and palate pages (id: `-clp-`)
 import CleftLipPalateYourCenter from "../views/cleft_lip_palate/your_center.vue";
+import CleftLipPalateLevel1 from "../views/cleft_lip_palate/level_1.vue";
 
 // genetic hearing loss
 import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
@@ -93,7 +94,7 @@ const router = createRouter({
         {
           name: "provider-clp-level-1",
           path: "level-1",
-          component: UnderConstruction, // TODO: update with level 1 page when available
+          component: CleftLipPalateLevel1,
           meta: {
             title: "Level 1 | Cleft Lip and Palate",
           },
