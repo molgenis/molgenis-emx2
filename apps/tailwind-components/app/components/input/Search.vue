@@ -72,7 +72,7 @@ function handleInput(input: string) {
       :placeholder="placeholder"
       :disabled="disabled"
       @input="(event) => handleInput((event.target as HTMLInputElement).value)"
-      class="w-full h-[100%] pr-4 pl-2 outline-none text-current bg-transparent"
+      class="w-full h-input pr-4 pl-2 outline-none text-current bg-transparent"
       :class="{
         'cursor-not-allowed': disabled,
       }"

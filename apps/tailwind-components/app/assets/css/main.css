@@ -216,7 +216,7 @@
     --border-color-button-secondary-hover: var(--color-blue-50);
     --border-color-button-tertiary: var(--color-gray-200);
     --border-color-button-tertiary-hover: var(--color-blue-800);
-    --border-color-button-outline: var(--color-blue-500);
+    --border-color-button-outline: var(--color-gray-200);
     --border-color-button-outline-hover: var(--color-blue-700);
     --border-color-button-disabled: var(--color-gray-100);
     --border-color-button-disabled-hover: var(--color-gray-100);
@@ -259,7 +259,7 @@
     --padding-table-body-last-row-cell: 0.625rem;
 
     /** input heights */
-    --height-input: 3.5rem;
+    --height-input: 3.125rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
     --height-input-large: 4.5rem;

@@ -25,7 +25,7 @@ withDefaults(
 </script>
 
 <template>
-  <header class="flex flex-col px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0">
+  <header class="flex flex-col px-5 pt-5 pb-6 antialiased lg:pb-7 lg:px-0">
     <div class="mb-6" v-if="slots.prefix">
       <slot name="prefix"></slot>
     </div>

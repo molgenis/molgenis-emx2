@@ -9,6 +9,7 @@ import type {
   ButtonType,
 } from "../../types/types.ts";
 import BaseIcon from "./BaseIcon.vue";
+import FloatingVue from "floating-vue";
 
 const props = withDefaults(
   defineProps<{
@@ -45,7 +46,7 @@ const COLOR_MAPPING = {
     "tracking-widest uppercase rounded-input font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
     "tracking-widest uppercase rounded-input font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
-  text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
+  text: "group flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
   outline:
     "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   disabled:
@@ -53,7 +54,7 @@ const COLOR_MAPPING = {
   filterWell:
     "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
   inline:
-    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
+    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-none",
 };
 
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
@@ -107,6 +108,18 @@ const tooltipText = computed(() => {
 });
 
 const tag = computed(() => (props.href ? "a" : "button"));
+
+const xPaddingClasses = computed(() => {
+  if (props.iconOnly) {
+    return "";
+  }
+  if (props.icon && !props.iconOnly) {
+    return "pl-4 pr-5";
+  }
+  return "px-[1.875rem]";
+});
+
+FloatingVue.options.themes.tooltip.distance = 0;
 </script>
 
 <template>
@@ -114,8 +127,8 @@ const tag = computed(() => (props.href ? "a" : "button"));
     :is="tag"
     :href="props.href"
     v-tooltip.bottom="tooltipText"
-    class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
-    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
+    class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out gap-[10px] h-input"
+    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors ${xPaddingClasses}`"
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
     <span

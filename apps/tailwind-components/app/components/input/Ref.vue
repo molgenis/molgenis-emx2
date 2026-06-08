@@ -438,9 +438,8 @@ const onBlur = useDebounceFn(() => {
     @click="clearSelection"
     type="text"
     size="tiny"
-    iconPosition="right"
-    class="mr-2 underline cursor-pointer"
-    :class="{ 'pl-2': displayAsSelect }"
+    class="px-[1.875rem] underline cursor-pointer"
+    :class="{ 'pl-0 pr-0': displayAsSelect }"
   >
     Clear
   </Button>
