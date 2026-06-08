@@ -1,13 +1,3 @@
-/**
- * @name postQuery
- * @description A fetch wrapper for posting GraphQL requests
- *
- * @param url string containing the api endpoint
- * @param query a graphql string
- *
- * @returns json
- */
-
 export async function postQuery(
   url: string,
   query: string
