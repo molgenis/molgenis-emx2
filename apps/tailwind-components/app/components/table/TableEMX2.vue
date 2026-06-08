@@ -113,9 +113,13 @@
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column)"
               :ref="`cell-${column.id}-${rowIndex}`"
             >
+              <span>
+                <Button type="inline" @click="handleCellClick($event, column)">
+                  Show more
+                </Button>
+              </span>
               <span v-if="isEllipsisActive(rowIndex, column)"></span>
               <template #row-actions v-if="colIndex === 0">
                 <div
@@ -189,49 +193,13 @@
     @update:pageSize="handlePageSizeChange($event)"
   />
 
-  <Modal
-    type="right"
-    v-model:visible="showModal"
-    :title="cellDetailSubtitle"
-    @closed="showModal = false"
-  >
-    <TableCellDetailRef
-      v-if="cellDetailColumn && showRefDetailModal"
-      :metadata="toRefColumn(cellDetailColumn)"
-      :columnValue="toRefColumnValue(cellDetailValue)"
-      :schema="cellDetailSchemaId ?? schemaId"
-      :showDataOwner="false"
-      @onRefClick="handleDetailRefClick"
-    />
-    <template
-      v-else-if="
-        cellDetailValue &&
-        cellDetailColumn &&
-        isArrayLikeDetail(cellDetailColumn)
-      "
-    >
-      <ul>
-        <li v-for="(item, index) in cellDetailValue" :key="index">
-          <TableCellDetailRef
-            v-if="cellDetailColumn && isRefLikeDetail(cellDetailColumn)"
-            :metadata="toRefColumn(cellDetailColumn)"
-            :columnValue="toRefColumnValue(item as columnValue)"
-            :schema="cellDetailSchemaId ?? schemaId"
-            :showDataOwner="false"
-            @onRefClick="handleDetailRefClick"
-          />
-        </li>
-      </ul>
-    </template>
-    <template v-else>
-      <div
-        class="px-8 first:pt-[50px] last:pb-[50px]"
-        style="overflow-wrap: break-word"
-      >
-        {{ cellDetailValue }}
-      </div>
-    </template>
-  </Modal>
+  <CellDetailModal
+    :payload="cellDetailPayload"
+    :column="cellDetailColumn"
+    :schemaId="props.schemaId"
+    v-model:showModal="showModal"
+    @update:payload="(event) => (cellDetailPayload = event)"
+  />
 
   <DeleteModal
     v-if="data?.tableMetadata && rowDataForModal"
@@ -268,15 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  ref,
-  useId,
-  watch,
-} from "vue";
+import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -284,10 +244,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ColumnPayload,
   ITableSettings,
-  ListPayload,
-  RefPayload,
   sortDirection,
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
@@ -299,19 +256,16 @@ import TableCellEMX2 from "./CellEMX2.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
-import Modal from "../Modal.vue";
 
 import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
-import { isArrayLikeDetail, isRefLikeDetail } from "../../utils/refUtils";
-import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
@@ -334,10 +288,8 @@ const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
-const cellDetailSchemaId = ref<string>();
+const cellDetailPayload = ref<cellPayload>();
 const cellDetailColumn = ref<IColumn>();
-const cellDetailSubtitle = ref<string>();
-const cellDetailValue = ref<columnValue>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const tableContainer = ref<HTMLElement | null>(null);
@@ -526,27 +478,8 @@ function handlePageSizeChange(pageSize: string) {
 }
 
 function handleCellClick(event: cellPayload, column: IColumn) {
-  cellDetailSubtitle.value = column.label;
+  cellDetailPayload.value = event;
   cellDetailColumn.value = column;
-  cellDetailSchemaId.value = column.refSchemaId ?? props.schemaId;
-  cellDetailValue.value = event.data as columnValue;
-  showModal.value = true;
-}
-
-async function handleDetailRefClick(
-  event: RefPayload | ColumnPayload | ListPayload
-) {
-  showModal.value = false;
-  await nextTick();
-
-  const columnMetadata = event.metadata;
-
-  cellDetailSubtitle.value = columnMetadata.label;
-  cellDetailColumn.value = columnMetadata;
-  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? props.schemaId;
-
-  cellDetailValue.value = event.data as columnValue;
-
   showModal.value = true;
 }
 
@@ -588,15 +521,6 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
-
-const showRefDetailModal = computed(() => {
-  return (
-    cellDetailColumn.value &&
-    isRefLikeDetail(cellDetailColumn.value) &&
-    !isArrayLikeDetail(cellDetailColumn.value) &&
-    showModal.value
-  );
-});
 
 function isEllipsisActive(rowIndex: number, column: IColumn) {
   const cellRef = `cell-${column.id}-${rowIndex}`;
