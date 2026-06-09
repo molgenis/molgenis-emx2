@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.tablestore.InMemoryTableAndFileStore;
+import org.molgenis.emx2.io.tablestore.RawInMemoryTableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
@@ -67,7 +67,7 @@ class ImportRowProcessorTest {
 
     Task task = new Task();
 
-    InMemoryTableAndFileStore store = new InMemoryTableAndFileStore();
+    RawInMemoryTableAndFileStore store = new RawInMemoryTableAndFileStore();
     store.writeFile("passport_example.txt", "Hello world".getBytes());
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
     processor.process(rows.iterator(), store);
@@ -94,7 +94,7 @@ class ImportRowProcessorTest {
 
     Task task = new Task();
 
-    InMemoryTableAndFileStore store = new InMemoryTableAndFileStore();
+    RawInMemoryTableAndFileStore store = new RawInMemoryTableAndFileStore();
     store.writeFile("passport_example.txt", "Hello world".getBytes());
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
     processor.process(insertRows.iterator(), store);
@@ -106,7 +106,7 @@ class ImportRowProcessorTest {
         List.of(row("name", "Lewis", "passport", "passport_example.txt", MG_DELETE, "true"));
     task = new Task();
     // test that row with file is deleted without supplying the files in a store
-    store = new InMemoryTableAndFileStore();
+    store = new RawInMemoryTableAndFileStore();
     processor = new ImportRowProcessor(table, task);
     processor.process(deleteRows.iterator(), store);
 

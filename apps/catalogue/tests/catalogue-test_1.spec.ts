@@ -18,7 +18,9 @@ test("Catalogue test number 1: Athlete network manager", async ({
   await goto("/", { waitUntil: "hydration" });
 
   await expect(page.locator("h1")).toContainText("Demo Health Data Catalogue");
-  await expect(page.getByRole("main")).toContainText("Project catalogues");
+  await expect(page.getByRole("main")).toContainText(
+    "Project and organisation catalogues"
+  );
   await expect(page.getByRole("main")).toContainText("ATHLETE");
   await expect(page.getByRole("main")).toContainText(
     "Advancing Tools for Human Early Lifecourse Exposome Research and Translation"

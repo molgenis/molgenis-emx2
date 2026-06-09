@@ -15,6 +15,7 @@ const wrapper = mount(NavigationGroups, {
         url: "https://molgenis.github.io/molgenis-emx2/#/",
         urlLabel: "Read the docs",
         urlIsExternal: true,
+        order: 1,
       },
       {
         id: "2UoF7nu62PnR",
@@ -24,6 +25,7 @@ const wrapper = mount(NavigationGroups, {
         url: "https://github.com/molgenis/molgenis-emx2",
         urlLabel: "Go to github",
         urlIsExternal: true,
+        order: 2,
       },
     ],
   },
