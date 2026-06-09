@@ -8,6 +8,7 @@ import {
   // @ts-expect-error
 } from "molgenis-viz";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { ernYourCenterPalette } from "../utils/variables";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IAxisTickData } from "../types";
@@ -26,15 +27,6 @@ const props = withDefaults(
   }
 );
 const loading = ref<boolean>(true);
-
-const colorPalette = {
-  ERN: "#B98DAF", // "#9f6491",
-  "Your center": "#A7DCCB", //"#66c2a4",
-};
-
-if (props.chart.dataPoints) {
-  loading.value = false;
-}
 
 const chartData = computed<IChartData[]>(() => {
   let data = props.chart.dataPoints as IChartData[];
@@ -57,11 +49,7 @@ const chartData = computed<IChartData[]>(() => {
 });
 
 const chartDescription = computed<string>(() => {
-  let description = props.chart.chartSubtitle || "";
-
-  if (props.chart.dataPoints || props.ernLevelData) {
-    description += "Number of patients: ";
-  }
+  let description = "Number of patients: ";
 
   if (props.chart.dataPoints) {
     const centerSum = props.chart.dataPoints?.reduce(
@@ -113,6 +101,10 @@ if (props.enableFilter) {
 
   selectedFilter.value = chartFilters.value[0];
 }
+
+if (props.chart.dataPoints) {
+  loading.value = false;
+}
 </script>
 
 <template>
@@ -132,7 +124,7 @@ if (props.enableFilter) {
       :yMin="0"
       :yMax="chartTicks?.limit"
       :yTickValues="chartTicks?.ticks"
-      :columnColorPalette="colorPalette"
+      :columnColorPalette="ernYourCenterPalette"
       columnHoverFill="#708fb4"
       :chartHeight="250"
       :chartMargins="{
