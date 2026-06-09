@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
 
-public class InMemoryTableAndFileStore extends TableStoreForCsvInMemory
+public class RawInMemoryTableAndFileStore extends TableStoreForCsvInMemory
     implements TableAndFileStore {
 
   Map<String, byte[]> data = new HashMap<>();
