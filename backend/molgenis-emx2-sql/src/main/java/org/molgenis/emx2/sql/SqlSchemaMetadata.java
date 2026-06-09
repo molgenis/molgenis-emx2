@@ -18,17 +18,18 @@ import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
+
   // cache for retrieved roles
   private List<String> rolesCache = null;
-  // cache for the active user's table permissions, indexed by table name (insertion order
-  // preserved)
-  private final CachedUserPermissions permissions = new CachedUserPermissions(this);
+
+  private final CachedUserPermissions permissions;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
     this.description = copy.getDescription();
     this.database = db;
+    this.permissions = new CachedUserPermissions(this);
     this.sync(copy);
   }
 
@@ -60,19 +61,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
+  public SqlSchemaMetadata(Database db, String name) {
+    this(db, name, null);
+  }
+
   public SqlSchemaMetadata(Database db, String name, String description) {
     super(
         db,
         MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
+    permissions = new CachedUserPermissions(this);
     this.reload();
     this.setDescription(description);
-  }
-
-  public SqlSchemaMetadata(Database db, String name) {
-    super(
-        db,
-        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
-    this.reload();
   }
 
   public void reload() {
@@ -121,10 +120,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 s.migrate(new SchemaMetadata().create(tables));
               } else {
                 TableMetadata table = tables[0];
-                List<TableMetadata> tableList = new ArrayList<>();
-                tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
-                SqlTableMetadata result = null;
+
+                SqlTableMetadata result;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
                   result =
                       new SqlTableMetadata(
@@ -157,11 +155,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    getDatabase()
-        .tx(
-            database -> {
-              sync(dropTransaction(tableName, database));
-            });
+    getDatabase().tx(database -> sync(dropTransaction(tableName, database)));
     getDatabase().getListener().schemaChanged(getName());
   }
 
@@ -179,11 +173,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
     if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
-      getDatabase()
-          .tx(
-              db -> {
-                sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
-              });
+      getDatabase().tx(db -> sync(setSettingsTransaction((SqlDatabase) db, getName(), settings)));
       getDatabase().getListener().schemaChanged(getName());
       return this;
     } else {
@@ -231,11 +221,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
-  public Map<String, String> getSettings() {
-    return super.getSettings();
-  }
-
   protected DSLContext getJooq() {
     return getDatabase().getJooq();
   }
@@ -273,10 +258,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public UserPermissions getTablePermissions() {
     return permissions;
-  }
-
-  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
-    return permissions.getByTable();
   }
 
   public String getRoleForUser(String user) {

@@ -6,6 +6,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
@@ -19,13 +20,16 @@ class CachedUserPermissionsTest {
   private static final String USER = "tpc_user";
 
   private static Database database;
+  private CachedUserPermissions userPermissions;
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    if (!database.hasUser(USER)) database.addUser(USER);
+    if (!database.hasUser(USER)) {
+      database.addUser(USER);
+    }
 
     Schema schema = database.dropCreateSchema(SCHEMA);
     schema.create(
@@ -36,17 +40,18 @@ class CachedUserPermissionsTest {
     schema.addMember(USER, "CacheTestRole");
   }
 
-  private SqlSchemaMetadata schemaMetadataFor(String user) {
+  @BeforeEach
+  void schemaMetadataFor() {
     database.becomeAdmin();
-    database.setActiveUser(user);
-    return (SqlSchemaMetadata) database.getSchema(SCHEMA).getMetadata();
+    database.setActiveUser(USER);
+
+    SqlSchemaMetadata metadata = (SqlSchemaMetadata) database.getSchema(SCHEMA).getMetadata();
+    userPermissions = new CachedUserPermissions(metadata);
   }
 
   @Test
   void getValue_returnsPermissionsForActiveUser() {
-    SqlSchemaMetadata metadata = schemaMetadataFor(USER);
-
-    Map<String, TablePermission> permissions = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> permissions = userPermissions.getByTable();
 
     assertTrue(permissions.containsKey(TABLE_A), "granted table should be present");
     assertTrue(permissions.get(TABLE_A).hasSelect(), "granted select should be true");
@@ -54,29 +59,25 @@ class CachedUserPermissionsTest {
 
   @Test
   void getValue_onRepeatedCalls_returnsSameInstance() {
-    SqlSchemaMetadata metadata = schemaMetadataFor(USER);
-
-    Map<String, TablePermission> first = metadata.getPermissionsByTableForActiveUser();
-    Map<String, TablePermission> second = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> first = userPermissions.getByTable();
+    Map<String, TablePermission> second = userPermissions.getByTable();
 
     assertSame(first, second, "repeated calls should return the cached map instance");
   }
 
   @Test
   void getValue_afterReset_returnsFreshInstance() {
-    SqlSchemaMetadata metadata = schemaMetadataFor(USER);
-    Map<String, TablePermission> before = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> before = userPermissions.getByTable();
 
-    metadata.reload();
+    userPermissions.clearCache();
 
-    Map<String, TablePermission> after = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> after = userPermissions.getByTable();
     assertNotSame(before, after, "map should be a new instance after cache reset via reload()");
   }
 
   @Test
   void getValue_returnsUnmodifiableMap() {
-    SqlSchemaMetadata metadata = schemaMetadataFor(USER);
-    Map<String, TablePermission> permissions = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> permissions = userPermissions.getByTable();
 
     TablePermission permission = new TablePermission("any");
     assertThrows(UnsupportedOperationException.class, () -> permissions.put("any", permission));
@@ -84,9 +85,7 @@ class CachedUserPermissionsTest {
 
   @Test
   void getValue_tableWithoutGrant_isAbsentFromCache() {
-    SqlSchemaMetadata metadata = schemaMetadataFor(USER);
-
-    Map<String, TablePermission> permissions = metadata.getPermissionsByTableForActiveUser();
+    Map<String, TablePermission> permissions = userPermissions.getByTable();
 
     assertFalse(permissions.containsKey(TABLE_B), "non-granted table should not appear in cache");
   }
