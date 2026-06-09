@@ -4,16 +4,18 @@ import { nextTick } from "vue";
 import OntologyInput from "../../../../app/components/input/Ontology.vue";
 import TreeNode from "../../../../app/components/input/TreeNode.vue";
 
-const createMockObserver = () => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-  takeRecords: vi.fn(() => []),
-});
+function createMockObserver() {
+  return {
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+    takeRecords: vi.fn(() => []),
+  };
+}
 
-global.IntersectionObserver = vi
+globalThis.IntersectionObserver = vi
   .fn()
-  .mockImplementation(() => createMockObserver());
+  .mockImplementation(createMockObserver);
 
 vi.mock("../../../../app/composables/fetchGraphql", () => ({
   default: vi.fn(),
@@ -134,9 +136,9 @@ describe("OntologyInput", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.clearAllMocks();
-    global.IntersectionObserver = vi
+    globalThis.IntersectionObserver = vi
       .fn()
-      .mockImplementation(() => createMockObserver());
+      .mockImplementation(createMockObserver);
     mockFetch = vi.mocked(fetchGraphql);
   });
 
