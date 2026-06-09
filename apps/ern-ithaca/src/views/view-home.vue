@@ -121,7 +121,7 @@ import {
         recruited by ERN-CRANIO, and patients with connective tissue disorders
         recruited by ERN SKIN.
       </p>
-      <p>The ILIAD registry will include three types of patients.</p>
+      <p>The ILIAD registry will include two types of patients.</p>
       <div class="icon-cards-container">
         <div class="icon-card">
           <div class="card-icon">
@@ -139,15 +139,6 @@ import {
           <p class="card-heading">clinically defined</p>
           <p class="card-description">
             Patients have a clinical diagnosis with a disease-level ORPHA code
-          </p>
-        </div>
-        <div class="icon-card">
-          <div class="card-icon">
-            <UserIcon />
-          </div>
-          <p class="card-heading">undiagnosed patients</p>
-          <p class="card-description">
-            Patients that do not have a genetic or clincial diagnosis
           </p>
         </div>
       </div>
