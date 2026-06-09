@@ -14,7 +14,11 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
             <li>
-              <a href="https://ern-ithaca.eu/about-us/" target="_blank" rel="noopener">
+              <a
+                href="https://ern-ithaca.eu/about-us/"
+                target="_blank"
+                rel="noopener"
+              >
                 About
               </a>
             </li>
@@ -25,15 +29,21 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'documents' }"> Documents </router-link>
             </li>
             <li>
-              <a href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-transparency/" target="_blank"
-                rel="noopener">
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-transparency/"
+                target="_blank"
+                rel="noopener"
+              >
                 Transparency Statement
               </a>
             </li>
 
             <li>
-              <a href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-projects-publications/" target="_blank"
-                rel="noopener">
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-projects-publications/"
+                target="_blank"
+                rel="noopener"
+              >
                 Projects & Publications
               </a>
             </li>
@@ -51,8 +61,11 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
             <li id="project-logo-link">
               <router-link :to="{ name: 'home' }">
                 <!-- insert project logo here -->
-                <img src="/img/ern-ithaca-logo.png" class="project-logo"
-                  alt="ERN Ithaca: an international library of intellectual disability and anomalies of development" />
+                <img
+                  src="/img/ern-ithaca-logo.png"
+                  class="project-logo"
+                  alt="ERN Ithaca: an international library of intellectual disability and anomalies of development"
+                />
               </router-link>
             </li>
             <li>
@@ -60,11 +73,14 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
                 <span class="visually-hidden">
                   visit the molgenis website to learn more
                 </span>
-            <li>
-              <img src="/img/molgenis-logo-blue-text.png" class="molgenis-logo"
-                alt="molgenis open source data platform" />
-            </li>
-            </a>
+                <li>
+                  <img
+                    src="/img/molgenis-logo-blue-text.png"
+                    class="molgenis-logo"
+                    alt="molgenis open source data platform"
+                  />
+                </li>
+              </a>
             </li>
           </UnorderedList>
         </div>
