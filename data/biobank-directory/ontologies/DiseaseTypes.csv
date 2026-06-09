@@ -23530,3 +23530,4 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition,exact_mapping
 ,urn:miriam:icd:Z99.4,Dependence on artificial heart,urn:miriam:icd:Z99,ICD-10,Z99.4,https://icd.who.int/browse10/2019/en#/Z99.4,,,,
 ,urn:miriam:icd:Z99.8,Dependence on other enabling machines and devices,urn:miriam:icd:Z99,ICD-10,Z99.8,https://icd.who.int/browse10/2019/en#/Z99.8,,,,
 ,urn:miriam:icd:Z99.9,Dependence on unspecified enabling machine and device,urn:miriam:icd:Z99,ICD-10,Z99.9,https://icd.who.int/browse10/2019/en#/Z99.9,,,,
+,ICD-10-GM-2026:U51,Cognitive impairment (generic category),,ICD-10-GM (2026),U51.-,https://klassifikationen.bfarm.de/icd-10-gm/kode-suche/htmlgm2026/block-u50-u54.htm,"A supplementary code used to document the presence of cognitive impairment based on standardised testing (like MMSE, MoCA, or FIM) within the first five days of inpatient treatment.",,,
