@@ -477,7 +477,6 @@ function handlePageSizeChange(pageSize: string) {
 }
 
 function handleCellClick(payload: cellPayload) {
-  console.log("Cell clicked with payload:", payload);
   cellDetailValue.value = payload.data;
   cellDetailColumn.value = payload.metadata;
   showModal.value = true;

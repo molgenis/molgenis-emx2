@@ -1,9 +1,12 @@
 <template>
-  <td class="p-2.5 border-b border-gray-200 min-h-8 text-left truncate">
+  <td
+    class="p-2.5 border-b border-gray-200 min-h-8 text-left truncate"
+    ref="cellRef"
+  >
     <slot name="row-actions"></slot>
     <slot>
       <template v-if="metadata && data !== undefined && data !== null">
-        <span :ref="`blaat-${metadata?.id}-${data}`">
+        <span>
           <ValueList
             v-if="
               metadata.columnType.endsWith('ARRAY') ||
@@ -148,11 +151,14 @@ import {
   assertFileValue,
   toRefColumn,
 } from "../../utils/typeUtils";
+import { ref } from "vue";
 
 const props = defineProps<{
   metadata?: IColumn;
   data?: columnValue;
 }>();
+
+const cellRef = ref<HTMLElement | null>(null);
 
 const emit = defineEmits<{
   (e: "cellClicked", payload: cellPayload): void;
@@ -168,19 +174,8 @@ function handleShowMore() {
 }
 
 function isEllipsisActive() {
-  const cellRef = `blaat-${props.metadata?.id}-${props.data}`;
-  const cellElement = document.getElementById(cellRef);
-  if (cellElement) {
-    console.log("Checking ellipsis for cell:", cellElement);
-    console.log(
-      "OffsetWidth:",
-      cellElement.offsetWidth,
-      "ScrollWidth:",
-      cellElement.scrollWidth
-    );
-    return cellElement
-      ? cellElement.offsetWidth < cellElement.scrollWidth
-      : false;
-  }
+  return cellRef.value
+    ? cellRef.value.offsetWidth < cellRef.value.scrollWidth
+    : false;
 }
 </script>
