@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import java.util.Objects;
+
 public class TablePermission {
   private final String table;
   private Boolean select;
@@ -65,5 +67,38 @@ public class TablePermission {
   public TablePermission delete(Boolean delete) {
     this.delete = delete;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    TablePermission that = (TablePermission) o;
+    return Objects.equals(table, that.table)
+        && Objects.equals(select, that.select)
+        && Objects.equals(insert, that.insert)
+        && Objects.equals(update, that.update)
+        && Objects.equals(delete, that.delete);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(table, select, insert, update, delete);
+  }
+
+  @Override
+  public String toString() {
+    return "TablePermission{"
+        + "table='"
+        + table
+        + '\''
+        + ", select="
+        + select
+        + ", insert="
+        + insert
+        + ", update="
+        + update
+        + ", delete="
+        + delete
+        + '}';
   }
 }

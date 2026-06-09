@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,9 +53,18 @@ class CachedUserPermissionsTest {
   @Test
   void getValue_returnsPermissionsForActiveUser() {
     Map<String, TablePermission> permissions = userPermissions.getByTable();
+    TablePermission expected = new TablePermission(TABLE_A).select(true);
 
     assertTrue(permissions.containsKey(TABLE_A), "granted table should be present");
-    assertTrue(permissions.get(TABLE_A).hasSelect(), "granted select should be true");
+    assertEquals(permissions.get(TABLE_A), expected, "should be table a with select granted");
+  }
+
+  @Test
+  void getAll_returnsPermissionsForActiveUser() {
+    List<TablePermission> permissions = userPermissions.getAll();
+    List<TablePermission> expected = List.of(new TablePermission(TABLE_A).select(true));
+
+    assertEquals(permissions, expected, "list should contain table a with select");
   }
 
   @Test
