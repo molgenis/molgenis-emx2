@@ -6,112 +6,110 @@
     <slot name="row-actions"></slot>
     <slot>
       <template v-if="metadata && data !== undefined && data !== null">
-        <span>
-          <ValueList
-            v-if="
-              metadata.columnType.endsWith('ARRAY') ||
-              metadata.columnType === 'MULTISELECT' ||
-              metadata.columnType === 'CHECKBOX'
-            "
-            :metadata="metadata"
-            :data="assertListValue(data)"
-            @listRefCellClicked="$emit('cellClicked', $event)"
-          />
+        <ValueList
+          v-if="
+            metadata.columnType.endsWith('ARRAY') ||
+            metadata.columnType === 'MULTISELECT' ||
+            metadata.columnType === 'CHECKBOX'
+          "
+          :metadata="metadata"
+          :data="assertListValue(data)"
+          @listRefCellClicked="$emit('cellClicked', $event)"
+        />
 
-          <ValueString
-            v-else-if="
-              metadata.columnType === 'STRING' ||
-              metadata.columnType === 'DATE' ||
-              metadata.columnType === 'DATETIME' ||
-              metadata.columnType === 'AUTO_ID' ||
-              metadata.columnType === 'UUID' ||
-              metadata.columnType === 'PERIOD'
-            "
-            :metadata="metadata"
-            :data="assertStringValue(data)"
-          />
+        <ValueString
+          v-else-if="
+            metadata.columnType === 'STRING' ||
+            metadata.columnType === 'DATE' ||
+            metadata.columnType === 'DATETIME' ||
+            metadata.columnType === 'AUTO_ID' ||
+            metadata.columnType === 'UUID' ||
+            metadata.columnType === 'PERIOD'
+          "
+          :metadata="metadata"
+          :data="assertStringValue(data)"
+        />
 
-          <ValueText
-            v-else-if="metadata.columnType === 'TEXT'"
-            :metadata="metadata"
-            :data="assertStringValue(data)"
-          />
+        <ValueText
+          v-else-if="metadata.columnType === 'TEXT'"
+          :metadata="metadata"
+          :data="assertStringValue(data)"
+        />
 
-          <ValueDecimal
-            v-else-if="metadata.columnType === 'DECIMAL'"
-            :metadata="metadata"
-            :data="assertNumberValue(data)"
-          />
+        <ValueDecimal
+          v-else-if="metadata.columnType === 'DECIMAL'"
+          :metadata="metadata"
+          :data="assertNumberValue(data)"
+        />
 
-          <ValueLong
-            v-else-if="metadata.columnType === 'LONG'"
-            :metadata="metadata"
-            :data="typeof data === 'number' ? data : Number(data)"
-          />
+        <ValueLong
+          v-else-if="metadata.columnType === 'LONG'"
+          :metadata="metadata"
+          :data="typeof data === 'number' ? data : Number(data)"
+        />
 
-          <ValueInt
-            v-else-if="
-              metadata.columnType === 'INT' ||
-              metadata.columnType === 'NON_NEGATIVE_INT'
-            "
-            :metadata="metadata"
-            :data="typeof data === 'number' ? data : Number(data)"
-          />
+        <ValueInt
+          v-else-if="
+            metadata.columnType === 'INT' ||
+            metadata.columnType === 'NON_NEGATIVE_INT'
+          "
+          :metadata="metadata"
+          :data="typeof data === 'number' ? data : Number(data)"
+        />
 
-          <ValueRef
-            v-else-if="
-              metadata.columnType === 'REF' ||
-              metadata.columnType === 'RADIO' ||
-              metadata.columnType === 'SELECT'
-            "
-            :metadata="metadata as IRefColumn"
-            :data="assertRowValue(data)"
-            @refCellClicked="$emit('cellClicked', $event)"
-          />
+        <ValueRef
+          v-else-if="
+            metadata.columnType === 'REF' ||
+            metadata.columnType === 'RADIO' ||
+            metadata.columnType === 'SELECT'
+          "
+          :metadata="metadata as IRefColumn"
+          :data="assertRowValue(data)"
+          @refCellClicked="$emit('cellClicked', $event)"
+        />
 
-          <ValueObject
-            v-else-if="metadata.columnType === 'ONTOLOGY'"
-            :metadata="metadata"
-            :data="assertRowValue(data)"
-            @refCellClicked="$emit('cellClicked', $event)"
-          />
+        <ValueObject
+          v-else-if="metadata.columnType === 'ONTOLOGY'"
+          :metadata="metadata"
+          :data="assertRowValue(data)"
+          @refCellClicked="$emit('cellClicked', $event)"
+        />
 
-          <ValueBool
-            v-else-if="metadata.columnType === 'BOOL'"
-            :metadata="metadata"
-            :data="assertBooleanValue(data)"
-          />
+        <ValueBool
+          v-else-if="metadata.columnType === 'BOOL'"
+          :metadata="metadata"
+          :data="assertBooleanValue(data)"
+        />
 
-          <ValueEmail
-            v-else-if="metadata.columnType === 'EMAIL'"
-            :metadata="metadata"
-            :data="assertStringValue(data)"
-          />
+        <ValueEmail
+          v-else-if="metadata.columnType === 'EMAIL'"
+          :metadata="metadata"
+          :data="assertStringValue(data)"
+        />
 
-          <ValueHyperlink
-            v-else-if="metadata.columnType === 'HYPERLINK'"
-            :metadata="metadata"
-            :data="assertStringValue(data)"
-          />
+        <ValueHyperlink
+          v-else-if="metadata.columnType === 'HYPERLINK'"
+          :metadata="metadata"
+          :data="assertStringValue(data)"
+        />
 
-          <ValueRefBack
-            v-else-if="metadata.columnType === 'REFBACK'"
-            :metadata="toRefColumn(metadata)"
-            :data="assertTableValue(data)"
-            @refBackCellClicked="$emit('cellClicked', $event)"
-          />
+        <ValueRefBack
+          v-else-if="metadata.columnType === 'REFBACK'"
+          :metadata="toRefColumn(metadata)"
+          :data="assertTableValue(data)"
+          @refBackCellClicked="$emit('cellClicked', $event)"
+        />
 
-          <ValueFile
-            v-else-if="metadata.columnType === 'FILE'"
-            :metadata="metadata"
-            :data="assertFileValue(data)"
-          />
+        <ValueFile
+          v-else-if="metadata.columnType === 'FILE'"
+          :metadata="metadata"
+          :data="assertFileValue(data)"
+        />
 
-          <span v-if="data && isEllipsisActive()">
-            <Button type="inline" size="tiny" @click="handleShowMore">
-              Show more
-            </Button>
-          </span>
+        <span v-if="data && isEllipsisActive()">
+          <Button type="inline" size="tiny" @click="handleShowMore">
+            Show more
+          </Button>
         </span>
       </template>
       <template v-else>
