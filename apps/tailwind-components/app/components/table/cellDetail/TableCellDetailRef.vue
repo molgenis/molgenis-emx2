@@ -74,23 +74,32 @@ const sections = computed(() => {
         item.metadata.columnType === "HEADING"
       );
     })
-    .reduce((acc, item) => {
-      if (item.metadata.columnType === "HEADING") {
-        // If the item is a heading, create a new section
-        acc.push({ heading: item.metadata.label as string, fields: [] });
-      } else {
-        // If first item is not a section heading, create a default section
-        if (acc.length === 0) {
-          acc.push({ heading: "", fields: [] });
+    .reduce(
+      (
+        acc: {
+          heading: string;
+          fields: { key: string; value: columnValue; metadata: IColumn }[];
+        }[],
+        item
+      ) => {
+        if (item.metadata.columnType === "HEADING") {
+          // If the item is a heading, create a new section
+          acc.push({ heading: item.metadata.label as string, fields: [] });
+        } else {
+          // If first item is not a section heading, create a default section
+          if (acc.length === 0) {
+            acc.push({ heading: "", fields: [] });
+          }
+          // Add the item to the last section
+          const lastSection = acc[acc.length - 1];
+          if (lastSection) {
+            lastSection.fields.push(item);
+          }
         }
-        // Add the item to the last section
-        const lastSection = acc[acc.length - 1];
-        if (lastSection) {
-          lastSection.fields.push(item);
-        }
-      }
-      return acc;
-    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
+        return acc;
+      },
+      []
+    )
     .filter((section) => {
       // Filter out empty sections
       return section.fields.length > 0;
@@ -126,5 +135,5 @@ const sections = computed(() => {
       </template>
     </DefinitionList>
   </section>
-  <section v-else>Loading...</section>
+  <!-- <Spinner v-else class="px-8 pt-[50px] pb-[50px]"/> -->
 </template>
