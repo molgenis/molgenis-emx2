@@ -7,7 +7,7 @@ import ProviderDashboard from "./ProviderDashboard.vue";
 import LevelGroupedColumnChart from "./LevelGroupedColumnChart.vue";
 import { getDashboardPage } from "../utils/getDashboardData";
 
-import type { IDashboardPages, ICharts, IChartData } from "../types/schema.js";
+import type { IDashboardPages, ICharts } from "../types/schema.js";
 import type { IAppPage } from "../types/app";
 
 interface LevelTemplateProps {

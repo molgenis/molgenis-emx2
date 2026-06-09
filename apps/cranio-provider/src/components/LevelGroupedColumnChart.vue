@@ -135,10 +135,10 @@ if (props.chart.dataPoints) {
       }"
     >
     </GroupedColumnChart>
-    <form v-if="enableFilter && chartFilters" @submit.prevent>
-      <label :form="`${chart.chartId}-filter`" class="">{{
-        filterTitle
-      }}</label>
+    <form v-if="enableFilter && chartFilters" @submit.prevent class="mt-2">
+      <label :form="`${chart.chartId}-filter`" class="">
+        {{ filterTitle }}
+      </label>
       <select
         :id="`${chart.chartId}-filter`"
         v-model="selectedFilter"

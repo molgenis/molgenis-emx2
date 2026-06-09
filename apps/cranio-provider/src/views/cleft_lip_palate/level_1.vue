@@ -6,10 +6,10 @@ const props = defineProps<IAppPage>();
 
 <template>
   <LevelTemplate
-    name="Cleft lip and palate level 1"
+    name="PROMs Charts"
     :props="props"
     :enable-filter="true"
     filter-property="dataPointPrimaryCategory"
-    filter-title="Filter by cleft type"
+    filter-title="Filter chart by cleft type"
   />
 </template>
