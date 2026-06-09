@@ -120,11 +120,11 @@ public class TestGetSetAllTypesOnRows {
     String dateTimeString = "2012-10-03T18:00";
     r.setString("test", dateTimeString);
     LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
-    assertEquals(dateTime, r.getDateTime("test"));
+    assertEquals(dateTime, r.getInstant("test"));
     assertNull(r.getDate("testnull"));
     try {
       r.setString("test", "a");
-      r.getDateTime("test");
+      r.getInstant("test");
       fail("shouldn't be able to get 'a' to datetime ");
     } catch (Exception e) {
     }
@@ -168,7 +168,7 @@ public class TestGetSetAllTypesOnRows {
 
     OffsetDateTime odt = OffsetDateTime.of(2018, 12, 12, 12, 12, 12, 12, ZoneOffset.UTC);
     r.set("test", odt);
-    assertArrayEquals(new LocalDateTime[] {odt.toLocalDateTime()}, r.getDateTimeArray("test"));
+    assertArrayEquals(new LocalDateTime[] {odt.toLocalDateTime()}, r.getInstantArray("test"));
   }
 
   private void addContents(SchemaMetadata m, List<ColumnType> columnTypes) {

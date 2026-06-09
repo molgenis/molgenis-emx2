@@ -3,6 +3,10 @@ package org.molgenis.emx2;
 import java.util.TimeZone;
 import org.junit.jupiter.api.extension.*;
 
+/**
+ * Overrides default {@link TimeZone} to one that should be used in tests (so that system default
+ * timezone does not influence tests).
+ */
 public class TimeZoneExtension implements BeforeEachCallback, AfterAllCallback {
   private static final TimeZone systemTimeZone = TimeZone.getDefault();
 

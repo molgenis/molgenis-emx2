@@ -6,7 +6,6 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -168,12 +167,12 @@ public class Row {
     return TypeUtils.toDateArray(values.get(name));
   }
 
-  public Instant getDateTime(String name) {
-    return TypeUtils.toDateTime(values.get(name));
+  public Instant getInstant(String name) {
+    return TypeUtils.toInstant(values.get(name));
   }
 
-  public Instant[] getDateTimeArray(String name) {
-    return TypeUtils.toDateTimeArray(values.get(name));
+  public Instant[] getInstantArray(String name) {
+    return TypeUtils.toInstantArray(values.get(name));
   }
 
   public JSONB getJsonb(String name) {
@@ -266,12 +265,12 @@ public class Row {
     return this;
   }
 
-  public Row setDateTime(String columnId, LocalDateTime value) {
+  public Row setDateTime(String columnId, Instant value) {
     this.values.put(columnId, value);
     return this;
   }
 
-  public Row setDateTimeArray(String columnId, LocalDateTime[] value) {
+  public Row setDateTimeArray(String columnId, Instant[] value) {
     this.values.put(columnId, value);
     return this;
   }
@@ -362,8 +361,8 @@ public class Row {
       case "Period[]" -> (T) getPeriodArray(name);
       case "LocalDate" -> (T) getDate(name);
       case "LocalDate[]" -> (T) getDateArray(name);
-      case "Instant" -> (T) getDateTime(name);
-      case "Instant[]" -> (T) getDateTimeArray(name);
+      case "Instant" -> (T) getInstant(name);
+      case "Instant[]" -> (T) getInstantArray(name);
       case "UUID" -> (T) getUuid(name);
       case "UUID[]" -> (T) getUuidArray(name);
       case "byte[]" -> (T) getBinary(name);

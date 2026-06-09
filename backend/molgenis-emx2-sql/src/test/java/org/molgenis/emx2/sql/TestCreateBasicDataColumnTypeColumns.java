@@ -9,9 +9,7 @@ import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
+import java.time.*;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,6 +17,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.utils.StopWatch;
 
+@WithTimeZone
 public class TestCreateBasicDataColumnTypeColumns {
 
   static Database db;
@@ -59,7 +58,9 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setDecimal("Test decimal", 1.1);
     row.setText("Test text", "testtext");
     row.setDate("Test date", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setDateTime(
+        "Test datetime",
+        ZonedDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneId.systemDefault()).toInstant());
     row.setPeriod("Test period", Period.of(23, 2, 14));
     t2.insert(row);
 
@@ -73,7 +74,9 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setDecimal("Test decimal nillable", 1.1);
     row.setText("Test text nillable", "testtext");
     row.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setDateTime(
+        "Test datetime nillable",
+        ZonedDateTime.of(2018, 12, 13, 12, 40, 0, 0, ZoneId.systemDefault()).toInstant());
     row.setPeriod("Test period nillable", Period.of(23, 2, 14));
     try {
       // should fail on all non  nillable columns
@@ -90,7 +93,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
       assert (res.getDate("Test date") instanceof LocalDate);
-      assert (res.getDateTime("Test datetime") instanceof LocalDateTime);
+      assert (res.getInstant("Test datetime") instanceof Instant);
       assert (res.getString("Test string") instanceof String);
       assert (res.getInteger("Test int") instanceof Integer);
       assert (res.getDecimal("Test decimal") instanceof Double);

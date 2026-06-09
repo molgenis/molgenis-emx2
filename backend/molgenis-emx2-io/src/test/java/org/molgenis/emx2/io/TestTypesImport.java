@@ -38,7 +38,8 @@ public class TestTypesImport {
     TableStore store = new TableStoreForXlsxFile(path);
     for (Row r : store.readTable("Sheet1")) {
       assertEquals(LocalDate.of(2022, Month.FEBRUARY, 2), r.getDate("mydate"));
-      assertEquals(LocalDateTime.of(2022, Month.FEBRUARY, 2, 12, 2), r.getDateTime("mydatetime"));
+      // todo: fix
+      assertEquals(LocalDateTime.of(2022, Month.FEBRUARY, 2, 12, 2), r.getInstant("mydatetime"));
     }
   }
 

@@ -21,8 +21,9 @@ import org.molgenis.emx2.*;
 public class TypeUtils {
   private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
-  private static final String LOOSE_PARSER_FORMAT =
-      "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
+  private static final DateTimeFormatter LOOSE_DATETIME_FORMATTER =
+      DateTimeFormatter.ofPattern(
+          "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']");
 
   protected TypeUtils() {
     // hide public constructor
@@ -195,7 +196,7 @@ public class TypeUtils {
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
-      Instant ldt = toDateTime(v);
+      Instant ldt = toInstant(v);
       if (ldt != null) return ldt.atOffset(ZoneOffset.UTC).toLocalDate();
     }
     return null;
@@ -231,7 +232,7 @@ public class TypeUtils {
     return (Period[]) processArray(v, TypeUtils::toPeriod, Period[]::new, Period.class);
   }
 
-  public static Instant toDateTime(Object v) {
+  public static Instant toInstant(Object v) {
     switch (v) {
       case null -> {
         return null;
@@ -252,14 +253,13 @@ public class TypeUtils {
         return timestamp.toInstant();
       }
       default -> {
-        // try string
         String value = toString(v);
         if (value != null) {
           // add 'T' because loose users of iso8601 (postgres!) use space instead of T
           value = value.replace(" ", "T");
           TemporalAccessor temporalAccessor =
-              DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-                  .parseBest(value, Instant::from, LocalDateTime::from, LocalDate::from);
+              LOOSE_DATETIME_FORMATTER.parseBest(
+                  value, Instant::from, LocalDateTime::from, LocalDate::from);
           return switch (temporalAccessor) {
             case Instant instant -> instant;
             case LocalDateTime localDateTime ->
@@ -274,8 +274,8 @@ public class TypeUtils {
     }
   }
 
-  public static Instant[] toDateTimeArray(Object v) {
-    return (Instant[]) processArray(v, TypeUtils::toDateTime, Instant[]::new, Instant.class);
+  public static Instant[] toInstantArray(Object v) {
+    return (Instant[]) processArray(v, TypeUtils::toInstant, Instant[]::new, Instant.class);
   }
 
   public static JSONB toJsonb(Object v) {
@@ -451,8 +451,8 @@ public class TypeUtils {
       case TEXT_ARRAY -> TypeUtils.toTextArray(v);
       case DATE -> TypeUtils.toDate(v);
       case DATE_ARRAY -> TypeUtils.toDateArray(v);
-      case DATETIME -> TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
+      case DATETIME -> TypeUtils.toInstant(v);
+      case DATETIME_ARRAY -> TypeUtils.toInstantArray(v);
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSON -> TypeUtils.toJsonb(v);

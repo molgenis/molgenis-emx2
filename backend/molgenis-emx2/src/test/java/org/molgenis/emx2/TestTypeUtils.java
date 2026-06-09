@@ -66,7 +66,7 @@ class TestTypeUtils {
   }
 
   @Test
-  void testToDateTime() {
+  void testToInstant() {
     ZoneId zone = ZoneId.of("Europe/Amsterdam");
 
     LocalDateTime winterDateTime = LocalDateTime.of(2023, 2, 24, 12, 8, 23, 463780000);
@@ -75,28 +75,38 @@ class TestTypeUtils {
     LocalDateTime summerDateTime = LocalDateTime.of(2023, 8, 24, 12, 8, 23, 463780000);
     Instant summerInstant = summerDateTime.withHour(10).toInstant(ZoneOffset.UTC);
 
+    // Tests the following types for both winter- & summertime:
+    // * LocalDateTime (datetime without a zone/offset) -> assumes server timezone
+    // * ZonedDateTime (datetime with a zone, f.e. `Europe/Amsterdam`)
+    // * OffsetDateTime (datetime with a UTC offset, f.e. `+1:00`)
+    // * Different String representations of a datetime
+    //   * No timezone
+    //   * UTC+0 (expressed with "Z")
+    //   * With offset (different offset depending on winter-/summertime)
     assertAll(
-        () -> assertEquals(winterInstant, TypeUtils.toDateTime(winterDateTime)),
+        // Validations for date in wintertime ("Europe/Amsterdam" / UTC+1)
+        () -> assertEquals(winterInstant, TypeUtils.toInstant(winterDateTime)),
         () ->
             assertEquals(
-                winterInstant, TypeUtils.toDateTime(ZonedDateTime.of(winterDateTime, zone))),
+                winterInstant, TypeUtils.toInstant(ZonedDateTime.of(winterDateTime, zone))),
         () ->
             assertEquals(
                 winterInstant,
-                TypeUtils.toDateTime(OffsetDateTime.of(winterDateTime, ZoneOffset.ofHours(1)))),
-        () -> assertEquals(winterInstant, TypeUtils.toDateTime("2023-02-24T12:08:23.46378")),
-        () -> assertEquals(winterInstant, TypeUtils.toDateTime("2023-02-24T11:08:23.46378Z")),
-        () -> assertEquals(winterInstant, TypeUtils.toDateTime("2023-02-24T12:08:23.46378+01:00")),
-        () -> assertEquals(summerInstant, TypeUtils.toDateTime(summerDateTime)),
+                TypeUtils.toInstant(OffsetDateTime.of(winterDateTime, ZoneOffset.ofHours(1)))),
+        () -> assertEquals(winterInstant, TypeUtils.toInstant("2023-02-24T12:08:23.46378")),
+        () -> assertEquals(winterInstant, TypeUtils.toInstant("2023-02-24T11:08:23.46378Z")),
+        () -> assertEquals(winterInstant, TypeUtils.toInstant("2023-02-24T12:08:23.46378+01:00")),
+        // Validations for date in summertime ("Europe/Amsterdam" / UTC+2)
+        () -> assertEquals(summerInstant, TypeUtils.toInstant(summerDateTime)),
         () ->
             assertEquals(
-                summerInstant, TypeUtils.toDateTime(ZonedDateTime.of(summerDateTime, zone))),
+                summerInstant, TypeUtils.toInstant(ZonedDateTime.of(summerDateTime, zone))),
         () ->
             assertEquals(
                 summerInstant,
-                TypeUtils.toDateTime(OffsetDateTime.of(summerDateTime, ZoneOffset.ofHours(2)))),
-        () -> assertEquals(summerInstant, TypeUtils.toDateTime("2023-08-24T12:08:23.46378")),
-        () -> assertEquals(winterInstant, TypeUtils.toDateTime("2023-08-24T12:08:23.46378+02:00")));
+                TypeUtils.toInstant(OffsetDateTime.of(summerDateTime, ZoneOffset.ofHours(2)))),
+        () -> assertEquals(summerInstant, TypeUtils.toInstant("2023-08-24T12:08:23.46378")),
+        () -> assertEquals(summerInstant, TypeUtils.toInstant("2023-08-24T12:08:23.46378+02:00")));
   }
 
   @Test

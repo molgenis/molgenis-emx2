@@ -76,27 +76,27 @@ public class TestMgColumns {
 
     t.insert(row("id", 1));
     Row r = t.retrieveRows().get(0);
-    assertNotNull(r.getDateTime(MG_INSERTEDON));
-    assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
+    assertNotNull(r.getInstant(MG_INSERTEDON));
+    assertEquals(r.getInstant(MG_INSERTEDON), r.getInstant(MG_UPDATEDON));
     assertNotNull(r.getString(MG_INSERTEDBY));
     assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
     t.update(r);
     r = t.retrieveRows().get(0);
-    assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
+    assertTrue(r.getInstant(MG_INSERTEDON).compareTo(r.getInstant(MG_UPDATEDON)) < 0);
 
     // to make sure also test with subclass
     t = schema.create(table("UpdatedOnSub").setInheritName("UpdatedOn"));
 
     t.insert(row("id", 2));
     r = t.retrieveRows().get(0);
-    assertNotNull(r.getDateTime(MG_INSERTEDON));
-    assertEquals(r.getDateTime(MG_INSERTEDON), r.getDateTime(MG_UPDATEDON));
+    assertNotNull(r.getInstant(MG_INSERTEDON));
+    assertEquals(r.getInstant(MG_INSERTEDON), r.getInstant(MG_UPDATEDON));
     assertNotNull(r.getString(MG_INSERTEDBY));
     assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
     t.update(r);
     r = t.retrieveRows().get(0);
-    assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
+    assertTrue(r.getInstant(MG_INSERTEDON).compareTo(r.getInstant(MG_UPDATEDON)) < 0);
   }
 }

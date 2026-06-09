@@ -186,10 +186,10 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
-            row.getDateTimeArray(column.getName()),
-            (i) ->
+            row.getInstantArray(column.getName()),
+            i ->
                 literal(
-                    dateTimeFormatter.format(((Instant) i).atOffset(ZoneOffset.UTC)),
+                    DATE_TIME_FORMATTER.format(((Instant) i).atOffset(ZoneOffset.UTC)),
                     getCoreDatatype()));
       }
     },
@@ -315,7 +315,7 @@ public abstract class ColumnTypeRdfMapper {
       }
     };
 
-    private static final DateTimeFormatter dateTimeFormatter =
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
 
     private final CoreDatatype.XSD coreDatatype;
