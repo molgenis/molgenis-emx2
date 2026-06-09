@@ -5,42 +5,54 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableMetadata;
 
 class FileBasedQueryGeneratorTest {
 
   @TempDir Path tempDir;
 
   @Test
-  void whenFileExists_thenReturnFileContent() throws IOException {
+  void whenTableHasFile_thenReturnFileContent() throws IOException {
     Path queryFile = tempDir.resolve("query.rq");
     String expectedQuery = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }";
     Files.writeString(queryFile, expectedQuery);
 
-    String result = new FileBasedQueryGenerator(queryFile).generate(null);
+    QueryGenerator generator = new FileBasedQueryGenerator(Map.of("MyTable", queryFile));
 
-    assertEquals(expectedQuery, result);
+    assertEquals(expectedQuery, generator.generate(new TableMetadata("MyTable")));
   }
 
   @Test
-  void whenFileExists_thenIgnoresTableMetadata() throws IOException {
-    Path queryFile = tempDir.resolve("query.rq");
-    String expectedQuery = "SELECT ?s WHERE { ?s a <https://example.org/Type> . }";
-    Files.writeString(queryFile, expectedQuery);
+  void whenTableNameNotInMap_thenThrowMolgenisException() {
+    QueryGenerator generator = new FileBasedQueryGenerator(Map.of());
 
-    FileBasedQueryGenerator generator = new FileBasedQueryGenerator(queryFile);
-    String resultWithNull = generator.generate(null);
-    String resultWithDifferentMetadata = generator.generate(null);
-
-    assertEquals(resultWithNull, resultWithDifferentMetadata);
+    assertThrows(
+        MolgenisException.class, () -> generator.generate(new TableMetadata("UnknownTable")));
   }
 
   @Test
   void whenFileDoesNotExist_thenThrowMolgenisException() {
     Path nonExistent = tempDir.resolve("does-not-exist.rq");
-    QueryGenerator generator = new FileBasedQueryGenerator(nonExistent);
-    assertThrows(MolgenisException.class, () -> generator.generate(null));
+    QueryGenerator generator = new FileBasedQueryGenerator(Map.of("MyTable", nonExistent));
+
+    assertThrows(MolgenisException.class, () -> generator.generate(new TableMetadata("MyTable")));
+  }
+
+  @Test
+  void whenMultipleTablesConfigured_thenReturnsFileForRequestedTable() throws IOException {
+    Path fileA = tempDir.resolve("a.rq");
+    Path fileB = tempDir.resolve("b.rq");
+    Files.writeString(fileA, "SELECT ?a WHERE { ?a a <https://example.org/A> . }");
+    Files.writeString(fileB, "SELECT ?b WHERE { ?b a <https://example.org/B> . }");
+
+    QueryGenerator generator =
+        new FileBasedQueryGenerator(Map.of("TableA", fileA, "TableB", fileB));
+
+    assertEquals(Files.readString(fileA), generator.generate(new TableMetadata("TableA")));
+    assertEquals(Files.readString(fileB), generator.generate(new TableMetadata("TableB")));
   }
 }

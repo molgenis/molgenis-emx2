@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
@@ -47,7 +48,8 @@ class SparqlSelectRdfTransformerTest {
             MolgenisException.class,
             () -> new SparqlSelectRdfTransformer(generator, schema, tables));
     assertEquals(
-        "Unknown table(s) provided to transformer: unknown-1, unknown-2", exception.getMessage());
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlSelectRdfTransformerTest_unknowntable",
+        exception.getMessage());
   }
 
   @Test
@@ -60,7 +62,7 @@ class SparqlSelectRdfTransformerTest {
 
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
-            new FileBasedQueryGenerator(getQueryFilePath()),
+            new FileBasedQueryGenerator(Map.of("Pet", getQueryFilePath())),
             database.getSchema(schemaName).getMetadata(),
             List.of("Pet"));
 
@@ -135,7 +137,7 @@ class SparqlSelectRdfTransformerTest {
 
     @Test
     void shouldIncludeRootIRI() {
-      assertEquals(SUBJECT.stringValue(), testData.getString("testTable"));
+      assertEquals(SUBJECT.stringValue(), testData.getString("_subject"));
     }
 
     @Test

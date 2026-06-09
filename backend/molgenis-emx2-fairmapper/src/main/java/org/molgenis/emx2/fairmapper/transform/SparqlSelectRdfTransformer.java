@@ -34,7 +34,11 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
             .filter(name -> null == schema.getTableMetadata(name))
             .collect(Collectors.joining(", "));
     if (!missing.isBlank()) {
-      throw new MolgenisException("Unknown table(s) provided to transformer: " + missing);
+      throw new MolgenisException(
+          "Unknown table(s) provided to transformer: "
+              + missing
+              + " for schema: "
+              + schema.getName());
     }
   }
 
