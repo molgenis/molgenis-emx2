@@ -118,42 +118,29 @@ public class SqlTable implements Table {
   }
 
   @Override
-  public int insert(Row... rows) {
-    return insert(Arrays.asList(rows));
-  }
-
-  @Override
-  public int insert(Iterable<Row> rows) {
+  public int insert(Iterable<Row> rows, Set<String> columnsToInsert) {
     try {
-      return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
+      return executeTransaction(
+          db, getSchema().getName(), getName(), rows, INSERT, columnsToInsert);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
   }
 
   @Override
-  public int update(Row... rows) {
-    return update(Arrays.asList(rows));
-  }
-
-  @Override
-  public int update(Iterable<Row> rows) {
+  public int update(Iterable<Row> rows, Set<String> columnsToInsert) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
+      return executeTransaction(
+          db, getSchema().getName(), getName(), rows, UPDATE, columnsToInsert);
     } catch (Exception e) {
       throw new SqlMolgenisException("Update into table '" + getName() + "' failed.", e);
     }
   }
 
   @Override
-  public int save(Row... rows) {
-    return save(Arrays.asList(rows));
-  }
-
-  @Override
-  public int save(Iterable<Row> rows) {
+  public int save(Iterable<Row> rows, Set<String> columnsToInsert) {
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
+      return executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, columnsToInsert);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
@@ -198,7 +185,8 @@ public class SqlTable implements Table {
       String schemaName,
       String tableName,
       Iterable<Row> rows,
-      MutationType transactionType) {
+      MutationType transactionType,
+      Set<String> includedRows) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -238,8 +226,8 @@ public class SqlTable implements Table {
                           + "'");
                 }
               } else {
-                String rowSchemaName = rowTableName.split("\\.")[0];
-                String rowTableName2 = rowTableName.split("\\.")[1];
+                String rowSchemaName = row.getSchemaName();
+                String rowTableName2 = row.getTableName();
                 if (db.getSchema(rowSchemaName) == null
                     || db.getSchema(rowSchemaName).getTable(rowTableName2) == null) {
                   throw new MolgenisException(
@@ -276,7 +264,8 @@ public class SqlTable implements Table {
                   count,
                   subclassRows,
                   subclassName,
-                  columnsProvided.get(subclassName));
+                  columnsProvided.get(subclassName),
+                  includedRows);
               // reset columns provided
               columnsProvided.get(subclassName).clear();
               columnsProvided.get(subclassName).addAll(row.getColumnNames());
@@ -295,7 +284,8 @@ public class SqlTable implements Table {
                   count,
                   subclassRows,
                   batch.getKey(),
-                  columnsProvided.get(batch.getKey()));
+                  columnsProvided.get(batch.getKey()),
+                  includedRows);
             }
           }
           // listeners
@@ -323,28 +313,46 @@ public class SqlTable implements Table {
       AtomicInteger count,
       Map<String, List<Row>> subclassRows,
       String subclassName,
-      Set<String> columnsProvided) {
+      Set<String> columnsProvided,
+      Set<String> columnsToInclude) {
 
     // execute
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
+    int nrResults;
+
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
+
+      if (!columnsToInclude.isEmpty()) {
+        updateColumns =
+            updateColumns.stream()
+                .filter(c -> c.isPrimaryKey() || columnsToInclude.contains(c.getName()))
+                .toList();
+      }
       List<Row> rows =
           applyValidationAndComputed(
               table.getMetadata().getColumns(), subclassRows.get(subclassName));
-      count.set(count.get() + table.updateBatch(table, rows, updateColumns));
+      nrResults = table.updateBatch(table, rows, updateColumns);
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
+
+      if (!columnsToInclude.isEmpty()) {
+        insertColumns =
+            insertColumns.stream()
+                .filter(c -> c.isPrimaryKey() || columnsToInclude.contains(c.getName()))
+                .toList();
+      }
       List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
-      count.set(
-          count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
+      nrResults =
+          table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size();
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
               + transactionType
               + " not allowed here");
     }
+
+    count.set(count.get() + nrResults);
     // clear the list
     subclassRows.get(subclassName).clear();
   }
@@ -412,10 +420,18 @@ public class SqlTable implements Table {
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
-        values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        if (updateColumns.stream().anyMatch(c -> c.getName().equals(MG_INSERTEDBY))) {
+          values.put(MG_INSERTEDBY, getActiveUser(table));
+        }
+        if (updateColumns.stream().anyMatch(c -> c.getName().equals(MG_INSERTEDON))) {
+          values.put(MG_INSERTEDON, now);
+        }
+        if (updateColumns.stream().anyMatch(c -> c.getName().equals(MG_UPDATEDBY))) {
+          values.put(MG_UPDATEDBY, getActiveUser(table));
+        }
+        if (updateColumns.stream().anyMatch(c -> c.getName().equals(MG_UPDATEDON))) {
+          values.put(MG_UPDATEDON, now);
+        }
       }
       step.values(values.values());
     }

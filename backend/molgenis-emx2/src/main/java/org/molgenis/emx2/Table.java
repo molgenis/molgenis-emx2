@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public interface Table {
 
@@ -11,17 +12,42 @@ public interface Table {
 
   Schema getSchema();
 
-  int insert(Row... row);
+  default int insert(Row... row) {
+    return insert(Arrays.asList(row), Set.of());
+  }
 
-  int insert(Iterable<Row> rows);
+  default int insert(Iterable<Row> rows) {
+    return insert(rows, Set.of());
+  }
 
-  int update(Row... row);
+  int insert(Iterable<Row> rows, Set<String> columnsToInsert);
 
-  int update(Iterable<Row> rows); // wish list: update based on secondary key.
+  default int update(Row... row) {
+    return update(Arrays.asList(row), Set.of());
+  }
 
-  int save(Row... row);
+  default int update(Iterable<Row> rows) { // wish list: update based on secondary key.
+    return update(rows, Set.of());
+  }
 
-  int save(Iterable<Row> rows);
+  /**
+   * TODO: do we want to be able to change the columns to insert? Later down the line we have
+   * hardcoded to pass all table columns into the update query, where as for insert/save, this is
+   * set up more flexible.
+   *
+   * @see SqlTable#executeBatch
+   */
+  int update(Iterable<Row> rows, Set<String> columnsToInsert);
+
+  default int save(Row... row) {
+    return save(Arrays.asList(row), Set.of());
+  }
+
+  default int save(Iterable<Row> rows) {
+    return save(rows, Set.of());
+  }
+
+  int save(Iterable<Row> rows, Set<String> columnsToInsert);
 
   default int delete(Row... rows) {
     return delete(Arrays.asList(rows));
