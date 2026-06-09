@@ -36,10 +36,14 @@ public class TemporalRdfEnricher implements RdfEnricher {
       WHERE {
           ?Resources rdf:type <%s> .
           ?Resources dcterms:temporal ?temporal .
-          ?temporal dcat:endDate ?endDate .
-          ?temporal dcat:startDate ?startDate .
-          BIND(YEAR(?startDate) AS ?startYear)
-          BIND(YEAR(?endDate) AS ?endYear)
+          OPTIONAL {
+              ?temporal dcat:endDate ?endDate .
+              BIND(YEAR(?endDate) AS ?endYear)
+          }
+          OPTIONAL {
+              ?temporal dcat:startDate ?startDate .
+              BIND(YEAR(?startDate) AS ?startYear)
+          }
       }
       """;
 

@@ -24,8 +24,9 @@ class TemporalRdfEnricherTest {
   private static final IRI DATASET_SUBJECT = iri("https://example.com/dataset/1");
   private static final IRI CATALOG_SUBJECT = iri("https://example.com/catalog/1");
   private static final IRI COLLECTION_SUBJECT = iri("https://example.com/collection/1");
-  private static final IRI INCOMPLETE_TEMPORAL_SUBJECT = iri("https://example.com/dataset/2");
+  private static final IRI MISSING_END_DATE_SUBJECT = iri("https://example.com/dataset/2");
   private static final IRI NO_TEMPORAL_SUBJECT = iri("https://example.com/dataset/3");
+  private static final IRI MISSING_START_DATE_SUBJECT = iri("https://example.com/dataset/4");
 
   private static SailRepository repository;
 
@@ -36,7 +37,8 @@ class TemporalRdfEnricherTest {
       addTemporalData(conn, DATASET_SUBJECT, DCAT.DATASET, 2020, 2023);
       addTemporalData(conn, CATALOG_SUBJECT, DCAT.CATALOG, 2018, 2022);
       addTemporalData(conn, COLLECTION_SUBJECT, DCAT.DATASET_SERIES, 2019, 2024);
-      addTemporalData(conn, INCOMPLETE_TEMPORAL_SUBJECT, DCAT.DATASET, 2021, null);
+      addTemporalData(conn, MISSING_END_DATE_SUBJECT, DCAT.DATASET, 2021, null);
+      addTemporalData(conn, MISSING_START_DATE_SUBJECT, DCAT.DATASET, null, 2022);
       conn.add(statement(NO_TEMPORAL_SUBJECT, RDF.TYPE, DCAT.DATASET, null));
       conn.commit();
     }
@@ -69,9 +71,15 @@ class TemporalRdfEnricherTest {
   }
 
   @Test
-  void datasetWithIncompleteTemporalShouldNotBeEnriched() {
-    assertTrue(getYear(INCOMPLETE_TEMPORAL_SUBJECT, DCAT.START_DATE).isEmpty());
-    assertTrue(getYear(INCOMPLETE_TEMPORAL_SUBJECT, DCAT.END_DATE).isEmpty());
+  void whenStartDateMissing_thenOnlyEndYearEnriched() {
+    assertHasEndYear(MISSING_START_DATE_SUBJECT, 2022);
+    assertTrue(getYear(MISSING_START_DATE_SUBJECT, DCAT.START_DATE).isEmpty());
+  }
+
+  @Test
+  void whenEndDateMissing_thenOnlyStartYearEnriched() {
+    assertHasStartYear(MISSING_END_DATE_SUBJECT, 2021);
+    assertTrue(getYear(MISSING_END_DATE_SUBJECT, DCAT.END_DATE).isEmpty());
   }
 
   @Test
