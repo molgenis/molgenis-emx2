@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
@@ -12,7 +13,7 @@ public class FileBasedQueryGenerator implements QueryGenerator {
   private final Map<String, Path> paths;
 
   public FileBasedQueryGenerator(Map<String, Path> paths) {
-    this.paths = paths;
+    this.paths = Objects.requireNonNull(paths);
   }
 
   @Override

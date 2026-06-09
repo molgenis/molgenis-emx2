@@ -29,17 +29,18 @@ class FileBasedQueryGeneratorTest {
   @Test
   void whenTableNameNotInMap_thenThrowMolgenisException() {
     QueryGenerator generator = new FileBasedQueryGenerator(Map.of());
+    TableMetadata table = new TableMetadata("UnknownTable");
 
-    assertThrows(
-        MolgenisException.class, () -> generator.generate(new TableMetadata("UnknownTable")));
+    assertThrows(MolgenisException.class, () -> generator.generate(table));
   }
 
   @Test
   void whenFileDoesNotExist_thenThrowMolgenisException() {
     Path nonExistent = tempDir.resolve("does-not-exist.rq");
     QueryGenerator generator = new FileBasedQueryGenerator(Map.of("MyTable", nonExistent));
+    TableMetadata table = new TableMetadata("MyTable");
 
-    assertThrows(MolgenisException.class, () -> generator.generate(new TableMetadata("MyTable")));
+    assertThrows(MolgenisException.class, () -> generator.generate(table));
   }
 
   @Test
@@ -54,5 +55,10 @@ class FileBasedQueryGeneratorTest {
 
     assertEquals(Files.readString(fileA), generator.generate(new TableMetadata("TableA")));
     assertEquals(Files.readString(fileB), generator.generate(new TableMetadata("TableB")));
+  }
+
+  @Test
+  void whenNullProvided_thenThrowException() {
+    assertThrows(NullPointerException.class, () -> new FileBasedQueryGenerator(null));
   }
 }
