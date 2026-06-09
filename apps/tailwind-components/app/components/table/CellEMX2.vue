@@ -107,8 +107,8 @@
         />
 
         <span v-if="data && isEllipsisActive()">
-          <Button type="inline" size="tiny" @click="handleShowMore">
-            Show more
+          <Button type="text" size="tiny" @click="handleShowMore">
+            More
           </Button>
         </span>
       </template>

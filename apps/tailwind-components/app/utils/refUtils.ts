@@ -4,11 +4,14 @@ export function isRefLikeDetail(cellDetailColumn: IColumn) {
   const type = cellDetailColumn.columnType;
   return (
     type === "REF" ||
+    type === "REF_ARRAY" ||
     type === "RADIO" ||
     type === "CHECKBOX" ||
     type === "SELECT" ||
     type === "ONTOLOGY" ||
-    type === "MULTISELECT"
+    type === "ONTOLOGY_ARRAY" ||
+    type === "MULTISELECT" ||
+    type === "REFBACK"
   );
 }
 

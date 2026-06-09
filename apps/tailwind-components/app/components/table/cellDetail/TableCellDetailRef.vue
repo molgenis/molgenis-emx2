@@ -126,4 +126,5 @@ const sections = computed(() => {
       </template>
     </DefinitionList>
   </section>
+  <section v-else>Loading...</section>
 </template>

@@ -188,6 +188,7 @@
   />
 
   <CellDetailModal
+    v-if="cellDetailColumn"
     :value="cellDetailValue"
     :column="cellDetailColumn"
     :schemaId="props.schemaId"
@@ -195,7 +196,7 @@
     @update:cellDetailValue="
       (event) => {
         cellDetailValue = event.data;
-        cellDetailColumn = event.column;
+        cellDetailColumn = event.metadata;
       }
     "
   />
