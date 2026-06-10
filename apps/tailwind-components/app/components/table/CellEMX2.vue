@@ -1,8 +1,5 @@
 <template>
-  <td
-    class="p-2.5 border-b border-gray-200 min-h-8 text-left truncate"
-    ref="cellRef"
-  >
+  <td class="p-2.5 border-b min-h-8 truncate" ref="cellRef">
     <slot name="row-actions"></slot>
     <slot>
       <template v-if="metadata && data !== undefined && data !== null">
@@ -139,6 +136,7 @@ import {
   assertTableValue,
   toRefColumn,
 } from "../../utils/typeUtils";
+import Button from "../Button.vue";
 import ValueBool from "../value/Bool.vue";
 import ValueDecimal from "../value/Decimal.vue";
 import ValueEmail from "../value/Email.vue";
