@@ -22,9 +22,9 @@ import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 
 class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
