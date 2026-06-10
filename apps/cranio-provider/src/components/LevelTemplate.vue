@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 // @ts-expect-error
-import { DashboardRow } from "molgenis-viz";
+import { DashboardRow, MessageBox } from "molgenis-viz";
 import ProviderDashboard from "./ProviderDashboard.vue";
 import LevelGroupedColumnChart from "./LevelGroupedColumnChart.vue";
 import { getDashboardPage } from "../utils/getDashboardData";
@@ -21,8 +21,13 @@ const props = withDefaults(defineProps<LevelTemplateProps>(), {
   enableFilter: false,
 });
 
+const error = ref<string>();
 const dashboardPage = ref<IDashboardPages>();
 const ernPageData = ref<IDashboardPages>();
+
+const pageTitle = computed<string>(() => {
+  return dashboardPage.value?.description || props.name;
+});
 
 async function getPageData() {
   const currentProvider = await getDashboardPage(
@@ -39,12 +44,15 @@ async function getPageData() {
   ernPageData.value = ernData[0];
 }
 
-getPageData();
+getPageData().catch((err) => (error.value = err));
 </script>
 
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">{{ name }}</h2>
+    <h2 class="dashboard-h2">{{ pageTitle }}</h2>
+    <MessageBox type="error" v-if="error">
+      {{ error }}
+    </MessageBox>
     <DashboardRow :columns="1">
       <template v-for="chart in dashboardPage?.charts">
         <LevelGroupedColumnChart

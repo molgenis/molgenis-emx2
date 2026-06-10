@@ -5,6 +5,7 @@ import {
   LoadingScreen,
   GroupedColumnChart,
   DashboardChart,
+  MessageBox,
   // @ts-expect-error
 } from "molgenis-viz";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
@@ -27,6 +28,7 @@ const props = withDefaults(
   }
 );
 const loading = ref<boolean>(true);
+const error = ref<string>();
 
 const chartData = computed<IChartData[]>(() => {
   let data = props.chart.dataPoints as IChartData[];
@@ -104,12 +106,17 @@ if (props.enableFilter) {
 
 if (props.chart.dataPoints) {
   loading.value = false;
+} else {
+  error.value = `No data is associated with chart ${props.chart.chartTitle}`;
 }
 </script>
 
 <template>
   <DashboardChart :id="chart.chartId">
-    <LoadingScreen v-if="loading" style="height: 250px" />
+    <LoadingScreen v-if="loading" />
+    <MessageBox v-else-if="error" type="error">
+      {{ error }}
+    </MessageBox>
     <GroupedColumnChart
       v-else
       :chartId="chart.chartId"
