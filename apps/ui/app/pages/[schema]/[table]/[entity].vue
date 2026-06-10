@@ -1,42 +1,37 @@
 <script setup lang="ts">
+import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
-import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { computed, nextTick, ref, useId } from "vue";
 import type {
   columnValue,
   IColumn,
   IRow,
 } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
-import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
-import { computed, nextTick, ref, useId } from "vue";
-import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
-import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
-import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
-import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
-import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
+import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
+import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
+import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
-import { useAsyncData } from "#app";
+import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
+import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import Modal from "../../../../../tailwind-components/app/components/Modal.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import TableCellDetailRef from "../../../../../tailwind-components/app/components/table/cellDetail/TableCellDetailRef.vue";
-import {
-  toRefColumn,
-  toRefColumnValue,
-} from "../../../../../tailwind-components/app/utils/typeUtils";
+import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
+import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
+import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import {
   isArrayLikeDetail,
   isRefLikeDetail,
 } from "../../../../../tailwind-components/app/utils/refUtils";
-import type {
-  cellPayload,
-  ColumnPayload,
-  ListPayload,
-  RefPayload,
-} from "../../../../../tailwind-components/types/types";
+import {
+  toRefColumn,
+  toRefColumnValue,
+} from "../../../../../tailwind-components/app/utils/typeUtils";
+import type { cellPayload } from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -163,9 +158,7 @@ function handleCellClick(event: cellPayload, column: IColumn) {
   showModal.value = true;
 }
 
-async function handleDetailRefClick(
-  event: RefPayload | ColumnPayload | ListPayload
-) {
+async function handleDetailRefClick(event: cellPayload) {
   showModal.value = false;
   await nextTick();
 

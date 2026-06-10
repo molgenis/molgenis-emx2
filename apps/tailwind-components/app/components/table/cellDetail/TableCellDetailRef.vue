@@ -7,11 +7,7 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import type {
-  ColumnPayload,
-  ListPayload,
-  RefPayload,
-} from "../../../../types/types";
+import type { cellPayload } from "../../../../types/types";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
@@ -37,7 +33,7 @@ const refRow = ref<IRow>({});
 const refRowMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits<{
-  (e: "onRefClick", payload: RefPayload | ColumnPayload | ListPayload): void;
+  (e: "onRefClick", payload: cellPayload): void;
 }>();
 
 await fetchData(props.columnValue, props.metadata.refTableId, props.schema);
