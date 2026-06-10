@@ -67,10 +67,6 @@ public class TableQueryGenerator implements QueryGenerator {
         .getQueryString();
   }
 
-  private static boolean hasSemantics(Semantic[] semantics) {
-    return semantics == null || semantics.length == 0;
-  }
-
   /**
    * Anchors a table variable in the query scope by adding a required triple pattern.
    *
