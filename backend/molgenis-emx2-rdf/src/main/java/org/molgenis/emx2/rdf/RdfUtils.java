@@ -52,6 +52,14 @@ public abstract class RdfUtils {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
+  public static Set<Namespace> getNamespaces(final String baseURL, Schema schema) {
+    // Ensure same order is always returned.
+    Set<Namespace> namespaces = new LinkedHashSet<>() {};
+    namespaces.add(getSchemaNamespace(baseURL, schema.getMetadata()));
+    namespaces.addAll(schema.getMetadata().getSemanticPrefixes().getAllNamespaces());
+    return namespaces;
+  }
+
   public static Set<Namespace> getMultiSchemaNamespaces(
       final String baseURL, Collection<Schema> schemas) {
     // Ensure same collection always returns exact same namespaces.
