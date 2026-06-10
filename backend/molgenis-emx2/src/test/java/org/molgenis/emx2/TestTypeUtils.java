@@ -1,7 +1,9 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnTypeGroups.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -169,6 +171,21 @@ class TestTypeUtils {
   @Test
   void testAllColumnTypesCoveredToJooqType() {
     EXCLUDE_REFERENCE_HEADING.forEach(TypeUtils::toJooqType);
+  }
+
+  @Test
+  void givenNullRefArrayValue_whenConvertingToRow_thenSetEmptyList() {
+    SchemaMetadata schema = new SchemaMetadata("test");
+    schema.create(
+        table("Tag", column("id").setType(ColumnType.STRING).setKey(1)),
+        table("Resource", column("tags").setType(ColumnType.REF_ARRAY).setRefTable("Tag")));
+
+    Column tagsColumn = schema.getTableMetadata("Resource").getColumn("tags");
+    Row row = new Row();
+    TypeUtils.addFieldObjectToRow(tagsColumn, null, row);
+
+    assertTrue(row.containsName("tags"), "field should be present even when input list is null");
+    assertEquals(null, row.getValueMap().get("tags"));
   }
 
   @Test
