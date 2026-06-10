@@ -37,7 +37,11 @@ const showCartModal = ref<boolean>(false);
 // the variable route does not set the resourceType param, therefore check the route name
 if (
   route.params.resourceType ||
-  route.name === "schema-catalogue-catalogue-variables"
+  [
+    "schema-catalogue-catalogue-variables",
+    "catalogue-variables",
+    "catalogue-variables-variable",
+  ].includes(route.name as string)
 ) {
   menu.push({
     label: "overview",
@@ -112,8 +116,8 @@ if (!cohortOnly.value) {
         </div>-->
 
         <StoreHeaderButton
-          @click="showCartModal = !showCartModal"
           v-if="datasetStore.isEnabled"
+          @click="showCartModal = !showCartModal"
         />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
@@ -127,7 +131,6 @@ if (!cohortOnly.value) {
               :image="catalogue?.logo?.url ?? logoSrc"
             />
           </div>
-
           <div class="flex gap-3">
             <StoreHeaderButton
               @click="showCartModal = !showCartModal"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-//todo: refactor each button shape/flavor in seperate easy to understand components so we get rid of weird mappings.
+//todo: refactor each button shape/flavor in separate easy to understand components so we get rid of weird mappings.
 //similar to polymorphism in the inputs.
 
 import { computed, watchEffect } from "vue";
@@ -20,6 +20,7 @@ const props = withDefaults(
     disabled?: boolean;
     iconOnly?: boolean;
     tooltip?: string;
+    href?: string;
   }>(),
   {
     type: "primary",
@@ -104,10 +105,14 @@ const iconSize = computed(() => {
 const tooltipText = computed(() => {
   return props.tooltip || props.iconOnly ? props.label : "";
 });
+
+const tag = computed(() => (props.href ? "a" : "button"));
 </script>
 
 <template>
-  <button
+  <component
+    :is="tag"
+    :href="props.href"
     v-tooltip.bottom="tooltipText"
     class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
@@ -119,5 +124,5 @@ const tooltipText = computed(() => {
       }`"
       >{{ label }}<slot
     /></span>
-  </button>
+  </component>
 </template>

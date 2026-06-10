@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 1.5.1
+
+- Update dependency versions
+
+## Version 1.5.0
+
+- Fill in FDP-related fields upon publishing
+- Update dependency versions
+
 ## Version 1.4.0
 
 - Add functionality to retrieve external data via file ingest
