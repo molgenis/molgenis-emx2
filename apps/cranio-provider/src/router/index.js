@@ -15,6 +15,9 @@ import CleftLipPalateLevel1 from "../views/cleft_lip_palate/level_1.vue";
 // Facial dysostosis
 import FacialDysostosisLevel1 from "../views/facial_dysostosis/level_1.vue";
 
+// Craniofacial microsomia
+import CraniofacialMicrosomiaLevel1 from "../views/craniofacial_microsomia/level_1.vue";
+
 // genetic hearing loss
 import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
 import GeneticHearingLossAllCenters from "../views/genetic_hearing_loss/all_centers.vue";
@@ -147,7 +150,7 @@ const router = createRouter({
         {
           name: "provider-craniofacial-microsomia-level-1",
           path: "level-1",
-          component: UnderConstruction, // TODO: update with level 1 page when available
+          component: CraniofacialMicrosomiaLevel1,
           meta: {
             title: "Level 1 | Craniofacial Microsomia",
           },
