@@ -71,7 +71,7 @@
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed, type Ref } from "vue";
+import { computed, ref, type Ref, watch } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -83,22 +83,22 @@ import FooterVersion from "../../../tailwind-components/app/components/FooterVer
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 import type { MenuItem } from "../../../tailwind-components/types/types";
-import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
+import { useLogo } from "../../../tailwind-components/app/composables/useLogo";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
 
-const LOGO_URL_SETTING = "logoURL";
-const settings = await useSettings(new Set([LOGO_URL_SETTING]));
-let logoUrl: string | undefined = undefined;
-if (
-  settings.value?.[LOGO_URL_SETTING] &&
-  typeof settings.value[LOGO_URL_SETTING] === "string"
-) {
-  logoUrl = settings.value[LOGO_URL_SETTING];
-}
+const logoUrl = ref<string | undefined>(undefined);
+
+watch(
+  () => route.params.schema,
+  async (currentSchema) => {
+    logoUrl.value = await useLogo(currentSchema);
+  },
+  { immediate: true }
+);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`

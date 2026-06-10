@@ -190,3 +190,9 @@ export interface MenuItem extends Link {
 }
 
 export type Menu = MenuItem[];
+export interface Settings {
+  [key: string]: unknown;
+}
+export interface SystemSettings extends Settings {
+  isOidcEnabled: boolean;
+}
