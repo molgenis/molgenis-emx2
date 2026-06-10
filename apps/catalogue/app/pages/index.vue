@@ -117,7 +117,7 @@ const mainCatalogue = computed<ICatalogues | null>(() => {
 const pageDescription = computed(
   () =>
     mainCatalogue.value?.description ||
-    `Welcome to the European Health Research Data and Samples Catalogue. A growing collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens' health. Click on the ‘Search all’ button to browse through all ${counts.value.collections} collections, ${counts.value.networks} networks and ${counts.value.variables} variables to find the data you are looking for or select one of the individual catalogues below.`
+    `Welcome to the European Health Research Data and Samples Catalogue: a growing collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens' health. Click on the ‘Search All’ button to browse through all ${counts.value.collections} collections, ${counts.value.networks} networks and ${counts.value.variables} variables to find the data you are looking for, or select one of the individual catalogues below.`
 );
 
 const pageTitle = computed(
