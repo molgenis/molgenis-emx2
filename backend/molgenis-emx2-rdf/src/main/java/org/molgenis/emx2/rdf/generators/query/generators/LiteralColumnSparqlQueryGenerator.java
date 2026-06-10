@@ -15,6 +15,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
@@ -59,13 +60,15 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   @Override
   public List<GraphPattern> getPatterns() {
-    if (column.getSemantics().length == 0) {
+    if (column.getSemantics().isEmpty()) {
       return Collections.emptyList();
-    } else if (column.getSemantics().length > 1) {
+    }
+    Semantic[] semantics = column.getSemantics().get();
+    if (semantics.length > 1) {
       return multiSemanticPattern();
     }
 
-    String semantic = column.getSemantics()[0].asOptimizedString().getFirst();
+    String semantic = semantics[0].asOptimizedString().getFirst();
     GraphPattern pattern = GraphPatterns.tp(subject, Rdf.iri(semantic), object);
 
     return List.of(isRequired ? pattern : pattern.optional());
@@ -75,14 +78,20 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<GraphPattern> semanticPatterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
 
-    for (int i = 0; i < column.getSemantics().length; i++) {
-      String semantic = column.getSemantics()[0].asOptimizedString().getFirst();
-      Variable alias = SparqlBuilder.var(object.getVarName() + i);
+    column
+        .getSemantics()
+        .ifPresent(
+            semantics -> {
+              for (int i = 0; i < semantics.length; i++) {
+                String semantic = semantics[0].asOptimizedString().getFirst();
+                Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
-      GraphPattern pattern = GraphPatterns.tp(subject, Rdf.iri(semantic), alias).optional();
-      semanticPatterns.add(pattern);
-      aliases.add(alias);
-    }
+                GraphPattern pattern =
+                    GraphPatterns.tp(subject, Rdf.iri(semantic), alias).optional();
+                semanticPatterns.add(pattern);
+                aliases.add(alias);
+              }
+            });
 
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     semanticPatterns.add(Expressions.bind(coalesce, object));

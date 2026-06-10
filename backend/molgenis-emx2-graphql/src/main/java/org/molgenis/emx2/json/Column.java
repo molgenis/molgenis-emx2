@@ -112,9 +112,12 @@ public class Column {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics =
-        column.getSemantics() != null
-            ? Arrays.stream(column.getSemantics()).map(Semantic::toString).toArray(String[]::new)
-            : null;
+        column
+            .getSemantics()
+            .map(
+                semantics ->
+                    Arrays.stream(semantics).map(Semantic::toString).toArray(String[]::new))
+            .orElse(null);
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();

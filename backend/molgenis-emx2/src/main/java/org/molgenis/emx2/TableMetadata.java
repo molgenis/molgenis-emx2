@@ -39,12 +39,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // profiles to which this table belongs
   private String[] profiles;
 
-  public Semantic[] getSemantics() {
-    return semantics;
+  public Optional<Semantic[]> getSemantics() {
+    return Optional.ofNullable(semantics);
   }
 
   public TableMetadata setSemantics(Semantic[] semantics) {
-    this.semantics = semantics;
+    if (semantics == null || semantics.length == 0) this.semantics = null;
+    else this.semantics = semantics;
     return this;
   }
 
@@ -123,7 +124,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       }
       this.inheritName = metadata.getInheritName();
       this.importSchema = metadata.getImportSchema();
-      this.semantics = metadata.getSemantics();
+      this.semantics = metadata.getSemantics().orElse(null);
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
     }

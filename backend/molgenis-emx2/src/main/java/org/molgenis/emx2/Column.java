@@ -94,12 +94,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public Semantic[] getSemantics() {
-    return semantics;
+  public Optional<Semantic[]> getSemantics() {
+    return Optional.ofNullable(semantics);
   }
 
   public Column setSemantics(Semantic[] semantics) {
-    this.semantics = semantics;
+    if (semantics == null || semantics.length == 0) this.semantics = null;
+    else this.semantics = semantics;
     return this;
   }
 

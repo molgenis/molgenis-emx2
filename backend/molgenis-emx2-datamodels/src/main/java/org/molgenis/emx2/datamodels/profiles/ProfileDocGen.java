@@ -61,11 +61,14 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
-                        table.getSemantics() != null
-                            ? Arrays.stream(table.getSemantics())
-                                .map(Semantic::toString)
-                                .collect(Collectors.joining(", "))
-                            : "n/a",
+                        table
+                            .getSemantics()
+                            .map(
+                                semantics ->
+                                    Arrays.stream(semantics)
+                                        .map(Semantic::toString)
+                                        .collect(Collectors.joining(", ")))
+                            .orElse("n/a"),
                         table.getProfiles() != null
                             ? (String.join(", ", table.getProfiles()))
                             : "NO PROFILES FOR TABLE",
@@ -85,11 +88,14 @@ public record ProfileDocGen(String outputFile) {
                       .formatted(
                           column.getName(),
                           column.getDescriptions(),
-                          (column.getSemantics() != null
-                              ? Arrays.stream(table.getSemantics())
-                                  .map(Semantic::toString)
-                                  .collect(Collectors.joining(", "))
-                              : "n/a"),
+                          column
+                              .getSemantics()
+                              .map(
+                                  semantics ->
+                                      Arrays.stream(semantics)
+                                          .map(Semantic::toString)
+                                          .collect(Collectors.joining(", ")))
+                              .orElse("n/a"),
                           column.getColumnType())
                   + LE);
         }

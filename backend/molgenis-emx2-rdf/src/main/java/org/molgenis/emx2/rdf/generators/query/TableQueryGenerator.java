@@ -35,7 +35,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (hasSemantics(column.getSemantics())) {
+      if (column.getSemantics().isPresent()) {
         continue;
       }
 
@@ -54,7 +54,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (hasSemantics(tableMetadata.getSemantics())) {
+    if (tableMetadata.getSemantics().isPresent()) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -89,7 +89,10 @@ public class TableQueryGenerator implements QueryGenerator {
   }
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
-    Semantic[] tableSemantics = tableMetadata.getSemantics();
+    Semantic[] tableSemantics =
+        tableMetadata
+            .getSemantics()
+            .orElseThrow(() -> new IllegalStateException("Table semantic not found"));
     if (tableSemantics.length == 1) {
       select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0].asOptimizedString().getFirst()));
     } else if (tableSemantics.length > 1) {

@@ -57,11 +57,12 @@ public class Table {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics =
-        tableMetadata.getSemantics() != null
-            ? Arrays.stream(tableMetadata.getSemantics())
-                .map(Semantic::toString)
-                .toArray(String[]::new)
-            : null;
+        tableMetadata
+            .getSemantics()
+            .map(
+                semantics ->
+                    Arrays.stream(semantics).map(Semantic::toString).toArray(String[]::new))
+            .orElse(null);
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))

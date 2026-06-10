@@ -570,7 +570,7 @@ public class MetadataUtils {
             column.isCascadeDelete(),
             column.getDescriptions(),
             column.isReadonly(),
-            column.getSemantics(),
+            column.getSemantics().orElseGet(null),
             column.getDefaultValue(),
             column.getProfiles(),
             column.getVisible())
@@ -593,7 +593,7 @@ public class MetadataUtils {
         .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescriptions())
         .set(COLUMN_READONLY, column.isReadonly())
-        .set(COLUMN_SEMANTICS, column.getSemantics())
+        .set(COLUMN_SEMANTICS, column.getSemantics().orElseGet(null))
         .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())

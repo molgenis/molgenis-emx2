@@ -67,24 +67,31 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
-    if (table.getMetadata().getSemantics() != null) {
-      for (Semantic semantic : table.getMetadata().getSemantics()) {
-        getWriter().processTriple(subject, RDF.TYPE, semantic.asIRI().getFirst());
-      }
-    }
+    table
+        .getMetadata()
+        .getSemantics()
+        .ifPresent(
+            semantics -> {
+              for (Semantic semantic : semantics) {
+                getWriter().processTriple(subject, RDF.TYPE, semantic.asIRI().getFirst());
+              }
+            });
 
     for (final Column column : table.getMetadata().getColumns()) {
-      if (column.getSemantics() != null) {
-        for (final Value value : retrieveValues(rdfMapData, row, column)) {
-          for (Semantic semantic : column.getSemantics()) {
-            getWriter().processTriple(subject, semantic.asIRI().getFirst(), value);
-          }
+      column
+          .getSemantics()
+          .ifPresent(
+              semantics -> {
+                for (final Value value : retrieveValues(rdfMapData, row, column)) {
+                  for (Semantic semantic : semantics) {
+                    getWriter().processTriple(subject, semantic.asIRI().getFirst(), value);
+                  }
 
-          if (column.getColumnType().isFile()) {
-            generateFileTriples((IRI) value, row, column);
-          }
-        }
-      }
+                  if (column.getColumnType().isFile()) {
+                    generateFileTriples((IRI) value, row, column);
+                  }
+                }
+              });
     }
   }
 }
