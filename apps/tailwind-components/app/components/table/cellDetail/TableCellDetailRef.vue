@@ -74,35 +74,35 @@ const sections = computed(() => {
         item.metadata.columnType === "HEADING"
       );
     })
-    .reduce(
-      (
-        acc: {
-          heading: string;
-          fields: { key: string; value: columnValue; metadata: IColumn }[];
-        }[],
-        item
-      ) => {
-        if (item.metadata.columnType === "HEADING") {
-          acc.push({ heading: item.metadata.label as string, fields: [] });
-        } else {
-          if (acc.length === 0) {
-            const defaultSection = { heading: "", fields: [] };
-            acc.push(defaultSection);
-          }
-          const lastSection = acc[acc.length - 1];
-          if (lastSection) {
-            lastSection.fields.push(item);
-          }
+    .reduce((acc: ISection[], item) => {
+      if (item.metadata.columnType === "HEADING") {
+        acc.push({ heading: item.metadata.label as string, fields: [] });
+      } else {
+        if (acc.length === 0) {
+          const defaultSection = { heading: "", fields: [] };
+          acc.push(defaultSection);
         }
-        return acc;
-      },
-      []
-    )
+        const lastSection = acc[acc.length - 1];
+        if (lastSection) {
+          lastSection.fields.push(item);
+        }
+      }
+      return acc;
+    }, [])
     .filter((section) => {
       // Filter out empty sections
       return section.fields.length > 0;
     });
 });
+
+interface ISection {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
 </script>
 
 <template>
