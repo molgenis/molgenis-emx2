@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
@@ -101,7 +100,6 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     ScriptTask scriptTask =
         retrieveTaskFromDatabase(database.getSchema(this.systemSchemaName), scriptName);
     scriptTask.setServerUrl(hostUrl);
-    scriptTask.token(JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
     return scriptTask;
   }
 
