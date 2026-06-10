@@ -63,7 +63,7 @@
             metadata.columnType === 'RADIO' ||
             metadata.columnType === 'SELECT'
           "
-          :metadata="metadata as IRefColumn"
+          :metadata="toRefColumn(metadata)"
           :data="assertRowValue(data)"
           @refCellClicked="$emit('cellClicked', $event)"
         />
@@ -106,11 +106,14 @@
           :data="assertFileValue(data)"
         />
 
-        <span v-if="data && isEllipsisActive()">
-          <Button type="text" size="tiny" @click="handleShowMore">
-            More
-          </Button>
-        </span>
+        <Button
+          v-if="isEllipsisActive()"
+          type="text"
+          size="tiny"
+          @click="handleShowMore"
+        >
+          More
+        </Button>
       </template>
       <template v-else>
         <span class="min-h-4 inline-block"></span>
@@ -120,36 +123,35 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type {
   columnValue,
   IColumn,
-  IRefColumn,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
-import ValueList from "../value/List.vue";
-import ValueString from "../value/String.vue";
-import ValueText from "../value/Text.vue";
-import ValueDecimal from "../value/Decimal.vue";
-import ValueLong from "../value/Long.vue";
-import ValueInt from "../value/Int.vue";
-import ValueRef from "../value/Ref.vue";
-import ValueObject from "../value/Object.vue";
-import ValueBool from "../value/Bool.vue";
-import ValueEmail from "../value/Email.vue";
-import ValueHyperlink from "../value/Hyperlink.vue";
-import ValueRefBack from "../value/RefBack.vue";
-import ValueFile from "../value/File.vue";
 import {
-  assertListValue,
-  assertStringValue,
-  assertNumberValue,
   assertBooleanValue,
-  assertRowValue,
-  assertTableValue,
   assertFileValue,
+  assertListValue,
+  assertNumberValue,
+  assertRowValue,
+  assertStringValue,
+  assertTableValue,
   toRefColumn,
 } from "../../utils/typeUtils";
-import { ref } from "vue";
+import ValueBool from "../value/Bool.vue";
+import ValueDecimal from "../value/Decimal.vue";
+import ValueEmail from "../value/Email.vue";
+import ValueFile from "../value/File.vue";
+import ValueHyperlink from "../value/Hyperlink.vue";
+import ValueInt from "../value/Int.vue";
+import ValueList from "../value/List.vue";
+import ValueLong from "../value/Long.vue";
+import ValueObject from "../value/Object.vue";
+import ValueRef from "../value/Ref.vue";
+import ValueRefBack from "../value/RefBack.vue";
+import ValueString from "../value/String.vue";
+import ValueText from "../value/Text.vue";
 
 const props = defineProps<{
   metadata?: IColumn;
