@@ -1371,6 +1371,40 @@ describe("useFilters — reference stability / no-redundant-navigation loop guar
     expect(refBefore).toBe(refAfter);
   });
 
+  it("filterStates ref stays stable when a non-filter query param (page) is added", async () => {
+    const { mockQuery } = makeUrlSync({ status: "active" });
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    const { filterStates } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    const refBefore = filterStates.value;
+
+    Object.assign(mockQuery, { page: "2" });
+    await nextTick();
+
+    expect(filterStates.value).toBe(refBefore);
+  });
+
+  it("gqlFilter ref stays stable when a non-filter query param (page) is added", async () => {
+    const { mockQuery } = makeUrlSync({ status: "active" });
+    const columns = ref<IColumn[]>([ontologyColumn]);
+    const { gqlFilter } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    const refBefore = gqlFilter.value;
+
+    Object.assign(mockQuery, { page: "2" });
+    await nextTick();
+
+    expect(gqlFilter.value).toBe(refBefore);
+  });
+
   it("setting the same filter value a second time does not emit an additional router.replace", async () => {
     const { replaceCalls } = makeUrlSync({});
     const columns = ref<IColumn[]>([ontologyColumn]);

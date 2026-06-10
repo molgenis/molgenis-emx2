@@ -143,11 +143,15 @@ export function useFilters(
       };
     }
     const query = route.query;
+    const parsed = parseFiltersFromUrl(query, columns.value);
     const stateKey =
-      JSON.stringify(query) + "||" + columns.value.map((c) => c.id).join(",");
+      JSON.stringify(
+        serializeFiltersToUrl(parsed.filters, parsed.search, columns.value)
+      ) +
+      "||" +
+      columns.value.map((c) => c.id).join(",");
     if (stateKey !== lastParsedStateKey) {
       lastParsedStateKey = stateKey;
-      const parsed = parseFiltersFromUrl(query, columns.value);
       cachedParsedFilters.value = parsed.filters;
       cachedParsedSearch.value = parsed.search;
     }
