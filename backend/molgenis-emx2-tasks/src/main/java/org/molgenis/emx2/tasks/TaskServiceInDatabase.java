@@ -97,32 +97,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String scriptName, String parameters) {
-    StringBuilder result = new StringBuilder();
-    String defaultUser = database.getActiveUser();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          Schema systemSchema = db.getSchema(this.systemSchemaName);
-
-          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-          scriptTask.setServerUrl(hostUrl);
-          String user =
-              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
-
-          db.setActiveUser(user);
-          // submit the script
-          result.append(
-              this.submit(
-                  scriptTask
-                      .parameters(parameters)
-                      .token(
-                          JWTgenerator.createTemporaryToken(
-                              systemSchema.getDatabase(),
-                              systemSchema.getDatabase().getActiveUser()))
-                      .submitUser(user)));
-        });
-    return result.toString();
+  public ScriptTask getScript(String scriptName) {
+    ScriptTask scriptTask =
+        retrieveTaskFromDatabase(database.getSchema(this.systemSchemaName), scriptName);
+    scriptTask.setServerUrl(hostUrl);
+    scriptTask.token(JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+    return scriptTask;
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {

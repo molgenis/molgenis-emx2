@@ -131,8 +131,10 @@ public class TaskServiceScheduler {
     public void execute(JobExecutionContext context) {
       String name = context.getJobDetail().getKey().getName();
       try {
-        // id of submitted task
-        molgenisTaskId = taskService.submitTaskFromName(name, EMPTY_PARAMETERSS);
+        ScriptTask scriptTask = taskService.getScript(name);
+        String user = scriptTask.getCronUserName();
+        molgenisTaskId =
+            taskService.submit(scriptTask.parameters(EMPTY_PARAMETERSS).submitUser(user));
         // need to keep it in running state until complete so we can interupt if needed
         status = taskService.getTask(molgenisTaskId).getStatus();
         while (status.equals(TaskStatus.WAITING)
