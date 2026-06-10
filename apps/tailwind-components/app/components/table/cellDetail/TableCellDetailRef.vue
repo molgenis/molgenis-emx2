@@ -133,5 +133,4 @@ interface ISection {
       </template>
     </DefinitionList>
   </section>
-  <!-- <Spinner v-else class="px-8 pt-[50px] pb-[50px]"/> -->
 </template>
