@@ -31,6 +31,8 @@ export async function useHeaderData() {
             query HeaderQuery($collectionsFilter:CollectionsFilter, $variablesFilter:VariablesFilter, $catalogueFilter:CataloguesFilter,$networkFilter:NetworksFilter) {
               Catalogues(filter:$catalogueFilter) {
                 id,
+                name,
+                acronym,
                 logo { url }
               }
               Variables_agg(filter:$variablesFilter) {
@@ -136,5 +138,12 @@ export async function useHeaderData() {
       }
     ).value;
 
-  return { catalogue, variableCount, collectionCount, networkCount, logoSrc };
+  return {
+    catalogue,
+    variableCount,
+    collectionCount,
+    networkCount,
+    logoSrc,
+    logoTitle: catalogue?.acronym || catalogue?.name,
+  };
 }

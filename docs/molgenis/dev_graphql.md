@@ -568,6 +568,7 @@ mutation {
 }
 ```
 
+
 ## Table query and mutation functions
 
 Finally, for each table there are the following functions:

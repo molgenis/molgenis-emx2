@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
@@ -576,6 +577,7 @@ public class SqlRoleManager {
   public List<TablePermission> getTablePermissionsForActiveUser(String schemaName) {
     SqlSchema schema = database.getSchema(schemaName);
     List<String> roleNames = schema.getInheritedRolesForActiveUser();
+
     if (roleNames.isEmpty()) return List.of();
 
     String customRoleName =
