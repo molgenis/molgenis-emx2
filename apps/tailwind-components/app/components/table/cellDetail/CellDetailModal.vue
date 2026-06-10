@@ -1,18 +1,20 @@
 <template>
   <Modal
-    v-if="showModal && value !== undefined"
+    v-if="showModal"
     type="right"
     :visible="showModal"
     @update:visible="(event) => emit('update:showModal', event)"
     :title="subtitle"
     @closed="showModal = false"
   >
-    <template v-if="isArrayLikeDetail(column) && Array.isArray(value)">
+    <template
+      v-if="isArrayLikeDetail(payload.metadata) && Array.isArray(payload.data)"
+    >
       <ul>
-        <li v-for="(item, index) in value" :key="index">
+        <li v-for="(item, index) in payload.data" :key="index">
           <TableCellDetailRef
-            v-if="isRefLikeDetail(column)"
-            :metadata="toRefColumn(column)"
+            v-if="isRefLikeDetail(payload.metadata)"
+            :metadata="toRefColumn(payload.metadata)"
             :columnValue="toRefColumnValue(item)"
             :schema="cellSchemaId || schemaId"
             :showDataOwner="false"
@@ -30,9 +32,11 @@
     </template>
 
     <TableCellDetailRef
-      v-else-if="isRefLikeDetail(column) && !Array.isArray(value)"
-      :metadata="toRefColumn(column)"
-      :columnValue="toRefColumnValue(value)"
+      v-else-if="
+        isRefLikeDetail(payload.metadata) && !Array.isArray(payload.data)
+      "
+      :metadata="toRefColumn(payload.metadata)"
+      :columnValue="toRefColumnValue(payload.data)"
       :schema="cellSchemaId || schemaId"
       :showDataOwner="false"
       @onRefClick="handleDetailRefClick"
@@ -43,7 +47,7 @@
         class="px-8 first:pt-[50px] last:pb-[50px]"
         style="overflow-wrap: break-word"
       >
-        {{ value }}
+        {{ payload.data }}
       </div>
     </template>
   </Modal>
@@ -51,17 +55,12 @@
 
 <script lang="ts" setup>
 import { computed, nextTick } from "vue";
-import type {
-  columnValue,
-  IColumn,
-} from "../../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../../types/types";
 import { isArrayLikeDetail, isRefLikeDetail } from "../../../utils/refUtils";
 import { toRefColumn, toRefColumnValue } from "../../../utils/typeUtils";
 
 const props = defineProps<{
-  value?: columnValue | columnValue[];
-  column: IColumn;
+  payload: cellPayload;
   schemaId: string;
   showModal: boolean;
 }>();
@@ -71,10 +70,10 @@ const emit = defineEmits<{
   (event: "update:cellDetailValue", value: cellPayload): void;
 }>();
 
-const subtitle = computed(() => props.column?.label ?? "");
+const subtitle = computed(() => props.payload.metadata.label ?? "");
 
 const cellSchemaId = computed(
-  () => props.column?.refSchemaId ?? props.schemaId ?? ""
+  () => props.payload.metadata.refSchemaId ?? props.schemaId ?? ""
 );
 
 async function handleDetailRefClick(event: cellPayload) {

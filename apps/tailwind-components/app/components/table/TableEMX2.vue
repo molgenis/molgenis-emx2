@@ -188,23 +188,17 @@
   />
 
   <CellDetailModal
-    v-if="cellDetailColumn"
-    :value="cellDetailValue"
-    :column="cellDetailColumn"
-    :schemaId="props.schemaId"
+    v-if="cellDetailPayload"
+    :payload="cellDetailPayload"
+    :schemaId="schemaId"
     v-model:showModal="showModal"
-    @update:cellDetailValue="
-      (event) => {
-        cellDetailValue = event.data;
-        cellDetailColumn = event.metadata;
-      }
-    "
+    @update:cellDetailValue="(event) => (cellDetailPayload = event)"
   />
 
   <DeleteModal
     v-if="data?.tableMetadata && rowDataForModal"
     :showButton="false"
-    :schemaId="props.schemaId"
+    :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     v-model:visible="showDeleteModal"
@@ -288,8 +282,7 @@ const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
-const cellDetailValue = ref<columnValue | columnValue[]>();
-const cellDetailColumn = ref<IColumn>();
+const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const tableContainer = ref<HTMLElement | null>(null);
@@ -478,8 +471,7 @@ function handlePageSizeChange(pageSize: string) {
 }
 
 function handleCellClick(payload: cellPayload) {
-  cellDetailValue.value = payload.data;
-  cellDetailColumn.value = payload.metadata;
+  cellDetailPayload.value = payload;
   showModal.value = true;
 }
 

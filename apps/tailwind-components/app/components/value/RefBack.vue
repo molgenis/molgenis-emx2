@@ -13,14 +13,14 @@ const emit = defineEmits<{
   (e: "refBackCellClicked", payload: RefPayload): void;
 }>();
 
-const handleRefBackCellClicked = () => {
+const handleRefBackCellClicked = (index: number) => {
   if (props.data === null || props.data === undefined || !props.data[0]) {
     return;
   }
 
   emit("refBackCellClicked", {
     metadata: props.metadata,
-    data: props.data,
+    data: props.data[index],
   });
 };
 
@@ -41,7 +41,7 @@ const refBackColumnLabels = computed(() => {
   <span
     v-for="(refBackColumnLabel, index) in refBackColumnLabels"
     class="underline hover:cursor-pointer text-link"
-    @click="handleRefBackCellClicked"
+    @click="() => handleRefBackCellClicked(index)"
   >
     {{ refBackColumnLabel }}
     <span class="no-underline" v-if="index < refBackColumnLabels.length - 1">

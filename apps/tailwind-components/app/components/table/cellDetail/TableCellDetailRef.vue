@@ -83,14 +83,12 @@ const sections = computed(() => {
         item
       ) => {
         if (item.metadata.columnType === "HEADING") {
-          // If the item is a heading, create a new section
           acc.push({ heading: item.metadata.label as string, fields: [] });
         } else {
-          // If first item is not a section heading, create a default section
           if (acc.length === 0) {
-            acc.push({ heading: "", fields: [] });
+            const defaultSection = { heading: "", fields: [] };
+            acc.push(defaultSection);
           }
-          // Add the item to the last section
           const lastSection = acc[acc.length - 1];
           if (lastSection) {
             lastSection.fields.push(item);
