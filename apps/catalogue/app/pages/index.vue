@@ -79,6 +79,11 @@ Object.keys(groupedCatalogues).forEach((key) => {
   groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
 });
 
+const projectAndOrganisationCatalogues = [
+  ...(groupedCatalogues.project ?? []),
+  ...(groupedCatalogues.organisation ?? []),
+] as IResources[];
+
 const mainCatalogue = computed<ICatalogues | null>(() => {
   return catalogues?.find((catalogue) => catalogue.mainCatalogue) ?? null;
 });
@@ -133,13 +138,13 @@ useHead(() => ({
       v-if="groupedCatalogues?.theme?.length"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
-      :catalogues="(groupedCatalogues?.theme ?? []) as IResources[]"
+      :catalogues="groupedCatalogues?.theme ?? []"
     />
     <ContentBlockCatalogues
-      v-if="groupedCatalogues?.project?.length"
+      v-if="projectAndOrganisationCatalogues?.length"
       title="Project and organisation catalogues"
       description="Catalogues maintained by organisations and individual research projects or consortia:"
-      :catalogues="[...groupedCatalogues?.project as IResources[], ...groupedCatalogues?.organisation as IResources[]]"
+      :catalogues="projectAndOrganisationCatalogues"
     />
     <ContentBlock
       v-if="!catalogues?.length"
