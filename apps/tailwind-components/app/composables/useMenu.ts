@@ -27,9 +27,8 @@ async function fetchMenu() {
   if (schema.value) {
     // Fetch menu settings for the current schema
     const schemaSettings = await useSchemaSettings(new Set([MENU_SETTING_KEY]));
-    return schemaSettings?.[MENU_SETTING_KEY]
-      ? parseMenuItems(schemaSettings[MENU_SETTING_KEY])
-      : [];
+    const menuSetting = schemaSettings?.value?.[MENU_SETTING_KEY];
+    return typeof menuSetting === "string" ? parseMenuItems(menuSetting) : [];
   } else {
     // Fetch system menu
     return [];
