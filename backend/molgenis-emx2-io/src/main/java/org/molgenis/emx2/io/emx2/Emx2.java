@@ -65,7 +65,7 @@ public class Emx2 {
       if (row.getString(COLUMN_NAME) == null) {
         schema.getTableMetadata(tableName).setInheritName(row.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
-        schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
+        schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS));
         schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
         if (row.getString(TABLE_TYPE) != null) {
           schema

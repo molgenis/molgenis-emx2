@@ -49,12 +49,18 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata setSemantics(String... semantics) {
-    this.semantics =
-        semantics == null
-            ? null
-            : Arrays.stream(semantics)
-                .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
-                .toArray(Semantic[]::new);
+    if (semantics == null || semantics.length == 0) {
+      this.semantics = null;
+    } else if (getSchema() == null) {
+      // Basic semantic functionality only
+      this.semantics = Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
+    } else {
+      // Full semantic functionality (allows mapping of schema prefixes on semantic field)
+      this.semantics =
+          Arrays.stream(semantics)
+              .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
+              .toArray(Semantic[]::new);
+    }
     return this;
   }
 

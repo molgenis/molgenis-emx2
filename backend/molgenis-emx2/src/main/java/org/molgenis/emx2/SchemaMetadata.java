@@ -18,7 +18,9 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // retrieved (default or advanced setting if present)
   protected SemanticPrefixes semanticPrefixes;
 
-  public SchemaMetadata() {}
+  public SchemaMetadata() {
+    this.semanticPrefixes = new SemanticPrefixes(this);
+  }
 
   public SchemaMetadata(String name) {
     validateSchemaName(name);
