@@ -2,11 +2,7 @@
 import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
-import type {
-  ICatalogues,
-  ICatalogues_agg,
-  IResources,
-} from "../../interfaces/catalogue";
+import type { ICatalogues, ICatalogues_agg } from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -82,7 +78,7 @@ Object.keys(groupedCatalogues).forEach((key) => {
 const projectAndOrganisationCatalogues = [
   ...(groupedCatalogues.project ?? []),
   ...(groupedCatalogues.organisation ?? []),
-] as IResources[];
+].sort((a, b) => (a.acronym || a.id).localeCompare(b.acronym || b.id));
 
 const mainCatalogue = computed<ICatalogues | null>(() => {
   return catalogues?.find((catalogue) => catalogue.mainCatalogue) ?? null;
