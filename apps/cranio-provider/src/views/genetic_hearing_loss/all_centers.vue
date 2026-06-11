@@ -67,15 +67,29 @@ onMounted(async () => {
   rehabilitationTypeChart.value = yourCenter.rehabilitationChart;
 
   // combine data
-  hearingLossTypeLeftChart.value.dataPoints =
-    hearingLossTypeLeftChart.value.dataPoints?.concat(
-      allCenters.hearingLossTypeLeft.dataPoints as IChartData[]
+  hearingLossTypeLeftChart.value.dataPoints = [
+    ...(hearingLossTypeLeftChart.value.dataPoints as IChartData[]),
+    ...(allCenters.hearingLossTypeLeft.dataPoints as IChartData[]),
+  ].sort((a, b) => {
+    return (
+      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
+      (b.dataPointSecondaryCategory as string).localeCompare(
+        a.dataPointSecondaryCategory as string
+      )
     );
+  });
 
-  hearingLossTypeRightChart.value.dataPoints =
-    hearingLossTypeRightChart.value.dataPoints?.concat(
-      allCenters.hearingLossTypeRight.dataPoints as IChartData[]
+  hearingLossTypeRightChart.value.dataPoints = [
+    ...(hearingLossTypeRightChart.value.dataPoints as IChartData[]),
+    ...(allCenters.hearingLossTypeRight.dataPoints as IChartData[]),
+  ].sort((a, b) => {
+    return (
+      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
+      (b.dataPointSecondaryCategory as string).localeCompare(
+        a.dataPointSecondaryCategory as string
+      )
     );
+  });
 
   hearingLossSeverityChart.value.dataPoints = sortByDataPointName([
     ...(hearingLossSeverityChart.value.dataPoints as IChartData[]),
