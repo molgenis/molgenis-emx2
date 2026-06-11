@@ -1,12 +1,6 @@
 import { useState } from "#app/composables/state";
-import { ref } from "vue";
-import type { Resp } from "../../types/types";
+import type { Resp, Settings } from "../../types/types";
 import { $fetch } from "ofetch";
-
-export interface Settings {
-  isOidcEnabled: boolean;
-  [key: string]: unknown;
-}
 
 async function fetchServerSettings(keys?: Set<string>) {
   const defaultKeys = ["isOidcEnabled"];
@@ -25,7 +19,10 @@ async function fetchServerSettings(keys?: Set<string>) {
 }
 
 export const useSettings = async (keys?: Set<string>) => {
-  const settings = useState("settings", () => null as Settings | null);
+  const settings = useState(
+    "settings",
+    () => undefined as Settings | undefined
+  );
 
   if (
     (settings.value && keys === undefined) ||
