@@ -32,6 +32,7 @@ const geneticDiagnosisTypeChart = ref<ICharts>();
 const geneticDiagnosisGenesChart = ref<ICharts>();
 const etiologyChart = ref<ICharts>();
 const syndromicClassifcationChart = ref<ICharts>();
+const rehabilitationTypeChart = ref<ICharts>();
 
 interface GenesSummaryData {
   Gene: string;
@@ -63,6 +64,7 @@ onMounted(async () => {
   geneticDiagnosisTypeChart.value = yourCenter.diagnosisTypes;
   etiologyChart.value = yourCenter.etiology;
   syndromicClassifcationChart.value = yourCenter.syndromicClassification;
+  rehabilitationTypeChart.value = yourCenter.rehabilitationChart;
 
   // combine data
   hearingLossTypeLeftChart.value.dataPoints =
@@ -110,6 +112,11 @@ onMounted(async () => {
   syndromicClassifcationChart.value.dataPoints = sortByDataPointName([
     ...(syndromicClassifcationChart.value.dataPoints as IChartData[]),
     ...(allCenters.syndromicClassification.dataPoints as IChartData[]),
+  ]);
+
+  rehabilitationTypeChart.value.dataPoints = sortByDataPointName([
+    ...(rehabilitationTypeChart.value.dataPoints as IChartData[]),
+    ...(allCenters.rehabilitationChart.dataPoints as IChartData[]),
   ]);
 
   // create data for type of hearing loss chart
@@ -206,6 +213,17 @@ onMounted(async () => {
   if (syndromicClassifcationChart.value) {
     syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
     syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
+  }
+
+  // prepare rehabilitation type chart
+  const rehabilitationAxis = generateAxisTickData(
+    rehabilitationTypeChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+
+  if (rehabilitationTypeChart.value) {
+    rehabilitationTypeChart.value.yAxisMaxValue = rehabilitationAxis.limit;
+    rehabilitationTypeChart.value.yAxisTicks = rehabilitationAxis.ticks;
   }
 
   loading.value = false;
@@ -447,6 +465,35 @@ onMounted(async () => {
             right: syndromicClassifcationChart?.rightMargin,
             bottom: syndromicClassifcationChart?.bottomMargin,
             left: syndromicClassifcationChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <GroupedColumnChart
+          v-else
+          :chartId="rehabilitationTypeChart?.chartId"
+          :title="rehabilitationTypeChart?.chartTitle"
+          :description="rehabilitationTypeChart?.chartSubtitle"
+          :chartData="rehabilitationTypeChart?.dataPoints"
+          xvar="dataPointSecondaryCategory"
+          yvar="dataPointValue"
+          group="dataPointName"
+          :xAxisLabel="rehabilitationTypeChart?.xAxisLabel"
+          :yAxisLabel="rehabilitationTypeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="rehabilitationTypeChart?.yAxisMaxValue"
+          :yTickValues="rehabilitationTypeChart?.yAxisTicks"
+          :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
+          :chartHeight="250"
+          :chartMargins="{
+            top: rehabilitationTypeChart?.topMargin,
+            right: rehabilitationTypeChart?.rightMargin,
+            bottom: rehabilitationTypeChart?.bottomMargin,
+            left: rehabilitationTypeChart?.leftMargin,
           }"
         />
       </DashboardChart>

@@ -28,6 +28,7 @@ const geneticDiagnosisTypeChart = ref<ICharts>();
 const geneticDiagnosisGenesChart = ref<ICharts>();
 const etiologyChart = ref<ICharts>();
 const syndromicClassifcationChart = ref<ICharts>();
+const rehabilitationTypeChart = ref<ICharts>();
 
 onMounted(async () => {
   const yourCenter = await getGeneticLossData(
@@ -43,6 +44,7 @@ onMounted(async () => {
   geneticDiagnosisTypeChart.value = yourCenter.diagnosisTypes;
   etiologyChart.value = yourCenter.etiology;
   syndromicClassifcationChart.value = yourCenter.syndromicClassification;
+  rehabilitationTypeChart.value = yourCenter.rehabilitationChart;
 
   // create data for type of hearing loss chart left
   const hearingLossLeftAxis = generateAxisTickData(
@@ -151,6 +153,16 @@ onMounted(async () => {
   if (syndromicClassifcationChart.value) {
     syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
     syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
+  }
+
+  // prep rehabilitation type chart
+  const rehabilitationTypeAxis = generateAxisTickData(
+    rehabilitationTypeChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+  if (rehabilitationTypeChart.value) {
+    rehabilitationTypeChart.value.yAxisMaxValue = rehabilitationTypeAxis.limit;
+    rehabilitationTypeChart.value.yAxisTicks = rehabilitationTypeAxis.ticks;
   }
 
   loading.value = false;
@@ -366,6 +378,34 @@ onMounted(async () => {
             right: syndromicClassifcationChart?.rightMargin,
             bottom: syndromicClassifcationChart?.bottomMargin,
             left: syndromicClassifcationChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="rehabilitationTypeChart?.chartId"
+          :title="rehabilitationTypeChart?.chartTitle"
+          :description="rehabilitationTypeChart?.chartSubtitle"
+          :chartData="rehabilitationTypeChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="rehabilitationTypeChart?.xAxisLabel"
+          :yAxisLabel="rehabilitationTypeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="rehabilitationTypeChart?.yAxisMaxValue"
+          :yTickValues="rehabilitationTypeChart?.yAxisTicks"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
+          :chartHeight="250"
+          :chartMargins="{
+            top: rehabilitationTypeChart?.topMargin,
+            right: rehabilitationTypeChart?.rightMargin,
+            bottom: rehabilitationTypeChart?.bottomMargin,
+            left: rehabilitationTypeChart?.leftMargin,
           }"
         />
       </DashboardChart>

@@ -40,6 +40,10 @@ export async function getGeneticLossData(url: string, type: string) {
     (await getDashboardChart(url, "syndromic-classification")) as ICharts[]
   )[0] as ICharts;
 
+  const rehabilitationChart = (
+    (await getDashboardChart(url, "ghl-rehabilitation-type")) as ICharts[]
+  )[0] as ICharts;
+
   const data = {
     hearingLossTypeLeft: hearingLossTypeLeft,
     hearingLossTypeRight: hearingLossTypeRight,
@@ -49,6 +53,7 @@ export async function getGeneticLossData(url: string, type: string) {
     diagnosisGenes: dxGenes,
     etiology: etiologyChart,
     syndromicClassification: classificationChart,
+    rehabilitationChart: rehabilitationChart,
   };
 
   Object.keys(data).forEach((key) => {
