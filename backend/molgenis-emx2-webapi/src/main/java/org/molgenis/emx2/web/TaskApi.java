@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.tasks.*;
 
 public class TaskApi {
@@ -88,11 +87,7 @@ public class TaskApi {
 
     ScriptTask scriptTask = taskService.getScript(name);
     String id =
-        taskService.submit(
-            scriptTask
-                .parameters(parameters)
-                .token(JWTgenerator.createTemporaryToken(database, database.getActiveUser()))
-                .submitUser(database.getActiveUser()));
+        taskService.submit(scriptTask.parameters(parameters).submitUser(database.getActiveUser()));
     ctx.json(new TaskReference(id));
   }
 

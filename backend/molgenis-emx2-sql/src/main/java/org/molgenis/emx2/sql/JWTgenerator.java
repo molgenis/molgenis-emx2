@@ -64,6 +64,10 @@ public class JWTgenerator {
         db, user, "temporary", Date.from(Instant.now().plus(30, ChronoUnit.MINUTES)));
   }
 
+  public static String createTemporaryToken(Database db) {
+    return createTemporaryToken(db, db.getActiveUser());
+  }
+
   private static String createNamedTokenForUser(
       Database db, String user, String tokenId, Date expirationTime) {
     requireNonNull(user);
