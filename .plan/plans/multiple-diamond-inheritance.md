@@ -170,15 +170,47 @@ pass: `MetadataPersistenceRoundtripTest`, `TestDiamondInheritance`, `TestAutoIdG
 across core / sql / io modules.
 
 ### Known gaps to address in later phases (found in B2 review — do NOT lose)
-- **Phase E (IO/GraphQL):** `SqlSchema.merge` (~233, ~255-261) and `json/Table.java` (~52-54) still read
-  only the PRIMARY parent (`getInheritName`) — a diamond schema round-tripped through EMX2 import/merge
-  or GraphQL schema export silently DROPS the 2nd parent. Convert these to `getInheritNames()` in Phase E.
+- **Phase E (IO/GraphQL) multi-parent NAME preservation — RESOLVED & regression-tested (2026-06-11).**
+  The B2-review note (`SqlSchema.merge` + `json/Table.java` drop the 2nd parent) was STALE: verification
+  found commit `facea6808` had ALREADY converted `SqlSchema.merge` (create + alter paths),
+  `json/Table.java`, and `json/Schema.java` to the full `getInheritNames()`/`setInheritNames()` list.
+  This cycle proved it via red-green (injected the scalar regression → RED, removed it → GREEN) and
+  LOCKED it with two regression tests. See "Phase E IO round-trip fix" below.
+- **Phase E (IO/GraphQL) `inheritId` scalar truncation — STILL OPEN (found 2026-06-11).** `json/Table.java`
+  (~56) sets `inheritId = getInheritedTables().get(0).getIdentifier()` — only the PRIMARY parent's id.
+  Parent NAMES round-trip fully (`inheritNames`), but there is no `inheritIds` list, so any consumer
+  reading `inheritId` for a diamond gets only parent[0]. Add `inheritIds` (or drop the scalar) in full Phase E.
 - **TestMigration:** migration33 was NOT added to the nonparallel `TestMigration` (deferred per
   backend-test-purity guidance on the nonparallel module). Add a migration-upgrade assertion when Phase E
   touches that module.
 - **Nits (cosmetic, optional):** migration file is named `migration33.sql` though the `if(version<33)`
   convention elsewhere maps to `migrationN-1.sql`; `SqlTableMetadata.findConflictingParent` is a no-op
   wrapper; `SqlQuery.collectAllSubclassesDeduped` duplicates `getSubclassTables()` (now itself deduped).
+
+### Phase E IO round-trip fix (pulled forward, 2026-06-11) — DONE (verified already-correct + regression-locked)
+
+**Outcome:** the production code was ALREADY multi-parent-correct in `facea6808` — the B2-review note
+warning of a scalar drop was stale. Verification (independent review agent) confirmed `SqlSchema.merge`
+(create AND alter paths), `json/Table.java`, and `json/Schema.java` all use the full
+`getInheritNames()`/`setInheritNames()` list. NO production change was needed; the deliverable is two
+regression tests that prove and lock the behavior.
+
+**How verified (red-green):** injected the equivalent scalar regression (set only `inheritName` /
+`setInheritNames(List.of(getInheritName()))`) → both new tests went RED for the right reason; removed
+the injection → GREEN. Tests:
+- `TestDiamondInheritance.mergePreservesAllParentsOfDiamondChild` (sql) — asserts merged `D` keeps BOTH `B`,`C`.
+- `TableJsonRoundtripTest.jsonRoundtripPreservesAllParentsOfDiamondChild` (graphql, new file) — JSON model round-trip keeps BOTH parents.
+
+**Suite status:** `molgenis-emx2-sql` 330 pass / 1 skipped / 0 fail. `molgenis-emx2-graphql` 54/54 GREEN
+when the module runs alone (verified). The 5 user/JWT/session failures the implementer saw were
+pre-existing parallel-fork test-isolation flakiness (shared DB-user/JWT state across the full multi-module
+run), NOT caused by the new test — confirmed: the 5 pass in isolation and the new test is in-memory only.
+
+**Still open (carried to full Phase E):** `inheritId` scalar truncation (see Known-gaps above) — names
+round-trip, identifiers only carry parent[0].
+
+**Out of scope (stays in full Phase E):** EMX2 CSV column surface for MODULE/SUBCLASS_ARRAY/`values`,
+RDF multiple `rdf:type`, `TestMigration` migration33 upgrade assertion.
 
 ## Build phasing
 

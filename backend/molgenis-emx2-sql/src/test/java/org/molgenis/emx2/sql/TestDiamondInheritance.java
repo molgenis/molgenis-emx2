@@ -288,6 +288,31 @@ class TestDiamondInheritance {
     }
   }
 
+  @Test
+  void mergePreservesAllParentsOfDiamondChild() {
+    String mergeSchemaName = SCHEMA + "Merge";
+    db.dropSchemaIfExists(mergeSchemaName);
+    Schema target = db.createSchema(mergeSchemaName);
+
+    SchemaMetadata diamondSpec = new SchemaMetadata();
+    diamondSpec.create(
+        table("A").add(column("id").setType(STRING).setPkey()).add(column("aCol").setType(STRING)));
+    diamondSpec.create(table("B").setInheritNames("A").add(column("bCol").setType(STRING)));
+    diamondSpec.create(table("C").setInheritNames("A").add(column("cCol").setType(STRING)));
+    diamondSpec.create(table("D").setInheritNames("B", "C").add(column("dCol").setType(STRING)));
+
+    target.migrate(diamondSpec);
+
+    db.clearCache();
+    List<String> mergedParents =
+        db.getSchema(mergeSchemaName).getTable("D").getMetadata().getInheritNames();
+    assertTrue(
+        mergedParents.containsAll(List.of("B", "C")),
+        "After migrate, D must have both B and C as parents, got: " + mergedParents);
+
+    db.dropSchemaIfExists(mergeSchemaName);
+  }
+
   // S6: error message on unresolved parent must list ALL unresolved parent names
   @Test
   void createTableWithUnknownParentsListsAllMissingNames() {

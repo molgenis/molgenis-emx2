@@ -34,7 +34,9 @@ Status: Phase A + Phase B (diamond inheritance, EXCLUSIVE) DONE & green. Phases 
 | Discriminator allowed set lives in one `values` field (replaces `refTable`-base + `allowedSubclasses[]`) | Column / MetadataUtils | MetadataPersistenceRoundtripTest | - |
 | DB migration: `table_inherits`→`VARCHAR[]` + `column_metadata."values"`; old DB upgrades | Migrations | migration32 (DB v33) + MetadataPersistenceRoundtripTest (TestMigration extension = TODO, deferred per nonparallel-module guidance) | - |
 | EMX2 CSV roundtrips multi-parent, MODULE, ENUM/SUBCLASS(_ARRAY), `values` | Emx2 IO | _Phase E_ | - |
+| Diamond schema survives `SqlSchema.merge` and JSON-model round-trip with ALL parents preserved (not just primary) | SqlSchema.merge, json/Table | TestDiamondInheritance.mergePreservesAllParentsOfDiamondChild, TableJsonRoundtripTest.jsonRoundtripPreservesAllParentsOfDiamondChild | - |
 | GraphQL/JSON expose inheritNames, modules, `values` (back-compat inheritName) | GraphqlSchemaFieldFactory, json/Table | _Phase E_ | - |
+| JSON `inheritId` carries ALL parents (currently scalar = parent[0] only; needs `inheritIds` list) | json/Table | _Phase E (inheritId scalar truncation, open)_ | - |
 | RDF emits one rdf:type per active module + primary class type | Emx2RdfGenerator.dataRowToRdf | _todo_ | - |
 | Subtype/variant picker writes to root with discriminator selection | frontend (Phase G) | _todo_ | visual check |
 | Old extends write path stays automatic (type from target table) | SqlTable | _todo_ | visual check |
