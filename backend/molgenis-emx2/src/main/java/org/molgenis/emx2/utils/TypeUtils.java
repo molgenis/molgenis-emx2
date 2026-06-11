@@ -320,9 +320,11 @@ public class TypeUtils {
 
   public static ColumnType getArrayType(ColumnType columnType) {
     if (columnType.isArray()) return columnType;
+    if (columnType == ColumnType.SUBCLASS) return ColumnType.SUBCLASS_ARRAY;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
+      case ENUM -> ColumnType.ENUM_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
       case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;
@@ -390,8 +392,8 @@ public class TypeUtils {
       case FILE -> SQLDataType.BINARY;
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
-      case STRING -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
+      case STRING, ENUM -> SQLDataType.VARCHAR(255);
+      case STRING_ARRAY, ENUM_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -421,8 +423,8 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, FILE -> TypeUtils.toString(v);
-      case STRING_ARRAY -> TypeUtils.toStringArray(v);
+      case STRING, FILE, ENUM -> TypeUtils.toString(v);
+      case STRING_ARRAY, ENUM_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
       case INT -> TypeUtils.toInt(v);

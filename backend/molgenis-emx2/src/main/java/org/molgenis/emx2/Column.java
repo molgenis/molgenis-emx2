@@ -43,6 +43,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
+  private List<String> values = null;
 
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -103,6 +104,20 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this;
   }
 
+  public List<String> getValues() {
+    return values;
+  }
+
+  public Column setValues(List<String> values) {
+    this.values = values;
+    return this;
+  }
+
+  public Column setValues(String... values) {
+    this.values = Arrays.asList(values);
+    return this;
+  }
+
   public String[] getProfiles() {
     return profiles;
   }
@@ -137,6 +152,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
     profiles = column.profiles;
+    values = column.values;
     visible = column.visible;
   }
 

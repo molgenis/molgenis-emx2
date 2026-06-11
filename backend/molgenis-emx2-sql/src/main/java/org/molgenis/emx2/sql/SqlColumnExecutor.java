@@ -105,7 +105,7 @@ public class SqlColumnExecutor {
                           UNION ALL
                           SELECT t.table_schema,t.table_name,t.table_inherits
                           FROM "MOLGENIS"."table_metadata" t
-                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND r.table_name = ANY(t.table_inherits)
                       )
                       SELECT *
                       FROM RecursiveCTE WHERE table_inherits IS NOT NULL;

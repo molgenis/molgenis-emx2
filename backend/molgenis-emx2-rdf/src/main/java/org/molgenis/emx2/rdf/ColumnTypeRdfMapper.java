@@ -80,7 +80,11 @@ public abstract class ColumnTypeRdfMapper {
           entry(ColumnType.HYPERLINK, RdfColumnType.URI),
           entry(ColumnType.HYPERLINK_ARRAY, RdfColumnType.URI),
           entry(ColumnType.NON_NEGATIVE_INT, RdfColumnType.NON_NEGATIVE_INT),
-          entry(ColumnType.NON_NEGATIVE_INT_ARRAY, RdfColumnType.NON_NEGATIVE_INT));
+          entry(ColumnType.NON_NEGATIVE_INT_ARRAY, RdfColumnType.NON_NEGATIVE_INT),
+          entry(ColumnType.ENUM, RdfColumnType.STRING),
+          entry(ColumnType.ENUM_ARRAY, RdfColumnType.STRING),
+          entry(ColumnType.SUBCLASS, RdfColumnType.SKIP),
+          entry(ColumnType.SUBCLASS_ARRAY, RdfColumnType.SKIP));
 
   /** Retrieve all {@link ColumnType}{@code 's} which have a mapping available. */
   static Set<ColumnType> getMapperKeys() {

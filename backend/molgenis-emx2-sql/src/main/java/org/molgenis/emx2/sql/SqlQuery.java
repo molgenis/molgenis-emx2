@@ -559,12 +559,10 @@ public class SqlQuery extends QueryBean {
                 }
               });
 
-      TableMetadata parent = table.getInheritedTable();
-      while (parent != null) {
+      for (TableMetadata ancestor : table.getAncestorsRootFirst()) {
         search.add(
-            field(name(alias(subAlias), searchColumnName(parent.getTableName())))
+            field(name(alias(subAlias), searchColumnName(ancestor.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
-        parent = parent.getInheritedTable();
       }
       searchCondition.add(or(search));
     }
@@ -882,26 +880,18 @@ public class SqlQuery extends QueryBean {
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
 
     Table<org.jooq.Record> result = table.getJooqTable();
-    TableMetadata inheritedTable = table.getInheritedTable();
-    // root and intermediate levels have mg_tableclass column
-    Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
-    while (inheritedTable != null) {
-      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
-      }
-      result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
-      inheritedTable = inheritedTable.getInheritedTable();
-      if (inheritedTable != null) {
-        mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
-      }
+
+    List<TableMetadata> ancestors = table.getAncestorsRootFirst();
+    for (TableMetadata ancestor : ancestors) {
+      List<Field<?>> using = new ArrayList<>(ancestor.getPrimaryKeyFields());
+      result = result.join(ancestor.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
-    // join subclass tables also
+
     for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
-      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+      List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
+      Column mgTableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
+      if (mgTableclass != null) {
+        using.add(mgTableclass.getJooqField());
       }
       result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
@@ -1558,19 +1548,19 @@ public class SqlQuery extends QueryBean {
   private Condition whereConditionSearch(
       TableMetadata table, String tableAlias, String[] searchTerms) {
     List<Condition> searchConditions = new ArrayList<>();
-    while (table != null) {
+    List<TableMetadata> allTables = new ArrayList<>();
+    allTables.add(table);
+    allTables.addAll(table.getAncestorsRootFirst());
+    for (TableMetadata t : allTables) {
       List<Condition> subConditions = new ArrayList<>();
-      // will get inherit tables too
       for (String term : searchTerms) {
         for (String subTerm : term.split(" ")) {
           subTerm = subTerm.trim();
-          Field<Object> field =
-              field(name(alias(tableAlias), searchColumnName(table.getTableName())));
-          // short terms with 'like', longer with trigram
-          subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
+          Field<Object> searchField =
+              field(name(alias(tableAlias), searchColumnName(t.getTableName())));
+          subConditions.add(searchField.likeIgnoreCase("%" + subTerm + "%"));
         }
       }
-      table = table.getInheritedTable();
       if (!subConditions.isEmpty()) {
         searchConditions.add(and(subConditions));
       }

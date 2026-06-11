@@ -115,8 +115,10 @@ public class Column {
     this.profiles = column.getProfiles();
 
     // calculated field
-    if (table.getInheritName() != null)
-      this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
+    if (!table.getInheritNames().isEmpty())
+      this.inherited =
+          table.getInheritedTables().stream()
+              .anyMatch(p -> p.getColumnNames().contains(column.getName()));
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {

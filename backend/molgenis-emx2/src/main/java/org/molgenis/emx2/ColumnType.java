@@ -70,10 +70,14 @@ public enum ColumnType {
   HYPERLINK_ARRAY(STRING_ARRAY, HYPERLINK_REGEX),
   NON_NEGATIVE_INT(INT, NON_NEGATIVE_INT_REGEX),
   NON_NEGATIVE_INT_ARRAY(INT_ARRAY, NON_NEGATIVE_INT_REGEX),
+  ENUM(STRING),
+  ENUM_ARRAY(STRING_ARRAY),
   SELECT(REF),
   RADIO(REF),
   MULTISELECT(REF_ARRAY),
-  CHECKBOX(REF_ARRAY);
+  CHECKBOX(REF_ARRAY),
+  SUBCLASS(ENUM),
+  SUBCLASS_ARRAY(ENUM_ARRAY);
 
   private Class javaType;
   private ColumnType baseType;
@@ -185,6 +189,13 @@ public enum ColumnType {
         || STRING_ARRAY.equals(getBaseType())
         || TEXT.equals(getBaseType())
         || TEXT_ARRAY.equals(getBaseType());
+  }
+
+  public boolean isEnum() {
+    return ENUM.equals(this)
+        || ENUM_ARRAY.equals(this)
+        || ENUM.equals(getBaseType())
+        || ENUM_ARRAY.equals(getBaseType());
   }
 
   public boolean isNumericType() {
