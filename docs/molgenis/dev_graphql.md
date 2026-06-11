@@ -235,6 +235,10 @@ mutation {
 }
 ```
 
+> **Permissions:** these mutations are subject to authorization — e.g. changing table settings
+> requires update permission on that table, schema settings require the Manager role. See
+> [Permissions](use_permissions.md) for the full model.
+
 User settings (only as admin, or settings of current user):
 
 ```graphql
