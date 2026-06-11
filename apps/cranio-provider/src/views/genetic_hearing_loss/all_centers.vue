@@ -24,7 +24,8 @@ import type { IAppPage } from "../../types/app";
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
 
-const hearingLossTypeChart = ref<ICharts>();
+const hearingLossTypeLeftChart = ref<ICharts>();
+const hearingLossTypeRightChart = ref<ICharts>();
 const hearingLossSeverityChart = ref<ICharts>();
 const hearingLossOnsetChart = ref<ICharts>();
 const geneticDiagnosisTypeChart = ref<ICharts>();
@@ -54,7 +55,8 @@ onMounted(async () => {
     "ERN"
   );
 
-  hearingLossTypeChart.value = yourCenter.hearingLossTypes;
+  hearingLossTypeLeftChart.value = yourCenter.hearingLossTypeLeft;
+  hearingLossTypeRightChart.value = yourCenter.hearingLossTypeRight;
   hearingLossSeverityChart.value = yourCenter.severity;
   hearingLossOnsetChart.value = yourCenter.ageOfOnset;
   geneticDiagnosisGenesChart.value = yourCenter.diagnosisGenes;
@@ -63,9 +65,14 @@ onMounted(async () => {
   syndromicClassifcationChart.value = yourCenter.syndromicClassification;
 
   // combine data
-  hearingLossTypeChart.value.dataPoints = sortByDataPointName([
-    ...(hearingLossTypeChart.value.dataPoints as IChartData[]),
-    ...(allCenters.hearingLossTypes.dataPoints as IChartData[]),
+  hearingLossTypeLeftChart.value.dataPoints = sortByDataPointName([
+    ...(hearingLossTypeLeftChart.value.dataPoints as IChartData[]),
+    ...(allCenters.hearingLossTypeLeft.dataPoints as IChartData[]),
+  ]);
+
+  hearingLossTypeRightChart.value.dataPoints = sortByDataPointName([
+    ...(hearingLossTypeRightChart.value.dataPoints as IChartData[]),
+    ...(allCenters.hearingLossTypeRight.dataPoints as IChartData[]),
   ]);
 
   hearingLossSeverityChart.value.dataPoints = sortByDataPointName([
@@ -104,15 +111,26 @@ onMounted(async () => {
     ...(syndromicClassifcationChart.value.dataPoints as IChartData[]),
     ...(allCenters.syndromicClassification.dataPoints as IChartData[]),
   ]);
+
   // create data for type of hearing loss chart
-  const hearingAxis = generateAxisTickData(
-    hearingLossTypeChart.value?.dataPoints as IChartData[],
+  const hearingLossLeftAxis = generateAxisTickData(
+    hearingLossTypeLeftChart.value?.dataPoints as IChartData[],
     "dataPointValue"
   );
 
-  if (hearingLossTypeChart.value) {
-    hearingLossTypeChart.value.yAxisMaxValue = hearingAxis.limit;
-    hearingLossTypeChart.value.yAxisTicks = hearingAxis.ticks;
+  const hearingLossRightAxis = generateAxisTickData(
+    hearingLossTypeLeftChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+
+  if (hearingLossTypeLeftChart.value) {
+    hearingLossTypeLeftChart.value.yAxisMaxValue = hearingLossLeftAxis.limit;
+    hearingLossTypeLeftChart.value.yAxisTicks = hearingLossLeftAxis.ticks;
+  }
+
+  if (hearingLossTypeRightChart.value) {
+    hearingLossTypeRightChart.value.yAxisMaxValue = hearingLossRightAxis.limit;
+    hearingLossTypeRightChart.value.yAxisTicks = hearingLossRightAxis.ticks;
   }
 
   // prep chart for severity of hearing loss
@@ -197,31 +215,58 @@ onMounted(async () => {
 <template>
   <ProviderDashboard>
     <h2 class="dashboard-h2">Overview for all centers</h2>
-    <DashboardRow :columns="1">
+    <DashboardRow :columns="2">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 250px" />
         <GroupedColumnChart
           v-else
-          :chartId="hearingLossTypeChart?.chartId"
-          :title="hearingLossTypeChart?.chartTitle"
-          :description="hearingLossTypeChart?.chartSubtitle"
-          :chartData="hearingLossTypeChart?.dataPoints"
+          :chartId="hearingLossTypeLeftChart?.chartId"
+          :title="hearingLossTypeLeftChart?.chartTitle"
+          :description="hearingLossTypeLeftChart?.chartSubtitle"
+          :chartData="hearingLossTypeLeftChart?.dataPoints"
           xvar="dataPointSecondaryCategory"
           yvar="dataPointValue"
           group="dataPointName"
-          :xAxisLabel="hearingLossTypeChart?.xAxisLabel"
-          :yAxisLabel="hearingLossTypeChart?.yAxisLabel"
+          :xAxisLabel="hearingLossTypeLeftChart?.xAxisLabel"
+          :yAxisLabel="hearingLossTypeLeftChart?.yAxisLabel"
           :yMin="0"
-          :yMax="hearingLossTypeChart?.yAxisMaxValue"
-          :yTickValues="hearingLossTypeChart?.yAxisTicks"
+          :yMax="hearingLossTypeLeftChart?.yAxisMaxValue"
+          :yTickValues="hearingLossTypeLeftChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
           columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
-            top: hearingLossTypeChart?.topMargin,
-            right: hearingLossTypeChart?.rightMargin,
-            bottom: hearingLossTypeChart?.bottomMargin,
-            left: hearingLossTypeChart?.leftMargin,
+            top: hearingLossTypeLeftChart?.topMargin,
+            right: hearingLossTypeLeftChart?.rightMargin,
+            bottom: hearingLossTypeLeftChart?.bottomMargin,
+            left: hearingLossTypeLeftChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <GroupedColumnChart
+          v-else
+          :chartId="hearingLossTypeRightChart?.chartId"
+          :title="hearingLossTypeRightChart?.chartTitle"
+          :description="hearingLossTypeRightChart?.chartSubtitle"
+          :chartData="hearingLossTypeRightChart?.dataPoints"
+          xvar="dataPointSecondaryCategory"
+          yvar="dataPointValue"
+          group="dataPointName"
+          :xAxisLabel="hearingLossTypeRightChart?.xAxisLabel"
+          :yAxisLabel="hearingLossTypeRightChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="hearingLossTypeRightChart?.yAxisMaxValue"
+          :yTickValues="hearingLossTypeRightChart?.yAxisTicks"
+          :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
+          :chartHeight="250"
+          :chartMargins="{
+            top: hearingLossTypeRightChart?.topMargin,
+            right: hearingLossTypeRightChart?.rightMargin,
+            bottom: hearingLossTypeRightChart?.bottomMargin,
+            left: hearingLossTypeRightChart?.leftMargin,
           }"
         />
       </DashboardChart>

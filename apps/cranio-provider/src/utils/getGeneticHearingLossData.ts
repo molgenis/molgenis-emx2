@@ -2,8 +2,15 @@ import { getDashboardChart } from "./getDashboardData";
 import type { ICharts, IChartData } from "../types/schema";
 
 export async function getGeneticLossData(url: string, type: string) {
-  const hearingLossType = (
-    (await getDashboardChart(url, "type-of-hearing-loss")) as ICharts[]
+  const hearingLossTypeLeft = (
+    (await getDashboardChart(url, "ghl-type-of-hearing-loss-left")) as ICharts[]
+  )[0] as ICharts;
+
+  const hearingLossTypeRight = (
+    (await getDashboardChart(
+      url,
+      "ghl-type-of-hearing-loss-right"
+    )) as ICharts[]
   )[0] as ICharts;
 
   const severityChart = (
@@ -34,7 +41,8 @@ export async function getGeneticLossData(url: string, type: string) {
   )[0] as ICharts;
 
   const data = {
-    hearingLossTypes: hearingLossType,
+    hearingLossTypeLeft: hearingLossTypeLeft,
+    hearingLossTypeRight: hearingLossTypeRight,
     severity: severityChart,
     ageOfOnset: onsetChart,
     diagnosisTypes: dxTypeChart,
