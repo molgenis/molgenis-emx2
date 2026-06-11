@@ -255,9 +255,9 @@ jobs:
             export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
             export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
             export E2E_BASE_URL=http://localhost:8080/
-            export MOLGENIS_OIDC_CLIENT_ID=${OIDC_CLIENTID}
-            export MOLGENIS_OIDC_CLIENT_SECRET=${OIDC_SECRET}
-            export MOLGENIS_OIDC_DISCOVERY_URL=${OIDC_DISCOVERYURL}
+            export MOLGENIS_OIDC_CLIENT_ID=emx2-local
+            export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
+            export MOLGENIS_OIDC_DISCOVERY_URL=https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration
             nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
