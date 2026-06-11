@@ -17,6 +17,18 @@ In addition we have special roles to allow for specific permissions around aggre
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
 
+## Permissions to change settings
+
+Settings can be stored at schema level and at table level (see [database settings](use_database_settings.md)):
+
+* **Schema settings** can be changed by users with the **manager** role (or higher).
+* **Table settings** can be changed by anyone with update permission on that table. This includes the
+  schema-wide **editor** role, but also a custom role that grants table-level **UPDATE** on that
+  specific table — i.e. a user does not need the schema-wide editor role to change a table's settings
+  if they have been granted update on that table directly.
+
+The **admin** user can change any setting.
+
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
