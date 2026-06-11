@@ -29,7 +29,7 @@ public class SecurityConfigFactory {
       (String)
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_OIDC_DISCOVERY_URI,
-                  "https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration",
+              "https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration",
               STRING);
   private String callbackUrl =
       (String)
