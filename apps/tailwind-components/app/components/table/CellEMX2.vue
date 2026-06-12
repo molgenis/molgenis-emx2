@@ -111,7 +111,7 @@
         </slot>
       </div>
       <Button
-        v-if="isEllipsisActive()"
+        v-if="isEllipsisActive"
         type="text"
         size="tiny"
         class="flex-shrink-0 !p-0 leading-none"
@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -161,10 +161,31 @@ const props = defineProps<{
 }>();
 
 const cellRef = ref<HTMLElement | null>(null);
+const isEllipsisActive = ref(false);
+let resizeObserver: ResizeObserver;
 
 const emit = defineEmits<{
   (e: "cellClicked", payload: cellPayload): void;
 }>();
+
+onMounted(async () => {
+  await nextTick();
+  setIsEllipsisActive();
+  if (cellRef.value) {
+    resizeObserver = new ResizeObserver(setIsEllipsisActive);
+    resizeObserver.observe(cellRef.value);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+});
+
+function setIsEllipsisActive() {
+  isEllipsisActive.value = cellRef.value
+    ? cellRef.value.offsetWidth < cellRef.value.scrollWidth
+    : false;
+}
 
 function handleShowMore() {
   if (props.metadata) {
@@ -173,11 +194,5 @@ function handleShowMore() {
       metadata: props.metadata,
     });
   }
-}
-
-function isEllipsisActive() {
-  return cellRef.value
-    ? cellRef.value.offsetWidth < cellRef.value.scrollWidth
-    : false;
 }
 </script>
