@@ -42,16 +42,20 @@ class MetadataPersistenceRoundtripTest {
 
   @Test
   void moduleArrayColumnValuesRoundtrip() {
-    Schema schema = db.dropCreateSchema(SCHEMA_NAME + "Sub");
+    String schemaName = SCHEMA_NAME + "Sub";
+    Schema schema = db.dropCreateSchema(schemaName);
 
-    List<String> moduleValues = List.of("ModuleA", "ModuleB");
+    schema.create(table("ModuleA").setTableType(TableType.MODULE).add(column("id").setPkey()));
+    schema.create(table("ModuleB").setTableType(TableType.MODULE).add(column("id").setPkey()));
+
+    List<String> moduleValues = List.of(schemaName + ".ModuleA", schemaName + ".ModuleB");
     schema.create(
         table("Root")
             .add(column("id").setPkey())
             .add(column("modules").setType(MODULE_ARRAY).setValues(moduleValues)));
 
     db.clearCache();
-    Schema reloaded = db.getSchema(SCHEMA_NAME + "Sub");
+    Schema reloaded = db.getSchema(schemaName);
     Column reloadedColumn = reloaded.getTable("Root").getMetadata().getColumn("modules");
 
     assertNotNull(reloadedColumn, "column 'modules' must survive reload");

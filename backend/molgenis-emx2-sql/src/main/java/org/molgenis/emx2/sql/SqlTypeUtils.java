@@ -226,7 +226,8 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static void checkValidation(Column column, Map<String, Object> values) {
     if (values.get(column.getIdentifier()) != null) {
-      column.getColumnType().validate(values.get(column.getName()));
+      column.getColumnType().validate(values.get(column.getIdentifier()));
+      TypeUtils.checkEnumMembership(column, values.get(column.getIdentifier()));
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions

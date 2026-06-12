@@ -532,6 +532,42 @@ public class TypeUtils {
     return rows;
   }
 
+  public static void checkEnumMembership(Column column, Object value) {
+    List<String> allowedValues = column.getValues();
+    if (value == null
+        || !column.getColumnType().isEnum()
+        || allowedValues == null
+        || allowedValues.isEmpty()) {
+      return;
+    }
+    if (column.getColumnType().isArray()) {
+      if (value instanceof String[] arrayValue) {
+        for (String element : arrayValue) {
+          if (!allowedValues.contains(element)) {
+            throw new MolgenisException(
+                "Value '"
+                    + element
+                    + "' is not allowed for column '"
+                    + column.getName()
+                    + "'. Allowed values: "
+                    + allowedValues);
+          }
+        }
+      }
+    } else {
+      String scalarValue = value.toString();
+      if (!allowedValues.contains(scalarValue)) {
+        throw new MolgenisException(
+            "Value '"
+                + scalarValue
+                + "' is not allowed for column '"
+                + column.getName()
+                + "'. Allowed values: "
+                + allowedValues);
+      }
+    }
+  }
+
   public static void addFieldObjectToRow(Column column, Object object, Row row) {
     if (column.isRef()) {
       convertRefToRow((Map<String, Object>) object, row, column);

@@ -202,4 +202,71 @@ class TestTypeUtils {
       }
     }
   }
+
+  @Test
+  void checkEnumMembershipNonEnumColumnIsNoOp() {
+    Column col = column("status").setType(ColumnType.STRING);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "anything"),
+        "Non-enum column must not validate membership");
+  }
+
+  @Test
+  void checkEnumMembershipEnumWithNoValuesAcceptsAnyString() {
+    Column col = column("status").setType(ColumnType.ENUM);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "anything"),
+        "ENUM with no declared values must accept any string");
+
+    Column colEmpty = column("status2").setType(ColumnType.ENUM).setValues(new String[0]);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(colEmpty, "anything"),
+        "ENUM with empty values list must accept any string");
+  }
+
+  @Test
+  void checkEnumMembershipScalarEnforcesAllowedSet() {
+    Column col = column("priority").setType(ColumnType.ENUM).setValues("low", "medium", "high");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "high"), "In-set value must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(col, "critical"),
+        "Out-of-set value must throw MolgenisException");
+  }
+
+  @Test
+  void checkEnumMembershipArrayEnforcesAllowedSet() {
+    Column enumArray =
+        column("tags").setType(ColumnType.ENUM_ARRAY).setValues("alpha", "beta", "gamma");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(enumArray, new String[] {"alpha", "gamma"}),
+        "All-in-set array must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumArray, new String[] {"alpha", "unknown"}),
+        "Array with one out-of-set element must throw MolgenisException");
+
+    Column moduleArray = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("s.A", "s.B");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"s.A"}),
+        "MODULE_ARRAY in-set value must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"s.A", "s.C"}),
+        "MODULE_ARRAY with one out-of-set element must throw MolgenisException");
+  }
+
+  @Test
+  void checkEnumMembershipNullValueIsNoOp() {
+    Column col = column("priority").setType(ColumnType.ENUM).setValues("low", "high");
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, null), "Null value must be a no-op");
+  }
 }

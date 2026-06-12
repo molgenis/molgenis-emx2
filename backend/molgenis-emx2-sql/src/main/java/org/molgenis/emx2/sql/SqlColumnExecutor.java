@@ -437,6 +437,9 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      if (c.getColumnType() == MODULE_ARRAY && hasDatabase(c)) {
+        validateModuleArrayValues(c);
+      }
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
@@ -444,6 +447,70 @@ public class SqlColumnExecutor {
     } catch (MolgenisException e) {
       throw new MolgenisException(
           "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
+    }
+  }
+
+  private static boolean hasDatabase(Column c) {
+    return c.getTable() != null
+        && c.getTable().getSchema() != null
+        && c.getTable().getSchema().getDatabase() != null;
+  }
+
+  private static void validateModuleArrayValues(Column c) {
+    List<String> moduleValues = c.getValues();
+    if (moduleValues == null || moduleValues.isEmpty()) {
+      return;
+    }
+    Database database = c.getTable().getSchema().getDatabase();
+    for (String qualifiedName : moduleValues) {
+      String[] parts = qualifiedName.split("\\.", 2);
+      if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: MODULE_ARRAY value '"
+                + qualifiedName
+                + "' must be schema-qualified as 'schema.Table'");
+      }
+      String referencedSchemaName = parts[0];
+      String referencedTableName = parts[1];
+      org.molgenis.emx2.Schema referencedSchema = database.getSchema(referencedSchemaName);
+      if (referencedSchema == null) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: schema '"
+                + referencedSchemaName
+                + "' referenced by MODULE_ARRAY value '"
+                + qualifiedName
+                + "' does not exist");
+      }
+      org.molgenis.emx2.Table referencedTable = referencedSchema.getTable(referencedTableName);
+      if (referencedTable == null) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: table '"
+                + qualifiedName
+                + "' referenced by MODULE_ARRAY values does not exist");
+      }
+      if (!referencedTable.getMetadata().getTableType().isModule()) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: table '"
+                + qualifiedName
+                + "' must have tableType=MODULE but has "
+                + referencedTable.getMetadata().getTableType());
+      }
     }
   }
 
