@@ -8,6 +8,8 @@ import { computed, useResourceDetailsCrumbs, useRuntimeConfig } from "#imports";
 import fetchMetadata from "../../../../../../tailwind-components/app/composables/fetchMetadata.js";
 import fetchTableData from "../../../../../../tailwind-components/app/composables/fetchTableData.js";
 import { useRoute } from "vue-router";
+import { toSections } from "../../../../utils/sectionsUtils.js";
+import { isEmpty } from "../../../../utils/fieldUtils.js";
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema;
@@ -29,43 +31,14 @@ const data = await fetchTableData(schema, TABLE_NAME, {
 });
 const resourceData = data.rows[0];
 
-const sections = columns.reduce((acc, column) => {
-  if (column.columnType === "HEADING") {
-    acc.push({
-      id: column.id,
-      label: column.label,
-      description: column.description,
-      fields: [],
-    });
-  }
-  if (column.columnType !== "HEADING") {
-    const currentHeading = acc.length > 0 ? acc[acc.length - 1] : null;
-    if (currentHeading) {
-      currentHeading.fields.push({
-        id: column.id,
-        label: column.label,
-        description: column.description,
-        value: resourceData ? resourceData[column.id] : null,
-      });
-    }
-  }
-  return acc;
-}, [] as any[]);
+const sections = toSections(resourceData, metadata);
 
 const tocItems = computed(() => {
-  return sections.map((section) => ({
-    id: section.id,
-    label: section.label,
+  return sections.map((section: { id: any; label: any }) => ({
+    id: section.id || "",
+    label: section.label || "",
   }));
 });
-
-function isEmpty(value: any) {
-  return (
-    value === null ||
-    value === undefined ||
-    (typeof value === "object" && Object.keys(value).length === 0)
-  );
-}
 
 function getLogoUrl(value: unknown) {
   return typeof value === "object" && value !== null && "url" in value

@@ -41,6 +41,12 @@ const repeats = computed(() =>
           >
             {{ variable?.name }}
           </NuxtLink>
+          <NuxtLink
+            :to="`/${catalogue}/variables/generated-${resourcePathId}`"
+            class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
+          >
+            (generated)
+          </NuxtLink>
           <div
             v-if="repeats"
             class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm"
