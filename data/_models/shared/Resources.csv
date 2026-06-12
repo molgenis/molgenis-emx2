@@ -8,7 +8,7 @@ Catalogues,,ldp membership relation,hyperlink,,,,,,,,ldp:hasMemberRelation,LDP m
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
 Resources,,hricore,bool,,,,,,,,,"Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata can be shared with the Dutch National Health Data Catalogue?","DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
 Resources,,id,,1,TRUE,,,,,,,Internal identifier,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
-Resources,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
+Resources,,pid,,2,,,,,,,dcterms:identifier,Persistent identifier,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,false
 Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
 Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsExtended,RWEStaging",,,
 Resources,,acronym,,,,,,,,,dcterms:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsExtended,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsExtended,UMCUCohorts,INTEGRATE",,,
@@ -32,7 +32,7 @@ Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","
 Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging",,,
 Catalogues,,conforms to,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat,,,
 Catalogues,,has member relation,hyperlink,,,,,,,,"ldp:hasMemberRelation,dcat:record",This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.,DataCatalogueFlat,,,
-Resources,,issued,datetime,,,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued","When the data of the resource was first published. If unknown, fill in today’s date","DataCatalogueFlat,EMA,RWEStaging,CohortsExtended,NetworksStaging",,,
+Resources,,issued,datetime,,,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued","When the data of the resource was first published. If unknown, fill in today s date","DataCatalogueFlat,EMA,RWEStaging,CohortsExtended,NetworksStaging",,,
 Resources,,modified,datetime,,,,,,,,"dcterms:modified,https://w3id.org/fdp/fdp-o#metadataModified","When the data of the resource was last modified. Leave empty if unknown, if the data has not changed since publication or if the data is continuously updated","DataCatalogueFlat,EMA,RWEStaging,CohortsExtended,NetworksStaging",,,
 Collections,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
 Collections,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsBasis",,,
