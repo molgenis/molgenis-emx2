@@ -176,19 +176,15 @@ public class TestTableMetadataDag {
   }
 
   @Test
-  void columnTypeSubclassIsEnumFamily() {
-    assertEquals(ColumnType.ENUM, ColumnType.SUBCLASS.getBaseType());
-    assertEquals(ColumnType.ENUM_ARRAY, ColumnType.SUBCLASS_ARRAY.getBaseType());
-    assertTrue(ColumnType.SUBCLASS.isEnum());
-    assertTrue(ColumnType.SUBCLASS_ARRAY.isEnum());
+  void columnTypeModuleArrayIsEnumFamily() {
+    assertEquals(ColumnType.ENUM_ARRAY, ColumnType.MODULE_ARRAY.getBaseType());
+    assertTrue(ColumnType.MODULE_ARRAY.isEnum());
   }
 
   @Test
-  void columnTypeSubclassIsNotReferenceType() {
-    assertFalse(ColumnType.SUBCLASS.isReference());
-    assertFalse(ColumnType.SUBCLASS_ARRAY.isReference());
-    assertFalse(ColumnType.SUBCLASS.isRef());
-    assertFalse(ColumnType.SUBCLASS_ARRAY.isRefArray());
+  void columnTypeModuleArrayIsNotReferenceType() {
+    assertFalse(ColumnType.MODULE_ARRAY.isReference());
+    assertFalse(ColumnType.MODULE_ARRAY.isRefArray());
   }
 
   @Test
@@ -359,5 +355,37 @@ public class TestTableMetadataDag {
             MolgenisException.class, () -> schema.getTableMetadata("D").validateInheritance());
     assertTrue(
         ex.getMessage().contains("dup"), "Exception message must mention the colliding column");
+  }
+
+  @Test
+  void getDiscriminatorColumnsFindsModuleArrayColumns() {
+    TableMetadata tableWithDiscriminators =
+        table(
+            "Host",
+            column("id").setPkey(),
+            column("panels").setType(ColumnType.MODULE_ARRAY),
+            column("groups").setType(ColumnType.MODULE_ARRAY),
+            column("label").setType(ColumnType.STRING),
+            column("category").setType(ColumnType.ENUM));
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(tableWithDiscriminators);
+
+    TableMetadata host = schema.getTableMetadata("Host");
+
+    List<Column> discriminators = host.getDiscriminatorColumns();
+    assertEquals(2, discriminators.size(), "exactly the two MODULE_ARRAY columns");
+    assertEquals("panels", discriminators.get(0).getName());
+    assertEquals("groups", discriminators.get(1).getName());
+
+    assertTrue(
+        host.getColumn("panels").isDiscriminator(), "MODULE_ARRAY column must be a discriminator");
+    assertTrue(
+        host.getColumn("groups").isDiscriminator(), "MODULE_ARRAY column must be a discriminator");
+    assertFalse(
+        host.getColumn("label").isDiscriminator(), "STRING column must not be a discriminator");
+    assertFalse(
+        host.getColumn("category").isDiscriminator(),
+        "ENUM column must not be a discriminator — isDiscriminator is exact-type, not base-type");
+    assertFalse(host.getColumn("id").isDiscriminator(), "PK column must not be a discriminator");
   }
 }

@@ -1,7 +1,11 @@
 # Spec: Unified Discriminator-Driven Composition (Diamond Inheritance + Modules)
 
 Living guardrail. `Test` links the validating test once written; `Visual` marks manual checks.
-Status: Phase A + Phase B (diamond inheritance, EXCLUSIVE) DONE & green. Phases C–G PLANNED.
+Status: Phase A + Phase B (diamond inheritance, EXCLUSIVE) DONE & green. Phase C REVISED (2026-06-12) =
+unified column-based discriminator engine, staged C0–C6 (absorbs old Phase D MODULE + Phase G multi-axis).
+C0 (discriminator abstraction + rename) DONE & green (2026-06-12, reviewed; trimmed to Design B — scalar
+`SUBCLASS` type DROPPED, `mg_tableclass` stays master-style untyped, discriminator engine = `MODULE_ARRAY` only).
+C1–C6 PLANNED.
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
@@ -13,27 +17,31 @@ Status: Phase A + Phase B (diamond inheritance, EXCLUSIVE) DONE & green. Phases 
 | Duplicate column name across parents/modules = validation error | SqlTableMetadata.validateInheritanceDag | TestDiamondInheritance.duplicateColumnAcrossParentsRejected, addColumnRejectedWhenCollidesViaSecondParentSubclass | - |
 | Existing single `extends` schemas load & behave unchanged (desugar) | TableMetadata + SqlTableMetadata | TestInherits, TestExtends, TestCrossSchemaForeignKeysAndInheritance (green) | - |
 | Generic `ENUM` / `ENUM_ARRAY` column types exist (string + `values` list) | ColumnType | TestTableMetadataDag | - |
-| New column types `SUBCLASS` / `SUBCLASS_ARRAY` exist (enum family, NOT ref) | ColumnType | TestTableMetadataDag | - |
+| Column type `MODULE_ARRAY` (composition; renamed from `SUBCLASS_ARRAY` 2026-06-12) exists (enum family, NOT ref). Scalar `SUBCLASS` type DROPPED (Design B) — is-a uses untyped `mg_tableclass` | ColumnType | TestTableMetadataDag | - |
 | `Column.values` (List<String>) holds the allowed choices; for discriminators these are `schema.Table` names validated to exist | Column / MetadataUtils | MetadataPersistenceRoundtripTest (persistence done; existence-validation = Phase C) | - |
-| Discriminator chosen value(s) are schema-qualified `schema.Table` enum values from `Column.values` | SqlTable / discriminator | _Phase C_ | - |
-| `extends` auto-derives its discriminator `values` from its subclasses (back-compat) | TableMetadata / SqlTableMetadata | _Phase C_ | - |
-| `SUBCLASS` (single) = one type per row (EXCLUSIVE) | SqlTable / SqlQuery | _Phase C (scalar path proven by TestDiamondInheritance)_ | - |
-| `SUBCLASS_ARRAY` (multi) = several active types per row (MULTIPLE) | SqlTable / SqlQuery | _Phase C_ | - |
+| Composition discriminator is a first-class `MODULE_ARRAY` column; engine loops `getDiscriminatorColumns()` (= MODULE_ARRAY cols). is-a (`mg_tableclass`) is separate, NOT in this set | TableMetadata.getDiscriminatorColumns / Column.isDiscriminator | TestTableMetadataDag.getDiscriminatorColumnsFindsModuleArrayColumns | - |
+| Discriminator chosen value(s) are schema-qualified `schema.Table` enum values from `Column.values` | SqlTable / discriminator | _C3_ | - |
+| built-in `mg_tableclass` stays the master-style untyped, engine-managed, immutable system column (Design B: NOT typed `SUBCLASS`; executor unchanged from Phase B) | SqlTableMetadataExecutor | _C0 DONE — TestDiamondInheritance / TestInherits / MetadataPersistenceRoundtripTest green_ | - |
+| `Column.values` applies to `MODULE_ARRAY` columns (the allowed MODULE `schema.Table` set, validated to exist); `mg_tableclass`/is-a needs no `values` | Column / MetadataUtils | _C1 (derivation + existence-validation)_ | - |
+| is-a identity (`extends` → `mg_tableclass`, single/EXCLUSIVE) references TABLE/DATA subclasses incl. cross-schema | SqlTable / SqlQuery | TestDiamondInheritance; cross-schema = TestCrossSchemaForeignKeysAndInheritance | - |
+| `MODULE_ARRAY` (multi, MULTIPLE) references MODULE classes ALWAYS; stored `TEXT[]`; COEXISTS with scalar `mg_tableclass` (does NOT replace it) | SqlTable / SqlQuery / SqlTableMetadataExecutor | _C1–C4_ | - |
+| Inheritance (`extends`/`mg_tableclass`) and composition (`MODULE_ARRAY`) may coexist on one table | SqlTable / SqlQuery | _C6 mix smoke_ | - |
+| Multiple `MODULE_ARRAY` columns = independent modular choice-sets (orthogonal axes) | TableMetadata.getDiscriminatorColumns | _C0 accessor; runtime C1–C6_ | - |
 | Diamond child has one PK, one FK per parent, all on single root PK | SqlTableMetadataExecutor.executeSetInherit | TestDiamondInheritance.diamondChildHasSingleRootPrimaryKey, diamondChildHasForeignKeyPerParent, mgTableclassLivesOnlyOnRoot | - |
 | Insert into diamond writes shared root exactly once | SqlTable.insertBatch | TestDiamondInheritance.insertAndSelectRoundtripThroughDiamond | - |
 | Query joins distinct ancestor set on single root PK | SqlQuery.tableWithInheritanceJoin | TestDiamondInheritance.insertAndSelectRoundtripThroughDiamond, diamondSurvivesSchemaReload | - |
-| Module columns projected only when active for the row | SqlQuery.rowSelectFields | _Phase C_ | - |
-| required/visible gated by active type set for subtype columns | SqlTypeUtils | _Phase C_ | - |
-| Deactivating a type on update deletes its subtype row | SqlTable.updateBatch | _Phase C_ | - |
-| `mg_tableclass` lives on single shared root, exactly once (scalar when EXCLUSIVE; array when MULTIPLE) | Constants / SqlTableMetadataExecutor | TestDiamondInheritance.mgTableclassLivesOnlyOnRoot, mgTableclassOnRootOnlyInSingleChain (array variant = Phase C) | - |
-| `tableType=MODULE` = option-only, not a standalone top-level table | TableType / schema exposure | TestTableMetadataDag.tableTypeModuleHasIsModuleHelper (scaffolding; materialization = Phase D) | - |
-| Module materialized per host as `<Host>.<Module>` on host root PK | SqlTableMetadataExecutor | _Phase D_ | - |
-| Same module reused across hierarchies = independent physical tables | SqlTableMetadataExecutor | _Phase D_ | - |
-| A module may extend other modules (columns flatten) | TableMetadata / materialization | _Phase D_ | - |
-| A table may declare multiple discriminator columns (orthogonal axes) | TableMetadata.getDiscriminatorColumns | TestTableMetadataDag.getDiscriminatorColumnsFindsSubclassTypedColumns (accessor; multi-axis runtime = Phase G) | - |
+| Module columns projected only when active for the row (membership CASE-WHEN) | SqlQuery.rowSelectFields | _C4_ | - |
+| required/visible gated by active set for module columns (`__active_<d>` in JS graph) | SqlTypeUtils | _C5_ | - |
+| Deactivating a module on update HARD-DELETEs its materialized row (root row intact) | SqlTable.updateBatch | _C6_ | - |
+| Discriminator named column: `mg_tableclass` is the reserved auto-name from `extends`; `MODULE_ARRAY` columns are modeler-named | SqlTableMetadataExecutor | TestDiamondInheritance.mgTableclassLivesOnlyOnRoot, mgTableclassOnRootOnlyInSingleChain | - |
+| `tableType=MODULE` = option-only, materialized per consuming table (not standalone) | TableType / SqlTableMetadataExecutor | TestTableMetadataDag.tableTypeModuleHasIsModuleHelper (scaffolding; materialization = _C2_) | - |
+| Module materialized per consuming table on its root PK via executeSetInherit(skip=true); physical name root-namespaced reserved `mg_`-prefix (O-1 resolved); stored value stays logical `schema.Mod` | SqlTableMetadataExecutor | _C2_ | - |
+| Same module reused by multiple consuming tables (incl. cross-schema) = independent materialized tables | SqlTableMetadataExecutor | _C2_ | - |
+| A module may extend other modules (columns flatten at materialization) | TableMetadata / materialization | _C2_ | - |
+| `MODULE_ARRAY` values are MODULE classes only; `extends`/`mg_tableclass` values are TABLE subclasses | SqlTable / validation | _C1 (array) / done (is-a)_ | - |
 | Discriminator allowed set lives in one `values` field (replaces `refTable`-base + `allowedSubclasses[]`) | Column / MetadataUtils | MetadataPersistenceRoundtripTest | - |
 | DB migration: `table_inherits`→`VARCHAR[]` + `column_metadata."values"`; old DB upgrades | Migrations | migration32 (DB v33) + MetadataPersistenceRoundtripTest (TestMigration extension = TODO, deferred per nonparallel-module guidance) | - |
-| EMX2 CSV roundtrips multi-parent, MODULE, ENUM/SUBCLASS(_ARRAY), `values` | Emx2 IO | _Phase E_ | - |
+| EMX2 CSV roundtrips multi-parent, MODULE, ENUM/MODULE_ARRAY, `values` | Emx2 IO | _Phase E_ | - |
 | Diamond schema survives `SqlSchema.merge` and JSON-model round-trip with ALL parents preserved (not just primary) | SqlSchema.merge, json/Table | TestDiamondInheritance.mergePreservesAllParentsOfDiamondChild, TableJsonRoundtripTest.jsonRoundtripPreservesAllParentsOfDiamondChild | - |
 | GraphQL/JSON expose inheritNames, modules, `values` (back-compat inheritName) | GraphqlSchemaFieldFactory, json/Table | _Phase E_ | - |
 | JSON `inheritId` carries ALL parents (currently scalar = parent[0] only; needs `inheritIds` list) | json/Table | _Phase E (inheritId scalar truncation, open)_ | - |

@@ -320,7 +320,6 @@ public class TypeUtils {
 
   public static ColumnType getArrayType(ColumnType columnType) {
     if (columnType.isArray()) return columnType;
-    if (columnType == ColumnType.SUBCLASS) return ColumnType.SUBCLASS_ARRAY;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;

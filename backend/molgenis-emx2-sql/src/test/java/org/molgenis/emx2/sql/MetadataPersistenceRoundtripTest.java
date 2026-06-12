@@ -41,22 +41,22 @@ class MetadataPersistenceRoundtripTest {
   }
 
   @Test
-  void subclassColumnValuesRoundtrip() {
+  void moduleArrayColumnValuesRoundtrip() {
     Schema schema = db.dropCreateSchema(SCHEMA_NAME + "Sub");
 
-    List<String> subtypeValues = List.of("TypeA", "TypeB");
+    List<String> moduleValues = List.of("ModuleA", "ModuleB");
     schema.create(
         table("Root")
             .add(column("id").setPkey())
-            .add(column("kind").setType(SUBCLASS).setValues(subtypeValues)));
+            .add(column("modules").setType(MODULE_ARRAY).setValues(moduleValues)));
 
     db.clearCache();
     Schema reloaded = db.getSchema(SCHEMA_NAME + "Sub");
-    Column reloadedColumn = reloaded.getTable("Root").getMetadata().getColumn("kind");
+    Column reloadedColumn = reloaded.getTable("Root").getMetadata().getColumn("modules");
 
-    assertNotNull(reloadedColumn, "column 'kind' must survive reload");
-    assertEquals(SUBCLASS, reloadedColumn.getColumnType());
-    assertEquals(subtypeValues, reloadedColumn.getValues(), "SUBCLASS values must round-trip");
+    assertNotNull(reloadedColumn, "column 'modules' must survive reload");
+    assertEquals(MODULE_ARRAY, reloadedColumn.getColumnType());
+    assertEquals(moduleValues, reloadedColumn.getValues(), "MODULE_ARRAY values must round-trip");
   }
 
   @Test

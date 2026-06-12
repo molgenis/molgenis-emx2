@@ -768,6 +768,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
+  public List<Column> getDiscriminatorColumns() {
+    return getColumns().stream().filter(Column::isDiscriminator).toList();
+  }
+
   public void validateInheritance() {
     getAllInheritNames();
     getRootTable();

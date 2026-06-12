@@ -220,12 +220,118 @@ Land in order; each phase keeps existing tests green.
 - [x] **Phase B — Diamond inheritance (EXCLUSIVE).** DONE — migration32.sql → DB v33 (`table_inherits` collapsed to `VARCHAR[]`, `column_metadata."values"`), per-parent FK on shared root PK, `mg_tableclass` on root only, ancestor-dedup insert/query, collision validation, `setInheritNames()` API. `TestDiamondInheritance` (11) + `MetadataPersistenceRoundtripTest` (4) + all back-compat green. Two review passes, all issues fixed.
 - [x] **Helper-method cleanup cycle.** DONE — single-caller inlines (`validateInheritanceDagForAll`, `resolveParentOrThrow`, `getDirectSubclassTables`), `insertBatch` collapsed to root-first loop, `resolveParentTable` throw boundary scoped to DB-attached contexts.
 - [x] **SUBCLASS/SUBCLASS_ARRAY type-mapping wiring.** DONE — local case arms added at `TypeUtils.toJooqType`, `TypeUtils.getTypedValue`, `TypeUtils.getArrayType`, `SqlTypeUtils.getPsqlType`, `SqlTypeUtils.getTypedValue`. Full suite green after `cleandb`.
-- [ ] **Phase C — `SUBCLASS_ARRAY` (MULTIPLE) within one hierarchy.** Array discriminator, set activation, per-row column projection, module-aware validation gating.
-- [ ] **Phase D — `MODULE` tableType + per-host materialization + module-extends-module.** Cross-hierarchy reuse.
-- [ ] **Phase E — IO / GraphQL / JSON / RDF surface.** EMX2 CSV, GraphQL metadata, JSON model; RDF emits multiple `rdf:type` for active modules. **Known gaps (do NOT lose):** `SqlSchema.merge` (~233, ~255-261) and `json/Table.java` (~52-54) still read only the primary parent (`getInheritName`) — diamond round-trip silently drops 2nd parent. `TestMigration` (nonparallel module) not yet extended for migration33 array upgrade.
+- [ ] **Phase C (REVISED 2026-06-12) — Unified column-based discriminator engine (MULTIPLE).** ABSORBS old Phase D (MODULE materialization) + Phase G (multiple discriminator columns) per locked owner decisions. The discriminator is a first-class COLUMN; `SUBCLASS_ARRAY` REPLACES the scalar `mg_tableclass`; a table may have several discriminator columns; values may reference MODULE classes OR TABLE subclasses (both stored table-per-type on root PK); deactivation HARD-DELETEs the subtype/module row. Staged C0–C6 (see "Phase C REVISED" section below). Retires decision #11 (`mg_tableclass`-becomes-array).
+- [ ] **~~Phase D — `MODULE` tableType + per-host materialization~~** — ABSORBED into Phase C (sub-stage C6).
+- [ ] **Phase E — IO / GraphQL / JSON / RDF surface.** EMX2 CSV, GraphQL metadata, JSON model; RDF emits multiple `rdf:type` for active modules. **Known gaps (do NOT lose):** `inheritId` scalar truncation in `json/Table.java` (~56) — names round-trip, ids carry parent[0] only; `TestMigration` (nonparallel module) not yet extended for migration33 array upgrade. (The `SqlSchema.merge` / `json` multi-parent NAME gap was found already-fixed + regression-tested 2026-06-11.)
 - [ ] **Phase F — Frontend redesign** (separate effort): subtype/variant picker UI; writing to root with discriminator selection.
-- [ ] **Phase G — Multiple discriminator columns per table** (orthogonal axes; `allowedSubclasses[]`).
+- [ ] **~~Phase G — Multiple discriminator columns per table~~** — ABSORBED into Phase C (multi-axis built in from C0).
 
+
+---
+
+## Phase C REVISED (2026-06-12) — Unified column-based discriminator engine
+
+> Supersedes the old detailed "Phase C", "Phase D", and "Phase G" sections below (kept for history,
+> annotated superseded). Merges them per locked owner decisions. Designed against current code
+> (`SqlTable`, `SqlQuery`, `SqlTableMetadataExecutor`, `TableMetadata`, `SqlTypeUtils`).
+>
+> **NAMING (2026-06-12):** the column type `SUBCLASS_ARRAY` is renamed **`MODULE_ARRAY`** (its values are
+> always `tableType=MODULE` tables; semantics = composition, not is-a). The `tableExtends` declaration keyword
+> is unchanged (frozen back-compat; a different layer from the column type — NOT unified). Below, read
+> historical `SUBCLASS_ARRAY` as `MODULE_ARRAY`.
+>
+> **DESIGN B (2026-06-12, owner decision — supersedes all `SUBCLASS`-scalar-type references below):** the
+> scalar **`SUBCLASS` column type is DROPPED entirely.** `mg_tableclass` is NOT a typed discriminator — it
+> stays the master-style untyped, engine-managed, immutable system column exactly as in Phase B (name-keyed
+> by the `MG_TABLECLASS` constant, with its own dedicated `createMgTableClassCannotUpdateCheck` trigger). The
+> discriminator engine operates ONLY on `MODULE_ARRAY` columns: `getDiscriminatorColumns()` returns
+> `MODULE_ARRAY` columns, `Column.isDiscriminator()` == `MODULE_ARRAY`. Rationale: `mg_tableclass` is
+> immutable + engine-derived + needs no `values`, whereas `MODULE_ARRAY` is mutable + modeler-declared +
+> value-validated — opposite semantics, so forcing both through one "discriminator" type/loop bought nothing
+> and created the multi-axis trigger-clobber + `values=null` problems. The is-a path is unchanged from master;
+> only the composition (`MODULE_ARRAY`) path is new. A scalar "pick-exactly-one-module" `MODULE` type stays
+> DEFERRED (different future need, not `SUBCLASS`). So below, read every "`mg_tableclass` typed `SUBCLASS`" /
+> "values auto-derived" / "mg_tableclass in the discriminator loop" as REVERSED.
+
+### Locked owner decisions (2026-06-12)
+| # | Decision |
+|---|----------|
+| C-1 | A discriminator is a first-class **named column**: scalar `SUBCLASS` = EXCLUSIVE is-a identity; array `MODULE_ARRAY` = MULTIPLE composition. |
+| C-2 | Inheritance and composition **MAY COEXIST** on one table (orthogonal axes on the shared root PK). `extends` auto-creates the `SUBCLASS` discriminator `mg_tableclass`; `MODULE_ARRAY` columns are additional — NOT a replacement (drops the earlier suppress-`mg_tableclass` rule). Models FHIR `meta.profile[]` / RDF multiple `rdf:type`. Retires plan decision #11. |
+| C-3 | A modeler may declare **several** `MODULE_ARRAY` columns (independent modular choice-sets — large clinical tables). Engine loops `getDiscriminatorColumns()` **by name**; never hardcodes `MG_TABLECLASS`. (Absorbs old Phase G.) |
+| C-4 | `SUBCLASS`/`extends` values = **TABLE/DATA** subclasses incl. **cross-schema** (already supported). `MODULE_ARRAY` values = **MODULE** classes **ALWAYS**. MODULE = materialized per consuming table (absorbs old Phase D). |
+| C-5 | Deactivation = **HARD DELETE**: dropping a module from a `MODULE_ARRAY` on update DELETEs its materialized row (root PK; FK `onDeleteCascade`; root row intact). |
+| C-6 | Storage unchanged: table-per-type on the single shared root PK (Phase B invariant). |
+
+> Terminology: reuse spans PostgreSQL **schemas** (call it **cross-schema**, not "cross-host").
+
+### Discriminator naming model
+- A discriminator is a `MODULE_ARRAY` column with a NAME. `getDiscriminatorColumns()` = columns of type `MODULE_ARRAY` (via `Column.isDiscriminator()`). (DESIGN B: scalar `SUBCLASS` dropped.)
+- **Modeler-named:** `MODULE_ARRAY` composition columns (e.g. `panels`, `subgroups01`).
+- **Auto/reserved (is-a, NOT a `getDiscriminatorColumns()` member):** `extends` creates the reserved system column `mg_tableclass` — one, on the root; read-only; immutable (trigger); value = `"schema.ConcreteType"`. Stays the untyped master-style system column, name-keyed by `MG_TABLECLASS`, handled by the existing is-a code (NOT the composition discriminator loop).
+- The composition engine never touches `mg_tableclass`; the is-a engine never touches `MODULE_ARRAY`. They coexist on the shared root PK (decision C-2/O-4).
+- **Deferred (not built now):** a scalar `MODULE` type ("pick exactly one module" — single exclusive composition). Add later only if a real "choose one variant" case appears.
+
+### Model
+- Active type set for a row = union over discriminator columns of their selected `"schema.Table"` value(s). Values stay schema-qualified `"schema.Table"` exactly as `mg_tableclass` works today (dots are NOT allowed in names → the `.` split is unambiguous).
+- `MODULE_ARRAY` values are always MODULE classes; scalar `SUBCLASS`/`extends` values are TABLE subclasses.
+- Internal helper `DiscriminatorAxis(column, isArray, allowedTypes)` drives DDL/write/query/validation.
+
+### MODULE materialization per consuming table (O-1 RESOLVED → root-namespaced, reserved prefix)
+- When `MODULE_ARRAY` `d` on consuming root `R` (schema `s`) allows `"m.Mod"` where `Mod.tableType==MODULE`: materialize a physical table for *this consumer* keyed on `R`'s root PK.
+- **Stored discriminator value** = the module's logical ref `"m.Mod"` (what the modeler picked), unchanged. **Physical materialized table** = root-namespaced with a reserved `mg_`-prefix (e.g. `mg_<Root>_<Mod>`) so it cannot collide with a user table and stays off the queryable surface. Exact collision-safe token verified against EMX2 identifier rules during C2.
+- Reuse `SqlTableMetadataExecutor.executeSetInherit(..., skipPkAndMgTableclass=true)` — it already copies parent PK + FK-on-root-PK + KEY1 and SKIPS `mg_tableclass`/is-a, which is exactly MODULE semantics.
+- Module-extends-module → **flatten** all module-ancestor columns into the one materialized table (modules have no standalone storage / no is-a join). Collision check via existing Phase B validation.
+- Same module reused by another consuming table (possibly in another schema) → an **independent** materialized table, FK'd to ITS own root PK → preserves single-root-PK join invariant; a single shared module table cannot serve two root PKs.
+- Materialization record: **derive from `values`** — the materialized table + its `table_metadata` row IS the record (no new metadata column / migration; O-2). Materialized table is NOT in `getSubclassTables()` (not is-a); query/validation enumerate **allowed discriminator targets** → need a unified `getComposedColumns()` (or extend `getColumnsIncludingSubclasses`) including materialized-module columns.
+
+### Multi-discriminator write/query/validation
+- **Write** (`SqlTable.executeTransaction`/`executeBatch`/`insertBatch`/`updateBatch`, ~196-524): bucket each row into ALL active write-targets (root once + the `extends` subtype chain if any + each active module's materialized table). Set scalar `mg_tableclass` (if `extends`) and each `MODULE_ARRAY` `TEXT[]` union — they coexist. Root written once (existing `ancestorChainRootFirst` dedup).
+- **Hard-delete (C6)**: in `updateBatch`, read prior discriminator array for the row (one SELECT in-tx, O-6), diff, `DELETE FROM <materialized> WHERE pk=root_pk` for removed modules.
+- **Query** (`SqlQuery.tableWithInheritanceJoin` ~880, `rowSelectFields` ~238): keep ancestor INNER JOINs; replace the single subclass `USING(pk, mg_tableclass)` with per-allowed-type `LEFT JOIN <target> ON pk-match AND '<value>' = ANY(<d>)` (array) / `= <d>` (scalar). Wrap module-owned column projections in membership `CASE WHEN '<owner>' = ANY(<d>) THEN alias.col ELSE NULL`.
+- **Validation** (`SqlTypeUtils.applyValidationAndComputed` ~26, `columnIsVisible` ~157, `checkRequired` ~100): array discriminators already appear in the JS `graph` as real array columns (user `visible=` can do `d.includes('m.X')`); ADD engine-side per-axis `__active_<columnId>` + union `__active`; auto-gate a module-owned column to not-visible (→ cleared, not-required) when its owner is not in the row's active set. Mirrors the existing invisible-column clear (~72-78) — no new clearing logic.
+
+### Migration / DDL
+- No destructive migration: scalar `mg_tableclass` unchanged (now typed `SUBCLASS`); `MODULE_ARRAY` is a newly-declared `TEXT[]` column (base `STRING_ARRAY`, already mapped in Phase A under the old name). The `SUBCLASS_ARRAY`→`MODULE_ARRAY` rename is in-code only (ColumnType + type-maps + tests; all test data, `cleandb` — no persisted-data migration). Start with NO new `migrationNN.sql` (derive materialization from `values`). Add a marker column + migration ONLY if schema-reload round-trip proves derivation insufficient (O-2).
+
+### Staged delivery (each keeps all existing suites green; red-green per stage)
+- [x] **C0 — Discriminator abstraction + rename (FOUNDATIONAL; O-1-independent). DONE & green (2026-06-12, reviewed; trimmed to Design B).** `getDiscriminatorColumns()` (returns `MODULE_ARRAY` columns) + `Column.isDiscriminator()` (== `MODULE_ARRAY`); renamed `SUBCLASS_ARRAY`→`MODULE_ARRAY`; **dropped the scalar `SUBCLASS` column type** — `mg_tableclass` stays the master-style untyped system column (executor unchanged from Phase B), **with no behavior change** (existing diamond/extends tests are the safety net). Acceptance MET: existing diamond/extends/inherits suites green + `getDiscriminatorColumnsFindsModuleArrayColumns`. See "C0 status" block below.
+- **C1 — MODULE_ARRAY DDL + trigger.** Declare `MODULE_ARRAY` → `TEXT[]`; values constrained to MODULE classes; add a per-MODULE_ARRAY array-membership consistency check (MODULE_ARRAY is MUTABLE — NO immutability trigger; that is is-a/`mg_tableclass`-only). `mg_tableclass` (is-a) and `MODULE_ARRAY` (composition) **coexist** untouched. **C1 design notes (from C0 review, simplified by Design B):** there is no shared discriminator trigger anymore — `mg_tableclass` keeps its own `createMgTableClassCannotUpdateCheck`; design any `MODULE_ARRAY` trigger/check PER-COLUMN from the start (axis-keyed function name) so multiple `MODULE_ARRAY` columns never clobber each other. Reintroduce the `DiscriminatorAxis` helper here (dropped in the C0 trim) with `allowedTypes` populated from the column's `values`. Acceptance: column is `TEXT[]`; `mg_tableclass` still present + immutable when `extends` used; allowed MODULE values persisted/validated; a table with mg_tableclass + two MODULE_ARRAY columns keeps ALL their checks independently.
+- **C2 — MODULE materialization + module-extends-module (finalize O-1 token).** Materialize per-consumer module table via `executeSetInherit(skip=true)` with the root-namespaced reserved name, flatten module-extends-module, collision check. Acceptance: module reused by two consuming tables (incl. cross-schema) → independent materialized tables, flattened columns, per-consumer root-PK join, no collision.
+- **C3 — MULTIPLE write routing.** Multi-bucket insert: activating modules writes rows into their materialized tables; populate `TEXT[]`. Acceptance: a row activating 2 modules → rows in both materialized tables on shared root PK; array = both values.
+- **C4 — MULTIPLE query projection.** Per-type `= ANY(d)` LEFT JOIN + membership CASE-WHEN. Acceptance: activating both → both module groups; activating one → other group NULL.
+- **C5 — Validation gating.** `__active_<d>` in graph; auto-gate visible/required on module-owned columns. Acceptance: required col of inactive module doesn't throw; of active module does.
+- **C6 — Hard-delete on deactivation.** Diff old/new active set in `updateBatch`, DELETE removed module rows. Acceptance: dropping a module removes its row, root + other modules intact; AND a table with BOTH `extends`-identity and a `MODULE_ARRAY` works together (mix smoke).
+
+### C0 status (2026-06-12) — DONE & green, reviewed; trimmed to Design B
+
+First landed the full unified version (mg_tableclass typed `SUBCLASS` + generalized discriminator trigger
+loop + `DiscriminatorAxis`), reviewed it green, then on owner decision TRIMMED to **Design B** (drop scalar
+`SUBCLASS`; keep mg_tableclass master-style). The first review's findings (`values=null` deviation, multi-axis
+trigger clobber) were what motivated Design B — both are eliminated at the source by the trim.
+
+**Final C0 (staged, NOT committed):**
+- Rename `SUBCLASS_ARRAY`→`MODULE_ARRAY` — `ColumnType.java`, `TypeUtils.getArrayType` (SUBCLASS line removed), `ColumnTypeRdfMapper` (SUBCLASS entry removed; MODULE_ARRAY→SKIP kept), `TestTableMetadataDag`. Whole-repo grep `SUBCLASS_ARRAY` = ZERO; grep `ColumnType.SUBCLASS` = ZERO.
+- **Scalar `SUBCLASS` column type DELETED** from `ColumnType`.
+- `Column.isDiscriminator()` == `getColumnType() == MODULE_ARRAY`; `TableMetadata.getDiscriminatorColumns()` = `MODULE_ARRAY` columns (filters `getColumns()` by `isDiscriminator()`).
+- `mg_tableclass` UNCHANGED from Phase B — untyped, engine-managed, immutable system column; `SqlTableMetadataExecutor` reverted to HEAD (its own `createMgTableClassCannotUpdateCheck` intact). `DiscriminatorAxis` removed (no consumer until C1).
+- New test `TestTableMetadataDag.getDiscriminatorColumnsFindsModuleArrayColumns`.
+
+**Suites (to re-confirm after the trim, post `./gradlew cleandb`):** molgenis-emx2, -sql (TestDiamondInheritance, MetadataPersistenceRoundtripTest, TestInherits), -io (TestExtends), -rdf (ColumnTypeRdfMapperTest), -graphql. spotless+PMD clean.
+
+**Carry into C1:**
+- Reintroduce `DiscriminatorAxis` (for `MODULE_ARRAY` axes) with `allowedTypes` populated from the column's `values`.
+- `MODULE_ARRAY` is MUTABLE → it gets a per-column array-membership consistency check, NOT an immutability trigger (that is mg_tableclass-only). Design any such trigger axis-keyed per column from the start so multiple `MODULE_ARRAY` columns can't clobber each other (the clobber bug from the first C0 cannot recur because mg_tableclass is out of the loop and keeps its own trigger).
+- `values` existence-validation (schema.Table must exist; MODULE_ARRAY values must be MODULE classes) lands here.
+
+### Open decisions
+- **O-1 module materialization storage + naming:** ✅ RESOLVED (option b) — per-consumer materialized table, **root-namespaced reserved `mg_`-prefixed** physical name; stored discriminator value stays the module's logical `"schema.Mod"` ref. Exact collision-safe token verified during C2.
+- **O-2 materialization persistence:** ✅ derive from `values` (no new column/migration); add a marker only if reload needs it.
+- **O-3 cross-schema TABLE subclasses:** ✅ already work cross-schema as-is; MULTIPLE composition is MODULE-only (C-4), so the old "TABLE-subtype as MULTIPLE option" question is moot.
+- **O-4 mix inheritance + composition:** ✅ REVISED — **ALLOWED to coexist** (drops the suppress-`mg_tableclass` rule; the C0 loop handles mixed-cardinality discriminators uniformly). `getRootTable()` single-root invariant holds across all axes.
+- **O-5 cross-discriminator overlap:** ✅ a given MODULE appears in at most ONE discriminator column per table.
+- **O-6 update old-row read:** ✅ one extra in-tx `SELECT` of the prior array per update batch.
+- **(naming) `SUBCLASS` vs `tableExtends`:** NOT unified — different layers (column-type vs declaration keyword) and `tableExtends` is frozen back-compat. Broader `inherits`/`extends`/`subclass`/`class` sprawl = optional later cleanup, NOT in C0.
 
 ---
 
@@ -320,6 +426,10 @@ duplicate-column rejection, single-root enforcement (reject a DAG with two roots
 
 ## Phase C — `SUBCLASS_ARRAY` (MULTIPLE) within one hierarchy
 
+> **SUPERSEDED by "Phase C REVISED (2026-06-12)" above.** Kept for history. The single-`mg_tableclass`
+> cardinality-flip model below was replaced by the column-based, multi-discriminator engine (decision C-2
+> retires the `mg_tableclass`-becomes-array approach).
+
 **`backend/molgenis-emx2/.../Constants.java`** — `mg_tableclass` becomes cardinality-aware; when a
 root declares a `SUBCLASS_ARRAY` discriminator, the stored column is `TEXT[]`.
 
@@ -353,6 +463,9 @@ deactivation deletes the subtype row.
 ---
 
 ## Phase D — `MODULE` tableType + per-host materialization + module-extends-module
+
+> **ABSORBED into "Phase C REVISED (2026-06-12)" sub-stage C6.** Kept for history; the materialization
+> design below is carried forward (now keyed off discriminator `values` rather than a separate module list).
 
 - A **`MODULE`** table is an abstract, reusable definition: no own storage. Modules may
   `extends` other modules → flatten columns at materialization.
@@ -404,6 +517,10 @@ active module** in the row's discriminator set (+ each module table's semantics)
 ---
 
 ## Phase G — Multiple discriminator columns per table
+
+> **ABSORBED into "Phase C REVISED (2026-06-12)".** Multi-axis is built in from sub-stage C0 (engine
+> loops `getDiscriminatorColumns()`). Note `allowedSubclasses[]` is retired — `Column.values` IS the
+> allowed set (decision #4). Kept for history.
 
 - A table may declare several `SUBCLASS`/`SUBCLASS_ARRAY` columns (orthogonal axes, e.g.
   `diseaseGroup` and `sampleType`). Each uses `allowedSubclasses[]` (schema-qualified) to scope its
