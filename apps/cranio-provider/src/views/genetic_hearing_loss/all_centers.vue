@@ -16,7 +16,7 @@ import {
 import ProviderDashboard from "../../components/ProviderDashboard.vue";
 import { generateAxisTickData } from "../../utils/generateAxisTicks";
 import { getGeneticLossData } from "../../utils/getGeneticHearingLossData";
-import { sortByDataPointName } from "../../utils";
+import { sortByDataPointName, sortByDataPointOrder } from "../../utils";
 
 import type { ICharts, IChartData } from "../../types/schema";
 import type { IAppPage } from "../../types/app";
@@ -67,46 +67,25 @@ onMounted(async () => {
   rehabilitationTypeChart.value = yourCenter.rehabilitationChart;
 
   // combine data
-  hearingLossTypeLeftChart.value.dataPoints = [
+  hearingLossTypeLeftChart.value.dataPoints = sortByDataPointOrder([
     ...(hearingLossTypeLeftChart.value.dataPoints as IChartData[]),
     ...(allCenters.hearingLossTypeLeft.dataPoints as IChartData[]),
-  ].sort((a, b) => {
-    return (
-      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-      (b.dataPointSecondaryCategory as string).localeCompare(
-        a.dataPointSecondaryCategory as string
-      )
-    );
-  });
+  ]);
 
-  hearingLossTypeRightChart.value.dataPoints = [
+  hearingLossTypeRightChart.value.dataPoints = sortByDataPointOrder([
     ...(hearingLossTypeRightChart.value.dataPoints as IChartData[]),
     ...(allCenters.hearingLossTypeRight.dataPoints as IChartData[]),
-  ].sort((a, b) => {
-    return (
-      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-      (b.dataPointSecondaryCategory as string).localeCompare(
-        a.dataPointSecondaryCategory as string
-      )
-    );
-  });
+  ]);
 
   hearingLossSeverityChart.value.dataPoints = sortByDataPointName([
     ...(hearingLossSeverityChart.value.dataPoints as IChartData[]),
     ...(allCenters.severity.dataPoints as IChartData[]),
   ]);
 
-  hearingLossOnsetChart.value.dataPoints = [
+  hearingLossOnsetChart.value.dataPoints = sortByDataPointOrder([
     ...(hearingLossOnsetChart.value.dataPoints as IChartData[]),
     ...(allCenters.ageOfOnset.dataPoints as IChartData[]),
-  ].sort((a, b) => {
-    return (
-      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-      (b.dataPointSecondaryCategory as string).localeCompare(
-        a.dataPointSecondaryCategory as string
-      )
-    );
-  });
+  ]);
 
   geneticDiagnosisGenesChart.value.dataPoints = sortByDataPointName([
     ...(geneticDiagnosisGenesChart.value.dataPoints as IChartData[]),
@@ -133,13 +112,8 @@ onMounted(async () => {
     ...(allCenters.rehabilitationChart.dataPoints as IChartData[]),
   ]);
 
-  // create data for type of hearing loss chart
+  // Chart axis data for type of hearing loss (left ear)
   const hearingLossLeftAxis = generateAxisTickData(
-    hearingLossTypeLeftChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
-  );
-
-  const hearingLossRightAxis = generateAxisTickData(
     hearingLossTypeLeftChart.value?.dataPoints as IChartData[],
     "dataPointValue"
   );
@@ -148,6 +122,12 @@ onMounted(async () => {
     hearingLossTypeLeftChart.value.yAxisMaxValue = hearingLossLeftAxis.limit;
     hearingLossTypeLeftChart.value.yAxisTicks = hearingLossLeftAxis.ticks;
   }
+
+  // Chart axis data for type of hearing loss (right ear)
+  const hearingLossRightAxis = generateAxisTickData(
+    hearingLossTypeRightChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
 
   if (hearingLossTypeRightChart.value) {
     hearingLossTypeRightChart.value.yAxisMaxValue = hearingLossRightAxis.limit;
@@ -224,6 +204,7 @@ onMounted(async () => {
     syndromicClassifcationChart.value?.dataPoints as IChartData[],
     "dataPointValue"
   );
+
   if (syndromicClassifcationChart.value) {
     syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
     syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
