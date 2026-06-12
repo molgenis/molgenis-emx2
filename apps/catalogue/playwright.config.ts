@@ -13,6 +13,8 @@ export default defineConfig<ConfigOptions>({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  /* fail faster on CI. */
+  maxFailures: process.env.CI ? 1 : 5,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
@@ -24,11 +26,7 @@ export default defineConfig<ConfigOptions>({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL:
-      process.env.E2E_BASE_URL || process.env.CI
-        ? "http://localhost:8080/"
-        : "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
-
+    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     nuxt: {

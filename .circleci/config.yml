@@ -358,8 +358,8 @@ jobs:
           name: Catalogue ssr tests
           command: |
             cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
             pnpm install
-            export E2E_BASE_URL=http://localhost:8080
             pnpm --filter catalogue run e2e
           working_directory: apps
 
