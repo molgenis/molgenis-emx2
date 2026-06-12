@@ -59,6 +59,12 @@ const headerClasses = computed(() => {
           >
             {{ resource.acronym || resource.name }}
           </NuxtLink>
+          <NuxtLink
+            :to="`/${catalogue}/${route.params.resourceType}/${resource.id}/generated`"
+            class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
+          >
+            (generated)
+          </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
