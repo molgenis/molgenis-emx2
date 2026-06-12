@@ -8,7 +8,6 @@ import Logo from "../../../../tailwind-components/app/components/Logo.vue";
 import MainNavigation from "../../components/MainNavigation.vue";
 import HamburgerMenu from "../../components/HamburgerMenu.vue";
 import StoreHeaderButton from "../../components/store/HeaderButton.vue";
-import StoreModal from "../../components/store/Modal.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -115,10 +114,6 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <StoreHeaderButton
-          v-if="datasetStore.isEnabled"
-          @click="showCartModal = !showCartModal"
-        />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
@@ -133,10 +128,6 @@ if (!cohortOnly.value) {
             >
           </div>
           <div class="flex gap-3">
-            <StoreHeaderButton
-              @click="showCartModal = !showCartModal"
-              v-if="datasetStore.isEnabled"
-            />
             <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>
@@ -147,6 +138,5 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
-    <StoreModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

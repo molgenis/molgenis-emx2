@@ -44,6 +44,8 @@ export default async (
           }
         }`;
 
+  console.debug("Constructed query:", query);
+
   const filter = properties?.filter ? properties?.filter : {};
   const orderby = properties?.orderby ? [properties?.orderby] : [];
 
