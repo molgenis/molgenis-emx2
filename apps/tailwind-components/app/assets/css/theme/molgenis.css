@@ -104,6 +104,7 @@
   --text-color-link: var(--color-blue-500);
   --text-color-link-inverted: var(--color-yellow-500);
   --text-color-table-column-header: var(--color-gray-600);
+  --text-color-label-available: var(--color-white);
 
   --text-color-invalid: var(--color-red-700);
   --text-color-valid: var(--color-green-900);

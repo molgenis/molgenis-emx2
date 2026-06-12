@@ -30,7 +30,6 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.SqlSchemaMetadata;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
@@ -63,7 +62,7 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+    if (!PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema changelog");
     }
 
@@ -163,7 +162,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!isManagerOrOwnerOfSchema(ctx, schema)) {
+    if (!PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
@@ -186,15 +185,6 @@ public class CsvApi {
     ctx.contentType(ACCEPT_CSV);
     ctx.status(200);
     ctx.result(writer.toString());
-  }
-
-  private static boolean isManagerOrOwnerOfSchema(Context ctx, Schema schema) {
-    String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
-    SqlSchemaMetadata sqlSchemaMetadata =
-        new SqlSchemaMetadata(schema.getDatabase(), schema.getName());
-    List<String> roles = sqlSchemaMetadata.getInheritedRolesForUser(currentUser);
-    return roles.contains(Privileges.MANAGER.toString())
-        || roles.contains(Privileges.OWNER.toString());
   }
 
   private static void getSettings(Context ctx) throws IOException {

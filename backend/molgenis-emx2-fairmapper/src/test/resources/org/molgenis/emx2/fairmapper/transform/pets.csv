@@ -1,0 +1,9 @@
+Pet,name,status,weight,tags
+http://localhost:8080/pet%20store/api/rdf/Pet/name=pooky,pooky,available,9.4,
+http://localhost:8080/pet%20store/api/rdf/Pet/name=fire%20ant,fire ant,available,0.01,"http://localhost:8080/pet%20store/api/rdf/Tag/name=purple,https://dbpedia.org/page/Green,https://dbpedia.org/page/Red"
+http://localhost:8080/pet%20store/api/rdf/Pet/name=jerry,jerry,available,0.18,http://localhost:8080/pet%20store/api/rdf/Tag/name=blue
+http://localhost:8080/pet%20store/api/rdf/Pet/name=the%20very%20hungry%20caterpillar,the very hungry caterpillar,available,0.5,https://dbpedia.org/page/Green
+http://localhost:8080/pet%20store/api/rdf/Pet/name=tom,tom,available,3.14,https://dbpedia.org/page/Red
+http://localhost:8080/pet%20store/api/rdf/Pet/name=spike,spike,sold,15.7,"https://dbpedia.org/page/Green,https://dbpedia.org/page/Red"
+http://localhost:8080/pet%20store/api/rdf/Pet/name=sylvester,sylvester,available,1.337,http://localhost:8080/pet%20store/api/rdf/Tag/name=purple
+http://localhost:8080/pet%20store/api/rdf/Pet/name=tweety,tweety,available,0.1,https://dbpedia.org/page/Red
