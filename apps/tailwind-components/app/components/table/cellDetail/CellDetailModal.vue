@@ -5,7 +5,7 @@
     :visible="showModal"
     @update:visible="(event) => emit('update:showModal', event)"
     :title="subtitle"
-    @closed="showModal = false"
+    @closed="emit('update:showModal', false)"
   >
     <template
       v-if="isArrayLikeDetail(payload.metadata) && Array.isArray(payload.data)"

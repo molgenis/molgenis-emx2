@@ -41,7 +41,7 @@ const refBackColumnLabels = computed(() => {
   <span
     v-for="(refBackColumnLabel, index) in refBackColumnLabels"
     class="underline hover:cursor-pointer text-link"
-    @click="() => handleRefBackCellClicked(index)"
+    @click="handleRefBackCellClicked(index)"
   >
     {{ refBackColumnLabel }}
     <span class="no-underline" v-if="index < refBackColumnLabels.length - 1">
