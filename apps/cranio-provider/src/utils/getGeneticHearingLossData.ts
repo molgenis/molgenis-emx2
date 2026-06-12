@@ -1,48 +1,38 @@
 import { getDashboardChart } from "./getDashboardData";
-import type { ICharts, IChartData } from "../types/schema";
+import type { IChartData } from "../types/schema";
 
 export async function getGeneticLossData(url: string, type: string) {
   const hearingLossTypeLeft = (
-    (await getDashboardChart(url, "ghl-type-of-hearing-loss-left")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "ghl-type-of-hearing-loss-left")
+  )[0];
 
   const hearingLossTypeRight = (
-    (await getDashboardChart(
-      url,
-      "ghl-type-of-hearing-loss-right"
-    )) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "ghl-type-of-hearing-loss-right")
+  )[0];
 
   const severityChart = (
-    (await getDashboardChart(
-      url,
-      "severity-of-hearing-loss-by-ear"
-    )) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "severity-of-hearing-loss-by-ear")
+  )[0];
 
   const onsetChart = (
-    (await getDashboardChart(url, "age-of-hearing-loss-onset")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "age-of-hearing-loss-onset")
+  )[0];
 
   const dxTypeChart = (
-    (await getDashboardChart(url, "genetic-diagnosis-type")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "genetic-diagnosis-type")
+  )[0];
 
-  const dxGenes = (
-    (await getDashboardChart(url, "genes")) as ICharts[]
-  )[0] as ICharts;
+  const dxGenes = (await getDashboardChart(url, "genes"))[0];
 
-  const etiologyChart = (
-    (await getDashboardChart(url, "etiology")) as ICharts[]
-  )[0] as ICharts;
+  const etiologyChart = (await getDashboardChart(url, "etiology"))[0];
 
   const classificationChart = (
-    (await getDashboardChart(url, "syndromic-classification")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "syndromic-classification")
+  )[0];
 
   const rehabilitationChart = (
-    (await getDashboardChart(url, "ghl-rehabilitation-type")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "ghl-rehabilitation-type")
+  )[0];
 
   const data = {
     hearingLossTypeLeft: hearingLossTypeLeft,
