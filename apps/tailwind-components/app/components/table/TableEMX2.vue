@@ -192,7 +192,7 @@
     :payload="cellDetailPayload"
     :schemaId="schemaId"
     v-model:showModal="showModal"
-    @update:cellDetailValue="(event) => (cellDetailPayload = event)"
+    @update:cellDetailPayload="cellDetailPayload = $event"
   />
 
   <DeleteModal

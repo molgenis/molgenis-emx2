@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
-import { computed, nextTick, ref, useId } from "vue";
+import { computed, ref, useId } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -16,21 +16,12 @@ import DefinitionListTerm from "../../../../../tailwind-components/app/component
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
-import Modal from "../../../../../tailwind-components/app/components/Modal.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import TableCellDetailRef from "../../../../../tailwind-components/app/components/table/cellDetail/TableCellDetailRef.vue";
+import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
-import {
-  isArrayLikeDetail,
-  isRefLikeDetail,
-} from "../../../../../tailwind-components/app/utils/refUtils";
-import {
-  toRefColumn,
-  toRefColumnValue,
-} from "../../../../../tailwind-components/app/utils/typeUtils";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
@@ -40,6 +31,9 @@ const tableId = route.params.table as string;
 const entityId = route.params.entity as string;
 const keys = route.query.keys as string | undefined;
 let entityKeysObject: IRow = {};
+
+const showModal = ref(false);
+const cellDetailPayload = ref<cellPayload>();
 
 try {
   if (keys) {
@@ -134,45 +128,12 @@ const enableDeleting = computed(() => {
   return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
 });
 
-const showModal = ref(false);
-
-const cellDetailSchemaId = ref<string>();
-const cellDetailColumn = ref<IColumn>();
-const cellDetailSubtitle = ref<string>();
-const cellDetailValue = ref<columnValue>();
-
-const showRefDetailModal = computed(() => {
-  return (
-    cellDetailColumn.value &&
-    isRefLikeDetail(cellDetailColumn.value) &&
-    !isArrayLikeDetail(cellDetailColumn.value) &&
-    showModal.value
-  );
-});
-
-function handleCellClick(event: cellPayload, column: IColumn) {
-  cellDetailSubtitle.value = column.label;
-  cellDetailColumn.value = column;
-  cellDetailSchemaId.value = column.refSchemaId ?? schemaId;
-  cellDetailValue.value = event.data as columnValue;
-  showModal.value = true;
-}
-
-async function handleDetailRefClick(event: cellPayload) {
-  showModal.value = false;
-  await nextTick();
-
-  const columnMetadata = event.metadata;
-
-  cellDetailSubtitle.value = columnMetadata.label;
-  cellDetailColumn.value = columnMetadata;
-  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? schemaId;
-
-  cellDetailValue.value = event.data as columnValue;
-
+function handleCellClick(event: cellPayload) {
+  cellDetailPayload.value = event;
   showModal.value = true;
 }
 </script>
+
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="entityId" align="left">
@@ -208,7 +169,8 @@ async function handleDetailRefClick(event: cellPayload) {
           icon="trash"
           @click="showDeleteModal = true"
           v-if="enableDeleting"
-          >Delete
+        >
+          Delete
         </Button>
       </div>
     </div>
@@ -231,14 +193,14 @@ async function handleDetailRefClick(event: cellPayload) {
         </h3>
         <DefinitionList :compact="false">
           <template v-for="field in section.fields">
-            <DefinitionListTerm class="text-title-contrast"
-              >{{ field.metadata.label }}
+            <DefinitionListTerm class="text-title-contrast">
+              {{ field.metadata.label }}
             </DefinitionListTerm>
             <DefinitionListDefinition class="text-title-contrast">
               <ValueEMX2
                 :data="field.value"
                 :metadata="field.metadata"
-                @valueClick="handleCellClick($event, field.metadata)"
+                @valueClick="handleCellClick($event)"
               />
             </DefinitionListDefinition>
           </template>
@@ -247,41 +209,13 @@ async function handleDetailRefClick(event: cellPayload) {
     </ContentBlock>
   </section>
 
-  <Modal
-    type="right"
-    v-model:visible="showModal"
-    :title="cellDetailSubtitle"
-    @closed="showModal = false"
-  >
-    <TableCellDetailRef
-      v-if="cellDetailColumn && showRefDetailModal"
-      :metadata="toRefColumn(cellDetailColumn)"
-      :columnValue="toRefColumnValue(cellDetailValue)"
-      :schema="cellDetailSchemaId ?? schemaId"
-      :showDataOwner="false"
-      @onRefClick="handleDetailRefClick"
-    />
-    <template
-      v-else-if="
-        cellDetailValue &&
-        cellDetailColumn &&
-        isArrayLikeDetail(cellDetailColumn)
-      "
-    >
-      <ul>
-        <li v-for="(item, index) in cellDetailValue" :key="index">
-          <TableCellDetailRef
-            v-if="cellDetailColumn"
-            :metadata="toRefColumn(cellDetailColumn)"
-            :columnValue="toRefColumnValue(item as columnValue)"
-            :schema="cellDetailSchemaId ?? schemaId"
-            :showDataOwner="false"
-            @onRefClick="handleDetailRefClick"
-          />
-        </li>
-      </ul>
-    </template>
-  </Modal>
+  <CellDetailModal
+    v-if="cellDetailPayload"
+    :payload="cellDetailPayload"
+    :schemaId="schemaId"
+    v-model:showModal="showModal"
+    @update:cellDetailPayload="cellDetailPayload = $event"
+  />
 
   <DeleteModal
     v-if="tableMetadata && rowData && showDeleteModal"

@@ -67,7 +67,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "update:showModal", value: boolean): void;
-  (event: "update:cellDetailValue", value: cellPayload): void;
+  (event: "update:cellDetailPayload", value: cellPayload): void;
 }>();
 
 const subtitle = computed(() => props.payload.metadata.label ?? "");
@@ -79,7 +79,7 @@ const cellSchemaId = computed(
 async function handleDetailRefClick(event: cellPayload) {
   emit("update:showModal", false);
   await nextTick();
-  emit("update:cellDetailValue", event);
+  emit("update:cellDetailPayload", event);
   emit("update:showModal", true);
 }
 </script>
