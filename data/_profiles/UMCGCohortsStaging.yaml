@@ -2,7 +2,7 @@
 name: UMCGCohortsStaging
 description: "Staging area for filling out UMCG cohort metadata"
 
-profileTags: UMCGCohortsStaging
+profileTags: CohortsBasis,CohortsExtended,DataDictionaries,Mappings,UMCGCohortsStaging,Samplesets
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
