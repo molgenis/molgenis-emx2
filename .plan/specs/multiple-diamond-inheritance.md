@@ -26,8 +26,14 @@ assignment); engine cross-checks each value extends this root + one-axis-per-mod
 `executeSetInherit` param-elimination simplification (single derived 3-arg form). MODULE-extends-root = real subtype
 table (PK+FK+KEY1, no mg_tableclass); MODULE excluded from is-a enumeration (catalog-visible); MODULE_ARRAY value must
 extend this root + one-axis (O-5); reload round-trip. Verified exit 0 across diamond/module/cross-schema/reload suites;
-spotless+PMD clean. NO write-routing/query/gating/hard-delete yet — C3–C6 PLANNED; C4 GENERALIZES
-`tableWithInheritanceJoin` into ONE discriminator-driven join (not a parallel composition method).
+spotless+PMD clean.
+
+**C3 DONE & green (2026-06-13, independently reviewed NO-BLOCKERS; STAGED, not committed).** MULTIPLE write routing: insert/update
+of a row on root R writes a row into each ACTIVE module subtype table (named by the MODULE_ARRAY value(s)) on the shared root PK, in
+addition to the root row — generalizes the is-a chain write (is-a path untouched; empty-discriminator = exact no-op). Validation is
+one-go over `base ∪ active-module columns` before the chain; update = upsert active modules; module-extends-module writes the full
+module-ancestor chain in FK order. NO query projection/gating/hard-delete yet — C4–C6 PLANNED; C4 GENERALIZES
+`tableWithInheritanceJoin` into ONE discriminator-driven join (not a parallel composition method); C6 hard-deletes removed modules.
 
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
@@ -53,6 +59,11 @@ spotless+PMD clean. NO write-routing/query/gating/hard-delete yet — C3–C6 PL
 | Diamond child has one PK, one FK per parent, all on single root PK | SqlTableMetadataExecutor.executeSetInherit | TestDiamondInheritance.diamondChildHasSingleRootPrimaryKey, diamondChildHasForeignKeyPerParent, mgTableclassLivesOnlyOnRoot | - |
 | Insert into diamond writes shared root exactly once | SqlTable.insertBatch | TestDiamondInheritance.insertAndSelectRoundtripThroughDiamond | - |
 | Query joins distinct ancestor set on single root PK | SqlQuery.tableWithInheritanceJoin | TestDiamondInheritance.insertAndSelectRoundtripThroughDiamond, diamondSurvivesSchemaReload | - |
+| Insert of a row activating N modules writes a row into each active module subtype table on the shared root PK (generalized chain loop + per-table row-batch filter; is-a path unchanged) | SqlTable.insertBatch / insertModuleRows | **C3 DONE** — TestModuleArrayDiscriminator.insertActivatingTwoModulesWritesRowInEachModuleTable | - |
+| Activating one module writes only that module's row; other module tables have no row for that PK | SqlTable.insertBatch / insertModuleRows | **C3 DONE** — TestModuleArrayDiscriminator.insertActivatingOneModuleWritesOnlyThatModuleRow | - |
+| Module-extends-module: activating a deep module writes its full module-ancestor chain in FK order on the shared PK | SqlTable.expandModuleAncestors / insertModuleRows | **C3 DONE** — TestModuleArrayDiscriminator.moduleExtendsModuleWritesFullModuleChainInFkOrder | - |
+| Active module columns validated/computed in ONE pass over base ∪ active-module columns before the chain (inactive never validated) | SqlTable.applyValidationPerRow + SqlTypeUtils.applyValidationAndComputed | **C3 DONE** — covered by insertActivatingOneModuleWritesOnlyThatModuleRow (no error on inactive module col) | - |
+| Update upserts active module rows (creates on newly-activated, updates already-active); removed-module hard-delete DEFERRED to C6 | SqlTable.updateBatch / insertModuleRows | **C3 DONE** — TestModuleArrayDiscriminator.updateUpsertsNewlyActivatedModuleRow (removal=C6) | - |
 | Module columns projected only when active for the row (membership CASE-WHEN) | SqlQuery.rowSelectFields | _C4_ | - |
 | required/visible gated by active set for module columns (`__active_<d>` in JS graph) | SqlTypeUtils | _C5_ | - |
 | Deactivating a module on update HARD-DELETEs its materialized row (root row intact) | SqlTable.updateBatch | _C6_ | - |

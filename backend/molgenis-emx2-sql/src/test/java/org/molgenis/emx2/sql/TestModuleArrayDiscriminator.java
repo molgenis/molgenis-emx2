@@ -436,6 +436,214 @@ class TestModuleArrayDiscriminator {
         "Error must mention the duplicate module or axis conflict, got: " + ex.getMessage());
   }
 
+  // ── C3: write routing into module subtype tables ─────────────────────────────
+
+  @Test
+  void insertActivatingTwoModulesWritesRowInEachModuleTable() {
+    Schema s = freshSchema("C3TwoMods");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(
+            column("panels")
+                .setType(MODULE_ARRAY)
+                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", new String[] {schemaName + ".Mod", schemaName + ".Mod2"},
+                "modCol", "modValue",
+                "mod2Col", "mod2Value"));
+
+    List<Row> modRows = s.getTable("Mod").retrieveRows();
+    assertEquals(1, modRows.size(), "Mod must have exactly one row for the activated root PK");
+    assertEquals("r1", modRows.get(0).getString("id"), "Mod row must have the shared root PK");
+    assertEquals("modValue", modRows.get(0).getString("modCol"), "Mod row must have modCol");
+
+    List<Row> mod2Rows = s.getTable("Mod2").retrieveRows();
+    assertEquals(1, mod2Rows.size(), "Mod2 must have exactly one row for the activated root PK");
+    assertEquals("r1", mod2Rows.get(0).getString("id"), "Mod2 row must have the shared root PK");
+    assertEquals("mod2Value", mod2Rows.get(0).getString("mod2Col"), "Mod2 row must have mod2Col");
+
+    List<Row> rootRows = s.getTable("Root").retrieveRows();
+    assertEquals(1, rootRows.size(), "Root must have exactly one row");
+    String[] panels = rootRows.get(0).getStringArray("panels");
+    assertNotNull(panels, "panels must not be null on root row");
+    assertEquals(2, panels.length, "panels must contain both module references");
+  }
+
+  @Test
+  void insertActivatingOneModuleWritesOnlyThatModuleRow() {
+    Schema s = freshSchema("C3OneMod");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(
+            column("panels")
+                .setType(MODULE_ARRAY)
+                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", schemaName + ".Mod",
+                "modCol", "modValue"));
+
+    List<Row> modRows = s.getTable("Mod").retrieveRows();
+    assertEquals(1, modRows.size(), "Mod must have a row since it was activated");
+    assertEquals("r1", modRows.get(0).getString("id"), "Mod row must have the shared root PK");
+
+    List<Row> mod2Rows = s.getTable("Mod2").retrieveRows();
+    assertEquals(0, mod2Rows.size(), "Mod2 must have NO row since it was not activated");
+  }
+
+  @Test
+  void updateUpsertsNewlyActivatedModuleRow() {
+    Schema s = freshSchema("C3Upsert");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(
+            column("panels")
+                .setType(MODULE_ARRAY)
+                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id",
+                "r1",
+                "rootCol",
+                "rootValue",
+                "panels",
+                schemaName + ".Mod",
+                "modCol",
+                "modValue"));
+
+    List<Row> mod2Before = s.getTable("Mod2").retrieveRows();
+    assertEquals(0, mod2Before.size(), "Mod2 must have no row before activation");
+
+    s.getTable("Root")
+        .update(
+            row(
+                "id", "r1",
+                "panels", new String[] {schemaName + ".Mod", schemaName + ".Mod2"},
+                "mod2Col", "mod2Value"));
+
+    // C6: removed-module hard-delete is deferred; only upsert-on-activate is tested here
+    List<Row> mod2After = s.getTable("Mod2").retrieveRows();
+    assertEquals(1, mod2After.size(), "Mod2 must have a row after being activated via update");
+    assertEquals("r1", mod2After.get(0).getString("id"), "Mod2 row must share the root PK");
+    assertEquals(
+        "mod2Value", mod2After.get(0).getString("mod2Col"), "Mod2 row must have the updated value");
+  }
+
+  // ── C3: module-extends-module — FK ordering: intermediate module written before leaf ──────────
+
+  @Test
+  void moduleExtendsModuleWritesFullModuleChainInFkOrder() {
+    Schema s = freshSchema("C3ModChain");
+    String schemaName = s.getMetadata().getName();
+
+    // ModChild extends ModParent which extends Root:
+    //   Root(id PK, rootCol) ← ModParent(MODULE, parentCol) ← ModChild(MODULE, childCol)
+    // Root declares panels = [ModChild]. Inserting a Root row that activates ModChild must
+    // write ModParent BEFORE ModChild to satisfy the FK from ModChild.id → ModParent.id.
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("ModParent")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("parentCol").setType(STRING)));
+    s.create(
+        table("ModChild")
+            .setTableType(MODULE)
+            .setInheritNames("ModParent")
+            .add(column("childCol").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModChild"));
+
+    // INSERT must succeed — FK integrity is maintained by writing ModParent before ModChild
+    assertDoesNotThrow(
+        () ->
+            s.getTable("Root")
+                .insert(
+                    row(
+                        "id", "r1",
+                        "rootCol", "rootValue",
+                        "panels", schemaName + ".ModChild",
+                        "parentCol", "parentValue",
+                        "childCol", "childValue")),
+        "Insert activating a two-level MODULE chain must succeed without FK violation");
+
+    List<Row> parentRows = s.getTable("ModParent").retrieveRows();
+    assertEquals(1, parentRows.size(), "ModParent must have exactly one row (intermediate write)");
+    assertEquals("r1", parentRows.get(0).getString("id"), "ModParent row must share the root PK");
+    assertEquals(
+        "parentValue",
+        parentRows.get(0).getString("parentCol"),
+        "ModParent row must carry parentCol");
+
+    List<Row> childRows = s.getTable("ModChild").retrieveRows();
+    assertEquals(1, childRows.size(), "ModChild must have exactly one row");
+    assertEquals("r1", childRows.get(0).getString("id"), "ModChild row must share the root PK");
+    assertEquals(
+        "childValue", childRows.get(0).getString("childCol"), "ModChild row must carry childCol");
+
+    List<Row> rootRows = s.getTable("Root").retrieveRows();
+    assertEquals(1, rootRows.size(), "Root must have exactly one row");
+    String[] panels = rootRows.get(0).getStringArray("panels");
+    assertNotNull(panels, "panels must not be null on root row");
+    assertEquals(1, panels.length, "panels must contain ModChild reference");
+    assertEquals(schemaName + ".ModChild", panels[0], "panels must reference ModChild");
+  }
+
   // ── C2.E: reload round-trip — module subtypes + MODULE_ARRAY survive reload ──
 
   @Test

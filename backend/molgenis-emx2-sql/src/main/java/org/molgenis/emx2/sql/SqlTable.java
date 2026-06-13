@@ -329,13 +329,13 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+      List<Row> batchRows = subclassRows.get(subclassName);
+      List<Row> rows = applyValidationPerRow(table, updateColumns, batchRows, false);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      List<Row> batchRows = subclassRows.get(subclassName);
+      List<Row> rows = applyValidationPerRow(table, insertColumns, batchRows, true);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
@@ -347,6 +347,38 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static List<Row> applyValidationPerRow(
+      SqlTable entry, List<Column> baseColumns, List<Row> rows, boolean isInsert) {
+    List<Column> discriminatorColumns = entry.getMetadata().getDiscriminatorColumns();
+    if (discriminatorColumns.isEmpty()) {
+      return applyValidationAndComputed(baseColumns, rows);
+    }
+    for (Row row : rows) {
+      List<Column> union = buildValidationUnion(entry, baseColumns, row, isInsert);
+      applyValidationAndComputed(union, row);
+    }
+    return rows;
+  }
+
+  private static List<Column> buildValidationUnion(
+      SqlTable entry, List<Column> baseColumns, Row row, boolean isInsert) {
+    List<Column> union = new ArrayList<>(baseColumns);
+    Set<String> unionNames =
+        new LinkedHashSet<>(baseColumns.stream().map(Column::getName).toList());
+    for (SqlTable moduleTable : activeModuleTables(entry, row)) {
+      List<Column> moduleCols =
+          isInsert
+              ? getInsertColumns(moduleTable, row.getColumnNames())
+              : moduleTable.getMetadata().getColumns();
+      for (Column col : moduleCols) {
+        if (unionNames.add(col.getName())) {
+          union.add(col);
+        }
+      }
+    }
+    return union;
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
@@ -392,6 +424,82 @@ public class SqlTable implements Table {
         .collect(Collectors.toList());
   }
 
+  private static List<SqlTable> activeModuleTables(SqlTable entry, Row row) {
+    List<Column> discriminators = entry.getMetadata().getDiscriminatorColumns();
+    if (discriminators.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Set<String> activeNames = new LinkedHashSet<>();
+    for (Column discriminator : discriminators) {
+      String[] values = row.getStringArray(discriminator.getName());
+      if (values != null) {
+        for (String value : values) {
+          if (value != null && !value.isEmpty()) {
+            String qualifiedName =
+                value.contains(".") ? value : entry.getSchema().getName() + "." + value;
+            activeNames.add(qualifiedName);
+          }
+        }
+      }
+    }
+
+    if (activeNames.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    String rootSchemaName = entry.getMetadata().getRootTable().getSchemaName();
+    String rootTableName = entry.getMetadata().getRootTable().getTableName();
+    Database database = entry.getSchema().getDatabase();
+
+    List<SqlTable> result = new ArrayList<>();
+    Set<String> emitted = new LinkedHashSet<>();
+
+    for (String qualifiedName : activeNames) {
+      String[] parts = qualifiedName.split("\\.", 2);
+      if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
+        continue;
+      }
+      org.molgenis.emx2.Schema moduleSchema = database.getSchema(parts[0]);
+      if (moduleSchema == null) continue;
+      SqlTable moduleTable = (SqlTable) moduleSchema.getTable(parts[1]);
+      if (moduleTable == null) continue;
+
+      expandModuleAncestors(moduleTable, rootSchemaName, rootTableName, result, emitted, database);
+      if (emitted.add(qualifiedName)) {
+        result.add(moduleTable);
+      }
+    }
+
+    return result;
+  }
+
+  private static void expandModuleAncestors(
+      SqlTable moduleTable,
+      String rootSchemaName,
+      String rootTableName,
+      List<SqlTable> result,
+      Set<String> emitted,
+      Database database) {
+    for (TableMetadata ancestorMeta : moduleTable.getMetadata().getAncestorsRootFirst()) {
+      if (ancestorMeta.getSchemaName().equals(rootSchemaName)
+          && ancestorMeta.getTableName().equals(rootTableName)) {
+        continue;
+      }
+      String ancestorKey = ancestorMeta.getSchemaName() + "." + ancestorMeta.getTableName();
+      if (emitted.add(ancestorKey)) {
+        SqlTable ancestorTable =
+            (SqlTable)
+                database
+                    .getSchema(ancestorMeta.getSchemaName())
+                    .getTable(ancestorMeta.getTableName());
+        if (ancestorTable != null) {
+          result.add(ancestorTable);
+        }
+      }
+    }
+  }
+
   private List<Record> insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
     List<SqlTable> chain = new ArrayList<>(ancestorChainRootFirst(table));
@@ -423,7 +531,69 @@ public class SqlTable implements Table {
       }
     }
 
+    Set<String> isATableKeys =
+        chain.stream()
+            .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    insertModuleRows(table, rows, updateOnConflict, isATableKeys);
+
     return rootRecords;
+  }
+
+  private void insertModuleRows(
+      SqlTable entry, List<Row> rows, boolean updateOnConflict, Set<String> isATableKeys) {
+    List<Column> discriminators = entry.getMetadata().getDiscriminatorColumns();
+    if (discriminators.isEmpty()) return;
+
+    List<SqlTable> allActiveModules = collectAllActiveModuleTables(entry, rows, isATableKeys);
+
+    for (SqlTable moduleTable : allActiveModules) {
+      String moduleKey =
+          moduleTable.getMetadata().getSchemaName()
+              + "."
+              + moduleTable.getMetadata().getTableName();
+      List<Row> moduleRows =
+          rows.stream()
+              .filter(row -> activeModuleTableKeys(entry, row).contains(moduleKey))
+              .collect(Collectors.toList());
+      if (moduleRows.isEmpty()) continue;
+
+      Set<String> providedNames =
+          moduleRows.stream()
+              .flatMap(row -> row.getColumnNames().stream())
+              .collect(Collectors.toCollection(LinkedHashSet::new));
+      List<Column> moduleCols =
+          getLocalStoredColumns(moduleTable, getInsertColumns(moduleTable, providedNames));
+      if (moduleCols.isEmpty()) continue;
+
+      moduleTable.insertIntoSingleTable(
+          moduleTable, moduleRows, updateOnConflict, moduleCols, false);
+    }
+  }
+
+  private static Set<String> activeModuleTableKeys(SqlTable entry, Row row) {
+    return activeModuleTables(entry, row).stream()
+        .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
+  private static List<SqlTable> collectAllActiveModuleTables(
+      SqlTable entry, List<Row> rows, Set<String> isATableKeys) {
+    List<SqlTable> allModules = new ArrayList<>();
+    Set<String> emittedKeys = new LinkedHashSet<>(isATableKeys);
+    for (Row row : rows) {
+      for (SqlTable moduleTable : activeModuleTables(entry, row)) {
+        String key =
+            moduleTable.getMetadata().getSchemaName()
+                + "."
+                + moduleTable.getMetadata().getTableName();
+        if (emittedKeys.add(key)) {
+          allModules.add(moduleTable);
+        }
+      }
+    }
+    return allModules;
   }
 
   private List<Record> insertIntoSingleTable(
@@ -519,6 +689,13 @@ public class SqlTable implements Table {
       count +=
           Arrays.stream(current.getJooq().batch(list).execute()).reduce(Integer::sum).orElse(0);
     }
+
+    Set<String> isATableKeys =
+        allTables.stream()
+            .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    insertModuleRows(table, rows, true, isATableKeys);
 
     return count;
   }
