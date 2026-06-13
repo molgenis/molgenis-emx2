@@ -277,12 +277,12 @@ class TestModuleArrayDiscriminator {
     s.create(
         table("PanelC").setTableType(MODULE).setInheritNames("Animal").add(column("panelCCol")));
 
-    s.create(
-        table("DogWithPanels")
-            .setInheritNames("Dog")
-            .add(column("extra"))
-            .add(column("axis1").setType(MODULE_ARRAY).setValues("PanelA", "PanelB"))
-            .add(column("axis2").setType(MODULE_ARRAY).setValues("PanelC")));
+    s.getTable("Animal")
+        .getMetadata()
+        .add(column("axis1").setType(MODULE_ARRAY).setValues("PanelA", "PanelB"))
+        .add(column("axis2").setType(MODULE_ARRAY).setValues("PanelC"));
+
+    s.create(table("DogWithPanels").setInheritNames("Dog").add(column("extra")));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);
@@ -982,6 +982,243 @@ class TestModuleArrayDiscriminator {
     assertDoesNotThrow(
         () -> s.getTable("Root").insert(row("id", "p3")),
         "Inactive module must NOT enforce its required column — the gate must hold");
+  }
+
+  // ── C6: hard-delete deactivated module rows on update ───────────────────────
+
+  @Test
+  void updateRemovesDeactivatedModuleRow() {
+    Schema s = freshSchema("C6Remove");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("Mod1")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col1").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col2").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1", "Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "1",
+                "panels", new String[] {"Mod1", "Mod2"},
+                "col1", "v1",
+                "col2", "v2"));
+
+    assertEquals(1, s.getTable("Mod1").retrieveRows().size(), "Mod1 must have a row after insert");
+    assertEquals(1, s.getTable("Mod2").retrieveRows().size(), "Mod2 must have a row after insert");
+
+    s.getTable("Root").update(row("id", "1", "panels", new String[] {"Mod1"}));
+
+    assertEquals(1, s.getTable("Mod1").retrieveRows().size(), "Mod1 must still have its row");
+    assertEquals(0, s.getTable("Mod2").retrieveRows().size(), "Mod2 row must be hard-deleted");
+    assertEquals(1, s.getTable("Root").retrieveRows().size(), "Root row must be intact");
+  }
+
+  @Test
+  void deactivatedModuleColumnProjectsNullAfterDelete() {
+    Schema s = freshSchema("C6ProjNull");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("Mod1")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col1").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col2").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1", "Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "1",
+                "panels", new String[] {"Mod1", "Mod2"},
+                "col1", "v1",
+                "col2", "v2"));
+
+    s.getTable("Root").update(row("id", "1", "panels", new String[] {"Mod1"}));
+
+    List<Row> projected = s.getTable("Root").query().select(s("id"), s("col2")).retrieveRows();
+    assertEquals(1, projected.size());
+    assertNull(
+        projected.get(0).getString("col2"),
+        "col2 must be NULL after Mod2 deactivated (C4 row-presence gating)");
+  }
+
+  @Test
+  void moduleExtendsModuleDeactivationRemovesFullChainInOrder() {
+    Schema s = freshSchema("C6Chain");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("ModA")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("colA").setType(STRING)));
+    s.create(
+        table("ModB")
+            .setTableType(MODULE)
+            .setInheritNames("ModA")
+            .add(column("colB").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModA", "ModB"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "1",
+                "panels", new String[] {"ModB"},
+                "colA", "aVal",
+                "colB", "bVal"));
+
+    assertEquals(
+        1, s.getTable("ModA").retrieveRows().size(), "ModA written via ancestor expansion");
+    assertEquals(1, s.getTable("ModB").retrieveRows().size(), "ModB written directly");
+
+    assertDoesNotThrow(
+        () -> s.getTable("Root").update(row("id", "1", "panels", new String[0])),
+        "Deactivating all modules must not throw FK-violation");
+
+    assertEquals(0, s.getTable("ModA").retrieveRows().size(), "ModA row must be deleted");
+    assertEquals(0, s.getTable("ModB").retrieveRows().size(), "ModB row must be deleted");
+    assertEquals(1, s.getTable("Root").retrieveRows().size(), "Root row must be intact");
+  }
+
+  @Test
+  void mixIsAAndModuleArrayDeactivationLeavesIsAIdentityIntact() {
+    Schema s = freshSchema("C6Mix");
+
+    s.create(table("RootData").add(column("id").setPkey()));
+    s.create(table("Sub").setInheritNames("RootData").add(column("subCol").setType(STRING)));
+    s.create(
+        table("Mod1")
+            .setTableType(MODULE)
+            .setInheritNames("RootData")
+            .add(column("mcol").setType(STRING)));
+
+    s.getTable("RootData")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1"));
+
+    s.getTable("Sub")
+        .insert(row("id", "1", "subCol", "sv", "panels", new String[] {"Mod1"}, "mcol", "mv"));
+
+    assertEquals(1, s.getTable("Mod1").retrieveRows().size(), "Mod1 must have a row");
+
+    s.getTable("Sub").update(row("id", "1", "panels", new String[0]));
+
+    assertEquals(0, s.getTable("Mod1").retrieveRows().size(), "Mod1 row must be hard-deleted");
+
+    List<Row> subRows = s.getTable("Sub").retrieveRows();
+    assertEquals(1, subRows.size(), "Sub (is-a) row must still exist");
+    assertEquals("1", subRows.get(0).getString("id"), "Sub row id must be intact");
+
+    String schemaName = s.getMetadata().getName();
+    List<Row> rootRows =
+        s.getTable("RootData").query().select(SelectColumn.s(MG_TABLECLASS)).retrieveRows();
+    assertEquals(1, rootRows.size(), "RootData must have exactly one row");
+    String tableclass = rootRows.get(0).getString(MG_TABLECLASS);
+    String expectedTableclass = schemaName + ".Sub";
+    assertEquals(
+        expectedTableclass,
+        tableclass,
+        "mg_tableclass must remain the concrete is-a type after module deactivation");
+  }
+
+  // ── S1: MODULE_ARRAY must be declared on the root table, not a subtype ──────
+
+  @Test
+  void moduleArrayColumnMustBeDeclaredOnRoot() {
+    Schema s = freshSchema("S1RootOnly");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(table("Sub").setInheritNames("Root").add(column("subCol").setType(STRING)));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Root").add(column("modCol")));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Sub")
+                    .getMetadata()
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("Mod")),
+            "MODULE_ARRAY declared on a non-root DATA subtype must be rejected");
+
+    assertTrue(
+        ex.getMessage().contains("root") || ex.getMessage().contains("subtype"),
+        "Error must mention root/subtype constraint, got: " + ex.getMessage());
+  }
+
+  // ── S2: shared-ancestor module row kept when sibling deactivated ─────────────
+
+  @Test
+  void moduleExtendsModuleDeactivationKeepsSharedAncestorModule() {
+    Schema s = freshSchema("S2SharedAncestor");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("ModA")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("colA").setType(STRING)));
+    s.create(
+        table("ModB")
+            .setTableType(MODULE)
+            .setInheritNames("ModA")
+            .add(column("colB").setType(STRING)));
+    s.create(
+        table("ModC")
+            .setTableType(MODULE)
+            .setInheritNames("ModA")
+            .add(column("colC").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModA", "ModB", "ModC"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "1",
+                "panels", new String[] {"ModB", "ModC"},
+                "colA", "aVal",
+                "colB", "bVal",
+                "colC", "cVal"));
+
+    assertEquals(1, s.getTable("ModA").retrieveRows().size(), "ModA written as shared ancestor");
+    assertEquals(1, s.getTable("ModB").retrieveRows().size(), "ModB written directly");
+    assertEquals(1, s.getTable("ModC").retrieveRows().size(), "ModC written directly");
+
+    s.getTable("Root").update(row("id", "1", "panels", new String[] {"ModC"}));
+
+    assertEquals(
+        0,
+        s.getTable("ModB").retrieveRows().size(),
+        "ModB row must be gone: deactivated (not shared by remaining active modules)");
+    assertEquals(
+        1,
+        s.getTable("ModA").retrieveRows().size(),
+        "ModA row must remain: shared ancestor still required by active ModC");
+    assertEquals(1, s.getTable("ModC").retrieveRows().size(), "ModC row must remain: still active");
+    assertEquals(1, s.getTable("Root").retrieveRows().size(), "Root row must be intact");
   }
 
   @Test

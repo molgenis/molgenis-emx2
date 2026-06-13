@@ -658,6 +658,12 @@ public class SqlTable implements Table {
     allTables.add(table);
     SqlTable rootTable = allTables.get(0);
 
+    List<Column> discriminators = table.getMetadata().getDiscriminatorColumns();
+    Map<String, Map<String, String[]>> priorArraysByPkKey =
+        discriminators.isEmpty()
+            ? Collections.emptyMap()
+            : selectPriorDiscriminatorArrays(table, rows, discriminators);
+
     for (SqlTable current : allTables) {
       boolean isRoot = current == rootTable;
       List<Column> columns = getLocalStoredColumns(current, updateColumns);
@@ -691,7 +697,142 @@ public class SqlTable implements Table {
 
     insertModuleRows(table, rows, true, isATableKeys);
 
+    if (!discriminators.isEmpty()) {
+      deleteRemovedModuleRows(table, rows, discriminators, priorArraysByPkKey);
+    }
+
     return count;
+  }
+
+  private Map<String, Map<String, String[]>> selectPriorDiscriminatorArrays(
+      SqlTable table, List<Row> rows, List<Column> discriminators) {
+    SqlTable rootTable =
+        (SqlTable) table.getSchema().getTable(table.getMetadata().getRootTable().getTableName());
+    List<Field<?>> selectFields = new ArrayList<>();
+    for (Column pkCol : rootTable.getMetadata().getPrimaryKeyColumns()) {
+      selectFields.add(pkCol.getJooqField());
+    }
+    for (Column disc : discriminators) {
+      selectFields.add(disc.getJooqField());
+    }
+
+    Condition whereCondition = rootTable.getWhereConditionForBatchDelete(rows);
+    Result<Record> records =
+        rootTable
+            .getJooq()
+            .select(selectFields)
+            .from(rootTable.getJooqTable())
+            .where(whereCondition)
+            .fetch();
+
+    Map<String, Map<String, String[]>> result = new LinkedHashMap<>();
+    List<Column> pkCols = rootTable.getMetadata().getPrimaryKeyColumns();
+    for (Record record : records) {
+      String pkKey = buildPkKey(record, pkCols);
+      Map<String, String[]> discMap = new LinkedHashMap<>();
+      for (Column disc : discriminators) {
+        discMap.put(disc.getName(), record.get(disc.getName(), String[].class));
+      }
+      result.put(pkKey, discMap);
+    }
+    return result;
+  }
+
+  private static String buildPkKey(Record record, List<Column> pkCols) {
+    StringBuilder key = new StringBuilder();
+    for (Column pkCol : pkCols) {
+      if (key.length() > 0) key.append("|");
+      Object val = record.get(pkCol.getName());
+      key.append(val == null ? "" : val.toString());
+    }
+    return key.toString();
+  }
+
+  private static String buildPkKeyFromRow(Row row, List<Column> pkCols) {
+    StringBuilder key = new StringBuilder();
+    for (Column pkCol : pkCols) {
+      if (key.length() > 0) key.append("|");
+      Object val = row.get(pkCol.getName(), pkCol.getColumnType());
+      key.append(val == null ? "" : val.toString());
+    }
+    return key.toString();
+  }
+
+  private void deleteRemovedModuleRows(
+      SqlTable table,
+      List<Row> rows,
+      List<Column> discriminators,
+      Map<String, Map<String, String[]>> priorArraysByPkKey) {
+    List<Column> pkCols = table.getMetadata().getRootTable().getPrimaryKeyColumns();
+
+    Map<String, List<Row>> removedTableKeyToRows = new LinkedHashMap<>();
+
+    for (Row row : rows) {
+      String pkKey = buildPkKeyFromRow(row, pkCols);
+      Map<String, String[]> prior = priorArraysByPkKey.getOrDefault(pkKey, Collections.emptyMap());
+
+      Row oldSynthetic = new Row();
+      for (Column disc : discriminators) {
+        String[] priorArr = prior.get(disc.getName());
+        if (priorArr != null) {
+          oldSynthetic.set(disc.getName(), priorArr);
+        }
+      }
+
+      Row effectiveSynthetic = new Row();
+      for (Column disc : discriminators) {
+        String[] effectiveArr =
+            row.getColumnNames().contains(disc.getName())
+                ? row.getStringArray(disc.getName())
+                : prior.get(disc.getName());
+        if (effectiveArr != null) {
+          effectiveSynthetic.set(disc.getName(), effectiveArr);
+        }
+      }
+
+      Set<String> newActiveKeys = activeModuleTableKeys(table, effectiveSynthetic);
+
+      for (SqlTable oldModuleTable : activeModuleTables(table, oldSynthetic)) {
+        if (!oldModuleTable.getMetadata().getTableType().isModule()) continue;
+        String moduleKey =
+            oldModuleTable.getMetadata().getSchemaName()
+                + "."
+                + oldModuleTable.getMetadata().getTableName();
+        if (!newActiveKeys.contains(moduleKey)) {
+          removedTableKeyToRows.computeIfAbsent(moduleKey, k -> new ArrayList<>()).add(row);
+        }
+      }
+    }
+
+    if (removedTableKeyToRows.isEmpty()) return;
+
+    List<Map.Entry<String, List<Row>>> removedEntries =
+        new ArrayList<>(removedTableKeyToRows.entrySet());
+    removedEntries.sort(
+        (entryA, entryB) -> {
+          SqlTable tableA = resolveModuleTable(table, entryA.getKey());
+          SqlTable tableB = resolveModuleTable(table, entryB.getKey());
+          int depthA = tableA == null ? 0 : tableA.getMetadata().getAncestorsRootFirst().size();
+          int depthB = tableB == null ? 0 : tableB.getMetadata().getAncestorsRootFirst().size();
+          return Integer.compare(depthB, depthA);
+        });
+
+    for (Map.Entry<String, List<Row>> entry : removedEntries) {
+      SqlTable removedTable = resolveModuleTable(table, entry.getKey());
+      if (removedTable != null) {
+        deleteBatch(removedTable, entry.getValue());
+      }
+    }
+  }
+
+  private static SqlTable resolveModuleTable(SqlTable entry, String schemaTableKey) {
+    int dotIdx = schemaTableKey.indexOf('.');
+    if (dotIdx < 0) return null;
+    String schemaName = schemaTableKey.substring(0, dotIdx);
+    String tableName = schemaTableKey.substring(dotIdx + 1);
+    org.molgenis.emx2.Schema schema = entry.getSchema().getDatabase().getSchema(schemaName);
+    if (schema == null) return null;
+    return (SqlTable) schema.getTable(tableName);
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {

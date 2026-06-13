@@ -465,6 +465,19 @@ public class SqlColumnExecutor {
     TableMetadata declaringTable = c.getTable();
     String currentSchemaName = declaringTable.getSchemaName();
     TableMetadata declaringRoot = declaringTable.getRootTable();
+
+    if (!declaringTable.getTableName().equals(declaringRoot.getTableName())
+        || !declaringTable.getSchemaName().equals(declaringRoot.getSchemaName())) {
+      throw new MolgenisException(
+          "Column '"
+              + c.getName()
+              + "' of type MODULE_ARRAY must be declared on the root table '"
+              + declaringRoot.getTableName()
+              + "', not on subtype '"
+              + declaringTable.getTableName()
+              + "'");
+    }
+
     String declaringRootKey = declaringRoot.getSchemaName() + "." + declaringRoot.getTableName();
 
     for (String declaredValue : moduleValues) {
