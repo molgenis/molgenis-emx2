@@ -701,7 +701,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getColumnsIncludingSubclasses().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
-        .orElseGet(() -> null);
+        .orElse(null);
   }
 
   public Column getColumnByIdIncludingSubclasses(String columnId) {
@@ -729,6 +729,41 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
         }
       }
     }
+  }
+
+  public List<TableMetadata> getModuleSubtypeTables() {
+    if (getSchema() == null) return Collections.emptyList();
+    List<TableMetadata> result = new ArrayList<>();
+    Set<String> emitted = new LinkedHashSet<>();
+    collectModuleSubtablesDeduped(result, emitted);
+    return result;
+  }
+
+  private void collectModuleSubtablesDeduped(List<TableMetadata> result, Set<String> emitted) {
+    if (getSchema() == null) return;
+    for (TableMetadata table : getSchema().getTables()) {
+      if (table.getInheritNames().contains(getTableName()) && table.getTableType().isModule()) {
+        if (emitted.add(table.getTableName())) {
+          result.add(table);
+          table.collectModuleSubtablesDeduped(result, emitted);
+        }
+      }
+    }
+  }
+
+  public List<Column> getColumnsIncludingActiveModules() {
+    List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
+    for (TableMetadata moduleTable : getModuleSubtypeTables()) {
+      result.addAll(moduleTable.getLocalColumns());
+    }
+    return result;
+  }
+
+  public Column getColumnByNameIncludingActiveModules(String columnName) {
+    return getColumnsIncludingActiveModules().stream()
+        .filter(c -> c.getName().equals(columnName))
+        .findFirst()
+        .orElse(null);
   }
 
   public TableMetadata getRootTable() {

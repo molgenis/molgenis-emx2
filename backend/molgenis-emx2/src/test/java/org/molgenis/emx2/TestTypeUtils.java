@@ -251,16 +251,43 @@ class TestTypeUtils {
         () -> TypeUtils.checkEnumMembership(enumArray, new String[] {"alpha", "unknown"}),
         "Array with one out-of-set element must throw MolgenisException");
 
-    Column moduleArray = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("s.A", "s.B");
+    Column moduleArray = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("A", "B");
 
     assertDoesNotThrow(
-        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"s.A"}),
-        "MODULE_ARRAY in-set value must be accepted");
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"A"}),
+        "MODULE_ARRAY bare in-set value must be accepted");
 
     assertThrows(
         MolgenisException.class,
-        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"s.A", "s.C"}),
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"A", "C"}),
         "MODULE_ARRAY with one out-of-set element must throw MolgenisException");
+  }
+
+  @Test
+  void enumExactMatchEnforced() {
+    Column enumCol = column("priority").setType(ColumnType.ENUM).setValues("low", "medium", "high");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(enumCol, "high"), "exact in-set value accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumCol, "HIGH"),
+        "ENUM must enforce exact strings");
+
+    Column enumArrayCol = column("tags").setType(ColumnType.ENUM_ARRAY).setValues("alpha", "beta");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumArrayCol, new String[] {"Alpha"}),
+        "ENUM_ARRAY must enforce exact strings");
+
+    Column moduleArrayCol = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("Mod1");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(moduleArrayCol, new String[] {"schema.Mod1"}),
+        "MODULE_ARRAY must enforce exact strings; dotted value must not match bare declared value");
   }
 
   @Test

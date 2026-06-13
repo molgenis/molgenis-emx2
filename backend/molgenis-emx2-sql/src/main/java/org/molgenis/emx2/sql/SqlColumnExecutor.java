@@ -463,39 +463,42 @@ public class SqlColumnExecutor {
     }
     Database database = c.getTable().getSchema().getDatabase();
     TableMetadata declaringTable = c.getTable();
+    String currentSchemaName = declaringTable.getSchemaName();
     TableMetadata declaringRoot = declaringTable.getRootTable();
     String declaringRootKey = declaringRoot.getSchemaName() + "." + declaringRoot.getTableName();
 
-    validateNoModuleInMultipleAxes(c, moduleValues, declaringTable);
-
-    for (String qualifiedName : moduleValues) {
-      String[] parts = qualifiedName.split("\\.", 2);
-      if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
+    for (String declaredValue : moduleValues) {
+      if (declaredValue == null || declaredValue.isBlank()) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: MODULE_ARRAY value must not be empty or blank");
+      }
+      if (declaredValue.contains(".")) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
                 + "' failed: MODULE_ARRAY value '"
-                + qualifiedName
-                + "' must be schema-qualified as 'schema.Table'");
+                + declaredValue
+                + "' must be a bare table name referring to a MODULE in the same schema; "
+                + "schema-qualified ('schema.Table') values are not supported.");
       }
-      String referencedSchemaName = parts[0];
-      String referencedTableName = parts[1];
-      org.molgenis.emx2.Schema referencedSchema = database.getSchema(referencedSchemaName);
-      if (referencedSchema == null) {
+      org.molgenis.emx2.Schema currentSchema = database.getSchema(currentSchemaName);
+      if (currentSchema == null) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: schema '"
-                + referencedSchemaName
-                + "' referenced by MODULE_ARRAY value '"
-                + qualifiedName
-                + "' does not exist");
+                + "' failed: declaring schema '"
+                + currentSchemaName
+                + "' not found");
       }
-      org.molgenis.emx2.Table referencedTable = referencedSchema.getTable(referencedTableName);
+      org.molgenis.emx2.Table referencedTable = currentSchema.getTable(declaredValue);
       if (referencedTable == null) {
         throw new MolgenisException(
             "Add column '"
@@ -503,7 +506,7 @@ public class SqlColumnExecutor {
                 + "."
                 + c.getName()
                 + "' failed: table '"
-                + qualifiedName
+                + declaredValue
                 + "' referenced by MODULE_ARRAY values does not exist");
       }
       TableMetadata referencedMeta = referencedTable.getMetadata();
@@ -514,7 +517,7 @@ public class SqlColumnExecutor {
                 + "."
                 + c.getName()
                 + "' failed: table '"
-                + qualifiedName
+                + declaredValue
                 + "' must have tableType=MODULE but has "
                 + referencedMeta.getTableType());
       }
@@ -527,7 +530,7 @@ public class SqlColumnExecutor {
                 + "."
                 + c.getName()
                 + "' failed: MODULE '"
-                + qualifiedName
+                + declaredValue
                 + "' does not extend the same root as the declaring table. Module root is '"
                 + moduleRootKey
                 + "' but declaring table root is '"
@@ -535,6 +538,8 @@ public class SqlColumnExecutor {
                 + "'");
       }
     }
+
+    validateNoModuleInMultipleAxes(c, moduleValues, declaringTable);
   }
 
   private static void validateNoModuleInMultipleAxes(

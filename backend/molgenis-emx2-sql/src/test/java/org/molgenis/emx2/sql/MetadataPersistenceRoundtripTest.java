@@ -57,7 +57,7 @@ class MetadataPersistenceRoundtripTest {
             .setInheritNames("Root")
             .add(column("bCol")));
 
-    List<String> moduleValues = List.of(schemaName + ".ModuleA", schemaName + ".ModuleB");
+    List<String> moduleValues = List.of("ModuleA", "ModuleB");
     schema
         .getTable("Root")
         .getMetadata()

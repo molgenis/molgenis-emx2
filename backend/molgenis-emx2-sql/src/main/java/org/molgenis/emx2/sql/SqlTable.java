@@ -430,43 +430,37 @@ public class SqlTable implements Table {
       return Collections.emptyList();
     }
 
-    Set<String> activeNames = new LinkedHashSet<>();
+    Set<String> activeTableNames = new LinkedHashSet<>();
     for (Column discriminator : discriminators) {
       String[] values = row.getStringArray(discriminator.getName());
       if (values != null) {
         for (String value : values) {
-          if (value != null && !value.isEmpty()) {
-            String qualifiedName =
-                value.contains(".") ? value : entry.getSchema().getName() + "." + value;
-            activeNames.add(qualifiedName);
+          if (value != null && !value.isBlank()) {
+            activeTableNames.add(value);
           }
         }
       }
     }
 
-    if (activeNames.isEmpty()) {
+    if (activeTableNames.isEmpty()) {
       return Collections.emptyList();
     }
 
     String rootSchemaName = entry.getMetadata().getRootTable().getSchemaName();
     String rootTableName = entry.getMetadata().getRootTable().getTableName();
     Database database = entry.getSchema().getDatabase();
+    org.molgenis.emx2.Schema entrySchema = entry.getSchema();
 
     List<SqlTable> result = new ArrayList<>();
     Set<String> emitted = new LinkedHashSet<>();
 
-    for (String qualifiedName : activeNames) {
-      String[] parts = qualifiedName.split("\\.", 2);
-      if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
-        continue;
-      }
-      org.molgenis.emx2.Schema moduleSchema = database.getSchema(parts[0]);
-      if (moduleSchema == null) continue;
-      SqlTable moduleTable = (SqlTable) moduleSchema.getTable(parts[1]);
+    for (String tableName : activeTableNames) {
+      SqlTable moduleTable = (SqlTable) entrySchema.getTable(tableName);
       if (moduleTable == null) continue;
 
+      String qualifiedKey = entrySchema.getName() + "." + tableName;
       expandModuleAncestors(moduleTable, rootSchemaName, rootTableName, result, emitted, database);
-      if (emitted.add(qualifiedName)) {
+      if (emitted.add(qualifiedKey)) {
         result.add(moduleTable);
       }
     }

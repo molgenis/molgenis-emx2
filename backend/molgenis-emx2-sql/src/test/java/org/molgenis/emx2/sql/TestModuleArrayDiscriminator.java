@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.TableType.MODULE;
 
@@ -48,9 +49,7 @@ class TestModuleArrayDiscriminator {
     s.create(table("Host").add(column("id").setPkey()));
     s.create(table("Mod").setTableType(MODULE).setInheritNames("Host").add(column("modCol")));
 
-    s.getTable("Host")
-        .getMetadata()
-        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".Mod"));
+    s.getTable("Host").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);
@@ -60,8 +59,8 @@ class TestModuleArrayDiscriminator {
     assertEquals(MODULE_ARRAY, panels.getColumnType(), "column type must remain MODULE_ARRAY");
     assertNotNull(panels.getValues(), "values must survive reload");
     assertTrue(
-        panels.getValues().contains(schemaName + ".Mod"),
-        "values must contain the MODULE reference after reload");
+        panels.getValues().contains("Mod"),
+        "values must contain the bare MODULE reference after reload");
 
     TableMetadata modMeta = reloaded.getTable("Mod").getMetadata();
     assertEquals(MODULE, modMeta.getTableType(), "tableType MODULE must survive reload");
@@ -80,10 +79,7 @@ class TestModuleArrayDiscriminator {
             () ->
                 s.getTable("Host")
                     .getMetadata()
-                    .add(
-                        column("panels")
-                            .setType(MODULE_ARRAY)
-                            .setValues(s.getMetadata().getName() + ".DoesNotExist")));
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("DoesNotExist")));
 
     assertTrue(
         ex.getMessage().contains("DoesNotExist"),
@@ -105,10 +101,7 @@ class TestModuleArrayDiscriminator {
             () ->
                 s.getTable("Host")
                     .getMetadata()
-                    .add(
-                        column("panels")
-                            .setType(MODULE_ARRAY)
-                            .setValues(s.getMetadata().getName() + ".DataTable")));
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("DataTable")));
 
     assertTrue(
         ex.getMessage().contains("DataTable") || ex.getMessage().contains("MODULE"),
@@ -134,20 +127,17 @@ class TestModuleArrayDiscriminator {
             () ->
                 s.getTable("Host")
                     .getMetadata()
-                    .add(
-                        column("panels")
-                            .setType(MODULE_ARRAY)
-                            .setValues(s.getMetadata().getName() + ".OntTable")));
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("OntTable")));
 
     assertTrue(
         ex.getMessage().contains("OntTable") || ex.getMessage().contains("MODULE"),
         "Error must mention the wrong-type table or MODULE requirement, got: " + ex.getMessage());
   }
 
-  // ── test 3c: malformed values (trailing dot, no dot) → MolgenisException not AIOOB ────────────
+  // ── test 3c: any dotted value → rejected; bare name → legal ──────────────────
 
   @Test
-  void moduleArrayValuesRejectMalformedQualifiedNames() {
+  void moduleArrayValuesRejectAnyDottedValueAcceptBareName() {
     Schema s = freshSchema("Malformed");
 
     s.create(table("Host").add(column("id").setPkey()));
@@ -159,23 +149,38 @@ class TestModuleArrayDiscriminator {
                 s.getTable("Host")
                     .getMetadata()
                     .add(column("panels").setType(MODULE_ARRAY).setValues("schema.")),
-            "Trailing-dot value must throw MolgenisException, not ArrayIndexOutOfBoundsException");
+            "Trailing-dot value must throw MolgenisException");
     assertTrue(
-        trailingDot.getMessage().contains("schema-qualified")
-            || trailingDot.getMessage().contains("schema."),
-        "Error must describe the format requirement, got: " + trailingDot.getMessage());
+        trailingDot.getMessage().contains("bare table name")
+            || trailingDot.getMessage().contains("not supported"),
+        "Error must describe bare-only requirement, got: " + trailingDot.getMessage());
 
-    MolgenisException noDot =
+    MolgenisException qualifiedValue =
         assertThrows(
             MolgenisException.class,
             () ->
                 s.getTable("Host")
                     .getMetadata()
-                    .add(column("panels").setType(MODULE_ARRAY).setValues("NoDotName")),
-            "Value without dot must throw MolgenisException");
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("schema.Table")),
+            "Schema-qualified value must be rejected");
     assertTrue(
-        noDot.getMessage().contains("schema-qualified") || noDot.getMessage().contains("NoDotName"),
-        "Error must describe the format requirement, got: " + noDot.getMessage());
+        qualifiedValue.getMessage().contains("bare table name")
+            || qualifiedValue.getMessage().contains("not supported"),
+        "Error must describe bare-only requirement, got: " + qualifiedValue.getMessage());
+
+    MolgenisException leadingDot =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Host")
+                    .getMetadata()
+                    .add(column("panels").setType(MODULE_ARRAY).setValues(".Mod")),
+            "Leading-dot value must be rejected");
+    assertTrue(
+        leadingDot.getMessage().contains("bare table name")
+            || leadingDot.getMessage().contains("not supported"),
+        "Error must describe bare-only requirement for leading-dot, got: "
+            + leadingDot.getMessage());
   }
 
   // ── test 4: INSERT element not in allowed set → rejected; allowed → accepted ──
@@ -183,7 +188,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void insertRejectsOutOfSetValueAndAcceptsInSetValue() {
     Schema s = freshSchema("Insert");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("Host").add(column("id").setPkey()));
     s.create(table("Mod1").setTableType(MODULE).setInheritNames("Host").add(column("mod1Col")));
@@ -191,18 +195,15 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Host")
         .getMetadata()
-        .add(
-            column("panels")
-                .setType(MODULE_ARRAY)
-                .setValues(schemaName + ".Mod1", schemaName + ".Mod2"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1", "Mod2"));
 
     assertThrows(
         MolgenisException.class,
-        () -> s.getTable("Host").insert(row("id", "r1", "panels", schemaName + ".UnknownModule")),
+        () -> s.getTable("Host").insert(row("id", "r1", "panels", "UnknownModule")),
         "Inserting an element not in values must throw");
 
     assertDoesNotThrow(
-        () -> s.getTable("Host").insert(row("id", "r2", "panels", schemaName + ".Mod1")),
+        () -> s.getTable("Host").insert(row("id", "r2", "panels", "Mod1")),
         "Inserting an element in values must succeed");
   }
 
@@ -211,20 +212,17 @@ class TestModuleArrayDiscriminator {
   @Test
   void updateRejectsOutOfSetValue() {
     Schema s = freshSchema("Update");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("HostU").add(column("id").setPkey()));
     s.create(table("ModU").setTableType(MODULE).setInheritNames("HostU").add(column("modUCol")));
 
-    s.getTable("HostU")
-        .getMetadata()
-        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModU"));
+    s.getTable("HostU").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("ModU"));
 
-    s.getTable("HostU").insert(row("id", "u1", "panels", schemaName + ".ModU"));
+    s.getTable("HostU").insert(row("id", "u1", "panels", "ModU"));
 
     assertThrows(
         MolgenisException.class,
-        () -> s.getTable("HostU").update(row("id", "u1", "panels", schemaName + ".NotAllowed")),
+        () -> s.getTable("HostU").update(row("id", "u1", "panels", "NotAllowed")),
         "Updating to a value not in the allowed set must throw");
   }
 
@@ -283,11 +281,8 @@ class TestModuleArrayDiscriminator {
         table("DogWithPanels")
             .setInheritNames("Dog")
             .add(column("extra"))
-            .add(
-                column("axis1")
-                    .setType(MODULE_ARRAY)
-                    .setValues(schemaName + ".PanelA", schemaName + ".PanelB"))
-            .add(column("axis2").setType(MODULE_ARRAY).setValues(schemaName + ".PanelC")));
+            .add(column("axis1").setType(MODULE_ARRAY).setValues("PanelA", "PanelB"))
+            .add(column("axis2").setType(MODULE_ARRAY).setValues("PanelC")));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);
@@ -381,7 +376,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void moduleArrayValueMustExtendThisRoot() {
     Schema s = freshSchema("C2D_root");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("RootA").add(column("id").setType(STRING).setPkey()));
     s.create(table("RootB").add(column("id").setType(STRING).setPkey()));
@@ -398,7 +392,7 @@ class TestModuleArrayDiscriminator {
             () ->
                 s.getTable("RootA")
                     .getMetadata()
-                    .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModForB")),
+                    .add(column("panels").setType(MODULE_ARRAY).setValues("ModForB")),
             "MODULE_ARRAY value must reference a module that extends THIS root, not a different root");
 
     assertTrue(
@@ -409,7 +403,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void moduleArrayValueOneAxisPerModule() {
     Schema s = freshSchema("C2D_axis");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("Root").add(column("id").setType(STRING).setPkey()));
     s.create(
@@ -418,9 +411,7 @@ class TestModuleArrayDiscriminator {
             .setInheritNames("Root")
             .add(column("modCol").setType(STRING)));
 
-    s.getTable("Root")
-        .getMetadata()
-        .add(column("axis1").setType(MODULE_ARRAY).setValues(schemaName + ".Mod"));
+    s.getTable("Root").getMetadata().add(column("axis1").setType(MODULE_ARRAY).setValues("Mod"));
 
     MolgenisException ex =
         assertThrows(
@@ -428,7 +419,7 @@ class TestModuleArrayDiscriminator {
             () ->
                 s.getTable("Root")
                     .getMetadata()
-                    .add(column("axis2").setType(MODULE_ARRAY).setValues(schemaName + ".Mod")),
+                    .add(column("axis2").setType(MODULE_ARRAY).setValues("Mod")),
             "A module may only appear in one MODULE_ARRAY axis per table (O-5)");
 
     assertTrue(
@@ -441,7 +432,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void insertActivatingTwoModulesWritesRowInEachModuleTable() {
     Schema s = freshSchema("C3TwoMods");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
     s.create(
@@ -457,17 +447,14 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root")
         .getMetadata()
-        .add(
-            column("panels")
-                .setType(MODULE_ARRAY)
-                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod", "Mod2"));
 
     s.getTable("Root")
         .insert(
             row(
                 "id", "r1",
                 "rootCol", "rootValue",
-                "panels", new String[] {schemaName + ".Mod", schemaName + ".Mod2"},
+                "panels", new String[] {"Mod", "Mod2"},
                 "modCol", "modValue",
                 "mod2Col", "mod2Value"));
 
@@ -491,7 +478,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void insertActivatingOneModuleWritesOnlyThatModuleRow() {
     Schema s = freshSchema("C3OneMod");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
     s.create(
@@ -507,17 +493,14 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root")
         .getMetadata()
-        .add(
-            column("panels")
-                .setType(MODULE_ARRAY)
-                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod", "Mod2"));
 
     s.getTable("Root")
         .insert(
             row(
                 "id", "r1",
                 "rootCol", "rootValue",
-                "panels", schemaName + ".Mod",
+                "panels", "Mod",
                 "modCol", "modValue"));
 
     List<Row> modRows = s.getTable("Mod").retrieveRows();
@@ -531,7 +514,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void updateUpsertsNewlyActivatedModuleRow() {
     Schema s = freshSchema("C3Upsert");
-    String schemaName = s.getMetadata().getName();
 
     s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
     s.create(
@@ -547,22 +529,15 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root")
         .getMetadata()
-        .add(
-            column("panels")
-                .setType(MODULE_ARRAY)
-                .setValues(schemaName + ".Mod", schemaName + ".Mod2"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod", "Mod2"));
 
     s.getTable("Root")
         .insert(
             row(
-                "id",
-                "r1",
-                "rootCol",
-                "rootValue",
-                "panels",
-                schemaName + ".Mod",
-                "modCol",
-                "modValue"));
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", "Mod",
+                "modCol", "modValue"));
 
     List<Row> mod2Before = s.getTable("Mod2").retrieveRows();
     assertEquals(0, mod2Before.size(), "Mod2 must have no row before activation");
@@ -571,7 +546,7 @@ class TestModuleArrayDiscriminator {
         .update(
             row(
                 "id", "r1",
-                "panels", new String[] {schemaName + ".Mod", schemaName + ".Mod2"},
+                "panels", new String[] {"Mod", "Mod2"},
                 "mod2Col", "mod2Value"));
 
     // C6: removed-module hard-delete is deferred; only upsert-on-activate is tested here
@@ -587,7 +562,6 @@ class TestModuleArrayDiscriminator {
   @Test
   void moduleExtendsModuleWritesFullModuleChainInFkOrder() {
     Schema s = freshSchema("C3ModChain");
-    String schemaName = s.getMetadata().getName();
 
     // ModChild extends ModParent which extends Root:
     //   Root(id PK, rootCol) ← ModParent(MODULE, parentCol) ← ModChild(MODULE, childCol)
@@ -607,7 +581,7 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root")
         .getMetadata()
-        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModChild"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModChild"));
 
     // INSERT must succeed — FK integrity is maintained by writing ModParent before ModChild
     assertDoesNotThrow(
@@ -617,7 +591,7 @@ class TestModuleArrayDiscriminator {
                     row(
                         "id", "r1",
                         "rootCol", "rootValue",
-                        "panels", schemaName + ".ModChild",
+                        "panels", "ModChild",
                         "parentCol", "parentValue",
                         "childCol", "childValue")),
         "Insert activating a two-level MODULE chain must succeed without FK violation");
@@ -641,7 +615,7 @@ class TestModuleArrayDiscriminator {
     String[] panels = rootRows.get(0).getStringArray("panels");
     assertNotNull(panels, "panels must not be null on root row");
     assertEquals(1, panels.length, "panels must contain ModChild reference");
-    assertEquals(schemaName + ".ModChild", panels[0], "panels must reference ModChild");
+    assertEquals("ModChild", panels[0], "panels must store the bare ModChild reference");
   }
 
   // ── C2.E: reload round-trip — module subtypes + MODULE_ARRAY survive reload ──
@@ -665,10 +639,7 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root")
         .getMetadata()
-        .add(
-            column("panels")
-                .setType(MODULE_ARRAY)
-                .setValues(schemaName + ".ModOne", schemaName + ".ModTwo"));
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModOne", "ModTwo"));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);
@@ -694,9 +665,9 @@ class TestModuleArrayDiscriminator {
         MODULE_ARRAY, panels.getColumnType(), "panels type must be MODULE_ARRAY after reload");
     assertNotNull(panels.getValues(), "panels.values must survive reload");
     assertTrue(
-        panels.getValues().contains(schemaName + ".ModOne"), "panels.values must contain ModOne");
+        panels.getValues().contains("ModOne"), "panels.values must contain bare ModOne reference");
     assertTrue(
-        panels.getValues().contains(schemaName + ".ModTwo"), "panels.values must contain ModTwo");
+        panels.getValues().contains("ModTwo"), "panels.values must contain bare ModTwo reference");
 
     List<String> isASubclasses =
         rootMeta.getSubclassTables().stream().map(TableMetadata::getTableName).toList();
@@ -706,5 +677,335 @@ class TestModuleArrayDiscriminator {
     assertFalse(
         isASubclasses.contains("ModTwo"),
         "ModTwo must NOT be in is-a getSubclassTables() after reload");
+  }
+
+  // ── C4: query projection of active module columns ────────────────────────────
+
+  @Test
+  void queryRootProjectsActiveModuleColumns() {
+    Schema s = freshSchema("C4TwoMods");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod", "Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", new String[] {"Mod", "Mod2"},
+                "modCol", "modValue",
+                "mod2Col", "mod2Value"));
+
+    List<Row> rows =
+        s.getTable("Root").query().select(s("id"), s("modCol"), s("mod2Col")).retrieveRows();
+
+    assertEquals(1, rows.size(), "Root query must return exactly one row");
+    Row row = rows.get(0);
+    assertEquals("r1", row.getString("id"));
+    assertEquals("modValue", row.getString("modCol"), "Active module col modCol must project");
+    assertEquals("mod2Value", row.getString("mod2Col"), "Active module col mod2Col must project");
+  }
+
+  @Test
+  void queryRootNullsInactiveModuleColumn() {
+    Schema s = freshSchema("C4OneMod");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod", "Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", "Mod",
+                "modCol", "modValue"));
+
+    List<Row> rows =
+        s.getTable("Root").query().select(s("id"), s("modCol"), s("mod2Col")).retrieveRows();
+
+    assertEquals(1, rows.size());
+    Row row = rows.get(0);
+    assertEquals("modValue", row.getString("modCol"), "Active module col modCol must project");
+    assertNull(row.getString("mod2Col"), "Inactive module col mod2Col must be NULL (no row)");
+  }
+
+  @Test
+  void queryRootProjectsModuleExtendsModuleChain() {
+    Schema s = freshSchema("C4ModChain");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("ModParent")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("parentCol").setType(STRING)));
+    s.create(
+        table("ModChild")
+            .setTableType(MODULE)
+            .setInheritNames("ModParent")
+            .add(column("childCol").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModChild"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "r1",
+                "rootCol", "rootValue",
+                "panels", "ModChild",
+                "parentCol", "parentValue",
+                "childCol", "childValue"));
+
+    List<Row> rows =
+        s.getTable("Root").query().select(s("id"), s("parentCol"), s("childCol")).retrieveRows();
+
+    assertEquals(1, rows.size());
+    Row row = rows.get(0);
+    assertEquals("parentValue", row.getString("parentCol"), "Ancestor module col must project");
+    assertEquals("childValue", row.getString("childCol"), "Leaf module col must project");
+  }
+
+  @Test
+  void queryMixedBatchProjectsPerRowModuleColumns() {
+    Schema s = freshSchema("C4MixedBatch");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod1")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod1Col").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("mod2Col").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1", "Mod2"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "rowA",
+                "rootCol", "aVal",
+                "panels", "Mod1",
+                "mod1Col", "aModValue"));
+
+    s.getTable("Root")
+        .insert(
+            row(
+                "id", "rowB",
+                "rootCol", "bVal",
+                "panels", "Mod2",
+                "mod2Col", "bModValue"));
+
+    List<Row> rows =
+        s.getTable("Root")
+            .query()
+            .select(s("id"), s("mod1Col"), s("mod2Col"))
+            .orderBy("id")
+            .retrieveRows();
+
+    assertEquals(2, rows.size(), "Root query must return both rows");
+
+    Row rowA = rows.get(0);
+    assertEquals("rowA", rowA.getString("id"));
+    assertEquals("aModValue", rowA.getString("mod1Col"), "rowA: mod1Col must project");
+    assertNull(rowA.getString("mod2Col"), "rowA: mod2Col must be NULL (Mod2 not activated)");
+
+    Row rowB = rows.get(1);
+    assertEquals("rowB", rowB.getString("id"));
+    assertNull(rowB.getString("mod1Col"), "rowB: mod1Col must be NULL (Mod1 not activated)");
+    assertEquals("bModValue", rowB.getString("mod2Col"), "rowB: mod2Col must project");
+  }
+
+  // ── bare-value defaulting tests ──────────────────────────────────────────────
+
+  @Test
+  void moduleArrayAcceptsBareValueDefaultingToCurrentSchema() {
+    Schema s = freshSchema("BareDecl");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    assertDoesNotThrow(
+        () ->
+            s.getTable("Root")
+                .getMetadata()
+                .add(column("panels").setType(MODULE_ARRAY).setValues("Mod")),
+        "Bare module name (no schema prefix) must be accepted, defaulting to current schema");
+
+    db.clearCache();
+    Schema reloaded = db.getSchema(schemaName);
+    Column panels = reloaded.getTable("Root").getMetadata().getColumn("panels");
+
+    assertNotNull(panels, "panels column must survive reload");
+    assertEquals(MODULE_ARRAY, panels.getColumnType(), "column type must remain MODULE_ARRAY");
+    assertNotNull(panels.getValues(), "values must survive reload");
+    assertTrue(
+        panels.getValues().contains("Mod"),
+        "bare value must be stored AS-TYPED (not canonicalized to 'schema.Mod'), got: "
+            + panels.getValues());
+  }
+
+  @Test
+  void insertWithBareModuleValueActivatesModule() {
+    Schema s = freshSchema("BareInsert");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    s.getTable("Root")
+        .insert(row("id", "r1", "rootCol", "rootValue", "panels", "Mod", "modCol", "modValue"));
+
+    List<Row> modRows = s.getTable("Mod").retrieveRows();
+    assertEquals(
+        1, modRows.size(), "Mod must have exactly one row (module activated by bare value)");
+    assertEquals("r1", modRows.get(0).getString("id"), "Module row must share the root PK");
+    assertEquals("modValue", modRows.get(0).getString("modCol"), "Module row must carry modCol");
+
+    List<Row> queryRows = s.getTable("Root").query().select(s("id"), s("modCol")).retrieveRows();
+    assertEquals(1, queryRows.size(), "Root query must return one row");
+    assertEquals(
+        "modValue",
+        queryRows.get(0).getString("modCol"),
+        "Module column must project via C4 query");
+  }
+
+  @Test
+  void moduleArrayRejectsSchemaQualifiedValue() {
+    Schema s = freshSchema("QualifiedDecl");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Root")
+                    .getMetadata()
+                    .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".Mod")),
+            "MODULE_ARRAY value with schema prefix must be rejected (bare table name only)");
+
+    assertTrue(
+        ex.getMessage().contains("bare table name") || ex.getMessage().contains("not supported"),
+        "Error must describe bare-only requirement, got: " + ex.getMessage());
+  }
+
+  // ── C3 required-gating: inactive module's required column is never enforced ──
+
+  @Test
+  void requiredModuleColumnEnforcedOnlyWhenModuleActive() {
+    Schema s = freshSchema("C3RequiredGate");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("DiabetesPanel")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("hba1c").setRequired(true)));
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("DiabetesPanel"));
+
+    // arm 1: module active, required column omitted → rejected
+    MolgenisException arm1Exception =
+        assertThrows(
+            MolgenisException.class,
+            () -> s.getTable("Root").insert(row("id", "p1", "panels", "DiabetesPanel")),
+            "Active module with missing required column must be rejected");
+    assertTrue(
+        arm1Exception.getMessage().contains("hba1c")
+            || arm1Exception.getMessage().contains("required"),
+        "Error must mention the required column or 'required', got: " + arm1Exception.getMessage());
+
+    // arm 2: module active, required column provided → accepted
+    assertDoesNotThrow(
+        () ->
+            s.getTable("Root").insert(row("id", "p2", "panels", "DiabetesPanel", "hba1c", "6.5%")),
+        "Active module with required column supplied must succeed");
+    List<Row> moduleRows = s.getTable("DiabetesPanel").retrieveRows();
+    assertEquals(1, moduleRows.size(), "DiabetesPanel must have exactly one row after arm 2");
+    assertEquals("p2", moduleRows.get(0).getString("id"), "Module row must share the root PK");
+
+    // arm 3: module inactive (no panels), required column omitted → accepted (the gate)
+    assertDoesNotThrow(
+        () -> s.getTable("Root").insert(row("id", "p3")),
+        "Inactive module must NOT enforce its required column — the gate must hold");
+  }
+
+  @Test
+  void insertRejectsDottedRowValueAgainstBareDeclaredColumn() {
+    Schema s = freshSchema("DottedRowVal");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Root")
+                    .insert(row("id", "r1", "rootCol", "v", "panels", schemaName + ".Mod")),
+            "Inserting a dotted row value into a bare-declared MODULE_ARRAY column must be rejected");
+
+    assertNotNull(ex.getMessage(), "Exception must have a message");
   }
 }
