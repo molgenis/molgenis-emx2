@@ -278,7 +278,101 @@ Land in order; each phase keeps existing tests green.
 - `MODULE_ARRAY` values are always MODULE classes; scalar `SUBCLASS`/`extends` values are TABLE subclasses.
 - Internal helper `DiscriminatorAxis(column, isArray, allowedTypes)` drives DDL/write/query/validation.
 
-### MODULE materialization per consuming table (O-1 RESOLVED → root-namespaced, reserved prefix)
+### C2 design — MODEL B (LOCKED 2026-06-12, owner via AskUserQuestion) — supersedes the materialization design in the next three subsections
+
+**Pivot:** a MODULE is a **real, queryable table bound to ONE root**, NOT an abstract definition
+materialized per consumer. This collapses Phase C onto the Phase B storage engine: one storage model
+(table-per-type on the shared root PK), two discriminator flavors differing only in cardinality + which
+discriminator drives them:
+
+| Axis | Discriminator | Cardinality | mg_tableclass | Mutable |
+|------|---------------|-------------|---------------|---------|
+| is-a (extends, DATA subtype) | `mg_tableclass` | EXCLUSIVE (one) | yes | no |
+| composition (MODULE subtype) | `MODULE_ARRAY` | MULTIPLE (subset) | no | yes |
+
+A module is a `tableType=MODULE` table that **`extends` its one root** (reusing existing
+`setInheritNames`/`executeSetInherit`), producing a real subtype table keyed on the root PK
+(PK + FK-on-root-PK + KEY1) but **with NO mg_tableclass** (composition, not identity).
+Module-extends-module = normal inheritance, all rooted at the one root → columns flatten via existing
+`getColumns()`; NO copy/flatten step. The module table is real and queryable; it is simply excluded from
+**is-a** enumeration (`getSubclassTables()`), not from the catalog.
+
+**Consequences vs the superseded materialization design:**
+- DROPPED: reserved `mg_<Root>_<Mod>` naming + hash/length handling (O-1) — a module is a real table with
+  its own real name. The earlier naming decision is MOOT.
+- REVERSED: the earlier "suppress standalone MODULE storage" decision — the MODULE table KEEPS storage
+  (it IS the real table). No suppression of MODULE physical DDL.
+- DROPPED: per-consumer copy, flatten-on-materialize, off-surface-by-reserved-prefix, hidden tables — the
+  whole materialization subsystem.
+- KEPT: the `executeSetInherit` flag split (skipPk + skipMgTableclass) — still required so a MODULE subtype
+  extends the root WITHOUT mg_tableclass.
+- LOST (accepted): cross-root reuse of one module definition across unrelated roots (define per root).
+  Reversible later by adding a "materialize a module into another root" feature on top, with the real
+  table as the canonical definition.
+
+**Binding model (LOCKED 2026-06-12, owner via AskUserQuestion):** explicit — a MODULE declares
+`extends <root>` (its single root) + `tableType=MODULE` (the storage binding); the root declares one or
+more `MODULE_ARRAY` columns whose `values` list the modules in that axis (the axis assignment). Validation
+cross-checks each value is a MODULE that extends this root (extends C1's exists+tableType check) and O-5
+one-axis-per-module. The `values` partition modules into named orthogonal axes (e.g. `panels`,
+`subgroups01`) — multi-axis = multiple MODULE_ARRAY columns. Both declarations are necessary (storage
+binding + axis assignment); no hidden side-effects (a column edit never mutates the module table).
+
+**Revised C2 sub-steps (storage groundwork only; red-green; existing suites stay green):**
+- **C2.A** — Split `executeSetInherit`'s `skipPkAndMgTableclass` → `skipPk` + `skipMgTableclass` (KEY1
+  moves under skipPk; mg_tableclass under skipMgTableclass). Diamond behavior preserved exactly (later
+  parents = both true). Pure refactor; TestDiamondInheritance is the safety net.
+  - **REFINEMENT (planned 2026-06-13, owner-raised) — DROP both params, derive internally:** revert to
+    `executeSetInherit(jooq, table, other)`. Derive `skipPk` from *primary-parent* (`other` ==
+    `table.getInheritedTables().get(0)`) → PK-copy + KEY1 + meta-removal only for the primary parent.
+    Derive mg_tableclass-suppression from `table.getTableType() == MODULE` (the existing
+    `getLocalColumn(MG_TABLECLASS)==null` guard already makes the diamond-additional case idempotent, so
+    composition is the only real skip). Behavior-preserving (verified vs diamond primary/additional, MODULE,
+    multi-level module chain); guarded by TestDiamondInheritance + TestCrossSchemaForeignKeysAndInheritance +
+    TestModuleArrayDiscriminator. Apply AFTER the C2 review confirms the green base.
+- **C2.B** — A `tableType=MODULE` table extending a root creates a real composition-subtype table with
+  `skipMgTableclass=true` (PK+FK+KEY1, no mg_tableclass). `executeCreateTable` passes
+  `skipMgTableclass = table.getTableType()==MODULE`.
+- **C2.C** — Exclude `tableType==MODULE` composition subtypes from is-a enumeration (`getSubclassTables()`
+  and the is-a query joins) so they are not treated as `mg_tableclass` subclasses; they stay real,
+  catalog-visible tables.
+  - **Rationale (verified 2026-06-13, owner-raised):** `getSubclassTables()` has exactly TWO callers,
+    both is-a-semantics keyed by scalar `mg_tableclass` — the is-a join `SqlQuery.tableWithInheritanceJoin`
+    (~890) and its column aggregation `TableMetadata.getColumnsFromSubclasses` (~692). A module has no
+    `mg_tableclass`, so including it would create a never-matching join + dangling column refs. NO
+    DROP/truncate/structural caller uses `getSubclassTables()` (drop is per-table + schema-level ordering),
+    so the filter has zero DDL blast radius. Module subtype tables are STILL joined in the query — through
+    the SAME generalized join (C4 generalizes `tableWithInheritanceJoin` to be discriminator-driven; it is
+    NOT a second join method): the composition axis adds module subtype tables gated by array membership
+    (`'schema.Mod' = ANY(arr)`) instead of scalar `mg_tableclass = '...'`. `getSubclassTables()` is just the
+    **is-a axis's binding source**; composition bindings come from `getDiscriminatorColumns()`. One join
+    mechanism, two binding sources — they are NOT lost. If an all-flavors structural sweep is ever needed,
+    add a new `getAllSubtypeTables()` (is-a + module) rather than un-filtering `getSubclassTables()`.
+- **C2.D** — Tighten `MODULE_ARRAY` value validation: each value is a MODULE that **extends this root**
+  (shares the root) + O-5 one-axis-per-module (extends C1 `validateModuleArrayValues`).
+- **C2.E** — Reload round-trip (O-2): module subtype tables + MODULE_ARRAY persist & survive reload via
+  existing metadata (no new column/migration).
+
+Acceptance: a MODULE extending a root → real table keyed on root PK, FK onDeleteCascade, KEY1, NO
+mg_tableclass; NOT in `getSubclassTables()`; module-extends-module flattens columns; MODULE_ARRAY value
+referencing a non-extending / non-MODULE / wrong-axis target rejected; survives reload. (No
+write/query/gating/delete yet — C3–C6.)
+
+> Below: C3–C6 write/query/validation prose still applies, but read every "materialized table" as
+> "module subtype table" (a real `extends`-root table); the per-type LEFT JOIN/membership logic is
+> unchanged in spirit and now joins real subtype tables exactly like Phase B is-a joins.
+>
+> **UNIFIED JOIN (LOCKED 2026-06-13, owner-raised):** C4 GENERALIZES `tableWithInheritanceJoin` into ONE
+> discriminator-driven join — do NOT write a second composition-join method. Model is-a as a single scalar
+> axis (column `mg_tableclass`, predicate `= 'schema.Sub'`, bindings = `getSubclassTables()`) and each
+> `MODULE_ARRAY` column as an array axis (predicate `'schema.Mod' = ANY(arr)`, bindings = the column's
+> `values`). The join loop is identical for both — LEFT JOIN each subtype on the shared root PK +
+> membership-gated column projection; only the per-axis predicate (scalar `=` vs array `= ANY`) differs.
+> This is where the query-side `DiscriminatorAxis(column, cardinality, bindings)` EARNS ITS PLACE. It is a
+> QUERY construct only — it does NOT revive the typed `SUBCLASS` column (Design B stands: `mg_tableclass`
+> remains untyped/master-style).
+
+### ~~MODULE materialization per consuming table (O-1 RESOLVED → root-namespaced, reserved prefix)~~ — SUPERSEDED by Model B (2026-06-12)
 - When `MODULE_ARRAY` `d` on consuming root `R` (schema `s`) allows `"m.Mod"` where `Mod.tableType==MODULE`: materialize a physical table for *this consumer* keyed on `R`'s root PK.
 - **Stored discriminator value** = the module's logical ref `"m.Mod"` (what the modeler picked), unchanged. **Physical materialized table** = root-namespaced with a reserved `mg_`-prefix (e.g. `mg_<Root>_<Mod>`) so it cannot collide with a user table and stays off the queryable surface. Exact collision-safe token verified against EMX2 identifier rules during C2.
 - Reuse `SqlTableMetadataExecutor.executeSetInherit(..., skipPkAndMgTableclass=true)` — it already copies parent PK + FK-on-root-PK + KEY1 and SKIPS `mg_tableclass`/is-a, which is exactly MODULE semantics.
@@ -305,9 +399,9 @@ Land in order; each phase keeps existing tests green.
     4. **MODULE existence + tableType==MODULE validation** in `SqlColumnExecutor.validateColumn()` (line ~354; already called from column-add `addTransaction`→63 AND table-create `executeCreateTable`→89) — mirror the existing ref-table-existence throw pattern. Each `MODULE_ARRAY` value parses as `schema.Table` (reuse the `mg_tableclass` schema-qualified convention) and must resolve to an EXISTING table whose `tableType==MODULE`; else `MolgenisException`.
     5. **MODULE_ARRAY → varchar[]** already maps via base-type `ENUM_ARRAY` in all 5 type switches → NO new type-map code; just an assertion test.
   - **C1 design notes (from C0 review, simplified by Design B):** there is no shared discriminator trigger; `mg_tableclass` keeps its own `createMgTableClassCannotUpdateCheck`. No new DB object for MODULE_ARRAY (Java validation only) → the multi-axis clobber concern is moot. Acceptance: column is `varchar[]`; `mg_tableclass` still present + immutable when `extends` used; allowed MODULE values persisted/validated; non-existent/non-MODULE value rejected; out-of-set element rejected on insert AND update; in-set accepted; a table with mg_tableclass + two MODULE_ARRAY columns keeps ALL their checks independently.
-- **C2 — MODULE materialization + module-extends-module (finalize O-1 token).** Materialize per-consumer module table via `executeSetInherit(skip=true)` with the root-namespaced reserved name, flatten module-extends-module, collision check. Acceptance: module reused by two consuming tables (incl. cross-schema) → independent materialized tables, flattened columns, per-consumer root-PK join, no collision.
+- [x] **C2 — MODULE = real composition-subtype table bound to one root (MODEL B). DONE & green (2026-06-13, independently re-verified; executeSetInherit simplification folded in; STAGED).** See "C2 design — MODEL B" block above (supersedes materialization) + "C2 status (2026-06-13)" block below. Sub-steps C2.A–C2.E: flag split → then SIMPLIFIED to param-free derived `executeSetInherit`; MODULE-extends-root → real table, no mg_tableclass; exclude MODULE subtypes from is-a enumeration; tighten MODULE_ARRAY value validation to "extends this root" + one-axis; reload round-trip. (Materialization/reserved-naming DROPPED; cross-root reuse intentionally LOST, reversible later.)
 - **C3 — MULTIPLE write routing.** Multi-bucket insert: activating modules writes rows into their materialized tables; populate `TEXT[]`. Acceptance: a row activating 2 modules → rows in both materialized tables on shared root PK; array = both values.
-- **C4 — MULTIPLE query projection.** Per-type `= ANY(d)` LEFT JOIN + membership CASE-WHEN. Acceptance: activating both → both module groups; activating one → other group NULL.
+- **C4 — MULTIPLE query projection (GENERALIZE the join, do NOT duplicate it).** Generalize `SqlQuery.tableWithInheritanceJoin` into ONE discriminator-driven join over axes: is-a = scalar axis (`mg_tableclass`, `getSubclassTables()` bindings) + each `MODULE_ARRAY` = array axis (`values` bindings); per-axis predicate scalar `=` vs array `= ANY`; shared LEFT-JOIN-on-root-PK + membership CASE-WHEN. Reintroduce query-side `DiscriminatorAxis(column, cardinality, bindings)` HERE. See "UNIFIED JOIN (LOCKED 2026-06-13)" note above. Acceptance: activating both → both module groups; activating one → other group NULL; existing is-a/diamond queries unchanged (same mechanism, scalar axis).
 - **C5 — Validation gating.** `__active_<d>` in graph; auto-gate visible/required on module-owned columns. Acceptance: required col of inactive module doesn't throw; of active module does.
 - **C6 — Hard-delete on deactivation.** Diff old/new active set in `updateBatch`, DELETE removed module rows. Acceptance: dropping a module removes its row, root + other modules intact; AND a table with BOTH `extends`-identity and a `MODULE_ARRAY` works together (mix smoke).
 
@@ -353,8 +447,43 @@ Implemented per the C1 LOCKED DECISIONS above. Files (6, staged):
 - **mg_tableclass immutability is enforced at TWO layers**: (1) API — `mg_tableclass` is `setReadonly(true)` so `getUpdateColumns()` (SqlTable.java:365 `!isReadonly()`) drops it from the write path; (2) DB trigger `createMgTableClassCannotUpdateCheck` backstops raw SQL. The DB trigger has NO dedicated raw-SQL update test (testing it would violate `backend-test-purity`); the project relies on the readonly API guarantee. C1 asserts the readonly layer (pure-Java); the trigger stays defense-in-depth. If a trigger test is ever wanted, it must be an explicit, isolated exception to test-purity.
 - `getName()→getIdentifier()` regex-validation fix is in the C1 diff — call it out in the eventual commit message as an intentional latent-bug fix bundled with C1.
 
+### C2 status (2026-06-13) — DONE & green, independently re-verified; executeSetInherit simplification applied; STAGED, NOT committed
+
+MODEL B implemented test-first (C2.A–C2.E), then the `executeSetInherit` param-elimination simplification folded on top. Files staged (3 main + 3 test; overlaps the C1 stage):
+- `SqlTableMetadataExecutor.java` — `executeSetInherit` collapsed to a SINGLE 3-arg `(jooq, table, other)`; derives
+  `isPrimaryParent` (resolved `getInheritedTables().get(0)` matched by schema+name; empty list ⇒ primary) gating
+  PK-copy + meta-removal + KEY1; mg_tableclass block gated by `tableType != MODULE` (keeps the existing
+  `getLocalColumn(MG_TABLECLASS)==null` null-guard). NO caller-passed flags.
+- `SqlTableMetadata.java` — `bulkAddInheritTransaction` calls the 3-arg form; dead `isAdditionalParent` removed.
+- `TableMetadata.java` — `collectSubclassTablesDeduped` filters `!getTableType().isModule()` (C2.C: MODULE excluded
+  from is-a enumeration; stays catalog-visible). See the C2.C rationale block above.
+- `SqlColumnExecutor.java` — `validateModuleArrayValues` tightened (C2.D): each value must be a MODULE that EXTENDS
+  this root (root-match by schema+name; transitive module-extends-module resolves to the shared root) +
+  one-axis-per-module (`validateNoModuleInMultipleAxes`).
+- Tests: `TestModuleArrayDiscriminator` (15 @Test — C1's 10 fixtures updated to extends-root + 5 new C2:
+  `moduleExtendsRootIsRealTableWithPkFkKey1NoMgTableclass`, `moduleSubtypesExcludedFromIsAEnumeration`,
+  `moduleArrayValueMustExtendThisRoot`, `moduleArrayValueOneAxisPerModule`, `moduleSubtypesAndModuleArraySurviveReload`);
+  `MetadataPersistenceRoundtripTest` (modules extend root before the MODULE_ARRAY ref; values roundtrip).
+
+**Verification (independent, per-class, stall-proof — exit 0):** `TestModuleArrayDiscriminator` (15), `TestDiamondInheritance`
+(13), `TestTableMetadataDag` (19), `MetadataPersistenceRoundtripTest` (4), `TestInherits` (2), `TestExtends` (1),
+`TestCrossSchemaForeignKeysAndInheritance` (4); spotless + PMD clean. C1 fixture edits preserved coverage (review
+confirmed; the `PanelC` added for O-5 strengthens `mgTableclassAndModuleArrayCoexist`). `XmlAccessType.FIELD` warning
+confirmed pre-existing/benign (transitive jakarta XML bind; absent from all `--console=plain` runs; no exit-code impact).
+NOTE: a simplification agent under-reported the diamond/module-array counts as 8/9 in its summary — reconciled against
+the actual `@Test` counts (13/15) + the independent verification; the same `--tests` command runs the full class, so it
+was a miscount, not skipped tests.
+
+**Commit-message carries:** (1) the `getName()→getIdentifier()` regex-validation latent-bug fix bundled in C1; (2) C2
+tightening MODULE_ARRAY validation to "extends this root" REQUIRED updating C1 module fixtures to extend their root —
+a deliberate requirement change from the Model B pivot, NOT a test weakening.
+
+**Carry into C3+:** write routing into module subtype tables (C3); C4 GENERALIZES `tableWithInheritanceJoin` into the
+unified discriminator-driven join (see "UNIFIED JOIN (LOCKED 2026-06-13)" note above) — do NOT write a parallel
+composition-join method.
+
 ### Open decisions
-- **O-1 module materialization storage + naming:** ✅ RESOLVED (option b) — per-consumer materialized table, **root-namespaced reserved `mg_`-prefixed** physical name; stored discriminator value stays the module's logical `"schema.Mod"` ref. Exact collision-safe token verified during C2.
+- **O-1 module materialization storage + naming:** ❌ MOOT under Model B (2026-06-12) — no materialization; a MODULE is a real table bound to one root with its own real name. (Was: per-consumer reserved `mg_`-prefixed materialized table.)
 - **O-2 materialization persistence:** ✅ derive from `values` (no new column/migration); add a marker only if reload needs it.
 - **O-3 cross-schema TABLE subclasses:** ✅ already work cross-schema as-is; MULTIPLE composition is MODULE-only (C-4), so the old "TABLE-subtype as MULTIPLE option" question is moot.
 - **O-4 mix inheritance + composition:** ✅ REVISED — **ALLOWED to coexist** (drops the suppress-`mg_tableclass` rule; the C0 loop handles mixed-cardinality discriminators uniformly). `getRootTable()` single-root invariant holds across all axes.

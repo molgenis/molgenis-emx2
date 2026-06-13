@@ -45,14 +45,23 @@ class MetadataPersistenceRoundtripTest {
     String schemaName = SCHEMA_NAME + "Sub";
     Schema schema = db.dropCreateSchema(schemaName);
 
-    schema.create(table("ModuleA").setTableType(TableType.MODULE).add(column("id").setPkey()));
-    schema.create(table("ModuleB").setTableType(TableType.MODULE).add(column("id").setPkey()));
+    schema.create(table("Root").add(column("id").setPkey()));
+    schema.create(
+        table("ModuleA")
+            .setTableType(TableType.MODULE)
+            .setInheritNames("Root")
+            .add(column("aCol")));
+    schema.create(
+        table("ModuleB")
+            .setTableType(TableType.MODULE)
+            .setInheritNames("Root")
+            .add(column("bCol")));
 
     List<String> moduleValues = List.of(schemaName + ".ModuleA", schemaName + ".ModuleB");
-    schema.create(
-        table("Root")
-            .add(column("id").setPkey())
-            .add(column("modules").setType(MODULE_ARRAY).setValues(moduleValues)));
+    schema
+        .getTable("Root")
+        .getMetadata()
+        .add(column("modules").setType(MODULE_ARRAY).setValues(moduleValues));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);

@@ -12,6 +12,23 @@ tables (non-existent/DATA/ONTOLOGY/malformed rejected); enum-family membership e
 coexist (mg_tableclass readonly/immutable, MODULE_ARRAY mutable, no trigger/name collision). NO materialization/
 write-routing/query/gating/hard-delete yet (C2–C6). C2–C6 PLANNED.
 
+**MODEL B PIVOT (2026-06-12, owner):** a MODULE is a **real, queryable table bound to ONE root** (NOT
+materialized per consumer). One storage model = Phase B table-per-type on shared root PK; two discriminator
+flavors: is-a/`mg_tableclass` (EXCLUSIVE, immutable) vs composition/`MODULE_ARRAY` (MULTIPLE, mutable, no
+mg_tableclass). C2 = flag split (skipPk+skipMgTableclass), MODULE-extends-root → real subtype table w/o
+mg_tableclass, exclude MODULE subtypes from is-a enumeration, tighten MODULE_ARRAY value validation to
+"extends this root" + one-axis, reload round-trip. Materialization/reserved-naming DROPPED; cross-root reuse
+intentionally LOST (reversible later). Binding model LOCKED = explicit: module `extends root` +
+`tableType=MODULE` (storage binding) AND root's `MODULE_ARRAY.values` list the module per axis (axis
+assignment); engine cross-checks each value extends this root + one-axis-per-module (O-5).
+
+**C2 DONE & green (2026-06-13, independently re-verified; STAGED, not committed).** C2.A–C2.E landed + the
+`executeSetInherit` param-elimination simplification (single derived 3-arg form). MODULE-extends-root = real subtype
+table (PK+FK+KEY1, no mg_tableclass); MODULE excluded from is-a enumeration (catalog-visible); MODULE_ARRAY value must
+extend this root + one-axis (O-5); reload round-trip. Verified exit 0 across diamond/module/cross-schema/reload suites;
+spotless+PMD clean. NO write-routing/query/gating/hard-delete yet — C3–C6 PLANNED; C4 GENERALIZES
+`tableWithInheritanceJoin` into ONE discriminator-driven join (not a parallel composition method).
+
 | Behavior | Component | Test | Visual |
 |----------|-----------|------|--------|
 | A table may declare multiple parents via `setInheritNames(String...)` (no `addInheritName`) | TableMetadata / SqlTableMetadata | TestTableMetadataDag, TestDiamondInheritance | - |
@@ -40,10 +57,13 @@ write-routing/query/gating/hard-delete yet (C2–C6). C2–C6 PLANNED.
 | required/visible gated by active set for module columns (`__active_<d>` in JS graph) | SqlTypeUtils | _C5_ | - |
 | Deactivating a module on update HARD-DELETEs its materialized row (root row intact) | SqlTable.updateBatch | _C6_ | - |
 | Discriminator named column: `mg_tableclass` is the reserved auto-name from `extends`; `MODULE_ARRAY` columns are modeler-named | SqlTableMetadataExecutor | TestDiamondInheritance.mgTableclassLivesOnlyOnRoot, mgTableclassOnRootOnlyInSingleChain | - |
-| `tableType=MODULE` = option-only, materialized per consuming table (not standalone) | TableType / SqlTableMetadataExecutor | TestTableMetadataDag.tableTypeModuleHasIsModuleHelper (scaffolding; materialization = _C2_) | - |
-| Module materialized per consuming table on its root PK via executeSetInherit(skip=true); physical name root-namespaced reserved `mg_`-prefix (O-1 resolved); stored value stays logical `schema.Mod` | SqlTableMetadataExecutor | _C2_ | - |
-| Same module reused by multiple consuming tables (incl. cross-schema) = independent materialized tables | SqlTableMetadataExecutor | _C2_ | - |
-| A module may extend other modules (columns flatten at materialization) | TableMetadata / materialization | _C2_ | - |
+| `tableType=MODULE` (MODEL B) = a real, queryable composition-subtype table bound to ONE root; extends the root with NO mg_tableclass | TableType / SqlTableMetadataExecutor | **C2 DONE** — TestModuleArrayDiscriminator.moduleExtendsRootIsRealTableWithPkFkKey1NoMgTableclass | - |
+| MODULE-extends-root → real subtype table keyed on root PK (PK+FK+KEY1), NO mg_tableclass; via param-free derived executeSetInherit (primary-parent ⇒ PK/KEY1; tableType==MODULE ⇒ skip mg_tableclass) | SqlTableMetadataExecutor.executeSetInherit | **C2 DONE** — TestModuleArrayDiscriminator.moduleExtendsRootIsRealTableWithPkFkKey1NoMgTableclass; diamond unchanged: TestDiamondInheritance (13) | - |
+| MODULE composition subtypes excluded from is-a enumeration (getSubclassTables / is-a query joins) but stay catalog-visible real tables | TableMetadata.collectSubclassTablesDeduped / SqlQuery | **C2 DONE** — TestModuleArrayDiscriminator.moduleSubtypesExcludedFromIsAEnumeration | - |
+| A module may extend other modules (columns flatten via normal inheritance, all rooted at the one root — NO copy/materialize) | TableMetadata.getColumns | **C2 DONE** (transitive root-match) — TestModuleArrayDiscriminator.moduleArrayValueMustExtendThisRoot | - |
+| MODULE_ARRAY value must reference a MODULE that EXTENDS this root (shares root) + at most one axis per module (O-5) | SqlColumnExecutor.validateModuleArrayValues / validateNoModuleInMultipleAxes | **C2 DONE** — TestModuleArrayDiscriminator.moduleArrayValueMustExtendThisRoot / moduleArrayValueOneAxisPerModule | - |
+| Module subtype tables + MODULE_ARRAY survive schema reload (no new metadata column / migration) | MetadataUtils (existing persistence) | **C2 DONE** — TestModuleArrayDiscriminator.moduleSubtypesAndModuleArraySurviveReload | - |
+| Binding is EXPLICIT: module declares `extends root` + tableType=MODULE (storage) AND root's MODULE_ARRAY.values list it (axis); a column edit never mutates the module table (no adoption side-effect) | SqlColumnExecutor / SqlTableMetadataExecutor | **C2 DONE** — TestModuleArrayDiscriminator.moduleArrayValueMustExtendThisRoot | - |
 | `MODULE_ARRAY` values are MODULE classes only; `extends`/`mg_tableclass` values are TABLE subclasses | SqlColumnExecutor.validateModuleArrayValues / validation | **C1 DONE (array)** — TestModuleArrayDiscriminator.moduleArrayValuesRejectDataTable / RejectOntologyTable / RejectNonExistentTable; is-a = done | - |
 | Discriminator allowed set lives in one `values` field (replaces `refTable`-base + `allowedSubclasses[]`) | Column / MetadataUtils | MetadataPersistenceRoundtripTest | - |
 | DB migration: `table_inherits`→`VARCHAR[]` + `column_metadata."values"`; old DB upgrades | Migrations | migration32 (DB v33) + MetadataPersistenceRoundtripTest (TestMigration extension = TODO, deferred per nonparallel-module guidance) | - |

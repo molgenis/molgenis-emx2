@@ -462,6 +462,12 @@ public class SqlColumnExecutor {
       return;
     }
     Database database = c.getTable().getSchema().getDatabase();
+    TableMetadata declaringTable = c.getTable();
+    TableMetadata declaringRoot = declaringTable.getRootTable();
+    String declaringRootKey = declaringRoot.getSchemaName() + "." + declaringRoot.getTableName();
+
+    validateNoModuleInMultipleAxes(c, moduleValues, declaringTable);
+
     for (String qualifiedName : moduleValues) {
       String[] parts = qualifiedName.split("\\.", 2);
       if (parts.length != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
@@ -500,7 +506,8 @@ public class SqlColumnExecutor {
                 + qualifiedName
                 + "' referenced by MODULE_ARRAY values does not exist");
       }
-      if (!referencedTable.getMetadata().getTableType().isModule()) {
+      TableMetadata referencedMeta = referencedTable.getMetadata();
+      if (!referencedMeta.getTableType().isModule()) {
         throw new MolgenisException(
             "Add column '"
                 + c.getTableName()
@@ -509,7 +516,50 @@ public class SqlColumnExecutor {
                 + "' failed: table '"
                 + qualifiedName
                 + "' must have tableType=MODULE but has "
-                + referencedTable.getMetadata().getTableType());
+                + referencedMeta.getTableType());
+      }
+      TableMetadata moduleRoot = referencedMeta.getRootTable();
+      String moduleRootKey = moduleRoot.getSchemaName() + "." + moduleRoot.getTableName();
+      if (!moduleRootKey.equals(declaringRootKey)) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: MODULE '"
+                + qualifiedName
+                + "' does not extend the same root as the declaring table. Module root is '"
+                + moduleRootKey
+                + "' but declaring table root is '"
+                + declaringRootKey
+                + "'");
+      }
+    }
+  }
+
+  private static void validateNoModuleInMultipleAxes(
+      Column newColumn, List<String> newModuleValues, TableMetadata declaringTable) {
+    for (Column existing : declaringTable.getDiscriminatorColumns()) {
+      if (existing.getName().equals(newColumn.getName())) {
+        continue;
+      }
+      List<String> existingValues = existing.getValues();
+      if (existingValues == null) {
+        continue;
+      }
+      for (String newValue : newModuleValues) {
+        if (existingValues.contains(newValue)) {
+          throw new MolgenisException(
+              "Add column '"
+                  + declaringTable.getTableName()
+                  + "."
+                  + newColumn.getName()
+                  + "' failed: MODULE '"
+                  + newValue
+                  + "' is already assigned to axis '"
+                  + existing.getName()
+                  + "'. A module may appear in at most one MODULE_ARRAY axis per table.");
+        }
       }
     }
   }

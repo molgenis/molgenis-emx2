@@ -722,7 +722,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private void collectSubclassTablesDeduped(List<TableMetadata> result, Set<String> emitted) {
     if (getSchema() == null) return;
     for (TableMetadata table : getSchema().getTables()) {
-      if (table.getInheritNames().contains(getTableName())) {
+      if (table.getInheritNames().contains(getTableName()) && !table.getTableType().isModule()) {
         if (emitted.add(table.getTableName())) {
           result.add(table);
           table.collectSubclassTablesDeduped(result, emitted);

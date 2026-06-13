@@ -43,26 +43,24 @@ class TestModuleArrayDiscriminator {
   @Test
   void moduleArrayColumnPersistsAndSurvivesReload() {
     Schema s = freshSchema("Persist");
+    String schemaName = s.getMetadata().getName();
 
-    s.create(table("Mod").setTableType(MODULE).add(column("id").setPkey()).add(column("modCol")));
+    s.create(table("Host").add(column("id").setPkey()));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Host").add(column("modCol")));
 
-    s.create(
-        table("Host")
-            .add(column("id").setPkey())
-            .add(
-                column("panels")
-                    .setType(MODULE_ARRAY)
-                    .setValues(s.getMetadata().getName() + ".Mod")));
+    s.getTable("Host")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".Mod"));
 
     db.clearCache();
-    Schema reloaded = db.getSchema(s.getMetadata().getName());
+    Schema reloaded = db.getSchema(schemaName);
     Column panels = reloaded.getTable("Host").getMetadata().getColumn("panels");
 
     assertNotNull(panels, "panels column must survive reload");
     assertEquals(MODULE_ARRAY, panels.getColumnType(), "column type must remain MODULE_ARRAY");
     assertNotNull(panels.getValues(), "values must survive reload");
     assertTrue(
-        panels.getValues().contains(s.getMetadata().getName() + ".Mod"),
+        panels.getValues().contains(schemaName + ".Mod"),
         "values must contain the MODULE reference after reload");
 
     TableMetadata modMeta = reloaded.getTable("Mod").getMetadata();
@@ -187,16 +185,16 @@ class TestModuleArrayDiscriminator {
     Schema s = freshSchema("Insert");
     String schemaName = s.getMetadata().getName();
 
-    s.create(table("Mod1").setTableType(MODULE).add(column("id").setPkey()));
-    s.create(table("Mod2").setTableType(MODULE).add(column("id").setPkey()));
+    s.create(table("Host").add(column("id").setPkey()));
+    s.create(table("Mod1").setTableType(MODULE).setInheritNames("Host").add(column("mod1Col")));
+    s.create(table("Mod2").setTableType(MODULE).setInheritNames("Host").add(column("mod2Col")));
 
-    s.create(
-        table("Host")
-            .add(column("id").setPkey())
-            .add(
-                column("panels")
-                    .setType(MODULE_ARRAY)
-                    .setValues(schemaName + ".Mod1", schemaName + ".Mod2")));
+    s.getTable("Host")
+        .getMetadata()
+        .add(
+            column("panels")
+                .setType(MODULE_ARRAY)
+                .setValues(schemaName + ".Mod1", schemaName + ".Mod2"));
 
     assertThrows(
         MolgenisException.class,
@@ -215,12 +213,12 @@ class TestModuleArrayDiscriminator {
     Schema s = freshSchema("Update");
     String schemaName = s.getMetadata().getName();
 
-    s.create(table("ModU").setTableType(MODULE).add(column("id").setPkey()));
+    s.create(table("HostU").add(column("id").setPkey()));
+    s.create(table("ModU").setTableType(MODULE).setInheritNames("HostU").add(column("modUCol")));
 
-    s.create(
-        table("HostU")
-            .add(column("id").setPkey())
-            .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModU")));
+    s.getTable("HostU")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModU"));
 
     s.getTable("HostU").insert(row("id", "u1", "panels", schemaName + ".ModU"));
 
@@ -274,8 +272,12 @@ class TestModuleArrayDiscriminator {
     s.create(table("Animal").add(column("id").setType(STRING).setPkey()).add(column("name")));
     s.create(table("Dog").setInheritNames("Animal").add(column("breed")));
 
-    s.create(table("PanelA").setTableType(MODULE).add(column("id").setPkey()));
-    s.create(table("PanelB").setTableType(MODULE).add(column("id").setPkey()));
+    s.create(
+        table("PanelA").setTableType(MODULE).setInheritNames("Animal").add(column("panelACol")));
+    s.create(
+        table("PanelB").setTableType(MODULE).setInheritNames("Animal").add(column("panelBCol")));
+    s.create(
+        table("PanelC").setTableType(MODULE).setInheritNames("Animal").add(column("panelCCol")));
 
     s.create(
         table("DogWithPanels")
@@ -285,7 +287,7 @@ class TestModuleArrayDiscriminator {
                 column("axis1")
                     .setType(MODULE_ARRAY)
                     .setValues(schemaName + ".PanelA", schemaName + ".PanelB"))
-            .add(column("axis2").setType(MODULE_ARRAY).setValues(schemaName + ".PanelA")));
+            .add(column("axis2").setType(MODULE_ARRAY).setValues(schemaName + ".PanelC")));
 
     db.clearCache();
     Schema reloaded = db.getSchema(schemaName);
@@ -307,5 +309,194 @@ class TestModuleArrayDiscriminator {
     assertNotNull(axis2);
     assertEquals(MODULE_ARRAY, axis1.getColumnType());
     assertEquals(MODULE_ARRAY, axis2.getColumnType());
+  }
+
+  // ── C2.B: MODULE-extends-root → real table, PK+FK+KEY1, NO mg_tableclass ─────
+
+  @Test
+  void moduleExtendsRootIsRealTableWithPkFkKey1NoMgTableclass() {
+    Schema s = freshSchema("C2B");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    db.clearCache();
+    Schema reloaded = db.getSchema(schemaName);
+
+    TableMetadata modMeta = reloaded.getTable("Mod").getMetadata();
+    assertNotNull(modMeta, "Module table Mod must exist (real physical table)");
+
+    List<String> modPrimaryKeys = modMeta.getPrimaryKeys();
+    assertEquals(1, modPrimaryKeys.size(), "Mod must have exactly one PK column (root's id)");
+    assertEquals("id", modPrimaryKeys.get(0), "Mod's PK must be Root's id");
+
+    List<String> modParents = modMeta.getInheritNames();
+    assertTrue(modParents.contains("Root"), "Mod must list Root as parent after reload");
+
+    Column mgTableclassOnRoot =
+        reloaded.getTable("Root").getMetadata().getLocalColumn(MG_TABLECLASS);
+    assertNull(
+        mgTableclassOnRoot,
+        "Root must NOT have mg_tableclass when only a MODULE (not a DATA is-a subtype) extends it");
+  }
+
+  // ── C2.C: MODULE subtypes excluded from is-a getSubclassTables ───────────────
+
+  @Test
+  void moduleSubtypesExcludedFromIsAEnumeration() {
+    Schema s = freshSchema("C2C");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(table("DataSub").setInheritNames("Root").add(column("dataCol").setType(STRING)));
+    s.create(
+        table("ModSub")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    db.clearCache();
+    Schema reloaded = db.getSchema(schemaName);
+
+    List<TableMetadata> subclasses = reloaded.getTable("Root").getMetadata().getSubclassTables();
+    List<String> subclassNames = subclasses.stream().map(TableMetadata::getTableName).toList();
+
+    assertTrue(
+        subclassNames.contains("DataSub"),
+        "DataSub (DATA subtype) must appear in getSubclassTables()");
+    assertFalse(
+        subclassNames.contains("ModSub"),
+        "ModSub (MODULE subtype) must NOT appear in getSubclassTables()");
+
+    assertNotNull(reloaded.getTable("ModSub"), "ModSub must still exist in catalog (real table)");
+  }
+
+  // ── C2.D: MODULE_ARRAY value must extend this root; one-axis-per-module ──────
+
+  @Test
+  void moduleArrayValueMustExtendThisRoot() {
+    Schema s = freshSchema("C2D_root");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("RootA").add(column("id").setType(STRING).setPkey()));
+    s.create(table("RootB").add(column("id").setType(STRING).setPkey()));
+
+    s.create(
+        table("ModForB")
+            .setTableType(MODULE)
+            .setInheritNames("RootB")
+            .add(column("modCol").setType(STRING)));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("RootA")
+                    .getMetadata()
+                    .add(column("panels").setType(MODULE_ARRAY).setValues(schemaName + ".ModForB")),
+            "MODULE_ARRAY value must reference a module that extends THIS root, not a different root");
+
+    assertTrue(
+        ex.getMessage().contains("ModForB") || ex.getMessage().contains("root"),
+        "Error must mention the non-extending module or root mismatch, got: " + ex.getMessage());
+  }
+
+  @Test
+  void moduleArrayValueOneAxisPerModule() {
+    Schema s = freshSchema("C2D_axis");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("axis1").setType(MODULE_ARRAY).setValues(schemaName + ".Mod"));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Root")
+                    .getMetadata()
+                    .add(column("axis2").setType(MODULE_ARRAY).setValues(schemaName + ".Mod")),
+            "A module may only appear in one MODULE_ARRAY axis per table (O-5)");
+
+    assertTrue(
+        ex.getMessage().contains("Mod") || ex.getMessage().contains("axis"),
+        "Error must mention the duplicate module or axis conflict, got: " + ex.getMessage());
+  }
+
+  // ── C2.E: reload round-trip — module subtypes + MODULE_ARRAY survive reload ──
+
+  @Test
+  void moduleSubtypesAndModuleArraySurviveReload() {
+    Schema s = freshSchema("C2E");
+    String schemaName = s.getMetadata().getName();
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("ModOne")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("oneCol").setType(STRING)));
+    s.create(
+        table("ModTwo")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("twoCol").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(
+            column("panels")
+                .setType(MODULE_ARRAY)
+                .setValues(schemaName + ".ModOne", schemaName + ".ModTwo"));
+
+    db.clearCache();
+    Schema reloaded = db.getSchema(schemaName);
+
+    TableMetadata rootMeta = reloaded.getTable("Root").getMetadata();
+    TableMetadata modOneMeta = reloaded.getTable("ModOne").getMetadata();
+    TableMetadata modTwoMeta = reloaded.getTable("ModTwo").getMetadata();
+
+    assertNotNull(modOneMeta, "ModOne must survive reload");
+    assertNotNull(modTwoMeta, "ModTwo must survive reload");
+    assertEquals(MODULE, modOneMeta.getTableType(), "ModOne tableType must survive reload");
+    assertEquals(MODULE, modTwoMeta.getTableType(), "ModTwo tableType must survive reload");
+    assertTrue(
+        modOneMeta.getInheritNames().contains("Root"),
+        "ModOne must still extend Root after reload");
+    assertTrue(
+        modTwoMeta.getInheritNames().contains("Root"),
+        "ModTwo must still extend Root after reload");
+
+    Column panels = rootMeta.getColumn("panels");
+    assertNotNull(panels, "MODULE_ARRAY column 'panels' must survive reload");
+    assertEquals(
+        MODULE_ARRAY, panels.getColumnType(), "panels type must be MODULE_ARRAY after reload");
+    assertNotNull(panels.getValues(), "panels.values must survive reload");
+    assertTrue(
+        panels.getValues().contains(schemaName + ".ModOne"), "panels.values must contain ModOne");
+    assertTrue(
+        panels.getValues().contains(schemaName + ".ModTwo"), "panels.values must contain ModTwo");
+
+    List<String> isASubclasses =
+        rootMeta.getSubclassTables().stream().map(TableMetadata::getTableName).toList();
+    assertFalse(
+        isASubclasses.contains("ModOne"),
+        "ModOne must NOT be in is-a getSubclassTables() after reload");
+    assertFalse(
+        isASubclasses.contains("ModTwo"),
+        "ModTwo must NOT be in is-a getSubclassTables() after reload");
   }
 }

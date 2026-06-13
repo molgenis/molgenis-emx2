@@ -72,10 +72,8 @@ class SqlTableMetadataExecutor {
               + ": not found");
     }
     if (!parents.isEmpty()) {
-      boolean firstParent = true;
       for (TableMetadata parent : parents) {
-        executeSetInherit(jooq, table, parent, !firstParent);
-        firstParent = false;
+        executeSetInherit(jooq, table, parent);
       }
     }
 
@@ -150,11 +148,6 @@ class SqlTableMetadataExecutor {
   }
 
   static void executeSetInherit(DSLContext jooq, TableMetadata table, TableMetadata other) {
-    executeSetInherit(jooq, table, other, false);
-  }
-
-  static void executeSetInherit(
-      DSLContext jooq, TableMetadata table, TableMetadata other, boolean skipPkAndMgTableclass) {
     if (other.getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Extend failed: Cannot make table '"
@@ -164,7 +157,9 @@ class SqlTableMetadataExecutor {
               + "' because table primary key is null");
     }
 
-    if (!skipPkAndMgTableclass) {
+    boolean isPrimaryParent = isPrimaryParent(table, other);
+
+    if (isPrimaryParent) {
       // remove meta, we use super class meta
       executeRemoveMetaColumns(jooq, table);
 
@@ -184,14 +179,27 @@ class SqlTableMetadataExecutor {
                 .onDeleteCascade())
         .execute();
 
-    if (!skipPkAndMgTableclass) {
+    if (isPrimaryParent) {
+      createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
+    }
+
+    if (table.getTableType() != TableType.MODULE) {
       TableMetadata root = other.getRootTable();
       if (root.getLocalColumn(MG_TABLECLASS) == null) {
         root.add(column(MG_TABLECLASS).setReadonly(true).setPosition(10005));
         createMgTableClassCannotUpdateCheck((SqlTableMetadata) root, jooq);
       }
-      createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
     }
+  }
+
+  private static boolean isPrimaryParent(TableMetadata table, TableMetadata other) {
+    List<TableMetadata> resolvedParents = table.getInheritedTables();
+    if (resolvedParents.isEmpty()) {
+      return true;
+    }
+    TableMetadata firstParent = resolvedParents.get(0);
+    return firstParent.getSchemaName().equals(other.getSchemaName())
+        && firstParent.getTableName().equals(other.getTableName());
   }
 
   static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {

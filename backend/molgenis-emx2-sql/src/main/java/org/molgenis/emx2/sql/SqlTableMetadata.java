@@ -424,11 +424,9 @@ class SqlTableMetadata extends TableMetadata {
     SqlTableMetadata tm =
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
 
-    for (int index = 0; index < parentsToAdd.size(); index++) {
-      String parentName = parentsToAdd.get(index);
+    for (String parentName : parentsToAdd) {
       TableMetadata om = db.getSchema(inheritSchema).getTable(parentName).getMetadata();
-      boolean isAdditionalParent = !alreadyWiredParents.isEmpty() || index > 0;
-      executeSetInherit(jooq, tm, om, isAdditionalParent);
+      executeSetInherit(jooq, tm, om);
       // Update in-memory list directly — avoids re-entering SqlTableMetadata.setInheritNames
       if (!tm.inheritNames.contains(parentName)) {
         tm.inheritNames.add(parentName);
