@@ -33,6 +33,7 @@ public class Emx2 {
   private static final String VISIBLE = "visible";
   private static final String COMPUTED = "computed";
   private static final String SEMANTICS = "semantics";
+  private static final String VALUES = "values";
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
   private static final String PROFILES = "profiles";
@@ -136,6 +137,7 @@ public class Emx2 {
           if (row.notNull(VISIBLE)) column.setVisible(row.getString(VISIBLE));
           if (row.notNull(COMPUTED)) column.setComputed(row.getString(COMPUTED));
           if (row.notNull(SEMANTICS)) column.setSemantics(row.getStringArray(SEMANTICS));
+          if (row.notNull(VALUES)) column.setValues(row.getStringArray(VALUES));
           if (row.notNull(PROFILES)) column.setProfiles(row.getStringArray(PROFILES));
           if (row.notNull(REF_JS_TEMPLATE)) column.setRefLabel(row.getString(REF_JS_TEMPLATE));
           if (row.notNull(COLUMN_POSITION)) column.setPosition(row.getInteger(COLUMN_POSITION));
@@ -203,6 +205,7 @@ public class Emx2 {
             VISIBLE,
             COMPUTED,
             SEMANTICS,
+            VALUES,
             PROFILES));
     // add label locales that are used
     schema
@@ -249,7 +252,8 @@ public class Emx2 {
           TABLE_EXTENDS,
           table.getInheritNames().isEmpty() ? null : String.join(",", table.getInheritNames()));
       row.setString(
-          TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
+          TABLE_TYPE,
+          table.getTableType().equals(TableType.DATA) ? null : table.getTableType().name());
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
@@ -316,6 +320,8 @@ public class Emx2 {
         if (column.getComputed() != null) row.set(COMPUTED, column.getComputed());
         if (column.getVisible() != null) row.set(VISIBLE, column.getVisible());
         if (column.getSemantics() != null) row.set(SEMANTICS, column.getSemantics());
+        if (column.getValues() != null && !column.getValues().isEmpty())
+          row.set(VALUES, column.getValues().toArray(String[]::new));
         if (column.getProfiles() != null) row.set(PROFILES, column.getProfiles());
         for (Map.Entry<String, String> label : column.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {

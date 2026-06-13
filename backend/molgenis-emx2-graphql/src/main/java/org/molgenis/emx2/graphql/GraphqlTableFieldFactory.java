@@ -157,7 +157,7 @@ public class GraphqlTableFieldFactory {
       tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
-      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
         createTableField(col, tableBuilder);
       }
       tableTypes.put(tableObjectType, tableBuilder.build());
@@ -201,6 +201,7 @@ public class GraphqlTableFieldFactory {
             GraphQLFieldDefinition.newFieldDefinition().name(id).type(GraphQLJsonAsString));
         break;
       case STRING_ARRAY:
+      case ENUM_ARRAY:
       case EMAIL_ARRAY:
       case HYPERLINK_ARRAY:
       case TEXT_ARRAY:
@@ -582,6 +583,7 @@ public class GraphqlTableFieldFactory {
           DATETIME_ARRAY,
           PERIOD_ARRAY,
           STRING_ARRAY,
+          ENUM_ARRAY,
           TEXT_ARRAY,
           EMAIL_ARRAY,
           HYPERLINK_ARRAY:
@@ -1070,7 +1072,13 @@ public class GraphqlTableFieldFactory {
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case JSON -> GraphqlCustomTypes.GraphQLJsonAsString;
-      case STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, PERIOD_ARRAY, UUID_ARRAY ->
+      case STRING_ARRAY,
+              ENUM_ARRAY,
+              TEXT_ARRAY,
+              DATE_ARRAY,
+              DATETIME_ARRAY,
+              PERIOD_ARRAY,
+              UUID_ARRAY ->
           GraphQLList.list(Scalars.GraphQLString);
       default ->
           throw new MolgenisException(

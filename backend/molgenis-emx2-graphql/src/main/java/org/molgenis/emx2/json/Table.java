@@ -19,6 +19,7 @@ public class Table {
   private String inheritId;
   private String inheritName;
   private List<String> inheritNames = new ArrayList<>();
+  private List<String> inheritIds = new ArrayList<>();
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -53,7 +54,9 @@ public class Table {
     if (!tableMetadata.getInheritNames().isEmpty()) {
       this.inheritNames = tableMetadata.getInheritNames();
       this.inheritName = tableMetadata.getInheritNames().get(0);
-      this.inheritId = tableMetadata.getInheritedTables().get(0).getIdentifier();
+      List<TableMetadata> inheritedTables = tableMetadata.getInheritedTables();
+      this.inheritId = inheritedTables.get(0).getIdentifier();
+      this.inheritIds = inheritedTables.stream().map(TableMetadata::getIdentifier).toList();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
@@ -213,6 +216,14 @@ public class Table {
 
   public void setInheritNames(List<String> inheritNames) {
     this.inheritNames = inheritNames != null ? inheritNames : new ArrayList<>();
+  }
+
+  public List<String> getInheritIds() {
+    return inheritIds;
+  }
+
+  public void setInheritIds(List<String> inheritIds) {
+    this.inheritIds = inheritIds != null ? inheritIds : new ArrayList<>();
   }
 
   public String getLabel() {

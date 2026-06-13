@@ -5,6 +5,7 @@ import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
@@ -30,6 +31,9 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
 
   protected void processRows(
       NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
+    if (table.getMetadata().getTableType() == TableType.MODULE) {
+      return;
+    }
     List<Row> rows = getRows(table, primaryKey);
 
     switch (table.getMetadata().getTableType()) {

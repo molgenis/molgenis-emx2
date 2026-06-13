@@ -61,7 +61,7 @@ public abstract class RdfGenerator {
     }
 
     List<Row> rows = query.retrieveRows();
-    SqlTypeUtils.applyComputed(table.getMetadata().getColumns(), rows);
+    SqlTypeUtils.applyComputed(table.getMetadata().getColumnsIncludingModules(), rows);
     return rows;
   }
 

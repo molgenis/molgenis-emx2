@@ -279,7 +279,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter()
         .processTriple(
             subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-    for (final Column column : table.getMetadata().getColumns()) {
+    for (final Column column : table.getMetadata().getColumnsIncludingModules()) {
       // Exclude the system columns that refer to specific users
       if (column.isSystemAddUpdateByUserColumn()) {
         continue;

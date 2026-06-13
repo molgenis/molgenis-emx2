@@ -104,4 +104,86 @@ public class TestMigration {
 
     executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
   }
+
+  @Test
+  @Tag("slow")
+  @Tag("windowsFail")
+  void testMigration32() {
+    SqlDatabase sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    DSLContext jooq = sqlDatabase.getJooq();
+
+    jooq.execute("ALTER TABLE \"MOLGENIS\".column_metadata DROP COLUMN IF EXISTS \"values\"");
+    jooq.execute(
+        "DO $$ BEGIN"
+            + " IF (SELECT data_type FROM information_schema.columns"
+            + "     WHERE table_schema = 'MOLGENIS' AND table_name = 'table_metadata'"
+            + "     AND column_name = 'table_inherits') = 'ARRAY'"
+            + " THEN ALTER TABLE \"MOLGENIS\".table_metadata"
+            + "      ALTER COLUMN table_inherits TYPE VARCHAR USING (table_inherits[1]);"
+            + " END IF; END $$");
+
+    assertEquals(
+        "character varying",
+        jooq.resultQuery(
+                "SELECT data_type FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'table_metadata'"
+                    + " AND column_name = 'table_inherits'")
+            .fetch()
+            .getValues("data_type", String.class)
+            .get(0));
+
+    assertEquals(
+        0,
+        jooq.resultQuery(
+                "SELECT column_name FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'column_metadata'"
+                    + " AND column_name = 'values'")
+            .fetch()
+            .size());
+
+    executeMigrationFile(
+        sqlDatabase,
+        "migration32.sql",
+        "convert table_inherits to VARCHAR[] and add column values array to metadata");
+
+    assertEquals(
+        "ARRAY",
+        jooq.resultQuery(
+                "SELECT data_type FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'table_metadata'"
+                    + " AND column_name = 'table_inherits'")
+            .fetch()
+            .getValues("data_type", String.class)
+            .get(0));
+
+    assertEquals(
+        "_varchar",
+        jooq.resultQuery(
+                "SELECT udt_name FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'table_metadata'"
+                    + " AND column_name = 'table_inherits'")
+            .fetch()
+            .getValues("udt_name", String.class)
+            .get(0));
+
+    assertEquals(
+        "ARRAY",
+        jooq.resultQuery(
+                "SELECT data_type FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'column_metadata'"
+                    + " AND column_name = 'values'")
+            .fetch()
+            .getValues("data_type", String.class)
+            .get(0));
+
+    assertEquals(
+        "_varchar",
+        jooq.resultQuery(
+                "SELECT udt_name FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'column_metadata'"
+                    + " AND column_name = 'values'")
+            .fetch()
+            .getValues("udt_name", String.class)
+            .get(0));
+  }
 }

@@ -1,0 +1,36 @@
+tableName,tableExtends,tableType,columnName,columnType,key,required,values,label,description
+Subject,,DATA,,,,,,,
+Subject,,,subjectId,STRING,1,TRUE,,,Patient identifier
+Subject,,,name,STRING,,,,, Full name of the patient
+Subject,,,sex,ENUM,,,"male,female,unknown",,Biological sex
+Subject,,,tags,ENUM_ARRAY,,,"research,clinical,rare",,Administrative tags
+Subject,,,subgroups01,MODULE_ARRAY,,,"CockayneSyndrome,XerodermaPigmentosum,Trichothiodystrophy",,Disease subgroup memberships
+Subject,,,diseaseGroup,MODULE_ARRAY,,,"EpidermolysisBullosa",,Disease group memberships
+CockayneSyndrome,Subject,MODULE,,,,,,,
+CockayneSyndrome,,,relevantmedhistory,TEXT,,,,, Has the patient had any relevant medical history?
+CockayneSyndrome,,,ageOfDiagnose,STRING,,,,,Age of Diagnosis (YY/MM)
+CockayneSyndrome,,,dateAssessment,DATE,,,,,Date of assessment
+CockayneSyndrome,,,weight,DECIMAL,,,,,Weight (kg)
+XerodermaPigmentosum,Subject,MODULE,,,,,,,
+XerodermaPigmentosum,,,skinSymptoms,STRING,,,,,Skin symptoms present
+XerodermaPigmentosum,,,eyeInvolvement,STRING,,,,,Eye involvement
+XerodermaPigmentosum,,,totalSkin,INT,,,,,Total skin severity scale (max 10 points)
+Trichothiodystrophy,Subject,MODULE,,,,,,,
+Trichothiodystrophy,,,lowSulphur,STRING,,,,,Low sulphur hair content
+Trichothiodystrophy,,,sensorineuralHearingLoss,STRING,,,,,Sensorineural hearing loss
+Trichothiodystrophy,,,otherendo,TEXT,,,,,Other endocrinologic anomalies
+AdvancedCockayne,CockayneSyndrome,MODULE,,,,,,,
+AdvancedCockayne,,,neuroDegradationScore,INT,,,,,Neurodegradation severity score (0-10)
+EpidermolysisBullosa,Subject,MODULE,,,,,,,
+EpidermolysisBullosa,,,eBType,STRING,,,,,Type of Epidermolysis Bullosa
+EpidermolysisBullosa,,,anemicHemoglobine,INT,,,,,Anemic hemoglobine (g/dl)
+EpidermolysisBullosa,,,crp,INT,,,,,CRP (mg/L)
+EpidermolysisBullosa,,,mobility,STRING,,,,,Mobility
+ClinicalSubject,Subject,DATA,,,,,,,
+ClinicalSubject,,,clinicalCentreId,STRING,,,,,Treating clinical centre identifier
+ClinicalSubject,,,lastVisitDate,DATE,,,,,Date of last clinical visit
+ResearchSubject,Subject,DATA,,,,,,,
+ResearchSubject,,,biobanked,STRING,,,,,Biobanked sample available
+ResearchSubject,,,consentFormId,STRING,,,,,Signed consent form identifier
+ClinicalResearchSubject,"ClinicalSubject,ResearchSubject",DATA,,,,,,,
+ClinicalResearchSubject,,,trialEnrolment,STRING,,,,,Clinical trial enrolment code

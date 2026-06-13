@@ -195,7 +195,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getDownloadColumnNames() {
     List<Column> list = new ArrayList<>();
-    for (Column column : getColumns()) {
+    for (Column column : getColumnsIncludingModules()) {
       if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
@@ -751,7 +751,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
-  public List<Column> getColumnsIncludingActiveModules() {
+  public List<Column> getColumnsIncludingModules() {
+    List<Column> result = new ArrayList<>(getColumns());
+    for (TableMetadata moduleTable : getModuleSubtypeTables()) {
+      result.addAll(moduleTable.getLocalColumns());
+    }
+    return result;
+  }
+
+  public List<Column> getColumnsIncludingSubclassesAndModules() {
     List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
     for (TableMetadata moduleTable : getModuleSubtypeTables()) {
       result.addAll(moduleTable.getLocalColumns());
@@ -759,8 +767,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
-  public Column getColumnByNameIncludingActiveModules(String columnName) {
-    return getColumnsIncludingActiveModules().stream()
+  public List<Column> getColumnsIncludingSubclassesAndModulesExcludingHeadings() {
+    return getColumnsIncludingSubclassesAndModules().stream().filter(c -> !c.isHeading()).toList();
+  }
+
+  public Column getColumnByNameIncludingSubclassesAndModules(String columnName) {
+    return getColumnsIncludingSubclassesAndModules().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
         .orElse(null);

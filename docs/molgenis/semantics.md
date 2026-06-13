@@ -114,6 +114,27 @@ fdp-o:metadataModified "2025-02-20T13:46:29"^^xsd:dateTime;
 &lt;http://localhost:8080/pet%20store/api/rdf/User/column/mg_updatedOn&gt; "2025-02-20T13:46:29"^^xsd:dateTime .
 </pre>
 
+### MODULE composition columns and RDF
+
+When a root table uses [MODULE_ARRAY composition](use_schema.md#module_array-composition-column),
+the column values of any active MODULE are emitted as RDF triples **under the host root's subject**
+— exactly as if those columns had been declared directly on the root. There is no separate RDF
+subject for a MODULE table; a MODULE row has no standalone RDF representation.
+
+Example: if a `Subject` row activates `DiabetesData` (which contributes an `hba1c` column), the
+`hba1c` value is emitted as a predicate of the `Subject` subject URI:
+
+```turtle
+<http://localhost:8080/myschema/api/rdf/Subject?id=s1>
+    a myschema:Subject, qb:Observation ;
+    <.../Subject/column/hba1c> "6.8" ;
+    ...
+```
+
+Note: the system does **not** emit a separate `rdf:type` triple per active module (a
+FHIR `meta.profile[]`-style multiple-typing was considered but deferred). MODULE tables do not
+appear as standalone RDF subjects; all their data surfaces under the root subject.
+
 ### References to an ontology table
 
 When a reference is done to an ontology table, it slightly deviates from a regular reference.

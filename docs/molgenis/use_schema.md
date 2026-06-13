@@ -408,6 +408,74 @@ You can reuse table definitions, and make more specialized tables using 'tableEx
 Should contain the value of an existing tableName. When providing tableExtends, the column with 'columnName' should be empty. It means the columns defined in
 that tableName will be added to this table. In addition, rows added to this table, will also be visible in the table that is extended.
 
+### Multi-parent (diamond) inheritance
+
+`tableExtends` accepts a comma-separated list of parent table names, enabling diamond inheritance:
+
+```
+tableExtends=Parent1,Parent2
+```
+
+Rules:
+- All parents must converge on exactly **one common root table** (the single shared primary key). Declaring parents whose inheritance graphs have more than one distinct root is a validation error.
+- Duplicate column names across parents are a validation error — there is no merge or override.
+- Any number of parents is allowed as long as the single-root invariant holds.
+- Existing single-`extends` schemas are unchanged — a single parent name works exactly as before.
+
+Example:
+
+| tableName | columnName | tableExtends  |
+|-----------|------------|---------------|
+| Animal    |            |               |
+| Animal    | id         |               |
+| Swimmer   |            | Animal        |
+| Runner    |            | Animal        |
+| Amphibian |            | Swimmer,Runner |
+
+Here `Amphibian` inherits from both `Swimmer` and `Runner`, both of which share `Animal` as their root.
+
+### MODULE tableType (composition)
+
+A `MODULE` table is a reusable column-group that participates in composition rather than identity inheritance. Declare it by setting `tableType=MODULE` on the line that defines the table (no `columnName`), and `tableExtends=<root>` to bind it to exactly one root table.
+
+A MODULE table:
+- extends exactly one root (same schema)
+- is a real, queryable table keyed on the root's primary key
+- is **not** a standalone top-level browse target, but remains catalog-visible
+- may extend other MODULE tables (columns flatten via normal inheritance, all rooted at the same root)
+- does **not** carry the `mg_tableclass` discriminator (composition, not identity)
+
+Example:
+
+| tableName    | columnName   | tableExtends | tableType |
+|--------------|--------------|--------------|-----------|
+| Subject      |              |              |           |
+| Subject      | id           |              |           |
+| DiabetesData |              | Subject      | MODULE    |
+| DiabetesData | hba1c        |              |           |
+| RenalData    |              | Subject      | MODULE    |
+| RenalData    | egfr         |              |           |
+
+### MODULE_ARRAY composition column
+
+A `MODULE_ARRAY` column is declared on the **root** table and defines an axis of modular composition. It lists which MODULE tables belong to that axis. A row "activates" modules by including their names in this column's value; activating a module writes/reads that module's column group on the shared root primary key.
+
+Rules:
+- `MODULE_ARRAY` columns must be declared on the root of the hierarchy (declaring on a non-root subtype is rejected).
+- The `values` field lists the allowed MODULE table names — **bare names only** (same schema; `schema.Table` qualified names are rejected for MODULE_ARRAY).
+- Each MODULE table may appear in at most one `MODULE_ARRAY` column (one axis per module).
+- A root may have multiple `MODULE_ARRAY` columns (orthogonal axes, e.g. `panels` and `subgroups`).
+- Activating a module on insert or update writes that module's column group on the shared root PK; removing a module on update **hard-deletes** its row in the module subtype table (the root row is unaffected).
+- Inheritance (`extends`/`mg_tableclass` identity) and composition (`MODULE_ARRAY`) may coexist on the same root table.
+
+Continuing the example above:
+
+| tableName | columnName | columnType   | values                  |
+|-----------|------------|--------------|-------------------------|
+| Subject   | conditions | MODULE_ARRAY | DiabetesData,RenalData  |
+
+A `Subject` row with `conditions=DiabetesData` activates only the `DiabetesData` column group; `hba1c` is readable on that row while `egfr` is null. A row with `conditions=DiabetesData,RenalData` activates both. Removing `DiabetesData` from `conditions` on a subsequent update permanently deletes that module row for that primary key.
+
 ## molgenis_ontologies
 
 ## Cross schema references/extends

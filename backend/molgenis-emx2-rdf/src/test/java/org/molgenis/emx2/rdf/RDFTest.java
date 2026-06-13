@@ -1139,6 +1139,55 @@ public class RDFTest {
   }
 
   @Test
+  void moduleColumnValueEmittedAsTripleWhenModuleActive() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleRdfTest");
+      schema.create(
+          table(
+              "Root",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("rootCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("Mod", column("modCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Root"));
+      schema
+          .getTable("Root")
+          .getMetadata()
+          .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues("Mod"));
+
+      schema
+          .getTable("Root")
+          .insert(
+              row("id", "active", "rootCol", "rootValue", "panels", "Mod", "modCol", "modValue"));
+      schema.getTable("Root").insert(row("id", "inactive", "rootCol", "otherValue"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Root");
+
+      IRI activeSubject = Values.iri(getApi(schema) + "Root/id=active");
+      IRI inactiveSubject = Values.iri(getApi(schema) + "Root/id=inactive");
+      IRI modColPredicate = Values.iri(getApi(schema) + "Mod/column/modCol");
+
+      Map<IRI, Set<Value>> activeTriples = handler.resources.get(activeSubject);
+      assertNotNull(activeTriples, "active row must appear in RDF output");
+      assertTrue(
+          activeTriples.containsKey(modColPredicate),
+          "active row must emit a triple for the module column modCol");
+      assertTrue(
+          activeTriples.get(modColPredicate).contains(Values.literal("modValue")),
+          "module column triple must carry the inserted value");
+
+      Map<IRI, Set<Value>> inactiveTriples = handler.resources.get(inactiveSubject);
+      assertNotNull(inactiveTriples, "inactive row must appear in RDF output");
+      assertFalse(
+          inactiveTriples.containsKey(modColPredicate),
+          "inactive row must NOT emit a triple for the module column modCol");
+    } finally {
+      database.dropSchemaIfExists("ModuleRdfTest");
+    }
+  }
+
+  @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     Schema schema = database.dropCreateSchema("Website");
     Table table =

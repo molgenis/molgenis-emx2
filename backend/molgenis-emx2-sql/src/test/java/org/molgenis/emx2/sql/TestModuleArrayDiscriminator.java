@@ -1221,6 +1221,60 @@ class TestModuleArrayDiscriminator {
     assertEquals(1, s.getTable("Root").retrieveRows().size(), "Root row must be intact");
   }
 
+  // ── E1: default-select (no explicit select) flows module columns implicitly ──
+
+  @Test
+  void defaultSelectIncludesActiveModuleColumn() {
+    Schema s = freshSchema("E1ActiveMod");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    s.getTable("Root")
+        .insert(row("id", "r1", "rootCol", "rootValue", "panels", "Mod", "modCol", "modValue"));
+
+    List<Row> rows = s.getTable("Root").retrieveRows();
+
+    assertEquals(1, rows.size(), "Root must return one row");
+    Row row = rows.get(0);
+    assertEquals("r1", row.getString("id"), "id must be present in default select");
+    assertEquals(
+        "rootValue", row.getString("rootCol"), "rootCol must be present in default select");
+    assertEquals(
+        "modValue",
+        row.getString("modCol"),
+        "Active module column modCol must appear in default-select result");
+  }
+
+  @Test
+  void defaultSelectNullsInactiveModuleColumn() {
+    Schema s = freshSchema("E1InactiveMod");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    s.getTable("Root").insert(row("id", "r2", "rootCol", "rootValue2"));
+
+    List<Row> rows = s.getTable("Root").retrieveRows();
+
+    assertEquals(1, rows.size(), "Root must return one row");
+    assertNull(
+        rows.get(0).getString("modCol"),
+        "Inactive module column modCol must be NULL in default-select result (row-presence gating)");
+  }
+
   @Test
   void insertRejectsDottedRowValueAgainstBareDeclaredColumn() {
     Schema s = freshSchema("DottedRowVal");
@@ -1244,5 +1298,54 @@ class TestModuleArrayDiscriminator {
             "Inserting a dotted row value into a bare-declared MODULE_ARRAY column must be rejected");
 
     assertNotNull(ex.getMessage(), "Exception must have a message");
+  }
+
+  // ── E2: module columns selectable in JSON (retrieveJSON) path ────────────────
+
+  @Test
+  void retrieveJsonSelectsActiveModuleColumn() {
+    Schema s = freshSchema("E2JsonActive");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    s.getTable("Root")
+        .insert(row("id", "r1", "rootCol", "rootValue", "panels", "Mod", "modCol", "modValue"));
+
+    String json = s.getTable("Root").query().select(s("id"), s("modCol")).retrieveJSON();
+
+    assertNotNull(json, "JSON result must not be null");
+    assertTrue(
+        json.contains("modValue"),
+        "JSON must contain the active module column value, got: " + json);
+  }
+
+  @Test
+  void retrieveJsonNullsInactiveModuleColumn() {
+    Schema s = freshSchema("E2JsonInactive");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("Mod")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("modCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+
+    s.getTable("Root").insert(row("id", "r2", "rootCol", "rootValue2"));
+
+    String json = s.getTable("Root").query().select(s("id"), s("modCol")).retrieveJSON();
+
+    assertNotNull(json, "JSON result must not be null");
+    assertFalse(
+        json.contains("modValue"),
+        "JSON must NOT contain any module column value for inactive row, got: " + json);
   }
 }

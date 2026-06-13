@@ -95,7 +95,7 @@ public class SqlQuery extends QueryBean {
     // will generally be all you need
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c :
-          table.getColumns().stream()
+          table.getColumnsIncludingModules().stream()
               .filter(
                   column ->
                       Arrays.stream(options).anyMatch(option -> option == EXCLUDE_MG_COLUMNS)
@@ -302,7 +302,7 @@ public class SqlQuery extends QueryBean {
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
-        for (Column c : table.getColumns()) {
+        for (Column c : table.getColumnsIncludingModules()) {
           if (!c.isHeading()) {
             select.select(c.getName());
           }
@@ -588,7 +588,7 @@ public class SqlQuery extends QueryBean {
           select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
               ? getColumnByName(
                   table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
-              : getColumnByName(table, select.getColumn());
+              : getColumnByName(table, select.getColumn(), false, true);
 
       // add the fields, using subselects for references
       if (column.isFile()) {
@@ -1737,11 +1737,11 @@ public class SqlQuery extends QueryBean {
     // is scalar column
     Column column =
         includeModules
-            ? table.getColumnByNameIncludingActiveModules(columnName)
+            ? table.getColumnByNameIncludingSubclassesAndModules(columnName)
             : table.getColumnByNameIncludingSubclasses(columnName);
     List<Column> candidateColumns =
         includeModules
-            ? table.getColumnsIncludingActiveModules()
+            ? table.getColumnsIncludingSubclassesAndModules()
             : table.getColumnsIncludingSubclasses();
     if (column == null || (isRowQuery && column.isReference())) {
       // is reference?

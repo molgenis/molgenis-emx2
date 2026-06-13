@@ -335,6 +335,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.VALUES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputTableType =
       new GraphQLObjectType.Builder()
@@ -371,6 +375,14 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.INHERIT_ID)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT_NAMES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT_IDS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTIONS)
@@ -492,6 +504,10 @@ public class GraphqlSchemaFieldFactory {
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.VALUES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
@@ -515,6 +531,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(INHERIT_NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.INHERIT_NAMES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTIONS)
