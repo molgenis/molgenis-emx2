@@ -773,12 +773,12 @@ public class GraphqlTableFieldFactory {
     if (selection == null) return new SelectColumn[0];
     Map<String, Column> columnIdentifierMap =
         table != null
-            ? table.getColumnsIncludingSubclasses().stream()
+            ? table.getColumnsIncludingSubclassesAndModules().stream()
                 .collect(
                     Collectors.toMap(
                         Column::getIdentifier,
                         Function.identity(),
-                        // might be duplicates from subclass
+                        // might be duplicates from subclass or module
                         (existing, replacement) -> existing))
             :
             // in case of file table will be empty
@@ -922,7 +922,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
+      if (!table.getColumnsIncludingSubclassesAndModulesExcludingHeadings().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -1016,7 +1016,7 @@ public class GraphqlTableFieldFactory {
       rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
-      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {

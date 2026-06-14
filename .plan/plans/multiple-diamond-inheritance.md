@@ -240,6 +240,10 @@ Land in order; each phase keeps existing tests green.
 - [ ] **Phase H — Real-model migration: `subject` `visible=` → modules (the motivating use case).** Replace the ~1,000 `visible=` expressions / 118 unique predicates on the `subject` table in `data/patient_registry_demo/molgenis.csv` (e.g. `subgroups01?.name=="cs"` repeated across 155 columns) with `MODULE_ARRAY` composition columns (the modular axes — `subgroups01`, `panels`, etc.) + `MODULE` tables (one per column-group), so a `subject` row activates the modules it needs and the engine gates their columns (no per-column JS). **Hard requirement (owner 2026-06-13): keep EVERYTHING in ONE `subject.csv` model file** — root `subject` + all its `MODULE` tables + the `MODULE_ARRAY` axis columns declared together, so **column ORDER can be managed across modules** (display order spanning multiple module tables is authored in one place, not scattered per-file). Depends on: C3 (write) + C4 (query projection) + C5 (gating) so module columns show/hide correctly; **Phase E** for the EMX2 CSV surface (MODULE tableType, MODULE_ARRAY column type, `values`) AND for the importer to honor cross-module column order from a single file (see Phase E note). Deliverable: a migrated `subject.csv`, a before/after column-count + verbosity drop, and confirmation of equivalent form behavior (same columns visible per selector state). This is the end-to-end proof the whole mechanism replaces the `visible=` workaround. Owner of execution: `datamodeler` agent once the engine + CSV surface are ready.
   - **Phase E review carry (N1) — RDF + ontology module columns:** `OntologyIriMapper.addDataTable` (molgenis-emx2-rdf, ~:43) uses `getColumns()` (module-free). VERIFY whether the mapper is invoked per-MODULE-table (then fine) or only on the root (then a gap) — subject modules are ONTOLOGY-heavy, so if it's a gap a MODULE's ONTOLOGY column would emit as a string LITERAL instead of an IRI in RDF. If real, widen to `getColumnsIncludingModules()` (same modules-only redirect as E1/E4). Verify before fixing (review's claim unconfirmed).
 
+- [ ] **Naming-convention refactor of the demo model — DEFERRED (owner 2026-06-14).** Owner convention: in most data models, table + column NAMES should be **human-readable Sentence case**, NOT camelCase/PascalCase. The `diamond_showcase` demo (E8) currently uses camel/Pascal (`relevantmedhistory`, `subjectId`, `CockayneSyndrome`, `AdvancedCockayne`, `subgroups01`, `diseaseGroup`) — inherited from the inspiration source. Refactor `data/diamond_showcase/molgenis.csv` (+ its data CSVs) so NAMES read like "Cockayne syndrome", "Relevant med history", "Subject id", "Disease group", etc. **Ripple to handle:** EMX2 derives the `id`/identifier (GraphQL field name) FROM the name, so changing names changes ids → MUST update every reference to the old ids: `DiamondShowcaseTest`, the Phase F e2e/Playwright test, any F1/F2 fixtures, and `DiamondShowcaseLoader`/`DataModels` if it pins names. Apply the same Sentence-case convention to the Phase H `subject.csv` migration from the start. Owner of execution: `datamodeler`. Pure asset/convention change, no engine impact. **Consider also codifying the convention in `.claude/CLAUDE.md` (data-model section)** — pending owner confirmation.
+- [ ] **Exclusive single-valued MODULE discriminator (create-then-specialize type flow) — DESIRED FEATURE (owner 2026-06-14).** A single-valued counterpart to `MODULE_ARRAY`: a column where a row picks EXACTLY ONE module/type (cardinality-1; switching to another module hard-deletes the previous module row — exclusive composition). This is the "exclusive" variant that was folded out in Design B (old SUBCLASS semantics), now wanted back with a concrete UX rationale. **Why (owner):** it enables a much nicer design flow — create a base record and choose (or later SWITCH) its specific type DURING/AFTER creation (create-then-specialize, retypeable), versus the current set-based "choose your table first" where the modeler/user must pick the concrete subtype table up front. **Use case:** switching between experiment types on an existing record. **Scope:** BACKEND — a new exclusive single-valued discriminator column type + exclusive write/routing (mirror the MODULE_ARRAY engine but cardinality-1, hard-delete the prior module on switch); FRONTEND — the `MODULE` single-select `Input.vue` arm + `value/EMX2.vue` display arm already landed in Phase F as a deliberate forward-looking PLACEHOLDER (frontend-only today, no backend column type yet — wire it through when this lands), plus schema-editor support to declare the type. Depends on the Phase C discriminator engine.
+- [ ] **Remove the deprecated scalar `inheritName`/`inheritId` GraphQL fields from the BACKEND — owner-confirmed (2026-06-14).** These scalars are LOSSY: `json/Table.java:56,58` derives them as `getInheritNames().get(0)` / `getInheritedTables().get(0).getIdentifier()` — i.e. only the PRIMARY parent — so on a diamond they silently truncate (correctness footgun). The complete `inheritNames`/`inheritIds` lists (added E3) fully supersede them. Phase F already stopped propagating the scalars into the new tailwind/metadata-utils stack (dropped from `ITableMetaData` + `gql/metadata.js`). Backend removal targets: `GraphqlSchemaFieldFactory` table OUTPUT fields (`INHERIT_NAME` ~:372 + `INHERIT_ID` ~:376) and the table INPUT field (`INHERIT_NAME` ~:532 — also kills the input ambiguity of accepting both scalar + list), plus the `inheritName`/`inheritId` fields + derivation in `json/Table.java` (keep the list fields). **Prerequisite:** F5 must first migrate the OLD bootstrap stack `apps/schema` (the only internal reader of scalar `inheritName`, for single-inheritance diagrams/edit) onto `inheritNames`/`inheritIds`. **Caveat:** removing a GraphQL field is API-breaking for any external client reading `_schema{tables{inheritName}}`; since diamonds are new there's no prior contract for diamond behavior, so removal coordinated with F5 is defensible, but consider GraphQL `@deprecated` for one release if external stability matters. `tableExtends` CSV keyword is separate (frozen) — NOT affected.
+
 
 ---
 
@@ -320,14 +324,40 @@ ENUM `sex` / ENUM_ARRAY `tags`.
 
 Stages (each keeps suites green; red-green; test-first; frontend-conventions; pnpm run test-ci + format + lint):
 
-- [ ] **F0 — Backend write-enable (the N2 carry; prereq).** `GraphqlTableFieldFactory.rowInputType()` (~:1019)
+- [x] **F0 — Backend write-enable (the N2 carry; prereq). DONE + reviewed (2026-06-14); STAGED, not committed.**
+  Two planned swaps (rowInputType :1019 + getMutationDefinition :925) PLUS two emergent fixes: `TypeUtils.convertToRows`
+  non-pk path → `getColumnsIncludingSubclassesAndModules()` (module col was accepted by input type but dropped before
+  the Row — additive, key-presence-guarded at :527, is-a unaffected); review follow-up widened `convertMapSelection`
+  (:776) so module cols resolve directly in query projection (was via implicit string-name fallback). Tests:
+  TestModuleGraphqlDataMutation (3, w/ pre-condition assert) + TestModuleGraphqlDataQuery (2) + TestTypeUtils (17,
+  incl. new additive-widening test); is-a regression TestDiamondInheritance 12 / TestInherits 2 green; spotless+pmd
+  clean; exit 0. RED was "field name 'modCol' not defined for input object type 'MutRootInput'".
+- [ ] ~~**F0 (original spec)**~~ `GraphqlTableFieldFactory.rowInputType()` (~:1019)
   `getColumnsIncludingSubclassesExcludingHeadings()` → `getColumnsIncludingSubclassesAndModulesExcludingHeadings()`
   (exists, `TableMetadata.java:770`; output side already uses it at `:160`). Widen the `getMutationDefinition()`
   guard (~:925) to match for consistency. Engine already routes (C3) + gates required to active modules — only the
   input type omits the cols. Red-green graphql roundtrip (mirror `TestModuleGraphqlDataQuery`): mutation insert
   activating a module writes the module col → query reads it back; update toggles; deselect → C6 delete + null
   read. **Agent:** backend. **Skill:** graphql-test-pattern, backend-test-purity.
-- [ ] **F1 — Metadata plumbing + module-expansion composable (tailwind/metadata-utils).** (a) `apps/metadata-utils/
+- [x] **F1 — Metadata plumbing + module-expansion composable (tailwind/metadata-utils). DONE + reviewed (2026-06-14);
+  STAGED, not committed.** Composable lives at `apps/metadata-utils/src/moduleColumns.ts` (pure `expandModuleColumns`/
+  `activeModules`, exported via index.ts; 2-consumer rule = F2 forms + F4 detail). Group = MODULE table cols minus the
+  ROOT's cols (matched by id/name), unknown module names skipped; `activeModules` unions discriminator arrays across
+  the root's MODULE_ARRAY cols. ENUM input = new input/Enum.vue (wraps InputListbox; a11y describedBy threaded into the
+  toggle button), ENUM_ARRAY = input/EnumArray.vue (wraps InputCheckboxGroup); EMX2.vue ENUM→ValueString /
+  ENUM_ARRAY→ValueList. `isModuleType` NOT added (no consumer — per the rule). Tests: moduleColumns.test.ts (22, incl.
+  genuine module-extends-module chain) + fieldHelpers.test.ts (8); metadata-utils + tailwind-components test-ci exit 0;
+  format+lint clean. Review confirmed both suites green (the F1 agent's "10 pre-existing nuxt timeouts" claim was FALSE).
+- **Live server smoke (2026-06-14, verification-only, nothing staged) — F0+F1 PASS end-to-end on `./gradlew dev`
+  with `DIAMOND_SHOWCASE` loaded.** F1: `_schema` exposes 5 MODULE tables (tableType=MODULE; AdvancedCockayne
+  module-extends-module), diamond child `ClinicalResearchSubject` returns `inheritNames`/`inheritIds` with BOTH
+  parents, MODULE_ARRAY cols (`subgroups01`,`diseaseGroup`) return non-empty `values`. F0: insert Subject row
+  activating `subgroups01:["CockayneSyndrome"]` + writing module col `relevantmedhistory` → query reads it back
+  → update `subgroups01:[]` (deselect) → module col reads null (C6 hard-delete). Dev server killed, port freed.
+- **Testing-enablement (staged, part of Phase F PR):** `apps/central/.../SchemaCreateModal.vue` template dropdown
+  now lists `DIAMOND_SHOWCASE` so the demo is loadable from the UI (backend `createSchema(template:...)` already
+  accepted it).
+- [ ] ~~**F1 (original spec)**~~ (a) `apps/metadata-utils/
   src/types.ts`: add `values?: string[]` to `IColumn`; add `inheritName?`/`inheritId?`/`inheritNames?`/`inheritIds?`
   to `ITableMetaData`; add `ENUM`/`ENUM_ARRAY`/`MODULE`/`MODULE_ARRAY` to the `CellValueType`/`ColumnType` union.
   (b) `tailwind-components/app/gql/metadata.js`: request `values` (cols) + `inheritName,inheritId,inheritNames,

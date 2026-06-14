@@ -520,7 +520,9 @@ public class TypeUtils {
     for (Map<String, Object> field : map) {
       Row row = new Row();
       List<Column> columns =
-          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
+          primaryKeyOnly
+              ? metadata.getPrimaryKeyColumns()
+              : metadata.getColumnsIncludingSubclassesAndModules();
       for (Column column : columns) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());

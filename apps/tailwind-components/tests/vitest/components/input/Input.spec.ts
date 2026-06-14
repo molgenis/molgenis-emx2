@@ -37,4 +37,16 @@ describe("input", () => {
     expect(wrapper.html()).toContain("select");
     expect(wrapper.html()).toContain("test-select-radio-group");
   });
+
+  it("renders a single-select listbox for MODULE type when values are provided", () => {
+    const wrapper = mount(Input, {
+      props: {
+        id: "test-module",
+        type: "MODULE",
+        modelValue: null,
+        values: ["ModuleA", "ModuleB", "ModuleC"],
+      },
+    });
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(true);
+  });
 });

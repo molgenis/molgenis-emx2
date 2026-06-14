@@ -50,7 +50,11 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT";
+  | "MULTISELECT"
+  | "ENUM"
+  | "ENUM_ARRAY"
+  | "MODULE"
+  | "MODULE_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -80,6 +84,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  values?: string[];
 }
 
 export interface IRefColumn extends IColumn {
@@ -100,6 +105,8 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  inheritNames?: string[];
+  inheritIds?: string[];
 }
 
 export interface ISchemaMetaData {

@@ -8,6 +8,7 @@
       :valid="valid"
       :disabled="disabled"
       :selected-element-id="selectedElementId"
+      :described-by="describedBy"
       @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full whitespace-nowrap">

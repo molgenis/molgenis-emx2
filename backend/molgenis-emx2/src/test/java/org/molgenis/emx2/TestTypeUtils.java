@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnTypeGroups.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TableType.MODULE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
@@ -295,5 +297,35 @@ class TestTypeUtils {
     Column col = column("priority").setType(ColumnType.ENUM).setValues("low", "high");
     assertDoesNotThrow(
         () -> TypeUtils.checkEnumMembership(col, null), "Null value must be a no-op");
+  }
+
+  @Test
+  void convertToRowsModuleColPresentKeyIsWrittenAbsentKeyIsSkipped() {
+    SchemaMetadata schema = new SchemaMetadata("test");
+    schema.create(
+        table("CvRoot")
+            .add(column("id").setType(ColumnType.STRING).setKey(1))
+            .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues("CvMod")),
+        table("CvMod")
+            .setTableType(MODULE)
+            .setInheritNames("CvRoot")
+            .add(column("modCol").setType(ColumnType.STRING)));
+
+    TableMetadata rootTable = schema.getTableMetadata("CvRoot");
+
+    Map<String, Object> rowWithModCol = Map.of("id", "r1", "modCol", "hello");
+    List<Row> rowsWithModCol = TypeUtils.convertToRows(rootTable, List.of(rowWithModCol));
+    assertEquals(1, rowsWithModCol.size(), "convertToRows must produce one row");
+    assertEquals(
+        "hello",
+        rowsWithModCol.get(0).getString("modCol"),
+        "Module-col key present in input map must be written into the Row");
+
+    Map<String, Object> rowWithoutModCol = Map.of("id", "r2");
+    List<Row> rowsWithoutModCol = TypeUtils.convertToRows(rootTable, List.of(rowWithoutModCol));
+    assertEquals(1, rowsWithoutModCol.size(), "convertToRows must produce one row");
+    assertFalse(
+        rowsWithoutModCol.get(0).containsName("modCol"),
+        "Module-col key absent in input map must not be written as null into the Row");
   }
 }
