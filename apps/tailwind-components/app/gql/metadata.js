@@ -6,6 +6,7 @@ export default gql`
       label
       tables {
         id
+        name
         schemaId
         label
         tableType
@@ -37,6 +38,8 @@ export default gql`
           visible
           validation
           values
+          table
+          inherited
         }
       }
     }

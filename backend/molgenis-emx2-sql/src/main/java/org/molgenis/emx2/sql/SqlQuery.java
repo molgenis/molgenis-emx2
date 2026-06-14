@@ -888,6 +888,10 @@ public class SqlQuery extends QueryBean {
     }
 
     Set<String> joined = new LinkedHashSet<>();
+    joined.add(table.getTableName());
+    for (TableMetadata ancestor : ancestors) {
+      joined.add(ancestor.getTableName());
+    }
     for (TableMetadata subclassTable : table.getSubclassTables()) {
       List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
       Column mgTableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
@@ -898,7 +902,7 @@ public class SqlQuery extends QueryBean {
       joined.add(subclassTable.getTableName());
     }
 
-    for (TableMetadata moduleTable : table.getModuleSubtypeTables()) {
+    for (TableMetadata moduleTable : table.getRootTable().getModuleSubtypeTables()) {
       if (joined.add(moduleTable.getTableName())) {
         result =
             result

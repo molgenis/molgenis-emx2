@@ -551,4 +551,84 @@ describe("useForm", () => {
       expect(requiredMap["col6"].value).toBe(true);
     });
   });
+
+  describe("module column visibility, required, and submit payload", () => {
+    const moduleMeta = ref<ITableMetaData>({
+      id: "Subject",
+      name: "Subject",
+      schemaId: "testSchema",
+      label: "Subject",
+      tableType: "DATA",
+      columns: [
+        {
+          columnType: "STRING",
+          id: "id",
+          label: "ID",
+          key: 1,
+          required: true,
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "MODULE_ARRAY",
+          id: "moduleAxis",
+          label: "Module axis",
+          values: ["ModX"],
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "rootCol",
+          label: "Root column",
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "modxCol",
+          label: "ModX column",
+          table: "ModX",
+          inherited: false,
+          required: true,
+        },
+      ],
+    });
+
+    test("(a) module col absent from visibleColumns when discriminator empty, present when active, toggles reactively", () => {
+      const formValues = ref<Record<string, columnValue>>({ moduleAxis: [] });
+      const { visibleColumns } = useForm(moduleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("modxCol");
+
+      formValues.value["moduleAxis"] = ["ModX"];
+      expect(visibleColumns.value.map((c) => c.id)).toContain("modxCol");
+
+      formValues.value["moduleAxis"] = [];
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("modxCol");
+    });
+
+    test("(b) when ModX active + module col required + empty → in requiredFields/emptyRequiredFields, isValid false; when inactive → not required, isValid true", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        id: "row1",
+        moduleAxis: ["ModX"],
+        modxCol: null,
+      });
+      const { requiredFields, emptyRequiredFields, isValid } = useForm(
+        moduleMeta,
+        formValues
+      );
+
+      expect(requiredFields.value.map((c) => c.id)).toContain("modxCol");
+      expect(emptyRequiredFields.value.map((c) => c.id)).toContain("modxCol");
+      expect(isValid()).toBe(false);
+
+      formValues.value["moduleAxis"] = [];
+      expect(requiredFields.value.map((c) => c.id)).not.toContain("modxCol");
+      expect(emptyRequiredFields.value.map((c) => c.id)).not.toContain(
+        "modxCol"
+      );
+      expect(isValid()).toBe(true);
+    });
+  });
 });

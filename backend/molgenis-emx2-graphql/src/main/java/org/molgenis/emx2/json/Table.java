@@ -70,7 +70,7 @@ public class Table {
             .toList();
     String currentSectionId = Constants.MG_TOP_OF_FORM; // default first section
     String currentHeadingId = null;
-    for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
+    for (org.molgenis.emx2.Column column : tableMetadata.getColumnsIncludingModules()) {
       if (column.getColumnType().equals(ColumnType.SECTION)) {
         currentSectionId = column.getIdentifier();
         currentHeadingId = null;

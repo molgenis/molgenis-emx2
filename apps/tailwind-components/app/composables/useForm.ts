@@ -8,6 +8,11 @@ import {
   type MaybeRef,
   type Ref,
 } from "vue";
+import {
+  activeModules,
+  isModuleColumn,
+  omitInactiveModuleValues,
+} from "../../../metadata-utils/src/moduleColumns";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
   columnId,
@@ -69,6 +74,10 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
+  const activeModuleNames = computed(() =>
+    activeModules(formValues.value, metadata.value)
+  );
+
   const extractParamsFromExpression = (expression: string) => {
     const params: string[] = [];
     if (expression === "") {
@@ -98,13 +107,23 @@ export default function useForm(
     );
 
     // use function with apply to pass parameters dynamically while keeping reactivity
-    acc[column.id] = computed(
-      () =>
-        !!visibilityFunction.apply(
-          null,
-          params.map((p) => formValues.value[p])
-        )
-    );
+    if (isModuleColumn(column, metadata.value.name)) {
+      acc[column.id] = computed(
+        () =>
+          !!visibilityFunction.apply(
+            null,
+            params.map((p) => formValues.value[p])
+          ) && activeModuleNames.value.has(column.table!)
+      );
+    } else {
+      acc[column.id] = computed(
+        () =>
+          !!visibilityFunction.apply(
+            null,
+            params.map((p) => formValues.value[p])
+          )
+      );
+    }
 
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
@@ -422,7 +441,13 @@ export default function useForm(
   };
 
   const insertInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(
+      omitInactiveModuleValues(
+        formValues.value,
+        metadata.value,
+        activeModuleNames.value
+      )
+    );
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
@@ -439,7 +464,13 @@ export default function useForm(
   };
 
   const updateInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(
+      omitInactiveModuleValues(
+        formValues.value,
+        metadata.value,
+        activeModuleNames.value
+      )
+    );
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {

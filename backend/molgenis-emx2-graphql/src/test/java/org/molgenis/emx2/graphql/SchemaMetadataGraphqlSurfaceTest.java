@@ -3,8 +3,12 @@ package org.molgenis.emx2.graphql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.ENUM;
+import static org.molgenis.emx2.ColumnType.HEADING;
+import static org.molgenis.emx2.ColumnType.MODULE_ARRAY;
+import static org.molgenis.emx2.ColumnType.SECTION;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TableType.MODULE;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -161,6 +165,148 @@ class SchemaMetadataGraphqlSurfaceTest {
         List.of(valuesNode.get(0).asText(), valuesNode.get(1).asText(), valuesNode.get(2).asText());
     assertEquals(
         List.of("active", "inactive", "pending"), actualValues, "column values must match");
+  }
+
+  @Test
+  void schemaRootTableIncludesModuleColsInColumns() throws IOException {
+    schema.create(
+        table("ModRoot")
+            .add(column("id").setType(STRING).setPkey())
+            .add(column("rootCol").setType(STRING)));
+    schema.create(
+        table("ModMod")
+            .setTableType(MODULE)
+            .setInheritNames("ModRoot")
+            .add(column("modCol").setType(STRING)));
+    schema
+        .getTable("ModRoot")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("ModMod"));
+
+    JsonNode schemaNode = execute("{_schema{tables{name,columns{name,table,inherited}}}}");
+    JsonNode tables = schemaNode.at("/_schema/tables");
+
+    JsonNode rootTable = findTableByName(tables, "ModRoot");
+    assertNotNull(rootTable, "ModRoot must appear in _schema");
+
+    JsonNode modColNode = findColumnByName(rootTable.at("/columns"), "modCol");
+    assertNotNull(modColNode, "modCol must appear in ModRoot._schema.columns");
+    assertEquals("ModMod", modColNode.at("/table").asText(), "modCol table must be ModMod");
+    assertFalse(modColNode.at("/inherited").asBoolean(), "module col must NOT be marked inherited");
+  }
+
+  @Test
+  void schemaSubclassTableIncludesModuleColsInColumns() throws IOException {
+    schema.create(
+        table("SubModRoot")
+            .add(column("id").setType(STRING).setPkey())
+            .add(column("rootCol").setType(STRING)));
+    schema.create(
+        table("SubModMod")
+            .setTableType(MODULE)
+            .setInheritNames("SubModRoot")
+            .add(column("subModCol").setType(STRING)));
+    schema
+        .getTable("SubModRoot")
+        .getMetadata()
+        .add(column("panels2").setType(MODULE_ARRAY).setValues("SubModMod"));
+    schema.create(
+        table("SubModSub").setInheritNames("SubModRoot").add(column("subCol").setType(STRING)));
+
+    JsonNode schemaNode = execute("{_schema{tables{name,columns{name,table,inherited}}}}");
+    JsonNode tables = schemaNode.at("/_schema/tables");
+
+    JsonNode subTable = findTableByName(tables, "SubModSub");
+    assertNotNull(subTable, "SubModSub must appear in _schema");
+
+    JsonNode modColNode = findColumnByName(subTable.at("/columns"), "subModCol");
+    assertNotNull(modColNode, "subModCol must appear in SubModSub._schema.columns (root-anchored)");
+    assertEquals("SubModMod", modColNode.at("/table").asText(), "modCol table must be SubModMod");
+    assertFalse(modColNode.at("/inherited").asBoolean(), "module col must NOT be marked inherited");
+  }
+
+  @Test
+  void moduleSectionAndHeadingColumnsDoNotCorruptRootSectionAssignment() throws IOException {
+    SchemaMetadata source = new SchemaMetadata();
+    source.create(
+        table("SecRoot")
+            .add(column("secRootId").setType(STRING).setPkey().setPosition(1))
+            .add(column("secA").setType(SECTION).setPosition(2))
+            .add(column("afterModuleCol").setType(STRING).setPosition(4)));
+    source.create(
+        table("SecMod")
+            .setTableType(MODULE)
+            .setInheritNames("SecRoot")
+            .add(column("modSection").setType(SECTION).setPosition(3))
+            .add(column("modHeading").setType(HEADING).setPosition(3))
+            .add(column("modDataCol").setType(STRING).setPosition(3)));
+
+    org.molgenis.emx2.json.Table jsonTable =
+        new org.molgenis.emx2.json.Table(source.getTableMetadata("SecRoot"));
+
+    List<org.molgenis.emx2.json.Column> cols =
+        (List<org.molgenis.emx2.json.Column>) jsonTable.getColumns();
+
+    org.molgenis.emx2.json.Column afterModuleJsonCol =
+        cols.stream().filter(c -> "afterModuleCol".equals(c.getName())).findFirst().orElse(null);
+    assertNotNull(afterModuleJsonCol, "afterModuleCol must appear in SecRoot serialized columns");
+
+    String sectionForAfterModuleCol = afterModuleJsonCol.getSection();
+    org.molgenis.emx2.json.Column secAJsonCol =
+        cols.stream().filter(c -> "secA".equals(c.getName())).findFirst().orElse(null);
+    assertNotNull(secAJsonCol, "secA SECTION col must appear in SecRoot serialized columns");
+    assertEquals(
+        secAJsonCol.getId(),
+        sectionForAfterModuleCol,
+        "afterModuleCol must retain root secA section, not be hijacked by module SECTION col");
+
+    boolean containsModSection = cols.stream().anyMatch(c -> "modSection".equals(c.getName()));
+    boolean containsModHeading = cols.stream().anyMatch(c -> "modHeading".equals(c.getName()));
+    assertFalse(
+        containsModSection, "module SECTION col must NOT appear in root serialized columns");
+    assertFalse(
+        containsModHeading, "module HEADING col must NOT appear in root serialized columns");
+  }
+
+  @Test
+  void moduleColsAreInterleavedByPositionBetweenRootCols() throws IOException {
+    schema.create(
+        table("PosRoot")
+            .add(column("posId").setType(STRING).setPkey().setPosition(10))
+            .add(column("rootColFirst").setType(STRING).setPosition(20))
+            .add(column("rootColLast").setType(STRING).setPosition(40)));
+    schema.create(
+        table("PosMod")
+            .setTableType(MODULE)
+            .setInheritNames("PosRoot")
+            .add(column("midModCol").setType(STRING).setPosition(30)));
+    schema
+        .getTable("PosRoot")
+        .getMetadata()
+        .add(column("panels3").setType(MODULE_ARRAY).setValues("PosMod"));
+
+    JsonNode schemaNode = execute("{_schema{tables{name,columns{name}}}}");
+    JsonNode tables = schemaNode.at("/_schema/tables");
+
+    JsonNode rootTable = findTableByName(tables, "PosRoot");
+    assertNotNull(rootTable, "PosRoot must appear in _schema");
+
+    List<String> colNames = new java.util.ArrayList<>();
+    for (JsonNode col : rootTable.at("/columns")) {
+      colNames.add(col.at("/name").asText());
+    }
+
+    int idxFirst = colNames.indexOf("rootColFirst");
+    int idxMid = colNames.indexOf("midModCol");
+    int idxLast = colNames.indexOf("rootColLast");
+
+    assertTrue(idxFirst >= 0, "rootColFirst must appear");
+    assertTrue(idxMid >= 0, "midModCol must appear (interleaved by position)");
+    assertTrue(idxLast >= 0, "rootColLast must appear");
+    assertTrue(
+        idxFirst < idxMid && idxMid < idxLast,
+        "midModCol (position 30) must sort between rootColFirst (20) and rootColLast (40), got order: "
+            + colNames);
   }
 
   private JsonNode findTableByName(JsonNode tables, String name) {

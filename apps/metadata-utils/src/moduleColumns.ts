@@ -1,4 +1,10 @@
-import type { IColumn, ISchemaMetaData, ITableMetaData } from "./types";
+import type {
+  columnId,
+  columnValue,
+  IColumn,
+  ISchemaMetaData,
+  ITableMetaData,
+} from "./types";
 
 export interface IModuleColumnGroup {
   moduleName: string;
@@ -34,6 +40,30 @@ export function expandModuleColumns(
   }
 
   return groups;
+}
+
+export function isModuleColumn(col: IColumn, tableName: string): boolean {
+  return col.inherited !== true && !!col.table && col.table !== tableName;
+}
+
+export function omitInactiveModuleValues(
+  values: Record<columnId, columnValue>,
+  table: ITableMetaData,
+  activeModuleNames: Set<string>
+): Record<columnId, columnValue> {
+  return Object.fromEntries(
+    Object.entries(values).filter(([key]) => {
+      const col = table.columns.find((c) => c.id === key);
+      if (
+        col &&
+        isModuleColumn(col, table.name) &&
+        !activeModuleNames.has(col.table!)
+      ) {
+        return false;
+      }
+      return true;
+    })
+  );
 }
 
 export function activeModules(

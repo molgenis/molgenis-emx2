@@ -268,7 +268,7 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
     console.log("✓ subgroups01 toggle works");
   });
 
-  test("MODULE CONTENT REVEAL: selecting module shows its content field (F2 feature)", async ({
+  test("MODULE CONTENT REVEAL: selecting a module reveals its content field inline; deselecting hides it", async ({
     page,
   }) => {
     await page.getByRole("button", { name: "Add Subject" }).click();
@@ -276,12 +276,29 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
       page.getByRole("heading", { name: "Add Subject" })
     ).toBeVisible();
 
-    console.log("\nTesting MODULE CONTENT REVEAL (F2 feature - may be unimplemented)");
+    console.log("\nTesting MODULE CONTENT REVEAL (F2b)");
 
-    // Find and select a module
-    const subgroupsLabel = page.getByLabel("subgroups01");
-    const subgroupsContainer = subgroupsLabel.locator("..");
-    const checkboxes = subgroupsContainer.locator('[role="checkbox"]');
+    // Scroll the modal to reveal all fields
+    const modal = page.locator('[role="dialog"]');
+    if (await modal.isVisible()) {
+      await modal.evaluate((el) => (el.scrollTop = el.scrollHeight));
+      await page.waitForTimeout(500);
+    }
+
+    // Find subgroups01 MODULE_ARRAY
+    const subgroupsInput = page.locator('[id*="subgroups01"]').first();
+    const subgroupsVisible = await subgroupsInput.isVisible().catch(() => false);
+
+    if (!subgroupsVisible) {
+      console.log("SKIP: subgroups01 field not visible");
+      test.skip();
+      return;
+    }
+
+    console.log("1. Found subgroups01 MODULE_ARRAY");
+
+    // Find CockayneSyndrome checkbox
+    const checkboxes = page.locator('[id*="subgroups01"] input[type="checkbox"]');
     const count = await checkboxes.count();
 
     if (count === 0) {
@@ -290,31 +307,53 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
       return;
     }
 
-    // Select first module
-    const firstModule = checkboxes.first();
-    const moduleText = await firstModule.textContent();
-    console.log(`1. Selecting module: "${moduleText}"`);
-
-    await firstModule.click();
-    await page.waitForLoadState("networkidle");
-
-    // Now look for module content field
-    // For CockayneSyndrome, the content column is "relevantmedhistory"
-    const contentField = page.getByLabel("relevantmedhistory");
-    const isVisible = await contentField.isVisible().catch(() => false);
-
-    console.log(`2. Module content field (relevantmedhistory) visible: ${isVisible}`);
-
-    if (!isVisible) {
-      console.log("   UNIMPLEMENTED: Module content reveal is NOT working (F2 feature missing)");
-      // This is expected to fail for now
+    let cockaynCheckbox = null;
+    for (let i = 0; i < count; i++) {
+      const value = await checkboxes.nth(i).getAttribute("value") || "";
+      if (value.toLowerCase().includes("cockayne")) {
+        cockaynCheckbox = checkboxes.nth(i);
+        console.log("2. Found CockayneSyndrome checkbox");
+        break;
+      }
     }
 
-    // Take screenshot showing the state
+    if (!cockaynCheckbox) {
+      console.log("SKIP: CockayneSyndrome checkbox not found");
+      test.skip();
+      return;
+    }
+
+    // Select CockayneSyndrome
+    const checkboxContainer = cockaynCheckbox.locator("..");
+    const svgIcon = checkboxContainer.locator("svg").first();
+    const svgExists = await svgIcon.count() > 0;
+
+    if (svgExists) {
+      await svgIcon.click({ force: true });
+    } else {
+      await cockaynCheckbox.click({ force: true });
+    }
+    await page.waitForLoadState("networkidle");
+
+    // Assert relevantmedhistory is visible after selection
+    const contentField = page.getByLabel("relevantmedhistory");
+    await expect(contentField).toBeVisible({ timeout: 5000 });
+    console.log("3. relevantmedhistory field is visible after selecting CockayneSyndrome");
+
+    // Take screenshot showing the revealed content
     await page.screenshot({ path: "diamond-form-module-reveal.png" });
 
-    // This assertion will fail if F2 is not implemented
-    expect(isVisible).toBeTruthy();
+    // Deselect CockayneSyndrome
+    if (svgExists) {
+      await svgIcon.click({ force: true });
+    } else {
+      await cockaynCheckbox.click({ force: true });
+    }
+    await page.waitForLoadState("networkidle");
+
+    // Assert relevantmedhistory is hidden after deselection
+    await expect(contentField).not.toBeVisible({ timeout: 5000 });
+    console.log("4. relevantmedhistory field is hidden after deselecting CockayneSyndrome");
   });
 
   test("diseaseGroup MODULE_ARRAY: click module checkbox toggles selection", async ({

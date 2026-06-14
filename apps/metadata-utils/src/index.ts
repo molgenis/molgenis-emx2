@@ -21,6 +21,11 @@ export type {
 
 export { fieldTypes, isEmpty, isValueType } from "./fieldHelpers";
 
-export { expandModuleColumns, activeModules } from "./moduleColumns";
+export {
+  expandModuleColumns,
+  activeModules,
+  isModuleColumn,
+  omitInactiveModuleValues,
+} from "./moduleColumns";
 
 export type { IModuleColumnGroup } from "./moduleColumns";

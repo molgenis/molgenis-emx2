@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { ISchemaMetaData, ITableMetaData } from "../src/types";
-import { expandModuleColumns, activeModules } from "../src/moduleColumns";
+import {
+  expandModuleColumns,
+  activeModules,
+  isModuleColumn,
+  omitInactiveModuleValues,
+} from "../src/moduleColumns";
 
 const rootColumns = [
   { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
@@ -284,6 +289,137 @@ describe("expandModuleColumns", () => {
     expect(moduleNames).toContain("BodyMeasurements");
     expect(moduleNames).not.toContain("NonExistentModule");
     expect(moduleNames).toHaveLength(1);
+  });
+});
+
+describe("isModuleColumn", () => {
+  it("returns false for a root/local column (table === tableName)", () => {
+    expect(
+      isModuleColumn(
+        { columnType: "STRING", id: "id", label: "ID", table: "Subject" },
+        "Subject"
+      )
+    ).toBe(false);
+  });
+
+  it("returns false for an inherited column (inherited: true)", () => {
+    expect(
+      isModuleColumn(
+        {
+          columnType: "STRING",
+          id: "id",
+          label: "ID",
+          table: "ModX",
+          inherited: true,
+        },
+        "Subject"
+      )
+    ).toBe(false);
+  });
+
+  it("returns false when table property is absent", () => {
+    expect(
+      isModuleColumn({ columnType: "STRING", id: "id", label: "ID" }, "Subject")
+    ).toBe(false);
+  });
+
+  it("returns true for a foreign module column (different table, not inherited)", () => {
+    expect(
+      isModuleColumn(
+        {
+          columnType: "STRING",
+          id: "modxCol",
+          label: "ModX col",
+          table: "ModX",
+          inherited: false,
+        },
+        "Subject"
+      )
+    ).toBe(true);
+  });
+});
+
+describe("omitInactiveModuleValues", () => {
+  const subjectTable: ITableMetaData = {
+    id: "Subject",
+    name: "Subject",
+    schemaId: "test",
+    label: "Subject",
+    tableType: "DATA",
+    columns: [
+      {
+        columnType: "STRING",
+        id: "id",
+        label: "ID",
+        table: "Subject",
+        inherited: false,
+      },
+      {
+        columnType: "MODULE_ARRAY",
+        id: "moduleAxis",
+        label: "Module axis",
+        table: "Subject",
+        inherited: false,
+      },
+      {
+        columnType: "STRING",
+        id: "rootCol",
+        label: "Root column",
+        table: "Subject",
+        inherited: false,
+      },
+      {
+        columnType: "STRING",
+        id: "modxCol",
+        label: "ModX column",
+        table: "ModX",
+        inherited: false,
+      },
+    ],
+  };
+
+  it("drops values for inactive module columns", () => {
+    const values = {
+      id: "row1",
+      moduleAxis: [],
+      rootCol: "rootVal",
+      modxCol: "modxVal",
+    };
+    const result = omitInactiveModuleValues(values, subjectTable, new Set());
+    expect(Object.keys(result)).toContain("id");
+    expect(Object.keys(result)).toContain("rootCol");
+    expect(Object.keys(result)).toContain("moduleAxis");
+    expect(Object.keys(result)).not.toContain("modxCol");
+  });
+
+  it("keeps values for active module columns", () => {
+    const values = {
+      id: "row1",
+      moduleAxis: ["ModX"],
+      rootCol: "rootVal",
+      modxCol: "modxVal",
+    };
+    const result = omitInactiveModuleValues(
+      values,
+      subjectTable,
+      new Set(["ModX"])
+    );
+    expect(Object.keys(result)).toContain("modxCol");
+    expect(result["modxCol"]).toBe("modxVal");
+  });
+
+  it("always keeps root columns regardless of active modules", () => {
+    const values = { id: "row1", rootCol: "rootVal" };
+    const result = omitInactiveModuleValues(values, subjectTable, new Set());
+    expect(result["id"]).toBe("row1");
+    expect(result["rootCol"]).toBe("rootVal");
+  });
+
+  it("keeps keys with no matching column entry (e.g. mg_draft)", () => {
+    const values = { mg_draft: true, modxCol: "modxVal" };
+    const result = omitInactiveModuleValues(values, subjectTable, new Set());
+    expect(result["mg_draft"]).toBe(true);
+    expect(Object.keys(result)).not.toContain("modxCol");
   });
 });
 

@@ -1300,6 +1300,86 @@ class TestModuleArrayDiscriminator {
     assertNotNull(ex.getMessage(), "Exception must have a message");
   }
 
+  // ── F2b: subclass of module-bearing root behaves like root ───────────────────
+
+  @Test
+  void subclassQueryProjectsActiveModuleColumn() {
+    Schema s = freshSchema("F2bSubQActive");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Root").add(column("modCol")));
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+    s.create(table("Sub").setInheritNames("Root").add(column("subCol")));
+
+    s.getTable("Sub")
+        .insert(row("id", "s1", "rootCol", "rv", "subCol", "sv", "panels", "Mod", "modCol", "mv"));
+
+    List<Row> rows = s.getTable("Sub").query().select(s("id"), s("modCol")).retrieveRows();
+    assertEquals(1, rows.size(), "Expected one row");
+    assertEquals(
+        "mv", rows.get(0).getString("modCol"), "Subclass query must project active modCol");
+  }
+
+  @Test
+  void subclassQueryNullsInactiveModuleColumn() {
+    Schema s = freshSchema("F2bSubQInactive");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Root").add(column("modCol")));
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+    s.create(table("Sub").setInheritNames("Root").add(column("subCol")));
+
+    s.getTable("Sub").insert(row("id", "s2", "rootCol", "rv", "subCol", "sv"));
+
+    List<Row> rows = s.getTable("Sub").query().select(s("id"), s("modCol")).retrieveRows();
+    assertEquals(1, rows.size(), "Expected one row");
+    assertNull(
+        rows.get(0).getString("modCol"), "Inactive module col must be null on subclass query");
+  }
+
+  @Test
+  void subclassInsertActivatesModuleRowOnSharedRootPk() {
+    Schema s = freshSchema("F2bSubInsert");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Root").add(column("modCol")));
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+    s.create(table("Sub").setInheritNames("Root").add(column("subCol")));
+
+    s.getTable("Sub")
+        .insert(row("id", "s3", "rootCol", "rv", "subCol", "sv", "panels", "Mod", "modCol", "mv"));
+
+    List<Row> modRows = s.getTable("Mod").query().select(s("id"), s("modCol")).retrieveRows();
+    assertEquals(1, modRows.size(), "Module table must have exactly one row");
+    assertEquals("s3", modRows.get(0).getString("id"), "Module row must share root PK");
+    assertEquals("mv", modRows.get(0).getString("modCol"), "Module row must hold written value");
+  }
+
+  @Test
+  void subclassDeactivationRemovesModuleRow() {
+    Schema s = freshSchema("F2bSubDeactivate");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(table("Mod").setTableType(MODULE).setInheritNames("Root").add(column("modCol")));
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY).setValues("Mod"));
+    s.create(table("Sub").setInheritNames("Root").add(column("subCol")));
+
+    s.getTable("Sub")
+        .insert(row("id", "s4", "rootCol", "rv", "subCol", "sv", "panels", "Mod", "modCol", "mv"));
+
+    assertEquals(
+        1,
+        s.getTable("Mod").query().retrieveRows().size(),
+        "Module row must exist before deactivate");
+
+    s.getTable("Sub").update(row("id", "s4", "panels", new String[0]));
+
+    assertEquals(
+        0,
+        s.getTable("Mod").query().retrieveRows().size(),
+        "Module row must be deleted after deactivation via subclass update");
+  }
+
   // ── E2: module columns selectable in JSON (retrieveJSON) path ────────────────
 
   @Test

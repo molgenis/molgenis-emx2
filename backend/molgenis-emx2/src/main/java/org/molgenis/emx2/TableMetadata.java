@@ -733,6 +733,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<TableMetadata> getModuleSubtypeTables() {
     if (getSchema() == null) return Collections.emptyList();
+    if (!getTableType().isModule()) {
+      TableMetadata root = getRootTable();
+      if (root != this) {
+        return root.getModuleSubtypeTables();
+      }
+    }
     List<TableMetadata> result = new ArrayList<>();
     Set<String> emitted = new LinkedHashSet<>();
     collectModuleSubtablesDeduped(result, emitted);
@@ -752,10 +758,36 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsIncludingModules() {
-    List<Column> result = new ArrayList<>(getColumns());
-    for (TableMetadata moduleTable : getModuleSubtypeTables()) {
-      result.addAll(moduleTable.getLocalColumns());
+    List<Column> base = getColumns();
+    if (getTableType().isModule()) {
+      return base;
     }
+    List<TableMetadata> moduleTables = getModuleSubtypeTables();
+    if (moduleTables.isEmpty()) {
+      return base;
+    }
+    List<Column> nonSystem = new ArrayList<>();
+    List<Column> system = new ArrayList<>();
+    for (Column c : base) {
+      if (c.isSystemColumn()) {
+        system.add(c);
+      } else {
+        nonSystem.add(c);
+      }
+    }
+    for (TableMetadata moduleTable : moduleTables) {
+      for (Column c : moduleTable.getLocalColumns()) {
+        if (!c.isSystemColumn() && !c.isHeading()) {
+          nonSystem.add(c);
+        }
+      }
+    }
+    nonSystem.sort(
+        Comparator.comparingInt(
+                (Column c) -> c.getPosition() != null ? c.getPosition() : Integer.MAX_VALUE)
+            .thenComparing(Column::getName));
+    List<Column> result = new ArrayList<>(nonSystem);
+    result.addAll(system);
     return result;
   }
 
