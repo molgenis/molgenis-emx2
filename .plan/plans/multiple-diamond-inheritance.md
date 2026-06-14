@@ -291,6 +291,101 @@ Stages (each keeps all suites green; red-green; test-first; backend-test-purity 
 
 ---
 
+## Phase F REVISED (2026-06-14) — staged F0..F6 (Frontend surface)
+
+> Recon notes: `.plan/notes/phase-f-recon.md` (file:line verified by 6 Explore agents + lead). Owner-locked
+> decisions (2026-06-14, AskUserQuestion):
+> - **D1 — TAILWIND-FIRST.** Full MODULE_ARRAY forms/explorer experience in `apps/ui` + `tailwind-components`
+>   (the modern stack, on `apps/metadata-utils`). `apps/molgenis-components` (bootstrap, used by `apps/tables`) gets
+>   **safe-degrade only**: gate the one hard break (`FilterInput.vue` throws on an unmapped type) + a sane cell/input
+>   fallback so a MODULE_ARRAY schema never crashes. NO full picker/group UX in bootstrap.
+> - **D2 — Forms UX = MULTI-SELECT + COLLAPSIBLE GROUPS.** A MODULE_ARRAY axis renders as a multi-select of module
+>   names (chips); each selected module reveals a collapsible labeled fieldset of that module's columns; deselect
+>   hides+clears the group (engine C6 hard-deletes).
+> - **D3 — ONE Phase F PR** (F0–F5 land together; F6 verification woven per surface).
+> - **D4 — FRONTEND MODULE-EXPANSION, no extra backend metadata.** DECISIVE FACT: `_schema` metadata lists a root's
+>   columns from `json/Table.java:73 = getColumns()` (module-free) → module content cols are NOT under the root's
+>   metadata; they live under each MODULE table (real, catalog-visible, in `_schema.tables`). The data-query OUTPUT
+>   TYPE exposes module fields on the root object (E2) but `getColumnIds` selects from root metadata → won't fetch
+>   them today. So a frontend **module-expansion composable** resolves a root's MODULE_ARRAY `values` (bare module
+>   names, same schema) → the named MODULE table → that table's LOCAL columns (its cols minus the root's) = the
+>   module's column group; "active" = the discriminator's value array contains that module name. This single
+>   composable drives read-selection expansion, form group render+show/hide, and detail-view grouping. Only backend
+>   change is F0 (mutation input). E3 already exposes `values`/`inheritNames`/`inheritIds`.
+
+**Live fixture for all visual/e2e:** `DataModels.DIAMOND_SHOWCASE` (`data/diamond_showcase/`) — root `Subject` + 2
+MODULE_ARRAY axes (`subgroups01`={Cockayne,Xeroderma,Trichothiodystrophy}, `diseaseGroup`={EpidermolysisBullosa}),
+`AdvancedCockayne` module-extends-module, `ClinicalSubject`+`ResearchSubject`→`ClinicalResearchSubject` diamond,
+ENUM `sex` / ENUM_ARRAY `tags`.
+
+Stages (each keeps suites green; red-green; test-first; frontend-conventions; pnpm run test-ci + format + lint):
+
+- [ ] **F0 — Backend write-enable (the N2 carry; prereq).** `GraphqlTableFieldFactory.rowInputType()` (~:1019)
+  `getColumnsIncludingSubclassesExcludingHeadings()` → `getColumnsIncludingSubclassesAndModulesExcludingHeadings()`
+  (exists, `TableMetadata.java:770`; output side already uses it at `:160`). Widen the `getMutationDefinition()`
+  guard (~:925) to match for consistency. Engine already routes (C3) + gates required to active modules — only the
+  input type omits the cols. Red-green graphql roundtrip (mirror `TestModuleGraphqlDataQuery`): mutation insert
+  activating a module writes the module col → query reads it back; update toggles; deselect → C6 delete + null
+  read. **Agent:** backend. **Skill:** graphql-test-pattern, backend-test-purity.
+- [ ] **F1 — Metadata plumbing + module-expansion composable (tailwind/metadata-utils).** (a) `apps/metadata-utils/
+  src/types.ts`: add `values?: string[]` to `IColumn`; add `inheritName?`/`inheritId?`/`inheritNames?`/`inheritIds?`
+  to `ITableMetaData`; add `ENUM`/`ENUM_ARRAY`/`MODULE`/`MODULE_ARRAY` to the `CellValueType`/`ColumnType` union.
+  (b) `tailwind-components/app/gql/metadata.js`: request `values` (cols) + `inheritName,inheritId,inheritNames,
+  inheritIds` (tables). (c) NEW composable (location per step-down/2-consumer rule, likely `apps/metadata-utils` or
+  a `tailwind-components` composable) `expandModuleColumns(rootTable, schema)` → ordered list of `{module, columns}`
+  groups + `activeModules(row, rootTable)` → set; pure functions, unit-tested. (d) `fieldHelpers.ts`: confirm
+  `isArrayType(MODULE_ARRAY)`=true, `isRefType`=false; add `isModuleType` if a consumer needs it. (e) ENUM/
+  ENUM_ARRAY display+input arms in `value/EMX2.vue` + `Input.vue` (the discriminator base type is ENUM_ARRAY;
+  fixture has ENUM/ENUM_ARRAY) — render ENUM as a select over `values`, ENUM_ARRAY as multi-select. **Agent:**
+  frontend. Tests: vitest for the composable + helpers; story updates for ENUM/ENUM_ARRAY inputs.
+- [ ] **F2 — Forms / record editor (tailwind; the minimum + owner's key concern).** In `useForm.ts` +
+  `form/Fields.vue`/`FormField.vue` + `Input.vue`: (a) MODULE_ARRAY column renders as a multi-select of its
+  `values` (module names) — reuse the ENUM_ARRAY/array multi-select widget. (b) For each ACTIVE module (via
+  `activeModules`), render a collapsible labeled fieldset (D2) of that module's local columns (via
+  `expandModuleColumns`); deselect removes+clears the group's values. (c) Module columns participate in
+  `visibilityMap`/`requiredMap` — but their effective `visible`/`required` is ALSO gated by module-active (a module
+  col is never required when its module is inactive — mirrors engine C5). (d) Submit: the mutation payload includes
+  the discriminator + active module cols → root `<T>Input` (needs F0); deselect nets to engine C6 hard-delete.
+  Verify column→module grouping uses the owning MODULE table's local cols (D4). **Agent:** frontend. Tests: vitest
+  on the pure group/active/required-gating logic; story file for the MODULE_ARRAY field; e2e in F6.
+- [ ] **F3 — Table / data explorer.** (a) **tailwind** (apps/ui table/browse views + `tailwind-components/table/
+  CellEMX2.vue`): expand module cols into the row selection (via F1 composable) so they display (null for
+  non-activating rows, C4); add a MODULE_ARRAY cell render (chips); **GATE filter + order-BY** on MODULE_ARRAY/
+  module cols in the tailwind filter/sort UI (backend doesn't support it — C4 deferred). (b) **bootstrap
+  safe-degrade** (apps/tables via molgenis-components): `FilterInput.vue:101-103` no longer throws on MODULE_ARRAY
+  (exclude from filterable set at `TableExplorer.vue:14` + `FilterSidebar`); `onColumnClick` sort guard for module
+  cols; `DataDisplayCell.vue` MODULE_ARRAY → list/chips (not raw). NO group UX. **Agent:** frontend. Tests: vitest
+  on gating helpers; story for the cell.
+- [ ] **F4 — Data client / app shell (apps/ui).** Detail/record view (`[schema]/[table]/[entity].vue`) renders
+  active-module column groups (reuse F1 `expandModuleColumns` + `activeModules`, grouped like the chosen forms UX,
+  read-only); `value/EMX2.vue` MODULE_ARRAY display arm. Confirm MODULE tables stay non-top-level in nav
+  (`[schema]/index.vue` already filters DATA/ONTOLOGIES → MODULE excluded; verify no leak / no 404 on direct nav).
+  **Agent:** frontend. Tests: story for the detail group; e2e in F6.
+- [ ] **F5 — Schema editor (apps/schema).** (a) `TableEditModal.vue`: tableType selector incl. `MODULE` (today
+  ontology-only special-case). (b) `columnTypes.js`: add `ENUM`/`ENUM_ARRAY`/`MODULE`/`MODULE_ARRAY`. (c)
+  `ColumnEditModal.vue`: a `values[]` editor shown for ENUM/ENUM_ARRAY/MODULE_ARRAY (sibling to semantics). (d)
+  multi-parent extends: `TableEditModal.vue` single scalar `inheritName` → multi-select `inheritNames`; `utils.ts`
+  schemaQuery requests `inheritNames`/`inheritIds`/`values`; `addTableIdsLabelsDescription` consumes the lists; save
+  sends `inheritNames`. (e) diagrams: `SchemaDiagram.vue`/`NomnomDiagram.vue` loop `inheritNames[]` → diamond edges.
+  **Agent:** frontend. Tests: vitest on utils.ts inherit-list derivation + diagram edge generation. NOTE: apps/schema
+  is the ONLY app reading inheritance metadata (blast radius) — diamond display work is local here.
+- [ ] **F6 — e2e + visual verification.** Playwright (playwright-cli) on `diamond_showcase` per the Frontend
+  Verification Workflow (`./gradlew dev` + load DIAMOND_SHOWCASE; tailwind apps via `NUXT_PUBLIC_API_BASE`). Verify:
+  forms picker reveals/hides module groups + writes; explorer shows module cols + filter/sort gated; detail groups;
+  schema editor authors a MODULE/MODULE_ARRAY/diamond. 5 themes (Light/Dark/Molgenis/UMCG/AUMC) × 3 sizes
+  (1280/768/375). **Agent:** e2e + review (template/CSS vs spec). Kill dev servers when done.
+
+**Sequencing:** F0 first (unblocks F2 write). F1 next (foundation for F2/F3/F4). Then F2 ∥ F3 ∥ F4 (all consume F1)
+and F5 (independent — schema editor). F6 woven after each surface is green, consolidated at the end. ONE PR.
+
+**Open verify-before-code (lead, during F1/F2):** (1) confirm the data-query output type field name for a module col
+equals the module's local column id (so the expanded selection resolves). (2) confirm MODULE tables + their columns
+appear in the `_schema.tables` payload the tailwind metadata query receives (catalog-visible per C2). (3) confirm a
+column's owning-table identity is derivable frontend-side (resolve via MODULE_ARRAY `values`→table, not a per-column
+`table` field, per D4).
+
+---
+
 ## Phase C REVISED (2026-06-12) — Unified column-based discriminator engine
 
 > Supersedes the old detailed "Phase C", "Phase D", and "Phase G" sections below (kept for history,
