@@ -214,6 +214,8 @@ class Transformer:
         """
         self.printer.print("Setting FDP-related fields for collections")
         for row in self.node_data.collections.rows:
+            if row['withdrawn']:
+                continue
             if self.publisher_id:
                 row['publisher'] = self.publisher_id
             row['language'] = 'English'
@@ -224,3 +226,7 @@ class Transformer:
             for diagnosis in row['diagnosis_available']:
                 keywords.append(self.diseases.rows_by_id[diagnosis]['label'])
             row['keywords'] = keywords
+            # Make rare disease collections with URLs findable in ERDERA VP
+            if 'url' in row and 'rare_disease' in row['categories']:
+                row['EJP_RD_personalData'] = 'false'
+                row['EJP_RD_vpConnection'] = ['https://w3id.org/ejp-rd/vocabulary#VPDiscoverable']
