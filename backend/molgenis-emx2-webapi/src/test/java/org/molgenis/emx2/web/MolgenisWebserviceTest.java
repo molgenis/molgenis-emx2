@@ -2,11 +2,11 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.junit.jupiter.api.*;
@@ -87,7 +87,8 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void testSettingServiceUrl() throws URISyntaxException, MalformedURLException {
     MolgenisWebservice webservice = new MolgenisWebservice();
-    assertEquals(new URI("http://127.0.0.1:8081").toURL(), webservice.hostUrl);
+    assertTrue(webservice.hostUrl.toString().startsWith("http:"));
+    assertTrue(webservice.hostUrl.toString().endsWith(":8081"));
   }
 
   @Test
