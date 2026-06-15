@@ -61,7 +61,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: "https://emx2.dev.molgenis.org/",
+      apiBase: process.env.CI
+        ? "http://localhost:8080/"
+        : "https://emx2.dev.molgenis.org/",
       sourceCodeMap: sourceCodeMap,
     },
   },

@@ -17,7 +17,7 @@
               : 'img/banner-diagnoses.jpg'
           "
         />
-        <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
+        <Dashboard class="provider-dashboard-container" :horizontalPadding="2">
           <ProviderSidebar />
           <router-view
             :organisation="currentOrganisation"
