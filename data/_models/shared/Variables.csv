@@ -7,7 +7,7 @@ Variables,,useExternalDefinition,ref,,,,Variables,,,,,Refer to variable definiti
 Variables,,label,,,,,,,,,,"Human readable name, if applicable","DataCatalogueFlat,DataDictionaries",
 Variables,,description,text,,,,,,,,,Description of the variable,"DataCatalogueFlat,DataDictionaries",
 Variables,,original language description,text,,,,,,,,,Description of the variable in the original language,"DataCatalogueFlat,DataDictionaries",
-Variables,,collection event,ref_array,,,,Collection events,resource,,,,In case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,CohortsExtended,StudiesStaging",
+Variables,,collection event,ref_array,,,,Collection events,resource,,,,In case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,DataDictionariesColEvent",
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string, integer, decimal, date, datetime, etc.","DataCatalogueFlat,DataDictionaries",
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,"In case of a continuous variable, the unit that the variable values are expressed in","DataCatalogueFlat,DataDictionaries",
 Variables,,since version,,,,,,,,,,When this variable was introduced,"DataCatalogueFlat,DataDictionaries",

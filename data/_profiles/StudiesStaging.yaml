@@ -2,7 +2,7 @@
 name: Studies data model
 description: "This catalogue contains metadata on data generated and obtained in studies."
 
-profileTags: StudiesStaging,DataDictionaries,Mappings
+profileTags: StudiesStaging,DataDictionaries,Mappings,DataDictionariesColEvent
 
 # demoData: _demodata/applications/datacatalogue
 
