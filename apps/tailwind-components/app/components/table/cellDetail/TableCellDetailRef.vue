@@ -70,7 +70,7 @@ const sections = computed(() => {
         item.metadata.columnType === "HEADING"
       );
     })
-    .reduce((acc: ISection[], item) => {
+    .reduce((acc: ICellDetailSection[], item) => {
       if (item.metadata.columnType === "HEADING") {
         acc.push({ heading: item.metadata.label as string, fields: [] });
       } else {
@@ -91,7 +91,7 @@ const sections = computed(() => {
     });
 });
 
-interface ISection {
+interface ICellDetailSection {
   heading: string;
   fields: {
     key: string;
