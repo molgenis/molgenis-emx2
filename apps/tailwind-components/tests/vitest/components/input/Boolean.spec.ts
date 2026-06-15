@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import InputBoolean from "../../../../app/components/input/Boolean.vue";
 
-const wrapper = mount(InputBoolean);
+const wrapper = mount(InputBoolean, { props: { id: "test-boolean" } });
 
 describe("input boolean", () => {
   it("Use Yes/No as default labels", () => {

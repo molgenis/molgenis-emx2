@@ -9,7 +9,7 @@ describe("columnValueToString", () => {
     expect(result).toEqual("bla");
   });
 
-  test("it should return the name if the label is empty and there is no primaryKey", () => {
+  test("it should return the primary key if the label is empty", () => {
     const object = { id: "someid", primaryKey: { id: "primKey" } };
     const labelTemplate = "${nonExistantField}";
     const result = columnValueToString(object, labelTemplate);
