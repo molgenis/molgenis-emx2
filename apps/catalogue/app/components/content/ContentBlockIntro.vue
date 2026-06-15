@@ -126,6 +126,7 @@ const submitForm = async () => {
       \nOrganization: ${fields.organization.fieldValue}
       \nTopic: ${fields.topic.fieldValue}
       \nMessage: ${fields.senderMessage.fieldValue}
+      \nServer: ${window?.location?.origin || "Unknown origin"}
     `,
     });
   } catch (error) {
