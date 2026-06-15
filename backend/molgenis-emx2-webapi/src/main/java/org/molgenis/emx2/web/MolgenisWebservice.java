@@ -169,7 +169,7 @@ public class MolgenisWebservice {
         });
   }
 
-  private void setServiceUrl() {
+  private static void setServiceUrl() {
     String serviceUrlParameter = null;
     try {
       serviceUrlParameter =

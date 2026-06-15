@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.molgenis.emx2.ColumnType;
@@ -85,7 +83,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
   }
 
   @Test
-  void testSettingServiceUrl() throws URISyntaxException, MalformedURLException {
+  void testSettingServiceUrl() {
     MolgenisWebservice webservice = new MolgenisWebservice();
     assertTrue(webservice.hostUrl.toString().startsWith("http:"));
     assertTrue(webservice.hostUrl.toString().endsWith(":8081"));
@@ -101,8 +99,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
                       org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
           .thenReturn("https://example.org");
 
-      MolgenisWebservice webservice = new MolgenisWebservice();
-      assertEquals(new URL("https://example.org"), webservice.hostUrl);
+      assertEquals(new URI("https://example.org").toURL(), new MolgenisWebservice().hostUrl);
     }
   }
 
