@@ -59,7 +59,7 @@ and then click **VARIABLES**.
 ![Go to the project variable explorer](../img/cat_project-variables.png)
 
 Please note that the catalogue only describes the harmonised variables,
-it does *not* contain the actual data values.
+it does _not_ contain the actual data values.
 
 You can use the search bar and filters to subset the harmonised variables.
 In the example below, we searched for harmonised variables related to 'diabetes'.
@@ -70,7 +70,7 @@ For more information on searching and filtering, see [this section](#searching-a
 
 ![Variable explorer with search](../img/cat_variables-search-bar.png)
 
-*In the future you will be able to use a shopping cart to select all variables of interest and create an overview.*
+_In the future you will be able to use a shopping cart to select all variables of interest and create an overview._
 
 ## See harmonisation details
 
@@ -106,17 +106,17 @@ together with the search bar or by themselves. For collections (and networks), t
 - **Data categories**: the type of data collected by a collection, e.g. medical records, biological samples, surveys.
 - **Population age groups**: the age groups a collection has data on, e.g. prenatal, 65+, adolescents.
 - **Sample categories**: in case the collection contains biological samples, which types of samples have been collected.
-E.g. tears, frozen tissue, stem cells.
+  E.g. tears, frozen tissue, stem cells.
 - **Cohort types**: in case the collection is a cohort study, what type of cohort study it is,
-e.g. birth cohort, population cohort, clinical cohort.
+  e.g. birth cohort, population cohort, clinical cohort.
 - **Design**: the study design of the collection, e.g. longitudinal, cross-sectional.
 - **Diseases**: the diseases the collection has collected data on, using ICD-10 and Orphanet codes,
-e.g. Kostmann syndrome, diseases of the respiratory system, Hodgkin lymphoma.
+  e.g. Kostmann syndrome, diseases of the respiratory system, Hodgkin lymphoma.
 
 And for variables, these are:
 
 - **Topics**: the variables contain information regarding these topics,
-e.g. allergies, lifestyle and behaviours, surgical interventions.
+  e.g. allergies, lifestyle and behaviours, surgical interventions.
 - **Sources**: show only variables originating from these collections, e.g. ABCD, Lifelines, GenR.
 
 ![List of collections filtered on collection type 'biobank' and population age group 'child' ](../img/cat_filters-collections.png)
@@ -128,3 +128,14 @@ yields a list of biobanks containing data on children ages 2 to 12.
 At the top of the results list you can see which filters are currently applied.
 Here you can also remove a specific filter by clicking on it, e.g. **Collection type**,
 or remove all filters at once by clicking **Remove all**.
+
+## The catalogue store
+
+When the catalogue store is available, it is possible to add resources (currently, only collections) to the shopping cart in order to request more information about them from external data providers.
+
+In the collections overview, a collection can be added by pressing the `Add to shopping cart` icon button.
+![Add to shopping cart button](../img/cat_shopping_cart.png)
+After adding the collections you wish to request more information about you can press the `Request` button to get an overview of all added collections.
+![The request button](../img/cat_request_button.png)
+In this overview you can remove selected collections or send the request to the external data provider.
+![Send to data provider](../img/cat_store_request_overview.png)

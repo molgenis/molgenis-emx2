@@ -142,3 +142,16 @@
     }
   }
 }
+
+#publicDashboard {
+  .d3-table {
+    caption {
+      @include setChartTitle;
+    }
+
+    td {
+      padding: 0.5em 0.3em;
+      font-size: 0.9em;
+    }
+  }
+}

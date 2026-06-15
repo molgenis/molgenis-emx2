@@ -1,3 +1,14 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import {
+  PlusIcon,
+  FingerPrintIcon,
+  ClipboardDocumentListIcon,
+  UserIcon,
+} from "@heroicons/vue/24/outline";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -94,14 +105,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import {
-  PlusIcon,
-  FingerPrintIcon,
-  ClipboardDocumentListIcon,
-  UserIcon,
-} from "@heroicons/vue/24/outline";
-</script>

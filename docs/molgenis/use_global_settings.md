@@ -12,6 +12,33 @@ Schema settings currently supported:
 * pages - will be set by the pages app, access via settings app
 * reports - will be set by the reports app
 
+### New ui (tailwind-based) settings (Alpha non-stable feature)
+
+#### Landing page
+Set the landing page with the optional SYSTEM_LANDING_PAGE setting
+
+- key: ```SYSTEM_LANDING_PAGE```
+- value: a string containing valid json object with the following properties:
+
+```ts
+interface Link {
+    link: string;
+    isSpaLink?: boolean;
+}
+```
+
+example with external link ( i.e. all links outside of the 'ui' app)
+
+```json
+{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+```
+
+example with internal link ( i.e. all within of the 'ui' app)
+
+```json
+{"link": "pet%20store/Pet", "isSpaLink": true}
+```
+
 ## User management
 
 Currently you can use the admin menu to view the users currently registered in the system. In addition you can create a
