@@ -1,11 +1,20 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 class MolgenisWebserviceTest extends ApiTestBase {
 
@@ -73,6 +82,27 @@ class MolgenisWebserviceTest extends ApiTestBase {
         .then()
         .header("Location", "/" + schema.getName() + "/tables");
     database.dropSchema(schema.getName());
+  }
+
+  @Test
+  void testSettingServiceUrl() throws URISyntaxException, MalformedURLException {
+    MolgenisWebservice webservice = new MolgenisWebservice();
+    assertEquals(new URI("http://127.0.0.1:8081").toURL(), webservice.hostUrl);
+  }
+
+  @Test
+  void shouldUseConfiguredServiceUrl() throws Exception {
+    try (MockedStatic<EnvironmentProperty> envMock = mockStatic(EnvironmentProperty.class)) {
+      envMock
+          .when(
+              () ->
+                  EnvironmentProperty.getParameter(
+                      org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
+          .thenReturn("https://example.org");
+
+      MolgenisWebservice webservice = new MolgenisWebservice();
+      assertEquals(new URL("https://example.org"), webservice.hostUrl);
+    }
   }
 
   private static Schema setupSchema(String schemaName) {
