@@ -2,7 +2,7 @@
 name: Real world evidence data model
 description: "This catalogue contains metadata on data banks and the variables they collect."
 
-profileTags: RWEStaging,DataDictionaries,Mappings
+profileTags: RWEStaging,DataDictionaries,Mappings,ResourceCounts
 
 # special options
 setViewPermission: anonymous

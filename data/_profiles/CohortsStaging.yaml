@@ -2,7 +2,7 @@
 name: CohortsStaging
 description: "This schema is used by cohorts to enter their data."
 
-profileTags: CohortsBasis,CohortsExtended,DataDictionaries,Mappings,Samplesets,DataDictionariesColEvent
+profileTags: CohortsBasis,CohortsExtended,DataDictionaries,Mappings,Samplesets,DataDictionariesColEvent,ResourceCounts
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
