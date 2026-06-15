@@ -152,8 +152,8 @@ ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
 DataServices,,,,,,,,Entity to describe a DataService as defined by DCAT and EJP-RD Resource Metadata Schema,,,,,,,,,dcat:DataService
 DataServices,,id,ID,,1,true,,Unique ID of the Data Service,,,,,,,,,
-DataServices,,endpoint_url,Endpoint URL,hyperlink,,true,,URL of the endpoint of the data service,,,,,,,,,
-DataServices,,endpoint_description,Endpoint Description,text,,true,,Description of the endpoint of the data service,,,,,,,,,dcterms:endpointDescription
+DataServices,,endpoint_url,Endpoint URL,hyperlink,,true,,URL of the endpoint of the data service,,,,,,,,,dcat:endpointURL
+DataServices,,endpoint_description,Endpoint Description,text,,true,,Description of the endpoint of the data service,,,,,,,,,dcat:endpointDescription
 DataServices,,conforms_to,,hyperlink,,true,,The specification of the data service,,,,,,,,,dcterms:conformsTo
 DataServices,,type,Data Service Type,hyperlink_array,,,,"The type of data service, for ejp-rd is one of VPBeacon2_Catalog, VPBeacon2_Individuals, VPBeacon2_Biosamples",,,,,,,,,dcterms:type
 DataServices,,title,,,,true,,Name of the data service,,,,,,,,,"dcterms:title,rdfs:label"
