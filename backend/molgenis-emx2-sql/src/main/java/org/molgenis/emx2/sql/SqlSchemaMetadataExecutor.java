@@ -94,6 +94,7 @@ class SqlSchemaMetadataExecutor {
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
+  // canonical schema role prefix; also duplicated in SqlRoleManager.rolePrefix() and inline in SqlDatabase
   static String getRolePrefix(String name) {
     return Constants.MG_ROLE_PREFIX + name + "/";
   }

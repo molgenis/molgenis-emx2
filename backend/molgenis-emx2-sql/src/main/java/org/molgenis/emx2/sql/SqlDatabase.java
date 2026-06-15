@@ -894,6 +894,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     try {
       members.forEach(
           member -> {
+            // inline role prefix; use SqlSchemaMetadataExecutor.getRolePrefix()
             String prefixedRole =
                 Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
@@ -916,6 +917,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           member -> {
             String schemaId = member.get("schemaId");
             String role = member.get(ROLE);
+            // inline role prefix; use SqlSchemaMetadataExecutor.getRolePrefix()
             String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
             String prefixedName = MG_USER_PREFIX + userName;
 
@@ -926,6 +928,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             if (existingUserRoles.iterator().hasNext()) {
               existingUserRoles.forEach(
                   existingRole -> {
+                    // inline role prefix; use SqlSchemaMetadataExecutor.getRolePrefix()
                     String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
                     jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
                   });

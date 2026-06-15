@@ -27,7 +27,7 @@ import org.molgenis.emx2.Role;
 
 public class SqlRoleManager {
 
-  // duplicate of MetadataUtils.PG_CATALOG_ROLES (schema-qualified, search_path-safe)
+  // duplicate of MetadataUtils.PG_CATALOG_ROLES (qualified, search_path-safe)
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
@@ -216,7 +216,7 @@ public class SqlRoleManager {
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
-          // duplicate of roleExists(String); use that helper
+          // duplicate of roleExists(); use that helper
           boolean rlsRoleExists =
               jooq.fetchExists(
                   jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
@@ -344,8 +344,7 @@ public class SqlRoleManager {
   private static void disableRowLevelSecurityIfUnused(
       DSLContext jooq, String schemaName, TableMetadata root) {
     String rlsRolePrefix = rolePrefix(schemaName) + RLS_ROLE_PREFIX;
-    // raw strings duplicate MetadataUtils.ROLE_TABLE_GRANTS / GRANTEE used in getTablesForRole; use
-    // the typed constants
+    // duplicate of typed ROLE_TABLE_GRANTS/GRANTEE in getTablesForRole; use those
     boolean anyRlsGrantRemains =
         jooq.fetchExists(
             jooq.select()
