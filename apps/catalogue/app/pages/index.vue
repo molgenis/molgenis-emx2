@@ -2,7 +2,11 @@
 import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
-import type { ICatalogues, ICatalogues_agg } from "../../interfaces/catalogue";
+import type {
+  ICatalogues,
+  ICatalogues_agg,
+  INetworks_agg,
+} from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
