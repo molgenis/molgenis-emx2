@@ -29,9 +29,6 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
-  public static final org.jooq.Table<Record> ROLE_TABLE_GRANTS =
-      table(name("information_schema", "role_table_grants"));
-  public static final Field<Object> GRANTEE = field("grantee");
   public static final org.jooq.Table<Record> PG_AUTH_MEMBERS =
       table(name("pg_catalog", "pg_auth_members"));
   public static final org.jooq.Table<Record> PG_CATALOG_ROLES =
