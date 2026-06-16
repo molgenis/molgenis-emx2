@@ -59,7 +59,7 @@
         <p v-if="user !== 'anonymous' && user">
           <Accordion
             id="mySubfolder-nav"
-            title="Informed consents"
+            title="Matrix Informed Consents"
             :isOpenByDefault="false"
           >
             <div
@@ -89,7 +89,7 @@
           </Accordion>
           <Accordion
             id="mySubfolder-nav"
-            title="Templates"
+            title="Templates Uploads"
             :isOpenByDefault="false"
           >
             <PrivateFiles labelValue="template" />
