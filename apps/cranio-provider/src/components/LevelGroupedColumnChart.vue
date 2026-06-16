@@ -124,7 +124,7 @@ if (props.chart.dataPoints) {
       :yMax="chartTicks?.limit"
       :yTickValues="chartTicks?.ticks"
       :columnColorPalette="ernYourCenterPalette"
-      columnHoverFill="#708fb4"
+      columnHoverFill="#EE7032"
       :chartHeight="250"
       :chartMargins="{
         top: chart.topMargin,
