@@ -7,10 +7,10 @@
     :disabled="disabled"
     :placeholder="placeholder"
     :required="required"
-    v-model="modelValue"
+    :modelValue="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    @input="handleInputChanged"
+    @update:modelValue="handleInputChanged"
     @keypress="handleKeyValidity"
   />
 </template>
@@ -38,13 +38,16 @@ const { CODE_MINUS, CODE_PERIOD } = constants;
 
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function handleInputChanged(event: any) {
-  const value = event.target?.value;
+function handleInputChanged(value?: string | number | null) {
   if (value !== 0 && !value) {
     emit("update:modelValue", null);
   } else {
-    const noCommaValue = value.replace(",", "");
-    emit("update:modelValue", noCommaValue);
+    const noCommaValue = value?.toString().replace(",", ".");
+    const numericValue =
+      typeof noCommaValue === "string"
+        ? Number.parseInt(noCommaValue)
+        : noCommaValue;
+    emit("update:modelValue", numericValue);
   }
 }
 
@@ -52,7 +55,11 @@ function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
     const flipped = flipSign(event.target?.value);
-    emit("update:modelValue", flipped);
+    if (flipped && flipped !== "-") {
+      emit("update:modelValue", Number.parseInt(flipped));
+    } else {
+      emit("update:modelValue", flipped);
+    }
   }
   if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
     event.preventDefault();
