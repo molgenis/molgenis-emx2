@@ -215,7 +215,7 @@ public class GraphqlSessionFieldFactory {
                     CAN_INSERT, p.hasInsert(),
                     CAN_UPDATE, p.hasUpdate(),
                     CAN_DELETE, p.hasDelete(),
-                    IS_ROW_LEVEL, Boolean.TRUE.equals(p.isRowLevel())))
+                    IS_ROW_LEVEL, p.hasRowLevel()))
         .toList();
   }
 

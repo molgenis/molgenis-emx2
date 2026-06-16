@@ -52,6 +52,10 @@ public class TablePermission {
     return Boolean.TRUE.equals(delete);
   }
 
+  public boolean hasRowLevel() {
+    return Boolean.TRUE.equals(isRowLevel);
+  }
+
   public boolean hasAny() {
     return hasSelect() || hasInsert() || hasUpdate() || hasDelete();
   }

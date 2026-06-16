@@ -171,7 +171,7 @@ public class SqlTable implements Table {
 
     for (Row row : rows) {
       String[] mgRoles = row.getStringArray(MG_ROLES);
-      if (mgRoles == null) continue;
+      if (mgRoles == null || mgRoles.length == 0) continue;
 
       if (mgRoles.length > 1) {
         throw new MolgenisException(
@@ -179,8 +179,8 @@ public class SqlTable implements Table {
                 + Arrays.toString(mgRoles));
       }
 
-      String requestedRole = mgRoles.length == 0 ? null : mgRoles[0];
-      if (requestedRole == null || !rolesInSchema.contains(requestedRole)) {
+      String requestedRole = mgRoles[0];
+      if (!rolesInSchema.contains(requestedRole)) {
         throw new MolgenisException(
             "mg_roles value '"
                 + requestedRole

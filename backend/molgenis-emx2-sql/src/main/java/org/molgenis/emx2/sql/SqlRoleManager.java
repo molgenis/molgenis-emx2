@@ -193,7 +193,7 @@ public class SqlRoleManager {
       throw new MolgenisException("Table name is required for table-level grant");
     }
     TableMetadata tableMetadata = requireRootTable(schemaName, tableName);
-    boolean isRowLevel = Boolean.TRUE.equals(permission.isRowLevel());
+    boolean isRowLevel = permission.hasRowLevel();
     String grantRoleName = isRowLevel ? RLS_ROLE_PREFIX + roleName : roleName;
     if (isRowLevel) {
       createRlsRole(schemaName, roleName);

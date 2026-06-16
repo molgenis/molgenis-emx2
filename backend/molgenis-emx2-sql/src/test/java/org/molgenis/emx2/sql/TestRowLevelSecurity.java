@@ -240,14 +240,14 @@ class TestRowLevelSecurity {
 
     assertTrue(
         schema.getRoleInfo("TempRole").permissions().stream()
-            .anyMatch(p -> ARTICLES.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+            .anyMatch(p -> ARTICLES.equals(p.table()) && p.hasRowLevel()));
 
     schema.revoke("TempRole", ARTICLES);
     schema.deleteRole("TempRole");
 
     assertTrue(
         schema.getRoleInfo("TeamA").permissions().stream()
-            .anyMatch(p -> ARTICLES.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+            .anyMatch(p -> ARTICLES.equals(p.table()) && p.hasRowLevel()));
   }
 
   @Test
@@ -343,7 +343,7 @@ class TestRowLevelSecurity {
 
     assertTrue(
         schema.getRoleInfo("SoloRole").permissions().stream()
-            .anyMatch(p -> table.equals(p.table()) && Boolean.TRUE.equals(p.isRowLevel())));
+            .anyMatch(p -> table.equals(p.table()) && p.hasRowLevel()));
 
     schema.revoke("SoloRole", table);
 
