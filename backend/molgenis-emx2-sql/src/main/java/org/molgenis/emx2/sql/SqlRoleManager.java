@@ -542,8 +542,7 @@ public class SqlRoleManager {
     List<TablePermission> permissions = getPermissions(schemaName, roleName);
     if (!system) {
       Set<String> rootTables =
-          database.getSchema(schemaName).getMetadata().getTables().stream()
-              .filter(tableMeta -> tableMeta.getInheritName() == null)
+          database.getSchema(schemaName).getMetadata().getRootTables().stream()
               .map(TableMetadata::getTableName)
               .collect(Collectors.toSet());
       permissions =
