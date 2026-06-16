@@ -17,7 +17,7 @@
               : 'img/banner-diagnoses.jpg'
           "
         />
-        <Dashboard class="provider-dashboard-container" :horizontalPadding="5">
+        <Dashboard class="provider-dashboard-container" :horizontalPadding="2">
           <ProviderSidebar />
           <router-view
             :organisation="currentOrganisation"
@@ -77,6 +77,10 @@ onBeforeMount(async () => {
       `/${cranioSchemas.value?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
       currentSchemaName.value
     );
+
+    if (window && currentOrganisation.value) {
+      window.document.title = `${window.document.title} | ${currentOrganisation.value.name}`;
+    }
   } catch (err: unknown) {
     if (Object.hasOwn(err as Error, "response")) {
       const message = (err as IMgErrorResponse).response.errors[0].message;

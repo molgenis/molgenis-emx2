@@ -3,10 +3,8 @@ import { test, expect } from '@playwright/test';
 test('test set custom database level menu', async ({ page }) => {
   await page.goto('/apps/central/');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByPlaceholder('Enter username').click();
-  await page.getByPlaceholder('Enter username').fill('admin');
-  await page.getByPlaceholder('Enter username').press('Tab');
-  await page.getByPlaceholder('Password').fill('admin');
+  await page.getByRole('textbox', { name: 'Username' }).fill('admin');
+  await page.getByRole('textbox', { name: 'Password' }).fill('admin');
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
@@ -26,10 +24,8 @@ test('test set custom database level menu', async ({ page }) => {
 
   // cleanup
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.getByPlaceholder('Enter username').click();
-  await page.getByPlaceholder('Enter username').fill('admin');
-  await page.getByPlaceholder('Enter username').press('Tab');
-  await page.getByPlaceholder('Password').fill('admin');
+  await page.getByRole('textbox', { name: 'Username' }).fill('admin');
+  await page.getByRole('textbox', { name: 'Password' }).fill('admin');
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
