@@ -2,7 +2,7 @@
 import { useFetch } from "#app/composables/fetch";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useHead } from "#app";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
@@ -14,6 +14,7 @@ import TableCell from "../../../../tailwind-components/app/components/TableCell.
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import type { Crumb } from "../../../../tailwind-components/types/types";
 import { definePageMeta } from "#imports";
+import Search from "../../../../tailwind-components/app/components/input/Search.vue";
 
 definePageMeta({
   middleware: ["landing-page"],
@@ -76,6 +77,26 @@ if (schema) {
   crumbs.push({ label: schema, url: `/${schema}` });
 }
 crumbs.push({ label: "tables", url: "" });
+
+const searchPlaceholder = ontologies.value.length
+  ? "Search tables and ontologies..."
+  : "Search tables...";
+
+const searchString = ref("");
+
+const filteredTables = computed(() => {
+  if (!searchString.value) return tables.value;
+  return tables.value.filter((table) =>
+    table.label.toLowerCase().includes(searchString.value.toLowerCase())
+  );
+});
+
+const filteredOntologies = computed(() => {
+  if (!searchString.value) return ontologies.value;
+  return ontologies.value.filter((ontology) =>
+    ontology.label.toLowerCase().includes(searchString.value.toLowerCase())
+  );
+});
 </script>
 <template>
   <Container>
@@ -85,7 +106,14 @@ crumbs.push({ label: "tables", url: "" });
       </template>
     </PageHeader>
 
-    <ContentBlock class="mt-1" title="data tables" description="description">
+    <Search
+      id="tables-search-input"
+      :placeholder="searchPlaceholder"
+      v-model="searchString"
+      class="mb-4"
+    ></Search>
+
+    <ContentBlock class="mt-1" title="data tables">
       <Table>
         <template #head>
           <TableHeadRow>
@@ -95,7 +123,7 @@ crumbs.push({ label: "tables", url: "" });
         </template>
         <template #body>
           <TableRow
-            v-for="table in tables"
+            v-for="table in filteredTables"
             @click="navigateTo(`${schema}/${table.id}`)"
           >
             <TableCell>{{ table.label }}</TableCell>
@@ -105,12 +133,7 @@ crumbs.push({ label: "tables", url: "" });
       </Table>
     </ContentBlock>
 
-    <ContentBlock
-      v-if="ontologies.length"
-      class="mt-1"
-      title="ontologies"
-      description="description"
-    >
+    <ContentBlock v-if="ontologies.length" class="mt-1" title="ontologies">
       <Table>
         <template #head>
           <TableHeadRow>
@@ -120,7 +143,7 @@ crumbs.push({ label: "tables", url: "" });
         </template>
         <template #body>
           <TableRow
-            v-for="ontology in ontologies"
+            v-for="ontology in filteredOntologies"
             @click="navigateTo(`${schema}/${ontology.id}`)"
           >
             <TableCell>{{ ontology.label }}</TableCell>

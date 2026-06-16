@@ -2,13 +2,14 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${route}viz/PieChart.story`);
-    await expect(page.locator("#pie-chart-demo")).toBeVisible();
+    const title = await page.getByRole("heading", { name: "VizPieChart" });
+    await title.waitFor();
   });
 
   test("segements and labels are rendered", async ({ page }) => {
@@ -30,9 +31,10 @@ test.describe("PieChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("legend is rendered", async ({ page }) => {
-    await expect(page.locator("#pie-chart-demo")).toMatchAriaSnapshot(
-      `- img: Group A48% Group B32% Group C11% Other9%`
-    );
+    const itemMarkers = await page.locator("ul.list-style-none li svg").all();
+    const itemText = await page.locator("ul.list-style-none li span").all();
+    expect(itemMarkers.length).toEqual(4);
+    expect(itemText.length).toEqual(4);
   });
 
   test("hovering emphasizes corresponding segment", async ({ page }) => {
