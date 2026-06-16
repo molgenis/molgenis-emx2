@@ -96,6 +96,25 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void addMemberRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    // the row-level grant on TeamA created the internal RLS_TeamA proxy role
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.addMember(USER_NO_ACCESS, "RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void createRoleRejectsReservedRlsPrefix() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.createRole("RLS_Custom"));
+    assertTrue(e.getMessage().contains("reserved"), e.getMessage());
+  }
+
+  @Test
   void isRowLevelReportedInPermissions() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);

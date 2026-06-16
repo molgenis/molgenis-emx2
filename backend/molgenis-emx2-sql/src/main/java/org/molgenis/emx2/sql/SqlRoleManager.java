@@ -58,11 +58,12 @@ public class SqlRoleManager {
   }
 
   public void createRole(String schemaName, String roleName) {
-    if (isSystemRole(roleName)) {
-      throw new MolgenisException("Cannot create system role: " + roleName);
-    }
+    validateRoleName(schemaName, roleName);
+    createRoleWithGrants(schemaName, roleName);
+  }
+
+  private void createRoleWithGrants(String schemaName, String roleName) {
     String fullRole = fullRoleName(schemaName, roleName);
-    validateRoleName(fullRole);
     String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
@@ -136,8 +137,21 @@ public class SqlRoleManager {
     return roleExists(fullRoleName(schemaName, roleName));
   }
 
-  private void validateRoleName(String roleName) {
-    if (roleName.getBytes(UTF_8).length > PG_MAX_ID_LENGTH) {
+  private void validateRoleName(String schemaName, String roleName) {
+    if (isSystemRole(roleName)) {
+      throw new MolgenisException("Cannot create system role: " + roleName);
+    }
+    if (roleName.startsWith(RLS_ROLE_PREFIX)) {
+      throw new MolgenisException(
+          "Cannot create role '"
+              + roleName
+              + "': the '"
+              + RLS_ROLE_PREFIX
+              + "' prefix is reserved for internal row-level-security roles.");
+    }
+    int rlsOverhead = RLS_ROLE_PREFIX.getBytes(UTF_8).length;
+    if (fullRoleName(schemaName, roleName).getBytes(UTF_8).length + rlsOverhead
+        > PG_MAX_ID_LENGTH) {
       throw new MolgenisException(
           "Role name '" + roleName + "' is too long, it exceeds PostgreSQL's 63-byte limit");
     }
@@ -273,10 +287,8 @@ public class SqlRoleManager {
 
   private void createRlsRole(String schemaName, String roleName) {
     String rlsRoleName = RLS_ROLE_PREFIX + roleName;
-    validateRoleName(rlsRoleName);
-
     if (!roleExists(schemaName, rlsRoleName)) {
-      createRole(schemaName, rlsRoleName);
+      createRoleWithGrants(schemaName, rlsRoleName);
     }
     String rlsFullRole = fullRoleName(schemaName, rlsRoleName);
     String regularFullRole = fullRoleName(schemaName, roleName);
@@ -427,6 +439,12 @@ public class SqlRoleManager {
   }
 
   public void addMember(String schemaName, Member member) {
+    if (member.getRole().startsWith(RLS_ROLE_PREFIX)) {
+      throw new MolgenisException(
+          "Add member(s) failed: Role '"
+              + member.getRole()
+              + "' is an internal row-level-security role and cannot be assigned directly.");
+    }
     List<String> currentRoles = getRoleNames(schemaName);
     if (!currentRoles.contains(member.getRole())) {
       throw new MolgenisException(
