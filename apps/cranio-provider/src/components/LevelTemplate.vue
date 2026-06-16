@@ -9,6 +9,7 @@ import { getDashboardPage } from "../utils/getDashboardData";
 
 import type { IDashboardPages, ICharts } from "../types/schema.js";
 import type { IAppPage } from "../types/app";
+import type { ISiteErnCleftTypeCounts } from "../types/index.js";
 
 interface LevelTemplateProps {
   name: string;
@@ -16,6 +17,8 @@ interface LevelTemplateProps {
   enableFilter?: boolean;
   filterProperty?: string;
   filterTitle?: string;
+  chartDescription?: string;
+  numberOfPatientsByCleftType?: ISiteErnCleftTypeCounts;
 }
 const props = withDefaults(defineProps<LevelTemplateProps>(), {
   enableFilter: false,
@@ -61,6 +64,10 @@ getPageData().catch((err) => (error.value = err));
           :filterProperty="filterProperty"
           :filterTitle="filterTitle"
           :ernLevelData="(ernPageData?.charts?.filter(row=>row.chartId === chart.chartId)[0] as ICharts).dataPoints"
+          :numberOfPatientsByCleftType="
+            numberOfPatientsByCleftType || undefined
+          "
+          :chartDescription="chartDescription"
         />
       </template>
     </DashboardRow>

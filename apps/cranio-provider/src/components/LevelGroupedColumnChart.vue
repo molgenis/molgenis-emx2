@@ -12,7 +12,11 @@ import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { ernYourCenterPalette } from "../utils/variables";
 
 import type { ICharts, IChartData } from "../types/schema";
-import type { IAxisTickData } from "../types";
+import type {
+  IAxisTickData,
+  ICleftTypes,
+  ISiteErnCleftTypeCounts,
+} from "../types";
 
 const props = withDefaults(
   defineProps<{
@@ -21,6 +25,8 @@ const props = withDefaults(
     filterProperty?: string;
     filterTitle?: string;
     ernLevelData?: IChartData[];
+    numberOfPatientsByCleftType?: ISiteErnCleftTypeCounts;
+    chartDescription?: string;
   }>(),
   {
     enableFilter: false,
@@ -40,10 +46,7 @@ const chartData = computed<IChartData[]>(() => {
     });
     data = data.concat(ernData as IChartData[]);
     data = data.sort((a: IChartData, b: IChartData) => {
-      return (
-        a.dataPointName?.localeCompare(b.dataPointName as string) ||
-        (a.dataPointOrder as number) - (b.dataPointOrder as number)
-      );
+      return (a.dataPointOrder as number) - (b.dataPointOrder as number);
     });
   }
 
@@ -51,32 +54,21 @@ const chartData = computed<IChartData[]>(() => {
 });
 
 const chartDescription = computed<string>(() => {
-  let description = "Number of patients: ";
-
-  if (props.chart.dataPoints) {
-    const centerSum = props.chart.dataPoints?.reduce(
-      (acc: number, row: IChartData) => {
-        acc += row.dataPointValue as number;
-        return acc;
-      },
-      0
-    );
-
-    description += `Center (n=${centerSum}) `;
+  if (props.enableFilter && props.numberOfPatientsByCleftType) {
+    const centerValue =
+      props.numberOfPatientsByCleftType.center[
+        selectedFilter.value as keyof ICleftTypes
+      ];
+    const ernValue =
+      props.numberOfPatientsByCleftType.ern[
+        selectedFilter.value as keyof ICleftTypes
+      ];
+    return `${selectedFilter.value} patients from your center (n=${centerValue}) and the ERN (n=${ernValue})`;
+  } else if (props.chartDescription) {
+    return props.chartDescription;
+  } else {
+    return "";
   }
-
-  if (props.ernLevelData) {
-    const ernSum = props.ernLevelData?.reduce(
-      (acc: number, row: IChartData) => {
-        acc += row.dataPointValue as number;
-        return acc;
-      },
-      0
-    );
-    description += `ERN (n=${ernSum})`;
-  }
-
-  return description;
 });
 
 const chartTicks = ref<IAxisTickData>();
