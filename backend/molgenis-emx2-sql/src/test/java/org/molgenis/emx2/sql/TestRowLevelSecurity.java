@@ -713,6 +713,32 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void deleteRoleFailsWhenMgRolesStillReferenceItAfterRevoke() {
+    database.becomeAdmin();
+    Schema schema = database.dropCreateSchema("TestRlsDeleteRoleBlockedAfterRevoke");
+    schema.create(table("Items").add(column("id").setPkey()).add(column("title")));
+    schema.createRole("BlockedRole");
+    schema.grant("BlockedRole", new TablePermission("Items").select(true).rowLevel(true));
+
+    schema
+        .getTable("Items")
+        .insert(
+            new Row()
+                .setString("id", "i1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {"BlockedRole"}));
+
+    // revoke the grant first: this must NOT let the dangling mg_roles reference slip through
+    schema.revoke("BlockedRole", "Items");
+
+    assertThrows(MolgenisException.class, () -> schema.deleteRole("BlockedRole"));
+    assertNotNull(schema.getRoleInfo("BlockedRole"), "role should still exist after failed delete");
+
+    schema.getTable("Items").delete(new Row().setString("id", "i1"));
+    assertDoesNotThrow(() -> schema.deleteRole("BlockedRole"));
+  }
+
+  @Test
   void revokingRlsOnRootRemovesAccessAcrossTree() {
     database.becomeAdmin();
     String root = "RevokeParent";

@@ -98,27 +98,10 @@ public class SqlRoleManager {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
             Collection<String> tableNames = database.getSchema(schemaName).getTableNames();
-            deleteRoleAndGrants(jooq, schemaName, fullRole, tableNames);
+            assertNoMgRolesReference(jooq, schemaName, roleName, tableNames);
 
+            deleteRoleAndGrants(jooq, schemaName, fullRole, tableNames);
             if (roleExists(rlsFullRole)) {
-              List<String> rlsTables = getTablesForRole(schemaName, rlsFullRole);
-              for (String tableName : rlsTables) {
-                int count =
-                    jooq.fetchCount(
-                        jooq.selectOne()
-                            .from(table(name(schemaName, tableName)))
-                            .where("{0} = ANY(mg_roles)", inline(roleName)));
-                if (count > 0) {
-                  throw new MolgenisException(
-                      "Cannot delete role '"
-                          + roleName
-                          + "': "
-                          + count
-                          + " row(s) in table '"
-                          + tableName
-                          + "' still reference it in mg_roles");
-                }
-              }
               deleteRoleAndGrants(jooq, schemaName, rlsFullRole, tableNames);
             }
           } finally {
@@ -157,13 +140,29 @@ public class SqlRoleManager {
     }
   }
 
-  private List<String> getTablesForRole(String schemaName, String role) {
-    return jooq()
-        .selectDistinct(TABLE_NAME)
-        .from(ROLE_TABLE_GRANTS)
-        .where(GRANTEE.eq(inline(role)))
-        .and(TABLE_SCHEMA.eq(inline(schemaName)))
-        .fetch(TABLE_NAME);
+  private void assertNoMgRolesReference(
+      DSLContext jooq, String schemaName, String roleName, Collection<String> tableNames) {
+    SchemaMetadata schemaMetadata = database.getSchema(schemaName).getMetadata();
+    for (String tableName : tableNames) {
+      if (schemaMetadata.getTableMetadata(tableName).getColumn(MG_ROLES) == null) {
+        continue;
+      }
+      int count =
+          jooq.fetchCount(
+              jooq.selectOne()
+                  .from(table(name(schemaName, tableName)))
+                  .where("{0} = ANY(mg_roles)", inline(roleName)));
+      if (count > 0) {
+        throw new MolgenisException(
+            "Cannot delete role '"
+                + roleName
+                + "': "
+                + count
+                + " row(s) in table '"
+                + tableName
+                + "' still reference it in mg_roles");
+      }
+    }
   }
 
   private static void deleteRoleAndGrants(
