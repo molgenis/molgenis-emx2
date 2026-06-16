@@ -1,22 +1,22 @@
 # GraphQL in MOLGENIS
 
-Each schema in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that schema.
-In addition, at the root there is a database-level (instance-wide) API.
+Each database in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that database.
+In addition, at the root there is an instance-wide (root) API that operates across all databases.
 
 For example:
 
-- https://emx2.dev.molgenis.org/api/graphql - root (database-level) API
-- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for schema 'pet store'
+- https://emx2.dev.molgenis.org/api/graphql - root (instance-wide) API
+- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
 
 Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
 
 - https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for the root API
-- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for schema 'pet store'
+- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for database 'pet store'
 
-> **Terminology:** a **schema** is a single dataset with its own data model and GraphQL endpoint
-> (the API and fields use `schema` / `_schema` / `schemas`). Historically schemas were also called
-> "databases", so you may still encounter that term. The **database-level** (or "root") API operates
-> across the whole instance rather than on one schema.
+> **Terminology:** a **database** is a single dataset with its own data model and GraphQL endpoint.
+> Note that in the GraphQL API itself the fields are named `schema` / `_schema` / `schemas` (the
+> internal name for a database). The **root** (instance-wide) API operates across all databases
+> rather than on a single one.
 
 ## Table of contents
 
@@ -28,7 +28,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
   - [createToken](#createtoken) 
   - [session object](#session-object) 
   - [settings](#settings)
-- [Functions available per schema](#functions-available-per-schema)
+- [Functions available per database](#functions-available-per-database)
   - [query schema](#query-schema)
   - [change schema elements](#change-schema-elements)
   - [drop/remove schema elements](#dropremove-schema-elements)
@@ -40,7 +40,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
 
 ## Functions available on all APIs.
 
-These functionalities are available for both the root (database-level) API and the per-schema API.
+These functionalities are available for both the root (instance-wide) API and the per-database API.
 
 ### Sign in
 
@@ -251,7 +251,7 @@ mutation {
 }
 ```
 
-## Functions available per schema
+## Functions available per database
 
 ### query schema
 
