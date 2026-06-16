@@ -89,6 +89,13 @@
           </Accordion>
           <Accordion
             id="mySubfolder-nav"
+            title="Templates"
+            :isOpenByDefault="false"
+          >
+            <PrivateFiles labelValue="template" />
+          </Accordion>
+          <Accordion
+            id="mySubfolder-nav"
             title="Other general documents"
             :isOpenByDefault="false"
           >
