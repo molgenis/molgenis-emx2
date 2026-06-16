@@ -12,8 +12,6 @@
       :invalid="invalid"
       :disabled="disabled"
     />
-    {{ typeof demoValue }}
-    {{ JSON.stringify(demoValue) }}
   </InputTestContainer>
 </template>
 
