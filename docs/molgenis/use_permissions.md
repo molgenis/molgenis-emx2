@@ -81,6 +81,18 @@ RLS is bypassed in three cases:
 RLS is automatically disabled on a table when the last role with row-level access is revoked. The
 `mg_roles` column and any data in it are kept; only the row filter is removed.
 
+## Permissions to change settings
+
+Settings can be stored at schema level and at table level (see [database settings](use_database_settings.md)):
+
+* **Schema settings** can be changed by users with the **manager** role (or higher).
+* **Table settings** can be changed by anyone with update permission on that table. This includes the
+  schema-wide **editor** role, but also a custom role that grants table-level **UPDATE** on that
+  specific table — i.e. a user does not need the schema-wide editor role to change a table's settings
+  if they have been granted update on that table directly.
+
+The **admin** user can change any setting.
+
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
