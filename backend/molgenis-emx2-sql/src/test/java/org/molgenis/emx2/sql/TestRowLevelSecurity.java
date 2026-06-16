@@ -128,6 +128,52 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesRejectsMultipleRoles() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_multi").set(MG_ROLES, new String[] {"TeamA", "TeamB"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("single role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsRoleNotHeldByUser() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_notheld").set(MG_ROLES, new String[] {"TeamB"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("must be Manager or hold the role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRole() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_nosuch").set(MG_ROLES, new String[] {"NoSuchRole"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesEmptyArrayIsAllowedLikeNull() {
+    database.becomeAdmin();
+    String editorUser = "rls_user_editor_mgroles";
+    if (!database.hasUser(editorUser)) database.addUser(editorUser);
+    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
+
+    database.setActiveUser(editorUser);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_empty").set(MG_ROLES, new String[] {});
+    assertDoesNotThrow(() -> articles.insert(row));
+
+    database.becomeAdmin();
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_empty"));
+  }
+
+  @Test
   void teamAUserSeesOnlyTeamARows() {
     database.setActiveUser(USER_TEAM_A);
     database.tx(
