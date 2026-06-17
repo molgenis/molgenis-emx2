@@ -19,6 +19,7 @@ from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoS
     ReferenceException, PermissionDeniedException, PyclientException, ServiceUnavailableError, ServerNotFoundError, \
     InvalidTokenException, GraphQLException, NonExistentTemplateException
 from src.molgenis_emx2_pyclient.metadata import Schema
+from src.molgenis_emx2_pyclient.utils import data_to_csv
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -566,9 +567,9 @@ async def test_export_schema(caplog):
         assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
         (Path(__file__).parent.parent / "catalogue.yaml").unlink()
 
-
-def test_symmetry():
-    """Test symmetry of download and upload with get and save_table."""
+@pytest.mark.asyncio
+async def test_symmetry():
+    """Test symmetry of download with get and upload with save_table or data_to_csv and upload_file."""
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
@@ -577,9 +578,16 @@ def test_symmetry():
         for as_df in [False, True]:
             for table in meta.tables:
                 table_before = client.get(schema=schema, table=table.name, as_df=as_df)
-                client.save_table(table=table.name, schema=schema, data=table_before)
-                table_after = client.get(schema=schema, table=table.name, as_df=as_df)
-                if as_df:
-                    assert table_before.equals(table_after)
-                else:
-                    assert table_before == table_after
+                for to_file in [False, True]:
+                    if to_file:
+                        path = Path(__file__).parent.parent / f"{table.name}.csv"
+                        data_to_csv(table_before, filename=path)
+                        await client.upload_file(file_path = path, schema=schema)
+                        path.unlink()
+                    else:
+                        client.save_table(table=table.name, schema=schema, data=table_before)
+                    table_after = client.get(schema=schema, table=table.name, as_df=as_df)
+                    if as_df:
+                        assert table_before.equals(table_after)
+                    else:
+                        assert table_before == table_after
