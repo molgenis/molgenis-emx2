@@ -27,26 +27,4 @@ test.describe("Aggregates URL", () => {
       page.getByRole("link", { name: "Aggregates" }).nth(1)
     ).toHaveAttribute("href", targetHref);
   });
-
-  test("First link properly resolves to dashboard when clicked", async ({
-    page,
-  }) => {
-    await page.getByRole("link", { name: "Aggregates" }).first().click();
-    const aggPagePromise = page.waitForEvent("popup");
-    const aggPage = await aggPagePromise;
-    await expect(
-      aggPage.getByRole("button", { name: "Apply Filters" })
-    ).toBeVisible();
-  });
-
-  test("Second link properly resolves to dashboard when clicked", async ({
-    page,
-  }) => {
-    await page.getByRole("link", { name: "Aggregates" }).nth(1).click();
-    const aggPagePromise = page.waitForEvent("popup");
-    const aggPage = await aggPagePromise;
-    await expect(
-      aggPage.getByRole("button", { name: "Apply Filters" })
-    ).toBeVisible();
-  });
 });

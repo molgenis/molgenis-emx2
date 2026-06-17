@@ -2,7 +2,11 @@
 import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
-import type { ICatalogues, ICatalogues_agg } from "../../interfaces/catalogue";
+import type {
+  ICatalogues,
+  ICatalogues_agg,
+  INetworks_agg,
+} from "../../interfaces/catalogue";
 import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
@@ -25,9 +29,21 @@ definePageMeta({
   ],
 });
 
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
+
+const variablesFilter = {
+  resource: {
+    _or: [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ],
+  },
+};
+
 const query = computed(() => {
   return `
-  query Catalogues{
+  query Catalogues($variablesFilter:VariablesFilter){
     Catalogues {
       id
       name
@@ -44,13 +60,26 @@ const query = computed(() => {
         url
       }
     }
+    Variables_agg(filter: $variablesFilter) {
+      count
+    }
+    Collections_agg {
+      count
+    }
+    Networks_agg {
+      count
+    }
   }
   `;
 });
 
 interface Resp<T, U> {
-  data: Record<string, T[]>;
-  data_agg: Record<string, U>;
+  data: {
+    Catalogues: T[];
+    Variables_agg: U;
+    Collections_agg: INetworks_agg;
+    Networks_agg: INetworks_agg;
+  };
 }
 
 const graphqlURL = computed(
@@ -60,7 +89,12 @@ const { data } = await useFetch<Resp<ICatalogues, ICatalogues_agg>>(
   graphqlURL.value,
   {
     method: "POST",
-    body: { query },
+    body: {
+      query,
+      variables: {
+        variablesFilter,
+      },
+    },
   }
 );
 
@@ -87,12 +121,20 @@ const mainCatalogue = computed<ICatalogues | null>(() => {
 const pageDescription = computed(
   () =>
     mainCatalogue.value?.description ||
-    "A collaborative effort to integrate the catalogues of diverse EU research projects and (global) networks to accelerate reuse and improve citizens' health."
+    `Welcome to the European Health Research Data and Samples Catalogue: a growing collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens' health. Click on the ‘Search All’ button to browse through all ${counts.value.collections} collections, ${counts.value.networks} networks and ${counts.value.variables} variables to find the data you are looking for, or select one of the individual catalogues below.`
 );
 
 const pageTitle = computed(
   () => mainCatalogue.value?.name || "Health Data and Samples Catalogue"
 );
+
+const counts = computed(() => {
+  return {
+    variables: data.value?.data.Variables_agg?.count ?? 0,
+    collections: data.value?.data.Collections_agg?.count ?? 0,
+    networks: data.value?.data.Networks_agg?.count ?? 0,
+  };
+});
 
 useHead(() => ({
   title: pageTitle.value,
@@ -120,12 +162,6 @@ useHead(() => ({
             <NuxtLink :to="`/all`">
               <Button label="Search all" />
             </NuxtLink>
-            <p
-              class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
-              v-if="catalogues?.length"
-            >
-              or select a specific catalogue below:
-            </p>
           </div>
         </div>
       </template>
