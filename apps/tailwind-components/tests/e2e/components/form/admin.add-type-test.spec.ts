@@ -5,7 +5,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
-test("test", async ({ page }) => {
+test("it should be able to fill out all input types", async ({ page }) => {
   await page.goto(route + "form/AddModal.story?schema=type+test&table=Types");
   await page.getByRole("button", { name: "Add Types" }).click();
 
@@ -205,6 +205,122 @@ test("test", async ({ page }) => {
 
   // Boolean
   await page.locator("circle").nth(1).click();
+
+  // Boolean array
+  await page.locator("circle").nth(5).click();
+  await page
+    .locator(
+      '[id="type test-Types-boolArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
+    )
+    .click();
+  await page
+    .locator(
+      '[id="type test-Types-boolArrayType-form-field-input_1-radio-group"] > div:nth-child(2) > .text-body-base > .mt-1\\.5 > .fill-transparent'
+    )
+    .click();
+
+  // UUID
+  await page.getByRole("textbox", { name: "uuid type" }).click();
+  await page
+    .getByRole("textbox", { name: "uuid type" })
+    .fill("123e4567-e89b-12d3-a456-426614174000");
+
+  // UUID array
+  await page
+    .locator('[id="type test-Types-uuidArrayType-form-field-input_0"]')
+    .click();
+  await page
+    .locator('[id="type test-Types-uuidArrayType-form-field-input_0"]')
+    .fill("123e4567-e89b-12d3-a456-426614174000");
+  await page
+    .locator(
+      '[id="type test-Types-uuidArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
+    )
+    .click();
+  await page
+    .locator('[id="type test-Types-uuidArrayType-form-field-input_1"]')
+    .click();
+  await page
+    .locator('[id="type test-Types-uuidArrayType-form-field-input_1"]')
+    .fill("123e4567-e89b-12d3-a456-426614174000");
+
+  // File
+  // await page.getByRole("button", { name: "Browse" }).click();
+  // await page
+  //   .getByRole("button", { name: "Browse" })
+  //   .setInputFiles("Dockerfile");
+
+  // Date
+  await page
+    .locator('[id="dp-input-type test-Types-dateType-form-field-input"]')
+    .click();
+  await page.locator('[data-test-id="dp-2026-06-01"]').getByText("1").click();
+
+  // Date array
+  await page
+    .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_0"]')
+    .click();
+  await page.locator('[data-test-id="dp-2026-06-02"]').getByText("2").click();
+  await page
+    .locator(
+      '[id="type test-Types-dateArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
+    )
+    .click();
+  await page
+    .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_1"]')
+    .click();
+  await page
+    .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_1"]')
+    .fill("1987-10-04");
+
+  // Date time
+  await page
+    .locator('[id="dp-input-type test-Types-datetimeType-form-field-input"]')
+    .click();
+  await page.locator('[data-test-id="dp-2026-06-03"]').getByText("3").click();
+
+  // Date time array
+  await page
+    .locator(
+      '[id="dp-input-type test-Types-datetimeArrayType-form-field-input_0"]'
+    )
+    .click();
+  await page.locator('[data-test-id="dp-2026-06-11"]').getByText("11").click();
+  await page
+    .locator(
+      '[id="type test-Types-datetimeArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
+    )
+    .click();
+  await page
+    .locator(
+      '[id="dp-input-type test-Types-datetimeArrayType-form-field-input_1"]'
+    )
+    .click();
+
+  await page.locator('[data-test-id="dp-2026-06-07"]').getByText("7").click();
+
+  // Period
+  await page.getByRole("textbox", { name: "period type" }).click();
+  await page.getByRole("textbox", { name: "period type" }).fill("P23Y12M12D");
+
+  // Period array
+  await page
+    .locator('[id="type test-Types-periodArrayType-form-field-input_0"]')
+    .click();
+  await page
+    .locator('[id="type test-Types-periodArrayType-form-field-input_0"]')
+    .fill("P37Y11M10D");
+  await page
+    .locator(
+      '[id="type test-Types-periodArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
+    )
+    .click();
+  await page
+    .locator('[id="type test-Types-periodArrayType-form-field-input_1"]')
+    .click();
+  await page
+    .locator('[id="type test-Types-periodArrayType-form-field-input_1"]')
+    .fill("P13Y37M42D");
 
   await page.getByRole("button", { name: "Save", exact: true }).click();
 });
