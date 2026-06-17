@@ -43,3 +43,15 @@ export interface IValueLabel {
   value: string;
   label: string;
 }
+
+export interface ICleftTypes {
+  CL: number;
+  CP: number;
+  CLA: number;
+  CLAP: number;
+}
+
+export interface ISiteErnCleftTypeCounts {
+  center: ICleftTypes;
+  ern: ICleftTypes;
+}

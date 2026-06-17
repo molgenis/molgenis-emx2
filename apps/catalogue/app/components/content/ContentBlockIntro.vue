@@ -117,7 +117,7 @@ const submitForm = async () => {
     : `Contact request for ${fields.senderName.fieldValue}`;
 
   try {
-    isSendSuccess = await sendContactForm({
+    isSendSuccess = !!(await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
       subject,
       body: `
@@ -128,7 +128,7 @@ const submitForm = async () => {
       \nMessage: ${fields.senderMessage.fieldValue}
       \nMessage originated from: ${window?.location?.origin || "Unknown origin"}
     `,
-    });
+    }));
   } catch (error) {
     console.log(error);
   }
