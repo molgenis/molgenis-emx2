@@ -1,137 +1,3 @@
-<template>
-  <Page>
-    <div class="page-section padding-h-2" v-if="!loading && error">
-      <MessageBox type="error">
-        <p>Unable to retrieve data. {{ error }}</p>
-      </MessageBox>
-    </div>
-    <Dashboard
-      id="publicDashboard"
-      class="bg-blue-100"
-      :verticalPadding="0"
-      :horizontalPadding="3"
-      v-else-if="!loading && !error"
-    >
-      <DashboardRow :columns="1">
-        <DataValueHighlights
-          id="ernIthacaDataHighlights"
-          title="ERN ITHACA at a glance"
-          :data="dataHighlightsData"
-        />
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <DataTable
-            :tableId="topGenesChart?.name"
-            :caption="topGenesChart?.label"
-            :data="topGenesData"
-            :columnOrder="['gene', 'count']"
-          />
-          <!-- <form class="mt-4">
-            <div class="form-group">
-              <label for="searchGeneInSmallVariants">
-                Search by gene
-                <small class="d-block">Enter a gene</small>
-              </label>
-              <input
-                id="searchGeneInSmallVariants"
-                class="form-control"
-                aria-describedby="searchGeneInSmallVariantsDesc"
-              />
-              <small
-                id="searchGeneInSmallVariantsDesc"
-                class="form-text text-muted"
-              >
-                Enter a gene name to navigate to matching entries in the Small
-                Variants table
-              </small>
-            </div>
-          </form> -->
-        </DashboardChart>
-        <DashboardChart>
-          <DataTable
-            :tableId="topDiagnosesChart?.name"
-            :caption="topDiagnosesChart?.label"
-            :data="topDiagnosesData"
-            :columnOrder="['diagnosis', 'count']"
-          />
-          <!-- <form class="mt-4">
-            <div class="form-group">
-              <label for="searchSubjectsByDiagnosis">
-                Search by diagnosis
-                <small class="d-block">Enter Orphanet code</small>
-              </label>
-              <input
-                id="searchSubjectsByDiagnosis"
-                class="form-control"
-                aria-describedby="searchSubjectsByDiagnosisDesc"
-              />
-              <small
-                id="searchSubjectsByDiagnosisDesc"
-                class="form-text text-muted"
-              >
-                Enter a diagnosis name to navigate to matching entries in the
-                Subject table
-              </small>
-            </div>
-          </form> -->
-        </DashboardChart>
-        <DashboardChart>
-          <DataTable
-            :tableId="enrollmentChart?.name"
-            :caption="enrollmentChart?.label"
-            :data="enrollmentData"
-            :columnOrder="['subregistry', 'count']"
-          />
-        </DashboardChart>
-      </DashboardRow>
-      <DashboardRow :columns="1">
-        <DashboardChart
-          id="provider-map"
-          :verticalPadding="0"
-          :horizontalPadding="0"
-        >
-          <GeoMercator
-            chartId="ern-ithaca-organisations-map"
-            :geojson="WorldGeoJson"
-            :chartData="organisationsMapData"
-            rowId="code"
-            latitude="latitude"
-            longitude="longitude"
-            group="organisationType"
-            :groupColorMappings="mapColorPalette"
-            :legendData="mapColorPalette"
-            :mapCenter="{
-              latitude: 3,
-              longitude: 51,
-            }"
-            :mapColors="{
-              land: '#709190',
-              border: '#061428',
-              water: '#061428',
-            }"
-            :tooltipTemplate="
-              (row: IOrganisations) => {
-                return `
-                <p class='title'>${row.name}</p>
-                <p class='center-location'>
-                  <span class='location-city'>${row.city}</span>
-                  <span class='location-country'>${row.country}</span>
-                </p>
-                <p class='center-type'>${row.organisationType}</p>
-                `;
-              }
-            "
-            :zoomLimits="[0.3, 10]"
-            :enableLegendClicks="true"
-            :chartHeight="440"
-          />
-        </DashboardChart>
-      </DashboardRow>
-    </Dashboard>
-  </Page>
-</template>
-
 <script lang="ts" setup>
 import { ref } from "vue";
 import {
@@ -252,6 +118,100 @@ loadData()
   .catch((err) => (error.value = err))
   .finally(() => (loading.value = false));
 </script>
+
+<template>
+  <Page>
+    <div class="page-section padding-h-2" v-if="!loading && error">
+      <MessageBox type="error">
+        <p>Unable to retrieve data. {{ error }}</p>
+      </MessageBox>
+    </div>
+    <Dashboard
+      id="publicDashboard"
+      class="bg-blue-100"
+      :verticalPadding="0"
+      :horizontalPadding="3"
+      v-else-if="!loading && !error"
+    >
+      <DashboardRow :columns="1">
+        <DataValueHighlights
+          id="ernIthacaDataHighlights"
+          title="ERN ITHACA at a glance"
+          :data="dataHighlightsData"
+        />
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <DataTable
+            :tableId="topGenesChart?.name"
+            :caption="topGenesChart?.label"
+            :data="topGenesData"
+            :columnOrder="['gene', 'count']"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            :tableId="topDiagnosesChart?.name"
+            :caption="topDiagnosesChart?.label"
+            :data="topDiagnosesData"
+            :columnOrder="['diagnosis', 'count']"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            :tableId="enrollmentChart?.name"
+            :caption="enrollmentChart?.label"
+            :data="enrollmentData"
+            :columnOrder="['subregistry', 'count']"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow :columns="1">
+        <DashboardChart
+          id="provider-map"
+          :verticalPadding="0"
+          :horizontalPadding="0"
+        >
+          <GeoMercator
+            chartId="ern-ithaca-organisations-map"
+            :geojson="WorldGeoJson"
+            :chartData="organisationsMapData"
+            rowId="code"
+            latitude="latitude"
+            longitude="longitude"
+            group="organisationType"
+            :groupColorMappings="mapColorPalette"
+            :legendData="mapColorPalette"
+            :mapCenter="{
+              latitude: 3,
+              longitude: 51,
+            }"
+            :mapColors="{
+              land: '#709190',
+              border: '#061428',
+              water: '#061428',
+            }"
+            :tooltipTemplate="
+              (row: IOrganisations) => {
+                return `
+                <p class='title'>${row.name}</p>
+                <p class='center-location'>
+                  <span class='location-city'>${row.city}</span>
+                  <span class='location-country'>${row.country}</span>
+                </p>
+                <p class='center-type'>${row.organisationType}</p>
+                `;
+              }
+            "
+            :zoomLimits="[0.3, 10]"
+            :enableLegendClicks="true"
+            :chartHeight="440"
+          />
+        </DashboardChart>
+      </DashboardRow>
+    </Dashboard>
+  </Page>
+</template>
 
 <style lang="scss">
 #publicDashboard {
