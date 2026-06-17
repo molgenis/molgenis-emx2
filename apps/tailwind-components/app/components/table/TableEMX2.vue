@@ -108,12 +108,12 @@
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
                 'w-60': columns.length > 5,
-                'h-11': !row[column.id] || row[column.id] === '',
+                'h-11': !row[column.id],
               }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column)"
+              @cellClicked="handleCellClick"
             >
               <template #row-actions v-if="colIndex === 0">
                 <div
@@ -187,46 +187,18 @@
     @update:pageSize="handlePageSizeChange($event)"
   />
 
-  <Modal
-    type="right"
-    v-model:visible="showModal"
-    :title="cellDetailSubtitle"
-    @closed="showModal = false"
-  >
-    <TableCellDetailRef
-      v-if="cellDetailColumn && showRefDetailModal"
-      :metadata="toRefColumn(cellDetailColumn)"
-      :columnValue="toRefColumnValue(cellDetailValue)"
-      :schema="cellDetailSchemaId ?? schemaId"
-      :showDataOwner="false"
-      @onRefClick="handleDetailRefClick"
-    />
-    <template
-      v-else-if="
-        cellDetailValue &&
-        cellDetailColumn &&
-        isArrayLikeDetail(cellDetailColumn)
-      "
-    >
-      <ul>
-        <li v-for="(item, index) in cellDetailValue" :key="index">
-          <TableCellDetailRef
-            v-if="cellDetailColumn"
-            :metadata="toRefColumn(cellDetailColumn)"
-            :columnValue="toRefColumnValue(item as columnValue)"
-            :schema="cellDetailSchemaId ?? schemaId"
-            :showDataOwner="false"
-            @onRefClick="handleDetailRefClick"
-          />
-        </li>
-      </ul>
-    </template>
-  </Modal>
+  <CellDetailModal
+    v-if="cellDetailPayload"
+    :payload="cellDetailPayload"
+    :schemaId="schemaId"
+    v-model:showModal="showModal"
+    @update:cellDetailPayload="cellDetailPayload = $event"
+  />
 
   <DeleteModal
     v-if="data?.tableMetadata && rowDataForModal"
     :showButton="false"
-    :schemaId="props.schemaId"
+    :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     v-model:visible="showDeleteModal"
@@ -258,15 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  ref,
-  useId,
-  watch,
-} from "vue";
+import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -274,15 +238,11 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ColumnPayload,
   ITableSettings,
-  ListPayload,
-  RefPayload,
   sortDirection,
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 
 import TableCellEMX2 from "./CellEMX2.vue";
@@ -290,18 +250,16 @@ import TableCellEMX2 from "./CellEMX2.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
-import Modal from "../Modal.vue";
 
+import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
-import { isArrayLikeDetail, isRefLikeDetail } from "../../utils/refUtils";
-import { toRefColumn, toRefColumnValue } from "../../utils/typeUtils";
 import Button from "../Button.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import TableCellDetailRef from "./cellDetail/TableCellDetailRef.vue";
+import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
@@ -324,10 +282,7 @@ const showDeleteModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
-const cellDetailSchemaId = ref<string>();
-const cellDetailColumn = ref<IColumn>();
-const cellDetailSubtitle = ref<string>();
-const cellDetailValue = ref<columnValue>();
+const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const tableContainer = ref<HTMLElement | null>(null);
@@ -430,7 +385,7 @@ watch(
   { immediate: true, deep: true }
 );
 
-const rows = computed(() =>
+const rows = computed((): IRow[] =>
   Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
 );
 
@@ -491,7 +446,10 @@ function getDirection(columnId: string): sortDirection {
   }
 }
 
-function handleSearchRequest(search: string) {
+function handleSearchRequest(search?: string | number) {
+  if (typeof search === "number") {
+    search = search.toString();
+  }
   settings.value.search = search;
   settings.value.page = 1;
   refresh();
@@ -512,28 +470,8 @@ function handlePageSizeChange(pageSize: string) {
   refresh();
 }
 
-function handleCellClick(event: cellPayload, column: IColumn) {
-  cellDetailSubtitle.value = column.label;
-  cellDetailColumn.value = column;
-  cellDetailSchemaId.value = column.refSchemaId ?? props.schemaId;
-  cellDetailValue.value = event.data as columnValue;
-  showModal.value = true;
-}
-
-async function handleDetailRefClick(
-  event: RefPayload | ColumnPayload | ListPayload
-) {
-  showModal.value = false;
-  await nextTick();
-
-  const columnMetadata = event.metadata;
-
-  cellDetailSubtitle.value = columnMetadata.label;
-  cellDetailColumn.value = columnMetadata;
-  cellDetailSchemaId.value = columnMetadata.refSchemaId ?? props.schemaId;
-
-  cellDetailValue.value = event.data as columnValue;
-
+function handleCellClick(payload: cellPayload) {
+  cellDetailPayload.value = payload;
   showModal.value = true;
 }
 
@@ -558,15 +496,6 @@ function onAddRowClicked() {
   showAddModal.value = true;
 }
 
-async function afterRowAdded() {
-  // todo reset filters and search, goto page with added item, flash row with add item
-  await refresh();
-}
-
-async function afterRowUpdated() {
-  await refresh();
-}
-
 async function afterClose() {
   await refresh();
 }
@@ -575,13 +504,4 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
-
-const showRefDetailModal = computed(() => {
-  return (
-    cellDetailColumn.value &&
-    isRefLikeDetail(cellDetailColumn.value) &&
-    !isArrayLikeDetail(cellDetailColumn.value) &&
-    showModal.value
-  );
-});
 </script>
