@@ -4,7 +4,7 @@ import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import {
   PlusIcon,
   FingerPrintIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
 } from "@heroicons/vue/24/outline";
 </script>
 
