@@ -275,27 +275,28 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
         return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="UTF-8")
     else:
         if filename:
-            target = open(filename, 'w', newline='')
+            target = open(filename, mode='w', encoding='utf-8', newline='')
         else:
             target = io.StringIO('')
-        # Get column names and write header row
-        columns = {column for row in data for column in row}
-        writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
-        writer.writeheader()
-        for row in data:
-            cleaned_row = {}
-            for k, v in row.items():
-                # Replace 'nan' with 'None' #TODO why?
-                if isinstance(v, float) and math.isnan(v):
-                    cleaned_row[k] = None
-                # Replace 'NaT' with 'None' #TODO why?
-                elif isinstance(v, pd.api.typing.NaTType):
-                    cleaned_row[k] = None
-                else:
-                    cleaned_row[k] = v
-            writer.writerow(cleaned_row)
-        if not filename:
-            return target.getvalue()
+        with target:
+            # Get column names and write header row
+            columns = {column for row in data for column in row}
+            writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
+            writer.writeheader()
+            for row in data:
+                cleaned_row = {}
+                for k, v in row.items():
+                    # Replace 'nan' with 'None' #TODO why?
+                    if isinstance(v, float) and math.isnan(v):
+                        cleaned_row[k] = None
+                    # Replace 'NaT' with 'None' #TODO why?
+                    elif isinstance(v, pd.api.typing.NaTType):
+                        cleaned_row[k] = None
+                    else:
+                        cleaned_row[k] = v
+                writer.writerow(cleaned_row)
+            if not filename:
+                return target.getvalue()
 
 def check_schema(schema: str, default_schema: str, schema_names: list[str]):
     """Checks whether the schema used for this action exists."""
