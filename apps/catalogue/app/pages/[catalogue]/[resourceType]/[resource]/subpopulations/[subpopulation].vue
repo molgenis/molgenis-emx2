@@ -133,41 +133,17 @@ if (subpopulation.countries) {
   });
 }
 
-if (subpopulation.inclusionCriteria) {
+if (subpopulation.inclusionCriteriaDescription) {
   items.push({
     label: "Inclusion criteria",
-    content: renderList(
-      subpopulation.inclusionCriteria.sort(
-        (a, b) => (b.order ?? 0) - (a.order ?? 0)
-      ),
-      toName
-    ),
+    content: subpopulation.inclusionCriteriaDescription,
   });
 }
 
-if (subpopulation.otherInclusionCriteria) {
-  items.push({
-    label: "Other inclusion criteria",
-    content: subpopulation.otherInclusionCriteria,
-  });
-}
-
-if (subpopulation.exclusionCriteria) {
+if (subpopulation.exclusionCriteriaDescription) {
   items.push({
     label: "Exclusion criteria",
-    content: renderList(
-      subpopulation.exclusionCriteria.sort(
-        (a, b) => (b.order ?? 0) - (a.order ?? 0)
-      ),
-      toName
-    ),
-  });
-}
-
-if (subpopulation.otherExclusionCriteria) {
-  items.push({
-    label: "Other exclusion criteria",
-    content: subpopulation.otherExclusionCriteria,
+    content: subpopulation.exclusionCriteriaDescription,
   });
 }
 
