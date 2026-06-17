@@ -44,7 +44,7 @@ const organisationsMapData = ref<IOrganisations[]>();
 const mapColorPalette = {
   "Full member": "#F1FAEE",
   "Affiliated partner": "#FFA69E",
-  Hub: "#843B62",
+  Hub: "#C0729C",
 };
 
 async function loadData() {
@@ -183,7 +183,7 @@ loadData()
             :groupColorMappings="mapColorPalette"
             :legendData="mapColorPalette"
             :mapCenter="{
-              latitude: 3,
+              latitude: 5,
               longitude: 51,
             }"
             :mapColors="{
@@ -205,25 +205,10 @@ loadData()
             "
             :zoomLimits="[0.3, 10]"
             :enableLegendClicks="true"
-            :chartHeight="440"
+            :chartHeight="500"
           />
         </DashboardChart>
       </DashboardRow>
     </Dashboard>
   </Page>
 </template>
-
-<style lang="scss">
-#publicDashboard {
-  .d3-table {
-    caption {
-      @include setChartTitle;
-    }
-
-    td {
-      padding: 0.5em 0.3em;
-      font-size: 0.9em;
-    }
-  }
-}
-</style>
