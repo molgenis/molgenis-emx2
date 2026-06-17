@@ -69,6 +69,7 @@
                 Select ICF language:
               </label>
               <select
+              class="custom-select"
                 id="language-select"
                 v-model="selectedLanguage"
                 size="7"
@@ -83,7 +84,7 @@
                 </option>
               </select>
             </div>
-            <div v-if="selectedLanguage">
+            <div v-if="selectedLanguage" class="mt-3">
               <PrivateFiles :labelValue="selectedLanguage" />
             </div>
           </Accordion>
