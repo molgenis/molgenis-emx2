@@ -69,7 +69,7 @@
                 Select ICF language:
               </label>
               <select
-              class="custom-select"
+                class="custom-select"
                 id="language-select"
                 v-model="selectedLanguage"
                 size="7"
