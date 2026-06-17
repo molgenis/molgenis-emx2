@@ -300,7 +300,7 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
                         cleaned_row[k] = v
                 writer.writerow(cleaned_row)
             if not filename:
-                return target.getvalue
+                return target.getvalue()
             return None
 
 def check_schema(schema: str, default_schema: str, schema_names: list[str]):
