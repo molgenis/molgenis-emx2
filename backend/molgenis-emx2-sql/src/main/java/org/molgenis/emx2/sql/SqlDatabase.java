@@ -223,19 +223,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
       }
 
-      String key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
-      if (key == null) {
-        key =
-            (String)
-                EnvironmentProperty.getParameter(
-                    Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
-      }
-      // validate the key, or generate a good one
-      if (key == null || key.getBytes().length < 32) {
-        key = new RandomString(32).nextString();
-      }
-      // save the key again
-      this.setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, key);
+      resolveJwtSharedSecret();
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
@@ -244,6 +232,40 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  @Override
+  public String resolveJwtSharedSecret() {
+    String secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+    if (secret == null) {
+      // a lightweight SqlDatabase(false) has not loaded its settings yet; load them as admin
+      clearCache();
+      secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+    }
+    // only create when truly absent; an existing valid secret must never be regenerated
+    if (secret == null || secret.getBytes().length < 32) {
+      secret = createJwtSharedSecret();
+    }
+    return secret;
+  }
+
+  private String createJwtSharedSecret() {
+    String envSecret =
+        (String)
+            EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+    String secret =
+        envSecret != null && envSecret.getBytes().length >= 32
+            ? envSecret
+            : new RandomString(32).nextString();
+
+    String callerUser = getActiveUser();
+    try {
+      becomeAdmin();
+      setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
+    } finally {
+      setActiveUser(callerUser);
+    }
+    return secret;
   }
 
   private void initSystemSchema() {
