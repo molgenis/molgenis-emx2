@@ -14,7 +14,13 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'about' }"> About </router-link>
+              <a
+                href="https://ern-ithaca.eu/about-us/"
+                target="_blank"
+                rel="noopener"
+              >
+                About
+              </a>
             </li>
             <li>
               <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
@@ -23,9 +29,23 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'documents' }"> Documents </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'transparency' }">
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-transparency/"
+                target="_blank"
+                rel="noopener"
+              >
                 Transparency Statement
-              </router-link>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-projects-publications/"
+                target="_blank"
+                rel="noopener"
+              >
+                Projects & Publications
+              </a>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -105,6 +125,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
         border-bottom-color: currentColor;
       }
     }
+
     .heroicons {
       position: absolute;
       top: 0;
