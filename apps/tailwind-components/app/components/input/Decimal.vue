@@ -19,7 +19,7 @@
 import type { IInputProps } from "../../../types/types";
 import constants from "../../../../molgenis-components/src/components/constants";
 import {
-  flipSign,
+  flipMinusSign,
   isNumericKey,
 } from "../../../../molgenis-components/src/components/utils";
 import InputString from "./String.vue";
@@ -54,7 +54,7 @@ function handleInputChanged(value?: string | number | null) {
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
-    const flipped = flipSign(event.target?.value);
+    const flipped = flipMinusSign(event.target?.value);
     if (flipped && flipped !== "-") {
       emit("update:modelValue", Number.parseInt(flipped));
     } else {

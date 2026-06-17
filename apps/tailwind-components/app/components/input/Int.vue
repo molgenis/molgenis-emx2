@@ -18,10 +18,11 @@
 <script setup lang="ts">
 import constants from "../../../../molgenis-components/src/components/constants";
 import {
-  flipSign,
+  flipMinusSign,
   isNumericKey,
 } from "../../../../molgenis-components/src/components/utils";
 import type { IInputProps } from "../../../types/types";
+import { getIntInput } from "../../utils/typeUtils";
 import InputString from "./String.vue";
 
 const modelValue = defineModel<string | number | undefined | null>({
@@ -41,7 +42,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
-    const flipped: string = flipSign(event.target?.value);
+    const flipped: string = flipMinusSign(event.target?.value);
     if (flipped && flipped !== "-") {
       emit("update:modelValue", Number.parseInt(flipped));
     } else {
@@ -54,12 +55,6 @@ function handleKeyValidity(event: any) {
 }
 
 function handleInput(inputValue?: string | number | null) {
-  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
-    emit("update:modelValue", inputValue);
-  } else {
-    const numericValue =
-      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
-    emit("update:modelValue", numericValue);
-  }
+  emit("update:modelValue", getIntInput(inputValue));
 }
 </script>
