@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((command) => {
+export default defineConfig((env) => {
   // Load environment variables
   dotenv.config({ path: "./.env" });
 
@@ -36,7 +36,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/ern-ithaca/",
+    base: ["serve", "dev"].includes(env.command) ? "/" : "/apps/ern-ithaca/",
     server: {
       proxy: devProxy
     },
