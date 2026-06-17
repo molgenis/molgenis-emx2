@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
@@ -130,7 +131,7 @@ test("test", async ({ page }) => {
   await page.getByRole("textbox", { name: "long type" }).click();
   await page.getByRole("textbox", { name: "long type" }).fill("6778");
 
-  // Long rray
+  // Long array
   await page
     .locator('[id="type test-Types-longArrayType-form-field-input_0"]')
     .click();
