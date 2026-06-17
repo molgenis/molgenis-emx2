@@ -1,7 +1,7 @@
 // Generated (on: 2026-03-12T13:14:59.424968) from Generator.java for schema: Dashboard
 
 export interface IMgTableClass {
-  mg_tableclass: string;
+  mg_tableclass?: string;
 }
 
 export interface IFile {
