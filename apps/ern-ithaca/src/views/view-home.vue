@@ -40,7 +40,7 @@ import {
       </h2>
       <div class="quick-links-container ithaca-quick-links">
         <LinkCard>
-          <a href="tables/#/Subject">Register patient </a>
+          <a href="../tables/#/Subject">Register patient </a>
         </LinkCard>
         <LinkCard>
           <router-link :to="{ name: 'documents' }">Documents</router-link>
