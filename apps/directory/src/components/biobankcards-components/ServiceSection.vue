@@ -7,7 +7,7 @@
     <CardItem v-if="services.length > 1">
       <div class="d-flex">
         <h5 class="font-weight-light">
-          {{ services.length }} collections available
+          {{ services.length }} services available
         </h5>
 
         <div class="ml-auto">

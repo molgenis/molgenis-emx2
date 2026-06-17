@@ -56,13 +56,66 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <PrivateFiles />
-        <strong>Publications</strong>
-        <Publications
-          table="Publications"
-          labelsColumn="title"
-          doiColumn="doi"
-        />
+        <p v-if="user !== 'anonymous' && user">
+          <Accordion
+            id="mySubfolder-nav"
+            title="Matrix Informed Consents"
+            :isOpenByDefault="false"
+          >
+            <div
+              style="display: flex; flex-direction: column; max-width: 250px"
+            >
+              <label for="language-select" style="margin-bottom: 6px">
+                Select ICF language:
+              </label>
+              <select
+                class="custom-select"
+                id="language-select"
+                v-model="selectedLanguage"
+                size="7"
+                style="padding: 6px; font-size: 16px"
+              >
+                <option
+                  v-for="option in languageOptions"
+                  :key="option"
+                  :value="option"
+                >
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+            <div v-if="selectedLanguage" class="mt-3">
+              <PrivateFiles :labelValue="selectedLanguage" />
+            </div>
+          </Accordion>
+          <Accordion
+            id="mySubfolder-nav"
+            title="Templates Uploads"
+            :isOpenByDefault="false"
+          >
+            <PrivateFiles labelValue="template" />
+          </Accordion>
+          <Accordion
+            id="mySubfolder-nav"
+            title="Other general documents"
+            :isOpenByDefault="false"
+          >
+            <strong>Publications</strong>
+            <Publications
+              table="Publications"
+              labelsColumn="title"
+              doiColumn="doi"
+            />
+          </Accordion>
+        </p>
+        <p v-else>
+          <strong>Publications</strong>
+          <Publications
+            table="Publications"
+            labelsColumn="title"
+            doiColumn="doi"
+          />
+        </p>
       </Accordion>
     </PageSection>
   </Page>
@@ -80,6 +133,72 @@ import {
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
+import { ref } from "vue";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
+
+const error = ref<Error | null>(null);
+const loading = ref(true);
+const user = ref<string | null>(null);
+
+const selectedLanguage = ref("");
+const languageOptions = [
+  "Arabic",
+  "Bulgarian",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
+  "English",
+  "Estonian",
+  "Finnish",
+  "French",
+  "German",
+  "Greek",
+  "Hebrew",
+  "Hungarian",
+  "Italian",
+  "Latvian",
+  "Lithuanian",
+  "Norwegian",
+  "Polish",
+  "Portuguese",
+  "Romanian",
+  "Slovak",
+  "Slovene",
+  "Spanish",
+  "Swedish",
+  "Turkish",
+];
+
+async function getSession() {
+  const query = gql`
+    query {
+      _session {
+        email
+      }
+    }
+  `;
+  const response = await request(
+    "/api/graphql",
+    query,
+    {},
+    { credentials: "include" }
+  );
+  user.value = response._session?.email || null;
+}
+
+getSession()
+  .catch((err: any) => {
+    if (err.response?.errors?.length) {
+      error.value = err.response.errors[0].message;
+    } else {
+      error.value = err;
+    }
+  })
+  .finally(() => {
+    loading.value = false;
+  });
 </script>
 
 <style lang="scss">

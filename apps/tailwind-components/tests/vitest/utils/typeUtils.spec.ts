@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
+import {
   assertBooleanValue,
   assertFileValue,
   assertListValue,
@@ -10,16 +15,11 @@ import {
   assertStringValue,
   assertTableValue,
   getInitialFormValues,
+  getIntInput,
   getOntologyArrayValues,
   toRefColumn,
   toRefColumnValue,
 } from "../../../app/utils/typeUtils";
-import type {
-  columnValue,
-  IColumn,
-  ITableMetaData,
-} from "../../../../metadata-utils/src/types";
-
 describe("getInitialFormValues", () => {
   it("should return initial form values based on metadata", () => {
     const metadata = {
@@ -272,5 +272,47 @@ describe("reference helpers", () => {
     expect(() => assertRefColumnValue([] as columnValue)).toThrow(
       "Value is not a valid reference column value"
     );
+  });
+});
+
+describe("getIntInput", () => {
+  it("Should return an int for an int input", () => {
+    const result = getIntInput(37);
+    expect(result).toEqual(37);
+  });
+
+  it("Should return an int for a negative int input", () => {
+    const result = getIntInput(-37);
+    expect(result).toEqual(-37);
+  });
+
+  it("Should return an int for a string input", () => {
+    const result = getIntInput("37");
+    expect(result).toEqual(37);
+  });
+
+  it("Should return an int for a negative string input", () => {
+    const result = getIntInput("-37");
+    expect(result).toEqual(-37);
+  });
+
+  it("Should return null for a null input", () => {
+    const result = getIntInput(null);
+    expect(result).toEqual(null);
+  });
+
+  it("Should return undefined for a undefined input", () => {
+    const result = getIntInput(undefined);
+    expect(result).toEqual(undefined);
+  });
+
+  it("Should return empty string for an empty string input", () => {
+    const result = getIntInput("");
+    expect(result).toEqual("");
+  });
+
+  it("Should return a minus for a minus string input", () => {
+    const result = getIntInput("-");
+    expect(result).toEqual("-");
   });
 });
