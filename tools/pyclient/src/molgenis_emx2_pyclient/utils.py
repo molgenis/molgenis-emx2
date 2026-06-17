@@ -268,11 +268,15 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
     :param data: input data, in the form of a Molgenis table
     :param filename: when supplied, output to specified file rather than returning a string
 
-    :returns: #TODO
+    :returns: a string containing CSV-formatted content, or nothing when exporting to file
     """
 
     if isinstance(data, pd.DataFrame):
-        return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="UTF-8")
+        if filename:
+            data.to_csv(path_or_buf=filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
+            return None
+        else:
+            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
     else:
         if filename:
             target = open(filename, mode='w', encoding='utf-8', newline='')
@@ -286,17 +290,18 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
             for row in data:
                 cleaned_row = {}
                 for k, v in row.items():
-                    # Replace 'nan' with 'None' #TODO why?
+                    # Replace 'nan' with 'None'
                     if isinstance(v, float) and math.isnan(v):
                         cleaned_row[k] = None
-                    # Replace 'NaT' with 'None' #TODO why?
+                    # Replace 'NaT' with 'None'
                     elif isinstance(v, pd.api.typing.NaTType):
                         cleaned_row[k] = None
                     else:
                         cleaned_row[k] = v
                 writer.writerow(cleaned_row)
             if not filename:
-                return target.getvalue()
+                return target.getvalue
+            return None
 
 def check_schema(schema: str, default_schema: str, schema_names: list[str]):
     """Checks whether the schema used for this action exists."""
