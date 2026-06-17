@@ -35,6 +35,7 @@ Optionally, you can change defaults using either java properties or using env va
 * `MOLGENIS_POSTGRES_PASS`
 * `MOLGENIS_HTTP_PORT`
 * `MOLGENIS_ADMIN_PW`
+* `MOLGENIS_SERVICE_URL` // must be a valid URL with scheme and host, used to reference back to the service in generated links, e.g. in emails
 
 For example:
 

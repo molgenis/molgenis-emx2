@@ -126,3 +126,10 @@ questions:
     required: false
     default: false
     group: "Provisioning"
+  - variable: service.url
+    label: location of the emx2 backend
+    description: "Location used in output to revere back to the emx2 service"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
