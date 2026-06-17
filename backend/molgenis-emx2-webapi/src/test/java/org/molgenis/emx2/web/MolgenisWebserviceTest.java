@@ -7,9 +7,11 @@ import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import java.net.URI;
+import java.net.URL;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -100,6 +102,24 @@ class MolgenisWebserviceTest extends ApiTestBase {
           .thenReturn("https://example.org");
 
       assertEquals(new URI("https://example.org").toURL(), new MolgenisWebservice().hostUrl);
+    }
+  }
+
+  @Test
+  void malformedServiceUrlShouldThrowException() throws Exception {
+    try (MockedStatic<EnvironmentProperty> envMock = mockStatic(EnvironmentProperty.class)) {
+      envMock
+          .when(
+              () ->
+                  EnvironmentProperty.getParameter(
+                      org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
+          .thenReturn("\"http://example.com/foo bar\""); // contains a spave in the host name
+
+      Assertions.assertThrows(
+          MolgenisException.class,
+          () -> {
+            URL url = new MolgenisWebservice().hostUrl;
+          });
     }
   }
 
