@@ -256,24 +256,46 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         return read_file(file_path=file_path)
 
     if data is not None:
-        if isinstance(data, pd.DataFrame):
-            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="UTF-8")
-        else:
-            columns = {column for row in data for column in row}
-            with io.StringIO() as csv_string:
-                writer = csv.DictWriter(csv_string, fieldnames=columns, dialect=csv.excel)
-                writer.writeheader()
-                for row in data:
-                    row = {
-                        k: None if isinstance(v, float) and math.isnan(v) else v
-                        for k, v in row.items()
-                    }
-                    writer.writerow(row)
-                return csv_string.getvalue()
+        return data_to_csv(data)
 
     message = "No data to import. Specify a file location or a dataset."
     log.error(message)
     raise FileNotFoundError(message)
+
+def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) -> str | None:
+    """Converts Molgenis-format data (DataFrame or list of dicts) to Molgenis-format CSV
+    
+    :param data: input data, in the form of a Molgenis table
+    :param filename: when supplied, output to specified file rather than returning a string
+
+    :returns: #TODO
+    """
+
+    if isinstance(data, pd.DataFrame):
+        return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="UTF-8")
+    else:
+        if filename:
+            target = open(filename, 'w', newline='')
+        else:
+            target = io.StringIO('')
+        # Get column names and write header row
+        columns = {column for row in data for column in row}
+        writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
+        writer.writeheader()
+        for row in data:
+            cleaned_row = {}
+            for k, v in row.items():
+                # Replace 'nan' with 'None' #TODO why?
+                if isinstance(v, float) and math.isnan(v):
+                    cleaned_row[k] = None
+                # Replace 'NaT' with 'None' #TODO why?
+                elif isinstance(v, pd.api.typing.NaTType):
+                    cleaned_row[k] = None
+                else:
+                    cleaned_row[k] = v
+            writer.writerow(cleaned_row)
+        if not filename:
+            return target.getvalue()
 
 def check_schema(schema: str, default_schema: str, schema_names: list[str]):
     """Checks whether the schema used for this action exists."""
