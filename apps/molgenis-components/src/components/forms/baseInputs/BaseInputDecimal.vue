@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import constants from "../../constants";
-import { flipSign, isNumericKey } from "../../utils";
+import { flipMinusSign, isNumericKey } from "../../utils";
 import { isRequired } from "../formUtils/formUtils";
 import BaseInput from "./BaseInput.vue";
 
@@ -49,7 +49,7 @@ export default {
     handleKeyValidity(event: any) {
       const keyCode = event.which ?? event.keyCode;
       if (keyCode === CODE_MINUS) {
-        const flipped = flipSign(event.target?.value);
+        const flipped = flipMinusSign(event.target?.value);
         this.emitIfValid(flipped);
       }
       if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {

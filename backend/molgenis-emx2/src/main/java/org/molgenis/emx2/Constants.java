@@ -42,6 +42,7 @@ public class Constants {
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
   public static final String MG_UPDATEDON = "mg_updatedOn";
+  public static final String MG_ROLES = "mg_roles";
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
@@ -95,6 +96,7 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_SERVICE_URL = "MOLGENIS_SERVICE_URL";
   public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
   public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
   public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";

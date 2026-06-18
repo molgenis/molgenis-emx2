@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
