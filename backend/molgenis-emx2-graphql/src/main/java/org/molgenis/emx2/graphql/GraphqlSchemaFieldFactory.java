@@ -133,6 +133,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.DELETE)
                   .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.IS_ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   static final GraphQLType outputRolesType =
@@ -172,6 +176,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.IS_ROW_LEVEL)
                   .type(Scalars.GraphQLBoolean))
           .build();
 
@@ -556,6 +564,7 @@ public class GraphqlSchemaFieldFactory {
                   permMap.put(GraphqlConstants.INSERT, p.insert());
                   permMap.put(GraphqlConstants.UPDATE, p.update());
                   permMap.put(GraphqlConstants.DELETE, p.delete());
+                  permMap.put(GraphqlConstants.IS_ROW_LEVEL, p.isRowLevel());
                   return permMap;
                 })
             .toList());
@@ -707,7 +716,13 @@ public class GraphqlSchemaFieldFactory {
     Boolean insert = (Boolean) permMap.get(GraphqlConstants.INSERT);
     Boolean update = (Boolean) permMap.get(GraphqlConstants.UPDATE);
     Boolean delete = (Boolean) permMap.get(GraphqlConstants.DELETE);
-    return new TablePermission(table).select(select).insert(insert).update(update).delete(delete);
+    Boolean isRowLevel = (Boolean) permMap.get(GraphqlConstants.IS_ROW_LEVEL);
+    return new TablePermission(table)
+        .select(select)
+        .insert(insert)
+        .update(update)
+        .delete(delete)
+        .rowLevel(isRowLevel);
   }
 
   private static void dropRoles(

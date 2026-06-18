@@ -1,6 +1,7 @@
 <script setup lang="ts">
 //@ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/20/solid";
 </script>
 
 <template>
@@ -14,7 +15,14 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'home' }"> Home </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'about' }"> About </router-link>
+              <a
+                href="https://ern-ithaca.eu/about-us/"
+                target="_blank"
+                rel="noopener"
+              >
+                About
+                <ArrowTopRightOnSquareIcon class="heroicons" />
+              </a>
             </li>
             <li>
               <router-link :to="{ name: 'dashboard' }"> Dashboard </router-link>
@@ -23,9 +31,25 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
               <router-link :to="{ name: 'documents' }"> Documents </router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'transparency' }">
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-transparency/"
+                target="_blank"
+                rel="noopener"
+              >
                 Transparency Statement
-              </router-link>
+                <ArrowTopRightOnSquareIcon class="heroicons" />
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://ern-ithaca.eu/our-research-activities/iliad/iliad-projects-publications/"
+                target="_blank"
+                rel="noopener"
+              >
+                Projects & Publications
+                <ArrowTopRightOnSquareIcon class="heroicons" />
+              </a>
             </li>
             <!-- more links here -->
           </UnorderedList>
@@ -105,11 +129,12 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
         border-bottom-color: currentColor;
       }
     }
+
     .heroicons {
       position: absolute;
-      top: 0;
+      top: 0.25em;
       margin-left: 3px;
-      $size: 15px;
+      $size: 16px;
       width: $size;
       height: $size;
     }
