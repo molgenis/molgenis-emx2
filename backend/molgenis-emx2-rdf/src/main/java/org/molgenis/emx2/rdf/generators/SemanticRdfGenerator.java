@@ -74,7 +74,16 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
             semantics -> {
               for (Semantic semantic : semantics) {
                 // todo: Add support for sequence paths (now uses first item and ignores rest)
-                getWriter().processTriple(subject, RDF.TYPE, semantic.asIRI().getFirst());
+                getWriter()
+                    .processTriple(
+                        subject,
+                        RDF.TYPE,
+                        table
+                            .getSchema()
+                            .getMetadata()
+                            .getSemanticPrefixes()
+                            .mapAsIri(semantic)
+                            .getFirst());
               }
             });
 
@@ -86,7 +95,16 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
                 for (final Value value : retrieveValues(rdfMapData, row, column)) {
                   for (Semantic semantic : semantics) {
                     // todo: Add support for sequence paths (now uses first item and ignores rest)
-                    getWriter().processTriple(subject, semantic.asIRI().getFirst(), value);
+                    getWriter()
+                        .processTriple(
+                            subject,
+                            table
+                                .getSchema()
+                                .getMetadata()
+                                .getSemanticPrefixes()
+                                .mapAsIri(semantic)
+                                .getFirst(),
+                            value);
                   }
 
                   if (column.getColumnType().isFile()) {

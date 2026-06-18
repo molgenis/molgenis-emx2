@@ -109,14 +109,20 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
         .ifPresent(
             semantics -> {
               for (final Semantic tableSemantic : semantics) {
+                IRI object =
+                    table
+                        .getSchema()
+                        .getMetadata()
+                        .getSemanticPrefixes()
+                        .mapAsIri(tableSemantic)
+                        .getFirst();
                 try {
                   // todo: Add support for sequence paths (now uses first item and ignores rest)
-                  getWriter()
-                      .processTriple(subject, RDFS.ISDEFINEDBY, tableSemantic.asIRI().getFirst());
+                  getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
                 } catch (Exception e) {
                   throw new MolgenisException(
                       "Table annotation '"
-                          + tableSemantic.asIRI().getFirst()
+                          + object
                           + "' for table "
                           + table.getName()
                           + " gives error",
@@ -179,14 +185,15 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
         .ifPresent(
             semantics -> {
               for (Semantic columnSemantic : semantics) {
+                IRI object =
+                    column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
                 try {
                   // todo: Add support for sequence paths (now uses first item and ignores rest)
-                  getWriter()
-                      .processTriple(subject, RDFS.ISDEFINEDBY, columnSemantic.asIRI().getFirst());
+                  getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
                 } catch (Exception e) {
                   throw new MolgenisException(
                       "Semantic tag '"
-                          + columnSemantic.asIRI().getFirst()
+                          + object
                           + "' for column "
                           + column.getTableName()
                           + "."
@@ -264,7 +271,16 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
             semantics -> {
               for (Semantic semantic : semantics) {
                 // todo: Add support for sequence paths (now uses first item and ignores rest)
-                getWriter().processTriple(subject, RDF.TYPE, semantic.asIRI().getFirst());
+                getWriter()
+                    .processTriple(
+                        subject,
+                        RDF.TYPE,
+                        table
+                            .getSchema()
+                            .getMetadata()
+                            .getSemanticPrefixes()
+                            .mapAsIri(semantic)
+                            .getFirst());
               }
             });
     getWriter()
@@ -295,7 +311,16 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
                 semantics -> {
                   for (Semantic semantic : semantics) {
                     // todo: Add support for sequence paths (now uses first item and ignores rest)
-                    getWriter().processTriple(subject, semantic.asIRI().getFirst(), value);
+                    getWriter()
+                        .processTriple(
+                            subject,
+                            table
+                                .getSchema()
+                                .getMetadata()
+                                .getSemanticPrefixes()
+                                .mapAsIri(semantic)
+                                .getFirst(),
+                            value);
                   }
                 });
 

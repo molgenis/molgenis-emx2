@@ -16,19 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class that contains the needed code to process the semantic field into a usable object. It keeps
- * account for both any schema-specific custom prefixes if a sequence path is used. <br>
- * <br>
- * Examples of allowed values for the semantic field:
- *
- * <ul>
- *   <li>
- *       <pre><code><http://example.com/first>/<http://example.com/second></code></pre>
- *   <li>
- *       <pre><code>myPrefix:first/myPrefix:second</code></pre>
- *   <li>
- *       <pre><code><http://example.com/first>/myPrefix:second</code></pre>
- * </ul>
+ * Class that contains the needed code to process a {@link Semantic} object into a usable {@link
+ * List} that is validated on the schema-specific {@link Namespace}{@code s}.
  */
 public class SemanticPrefixes {
   private static final Logger logger = LoggerFactory.getLogger(SemanticPrefixes.class);
@@ -39,14 +28,39 @@ public class SemanticPrefixes {
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
 
-  private static final List<String> LEGACY_FORBIDDEN_PREFIXES =
-      List.of("http", "https", "urn", "tag");
+  static final List<String> LEGACY_FORBIDDEN_PREFIXES = List.of("http", "https", "urn", "tag");
 
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder()
           .addColumn(SEMANTIC_PREFIXES_NAME_PREFIX)
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
+
+  private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) throws IOException {
+    Set<Namespace> namespaces = new HashSet<>();
+    try (MappingIterator<Map<String, String>> iterator =
+        new CsvMapper()
+            .readerForMapOf(String.class)
+            .with(SEMANTIC_PREFIXES_CSV_SCHEMA)
+            .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
+
+      iterator.forEachRemaining(
+          i -> {
+            Namespace namespace =
+                Values.namespace(
+                    i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI));
+            try {
+              Values.iri(namespace, "test");
+            } catch (Exception e) {
+              throw new MolgenisException(
+                  "Unusable IRI found in custom_prefixes of %s: %s,%s"
+                      .formatted(schema.getName(), namespace.getPrefix(), namespace.getName()));
+            }
+            namespaces.add(namespace);
+          });
+    }
+    return namespaces;
+  }
 
   // TreeMap for consistency in case it's used for generating output
   private final Map<String, Namespace> namespaces;
@@ -78,51 +92,8 @@ public class SemanticPrefixes {
     this.namespaces = namespaces;
   }
 
-  private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) throws IOException {
-    Set<Namespace> namespaces = new HashSet<>();
-    try (MappingIterator<Map<String, String>> iterator =
-        new CsvMapper()
-            .readerForMapOf(String.class)
-            .with(SEMANTIC_PREFIXES_CSV_SCHEMA)
-            .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
-
-      iterator.forEachRemaining(
-          i -> {
-            Namespace namespace =
-                Values.namespace(
-                    i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI));
-            try {
-              Values.iri(namespace, "test");
-            } catch (Exception e) {
-              throw new MolgenisException(
-                  "Unusable IRI found in custom_prefixes of %s: %s,%s"
-                      .formatted(schema.getName(), namespace.getPrefix(), namespace.getName()));
-            }
-            namespaces.add(namespace);
-          });
-    }
-    return namespaces;
-  }
-
   public Set<Namespace> getAllNamespaces() {
     return Set.copyOf(namespaces.values());
-  }
-
-  /**
-   * Support for old semantic format where an IRI did not need to be surrounded by {@code <} and
-   * {@code >}. Note that this old format does not allow sequence paths and assumes the semantic
-   * field contains only 1 semantic part. We should deprecate this ASAP to prevent unexpected
-   * behavior!
-   *
-   * @return the IRI as {@code <R>} or null if there was no legacy format found.
-   */
-  private <R> R legacyMap(final String semantic, Function<String, R> iriOperator) {
-    for (String prefix : LEGACY_FORBIDDEN_PREFIXES) {
-      if (semantic.startsWith(prefix) && !namespaces.containsKey(prefix)) {
-        return iriOperator.apply(semantic);
-      }
-    }
-    return null;
   }
 
   /**
@@ -131,56 +102,17 @@ public class SemanticPrefixes {
    * prefixedNameOperator} respectively.
    */
   private <R> List<R> map(
-      final String semantic,
-      Function<String, R> iriOperator,
-      Function<String, R> prefixedNameOperator) {
-    // Legacy support
-    R sequenceItem = legacyMap(semantic, iriOperator);
-    if (sequenceItem != null) return Collections.singletonList(sequenceItem);
-
-    // New semantic field format.
-    List<R> sequencePath = new ArrayList<>();
-
-    int sequenceItemStart = 0;
-    boolean foundIri = false;
-    int length = semantic.length();
-    for (int i = 0; i < length; i++) {
-      char curChar = semantic.charAt(i);
-
-      switch (curChar) {
-        case '<' -> {
-          if (foundIri)
-            throw new MolgenisException(
-                "Invalid semantic: Found new IRI opening bracket ('<') before previous IRI was closed.");
-          sequenceItemStart = i + 1;
-          foundIri = true;
-        }
-        case '>' -> {
-          if (!foundIri)
-            throw new MolgenisException(
-                "Invalid semantic: IRI closing bracket ('>') without opening bracket ('<').");
-          if (i + 1 != length && semantic.charAt(i + 1) != '/')
-            throw new MolgenisException(
-                "Invalid semantic: Missing sequence path separator ('/') after IRI closing bracket ('>').");
-          sequencePath.add(iriOperator.apply(semantic.substring(sequenceItemStart, i)));
-          sequenceItemStart = i + 2;
-          i++;
-          foundIri = false;
-        }
-        case '/' -> {
-          if (!foundIri) {
-            sequencePath.add(prefixedNameOperator.apply(semantic.substring(sequenceItemStart, i)));
-            sequenceItemStart = i + 1;
-          }
-        }
-      }
-    }
-    // Ensure last item is added when not IRI
-    if (semantic.charAt(length - 1) != '>') {
-      sequencePath.add(prefixedNameOperator.apply(semantic.substring(sequenceItemStart, length)));
-    }
-
-    return sequencePath;
+      final Semantic semantic,
+      final Function<String, R> iriOperator,
+      final Function<String, R> prefixedNameOperator) {
+    return semantic.getSequencePath().stream()
+        .map(
+            sequencePathItem ->
+                sequencePathItem.startsWith("<")
+                    ? iriOperator.apply(
+                        sequencePathItem.substring(1, sequencePathItem.length() - 1))
+                    : prefixedNameOperator.apply(sequencePathItem))
+        .toList();
   }
 
   private IRI processIri(final String semanticPart) {
@@ -208,12 +140,12 @@ public class SemanticPrefixes {
   }
 
   /** Maps a semantic to a list of {@link IRI}{@code s} that represent a sequence path. */
-  public List<IRI> map(final String semantic) {
+  public List<IRI> mapAsIri(final Semantic semantic) {
     return map(semantic, this::processIri, this::processPrefixedName);
   }
 
   /** Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. */
-  public List<String> mapAsStrings(final String semantic) {
+  public List<String> mapAsString(final Semantic semantic) {
     return map(
         semantic,
         iri -> {

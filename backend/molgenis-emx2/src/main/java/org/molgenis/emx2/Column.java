@@ -101,16 +101,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public Column setSemantics(Semantic[] semantics) {
     if (semantics == null || semantics.length == 0) {
       this.semantics = null;
-    } else if (getTable() == null || getTable().getSchema() == null) {
-      // Without knowing the schema, any semantics are allowed.
-      this.semantics = semantics;
     } else {
-      // If schema is set, validate for matching SemanticPrefixes.
-      for (Semantic s : semantics) {
-        if (!s.getPrefixes().equals(getSchema().semanticPrefixes)) {
-          throw new IllegalArgumentException("Semantic prefixes do not match");
-        }
-      }
       this.semantics = semantics;
     }
     return this;
@@ -119,15 +110,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public Column setSemantics(String... semantics) {
     if (semantics == null || semantics.length == 0) {
       this.semantics = null;
-    } else if (getTable() == null || getTable().getSchema() == null) {
-      // Basic semantic functionality only
-      this.semantics = Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
     } else {
-      // Full semantic functionality (allows mapping of schema prefixes on semantic field)
-      this.semantics =
-          Arrays.stream(semantics)
-              .map(semantic -> new Semantic(getSchema().semanticPrefixes, semantic))
-              .toArray(Semantic[]::new);
+      this.semantics = Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
     }
     return this;
   }
