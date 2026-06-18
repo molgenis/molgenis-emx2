@@ -69,6 +69,7 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set oidc.discovery_url=${OIDC_DISCOVERYURL} \
 --set oidc.callback_url=https://${NAME}.dev.molgenis.org \
 --set metrics.enabled=true \
+--set service.url=https://${NAME}.dev.molgenis.org \
 --set image.resourceLimitMemory=${IMAGE_RESOURCE_LIMIT_MEMORY} \
 --set image.resourceRequestMemory=${IMAGE_RESOURCE_REQUEST_MEMORY} \
 --set image.pgResourceLimitMemory=${IMAGE_RESOURCE_PG_LIMIT_MEMORY} \

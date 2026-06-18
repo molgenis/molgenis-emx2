@@ -653,7 +653,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<TableMetadata> getSubclassTables() {
-    List<TableMetadata> result = new ArrayList();
+    List<TableMetadata> result = new ArrayList<>();
     for (TableMetadata table : getSchema().getTables()) {
       if (this.getTableName().equals(table.getInheritName())) {
         result.add(table);
@@ -669,5 +669,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       table = table.getInheritedTable();
     }
     return table;
+  }
+
+  public List<TableMetadata> getInheritanceTree() {
+    List<TableMetadata> result = new ArrayList<>();
+    result.add(this);
+    result.addAll(getSubclassTables());
+    return result;
   }
 }
