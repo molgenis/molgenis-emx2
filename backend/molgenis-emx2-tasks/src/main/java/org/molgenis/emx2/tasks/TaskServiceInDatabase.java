@@ -101,9 +101,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   public ScriptTask getScript(String scriptName) {
     SqlSchema systemSchema = database.getSchema(this.systemSchemaName);
     ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-    return scriptTask
-        .setServerUrl(hostUrl)
-        .token(JWTgenerator.createTemporaryToken(database));
+    return scriptTask.setServerUrl(hostUrl).token(JWTgenerator.createTemporaryToken(database));
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
