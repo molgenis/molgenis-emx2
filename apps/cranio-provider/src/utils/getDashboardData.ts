@@ -53,9 +53,6 @@ export async function getDashboardPage(
             dataPointDescription
             dataPointOrder
           }
-          dashboardPage {
-            name
-          }
         }
       }
     }

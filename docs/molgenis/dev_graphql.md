@@ -1,22 +1,22 @@
 # GraphQL in MOLGENIS
 
-Each schema in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that schema.
-In addition, at the root there is a database-level (instance-wide) API.
+Each database in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that database.
+In addition, at the root there is an instance-wide (root) API that operates across all databases.
 
 For example:
 
-- https://emx2.dev.molgenis.org/api/graphql - root (database-level) API
-- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for schema 'pet store'
+- https://emx2.dev.molgenis.org/api/graphql - root (instance-wide) API
+- https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
 
 Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
 
 - https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for the root API
-- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for schema 'pet store'
+- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for database 'pet store'
 
-> **Terminology:** a **schema** is a single dataset with its own data model and GraphQL endpoint
-> (the API and fields use `schema` / `_schema` / `schemas`). Historically schemas were also called
-> "databases", so you may still encounter that term. The **database-level** (or "root") API operates
-> across the whole instance rather than on one schema.
+> **Terminology:** a **database** is a single dataset with its own data model and GraphQL endpoint.
+> Note that in the GraphQL API itself the fields are named `schema` / `_schema` / `schemas` (the
+> internal name for a database). The **root** (instance-wide) API operates across all databases
+> rather than on a single one.
 
 ## Table of contents
 
@@ -28,7 +28,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
   - [createToken](#createtoken) 
   - [session object](#session-object) 
   - [settings](#settings)
-- [Functions available per schema](#functions-available-per-schema)
+- [Functions available per database](#functions-available-per-database)
   - [query schema](#query-schema)
   - [change schema elements](#change-schema-elements)
   - [drop/remove schema elements](#dropremove-schema-elements)
@@ -40,7 +40,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
 
 ## Functions available on all APIs.
 
-These functionalities are available for both the root (database-level) API and the per-schema API.
+These functionalities are available for both the root (instance-wide) API and the per-database API.
 
 ### Sign in
 
@@ -235,6 +235,10 @@ mutation {
 }
 ```
 
+> **Permissions:** these mutations are subject to authorization — e.g. changing table settings
+> requires update permission on that table, schema settings require the Manager role. See
+> [Permissions](use_permissions.md) for the full model.
+
 User settings (only as admin, or settings of current user):
 
 ```graphql
@@ -247,7 +251,7 @@ mutation {
 }
 ```
 
-## Functions available per schema
+## Functions available per database
 
 ### query schema
 
@@ -359,6 +363,7 @@ effective permissions.
         insert
         update
         delete
+        isRowLevel
       }
     }
   }
@@ -369,6 +374,7 @@ effective permissions.
 - `system: false` — custom role. Each entry in `permissions` targets a specific table.
 - `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
+- `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
 #### Create a custom role and grant permissions
 
@@ -440,7 +446,74 @@ mutation {
 
 This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
 
-#### Delete a custom role
+### Row-level security (RLS)
+
+When `isRowLevel: true` is set on a permission, each row is then only visible to the role whose name is stored in the row's `mg_roles` column.
+
+**How it works:**
+
+- A `mg_roles` column (type `string[]`) is added to the table the first time any role is granted
+  `isRowLevel: true`.
+- A PostgreSQL policy is created that filters rows for SELECT, UPDATE, and DELETE:
+  - Rows where `mg_roles` is `null` (empty) are **not** visible to users who only hold an RLS role.
+    They are visible only to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+  - Rows where `mg_roles` contains a role name are visible only to users who hold that role
+    (or to schema-level Viewer/Editor/Manager/Owner via bypass).
+  - Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) bypass the filter
+    and always see all rows, including those with an empty `mg_roles`.
+  - A user can hold both an RLS role and the schema **Viewer** role simultaneously. In that case the
+    Viewer bypass applies to reads, so they see every row (including those with an empty `mg_roles`);
+    their writes are still restricted to rows tagged with their RLS role.
+
+> **Current limitation:** `mg_roles` is a `string[]` column, but only **one role per row** is
+> currently supported. Do not set multiple values in the array — the behaviour is undefined.
+
+**Enable RLS for a role:**
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TeamA"
+        permissions: [
+          { table: "Articles", select: true, insert: true, update: true, delete: true, isRowLevel: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+**Insert a row restricted to a specific role:**
+
+Set the `mg_roles` field to an array containing exactly one role name when inserting rows.
+
+```graphql
+mutation {
+  Articles(
+    insert: [
+      { id: "a1", title: "Team A only", mg_roles: ["TeamA"] }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+A row tagged with `mg_roles: ["TeamA"]` is visible only to members of `TeamA` (and to users with
+a schema-level Viewer role or higher). A row with no `mg_roles` value is **not** visible to users
+who only hold an RLS role — it is visible exclusively to users with a schema-level role (Viewer,
+Editor, Manager, or Owner).
+
+**Disabling RLS:**
+
+RLS is automatically disabled on a table when the last role with `isRowLevel` access is revoked. The
+`mg_roles` column and its data are retained; only the filtering policy is removed.
+
+### Delete a custom role
 
 ```graphql
 mutation {
@@ -454,6 +527,51 @@ mutation {
 
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
+
+**Deleting an RLS role that is still referenced in `mg_roles`** is blocked. Before the role is
+dropped, every table it has access to is checked for rows that still name the role in `mg_roles`.
+If any such rows are found the operation fails with an error:
+
+> *"Cannot delete role 'X': N row(s) in table 'T' still reference it in mg_roles"*
+
+Clear all `mg_roles` references to the role first (set the field to `null` or reassign to another
+role), then retry the drop.
+
+## change schema elements
+
+You can change objects from schema query above and then pass them into the change function.
+
+```graphql
+mutation{
+    change(
+        tables: [...],
+        members: [...]
+        settings: [...]
+        columns: [...]
+    ){
+        message
+    }
+}
+```
+
+## drop/remove schema elements
+
+Note that settings can be on level of schema, or level of tables. In that later case you need to provide the table as
+well.
+
+```graphql
+mutation {
+  drop(
+    tables: ["table1", "table2"]
+    members: ["email1", "email2"]
+    settings: [{ key: "key1" }, { key: "key2", table: "table1" }]
+    columns: [{ table: "table1", column: "column1" }]
+  ) {
+    message
+  }
+}
+```
+
 
 ## Table query and mutation functions
 
