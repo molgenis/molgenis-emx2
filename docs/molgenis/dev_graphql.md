@@ -363,6 +363,7 @@ effective permissions.
         insert
         update
         delete
+        isRowLevel
       }
     }
   }
@@ -373,6 +374,7 @@ effective permissions.
 - `system: false` — custom role. Each entry in `permissions` targets a specific table.
 - `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
+- `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
 #### Create a custom role and grant permissions
 
@@ -444,7 +446,74 @@ mutation {
 
 This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
 
-#### Delete a custom role
+### Row-level security (RLS)
+
+When `isRowLevel: true` is set on a permission, each row is then only visible to the role whose name is stored in the row's `mg_roles` column.
+
+**How it works:**
+
+- A `mg_roles` column (type `string[]`) is added to the table the first time any role is granted
+  `isRowLevel: true`.
+- A PostgreSQL policy is created that filters rows for SELECT, UPDATE, and DELETE:
+  - Rows where `mg_roles` is `null` (empty) are **not** visible to users who only hold an RLS role.
+    They are visible only to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+  - Rows where `mg_roles` contains a role name are visible only to users who hold that role
+    (or to schema-level Viewer/Editor/Manager/Owner via bypass).
+  - Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) bypass the filter
+    and always see all rows, including those with an empty `mg_roles`.
+  - A user can hold both an RLS role and the schema **Viewer** role simultaneously. In that case the
+    Viewer bypass applies to reads, so they see every row (including those with an empty `mg_roles`);
+    their writes are still restricted to rows tagged with their RLS role.
+
+> **Current limitation:** `mg_roles` is a `string[]` column, but only **one role per row** is
+> currently supported. Do not set multiple values in the array — the behaviour is undefined.
+
+**Enable RLS for a role:**
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TeamA"
+        permissions: [
+          { table: "Articles", select: true, insert: true, update: true, delete: true, isRowLevel: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+**Insert a row restricted to a specific role:**
+
+Set the `mg_roles` field to an array containing exactly one role name when inserting rows.
+
+```graphql
+mutation {
+  Articles(
+    insert: [
+      { id: "a1", title: "Team A only", mg_roles: ["TeamA"] }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+A row tagged with `mg_roles: ["TeamA"]` is visible only to members of `TeamA` (and to users with
+a schema-level Viewer role or higher). A row with no `mg_roles` value is **not** visible to users
+who only hold an RLS role — it is visible exclusively to users with a schema-level role (Viewer,
+Editor, Manager, or Owner).
+
+**Disabling RLS:**
+
+RLS is automatically disabled on a table when the last role with `isRowLevel` access is revoked. The
+`mg_roles` column and its data are retained; only the filtering policy is removed.
+
+### Delete a custom role
 
 ```graphql
 mutation {
@@ -458,6 +527,51 @@ mutation {
 
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
+
+**Deleting an RLS role that is still referenced in `mg_roles`** is blocked. Before the role is
+dropped, every table it has access to is checked for rows that still name the role in `mg_roles`.
+If any such rows are found the operation fails with an error:
+
+> *"Cannot delete role 'X': N row(s) in table 'T' still reference it in mg_roles"*
+
+Clear all `mg_roles` references to the role first (set the field to `null` or reassign to another
+role), then retry the drop.
+
+## change schema elements
+
+You can change objects from schema query above and then pass them into the change function.
+
+```graphql
+mutation{
+    change(
+        tables: [...],
+        members: [...]
+        settings: [...]
+        columns: [...]
+    ){
+        message
+    }
+}
+```
+
+## drop/remove schema elements
+
+Note that settings can be on level of schema, or level of tables. In that later case you need to provide the table as
+well.
+
+```graphql
+mutation {
+  drop(
+    tables: ["table1", "table2"]
+    members: ["email1", "email2"]
+    settings: [{ key: "key1" }, { key: "key2", table: "table1" }]
+    columns: [{ table: "table1", column: "column1" }]
+  ) {
+    message
+  }
+}
+```
+
 
 ## Table query and mutation functions
 
