@@ -225,31 +225,4 @@ public class SemanticPrefixes {
           return prefixedName;
         });
   }
-
-  /**
-   * Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. If a full
-   * IRI is used where a prefixed name could have been used, returns the prefixed name instead.
-   */
-  public List<String> mapAsOptimizedStrings(final String semantic) {
-    return map(
-        semantic,
-        iri -> {
-          processIri(iri);
-          Namespace foundNamespace =
-              namespaces.values().stream()
-                  .filter(namespace -> iri.startsWith(namespace.getName()))
-                  .findFirst()
-                  .orElse(null);
-          return (foundNamespace == null
-              ? "<%s>".formatted(iri)
-              : "%s:%s"
-                  .formatted(
-                      foundNamespace.getPrefix(),
-                      iri.substring(foundNamespace.getName().length())));
-        },
-        prefixedName -> {
-          processPrefixedName(prefixedName);
-          return prefixedName;
-        });
-  }
 }

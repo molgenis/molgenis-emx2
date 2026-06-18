@@ -161,14 +161,6 @@ class SemanticPrefixesTest {
   }
 
   @Test
-  void testSemanticMappingPrefixedName() {
-    List<String> expected = List.of("dcterms:temporal", "dcat:startDate");
-    assertEquals(
-        expected,
-        prefixes.mapAsOptimizedStrings("<http://purl.org/dc/terms/temporal>/dcat:startDate"));
-  }
-
-  @Test
   void retrieveSemanticPrefixesFromSchema() {
     SchemaMetadata schema =
         new SchemaMetadata("mySchema")

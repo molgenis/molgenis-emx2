@@ -44,8 +44,21 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata setSemantics(Semantic[] semantics) {
-    if (semantics == null || semantics.length == 0) this.semantics = null;
-    else this.semantics = semantics;
+    if (semantics == null || semantics.length == 0) {
+      this.semantics = null;
+    }
+    else if(getSchema() == null) {
+      // Without knowing the schema, any semantics are allowed.
+      this.semantics = semantics;
+    } else {
+      // If schema is set, validate for matching SemanticPrefixes.
+      for(Semantic s : semantics) {
+        if(!s.getPrefixes().equals(getSchema().semanticPrefixes)) {
+          throw new IllegalArgumentException("Semantic prefixes do not match");
+        };
+      }
+      this.semantics = semantics;
+    }
     return this;
   }
 

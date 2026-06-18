@@ -22,6 +22,10 @@ public class Semantic {
     this.semantic = requireNonNull(semantic);
   }
 
+  SemanticPrefixes getPrefixes() {
+    return prefixes;
+  }
+
   /**
    * @see SemanticPrefixes#map(String)
    */
@@ -36,14 +40,6 @@ public class Semantic {
   public List<String> asString() {
     if (prefixes == null) throw NO_PREFIXES_EXCEPTION;
     return prefixes.mapAsStrings(semantic);
-  }
-
-  /**
-   * @see SemanticPrefixes#mapAsOptimizedStrings(String)
-   */
-  public List<String> asOptimizedString() {
-    if (prefixes == null) throw NO_PREFIXES_EXCEPTION;
-    return prefixes.mapAsOptimizedStrings(semantic);
   }
 
   /**
