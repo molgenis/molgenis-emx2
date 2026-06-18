@@ -86,3 +86,17 @@ apps/tailwind-components/playwright/.auth/user.json
 .claude
 .playwright-cli
 apps/**/.nuxtrc
+data/models/bge-small-en-onnx/config.json
+data/models/bge-small-en-onnx/model.onnx
+data/models/bge-small-en-onnx/special_tokens_map.json
+data/models/bge-small-en-onnx/tokenizer_config.json
+data/models/bge-small-en-onnx/tokenizer.json
+data/models/bge-small-en-onnx/vocab.txt
+data/models/bge-small-en-v1.5-onnx/config_backup.json
+data/models/bge-small-en-v1.5-onnx/config.json
+data/models/bge-small-en-v1.5-onnx/model_optimized.onnx
+data/models/bge-small-en-v1.5-onnx/model.onnx
+data/models/bge-small-en-v1.5-onnx/special_tokens_map.json
+data/models/bge-small-en-v1.5-onnx/tokenizer_config.json
+data/models/bge-small-en-v1.5-onnx/tokenizer.json
+data/models/bge-small-en-v1.5-onnx/vocab.txt
