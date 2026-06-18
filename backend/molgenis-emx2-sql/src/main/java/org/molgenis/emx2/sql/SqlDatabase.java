@@ -22,7 +22,6 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.molgenis.emx2.utils.RandomString;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,20 +244,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
 
     if (secret == null || secret.getBytes().length < 32) {
-      secret = createJwtSharedSecret();
-    }
-    return secret;
-  }
-
-  private String createJwtSharedSecret() {
-    String secret = new RandomString(32).nextString();
-
-    String callerUser = getActiveUser();
-    try {
-      becomeAdmin();
-      setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
-    } finally {
-      setActiveUser(callerUser);
+      secret = JWTgenerator.generateSharedSecret();
+      String activeUser = getActiveUser();
+      try {
+        becomeAdmin();
+        setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
+      } finally {
+        setActiveUser(activeUser);
+      }
     }
     return secret;
   }
