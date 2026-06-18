@@ -121,6 +121,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       verifyVersion();
+      // the database is assumed initialized; load its settings so getSetting works
+      loadSettings();
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
@@ -744,6 +746,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaNames.clear();
     this.schemaInfos.clear();
 
+    loadSettings();
+  }
+
+  /** (Re)loads the database-level settings from the database into memory, reading them as admin. */
+  private void loadSettings() {
     getJooqAsAdmin(
         adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
   }
