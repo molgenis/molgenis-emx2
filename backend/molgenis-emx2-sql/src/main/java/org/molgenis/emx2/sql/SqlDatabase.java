@@ -237,12 +237,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public String resolveJwtSharedSecret() {
     String secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+
     if (secret == null) {
-      // a lightweight SqlDatabase(false) has not loaded its settings yet; load them as admin
-      clearCache();
-      secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      secret =
+          (String)
+              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
     }
-    // only create when truly absent; an existing valid secret must never be regenerated
+
     if (secret == null || secret.getBytes().length < 32) {
       secret = createJwtSharedSecret();
     }
@@ -250,13 +251,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   private String createJwtSharedSecret() {
-    String envSecret =
-        (String)
-            EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
-    String secret =
-        envSecret != null && envSecret.getBytes().length >= 32
-            ? envSecret
-            : new RandomString(32).nextString();
+    String secret = new RandomString(32).nextString();
 
     String callerUser = getActiveUser();
     try {
