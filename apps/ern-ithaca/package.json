@@ -10,11 +10,11 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "@heroicons/vue": "2.0.18",
+    "@heroicons/vue": "2.2.0",
     "graphql-request": "5.2.0",
+    "graphql-tag": "2.12.6",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
-    "graphql-tag": "2.12.6",
     "vue": "3.5.22",
     "vue-router": "4.4.3"
   },

@@ -57,7 +57,7 @@ importers:
         version: 10.7.0(vue@3.5.22(typescript@5.6.2))
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@4.4.8(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -390,8 +390,8 @@ importers:
   ern-ithaca:
     dependencies:
       '@heroicons/vue':
-        specifier: 2.0.18
-        version: 2.0.18(vue@3.5.22(typescript@5.6.2))
+        specifier: 2.2.0
+        version: 2.2.0(vue@3.5.22(typescript@5.6.2))
       graphql-request:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
@@ -975,7 +975,7 @@ importers:
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@3.21.2(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
+        version: 5.2.2(@nuxt/kit@4.4.8(magicast@0.5.2))(vue@3.5.22(typescript@5.6.2))
       focus-trap:
         specifier: ^8.0.0
         version: 8.0.0
@@ -2047,6 +2047,11 @@ packages:
 
   '@heroicons/vue@2.0.18':
     resolution: {integrity: sha512-BcTC9nq2TkwNSfQuqo96J7ehx4etezypc2YeTq7KsXWxrcrerhkgjLrxGRBnStN0wrXo0Gv4BInybqz5uBG6Cw==}
+    peerDependencies:
+      vue: '>= 3'
+
+  '@heroicons/vue@2.2.0':
+    resolution: {integrity: sha512-G3dbSxoeEKqbi/DFalhRxJU4mTXJn7GwZ7ae8NuEQzd1bqdd0jAbdaBZlHPcvPD2xI1iGzNVB4k20Un2AguYPw==}
     peerDependencies:
       vue: '>= 3'
 
@@ -9771,6 +9776,10 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.2.4)
 
   '@heroicons/vue@2.0.18(vue@3.5.22(typescript@5.6.2))':
+    dependencies:
+      vue: 3.5.22(typescript@5.6.2)
+
+  '@heroicons/vue@2.2.0(vue@3.5.22(typescript@5.6.2))':
     dependencies:
       vue: 3.5.22(typescript@5.6.2)
 
