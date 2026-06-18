@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TableQueryGeneratorTest {
@@ -225,7 +224,7 @@ class TableQueryGeneratorTest {
   @Test
   void shouldSetUpPrefixes() {
     SelectQuery select = Queries.SELECT();
-    new NamespaceMapper(order.getSchema()).getAllNamespaces().forEach(select::prefix);
+    order.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
 
     String prefixes = select.getQueryString().replace("SELECT * \n" + "WHERE {}", "").trim();
     TableQueryGenerator generator = new TableQueryGenerator();
