@@ -22,6 +22,14 @@ The app has the following pages. There are several _mini dashboards_ that are sp
             - Surgical overview
     - Cleft lip and palate
         - Overview for the current center
+        - Level 1
+        - Level 2
+    - Facial Dysostosis
+        - Level 1
+        - Level 2
+    - Craniofacial Microsomia
+        - Level 1
+        - Level 2
     - Genetic hearing loss
         - All centers overview
         - Your center overview
@@ -53,6 +61,33 @@ This information is also used to format the API endpoints which eliminates the n
 ```
 
 If there are any issues with the configuration, an error will be displayed and the app will not be displayed.
+
+### Level 1 and 2 pages
+
+In several of the _mini dashboards_ for the diagnostic workstreams, there are level 1 and level 2 pages. These views show results of questionnaires that are completed by the ERN participants. The visualisations on these pages show the results of the center against the ERN as a whole and they use the same chart type. Since the requirements are the same, it was decided to make a layout component that generates the pages using a few parameters. This allows us to move the generation of these charts to the database as opposed to hardcoding them in the frontend (this could be quite intensive if there are 15+ charts per level).
+
+#### How to configure the level templates
+
+This configuration of the templates is quite flexible. The only value that is hardcoded is the page name. The current values are:
+
+- `Cleft lip and palate level 1`
+- `Craniofacial microsomia level 1`
+- `Facial dysostosis level 1`
+
+The template will render all charts that are defined in the `Charts` table and linked to the a dashboard page. If you remove the link between a chart and page, then it won't be rendered.
+
+Next, follow these steps.
+
+1. Create a new chart in the `Charts` and link it to the relevant page.
+2. Create data points in the `Chart data` table. Link these records to the chart created in the previous step.
+3. Data should at a minimum, have the following values:
+    a. `data point name`: which are the age groups defined by the project 0-2 years, 3-4 years, 5-7 years, 8-9 years, 10-13 years, 14-16 years, 17+ years
+    b. `data point value`: the count of participants
+    c. `data point primary category` (optional): place cleft type values here if you need filters
+    d. `data point secondary category`: should always be `Your center`
+    e. `data point order`: the order in which the values should be sorted
+    f. `included in chart`: link to the chart
+4. Create new entries in the `Dashboard` schema for ERN-wide aggregations. The only difference is that `data point secondary category` must be `ERN`
 
 ## Getting started
 

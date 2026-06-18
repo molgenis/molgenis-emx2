@@ -1,13 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
-import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 
 import java.util.*;
@@ -22,6 +19,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
   private List<String> rolesCache = null;
+  // cache for the active user's table permissions, indexed by table name (insertion order
+  // preserved)
+  private Map<String, TablePermission> permissionsByTableCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -82,6 +82,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
+    this.permissionsByTableCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -176,7 +177,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
+    if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
       getDatabase()
           .tx(
               db -> {
@@ -248,7 +249,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     User user = getDatabase().getUser(username);
     if (user.isAdmin()) {
       // admin has all roles
-      return executeGetRoles(getJooq(), getName());
+      return getDatabase().getRoleManager().getRoleNames(getName());
     }
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
@@ -269,11 +270,30 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return rolesCache;
   }
 
+  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
+    // cached because per-table lookups in PermissionEvaluator are called very often during query
+    // and schema building; is cleared along with rolesCache in reload()
+    if (permissionsByTableCache == null) {
+      Map<String, TablePermission> byTable = new LinkedHashMap<>();
+      for (TablePermission p :
+          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
+        byTable.putIfAbsent(p.table(), p);
+      }
+      permissionsByTableCache = Collections.unmodifiableMap(byTable);
+    }
+    return permissionsByTableCache;
+  }
+
+  public List<TablePermission> getPermissionsForActiveUser() {
+    return List.copyOf(getPermissionsByTableForActiveUser().values());
+  }
+
   public String getRoleForUser(String user) {
+    SqlRoleManager roleManager = getDatabase().getRoleManager();
     if (user == null) user = ANONYMOUS;
     user = user.trim();
-    for (Member m : executeGetMembers(getJooq(), this)) {
-      if (m.getUser().equals(user)) return m.getRole();
+    for (Member m : roleManager.getMembers(getName())) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();
     }
     return null;
   }

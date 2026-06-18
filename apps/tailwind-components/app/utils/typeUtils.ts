@@ -267,3 +267,13 @@ export function parseLinkSetting(linkSetting: string): Link {
       linkSettingObject.isSpaLink === true,
   };
 }
+
+export function getIntInput(inputValue?: string | number | null) {
+  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
+    return inputValue;
+  } else {
+    const numericValue =
+      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
+    return numericValue;
+  }
+}

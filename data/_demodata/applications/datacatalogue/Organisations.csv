@@ -9,10 +9,10 @@ OOM,BBMRI-ERIC,Organisation,,Biobanking and Biomolecular Resources Research Infr
 FORCE-NEN,AmsterdamUMC (VUmc),Organisation,,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,,test@email.com,,,,Amsterdam UMC Location Vrije Universiteit Amsterdam,https://ror.org/00q6h8f30,https://vumc.nl,false,
 FORCE-NEN collections,AmsterdamUMC (VUmc),Organisation,,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,,test@email.com,,,,Amsterdam UMC Location Vrije Universiteit Amsterdam,https://ror.org/00q6h8f30,https://vumc.nl,false,
 PSYCONN,Lentis Research,Organisation,,Lentis,,,,test@email.com,,,,Lentis,https://ror.org/00t93jm73,https://www.lentis.nl/,true,
-testCohort2,UMCU,Organisation,,University Medical Center Utrecht,,,,test@email.com,7ae000c0426946209404493371e33377,23111b86fa854eaf90c9e262a7b5f930.jpg,Data provider,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl,true,
-testCohort1,UMCU,Organisation,,University Medical Center Utrecht,,,,test@email.com,d4b566a3ca814f75a75f7410b7f456f8,b31b1a4ebb6b4a29a32268fa1f42f7ea.jpg,"Researcher,Surveillance",University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl,false,
-testCohort2,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,7c5a586c66744471b2b3c610cc1dfc9e,1d4a83226bf448968ed39740f0a2439d.jpg,"Data provider,Surveillance",University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,false,
-testCohort1,EMC,Organisation,,Erasmus MC,,,,test@email.com,9e9be3caf2284bd38889c4075320f62b,1d4a83226bf448968ed39740f0a2439d.jpg,"Data provider,Surveillance",Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl,false,
+testCohort2,UMCU,Organisation,,University Medical Center Utrecht,,,,test@email.com,2727df32a738449db114166f168f3ab7,23111b86fa854eaf90c9e262a7b5f930.jpg,Data provider,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl,true,
+testCohort1,UMCU,Organisation,,University Medical Center Utrecht,,,,test@email.com,0a1e73fbb3ab44a8b7a398ae9de0f521,b31b1a4ebb6b4a29a32268fa1f42f7ea.jpg,"Researcher,Surveillance",University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl,false,
+testCohort2,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,88be03e2fe244ac19a46d2a7db1d4f86,1d4a83226bf448968ed39740f0a2439d.jpg,"Data provider,Surveillance",University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,false,
+testCohort1,EMC,Organisation,,Erasmus MC,,,,test@email.com,45167026a473407fa898d2f5f0cd5425,1d4a83226bf448968ed39740f0a2439d.jpg,"Data provider,Surveillance",Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl,false,
 IPEC,Lentis Research,Organisation,,Lentis,,,,test@email.com,,,,Lentis,https://ror.org/00t93jm73,https://www.lentis.nl/,false,
 PSYCONN,GGZ Drenthe,Organisation,,GGZ Drenthe,,,,test@email.com,,,,GGZ Drenthe,https://ror.org/0107rkg57,https://www.ggzdrenthe.nl/,true,
 IPEC,GGZ Drenthe,Organisation,,GGZ Drenthe,,,,test@email.com,,,,GGZ Drenthe,https://ror.org/0107rkg57,https://www.ggzdrenthe.nl/,false,
@@ -32,6 +32,7 @@ SEA,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,"Re
 SPF,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,"Researcher,Surveillance",Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/,true,
 OOM,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,"Researcher,Surveillance",Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/,false,
 testNetwork1,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/,false,
+FORCE-NEN,Maxima MC,Organisation,,Máxima Medisch Centrum,,,,test@email.com,,,,Máxima Medisch Centrum,https://ror.org/02x6rcb77,http://expats.mmc.nl/,false,
 testNetwork2,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/,false,
 testNetworkofNetworks,CNR-IFC,Organisation,,Istituto di Fisiologia Clinica,,,,test@email.com,,,,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/,false,
 SWS,Soton,Organisation,,University of Southampton,,,,test@email.com,,,,University of Southampton,https://ror.org/01ryk1543,http://www.southampton.ac.uk/,true,
@@ -44,15 +45,12 @@ ACCESS,LIPRE,Organisation,,Leibniz Institute for Prevention Research and Epidemi
 OOM,LIPRE,Organisation,,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,,test@email.com,,,,Leibniz Institute for Prevention Research and Epidemiology - BIPS,https://ror.org/02c22vc57,https://www.bips-institut.de/en/home.html,false,
 FORCE-NEN,MUMC,Organisation,,Maastricht University Medical Centre,,,,test@email.com,,,,Maastricht University Medical Centre,https://ror.org/02d9ce178,https://www.mumc.nl,false,
 FORCE-NEN collections,MUMC,Organisation,,Maastricht University Medical Centre,,,,test@email.com,,,,Maastricht University Medical Centre,https://ror.org/02d9ce178,https://www.mumc.nl,false,
-TestDataSourceID,UCL,Organisation,,University College London,,,,test@email.com,,,,University College London,https://ror.org/02jx3x895,http://www.ucl.ac.uk/,false,
 OOM,SAN,Organisation,,Sanofi (France),,,,test@email.com,,,,Sanofi (France),https://ror.org/02n6c9837,http://en.sanofi.com/,false,
 CONSTANCES,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,true,
 EDEN,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,true,
 ELFE,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,true,
 PELAGIE,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,true,
 Sepages,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,true,
-TestDataSourceID,INSERM,Organisation,,Inserm,,,,test@email.com,,,,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,false,
-FORCE-NEN,Maxima MC,Organisation,,Máxima Medisch Centrum,,,,test@email.com,,,,Máxima Medisch Centrum,https://ror.org/02x6rcb77,http://expats.mmc.nl/,false,
 FORCE-NEN collections,Maxima MC,Organisation,,Máxima Medisch Centrum,,,,test@email.com,,,,Máxima Medisch Centrum,https://ror.org/02x6rcb77,http://expats.mmc.nl/,false,
 OOM,IHD,Organisation,,Duke Institute for Health Innovation,,,,test@email.com,,,,Duke Institute for Health Innovation,https://ror.org/031n1rn61,http://www.dihi.org/,false,
 CELSPAC-TNG,RECETOX,Organisation,,RECETOX,,,,test@email.com,,,,RECETOX,https://ror.org/032hzqh22,https://www.recetox.muni.cz,true,
@@ -154,8 +152,8 @@ ACCESS,UB,Organisation,,Université de Bordeaux,,,,test@email.com,,,Researcher,U
 OOM,UB,Organisation,,Université de Bordeaux,,,,test@email.com,,,Researcher,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr,false,
 OOM,UCB,Organisation,,Université de Bordeaux,,,,test@email.com,,,,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr,false,
 OOM,ARS.TOSCANA,Organisation,,Agenzia Regionale di Sanità della Toscana,,,,test@email.com,,,,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/,false,
-testCohort1,LUMC,Organisation,,Leiden University Medical Center,,,,test@email.com,653af6b84ed94a6fbec96f811df4299b,23111b86fa854eaf90c9e262a7b5f930.jpg,"Data provider,Other",Leiden University Medical Center,https://ror.org/05xvt9f17,https://www.lumc.nl,true,false
-testCohort1,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,1433a47ade624a84b23167b2021ed410,32ef0717dee240b5a7ffddf1c37e2d15.jpg,"Data originator,Data holder,Data provider,Researcher,Surveillance,Other",University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,
+testCohort1,LUMC,Organisation,,Leiden University Medical Center,,,,test@email.com,b82f22fd4cc8422981eee14598fb8230,23111b86fa854eaf90c9e262a7b5f930.jpg,"Data provider,Other",Leiden University Medical Center,https://ror.org/05xvt9f17,https://www.lumc.nl,true,false
+testCohort1,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,673fb4ce1b02496984042f91747fda02,32ef0717dee240b5a7ffddf1c37e2d15.jpg,"Data originator,Data holder,Data provider,Researcher,Surveillance,Other",University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,
 MOLGENIS,UMCG_org,Organisation,,University Medical Center Groningen,,Genomics Coordination Center,,info@umcg.nl,,,,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,false
 OOM,UiO,Organisation,,University of Oslo,,,,test@email.com,,,,University of Oslo,https://ror.org/01xtthb56,http://www.uio.no/english/,false,
 OOM,ULST,Organisation,,University of Ulster,,,,test@email.com,,,,University of Ulster,https://ror.org/01yp9g959,https://www.ulster.ac.uk,false,
@@ -177,7 +175,6 @@ testNetwork1,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@emai
 testNetwork2,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,false,
 testNetworkofNetworks,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,false,
 ABCD,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,true,
-TestDataSourceID,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,true,
 DFBC,Amsterdam UMC (AMC),Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,true,
 testNetwork2,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://placeholderpid,https://test-website.org,false,false
 testNetworkofNetworks,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://placeholderpid,https://test-website.org,false,false
@@ -185,3 +182,8 @@ testNetwork1,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://pl
 OOM,MLT.I,Organisation,,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,,test@email.com,,,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,https://placeholderpid,https://test-website.org,false,false
 UMCG,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,,,Data originator,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,
 testUMC,TUMC,Organisation,,,testUMC,,,test@email.com,,,Data holder,testUMC,https://placeholderpid,https://test-umc@example.org,false,
+TestDataSourceID,UCL,Organisation,,University College London,,,,test@email.com,,,Researcher,University College London,https://ror.org/02jx3x895,http://www.ucl.ac.uk/,false,
+TestDataSourceID,INSERM,Organisation,,Inserm,,,,test@email.com,,,Researcher,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr,false,
+TestDataSourceID,AMC,Organisation,,Amsterdam University Medical Centers,,,,test@email.com,,,Data originator,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org,true,
+TestDatabank1,UMCG,Organisation,,University Medical Center Groningen,,Genomics Coordination Center,,test@email.com,,,Data originator,University Medical Center Groningen,https://roridtest.org,https://testwebsite.org,true,false
+TestDatabank2,UMCU,Organisation,,University Medical Center Utrecht,,Julius center,,test@umcu.nl,,,Data originator,University Medical Center Utrecht,https://roridtest.org,https://testwebsite.org,false,false

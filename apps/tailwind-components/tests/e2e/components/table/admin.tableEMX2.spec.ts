@@ -3,7 +3,7 @@ import { expect, test } from "@nuxt/test-utils/playwright";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test.use({ storageState: "playwright/.auth/user.json" });
