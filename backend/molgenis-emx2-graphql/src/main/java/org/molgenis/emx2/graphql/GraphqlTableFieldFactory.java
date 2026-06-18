@@ -12,7 +12,6 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
-import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;

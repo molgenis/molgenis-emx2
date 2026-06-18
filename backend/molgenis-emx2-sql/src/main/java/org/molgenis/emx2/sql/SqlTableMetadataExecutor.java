@@ -296,6 +296,9 @@ class SqlTableMetadataExecutor {
           ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
+      // drop RLS policies before columns, as policies may depend on the mg_roles column
+      SqlRoleManager.dropRlsPolicies(jooq, getJooqTable(table));
+
       // drop all triggers from all columns
       List<Column> columns = table.getStoredColumns();
       sortColumnsByDependency(columns);

@@ -6,6 +6,7 @@ public class TablePermission {
   private Boolean insert;
   private Boolean update;
   private Boolean delete;
+  private Boolean isRowLevel;
 
   public TablePermission(String table) {
     this.table = table;
@@ -31,6 +32,10 @@ public class TablePermission {
     return delete;
   }
 
+  public Boolean isRowLevel() {
+    return isRowLevel;
+  }
+
   public boolean hasSelect() {
     return Boolean.TRUE.equals(select);
   }
@@ -45,6 +50,18 @@ public class TablePermission {
 
   public boolean hasDelete() {
     return Boolean.TRUE.equals(delete);
+  }
+
+  public boolean hasRowLevel() {
+    return Boolean.TRUE.equals(isRowLevel);
+  }
+
+  public boolean hasAny() {
+    return hasSelect() || hasInsert() || hasUpdate() || hasDelete();
+  }
+
+  public boolean hasModify() {
+    return hasInsert() || hasUpdate() || hasDelete();
   }
 
   public TablePermission select(Boolean select) {
@@ -64,6 +81,11 @@ public class TablePermission {
 
   public TablePermission delete(Boolean delete) {
     this.delete = delete;
+    return this;
+  }
+
+  public TablePermission rowLevel(Boolean isRowLevel) {
+    this.isRowLevel = isRowLevel;
     return this;
   }
 }
