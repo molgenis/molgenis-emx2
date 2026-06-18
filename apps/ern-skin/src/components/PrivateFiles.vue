@@ -3,15 +3,20 @@
     <p><strong>Unable to get active user: </strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!user && !error" class="study-list-error">
+  <MessageBox
+    type="error"
+    v-else-if="!user && !error && !loading"
+    class="study-list-error"
+  >
     <p><strong>No active user found</strong></p>
   </MessageBox>
   <p v-if="user !== 'anonymous' && user">
     <FileList
       table="Files"
-      filter='filter: { tags: { equals: "private" } }'
+      :filter="filterArgument"
       labelsColumn="name"
       fileColumn="file"
+      :key="filterKey"
     />
   </p>
 </template>
@@ -21,11 +26,27 @@
 import { FileList, MessageBox } from "molgenis-viz";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+
+const props = defineProps<{ labelValue?: string }>();
+
+const filterArgument = computed(() => {
+  let filter = 'filter: { tags: { equals: "private" }';
+  if (props.labelValue) {
+    filter += `, label: { equals: "${props.labelValue}" }`;
+  }
+
+  filter += " }";
+
+  return filter;
+});
 
 const error = ref<Error | null>(null);
 const loading = ref(true);
 const user = ref<string | null>(null);
+
+// Special key to re-trigger getting data if labelFilter part changes
+const filterKey = computed(() => JSON.stringify(filterArgument.value));
 
 async function getSession() {
   const query = gql`

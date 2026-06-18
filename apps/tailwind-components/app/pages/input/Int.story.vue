@@ -18,5 +18,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const demoValue = ref<string | number>();
+const demoValue = ref<string | number | null | undefined>();
 </script>

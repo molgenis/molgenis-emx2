@@ -55,6 +55,8 @@ spec:
               value: {{ .Values.directory.includeDirectoryDemo | quote }}
             - name: MOLGENIS_METRICS_ENABLED
               value: {{ .Values.metrics.enabled | quote }}
+            - name: MOLGENIS_SERVICE_URL
+              value: {{ .Values.service.url | quote }}
 {{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
