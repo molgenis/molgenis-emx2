@@ -438,4 +438,16 @@ describe("SidebarContent", () => {
     const labelHost = wrapper.find('[aria-label="Publisher / Country"]');
     expect(labelHost.exists()).toBe(true);
   });
+
+  it("Customize button is clustered left with Filters title (not pushed right)", () => {
+    const wrapper = mountSidebarContent(["col1"]);
+    const header = wrapper.find(".flex.items-center.justify-between");
+    expect(header.exists()).toBe(true);
+    const leftCluster = header.find(".flex.items-center.gap-3");
+    expect(leftCluster.exists()).toBe(true);
+    const customizeBtn = leftCluster
+      .findAll("button")
+      .find((b) => b.text().toLowerCase().includes("customize"));
+    expect(customizeBtn).toBeDefined();
+  });
 });

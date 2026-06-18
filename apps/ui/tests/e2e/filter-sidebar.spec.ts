@@ -79,7 +79,7 @@ test.describe("filter sidebar", () => {
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(3000);
 
-    const searchInput = page.locator('input[placeholder="Search..."]');
+    const searchInput = page.locator("input#search-input");
     await expect(searchInput).toBeVisible();
 
     await searchInput.fill("test");

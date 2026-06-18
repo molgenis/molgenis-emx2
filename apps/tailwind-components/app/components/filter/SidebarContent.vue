@@ -63,8 +63,8 @@ function handlePickerApply(
 </script>
 
 <template>
-  <div class="px-5 pt-3 pb-3 flex items-center gap-2">
-    <div class="flex items-center justify-between grow">
+  <div class="px-5 pt-3 pb-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
       <h2
         class="font-display text-heading-3xl text-search-filter-title font-bold uppercase"
       >

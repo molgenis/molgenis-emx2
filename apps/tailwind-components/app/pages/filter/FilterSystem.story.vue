@@ -10,7 +10,7 @@
     </label>
 
     <div class="flex gap-6">
-      <Sidebar>
+      <Sidebar :collapsed="false" :active-filter-count="0">
         <FilterSidebarContent
           :filters="mockFilters"
           :columns="columns"

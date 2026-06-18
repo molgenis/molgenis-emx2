@@ -25,14 +25,6 @@
         />
 
         <Button
-          v-if="enableFilters"
-          type="outline"
-          :icon="sidebarCollapsed ? 'FilterAlt' : 'FilterAltOff'"
-          @click="sidebarCollapsed = !sidebarCollapsed"
-          >{{ sidebarCollapsed ? "Show filters" : "Hide filters" }}</Button
-        >
-
-        <Button
           v-if="data?.tableMetadata"
           type="outline"
           :href="`/${schemaId}/api/csv/${tableId}`"
@@ -46,10 +38,18 @@
       </div>
     </div>
 
-    <div :class="{ 'flex gap-6': enableFilters }">
+    <div
+      :class="{
+        flex: enableFilters,
+        'overflow-hidden': enableFilters,
+        'gap-6': enableFilters,
+      }"
+    >
       <Sidebar
-        v-if="enableFilters && filters && !sidebarCollapsed"
-        class="lg:-ml-[30px]"
+        v-if="enableFilters && filters"
+        :collapsed="sidebarCollapsed"
+        :active-filter-count="filters.activeFilters.value.length"
+        @update:collapsed="sidebarCollapsed = $event"
       >
         <FilterSidebarContent
           :filters="filters"
