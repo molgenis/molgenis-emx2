@@ -44,15 +44,6 @@ vi.mock("../../../../app/components/BaseIcon.vue", () => ({
   },
 }));
 
-vi.mock("../../../../app/components/input/Search.vue", () => ({
-  default: {
-    name: "InputSearch",
-    props: ["modelValue", "placeholder", "aria-label"],
-    emits: ["update:modelValue"],
-    template: '<input data-testid="search-input" type="search" />',
-  },
-}));
-
 function synthesizeMockColumn(
   id: string,
   nestedMeta: Map<string, NestedColumnMeta>
@@ -153,11 +144,6 @@ function mountSidebarContent(
 }
 
 describe("SidebarContent", () => {
-  it("renders search input", () => {
-    const wrapper = mountSidebarContent(["col1"]);
-    expect(wrapper.find('[data-testid="search-input"]').exists()).toBe(true);
-  });
-
   it("renders collapsible sections for visible filters", () => {
     const wrapper = mountSidebarContent(["col1", "col2", "col3"]);
     const sections = wrapper.findAll('[aria-controls^="filter-section-"]');
@@ -254,26 +240,6 @@ describe("SidebarContent", () => {
     const wrapper = mountSidebarContent(["col1", "col2", "col3"]);
     const hrs = wrapper.findAll("hr");
     expect(hrs.length).toBe(3);
-  });
-
-  it("calls setSearch when search value changes (after debounce)", async () => {
-    vi.useFakeTimers();
-    const filters = makeFilters(["col1"]);
-    const columns = makeColumns(["col1"]);
-    const wrapper = mount(SidebarContent, {
-      props: { filters, columns, schemaId: "test", tableId: "TestTable" },
-    });
-    await wrapper.vm.$nextTick();
-
-    const searchInput = wrapper.findComponent({ name: "InputSearch" });
-    await searchInput.vm.$emit("update:modelValue", "hello");
-
-    expect(filters.setSearch).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(500);
-
-    expect(filters.setSearch).toHaveBeenCalledWith("hello");
-    vi.useRealTimers();
   });
 
   it("calls setFilter when Column emits update", async () => {

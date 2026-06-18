@@ -1,28 +1,13 @@
 <template>
   <div>
     <div class="flex pb-[30px] justify-between">
-      <div class="flex gap-[10px]">
-        <Button
-          v-if="enableFilters"
-          type="outline"
-          :icon="sidebarCollapsed ? 'FilterAlt' : 'FilterAltOff'"
-          @click="sidebarCollapsed = !sidebarCollapsed"
-          >{{ sidebarCollapsed ? "Show filters" : "Hide filters" }}</Button
-        >
-        <TableControlColumns
-          :columns="columns"
-          @update:columns="handleColumnsUpdate"
-        />
-        <InputSearch
-          v-if="!enableFilters && !props.hideSearch"
-          class="w-3/5 xl:w-2/5 2xl:w-1/5"
-          v-model="settings.search"
-          @update:modelValue="handleSearchRequest"
-          :placeholder="`Search ${props.tableId}`"
-          id="search-input"
-        />
-        <slot name="toolbar-end" />
-      </div>
+      <InputSearch
+        v-if="!props.hideSearch"
+        class="w-3/5 xl:w-2/5 2xl:w-1/5"
+        v-model="searchValue"
+        :placeholder="`Search ${props.tableId}`"
+        id="search-input"
+      />
 
       <div class="flex gap-[10px]">
         <Button
@@ -34,6 +19,19 @@
           Add {{ tableId }}
         </Button>
 
+        <TableControlColumns
+          :columns="columns"
+          @update:columns="handleColumnsUpdate"
+        />
+
+        <Button
+          v-if="enableFilters"
+          type="outline"
+          :icon="sidebarCollapsed ? 'FilterAlt' : 'FilterAltOff'"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+          >{{ sidebarCollapsed ? "Show filters" : "Hide filters" }}</Button
+        >
+
         <Button
           v-if="data?.tableMetadata"
           type="outline"
@@ -43,6 +41,8 @@
         >
           Download
         </Button>
+
+        <slot name="toolbar-end" />
       </div>
     </div>
 
@@ -273,11 +273,23 @@ export function resolveEmptyRowsLabel(hasFiltersOrSearch: boolean): string {
     ? "No data matched the filters"
     : "No records found";
 }
+
+export function routeSearchValue(
+  val: string,
+  enableFilters: boolean,
+  setSearch: ((v: string) => void) | null,
+  handleSearch: (v: string) => void
+): void {
+  if (enableFilters && setSearch) {
+    setSearch(val);
+  } else {
+    handleSearch(val);
+  }
+}
 </script>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
-import { useDebounceFn } from "@vueuse/core";
 import type {
   columnValue,
   IColumn,
@@ -386,6 +398,21 @@ if (filters) {
     }
   );
 }
+
+const searchValue = computed({
+  get: () =>
+    props.enableFilters && filters
+      ? filters.searchValue.value
+      : settings.value.search,
+  set: (val: string) => {
+    routeSearchValue(
+      val,
+      props.enableFilters,
+      filters ? filters.setSearch : null,
+      handleSearchRequest
+    );
+  },
+});
 
 const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
@@ -556,14 +583,11 @@ function getDirection(columnId: string): sortDirection {
   }
 }
 
-const handleSearchRequest = useDebounceFn(
-  (search: string | number | undefined) => {
-    settings.value.search = search == null ? "" : String(search);
-    settings.value.page = 1;
-    refresh();
-  },
-  500
-);
+function handleSearchRequest(search: string) {
+  settings.value.search = search;
+  settings.value.page = 1;
+  refresh();
+}
 
 const smallestPageSize = computed(() =>
   Math.min(...constants.PAGE_SIZE_OPTIONS)

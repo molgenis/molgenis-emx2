@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, useId } from "vue";
-import { useDebounceFn } from "@vueuse/core";
+import { ref, computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { UseFilters, NestedColumnMeta } from "../../../types/filters";
-import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import BaseIcon from "../BaseIcon.vue";
-import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
 import Column from "./Column.vue";
 import Picker from "./Picker.vue";
@@ -18,29 +15,7 @@ const props = defineProps<{
   tableId: string;
 }>();
 
-const searchInputId = useId();
 const pickerOpen = ref(false);
-
-const localSearchInput = ref(props.filters.searchValue.value ?? "");
-
-watch(
-  () => props.filters.searchValue.value,
-  (val) => {
-    localSearchInput.value = val ?? "";
-  }
-);
-
-const debouncedSetSearch = useDebounceFn((val: string) => {
-  props.filters.setSearch(val);
-}, FILTER_DEBOUNCE);
-
-const searchValue = computed({
-  get: () => localSearchInput.value,
-  set: (val: string) => {
-    localSearchInput.value = val;
-    debouncedSetSearch(val);
-  },
-});
 
 function isNestedPending(id: string): boolean {
   return (
@@ -105,14 +80,6 @@ function handlePickerApply(
         Customize
       </button>
     </div>
-  </div>
-
-  <div class="px-5 pb-4">
-    <InputSearch
-      :id="searchInputId"
-      v-model="searchValue"
-      placeholder="Search..."
-    />
   </div>
 
   <template
