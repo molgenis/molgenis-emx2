@@ -287,7 +287,7 @@ class TestTableRoleManagement {
     schema.addMember(USER_VIEWER, "ActiveUserRole");
 
     database.setActiveUser(USER_VIEWER);
-    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    List<TablePermission> perms = database.getSchema(SCHEMA).getUserPermissions().getAll();
     assertEquals(1, perms.size());
     TablePermission p = perms.getFirst();
     assertEquals(TABLE_B, p.table());
@@ -305,7 +305,7 @@ class TestTableRoleManagement {
     schema.addMember(USER_NO_ACCESS, "NoGrantRole");
 
     database.setActiveUser(USER_NO_ACCESS);
-    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    List<TablePermission> perms = database.getSchema(SCHEMA).getUserPermissions().getAll();
     assertTrue(
         perms.isEmpty() || perms.stream().noneMatch(p -> Boolean.TRUE.equals(p.select())),
         "User with no grants should have no select permissions");
@@ -321,7 +321,7 @@ class TestTableRoleManagement {
     schema.addMember(USER_EDITOR, "MergeGrantRole");
 
     database.setActiveUser(USER_EDITOR);
-    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    List<TablePermission> perms = database.getSchema(SCHEMA).getUserPermissions().getAll();
     TablePermission merged =
         perms.stream()
             .filter(p -> TABLE_A.equals(p.table()))
@@ -360,7 +360,7 @@ class TestTableRoleManagement {
     // every user inherits anonymous privileges via PostgreSQL role inheritance,
     // so the user should see merged permissions: select from anonymous + insert from InsertOnly
     database.setActiveUser(USER_VIEWER);
-    List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
+    List<TablePermission> perms = database.getSchema(SCHEMA).getUserPermissions().getAll();
     TablePermission merged =
         perms.stream()
             .filter(p -> TABLE_A.equals(p.table()))
