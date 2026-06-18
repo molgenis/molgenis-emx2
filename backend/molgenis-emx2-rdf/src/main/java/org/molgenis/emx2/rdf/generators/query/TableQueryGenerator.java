@@ -90,11 +90,11 @@ public class TableQueryGenerator implements QueryGenerator {
             .getSemantics()
             .orElseThrow(() -> new IllegalStateException("Table semantic not found"));
     if (tableSemantics.length == 1) {
-      select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0].asOptimizedString().getFirst()));
+      select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0].asString().getFirst()));
     } else if (tableSemantics.length > 1) {
       RdfValue[] semantics =
           Arrays.stream(tableSemantics)
-              .map(semantic -> (RdfValue) () -> semantic.asOptimizedString().getFirst())
+              .map(semantic -> (RdfValue) () -> semantic.asString().getFirst())
               .toArray(RdfValue[]::new);
 
       select

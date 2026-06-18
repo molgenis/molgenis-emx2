@@ -68,7 +68,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
       return multiSemanticPattern();
     }
 
-    String semantic = semantics[0].asOptimizedString().getFirst();
+    String semantic = semantics[0].asString().getFirst();
     GraphPattern pattern = GraphPatterns.tp(subject, Rdf.iri(semantic), object);
 
     return List.of(isRequired ? pattern : pattern.optional());
@@ -83,7 +83,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
         .ifPresent(
             semantics -> {
               for (int i = 0; i < semantics.length; i++) {
-                String semantic = semantics[0].asOptimizedString().getFirst();
+                String semantic = semantics[0].asString().getFirst();
                 Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
                 GraphPattern pattern =

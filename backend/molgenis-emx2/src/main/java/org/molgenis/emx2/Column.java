@@ -8,8 +8,6 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.eclipse.rdf4j.model.Namespace;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -103,16 +101,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   public Column setSemantics(Semantic[] semantics) {
     if (semantics == null || semantics.length == 0) {
       this.semantics = null;
-    }
-    else if(getTable() == null || getTable().getSchema() == null) {
+    } else if (getTable() == null || getTable().getSchema() == null) {
       // Without knowing the schema, any semantics are allowed.
       this.semantics = semantics;
     } else {
       // If schema is set, validate for matching SemanticPrefixes.
-      for(Semantic s : semantics) {
-        if(!s.getPrefixes().equals(getSchema().semanticPrefixes)) {
+      for (Semantic s : semantics) {
+        if (!s.getPrefixes().equals(getSchema().semanticPrefixes)) {
           throw new IllegalArgumentException("Semantic prefixes do not match");
-        };
+        }
       }
       this.semantics = semantics;
     }
