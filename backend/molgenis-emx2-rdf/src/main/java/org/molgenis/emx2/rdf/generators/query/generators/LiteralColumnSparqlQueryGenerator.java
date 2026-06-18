@@ -68,6 +68,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
       return multiSemanticPattern();
     }
 
+    // todo: Add support for sequence paths (now uses first item and ignores rest)
     String semantic = semantics[0].asString().getFirst();
     GraphPattern pattern = GraphPatterns.tp(subject, Rdf.iri(semantic), object);
 
@@ -83,6 +84,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
         .ifPresent(
             semantics -> {
               for (int i = 0; i < semantics.length; i++) {
+                // todo: Add support for sequence paths (now uses first item and ignores rest)
                 String semantic = semantics[0].asString().getFirst();
                 Variable alias = SparqlBuilder.var(object.getVarName() + i);
 

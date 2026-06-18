@@ -73,6 +73,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
         .ifPresent(
             semantics -> {
               for (Semantic semantic : semantics) {
+                // todo: Add support for sequence paths (now uses first item and ignores rest)
                 getWriter().processTriple(subject, RDF.TYPE, semantic.asIRI().getFirst());
               }
             });
@@ -84,6 +85,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
               semantics -> {
                 for (final Value value : retrieveValues(rdfMapData, row, column)) {
                   for (Semantic semantic : semantics) {
+                    // todo: Add support for sequence paths (now uses first item and ignores rest)
                     getWriter().processTriple(subject, semantic.asIRI().getFirst(), value);
                   }
 
