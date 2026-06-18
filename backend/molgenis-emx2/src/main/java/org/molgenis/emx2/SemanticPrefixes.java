@@ -18,6 +18,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Class that contains the needed code to process a {@link Semantic} object into a usable {@link
  * List} that is validated on the schema-specific {@link Namespace}{@code s}.
+ *
+ * <p>While any IRI (defined by '<' and '>') should already be validated by {@link Semantic} (and
+ * some validation is done on prefixed names as well), only after processing through this class it
+ * can be assured that the defined prefixed names are valid for the given schema (or list of
+ * namespaces).
  */
 public class SemanticPrefixes {
   private static final Logger logger = LoggerFactory.getLogger(SemanticPrefixes.class);
@@ -97,9 +102,10 @@ public class SemanticPrefixes {
   }
 
   /**
-   * To ensure the semantic is validated, make sure {@link #processIri(String)} & {@link
-   * #processPrefixedName(String)} are called witin the {@code iriOperator} & {@code
-   * prefixedNameOperator} respectively.
+   * @param iriOperator Processes an IRI. Input can be assumed to be valid due to {@link Semantic}
+   *     already validating this.
+   * @param prefixedNameOperator Processes a prefixed name. While the format should be valid, ensure
+   *     {@link #getNamespace(String)} is called so that undefined prefixes will throw an error!
    */
   private <R> List<R> map(
       final Semantic semantic,
@@ -115,45 +121,31 @@ public class SemanticPrefixes {
         .toList();
   }
 
-  private IRI processIri(final String semanticPart) {
-    try {
-      return Values.iri(semanticPart);
-    } catch (IllegalArgumentException e) {
-      throw new MolgenisException("Found IRI is malformed:" + semanticPart, e);
-    }
-  }
-
-  private IRI processPrefixedName(final String semanticPart) {
-    String[] prefixedNameSplit = semanticPart.split(":");
-    if (prefixedNameSplit.length != 2)
-      throw new MolgenisException("Could not split prefixed name into prefix label & local part");
-    Namespace namespace = namespaces.get(prefixedNameSplit[0]);
-    if (namespace == null)
-      throw new MolgenisException(
-          "Semantic uses a non-defined prefix label: " + prefixedNameSplit[0]);
-    try {
-      return Values.iri(namespace, prefixedNameSplit[1]);
-    } catch (IllegalArgumentException e) {
-      throw new MolgenisException(
-          "Could not generate valid IRI from prefixed name: " + semanticPart, e);
-    }
+  private Namespace getNamespace(final String prefix) {
+    Namespace foundNamespace = namespaces.get(prefix);
+    if (foundNamespace == null)
+      throw new MolgenisException("Semantic uses an undefined prefix label: " + prefix);
+    return foundNamespace;
   }
 
   /** Maps a semantic to a list of {@link IRI}{@code s} that represent a sequence path. */
   public List<IRI> mapAsIri(final Semantic semantic) {
-    return map(semantic, this::processIri, this::processPrefixedName);
+    return map(
+        semantic,
+        Values::iri,
+        prefixedName -> {
+          String[] split = prefixedName.split(":");
+          return Values.iri(getNamespace(split[0]), split[1]);
+        });
   }
 
   /** Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. */
   public List<String> mapAsString(final Semantic semantic) {
     return map(
         semantic,
-        iri -> {
-          processIri(iri);
-          return "<%s>".formatted(iri);
-        },
+        "<%s>"::formatted,
         prefixedName -> {
-          processPrefixedName(prefixedName);
+          getNamespace(prefixedName.split(":")[0]);
           return prefixedName;
         });
   }
