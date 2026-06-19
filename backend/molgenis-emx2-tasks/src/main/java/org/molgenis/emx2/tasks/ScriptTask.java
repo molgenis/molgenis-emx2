@@ -166,44 +166,7 @@ public class ScriptTask extends Task {
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     if (this.extraFile != null && this.extraFile.get(EXTRA_FILE) != null) {
-      String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
-      List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
-      if (forbiddenFiles.contains(extraFileName)) {
-        throw new MolgenisException(
-            "Invalid file name '"
-                + extraFileName
-                + "'. "
-                + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
-      }
-      byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
-      Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
-      Path extraFilePath = tempDir.resolve(extraFileName);
-
-      try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
-        fos.write(extraFileContent);
-      }
-      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
-          byte[] buffer = new byte[1024];
-          ZipEntry entry;
-          while ((entry = zis.getNextEntry()) != null) {
-            File newFile = new File(tempDir.toFile(), entry.getName());
-            checkForZipSlip(tempDir, newFile);
-
-            if (entry.isDirectory()) {
-              newFile.mkdirs();
-            } else {
-              new File(newFile.getParent()).mkdirs();
-              try (FileOutputStream fos = new FileOutputStream(newFile)) {
-                int length;
-                while ((length = zis.read(buffer)) > 0) {
-                  fos.write(buffer, 0, length);
-                }
-              }
-            }
-          }
-        }
-      }
+      writeExtraFiles(tempDir);
     }
 
     String requirementsString = this.dependencies != null ? "--with " + this.dependencies : "";
@@ -220,6 +183,47 @@ public class ScriptTask extends Task {
     if (!newFile.getCanonicalPath().startsWith(tempDir.toFile().getCanonicalPath())) {
       throw new MolgenisException(
           "ZIP archive contains files with illegal path: " + newFile.getCanonicalPath());
+    }
+  }
+
+  private  void writeExtraFiles(Path tempDir) throws IOException {
+    String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
+    List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
+    if (forbiddenFiles.contains(extraFileName)) {
+      throw new MolgenisException(
+              "Invalid file name '"
+                      + extraFileName
+                      + "'. "
+                      + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
+    }
+    byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
+    Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
+    Path extraFilePath = tempDir.resolve(extraFileName);
+
+    try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
+      fos.write(extraFileContent);
+    }
+    if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
+      try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
+        byte[] buffer = new byte[1024];
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+          File newFile = new File(tempDir.toFile(), entry.getName());
+          checkForZipSlip(tempDir, newFile);
+
+          if (entry.isDirectory()) {
+            newFile.mkdirs();
+          } else {
+            new File(newFile.getParent()).mkdirs();
+            try (FileOutputStream fos = new FileOutputStream(newFile)) {
+              int length;
+              while ((length = zis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+              }
+            }
+          }
+        }
+      }
     }
   }
 
