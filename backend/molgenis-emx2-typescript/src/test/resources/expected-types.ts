@@ -39,6 +39,7 @@ export interface IOrder extends IMgTableClass {
     price?: number;
     complete?: boolean;
     status?: string;
+    timestamp?: string;
 }
 
 export interface IOrder_agg {

@@ -10,7 +10,9 @@
 [] a sh:ValidationReport;
   sh:conforms false;
   rdf4j:truncated false;
-  sh:result [ a sh:ValidationResult;
+  sh:result 
+    [ 
+      a sh:ValidationResult;
       sh:focusNode <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>;
       rsx:shapesGraph rdf4j:SHACLShapeGraph;
       sh:resultPath <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
@@ -20,5 +22,18 @@
           sh:name "username";
           sh:path <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
           sh:minCount 1
-        ]
+      ]
+    ] ,
+    [
+     a sh:ValidationResult;
+      sh:focusNode <http://localhost:8080/petStoreNr1/api/rdf/User/username=plofke>;
+      rsx:shapesGraph rdf4j:SHACLShapeGraph;
+      sh:resultPath <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+      sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+      sh:resultSeverity sh:Violation;
+      sh:sourceShape [ a sh:PropertyShape;
+          sh:name "username";
+          sh:path <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+          sh:minCount 1
+      ] 
     ] .
