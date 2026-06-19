@@ -43,6 +43,7 @@
         flex: enableFilters,
         'overflow-hidden': enableFilters,
         'gap-6': enableFilters,
+        'lg:-ml-[30px]': enableFilters,
       }"
     >
       <Sidebar
