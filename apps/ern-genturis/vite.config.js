@@ -5,12 +5,12 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
+dotenv.config({ path: "./.env" });
+
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((command) => {
-  // Load environment variables
-  dotenv.config({ path: "./.env" });
-
+export default defineConfig(({ command }) => {
+  
   return {
     resolve: {
         alias: {
@@ -36,7 +36,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/ern-genturis/",
+    base: ["dev", "serve"].includes(command) ? "/" : "apps/ern-genturis/",
     server: {
       proxy: devProxy,
     },
