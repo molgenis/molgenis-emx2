@@ -103,3 +103,14 @@ export function sortByDataPointName(data: IChartData[]) {
     return a.dataPointName?.localeCompare(b.dataPointName as string) as number;
   });
 }
+
+export function sortByDataPointOrder(data: IChartData[]) {
+  return data.sort((a: IChartData, b: IChartData) => {
+    return (
+      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
+      (b.dataPointSecondaryCategory as string).localeCompare(
+        a.dataPointSecondaryCategory as string
+      )
+    );
+  });
+}

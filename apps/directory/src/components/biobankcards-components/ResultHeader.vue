@@ -9,7 +9,7 @@
       <tbody>
         <tr>
           <td class="text-nowrap">
-            Organisations:
+            Biobanks:
             {{ biobanksStore.biobankCardsBiobankCount }}
           </td>
         </tr>

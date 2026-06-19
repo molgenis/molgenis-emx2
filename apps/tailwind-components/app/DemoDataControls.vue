@@ -3,8 +3,8 @@
     <legend class="text-title font-bold">Demo data controls</legend>
 
     <div class="flex flex-col">
-      <label for="table-select" class="text-title font-bold">Schema: </label>
-      <select id="table-select" v-model="schemaId" class="border border-black">
+      <label for="schema-select" class="text-title font-bold">Schema: </label>
+      <select id="schema-select" v-model="schemaId" class="border border-black">
         <option v-for="schemaId in schemaIds" :value="schemaId">
           {{ schemaId }}
         </option>

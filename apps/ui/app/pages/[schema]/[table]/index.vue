@@ -17,6 +17,7 @@ import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import constants from "../../../../../tailwind-components/app/utils/constants";
 
 const route = useRoute();
 const router = useRouter();
@@ -32,6 +33,16 @@ const currentPage = computed(() => {
     : 1;
 });
 
+const currentPageSize = computed(() => {
+  const queryPageSizeNumber = Number(route.query?.pagesize);
+  if (!constants.PAGE_SIZE_OPTIONS.includes(queryPageSizeNumber)) {
+    return constants.PAGE_SIZE_DEFAULT;
+  }
+  return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
+    ? Math.round(queryPageSizeNumber)
+    : constants.PAGE_SIZE_DEFAULT;
+});
+
 const orderbyColumn = computed(() => route.query.orderby as string);
 const orderbyDirection = computed(() =>
   route.query.order ? (route.query.order as sortDirection) : "ASC"
@@ -41,7 +52,7 @@ const search = computed(() => route.query.search as string);
 
 const tableSettings = ref<ITableSettings>({
   page: currentPage.value,
-  pageSize: 10,
+  pageSize: currentPageSize.value,
   orderby: {
     column: orderbyColumn.value,
     direction: orderbyDirection.value,
@@ -63,6 +74,10 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    pagesize:
+      tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
+        ? undefined
+        : tableSettings.value.pageSize,
   };
 
   router.push({ query });

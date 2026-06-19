@@ -1,7 +1,10 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import FileValue from "../../../../app/components/value/File.vue";
-import type { fileValue, IColumn } from "../../../../metadata-utils/src/types";
+import type {
+  fileValue,
+  IColumn,
+} from "../../../../../metadata-utils/src/types";
 
 const metadata: IColumn = {
   id: "attachment",

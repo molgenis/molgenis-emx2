@@ -34,7 +34,8 @@
           :yTickValues="cranioTypeChart?.yAxisTicks"
           :xAxisLabel="cranioTypeChart?.xAxisLabel"
           :yAxisLAbel="cranioTypeChart?.yAxisLabel"
-          :columnColorPalette="cranioTypeChartPalette"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
           :chartHeight="225"
           :chartMargins="{
             top: cranioTypeChart?.topMargin,
@@ -63,7 +64,8 @@
           :yTickValues="affectedSutureChart?.yAxisTicks"
           :xAxisLabel="affectedSutureChart?.xAxisLabel"
           :yAxisLabel="affectedSutureChart?.yAxisLabel"
-          :columnColorPalette="affectedSutureChartPalette"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
           :chartHeight="275"
           :chartMargins="{
             top: affectedSutureChart?.topMargin,
@@ -89,7 +91,8 @@
           :yMin="0"
           :yMax="multipleSutureChart?.yAxisMaxValue"
           :yTickValues="multipleSutureChart?.yAxisTicks"
-          :columnColorPalette="multipleSuturePalette"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
           :chartHeight="275"
           :chartMargins="{
             top: multipleSutureChart?.topMargin,
@@ -116,7 +119,9 @@
           :yAxisLabel="patientsByCountryChart?.yAxisLabel"
           :yMin="0"
           :yMax="patientsByCountryChart?.yAxisMaxValue"
-          :columnColorPalette="patientsByCountryPalette"
+          :yTickValues="patientsByCountryChart?.yAxisTicks"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
           :chartHeight="275"
           :chartMargins="{
             top: patientsByCountryChart?.topMargin,
@@ -278,12 +283,14 @@ function updatePatientsByCountryChart() {
       ) as number;
     });
 
-  const countries: string[] = uniqueValues(
-    patientsByCountryChartData.value,
-    "dataPointName"
+  const countryTicks = generateAxisTickData(
+    patientsByCountryChartData.value!,
+    "dataPointValue"
   );
-  const colors = countries.map((key: string) => [key, "#3f6597"]);
-  patientsByCountryPalette.value = Object.fromEntries(colors);
+  if (patientsByCountryChart.value) {
+    patientsByCountryChart.value.yAxisMaxValue = countryTicks.limit;
+    patientsByCountryChart.value.yAxisTicks = countryTicks.ticks;
+  }
 }
 
 function setAgeGroupFilter() {
