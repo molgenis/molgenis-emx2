@@ -17,7 +17,7 @@ import InputSearch from "../input/Search.vue";
 import Skeleton from "../Skeleton.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 
-const SHOW_MORE_THRESHOLD = 25;
+const SHOW_MORE_THRESHOLD = 15;
 const SHOW_MORE_STEP = 50;
 
 const props = defineProps<{
