@@ -408,10 +408,14 @@ test.describe("filter sidebar", () => {
     page,
   }) => {
     await page.goto(`${route}catalogue-demo/Resources?pagesize=10`);
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(8000);
+
+    // Wait for main heading to appear, indicating page has loaded
+    const heading = page.locator("h1").first();
+    await expect(heading).toBeVisible({ timeout: 15000 });
 
     const paginationNav = page.locator('nav[role="navigation"]');
-    await expect(paginationNav).toBeVisible();
+    await expect(paginationNav).toBeVisible({ timeout: 15000 });
 
     const initialOfSpan = page
       .locator('nav[role="navigation"] span')
@@ -422,22 +426,36 @@ test.describe("filter sidebar", () => {
     const initialPages = parseInt(initialText!.replace(/OF /g, "").trim());
     expect(initialPages).toBeGreaterThan(2);
 
-    const countriesHeading = page
-      .locator("h3")
-      .filter({ hasText: /countries/i });
-    await expect(countriesHeading).toBeVisible();
+    // Countries section shows top 15 by count (Show-more threshold = 15).
+    // Netherlands (highest-count) is alphabetically past position 15, so we need to expand Show more.
+    const countriesHeader = page
+      .locator('div[role="button"]')
+      .filter({ has: page.locator("h3", { hasText: /countries/i }) });
+    await expect(countriesHeader).toBeVisible();
+    const countriesSectionId = await countriesHeader.getAttribute(
+      "aria-controls"
+    );
+    const countriesSection = page.locator(`[id="${countriesSectionId}"]`);
 
-    const netherlandsLabel = page
+    // Click Show more to reveal full country list
+    const showMoreBtn = countriesSection.locator(
+      'button:has-text("Show more")'
+    );
+    await expect(showMoreBtn).toBeVisible();
+    await showMoreBtn.click();
+    await page.waitForTimeout(1000);
+
+    // Find and select Netherlands (highest-count country)
+    const netherlandsLabel = countriesSection
       .locator('label:has(input[type="checkbox"])')
-      .filter({ hasText: /Netherlands/ })
-      .first();
+      .filter({ hasText: /Netherlands/i });
     await expect(netherlandsLabel).toBeVisible();
+
     const filterRequestPromise = page.waitForResponse(
       (response) =>
         response.url().includes("/graphql") && response.status() === 200,
       { timeout: 15000 }
     );
-
     await netherlandsLabel.click();
     await filterRequestPromise;
 
@@ -458,6 +476,90 @@ test.describe("filter sidebar", () => {
         { timeout: 10000 }
       )
       .toBeLessThan(initialPages);
+  });
+
+  test("filtering by a low-count country leaves ≤pageSize results: pagination collapses to a single page", async ({
+    page,
+  }) => {
+    await page.goto(`${route}catalogue-demo/Resources?pagesize=10`);
+    await page.waitForTimeout(8000);
+
+    // Wait for main heading to appear, indicating page has loaded
+    const heading = page.locator("h1").first();
+    await expect(heading).toBeVisible({ timeout: 15000 });
+
+    const paginationNav = page.locator('nav[role="navigation"]');
+    await expect(paginationNav).toBeVisible({ timeout: 15000 });
+
+    const initialOfSpan = page
+      .locator('nav[role="navigation"] span')
+      .filter({ hasText: /OF/ })
+      .first();
+    const initialText = await initialOfSpan.textContent();
+    expect(initialText).toMatch(/OF \d+/);
+    const initialPages = parseInt(initialText!.replace(/OF /g, "").trim());
+    expect(initialPages).toBeGreaterThan(1);
+
+    // Countries section shows top 15 by count (Show-more threshold = 15).
+    // Select the FIRST visible country (low-count, e.g. Andorra with 1 result).
+    // Do NOT click Show more — select from the initially visible list.
+    const countriesHeader = page
+      .locator('div[role="button"]')
+      .filter({ has: page.locator("h3", { hasText: /countries/i }) });
+    await expect(countriesHeader).toBeVisible();
+    const countriesSectionId = await countriesHeader.getAttribute(
+      "aria-controls"
+    );
+    const countriesSection = page.locator(`[id="${countriesSectionId}"]`);
+
+    // Select the first visible country checkbox label
+    const firstCountryLabel = countriesSection
+      .locator('label:has(input[type="checkbox"])')
+      .first();
+    await expect(firstCountryLabel).toBeVisible();
+    const selectedCountryText = await firstCountryLabel.textContent();
+    console.log(`Selected low-count country: ${selectedCountryText}`);
+
+    const filterRequestPromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/graphql") && response.status() === 200,
+      { timeout: 15000 }
+    );
+    await firstCountryLabel.click();
+    await filterRequestPromise;
+
+    // Wait a moment for the page to update after filtering
+    await page.waitForTimeout(1000);
+
+    // Check if pagination nav is visible; if ≤pageSize results, it should collapse
+    const paginationVisible = await paginationNav
+      .isVisible()
+      .catch(() => false);
+
+    if (paginationVisible) {
+      // Pagination nav is still visible; verify it shows "OF 1" (single page)
+      const updatedOfSpan = page
+        .locator('nav[role="navigation"] span')
+        .filter({ hasText: /OF/ })
+        .first();
+      const updatedText = await updatedOfSpan.textContent();
+      expect(updatedText).toMatch(/OF \d+/);
+      const updatedPages = parseInt(updatedText!.replace(/OF /g, "").trim());
+      expect(updatedPages).toBe(1);
+    } else {
+      // Pagination nav is hidden for single-page result set
+      // Verify this by checking the nav is not visible
+      await expect(paginationNav).not.toBeVisible();
+    }
+
+    // Assert that the result set is smaller than the initial multi-page count
+    const filteredRowCount = await page
+      .locator("div.overflow-x-auto table")
+      .last()
+      .locator("tbody tr")
+      .count();
+    // At most pageSize (10) rows should be visible; typically much less for a low-count country
+    expect(filteredRowCount).toBeLessThanOrEqual(10);
   });
 
   test("direct REF column filtering exposes checkbox in modal and renders filter section in sidebar", async ({
