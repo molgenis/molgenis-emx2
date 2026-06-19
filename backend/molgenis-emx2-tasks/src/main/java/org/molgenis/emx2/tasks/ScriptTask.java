@@ -162,8 +162,6 @@ public class ScriptTask extends Task {
     Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
     script = script.replace("${jobId}", this.getId());
     Files.writeString(tempScriptFile, this.script);
-    Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
-    Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     if (this.extraFile != null && this.extraFile.get(EXTRA_FILE) != null) {
       writeExtraFiles(tempDir);
@@ -172,7 +170,7 @@ public class ScriptTask extends Task {
     String requirementsString = this.dependencies != null ? "--with " + this.dependencies : "";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return  "uv run " + requirementsString + " script.py" + escapedParameters;
+    return "uv run " + requirementsString + " script.py" + escapedParameters;
   }
 
   /**
@@ -186,15 +184,10 @@ public class ScriptTask extends Task {
     }
   }
 
-  private  void writeExtraFiles(Path tempDir) throws IOException {
+  private void writeExtraFiles(Path tempDir) throws IOException {
     String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
-    List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
-    if (forbiddenFiles.contains(extraFileName)) {
-      throw new MolgenisException(
-              "Invalid file name '"
-                      + extraFileName
-                      + "'. "
-                      + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
+    if (Objects.equals(extraFileName, "script.py")) {
+      throw new MolgenisException("Extra file name cannot be 'script.py'.");
     }
     byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
     Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
