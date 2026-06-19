@@ -58,79 +58,29 @@
         </nav>
       </div>
     </div>
-    <div class="molgenis-meta" v-if="showMolgenisMeta">
-      <div class="footer-content">
-        <p>
-          This database was created using
-          <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
-          <span v-if="manifest.SpecificationVersion">
-            using version {{ manifest.SpecificationVersion }}
-          </span>
-        </p>
-      </div>
-    </div>
   </footer>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-
-const props = defineProps({
-  // Set the title of the first set of navigation links
-  firstColumnTitle: {
-    type: String,
-    default: "My Project",
-  },
-
-  // Set the title of the second set of navigation links
-  secondColumnTitle: {
-    type: String,
-    default: "For members",
-  },
-
-  // If True (default), the footer area for project citations
-  // will be shown
-  showProjectCitation: {
-    type: Boolean,
-    default: false,
-  },
-
-  // If True (default), metadata about your molgenis instance will
-  // be displayed.
-  showMolgenisMeta: {
-    type: Boolean,
-    default: true,
-  },
-});
-
-async function getManifest() {
-  const query = gql`
-    {
-      _manifest {
-        ImplementationVersion
-        SpecificationVersion
-      }
-    }
-  `;
-  const response = await request("/api/graphql", query);
-  return response._manifest;
-}
-
-let manifest = ref({});
-
-onMounted(() => {
-  if (props.showMolgenisMeta) {
-    manifest.value = getManifest();
+<script lang="ts" setup>
+const props = withDefaults(
+  defineProps<{
+    firstColumnTitle?: string;
+    secondColumnTitle?: string;
+    showProjectCitation?: boolean;
+  }>(),
+  {
+    firstColumnTitle: "My Project",
+    secondColumnTitle: "For members",
+    showProjectCitation: false,
   }
-});
+)
 </script>
 
 <style lang="scss">
 .app-footer {
   display: grid;
   grid-template-columns: 1fr;
+  margin-bottom: 1em;
 
   .footer-content {
     box-sizing: content-box;
@@ -237,13 +187,6 @@ onMounted(() => {
         }
       }
     }
-  }
-
-  .molgenis-meta {
-    padding: 1em;
-    text-align: center;
-    background-color: $gray-000;
-    font-size: 0.9rem;
   }
 }
 </style>
