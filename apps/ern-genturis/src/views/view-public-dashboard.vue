@@ -15,7 +15,7 @@
       <DashboardRow id="registryHighlights" :columns="1">
         <DataValueHighlights
           title="ern genturis registry at a glance"
-          :data="registryHighlights"
+          :data="highlightsData"
         />
       </DashboardRow>
       <DashboardRow :columns="2">
@@ -23,7 +23,7 @@
           <GeoMercator
             chartId="registryInstitutionsMap"
             title="Status of data by healthcare provider"
-            :chartData="organisations"
+            :chartData="organisationsData"
             rowId="code"
             longitude="longitude"
             latitude="latitude"
@@ -59,15 +59,13 @@
             :enableRowHighlighting="true"
           />
         </DashboardChart>
-      </DashboardRow>
-      <DashboardRow :columns="2">
         <DashboardChart>
           <PieChart2
             chartId="sexAtBirthChart"
             title="Sex at birth"
-            :chartData="sexAtBirth"
+            :chartData="sexAtBirthData"
             legendPosition="bottom"
-            :chartHeight="150"
+            :chartHeight="140"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartMargins="10"
@@ -77,15 +75,15 @@
           <ColumnChart
             chartId="registry-age-at-inclusion"
             title="Age at last follow-up"
-            :chartData="ageAtInclusion"
+            :chartData="ageAtInclusionData"
             xvar="label"
             yvar="value"
             :yMin="0"
-            :yMax="ageAtInclusionYAxis.limit"
-            :yTickValues="ageAtInclusionYAxis.ticks"
+            :yMax="ageAtInclusionAxis?.limit"
+            :yTickValues="ageAtInclusionAxis?.ticks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
-            :chartHeight="225"
+            :chartHeight="200"
             :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
             :columnPaddingInner="0.2"
           />
@@ -96,9 +94,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
+import { ref } from "vue";
+
 // @ts-ignore
 import {
   Page,
@@ -116,255 +113,105 @@ import {
   // @ts-ignore
 } from "molgenis-viz";
 
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { max } from "d3";
-const d3 = { max };
+import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent";
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
 
-interface IProviderInformation {
-  providerIdentifier: string;
-  hasSubmittedData: boolean;
-}
-
-interface IOrganisations {
-  name: string;
-  code: string;
-  city: string;
-  country: string;
-  latitude: number;
-  longitude: number;
-  providerInformation: IProviderInformation[];
-}
-
-interface IStatistics {
-  id: string;
-  name: string;
-  label: string;
-  value: number;
-  valueOrder: number;
-}
-
-interface IComponent {
-  name: string;
-  statistics: IStatistics[];
-}
-
-interface IKeyValuePairs {
-  [key: string]: number;
-}
-
-interface IOrganisationsResponse {
-  Organisations: IOrganisations[];
-}
-
-interface IComponentsResponse {
-  Components: IComponent[];
-}
+import type { IComponents, IStatistics, IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+import type { IRecordStringNumber, IArrayStringNumber } from "../../../metadata-utils/src/viz/types";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);
-const registryHighlights = ref<IKeyValuePairs>({});
-const sexAtBirth = ref<IKeyValuePairs>({});
-const ageAtInclusion = ref<IStatistics[]>([]);
-const ageAtInclusionYAxis = ref<IKeyValuePairs>({});
-const enrollmentData = ref<IStatistics[]>([]);
-const organisations = ref<IOrganisations[]>([]);
+const highlightsChart = ref<IComponents>();
+const highlightsData = ref<IRecordStringNumber>();
+const sexAtBirthChart = ref<IComponents>();
+const sexAtBirthData = ref<IRecordStringNumber>();
+const ageAtInclusionChart = ref<IComponents>();
+const ageAtInclusionData = ref<IStatistics[]>();
+const ageAtInclusionAxis = ref<NumericAxisTickData>();
+const enrollmentChart = ref<IComponents>();
+const enrollmentData = ref<IStatistics[]>();
+const organisationsData = ref<IOrganisations[]>();
 
 const orgGroupMapping = {
   "Data Submitted": "#E9724C",
   "No Data": "#F0F0F0",
 };
 
-async function getOrganisations() {
-  const query = gql`
-    {
-      Organisations {
-        name
-        code
-        city
-        country
-        latitude
-        longitude
-        providerInformation {
-          providerIdentifier
-          hasSubmittedData
-        }
-      }
-    }
-  `;
-  const response: IOrganisationsResponse = await request(
-    "../api/graphql",
-    query
-  );
-  const data: IOrganisations[] = response.Organisations.map(
-    (row: IOrganisations) => {
-      const status = row.providerInformation[0].hasSubmittedData
-        ? "Data Submitted"
-        : "No Data";
-      return { ...row, hasSubmittedData: status };
-    }
-  );
-  organisations.value = data;
+async function loadData() {
+  const highlightsResponse = await getComponentStats("../api/graphql", "data-highlights");
+  const sexAtBirthResponse = await getComponentStats("../api/graphql", "pie-sex-at-birth");
+  const ageResponse = await getComponentStats("../api/graphql", "barchart-age");
+  const enrollmentResponse = await getComponentStats("../api/graphql", "table-enrollment-disease-group");
+  const organisationsResponse = await getOrganisations("../api/graphql");
+  
+  highlightsChart.value = highlightsResponse[0];
+  sexAtBirthChart.value = sexAtBirthResponse[0];
+  ageAtInclusionChart.value = ageResponse[0];
+  enrollmentChart.value = enrollmentResponse[0];
+  organisationsData.value = organisationsResponse;
 }
 
-async function getStats() {
-  const query = gql`
-    {
-      Components {
-        name
-        statistics {
-          id
-          label
-          value
-          valueOrder
-        }
-      }
-    }
-  `;
-  const response: IComponentsResponse = await request("../api/graphql", query);
-  const data: IComponent[] = response.Components;
-
-  const highlights = data.filter(
-    (row: IComponent) => row.name === "data-highlights"
-  );
-  registryHighlights.value = Object.fromEntries(
-    highlights[0]["statistics"].map((row: IStatistics) => [
-      row.label,
-      row.value,
-    ])
-  );
-
-  const sexData = data.filter(
-    (row: IComponent) => row.name === "pie-sex-at-birth"
-  );
-  sexAtBirth.value = Object.fromEntries(
-    sexData[0]["statistics"]
-      .map((row: IStatistics) => [row.label, row.value])
-      .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
-  );
-
-  // prepare data for age at last follow up chart
-  const age = data.filter((row: IComponent) => row.name === "barchart-age");
-  ageAtInclusion.value = age[0]["statistics"];
-  ageAtInclusionYAxis.value = generateAxisTickData(
-    ageAtInclusion.value!,
-    "value"
-  );
-
-  enrollmentData.value = data
-    .filter(
-      (row: IComponent) => row.name === "table-enrollment-disease-group"
-    )[0]
-    ["statistics"].filter(
-      (row: IStatistics) => row.label !== "Undetermined" && row.value !== 0
-    )
-    .sort((current: IStatistics, next: IStatistics) => {
-      return current.valueOrder < next.valueOrder ? -1 : 1;
+function prepareData () {
+  
+  // prepare data highlights chart
+  if (highlightsChart.value && highlightsChart.value.statistics) {
+    const highlights = highlightsChart.value.statistics.map((row: IStatistics) => {
+      return [row.label, row.value]
+    });
+    highlightsData.value = Object.fromEntries(highlights); 
+  }
+  
+  // prep sexAtBirth chart data
+  if (sexAtBirthChart.value && sexAtBirthChart.value.statistics) {
+    const birthData = sexAtBirthChart.value.statistics.map((row: IStatistics) => {
+      return [row.label, row.value] as IArrayStringNumber;
     })
-    .map((row: IStatistics) => {
+    .sort((current: IArrayStringNumber, next: IArrayStringNumber) => {
+      return current[1] < next[1] ? 1 : -1;
+    });
+    
+    sexAtBirthData.value = Object.fromEntries(birthData);
+  }
+  
+  // prepare ageAtInclusion chart data
+  if (ageAtInclusionChart.value && ageAtInclusionChart.value.statistics) {
+   ageAtInclusionData.value = ageAtInclusionChart.value.statistics;
+    ageAtInclusionAxis.value = generateAxisTickData(
+      ageAtInclusionData.value,
+      "value"
+    );
+  }
+  
+  // prepare participant enrollment table data
+  if (enrollmentChart.value && enrollmentChart.value.statistics) {
+    enrollmentData.value = enrollmentChart.value.statistics.map((row: IStatistics) => {
       return {
         ...row,
         "Thematic Disease Group": row.label,
         "Number of Patients": row.value,
-      };
+      }
+    }).sort((current: IStatistics, next: IStatistics) => {
+      return (current.valueOrder as number) < (next.valueOrder as number) ? -1 : 1;
     });
+  }
+  
+  // prepare organisations map data
+  if (organisationsData.value) {
+    organisationsData.value = organisationsData.value.map((row: IOrganisations) => {
+      
+      let submissionStatus: string = "No Data";
+      if (row.providerInformation && row.providerInformation[0].hasSubmittedData) {
+        submissionStatus = "Data Submitted";
+      }
+      
+      return { ...row, hasSubmittedData: submissionStatus }
+    });
+  }
+  
 }
 
-async function loadData() {
-  await getOrganisations();
-  await getStats();
-}
+loadData().then(() => prepareData()).catch((err) => error.value = err).finally(() => loading.value=false);
 
-onMounted(() => {
-  loadData()
-    .catch((err) => (error.value = err))
-    .finally(() => (loading.value = false));
-});
 </script>
-
-<style lang="scss">
-.d3-viz {
-  &.d3-pie,
-  &.d3-geo-mercator {
-    .chart-context {
-      text-align: center;
-      .chart-title {
-        @include setChartTitle;
-      }
-    }
-  }
-
-  &.d3-column-chart {
-    .chart-title {
-      @include setChartTitle;
-    }
-  }
-}
-
-#sexAtBirthChart {
-  .chart-area {
-    .pie-labels {
-      .pie-label-text {
-        font-size: 0.7rem !important;
-      }
-    }
-  }
-}
-
-#registryInstitutionsMap + .d3-viz-legend {
-  padding: 0.6em 0.8em;
-  label {
-    margin-bottom: 0;
-  }
-}
-
-#diseaseGroupEnrollment {
-  caption {
-    @include setChartTitle;
-  }
-  thead {
-    th {
-      font-size: 0.8rem;
-    }
-  }
-  tbody {
-    td {
-      font-size: 0.9rem;
-      padding: 0.6em 0.2em;
-
-      &[data-value="Undetermined"],
-      &[data-value="Undetermined"] + td {
-        background-color: $gray-000;
-        span {
-          color: $gray-400;
-        }
-      }
-    }
-  }
-}
-
-#registryHighlights {
-  .data-highlights {
-    .data-highlight {
-      padding: 0.8em 1em;
-      .data-label {
-        margin-bottom: 0.15em;
-        font-size: 0.75rem;
-      }
-
-      .data-value {
-        &::after {
-          font-size: 1.8rem;
-        }
-      }
-    }
-  }
-}
-
-#genturisPublicDashboard {
-  .dashboard-content {
-    @media (min-width: 1800px) {
-      max-width: 60vw;
-    }
-  }
-}
-</style>

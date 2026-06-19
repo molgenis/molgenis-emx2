@@ -17,3 +17,6 @@ export interface IFetchBody {
   query: string;
   variables?: { filter: { name: { equals: string } } };
 }
+
+export type IRecordStringNumber = Record<string,number>
+export type IArrayStringNumber = [string,number];

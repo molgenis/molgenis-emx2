@@ -133,3 +133,98 @@
   background-color: $gray-000;
   padding-bottom: 0.3em;
 }
+
+.d3-viz {
+  &.d3-pie,
+  &.d3-geo-mercator {
+    .chart-context {
+      text-align: center;
+      .chart-title {
+        @include setChartTitle;
+      }
+    }
+  }
+  
+  &.d3-geo-mercator .d3-viz-legend {
+    padding: 0.6em 0.75em;
+    label {
+      margin-bottom: 0;
+      font-size: 0.8rem;
+    }
+  }
+
+  &.d3-column-chart {
+    .chart-title {
+      @include setChartTitle;
+    }
+  }
+  
+  &.d3-pie {
+    .chart-area {
+      .pie-labels {
+        .pie-label-text {
+          font-size: 0.7rem !important;
+        }
+      }
+    }
+  }
+  
+  &.d3-table {
+    caption {
+      @include setChartTitle;
+    }
+    thead {
+      th {
+        font-size: 0.8rem;
+        padding: 0.4em 0.2em;
+      }
+    }
+    tbody {
+      td {
+        font-size: 0.9rem;
+        padding: 0.4em 0.2em;
+  
+        &[data-value="Undetermined"],
+        &[data-value="Undetermined"] + td {
+          background-color: $gray-000;
+          span {
+            color: $gray-400;
+          }
+        }
+      }
+    }
+  }
+  
+}
+
+#registryHighlights {
+  .data-highlights {
+    .data-highlight {
+      padding: 0.8em 1em;
+      .data-label {
+        margin-bottom: 0.15em;
+        font-size: 0.75rem;
+      }
+
+      .data-value {
+        &::after {
+          font-size: 1.8rem;
+        }
+      }
+    }
+  }
+}
+
+#genturisPublicDashboard {
+  .dashboard-content {
+    gap: 1em;
+
+    .dashboard-chart-layout {
+      gap: 1em;
+    }
+
+    @media (min-width: 1800px) {
+      max-width: 60vw;
+    }
+  }
+}
