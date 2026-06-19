@@ -256,13 +256,6 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
         return read_file(file_path=file_path)
 
     if data is not None:
-        if not isinstance(data, pd.DataFrame):
-            data = pd.DataFrame(data, dtype=str)
-        # Convert lists in dataframe to CSV-formatted string
-        # FIXME: selecting only object columns works for as_df=True, but for as_df=False, column types are not (or incorrectly) inferred. This is a bug in pyclient, needs fixing first before array handling can work reliably. 
-        object_columns = data.select_dtypes('object').columns
-        data[object_columns] = data[object_columns].map(array_to_csv_string)
-        return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, encoding='UTF-8')
         return data_to_csv(data)
 
     message = "No data to import. Specify a file location or a dataset."
@@ -279,6 +272,8 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
     """
 
     if isinstance(data, pd.DataFrame):
+        object_columns = data.select_dtypes('object').columns
+        data[object_columns] = data[object_columns].map(array_to_csv_string)
         if filename:
             data.to_csv(path_or_buf=filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
             return None
@@ -303,6 +298,9 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
                     # Replace 'NaT' with 'None'
                     elif isinstance(v, pd.api.typing.NaTType):
                         cleaned_row[k] = None
+                    # Convert lists to CSV-formatted strings
+                    elif isinstance(v, list):
+                        cleaned_row[k] = array_to_csv_string(v)
                     else:
                         cleaned_row[k] = v
                 writer.writerow(cleaned_row)
