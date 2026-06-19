@@ -117,8 +117,15 @@ import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboa
 import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
 import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
 
-import type { IComponents, IStatistics, IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
-import type { IRecordStringNumber, IArrayStringNumber } from "../../../metadata-utils/src/viz/types";
+import type {
+  IComponents,
+  IStatistics,
+  IOrganisations,
+} from "../../../metadata-utils/src/viz/ErnDashboard";
+import type {
+  IRecordStringNumber,
+  IArrayStringNumber,
+} from "../../../metadata-utils/src/viz/types";
 import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
 const loading = ref<boolean>(true);
@@ -140,12 +147,21 @@ const orgGroupMapping = {
 };
 
 async function loadData() {
-  const highlightsResponse = await getComponentStats("../api/graphql", "data-highlights");
-  const sexAtBirthResponse = await getComponentStats("../api/graphql", "pie-sex-at-birth");
+  const highlightsResponse = await getComponentStats(
+    "../api/graphql",
+    "data-highlights"
+  );
+  const sexAtBirthResponse = await getComponentStats(
+    "../api/graphql",
+    "pie-sex-at-birth"
+  );
   const ageResponse = await getComponentStats("../api/graphql", "barchart-age");
-  const enrollmentResponse = await getComponentStats("../api/graphql", "table-enrollment-disease-group");
+  const enrollmentResponse = await getComponentStats(
+    "../api/graphql",
+    "table-enrollment-disease-group"
+  );
   const organisationsResponse = await getOrganisations("../api/graphql");
-  
+
   highlightsChart.value = highlightsResponse[0];
   sexAtBirthChart.value = sexAtBirthResponse[0];
   ageAtInclusionChart.value = ageResponse[0];
@@ -153,65 +169,70 @@ async function loadData() {
   organisationsData.value = organisationsResponse;
 }
 
-function prepareData () {
-  
-  // prepare data highlights chart
+function prepareData() {
   if (highlightsChart.value && highlightsChart.value.statistics) {
-    const highlights = highlightsChart.value.statistics.map((row: IStatistics) => {
-      return [row.label, row.value]
-    });
-    highlightsData.value = Object.fromEntries(highlights); 
+    const highlights = highlightsChart.value.statistics.map(
+      (row: IStatistics) => {
+        return [row.label, row.value];
+      }
+    );
+    highlightsData.value = Object.fromEntries(highlights);
   }
-  
-  // prep sexAtBirth chart data
+
   if (sexAtBirthChart.value && sexAtBirthChart.value.statistics) {
-    const birthData = sexAtBirthChart.value.statistics.map((row: IStatistics) => {
-      return [row.label, row.value] as IArrayStringNumber;
-    })
-    .sort((current: IArrayStringNumber, next: IArrayStringNumber) => {
-      return current[1] < next[1] ? 1 : -1;
-    });
-    
+    const birthData = sexAtBirthChart.value.statistics
+      .map((row: IStatistics) => {
+        return [row.label, row.value] as IArrayStringNumber;
+      })
+      .sort((current: IArrayStringNumber, next: IArrayStringNumber) => {
+        return current[1] < next[1] ? 1 : -1;
+      });
+
     sexAtBirthData.value = Object.fromEntries(birthData);
   }
-  
-  // prepare ageAtInclusion chart data
+
   if (ageAtInclusionChart.value && ageAtInclusionChart.value.statistics) {
-   ageAtInclusionData.value = ageAtInclusionChart.value.statistics;
+    ageAtInclusionData.value = ageAtInclusionChart.value.statistics;
     ageAtInclusionAxis.value = generateAxisTickData(
       ageAtInclusionData.value,
       "value"
     );
   }
-  
-  // prepare participant enrollment table data
+
   if (enrollmentChart.value && enrollmentChart.value.statistics) {
-    enrollmentData.value = enrollmentChart.value.statistics.map((row: IStatistics) => {
-      return {
-        ...row,
-        "Thematic Disease Group": row.label,
-        "Number of Patients": row.value,
-      }
-    }).sort((current: IStatistics, next: IStatistics) => {
-      return (current.valueOrder as number) < (next.valueOrder as number) ? -1 : 1;
-    });
+    enrollmentData.value = enrollmentChart.value.statistics
+      .map((row: IStatistics) => {
+        return {
+          ...row,
+          "Thematic Disease Group": row.label,
+          "Number of Patients": row.value,
+        };
+      })
+      .sort((current: IStatistics, next: IStatistics) => {
+        return (current.valueOrder as number) < (next.valueOrder as number)
+          ? -1
+          : 1;
+      });
   }
-  
-  // prepare organisations map data
+
   if (organisationsData.value) {
-    organisationsData.value = organisationsData.value.map((row: IOrganisations) => {
-      
-      let submissionStatus: string = "No Data";
-      if (row.providerInformation && row.providerInformation[0].hasSubmittedData) {
-        submissionStatus = "Data Submitted";
+    organisationsData.value = organisationsData.value.map(
+      (row: IOrganisations) => {
+        let submissionStatus: string = "No Data";
+        if (
+          row.providerInformation &&
+          row.providerInformation[0].hasSubmittedData
+        ) {
+          submissionStatus = "Data Submitted";
+        }
+        return { ...row, hasSubmittedData: submissionStatus };
       }
-      
-      return { ...row, hasSubmittedData: submissionStatus }
-    });
+    );
   }
-  
 }
 
-loadData().then(() => prepareData()).catch((err) => error.value = err).finally(() => loading.value=false);
-
+loadData()
+  .then(() => prepareData())
+  .catch((err) => (error.value = err))
+  .finally(() => (loading.value = false));
 </script>

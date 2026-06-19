@@ -73,7 +73,7 @@ const props = withDefaults(
     secondColumnTitle: "For members",
     showProjectCitation: false,
   }
-)
+);
 </script>
 
 <style lang="scss">

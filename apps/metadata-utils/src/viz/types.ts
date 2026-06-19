@@ -18,5 +18,5 @@ export interface IFetchBody {
   variables?: { filter: { name: { equals: string } } };
 }
 
-export type IRecordStringNumber = Record<string,number>
-export type IArrayStringNumber = [string,number];
+export type IRecordStringNumber = Record<string, number>;
+export type IArrayStringNumber = [string, number];
