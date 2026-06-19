@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Collection events,,,,,,,,,,,,Definition of a collection event for a resource,"DataCatalogueFlat,CohortsBasis,StudiesStaging",,
 Collection events,,resource,ref,1,TRUE,,Resources,,,,dcterms:source,Resource this collection event is part of,"DataCatalogueFlat,CohortsBasis,StudiesStaging",,
 Collection events,,name,,1,TRUE,,,,,,dcterms:title,Name of the collection event,"DataCatalogueFlat,CohortsBasis,StudiesStaging",,
-Collection events,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this collection event,"DataCatalogueFlat,CohortsBasis",,FALSE
+Collection events,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this collection event,"DataCatalogueFlat,CohortsBasis",,false
 Collection events,,description,text,,,,,,,,dcterms:description,Description of the collection event,"DataCatalogueFlat,CohortsBasis,StudiesStaging",,
 Collection events,,subpopulations,ref_array,,,,Subpopulations,resource,,,dcterms:source,Subpopulations that are targetted by this collection event,"DataCatalogueFlat,CohortsBasis",,
 Collection events,,keywords,string_array,,,,,,,,dcat:keyword,Keywords to increase findability of this collection event. Try to use words that are not used in the description. Keywords are not displayed on the collection event page,"DataCatalogueFlat,CohortsBasis",,
