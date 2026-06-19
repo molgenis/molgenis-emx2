@@ -5,12 +5,11 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
+dotenv.config({ path: "./.env" });
+
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((env) => {
-  // Load environment variables
-  dotenv.config({ path: "./.env" });
-
+export default defineConfig(({ mode }) => {
   return {
     resolve: {
         alias: {
@@ -36,7 +35,7 @@ export default defineConfig((env) => {
       },
     },
     plugins: [vue()],
-    base: ["serve", "dev"].includes(env.command) ? "/" : "/apps/ern-ithaca/",
+    base: ["development","serve"].includes(mode) ? "/" : "apps/ern-ithaca/",
     server: {
       proxy: devProxy
     },
