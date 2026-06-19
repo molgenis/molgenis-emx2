@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
-// @ts-ignore
 import Address from "../components/Address.vue";
 </script>
 
