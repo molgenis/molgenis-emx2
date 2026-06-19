@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed, nextTick, onMounted, ref, useId } from "vue";
 import type {
   Crumb,
   ITableSettings,
@@ -18,6 +18,7 @@ import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getP
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
+import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
 
 const route = useRoute();
 const router = useRouter();
@@ -60,6 +61,7 @@ const tableSettings = ref<ITableSettings>({
   search: search.value || "",
 });
 
+const schemaMetadata = await fetchMetadata(schemaId);
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 
 function handleSettingsUpdate() {
@@ -105,11 +107,31 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
+const scrollContainer = ref<HTMLElement>();
+
+async function scrollSelectedIntoView() {
+  console.log("scrolling into view");
+  await nextTick();
+  const active = scrollContainer.value?.querySelector(
+    '[data-selected="true"]'
+  ) as HTMLElement | null;
+
+  active?.scrollIntoView({
+    behavior: "smooth",
+    inline: "center",
+    block: "nearest",
+  });
+}
+
+onMounted(scrollSelectedIntoView);
+
+watch(() => tableId, scrollSelectedIntoView);
+
 const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
-    <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+    <PageHeader :title="tableId" align="left">
       {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
@@ -117,6 +139,31 @@ const { isAdmin, session } = await useSession(schemaId);
           :crumbs="crumbs"
           :current="currentBreadCrumb"
         />
+      </template>
+      <template #suffix>
+        <div
+          ref="scrollContainer"
+          @click="scrollSelectedIntoView"
+          class="flex flex-row gap-0 overflow-x-auto scroll-smooth px-2 py-4"
+        >
+          <div v-for="table in schemaMetadata.tables" class="border-b px-3">
+            <NuxtLink
+              :to="`/${schemaId}/${table.id}`"
+              class="text-link hover:underline relative whitespace-nowrap"
+              :data-selected="table.id === tableId"
+              :class="{
+                'font-bold': table.id === tableId,
+                'text-table-column-header': table.id !== tableId,
+              }"
+            >
+              {{ table.label }}
+              <span
+                v-if="table.id === tableId"
+                class="absolute bottom-[-2px] left-0 h-0.5 w-full bg-current"
+              />
+            </NuxtLink>
+          </div>
+        </div>
       </template>
     </PageHeader>
 
