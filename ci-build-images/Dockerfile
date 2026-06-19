@@ -8,6 +8,7 @@ RUN useradd -m molgenis
 
 RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
 RUN python3 -m pip config set global.break-system-packages true
+RUN python3 -m pip install uv
 RUN python3 --version
 
 ENV NODE_VERSION=22.17.0
