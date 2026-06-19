@@ -6,11 +6,11 @@
     @click="$emit('click')"
   >
     <span class="inline-block w-6 h-6 bg-button-cart-count rounded-full">
-      <div
+      <span
         class="body-xs/1 text-button-cart-count flex items-center justify-center pl-0.5 w-full h-full leading-none"
       >
         {{ numberOfItemsInStore }}
-      </div>
+      </span>
     </span>
   </Button>
 </template>
