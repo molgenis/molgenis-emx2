@@ -30,6 +30,12 @@ const page = ref(null);
         <li>
           <router-link :to="{ name: 'governance' }">Governance</router-link>
         </li>
+        <li>
+          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
+        </li>
       </template>
       <template v-slot:column-links-2>
         <li>
@@ -51,14 +57,6 @@ const page = ref(null);
             src="/img/ern-funded-by-eu.svg"
             alt="european reference network funded by the european union"
           />
-        </li>
-      </template>
-      <template v-slot:site-citation>
-        <li>
-          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
-        </li>
-        <li>
-          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
         </li>
       </template>
     </AppFooter>

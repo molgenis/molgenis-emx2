@@ -49,15 +49,6 @@
         </div>
       </div>
     </div>
-    <div class="citation-container" v-if="showProjectCitation">
-      <div class="footer-content">
-        <nav>
-          <ul class="footer-list list-horizontal">
-            <slot name="site-citation"></slot>
-          </ul>
-        </nav>
-      </div>
-    </div>
   </footer>
 </template>
 
@@ -87,12 +78,15 @@ const props = withDefaults(
     margin: 0 auto;
 
     @media (min-width: 917px) {
-      max-width: $max-width;
+      max-width: var(--max-width);
     }
   }
 
   .footer-list-title {
-    @include textTransform(bold);
+    text-transform: uppercase;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: 0.08em;
   }
 
   .footer-list {
@@ -132,7 +126,7 @@ const props = withDefaults(
   }
 
   .links-container {
-    background-color: $gray-050;
+    background-color: var(--gray-050);
 
     .footer-content {
       display: grid;
@@ -151,7 +145,10 @@ const props = withDefaults(
       .footer-links {
         .footer-list {
           a {
-            @include textTransform;
+            text-transform: uppercase;
+            font-size: 11pt;
+            font-weight: 400;
+            letter-spacing: 0.08em;
             text-decoration: none;
             padding-bottom: 2px;
             border-bottom: 2px solid transparent;
@@ -170,20 +167,6 @@ const props = withDefaults(
       .footer-list {
         li {
           margin-bottom: 1.3em;
-        }
-      }
-    }
-  }
-
-  .citation-container {
-    width: 100%;
-    text-align: center;
-    .footer-list {
-      li {
-        a {
-          @include textTransform;
-          color: $gray-700;
-          font-size: 0.8rem;
         }
       }
     }

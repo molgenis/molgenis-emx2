@@ -35,23 +35,23 @@ const cssClassNames = computed(() => {
   </address>
 </template>
 
-<style lang="scss">
+<style lang="css" scoped>
 .address {
   font-style: normal;
   font-size: 14pt;
   margin-left: 2.25em;
   line-height: 1.3;
+}
 
-  strong {
-    color: $gray-900;
-  }
+.address span strong {
+  color: var(--gray-900);
+}
 
-  span {
-    display: block;
-  }
+.address span {
+  display: block;
+}
 
-  &.address-text-center {
-    text-align: center;
-  }
+.address.address-text-center {
+  text-align: center;
 }
 </style>
