@@ -817,58 +817,6 @@ export interface ICatalogueOntologies_FundingTypes_agg {
   count: number;
 }
 
-export interface ICatalogueOntologies_ICDOMorphologies extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_ICDOMorphologies;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_ICDOMorphologies[];
-}
-
-export interface ICatalogueOntologies_ICDOMorphologies_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_ICDOTopologies extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_ICDOTopologies;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_ICDOTopologies[];
-}
-
-export interface ICatalogueOntologies_ICDOTopologies_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_InclusionExclusionCriteria
-  extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_InclusionExclusionCriteria;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_InclusionExclusionCriteria[];
-}
-
-export interface ICatalogueOntologies_InclusionExclusionCriteria_agg {
-  count: number;
-}
-
 export interface ICatalogueOntologies_InformedConsentRequired
   extends IMgTableClass {
   order?: number;
