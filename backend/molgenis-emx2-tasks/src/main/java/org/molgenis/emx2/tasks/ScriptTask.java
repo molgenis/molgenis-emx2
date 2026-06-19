@@ -206,25 +206,10 @@ public class ScriptTask extends Task {
       }
     }
 
-    // define commands (given tempDir as working directory)
-    String createVenvCommand = "python3 -m venv venv";
-    String activateCommand = "source venv/bin/activate";
-    String pipUpgradeCommand = "pip3 install --upgrade pip";
-    String installRequirementsCommand =
-        "pip3 install -r requirements.txt --quiet"; // don't check upgrade
-    String runScriptCommand = "python3 -u script.py";
+    String requirementsString = this.dependencies != null ? "--with " + this.dependencies : "";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return createVenvCommand
-        + " && "
-        + activateCommand
-        + " && "
-        + pipUpgradeCommand
-        + " && "
-        + installRequirementsCommand
-        + " && "
-        + runScriptCommand
-        + escapedParameters;
+    return  "uv run " + requirementsString + " script.py" + escapedParameters;
   }
 
   /**
