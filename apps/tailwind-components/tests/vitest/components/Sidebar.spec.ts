@@ -217,6 +217,35 @@ describe("Sidebar contentVisible gating", () => {
   });
 });
 
+describe("Sidebar click-to-expand on collapsed rail", () => {
+  it("emits update:collapsed false when clicking the collapsed panel root", async () => {
+    const wrapper = mountSidebar(true, 0);
+    await wrapper.trigger("click");
+    expect(wrapper.emitted("update:collapsed")).toBeTruthy();
+    expect(wrapper.emitted("update:collapsed")![0]).toEqual([false]);
+    wrapper.unmount();
+  });
+
+  it("does not emit when clicking the expanded panel root", async () => {
+    const wrapper = mountSidebar(false, 0);
+    await wrapper.trigger("click");
+    expect(wrapper.emitted("update:collapsed")).toBeFalsy();
+    wrapper.unmount();
+  });
+
+  it("adds cursor-pointer class when collapsed", () => {
+    const wrapper = mountSidebar(true, 0);
+    expect(wrapper.classes()).toContain("cursor-pointer");
+    wrapper.unmount();
+  });
+
+  it("does not add cursor-pointer class when expanded", () => {
+    const wrapper = mountSidebar(false, 0);
+    expect(wrapper.classes()).not.toContain("cursor-pointer");
+    wrapper.unmount();
+  });
+});
+
 describe("Sidebar toggle button is always present (single unified control)", () => {
   it("toggle button exists in both expanded and collapsed state", () => {
     const expandedWrapper = mountSidebar(false, 0);

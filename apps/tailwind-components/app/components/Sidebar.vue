@@ -2,7 +2,11 @@
   <div
     ref="panelRef"
     class="relative shrink-0 w-80 xl:w-96 bg-sidebar-gradient rounded-t-3px rounded-b-theme transition-[margin-left] duration-default motion-reduce:transition-none"
-    :class="collapsed ? 'panel-slide-collapsed' : 'panel-expanded'"
+    :class="[
+      collapsed ? 'panel-slide-collapsed' : 'panel-expanded',
+      { 'cursor-pointer': collapsed },
+    ]"
+    @click="expandWhenCollapsed"
     @transitionend="onTransitionEnd"
   >
     <div id="filter-sidebar-content" v-show="contentVisible" class="pb-8">
@@ -14,7 +18,7 @@
         type="button"
         class="flex items-center justify-center w-10 h-10 text-search-filter-title hover:text-search-filter-group-toggle transition-colors cursor-pointer focus:outline-none focus-visible:outline"
         :aria-label="collapsed ? 'Show filters' : 'Hide filters'"
-        @click="$emit('update:collapsed', !collapsed)"
+        @click.stop="emit('update:collapsed', !collapsed)"
       >
         <BaseIcon
           :name="collapsed ? 'double-arrow-right' : 'double-arrow-left'"
@@ -40,7 +44,7 @@ const props = defineProps<{
   activeFilterCount: number;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   "update:collapsed": [value: boolean];
 }>();
 
@@ -52,6 +56,12 @@ function prefersReducedMotion(): boolean {
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+}
+
+function expandWhenCollapsed() {
+  if (props.collapsed) {
+    emit("update:collapsed", false);
+  }
 }
 
 watch(
