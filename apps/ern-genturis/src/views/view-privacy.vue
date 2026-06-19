@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import GenturisAddress from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-privacy-policy">
     <PageHeader
@@ -119,9 +125,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import GenturisAddress from "../components/Address.vue";
-</script>

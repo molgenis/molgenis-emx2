@@ -1,3 +1,10 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+// @ts-ignore
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-contact-us">
     <PageHeader
@@ -25,10 +32,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-// @ts-ignore
-import Address from "../components/Address.vue";
-</script>
