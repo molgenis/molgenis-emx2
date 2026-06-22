@@ -547,11 +547,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     if (refColumns.stream().filter(r -> r.getName().startsWith(getName())).count() == 1) {
       refColumns =
           refColumns.stream()
-              .map(
-                  r -> {
-                    if (r.getName().startsWith(getName())) r.setName(getName());
-                    return r;
-                  })
+              .map(r -> r.getName().startsWith(getName()) ? r.withName(getName()) : r)
               .collect(Collectors.toList());
     }
 
