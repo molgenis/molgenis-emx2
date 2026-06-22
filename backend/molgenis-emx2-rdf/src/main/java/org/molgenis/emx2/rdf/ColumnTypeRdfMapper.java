@@ -242,9 +242,9 @@ public abstract class ColumnTypeRdfMapper {
         final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
         for (final String colName : colNameToRefTableColName.keySet()) {
           final String[] values =
-              (column.isArray()
+              column.isArray()
                   ? row.getStringArray(colName)
-                  : new String[] {row.getString(colName)});
+                  : new String[] {row.getString(colName)};
 
           if (values == null) continue;
 

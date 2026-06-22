@@ -10,7 +10,7 @@
     <div class="z-30 relative min-h-screen flex flex-col">
       <Header>
         <template #logo>
-          <Logo link="/" />
+          <Logo link="/" :image="logoUrl" />
         </template>
         <template #nav>
           <Navigation :navigation="userMenuItems" />
@@ -49,7 +49,7 @@
           />
         </template>
         <template #logo-mobile>
-          <LogoMobile link="/" />
+          <LogoMobile link="/" :image="logoUrl" />
         </template>
         <template #nav-mobile>
           <Navigation :navigation="menuItems" />
@@ -71,7 +71,7 @@
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed, type Ref } from "vue";
+import { computed, ref, type Ref, watch } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
 import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
@@ -83,11 +83,22 @@ import FooterVersion from "../../../tailwind-components/app/components/FooterVer
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
 import type { MenuItem } from "../../../tailwind-components/types/types";
+import { useLogo } from "../../../tailwind-components/app/composables/useLogo";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
 const { session, signOut } = await useSession(schema.value);
+
+const logoUrl = ref<string | undefined>(undefined);
+
+watch(
+  () => route.params.schema,
+  async (currentSchema) => {
+    logoUrl.value = await useLogo(currentSchema);
+  },
+  { immediate: true }
+);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -243,52 +254,3 @@ const userMenuItems = computed(() => {
   return removeInvisibleSubmenus(visibleMenuItems);
 });
 </script>
-
-<style>
-.v-popper--theme-dropdown .v-popper__inner {
-  background: none;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.v-popper__popper--no-positioning {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  width: 100%;
-}
-
-.v-popper_fullscreen .v-popper__popper--no-positioning {
-  width: 100%;
-  max-width: none;
-}
-
-.v-popper_right .v-popper__popper--no-positioning {
-  left: auto;
-  right: 0;
-}
-
-.v-popper__popper--no-positioning .v-popper__backdrop {
-  display: block;
-  background: rgba(0 0 0 / 60%);
-}
-
-.v-popper__popper--no-positioning .v-popper__wrapper {
-  width: 100%;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out;
-}
-
-.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
-  transform: translateX(-100%);
-}
-.v-popper_right
-  .v-popper__popper--no-positioning.v-popper__popper--hidden
-  .v-popper__wrapper {
-  transform: translateX(100%);
-}
-</style>

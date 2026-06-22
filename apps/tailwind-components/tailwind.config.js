@@ -113,12 +113,13 @@ module.exports = {
       }),
       height: () => ({
         input: "var(--height-input)",
-      }),
-      height: () => ({
-        input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
         "input-large": "var(--height-input-large)",
+        "button-tiny": "2rem",
+        "button-small": "2.625rem",
+        "button-default": "3.125rem",
+        "button-large": "3.5rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
@@ -171,6 +172,8 @@ module.exports = {
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
         "button-inline-hover": "var(--background-color-button-inline-hover)",
+        "button-cart-remove": "var(--background-color-button-cart-remove)",
+        "button-cart-count": "var(--background-color-button-cart-count)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         "navigation-dynamic": "var(--background-color-navigation-dynamic)",
@@ -248,10 +251,14 @@ module.exports = {
         "button-text": "var(--text-color-button-text)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
-        menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
           "var(--text-color-button-tree-node-toggle-hover)",
+        "button-remove": "var(--text-color-button-remove)",
+        "button-cart-add": "var(--text-color-button-cart-add)",
+        "button-cart-add-hover": "var(--text-color-button-cart-add-hover)",
+        "button-cart-remove": "var(--text-color-button-cart-remove)",
+        "button-cart-count": "var(--text-color-button-cart-count)",
         menu: "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
@@ -380,6 +387,7 @@ module.exports = {
         "button-switch": "var(--border-color-button-switch)",
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
+        footer: "var(--border-color-footer)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IResources } from "../../../interfaces/catalogue";
+import type { ICatalogues } from "../../../interfaces/catalogue";
 import { navigateTo } from "#app/composables/router";
 import Table from "../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
@@ -9,7 +9,7 @@ import TableCell from "../../../../tailwind-components/app/components/TableCell.
 import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 defineProps<{
-  catalogues: IResources[];
+  catalogues: ICatalogues[];
   title: string;
   description: string;
 }>();
@@ -48,7 +48,7 @@ defineProps<{
             <NuxtLink :to="`/${catalogue.id}`">
               <span
                 class="text-body-base font-extrabold text-link hover:underline hover:bg-link-hover"
-                >{{ catalogue.id }}</span
+                >{{ catalogue.acronym || catalogue.id }}</span
               >
             </NuxtLink>
           </TableCell>

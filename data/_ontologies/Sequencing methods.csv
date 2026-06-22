@@ -1,6 +1,6 @@
 name,tags,definition,codesystem,code,ontologyTermURI
 Next Generation Sequencing,,Next Generation Sequencing,NCIT,C101293,http://purl.obolibrary.org/obo/NCIT_C101293
-Whole Genome Sequencing,erdera,Whole Genome Sequencing,NCIT,C101294,http://purl.obolibrary.org/obo/NCIT_C101294
+Whole Genome Sequencing,"erdera",Whole Genome Sequencing,NCIT,C101294,http://purl.obolibrary.org/obo/NCIT_C101294
 Whole Exome Sequencing,erdera,Whole Exome Sequencing,NCIT,C101295,http://purl.obolibrary.org/obo/NCIT_C101295
 Large-Scale Sequencing,,Large-Scale Sequencing,NCIT,C19645,http://purl.obolibrary.org/obo/NCIT_C19645
 454 Sequencing,,454 Sequencing,NCIT,C146809,http://purl.obolibrary.org/obo/NCIT_C146809
@@ -41,8 +41,8 @@ ssRNA-seq,,ssRNA-seq,,,
 PE 150-bp,,Paired-end 150-bp,,,
 Panel,,Gene panel sequencing,,,
 Array,,Genotyping array,,,
-srRNA,erdera,Short-read RNA sequencing,EDAM,EDAM:3170,http://edamontology.org/topic_3170
-lrRNA,erdera,Long-read RNA sequencing,EDAM,EDAM:3170,http://edamontology.org/topic_3170
+srRNA,"erdera,RNA",Short-read RNA sequencing,EDAM,EDAM:3170,http://edamontology.org/topic_3170
+lrRNA,"erdera,RNA",Long-read RNA sequencing,EDAM,EDAM:3170,http://edamontology.org/topic_3170
 srGS,erdera,Short-read Whole Genome Sequencing,NCIT,NCIT:C101294,http://purl.obolibrary.org/obo/NCIT_C101294
-lrGS,erdera,Long-read Whole Genome Sequencing,NCIT,NCIT:C101294,http://purl.obolibrary.org/obo/NCIT_C101294
+lrGS,"erdera,lrGS",Long-read Whole Genome Sequencing,NCIT,NCIT:C101294,http://purl.obolibrary.org/obo/NCIT_C101294
 OGM,erdera,Optical Genome Mapping,NCIT,NCIT:C116162,http://purl.obolibrary.org/obo/NCIT_C116162

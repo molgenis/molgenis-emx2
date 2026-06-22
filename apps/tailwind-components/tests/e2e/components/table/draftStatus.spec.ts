@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test("the draft status is displayed correctly", async ({ page }) => {

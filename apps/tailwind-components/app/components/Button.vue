@@ -1,5 +1,5 @@
 <script setup lang="ts">
-//todo: refactor each button shape/flavor in seperate easy to understand components so we get rid of weird mappings.
+//todo: refactor each button shape/flavor in separate easy to understand components so we get rid of weird mappings.
 //similar to polymorphism in the inputs.
 
 import { computed, watchEffect } from "vue";
@@ -20,6 +20,7 @@ const props = withDefaults(
     disabled?: boolean;
     iconOnly?: boolean;
     tooltip?: string;
+    href?: string;
   }>(),
   {
     type: "primary",
@@ -58,21 +59,21 @@ const COLOR_MAPPING = {
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
 
 const SIZE_MAPPING = {
-  tiny: "h-8 p-2 text-heading-sm gap-2",
-  small: "h-10.5 px-5 text-heading-lg gap-3",
-  medium: "h-14 px-7.5 text-heading-xl gap-4",
-  large: "h-18 px-8.75 text-heading-xl gap-5",
+  tiny: "h-button-tiny p-2 text-heading-sm gap-2",
+  small: "h-button-small px-5 text-heading-lg gap-3",
+  medium: "h-button-default px-7.5 text-heading-xl gap-4",
+  large: "h-button-large px-8.75 text-heading-xl gap-5",
 };
 
 const ICON_ONLY_SIZE_MAPPING = {
-  tiny: "p-[8px] h-8 w-8",
-  small: "p-[5px] h-10 w-10",
-  medium: "p-[8px] h-14 w-14",
-  large: "p-[8px] h-18 w-18",
+  tiny: "p-[7px] h-button-tiny w-button-tiny",
+  small: "p-[11px] h-button-small w-button-small",
+  medium: "p-[12px] h-button-default w-button-default",
+  large: "p-[9px] h-button-large w-button-large",
 };
 
 const ICON_SIZE_MAPPING = {
-  tiny: 12,
+  tiny: 16,
   small: 18,
   medium: 24,
   large: 36,
@@ -104,10 +105,14 @@ const iconSize = computed(() => {
 const tooltipText = computed(() => {
   return props.tooltip || props.iconOnly ? props.label : "";
 });
+
+const tag = computed(() => (props.href ? "a" : "button"));
 </script>
 
 <template>
-  <button
+  <component
+    :is="tag"
+    :href="props.href"
     v-tooltip.bottom="tooltipText"
     class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
@@ -119,5 +124,5 @@ const tooltipText = computed(() => {
       }`"
       >{{ label }}<slot
     /></span>
-  </button>
+  </component>
 </template>
