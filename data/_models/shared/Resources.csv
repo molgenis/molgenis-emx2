@@ -27,7 +27,7 @@ Resources,,external identifiers,refback,,,,External identifiers,,resource,,,Exte
 Resources,,start year,int,,,,,,,,dcat:startDate,"The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established","DataCatalogueFlat,EMA,RWEStaging,CohortsBasis,NetworksStaging",,,
 Resources,,end year,int,,,,,,,,dcat:endDate,"The year the resource ceased, e.g. when data or sample collection was stopped","DataCatalogueFlat,EMA,RWEStaging,CohortsBasis,NetworksStaging",,,
 Collections,,time span description,text,,,,,,,,,Description of time span,"DataCatalogueFlat,RWEStaging",,,
-Resources,,contact email,email,,,,,,,,,Contact e-mail address,"DataCatalogueFlat,CohortsExtended",,,
+Resources,,contact email,email,,,,,,,,,Contact e-mail address,"DataCatalogueFlat,CohortsExtended,RWEStaging",,,
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsExtended,RWEStaging,NetworksStaging,StudiesStaging",,,
 Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging",,,
 Catalogues,,conforms to,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat,,,
