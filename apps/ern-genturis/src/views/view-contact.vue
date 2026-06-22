@@ -27,7 +27,7 @@ import Address from "../components/Address.vue";
         <a href="mailto:genturis-registry@umcg.nl">genturis-registry@umcg.nl</a>
         or at the following address.
       </p>
-      <Address :centerText="true" />
+      <Address :show-email="true" />
     </PageSection>
   </Page>
 </template>

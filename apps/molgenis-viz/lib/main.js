@@ -1,9 +1,11 @@
 // display components
 import Accordion from "../src/components/display/Accordion.vue";
 import ActionLink from "../src/components/display/ActionLink.vue";
+import Address from "../src/components/display/Address.vue";
 import FileList from "../src/components/display/FileList.vue";
 import InfoCard from "../src/components/display/InfoCard.vue";
 import LinkCard from "../src/components/display/LinkCard.vue";
+import LinkCardGroup from "../src/components/display/LinkCardGroup.vue";
 import LoadingScreen from "../src/components/display/LoadingScreen.vue";
 import MessageBox from "../src/components/display/MessageBox.vue";
 import MolgenisLogo from "../src/components/display/MolgenisLogo.vue";
@@ -65,11 +67,13 @@ export {
   // display components
   Accordion,
   ActionLink,
+  Address,
   ButtonSearch,
   InfoCard,
   InputLabel,
   InputSearch,
   LinkCard,
+  LinkCardGroup,
   LoadingScreen,
   MessageBox,
   MolgenisLogo,

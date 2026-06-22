@@ -138,33 +138,33 @@
     background-color: white;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item .link-card {
+.card-link-group ol li .link-card {
     height: auto;
     border-radius: 0;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item .link-card .card-background-filter {
+.card-link-group ol li .link-card .card-background-filter {
     border-radius: 0;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item .link-card.padding-h-3 {
+.card-link-group ol li .link-card.padding-h-3 {
     padding: 1.75em;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item .link-card .card-content {
+.card-link-group ol li .link-card .card-content {
     padding: 1.75em;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item:nth-child(1) .link-card {
+.card-link-group ol li:nth-child(1) .link-card {
     background-color: var(--blue-700);
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item:nth-child(2) .link-card .card-background-filter {
+.card-link-group ol li:nth-child(2) .link-card .card-background-filter {
     background-color: var(--blue-green-800);
     opacity: 0.6;
 }
 
-#genturisQuickLinks .quick-links-nav .nav-item:nth-child(3) .link-card .card-background-filter {
+.card-link-group ol li:nth-child(3) .link-card .card-background-filter {
     background-color: var(--blue-800);
     opacity: 0.6;
 }
