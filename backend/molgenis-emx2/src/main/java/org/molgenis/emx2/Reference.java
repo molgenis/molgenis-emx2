@@ -11,15 +11,10 @@ import org.jooq.Field;
 public class Reference {
   private Column column;
   private String name;
-  private String refTo; // intermediate target, might be table in the middle
+  private String refTo;
   private List<String> path;
-  private String targetTable; // final target
-  private String targetColumn; // final target
-
-  public List<String> getPath() {
-    return path;
-  }
-
+  private String targetTable;
+  private String targetColumn;
   private ColumnType columnType;
   private ColumnType primitiveType;
   private boolean isArray;
@@ -41,8 +36,8 @@ public class Reference {
     this.refTo = refTo;
     this.columnType = columnType;
     this.primitiveType = primitiveType;
-    this.targetTable = targetTable;
     this.isArray = isArray;
+    this.targetTable = targetTable;
     this.targetColumn = targetColumn;
     this.required = required;
     this.path = path;
@@ -52,48 +47,16 @@ public class Reference {
     return name;
   }
 
-  public String getRefTo() {
-    return refTo;
-  }
-
-  public ColumnType getColumnType() {
-    return columnType;
-  }
-
-  public DataType getJooqType() {
-    return toJooqType(getPrimitiveType());
-  }
-
-  public boolean isRequired() {
-    return required;
-  }
-
-  public Field getJooqField() {
-    return field(name(getName()), getJooqType());
-  }
-
   public void setName(String name) {
     this.name = name;
   }
 
-  public ColumnType getPrimitiveType() {
-    return this.primitiveType;
+  public String getRefTo() {
+    return refTo;
   }
 
-  public Reference getOverlapping() {
-    return column.getRefLinkColumn().getReferences().get(0);
-  }
-
-  public boolean isOverlapping() {
-    return !getName().startsWith(column.getName());
-  }
-
-  public void setPrimitiveType(ColumnType type) {
-    this.primitiveType = type;
-  }
-
-  public void setColumn(Column column) {
-    this.column = column;
+  public List<String> getPath() {
+    return path;
   }
 
   public String getTargetTable() {
@@ -104,8 +67,44 @@ public class Reference {
     return this.targetColumn;
   }
 
+  public ColumnType getColumnType() {
+    return columnType;
+  }
+
+  public ColumnType getPrimitiveType() {
+    return this.primitiveType;
+  }
+
+  public void setPrimitiveType(ColumnType type) {
+    this.primitiveType = type;
+  }
+
   public boolean isArray() {
     return isArray;
+  }
+
+  public boolean isRequired() {
+    return required;
+  }
+
+  public void setColumn(Column column) {
+    this.column = column;
+  }
+
+  public DataType getJooqType() {
+    return toJooqType(getPrimitiveType());
+  }
+
+  public Field getJooqField() {
+    return field(name(getName()), getJooqType());
+  }
+
+  public boolean isOverlapping() {
+    return !getName().startsWith(column.getName());
+  }
+
+  public Reference getOverlapping() {
+    return column.getRefLinkColumn().getReferences().get(0);
   }
 
   public boolean isOverlappingRef() {
