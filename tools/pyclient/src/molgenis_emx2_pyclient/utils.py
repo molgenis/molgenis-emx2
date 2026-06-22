@@ -272,13 +272,14 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
     """
 
     if isinstance(data, pd.DataFrame):
-        object_columns = data.select_dtypes('object').columns
-        data[object_columns] = data[object_columns].map(array_to_csv_string)
+        data_for_csv = data.copy() # Do not modify the original data
+        object_columns = data_for_csv.select_dtypes('object', exclude="str").columns
+        data_for_csv[object_columns] = data[object_columns].map(array_to_csv_string)
         if filename:
-            data.to_csv(path_or_buf=filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
+            data_for_csv.to_csv(path_or_buf=filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
             return None
         else:
-            return data.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+            return data_for_csv.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
     else:
         if filename:
             target = open(filename, mode='w', encoding='utf-8', newline='')

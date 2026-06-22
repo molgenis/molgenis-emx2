@@ -575,9 +575,9 @@ async def test_symmetry():
         schema = "pet store"
         # Get all tables
         meta = client.get_schema_metadata(name=schema)
-        for as_df in [True]:#[False, True]:
-            for table in meta.tables[1:2]:
-                for parse_arrays in [True]:#[False, True]:
+        for as_df in [False, True]:
+            for table in meta.tables:
+                for parse_arrays in [False, True]:
                     table_before = client.get(schema=schema, table=table.name, as_df=as_df, parse_arrays=parse_arrays)
                     for to_file in [False, True]:
                         if to_file:
