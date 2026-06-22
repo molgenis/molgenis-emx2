@@ -20,7 +20,7 @@ const props = withDefaults(
 
 <template>
   <nav class="card-link-group">
-    <ol class="d-flex flex-row m-0 p-0">
+    <ol class="d-flex flex-row m-0 p-0" style="list-style: none">
       <li class="flex-grow-1" v-for="card in linkCards">
         <LinkCard
           class="w-100"
