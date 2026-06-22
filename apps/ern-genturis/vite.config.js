@@ -11,28 +11,13 @@ const dir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ command }) => {
   
-  // @import "viz/styles/palettes.scss";
-  //           @import "viz/styles/variables.scss";
-  //           @import "viz/styles/mixins.scss"; 
-  //           @import "ern/index.scss";
   return {
     resolve: {
         alias: {
         viz: path.resolve(dir, "node_modules/molgenis-viz/src"),
         vizdist: path.resolve(dir, "node_modules/molgenis-viz/dist"),
         molgenis: path.resolve(dir,"node_modules/molgenis-components/dist"),
-        // ern: path.resolve(dir, "src/styles"),
         }  
-    },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `
-            @import "molgenis/molgenis-components.css";
-            @import "vizdist/molgenis-viz.css";
-        `,
-        },
-      },
     },
     plugins: [vue()],
     base: ["dev", "serve"].includes(command) ? "/" : "apps/ern-genturis/",

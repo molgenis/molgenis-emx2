@@ -29,27 +29,25 @@ withDefaults(
     height?: "xsmall" | "small" | "medium" | "large";
   }>(),
   {
-    height: "medium",
+    height: "small",
   }
 );
 </script>
 
-<style lang="scss">
-.quick-links {
-  .quick-links-nav {
-    display: flex;
-    flex-direction: row;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+<style lang="css">
+.quick-links .quick-links-nav {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-    li {
-      flex-grow: 1;
-    }
+.quick-links .quick-links-nav li {
+  flex-grow: 1;
+}
 
-    .link-card {
-      width: 100%;
-    }
-  }
+.quick-links .quick-links-nav li .link-card {
+  width: 100%;
 }
 </style>

@@ -6,6 +6,7 @@
     --gray-500: #777777;
     --gray-100: #e4e4e4;
     --blue-900: #163d89;
+    --blue-800: #2d5095;
     --blue-700: #4463a1;
     --blue-500: #7289b8;
     --blue-green-800: #45a5c8;
@@ -137,42 +138,33 @@
     background-color: white;
 }
 
-#registryHighlights .data-highlights .data-highlight {
-    padding: 0.8em 1em;
-}
-
-#registryHighlights .data-highlights .data-highlight .data-label {
-    margin-bottom: 0.15em;
-    font-size: 0.75rem;
-}
-
-#registryHighlights .data-highlights .data-highlight .data-value::after {
-    font-size: 1.8rem;
-}
-
-#genturisQuickLinks .nav-item .link-card {
+#genturisQuickLinks .quick-links-nav .nav-item .link-card {
     height: auto;
     border-radius: 0;
 }
 
-#genturisQuickLinks .nav-item .link-card .card-background-filter {
+#genturisQuickLinks .quick-links-nav .nav-item .link-card .card-background-filter {
     border-radius: 0;
 }
 
-#genturisQuickLinks .nav-item .link-card .card-content {
+#genturisQuickLinks .quick-links-nav .nav-item .link-card.padding-h-3 {
     padding: 1.75em;
 }
 
-#genturisQuickLinks .nav-item:nth-item(1) .link-card {
+#genturisQuickLinks .quick-links-nav .nav-item .link-card .card-content {
+    padding: 1.75em;
+}
+
+#genturisQuickLinks .quick-links-nav .nav-item:nth-child(1) .link-card {
     background-color: var(--blue-700);
 }
 
-#genturisQuickLinks .nav-item:nth-item(2) .link-card .card-background-filter {
+#genturisQuickLinks .quick-links-nav .nav-item:nth-child(2) .link-card .card-background-filter {
     background-color: var(--blue-green-800);
     opacity: 0.6;
 }
 
-#genturisQuickLinks .nav-item:nth-item(3) .link-card .card-background-filter {
+#genturisQuickLinks .quick-links-nav .nav-item:nth-child(3) .link-card .card-background-filter {
     background-color: var(--blue-800);
     opacity: 0.6;
 }
@@ -198,7 +190,7 @@ padding-bottom: 0.3em;
   
 #genturisPublicDashboard .dashboard-content,
 #genturisPublicDashboard .dashboard-content .dashboard-chart-layout {
-gap: 1em;
+    gap: 1em;
 }
 
   @media screen and (min-width: 1800px) {

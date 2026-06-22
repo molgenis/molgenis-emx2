@@ -145,7 +145,7 @@ import { Page, PageHeader, PageSection } from "molgenis-viz";
   </Page>
 </template>
 
-<style lang="scss">
+<style lang="css">
 #img-genturis-disease-groups {
   display: block;
   width: 90%;

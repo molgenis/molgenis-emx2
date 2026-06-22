@@ -11,18 +11,10 @@ const props = defineProps({
     default: false,
   },
 });
-
-const cssClassNames = computed(() => {
-  const css = ["address"];
-  if (props.centerText) {
-    css.push("address-text-center");
-  }
-  return css.join(" ");
-});
 </script>
 
 <template>
-  <address :class="cssClassNames">
+  <address class="address" :class="{ 'address-text-center': centerText }">
     <span><strong>University Medical Centre Groningen</strong></span>
     <span>GENTURIS registry</span>
     <span>Department of Medical Genetics</span>
