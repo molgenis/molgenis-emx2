@@ -135,23 +135,26 @@ public class JWTgenerator {
       logger.warn("Failed to get JWT claims.", e);
       throw new MolgenisException("Cannot parse token", e);
     }
-    Date experationTime = claimsSet.getExpirationTime();
+    Date expirationTime = claimsSet.getExpirationTime();
     String tokenId = claimsSet.getJWTID();
     String userName = claimsSet.getSubject();
+    if (expirationTime == null || tokenId == null || userName == null) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
     boolean isVerified;
     try {
       isVerified = signedJWT.verify(verifier);
     } catch (JOSEException je) {
-      logger.warn("JWT verification failed. token={}", tokenId, je);
-      throw new MolgenisException(je.getMessage());
+      logger.warn("JWT verification failed. jwtId={}", tokenId, je);
+      throw new MolgenisException("Cannot verify token", je);
     }
-    if (isVerified && new Date().before(experationTime)) {
+    if (isVerified && new Date().before(expirationTime)) {
       // verify user is known
       User user = database.getUser(userName);
-      // if temp token we must verify has experationTime not too far in the future
+      // if temp token we must verify has expirationTime not too far in the future
       if (user != null && "temporary".equals(tokenId)) {
         Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
-        if (experationTime.before(Date.from(thirtyMinutes))) {
+        if (expirationTime.before(Date.from(thirtyMinutes))) {
           return user.getUsername();
         }
       }
