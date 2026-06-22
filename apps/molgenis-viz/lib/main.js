@@ -16,6 +16,7 @@ import InputLabel from "../src/components/forms/InputLabel.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 
 // layout components
+import AppFooter from "../src/components/layouts/AppFooter.vue";
 import Dashboard from "../src/components/layouts/Dashboard.vue";
 import DashboardChart from "../src/components/layouts/DashboardChart.vue";
 import DashboardRow from "../src/components/layouts/DashboardRow.vue";
@@ -74,6 +75,7 @@ export {
   MolgenisLogo,
 
   // layouts
+  AppFooter,
   Dashboard,
   DashboardChart,
   DashboardRow,

@@ -37,11 +37,7 @@
                   <span class="visually-hidden">
                     visit the molgenis website to learn more
                   </span>
-                  <img
-                    src="/img/molgenis-logo-blue-text.png"
-                    class="molgenis-logo"
-                    alt="molgenis open source data platform"
-                  />
+                  <MolgenisLogo />
                 </a>
               </li>
             </ul>
@@ -53,6 +49,7 @@
 </template>
 
 <script lang="ts" setup>
+import MolgenisLogo from '../display/MolgenisLogo.vue';
 const props = withDefaults(
   defineProps<{
     firstColumnTitle?: string;
