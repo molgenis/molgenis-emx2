@@ -167,7 +167,8 @@ public class ScriptTask extends Task {
       writeExtraFiles(tempDir);
     }
 
-    String requirementsString = this.dependencies != null ? "--with " + this.dependencies : "";
+    String requirementsString =
+        this.dependencies != null ? "--with '" + this.dependencies.replace('\n', ',') + "'" : "";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
     return "uv run " + requirementsString + " script.py" + escapedParameters;
