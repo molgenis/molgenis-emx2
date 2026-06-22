@@ -1,6 +1,6 @@
 import { useRoute } from "#app";
-import { computed } from "vue";
-import type { Resp } from "../../types/types";
+import { computed, ref } from "vue";
+import type { Resp, Settings } from "../../types/types";
 import type { RouteLocationNormalizedGeneric } from "vue-router";
 
 export const useSchemaSettings = async (
@@ -35,9 +35,9 @@ export const useSchemaSettings = async (
         ? response.data[0]._settings
         : response.data._settings;
 
-      const settingsMap: Record<string, string> = {};
+      const settingsMap = ref<Settings>({});
       settingsArray.forEach((item) => {
-        settingsMap[item.key] = item.value;
+        settingsMap.value[item.key] = item.value;
       });
 
       return settingsMap;

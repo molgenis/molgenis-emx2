@@ -5,7 +5,7 @@ import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
 
 describe("useForm", () => {
-  const tableMetadata: Ref<ITableMetaData> = ref({
+  const tableMetadata = ref<ITableMetaData>({
     id: "vi test table metadata",
     name: "vi test table metadata",
     schemaId: "vi test table metadata",
@@ -45,6 +45,12 @@ describe("useForm", () => {
         id: "col6",
         label: "columns 6",
         required: "true",
+      },
+      {
+        columnType: "STRING",
+        id: "col7",
+        label: "conditionally required column",
+        required: "!!col2",
       },
     ],
   });
@@ -101,12 +107,10 @@ describe("useForm", () => {
       // non empty required bool field
       col6: false,
     });
-    const {
-      requiredFields,
-      onBlurColumn,
-      onUpdateColumn,
-      emptyRequiredFields,
-    } = useForm(tableMetadata, formValues);
+    const { onBlurColumn, onUpdateColumn, emptyRequiredFields } = useForm(
+      tableMetadata,
+      formValues
+    );
 
     // simulate col2 being blurred and col4 being dirty
     const col2 = tableMetadata.value.columns.find(
@@ -123,17 +127,6 @@ describe("useForm", () => {
     onBlurColumn(col2);
     onUpdateColumn(col4);
 
-    // change required fields to only col4
-    requiredFields.value = [
-      {
-        columnType: "STRING",
-        id: "col4",
-        label: "columns 4",
-        required: true,
-      },
-    ];
-
-    // col2 should be revalidated and show as empty, col4 should not be revalidated and stay in the empty list
     expect(emptyRequiredFields.value).toEqual([
       {
         columnType: "STRING",
@@ -148,6 +141,23 @@ describe("useForm", () => {
         required: true,
       },
     ]);
+
+    formValues.value["col2"] = "some value";
+    expect(emptyRequiredFields.value).toEqual([
+      {
+        columnType: "STRING",
+        id: "col4",
+        label: "columns 4",
+        required: true,
+      },
+      {
+        columnType: "STRING",
+        id: "col7",
+        label: "conditionally required column",
+        required: "!!col2",
+      },
+    ]);
+    delete formValues.value["col2"]; //reset
   });
 
   test("should go to the next required field", () => {
@@ -208,8 +218,15 @@ describe("useForm", () => {
         label: "columns 4",
         required: true,
       },
+      {
+        columnType: "STRING",
+        id: "col7",
+        label: "conditionally required column",
+        required: "!!col2",
+      },
     ]);
-    expect(requiredMessage.value).toBe("1/3 required field left");
+    expect(requiredMessage.value).toBe("2/4 required fields left");
+    delete formValues.value["col2"]; // reset
   });
 
   test("should go to the next error", () => {
@@ -297,10 +314,7 @@ describe("useForm", () => {
       ],
     });
 
-    const { sections, gotoSection, validateAllColumns } = useForm(
-      tableMetadata,
-      formValues
-    );
+    const { sections, validateAllColumns } = useForm(tableMetadata, formValues);
 
     validateAllColumns();
 

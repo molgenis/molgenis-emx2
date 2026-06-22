@@ -127,7 +127,7 @@ commands:
 
 # jobs for pull request and master
 jobs:
-  preview:
+  build-preview-images:
     <<: *build_config
 
     steps:
@@ -158,52 +158,216 @@ jobs:
           export $( cat build/ci.properties | xargs )
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
           docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
-    - run:
-        name: deploy preview to azure
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config-azure.sh
-          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true true
-
-    - run:
-        name: Wait for preview to be up, poll every 10 seconds
-        command: |
-          GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          MAX_RETRIES=40
-          RETRY=0
-          
-          while true; do
-            # Run curl, suppress output, get status code only
-            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
-          
-            echo "HTTP status: ${STATUS:-none}"
-            
-            if [[ "$STATUS" == "200" ]]; then
-            echo "✅ Preview is up"
-            break
-            else
-            echo "⏳ Preview not ready yet, waiting 10 seconds..."
-            fi
-            
-            RETRY=$((RETRY + 1))
-            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
-            echo "❌ Gave up after $MAX_RETRIES attempts"
-
-            echo "📌 Pods in namespace $NS:"
-            kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o wide
-
-            echo "📌 Events:"
-            kubectl get events -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" --sort-by=.metadata.creationTimestamp | tail -n 40
-
-            echo "📌 Logs from backend:"
-            POD=$(kubectl get pods -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" -o jsonpath='{.items[0].metadata.name}')
-            kubectl logs -n "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" $POD -c emx2 --tail=200
-            fi
-            
-            sleep 10
-          done
 
     - post_steps
+
+
+  build:
+    <<: *build_config
+
+    steps:
+      - pre_steps
+      - run:
+          name: build the application without running tests to speed up the e2e tests
+          command: ./gradlew shadowJar -x test ci --no-daemon
+
+      - run:
+          name: build ssr catalogue
+          command: pnpm build
+          working_directory: apps/catalogue
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/libs
+            - build/ci.properties
+            - apps/catalogue
+            - custom-app/
+
+  e2e-tests:
+    resource_class: large
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.61.0-jammy
+        environment:
+          JVM_OPTS: -Xmx6400m
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+          TERM: dumb
+      - image: postgres:15-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+    steps:
+      - checkout
+      - attach_workspace:
+            at: /workspace
+
+      - run:
+          name: Enable pnpm
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
+
+      - run: pnpm i -D @playwright/test
+
+      - run:
+          name: Install dependencies
+          command: |
+            pnpm install @playwright/test         
+            npx playwright install chrome
+            npx playwright install
+
+      - run:
+          name: Put custom app next to jar
+          command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
+
+      - run:
+          name: install postgres client
+          command: apt-get update && apt-get install -y postgresql-client
+
+      - run:
+          name: prepare sql test database
+          command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+      - run:
+          name: Install Java
+          command: |
+            apt-get update
+            apt-get install -y openjdk-21-jdk
+
+      - run:
+          name: Show jars
+          command: |
+            ls -la /workspace/build/libs
+
+      - run:
+          name: Make jar executable
+          command: |
+            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar
+
+      - run:
+          name: start the application in the background
+          command: |
+            export $( cat build/ci.properties | xargs )
+            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            export E2E_BASE_URL=http://localhost:8080/
+            export MOLGENIS_OIDC_CLIENT_ID=emx2-local
+            export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
+            export MOLGENIS_OIDC_DISCOVERY_URL=https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration
+            nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+            echo $! > application.pid
+            echo "Started PID: $(cat application.pid)"
+            sleep 5
+            echo "Checking if process is still running..."
+            ps -p $(cat application.pid) || echo "❌ Process died immediately"
+            echo "Last logs:"
+            tail -200 application.log
+
+      - run:
+          name: Wait for application to be up, poll every 5 seconds
+          command: |
+            GETURL="http://localhost:8080/pet%20store/tables#/"
+            MAX_RETRIES=480
+            RETRY=0
+
+            while true; do
+              # Run curl, suppress output, get status code only
+              STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+
+              echo "HTTP status: ${STATUS:-none}"
+
+              if [[ "$STATUS" == "200" ]]; then
+              echo "✅ Application is up"
+              break
+              else
+              echo "⏳ Application not ready yet, waiting 5 seconds..."
+              fi
+
+              RETRY=$((RETRY + 1))
+              if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+              echo "❌ Gave up after $MAX_RETRIES attempts"
+              exit 1
+              fi
+
+              sleep 1
+            done            
+
+      - run:
+          name: Test tailwind components
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
+            pnpm install
+            pnpm --filter tailwind-components run e2e
+          working_directory: apps
+
+      - store_test_results:
+          path: apps/tailwind-components/test-results
+
+      - store_artifacts:
+          path: apps/tailwind-components/test-results
+
+      - store_artifacts:
+          path: apps/tailwind-components/playwright-report
+
+      - run:
+          name: Directory e2e tests
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/
+            pnpm install
+            pnpm --filter directory run e2e
+          working_directory: apps
+
+      - store_test_results:
+          path: apps/directory/test-results
+
+      - store_artifacts:
+          path: apps/directory/test-results
+
+      - run:
+          name: UI tests
+          command: |
+            export E2E_BASE_URL=http://localhost:8080/apps/ui/
+            pnpm install
+            pnpm --filter ui run e2e
+          working_directory: apps
+
+      - store_test_results:
+          path: apps/ui/test-results
+
+      - store_artifacts:
+          path: apps/ui/test-results
+
+      - run:
+          name: Run non ssr e2e tests
+          command: |
+            export $( cat build/ci.properties | xargs )
+            pnpm install
+            npx playwright test --config e2e e2e/tests 
+
+      - store_test_results:
+          path: e2e/test-results
+
+      - store_artifacts:
+          path: e2e/test-results
+
+      - run:
+          name: Catalogue ssr tests
+          command: |
+            cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
+            pnpm install
+            pnpm --filter catalogue run e2e
+          working_directory: apps
+
+      - store_test_results:
+          path: apps/catalogue/test-results
+
+      - store_artifacts:
+          path: apps/catalogue/test-results
 
   test:
     <<: *test_config
@@ -224,6 +388,11 @@ jobs:
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: <apps> unit test the code
+        command: ./gradlew :apps:test
+
     - run:
         name: <backend> check code format
         command: |
@@ -235,7 +404,7 @@ jobs:
     - run:
         name: run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon \
+          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
@@ -305,104 +474,6 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-  e2e-test:
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.60.0-jammy
-    steps:
-      - checkout
-      - run:
-          name: Enable pnpm
-          command: |
-            corepack enable
-            corepack prepare pnpm@latest --activate
-            pnpm -v
-      - run: pnpm i -D @playwright/test
-      - run:
-          name: Install dependencies
-          command: |
-            pnpm install @playwright/test         
-            npx playwright install chrome
-            npx playwright install
-      - run:
-          name: Test tailwind components
-          command: |
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo $E2E_BASE_URL
-            pnpm install
-            pnpm --filter tailwind-components run e2e
-          working_directory: apps
-      - run:
-          name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
-          command: |
-            GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"           
-            while true; 
-                do 
-                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS} ${GETURL}
-                    if [[ "$STATUS" == "200" ]]; then 
-                        echo "test data is loaded";
-                        break; 
-                    else 
-                        echo "catalogue test data is not ready yet, waiting 10 seconds...";
-                    fi; 
-                    sleep 10; 
-                done
-      - run:
-          name: Test nuxt ssr catalogue tests
-          command: |
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo $E2E_BASE_URL
-            pnpm --filter catalogue run e2e
-          working_directory: apps
-      - run:
-          name: Wait for directory e2e test data to be loaded, poll every 10 seconds
-          command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/directory-demo/directory/"           
-            while true; 
-                do 
-                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                    echo ${STATUS} ${GETURL}
-                    if [[ "$STATUS" == "200" ]]; then 
-                        echo "test data is loaded";
-                        break; 
-                    else 
-                        echo "directory test data is not ready yet, waiting 10 seconds...";
-                    fi; 
-                    sleep 10; 
-                done
-      - run:
-          name: Directory e2e tests
-          command: |
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo $E2E_BASE_URL
-            pnpm --filter directory run e2e
-          working_directory: apps
-      - run:
-          name: UI tests
-          command: |
-            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            echo $E2E_BASE_URL
-            pnpm --filter ui run e2e
-          working_directory: apps
-      - run:
-            name: Run non ssr e2e tests
-            command: |
-              echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-              export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-              echo $E2E_BASE_URL
-              npx playwright test --config e2e e2e/tests
-      - run:
-            name: Save test results for stats
-            command: |
-                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
-      - store_test_results:
-         path: /root/project/e2e
-      - store_artifacts:
-          path: /root/project/e2e/test-results
 
   pr-preview:
     <<: *build_config
@@ -414,7 +485,7 @@ jobs:
         at: .
 
     - run:
-        name: Restart preview in limited resources mode
+        name: Start preview in limited resources mode
         command: |
           export $( cat build/ci.properties | xargs )
           bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
@@ -547,19 +618,13 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
-    - preview:
+    - build-preview-images:
         filters:
           branches:
             ignore: master
-    - e2e-test:
-        requires:
-          - preview
-        filters:
-            branches:
-              ignore: master
     - pr-preview:
         requires:
-          - e2e-test
+          - build-preview-images
         filters:
           branches:
             ignore: master
@@ -567,6 +632,13 @@ workflows:
        filters:
          branches:
            ignore: master
+    - build:
+        filters:
+          branches:
+            ignore: master
+    - e2e-tests:
+        requires:
+          - build
     - emx2-pyclient:
         name: testPyPI release
         filters:
