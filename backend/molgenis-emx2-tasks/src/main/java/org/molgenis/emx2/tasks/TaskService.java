@@ -9,7 +9,7 @@ public interface TaskService {
 
   String submit(Task task);
 
-  String submitTaskFromName(String name, String parameters);
+  ScriptTask getScript(String name);
 
   Set<String> getJobIds();
 

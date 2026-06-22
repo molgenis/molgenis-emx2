@@ -1,21 +1,46 @@
 # GraphQL in MOLGENIS
 
-Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database. 
-In addition, at the root there is a generic API.
+Each database in MOLGENIS has its own GraphQL endpoint that exposes a GraphQL API for the data model of that database.
+In addition, at the root there is an instance-wide (root) API that operates across all databases.
 
 For example:
 
-- https://emx2.dev.molgenis.org/api/graphql - root API
+- https://emx2.dev.molgenis.org/api/graphql - root (instance-wide) API
 - https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
 
 Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
 
-- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' API
-- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for 'pet store' database
+- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for the root API
+- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for database 'pet store'
+
+> **Terminology:** a **database** is a single dataset with its own data model and GraphQL endpoint.
+> Note that in the GraphQL API itself the fields are named `schema` / `_schema` / `schemas` (the
+> internal name for a database). The **root** (instance-wide) API operates across all databases
+> rather than on a single one.
+
+## Table of contents
+
+- [Functions available on all APIs](#functions-available-on-all-apis)
+  - [Sign in](#sign-in) 
+  - [Sign up](#sign-up) 
+  - [Sign out](#sign-out) 
+  - [changePassword](#changepassword) 
+  - [createToken](#createtoken) 
+  - [session object](#session-object) 
+  - [settings](#settings)
+- [Functions available per database](#functions-available-per-database)
+  - [query schema](#query-schema)
+  - [change schema elements](#change-schema-elements)
+  - [drop/remove schema elements](#dropremove-schema-elements)
+  - [Table-level permissions API](#table-level-permissions-api)
+- [Table query and mutation functions](#table-query-and-mutation-functions)
+- [Implementation hints](#implementation-hints)
+- [GraphQL endpoints for apps](#graphql-endpoints-for-apps)
+- [GraphQL JavaScript Library (Query EMX2)](#graphql-javascript-library-query-emx2)
 
 ## Functions available on all APIs.
 
-These functionalities are available for both the 'root' API and the database API.
+These functionalities are available for both the root (instance-wide) API and the per-database API.
 
 ### Sign in
 
@@ -74,34 +99,9 @@ mutation {
 }
 ```
 
-See tokens for current user
-
-```graphql
-{
-  _session {
-    settings {
-      key
-      value
-    }
-  }
-}
-```
-
-See tokens for all users, in settings 'access-tokens'
-
-```graphql
-{
-  _admin {
-    users {
-      email
-      settings {
-        key
-        value
-      }
-    }
-  }
-}
-```
+Tokens are stored as user settings (under the key `access-tokens`). To list them, query the current
+user's settings with `_session { settings }`, or all users' settings with `_admin { users { settings } }`
+— see [settings](#settings) for both queries.
 
 ### session object
 
@@ -235,6 +235,10 @@ mutation {
 }
 ```
 
+> **Permissions:** these mutations are subject to authorization — e.g. changing table settings
+> requires update permission on that table, schema settings require the Manager role. See
+> [Permissions](use_permissions.md) for the full model.
+
 User settings (only as admin, or settings of current user):
 
 ```graphql
@@ -247,7 +251,7 @@ mutation {
 }
 ```
 
-## Functions available for each database
+## Functions available per database
 
 ### query schema
 
@@ -301,13 +305,48 @@ mutation {
 > **Owner** or **Manager** role). If you do not have the required permissions, this field will not be included in the 
 > schema.
 
-## Table-level permissions API
+### change schema elements
+
+You can change objects from schema query above and then pass them into the change function.
+
+```graphql
+mutation{
+    change(
+        tables: [...],
+        members: [...]
+        settings: [...]
+        columns: [...]
+    ){
+        message
+    }
+}
+```
+
+### drop/remove schema elements
+
+Note that settings can be on level of schema, or level of tables. In that later case you need to provide the table as
+well.
+
+```graphql
+mutation {
+  drop(
+    tables: ["table1", "table2"]
+    members: ["email1", "email2"]
+    settings: [{ key: "key1" }, { key: "key2", table: "table1" }]
+    columns: [{ table: "table1", column: "column1" }]
+  ) {
+    message
+  }
+}
+```
+
+### Table-level permissions API
 
 Custom roles with per-table grants can be managed through GraphQL. This is distinct from the standard
 schema-wide roles (Viewer, Editor, Manager, etc.) — it allows a role to have access to only specific
 tables, with independent SELECT / INSERT / UPDATE / DELETE control.
 
-### Query roles and their permissions
+#### Query roles and their permissions
 
 The `roles` field in `_schema` returns all roles — both system roles and custom roles — with their
 effective permissions.
@@ -324,6 +363,7 @@ effective permissions.
         insert
         update
         delete
+        isRowLevel
       }
     }
   }
@@ -334,8 +374,9 @@ effective permissions.
 - `system: false` — custom role. Each entry in `permissions` targets a specific table.
 - `select` — `true` when SELECT is granted, `null` when not.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
+- `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
-### Create a custom role and grant permissions
+#### Create a custom role and grant permissions
 
 Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
 listed permissions are applied per field:
@@ -382,7 +423,7 @@ mutation {
 }
 ```
 
-### Revoke individual privileges
+#### Revoke individual privileges
 
 Pass `false` for any privilege you want to remove. Other privileges on the same table are not affected.
 
@@ -405,6 +446,73 @@ mutation {
 
 This example revokes SELECT and grants INSERT on `TableA`. UPDATE and DELETE are left unchanged.
 
+### Row-level security (RLS)
+
+When `isRowLevel: true` is set on a permission, each row is then only visible to the role whose name is stored in the row's `mg_roles` column.
+
+**How it works:**
+
+- A `mg_roles` column (type `string[]`) is added to the table the first time any role is granted
+  `isRowLevel: true`.
+- A PostgreSQL policy is created that filters rows for SELECT, UPDATE, and DELETE:
+  - Rows where `mg_roles` is `null` (empty) are **not** visible to users who only hold an RLS role.
+    They are visible only to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+  - Rows where `mg_roles` contains a role name are visible only to users who hold that role
+    (or to schema-level Viewer/Editor/Manager/Owner via bypass).
+  - Users with a schema-level **Viewer** role (or higher: Editor, Manager, Owner) bypass the filter
+    and always see all rows, including those with an empty `mg_roles`.
+  - A user can hold both an RLS role and the schema **Viewer** role simultaneously. In that case the
+    Viewer bypass applies to reads, so they see every row (including those with an empty `mg_roles`);
+    their writes are still restricted to rows tagged with their RLS role.
+
+> **Current limitation:** `mg_roles` is a `string[]` column, but only **one role per row** is
+> currently supported. Do not set multiple values in the array — the behaviour is undefined.
+
+**Enable RLS for a role:**
+
+```graphql
+mutation {
+  change(
+    roles: [
+      {
+        name: "TeamA"
+        permissions: [
+          { table: "Articles", select: true, insert: true, update: true, delete: true, isRowLevel: true }
+        ]
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+**Insert a row restricted to a specific role:**
+
+Set the `mg_roles` field to an array containing exactly one role name when inserting rows.
+
+```graphql
+mutation {
+  Articles(
+    insert: [
+      { id: "a1", title: "Team A only", mg_roles: ["TeamA"] }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+A row tagged with `mg_roles: ["TeamA"]` is visible only to members of `TeamA` (and to users with
+a schema-level Viewer role or higher). A row with no `mg_roles` value is **not** visible to users
+who only hold an RLS role — it is visible exclusively to users with a schema-level role (Viewer,
+Editor, Manager, or Owner).
+
+**Disabling RLS:**
+
+RLS is automatically disabled on a table when the last role with `isRowLevel` access is revoked. The
+`mg_roles` column and its data are retained; only the filtering policy is removed.
+
 ### Delete a custom role
 
 ```graphql
@@ -419,6 +527,15 @@ mutation {
 
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
+
+**Deleting an RLS role that is still referenced in `mg_roles`** is blocked. Before the role is
+dropped, every table it has access to is checked for rows that still name the role in `mg_roles`.
+If any such rows are found the operation fails with an error:
+
+> *"Cannot delete role 'X': N row(s) in table 'T' still reference it in mg_roles"*
+
+Clear all `mg_roles` references to the role first (set the field to `null` or reassign to another
+role), then retry the drop.
 
 ## change schema elements
 
@@ -455,23 +572,36 @@ mutation {
 }
 ```
 
-## Example functions that will be available for each table in the database
+
+## Table query and mutation functions
 
 Finally, for each table there are the following functions:
 
 - query (has the name of the table)
+- `<table>_agg` - aggregate companion query: `count` / `exists` over the (optionally filtered) table
+- `<table>_groupBy` - grouped `count` and numeric aggregates (`sum`, …) per column or referenced table
 - insert - to add rows
 - update - to update rows
 - save - to insert or if exist update rows
 - delete - to remove rows
 
+The aggregate companions are detailed under [query example](#query-example) below.
+
 ### query example
 
 A query can be performed by referring to a table name.
-For every table, aggregate functionality is available by adding <code>_agg</code> to the table name.
-This will expose the </code>count</code> and <code>exists</code> variables.
 
-A simple query, including count:
+For every table, two aggregate companions are also available:
+
+- `<table>_agg` — exposes the `count` and `exists` fields over the (optionally filtered) table.
+- `<table>_groupBy` — returns `count` and numeric aggregates (`sum`, …) grouped by one or more
+  columns or referenced tables.
+
+What each aggregate returns can be obfuscated depending on the user's permission level (see
+[Table-level permissions API](#table-level-permissions-api)); e.g. lower tiers receive bucketed
+counts instead of exact values.
+
+A simple query combining a row selection, `_agg` and `_groupBy`:
 
 ```graphql
 {
@@ -486,6 +616,7 @@ A simple query, including count:
   }
   Pet_agg {
     count
+    exists
   }
   Pet_groupBy {
     sum{weight},
@@ -511,7 +642,7 @@ Query including search
 }
 ```
 
-Query using filters, limit, offset. Note that filter enables quite complex queries using \_or and \_and operators. 
+Query using filters, limit, offset. Note that filter enables quite complex queries using `_or` and `_and` operators.
 
 Field-level filters apply comparison operators directly to individual fields.
 
@@ -535,7 +666,7 @@ Field-level filters apply comparison operators directly to individual fields.
 ```
 
 Object-level filters apply logical or comparison operators to the object as a whole, rather than to individual fields. 
-In this case, `not_equals` compares primary keys, `name` for Pet.
+In this case, `not_equals` compares against the primary key (`name` for Pet).
 
 ```graphql
 {
@@ -595,7 +726,7 @@ update, save, delete work exactly the same.
 
 ## Implementation hints
 
-Below some implentation hints
+Below some implementation hints
 
 ### Javascript
 
@@ -626,7 +757,7 @@ Go to the [Pet Store playground](https://emx2.dev.molgenis.org/pet%20store/graph
 
 Get the name of all the pets
 
-```
+```graphql
 {
   Pet {
     name
@@ -638,7 +769,7 @@ Get the name of all the pets
 
 Get only the pet named Pooky
 
-```
+```graphql
 {
   Pet(filter: { name: { equals: "pooky" } }){
     name,
@@ -651,7 +782,7 @@ Get only the pet named Pooky
 
 Get all the pets that have the letter K in them
 
-```
+```graphql
 {
   Pet(filter: { name: { like: "k" } }){
     name,
@@ -664,7 +795,7 @@ Get all the pets that have the letter K in them
 
 Get all the pets that have the letter k and are sold
 
-```
+```graphql
 {
   Pet(filter: { name: { like: "k" }, _and: { status: { like: "sold" } } } ) {
     name,
@@ -678,7 +809,7 @@ Get all the pets that have the letter k and are sold
 You can also filter the subsets in your result.
 Given the pet Spike in the petstore, he has two tags:
 
-```
+```graphql
 {
   Pet(filter: {name: {equals: "spike"}}) {
     name,
@@ -691,7 +822,7 @@ Given the pet Spike in the petstore, he has two tags:
 
 Results in:
 
-```
+```json
 {
   "data": {
     "Pet": [
@@ -715,7 +846,7 @@ If you only want to have the green tag in your result, you can also apply a filt
 
 example:
 
-```
+```graphql
 {
   Pet(filter: {name: {equals: "spike"}}) {
     name,
@@ -728,7 +859,7 @@ example:
 
 Will return:
 
-```
+```json
 {
   "data": {
     "Pet": [
@@ -745,9 +876,10 @@ Will return:
 }
 ```
 
-# Developing 'apps'
+## GraphQL endpoints for apps
 
-When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
+When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps), a GraphQL
+endpoint is automatically served relative to where the app runs:
 
 - You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
 - In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
@@ -756,12 +888,12 @@ When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/mas
 <br />
 <br />
 
-# GraphQL JavaScript Library (Query EMX2)
+## GraphQL JavaScript Library (Query EMX2)
 
 Inside the molgenis-components library there is library to make
 querying emx2 with graphQL a breeze.
 
-## Installation
+### Installation
 
 Given the fact that you have an application under the app folder like so:
 
@@ -772,7 +904,7 @@ Go to the `package.json` inside the `%myApp%` folder.
 
 add the following to the dependancies section
 
-```
+```json
   "dependencies": {
     ...other things you might have,
     "molgenis-components": "*"
@@ -789,7 +921,7 @@ Now you can import the library as follows:
 
 Now you have access to the QueryEMX2 class!
 
-## Usage
+### Usage
 
 Create a new connection:
 
@@ -805,7 +937,7 @@ To proceed we have to specify a table:
 
 Add a selection, this can either be an array of strings or a single string, or blank to get everything.
 
-`query.select(["id","name'])`
+`query.select(["id", "name"])`
 
 You can even query nested properties using the _dot_ notation, just like how you would access a JSON object.
 
@@ -817,7 +949,7 @@ to get the results:
 
 > For debugging purposes you can use `query.getQuery()` to see how to graphQL query has been formed.
 
-### Filters
+#### Filters
 
 When you specify a table using `.table("MyTable")` MyTable is in the case of QueryEMX2 seen as 'root' table.
 
@@ -830,8 +962,7 @@ the following function are available:
 - find(value)
 - search(value)
 - equals(value)
-- in(value) / orLike(value)
-  /\*_ custom type, to make it into a bracket type query: { like: ["red", "green"] } _/
+- in(value) / orLike(value) — custom type that produces a bracket-style query, e.g. `{ like: ["red", "green"] }`
 - like(value)
 - notLike(value)
 - triagramSearch(value)
@@ -843,7 +974,7 @@ the following function are available:
 - _match_all(value)
 - _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
 - _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
-- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in parents of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 
@@ -852,11 +983,11 @@ If you want to filter a ref/mref/categorial or any other 'nested' table result, 
 
 which will apply the filters on that table.
 
-## Examples
+### Examples
 
 **Multiple or Query**
 
-```
+```javascript
 const query = new QueryEMX2("graphql")
       .table("Biobanks")
       .select(["id", "name"])
@@ -873,7 +1004,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } } ] }) {
     id,
@@ -884,7 +1015,7 @@ Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { 
 
 **Nested Query**
 
-```
+```javascript
 const basic = ["id", "name"];
 const selection = [
   ...basic,
@@ -913,7 +1044,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 NestedExample {
     id,
@@ -936,7 +1067,7 @@ NestedExample {
 
 Limit, orderBy
 
-```
+```javascript
     const query = new QueryEMX2("graphql")
       .table("Biobanks")
       .select(["id", "name"])
@@ -949,7 +1080,7 @@ Limit, orderBy
 
 Output:
 
-```
+```graphql
 {
 Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "UMC" } } ] }) {
     id,
@@ -960,7 +1091,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "
 
 Filter on nested properties
 
-```
+```javascript
 const query = new QueryEMX2("graphql")
   .table("Biobanks")
   .select(["id", "name"])
@@ -973,7 +1104,7 @@ const query = new QueryEMX2("graphql")
 
 Output:
 
-```
+```graphql
 {
 Biobanks(filter: { _and: [ { collections: { id: { like: "eric" } } }, { collections: { name: { like: "Lifelines" } } } ] }) {
     id,
