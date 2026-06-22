@@ -111,17 +111,17 @@ if (subpopulation.value.countries) {
   });
 }
 
-if (subpopulation.value.inclusionCriteriaDescription) {
+if (subpopulation.value.inclusionCriteria) {
   items.push({
     label: "Inclusion criteria",
-    content: subpopulation.value.inclusionCriteriaDescription,
+    content: subpopulation.value.inclusionCriteria,
   });
 }
 
-if (subpopulation.value.exclusionCriteriaDescription) {
+if (subpopulation.value.exclusionCriteria) {
   items.push({
     label: "Exclusion criteria",
-    content: subpopulation.value.exclusionCriteriaDescription,
+    content: subpopulation.value.exclusionCriteria,
   });
 }
 </script>
