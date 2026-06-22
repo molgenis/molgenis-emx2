@@ -132,7 +132,7 @@ public class JWTgenerator {
     try {
       claimsSet = signedJWT.getJWTClaimsSet();
     } catch (ParseException e) {
-      logger.warn("Failed to get JWT claims. token={}", token, e);
+      logger.warn("Failed to get JWT claims.", e);
       throw new MolgenisException("Cannot parse token", e);
     }
     Date experationTime = claimsSet.getExpirationTime();
