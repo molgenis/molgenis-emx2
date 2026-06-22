@@ -59,21 +59,21 @@ const COLOR_MAPPING = {
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
 
 const SIZE_MAPPING = {
-  tiny: "h-8 p-2 text-heading-sm gap-2",
-  small: "h-10.5 px-5 text-heading-lg gap-3",
-  medium: "h-default px-7.5 text-heading-xl gap-4",
-  large: "h-large px-8.75 text-heading-xl gap-5",
+  tiny: "h-button-tiny p-2 text-heading-sm gap-2",
+  small: "h-button-small px-5 text-heading-lg gap-3",
+  medium: "h-button-default px-7.5 text-heading-xl gap-4",
+  large: "h-button-large px-8.75 text-heading-xl gap-5",
 };
 
 const ICON_ONLY_SIZE_MAPPING = {
-  tiny: "p-[8px] h-8 w-8",
-  small: "p-[5px] h-10 w-10",
-  medium: "p-[8px] h-default w-default",
-  large: "p-[8px] h-large w-large",
+  tiny: "p-[7px] h-button-tiny w-button-tiny",
+  small: "p-[11px] h-button-small w-button-small",
+  medium: "p-[12px] h-button-default w-button-default",
+  large: "p-[9px] h-button-large w-button-large",
 };
 
 const ICON_SIZE_MAPPING = {
-  tiny: 12,
+  tiny: 16,
   small: 18,
   medium: 24,
   large: 36,

@@ -116,8 +116,10 @@ module.exports = {
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
         "input-large": "var(--height-input-large)",
-        default: "3.125rem",
-        large: "3.5rem",
+        "button-tiny": "2rem",
+        "button-small": "2.625rem",
+        "button-default": "3.125rem",
+        "button-large": "3.5rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
