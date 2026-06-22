@@ -167,11 +167,10 @@ public class ScriptTask extends Task {
       writeExtraFiles(tempDir);
     }
 
-    String installUv = "python3 -m pip install uv";
     String requirementsString = this.dependencies != null ? "--with " + this.dependencies : "";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return installUv + " && uv run " + requirementsString + " script.py" + escapedParameters;
+    return "uv run " + requirementsString + " script.py" + escapedParameters;
   }
 
   /**
