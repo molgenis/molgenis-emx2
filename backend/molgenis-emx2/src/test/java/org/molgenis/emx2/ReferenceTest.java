@@ -116,10 +116,12 @@ public class ReferenceTest {
         schema.getTableMetadata("SubpopulationCounts").getColumn("subpopulation").getReferences();
 
     // The 'resource' part is shared with (borrowed from) the refLink column, so its name does not
-    // start with 'subpopulation' and it is reported as overlapping.
+    // start with 'subpopulation' and it is reported as overlapping. The refLink column ('resource')
+    // is itself a REF, so isOverlappingRef() is also true.
     Reference borrowed =
         refs.stream().filter(r -> r.getColumnName().equals("resource")).findFirst().orElseThrow();
     assertTrue(borrowed.isOverlapping());
+    assertTrue(borrowed.isOverlappingRef());
 
     Reference owned =
         refs.stream()
@@ -127,6 +129,7 @@ public class ReferenceTest {
             .findFirst()
             .orElseThrow();
     assertFalse(owned.isOverlapping());
+    assertFalse(owned.isOverlappingRef());
   }
 
   @Test

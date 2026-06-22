@@ -149,20 +149,37 @@ public class Reference {
   }
 
   /**
-   * An overlapping reference is one whose name does not start with its source column's name,
-   * meaning it is shared with (borrowed from) another reference rather than owned by this column
-   * alone.
+   * Whether this expanded column is an <em>overlapping reference</em>: a foreign-key column shared
+   * with (borrowed from) another reference in the same table through that other column's {@code
+   * refLink}. A borrowed part carries the refLink column's name instead of this column's own name,
+   * so it does not start with {@link #column}'s name - which is how it is detected here.
+   *
+   * <p>Callers typically guard with {@code !isOverlapping()} to handle each physical column once:
+   * the borrowed copy is owned and emitted by the column it was borrowed from. "Overlapping
+   * references" is the user-facing term for the {@code refLink} feature; see the EMX2 schema
+   * documentation.
    */
   public boolean isOverlapping() {
     return !getColumnName().startsWith(column.getName());
   }
 
-  public Reference getOverlapping() {
+  /**
+   * The reference of the {@code refLink} column this overlapping column borrows from. Assumes a
+   * refLink points at a single-column reference (the common case); only {@link #isOverlappingRef()}
+   * uses it, and only to inspect the base type.
+   */
+  private Reference refLinkReference() {
     return column.getRefLinkColumn().getReferences().get(0);
   }
 
+  /**
+   * Whether this is an {@link #isOverlapping() overlapping} column whose borrowed-from refLink
+   * reference is itself a {@code REF} (rather than a scalar key). SQL generation uses this to
+   * decide the value is already available as a plain column instead of needing to be unnested.
+   */
   public boolean isOverlappingRef() {
-    return isOverlapping() && getOverlapping().getColumnType().getBaseType().equals(ColumnType.REF);
+    return isOverlapping()
+        && refLinkReference().getColumnType().getBaseType().equals(ColumnType.REF);
   }
 
   /** Returns this reference as a standalone primitive {@link Column}. */
