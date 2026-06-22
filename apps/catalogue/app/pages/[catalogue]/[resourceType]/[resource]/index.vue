@@ -539,11 +539,11 @@ const population: IDefinitionListItem[] = [
   },
   {
     label: "Inclusion criteria",
-    content: resource.value?.inclusionCriteriaDescription,
+    content: resource.value?.inclusionCriteria,
   },
   {
     label: "Exclusion criteria",
-    content: resource.value?.exclusionCriteriaDescription,
+    content: resource.value?.exclusionCriteria,
   },
 ];
 
