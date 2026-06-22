@@ -357,8 +357,20 @@
 .v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
   transform: translateX(-100%);
 }
+
 .v-popper_right
   .v-popper__popper--no-positioning.v-popper__popper--hidden
   .v-popper__wrapper {
   transform: translateX(100%);
+}
+
+.v-popper_bottom .v-popper__popper--no-positioning {
+  top: auto;
+  bottom: 0;
+}
+
+.v-popper_bottom
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateY(100%);
 }
