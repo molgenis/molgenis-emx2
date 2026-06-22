@@ -126,8 +126,8 @@ const resourceQuery = `
       reasonSustained
       unitOfObservation
       recordTrigger
-      inclusionCriteriaDescription
-      exclusionCriteriaDescription
+      inclusionCriteria
+      exclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
