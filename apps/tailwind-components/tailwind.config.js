@@ -113,9 +113,6 @@ module.exports = {
       }),
       height: () => ({
         input: "var(--height-input)",
-      }),
-      height: () => ({
-        input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
         "input-large": "var(--height-input-large)",
