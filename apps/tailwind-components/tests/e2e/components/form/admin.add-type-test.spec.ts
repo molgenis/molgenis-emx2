@@ -628,10 +628,6 @@ test("it should be able to fill out all input types", async ({ page }) => {
     )
     .getByText("Bulgaria")
     .click();
-  await page.goto(
-    "http://localhost:3000/form/AddModal.story?schema=type+test&table=Types"
-  );
-  await page.getByRole("button", { name: "Add Types" }).click();
 
   // Save the form
   await page.getByRole("button", { name: "Save", exact: true }).click();
