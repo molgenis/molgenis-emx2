@@ -9,10 +9,7 @@ import type {
   IConfigurablePages,
 } from "./cms.ts";
 
-import type {
-  ITableMetaData,
-  ISchemaMetaData,
-} from "../../metadata-utils/src/types.js";
+import type { ITableMetaData } from "../../metadata-utils/src/types.js";
 
 export interface IPageComponent
   extends IHeaders,
@@ -25,13 +22,6 @@ export interface IPageComponent
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
   metadata?: ITableMetaData[];
-}
-
-export interface IContainerResponse {
-  data: {
-    Containers: IDeveloperPages[] | IConfigurablePages[];
-    _schema: ISchemaMetaData;
-  };
 }
 
 export type ICmsJsFetchPriority = "high" | "low" | "auto";

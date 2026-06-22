@@ -89,7 +89,7 @@ export function generateHtmlPreview(
   }
 }
 
-export function renderHtmlPreviewDependencies(
+function renderHtmlPreviewDependencies(
   documentHead: HTMLHeadElement,
   dependencies: IDependenciesCSS[] | IDependenciesJS[]
 ) {
@@ -119,11 +119,12 @@ export function renderHtmlPreviewDependencies(
         elem.fetchPriority = jsDependency.fetchPriority
           .name as ICmsJsFetchPriority;
       }
+      
     }
   });
 }
 
-export function generateLegacyHtmlPreview(
+function generateLegacyHtmlPreview(
   parser: DOMParser,
   ref: HTMLDivElement,
   content: IDeveloperPages
