@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
-Resources,,,,,,,,,,,ldp:DirectContainer,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA",,,
+Resources,,,,,,,,,,,ldp:DirectContainer,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,NetworksStaging,StudiesStaging",,,
 Networks,Resources,,,,,,,,,,,A network or consortium of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Catalogues,Networks,,,,,,,,,,dcat:Catalog,A catalogue of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Collections,Resources,,,,,,,,,,dcat:Dataset,"A collection of data and/or samples such as a cohort, registry or biobank","DataCatalogueFlat,EMA,CohortsBasis,RWEStaging,StudiesStaging",,,
