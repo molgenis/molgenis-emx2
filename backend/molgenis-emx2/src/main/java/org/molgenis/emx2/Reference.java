@@ -10,8 +10,8 @@ import org.jooq.Field;
 
 public class Reference {
   private Column column;
-  private String fromColumn;
-  private String toColumn; // intermediate target, might be table in the middle
+  private String name;
+  private String refTo; // intermediate target, might be table in the middle
   private List<String> path;
   private String targetTable; // final target
   private String targetColumn; // final target
@@ -20,16 +20,16 @@ public class Reference {
     return path;
   }
 
-  private ColumnType type;
+  private ColumnType columnType;
   private ColumnType primitiveType;
   private boolean isArray;
   private boolean required;
 
   public Reference(
       Column column,
-      String fromColumn,
-      String toColumn,
-      ColumnType type,
+      String name,
+      String refTo,
+      ColumnType columnType,
       ColumnType primitiveType,
       boolean isArray,
       String targetTable,
@@ -37,9 +37,9 @@ public class Reference {
       boolean required,
       List<String> path) {
     this.column = column;
-    this.fromColumn = fromColumn;
-    this.toColumn = toColumn;
-    this.type = type;
+    this.name = name;
+    this.refTo = refTo;
+    this.columnType = columnType;
     this.primitiveType = primitiveType;
     this.targetTable = targetTable;
     this.isArray = isArray;
@@ -49,15 +49,15 @@ public class Reference {
   }
 
   public String getName() {
-    return fromColumn;
+    return name;
   }
 
   public String getRefTo() {
-    return toColumn;
+    return refTo;
   }
 
   public ColumnType getColumnType() {
-    return type;
+    return columnType;
   }
 
   public DataType getJooqType() {
@@ -73,7 +73,7 @@ public class Reference {
   }
 
   public void setName(String name) {
-    this.fromColumn = name;
+    this.name = name;
   }
 
   public ColumnType getPrimitiveType() {
