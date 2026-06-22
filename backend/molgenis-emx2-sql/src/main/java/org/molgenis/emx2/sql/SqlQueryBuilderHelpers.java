@@ -100,7 +100,7 @@ class SqlQueryBuilderHelpers {
       for (Column c : columns) {
         for (Reference ref : c.getReferences()) {
           // can also request composite reference columns, can only be used on row level queries
-          if (ref.getName().equals(columnName)) {
+          if (ref.getColumnName().equals(columnName)) {
             return new Column(table, columnName, true).setType(ref.getPrimitiveType());
           }
         }

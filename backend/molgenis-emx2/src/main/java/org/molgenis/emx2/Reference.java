@@ -18,8 +18,8 @@ import org.jooq.Field;
  * the primitive type used to store it.
  *
  * <p>Instances are produced by {@link Column#getReferences()}. This is an immutable value object
- * describing the expanded form of a reference; use {@link #withName(String)} to obtain a renamed
- * copy rather than mutating in place.
+ * describing the expanded form of a reference; use {@link #withColumnName(String)} to obtain a
+ * renamed copy rather than mutating in place.
  *
  * <p>Note the two type accessors describe different things: {@link #getColumnType()} reports the
  * type of the <em>owning</em> reference column (e.g. {@code REF}), while {@link
@@ -29,8 +29,12 @@ public class Reference {
   /** The reference column this flat column was derived from. */
   private final Column column;
 
-  /** Local name of this column (the {@code from} side of the foreign key). */
-  private final String name;
+  /**
+   * Name of this physical column (the {@code from} side of the foreign key). Derived from the
+   * owning {@link #column}'s name but not equal to it: for composite keys a key-part suffix is
+   * appended, and overlapping references borrow their name from another column.
+   */
+  private final String columnName;
 
   /**
    * Name of the column this physical column points at; for nested keys this is an intermediate
@@ -64,7 +68,7 @@ public class Reference {
 
   public Reference(
       Column column,
-      String name,
+      String columnName,
       String referencedColumnName,
       ColumnType columnType,
       ColumnType primitiveType,
@@ -74,7 +78,7 @@ public class Reference {
       boolean required,
       List<String> path) {
     this.column = column;
-    this.name = name;
+    this.columnName = columnName;
     this.referencedColumnName = referencedColumnName;
     this.columnType = columnType;
     this.primitiveType = primitiveType;
@@ -85,15 +89,15 @@ public class Reference {
     this.path = path;
   }
 
-  public String getName() {
-    return name;
+  public String getColumnName() {
+    return columnName;
   }
 
-  /** Returns a copy of this reference with a different local name. */
-  public Reference withName(String name) {
+  /** Returns a copy of this reference with a different column name. */
+  public Reference withColumnName(String columnName) {
     return new Reference(
         column,
-        name,
+        columnName,
         referencedColumnName,
         columnType,
         primitiveType,
@@ -141,7 +145,7 @@ public class Reference {
   }
 
   public Field getJooqField() {
-    return field(name(getName()), getJooqType());
+    return field(name(getColumnName()), getJooqType());
   }
 
   /**
@@ -150,7 +154,7 @@ public class Reference {
    * alone.
    */
   public boolean isOverlapping() {
-    return !getName().startsWith(column.getName());
+    return !getColumnName().startsWith(column.getName());
   }
 
   public Reference getOverlapping() {
@@ -163,7 +167,7 @@ public class Reference {
 
   /** Returns this reference as a standalone primitive {@link Column}. */
   public Column toPrimitiveColumn() {
-    return new Column(this.column.getTable(), this.getName(), true)
+    return new Column(this.column.getTable(), this.getColumnName(), true)
         .setType(this.getPrimitiveType())
         .setRequired(this.column.isRequired());
   }

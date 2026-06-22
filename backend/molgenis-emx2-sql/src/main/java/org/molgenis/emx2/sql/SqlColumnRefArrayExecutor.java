@@ -96,10 +96,10 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return name(r.getName()) + " AS " + name(r.getReferencedColumnName());
+                    return name(r.getColumnName()) + " AS " + name(r.getReferencedColumnName());
                   } else {
                     return "UNNEST("
-                        + name(r.getName())
+                        + name(r.getColumnName())
                         + ") AS "
                         + name(r.getReferencedColumnName());
                   }
@@ -112,12 +112,15 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return "OLD." + name(r.getReferencedColumnName()) + "=" + name(r.getName());
+                    return "OLD."
+                        + name(r.getReferencedColumnName())
+                        + "="
+                        + name(r.getColumnName());
                   } else {
                     return "OLD."
                         + name(r.getReferencedColumnName())
                         + "=ANY("
-                        + name(r.getName())
+                        + name(r.getColumnName())
                         + ")";
                   }
                 })
@@ -144,7 +147,9 @@ class SqlColumnRefArrayExecutor {
             .collect(Collectors.joining("||','||"));
 
     String toColumns =
-        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getColumnName()).toString())
+            .collect(Collectors.joining(","));
 
     String newNotEqualsOld =
         references.stream()
@@ -231,7 +236,9 @@ class SqlColumnRefArrayExecutor {
     List<Reference> references = column.getReferences();
 
     String fromColumns =
-        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getColumnName()).toString())
+            .collect(Collectors.joining(","));
 
     String toColumns =
         references.stream()
@@ -252,11 +259,11 @@ class SqlColumnRefArrayExecutor {
             .map(
                 r -> {
                   if (r.isOverlappingRef()) {
-                    return name(r.getReferencedColumnName()) + " = NEW." + name(r.getName());
+                    return name(r.getReferencedColumnName()) + " = NEW." + name(r.getColumnName());
                   } else {
                     return name(r.getReferencedColumnName())
                         + " = ANY (NEW."
-                        + name(r.getName())
+                        + name(r.getColumnName())
                         + ")";
                   }
                 })
@@ -268,10 +275,13 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return "NEW." + name(r.getName()) + " AS " + name(r.getReferencedColumnName());
+                    return "NEW."
+                        + name(r.getColumnName())
+                        + " AS "
+                        + name(r.getReferencedColumnName());
                   } else {
                     return "UNNEST(NEW."
-                        + name(r.getName())
+                        + name(r.getColumnName())
                         + ") AS "
                         + name(r.getReferencedColumnName());
                   }
