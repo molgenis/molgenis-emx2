@@ -124,7 +124,7 @@ public class JWTgenerator {
     try {
       signedJWT = SignedJWT.parse(token);
     } catch (ParseException e) {
-      logger.warn("JWT parsing failed. token={}", token, e);
+      logger.warn("JWT parsing failed. tokenLength={}", token != null ? token.length() : 0, e);
       throw new MolgenisException("Cannot parse token", e);
     }
 
