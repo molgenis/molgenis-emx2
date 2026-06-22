@@ -114,7 +114,6 @@
         v-if="isEllipsisActive"
         type="text"
         size="tiny"
-        class=""
         @click="handleShowMore"
       >
         More
