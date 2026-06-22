@@ -119,7 +119,6 @@ function renderHtmlPreviewDependencies(
         elem.fetchPriority = jsDependency.fetchPriority
           .name as ICmsJsFetchPriority;
       }
-      
     }
   });
 }
