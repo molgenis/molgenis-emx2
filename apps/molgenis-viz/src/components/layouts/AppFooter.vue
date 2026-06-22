@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-import MolgenisLogo from '../display/MolgenisLogo.vue';
+import MolgenisLogo from "../display/MolgenisLogo.vue";
 const props = withDefaults(
   defineProps<{
     firstColumnTitle?: string;
