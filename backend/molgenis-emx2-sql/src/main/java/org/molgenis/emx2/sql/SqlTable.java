@@ -411,8 +411,18 @@ public class SqlTable implements Table {
     // Merge with existing rows
     SelectWhereStep<Record> step = table.getJooq().selectFrom(table.getJooqTable());
     for (Column column : table.getMetadata().getPrimaryKeyColumns()) {
-      Stream<Object> columnValues = rows.stream().map(r -> r.get(column));
-      step.where(column.getJooqField().in(columnValues.toArray()));
+      if (column.isReference()) {
+        for (Reference reference : column.getReferences()) {
+          Stream<Object> columnValues =
+              rows.stream()
+                  .map(
+                      r -> r.get(reference.getJooqField().getName(), reference.getPrimitiveType()));
+          step.where(reference.getJooqField().in(columnValues.toArray()));
+        }
+      } else {
+        Stream<Object> columnValues = rows.stream().map(r -> r.get(column));
+        step.where(column.getJooqField().in(columnValues.toArray()));
+      }
     }
 
     Field[] pkFields = table.getMetadata().getPrimaryKeyFields().toArray(Field[]::new);
