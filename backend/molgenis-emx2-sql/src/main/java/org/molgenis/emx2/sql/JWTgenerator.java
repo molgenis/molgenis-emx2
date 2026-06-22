@@ -17,19 +17,27 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
+import org.molgenis.emx2.utils.RandomString;
 
 public class JWTgenerator {
+  // 32 bytes / 256 bit, the minimum for HS256
+  public static final int SHARED_SECRET_LENGTH = 32;
+
   private static byte[] sharedSecret;
   private static MACSigner signer;
   private static JWSVerifier verifier;
 
+  /** Generates a shared secret strong enough to sign tokens with (see {@link #init}). */
+  public static String generateSharedSecret() {
+    return new RandomString(SHARED_SECRET_LENGTH).nextString();
+  }
+
   private static void init(Database database) {
     try {
       Objects.requireNonNull(database);
-      // we can be sure that this exists see SqlDatabase.init
-      sharedSecret = database.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET).getBytes();
+      sharedSecret = database.resolveJwtSharedSecret().getBytes();
       // check enough bytes
-      if (sharedSecret.length < 32) {
+      if (sharedSecret.length < SHARED_SECRET_LENGTH) {
         throw new MolgenisException(
             Constants.MOLGENIS_JWT_SHARED_SECRET
                 + " was not secure enough, should be 32 bytes/256bit");
@@ -62,6 +70,10 @@ public class JWTgenerator {
     return createNamedTokenForUser(
         // half our in future, is 30 * 60 * 1000 milliseconds
         db, user, "temporary", Date.from(Instant.now().plus(30, ChronoUnit.MINUTES)));
+  }
+
+  public static String createTemporaryToken(Database db) {
+    return createTemporaryToken(db, db.getActiveUser());
   }
 
   private static String createNamedTokenForUser(
