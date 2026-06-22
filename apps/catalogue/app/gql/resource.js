@@ -45,8 +45,8 @@ export default gql`
         title
         doi
       }
-      inclusionCriteriaDescription
-      exclusionCriteriaDescription
+      inclusionCriteria
+      exclusionCriteria
       dataAccessConditions {
         name
         ontologyTermURI
