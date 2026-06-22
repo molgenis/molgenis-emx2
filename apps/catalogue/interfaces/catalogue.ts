@@ -1376,8 +1376,8 @@ export interface IResources extends IMgTableClass {
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
-  inclusionCriteriaDescription?: string;
-  exclusionCriteriaDescription?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
