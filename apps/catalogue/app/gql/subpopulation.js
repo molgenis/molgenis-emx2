@@ -41,8 +41,8 @@ export default gql`
         name
         order
       }
-      inclusionCriteriaDescription
-      exclusionCriteriaDescription
+      inclusionCriteria
+      exclusionCriteria
       comorbidity {
         name
         code
