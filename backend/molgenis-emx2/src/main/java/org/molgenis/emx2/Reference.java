@@ -32,8 +32,11 @@ public class Reference {
   /** Local name of this column (the {@code from} side of the foreign key). */
   private final String name;
 
-  /** Name of the column being referenced; for nested keys this is the intermediate target. */
-  private final String refTo;
+  /**
+   * Name of the column this physical column points at; for nested keys this is an intermediate
+   * target rather than the final one (see {@link #targetColumn}).
+   */
+  private final String referencedColumnName;
 
   /** Path of identifiers to walk from {@link #column} down to the final target. */
   private final List<String> path;
@@ -62,7 +65,7 @@ public class Reference {
   public Reference(
       Column column,
       String name,
-      String refTo,
+      String referencedColumnName,
       ColumnType columnType,
       ColumnType primitiveType,
       boolean isArray,
@@ -72,7 +75,7 @@ public class Reference {
       List<String> path) {
     this.column = column;
     this.name = name;
-    this.refTo = refTo;
+    this.referencedColumnName = referencedColumnName;
     this.columnType = columnType;
     this.primitiveType = primitiveType;
     this.isArray = isArray;
@@ -91,7 +94,7 @@ public class Reference {
     return new Reference(
         column,
         name,
-        refTo,
+        referencedColumnName,
         columnType,
         primitiveType,
         isArray,
@@ -101,8 +104,8 @@ public class Reference {
         path);
   }
 
-  public String getRefTo() {
-    return refTo;
+  public String getReferencedColumnName() {
+    return referencedColumnName;
   }
 
   public List<String> getPath() {

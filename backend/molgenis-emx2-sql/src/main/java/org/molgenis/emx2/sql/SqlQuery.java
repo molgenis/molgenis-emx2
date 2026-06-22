@@ -812,17 +812,20 @@ public class SqlQuery extends QueryBean {
           if (col.getRefBackColumn().isRefArray()) {
             subselectFields.addAll(
                 col.getRefBackColumn().getReferences().stream()
-                    .map(ref -> field("unnest({0})", name(ref.getName())).as(ref.getRefTo()))
+                    .map(
+                        ref ->
+                            field("unnest({0})", name(ref.getName()))
+                                .as(ref.getReferencedColumnName()))
                     .toList());
           } else {
             subselectFields.addAll(
                 col.getRefBackColumn().getReferences().stream()
-                    .map(ref -> field(name(ref.getName())).as(ref.getRefTo()))
+                    .map(ref -> field(name(ref.getName())).as(ref.getReferencedColumnName()))
                     .toList());
           }
           subselectFields.addAll(
               col.getReferences().stream()
-                  .map(ref -> field(name(ref.getRefTo())).as(ref.getName()))
+                  .map(ref -> field(name(ref.getReferencedColumnName())).as(ref.getName()))
                   .toList());
 
           refArraySubqueries.add(
@@ -962,7 +965,8 @@ public class SqlQuery extends QueryBean {
                 column.getReferences().stream()
                     .map(
                         ref ->
-                            field("array_agg({0})", name(ref.getRefTo())).as(name(ref.getName())))
+                            field("array_agg({0})", name(ref.getReferencedColumnName()))
+                                .as(name(ref.getName())))
                     .toList());
             if (refBack.isRefArray()) {
               refbackSelection.addAll(
@@ -970,7 +974,7 @@ public class SqlQuery extends QueryBean {
                       .map(
                           reference ->
                               field("unnest({0})", name(reference.getName()))
-                                  .as(name("_refback_" + reference.getRefTo())))
+                                  .as(name("_refback_" + reference.getReferencedColumnName())))
                       .toList());
             } else {
               refbackSelection.addAll(
@@ -978,7 +982,7 @@ public class SqlQuery extends QueryBean {
                       .map(
                           reference ->
                               field(name(reference.getName()))
-                                  .as(name("_refback_" + reference.getRefTo())))
+                                  .as(name("_refback_" + reference.getReferencedColumnName())))
                       .toList());
             }
             // we create a natural joinable representation of refback that looks same as ref_array
@@ -988,15 +992,25 @@ public class SqlQuery extends QueryBean {
                             .from(tableWithInheritanceJoin(column.getRefTable()))
                             .groupBy(
                                 refBack.getReferences().stream()
-                                    .map(ref -> field(name("_refback_" + ref.getRefTo())))
+                                    .map(
+                                        ref ->
+                                            field(
+                                                name("_refback_" + ref.getReferencedColumnName())))
                                     .toList())
                             .asTable(name(subAlias)))
                     .on(
                         refBack.getReferences().stream()
                             .map(
                                 ref ->
-                                    field(name(subAlias, "_refback_" + ref.getRefTo()))
-                                        .eq(field(name(alias(tableAlias), ref.getRefTo()))))
+                                    field(
+                                            name(
+                                                subAlias,
+                                                "_refback_" + ref.getReferencedColumnName()))
+                                        .eq(
+                                            field(
+                                                name(
+                                                    alias(tableAlias),
+                                                    ref.getReferencedColumnName()))))
                             .toArray(Condition[]::new));
           }
         }
@@ -1012,7 +1026,7 @@ public class SqlQuery extends QueryBean {
       if (column.getReferences().size() == 1) {
         Reference ref = column.getReferences().get(0);
         foreignKeyMatch.add(
-            field(name(alias(subAlias), ref.getRefTo()))
+            field(name(alias(subAlias), ref.getReferencedColumnName()))
                 .eq(field(name(alias(tableAlias), ref.getName()))));
       } else {
         foreignKeyMatch.add(
@@ -1027,7 +1041,7 @@ public class SqlQuery extends QueryBean {
                     column.getReferences().stream()
                         .map(
                             ref ->
-                                field(name(alias(subAlias), ref.getRefTo()))
+                                field(name(alias(subAlias), ref.getReferencedColumnName()))
                                     .eq(field(name(alias(tableAlias), ref.getName()))))
                         .toList())));
       }
@@ -1038,13 +1052,13 @@ public class SqlQuery extends QueryBean {
         foreignKeyMatch.add(
             condition(
                 ANY_SQL,
-                name(alias(subAlias), ref.getRefTo()),
+                name(alias(subAlias), ref.getReferencedColumnName()),
                 name(alias(tableAlias), ref.getName())));
       } else {
         // expensive 'in' query to enable join on all fields
         List<Field<Object>> to =
             column.getReferences().stream()
-                .map(ref -> field(name(alias(subAlias), ref.getRefTo()).toString()))
+                .map(ref -> field(name(alias(subAlias), ref.getReferencedColumnName()).toString()))
                 .toList();
 
         List<Field<Object>> unnest =
@@ -1065,7 +1079,7 @@ public class SqlQuery extends QueryBean {
                 .map(
                     ref ->
                         field(name(alias(subAlias), ref.getName()))
-                            .eq(field(name(alias(tableAlias), ref.getRefTo()))))
+                            .eq(field(name(alias(tableAlias), ref.getReferencedColumnName()))))
                 .toList());
       } else if (refBack.isRefArray()) {
         foreignKeyMatch.addAll(
@@ -1073,11 +1087,11 @@ public class SqlQuery extends QueryBean {
                 .map(
                     ref ->
                         ref.isOverlappingRef()
-                            ? field(name(alias(tableAlias), ref.getRefTo()))
+                            ? field(name(alias(tableAlias), ref.getReferencedColumnName()))
                                 .eq(field(name(alias(subAlias), ref.getName())))
                             : condition(
                                 ANY_SQL,
-                                field(name(alias(tableAlias), ref.getRefTo())),
+                                field(name(alias(tableAlias), ref.getReferencedColumnName())),
                                 field(name(alias(subAlias), ref.getName()))))
                 .toList());
       }
@@ -1590,8 +1604,9 @@ public class SqlQuery extends QueryBean {
                 .map(
                     ref ->
                         ref.isOverlappingRef()
-                            ? field(name(ref.getName())).as(name(ref.getRefTo()))
-                            : field(UNNEST_0, name(ref.getName())).as(name(ref.getRefTo())))
+                            ? field(name(ref.getName())).as(name(ref.getReferencedColumnName()))
+                            : field(UNNEST_0, name(ref.getName()))
+                                .as(name(ref.getReferencedColumnName())))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return exists(selectFrom(DSL.select(unnest).asTable().naturalJoin(subQuery)));

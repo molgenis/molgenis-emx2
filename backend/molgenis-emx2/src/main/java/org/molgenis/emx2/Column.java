@@ -592,7 +592,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
             .collect(Collectors.toSet());
     return getReferences().stream()
         .filter(ref -> !ref.isOverlapping())
-        .filter(ref -> !excludedPkeyFields.contains(ref.getRefTo()))
+        .filter(ref -> !excludedPkeyFields.contains(ref.getReferencedColumnName()))
         .map(ref -> "${" + String.join(".", ref.getPath()) + "}")
         .collect(Collectors.joining(" "));
   }

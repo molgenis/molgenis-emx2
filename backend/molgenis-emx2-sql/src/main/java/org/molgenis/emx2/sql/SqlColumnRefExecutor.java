@@ -34,7 +34,7 @@ public class SqlColumnRefExecutor {
         refColumn.getReferences().stream().map(c -> name(c.getName())).collect(Collectors.toList());
     List<Name> otherColumns =
         refColumn.getReferences().stream()
-            .map(c -> name(c.getRefTo()))
+            .map(c -> name(c.getReferencedColumnName()))
             .collect(Collectors.toList());
 
     Name fkeyTable = name(refColumn.getRefTable().getSchemaName(), refColumn.getRefTableName());
