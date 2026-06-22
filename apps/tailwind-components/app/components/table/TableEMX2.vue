@@ -2,6 +2,7 @@
   <div class="flex pb-[30px] justify-between">
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
+      size="medium"
       v-model="settings.search"
       @update:modelValue="handleSearchRequest"
       :placeholder="`Search ${props.tableId}`"
@@ -12,6 +13,7 @@
       <Button
         v-if="props.isEditable && data?.tableMetadata"
         type="primary"
+        size="medium"
         icon="add-circle"
         @click="onAddRowClicked"
       >
