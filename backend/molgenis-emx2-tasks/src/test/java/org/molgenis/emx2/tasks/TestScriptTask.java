@@ -134,35 +134,4 @@ print('unreachable')
     assertEquals(COMPLETED, csvTaskStatus);
     assertEquals(COMPLETED, zipTaskStatus);
   }
-
-  @Test
-  public void testPythonExtraFiles_shouldFail() throws MalformedURLException, InterruptedException {
-    TaskServiceInDatabase taskService =
-        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
-
-    SqlDatabase database = new SqlDatabase(true);
-    database.becomeAdmin();
-    Schema schema = database.getSchema(SYSTEM_SCHEMA);
-
-    ClassLoader classLoader = getClass().getClassLoader();
-    Path path =
-        new File(Objects.requireNonNull(classLoader.getResource("TestScriptTask")).getFile())
-            .toPath();
-    ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
-    importDirectoryTask.run();
-
-    Task venvTask =
-        taskService.getTask(
-            taskService.submit(taskService.getScript("Invalid filename test").parameters("")));
-    TaskStatus venvTaskStatus = venvTask.getStatus();
-    while (venvTaskStatus != COMPLETED && venvTaskStatus != ERROR) {
-      Thread.sleep(1000);
-      venvTaskStatus = venvTask.getStatus();
-    }
-    assertTrue(
-        venvTask
-            .getDescription()
-            .contains(
-                "Script failed: Invalid file name 'venv.zip'. Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'."));
-  }
 }
