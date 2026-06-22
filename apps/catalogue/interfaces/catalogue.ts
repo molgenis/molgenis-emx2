@@ -373,8 +373,8 @@ export interface ICollections {
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
-  inclusionCriteriaDescription?: string;
-  exclusionCriteriaDescription?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
@@ -1629,8 +1629,8 @@ export interface ISubpopulations extends IMgTableClass {
   comorbidity?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
-  inclusionCriteriaDescription?: string;
-  exclusionCriteriaDescription?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   contactPoint?: IContacts;
   publisher?: IOrganisations;
   creator?: IOrganisations[];
