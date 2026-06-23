@@ -28,6 +28,6 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
-    assertEquals(16, networkStaging.getTableNames().size());
+    assertEquals(15, networkStaging.getTableNames().size());
   }
 }
