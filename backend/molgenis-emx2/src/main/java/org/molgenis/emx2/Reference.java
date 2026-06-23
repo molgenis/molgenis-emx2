@@ -128,6 +128,14 @@ public class Reference {
     return columnType;
   }
 
+  /**
+   * Whether the owning reference column is a singular reference - base type {@code REF}, including
+   * flavors such as {@code SELECT}/{@code RADIO}/{@code ONTOLOGY} - rather than an array reference.
+   */
+  public boolean isRef() {
+    return getColumnType().isRef();
+  }
+
   public ColumnType getPrimitiveType() {
     return this.primitiveType;
   }
@@ -178,8 +186,7 @@ public class Reference {
    * decide the value is already available as a plain column instead of needing to be unnested.
    */
   public boolean isOverlappingRef() {
-    return isOverlapping()
-        && refLinkReference().getColumnType().getBaseType().equals(ColumnType.REF);
+    return isOverlapping() && refLinkReference().isRef();
   }
 
   /** Returns this reference as a standalone primitive {@link Column}. */

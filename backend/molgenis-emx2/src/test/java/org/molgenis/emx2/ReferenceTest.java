@@ -50,6 +50,7 @@ public class ReferenceTest {
         () -> assertEquals("id", ref.getTargetColumn()),
         () -> assertEquals(STRING, ref.getPrimitiveType()),
         () -> assertEquals(REF, ref.getColumnType()),
+        () -> assertTrue(ref.isRef()),
         () -> assertFalse(ref.isArray()),
         () -> assertFalse(ref.isOverlapping()),
         () -> assertEquals(List.of("id"), ref.getPath()));
@@ -96,6 +97,7 @@ public class ReferenceTest {
         () -> assertEquals("contacts", ref.getColumnName()),
         () -> assertEquals(REF_ARRAY, ref.getColumnType()),
         () -> assertEquals(STRING_ARRAY, ref.getPrimitiveType()),
+        () -> assertFalse(ref.isRef()),
         () -> assertTrue(ref.isArray()));
   }
 
