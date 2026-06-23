@@ -236,7 +236,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter().processTriple(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
     if (table.getMetadata().getSemantics() != null) {
       for (Semantic semantic : table.getMetadata().getSemantics()) {
-        // todo: Add support for sequence paths (now uses first item and ignores rest)
         IRI object =
             table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
         getWriter().processTriple(subject, RDF.TYPE, object);

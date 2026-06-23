@@ -13,7 +13,6 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Semantic;
@@ -69,9 +68,9 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
       return multiSemanticPattern();
     }
 
-    // todo: Add support for sequence paths (now uses first item and ignores rest)
-    String semantic = column.getSchema().getSemanticPrefixes().mapAsString(semantics[0]).getFirst();
-    GraphPattern pattern = GraphPatterns.tp(subject, Rdf.iri(semantic), object);
+    RdfPredicate predicate =
+        column.getSchema().getSemanticPrefixes().mapAsRdfPredicate(semantics[0]).getFirst();
+    GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
     return List.of(isRequired ? pattern : pattern.optional());
   }
