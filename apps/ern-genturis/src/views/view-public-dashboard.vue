@@ -115,17 +115,17 @@ import {
 
 import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent";
 import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
-import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
+import {
+  generateAxisTickData,
+  asDataObject,
+} from "../../../tailwind-components/app/utils/viz";
 
 import type {
   IComponents,
   IStatistics,
   IOrganisations,
 } from "../../../metadata-utils/src/viz/ErnDashboard";
-import type {
-  IRecordStringNumber,
-  IArrayStringNumber,
-} from "../../../metadata-utils/src/viz/types";
+import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
 import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
 const loading = ref<boolean>(true);
@@ -170,65 +170,51 @@ async function loadData() {
 }
 
 function prepareData() {
-  if (highlightsChart.value && highlightsChart.value.statistics) {
-    const highlights = highlightsChart.value.statistics.map(
-      (row: IStatistics) => {
-        return [row.label, row.value];
+  highlightsData.value = asDataObject(
+    highlightsChart.value?.statistics as IStatistics[],
+    "label",
+    "value"
+  );
+
+  sexAtBirthData.value = asDataObject(
+    sexAtBirthChart.value?.statistics as IStatistics[],
+    "label",
+    "value",
+    true
+  );
+
+  ageAtInclusionData.value = ageAtInclusionChart.value?.statistics;
+  ageAtInclusionAxis.value = generateAxisTickData(
+    ageAtInclusionData.value as IStatistics[],
+    "value"
+  );
+
+  enrollmentData.value = (enrollmentChart.value?.statistics as IStatistics[])
+    .map((row: IStatistics) => {
+      return {
+        ...row,
+        "Thematic Disease Group": row.label,
+        "Number of Patients": row.value,
+      };
+    })
+    .sort((current: IStatistics, next: IStatistics) => {
+      return (current.valueOrder as number) < (next.valueOrder as number)
+        ? -1
+        : 1;
+    });
+
+  organisationsData.value = organisationsData.value?.map(
+    (row: IOrganisations) => {
+      let submissionStatus: string = "No Data";
+      if (
+        row.providerInformation &&
+        row.providerInformation[0].hasSubmittedData
+      ) {
+        submissionStatus = "Data Submitted";
       }
-    );
-    highlightsData.value = Object.fromEntries(highlights);
-  }
-
-  if (sexAtBirthChart.value && sexAtBirthChart.value.statistics) {
-    const birthData = sexAtBirthChart.value.statistics
-      .map((row: IStatistics) => {
-        return [row.label, row.value] as IArrayStringNumber;
-      })
-      .sort((current: IArrayStringNumber, next: IArrayStringNumber) => {
-        return current[1] < next[1] ? 1 : -1;
-      });
-
-    sexAtBirthData.value = Object.fromEntries(birthData);
-  }
-
-  if (ageAtInclusionChart.value && ageAtInclusionChart.value.statistics) {
-    ageAtInclusionData.value = ageAtInclusionChart.value.statistics;
-    ageAtInclusionAxis.value = generateAxisTickData(
-      ageAtInclusionData.value,
-      "value"
-    );
-  }
-
-  if (enrollmentChart.value && enrollmentChart.value.statistics) {
-    enrollmentData.value = enrollmentChart.value.statistics
-      .map((row: IStatistics) => {
-        return {
-          ...row,
-          "Thematic Disease Group": row.label,
-          "Number of Patients": row.value,
-        };
-      })
-      .sort((current: IStatistics, next: IStatistics) => {
-        return (current.valueOrder as number) < (next.valueOrder as number)
-          ? -1
-          : 1;
-      });
-  }
-
-  if (organisationsData.value) {
-    organisationsData.value = organisationsData.value.map(
-      (row: IOrganisations) => {
-        let submissionStatus: string = "No Data";
-        if (
-          row.providerInformation &&
-          row.providerInformation[0].hasSubmittedData
-        ) {
-          submissionStatus = "Data Submitted";
-        }
-        return { ...row, hasSubmittedData: submissionStatus };
-      }
-    );
-  }
+      return { ...row, hasSubmittedData: submissionStatus };
+    }
+  );
 }
 
 loadData()
