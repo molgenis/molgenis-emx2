@@ -28,7 +28,7 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.sql.SqlTypeUtils;
+import org.molgenis.emx2.sql.row.computers.ComputedRowValueComputer;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
@@ -61,7 +61,9 @@ public abstract class RdfGenerator {
     }
 
     List<Row> rows = query.retrieveRows();
-    SqlTypeUtils.applyComputed(table.getMetadata().getColumns(), rows);
+    ComputedRowValueComputer rowComputer =
+        new ComputedRowValueComputer(table.getMetadata().getColumns());
+    rowComputer.apply(rows);
     return rows;
   }
 

@@ -549,8 +549,7 @@ public class TypeUtils {
     }
   }
 
-  protected static void convertRefArrayToRow(
-      List<Map<String, Object>> list, Row row, Column column) {
+  public static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {
@@ -588,7 +587,7 @@ public class TypeUtils {
     }
   }
 
-  protected static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
+  public static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
     for (Reference ref : column.getReferences()) {
       if (!ref.isOverlapping()) {
         String name = ref.getName();
