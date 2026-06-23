@@ -88,7 +88,7 @@ withDefaults(defineProps<Props>(), {
       :href="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
     >
-      <Button :label="callToAction || title" type="primary" size="medium" />
+      <Button :label="callToAction || title" type="primary" size="large" />
     </a>
     <NuxtLink
       v-else
@@ -96,7 +96,7 @@ withDefaults(defineProps<Props>(), {
       :to="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
     >
-      <Button :label="callToAction || title" type="primary" size="medium" />
+      <Button :label="callToAction || title" type="primary" size="large" />
     </NuxtLink>
   </div>
 </template>

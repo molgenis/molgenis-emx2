@@ -78,18 +78,22 @@ public class TaskApi {
   }
 
   private static void postScript(Context ctx) {
-    if (!isAdminRequest(ctx)) {
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
+    if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: can only be done by admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
     String parameters = ctx.body();
 
-    String id = taskService.submitTaskFromName(name, parameters);
+    ScriptTask scriptTask = taskService.getScript(name);
+    String id =
+        taskService.submit(scriptTask.parameters(parameters).submitUser(database.getActiveUser()));
     ctx.json(new TaskReference(id));
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    if (!isAdminRequest(ctx)) {
+    Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
+    if (!database.isAdmin()) {
       throw new MolgenisException("Retrieve task failed: can only be done by admin");
     }
 
@@ -98,7 +102,10 @@ public class TaskApi {
         ctx.queryParam("parameters") != null
             ? URLDecoder.decode(ctx.queryParam("parameters"), StandardCharsets.UTF_8)
             : null;
-    String id = taskService.submitTaskFromName(name, parameters);
+
+    ScriptTask scriptTask = taskService.getScript(name);
+    String id =
+        taskService.submit(scriptTask.parameters(parameters).submitUser(database.getActiveUser()));
     // wait until done or timeout
     Task task = taskService.getTask(id);
     int maxTimeout = 120;
