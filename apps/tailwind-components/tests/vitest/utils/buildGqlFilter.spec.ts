@@ -78,7 +78,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      order: { price: { between: { min: 10, max: 100 } } },
+      order: { price: { between: [10, 100] } },
     });
   });
 
@@ -730,16 +730,16 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ name: { equals: [] } });
   });
 
-  it("H3: INT between [1, 10] produces { age: { between: { min: 1, max: 10 } } }", () => {
+  it("H3: INT between [1, 10] produces { age: { between: [1, 10] } }", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
       ["age", { operator: "between", value: [1, 10] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ age: { between: { min: 1, max: 10 } } });
+    expect(result).toEqual({ age: { between: [1, 10] } });
   });
 
-  it("H3: NON_NEGATIVE_INT between [0, 100] produces { count: { between: { min: 0, max: 100 } } }", () => {
+  it("H3: NON_NEGATIVE_INT between [0, 100] produces { count: { between: [0, 100] } }", () => {
     const columns: IColumn[] = [
       { id: "count", columnType: "NON_NEGATIVE_INT", label: "Count" },
     ];
@@ -747,10 +747,10 @@ describe("buildGraphQLFilter", () => {
       ["count", { operator: "between", value: [0, 100] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ count: { between: { min: 0, max: 100 } } });
+    expect(result).toEqual({ count: { between: [0, 100] } });
   });
 
-  it("H3: DATETIME between two ISO strings produces { between: { min, max } }", () => {
+  it("H3: DATETIME between two ISO strings produces { between: [min, max] }", () => {
     const columns: IColumn[] = [
       { id: "createdAt", columnType: "DATETIME", label: "Created At" },
     ];
@@ -766,12 +766,31 @@ describe("buildGraphQLFilter", () => {
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
       createdAt: {
-        between: {
-          min: "2024-01-01T00:00:00.000Z",
-          max: "2024-12-31T23:59:59.000Z",
-        },
+        between: ["2024-01-01T00:00:00.000Z", "2024-12-31T23:59:59.000Z"],
       },
     });
+  });
+
+  it("H3: between with only min [2, null] produces 2-element array { between: [2, null] } (regression: open-ended range must not collapse to 1-element [2])", () => {
+    const columns: IColumn[] = [
+      { id: "score", columnType: "DECIMAL", label: "Score" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["score", { operator: "between", value: [2, null] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ score: { between: [2, null] } });
+  });
+
+  it("H3: between with only max [null, 5] produces 2-element array { between: [null, 5] }", () => {
+    const columns: IColumn[] = [
+      { id: "score", columnType: "DECIMAL", label: "Score" },
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["score", { operator: "between", value: [null, 5] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({ score: { between: [null, 5] } });
   });
 
   it("H3: STRING_ARRAY equals filter produces { tags: { equals: ['a', 'b'] } }", () => {

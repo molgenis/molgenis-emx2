@@ -226,11 +226,8 @@ export function buildGraphQLFilter(
 
       case "between": {
         const [min, max] = value;
-        const betweenFilter: Record<string, any> = {};
-        if (min != null) betweenFilter.min = min;
-        if (max != null) betweenFilter.max = max;
-        if (Object.keys(betweenFilter).length > 0) {
-          filterValueObj = { between: betweenFilter };
+        if (min != null || max != null) {
+          filterValueObj = { between: [min ?? null, max ?? null] };
         }
         break;
       }
