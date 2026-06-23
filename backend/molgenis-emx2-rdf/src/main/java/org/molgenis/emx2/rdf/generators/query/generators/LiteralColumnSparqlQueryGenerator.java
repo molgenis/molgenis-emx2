@@ -60,16 +60,19 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   @Override
   public List<GraphPattern> getPatterns() {
-    Semantic[] semantics = column.getSemantics();
-    if (semantics == null) {
+    if (column.getSemantics() == null) {
       return Collections.emptyList();
     }
-    if (semantics.length > 1) {
+    if (column.getSemantics().length > 1) {
       return multiSemanticPattern();
     }
 
     RdfPredicate predicate =
-        column.getSchema().getSemanticPrefixes().mapAsRdfPredicate(semantics[0]).getFirst();
+        column
+            .getSchema()
+            .getSemanticPrefixes()
+            .mapAsRdfPredicate(column.getSemantics()[0])
+            .getFirst();
     GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
     return List.of(isRequired ? pattern : pattern.optional());

@@ -11,7 +11,6 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
@@ -85,32 +84,22 @@ public class TableQueryGenerator implements QueryGenerator {
   }
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
-    Semantic[] tableSemantics = tableMetadata.getSemantics();
-    if (tableSemantics.length == 1) {
-      // todo: Add support for sequence paths (now uses first item and ignores rest)
-      select.where(
-          SUBJECT_VARIABLE.isA(
-              () ->
-                  tableMetadata
-                      .getSchema()
-                      .getSemanticPrefixes()
-                      .mapAsString(tableSemantics[0])
-                      .getFirst()));
-    } else {
-      // todo: Add support for sequence paths (now uses first item and ignores rest)
-      RdfValue[] semantics =
-          Arrays.stream(tableSemantics)
-              .map(
-                  semantic ->
-                      (RdfValue)
-                          () ->
-                              tableMetadata
-                                  .getSchema()
-                                  .getSemanticPrefixes()
-                                  .mapAsString(semantic)
-                                  .getFirst())
-              .toArray(RdfValue[]::new);
+    RdfValue[] semantics =
+        Arrays.stream(tableMetadata.getSemantics())
+            .map(
+                semantic ->
+                    (RdfValue)
+                        () ->
+                            tableMetadata
+                                .getSchema()
+                                .getSemanticPrefixes()
+                                .mapAsString(semantic)
+                                .getFirst())
+            .toArray(RdfValue[]::new);
 
+    if (semantics.length == 1) {
+      select.where(SUBJECT_VARIABLE.isA(semantics[0]));
+    } else {
       select
           .where(SUBJECT_VARIABLE.isA(TYPE_VARIABLE))
           .values(value -> value.variables(TYPE_VARIABLE).values(semantics));
