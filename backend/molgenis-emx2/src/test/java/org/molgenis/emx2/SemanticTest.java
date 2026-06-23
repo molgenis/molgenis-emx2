@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
  */
 class SemanticTest {
   @Test
-  void testSemanticStringToSequencePath() {
+  void testSemanticStringToSequencePathLength1() {
     assertAll(
-        // Length 1: valid
         () ->
             assertEquals(
                 List.of("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>"),
@@ -22,15 +21,15 @@ class SemanticTest {
                     .getSequencePath()),
         () -> assertEquals(List.of("rdf:type"), new Semantic("rdf:type").getSequencePath()),
         () -> assertEquals(List.of(":test"), new Semantic(":test").getSequencePath()),
-
-        // Length 1: invalid IRI
         () -> assertThrows(MolgenisException.class, () -> new Semantic("<invalid>")),
-        // Length 1: invalid prefixed name
         () -> assertThrows(MolgenisException.class, () -> new Semantic("rdf:")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("test")),
-        () -> assertThrows(MolgenisException.class, () -> new Semantic(":")),
+        () -> assertThrows(MolgenisException.class, () -> new Semantic(":")));
+  }
 
-        // Length 2: valid
+  @Test
+  void testSemanticStringToSequencePathLength2() {
+    assertAll(
         () ->
             assertEquals(
                 List.of(
@@ -52,7 +51,6 @@ class SemanticTest {
                 List.of("dcterms:temporal", "<http://www.w3.org/ns/dcat#startDate>"),
                 new Semantic("dcterms:temporal/<http://www.w3.org/ns/dcat#startDate>")
                     .getSequencePath()),
-        // Length 2: valid (with empty prefix)
         () ->
             assertEquals(
                 List.of(":temporal", "dcat:startDate"),
@@ -61,7 +59,6 @@ class SemanticTest {
             assertEquals(
                 List.of("dcterms:temporal", ":startDate"),
                 new Semantic("dcterms:temporal/:startDate").getSequencePath()),
-        // Length 2: incorrect prefixed name
         () -> assertThrows(MolgenisException.class, () -> new Semantic("dcterms:/dcat:startDate")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("dcterms:temporal/dcat:")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic(":/dcat:startDate")),
@@ -69,7 +66,6 @@ class SemanticTest {
         () -> assertThrows(MolgenisException.class, () -> new Semantic("temporal/dcat:startDate")),
         () ->
             assertThrows(MolgenisException.class, () -> new Semantic("dcterms:temporal/startDate")),
-        // Length 2: incorrect IRI
         () ->
             assertThrows(
                 MolgenisException.class,
@@ -103,9 +99,18 @@ class SemanticTest {
         () ->
             assertThrows(
                 MolgenisException.class,
-                () -> new Semantic("<http://purl.org/dc/terms/temporal>/startDate")),
+                () -> new Semantic("<http://purl.org/dc/terms/temporal>/startDate")));
+  }
 
-        // Length 3: valid
+  /**
+   * This test is purely to validate whether items in between the first/last are recognized
+   * correctly. {@link #testSemanticStringToSequencePathLength1()} & {@link
+   * #testSemanticStringToSequencePathLength2()} should have already covered (most of the) invalid
+   * cases.
+   */
+  @Test
+  void testSemanticStringToSequencePathLength3() {
+    assertAll(
         () ->
             assertEquals(
                 List.of(

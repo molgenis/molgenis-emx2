@@ -35,7 +35,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (column.getSemantics().isPresent()) {
+      if (column.getSemantics().isEmpty()) {
         continue;
       }
 
@@ -54,7 +54,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics().isPresent()) {
+    if (tableMetadata.getSemantics().isEmpty()) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -88,7 +88,10 @@ public class TableQueryGenerator implements QueryGenerator {
     Semantic[] tableSemantics =
         tableMetadata
             .getSemantics()
-            .orElseThrow(() -> new IllegalStateException("Table semantic not found"));
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "anchorTableVar() should have been called as no semantics are present"));
     if (tableSemantics.length == 1) {
       // todo: Add support for sequence paths (now uses first item and ignores rest)
       select.where(

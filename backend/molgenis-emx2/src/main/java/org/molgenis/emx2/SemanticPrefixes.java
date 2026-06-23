@@ -33,8 +33,6 @@ public class SemanticPrefixes {
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
 
-  static final List<String> LEGACY_FORBIDDEN_PREFIXES = List.of("http", "https", "urn", "tag");
-
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder()
           .addColumn(SEMANTIC_PREFIXES_NAME_PREFIX)
@@ -67,7 +65,6 @@ public class SemanticPrefixes {
     return namespaces;
   }
 
-  // TreeMap for consistency in case it's used for generating output
   private final Map<String, Namespace> namespaces;
 
   public SemanticPrefixes(Namespace... namespaces) {
@@ -102,10 +99,13 @@ public class SemanticPrefixes {
   }
 
   /**
+   * @param semantic The semantic object as passed through a public method that needs to be parsed.
    * @param iriOperator Processes an IRI. Input can be assumed to be valid due to {@link Semantic}
    *     already validating this.
    * @param prefixedNameOperator Processes a prefixed name. While the format should be valid, ensure
    *     {@link #getNamespace(String)} is called so that undefined prefixes will throw an error!
+   * @return a {@link List}{@code <R>} with the parsed values
+   * @param <R> the return type of {@code iriOperator} and {@code prefixedNameOperator}
    */
   private <R> List<R> map(
       final Semantic semantic,

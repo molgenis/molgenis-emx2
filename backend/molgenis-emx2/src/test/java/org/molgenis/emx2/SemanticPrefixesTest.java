@@ -29,7 +29,6 @@ class SemanticPrefixesTest {
 
     assertAll(
         () ->
-            // Valid
             assertEquals(
                 expectedIris,
                 prefixes.mapAsIri(
@@ -47,7 +46,6 @@ class SemanticPrefixesTest {
                 prefixesWithEmpty.mapAsIri(
                     new Semantic(
                         "<http://purl.org/dc/terms/temporal>/:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>"))),
-        // invalid
         () ->
             assertThrows(
                 MolgenisException.class,
