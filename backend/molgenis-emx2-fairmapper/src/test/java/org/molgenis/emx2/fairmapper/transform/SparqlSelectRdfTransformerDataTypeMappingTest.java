@@ -31,8 +31,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
   @Test
   void shouldMapStringLiteralAsLabel() {
     IRI predicate = iri(PREDICATE_BASE + "name");
-    SchemaMetadata schema =
-        setupSchema(Column.column("name").setSemantics(predicate.stringValue()));
+    SchemaMetadata schema = setupSchema(Column.column("name").setSemantics(toSemantic(predicate)));
 
     Row row = transformAndGetFirstRow(schema, repositoryWith(predicate, literal("Alice")));
 
@@ -44,7 +43,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
     IRI predicate = iri(PREDICATE_BASE + "age");
     SchemaMetadata schema =
         setupSchema(
-            Column.column("age").setType(ColumnType.INT).setSemantics(predicate.stringValue()));
+            Column.column("age").setType(ColumnType.INT).setSemantics(toSemantic(predicate)));
 
     Row row = transformAndGetFirstRow(schema, repositoryWith(predicate, literal(42)));
 
@@ -57,9 +56,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
     IRI predicate = iri(PREDICATE_BASE + "price");
     SchemaMetadata schema =
         setupSchema(
-            Column.column("price")
-                .setType(ColumnType.DECIMAL)
-                .setSemantics(predicate.stringValue()));
+            Column.column("price").setType(ColumnType.DECIMAL).setSemantics(toSemantic(predicate)));
 
     Row row = transformAndGetFirstRow(schema, repositoryWith(predicate, literal(1.5d)));
 
@@ -72,7 +69,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
   void shouldMapFloatLiteralWithTypeAnnotation() {
     IRI predicate = iri(PREDICATE_BASE + "weight");
     SchemaMetadata schema =
-        setupSchema(Column.column("weight").setSemantics(predicate.stringValue()));
+        setupSchema(Column.column("weight").setSemantics(toSemantic(predicate)));
 
     Row row = transformAndGetFirstRow(schema, repositoryWith(predicate, literal(1.5f)));
 
@@ -84,7 +81,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
     IRI predicate = iri(PREDICATE_BASE + "related");
     IRI iriValue = iri("https://example.com/other/42");
     SchemaMetadata schema =
-        setupSchema(Column.column("related").setSemantics(predicate.stringValue()));
+        setupSchema(Column.column("related").setSemantics(toSemantic(predicate)));
 
     Row row = transformAndGetFirstRow(schema, repositoryWith(predicate, iriValue));
 
@@ -98,7 +95,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         setupSchema(
             Column.column("tags")
                 .setType(ColumnType.STRING_ARRAY)
-                .setSemantics(predicate.stringValue()));
+                .setSemantics(toSemantic(predicate)));
 
     Row row =
         transformAndGetFirstRow(
@@ -117,7 +114,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         setupSchema(
             Column.column("scores")
                 .setType(ColumnType.INT_ARRAY)
-                .setSemantics(predicate.stringValue()));
+                .setSemantics(toSemantic(predicate)));
 
     Row row =
         transformAndGetFirstRow(
@@ -161,5 +158,9 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         new SparqlSelectRdfTransformer(new TableQueryGenerator(), schema, List.of(TABLE));
     TableStore store = transformer.transform(repo);
     return store.readTable(TABLE).iterator().next();
+  }
+
+  private static String toSemantic(IRI iri) {
+    return "<%s>".formatted(iri.stringValue());
   }
 }
