@@ -9,6 +9,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
   await page.goto(route + "form/AddModal.story?schema=type+test&table=Types");
   await page.getByRole("button", { name: "Add Types" }).click();
 
+  // File and Multiselect tests are not working yet
+
   // String
   await page.getByRole("textbox", { name: "string type Required" }).click();
   await page
@@ -556,33 +558,23 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .click();
 
   // Ontology large tree
-  // await page
-  //   .locator(
-  //     '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"] > .flex.items-center.justify-between'
-  //   )
-  //   .click();
-  // await page
-  //   .locator(
-  //     '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"]'
-  //   )
-  //   .getByText("Asia")
-  //   .click();
-  // await page
-  //   .locator("div")
-  //   .filter({ hasText: /^Asia$/ })
-  //   .nth(1)
-  //   .click();
-  // await page
-  //   .locator(
-  //     '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"]'
-  //   )
-  //   .getByRole("button", { name: "expand EU" })
-  //   .click();
-  // await page
-  //   .locator(
-  //     ".absolute > fieldset > .text-search-filter-group-title.pb-2 > li:nth-child(3) > .text-search-filter-group-title > li:nth-child(2) > .flex.justify-start > .text-body-base > .block"
-  //   )
-  //   .click();
+  await page
+    .locator(
+      '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"] > .flex.items-center.justify-between'
+    )
+    .click();
+  await page
+    .locator(
+      '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"]'
+    )
+    .getByRole("button", { name: "expand AS" })
+    .click();
+  await page
+    .locator(
+      '[id="type test-Types-ontologyLargeTreeType-form-field-input-ontology"]'
+    )
+    .getByText("Israel")
+    .click();
 
   // Ontology small tree array
   await page
