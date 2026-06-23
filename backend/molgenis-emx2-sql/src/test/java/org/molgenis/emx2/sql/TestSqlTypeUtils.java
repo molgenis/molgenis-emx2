@@ -7,16 +7,17 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnTypeGroups.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
-import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.row.computers.RowToMapConverter;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 class TestSqlTypeUtils {
+
+  private static final RowValidatorAndComputer COMPUTOR = new RowValidatorAndComputer();
 
   @BeforeAll
   static void before() {
@@ -30,7 +31,7 @@ class TestSqlTypeUtils {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
-    applyValidationAndComputed(tableMetadata.getColumns(), row);
+    COMPUTOR.applyValidationAndComputed(tableMetadata.getColumns(), row);
     assertNull(row.getString("myCol"));
   }
 
@@ -39,7 +40,7 @@ class TestSqlTypeUtils {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row("STRING array", "aa,bb");
 
-    Map<String, Object> output = convertRowToMap(columns, row);
+    Map<String, Object> output = new RowToMapConverter().convertRowToMap(columns, row);
 
     assertAll(
         () -> assertEquals(Set.of("sTRINGArray"), output.keySet()),
@@ -52,7 +53,7 @@ class TestSqlTypeUtils {
     List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
-    assertDoesNotThrow(() -> applyValidationAndComputed(columns, row));
+    assertDoesNotThrow(() -> COMPUTOR.applyValidationAndComputed(columns, row));
   }
 
   @Test
