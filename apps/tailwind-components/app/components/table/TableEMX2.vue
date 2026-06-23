@@ -4,6 +4,7 @@
       <InputSearch
         v-if="!props.hideSearch"
         class="w-3/5 xl:w-2/5 2xl:w-1/5"
+        size="medium"
         v-model="searchValue"
         :placeholder="`Search ${props.tableId}`"
         id="search-input"
@@ -13,6 +14,7 @@
         <Button
           v-if="props.isEditable && data?.tableMetadata"
           type="primary"
+          size="medium"
           icon="add-circle"
           @click="onAddRowClicked"
         >
@@ -20,7 +22,7 @@
         </Button>
 
         <TableControlColumns
-          :columns="columns"
+          :columns="sortedColumns"
           @update:columns="handleColumnsUpdate"
         />
 
@@ -370,6 +372,7 @@ const settings = defineModel<ITableSettings>("settings", {
     pageSize: constants.PAGE_SIZE_DEFAULT,
     orderby: { column: "", direction: "ASC" },
     search: "",
+    orderedColumnsIds: [],
   }),
 });
 
@@ -557,15 +560,38 @@ watch(
   { immediate: true }
 );
 
-const sortedVisibleColumns = computed(() => {
-  const visibleColumns = columns.value.filter(
-    (column: IColumn) => column.visible !== "false"
-  );
-  return sortColumns(visibleColumns);
+const sortedColumns = computed(() => {
+  // sort from backend
+  let sortedColumns = sortColumns([...(columns.value ?? [])]);
+
+  if (settings.value.orderedColumnsIds?.length) {
+    // override visibility with user settings
+    sortedColumns = sortedColumns.map((col) => {
+      return {
+        ...col,
+        // use string instead of boolean for compatibility backend
+        visible: settings.value.orderedColumnsIds.includes(col.id)
+          ? "true"
+          : "false",
+      };
+    });
+    // order by user settings
+    sortedColumns.sort((a, b) => {
+      const indexA = settings.value.orderedColumnsIds?.indexOf(a.id) ?? -1;
+      const indexB = settings.value.orderedColumnsIds?.indexOf(b.id) ?? -1;
+      return indexA - indexB;
+    });
+  }
+
+  return sortedColumns;
 });
 
+const sortedVisibleColumns = computed(() =>
+  sortedColumns.value.filter((col) => col.visible !== "false")
+);
+
 function handleColumnsUpdate(newColumns: IColumn[]) {
-  columns.value = newColumns;
+  settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
 }
 
 function handleSortRequest(columnId: string) {

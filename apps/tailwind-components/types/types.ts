@@ -97,6 +97,7 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
+  orderedColumnsIds: string[];
   search?: string;
 }
 

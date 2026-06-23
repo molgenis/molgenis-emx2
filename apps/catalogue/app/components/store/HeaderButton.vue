@@ -1,7 +1,14 @@
 <template>
-  <Button label="Request " icon="shopping-cart" @click="$emit('click')">
+  <Button
+    label="Request"
+    size="small"
+    icon="shopping-cart"
+    @click="$emit('click')"
+  >
     <span class="inline-block w-6 h-6 bg-button-cart-count rounded-full">
-      <span class="body-xs/1 text-button-cart-count">
+      <span
+        class="body-xs/1 text-button-cart-count flex items-center justify-center pl-0.5 w-full h-full leading-none"
+      >
         {{ numberOfItemsInStore }}
       </span>
     </span>
