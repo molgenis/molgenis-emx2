@@ -102,7 +102,6 @@ test("it should be able to fill out all input types", async ({ page }) => {
   await page.getByRole("textbox", { name: "long type" }).fill("6778");
 
   // Long array
-
   await page
     .locator('[id="type test-Types-longArrayType-form-field-input_0"]')
     .fill("8787");
@@ -122,9 +121,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .locator('[id="type test-Types-decimalArrayType-form-field-input_0"]')
     .fill("2.2");
   await page
-    .locator(
-      '[id="type test-Types-decimalArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-decimalArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator('[id="type test-Types-decimalArrayType-form-field-input_1"]')
@@ -140,9 +138,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
     )
     .fill("42");
   await page
-    .locator(
-      '[id="type test-Types-nonNegativeIntArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-nonNegativeIntArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator(
@@ -156,9 +153,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
   // Boolean array
   await page.locator("circle").nth(5).click();
   await page
-    .locator(
-      '[id="type test-Types-boolArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-boolArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator(
@@ -176,9 +172,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .locator('[id="type test-Types-uuidArrayType-form-field-input_0"]')
     .fill("123e4567-e89b-12d3-a456-426614174000");
   await page
-    .locator(
-      '[id="type test-Types-uuidArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-uuidArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator('[id="type test-Types-uuidArrayType-form-field-input_1"]')
@@ -202,9 +197,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .click();
   await page.locator('[data-test-id="dp-2026-06-02"]').getByText("2").click();
   await page
-    .locator(
-      '[id="type test-Types-dateArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-dateArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_1"]')
@@ -228,16 +222,14 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .click();
   await page.locator('[data-test-id="dp-2026-06-11"]').getByText("11").click();
   await page
-    .locator(
-      '[id="type test-Types-datetimeArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-datetimeArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator(
       '[id="dp-input-type test-Types-datetimeArrayType-form-field-input_1"]'
     )
     .click();
-
   await page.locator('[data-test-id="dp-2026-06-07"]').getByText("7").click();
 
   // Period
@@ -248,9 +240,8 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .locator('[id="type test-Types-periodArrayType-form-field-input_0"]')
     .fill("P37Y11M10D");
   await page
-    .locator(
-      '[id="type test-Types-periodArrayType-form-field"] > div:nth-child(3) > .flex.items-center.justify-center'
-    )
+    .locator('[id="type test-Types-periodArrayType-form-field"]')
+    .getByRole("button", { name: "Add an additional item" })
     .click();
   await page
     .locator('[id="type test-Types-periodArrayType-form-field-input_1"]')
