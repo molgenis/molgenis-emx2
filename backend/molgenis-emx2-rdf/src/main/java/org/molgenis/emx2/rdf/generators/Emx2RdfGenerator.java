@@ -105,7 +105,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
-        // todo: Add support for sequence paths (now uses first item and ignores rest)
         IRI object =
             table
                 .getSchema()
@@ -168,7 +167,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter().processTriple(subject, RDFS.DOMAIN, tableIRI(getBaseURL(), column.getTable()));
     if (column.getSemantics() != null) {
       for (Semantic columnSemantic : column.getSemantics()) {
-        // todo: Add support for sequence paths (now uses first item and ignores rest)
         IRI object = column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
         getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
       }

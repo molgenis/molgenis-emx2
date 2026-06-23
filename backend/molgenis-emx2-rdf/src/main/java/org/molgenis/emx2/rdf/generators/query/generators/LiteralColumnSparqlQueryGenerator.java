@@ -85,8 +85,6 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     for (int i = 0; i < column.getSemantics().length; i++) {
       Semantic semantic = column.getSemantics()[i];
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
-
-      // todo: Add support for sequence paths (now uses first item and ignores rest)
       RdfPredicate predicate =
           column.getSchema().getSemanticPrefixes().mapAsRdfPredicate(semantic).getFirst();
       GraphPattern pattern = GraphPatterns.tp(subject, predicate, alias).optional();
