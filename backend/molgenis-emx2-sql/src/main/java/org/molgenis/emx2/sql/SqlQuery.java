@@ -672,7 +672,14 @@ public class SqlQuery extends QueryBean {
         }
       }
     }
-    return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
+    // When the file column is empty (e.g. for rows of a sibling subclass that don't have this
+    // column when querying a base table, or simply when no file was uploaded) row_to_json would
+    // still produce an object with all-null fields. Return NULL instead so the file is absent
+    // rather than an empty object.
+    return field(
+            "case when {0} is null then null else {1} end",
+            field(name(alias(tableAlias), column.getName())),
+            field(jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
         .as(column.getIdentifier());
   }
 
