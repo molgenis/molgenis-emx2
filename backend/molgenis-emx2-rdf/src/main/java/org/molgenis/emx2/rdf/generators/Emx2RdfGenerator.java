@@ -107,7 +107,12 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
         // todo: Add support for sequence paths (now uses first item and ignores rest)
         IRI object =
-          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(tableSemantic).getFirst();
+            table
+                .getSchema()
+                .getMetadata()
+                .getSemanticPrefixes()
+                .mapAsIri(tableSemantic)
+                .getFirst();
         getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
       }
     }
@@ -164,8 +169,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (column.getSemantics() != null) {
       for (Semantic columnSemantic : column.getSemantics()) {
         // todo: Add support for sequence paths (now uses first item and ignores rest)
-        IRI object =
-          column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
+        IRI object = column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
         getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
       }
     }
@@ -233,8 +237,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (table.getMetadata().getSemantics() != null) {
       for (Semantic semantic : table.getMetadata().getSemantics()) {
         // todo: Add support for sequence paths (now uses first item and ignores rest)
-        IRI object = table
-          .getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+        IRI object =
+            table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
         getWriter().processTriple(subject, RDF.TYPE, object);
       }
     }
@@ -262,12 +266,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       for (final Value value : retrieveValues(rdfMapData, row, column)) {
         if (column.getSemantics() != null) {
           for (Semantic semantic : column.getSemantics()) {
-            IRI predicate = table
-              .getSchema()
-              .getMetadata()
-              .getSemanticPrefixes()
-              .mapAsIri(semantic)
-              .getFirst();
+            IRI predicate =
+                table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
             getWriter().processTriple(subject, predicate, value);
           }
         }

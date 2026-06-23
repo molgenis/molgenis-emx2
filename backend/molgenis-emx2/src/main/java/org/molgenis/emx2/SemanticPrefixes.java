@@ -152,16 +152,14 @@ public class SemanticPrefixes {
         });
   }
 
-  /**
-   * Maps a semantic to a list of {@link RdfPredicate}{@code s} that represent a sequence path.
-   */
+  /** Maps a semantic to a list of {@link RdfPredicate}{@code s} that represent a sequence path. */
   public List<RdfPredicate> mapAsRdfPredicate(final Semantic semantic) {
     return map(
-      semantic,
-      Rdf::iri,
-      prefixedName -> {
-        getNamespace(prefixedName.split(":")[0]);
-        return () -> prefixedName;
-      });
+        semantic,
+        Rdf::iri,
+        prefixedName -> {
+          getNamespace(prefixedName.split(":")[0]);
+          return () -> prefixedName;
+        });
   }
 }
