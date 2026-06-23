@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -12,19 +11,19 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 @Tag("slow")
-public class TestComputedOrDefaultValue {
+class TestComputedOrDefaultValue {
   static Database db;
   static Schema schema;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
 
     schema = db.dropCreateSchema(TestComputedOrDefaultValue.class.getSimpleName());
   }
 
   @Test
-  public void testComputed() {
+  void testComputed() {
     Table t =
         schema.create(table("Test1", column("id").setPkey(), column("computed").setComputed("5;")));
 
@@ -52,7 +51,7 @@ public class TestComputedOrDefaultValue {
   }
 
   @Test
-  public void testDefault() {
+  void testDefault() {
     final Table t =
         schema.create(
             table("Test3", column("id").setPkey(), column("hasDefault").setDefaultValue("blaat")));
@@ -95,5 +94,93 @@ public class TestComputedOrDefaultValue {
     final Row result2 = t3.query().retrieveRows().get(0);
     assertEquals("green", result2.getString("ontology"));
     assertEquals("green", result2.getStringArray("ontologyArray")[0]);
+  }
+
+  /**
+   * Issue #6321: a (required) column with a visible expression that depends on a computed
+   * ontology_array column. On upload the value is silently dropped (and no required error raised)
+   * because the computed value is not fed back into the expression graph before the visible
+   * expression is evaluated.
+   */
+  @Test
+  void testVisibleBasedOnComputedOntologyArray_issue6321() {
+    schema.create(table("Colors6321", column("name").setPkey()));
+    schema.getTable("Colors6321").insert(row("name", "green"));
+
+    Table t;
+    schema.create(
+        table(
+            "Test6321",
+            column("name").setPkey(),
+            column("favoriteColors")
+                .setType(ColumnType.ONTOLOGY_ARRAY)
+                .setRefTable("Colors6321")
+                .setComputed("[{name:'green'}]"),
+            column("description")
+                .setRequired(true)
+                .setVisible("favoriteColors && favoriteColors.length > 0")));
+
+    // reload to make sure expressions are really fetched from the backend
+    db.clearCache();
+    schema = db.getSchema(TestComputedOrDefaultValue.class.getSimpleName());
+    t = schema.getTable("Test6321");
+
+    t.insert(row("name", "Piet", "description", "Hello"));
+
+    // favoriteColors computes to a non-empty array, so 'description' is visible and must be stored
+    assertEquals("Hello", t.query().retrieveRows().getFirst().getString("description"));
+  }
+
+  /**
+   * Issue #6372: a (required) column with a visible expression that depends on a computed INT
+   * column. When the computed value makes the column invisible, upload should NOT raise a required
+   * error - but it does, because the computed value is not in the expression graph (a null INT
+   * evaluates as {@code null < 18 === true} in JS).
+   */
+  @Test
+  void testVisibleBasedOnComputedInt_issue6372() {
+    schema.create(
+        table(
+            "Test6372",
+            column("id").setPkey().setType(ColumnType.INT),
+            column("ageComputed").setType(ColumnType.INT).setComputed("23"),
+            column("schoolName").setRequired(true).setVisible("ageComputed < 18")));
+
+    db.clearCache();
+    schema = db.getSchema(TestComputedOrDefaultValue.class.getSimpleName());
+    final Table table = schema.getTable("Test6372");
+
+    // ageComputed = 23 (>= 18) so schoolName is invisible: empty value is allowed, no error
+    assertDoesNotThrow(() -> table.insert(row("id", 1)));
+    assertNull(table.query().retrieveRows().get(0).getString("schoolName"));
+  }
+
+  /**
+   * Issue #6373: (required) columns with a visible expression that depends on a column with a
+   * default value. When the default value is not provided in the upload, the values of the visible
+   * columns are dropped (and no required error raised) because the applied default is not fed back
+   * into the expression graph before the visible expression is evaluated.
+   */
+  @Test
+  void testVisibleBasedOnDefaultValue_issue6373() {
+    schema.create(
+        table(
+            "Test6373",
+            column("id").setPkey().setType(ColumnType.INT),
+            column("nationalBool").setType(ColumnType.BOOL).setDefaultValue("false"),
+            column("firstName").setRequired(true).setVisible("nationalBool == false"),
+            column("lastName").setRequired(true).setVisible("nationalBool == false")));
+
+    db.clearCache();
+    schema = db.getSchema(TestComputedOrDefaultValue.class.getSimpleName());
+    final Table table = schema.getTable("Test6373");
+
+    // nationalBool defaults to false, so firstName/lastName are visible and must be stored
+    table.insert(row("id", 1, "firstName", "John", "lastName", "Doe"));
+
+    final Row result = table.query().retrieveRows().getFirst();
+    assertArrayEquals(
+        new String[] {"John", "Doe"},
+        new String[] {result.getString("firstName"), result.getString("lastName")});
   }
 }

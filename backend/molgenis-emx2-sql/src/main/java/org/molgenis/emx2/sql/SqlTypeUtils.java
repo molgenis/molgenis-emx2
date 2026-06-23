@@ -77,6 +77,7 @@ public class SqlTypeUtils extends TypeUtils {
           row.clear(c.getName());
         }
       }
+      graph.put(c.getName(), row.get(c));
     }
   }
 
