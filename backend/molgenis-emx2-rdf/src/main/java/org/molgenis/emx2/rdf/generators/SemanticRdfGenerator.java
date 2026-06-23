@@ -67,51 +67,36 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
-    table
-        .getMetadata()
-        .getSemantics()
-        .ifPresent(
-            semantics -> {
-              for (Semantic semantic : semantics) {
-                // todo: Add support for sequence paths (now uses first item and ignores rest)
-                getWriter()
-                    .processTriple(
-                        subject,
-                        RDF.TYPE,
-                        table
-                            .getSchema()
-                            .getMetadata()
-                            .getSemanticPrefixes()
-                            .mapAsIri(semantic)
-                            .getFirst());
-              }
-            });
+    if (table.getMetadata().getSemantics() != null) {
+      for (Semantic semantic : table.getMetadata().getSemantics()) {
+        IRI object = table
+          .getSchema()
+          .getMetadata()
+          .getSemanticPrefixes()
+          .mapAsIri(semantic)
+          .getFirst();
+        getWriter().processTriple(subject, RDF.TYPE, object);
+      }
+    }
 
     for (final Column column : table.getMetadata().getColumns()) {
-      column
-          .getSemantics()
-          .ifPresent(
-              semantics -> {
-                for (final Value value : retrieveValues(rdfMapData, row, column)) {
-                  for (Semantic semantic : semantics) {
-                    // todo: Add support for sequence paths (now uses first item and ignores rest)
-                    getWriter()
-                        .processTriple(
-                            subject,
-                            table
-                                .getSchema()
-                                .getMetadata()
-                                .getSemanticPrefixes()
-                                .mapAsIri(semantic)
-                                .getFirst(),
-                            value);
-                  }
+      if (column.getSemantics() != null) {
+        for (final Value value : retrieveValues(rdfMapData, row, column)) {
+          for (Semantic semantic : column.getSemantics()) {
+            IRI predicate = table
+              .getSchema()
+              .getMetadata()
+              .getSemanticPrefixes()
+              .mapAsIri(semantic)
+              .getFirst();
+            getWriter().processTriple(subject, predicate, value);
+          }
 
-                  if (column.getColumnType().isFile()) {
-                    generateFileTriples((IRI) value, row, column);
-                  }
-                }
-              });
+          if (column.getColumnType().isFile()) {
+            generateFileTriples((IRI) value, row, column);
+          }
+        }
+      }
     }
   }
 }

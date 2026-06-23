@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
+import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
@@ -60,10 +61,10 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   @Override
   public List<GraphPattern> getPatterns() {
-    if (column.getSemantics().isEmpty()) {
+    Semantic[] semantics = column.getSemantics();
+    if (semantics == null) {
       return Collections.emptyList();
     }
-    Semantic[] semantics = column.getSemantics().get();
     if (semantics.length > 1) {
       return multiSemanticPattern();
     }
@@ -79,22 +80,16 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<GraphPattern> semanticPatterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
 
-    column
-        .getSemantics()
-        .ifPresent(
-            semantics -> {
-              for (int i = 0; i < semantics.length; i++) {
-                // todo: Add support for sequence paths (now uses first item and ignores rest)
-                String semantic =
-                    column.getSchema().getSemanticPrefixes().mapAsString(semantics[0]).getFirst();
-                Variable alias = SparqlBuilder.var(object.getVarName() + i);
+    for (int i = 0; i < column.getSemantics().length; i++) {
+      Semantic semantic = column.getSemantics()[i];
+      Variable alias = SparqlBuilder.var(object.getVarName() + i);
 
-                GraphPattern pattern =
-                    GraphPatterns.tp(subject, Rdf.iri(semantic), alias).optional();
-                semanticPatterns.add(pattern);
-                aliases.add(alias);
-              }
-            });
+      // todo: Add support for sequence paths (now uses first item and ignores rest)
+      RdfPredicate predicate = column.getSchema().getSemanticPrefixes().mapAsRdfPredicate(semantic).getFirst();
+      GraphPattern pattern = GraphPatterns.tp(subject, predicate, alias).optional();
+      semanticPatterns.add(pattern);
+      aliases.add(alias);
+    }
 
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     semanticPatterns.add(Expressions.bind(coalesce, object));

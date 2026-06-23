@@ -65,7 +65,7 @@ public class Emx2 {
       if (row.getString(COLUMN_NAME) == null) {
         schema.getTableMetadata(tableName).setInheritName(row.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
-        schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS));
+        schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
         schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
         if (row.getString(TABLE_TYPE) != null) {
           schema
@@ -262,14 +262,7 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      table
-          .getSemantics()
-          .ifPresent(
-              semantics -> {
-                row.setStringArray(
-                    SEMANTICS,
-                    Arrays.stream(semantics).map(Semantic::toString).toArray(String[]::new));
-              });
+      if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemanticsAsString());
       if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {

@@ -35,7 +35,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (column.getSemantics().isEmpty()) {
+      if (column.getSemantics() == null) {
         continue;
       }
 
@@ -54,7 +54,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics().isEmpty()) {
+    if (tableMetadata.getSemantics() == null) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -85,13 +85,7 @@ public class TableQueryGenerator implements QueryGenerator {
   }
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
-    Semantic[] tableSemantics =
-        tableMetadata
-            .getSemantics()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "anchorTableVar() should have been called as no semantics are present"));
+    Semantic[] tableSemantics = tableMetadata.getSemantics();
     if (tableSemantics.length == 1) {
       // todo: Add support for sequence paths (now uses first item and ignores rest)
       select.where(
@@ -102,7 +96,7 @@ public class TableQueryGenerator implements QueryGenerator {
                       .getSemanticPrefixes()
                       .mapAsString(tableSemantics[0])
                       .getFirst()));
-    } else if (tableSemantics.length > 1) {
+    } else {
       // todo: Add support for sequence paths (now uses first item and ignores rest)
       RdfValue[] semantics =
           Arrays.stream(tableSemantics)
