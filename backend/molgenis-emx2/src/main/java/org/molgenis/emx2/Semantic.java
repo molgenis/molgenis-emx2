@@ -78,7 +78,7 @@ public class Semantic {
     if (semantic.charAt(length - 1) != '>') {
       if (foundIri) {
         throw new MolgenisException(
-            "Invalid semantic: Missing closing bracket ('<') for opening bracket ('>').");
+            "Invalid semantic: Missing closing bracket ('>') for opening bracket ('<').");
       } else {
         sequencePath.add(validatePrefixedName(semantic.substring(sequenceItemStart, length)));
       }
