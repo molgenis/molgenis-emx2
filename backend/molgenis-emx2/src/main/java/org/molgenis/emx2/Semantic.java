@@ -46,16 +46,17 @@ public class Semantic {
         case '<' -> {
           if (foundIri)
             throw new MolgenisException(
-                "Invalid semantic: Found new IRI opening bracket ('<') before previous IRI was closed.");
+                "Found new IRI opening bracket ('<') before previous IRI was closed: " + semantic);
           foundIri = true;
         }
         case '>' -> {
           if (!foundIri)
             throw new MolgenisException(
-                "Invalid semantic: IRI closing bracket ('>') without opening bracket ('<').");
+                "IRI closing bracket ('>') without opening bracket ('<'): " + semantic);
           if (i + 1 != length && semantic.charAt(i + 1) != '/')
             throw new MolgenisException(
-                "Invalid semantic: Missing sequence path separator ('/') after IRI closing bracket ('>').");
+                "Missing sequence path separator ('/') after IRI closing bracket ('>'): "
+                    + semantic);
           sequencePath.add(validateIri(semantic.substring(sequenceItemStart, i + 1)));
           sequenceItemStart = i + 2;
           i++;
@@ -63,6 +64,10 @@ public class Semantic {
         }
         case '/' -> {
           if (!foundIri) {
+            if (semantic.charAt(i - 1) == ':') {
+              throw new MolgenisException(
+                  "Found '/' after ':' outside of brackets ('<' & '>'): " + semantic);
+            }
             sequencePath.add(validatePrefixedName(semantic.substring(sequenceItemStart, i)));
             sequenceItemStart = i + 1;
           }
@@ -86,7 +91,7 @@ public class Semantic {
     try {
       Values.iri(semanticPart.substring(1, semanticPart.length() - 1));
     } catch (IllegalArgumentException e) {
-      throw new MolgenisException("Found IRI is malformed:" + semanticPart, e);
+      throw new MolgenisException("Found malformed IRI:" + semanticPart, e);
     }
     return semanticPart;
   }
@@ -95,9 +100,10 @@ public class Semantic {
   private String validatePrefixedName(final String semanticPart) {
     String[] prefixedNameSplit = semanticPart.split(":");
     if (prefixedNameSplit.length != 2)
-      throw new MolgenisException("Could not split prefixed name into prefix label & local part");
+      throw new MolgenisException(
+          "Could not split prefixed name into prefix label & local part: " + semanticPart);
     if (prefixedNameSplit[1].isEmpty())
-      throw new MolgenisException("Local part of prefixed name must not be empty");
+      throw new MolgenisException("Local part of prefixed name must not be empty: " + semanticPart);
     return semanticPart;
   }
 
