@@ -814,7 +814,7 @@ public class SqlQuery extends QueryBean {
                 col.getRefBackColumn().getReferences().stream()
                     .map(
                         ref ->
-                            field("unnest({0})", name(ref.getColumnName()))
+                            field(UNNEST_0, name(ref.getColumnName()))
                                 .as(ref.getReferencedColumnName()))
                     .toList());
           } else {
@@ -841,7 +841,7 @@ public class SqlQuery extends QueryBean {
           Set<Field> subselectFields = new HashSet<>();
           subselectFields.addAll(table.getPrimaryKeyFields());
           for (Field compositeField : col.getCompositeFields()) {
-            subselectFields.add(field("unnest({0})", compositeField).as(compositeField.getName()));
+            subselectFields.add(field(UNNEST_0, compositeField).as(compositeField.getName()));
           }
           refArraySubqueries.add(
               jooq.select(subselectFields)
@@ -973,7 +973,7 @@ public class SqlQuery extends QueryBean {
                   refBack.getReferences().stream()
                       .map(
                           reference ->
-                              field("unnest({0})", name(reference.getColumnName()))
+                              field(UNNEST_0, name(reference.getColumnName()))
                                   .as(name("_refback_" + reference.getReferencedColumnName())))
                       .toList());
             } else {
