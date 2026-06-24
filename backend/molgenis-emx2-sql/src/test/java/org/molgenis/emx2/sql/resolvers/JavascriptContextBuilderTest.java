@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -8,11 +8,11 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class DefaultValueRowValueComputer implements RowValueComputer {
+public class DefaultValueResolver implements RowValueResolver {
 
   private final List<Column> columns;
 
-  public DefaultValueRowValueComputer(List<Column> columns) {
+  public DefaultValueResolver(List<Column> columns) {
     this.columns = columns;
   }
 
@@ -28,7 +28,7 @@ public class DefaultValueRowValueComputer implements RowValueComputer {
   }
 
   @Override
-  public boolean shouldComputeForColumn(Column column, Row row) {
+  public boolean shouldResolveForColumn(Column column, Row row) {
     return column.getDefaultValue() != null && !row.notNull(column.getName());
   }
 

@@ -1,10 +1,10 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Row;
 
-public class SystemEditRolePrefixRowValueComputer implements RowValueComputer {
+public class SystemRolePrefixResolver implements RowValueResolver {
 
   @Override
   public void apply(Column column, Row row) {
@@ -13,7 +13,7 @@ public class SystemEditRolePrefixRowValueComputer implements RowValueComputer {
   }
 
   @Override
-  public boolean shouldComputeForColumn(Column column, Row row) {
+  public boolean shouldResolveForColumn(Column column, Row row) {
     return Constants.MG_EDIT_ROLE.equals(column.getName());
   }
 }

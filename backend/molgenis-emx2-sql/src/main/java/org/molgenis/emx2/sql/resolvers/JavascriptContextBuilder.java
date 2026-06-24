@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

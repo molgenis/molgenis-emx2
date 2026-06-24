@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers.validators;
+package org.molgenis.emx2.sql.resolvers.validators;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -11,11 +11,11 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class RequiredRowValidator implements RowValidator {
+public class RequiredValidator implements RowValidator {
 
   private final Map<String, Object> context;
 
-  public RequiredRowValidator(Map<String, Object> context) {
+  public RequiredValidator(Map<String, Object> context) {
     this.context = context;
   }
 
@@ -34,10 +34,6 @@ public class RequiredRowValidator implements RowValidator {
     }
     if (column.isReference()) {
       List<Reference> refs = column.getReferences();
-      // PostgreSQL considers the foreign key constraint not applicable if any part of the
-      // composite
-      // key is NULL.therefore we must make sure it is complete
-      // exclude overlapping
       int countNotNullNotOverlapping = 0;
       int countNotNull = 0;
       for (Reference ref : refs) {

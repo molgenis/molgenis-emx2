@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
@@ -7,14 +7,14 @@ import java.util.Map;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.sql.row.computers.validators.RequiredRowValidator;
-import org.molgenis.emx2.sql.row.computers.validators.ValidationRowValidator;
+import org.molgenis.emx2.sql.resolvers.validators.ExpressionValidator;
+import org.molgenis.emx2.sql.resolvers.validators.RequiredValidator;
 
-public class VisibilityRowValueComputer implements RowValueComputer {
+public class VisibilityResolver implements RowValueResolver {
 
   private final List<Column> columns;
 
-  public VisibilityRowValueComputer(List<Column> columns) {
+  public VisibilityResolver(List<Column> columns) {
     this.columns = columns;
   }
 
@@ -23,8 +23,8 @@ public class VisibilityRowValueComputer implements RowValueComputer {
     Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
 
     if (columnIsVisible(column, javascriptContext)) {
-      new RequiredRowValidator(javascriptContext).apply(column, row);
-      new ValidationRowValidator(javascriptContext).apply(column, row);
+      new RequiredValidator(javascriptContext).apply(column, row);
+      new ExpressionValidator(javascriptContext).apply(column, row);
     } else if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         row.clear(ref.getName());
@@ -35,7 +35,7 @@ public class VisibilityRowValueComputer implements RowValueComputer {
   }
 
   @Override
-  public boolean shouldComputeForColumn(Column column, Row row) {
+  public boolean shouldResolveForColumn(Column column, Row row) {
     return true;
   }
 

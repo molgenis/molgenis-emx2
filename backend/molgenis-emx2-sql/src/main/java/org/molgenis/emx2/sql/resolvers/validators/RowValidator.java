@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers.validators;
+package org.molgenis.emx2.sql.resolvers.validators;
 
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;

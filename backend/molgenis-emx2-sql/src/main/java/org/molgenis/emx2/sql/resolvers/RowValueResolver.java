@@ -1,10 +1,10 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import java.util.List;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 
-public interface RowValueComputer {
+public interface RowValueResolver {
 
   default void apply(Column column, List<Row> rows) {
     for (Row row : rows) {
@@ -14,5 +14,5 @@ public interface RowValueComputer {
 
   void apply(Column column, Row row);
 
-  boolean shouldComputeForColumn(Column column, Row row);
+  boolean shouldResolveForColumn(Column column, Row row);
 }

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.row.computers;
+package org.molgenis.emx2.sql.resolvers;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -9,11 +9,11 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ComputedRowValueComputer implements RowValueComputer {
+public class ComputedExpressionResolver implements RowValueResolver {
 
   private final List<Column> contextColumns;
 
-  public ComputedRowValueComputer(List<Column> contextColumns) {
+  public ComputedExpressionResolver(List<Column> contextColumns) {
     this.contextColumns = contextColumns;
   }
 
@@ -39,7 +39,7 @@ public class ComputedRowValueComputer implements RowValueComputer {
   }
 
   @Override
-  public boolean shouldComputeForColumn(Column column, Row row) {
+  public boolean shouldResolveForColumn(Column column, Row row) {
     return column.getComputed() != null;
   }
 }
