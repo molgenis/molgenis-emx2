@@ -1,6 +1,6 @@
 ---
 name: Dutch Cohort Metadata Schema
-description: "This schema is used by cohorts to enter their data."
+description: "This is the Dutch national cohort metadata schema."
 
 profileTags: CohortsBasis
 
