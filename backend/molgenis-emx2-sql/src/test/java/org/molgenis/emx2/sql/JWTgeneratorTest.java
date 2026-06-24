@@ -2,6 +2,14 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -248,5 +256,26 @@ class JWTgeneratorTest {
         exception.getMessage().contains("Invalid token")
             || exception.getMessage().contains("expired"),
         "Exception message should indicate invalid token or expiration");
+  }
+
+  @Test
+  void testTemporaryTokenExpiringTooFarInFutureThrowsException() throws Exception {
+    // Signed token, known user, and not-expired token, but temporary token expiry is > 30 minutes.
+    JWTClaimsSet claimsSet =
+        new JWTClaimsSet.Builder()
+            .subject(TEST_USER)
+            .jwtID("temporary")
+            .issueTime(new Date())
+            .expirationTime(Date.from(Instant.now().plus(31, ChronoUnit.MINUTES)))
+            .build();
+
+    SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+    signedJWT.sign(new MACSigner(db.resolveJwtSharedSecret().getBytes()));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () -> JWTgenerator.getUserFromToken(db, signedJWT.serialize()));
+    assertEquals("Invalid token or token expired", exception.getMessage());
   }
 }

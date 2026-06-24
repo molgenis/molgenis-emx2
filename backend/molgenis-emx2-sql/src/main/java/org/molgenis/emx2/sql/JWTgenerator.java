@@ -116,11 +116,11 @@ public class JWTgenerator {
 
   // parse token
   public static String getUserFromToken(Database database, String token) {
-    // On the consumer side, parse the JWS and verify its HMAC
     if (signer == null) {
       init(database);
     }
-    SignedJWT signedJWT;
+
+    final SignedJWT signedJWT;
     try {
       signedJWT = SignedJWT.parse(token);
     } catch (ParseException e) {
@@ -128,42 +128,47 @@ public class JWTgenerator {
       throw new MolgenisException("Cannot parse token", e);
     }
 
-    JWTClaimsSet claimsSet;
+    final JWTClaimsSet claimsSet;
     try {
       claimsSet = signedJWT.getJWTClaimsSet();
     } catch (ParseException e) {
       logger.warn("Failed to get JWT claims.", e);
       throw new MolgenisException("Cannot parse token", e);
     }
-    Date expirationTime = claimsSet.getExpirationTime();
-    String tokenId = claimsSet.getJWTID();
-    String userName = claimsSet.getSubject();
+
+    final Date expirationTime = claimsSet.getExpirationTime();
+    final String tokenId = claimsSet.getJWTID();
+    final String userName = claimsSet.getSubject();
     if (expirationTime == null || tokenId == null || userName == null) {
       throw new MolgenisException("Invalid token or token expired");
     }
-    boolean isVerified;
+
+    final boolean isVerified;
     try {
       isVerified = signedJWT.verify(verifier);
     } catch (JOSEException je) {
       logger.warn("JWT verification failed. jwtId={}", tokenId, je);
       throw new MolgenisException("Cannot verify token", je);
     }
-    if (isVerified && new Date().before(expirationTime)) {
-      // verify user is known
-      User user = database.getUser(userName);
-      // if temp token we must verify has expirationTime not too far in the future
-      if (user != null && "temporary".equals(tokenId)) {
-        Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
-        if (expirationTime.before(Date.from(thirtyMinutes))) {
-          return user.getUsername();
-        }
-      }
-      // else if not temporary we must verify it is known
-      else if (user != null && user.hasToken(tokenId)) {
+
+    if (!isVerified || !new Date().before(expirationTime)) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
+
+    final User user = database.getUser(userName);
+    if (user == null) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
+
+    if ("temporary".equals(tokenId)) {
+      Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
+      if (expirationTime.before(Date.from(thirtyMinutes))) {
         return user.getUsername();
       }
+    } else if (user.hasToken(tokenId)) {
+      return user.getUsername();
     }
-    // else we throw exception
+
     throw new MolgenisException("Invalid token or token expired");
   }
 }
