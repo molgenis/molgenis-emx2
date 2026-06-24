@@ -1,5 +1,5 @@
 <template>
-  <td class="p-2.5 border-b min-h-8">
+  <td class="p-2 border-b min-h-8">
     <slot name="row-actions"></slot>
     <div class="flex overflow-hidden items-center gap-2">
       <div class="truncate min-w-0" ref="cellRef">
@@ -114,7 +114,6 @@
         v-if="isEllipsisActive"
         type="text"
         size="tiny"
-        class="flex-shrink-0 !p-0 leading-none"
         @click="handleShowMore"
       >
         More

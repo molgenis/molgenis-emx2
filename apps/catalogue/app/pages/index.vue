@@ -160,7 +160,7 @@ useHead(() => ({
         >
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
             <NuxtLink :to="`/all`">
-              <Button label="Search all" />
+              <Button label="Search all" size="large" />
             </NuxtLink>
           </div>
         </div>
