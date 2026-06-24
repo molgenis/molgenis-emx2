@@ -139,7 +139,6 @@ const { isAdmin, session } = await useSession(schemaId);
           :icon-only="true"
           type="inline"
           icon="info"
-          size="large"
           label="view row details"
           @click="handleViewRowRequest(row)"
         />
