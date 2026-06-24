@@ -871,4 +871,64 @@ describe("buildGraphQLFilter", () => {
       },
     });
   });
+
+  it("SELECT single-key non-name pk objects use equals with key objects (bug fix: non-name pk)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "selectType",
+        columnType: "SELECT",
+        label: "Select Type",
+        refTableId: "Options",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      [
+        "selectType",
+        {
+          operator: "equals",
+          value: [{ optionKey: "CY" }, { optionKey: "FR" }],
+        },
+      ],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      selectType: { equals: [{ optionKey: "CY" }, { optionKey: "FR" }] },
+    });
+  });
+
+  it("MULTISELECT single-key non-name pk objects use equals with key objects (bug fix)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "tags",
+        columnType: "MULTISELECT",
+        label: "Tags",
+        refTableId: "Options",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["tags", { operator: "equals", value: [{ optionKey: "A" }] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      tags: { equals: [{ optionKey: "A" }] },
+    });
+  });
+
+  it("RADIO single-key non-name pk objects use _or (existing object branch)", () => {
+    const columns: IColumn[] = [
+      makeColumn({
+        id: "radioType",
+        columnType: "RADIO",
+        label: "Radio Type",
+        refTableId: "Options",
+      }),
+    ];
+    const filters = new Map<string, IFilterValue>([
+      ["radioType", { operator: "equals", value: [{ optionKey: "FR" }] }],
+    ]);
+    const result = buildGraphQLFilter(filters, columns, "");
+    expect(result).toEqual({
+      radioType: { _or: [{ optionKey: { equals: "FR" } }] },
+    });
+  });
 });

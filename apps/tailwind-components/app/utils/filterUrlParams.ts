@@ -114,7 +114,10 @@ export function parseFilterValue(
     "CHECKBOX",
   ]);
 
-  if (MULTI_VALUE_TYPES.has(columnType) || isDirectRefType) {
+  if (
+    (MULTI_VALUE_TYPES.has(columnType) && refField === null) ||
+    isDirectRefType
+  ) {
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       return {
         operator: "equals",
@@ -217,17 +220,17 @@ export function serializeFiltersToUrl(
           }
         }
       } else if (
-        column.columnType === "RADIO" ||
-        column.columnType === "CHECKBOX" ||
-        ((column.columnType === "REF" ||
+        (column.columnType === "RADIO" ||
+          column.columnType === "CHECKBOX" ||
+          column.columnType === "REF" ||
           column.columnType === "REF_ARRAY" ||
           column.columnType === "REFBACK" ||
           column.columnType === "SELECT" ||
           column.columnType === "MULTISELECT") &&
-          column.refTableId &&
-          Array.isArray(value.value) &&
-          value.value.length > 0 &&
-          typeof value.value[0] === "string")
+        column.refTableId &&
+        Array.isArray(value.value) &&
+        value.value.length > 0 &&
+        typeof value.value[0] === "string"
       ) {
         params[key] = serialized;
       } else if (REF_TYPES.has(column.columnType)) {

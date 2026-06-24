@@ -561,6 +561,51 @@ describe("RADIO flat URL serialization", () => {
     const { filters } = parseFiltersFromUrl(params, columns);
     expect(filters.get("status")).toEqual(original.get("status"));
   });
+
+  it("RADIO with non-name pk key objects serializes with dotted key", () => {
+    const columns = [
+      { id: "radioType", columnType: "RADIO", refTableId: "Options" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("radioType", {
+      operator: "equals",
+      value: [{ optionKey: "FR" }],
+    });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("radioType.optionKey", "FR");
+    expect(params).not.toHaveProperty("radioType");
+  });
+
+  it("RADIO with non-name pk key objects roundtrips through URL", () => {
+    const columns = [
+      { id: "radioType", columnType: "RADIO", refTableId: "Options" },
+    ] as IColumn[];
+    const original = new Map<string, IFilterValue>();
+    original.set("radioType", {
+      operator: "equals",
+      value: [{ optionKey: "FR" }, { optionKey: "CY" }],
+    });
+
+    const params = serializeFiltersToUrl(original, "", columns);
+    const { filters } = parseFiltersFromUrl(params, columns);
+    expect(filters.get("radioType")).toEqual(original.get("radioType"));
+  });
+
+  it("CHECKBOX with non-name pk key objects serializes with dotted key", () => {
+    const columns = [
+      { id: "options", columnType: "CHECKBOX", refTableId: "Options" },
+    ] as IColumn[];
+    const filters = new Map<string, IFilterValue>();
+    filters.set("options", {
+      operator: "equals",
+      value: [{ optionKey: "A" }, { optionKey: "B" }],
+    });
+
+    const params = serializeFiltersToUrl(filters, "", columns);
+    expect(params).toHaveProperty("options.optionKey", "A|B");
+    expect(params).not.toHaveProperty("options");
+  });
 });
 
 describe("REF flat URL serialization (same path as RADIO/CHECKBOX)", () => {

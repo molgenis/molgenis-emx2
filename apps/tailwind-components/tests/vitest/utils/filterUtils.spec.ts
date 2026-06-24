@@ -95,13 +95,54 @@ describe("treeSelectionToFilterValue", () => {
     expect(result).toEqual({ operator: "equals", value: ["active"] });
   });
 
-  it("returns equals filter with selected values for REF column with single-key keyObjects", () => {
+  it("returns equals filter with selected values for REF column with single-key keyObjects where key is name", () => {
     const options: CountedOption[] = [
       { name: "Alice", count: 2, keyObject: { name: "Alice" } },
       { name: "Bob", count: 1, keyObject: { name: "Bob" } },
     ];
     const result = treeSelectionToFilterValue(["Alice"], radioColumn, options);
     expect(result).toEqual({ operator: "equals", value: ["Alice"] });
+  });
+
+  it("returns keyObject array for REF column with single-key keyObjects where key is not name (bug fix)", () => {
+    const selectColumn: IColumn = {
+      columnType: "SELECT",
+      id: "selectType",
+      label: "Select Type",
+    };
+    const options: CountedOption[] = [
+      { name: "CY", count: 2, keyObject: { optionKey: "CY" } },
+      { name: "FR", count: 3, keyObject: { optionKey: "FR" } },
+    ];
+    const result = treeSelectionToFilterValue(
+      ["CY", "FR"],
+      selectColumn,
+      options
+    );
+    expect(result).toEqual({
+      operator: "equals",
+      value: [{ optionKey: "CY" }, { optionKey: "FR" }],
+    });
+  });
+
+  it("returns keyObject for RADIO with single-key non-name pk (bug fix)", () => {
+    const radioColumnWithRef: IColumn = {
+      columnType: "RADIO",
+      id: "radioType",
+      label: "Radio Type",
+    };
+    const options: CountedOption[] = [
+      { name: "FR", count: 2, keyObject: { optionKey: "FR" } },
+    ];
+    const result = treeSelectionToFilterValue(
+      ["FR"],
+      radioColumnWithRef,
+      options
+    );
+    expect(result).toEqual({
+      operator: "equals",
+      value: [{ optionKey: "FR" }],
+    });
   });
 
   it("returns keyObject array for REF column with composite keyObjects", () => {

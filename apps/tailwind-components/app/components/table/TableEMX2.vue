@@ -1,8 +1,20 @@
 <template>
   <div>
     <div class="flex pb-[30px] justify-between">
+      <div
+        v-if="!props.hideSearch && enableFilters && filters"
+        class="shrink-0 w-80 xl:w-96 lg:-ml-[30px] px-5"
+      >
+        <InputSearch
+          class="w-full"
+          size="medium"
+          v-model="searchValue"
+          :placeholder="`Search ${props.tableId}`"
+          id="search-input"
+        />
+      </div>
       <InputSearch
-        v-if="!props.hideSearch"
+        v-else-if="!props.hideSearch"
         class="w-3/5 xl:w-2/5 2xl:w-1/5"
         size="medium"
         v-model="searchValue"

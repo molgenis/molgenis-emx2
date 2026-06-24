@@ -72,9 +72,21 @@ export function equalsForDirectRef(
     Object.keys(arr[0] as Record<string, unknown>).length > 1;
   const hasAnyObjects =
     arr.length > 0 && typeof arr[0] === "object" && arr[0] !== null;
+  const isSelectType =
+    column.columnType === "SELECT" || column.columnType === "MULTISELECT";
 
   if (isDirectColumn && column.refTableId && hasPlainStringValues) {
     return { equals: arr.map((v: any) => ({ name: v })) };
+  }
+
+  if (
+    isDirectColumn &&
+    column.refTableId &&
+    isSelectType &&
+    hasAnyObjects &&
+    !hasMultiKeyObjects
+  ) {
+    return { equals: arr };
   }
 
   if (

@@ -115,8 +115,10 @@ export function treeSelectionToFilterValue(
     options[0]?.keyObject !== undefined
   ) {
     const firstKey = options[0].keyObject!;
-    const isComposite = Object.keys(firstKey).length > 1;
-    if (isComposite) {
+    const keyNames = Object.keys(firstKey);
+    const isComposite = keyNames.length > 1;
+    const isSingleNonNameKey = keyNames.length === 1 && keyNames[0] !== "name";
+    if (isComposite || isSingleNonNameKey) {
       const optionsByName = new Map(
         options.map((option) => [option.name, option])
       );
