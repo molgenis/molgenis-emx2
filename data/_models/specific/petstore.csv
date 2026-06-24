@@ -10,6 +10,7 @@ Order,,,quantity,long,,,,,,,,,if(quantity < 1) 'quantity should be >= 1',,,,Pets
 Order,,,price,decimal,,,,,,,,,price >= 1,,,,Petstore,,,
 Order,,,complete,bool,,,,,,,,,,,,,Petstore,,,
 Order,,,status,,,,,,,,,hallo,,,,,Petstore,,,
+Order,,,timestamp,datetime,,,,,,,,,,,,,Petstore,,,
 Pet,,,name,,1,true,,,,,,,,,,http://example.com/petstore#hasName,Petstore,,the name,
 Pet,,,category,radio,,true,,Category,,,,,,,,,Petstore,,,
 Pet,,,photoUrls,string_array,,,,,,,,,,,,,Petstore,,,
