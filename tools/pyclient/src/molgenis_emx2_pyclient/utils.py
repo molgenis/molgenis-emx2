@@ -322,7 +322,6 @@ def check_schema(schema: str, default_schema: str, schema_names: list[str]):
 
 def csv_string_to_array(csv_string: str) -> list:
     """Convert EMX2 input of type *_ARRAY, from a string from the CSV API to a list"""
-    #FIXME: return input if not string
     if pd.notna(csv_string):
         with io.StringIO(csv_string) as in_string:
             reader = csv.reader(in_string, dialect=csv.excel)
