@@ -11,6 +11,7 @@ public class RowValidatorAndComputer {
   public static final SystemRolePrefixResolver ROLE_COMPUTER = new SystemRolePrefixResolver();
 
   private final List<RowValueResolver> resolvers;
+  private final RowValueResolver defaultResolver;
   private final List<Column> toValidateAndCompute;
 
   public RowValidatorAndComputer(List<Column> columns) {
@@ -18,8 +19,8 @@ public class RowValidatorAndComputer {
         List.of(
             ROLE_COMPUTER,
             new DefaultValueResolver(columns),
-            new ComputedExpressionResolver(columns),
-            new VisibilityResolver(columns));
+            new ComputedExpressionResolver(columns));
+    this.defaultResolver = new VisibilityResolver(columns);
 
     toValidateAndCompute =
         columns.stream()
@@ -30,12 +31,11 @@ public class RowValidatorAndComputer {
 
   public void applyValidationAndComputed(Row row) {
     for (Column column : toValidateAndCompute) {
-      for (RowValueResolver resolver : resolvers) {
-        if (resolver.shouldResolveForColumn(column, row)) {
-          resolver.apply(column, row);
-          break;
-        }
-      }
+      resolvers.stream()
+          .filter(r -> r.shouldResolveForColumn(column, row))
+          .findFirst()
+          .orElse(defaultResolver)
+          .apply(column, row);
     }
   }
 }

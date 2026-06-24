@@ -34,6 +34,9 @@ public class VisibilityResolver implements RowValueResolver {
     }
   }
 
+  /**
+   * This resolver is applicable to all columns.
+   */
   @Override
   public boolean shouldResolveForColumn(Column column, Row row) {
     return true;
