@@ -12,8 +12,6 @@ import org.molgenis.emx2.sql.row.computers.validators.ValidationRowValidator;
 
 public class VisibilityRowValueComputer implements RowValueComputer {
 
-  private static final RowToMapConverter converter = new RowToMapConverter();
-
   private final List<Column> columns;
 
   public VisibilityRowValueComputer(List<Column> columns) {
@@ -22,11 +20,11 @@ public class VisibilityRowValueComputer implements RowValueComputer {
 
   @Override
   public void apply(Column column, Row row) {
-    Map<String, Object> graph = converter.convertRowToMap(columns, row);
+    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
 
-    if (columnIsVisible(column, graph)) {
-      new RequiredRowValidator(graph).apply(column, row);
-      new ValidationRowValidator(graph).apply(column, row);
+    if (columnIsVisible(column, javascriptContext)) {
+      new RequiredRowValidator(javascriptContext).apply(column, row);
+      new ValidationRowValidator(javascriptContext).apply(column, row);
     } else if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         row.clear(ref.getName());

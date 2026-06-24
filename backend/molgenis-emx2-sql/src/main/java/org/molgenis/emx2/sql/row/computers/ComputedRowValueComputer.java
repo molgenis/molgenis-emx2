@@ -11,8 +11,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class ComputedRowValueComputer implements RowValueComputer {
 
-  private static final RowToMapConverter converter = new RowToMapConverter();
-
   private final List<Column> contextColumns;
 
   public ComputedRowValueComputer(List<Column> contextColumns) {
@@ -31,10 +29,10 @@ public class ComputedRowValueComputer implements RowValueComputer {
   }
 
   public void apply(List<Column> columns, Row row) {
-    Map<String, Object> graph = converter.convertRowToMap(this.contextColumns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(this.contextColumns, row);
     for (Column column : columns) {
       if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
-        Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), context);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
     }

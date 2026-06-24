@@ -13,18 +13,20 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 
-class RowToMapConverterTest {
+class JavascriptContextBuilderTest {
 
   @Test
   void testArrayConversionToMap() {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row("STRING array", "aa,bb");
 
-    Map<String, Object> output = new RowToMapConverter().convertRowToMap(columns, row);
+    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
 
     assertAll(
-        () -> assertEquals(Set.of("sTRINGArray"), output.keySet()),
+        () -> assertEquals(Set.of("sTRINGArray"), javascriptContext.keySet()),
         () ->
-            assertEquals(List.of("aa", "bb"), Arrays.asList((String[]) output.get("sTRINGArray"))));
+            assertEquals(
+                List.of("aa", "bb"),
+                Arrays.asList((String[]) javascriptContext.get("sTRINGArray"))));
   }
 }

@@ -9,9 +9,30 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class RowToMapConverter {
+/**
+ * Builds a JavaScript evaluation context from a {@link Row}, used to execute column expressions
+ * (computed values, default values, validation scripts, visibility rules).
+ *
+ * <p>Column values are keyed by {@link Column#getIdentifier()} (camelCase) so they are valid
+ * JavaScript identifiers. References become nested maps; file columns are omitted. Database-level
+ * JavaScript bindings (e.g. current user, session context) are merged in last.
+ */
+public class JavascriptContextBuilder {
 
-  public Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
+  private JavascriptContextBuilder() {
+    throw new IllegalStateException("Utility class");
+  }
+
+  /**
+   * Converts {@code row} to a {@code Map<identifier, value>} ready for use in Javascript
+   * interactions.
+   *
+   * @param columns Columns that should be included in the context, used to determine reference
+   *     structure and bindings
+   * @param row the row whose values are mapped
+   * @return a mutable map keyed by column identifier; reference columns are nested maps or lists
+   */
+  public static Map<String, Object> fromRow(List<Column> columns, Row row) {
     Map<String, Object> map = new LinkedHashMap<>();
     for (Column c : columns) {
       if (c.isReference()) {
@@ -26,7 +47,7 @@ public class RowToMapConverter {
     return map;
   }
 
-  private Object getRefFromRow(Row row, Column c) {
+  private static Object getRefFromRow(Row row, Column c) {
     if (c.isRefArray() || c.isRefback()) {
       List<Map> result = new ArrayList<>();
       for (Reference ref : c.getReferences()) {
@@ -61,7 +82,7 @@ public class RowToMapConverter {
   }
 
   // put map hierarchy
-  private void putMap(Map<String, Object> result, List<String> path, Object value) {
+  private static void putMap(Map<String, Object> result, List<String> path, Object value) {
     if (path.size() == 1) {
       result.put(path.get(0), value);
     } else {
@@ -72,7 +93,7 @@ public class RowToMapConverter {
     }
   }
 
-  private void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
     if (columns.isEmpty()) return;
     Column column = columns.get(0);
     if (column.getTable() == null) return;

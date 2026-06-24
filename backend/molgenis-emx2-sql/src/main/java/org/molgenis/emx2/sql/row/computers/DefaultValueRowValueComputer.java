@@ -10,8 +10,6 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class DefaultValueRowValueComputer implements RowValueComputer {
 
-  private static final RowToMapConverter converter = new RowToMapConverter();
-
   private final List<Column> columns;
 
   public DefaultValueRowValueComputer(List<Column> columns) {
@@ -20,10 +18,10 @@ public class DefaultValueRowValueComputer implements RowValueComputer {
 
   @Override
   public void apply(Column column, Row row) {
-    Map<String, Object> graph = converter.convertRowToMap(columns, row);
+    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
 
     if (isComputed(column)) {
-      computeDefaultValue(row, column, graph);
+      computeDefaultValue(row, column, javascriptContext);
     } else {
       row.set(column.getName(), column.getDefaultValue());
     }
