@@ -7,6 +7,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -277,5 +278,34 @@ class JWTgeneratorTest {
             MolgenisException.class,
             () -> JWTgenerator.getUserFromToken(db, signedJWT.serialize()));
     assertEquals("Invalid token or token expired", exception.getMessage());
+  }
+
+  @Test
+  void testGetUserFromTokenInitializesSignerAndRejectsMissingClaims() throws Exception {
+    Field signerField = JWTgenerator.class.getDeclaredField("signer");
+    signerField.setAccessible(true);
+    Object originalSigner = signerField.get(null);
+
+    try {
+      signerField.set(null, null);
+
+      JWTClaimsSet claimsSet =
+          new JWTClaimsSet.Builder()
+              .jwtID("temporary")
+              .issueTime(new Date())
+              .expirationTime(Date.from(Instant.now().plus(30, ChronoUnit.MINUTES)))
+              .build();
+
+      SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+      signedJWT.sign(new MACSigner(db.resolveJwtSharedSecret().getBytes()));
+
+      MolgenisException exception =
+          assertThrows(
+              MolgenisException.class,
+              () -> JWTgenerator.getUserFromToken(db, signedJWT.serialize()));
+      assertEquals("Invalid token or token expired", exception.getMessage());
+    } finally {
+      signerField.set(null, originalSigner);
+    }
   }
 }
