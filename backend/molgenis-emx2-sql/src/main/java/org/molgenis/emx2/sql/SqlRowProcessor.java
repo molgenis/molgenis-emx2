@@ -27,14 +27,11 @@ public class SqlRowProcessor {
     for (Column column : columnsToProcess) {
       if (column.isMgEditRoleColumn()) {
         SystemRolePrefixProcessor.apply(column, row);
-      }
-      if (column.hasDefaultValue() && !row.notNull(column.getName())) {
+      } else if (column.hasDefaultValue() && !row.notNull(column.getName())) {
         DefaultValueProcessor.apply(javascriptContext, column, row);
-      }
-      if (column.hasComputed()) {
+      } else if (column.hasComputed()) {
         ComputedExpressionProcessor.apply(javascriptContext, column, row);
-      }
-      if (isColumnVisible(column, javascriptContext)) {
+      } else if (isColumnVisible(column, javascriptContext)) {
         RequiredValidator.apply(javascriptContext, column, row);
         ExpressionValidator.apply(javascriptContext, column, row);
       } else {
