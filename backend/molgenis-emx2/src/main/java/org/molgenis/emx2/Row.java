@@ -55,6 +55,16 @@ public class Row {
     }
   }
 
+  public void clear(Column column) {
+    if (column.isReference()) {
+      for (Reference ref : column.getReferences()) {
+        clear(ref.getName());
+      }
+    } else {
+      clear(column.getName());
+    }
+  }
+
   public void clear(String name) {
     this.values.remove(name);
   }

@@ -1,41 +1,49 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.ColumnType.AUTO_ID;
+import static java.util.function.Predicate.not;
 
 import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.resolvers.*;
+import org.molgenis.emx2.utils.JavaScriptUtils;
 
 public class RowValidatorAndComputer {
 
-  public static final SystemRolePrefixResolver ROLE_COMPUTER = new SystemRolePrefixResolver();
-
-  private final List<RowValueResolver> resolvers;
-  private final RowValueResolver defaultResolver;
-  private final List<Column> toValidateAndCompute;
+  private final List<Column> columnsToProcess;
 
   public RowValidatorAndComputer(List<Column> columns) {
-    this.resolvers =
-        List.of(
-            ROLE_COMPUTER,
-            new DefaultValueResolver(columns),
-            new ComputedExpressionResolver(columns));
-    this.defaultResolver = new VisibilityResolver(columns);
-
-    toValidateAndCompute =
-        columns.stream()
-            .filter(c -> !c.isHeading())
-            .filter(c -> !AUTO_ID.equals(c.getColumnType()))
-            .toList();
+    columnsToProcess =
+        columns.stream().filter(not(Column::isHeading)).filter(not(Column::isAutoId)).toList();
   }
 
-  public void applyValidationAndComputed(Row row) {
-    for (Column column : toValidateAndCompute) {
-      resolvers.stream()
-          .filter(r -> r.shouldResolveForColumn(column, row))
-          .findFirst()
-          .orElse(defaultResolver)
-          .apply(column, row);
+  public void validateAndCompute(Row row) throws MolgenisException {
+    for (Column column : columnsToProcess) {
+      if (column.isMgEditRoleColumn()) {
+        new SystemRolePrefixResolver().apply(column, row);
+      }
+      if (column.hasDefaultValue() && !row.notNull(column.getName())) {
+        new DefaultValueResolver(columnsToProcess).apply(column, row);
+      }
+      if (column.hasComputed()) {
+        new ComputedExpressionResolver(columnsToProcess).apply(column, row);
+      }
+      if (isColumnVisible(column, row, columnsToProcess)) {
+        new VisibilityResolver(columnsToProcess).apply(column, row);
+      } else {
+        row.clear(column);
+      }
     }
+  }
+
+  private static boolean isColumnVisible(Column column, Row row, List<Column> contextColumns) {
+    if (column.getVisible() == null) {
+      return true;
+    }
+
+    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(contextColumns, row);
+    Object visibleResult =
+        JavaScriptUtils.executeJavascriptOnMap(column.getVisible(), javascriptContext);
+    return (visibleResult == null || Boolean.FALSE.equals(visibleResult));
   }
 }

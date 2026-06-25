@@ -11,9 +11,4 @@ public class SystemRolePrefixResolver implements RowValueResolver {
     row.setString(
         column.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
   }
-
-  @Override
-  public boolean shouldResolveForColumn(Column column, Row row) {
-    return Constants.MG_EDIT_ROLE.equals(column.getName());
-  }
 }

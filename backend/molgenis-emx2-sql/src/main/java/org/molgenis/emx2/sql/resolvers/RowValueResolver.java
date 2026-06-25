@@ -13,6 +13,4 @@ public interface RowValueResolver {
   }
 
   void apply(Column column, Row row);
-
-  boolean shouldResolveForColumn(Column column, Row row);
 }

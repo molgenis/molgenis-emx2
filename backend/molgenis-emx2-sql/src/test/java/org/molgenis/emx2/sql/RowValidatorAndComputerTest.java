@@ -20,7 +20,7 @@ class RowValidatorAndComputerTest {
 
     final Row row = new Row("myCol", null);
     RowValidatorAndComputer computer = new RowValidatorAndComputer(tableMetadata.getColumns());
-    computer.applyValidationAndComputed(row);
+    computer.validateAndCompute(row);
     assertNull(row.getString("myCol"));
   }
 
@@ -30,6 +30,6 @@ class RowValidatorAndComputerTest {
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
     RowValidatorAndComputer computer = new RowValidatorAndComputer(columns);
-    assertDoesNotThrow(() -> computer.applyValidationAndComputed(row));
+    assertDoesNotThrow(() -> computer.validateAndCompute(row));
   }
 }

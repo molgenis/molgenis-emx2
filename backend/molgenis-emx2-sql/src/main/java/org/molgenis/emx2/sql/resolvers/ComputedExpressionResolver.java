@@ -37,9 +37,4 @@ public class ComputedExpressionResolver implements RowValueResolver {
       }
     }
   }
-
-  @Override
-  public boolean shouldResolveForColumn(Column column, Row row) {
-    return column.getComputed() != null;
-  }
 }

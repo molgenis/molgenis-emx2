@@ -18,44 +18,37 @@ public class DefaultValueResolver implements RowValueResolver {
 
   @Override
   public void apply(Column column, Row row) {
-    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
-
     if (isComputed(column)) {
-      computeDefaultValue(row, column, javascriptContext);
+      Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
+      applyComputedDefaultValue(row, column, javascriptContext);
     } else {
       row.set(column.getName(), column.getDefaultValue());
     }
   }
 
-  @Override
-  public boolean shouldResolveForColumn(Column column, Row row) {
-    return column.getDefaultValue() != null && !row.notNull(column.getName());
-  }
-
-  private static void computeDefaultValue(Row row, Column c, Map<String, Object> graph) {
+  private static void applyComputedDefaultValue(
+      Row row, Column column, Map<String, Object> context) {
+    String expression = column.getDefaultValue().substring(1);
     try {
-      if (c.isRefArray()) {
-        TypeUtils.convertRefArrayToRow(
-            (List) executeJavascriptOnMap(c.getDefaultValue().substring(1), graph, List.class),
-            row,
-            c);
-      } else if (c.isRef()) {
-        TypeUtils.convertRefToRow(
-            (Map)
-                executeJavascriptOnMap(
-                    "(" + c.getDefaultValue().substring(1) + ")", graph, Map.class),
-            row,
-            c);
+      if (column.isRefArray()) {
+        List<Map<String, Object>> result =
+            (List<Map<String, Object>>) executeJavascriptOnMap(expression, context, List.class);
+        TypeUtils.convertRefArrayToRow(result, row, column);
+      } else if (column.isRef()) {
+        Map<String, Object> result =
+            (Map<String, Object>)
+                executeJavascriptOnMap("(" + expression + ")", context, Map.class);
+        TypeUtils.convertRefToRow(result, row, column);
       } else {
-        row.set(c.getName(), executeJavascript(c.getDefaultValue().substring(1)));
+        row.set(column.getName(), executeJavascript(expression));
       }
     } catch (Exception e) {
       throw new MolgenisException(
-          "Error in defaultValue of column " + c.getName() + ": " + e.getMessage());
+          "Error in defaultValue of column " + column.getName() + ": " + e.getMessage());
     }
   }
 
-  private static boolean isComputed(Column c) {
-    return c.getDefaultValue().startsWith("=");
+  private static boolean isComputed(Column column) {
+    return column.getDefaultValue().startsWith("=");
   }
 }

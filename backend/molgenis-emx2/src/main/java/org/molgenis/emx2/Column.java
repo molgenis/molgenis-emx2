@@ -731,4 +731,20 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       return getName();
     }
   }
+
+  public boolean hasDefaultValue() {
+    return defaultValue != null;
+  }
+
+  public boolean hasComputed() {
+    return computed != null;
+  }
+
+  public boolean isAutoId() {
+    return AUTO_ID.equals(getColumnType());
+  }
+
+  public boolean isMgEditRoleColumn() {
+    return MG_EDIT_ROLE.equals(this.getName());
+  }
 }
