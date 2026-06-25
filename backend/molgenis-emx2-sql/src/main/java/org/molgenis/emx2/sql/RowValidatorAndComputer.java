@@ -12,11 +12,6 @@ import org.molgenis.emx2.utils.JavaScriptUtils;
 
 public class RowValidatorAndComputer {
 
-  public static final SystemRolePrefixResolver SYSTEM_ROLE_PREFIX_RESOLVER =
-      new SystemRolePrefixResolver();
-  public static final DefaultValueResolver DEFAULT_VALUE_RESOLVER = new DefaultValueResolver();
-  public static final ComputedExpressionResolver COMPUTED_EXPRESSION_RESOLVER =
-      new ComputedExpressionResolver();
   private final List<Column> columnsToProcess;
   private final List<Column> columns;
 
@@ -31,17 +26,17 @@ public class RowValidatorAndComputer {
 
     for (Column column : columnsToProcess) {
       if (column.isMgEditRoleColumn()) {
-        SYSTEM_ROLE_PREFIX_RESOLVER.apply(javascriptContext, column, row);
+        SystemRolePrefixResolver.apply(column, row);
       }
       if (column.hasDefaultValue() && !row.notNull(column.getName())) {
-        DEFAULT_VALUE_RESOLVER.apply(javascriptContext, column, row);
+        DefaultValueResolver.apply(javascriptContext, column, row);
       }
       if (column.hasComputed()) {
-        COMPUTED_EXPRESSION_RESOLVER.apply(javascriptContext, column, row);
+        ComputedExpressionResolver.apply(javascriptContext, column, row);
       }
       if (isColumnVisible(column, row, columnsToProcess)) {
-        new RequiredValidator().apply(javascriptContext, column, row);
-        new ExpressionValidator().apply(javascriptContext, column, row);
+        RequiredValidator.apply(javascriptContext, column, row);
+        ExpressionValidator.apply(javascriptContext, column, row);
       } else {
         row.clear(column);
       }

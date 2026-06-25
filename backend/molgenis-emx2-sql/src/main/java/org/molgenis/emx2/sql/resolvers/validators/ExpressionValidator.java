@@ -6,14 +6,17 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 
-public class ExpressionValidator implements RowValidator {
+public class ExpressionValidator {
 
-  @Override
-  public void apply(Map<String, Object> context, Column column, Row row) {
-    checkValidation(column);
+  private ExpressionValidator() {
+    throw new AssertionError("Can't instantiate utility class");
   }
 
-  public void checkValidation(Column column) {
+  public static void apply(Map<String, Object> context, Column column, Row row) {
+    checkValidation(context, column);
+  }
+
+  public static void checkValidation(Map<String, Object> context, Column column) {
     if (context.get(column.getIdentifier()) != null) {
       column.getColumnType().validate(context.get(column.getName()));
       if (column.getValidation() != null) {

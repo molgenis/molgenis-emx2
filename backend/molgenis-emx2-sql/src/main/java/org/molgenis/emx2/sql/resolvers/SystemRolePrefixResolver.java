@@ -4,12 +4,13 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Row;
 
-import java.util.Map;
+public class SystemRolePrefixResolver {
 
-public class SystemRolePrefixResolver implements RowValueResolver {
+  private SystemRolePrefixResolver() {
+    throw new UnsupportedOperationException("Cannot instantiate utility class");
+  }
 
-  @Override
-  public void apply(Map<String, Object> javascriptContext, Column column, Row row) {
+  public static void apply(Column column, Row row) {
     row.setString(
         column.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
   }

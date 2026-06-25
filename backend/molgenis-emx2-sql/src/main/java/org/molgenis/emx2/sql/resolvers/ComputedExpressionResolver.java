@@ -9,21 +9,24 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ComputedExpressionResolver implements RowValueResolver {
+public class ComputedExpressionResolver {
 
-  @Override
-  public void apply(Map<String, Object> javascriptContext, Column column, Row row) {
+  private ComputedExpressionResolver() {
+    throw new UnsupportedOperationException("Cannot instantiate utility class");
+  }
+
+  public static void apply(Map<String, Object> javascriptContext, Column column, Row row) {
     apply(javascriptContext, List.of(column), row);
   }
 
-  public void apply(List<Column> columns, List<Row> rows) {
+  public static void apply(List<Column> columns, List<Row> rows) {
     for (Row row : rows) {
       Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
       apply(javascriptContext, columns, row);
     }
   }
 
-  public void apply(Map<String, Object> javascriptContext, List<Column> columns, Row row) {
+  public static void apply(Map<String, Object> javascriptContext, List<Column> columns, Row row) {
     for (Column column : columns) {
       if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
         Object computedValue = executeJavascriptOnMap(column.getComputed(), javascriptContext);

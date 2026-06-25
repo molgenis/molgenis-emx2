@@ -30,8 +30,6 @@ import org.molgenis.emx2.sql.resolvers.ComputedExpressionResolver;
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
 
-  private static final ComputedExpressionResolver ROW_RESOLVER = new ComputedExpressionResolver();
-
   private final RdfWriter writer;
   private final String baseURL;
 
@@ -62,7 +60,7 @@ public abstract class RdfGenerator {
 
     List<Row> rows = query.retrieveRows();
     List<Column> columns = table.getMetadata().getColumns();
-    ROW_RESOLVER.apply(columns, rows);
+    ComputedExpressionResolver.apply(columns, rows);
     return rows;
   }
 

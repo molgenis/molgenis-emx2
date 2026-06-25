@@ -8,10 +8,13 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class DefaultValueResolver implements RowValueResolver {
+public class DefaultValueResolver {
 
-  @Override
-  public void apply(Map<String, Object> javascriptContext, Column column, Row row) {
+  private DefaultValueResolver() {
+    throw new UnsupportedOperationException("Cannot instantiate utility class");
+  }
+
+  public static void apply(Map<String, Object> javascriptContext, Column column, Row row) {
     if (isComputed(column)) {
       applyComputedDefaultValue(row, column, javascriptContext);
     } else {

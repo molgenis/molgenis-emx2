@@ -11,10 +11,14 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class RequiredValidator implements RowValidator {
+public class RequiredValidator {
 
-  @Override
-  public void apply(Map<String, Object> context, Column column, Row row) throws MolgenisException {
+  private RequiredValidator() {
+    throw new AssertionError("Can't instantiate utility class");
+  }
+
+  public static void apply(Map<String, Object> context, Column column, Row row)
+      throws MolgenisException {
     if (!row.isDraft() && column.getComputed() == null && !AUTO_ID.equals(column.getColumnType())) {
       if (column.isRequired() && hasEmptyFields(column, row)) {
         throw new MolgenisException("column '" + column.getName() + "' is required in " + row);
@@ -55,7 +59,7 @@ public class RequiredValidator implements RowValidator {
     }
   }
 
-  private boolean hasEmptyFields(Column c, Row row) {
+  private static boolean hasEmptyFields(Column c, Row row) {
     if (c.isReference()) {
       for (Reference r : c.getReferences()) {
         if (row.isNull(r.getName(), r.getPrimitiveType())) {
@@ -68,7 +72,8 @@ public class RequiredValidator implements RowValidator {
     return false;
   }
 
-  private String checkRequiredExpression(Map<String, Object> context, String validationScript) {
+  private static String checkRequiredExpression(
+      Map<String, Object> context, String validationScript) {
     try {
       Object error = executeJavascriptOnMap(validationScript, context);
       if (error instanceof Boolean) {
