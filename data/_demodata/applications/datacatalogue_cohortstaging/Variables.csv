@@ -1,4 +1,4 @@
-resource,dataset,name,label,collection event.resource,collection event,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes,is_repeated,is repeat of.dataset,is repeat of.name
+resource,table,name,label,collection event.resource,collection event,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes,is_repeated,is repeat of.table,is repeat of.name
 testCohort,metadata,c_id,Child's identifier,testCohort,baseline,1.0,,string,,,,,,,,Child id,,,False,,
 testCohort,metadata,m_id,Mother's identifier,testCohort,baseline,1.0,,string,,,,,,,,Mother id,,,False,,
 testCohort,metadata,p_id,Partner's identifier,testCohort,baseline,1.0,,string,,,,,,,,,,,False,,
