@@ -1,0 +1,8 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,Chicken,Chicken,,NCI Thesaurus OBO Edition,C14193,http://purl.obolibrary.org/obo/NCIT_C14193,"The common domestic fowl, Gallus gallus."
+,Frog,Frog,,NCI Thesaurus OBO Edition,C14265,http://purl.obolibrary.org/obo/NCIT_C14265,"An amphibian in the order Anura, which includes the toads. The commonest frog genera are Rana (grass frogs) and Hyla (tree frogs)."
+,Zebrafish,Zebrafish,,NCI Thesaurus OBO Edition,C14287,http://purl.obolibrary.org/obo/NCIT_C14287,"Brachydanio rerio, species of small freshwater aquarium fish with a transparent embryo making it possible to follow progeny of single cells until quite late stages of development. This, together with the availability of mutant lines make it an important preparation for the study of vertebrate cell lineage and developmental biology."
+,Mouse,Mouse,,NCI Thesaurus OBO Edition,C14238,http://purl.obolibrary.org/obo/NCIT_C14238,"Any of numerous species of small rodents belonging to the genus Mus and various related genera of the family Muridae."
+,Rat,Rat,,NCI Thesaurus OBO Edition,C160998,http://purl.obolibrary.org/obo/NCIT_C160998,"Any of numerous species of rodents belonging to the genus Rattus and/or various related genera of the family Muridae."
+,Dog,Dog,,NCI Thesaurus OBO Edition,C14201,http://purl.obolibrary.org/obo/NCIT_C14201,"The domestic dog, Canis familiaris."
+,Cat,Cat,,NCI Thesaurus OBO Edition,C14191,http://purl.obolibrary.org/obo/NCIT_C14191,"The domesticated feline mammal, Felis catus, which is kept as a house pet."
