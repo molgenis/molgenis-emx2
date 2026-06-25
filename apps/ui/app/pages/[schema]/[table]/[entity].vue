@@ -23,6 +23,7 @@ import fetchRowData from "../../../../../tailwind-components/app/composables/fet
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();

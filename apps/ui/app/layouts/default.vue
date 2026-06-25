@@ -34,7 +34,7 @@
         </template>
       </Header>
 
-      <main class="flex-1 lg:px-[30px] px-0">
+      <main>
         <slot />
       </main>
 

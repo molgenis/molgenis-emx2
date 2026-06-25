@@ -19,6 +19,7 @@ import { keySlug } from "../../../../../tailwind-components/app/utils/navigation
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
 import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -119,7 +120,7 @@ watch(tableSettings, handleSettingsUpdate, { deep: true });
 const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <div>
+  <Container :wide="true">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>
@@ -149,5 +150,5 @@ const { isAdmin, session } = await useSession(schemaId);
         />
       </template>
     </TableEMX2>
-  </div>
+  </Container>
 </template>
