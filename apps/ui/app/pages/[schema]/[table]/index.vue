@@ -18,6 +18,7 @@ import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getP
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
+import { definePageMeta } from "#imports";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,6 +26,10 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -114,7 +119,7 @@ watch(tableSettings, handleSettingsUpdate, { deep: true });
 const { isAdmin, session } = await useSession(schemaId);
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0">
+  <div>
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>

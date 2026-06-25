@@ -135,7 +135,7 @@ function handleCellClick(event: cellPayload) {
 </script>
 
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <Container>
     <PageHeader :title="entityId" align="left">
       <template #prefix>
         <BreadCrumbs
@@ -207,7 +207,7 @@ function handleCellClick(event: cellPayload) {
         </DefinitionList>
       </section>
     </ContentBlock>
-  </section>
+  </Container>
 
   <CellDetailModal
     v-if="cellDetailPayload"

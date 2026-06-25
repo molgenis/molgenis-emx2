@@ -8,7 +8,7 @@
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-      <Header>
+      <Header :wide="true">
         <template #logo>
           <Logo link="/" :image="logoUrl" />
         </template>
@@ -55,7 +55,7 @@ import Navigation from "../../../tailwind-components/app/components/Navigation.v
 import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
 import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
-import { useLayoutState } from "../composables/useLayoutState";
+import { useLayoutState } from "../composables/useLayoutState.js";
 
 const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
   await useLayoutState();
