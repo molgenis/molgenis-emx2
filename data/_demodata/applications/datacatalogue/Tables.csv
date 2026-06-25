@@ -1,4 +1,4 @@
-resource,name,label,dataset type,unit of observation,keywords,description,number of rows,mapped to.source,mapped to.source dataset,mapped to.target,mapped to.target dataset,mapped from.source,mapped from.source dataset,mapped from.target,mapped from.target dataset,since version,until version,mg_draft
+resource,name,label,table type,unit of observation,keywords,description,number of rows,mapped to.source,mapped to.source table,mapped to.target,mapped to.target table,mapped from.source,mapped from.source table,mapped from.target,mapped from.target table,since version,until version,mg_draft
 AVOHILMO,avo_toimenpide,,,,,,,,,,,,,,,1.0,,
 COD_FARMACI_SPF,COD_FARMACI_SPF,,,,,,,COD_FARMACI_SPF,COD_FARMACI_SPF,OOM,PRODUCTS,,,,,1.0,,
 DIAGNOSTIC,DIAGNOSTIC,,,,,,,,,,,,,,,1.0,,
