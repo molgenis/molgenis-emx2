@@ -34,7 +34,7 @@ public class SqlRowProcessor {
       if (column.hasComputed()) {
         ComputedExpressionProcessor.apply(javascriptContext, column, row);
       }
-      if (isColumnVisible(column, row, columnsToProcess)) {
+      if (isColumnVisible(column, javascriptContext)) {
         RequiredValidator.apply(javascriptContext, column, row);
         ExpressionValidator.apply(javascriptContext, column, row);
       } else {
@@ -43,14 +43,12 @@ public class SqlRowProcessor {
     }
   }
 
-  private static boolean isColumnVisible(Column column, Row row, List<Column> contextColumns) {
+  private static boolean isColumnVisible(Column column, Map<String, Object> jsContext) {
     if (column.getVisible() == null) {
       return true;
     }
 
-    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(contextColumns, row);
-    Object visibleResult =
-        JavaScriptUtils.executeJavascriptOnMap(column.getVisible(), javascriptContext);
-    return (visibleResult == null || Boolean.FALSE.equals(visibleResult));
+    Object visibleResult = JavaScriptUtils.executeJavascriptOnMap(column.getVisible(), jsContext);
+    return visibleResult != null && !Boolean.FALSE.equals(visibleResult);
   }
 }
