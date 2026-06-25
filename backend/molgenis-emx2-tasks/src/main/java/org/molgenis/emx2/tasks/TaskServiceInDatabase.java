@@ -22,6 +22,7 @@ import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.sql.SqlSchema;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private SqlDatabase database;
@@ -97,32 +98,10 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String scriptName, String parameters) {
-    StringBuilder result = new StringBuilder();
-    String defaultUser = database.getActiveUser();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          Schema systemSchema = db.getSchema(this.systemSchemaName);
-
-          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-          scriptTask.setServerUrl(hostUrl);
-          String user =
-              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
-
-          db.setActiveUser(user);
-          // submit the script
-          result.append(
-              this.submit(
-                  scriptTask
-                      .parameters(parameters)
-                      .token(
-                          JWTgenerator.createTemporaryToken(
-                              systemSchema.getDatabase(),
-                              systemSchema.getDatabase().getActiveUser()))
-                      .submitUser(user)));
-        });
-    return result.toString();
+  public ScriptTask getScript(String scriptName) {
+    SqlSchema systemSchema = database.getSchema(this.systemSchemaName);
+    ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+    return scriptTask.setServerUrl(hostUrl).token(JWTgenerator.createTemporaryToken(database));
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {

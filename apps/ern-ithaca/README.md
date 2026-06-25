@@ -18,20 +18,8 @@ For the host, it is possible to use the beta server, but it is strongly recommen
 
 The schema should be the name of the schema that is publically accessible.
 
-### Starting the app
+Afterwards, start the dev server.
 
-After 
-
-## Troubleshooting
-
-### I'm having trouble with routing. When I go to a page, I get an error with queries, page not found, redirected to the same page, etc
-
-This is most likely an issue with the base URL that is defined in the `vite.config.js` file. Change the `base` setting to the following:
-
-```diff
-- base: command === "serve" ? "/" : "apps/ern-ithaca/",
-+ base: command === "serve" ? "/" : "/",
+```zsh
+pnpm dev
 ```
-
-> [!CAUTION]
-> This only applies to local development. Do not commit this change.
