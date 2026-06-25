@@ -84,7 +84,7 @@
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="200"
-            :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
+            :chartMargins="{ top: 20, right: 10, bottom: 60, left: 60 }"
             :columnPaddingInner="0.2"
           />
         </DashboardChart>
