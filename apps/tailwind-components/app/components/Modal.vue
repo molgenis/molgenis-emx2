@@ -88,7 +88,7 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto overflow-auto"
+                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto"
                 :class="[
                   {
                     'm-auto': type === 'center',
