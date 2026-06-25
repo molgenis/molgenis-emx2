@@ -1,6 +1,5 @@
 <template>
   <td class="group/cell p-2 border-b min-h-8">
-    <slot name="row-actions"></slot>
     <div class="relative flex overflow-hidden items-center">
       <div v-tooltip.bottom="tooltipContent" class="relative flex-1 min-w-0">
         <div class="truncate" :class="{ invisible: isEllipsisActive }" ref="cellRef">
