@@ -672,7 +672,10 @@ public class SqlQuery extends QueryBean {
         }
       }
     }
-    return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
+    return field(
+            "case when {0} is null then null else {1} end",
+            field(name(alias(tableAlias), column.getName())),
+            field(jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
         .as(column.getIdentifier());
   }
 

@@ -209,7 +209,7 @@
             </table>
             <div
               class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="!rows?.length"
+              v-if="status === 'success' && !rows?.length"
             >
               <TextNoResultsMessage
                 class="w-full text-center"
@@ -434,7 +434,7 @@ const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
 );
 
-const { data, refresh } = useAsyncData(
+const { data, refresh, status } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
     const tableMetadata = await fetchTableMetadata(
