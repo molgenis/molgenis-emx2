@@ -34,15 +34,15 @@ export async function handleV3Error(response: Response) {
 }
 
 export function toNegotiatorFormat(datasets: Record<string, IResources>) {
-  return Object.values(datasets).map((dataset) => ({
-    id: dataset.pid,
-    name: dataset.name,
+  return Object.values(datasets).map((table) => ({
+    id: table.pid,
+    name: table.name,
   }));
 }
 
 export function getHumanReadableString(datasets: Record<string, IResources>) {
   return Object.values(datasets)
-    .map((dataset) => `${dataset.name} (${dataset.pid})`)
+    .map((table) => `${table.name} (${table.pid})`)
     .join(", ");
 }
 

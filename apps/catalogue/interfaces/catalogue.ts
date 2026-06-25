@@ -204,7 +204,7 @@ export interface ICatalogues {
   contactPoint?: IContacts;
   childNetworks?: INetworks[];
   parentNetworks?: INetworks[];
-  datasets?: IDatasets[];
+  tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
@@ -392,7 +392,7 @@ export interface ICollections {
   creator?: IOrganisations[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
-  datasets?: IDatasets[];
+  tables?: ITables[];
   samplesets?: ISamplesets[];
   areasOfInformation?: IOntologyNode[];
   areasOfInformationRwd?: IOntologyNode[];
@@ -618,9 +618,9 @@ export interface ICatalogueOntologies_DataUseConditions_agg {
 
 export interface IDatasetMappings extends IMgTableClass {
   source: IResources;
-  sourceDataset: IDatasets;
+  sourceTable: ITables;
   target: IResources;
-  targetDataset: IDatasets;
+  targetDataset: ITables;
   order?: number;
   description?: string;
   syntax?: string;
@@ -647,7 +647,7 @@ export interface ICatalogueOntologies_DatasetTypes_agg {
   count: number;
 }
 
-export interface IDatasets extends IMgTableClass {
+export interface ITables extends IMgTableClass {
   resource: IResources;
   name: string;
   label?: string;
@@ -662,7 +662,7 @@ export interface IDatasets extends IMgTableClass {
   untilVersion?: string;
 }
 
-export interface IDatasets_agg {
+export interface ITables_agg {
   count: number;
 }
 
@@ -1083,7 +1083,7 @@ export interface INetworks {
   contactPoint?: IContacts;
   childNetworks?: INetworks[];
   parentNetworks?: INetworks[];
-  datasets?: IDatasets[];
+  tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
@@ -1389,7 +1389,7 @@ export interface IResources extends IMgTableClass {
   creator?: IOrganisations[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
-  datasets?: IDatasets[];
+  tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
   mappingsToCommonDataModels?: IDatasetMappings[];
@@ -1761,11 +1761,11 @@ export interface ICatalogueOntologies_Units_agg {
 
 export interface IVariableMappings extends IMgTableClass {
   source: IResources;
-  sourceDataset: IDatasets;
+  sourceTable: ITables;
   sourceVariables?: IVariables[];
-  sourceVariablesOtherDatasets?: IVariables[];
+  sourceVariablesOtherTables?: IVariables[];
   target: IResources;
-  targetDataset: IDatasets;
+  targetTable: ITables;
   targetVariable: IVariables;
   repeats: string;
   match: IOntologyNode;
@@ -1798,7 +1798,7 @@ export interface ICatalogueOntologies_VariableRepeatUnits_agg {
 
 export interface IVariableValues extends IMgTableClass {
   resource: IResources;
-  dataset: IDatasets;
+  table: ITables;
   variable: IVariables;
   value: string;
   label: string;
@@ -1815,7 +1815,7 @@ export interface IVariableValues_agg {
 
 export interface IVariables extends IMgTableClass {
   resource: IResources;
-  dataset: IDatasets;
+  table: ITables;
   name: string;
   useExternalDefinition?: IVariables;
   label?: string;

@@ -18,7 +18,7 @@
 import { useDatasetStore } from "../../stores/useDatasetStore";
 import { onMounted, ref } from "vue";
 import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
-import type { IDatasets, IResources } from "../../../interfaces/catalogue";
+import type { ITables, IResources } from "../../../interfaces/catalogue";
 
 const datasetStore = useDatasetStore();
 const modelValue = ref<string[]>([]);
@@ -28,10 +28,8 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-  if (props.resource.datasets?.length) {
-    modelValue.value = props.resource.datasets.map(
-      (row: IDatasets) => row.name
-    );
+  if (props.resource.tables?.length) {
+    modelValue.value = props.resource.tables.map((row: ITables) => row.name);
   }
 });
 </script>
