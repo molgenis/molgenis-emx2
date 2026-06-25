@@ -1,5 +1,5 @@
 <template>
-  <div class="flex pb-[30px] justify-between">
+  <div class="flex pb-4 justify-between">
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       size="medium"
