@@ -1,12 +1,12 @@
-package org.molgenis.emx2.sql.resolvers;
+package org.molgenis.emx2.sql.processors;
 
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Row;
 
-public class SystemRolePrefixResolver {
+public class SystemRolePrefixProcessor {
 
-  private SystemRolePrefixResolver() {
+  private SystemRolePrefixProcessor() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 

@@ -30,7 +30,7 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
-import org.molgenis.emx2.sql.resolvers.ComputedExpressionResolver;
+import org.molgenis.emx2.sql.processors.ComputedExpressionProcessor;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
@@ -243,7 +243,7 @@ public class CsvApi {
     }
     List<Row> rows = q.retrieveRows();
     List<Column> columns = table.getMetadata().getColumns();
-    ComputedExpressionResolver.apply(columns, rows);
+    ComputedExpressionProcessor.apply(columns, rows);
     return rows;
   }
 

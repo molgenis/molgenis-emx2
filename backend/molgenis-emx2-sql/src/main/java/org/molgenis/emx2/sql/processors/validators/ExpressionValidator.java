@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.resolvers.validators;
+package org.molgenis.emx2.sql.processors.validators;
 
 import java.util.Map;
 import org.molgenis.emx2.Column;

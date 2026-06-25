@@ -17,7 +17,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
-    RowValidatorAndComputer computer = new RowValidatorAndComputer(columns);
+    SqlRowProcessor computer = new SqlRowProcessor(columns);
     for (Row row : rows) {
       computer.validateAndCompute(row);
     }

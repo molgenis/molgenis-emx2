@@ -5,17 +5,17 @@ import static java.util.function.Predicate.not;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.resolvers.*;
-import org.molgenis.emx2.sql.resolvers.validators.ExpressionValidator;
-import org.molgenis.emx2.sql.resolvers.validators.RequiredValidator;
+import org.molgenis.emx2.sql.processors.*;
+import org.molgenis.emx2.sql.processors.validators.ExpressionValidator;
+import org.molgenis.emx2.sql.processors.validators.RequiredValidator;
 import org.molgenis.emx2.utils.JavaScriptUtils;
 
-public class RowValidatorAndComputer {
+public class SqlRowProcessor {
 
   private final List<Column> columnsToProcess;
   private final List<Column> columns;
 
-  public RowValidatorAndComputer(List<Column> columns) {
+  public SqlRowProcessor(List<Column> columns) {
     this.columns = columns;
     columnsToProcess =
         columns.stream().filter(not(Column::isHeading)).filter(not(Column::isAutoId)).toList();
@@ -26,13 +26,13 @@ public class RowValidatorAndComputer {
 
     for (Column column : columnsToProcess) {
       if (column.isMgEditRoleColumn()) {
-        SystemRolePrefixResolver.apply(column, row);
+        SystemRolePrefixProcessor.apply(column, row);
       }
       if (column.hasDefaultValue() && !row.notNull(column.getName())) {
-        DefaultValueResolver.apply(javascriptContext, column, row);
+        DefaultValueProcessor.apply(javascriptContext, column, row);
       }
       if (column.hasComputed()) {
-        ComputedExpressionResolver.apply(javascriptContext, column, row);
+        ComputedExpressionProcessor.apply(javascriptContext, column, row);
       }
       if (isColumnVisible(column, row, columnsToProcess)) {
         RequiredValidator.apply(javascriptContext, column, row);

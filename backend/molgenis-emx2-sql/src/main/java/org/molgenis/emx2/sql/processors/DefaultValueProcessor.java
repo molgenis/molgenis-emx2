@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.resolvers;
+package org.molgenis.emx2.sql.processors;
 
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -8,9 +8,9 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class DefaultValueResolver {
+public class DefaultValueProcessor {
 
-  private DefaultValueResolver() {
+  private DefaultValueProcessor() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 

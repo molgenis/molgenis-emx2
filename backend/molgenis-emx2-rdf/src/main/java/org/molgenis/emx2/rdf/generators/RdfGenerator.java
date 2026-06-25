@@ -25,7 +25,7 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.sql.resolvers.ComputedExpressionResolver;
+import org.molgenis.emx2.sql.processors.ComputedExpressionProcessor;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
@@ -60,7 +60,7 @@ public abstract class RdfGenerator {
 
     List<Row> rows = query.retrieveRows();
     List<Column> columns = table.getMetadata().getColumns();
-    ComputedExpressionResolver.apply(columns, rows);
+    ComputedExpressionProcessor.apply(columns, rows);
     return rows;
   }
 

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.resolvers.validators;
+package org.molgenis.emx2.sql.processors.validators;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;

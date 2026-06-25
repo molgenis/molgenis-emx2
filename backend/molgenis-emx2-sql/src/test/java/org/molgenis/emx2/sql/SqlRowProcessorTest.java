@@ -12,14 +12,14 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 
-class RowValidatorAndComputerTest {
+class SqlRowProcessorTest {
 
   @Test
   void autoIdGetsSkipped() {
     TableMetadata tableMetadata = table("Test", new Column("myCol").setType(ColumnType.AUTO_ID));
 
     final Row row = new Row("myCol", null);
-    RowValidatorAndComputer computer = new RowValidatorAndComputer(tableMetadata.getColumns());
+    SqlRowProcessor computer = new SqlRowProcessor(tableMetadata.getColumns());
     computer.validateAndCompute(row);
     assertNull(row.getString("myCol"));
   }
@@ -29,7 +29,7 @@ class RowValidatorAndComputerTest {
     List<Column> columns = List.of(column("SPAM blocklist", ColumnType.EMAIL_ARRAY));
     Row row = row("SPAM blocklist", "bob@example.com,ros@example.com");
 
-    RowValidatorAndComputer computer = new RowValidatorAndComputer(columns);
+    SqlRowProcessor computer = new SqlRowProcessor(columns);
     assertDoesNotThrow(() -> computer.validateAndCompute(row));
   }
 }

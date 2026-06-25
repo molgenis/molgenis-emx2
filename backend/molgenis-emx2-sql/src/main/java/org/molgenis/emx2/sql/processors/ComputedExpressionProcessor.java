@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.resolvers;
+package org.molgenis.emx2.sql.processors;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.sql.JavascriptContextBuilder;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ComputedExpressionResolver {
+public class ComputedExpressionProcessor {
 
-  private ComputedExpressionResolver() {
+  private ComputedExpressionProcessor() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.resolvers;
+package org.molgenis.emx2.sql.processors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.sql.JavascriptContextBuilder;
 
 class JavascriptContextBuilderTest {
 
