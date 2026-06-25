@@ -1,54 +1,74 @@
 <script setup lang="ts">
 import { useNuxtApp } from "#app";
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 import BaseIcon from "../components/BaseIcon.vue";
+import FormLegend from "../components/form/Legend.vue";
+import {
+  buildDocsSidebar,
+  getSectionTitleBySlug,
+  getSectionNavForRoute,
+} from "../utils/docsNav";
 
 const menuIsOpen = ref<boolean>(true);
+const navQuery = ref("");
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
   eager: true,
 });
 
-const stories = Object.keys(modules)
-  .map((module: string) => {
-    const name = module.split("/").reverse()[0] ?? "";
-    const path = module.replace("../pages/", "/");
-    const dir = path
-      .split("/")
-      .filter((path: string) => path !== "" && path !== name)[0];
-    const nameCleaned: string = name.replace(".story.vue", "");
-    const source: string = module;
-    return {
-      name: dir
-        ? `${dir.charAt(0).toUpperCase() + dir.slice(1)}${nameCleaned}`
-        : nameCleaned,
-      dir: dir,
-      path: path.replace(".vue", ""),
-      source: source,
-    };
-  })
-  .sort((current: Record<string, any>, next: Record<string, any>) => {
-    return current.name.localeCompare(next.name);
-  });
-
 const route = useRoute();
+const router = useRouter();
+
+const expandedSlug = ref<string | null>(
+  getSectionNavForRoute(route.path, Object.keys(modules))?.slug ?? null
+);
+
+const legendSections = computed(() =>
+  buildDocsSidebar(
+    Object.keys(modules),
+    route.path,
+    expandedSlug.value,
+    navQuery.value
+  )
+);
+
+function handleGoToSection(id: string) {
+  if (id.startsWith("/section/")) {
+    const slug = id.slice("/section/".length);
+    if (expandedSlug.value === slug) {
+      expandedSlug.value = null;
+    } else {
+      expandedSlug.value = slug;
+      router.push(id);
+    }
+  } else {
+    router.push(id);
+  }
+}
+
 const storyName = computed(() => {
-  const pathParts = route.path.split("/").filter(Boolean); // Split and remove empty parts
-  // Capitalize the first character of each part except the last
+  if (route.path.startsWith("/section/")) {
+    const slug = route.path.slice("/section/".length);
+    return getSectionTitleBySlug(slug) ?? "Section";
+  }
+  const pathParts = route.path.split("/").filter(Boolean);
   const capitalizedParts = pathParts.map(
-    (part) => part.charAt(0).toUpperCase() + part.slice(1) // Capitalize first letter
+    (part) => part.charAt(0).toUpperCase() + part.slice(1)
   );
-  // Join the capitalized parts back together
   return capitalizedParts.join("").replace(".story", "");
 });
 
 const { $sourceCodeMap } = useNuxtApp();
 
+const storyRef = ref<{ $el: HTMLElement } | null>(null);
+
 function scrollToTop() {
-  window.scrollTo(0, 0);
+  if (storyRef.value?.$el) {
+    storyRef.value.$el.scrollTo(0, 0);
+  }
 }
 </script>
 
@@ -62,61 +82,47 @@ function scrollToTop() {
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative min-h-screen mt-[54px]">
-      <main class="mb-auto">
-        <div id="header-place-holder"></div>
-        <div
-          class="grid xl:grid-cols-1"
+    <div class="z-30 relative mt-[54px] h-[calc(100vh-54px)] overflow-hidden">
+      <div id="header-place-holder"></div>
+      <div
+        class="grid xl:grid-cols-1 h-full"
+        :class="{
+          'xl:grid-cols-[300px_1fr]': menuIsOpen,
+        }"
+      >
+        <aside
+          class="grow hidden xl:flex xl:flex-col overflow-hidden h-full"
           :class="{
-            'xl:grid-cols-[300px_1fr]': menuIsOpen,
+            'xl:hidden': !menuIsOpen,
           }"
         >
-          <aside
-            class="grow hidden xl:block pl-6 bg-sidebar-gradient"
-            :class="{
-              'xl:hidden': !menuIsOpen,
-            }"
-          >
-            <h2 class="text-2xl text-title font-bold my-5">Theme Styles</h2>
-            <NuxtLink class="hover:underline text-title" to="/Styles.other"
-              >Theme styles</NuxtLink
+          <div class="px-4 py-3 shrink-0">
+            <label for="docs-nav-search" class="sr-only"
+              >Filter navigation</label
             >
-            <h2 class="text-2xl text-title font-bold my-5">Sample pages</h2>
-            <div class="py-2">
-              <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
-                >Row edit</NuxtLink
-              >
-            </div>
-            <div class="py-2">
-              <NuxtLink
-                class="hover:underline text-title"
-                to="/samples/formModal"
-                >Edit modal</NuxtLink
-              >
-            </div>
-
-            <h2 class="text-2xl text-title font-bold my-5">Components</h2>
-            <ul class="list-none">
-              <li class="py-2" v-for="story in stories">
-                <NuxtLink class="hover:underline text-title" :to="story.path">
-                  {{ story.name }}
-                </NuxtLink>
-              </li>
-            </ul>
-
-            <div class="pr-6 my-6">
-              <hr />
-            </div>
-            <h2 class="text-2xl text-title font-bold my-5">Other</h2>
-            <NuxtLink class="hover:underline text-title" to="/DataFetch.other"
-              >Data fetching</NuxtLink
-            >
-          </aside>
-          <Story :title="storyName">
-            <slot></slot>
-          </Story>
-        </div>
-      </main>
+            <InputSearch
+              id="docs-nav-search"
+              v-model="navQuery"
+              placeholder="Search..."
+              size="small"
+            />
+          </div>
+          <div class="overflow-y-auto grow">
+            <FormLegend
+              :sections="legendSections"
+              @go-to-section="handleGoToSection"
+            />
+          </div>
+        </aside>
+        <Story
+          ref="storyRef"
+          :title="storyName"
+          :show-source="!route.path.startsWith('/section/')"
+          class="min-h-0 h-full overflow-hidden"
+        >
+          <slot></slot>
+        </Story>
+      </div>
     </div>
     <div
       class="hidden z-40 fixed bottom-0 left-0 w-[100%] md:flex justify-end px-6 pb-4"

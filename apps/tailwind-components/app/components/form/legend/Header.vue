@@ -22,7 +22,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex">
     <div
-      class="bg-button-primary w-[0.3125rem] min-w-[0.3125rem] h-7 min-h-7 transition-opacity"
+      class="bg-button-primary w-[0.3125rem] min-w-[0.3125rem] self-stretch transition-opacity"
       :class="{ 'opacity-0': !isActive }"
     />
     <div class="flex gap-2">

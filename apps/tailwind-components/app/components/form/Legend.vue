@@ -1,7 +1,7 @@
 <template>
   <nav class="pt-4 pb-8 bg-form-legend">
     <ul class="list-none">
-      <li v-for="(section, index) in sections" :key="section.id">
+      <li class="py-1" v-for="(section, index) in sections" :key="section.id">
         <FormLegendHeader
           :id="section.id"
           :label="section.label"
@@ -12,7 +12,7 @@
           @goToSection="emit('goToSection', $event)"
         />
         <ul v-for="header in section.headers" class="list-none">
-          <li class="pl-4 py-2" v-if="header.isVisible">
+          <li class="pl-4 py-1" v-if="header.isVisible">
             <FormLegendHeader
               :id="header.id"
               :label="header.label"
