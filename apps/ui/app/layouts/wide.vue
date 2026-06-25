@@ -55,7 +55,7 @@ import Navigation from "../../../tailwind-components/app/components/Navigation.v
 import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
 import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
-import { useLayoutState } from "../composables/useLayoutState.js";
+import { useLayoutState } from "../composables/useLayoutState";
 
 const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
   await useLayoutState();
