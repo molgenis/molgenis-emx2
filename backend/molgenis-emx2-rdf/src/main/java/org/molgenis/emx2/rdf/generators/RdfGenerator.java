@@ -6,10 +6,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -32,6 +29,9 @@ import org.molgenis.emx2.sql.resolvers.ComputedExpressionResolver;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
+
+  private static final ComputedExpressionResolver ROW_RESOLVER = new ComputedExpressionResolver();
+
   private final RdfWriter writer;
   private final String baseURL;
 
@@ -61,9 +61,8 @@ public abstract class RdfGenerator {
     }
 
     List<Row> rows = query.retrieveRows();
-    ComputedExpressionResolver rowResolver =
-        new ComputedExpressionResolver(table.getMetadata().getColumns());
-    rowResolver.apply(rows);
+    List<Column> columns = table.getMetadata().getColumns();
+    ROW_RESOLVER.apply(columns, rows);
     return rows;
   }
 

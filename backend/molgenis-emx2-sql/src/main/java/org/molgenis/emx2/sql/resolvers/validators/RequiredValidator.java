@@ -13,19 +13,13 @@ import org.molgenis.emx2.Row;
 
 public class RequiredValidator implements RowValidator {
 
-  private final Map<String, Object> context;
-
-  public RequiredValidator(Map<String, Object> context) {
-    this.context = context;
-  }
-
   @Override
-  public void apply(Column column, Row row) throws MolgenisException {
+  public void apply(Map<String, Object> context, Column column, Row row) throws MolgenisException {
     if (!row.isDraft() && column.getComputed() == null && !AUTO_ID.equals(column.getColumnType())) {
       if (column.isRequired() && hasEmptyFields(column, row)) {
         throw new MolgenisException("column '" + column.getName() + "' is required in " + row);
       } else if (column.isConditionallyRequired()) {
-        String error = checkRequiredExpression(column.getRequired());
+        String error = checkRequiredExpression(context, column.getRequired());
         if (error != null && hasEmptyFields(column, row)) {
           throw new MolgenisException(
               "column '" + column.getName() + "' is required: " + error + " in " + row);
@@ -74,7 +68,7 @@ public class RequiredValidator implements RowValidator {
     return false;
   }
 
-  private String checkRequiredExpression(String validationScript) {
+  private String checkRequiredExpression(Map<String, Object> context, String validationScript) {
     try {
       Object error = executeJavascriptOnMap(validationScript, context);
       if (error instanceof Boolean) {

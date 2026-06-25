@@ -10,16 +10,9 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class DefaultValueResolver implements RowValueResolver {
 
-  private final List<Column> columns;
-
-  public DefaultValueResolver(List<Column> columns) {
-    this.columns = columns;
-  }
-
   @Override
-  public void apply(Column column, Row row) {
+  public void apply(Map<String, Object> javascriptContext, Column column, Row row) {
     if (isComputed(column)) {
-      Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
       applyComputedDefaultValue(row, column, javascriptContext);
     } else {
       row.set(column.getName(), column.getDefaultValue());

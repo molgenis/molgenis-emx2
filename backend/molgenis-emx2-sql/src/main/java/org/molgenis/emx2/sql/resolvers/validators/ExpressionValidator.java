@@ -8,14 +8,8 @@ import org.molgenis.emx2.sql.SqlTypeUtils;
 
 public class ExpressionValidator implements RowValidator {
 
-  private final Map<String, Object> context;
-
-  public ExpressionValidator(Map<String, Object> context) {
-    this.context = context;
-  }
-
   @Override
-  public void apply(Column column, Row row) {
+  public void apply(Map<String, Object> context, Column column, Row row) {
     checkValidation(column);
   }
 

@@ -11,28 +11,22 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class ComputedExpressionResolver implements RowValueResolver {
 
-  private final List<Column> contextColumns;
-
-  public ComputedExpressionResolver(List<Column> contextColumns) {
-    this.contextColumns = contextColumns;
+  @Override
+  public void apply(Map<String, Object> javascriptContext, Column column, Row row) {
+    apply(javascriptContext, List.of(column), row);
   }
 
-  public void apply(List<Row> rows) {
+  public void apply(List<Column> columns, List<Row> rows) {
     for (Row row : rows) {
-      apply(contextColumns, row);
+      Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
+      apply(javascriptContext, columns, row);
     }
   }
 
-  @Override
-  public void apply(Column column, Row row) {
-    apply(List.of(column), row);
-  }
-
-  public void apply(List<Column> columns, Row row) {
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(this.contextColumns, row);
+  public void apply(Map<String, Object> javascriptContext, List<Column> columns, Row row) {
     for (Column column : columns) {
       if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
-        Object computedValue = executeJavascriptOnMap(column.getComputed(), context);
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), javascriptContext);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
     }

@@ -35,6 +35,8 @@ import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
 
+  private static final ComputedExpressionResolver ROW_RESOLVER = new ComputedExpressionResolver();
+
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
 
@@ -242,9 +244,8 @@ public class CsvApi {
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
     List<Row> rows = q.retrieveRows();
-    ComputedExpressionResolver rowResolver =
-        new ComputedExpressionResolver(table.getMetadata().getColumns());
-    rowResolver.apply(rows);
+    List<Column> columns = table.getMetadata().getColumns();
+    ROW_RESOLVER.apply(columns, rows);
     return rows;
   }
 
