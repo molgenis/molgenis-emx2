@@ -68,6 +68,7 @@
             :showDraftColumn="showDraftColumn"
             :isResizing="isResizing"
             :columnWidths="columnWidths"
+            :hasRowActions="hasRowActions"
             @sort-requested="handleSortRequest"
             @start-resize="startResize($event.event, $event.id)"
           />
@@ -104,7 +105,7 @@
             </TableCellEMX2>
 
             <TableCellEMX2
-              v-for="(column, colIndex) in sortedVisibleColumns"
+              v-for="column in sortedVisibleColumns"
               :style="{ width: columnWidths[column.id] + 'px' }"
               class="text-table-row group-hover:bg-hover"
               :class="{
@@ -117,45 +118,66 @@
               :data="row[column.id]"
               @cellClicked="handleCellClick"
             >
-              <template #row-actions v-if="colIndex === 0">
+            </TableCellEMX2>
+
+            <!--
+              Floating row actions pinned to the right edge of the horizontal scroll
+              viewport (sticky), revealed on row hover. The reserved width doubles as
+              trailing whitespace so the last data cell can be scrolled clear of the
+              buttons. A matching empty header cell keeps table-fixed columns aligned.
+            -->
+            <td
+              v-if="hasRowActions"
+              class="sticky right-0 z-10 w-40 p-0 border-b bg-table group-hover:bg-hover"
+            >
+              <div
+                class="invisible flex h-full items-center justify-end group-hover:visible"
+              >
                 <div
-                  class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                  class="relative flex h-full items-center gap-1 px-3 bg-table group-hover:bg-hover"
                 >
-                  <Button
-                    v-if="isEditable"
-                    :id="useId()"
-                    :icon-only="true"
-                    type="inline"
-                    icon="trash"
-                    size="small"
-                    label="delete"
-                    @click="onShowDeleteModal(row)"
-                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                    aria-haspopup="dialog"
-                    :aria-expanded="showDeleteModal"
-                  >
-                    {{ getRowId(row) }}
-                  </Button>
-                  <Button
-                    v-if="isEditable"
-                    :id="useId()"
-                    :icon-only="true"
-                    type="inline"
-                    icon="edit"
-                    size="small"
-                    label="edit"
-                    @click="onShowEditModal(row)"
-                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                    aria-haspopup="dialog"
-                    :aria-expanded="showEditModal"
-                  >
-                    {{ getRowId(row) }}
-                  </Button>
+                  <!--
+                    Fade just left of the button bar: softens the hard edge where the
+                    underlying value meets the (opaque) action bar.
+                  -->
+                  <div
+                    class="pointer-events-none absolute inset-y-0 right-full w-12 bg-gradient-to-r from-transparent to-[var(--background-color-table)] group-hover:to-[var(--background-color-hover)]"
+                  />
+                <Button
+                  v-if="isEditable"
+                  :id="useId()"
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="onShowDeleteModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showDeleteModal"
+                >
+                  {{ getRowId(row) }}
+                </Button>
+                <Button
+                  v-if="isEditable"
+                  :id="useId()"
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
+                >
+                  {{ getRowId(row) }}
+                </Button>
 
                   <slot name="additional-row-actions" :row="row" />
                 </div>
-              </template>
-            </TableCellEMX2>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -232,7 +254,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  useId,
+  useSlots,
+  watch,
+} from "vue";
 import type {
   columnValue,
   IColumn,
@@ -276,6 +306,14 @@ const props = withDefaults(
     isEditable: () => false,
     useStickyHeader: () => true,
   }
+);
+
+const slots = useSlots();
+// Whether to render the floating right-hand action column (edit/delete buttons
+// and/or any custom row actions). Drives a matching empty header cell so the
+// table-fixed columns stay aligned.
+const hasRowActions = computed(
+  () => props.isEditable || Boolean(slots["additional-row-actions"])
 );
 
 const showAddModal = ref<boolean>(false);

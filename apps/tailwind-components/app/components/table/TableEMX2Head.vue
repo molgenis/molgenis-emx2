@@ -36,6 +36,12 @@
           @sort-requested="$emit('sort-requested', column.id)"
         />
       </TableHeadCell>
+      <!-- Empty, sticky header cell aligning with the floating row-action column. -->
+      <th
+        v-if="hasRowActions"
+        aria-hidden="true"
+        class="sticky right-0 z-10 w-40 border-b border-gray-200 bg-table"
+      />
     </tr>
   </thead>
 </template>
@@ -57,5 +63,6 @@ defineProps<{
   columnWidths: Record<string, number>;
   isResizing: boolean;
   showDraftColumn?: boolean;
+  hasRowActions?: boolean;
 }>();
 </script>
