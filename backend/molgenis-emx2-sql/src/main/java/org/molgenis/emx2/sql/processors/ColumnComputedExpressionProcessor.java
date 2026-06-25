@@ -10,9 +10,9 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.JavascriptContextBuilder;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ComputedExpressionProcessor {
+public class ColumnComputedExpressionProcessor {
 
-  private ComputedExpressionProcessor() {
+  private ColumnComputedExpressionProcessor() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 

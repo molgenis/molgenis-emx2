@@ -28,9 +28,9 @@ public class SqlRowProcessor {
       if (column.isMgEditRoleColumn()) {
         SystemRolePrefixProcessor.apply(column, row);
       } else if (column.hasDefaultValue() && !row.notNull(column.getName())) {
-        DefaultValueProcessor.apply(javascriptContext, column, row);
+        ColumnDefaultValueProcessor.apply(javascriptContext, column, row);
       } else if (column.hasComputed()) {
-        ComputedExpressionProcessor.apply(javascriptContext, column, row);
+        ColumnComputedExpressionProcessor.apply(javascriptContext, column, row);
       } else if (isColumnVisible(column, javascriptContext)) {
         RequiredValidator.apply(javascriptContext, column, row);
         ExpressionValidator.apply(javascriptContext, column, row);

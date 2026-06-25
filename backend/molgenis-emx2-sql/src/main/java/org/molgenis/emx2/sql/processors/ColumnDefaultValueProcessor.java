@@ -8,9 +8,9 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class DefaultValueProcessor {
+public class ColumnDefaultValueProcessor {
 
-  private DefaultValueProcessor() {
+  private ColumnDefaultValueProcessor() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 
