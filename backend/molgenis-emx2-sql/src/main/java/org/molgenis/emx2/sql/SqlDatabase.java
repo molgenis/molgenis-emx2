@@ -12,7 +12,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 import com.zaxxer.hikari.HikariDataSource;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -48,7 +48,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
-  private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
+  private Map<String, Function<Database, Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
@@ -852,13 +852,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
-  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+  public Database setBindings(Map<String, Function<Database, Object>> bindings) {
     this.javaScriptBindings = bindings;
     return this;
   }
 
   @Override
-  public Map<String, Supplier<Object>> getJavaScriptBindings() {
+  public Map<String, Function<Database, Object>> getJavaScriptBindings() {
     return javaScriptBindings;
   }
 

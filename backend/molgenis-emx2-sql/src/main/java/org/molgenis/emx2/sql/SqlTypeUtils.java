@@ -5,7 +5,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -243,11 +243,11 @@ public class SqlTypeUtils extends TypeUtils {
     Column column = columns.get(0);
     if (column.getTable() == null) return;
     if (column.getSchema() == null) return;
-    if (column.getSchema().getDatabase() == null) return;
-    Map<String, Supplier<Object>> bindings =
-        column.getSchema().getDatabase().getJavaScriptBindings();
+    Database database = column.getSchema().getDatabase();
+    if (database == null) return;
+    Map<String, Function<Database, Object>> bindings = database.getJavaScriptBindings();
     for (String key : bindings.keySet()) {
-      values.put(key, bindings.get(key).get());
+      values.put(key, bindings.get(key).apply(database));
     }
   }
 

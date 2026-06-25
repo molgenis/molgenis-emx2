@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public interface Database extends HasSettingsInterface<Database> {
 
@@ -98,9 +98,9 @@ public interface Database extends HasSettingsInterface<Database> {
 
   boolean isAnonymous();
 
-  Database setBindings(Map<String, Supplier<Object>> bindings);
+  Database setBindings(Map<String, Function<Database, Object>> bindings);
 
-  Map<String, Supplier<Object>> getJavaScriptBindings();
+  Map<String, Function<Database, Object>> getJavaScriptBindings();
 
   List<LastUpdate> getLastUpdated();
 

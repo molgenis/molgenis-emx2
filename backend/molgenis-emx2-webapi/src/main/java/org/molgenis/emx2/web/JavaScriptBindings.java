@@ -2,7 +2,10 @@ package org.molgenis.emx2.web;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 
 public class JavaScriptBindings {
@@ -16,19 +19,21 @@ public class JavaScriptBindings {
     Object execute(String query, Map<String, Object> variables, String schemaId);
   }
 
-  private static SimplePostClient createSimplePostClient(String username) {
-    return (query, variables, schemaId) -> {
-      GraphqlExecutor graphQL =
-          ApplicationCachePerUser.getInstance().getSchemaGraphqlForUser(schemaId, username);
-      return graphQL.executeWithoutSession(query, variables).getData();
-    };
-  }
-
-  public static Map<String, Supplier<Object>> getBindingsForUser(String username) {
-    Map<String, Supplier<Object>> bindings = new HashMap<>();
-    bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(username));
-    // Add more bindings here in a similar way if needed
-
+  public static Map<String, Function<Database, Object>> getBindingsForUser(String username) {
+    Map<String, Function<Database, Object>> bindings = new HashMap<>();
+    bindings.put(
+        SIMPLE_POST_CLIENT,
+        database ->
+            (SimplePostClient)
+                (query, variables, schemaId) -> {
+                  Schema schema = database.getSchema(schemaId);
+                  if (schema == null) {
+                    throw new MolgenisException("Schema not found: " + schemaId);
+                  }
+                  return new GraphqlExecutor(schema)
+                      .executeWithoutSession(query, variables)
+                      .getData();
+                });
     return bindings;
   }
 }
