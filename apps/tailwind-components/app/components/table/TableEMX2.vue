@@ -154,18 +154,8 @@
               class="sticky right-0 z-10 p-0 border-b group-hover:bg-hover"
               :class="rowActionsWidthClass"
             >
-              <!--
-                Editable rows reveal their multi-action cluster (incl. destructive
-                actions) on hover to keep the table calm; a single read-only action
-                can be kept persistently visible so it stays discoverable.
-              -->
               <div
-                class="flex h-full items-center justify-end"
-                :class="
-                  !isEditable && persistReadOnlyActions
-                    ? ''
-                    : 'invisible group-hover:visible'
-                "
+                class="invisible flex h-full items-center justify-end group-hover:visible"
               >
                 <div
                   class="relative flex h-full items-center gap-1 px-3 bg-table group-hover:bg-hover"
@@ -351,14 +341,10 @@ const props = withDefaults(
     tableId: string;
     isEditable?: boolean;
     useStickyHeader?: boolean;
-    // Keep a read-only row's single action (e.g. view details) always visible
-    // instead of revealing it on hover, so it stays discoverable.
-    persistReadOnlyActions?: boolean;
   }>(),
   {
     isEditable: () => false,
     useStickyHeader: () => true,
-    persistReadOnlyActions: () => false,
   }
 );
 
