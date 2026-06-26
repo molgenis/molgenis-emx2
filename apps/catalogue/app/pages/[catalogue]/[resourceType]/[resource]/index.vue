@@ -859,7 +859,7 @@ const showPopulation = computed(
             description="Variables and their description"
             :headers="[
               { id: 'name', label: 'Variable' },
-              { id: 'table', label: 'Tables' },
+              { id: 'table', label: 'Table' },
             ]"
             type="Variables"
             :query="variablesQuery"
