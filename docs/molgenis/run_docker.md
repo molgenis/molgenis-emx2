@@ -82,7 +82,7 @@ rm -Rf psql_data
 
 ## Notes
 
-* Additional JVM options can be added via the `JAVA_OPTS` environment variable (for example: `-Dlog4j2.level=DEBUG`).
+* Additional JVM options can be added via the `JAVA_TOOL_OPTIONS` environment variable (for example: `-Dlog4j2.level=DEBUG`).
 * Because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
   normal.
 * The data of postgresql will be stored in `psql_data` folder. Remove this folder you want a clean start.
