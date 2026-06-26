@@ -457,6 +457,32 @@
       }
     ]
   },
+  "Demo": {
+    "componentName": "Demo",
+    "filePath": "app/components/Demo.vue",
+    "props": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": false,
+        "description": ""
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "default",
+        "type": "{}",
+        "description": ""
+      }
+    ]
+  },
   "Field": {
     "componentName": "Field",
     "filePath": "app/components/Field.vue",
@@ -1589,35 +1615,6 @@
     ],
     "slots": []
   },
-  "SectionNavBar": {
-    "componentName": "SectionNavBar",
-    "filePath": "app/components/SectionNavBar.vue",
-    "props": [
-      {
-        "name": "nav",
-        "type": "SectionNav",
-        "required": true,
-        "description": "",
-        "typeDetail": {
-          "kind": "object",
-          "members": {
-            "title": "string",
-            "slug": "string",
-            "overviewRoute": "string",
-            "items": "{ label: string; route: string; }[]"
-          }
-        }
-      },
-      {
-        "name": "currentRoute",
-        "type": "string",
-        "required": true,
-        "description": ""
-      }
-    ],
-    "events": [],
-    "slots": []
-  },
   "ShowMore": {
     "componentName": "ShowMore",
     "filePath": "app/components/ShowMore.vue",
@@ -2170,13 +2167,13 @@
     "filePath": "app/components/content/ContentBlockDescription.vue",
     "props": [
       {
-        "name": "description",
+        "name": "title",
         "type": "string",
         "required": false,
         "description": ""
       },
       {
-        "name": "title",
+        "name": "description",
         "type": "string",
         "required": false,
         "description": ""

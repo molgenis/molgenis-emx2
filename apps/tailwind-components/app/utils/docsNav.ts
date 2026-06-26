@@ -24,6 +24,7 @@ const STORY_NAME_LABEL_OVERRIDE: Record<string, string> = {
 const ROUTE_LABEL_OVERRIDE: Record<string, string> = {
   "/table/EMX2.story": "Table",
   "/table/modal/Ref.story": "Table ref",
+  "/pages/Banner.story": "Page banner",
 };
 
 type StaticLink = { label: string; route: string };
@@ -90,13 +91,7 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
     slug: "display",
     title: "Display",
     description:
-      "Media and brand elements (images, logos, icon rendering) plus data presentation renderers — display lists, value cells, and text utilities for showing structured data.",
-  },
-  {
-    slug: "pages",
-    title: "Pages",
-    description:
-      "Page-level content blocks for headings, paragraphs, and banner sections used inside content pages.",
+      "Media and brand elements (images, logos, icon rendering) plus data presentation renderers — display lists, value cells, and text utilities — and page content blocks including headings, paragraphs, and page banner.",
   },
   {
     slug: "layout",
@@ -314,17 +309,12 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
       { storyName: "LogoMobile" },
       { storyName: "Icons" },
       { storyName: "DisplayList" },
-      { dir: "display" },
-      { dir: "value" },
-      { dir: "text" },
-    ],
-  },
-  {
-    title: "Pages",
-    members: [
       { storyName: "Heading", route: "/pages/Heading.story" },
       { storyName: "Paragraph", route: "/pages/Paragraph.story" },
       { storyName: "Banner", route: "/pages/Banner.story" },
+      { dir: "display" },
+      { dir: "value" },
+      { dir: "text" },
     ],
   },
   {

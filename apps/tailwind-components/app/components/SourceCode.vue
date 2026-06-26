@@ -1,7 +1,10 @@
 <template>
   <Button
     :id="`${id}-source-code-toggle`"
-    size="tiny"
+    type="text"
+    size="small"
+    :icon="isExpanded ? 'CaretUp' : 'CaretDown'"
+    icon-position="right"
     :aria-controls="`${id}-source-code-content`"
     :aria-expanded="isExpanded"
     @click.prevent="isExpanded = !isExpanded"

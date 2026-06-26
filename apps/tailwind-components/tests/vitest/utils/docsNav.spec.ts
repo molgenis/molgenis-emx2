@@ -60,13 +60,12 @@ describe("buildDocsLegend", () => {
     expect(labels[5]).toBe("Feedback");
     expect(labels[6]).toBe("Overlays");
     expect(labels[7]).toBe("Display");
-    expect(labels[8]).toBe("Pages");
-    expect(labels[9]).toBe("Layout");
-    expect(labels[10]).toBe("Visualisation");
-    expect(labels[11]).toBe("EMX2");
-    expect(labels[12]).toBe("Page templates");
-    expect(labels[13]).toBe("Prototypes");
-    expect(labels[14]).toBe("Data fetching");
+    expect(labels[8]).toBe("Layout");
+    expect(labels[9]).toBe("Visualisation");
+    expect(labels[10]).toBe("EMX2");
+    expect(labels[11]).toBe("Page templates");
+    expect(labels[12]).toBe("Prototypes");
+    expect(labels[13]).toBe("Data fetching");
   });
 
   it("Forms group is gone", () => {
@@ -136,7 +135,6 @@ describe("buildDocsLegend", () => {
       "Feedback",
       "Overlays",
       "Display",
-      "Pages",
       "Layout",
       "Visualisation",
       "EMX2",
@@ -253,25 +251,31 @@ describe("buildDocsLegend", () => {
     expect(feedbackIds).toContain("/label/Draft.story");
   });
 
-  it("Display has Image, Logo, LogoMobile, Icons but NOT Heading/Paragraph/Banner", () => {
+  it("Display has Image, Logo, LogoMobile, Icons AND Heading/Paragraph/page Banner (merged from dissolved Pages)", () => {
     const sections = buildDocsLegend(allRealPaths, "");
     const displayIds = sectionHeaderIds(sections, "Display");
     expect(displayIds).toContain("/Image.story");
     expect(displayIds).toContain("/Logo.story");
     expect(displayIds).toContain("/LogoMobile.story");
     expect(displayIds).toContain("/Icons.story");
-    expect(displayIds).not.toContain("/pages/Heading.story");
-    expect(displayIds).not.toContain("/pages/Paragraph.story");
-    expect(displayIds).not.toContain("/pages/Banner.story");
+    expect(displayIds).toContain("/pages/Heading.story");
+    expect(displayIds).toContain("/pages/Paragraph.story");
+    expect(displayIds).toContain("/pages/Banner.story");
   });
 
-  it("Pages group has Heading, Paragraph, and Banner from pages subdir", () => {
+  it("Pages group is dissolved — no Pages section exists", () => {
     const sections = buildDocsLegend(allRealPaths, "");
-    const pagesIds = sectionHeaderIds(sections, "Pages");
-    expect(pagesIds).toContain("/pages/Heading.story");
-    expect(pagesIds).toContain("/pages/Paragraph.story");
-    expect(pagesIds).toContain("/pages/Banner.story");
-    expect(pagesIds).toHaveLength(3);
+    expect(findSection(sections, "Pages")).toBeUndefined();
+  });
+
+  it("pages/Banner.story is labeled 'Page banner' in Display headers", () => {
+    const sections = buildDocsLegend(allRealPaths, "");
+    const displaySection = findSection(sections, "Display");
+    const pageBannerEntry = (displaySection?.headers ?? []).find(
+      (header) => header.id === "/pages/Banner.story"
+    );
+    expect(pageBannerEntry).toBeDefined();
+    expect(pageBannerEntry!.label).toBe("Page banner");
   });
 
   it("input/String.story.vue lands in Inputs headers", () => {
@@ -286,14 +290,14 @@ describe("buildDocsLegend", () => {
     expect(ids).toContain("/pages/NavigationGroups.story");
   });
 
-  it("root Banner.story lands in Feedback; pages/Banner.story lands in Pages", () => {
+  it("root Banner.story lands in Feedback; pages/Banner.story lands in Display (not Feedback)", () => {
     const sections = buildDocsLegend(allRealPaths, "");
     const feedbackIds = sectionHeaderIds(sections, "Feedback");
-    const pagesIds = sectionHeaderIds(sections, "Pages");
+    const displayIds = sectionHeaderIds(sections, "Display");
     expect(feedbackIds).toContain("/Banner.story");
     expect(feedbackIds).not.toContain("/pages/Banner.story");
-    expect(pagesIds).toContain("/pages/Banner.story");
-    expect(pagesIds).not.toContain("/Banner.story");
+    expect(displayIds).toContain("/pages/Banner.story");
+    expect(displayIds).not.toContain("/Banner.story");
   });
 
   it("Prototypes is a container section with empty headers and overview route /section/prototypes", () => {
@@ -371,7 +375,6 @@ describe("buildDocsLegend", () => {
     expect(findSection(sections, "Feedback")?.id).toBe("/section/feedback");
     expect(findSection(sections, "Overlays")?.id).toBe("/section/overlays");
     expect(findSection(sections, "Display")?.id).toBe("/section/display");
-    expect(findSection(sections, "Pages")?.id).toBe("/section/pages");
     expect(findSection(sections, "Layout")?.id).toBe("/section/layout");
     expect(findSection(sections, "Visualisation")?.id).toBe(
       "/section/visualisation"
@@ -439,7 +442,6 @@ describe("buildDocsLegend", () => {
       "Feedback",
       "Overlays",
       "Display",
-      "Pages",
       "Layout",
       "Visualisation",
       "EMX2",
@@ -501,7 +503,7 @@ describe("buildDocsLegend", () => {
     const labelsShuffled = sectionsShuffled.map((section) => section.label);
     expect(labelsOriginal).toEqual(labelsShuffled);
     expect(labelsOriginal[2]).toBe("Actions");
-    expect(labelsOriginal[11]).toBe("EMX2");
+    expect(labelsOriginal[10]).toBe("EMX2");
   });
 
   it("within-group dir-matched headings are sorted alphabetically by label, not glob order", () => {
@@ -550,17 +552,17 @@ describe("buildDocsLegend", () => {
     expect(ungrouped?.id).toBe("");
   });
 
-  it("pages/Banner.story lands in Pages not Feedback (red-green guard)", () => {
+  it("pages/Banner.story lands in Display not Feedback (red-green guard)", () => {
     const pathsWithPagesBanner = [
       "../pages/Banner.story.vue",
       "../pages/pages/Banner.story.vue",
     ];
     const sections = buildDocsLegend(pathsWithPagesBanner, "");
     const feedbackIds = sectionHeaderIds(sections, "Feedback");
-    const pagesIds = sectionHeaderIds(sections, "Pages");
+    const displayIds = sectionHeaderIds(sections, "Display");
     expect(feedbackIds).toContain("/Banner.story");
     expect(feedbackIds).not.toContain("/pages/Banner.story");
-    expect(pagesIds).toContain("/pages/Banner.story");
+    expect(displayIds).toContain("/pages/Banner.story");
   });
 
   it("isActive is a plain boolean on all sections and headings", () => {
@@ -825,7 +827,7 @@ describe("getSectionOverview", () => {
     ).toBe(true);
   });
 
-  it("display overview includes Image and Icons but not Heading", () => {
+  it("display overview includes Image, Icons, Heading, Paragraph, and page Banner (merged from dissolved Pages)", () => {
     const result = getSectionOverview("display", allRealPaths);
     expect(result).not.toBeNull();
     expect(result?.items.some((item) => item.route === "/Image.story")).toBe(
@@ -836,14 +838,6 @@ describe("getSectionOverview", () => {
     );
     expect(
       result?.items.some((item) => item.route === "/pages/Heading.story")
-    ).toBe(false);
-  });
-
-  it("pages overview includes Heading, Paragraph, and Banner from pages subdir", () => {
-    const result = getSectionOverview("pages", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(
-      result?.items.some((item) => item.route === "/pages/Heading.story")
     ).toBe(true);
     expect(
       result?.items.some((item) => item.route === "/pages/Paragraph.story")
@@ -851,7 +845,10 @@ describe("getSectionOverview", () => {
     expect(
       result?.items.some((item) => item.route === "/pages/Banner.story")
     ).toBe(true);
-    expect(result?.items).toHaveLength(3);
+  });
+
+  it("pages slug returns null (Pages group is dissolved into Display)", () => {
+    expect(getSectionOverview("pages", allRealPaths)).toBeNull();
   });
 
   it("items list is non-empty for all known slugs (except prototypes)", () => {
@@ -863,7 +860,6 @@ describe("getSectionOverview", () => {
       "feedback",
       "overlays",
       "display",
-      "pages",
       "layout",
       "visualisation",
       "emx2",
@@ -1203,7 +1199,6 @@ describe("getSectionTitleBySlug", () => {
     expect(getSectionTitleBySlug("feedback")).toBe("Feedback");
     expect(getSectionTitleBySlug("overlays")).toBe("Overlays");
     expect(getSectionTitleBySlug("display")).toBe("Display");
-    expect(getSectionTitleBySlug("pages")).toBe("Pages");
     expect(getSectionTitleBySlug("layout")).toBe("Layout");
     expect(getSectionTitleBySlug("visualisation")).toBe("Visualisation");
     expect(getSectionTitleBySlug("emx2")).toBe("EMX2");
@@ -1213,6 +1208,7 @@ describe("getSectionTitleBySlug", () => {
 
   it("returns null for dissolved or unknown slugs", () => {
     expect(getSectionTitleBySlug("forms")).toBeNull();
+    expect(getSectionTitleBySlug("pages")).toBeNull();
     expect(getSectionTitleBySlug("data-display")).toBeNull();
     expect(getSectionTitleBySlug("unknown")).toBeNull();
     expect(getSectionTitleBySlug("feedback-status")).toBeNull();

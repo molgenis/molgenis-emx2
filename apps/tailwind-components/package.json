@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@nuxt/content": "3.6.3",
+    "@vue/compiler-dom": "3.5.22",
     "@nuxt/test-utils": "4.0.3",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@playwright/test": "1.61.0",
