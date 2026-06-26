@@ -12,18 +12,6 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  public static List<Row> applyValidationAndComputed(List<Column> columns, Row row) {
-    return applyValidationAndComputed(columns, List.of(row));
-  }
-
-  public static List<Row> applyValidationAndComputed(List<Column> columns, List<Row> rows) {
-    SqlRowProcessor computer = new SqlRowProcessor(columns);
-    for (Row row : rows) {
-      computer.validateAndCompute(row);
-    }
-    return rows;
-  }
-
   public static Object getTypedValue(Column c, Row row) {
     String name = c.getName();
     return switch (c.getPrimitiveColumnType()) {

@@ -21,6 +21,12 @@ public class SqlRowProcessor {
         columns.stream().filter(not(Column::isHeading)).filter(not(Column::isAutoId)).toList();
   }
 
+  public void validateAndCompute(List<Row> rows) {
+    for (Row row : rows) {
+      validateAndCompute(row);
+    }
+  }
+
   public void validateAndCompute(Row row) throws MolgenisException {
     Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
 
