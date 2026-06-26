@@ -63,7 +63,7 @@ public class CatalogueSiteMapTest {
                 "Var name",
                 "resource",
                 "lifetime",
-                "dataset",
+                "table",
                 "core",
                 "mg_tableclass",
                 "Variables"));
