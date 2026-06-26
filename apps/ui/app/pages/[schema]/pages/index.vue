@@ -98,15 +98,7 @@ function setNuxtLink(value: string, page: string): string | undefined {
       </template>
     </PageHeader>
     <div class="flex pb-7.5 justify-between">
-      <div class="w-3/5 xl:w-2/5 2xl:w-1/5">
-        <label for="page-search" class="sr-only"> Search for pages </label>
-        <InputSearch
-          id="page-search"
-          size="medium"
-          v-model="search"
-          placeholder="Search for pages"
-        />
-      </div>
+      <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
       <div class="flex gap-2.5">
         <ButtonDropdown label="Add new page">
           <Button
