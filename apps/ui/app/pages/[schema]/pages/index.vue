@@ -11,11 +11,13 @@ import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import ButtonDropdown from "../../../../../tailwind-components/app/components/button/Dropdown.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
-
-import type { Crumb } from "../../../../../tailwind-components/types/types";
+import Message from "../../../../../tailwind-components/app/components/Message.vue";
+import NoResultsMessage from "../../../../../tailwind-components/app/components/text/NoResultsMessage.vue";
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
+
+import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -32,25 +34,28 @@ const crumbs: Crumb[] = [
 const formMetadata = ref();
 const showFormModal = ref<boolean>(false);
 
-const { data, refresh } = useAsyncData(`containers-${schema}`, async () => {
-  const configurablePageMetadata = await fetchTableMetadata(
-    schema,
-    "ConfigurablePages"
-  );
-  const developerPageMetadata = await fetchTableMetadata(
-    schema,
-    "DeveloperPages"
-  );
-  const containers = await fetchTableData(schema, "Containers", {
-    orderby: { name: "ASC" },
-  });
+const { data, refresh, error } = useAsyncData(
+  `containers-${schema}`,
+  async () => {
+    const configurablePageMetadata = await fetchTableMetadata(
+      schema,
+      "ConfigurablePages"
+    );
+    const developerPageMetadata = await fetchTableMetadata(
+      schema,
+      "DeveloperPages"
+    );
+    const containers = await fetchTableData(schema, "Containers", {
+      orderby: { name: "ASC" },
+    });
 
-  return {
-    configurablePageMetadata,
-    developerPageMetadata,
-    containers,
-  };
-});
+    return {
+      configurablePageMetadata,
+      developerPageMetadata,
+      containers,
+    };
+  }
+);
 
 function onAddNewPageClick(type: string) {
   if (type === "ConfigurablePage") {
@@ -100,7 +105,7 @@ function setNuxtLink(value: string, page: string): string {
     </div>
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flew-wrap justify-start items-center gap-7.5"
-      v-if="data && data.containers"
+      v-if="data?.containers?.rows"
     >
       <div
         v-for="container in data.containers.rows"
@@ -125,6 +130,19 @@ function setNuxtLink(value: string, page: string): string {
           {{ container.name }}
         </NuxtLink>
       </div>
+    </div>
+    <div
+      v-else-if="data && data.containers && !data.containers.rows"
+      class="w-full text-center"
+    >
+      <NoResultsMessage
+        label="No pages found. Add a new page to get started."
+      />
+    </div>
+    <div v-else-if="error">
+      <Message id="pages-schema-error" :invalid="true">
+        {{ error }}
+      </Message>
     </div>
   </Container>
   <EditModal
