@@ -1,4 +1,4 @@
-export const getContainers = `query getContainers($filter:ContainersFilter) {
+export const getContainersQuery = `query getContainers($filter:ContainersFilter) {
     Containers(filter:$filter) {
         
         # Containers
@@ -127,49 +127,5 @@ export const getContainers = `query getContainers($filter:ContainersFilter) {
           defaultValue
         }
       }
-    }
-}`;
-
-export const getContainersAndMetadata = `{
-    Containers (orderby: { name: ASC }) {
-        name
-        mg_tableclass
-    }
-    _schema {
-        id
-        label
-        tables {
-          id
-          schemaId
-          name
-          label
-          description
-          tableType
-          columns {
-            columnType
-            id
-            label
-            section
-            heading
-            computed
-            description
-            formLabel
-            key
-            position
-            refBackId
-            refLabel
-            refLabelDefault
-            refLinkId
-            refSchemaId
-            refTableId
-            required
-            validation
-            visible
-            table
-            name
-            inherited
-            defaultValue
-          }
-        }
     }
 }`;
