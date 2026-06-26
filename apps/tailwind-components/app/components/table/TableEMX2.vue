@@ -148,7 +148,7 @@
             -->
             <td
               v-if="hasRowActions"
-              class="sticky right-0 z-10 w-40 p-0 border-b bg-table group-hover:bg-hover"
+              class="sticky right-0 z-10 w-40 p-0 border-b group-hover:bg-hover"
             >
               <div
                 class="invisible flex h-full items-center justify-end group-hover:visible"
