@@ -151,10 +151,10 @@ function setNuxtLink(value: string, page: string): string | undefined {
   <EditModal
     v-if="formMetadata"
     key="edit-modal-configurable-page"
-    :show-button="false"
-    :schema-id="(schema as string)"
+    :showButton="false"
+    :schemaId="(schema as string)"
     :metadata="formMetadata"
-    :is-insert="false"
+    :isInsert="true"
     v-model:visible="showFormModal"
   />
 </template>
