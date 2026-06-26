@@ -77,6 +77,7 @@
             :isResizing="isResizing"
             :columnWidths="columnWidths"
             :hasRowActions="hasRowActions"
+            :rowActionsWidthClass="rowActionsWidthClass"
             @sort-requested="handleSortRequest"
             @start-resize="startResize($event.event, $event.id)"
           />
@@ -92,6 +93,7 @@
           :isResizing="isResizing"
           :columnWidths="columnWidths"
           :hasRowActions="hasRowActions"
+          :rowActionsWidthClass="rowActionsWidthClass"
           @sort-requested="handleSortRequest"
           @start-resize="startResize($event.event, $event.id)"
         />
@@ -148,7 +150,8 @@
             -->
             <td
               v-if="hasRowActions"
-              class="sticky right-0 z-10 w-40 p-0 border-b group-hover:bg-hover"
+              class="sticky right-0 z-10 p-0 border-b group-hover:bg-hover"
+              :class="rowActionsWidthClass"
             >
               <div
                 class="invisible flex h-full items-center justify-end group-hover:visible"
@@ -349,6 +352,13 @@ const slots = useSlots();
 // table-fixed columns stay aligned.
 const hasRowActions = computed(
   () => props.isEditable || Boolean(slots["additional-row-actions"])
+);
+
+// Reserve only as much width as the rendered actions need: editable rows show
+// delete + edit + the optional slot action, read-only rows show just the slot
+// action, so a single fixed width would leave a large empty (highlighted) gap.
+const rowActionsWidthClass = computed(() =>
+  props.isEditable ? "w-40" : "w-20"
 );
 
 const emit = defineEmits<{

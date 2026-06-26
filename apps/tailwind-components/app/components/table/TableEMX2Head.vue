@@ -45,7 +45,8 @@
       <th
         v-if="hasRowActions"
         aria-hidden="true"
-        class="sticky right-0 z-10 w-40 border-b border-gray-200 bg-table"
+        class="sticky right-0 z-10 border-b border-gray-200"
+        :class="rowActionsWidthClass"
       />
     </tr>
   </thead>
@@ -69,5 +70,6 @@ defineProps<{
   isResizing: boolean;
   showDraftColumn?: boolean;
   hasRowActions?: boolean;
+  rowActionsWidthClass?: string;
 }>();
 </script>
