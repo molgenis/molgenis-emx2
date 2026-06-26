@@ -1,0 +1,117 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import Button from "../../Button.vue";
+import { Dropdown as VDropdown } from "floating-vue";
+// Own the popper stylesheet here: it provides the dropdown's z-index, positioning
+// and transitions. Without it the menu renders unstyled behind the table whenever
+// no other floating-vue consumer (e.g. CustomTooltip) happens to be mounted.
+import "floating-vue/dist/style.css";
+import Checkbox from "../../input/Checkbox.vue";
+import BaseIcon from "../../BaseIcon.vue";
+const props = defineProps<{
+  numberOfSelectedRows: number;
+  allRowsSelected: boolean;
+  canEdit: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "rowAction", payload: { action: string }): void;
+}>();
+
+const noRowsSelected = computed(() => props.numberOfSelectedRows === 0);
+
+const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
+
+function toggleAllSelection() {
+  // Gmail-style: clear when anything is selected, otherwise select all
+  emit("rowAction", {
+    action: noRowsSelected.value ? "select-all-on-page" : "select-none",
+  });
+}
+</script>
+
+<template>
+  <div
+    class="flex flex-row items-center gap-2 px-2 group border border-theme rounded-theme"
+  >
+    <div
+      class="flex items-center pl-2 pr-2 gap-2"
+      :class="{ 'border-r-2': !noRowsSelected }"
+    >
+      <Checkbox
+        :model-value="allRowsSelected"
+        :indeterminate="!allRowsSelected && numberOfSelectedRows > 0"
+        :prevent-click="true"
+        @click="toggleAllSelection"
+      >
+      </Checkbox>
+      <VDropdown
+        aria-id="drop-it"
+        :distance="18"
+        :skidding="-4"
+        placement="bottom-start"
+        :triggers="['click']"
+        :popper-triggers="['hover', 'click']"
+      >
+        <BaseIcon
+          name="caret-down"
+          size="medium"
+          class="cursor-pointer duration-default ease-in-out tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:bg-none disabled:text-button-disabled disabled:border-0 !disabled:hover:bg-none disabled:hover:text-button-disabled p-[8px] h-10 w-10 transition-colors"
+        />
+
+        <template #popper>
+          <div class="bg-form p-[10px] w-[180px] border border-form">
+            <ul>
+              <li class="px-[15px] py-[10px] text-disabled">Select</li>
+              <li
+                class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
+                @click="emit('rowAction', { action: 'select-all-on-page' })"
+              >
+                All on this page
+              </li>
+              <li
+                class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
+                @click="emit('rowAction', { action: 'select-none' })"
+              >
+                None
+              </li>
+              <li
+                class="px-[15px] py-[10px] text-title hover:bg-button-secondary-hover hover:cursor-pointer"
+                @click="emit('rowAction', { action: 'select-drafts' })"
+              >
+                Drafts
+              </li>
+            </ul>
+          </div>
+        </template>
+      </VDropdown>
+    </div>
+    <template v-if="!noRowsSelected">
+      <Button
+        v-if="canEdit"
+        :icon-only="true"
+        icon="trash"
+        type="inline"
+        label="Delete selection"
+        @click="emit('rowAction', { action: 'delete-selection' })"
+      />
+      <Button
+        v-if="canEdit"
+        :icon-only="true"
+        icon="edit"
+        type="inline"
+        label="Edit"
+        :disabled="!singleRowSelected"
+        @click="emit('rowAction', { action: 'edit-selection' })"
+      />
+      <Button
+        :icon-only="true"
+        icon="info"
+        type="inline"
+        label="View details"
+        :disabled="!singleRowSelected"
+        @click="emit('rowAction', { action: 'view-details' })"
+      />
+    </template>
+  </div>
+</template>

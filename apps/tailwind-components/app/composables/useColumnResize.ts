@@ -1,5 +1,52 @@
 import { ref, onBeforeUnmount, type Ref } from "vue";
 
+const DEFAULT_COLUMN_WIDTH = 240;
+const MIN_COLUMN_WIDTH = 80;
+const MAX_COLUMN_WIDTH = 360;
+
+// Sensible starting width (px) per EMX2 column type. Deterministic and
+// metadata-driven, so it stays stable across pages/sorting and never blows up
+// on a single long value (overflow is handled by cell truncation + tooltip).
+const COLUMN_WIDTH_BY_TYPE: Record<string, number> = {
+  BOOL: 90,
+  INT: 110,
+  NON_NEGATIVE_INT: 110,
+  LONG: 130,
+  DECIMAL: 130,
+  DATE: 140,
+  DATETIME: 180,
+  PERIOD: 140,
+  AUTO_ID: 180,
+  RADIO: 160,
+  FILE: 160,
+  STRING: 220,
+  EMAIL: 220,
+  ONTOLOGY: 220,
+  REF: 200,
+  SELECT: 200,
+  CHECKBOX: 200,
+  HYPERLINK: 240,
+  REFBACK: 260,
+  MULTISELECT: 260,
+  UUID: 300,
+  TEXT: 320,
+};
+
+export function getDefaultColumnWidth(
+  columnType?: string,
+  fallback = DEFAULT_COLUMN_WIDTH
+): number {
+  if (!columnType) return fallback;
+
+  // Array types (e.g. STRING_ARRAY, INT_ARRAY) hold multiple values, so give the
+  // underlying type a little extra room.
+  const width = columnType.endsWith("ARRAY")
+    ? getDefaultColumnWidth(columnType.replace(/_ARRAY$/, ""), fallback) + 60
+    : (COLUMN_WIDTH_BY_TYPE[columnType] ?? fallback);
+
+  return Math.min(Math.max(width, MIN_COLUMN_WIDTH), MAX_COLUMN_WIDTH);
+}
+
 export function useColumnResize(container: Ref<HTMLElement | null>) {
   const columnWidths = ref<Record<string, number>>({});
   const guideX = ref<number | null>(null);
@@ -13,10 +60,16 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
   let rafId: number | null = null;
   let pendingX = 0;
 
-  function setInitialWidths(columns: { id: string }[], defaultWidth = 240) {
+  function setInitialWidths(
+    columns: { id: string; columnType?: string }[],
+    defaultWidth = DEFAULT_COLUMN_WIDTH
+  ) {
     columns.forEach((col) => {
       if (!columnWidths.value[col.id]) {
-        columnWidths.value[col.id] = defaultWidth;
+        columnWidths.value[col.id] = getDefaultColumnWidth(
+          col.columnType,
+          defaultWidth
+        );
       }
     });
   }
@@ -31,7 +84,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
     resizingColumn.value = columnId;
 
     startX.value = event.clientX;
-    startWidth.value = columnWidths.value[columnId] ?? 240;
+    startWidth.value = columnWidths.value[columnId] ?? DEFAULT_COLUMN_WIDTH;
 
     guideX.value = getRelativeX(event.clientX);
 
@@ -61,9 +114,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
     const diff = pendingX - startX.value;
     const newWidth = startWidth.value + diff;
 
-    const MIN_WIDTH = 80;
-
-    if (newWidth > MIN_WIDTH) {
+    if (newWidth > MIN_COLUMN_WIDTH) {
       columnWidths.value[resizingColumn.value] = newWidth;
     }
 

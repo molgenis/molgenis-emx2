@@ -1,6 +1,11 @@
 <template>
   <thead>
     <tr>
+      <TableHeadCell class="sticky left-0 bg-table z-20 w-12">
+        <!-- <div class="flex justify-center items-center">
+                <Checkbox @change="toggleAllRows" />
+              </div> -->
+      </TableHeadCell>
       <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
         <TableHeaderAction
           :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -36,6 +41,13 @@
           @sort-requested="$emit('sort-requested', column.id)"
         />
       </TableHeadCell>
+      <!-- Empty, sticky header cell aligning with the floating row-action column. -->
+      <th
+        v-if="hasRowActions"
+        aria-hidden="true"
+        class="sticky right-0 z-10 border-b border-gray-200"
+        :class="rowActionsWidthClass"
+      />
     </tr>
   </thead>
 </template>
@@ -57,5 +69,7 @@ defineProps<{
   columnWidths: Record<string, number>;
   isResizing: boolean;
   showDraftColumn?: boolean;
+  hasRowActions?: boolean;
+  rowActionsWidthClass?: string;
 }>();
 </script>

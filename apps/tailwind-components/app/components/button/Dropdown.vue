@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useId } from "vue";
+import Button from "../Button.vue";
 
 const ariaId = useId();
 

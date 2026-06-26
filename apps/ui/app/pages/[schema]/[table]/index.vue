@@ -13,10 +13,10 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import type { TableRow } from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
 
 const route = useRoute();
@@ -89,7 +89,7 @@ function handleSettingsUpdate() {
   router.push({ query });
 }
 
-async function handleViewRowRequest(row: IRow) {
+async function handleViewRowRequest(row: TableRow) {
   const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
 
   router.push({
@@ -112,6 +112,17 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+
+const canEdit = computed(
+  () => session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value
+);
+
+// Spike toggle (read-only view): ?rowclick=1 makes the whole row clickable to
+// open the detail page.
+function isQueryFlagOn(value: unknown) {
+  return value === "1" || value === "true" || value === "";
+}
+const rowClickEnabled = computed(() => isQueryFlagOn(route.query.rowclick));
 </script>
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
@@ -130,7 +141,9 @@ const { isAdmin, session } = await useSession(schemaId);
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      :isEditable="canEdit"
+      @view-details="handleViewRowRequest"
+      v-on="rowClickEnabled ? { rowClick: handleViewRowRequest } : {}"
     >
       <template #additional-row-actions="{ row }">
         <Button
@@ -138,8 +151,7 @@ const { isAdmin, session } = await useSession(schemaId);
           :icon-only="true"
           type="inline"
           icon="info"
-          size="small"
-          label="view row details"
+          label="Details"
           @click="handleViewRowRequest(row)"
         />
       </template>

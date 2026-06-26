@@ -20,7 +20,11 @@ withDefaults(
 
 defineExpose({ search });
 
-const emit = defineEmits(["update:modelValue", "focus", "blur"]);
+const emit = defineEmits<{
+  "update:modelValue": [value: string];
+  focus: [event: FocusEvent];
+  blur: [event: FocusEvent];
+}>();
 
 let timeoutID: number | NodeJS.Timeout | undefined = undefined;
 function handleInput(input: string) {
@@ -45,7 +49,7 @@ function handleInput(input: string) {
         !disabled && !invalid && !valid,
       'h-input-tiny pl-5 pr-5 text-heading-sm gap-2': size === 'tiny',
       'h-input-small pl-5 pr-5 text-heading-sm gap-3': size === 'small',
-      'h-input pl-5 pr-7.5 text-heading-md gap-4': size === 'medium',
+      'h-input-medium pl-5 pr-7.5 text-heading-md gap-4': size === 'medium',
       'h-input-large pl-5 pr-8.75 text-heading-lg gap-5': size === 'large',
     }"
   >

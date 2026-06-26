@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRuntimeConfig } from "#imports";
-import Container from "./Container.vue";
 import HeaderButton from "./HeaderButton.vue";
 import ThemeSwitch from "./ThemeSwitch.vue";
 
@@ -15,7 +14,9 @@ const showThemeSwitch =
   <header
     class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
   >
-    <Container>
+    <!-- Full-width header (not constrained to the centred Container max-width),
+         so the logo sits near the left edge and account near the right edge. -->
+    <div class="w-full lg:px-[30px]">
       <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
 
@@ -55,6 +56,6 @@ const showThemeSwitch =
           <!-- <SearchBar /> -->
         </div>
       </div>
-    </Container>
+    </div>
   </header>
 </template>

@@ -1,8 +1,8 @@
 <template>
-  <td class="p-2 border-b min-h-8">
-    <slot name="row-actions"></slot>
-    <div class="flex overflow-hidden items-center gap-2">
-      <div class="truncate min-w-0" ref="cellRef">
+  <td class="group/cell p-2 border-b min-h-8">
+    <div class="relative flex overflow-hidden items-center">
+      <div v-tooltip.bottom="tooltipContent" class="relative flex-1 min-w-0">
+        <div class="truncate" :class="{ invisible: isEllipsisActive }" ref="cellRef">
         <slot>
           <template v-if="metadata && data !== undefined && data !== null">
             <ValueList
@@ -109,21 +109,44 @@
             <span class="min-h-4 inline-block"></span>
           </template>
         </slot>
+        </div>
+        <!-- Finder-style middle truncation: keep start and end visible -->
+        <div
+          v-if="isEllipsisActive"
+          class="absolute inset-0 flex items-center"
+          aria-hidden="true"
+        >
+          <span class="truncate min-w-0">{{ truncatedStart }}</span>
+          <span class="whitespace-pre flex-shrink-0">{{ truncatedEnd }}</span>
+        </div>
       </div>
-      <Button
+      <!--
+        Floats over the right edge of the text instead of taking its own column, so
+        the value uses the full cell width. A fade in the cell background (white, or
+        bg-hover on row hover) keeps the text legible underneath the icon.
+        Revealed per cell (group/cell) on hover and keyboard focus; always visible on
+        touch (pointer-coarse). The fade colour follows the row (unnamed group-hover)
+        so it still matches the blue hover background when a sibling cell is hovered.
+      -->
+      <div
         v-if="isEllipsisActive"
-        type="text"
-        size="tiny"
-        @click="handleShowMore"
+        class="absolute inset-y-0 right-0 flex items-center pl-8 pr-1 bg-gradient-to-l from-[var(--background-color-table)] from-50% to-transparent opacity-0 transition-opacity group-hover:from-[var(--background-color-hover)] group-hover/cell:opacity-100 group-focus-within/cell:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100"
       >
-        More
-      </Button>
+        <button
+          type="button"
+          class="flex-shrink-0 text-gray-500 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
+          aria-label="Show full value"
+          @click="handleShowMore"
+        >
+          <BaseIcon name="open-in-full" :width="18" />
+        </button>
+      </div>
     </div>
   </td>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -139,7 +162,7 @@ import {
   assertTableValue,
   toRefColumn,
 } from "../../utils/typeUtils";
-import Button from "../Button.vue";
+import BaseIcon from "../BaseIcon.vue";
 import ValueBool from "../value/Bool.vue";
 import ValueDecimal from "../value/Decimal.vue";
 import ValueEmail from "../value/Email.vue";
@@ -161,7 +184,43 @@ const props = defineProps<{
 
 const cellRef = ref<HTMLElement | null>(null);
 const isEllipsisActive = ref(false);
+const fullText = ref("");
 let resizeObserver: ResizeObserver;
+
+// Number of trailing characters kept visible at the end of a truncated cell.
+const TRUNCATION_TAIL_LENGTH = 12;
+
+// Above this length a tooltip is the wrong container (use the detail modal instead),
+// so the hover tooltip is only offered for short/medium truncated values.
+const TOOLTIP_MAX_LENGTH = 120;
+
+// Full value shown in a hover/touch tooltip, but only when the cell is actually
+// truncated and short enough to belong in a tooltip. Empty string disables it.
+// Keyboard users reach the full value via the focusable expand button + modal.
+const tooltipContent = computed(() =>
+  isEllipsisActive.value && fullText.value.length <= TOOLTIP_MAX_LENGTH
+    ? fullText.value
+    : ""
+);
+
+const truncatedEnd = computed(() => {
+  const text = fullText.value;
+  if (!text) return "";
+  // Never keep more than half the string as a tail, so the start stays meaningful.
+  const tailLength = Math.min(
+    TRUNCATION_TAIL_LENGTH,
+    Math.floor(text.length / 3)
+  );
+  return tailLength > 0 ? text.slice(text.length - tailLength) : "";
+});
+
+const truncatedStart = computed(() => {
+  const text = fullText.value;
+  // The start span uses `truncate`, so the "…" is rendered by CSS between the two halves.
+  return truncatedEnd.value
+    ? text.slice(0, text.length - truncatedEnd.value.length)
+    : text;
+});
 
 const emit = defineEmits<{
   (e: "cellClicked", payload: cellPayload): void;
@@ -181,9 +240,15 @@ onUnmounted(() => {
 });
 
 function setIsEllipsisActive() {
-  isEllipsisActive.value = cellRef.value
-    ? cellRef.value.offsetWidth < cellRef.value.scrollWidth
-    : false;
+  if (!cellRef.value) {
+    isEllipsisActive.value = false;
+    return;
+  }
+  // `cellRef` always holds the full value (kept in layout via `invisible`),
+  // so overflow detection stays correct when the column is resized.
+  isEllipsisActive.value =
+    cellRef.value.offsetWidth < cellRef.value.scrollWidth;
+  fullText.value = cellRef.value.textContent?.replace(/\s+/g, " ").trim() ?? "";
 }
 
 function handleShowMore() {
