@@ -105,8 +105,9 @@
             v-for="row in rows"
             class="group h-[50px]"
             :class="{
-              'hover:cursor-pointer': props.isEditable,
+              'hover:cursor-pointer': props.isEditable || isRowClickable,
             }"
+            @click="onRowClick(row, $event)"
           >
             <TableCellEMX2
               class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
@@ -153,8 +154,18 @@
               class="sticky right-0 z-10 p-0 border-b group-hover:bg-hover"
               :class="rowActionsWidthClass"
             >
+              <!--
+                Editable rows reveal their multi-action cluster (incl. destructive
+                actions) on hover to keep the table calm; a single read-only action
+                can be kept persistently visible so it stays discoverable.
+              -->
               <div
-                class="invisible flex h-full items-center justify-end group-hover:visible"
+                class="flex h-full items-center justify-end"
+                :class="
+                  !isEditable && persistReadOnlyActions
+                    ? ''
+                    : 'invisible group-hover:visible'
+                "
               >
                 <div
                   class="relative flex h-full items-center gap-1 px-3 bg-table group-hover:bg-hover"
@@ -289,6 +300,7 @@
 <script setup lang="ts">
 import {
   computed,
+  getCurrentInstance,
   onMounted,
   onUnmounted,
   ref,
@@ -339,10 +351,14 @@ const props = withDefaults(
     tableId: string;
     isEditable?: boolean;
     useStickyHeader?: boolean;
+    // Keep a read-only row's single action (e.g. view details) always visible
+    // instead of revealing it on hover, so it stays discoverable.
+    persistReadOnlyActions?: boolean;
   }>(),
   {
     isEditable: () => false,
     useStickyHeader: () => true,
+    persistReadOnlyActions: () => false,
   }
 );
 
@@ -363,7 +379,30 @@ const rowActionsWidthClass = computed(() =>
 
 const emit = defineEmits<{
   (e: "view-details", payload: TableRow): void;
+  (e: "rowClick", payload: TableRow): void;
 }>();
+
+// Rows are clickable only when the consumer listens for `rowClick`.
+const instance = getCurrentInstance();
+const isRowClickable = computed(() =>
+  Boolean(instance?.vnode.props?.onRowClick)
+);
+
+function onRowClick(row: TableRow, event: MouseEvent) {
+  if (!isRowClickable.value) return;
+  const target = event.target as HTMLElement | null;
+  // Don't hijack clicks on interactive cell content (links, buttons, checkboxes,
+  // ref / ontology cells) or while the user is selecting text.
+  if (
+    target?.closest(
+      'a, button, input, select, textarea, label, [role="button"], .text-link'
+    )
+  ) {
+    return;
+  }
+  if (window.getSelection()?.toString()) return;
+  emit("rowClick", row);
+}
 
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);

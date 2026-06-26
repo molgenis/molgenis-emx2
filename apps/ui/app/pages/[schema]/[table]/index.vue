@@ -112,6 +112,22 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+
+const canEdit = computed(
+  () => session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value
+);
+
+// Spike toggles for row-action discoverability variants (read-only view):
+//   ?rowclick=1     - make the whole row clickable -> open detail (option 1)
+//   ?persistaction=1 - keep the single view action visible + labelled (option 2)
+// Combine freely, e.g. ?rowclick=1&persistaction=1
+function isQueryFlagOn(value: unknown) {
+  return value === "1" || value === "true" || value === "";
+}
+const rowClickEnabled = computed(() => isQueryFlagOn(route.query.rowclick));
+const persistActionEnabled = computed(() =>
+  isQueryFlagOn(route.query.persistaction)
+);
 </script>
 <template>
   <div class="mx-auto lg:px-[30px] px-0">
@@ -130,16 +146,18 @@ const { isAdmin, session } = await useSession(schemaId);
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      :isEditable="canEdit"
+      :persist-read-only-actions="persistActionEnabled"
       @view-details="handleViewRowRequest"
+      v-on="rowClickEnabled ? { rowClick: handleViewRowRequest } : {}"
     >
       <template #additional-row-actions="{ row }">
         <Button
           :id="useId()"
-          :icon-only="true"
+          :icon-only="canEdit || !persistActionEnabled"
           type="inline"
           icon="info"
-          label="view row details"
+          label="Details"
           @click="handleViewRowRequest(row)"
         />
       </template>
