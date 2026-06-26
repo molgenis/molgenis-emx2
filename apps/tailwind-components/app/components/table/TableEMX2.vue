@@ -2,9 +2,7 @@
   <div class="flex mb-[30px] justify-between h-50px">
     <RowControles
       :number-of-selected-rows="numberOfSelectedRows"
-      :all-rows-selected="
-        numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
-      "
+      :all-rows-selected="allRowsSelected"
       :can-edit="props.isEditable"
       @row-action="handleRowAction"
     />
