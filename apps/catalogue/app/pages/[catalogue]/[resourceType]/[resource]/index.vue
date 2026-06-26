@@ -445,9 +445,12 @@ const tocItems = computed(() => {
   }
 
   if (variableCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
+    tableOffContents.push({
+      label: "Data dictionaries",
+      id: "DataDictionaries",
+    });
   } else if (resource.value?.tables?.length) {
-    tableOffContents.push({ label: "Datasets", id: "Datasets" });
+    tableOffContents.push({ label: "Tables", id: "Datasets" });
   }
 
   if (subpopulationCount.value ?? 0 > 0) {
@@ -822,8 +825,8 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
-          title="Dataset variables"
-          id="DataVariables"
+          title="Data dictionaries"
+          id="DataDictionaries"
           v-if="variableCount ?? 0 > 0"
         >
           <TableContent
@@ -851,12 +854,12 @@ const showPopulation = computed(
           <TableContent
             class="mt-11"
             :wrapper-component="false"
-            title="Dataset variables"
+            title="Variables"
             id="Variables"
-            description="Dataset variables and their description"
+            description="Variables and their description"
             :headers="[
-              { id: 'name', label: 'variable' },
-              { id: 'dataset', label: 'Dataset' },
+              { id: 'name', label: 'Variable' },
+              { id: 'table', label: 'Tables' },
             ]"
             type="Variables"
             :query="variablesQuery"
@@ -870,7 +873,7 @@ const showPopulation = computed(
                   class="block absolute text-body-xs top-2 left-6 pointer-events-none"
                   for="filter-by-data-set"
                 >
-                  Filter by dataset
+                  Filter by table
                 </label>
                 <select
                   v-model="tableFilter"
