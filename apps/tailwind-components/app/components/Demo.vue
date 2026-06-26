@@ -10,12 +10,12 @@
     <div class="mt-2">
       <div class="flex items-center gap-2">
         <Button
-          :id="`${id}-demo-source-toggle`"
+          :id="`${effectiveId}-demo-source-toggle`"
           type="text"
           size="small"
           :icon="isExpanded ? 'CaretUp' : 'CaretDown'"
           icon-position="right"
-          :aria-controls="`${id}-demo-source-content`"
+          :aria-controls="`${effectiveId}-demo-source-content`"
           :aria-expanded="isExpanded"
           @click.prevent="togglePanel"
         >
@@ -40,14 +40,14 @@
         </span>
       </div>
 
-      <div v-if="isExpanded" :id="`${id}-demo-source-content`">
+      <div v-if="isExpanded" :id="`${effectiveId}-demo-source-content`">
         <ClientOnly>
           <CodeEditor v-model="editableSource" lang="html" />
         </ClientOnly>
         <p v-if="compileError || runtimeError" class="text-error text-sm mt-2">
           {{ compileError || runtimeError }}
         </p>
-        <p v-else-if="!demoSource">No source found for demo "{{ id }}".</p>
+        <p v-else-if="!demoSource">No source found for demo "{{ effectiveId }}".</p>
       </div>
     </div>
   </div>
@@ -74,9 +74,12 @@ const CodeEditor = defineAsyncComponent(
 );
 
 const props = defineProps<{
-  id: string;
+  id?: string;
   title?: string;
+  source?: string;
 }>();
+
+const effectiveId = computed(() => props.id ?? "page-demo");
 
 const storyGlob = import.meta.glob("../pages/**/*.vue", {
   query: "?raw",
@@ -87,6 +90,7 @@ const storyGlob = import.meta.glob("../pages/**/*.vue", {
 const route = useRoute();
 
 const rawSource = computed<string>(() => {
+  if (props.source !== undefined) return "";
   const routeKey = `${route.path}.vue`;
   const matchEntry = Object.entries(storyGlob).find(
     ([globKey]) => globKeyToRouteKey(globKey) === routeKey
@@ -94,9 +98,11 @@ const rawSource = computed<string>(() => {
   return matchEntry ? matchEntry[1] : "";
 });
 
-const demoSource = computed<string>(() =>
-  extractDemoSource(rawSource.value, props.id)
-);
+const demoSource = computed<string>(() => {
+  if (props.source !== undefined) return props.source;
+  if (!props.id) return "";
+  return extractDemoSource(rawSource.value, props.id);
+});
 
 const isExpanded = ref<boolean>(false);
 const editableSource = ref<string>("");

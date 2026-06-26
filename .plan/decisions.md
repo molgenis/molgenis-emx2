@@ -285,6 +285,31 @@ expanded active section. Clicking a section navigates to its overview AND expand
 REMOVES SectionNavBar (the per-page top button-bar) + its spec. Supersedes the
 2026-06-25 "sidebar=sections + in-page bar" decision.
 
+## 2026-06-25/26 — Editable per-demo source; source = demo block; @nuxt/content via module
+- **Per-demo source + editable live demo** (`Demo.vue` + `compileTemplate.ts` via
+  `@vue/compiler-dom`, `demoSource.ts`): each demo block has a subtle text toggle,
+  a copy button (`useClipboard`), and a Monaco editor; editing live-recompiles and
+  re-renders the demo above (template-only demos; graceful inline error otherwise).
+  Runtime-compiled demos resolve REAL styled components via a components-map (Nuxt
+  auto-imports aren't globally registered at runtime). Monaco is lazy
+  (`defineAsyncComponent`) so it doesn't poison the vitest env.
+- **Source belongs to the demo block, not page chrome** (owner): the page-level
+  read-only SourceCode is being replaced — `Story.vue` treats each page as one demo
+  block by default (editable source from the `<template>` body); pages opt into
+  multiple `<Demo>` blocks to split (Button has 8). Every page must show a source
+  link. [all-pages rollout in progress]
+- **@nuxt/content via a committed local module** (`modules/content.ts`
+  `installModule`) so the branch builds on a clean checkout WITHOUT committing
+  `nuxt.config.ts` (per the never-commit-nuxt.config rule). Removed @nuxt/content
+  from local nuxt.config to avoid double-registration.
+- **Pages group dissolved into Display**; `table/EMX2`→"Table",
+  `table/modal/Ref`→"Table ref"; non-Foundations sections alphabetised.
+- KNOWN DEBT (out of scope): 23 pre-existing lint (typecheck) errors in untouched
+  infra files (`fetch*`, `useSession`, `cms`, `fetchSetting`, a few old stories) —
+  loose `unknown`-typed fetch responses; our design-system work is lint-clean.
+- Commits: `ad93b7708` (IA overhaul) + `a65aad14c` (editable demo + content module
+  + Display merge + nav fixes).
+
 ## 2026-06-24 — Dead / SaaS tools eliminated
 Pattern Lab (archived May 2026), Backlight (shut Jun 2025), Specify (shut Nov
 2024), Ladle (React-only). SaaS hubs (zeroheight / Supernova / Knapsack)

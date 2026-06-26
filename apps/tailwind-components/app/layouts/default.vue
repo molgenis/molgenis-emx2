@@ -117,7 +117,6 @@ function scrollToTop() {
         <Story
           ref="storyRef"
           :title="storyName"
-          :show-source="!route.path.startsWith('/section/')"
           class="min-h-0 h-full overflow-hidden"
         >
           <slot></slot>

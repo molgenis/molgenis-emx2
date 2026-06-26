@@ -15,6 +15,37 @@ function dedent(content: string): string {
     .trim();
 }
 
+export function extractTemplateBody(rawVueSource: string): string {
+  const openMatch = /^<template>/m.exec(rawVueSource);
+  if (!openMatch) return "";
+
+  const contentStart = openMatch.index + openMatch[0].length;
+  const remaining = rawVueSource.slice(contentStart);
+
+  let depth = 1;
+  let pos = 0;
+
+  while (pos < remaining.length) {
+    const openIdx = remaining.indexOf("<template", pos);
+    const closeIdx = remaining.indexOf("</template>", pos);
+
+    if (closeIdx === -1) return "";
+
+    if (openIdx !== -1 && openIdx < closeIdx) {
+      depth++;
+      pos = openIdx + "<template".length;
+    } else {
+      depth--;
+      if (depth === 0) {
+        return dedent(remaining.slice(0, closeIdx));
+      }
+      pos = closeIdx + "</template>".length;
+    }
+  }
+
+  return "";
+}
+
 export function extractDemoSource(rawVueSource: string, id: string): string {
   const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const openTagPattern = new RegExp(`<Demo\\b[^>]*\\sid="${escapedId}"[^>]*>`);

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useRoute } from "vue-router";
 import type { ComponentMetaMap } from "../utils/componentMetaTypes";
 import componentMetaMapJson from "../../componentMetaMap.json";
+import { globKeyToRouteKey } from "../utils/sourceCode";
+import { extractTemplateBody } from "../utils/demoSource";
 
 const props = defineProps<{
   title: string;
   description?: string;
-  showSource?: boolean;
 }>();
-
-const showSourcePanel = computed(() => props.showSource !== false);
 
 const componentMetaMap = componentMetaMapJson as unknown as ComponentMetaMap;
 
@@ -20,6 +20,37 @@ const resolvedMeta = computed(() => {
   );
   return matchingKey ? componentMetaMap[matchingKey] : null;
 });
+
+const route = useRoute();
+
+const storyGlob = import.meta.glob("../pages/**/*.vue", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+const pageRawSource = computed<string>(() => {
+  const routeKey = `${route.path}.vue`;
+  const matchEntry = Object.entries(storyGlob).find(
+    ([globKey]) => globKeyToRouteKey(globKey) === routeKey
+  );
+  return matchEntry ? matchEntry[1] : "";
+});
+
+const isNarrative = computed(() => {
+  const path = route.path;
+  return (
+    path === "/get-started" ||
+    path.startsWith("/section/") ||
+    path === "/patterns" ||
+    path.startsWith("/patterns/") ||
+    path.endsWith(".other")
+  );
+});
+
+const hasExplicitDemo = computed(() => pageRawSource.value.includes("<Demo"));
+
+const templateBody = computed(() => extractTemplateBody(pageRawSource.value));
 </script>
 
 <template>
@@ -31,11 +62,12 @@ const resolvedMeta = computed(() => {
       {{ title }}
     </h1>
     <p class="mt-2" v-if="description">{{ description }}</p>
-    <slot></slot>
-    <ApiTable v-if="resolvedMeta" :meta="resolvedMeta" />
-    <template v-if="showSourcePanel">
-      <h2 class="text-title text-heading-xl mt-4">Source code:</h2>
-      <SourceCode :id="title" />
+    <template v-if="isNarrative || hasExplicitDemo">
+      <slot></slot>
     </template>
+    <Demo v-else id="page-demo" :source="templateBody">
+      <slot></slot>
+    </Demo>
+    <ApiTable v-if="resolvedMeta" :meta="resolvedMeta" />
   </div>
 </template>

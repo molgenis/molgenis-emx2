@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { extractDemoSource } from "../../../app/utils/demoSource";
+import {
+  extractDemoSource,
+  extractTemplateBody,
+} from "../../../app/utils/demoSource";
 
 const multiBlockFixture = `
 <template>
@@ -79,5 +82,57 @@ describe("extractDemoSource", () => {
     const source = `<Demo id="a.b">content</Demo>`;
     expect(extractDemoSource(source, "a.b")).toBe("content");
     expect(extractDemoSource(source, "axb")).toBe("");
+  });
+});
+
+describe("extractTemplateBody", () => {
+  it("returns the inner content of a simple template block", () => {
+    const source = `<template>\n  <div>hello</div>\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result).toContain("<div>hello</div>");
+    expect(result).not.toContain("<template>");
+    expect(result).not.toContain("</template>");
+  });
+
+  it("dedents the template body", () => {
+    const source = `<template>\n  <div>\n    <span>text</span>\n  </div>\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result.startsWith("<div>")).toBe(true);
+    expect(result).not.toMatch(/^ {4}/m);
+    expect(result).toContain("  <span>text</span>");
+  });
+
+  it("returns trimmed output (no leading/trailing blank lines)", () => {
+    const source = `<template>\n\n  <p>hi</p>\n\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result).toBe(result.trim());
+  });
+
+  it("returns empty string when no template block exists", () => {
+    expect(extractTemplateBody("")).toBe("");
+    expect(extractTemplateBody("<script>const x = 1</script>")).toBe("");
+  });
+
+  it("ignores script block content before the template", () => {
+    const source = `<script setup lang="ts">\nconst x = 1;\n</script>\n\n<template>\n  <p>content</p>\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result).toContain("<p>content</p>");
+    expect(result).not.toContain("const x");
+  });
+
+  it("handles nested template directives correctly", () => {
+    const source = `<template>\n  <div>\n    <template v-if="show">\n      <span>inner</span>\n    </template>\n  </div>\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result).toContain('<template v-if="show">');
+    expect(result).toContain("<span>inner</span>");
+    expect(result.startsWith("<div>")).toBe(true);
+  });
+
+  it("handles deeply nested template slots", () => {
+    const source = `<template>\n  <Comp>\n    <template #default>\n      <template v-for="x in xs">\n        <span>{{ x }}</span>\n      </template>\n    </template>\n  </Comp>\n</template>`;
+    const result = extractTemplateBody(source);
+    expect(result).toContain("<Comp>");
+    expect(result).toContain('<template #default>');
+    expect(result).toContain('<template v-for="x in xs">');
   });
 });
