@@ -157,15 +157,17 @@ public class Reference {
   }
 
   /**
-   * Whether this expanded column is an <em>overlapping reference</em>: a foreign-key column shared
-   * with (borrowed from) another reference in the same table through that other column's {@code
-   * refLink}. A borrowed part carries the refLink column's name instead of this column's own name,
-   * so it does not start with {@link #column}'s name - which is how it is detected here.
+   * Whether this column is borrowed from another reference in the same table via that column's
+   * {@code refLink} - the user-facing "overlapping references" feature. A borrowed part carries the
+   * other column's name, so it does not start with this {@link #column}'s name (how it is
+   * detected).
    *
-   * <p>Callers typically guard with {@code !isOverlapping()} to handle each physical column once:
-   * the borrowed copy is owned and emitted by the column it was borrowed from. "Overlapping
-   * references" is the user-facing term for the {@code refLink} feature; see the EMX2 schema
-   * documentation.
+   * <p>Guard with {@code !isOverlapping()} to process each physical column once; the borrowed copy
+   * is owned by the column it came from.
+   *
+   * @see <a
+   *     href="https://molgenis.github.io/molgenis-emx2/#/molgenis/use_schema?id=reflink">refLink
+   *     schema documentation</a>
    */
   public boolean isOverlapping() {
     return !getColumnName().startsWith(column.getName());
