@@ -5,11 +5,11 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
+dotenv.config({ path: "./.env" });
+
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((command) => {
-  // Load environment variables
-  dotenv.config({ path: "./.env" });
+export default defineConfig(({ command }) => {
 
   return {
     resolve: {
@@ -17,24 +17,10 @@ export default defineConfig((command) => {
         viz: path.resolve(dir, "node_modules/molgenis-viz/src"),
         vizdist: path.resolve(dir, "node_modules/molgenis-viz/dist"),
         molgenis: path.resolve(dir,"node_modules/molgenis-components/dist"),
-        ern: path.resolve(dir, "src/styles"),
       }  
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `
-            @import "viz/styles/palettes.scss";
-            @import "viz/styles/mixins.scss";
-            @import "ern/index.scss";
-            @import "molgenis/molgenis-components.css";
-            @import "vizdist/molgenis-viz.css";
-          `
-        }
-      }
-    },
     plugins: [vue()],
-    base: command === "serve" ? "/" : "apps/ern-reconnet/",
+    base: ["dev", "serve"].includes(command) ? "/" : "apps/ern-reconnet/",
     server: {
       proxy: devProxy
     },
