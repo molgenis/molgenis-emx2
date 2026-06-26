@@ -2,6 +2,10 @@
 import { computed } from "vue";
 import Button from "../../Button.vue";
 import { Dropdown as VDropdown } from "floating-vue";
+// Own the popper stylesheet here: it provides the dropdown's z-index, positioning
+// and transitions. Without it the menu renders unstyled behind the table whenever
+// no other floating-vue consumer (e.g. CustomTooltip) happens to be mounted.
+import "floating-vue/dist/style.css";
 import Checkbox from "../../input/Checkbox.vue";
 import BaseIcon from "../../BaseIcon.vue";
 const props = defineProps<{
