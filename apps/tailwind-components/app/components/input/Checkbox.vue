@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -14,30 +14,37 @@ const props = withDefaults(
 const modelValue = defineModel<string | boolean>();
 const checkboxRef = ref<HTMLInputElement | null>(null);
 
-// Bind `checked` one-way so the DOM always reflects the model, even when the
-// model is driven externally and `preventClick` suppresses the native toggle
-// (a `v-model` checkbox can desync in that case).
 const isChecked = computed(
   () => modelValue.value === true || modelValue.value === "true"
 );
+
+// Drive both `checked` and `indeterminate` imperatively from the model. A
+// checkbox's DOM state is a poor fit for a reactive `:checked` binding when the
+// value is driven externally and `preventClick` cancels the native toggle: the
+// browser restores the pre-click checked/indeterminate state on a cancelled
+// click, which a declarative binding does not reliably correct. Re-asserting
+// here keeps all/some/none states in sync.
+function syncDom() {
+  const el = checkboxRef.value;
+  if (!el) return;
+  el.checked = isChecked.value;
+  el.indeterminate = props.indeterminate ?? false;
+}
+
+onMounted(syncDom);
+watch([isChecked, () => props.indeterminate], syncDom);
 
 function onChange(event: Event) {
   modelValue.value = (event.target as HTMLInputElement).checked;
 }
 
-function syncIndeterminate() {
-  if (checkboxRef.value) {
-    checkboxRef.value.indeterminate = props.indeterminate ?? false;
-  }
-}
-
-onMounted(syncIndeterminate);
-
-watch(() => props.indeterminate, syncIndeterminate);
-
-function preventClick(event: MouseEvent) {
+function onClick(event: MouseEvent) {
   if (props.preventClick) {
     event.preventDefault();
+    // The browser may have toggled checked / cleared indeterminate during the
+    // (now cancelled) click, and the external selection update lands a tick
+    // later; re-assert the model-driven state once it has settled.
+    nextTick(syncDom);
   }
 }
 </script>
@@ -45,9 +52,8 @@ function preventClick(event: MouseEvent) {
 <template>
   <input
     ref="checkboxRef"
-    :checked="isChecked"
     @change="onChange"
-    @click="preventClick"
+    @click="onClick"
     type="checkbox"
     class="w-5 h-5 hover:cursor-pointer accent-theme"
   />
