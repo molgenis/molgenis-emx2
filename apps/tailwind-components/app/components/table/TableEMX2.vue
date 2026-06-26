@@ -1,5 +1,5 @@
 <template>
-  <div class="flex pb-4 justify-between h-50px">
+  <div class="flex mb-4 justify-between h-50px">
     <RowControles
       :number-of-selected-rows="numberOfSelectedRows"
       :all-rows-selected="allRowsSelected"
