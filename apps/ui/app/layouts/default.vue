@@ -17,36 +17,14 @@
         </template>
 
         <template #account>
-          <VDropdown
-            v-if="isSignedIn"
-            aria-id="account-dropdown"
-            :distance="3"
-            :skidding="4"
-            placement="bottom-end"
+          <AccountMenu
+            :has-custom-content="hasAccountDropdownSlot"
+            :isSignedIn="isSignedIn"
+            :email="session?.email"
+            @signOut="signOut"
           >
-            <HeaderButton label="Account" icon="user" />
-            <template #popper>
-              <div
-                class="px-[10px] py-[5px] border-theme border-color-theme rounded-theme bg-form"
-              >
-                <slot name="account-dropdown">
-                  <section class="flex flex-col p-4">
-                    <div class="mb-1 text-title">Hi {{ session?.email }}</div>
-
-                    <Button size="small" type="primary" @click="signOut()"
-                      >Sign out</Button
-                    >
-                  </section>
-                </slot>
-              </div>
-            </template>
-          </VDropdown>
-          <HeaderButton
-            v-else
-            label="Signin"
-            icon="user"
-            @click="navigateTo({ path: '/login' })"
-          />
+            <slot name="account-dropdown" />
+          </AccountMenu>
         </template>
         <template #logo-mobile>
           <LogoMobile link="/" :image="logoUrl" />
@@ -68,238 +46,19 @@
 </template>
 
 <script setup lang="ts">
-import { useRuntimeConfig, useHead } from "#app";
-import { useRoute, navigateTo } from "#app/composables/router";
-import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { computed, ref, type Ref, watch } from "vue";
+import { computed, useSlots } from "vue";
 import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
 import Header from "../../../tailwind-components/app/components/Header.vue";
-import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
 import Logo from "../../../tailwind-components/app/components/Logo.vue";
 import LogoMobile from "../../../tailwind-components/app/components/LogoMobile.vue";
 import Navigation from "../../../tailwind-components/app/components/Navigation.vue";
 import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
 import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
-import type { MenuItem } from "../../../tailwind-components/types/types";
-import { useLogo } from "../../../tailwind-components/app/composables/useLogo";
+import AccountMenu from "../components/AccountMenu.vue";
+import { useLayoutState } from "../composables/useLayoutState";
 
-const config = useRuntimeConfig();
-const route = useRoute();
-const schema = computed(() => route.params.schema as string);
-const { session, signOut } = await useSession(schema.value);
-
-const logoUrl = ref<string | undefined>(undefined);
-
-watch(
-  () => route.params.schema,
-  async (currentSchema) => {
-    logoUrl.value = await useLogo(currentSchema);
-  },
-  { immediate: true }
-);
-
-const faviconHref = config.public.emx2Theme
-  ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
-  : "/_nuxt-styles/img/molgenis.ico";
-
-useHead({
-  htmlAttrs: {
-    "data-theme":
-      (route.query.theme as string) ||
-      (config.public.emx2Theme as string) ||
-      "",
-  },
-  link: [{ rel: "icon", href: faviconHref }],
-  titleTemplate: (titleChunk: string | undefined): string | null => {
-    if (titleChunk && config.public.siteTitle) {
-      return `${titleChunk} | ${config.public.siteTitle}`;
-    } else if (titleChunk) {
-      return titleChunk;
-    } else if (config.public.siteTitle) {
-      return config.public.siteTitle as string;
-    } else {
-      return "Emx2";
-    }
-  },
-});
-
-const isSignedIn = computed(
-  () => !!session.value?.email && session.value?.email !== "anonymous"
-);
-const isAdmin = computed(() => session.value?.admin);
-
-const DEFAULT_MAIN_MENU: MenuItem[] = [
-  { label: "Databases", link: "/", isSpaLink: true },
-  { label: "API", link: "apps/graphql-playground", isSpaLink: false },
-  {
-    label: "Components (for developers)",
-    link: "apps/tailwind-components",
-    isSpaLink: false,
-  },
-  { label: "Help", link: "apps/docs", isSpaLink: false },
-  { label: "Classic UI", link: "apps/central/", isSpaLink: false },
-  { label: "Admin", link: "/admin", isSpaLink: true, role: "Admin" },
-];
-
-const defaultSchemaMenu = computed<MenuItem[]>(() => [
-  { label: "Tables", link: "", isSpaLink: true },
-  {
-    label: "Schema",
-    link: `${schema.value}/schema`,
-    isSpaLink: false,
-    role: "Viewer",
-  },
-  {
-    label: "SHACL",
-    link: `shacl`,
-    isSpaLink: true,
-    role: "Viewer",
-  },
-  {
-    label: "Up/Download",
-    link: `${schema.value}/updownload`,
-    isSpaLink: false,
-    role: "Viewer",
-  },
-  {
-    label: "Reports",
-    link: `${schema.value}/reports`,
-    isSpaLink: false,
-    role: "Viewer",
-  },
-  {
-    label: "Jobs & Scripts",
-    link: `${schema.value}/tasks`,
-    isSpaLink: false,
-    role: "Manager",
-  },
-  {
-    label: "Settings",
-    link: `${schema.value}/settings`,
-    isSpaLink: false,
-    role: "Manager",
-  },
-  {
-    label: "GraphQL",
-    link: `${schema.value}/graphql-playground`,
-    isSpaLink: false,
-  },
-  {
-    label: "Analytics",
-    link: `analytics`,
-    isSpaLink: true,
-    role: "Manager",
-  },
-  {
-    label: "Pages",
-    link: `pages`,
-    isSpaLink: true,
-    role: "Manager",
-  },
-  {
-    label: "Help",
-    link: `${schema.value}/docs`,
-    isSpaLink: false,
-  },
-]);
-
-const menu = await useMenu();
-
-const menuItems: Ref<MenuItem[]> = computed(() => {
-  if (menu.value.length === 0) {
-    return schema.value ? defaultSchemaMenu.value : DEFAULT_MAIN_MENU;
-  }
-  return menu.value.map((item) => {
-    return {
-      label: item.label,
-      link: item.link,
-      isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
-      role: item.role,
-      submenu: item.submenu,
-    };
-  });
-});
-
-const userMenuItems = computed(() => {
-  if (isAdmin.value === true) {
-    return menuItems.value;
-  }
-
-  const isVisibleToUser = (item: MenuItem): boolean => {
-    if (item.role) {
-      if (session.value?.roles && Array.isArray(session.value.roles)) {
-        return session.value.roles.includes(item.role);
-      } else {
-        return item.role === "Admin" && isAdmin.value === true;
-      }
-    }
-    return true;
-  };
-
-  const removeInvisibleSubmenus = (items: MenuItem[]): MenuItem[] => {
-    return items
-      .filter(isVisibleToUser)
-      .map((item) => {
-        if (item.submenu && item.submenu.length > 0) {
-          return { ...item, submenu: removeInvisibleSubmenus(item.submenu) };
-        }
-        return item;
-      })
-      .filter((item) => !item.submenu || item.submenu.length > 0);
-  };
-
-  const visibleMenuItems = menuItems.value.filter(isVisibleToUser);
-  return removeInvisibleSubmenus(visibleMenuItems);
-});
+const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
+  await useLayoutState();
+const slots = useSlots();
+const hasAccountDropdownSlot = computed(() => !!slots["account-dropdown"]);
 </script>
-
-<style>
-.v-popper--theme-dropdown .v-popper__inner {
-  background: none;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.v-popper__popper--no-positioning {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  width: 100%;
-}
-
-.v-popper_fullscreen .v-popper__popper--no-positioning {
-  width: 100%;
-  max-width: none;
-}
-
-.v-popper_right .v-popper__popper--no-positioning {
-  left: auto;
-  right: 0;
-}
-
-.v-popper__popper--no-positioning .v-popper__backdrop {
-  display: block;
-  background: rgba(0 0 0 / 60%);
-}
-
-.v-popper__popper--no-positioning .v-popper__wrapper {
-  width: 100%;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out;
-}
-
-.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
-  transform: translateX(-100%);
-}
-.v-popper_right
-  .v-popper__popper--no-positioning.v-popper__popper--hidden
-  .v-popper__wrapper {
-  transform: translateX(100%);
-}
-</style>
