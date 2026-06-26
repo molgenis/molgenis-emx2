@@ -310,6 +310,29 @@ REMOVES SectionNavBar (the per-page top button-bar) + its spec. Supersedes the
 - Commits: `ad93b7708` (IA overhaul) + `a65aad14c` (editable demo + content module
   + Display merge + nav fixes).
 
+## 2026-06-26 — 3-level accordion sidebar (extend FormLegend) + IA reshape (owner)
+Sidebar restructured to a 3-level tree, top-level = **Foundations** / **Components** /
+**Examples & prototypes** (Get started REMOVED — nav + page/content). Components →
+groups → components. New/renamed groups: **Containers** (was "Layout": Accordion,
+ShowMore, SlideUp) and **Page layouts** (Header, PageHeader, FooterComponent, "Page
+banner"). Examples & prototypes = sample flows (Row edit, Edit modal) + prototypes.
+- **Approach: extend FormLegend to 3 levels** (chosen over custom nav / catalogue
+  TreeNode after investigation). Added optional `LegendHeading.children` +
+  `collapsible` + `expandAll` props; BACKWARD-COMPATIBLE (forms use collapsible=false
+  → unchanged, verified by form regression tests).
+- **Interaction (owner):** in collapsible mode a NODE (has children) row click
+  folds/unfolds and does NOT navigate (overview pages are empty in practice); only
+  LEAVES navigate. Active route auto-expands its path. Search force-expands the
+  filtered tree so matches are revealed (e.g. "button" → Components→Actions→Button).
+- `buildDocsTree(paths, currentPath, query)` builds the 3-level tree (isActive on
+  leaves; query prunes to matching branches keeping ancestors).
+- ORPHANED (flagged for cleanup): the `/section/<slug>` overview pages + getSectionOverview
+  are now unreachable from the nav (nodes don't link to them). SourceCode.vue also
+  unused (per-demo/page source replaced it).
+- Resource note: kill stray `nuxt dev` processes — accumulation OOM-killed the dev
+  server (exit 144) during verification.
+- Commit: `c2f93cde1` (all-pages source) → this 3-level-nav commit.
+
 ## 2026-06-24 — Dead / SaaS tools eliminated
 Pattern Lab (archived May 2026), Backlight (shut Jun 2025), Specify (shut Nov
 2024), Ladle (React-only). SaaS hubs (zeroheight / Supernova / Knapsack)

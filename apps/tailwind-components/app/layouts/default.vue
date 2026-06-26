@@ -5,11 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 import BaseIcon from "../components/BaseIcon.vue";
 import FormLegend from "../components/form/Legend.vue";
-import {
-  buildDocsSidebar,
-  getSectionTitleBySlug,
-  getSectionNavForRoute,
-} from "../utils/docsNav";
+import { buildDocsTree, getSectionTitleBySlug } from "../utils/docsNav";
 
 const menuIsOpen = ref<boolean>(true);
 const navQuery = ref("");
@@ -22,31 +18,12 @@ const modules = import.meta.glob("../**/*.story.vue", {
 const route = useRoute();
 const router = useRouter();
 
-const expandedSlug = ref<string | null>(
-  getSectionNavForRoute(route.path, Object.keys(modules))?.slug ?? null
-);
-
 const legendSections = computed(() =>
-  buildDocsSidebar(
-    Object.keys(modules),
-    route.path,
-    expandedSlug.value,
-    navQuery.value
-  )
+  buildDocsTree(Object.keys(modules), route.path, navQuery.value)
 );
 
 function handleGoToSection(id: string) {
-  if (id.startsWith("/section/")) {
-    const slug = id.slice("/section/".length);
-    if (expandedSlug.value === slug) {
-      expandedSlug.value = null;
-    } else {
-      expandedSlug.value = slug;
-      router.push(id);
-    }
-  } else {
-    router.push(id);
-  }
+  if (id) router.push(id);
 }
 
 const storyName = computed(() => {
@@ -110,6 +87,8 @@ function scrollToTop() {
           <div class="overflow-y-auto grow">
             <FormLegend
               :sections="legendSections"
+              collapsible
+              :expand-all="navQuery.trim().length > 0"
               @go-to-section="handleGoToSection"
             />
           </div>

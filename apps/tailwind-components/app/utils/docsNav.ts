@@ -13,6 +13,12 @@ type ComponentGroupConfig = {
   members: GroupMember[];
 };
 
+type GroupClaimResult = {
+  title: string;
+  children: LegendHeading[];
+  overviewRoute: string | null;
+};
+
 function isDirMember(member: GroupMember): member is DirMember {
   return "dir" in member;
 }
@@ -39,7 +45,7 @@ const FOUNDATIONS_LINKS: StaticLink[] = [
   { label: "Theme switch", route: "/ThemeSwitch.story" },
 ];
 
-const PATTERNS_LINKS: StaticLink[] = [
+const EXAMPLES_LINKS: StaticLink[] = [
   { label: "Row edit", route: "/samples/rowEdit" },
   { label: "Edit modal", route: "/samples/formModal" },
 ];
@@ -58,6 +64,12 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
       "Design tokens — colors, typography, spacing, radius, elevation, and icon resources that underpin every component.",
   },
   {
+    slug: "components",
+    title: "Components",
+    description:
+      "The full component library organised by purpose — from basic actions and inputs to complex EMX2-aware widgets.",
+  },
+  {
     slug: "actions",
     title: "Actions",
     description:
@@ -68,12 +80,6 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
     title: "Inputs",
     description:
       "Basic, presentation-only form controls — text fields, checkboxes, date pickers, and selects with no backend coupling.",
-  },
-  {
-    slug: "navigation",
-    title: "Navigation",
-    description:
-      "Components for moving between pages and sections — navbars, breadcrumbs, pagination, and the sectioned legend.",
   },
   {
     slug: "feedback",
@@ -88,16 +94,28 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
       "Modals, side panels, and tooltips that layer content above the page without full navigation.",
   },
   {
+    slug: "navigation",
+    title: "Navigation",
+    description:
+      "Components for moving between pages and sections — navbars, breadcrumbs, pagination, and the sectioned legend.",
+  },
+  {
     slug: "display",
     title: "Display",
     description:
-      "Media and brand elements (images, logos, icon rendering) plus data presentation renderers — display lists, value cells, and text utilities — and page content blocks including headings, paragraphs, and page banner.",
+      "Media and brand elements (images, logos, icon rendering) plus data presentation renderers — display lists, value cells, and text utilities — and page content blocks including headings and paragraphs.",
   },
   {
-    slug: "layout",
-    title: "Layout",
+    slug: "containers",
+    title: "Containers",
     description:
-      "Structural and chrome components — page header, footer, accordions, progressive reveals, and animated transitions.",
+      "Structural wrappers — accordions, progressive reveals, and animated transitions.",
+  },
+  {
+    slug: "page-layouts",
+    title: "Page layouts",
+    description:
+      "Chrome components that frame a page — header, page header, footer, and full-page banner.",
   },
   {
     slug: "visualisation",
@@ -112,16 +130,10 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
       "Smart components that integrate with EMX2 schema metadata and backend APIs — forms, ref inputs, table renderers, and session.",
   },
   {
-    slug: "page-templates",
-    title: "Page templates",
+    slug: "examples-prototypes",
+    title: "Examples & prototypes",
     description:
       "Multi-component workflows and interaction patterns demonstrating how components combine in complete scenarios.",
-  },
-  {
-    slug: "prototypes",
-    title: "Prototypes",
-    description:
-      "Work-in-progress showcases for features under development before they become production components.",
   },
 ];
 
@@ -145,19 +157,38 @@ export function getSectionOverview(
 ): SectionOverview | null {
   const config = SECTION_OVERVIEW_CONFIG.find((c) => c.slug === slug);
   if (!config) return null;
+  const tree = buildDocsTree(storyModulePaths, "");
   const overviewRoute = `/section/${slug}`;
-  const sections = buildDocsLegend(storyModulePaths, "");
-  const section = sections.find((sec) => sec.id === overviewRoute);
-  const items = (section?.headers ?? []).map((header) => ({
-    label: header.label,
-    route: header.id,
-  }));
-  return {
-    slug: config.slug,
-    title: config.title,
-    description: config.description,
-    items,
-  };
+  const topSection = tree.find((sec) => sec.id === overviewRoute);
+  if (topSection) {
+    const items = topSection.headers.map((header) => ({
+      label: header.label,
+      route: header.id,
+    }));
+    return {
+      slug: config.slug,
+      title: config.title,
+      description: config.description,
+      items,
+    };
+  }
+  const componentsSection = tree.find((sec) => sec.label === "Components");
+  if (componentsSection) {
+    const group = componentsSection.headers.find((h) => h.id === overviewRoute);
+    if (group?.children) {
+      const items = group.children.map((child) => ({
+        label: child.label,
+        route: child.id,
+      }));
+      return {
+        slug: config.slug,
+        title: config.title,
+        description: config.description,
+        items,
+      };
+    }
+  }
+  return null;
 }
 
 export type SectionNav = {
@@ -171,28 +202,75 @@ export function getSectionNavForRoute(
   currentRoute: string,
   storyModulePaths: string[]
 ): SectionNav | null {
-  const sections = buildDocsLegend(storyModulePaths, currentRoute);
-  const found = sections.find((section) => {
-    if (section.headers.some((header) => header.id === currentRoute))
-      return true;
-    if (section.id === currentRoute && section.id.startsWith("/section/"))
-      return true;
-    return false;
-  });
-  if (!found) return null;
-  const overviewRoute = found.id;
-  const slug = overviewRoute.startsWith("/section/")
-    ? overviewRoute.slice("/section/".length)
-    : overviewRoute;
-  return {
-    title: found.label,
-    slug,
-    overviewRoute,
-    items: found.headers.map((header) => ({
-      label: header.label,
-      route: header.id,
-    })),
-  };
+  const tree = buildDocsTree(storyModulePaths, currentRoute);
+  for (const section of tree) {
+    if (section.id === currentRoute && section.id.startsWith("/section/")) {
+      const slug = section.id.slice("/section/".length);
+      const items = section.headers.flatMap((header) =>
+        header.children
+          ? header.children.map((child) => ({
+              label: child.label,
+              route: child.id,
+            }))
+          : [{ label: header.label, route: header.id }]
+      );
+      return {
+        title: section.label,
+        slug,
+        overviewRoute: section.id,
+        items,
+      };
+    }
+    for (const header of section.headers) {
+      if (header.children) {
+        if (header.id === currentRoute && header.id.startsWith("/section/")) {
+          const slug = header.id.slice("/section/".length);
+          const items = header.children.map((child) => ({
+            label: child.label,
+            route: child.id,
+          }));
+          return {
+            title: header.label,
+            slug,
+            overviewRoute: header.id,
+            items,
+          };
+        }
+        if (header.children.some((child) => child.id === currentRoute)) {
+          const slug = header.id.startsWith("/section/")
+            ? header.id.slice("/section/".length)
+            : header.id;
+          const items = header.children.map((child) => ({
+            label: child.label,
+            route: child.id,
+          }));
+          return {
+            title: header.label,
+            slug,
+            overviewRoute: header.id,
+            items,
+          };
+        }
+      } else {
+        if (header.id === currentRoute) {
+          const slug = section.id.startsWith("/section/")
+            ? section.id.slice("/section/".length)
+            : section.id;
+          const items = section.headers.map((h) => ({
+            label: h.label,
+            route: h.id,
+          }));
+          return {
+            title: section.label,
+            slug,
+            overviewRoute: section.id,
+            items,
+          };
+        }
+      }
+    }
+  }
+  return null;
 }
 
 function escapeRegExp(word: string): string {
@@ -216,43 +294,6 @@ function matchesAllRegexps(text: string, regexps: RegExp[]): boolean {
   return regexps.every((regexp) => regexp.test(text));
 }
 
-export function buildDocsSidebar(
-  storyModulePaths: string[],
-  currentPath: string,
-  expandedSlug: string | null,
-  query: string = ""
-): LegendSection[] {
-  const allSections = buildDocsLegend(storyModulePaths, currentPath);
-
-  if (query.trim() === "") {
-    return allSections.map((section) => ({
-      ...section,
-      headers:
-        expandedSlug !== null && section.id === `/section/${expandedSlug}`
-          ? section.headers
-          : [],
-    }));
-  }
-
-  const regexps = buildWordRegexps(query);
-  const filtered: LegendSection[] = [];
-
-  for (const section of allSections) {
-    const sectionMatches = matchesAllRegexps(section.label, regexps);
-    const matchingHeaders = section.headers.filter((header) =>
-      matchesAllRegexps(header.label, regexps)
-    );
-    if (sectionMatches || matchingHeaders.length > 0) {
-      filtered.push({
-        ...section,
-        headers: sectionMatches ? section.headers : matchingHeaders,
-      });
-    }
-  }
-
-  return filtered;
-}
-
 const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
   {
     title: "Actions",
@@ -266,18 +307,6 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
   {
     title: "Inputs",
     members: [{ storyName: "FilterSearch" }, { dir: "input" }],
-  },
-  {
-    title: "Navigation",
-    members: [
-      { storyName: "Navigation" },
-      { storyName: "NavigationNested" },
-      { storyName: "BreadCrumbs" },
-      { storyName: "Pagination" },
-      { storyName: "Header" },
-      { storyName: "NavigationGroups", route: "/pages/NavigationGroups.story" },
-      { storyName: "Legend" },
-    ],
   },
   {
     title: "Feedback",
@@ -302,29 +331,49 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
     ],
   },
   {
+    title: "Navigation",
+    members: [
+      { storyName: "Navigation" },
+      { storyName: "NavigationNested" },
+      { storyName: "BreadCrumbs" },
+      { storyName: "Pagination" },
+      {
+        storyName: "NavigationGroups",
+        route: "/pages/NavigationGroups.story",
+      },
+      { storyName: "Legend" },
+    ],
+  },
+  {
     title: "Display",
     members: [
+      { storyName: "DisplayList" },
+      { dir: "display" },
+      { dir: "value" },
+      { dir: "text" },
       { storyName: "Image" },
       { storyName: "Logo" },
       { storyName: "LogoMobile" },
       { storyName: "Icons" },
-      { storyName: "DisplayList" },
       { storyName: "Heading", route: "/pages/Heading.story" },
       { storyName: "Paragraph", route: "/pages/Paragraph.story" },
-      { storyName: "Banner", route: "/pages/Banner.story" },
-      { dir: "display" },
-      { dir: "value" },
-      { dir: "text" },
     ],
   },
   {
-    title: "Layout",
+    title: "Containers",
     members: [
       { storyName: "Accordion" },
       { storyName: "ShowMore" },
       { dir: "transition" },
+    ],
+  },
+  {
+    title: "Page layouts",
+    members: [
+      { storyName: "Header" },
       { storyName: "PageHeader" },
       { storyName: "FooterComponent" },
+      { storyName: "Banner", route: "/pages/Banner.story" },
     ],
   },
   {
@@ -338,6 +387,7 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
       { storyName: "Field" },
       { storyName: "AddModal", route: "/form/AddModal.story" },
       { storyName: "EditModal", route: "/form/EditModal.story" },
+      { storyName: "DeleteModal", route: "/form/DeleteModal.story" },
       { storyName: "Ref", route: "/input/Ref.story" },
       { storyName: "RefBack", route: "/input/RefBack.story" },
       { storyName: "RefSelect", route: "/input/RefSelect.story" },
@@ -389,7 +439,7 @@ function storyMatchesMember(parsed: ParsedStory, member: GroupMember): boolean {
   return false;
 }
 
-function makeHeading(
+function makeLeafHeading(
   route: string,
   label: string,
   currentPath: string
@@ -404,7 +454,50 @@ function makeHeading(
   };
 }
 
-function makeContainerSection(
+function resolveIsActive(heading: LegendHeading): boolean {
+  return typeof heading.isActive === "boolean"
+    ? heading.isActive
+    : heading.isActive.value;
+}
+
+function makeGroupHeading(
+  title: string,
+  children: LegendHeading[],
+  overviewRoute: string | null,
+  currentPath: string
+): LegendHeading {
+  const id = overviewRoute ?? "";
+  const isChildActive = children.some(resolveIsActive);
+  return {
+    id,
+    label: title,
+    type: "HEADING",
+    errorCount: computed(() => 0),
+    isVisible: computed(() => true),
+    isActive: currentPath === id || isChildActive,
+    children,
+  };
+}
+
+function makeSection(
+  label: string,
+  headers: LegendHeading[],
+  id: string,
+  currentPath: string
+): LegendSection {
+  const isHeaderActive = headers.some(resolveIsActive);
+  return {
+    id,
+    label,
+    type: "SECTION",
+    headers,
+    errorCount: computed(() => 0),
+    isVisible: computed(() => true),
+    isActive: currentPath === id || isHeaderActive,
+  };
+}
+
+function makeFlatSection(
   label: string,
   headers: LegendHeading[],
   currentPath: string,
@@ -423,47 +516,27 @@ function makeContainerSection(
   };
 }
 
-function makeLinkSection(
-  route: string,
-  label: string,
-  currentPath: string
-): LegendSection {
-  return {
-    id: route,
-    label,
-    type: "SECTION",
-    headers: [],
-    errorCount: computed(() => 0),
-    isVisible: computed(() => true),
-    isActive: currentPath === route,
-  };
-}
-
-function parsedToHeading(
+function parsedToLeafHeading(
   parsed: ParsedStory,
   currentPath: string
 ): LegendHeading {
-  return makeHeading(parsed.route, parsed.label, currentPath);
+  return makeLeafHeading(parsed.route, parsed.label, currentPath);
 }
 
-function staticLinksToHeadings(
+function staticLinksToLeafHeadings(
   links: StaticLink[],
   currentPath: string
 ): LegendHeading[] {
-  return links.map((link) => makeHeading(link.route, link.label, currentPath));
+  return links.map((link) =>
+    makeLeafHeading(link.route, link.label, currentPath)
+  );
 }
 
-export function buildDocsLegend(
-  storyModulePaths: string[],
+function claimGroupResults(
+  allParsed: ParsedStory[],
+  claimedRoutes: Set<string>,
   currentPath: string
-): LegendSection[] {
-  const allParsed = storyModulePaths.map(parseStoryPath);
-  const claimedRoutes = new Set<string>();
-
-  for (const link of FOUNDATIONS_LINKS) {
-    claimedRoutes.add(link.route);
-  }
-
+): GroupClaimResult[] {
   const groupExplicitHeadings = new Map<string, LegendHeading[]>();
   const groupDirHeadings = new Map<string, LegendHeading[]>();
 
@@ -483,7 +556,7 @@ export function buildDocsLegend(
         );
         if (matched) {
           claimedRoutes.add(matched.route);
-          headings.push(parsedToHeading(matched, currentPath));
+          headings.push(parsedToLeafHeading(matched, currentPath));
         }
       }
     }
@@ -502,72 +575,212 @@ export function buildDocsLegend(
           .sort((alpha, bravo) => alpha.label.localeCompare(bravo.label));
         for (const matched of dirMatches) {
           claimedRoutes.add(matched.route);
-          headings.push(parsedToHeading(matched, currentPath));
+          headings.push(parsedToLeafHeading(matched, currentPath));
         }
       }
     }
   }
 
-  const groupSections: LegendSection[] = [];
+  const results: GroupClaimResult[] = [];
   for (const groupConfig of COMPONENT_GROUPS_CONFIG) {
-    const headers = [
+    const children = [
       ...(groupExplicitHeadings.get(groupConfig.title) ?? []),
       ...(groupDirHeadings.get(groupConfig.title) ?? []),
     ].sort((alpha, bravo) => alpha.label.localeCompare(bravo.label));
-    if (headers.length > 0) {
+    if (children.length > 0) {
       const overviewConfig = SECTION_OVERVIEW_CONFIG.find(
         (config) => config.title === groupConfig.title
       );
       const overviewRoute = overviewConfig
         ? `/section/${overviewConfig.slug}`
         : null;
-      groupSections.push(
-        makeContainerSection(
-          groupConfig.title,
-          headers,
-          currentPath,
-          overviewRoute
-        )
-      );
+      results.push({ title: groupConfig.title, children, overviewRoute });
     }
   }
+  return results;
+}
+
+function filterTreeWithQuery(
+  sections: LegendSection[],
+  query: string
+): LegendSection[] {
+  const regexps = buildWordRegexps(query);
+  const filtered: LegendSection[] = [];
+  for (const section of sections) {
+    if (matchesAllRegexps(section.label, regexps)) {
+      filtered.push(section);
+      continue;
+    }
+    const filteredHeaders: LegendHeading[] = [];
+    for (const header of section.headers) {
+      if (header.children) {
+        if (matchesAllRegexps(header.label, regexps)) {
+          filteredHeaders.push(header);
+        } else {
+          const filteredChildren = header.children.filter((child) =>
+            matchesAllRegexps(child.label, regexps)
+          );
+          if (filteredChildren.length > 0) {
+            filteredHeaders.push({ ...header, children: filteredChildren });
+          }
+        }
+      } else {
+        if (matchesAllRegexps(header.label, regexps)) {
+          filteredHeaders.push(header);
+        }
+      }
+    }
+    if (filteredHeaders.length > 0) {
+      filtered.push({ ...section, headers: filteredHeaders });
+    }
+  }
+  return filtered;
+}
+
+export function buildDocsTree(
+  storyModulePaths: string[],
+  currentPath: string,
+  query: string = ""
+): LegendSection[] {
+  const allParsed = storyModulePaths.map(parseStoryPath);
+  const claimedRoutes = new Set<string>();
+
+  for (const link of FOUNDATIONS_LINKS) {
+    claimedRoutes.add(link.route);
+  }
+
+  const groupResults = claimGroupResults(allParsed, claimedRoutes, currentPath);
+
+  const ungroupedChildren = allParsed
+    .filter((parsed) => !claimedRoutes.has(parsed.route))
+    .sort((alpha, bravo) => alpha.label.localeCompare(bravo.label))
+    .map((parsed) => parsedToLeafHeading(parsed, currentPath));
+
+  const groupHeadings: LegendHeading[] = groupResults.map((result) =>
+    makeGroupHeading(
+      result.title,
+      result.children,
+      result.overviewRoute,
+      currentPath
+    )
+  );
+
+  const allGroupHeadings: LegendHeading[] =
+    ungroupedChildren.length > 0
+      ? [
+          ...groupHeadings,
+          makeGroupHeading("Ungrouped", ungroupedChildren, null, currentPath),
+        ]
+      : groupHeadings;
+
+  const foundationsSection = makeSection(
+    "Foundations",
+    staticLinksToLeafHeadings(FOUNDATIONS_LINKS, currentPath),
+    "/section/foundations",
+    currentPath
+  );
+
+  const componentsSection = makeSection(
+    "Components",
+    allGroupHeadings,
+    "/section/components",
+    currentPath
+  );
+
+  const examplesSection = makeSection(
+    "Examples & prototypes",
+    staticLinksToLeafHeadings(EXAMPLES_LINKS, currentPath),
+    "/section/examples-prototypes",
+    currentPath
+  );
+
+  const tree = [foundationsSection, componentsSection, examplesSection];
+  return query.trim() === "" ? tree : filterTreeWithQuery(tree, query);
+}
+
+function buildDocsLegend(
+  storyModulePaths: string[],
+  currentPath: string
+): LegendSection[] {
+  const allParsed = storyModulePaths.map(parseStoryPath);
+  const claimedRoutes = new Set<string>();
+
+  for (const link of FOUNDATIONS_LINKS) {
+    claimedRoutes.add(link.route);
+  }
+
+  const groupResults = claimGroupResults(allParsed, claimedRoutes, currentPath);
+
+  const groupSections: LegendSection[] = groupResults.map((result) =>
+    makeFlatSection(
+      result.title,
+      result.children,
+      currentPath,
+      result.overviewRoute
+    )
+  );
 
   const ungroupedHeadings = allParsed
     .filter((parsed) => !claimedRoutes.has(parsed.route))
     .sort((alpha, bravo) => alpha.label.localeCompare(bravo.label))
-    .map((parsed) => parsedToHeading(parsed, currentPath));
+    .map((parsed) => makeLeafHeading(parsed.route, parsed.label, currentPath));
 
   const ungroupedSection: LegendSection[] =
     ungroupedHeadings.length > 0
-      ? [
-          makeContainerSection(
-            "Ungrouped",
-            ungroupedHeadings,
-            currentPath,
-            null
-          ),
-        ]
+      ? [makeFlatSection("Ungrouped", ungroupedHeadings, currentPath, null)]
       : [];
 
   return [
-    makeLinkSection("/get-started", "Get started", currentPath),
-    makeContainerSection(
+    makeFlatSection(
       "Foundations",
-      staticLinksToHeadings(FOUNDATIONS_LINKS, currentPath),
+      staticLinksToLeafHeadings(FOUNDATIONS_LINKS, currentPath),
       currentPath,
       "/section/foundations"
     ),
     ...groupSections,
-    makeContainerSection(
-      "Page templates",
-      staticLinksToHeadings(PATTERNS_LINKS, currentPath).sort((alpha, bravo) =>
-        alpha.label.localeCompare(bravo.label)
-      ),
+    makeFlatSection(
+      "Examples & prototypes",
+      staticLinksToLeafHeadings(EXAMPLES_LINKS, currentPath),
       currentPath,
-      "/section/page-templates"
+      "/section/examples-prototypes"
     ),
-    makeContainerSection("Prototypes", [], currentPath, "/section/prototypes"),
-    makeLinkSection("/DataFetch.other", "Data fetching", currentPath),
     ...ungroupedSection,
   ];
+}
+
+export function buildDocsSidebar(
+  storyModulePaths: string[],
+  currentPath: string,
+  expandedSlug: string | null,
+  query: string = ""
+): LegendSection[] {
+  const allSections = buildDocsLegend(storyModulePaths, currentPath);
+
+  if (query.trim() === "") {
+    return allSections.map((section) => ({
+      ...section,
+      headers:
+        expandedSlug !== null && section.id === `/section/${expandedSlug}`
+          ? section.headers
+          : [],
+    }));
+  }
+
+  const regexps = buildWordRegexps(query);
+  const filteredSections: LegendSection[] = [];
+
+  for (const section of allSections) {
+    const sectionMatches = matchesAllRegexps(section.label, regexps);
+    const matchingHeaders = section.headers.filter((header) =>
+      matchesAllRegexps(header.label, regexps)
+    );
+    if (sectionMatches || matchingHeaders.length > 0) {
+      filteredSections.push({
+        ...section,
+        headers: sectionMatches ? section.headers : matchingHeaders,
+      });
+    }
+  }
+
+  return filteredSections;
 }
