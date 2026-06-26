@@ -2,12 +2,16 @@ import type {
   columnValue,
   IColumn,
   IRefColumn,
-  IRow,
 } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
 };
+export interface MgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
 
 export interface Schema {
   id: string;
@@ -71,7 +75,6 @@ export type ButtonType =
   | "tertiary"
   | "text"
   | "outline"
-  | "disabled"
   | "filterWell"
   | "inline";
 

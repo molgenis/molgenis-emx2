@@ -1,5 +1,13 @@
 <template>
-  <div class="flex pb-4 justify-between">
+  <div class="flex pb-4 justify-between h-50px">
+    <RowControles
+      :number-of-selected-rows="numberOfSelectedRows"
+      :all-rows-selected="
+        numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+      "
+      :can-edit="props.isEditable"
+      @row-action="handleRowAction"
+    />
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       size="medium"
@@ -16,6 +24,7 @@
         size="medium"
         icon="add-circle"
         @click="onAddRowClicked"
+        class="h-50px"
       >
         Add {{ tableId }}
       </Button>
@@ -28,6 +37,7 @@
       <Button
         v-if="data?.tableMetadata"
         type="outline"
+        class="h-50px"
         :href="`/${schemaId}/api/csv/${tableId}`"
         icon="Download"
         download
@@ -83,6 +93,7 @@
           :showDraftColumn="showDraftColumn"
           :isResizing="isResizing"
           :columnWidths="columnWidths"
+          :hasRowActions="hasRowActions"
           @sort-requested="handleSortRequest"
           @start-resize="startResize($event.event, $event.id)"
         />
@@ -97,6 +108,17 @@
               'hover:cursor-pointer': props.isEditable,
             }"
           >
+            <TableCellEMX2
+              class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+            >
+              <div class="flex justify-center items-center h-full">
+                <Checkbox
+                  :model-value="selectedRows.has(row._rowIdString)"
+                  @update:model-value="toggleRowSelection(row)"
+                />
+              </div>
+            </TableCellEMX2>
+
             <TableCellEMX2
               v-if="showDraftColumn"
               class="text-table-row group-hover:bg-hover"
@@ -143,36 +165,36 @@
                   <div
                     class="pointer-events-none absolute inset-y-0 right-full w-12 bg-gradient-to-r from-transparent to-[var(--background-color-table)] group-hover:to-[var(--background-color-hover)]"
                   />
-                <Button
-                  v-if="isEditable"
-                  :id="useId()"
-                  :icon-only="true"
-                  type="inline"
-                  icon="trash"
-                  size="small"
-                  label="delete"
-                  @click="onShowDeleteModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showDeleteModal"
-                >
-                  {{ getRowId(row) }}
-                </Button>
-                <Button
-                  v-if="isEditable"
-                  :id="useId()"
-                  :icon-only="true"
-                  type="inline"
-                  icon="edit"
-                  size="small"
-                  label="edit"
-                  @click="onShowEditModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showEditModal"
-                >
-                  {{ getRowId(row) }}
-                </Button>
+                  <Button
+                    v-if="isEditable"
+                    :id="useId()"
+                    :icon-only="true"
+                    type="inline"
+                    icon="trash"
+                    size="small"
+                    label="delete"
+                    @click="onShowDeleteModal(row)"
+                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                    aria-haspopup="dialog"
+                    :aria-expanded="showDeleteModal"
+                  >
+                    {{ row._rowIdString }}
+                  </Button>
+                  <Button
+                    v-if="isEditable"
+                    :id="useId()"
+                    :icon-only="true"
+                    type="inline"
+                    icon="edit"
+                    size="small"
+                    label="edit"
+                    @click="onShowEditModal(row)"
+                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                    aria-haspopup="dialog"
+                    :aria-expanded="showEditModal"
+                  >
+                    {{ row._rowIdString }}
+                  </Button>
 
                   <slot name="additional-row-actions" :row="row" />
                 </div>
@@ -229,6 +251,16 @@
     @update:deleted="afterRowDeleted"
   />
 
+  <DeleteRows
+    v-if="data?.tableMetadata && showDeleteMultipleModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :keys="new Set(selectedRows.values())"
+    v-model:visible="showDeleteMultipleModal"
+    @update:deleted="afterRowDeleted"
+  />
+
   <EditModal
     v-if="data?.tableMetadata && showEditModal"
     :key="`edit-modal-${useId()}`"
@@ -275,7 +307,9 @@ import type {
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { fetchTableData, fetchTableMetadata } from "#imports";
+import fetchTableData from "../../composables/fetchTableData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 
 import TableCellEMX2 from "./CellEMX2.vue";
 
@@ -288,10 +322,13 @@ import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import DraftLabel from "../label/DraftLabel.vue";
+import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
+import RowControles from "./control/RowControles.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 
@@ -316,15 +353,22 @@ const hasRowActions = computed(
   () => props.isEditable || Boolean(slots["additional-row-actions"])
 );
 
+const emit = defineEmits<{
+  (e: "view-details", payload: TableRow): void;
+}>();
+
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
+const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref();
 const showModal = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
+const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
+
 const tableContainer = ref<HTMLElement | null>(null);
 const tableHeaderFixed = ref<HTMLElement | null>(null);
 const tableHead = ref<HTMLElement | null>(null);
@@ -341,6 +385,11 @@ const settings = defineModel<ITableSettings>("settings", {
     orderedColumnsIds: [],
   }),
 });
+
+export type TableRow = {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+} & Record<string, columnValue>;
 
 const { data, refresh, status } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -359,9 +408,26 @@ const { data, refresh, status } = useAsyncData(
       searchTerms: settings.value.search,
     });
 
+    // add unique row identifier for selection purposes
+    const rows: TableRow[] = await Promise.all(
+      tableData.rows.map(async (row) => {
+        const primaryKey = await getPrimaryKey(
+          row,
+          props.tableId,
+          props.schemaId
+        );
+        return {
+          ...row,
+          _rowId: primaryKey,
+          _rowIdString: JSON.stringify(primaryKey),
+        };
+      })
+    );
+
     return {
       tableMetadata,
-      tableData,
+      rows,
+      count: tableData.count,
     };
   }
 );
@@ -426,25 +492,15 @@ watch(
   { immediate: true, deep: true }
 );
 
-const rows = computed((): IRow[] =>
-  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+const rows = computed((): TableRow[] =>
+  Array.isArray(data.value?.rows) ? data.value?.rows : []
 );
 
 const showDraftColumn = computed(() =>
-  rows.value.some((row: IRow) => row?.mg_draft === true)
+  rows.value.some((row: TableRow) => row?.mg_draft === true)
 );
 
-const count = computed(() => data.value?.tableData?.count ?? 0);
-
-const primaryKeys = computed(() => {
-  return columns.value
-    ?.map((col: IColumn) => {
-      if (Object.hasOwn(col, "key")) {
-        return col.id;
-      }
-    })
-    .filter((value: any) => value);
-});
+const count = computed(() => data.value?.count ?? 0);
 
 watch(
   () => data.value?.tableMetadata,
@@ -490,8 +546,67 @@ const sortedVisibleColumns = computed(() =>
   sortedColumns.value.filter((col) => col.visible !== "false")
 );
 
+const allRowsSelected = computed(() => {
+  return (
+    rows.value.length > 0 &&
+    rows.value.every((row) => selectedRows.value.has(row._rowIdString))
+  );
+});
+
+const numberOfSelectedRows = computed(() => selectedRows.value.size);
+
 function handleColumnsUpdate(newColumns: IColumn[]) {
   settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
+}
+
+function toggleRowSelection(row: TableRow) {
+  if (selectedRows.value.has(row._rowIdString)) {
+    selectedRows.value.delete(row._rowIdString);
+  } else {
+    selectedRows.value.set(row._rowIdString, row._rowId);
+  }
+}
+
+async function toggleAllRows() {
+  if (allRowsSelected.value) {
+    selectedRows.value.clear();
+  } else {
+    rows.value.forEach((row) => {
+      selectedRows.value.set(row._rowIdString, row._rowId);
+    });
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  if ("action" in payload) {
+    const action = payload.action;
+    const singleRowSelected =
+      selectedRows.value.size === 1
+        ? rows.value.find((row) => selectedRows.value.has(row._rowIdString))
+        : null;
+    if (action === "delete-selection" && singleRowSelected) {
+      onShowDeleteModal(singleRowSelected);
+    } else if (action === "edit-selection" && singleRowSelected) {
+      onShowEditModal(singleRowSelected);
+    } else if (action === "view-details" && singleRowSelected) {
+      emit("view-details", singleRowSelected);
+    } else if (action === "delete-selection" && selectedRows.value.size > 1) {
+      showDeleteMultipleModal.value = true;
+    } else if (action === "select-all-on-page") {
+      rows.value.forEach((row) => {
+        selectedRows.value.set(row._rowIdString, row._rowId);
+      });
+    } else if (action === "select-none") {
+      selectedRows.value.clear();
+    } else if (action === "select-drafts") {
+      selectedRows.value.clear();
+      rows.value.forEach((row) => {
+        if (row.mg_draft === true) {
+          selectedRows.value.set(row._rowIdString, row._rowId);
+        }
+      });
+    }
+  }
 }
 
 function handleSortRequest(columnId: string) {
@@ -510,11 +625,14 @@ function getDirection(columnId: string): sortDirection {
   }
 }
 
-function handleSearchRequest(search?: string | number) {
+function handleSearchRequest(search?: unknown) {
   if (typeof search === "number") {
-    search = search.toString();
+    settings.value.search = search.toString();
+  } else if (typeof search === "string") {
+    settings.value.search = search;
+  } else {
+    settings.value.search = "";
   }
-  settings.value.search = search;
   settings.value.page = 1;
   refresh();
 }
@@ -537,13 +655,6 @@ function handlePageSizeChange(pageSize: string) {
 function handleCellClick(payload: cellPayload) {
   cellDetailPayload.value = payload;
   showModal.value = true;
-}
-
-function getRowId(row: IRow) {
-  return primaryKeys.value
-    .map((key) => row[key as string])
-    .join("-")
-    .replaceAll(" ", "-");
 }
 
 function onShowDeleteModal(row: Record<string, columnValue>) {

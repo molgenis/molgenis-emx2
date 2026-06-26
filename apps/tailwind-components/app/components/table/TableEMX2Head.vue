@@ -1,6 +1,11 @@
 <template>
   <thead>
     <tr>
+      <TableHeadCell class="sticky left-0 bg-table z-20 w-12">
+        <!-- <div class="flex justify-center items-center">
+                <Checkbox @change="toggleAllRows" />
+              </div> -->
+      </TableHeadCell>
       <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
         <TableHeaderAction
           :column="{ id: 'mg_draft', label: 'Draft' }"
