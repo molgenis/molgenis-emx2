@@ -6,6 +6,10 @@
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
+# Python
+RUN apt-get update && apt-get install vim python3 -y
+RUN python3 --version
+
 ENV NODE_VERSION=22.17.0
 RUN apt install -y curl
 USER molgenis 
@@ -24,6 +28,11 @@ RUN npm --version
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN pnpm --version
+
+# Python uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/home/molgenis/.local/bin:$PATH"
+RUN uv --version
 
 USER root 
 
@@ -48,11 +57,6 @@ RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
  && mv linux-amd64/helm /usr/local/bin/helm \
  && chmod +x /usr/local/bin/helm \
  && rm -rf linux-amd64
-
-# Python
-RUN apt-get update && apt-get install vim python3 -y
-RUN python3 --version
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Azure CLI Tools
 RUN mkdir -p /etc/apt/keyrings
