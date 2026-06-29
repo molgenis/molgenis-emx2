@@ -191,7 +191,7 @@ class SqlTableMetadataExecutor {
                 keyColumn -> {
                   if (keyColumn.isReference()) {
                     return keyColumn.getReferences().stream()
-                        .map(ref -> "OLD." + name(ref.getName()))
+                        .map(ref -> "OLD." + name(ref.getColumnName()))
                         .collect(Collectors.joining("||','||"));
                   } else {
                     return "OLD." + name(keyColumn.getName());
@@ -338,7 +338,7 @@ class SqlTableMetadataExecutor {
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
-                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
+                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getColumnName()));
           }
         } else {
           mgSearchVector.append(
