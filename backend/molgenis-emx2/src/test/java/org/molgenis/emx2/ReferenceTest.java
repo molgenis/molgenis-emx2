@@ -49,7 +49,6 @@ public class ReferenceTest {
         () -> assertEquals("Resources", ref.getTargetTable()),
         () -> assertEquals("id", ref.getTargetColumn()),
         () -> assertEquals(STRING, ref.getPrimitiveType()),
-        () -> assertEquals(REF, ref.getColumnType()),
         () -> assertTrue(ref.isRef()),
         () -> assertFalse(ref.isArray()),
         () -> assertFalse(ref.isOverlapping()),
@@ -95,7 +94,6 @@ public class ReferenceTest {
 
     assertAll(
         () -> assertEquals("contacts", ref.getColumnName()),
-        () -> assertEquals(REF_ARRAY, ref.getColumnType()),
         () -> assertEquals(STRING_ARRAY, ref.getPrimitiveType()),
         () -> assertFalse(ref.isRef()),
         () -> assertTrue(ref.isArray()));
@@ -151,7 +149,7 @@ public class ReferenceTest {
         () -> assertEquals(ref.getTargetTable(), renamed.getTargetTable()),
         () -> assertEquals(ref.getTargetColumn(), renamed.getTargetColumn()),
         () -> assertEquals(ref.getPrimitiveType(), renamed.getPrimitiveType()),
-        () -> assertEquals(ref.getColumnType(), renamed.getColumnType()),
+        () -> assertEquals(ref.isRef(), renamed.isRef()),
         () -> assertEquals(ref.isArray(), renamed.isArray()),
         () -> assertEquals(ref.isRequired(), renamed.isRequired()),
         () -> assertEquals(ref.getPath(), renamed.getPath()));

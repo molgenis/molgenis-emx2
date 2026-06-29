@@ -20,10 +20,6 @@ import org.jooq.Field;
  * <p>Instances are produced by {@link Column#getReferences()}. This is an immutable value object
  * describing the expanded form of a reference; use {@link #withColumnName(String)} to obtain a
  * renamed copy rather than mutating in place.
- *
- * <p>Note the two type accessors describe different things: {@link #getColumnType()} reports the
- * type of the <em>owning</em> reference column (e.g. {@code REF}), while {@link
- * #getPrimitiveType()} is the type actually used to store <em>this</em> physical column's values.
  */
 public class Reference {
   /** The reference column this flat column was derived from. */
@@ -51,12 +47,6 @@ public class Reference {
   /** Final, primitive target column reached by following {@link #path}. */
   private final String targetColumn;
 
-  /**
-   * Type of the owning reference column (REF, REF_ARRAY, ...). This is <em>not</em> the type of
-   * this physical column; see {@link #primitiveType} for that.
-   */
-  private final ColumnType columnType;
-
   /** Primitive type actually used to store this physical column's values. */
   private final ColumnType primitiveType;
 
@@ -70,7 +60,6 @@ public class Reference {
       Column column,
       String columnName,
       String referencedColumnName,
-      ColumnType columnType,
       ColumnType primitiveType,
       boolean isArray,
       String targetTable,
@@ -80,7 +69,6 @@ public class Reference {
     this.column = column;
     this.columnName = columnName;
     this.referencedColumnName = referencedColumnName;
-    this.columnType = columnType;
     this.primitiveType = primitiveType;
     this.isArray = isArray;
     this.targetTable = targetTable;
@@ -99,7 +87,6 @@ public class Reference {
         column,
         columnName,
         referencedColumnName,
-        columnType,
         primitiveType,
         isArray,
         targetTable,
@@ -124,16 +111,12 @@ public class Reference {
     return this.targetColumn;
   }
 
-  public ColumnType getColumnType() {
-    return columnType;
-  }
-
   /**
    * Whether the owning reference column is a singular reference - base type {@code REF}, including
    * flavors such as {@code SELECT}/{@code RADIO}/{@code ONTOLOGY} - rather than an array reference.
    */
   public boolean isRef() {
-    return getColumnType().isRef();
+    return column.isRef();
   }
 
   public ColumnType getPrimitiveType() {
