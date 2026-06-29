@@ -996,7 +996,9 @@ public class SqlQuery extends QueryBean {
                                     .map(
                                         ref ->
                                             field(
-                                                name(REFBACK_PREFIX + ref.getReferencedColumnName())))
+                                                name(
+                                                    REFBACK_PREFIX
+                                                        + ref.getReferencedColumnName())))
                                     .toList())
                             .asTable(name(subAlias)))
                     .on(
