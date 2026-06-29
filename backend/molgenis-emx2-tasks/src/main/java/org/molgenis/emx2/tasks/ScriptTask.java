@@ -148,8 +148,10 @@ public class ScriptTask extends Task {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (Exception e) {
-      this.setError("Script failed: " + e.getMessage());
-      throw new MolgenisException("Script execution failed", e);
+      if (!TaskStatus.CANCELLED.equals(getStatus())) {
+        this.setError("Script failed: " + e.getMessage());
+        throw new MolgenisException("Script execution failed", e);
+      }
     } finally {
       if (getStatus() == TaskStatus.ERROR) {
         this.sendFailureMail();
@@ -323,8 +325,10 @@ public class ScriptTask extends Task {
     if (this.process != null && this.process.isAlive()) {
       this.process.destroy();
       this.logger.warn("stopping script " + name);
+      this.setStatus(TaskStatus.CANCELLED);
+      return;
     }
-    this.setError("process has been stopped");
+    this.setError("Script is not running, cannot stop");
   }
 
   @JsonIgnore

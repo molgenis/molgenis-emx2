@@ -30,6 +30,7 @@ export default defineComponent({
       task: null as ITask | null,
       loading: true,
       error: false,
+      timeoutId: null as NodeJS.Timeout | null,
     };
   },
   methods: {
@@ -67,18 +68,22 @@ export default defineComponent({
             this.error = error;
             this.loading = false;
           });
-        await sleep(500);
+        await new Promise((resolve) => {
+          this.timeoutId = setTimeout(resolve, 500);
+        });
       }
     },
   },
   created() {
     this.startMonitorTask();
   },
+  beforeUnmount() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+    this.task = null;
+  },
 });
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 </script>
 
 <docs>
