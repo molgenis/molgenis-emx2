@@ -5,9 +5,11 @@ import static java.util.function.Predicate.not;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.processors.*;
-import org.molgenis.emx2.sql.processors.validators.ExpressionValidator;
-import org.molgenis.emx2.sql.processors.validators.RequiredValidator;
+import org.molgenis.emx2.sql.row.resolvers.PrefixEditRole;
+import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
+import org.molgenis.emx2.sql.row.resolvers.ResolveDefaultValue;
+import org.molgenis.emx2.sql.row.validators.ValidateExpression;
+import org.molgenis.emx2.sql.row.validators.ValidateRequired;
 import org.molgenis.emx2.utils.JavaScriptUtils;
 
 public class SqlRowProcessor {
@@ -28,18 +30,18 @@ public class SqlRowProcessor {
   }
 
   public void validateAndCompute(Row row) throws MolgenisException {
-    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> jsGraph = ContextGraphBuilder.fromRow(columns, row);
 
     for (Column column : columnsToProcess) {
       if (column.isMgEditRoleColumn()) {
-        SystemRolePrefixProcessor.apply(column, row);
+        PrefixEditRole.apply(column, row);
       } else if (column.hasDefaultValue() && !row.notNull(column.getName())) {
-        ColumnDefaultValueProcessor.apply(javascriptContext, column, row);
+        ResolveDefaultValue.apply(jsGraph, column, row);
       } else if (column.hasComputed()) {
-        ColumnComputedExpressionProcessor.apply(javascriptContext, column, row);
-      } else if (isColumnVisible(column, javascriptContext)) {
-        RequiredValidator.apply(javascriptContext, column, row);
-        ExpressionValidator.apply(javascriptContext, column, row);
+        ResolveComputedValue.apply(jsGraph, column, row);
+      } else if (isColumnVisible(column, jsGraph)) {
+        ValidateRequired.apply(jsGraph, column, row);
+        ValidateExpression.apply(jsGraph, column);
       } else {
         row.clear(column);
       }

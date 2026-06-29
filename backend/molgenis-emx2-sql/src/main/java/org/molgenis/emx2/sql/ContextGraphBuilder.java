@@ -17,9 +17,9 @@ import org.molgenis.emx2.Row;
  * JavaScript identifiers. References become nested maps; file columns are omitted. Database-level
  * JavaScript bindings (e.g. current user, session context) are merged in last.
  */
-public class JavascriptContextBuilder {
+public class ContextGraphBuilder {
 
-  private JavascriptContextBuilder() {
+  private ContextGraphBuilder() {
     throw new IllegalStateException("Utility class");
   }
 

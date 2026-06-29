@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.processors.validators;
+package org.molgenis.emx2.sql.row.validators;
 
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
@@ -11,19 +11,19 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class RequiredValidator {
+public class ValidateRequired {
 
-  private RequiredValidator() {
+  private ValidateRequired() {
     throw new AssertionError("Can't instantiate utility class");
   }
 
-  public static void apply(Map<String, Object> context, Column column, Row row)
+  public static void apply(Map<String, Object> graphContext, Column column, Row row)
       throws MolgenisException {
     if (!row.isDraft() && column.getComputed() == null && !AUTO_ID.equals(column.getColumnType())) {
       if (column.isRequired() && hasEmptyFields(column, row)) {
         throw new MolgenisException("column '" + column.getName() + "' is required in " + row);
       } else if (column.isConditionallyRequired()) {
-        String error = checkRequiredExpression(context, column.getRequired());
+        String error = checkRequiredExpression(graphContext, column.getRequired());
         if (error != null && hasEmptyFields(column, row)) {
           throw new MolgenisException(
               "column '" + column.getName() + "' is required: " + error + " in " + row);
@@ -73,9 +73,9 @@ public class RequiredValidator {
   }
 
   private static String checkRequiredExpression(
-      Map<String, Object> context, String validationScript) {
+      Map<String, Object> contextGraph, String validationScript) {
     try {
-      Object error = executeJavascriptOnMap(validationScript, context);
+      Object error = executeJavascriptOnMap(validationScript, contextGraph);
       if (error instanceof Boolean) {
         if ((Boolean) error) return validationScript;
         return null;

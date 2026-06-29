@@ -1,12 +1,12 @@
-package org.molgenis.emx2.sql.processors;
+package org.molgenis.emx2.sql.row.resolvers;
 
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Row;
 
-public class SystemRolePrefixProcessor {
+public class PrefixEditRole {
 
-  private SystemRolePrefixProcessor() {
+  private PrefixEditRole() {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 

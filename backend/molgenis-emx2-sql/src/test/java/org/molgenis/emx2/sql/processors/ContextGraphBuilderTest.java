@@ -12,16 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.sql.JavascriptContextBuilder;
+import org.molgenis.emx2.sql.ContextGraphBuilder;
 
-class JavascriptContextBuilderTest {
+class ContextGraphBuilderTest {
 
   @Test
   void testArrayConversionToMap() {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row("STRING array", "aa,bb");
 
-    Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> javascriptContext = ContextGraphBuilder.fromRow(columns, row);
 
     assertAll(
         () -> assertEquals(Set.of("sTRINGArray"), javascriptContext.keySet()),
