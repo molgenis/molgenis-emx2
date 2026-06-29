@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { ref } from "vue";
+
+// @ts-ignore
+import { Molgenis } from "molgenis-components";
+// @ts-ignore
+import { AppFooter } from "molgenis-viz";
+
+const session = ref(null);
+const page = ref(null);
+</script>
+
 <template>
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
@@ -42,13 +54,3 @@
     </AppFooter>
   </Molgenis>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
-import { ref } from "vue";
-
-const session = ref(null);
-const page = ref(null);
-</script>
