@@ -56,6 +56,7 @@ class Transform:
             self.catalogues()
         if any(item in ['CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
             self.collections()
+        self.datasets()
 
     def collections(self):
         """ Transform data in Collections: split into separate tables based on type
@@ -79,3 +80,25 @@ class Transform:
         # write tables to file
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
+    def datasets(self):
+        """ Transform data in Datasets and rename table
+        """
+        df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object')
+
+        # split Collections table
+        df_datasets.rename({'dataset type': 'table type'}, inplace=True)
+
+        # write tables to file
+        df_datasets.to_csv(self.path + 'Tables.csv', index=False)
+
+    def dataset_mappings(self):
+        """ Transform data in Dataset mappings and rename table
+        """
+        df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object')
+
+        # split Collections table
+        df_dataset_mappings.rename({'source dataset': 'source table',
+                                    'target dataset': 'target table'}, inplace=True)
+
+        # write tables to file
+        df_dataset_mappings.to_csv(self.path + 'Table mappings.csv', index=False)
