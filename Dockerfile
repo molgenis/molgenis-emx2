@@ -6,7 +6,7 @@ RUN apt-get update && \
     useradd -m molgenis
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/home/molgenis/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 RUN uv --version
 
 COPY --link build/docker/deps/ /app/lib/
