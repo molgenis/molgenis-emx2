@@ -1,7 +1,5 @@
 FROM eclipse-temurin:21-jre-noble
 
-#FROM ghcr.io/astral-sh/uv:0.8.5 AS uv
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends python3 && \
     rm -rf /var/lib/apt/lists/* && \
@@ -18,6 +16,4 @@ EXPOSE 8080
 ENTRYPOINT ["java"]
 CMD ["-cp", "/app/lib/*", "org.molgenis.emx2.RunMolgenisEmx2"]
 
-#COPY --from=uv /uv /uvx /usr/local/bin/
-
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.25 /uv /uvx /usr/local/bin/

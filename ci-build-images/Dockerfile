@@ -1,7 +1,7 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.2.2
+# docker buildx build -t molgenis/ci-build:x.y.z --platform linux/amd64 .
+# docker push molgenis/ci-build:x.y.z
 
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
@@ -30,7 +30,7 @@ RUN corepack prepare pnpm@latest --activate
 RUN pnpm --version
 
 # Python uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN curl -LsSf https://astral.sh/uv/0.11.25/install.sh | sh
 ENV PATH="/home/molgenis/.local/bin:$PATH"
 RUN uv --version
 
