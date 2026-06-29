@@ -57,6 +57,9 @@ class Transform:
         if any(item in ['CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
             self.collections()
         self.datasets()
+        self.datasets()
+        self.variables()
+        self.variable_mappings()
 
     def collections(self):
         """ Transform Collections
