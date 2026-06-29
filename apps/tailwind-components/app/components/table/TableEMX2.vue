@@ -25,7 +25,7 @@
         @update:columns="handleColumnsUpdate"
       />
 
-      <Button
+      <!-- <Button
         v-if="data?.tableMetadata"
         type="outline"
         :href="`/${schemaId}/api/csv/${tableId}`"
@@ -33,7 +33,54 @@
         download
       >
         Download
-      </Button>
+      </Button> -->
+
+      <Dropdown
+        v-if="data?.tableMetadata"
+        label="Download"
+        icon="download"
+        icon-position="left"
+      >
+        <section class="p-4 w-52">
+          <h3>Download as:</h3>
+
+          <ul>
+            <li>
+              <Button type="inline" :href="`/${schemaId}/api/csv/${tableId}`">
+                .csv
+              </Button>
+            </li>
+            <li>
+              <Button type="inline" :href="`/${schemaId}/api/zip/${tableId}`">
+                .zip
+              </Button>
+            </li>
+            <li>
+              <Button type="inline" :href="`/${schemaId}/api/excel/${tableId}`">
+                .xlsx
+              </Button>
+            </li>
+            <li>
+              <Button
+                type="inline"
+                :href="`/${schemaId}/api/jsonld/${tableId}`"
+                target="_blank"
+              >
+                .jsonld
+              </Button>
+            </li>
+            <li>
+              <Button
+                type="inline"
+                :href="`/${schemaId}/api/ttl/${tableId}`"
+                target="_blank"
+              >
+                .ttl
+              </Button>
+            </li>
+          </ul>
+        </section>
+      </Dropdown>
     </div>
   </div>
 
@@ -264,6 +311,7 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
+import Dropdown from "../button/Dropdown.vue";
 
 const props = withDefaults(
   defineProps<{

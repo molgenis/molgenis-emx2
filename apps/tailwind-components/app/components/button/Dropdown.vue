@@ -27,28 +27,15 @@ withDefaults(
       size="medium"
       :icon="icon"
       :icon-position="iconPosition"
-      >{{ label }}</Button
     >
+      {{ label }}
+    </Button>
     <template #popper>
-      <slot></slot>
+      <div class="bg-dropdown text-dropdown">
+        <slot />
+      </div>
     </template>
   </VDropdown>
 </template>
 
-<style>
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-outer {
-  display: none;
-}
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-inner {
-  display: none;
-}
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-container {
-  display: none;
-}
-</style>
+<style></style>
