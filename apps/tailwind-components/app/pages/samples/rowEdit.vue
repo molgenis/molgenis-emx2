@@ -21,7 +21,7 @@ import DraftLabel from "../../components/label/DraftLabel.vue";
 import type { Crumb } from "../../../types/types";
 
 definePageMeta({
-  layout: "full-page",
+  layout: "default",
 });
 
 useHead({

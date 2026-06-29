@@ -8,7 +8,7 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout>
+  <NuxtLayout name="playground">
     <NuxtPage />
   </NuxtLayout>
 </template>

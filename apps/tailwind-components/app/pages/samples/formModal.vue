@@ -107,7 +107,7 @@ import cohortTableMetadata from "./data/cohort-table-metadata";
 import BaseIcon from "../../components/BaseIcon.vue";
 
 definePageMeta({
-  layout: "full-page",
+  layout: "default",
 });
 
 useHead({
