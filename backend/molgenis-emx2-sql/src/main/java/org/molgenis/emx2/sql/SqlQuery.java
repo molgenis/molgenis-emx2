@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
 
+  private static final String REFBACK_PREFIX = "_refback_";
   public static final int AGGREGATE_COUNT_THRESHOLD = 10;
   public static final int AGGREGATE_RANGE_STEPSIZE = 10;
   public static final String COUNT_FIELD = "count";
@@ -974,7 +975,7 @@ public class SqlQuery extends QueryBean {
                       .map(
                           reference ->
                               field(UNNEST_0, name(reference.getColumnName()))
-                                  .as(name("_refback_" + reference.getReferencedColumnName())))
+                                  .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
                       .toList());
             } else {
               refbackSelection.addAll(
@@ -982,7 +983,7 @@ public class SqlQuery extends QueryBean {
                       .map(
                           reference ->
                               field(name(reference.getColumnName()))
-                                  .as(name("_refback_" + reference.getReferencedColumnName())))
+                                  .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
                       .toList());
             }
             // we create a natural joinable representation of refback that looks same as ref_array
@@ -995,7 +996,7 @@ public class SqlQuery extends QueryBean {
                                     .map(
                                         ref ->
                                             field(
-                                                name("_refback_" + ref.getReferencedColumnName())))
+                                                name(REFBACK_PREFIX + ref.getReferencedColumnName())))
                                     .toList())
                             .asTable(name(subAlias)))
                     .on(
@@ -1005,7 +1006,7 @@ public class SqlQuery extends QueryBean {
                                     field(
                                             name(
                                                 subAlias,
-                                                "_refback_" + ref.getReferencedColumnName()))
+                                                REFBACK_PREFIX + ref.getReferencedColumnName()))
                                         .eq(
                                             field(
                                                 name(
