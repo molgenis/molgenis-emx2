@@ -161,6 +161,17 @@ print('unreachable')
     }
     assertEquals(ERROR, fileFailTask.getStatus());
     assertTrue(fileFailTask.getDescription().contains("Extra file name cannot be 'script.py'."));
+
+    Task emptyScriptFailTask =
+        taskService.getTask(
+            taskService.submit(taskService.getScript("Empty script test").parameters("")));
+    TaskStatus emptyScriptFailTaskStatus = emptyScriptFailTask.getStatus();
+    while (emptyScriptFailTaskStatus != COMPLETED && emptyScriptFailTaskStatus != ERROR) {
+      Thread.sleep(1000);
+      emptyScriptFailTaskStatus = emptyScriptFailTask.getStatus();
+    }
+    assertEquals(ERROR, emptyScriptFailTask.getStatus());
+    assertTrue(emptyScriptFailTask.getDescription().contains("Script is required"));
   }
 
   @Test
