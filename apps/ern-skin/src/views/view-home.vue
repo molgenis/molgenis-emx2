@@ -1,13 +1,25 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import {
+  InformationCircleIcon,
+  PresentationChartLineIcon,
+  DocumentTextIcon,
+} from "@heroicons/vue/24/outline";
+
+// import CustomPageHeader from "../components/CustomPageHeader.vue";
+</script>
+
+
 <template>
   <Page id="page-home">
-    <CustomPageHeader
+    <PageHeader
       class="erras-header"
       title="ERN-Skin Registry"
       subtitle="Registry for Rare and Undiagnosed Skin Diseases"
       imageSrc="img/erras-header.jpg"
-      height="xlarge"
-      title-position-x="center"
-      title-position-y="center"
+      titlePositionX="center"
+      titlePositionY="center"
     />
     <PageSection
       id="section-welcome"
@@ -116,18 +128,6 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageSection, LinkCard } from "molgenis-viz";
-import {
-  InformationCircleIcon,
-  PresentationChartLineIcon,
-  DocumentTextIcon,
-} from "@heroicons/vue/24/outline";
-
-import CustomPageHeader from "../components/CustomPageHeader.vue";
-</script>
 
 <style lang="scss">
 .quicklink-cards {
