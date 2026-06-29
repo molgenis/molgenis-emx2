@@ -11,7 +11,7 @@
     <hr />
 
     <ButtonDropdown label="list">
-      <section class="flex p-4 w-52 bg-white">
+      <section class="flex bg-white p-4 w-52">
         <InputList
           id="dropdown-list"
           :nodes="[
