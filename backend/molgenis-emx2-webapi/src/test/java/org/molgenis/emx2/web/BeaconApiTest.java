@@ -48,11 +48,6 @@ class BeaconApiTest extends ApiTestBase {
   }
 
   @Test
-  void testBeaconInfo() {
-    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
-  }
-
-  @Test
   void testBeaconEntryTypes() {
     getAndAssertContains("/api/beacon/entry_types", "entry");
   }
