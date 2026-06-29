@@ -26,7 +26,7 @@ export async function useLayoutMenu(
   const menu = await useMenu();
 
   const defaultSchemaMenu = computed<MenuItem[]>(() => [
-    { label: "Tables", link: "", isSpaLink: true },
+    { label: "Tables", link: `/${schema.value}`, isSpaLink: true },
     {
       label: "Schema",
       link: `${schema.value}/schema`,
