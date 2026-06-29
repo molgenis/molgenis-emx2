@@ -17,6 +17,27 @@ import org.jooq.Field;
  * describes one of those physical columns: its local name, the foreign-key column it points to, and
  * the primitive type used to store it.
  *
+ * <p>Example: the schema declares a reference column {@code contact} (type {@code REF}) pointing at
+ * table {@code Contacts}, whose primary key is the composite {@code (resource, name)} where {@code
+ * resource} is itself a reference to {@code Resources.id}. Because that key is composite there is
+ * no single physical {@code contact} column; {@link Column#getReferences()} expands it into two
+ * physical columns, each described by one {@code Reference}:
+ *
+ * <pre>
+ *   columnName        referencedColumnName  targetTable  targetColumn  path
+ *   contact.resource  resource              Resources    id            [resource, id]
+ *   contact.name      name                  Contacts     name          [name]
+ * </pre>
+ *
+ * <p>{@code referencedColumnName} is the column this physical column points straight at - here the
+ * {@code resource} / {@code name} key columns of {@code Contacts}. {@code targetColumn} is where
+ * you end up after following {@code path} all the way to a plain (non-reference) column. For {@code
+ * contact.resource} these differ: it points at {@code Contacts.resource}, but that is itself a
+ * reference, so following it on reaches {@code Resources.id}. For {@code contact.name} they
+ * coincide, because {@code Contacts.name} is already a plain column. (Had {@code Contacts} used a
+ * single-column key, the expansion would collapse to one {@code Reference} named just {@code
+ * contact}.)
+ *
  * <p>Instances are produced by {@link Column#getReferences()}. This is an immutable value object
  * describing the expanded form of a reference; use {@link #withColumnName(String)} to obtain a
  * renamed copy rather than mutating in place.
@@ -33,18 +54,23 @@ public class Reference {
   private final String columnName;
 
   /**
-   * Name of the column this physical column points at; for nested keys this is an intermediate
-   * target rather than the final one (see {@link #targetColumn}).
+   * Column this physical column points straight at in a single FK step. For a direct reference this
+   * is the final target; for a nested composite key it is an <em>intermediate</em> column on the
+   * way there (the final destination is {@link #targetColumn} in {@link #targetTable}, reached via
+   * {@link #path}).
    */
   private final String referencedColumnName;
 
   /** Path of identifiers to walk from {@link #column} down to the final target. */
   private final List<String> path;
 
-  /** Table holding the final, primitive target column. */
+  /** Table holding the final, primitive target column reached by following {@link #path}. */
   private final String targetTable;
 
-  /** Final, primitive target column reached by following {@link #path}. */
+  /**
+   * Final, primitive target column reached by following {@link #path}. Equals {@link
+   * #referencedColumnName} for a direct reference; differs for nested composite keys.
+   */
   private final String targetColumn;
 
   /** Primitive type actually used to store this physical column's values. */
