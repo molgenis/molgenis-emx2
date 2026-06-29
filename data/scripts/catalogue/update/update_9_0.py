@@ -52,6 +52,8 @@ class Transform:
         """Make changes per table
         """
         # transformations per table
+        if 'DataCatalogueFlat' in self.profile:
+            self.reused_variables()
         if any(item in ['NetworksStaging','DataCatalogueFlat'] for item in self.profile):
             self.catalogues()
         if any(item in ['CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
@@ -60,6 +62,7 @@ class Transform:
         self.datasets()
         self.variables()
         self.variable_mappings()
+        self.variable_values()
 
     def collections(self):
         """ Transform Collections
@@ -97,6 +100,12 @@ class Transform:
         """
         df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
         df_variables.rename({'dataset': 'table'}, inplace=True)
+        df_variables.drop_duplicates(subset=['useExternalDefinition.resource','useExternalDefinition.dataset',
+                                             'useExternalDefinition.name','reused in resources.resource',
+                                             'reused in resources.variable.resource','reused in resources.variable.dataset',
+                                             'reused in resources.variable.name','mappings.source','mappings.source table',
+                                             'mappings.target','mappings.target table','mappings.target variable',
+                                             'mappings.repeats'], inplace=True)
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_mappings(self):
@@ -104,5 +113,20 @@ class Transform:
         """
         df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
         df_variable_mappings.rename({'source dataset': 'source table',
+                                    'source variables other tables.dataset': 'source variables other tables.table',
                                     'target dataset': 'target table'}, inplace=True)
         df_variable_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+
+    def variable_values(self):
+        """ Transform Variable Values
+        """
+        df_variable_values = pd.read_csv(self.path + 'Variable values.csv', dtype='object')
+        df_variable_values.rename({'dataset': 'table'}, inplace=True)
+        df_variable_values.to_csv(self.path + 'Variable values.csv', index=False)
+
+    def reused_variables(self):
+        """ Transform Reused Variables
+        """
+        df_reused_variables = pd.read_csv(self.path + 'Reused variables.csv', dtype='object')
+        df_reused_variables.rename({'dataset': 'table'}, inplace=True)
+
