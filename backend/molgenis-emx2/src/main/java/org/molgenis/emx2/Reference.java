@@ -50,10 +50,18 @@ public class Reference {
   /** Primitive type actually used to store this physical column's values. */
   private final ColumnType primitiveType;
 
-  /** Whether this column stores an array of values (composite/array references). */
+  /**
+   * Whether this physical column stores an array and so must be unnested when queried. True when
+   * the owning reference is an array reference (e.g. REF_ARRAY) or, for a composite key part that
+   * is itself a reference, when that key part is array-typed.
+   */
   private final boolean isArray;
 
-  /** Whether a value is required. */
+  /**
+   * Whether this physical column requires a value: true when the owning reference column is
+   * required or the referenced key part is. Read while expanding nested references to propagate
+   * requiredness upward; {@link #toPrimitiveColumn()} instead re-derives it from the owning column.
+   */
   private final boolean required;
 
   public Reference(
