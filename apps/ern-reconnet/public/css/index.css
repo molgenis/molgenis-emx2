@@ -1,0 +1,88 @@
+.app-page,
+.app-footer {
+    --gray-900: #0a0a0a;
+    --gray-800: #252525;
+    --gray-700: #404040;
+    --gray-500: #777777;
+    --gray-100: #e4e4e4;
+    --gray-050: #f6f6f6;
+    --blue-900: #163d89;
+    --blue-800: #2d5095;
+    --blue-700: #4463a1;
+    --blue-500: #7289b8;
+    --blue-green-800: #45a5c8;
+    --max-width: 60vw;
+    
+  font-size: 14pt;
+}
+
+.app-page .page-header {
+    height:22em;
+}
+
+.app-page .page-header.header-image-background {
+    background-position: 0 20%;
+}
+
+.app-page .page-section .page-section-content h2 {
+    padding: 12px 0;
+    margin-bottom: 0.15em;
+}
+
+.message-box {
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+}
+
+.message-box .message-text {
+    padding: 1em;
+}
+
+.message-box .message-text p {
+    margin-bottom: 0;
+}
+
+.card-link-group ol li .link-card {
+    height: auto;
+    border-radius: 0;
+}
+
+.card-link-group ol li .link-card .card-background-filter {
+    border-radius: 0;
+}
+
+.card-link-group ol li .link-card.padding-h-3 {
+    padding: 1.75em;
+}
+
+.card-link-group ol li .link-card .card-content {
+    padding: 1.75em;
+}
+
+.card-link-group ol li:nth-child(1) .link-card {
+    background-color: var(--blue-700);
+}
+
+.card-link-group ol li:nth-child(2) .link-card .card-background-filter {
+    background-color: var(--blue-green-800);
+    opacity: 0.6;
+}
+
+.card-link-group ol li:nth-child(3) .link-card .card-background-filter {
+    background-color: var(--blue-800);
+    opacity: 0.6;
+}
+
+#reconnetFooter .links-container {
+    background-color: var(--gray-050);
+    color: var(--gray-800);
+}
+
+#reconnetFooter .ern-logo {
+    width: 350px;
+}
+
+#reconnetFooter .eu-logos {
+    width: 350px;
+}

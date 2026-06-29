@@ -1,10 +1,8 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import HomeView from "../views/view-home.vue";
-import AboutView from "../views/view-about.vue";
 import DashboardView from "../views/view-dashboard.vue";
 import DocumentsView from "../views/view-documents.vue";
-import TransparencyView from "../views/view-transparency.vue";
 
 const project = "ERN ITHACA";
 
@@ -15,14 +13,6 @@ const router = createRouter({
       name: "home",
       path: "/",
       component: HomeView,
-    },
-    {
-      name: "about",
-      path: "/about",
-      component: AboutView,
-      meta: {
-        title: "About",
-      },
     },
     {
       name: "dashboard",
@@ -38,14 +28,6 @@ const router = createRouter({
       component: DocumentsView,
       meta: {
         title: "Documents",
-      },
-    },
-    {
-      name: "transparency",
-      path: "/transparency",
-      component: TransparencyView,
-      meta: {
-        title: "Transparency Policy",
       },
     },
   ],

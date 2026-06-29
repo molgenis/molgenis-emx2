@@ -99,6 +99,8 @@
     --background-color-button-filter-hover: var(--color-white);
     --background-color-button-tree-node-toggle: var(--color-blue-800);
     --background-color-button-inline-hover: var(--color-gray-200);
+    --background-color-button-cart-remove: var(--color-blue-500);
+    --background-color-button-cart-count: var(--color-white);
 
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);
@@ -143,6 +145,11 @@
     --text-color-button-tree-node-toggle-hover: var(--color-white);
     --text-color-button-toggle-active: var(--text-color-button-secondary);
     --text-color-button-toggle-inactive: var(--color-blue-200);
+    --text-color-button-remove: var(--color-red-500);
+    --text-color-button-cart-add: var(--color-blue-500);
+    --text-color-button-cart-add-hover: var(--color-blue-800);
+    --text-color-button-cart-remove: var(--color-white);
+    --text-color-button-cart-count: var(--color-black);
 
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
@@ -306,4 +313,64 @@
   grid-template-areas:
     "context"
     "chart";
+}
+
+/* Popper.js settings */
+.v-popper--theme-dropdown .v-popper__inner {
+  background: none;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.v-popper__popper--no-positioning {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  width: 100%;
+}
+
+.v-popper_fullscreen .v-popper__popper--no-positioning {
+  width: 100%;
+  max-width: none;
+}
+
+.v-popper_right .v-popper__popper--no-positioning {
+  left: auto;
+  right: 0;
+}
+
+.v-popper__popper--no-positioning .v-popper__backdrop {
+  display: block;
+  background: rgba(0 0 0 / 60%);
+}
+
+.v-popper__popper--no-positioning .v-popper__wrapper {
+  width: 100%;
+  pointer-events: auto;
+  transition: transform 0.15s ease-out;
+}
+
+.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+  transform: translateX(-100%);
+}
+
+.v-popper_right
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateX(100%);
+}
+
+.v-popper_bottom .v-popper__popper--no-positioning {
+  top: auto;
+  bottom: 0;
+}
+
+.v-popper_bottom
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateY(100%);
 }

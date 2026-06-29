@@ -95,7 +95,8 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  search: string;
+  orderedColumnsIds: string[];
+  search?: string;
 }
 
 export interface ISectionField {
@@ -178,14 +179,21 @@ export interface Crumb {
   url: string;
   label: string;
 }
-
-export interface MenuItem {
-  label: string;
+export interface Link {
   link: string;
+  isSpaLink?: boolean;
+}
+export interface MenuItem extends Link {
+  label: string;
   role?: string;
   key?: string;
   submenu?: Menu;
-  isSpaLink?: boolean;
 }
 
 export type Menu = MenuItem[];
+export interface Settings {
+  [key: string]: unknown;
+}
+export interface SystemSettings extends Settings {
+  isOidcEnabled: boolean;
+}

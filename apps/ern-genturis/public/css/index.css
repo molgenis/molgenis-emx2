@@ -1,0 +1,200 @@
+.app-page,
+.app-footer {
+    --gray-900: #0a0a0a;
+    --gray-800: #252525;
+    --gray-700: #404040;
+    --gray-500: #777777;
+    --gray-100: #e4e4e4;
+    --blue-900: #163d89;
+    --blue-800: #2d5095;
+    --blue-700: #4463a1;
+    --blue-500: #7289b8;
+    --blue-green-800: #45a5c8;
+    
+    --max-width: 60vw;
+    --viz-chart-title-font-size: 1.1rem;
+    
+  font-size: 13pt;
+  font-family: Helvetica, sans-serif;
+}
+
+.app-page .page-header {
+    filter: brightness(1.2),saturate(90%);
+    height: 28em;
+}
+.app-page .page-header .background-image-filter {
+    opacity: 0.5;
+}
+
+.app-page .page-section .page-section-content h1,
+.app-page .page-section .page-section-content h2 {
+    color: var(--blue-900);
+}
+
+.app-page .page-section .page-section-content h2 {
+    margin-bottom: 0.3em;
+}
+
+.app-page .page-section .page-section-content ul {
+    line-height: 1.5;
+}
+
+
+.app-page .page-section .page-section-content.bg-gray-050 {
+    background-color: var(--gray-500);
+}
+
+.app-page .page-section .page-section-content.bg-blue-050 {
+    background-color: var(--blue-500);
+}
+
+.message-box .message-text {
+    padding: 1em;
+}
+
+.message-box .message-text p {
+    margin-bottom: 0;
+}
+
+.genturis-header {
+    filter: saturate(90%);
+    height: 28em;
+}
+
+.genturis-logo {
+    display: block;
+}
+
+.genturis-logo.logo-center {
+    margin: 1em auto;
+}
+.genturis-logo.logo-small {
+    width: 175px;
+}
+
+.genturis-logo.logo-medium {
+    width: 250px;
+}
+
+.genturis-logo.logo-large {
+    width: 325px;
+}
+
+.d3-viz.d3-pie .chart-context,
+.d3-viz.d3-geo-mercator .chart-context {
+    text-align: center;
+}
+
+.d3-viz.d3-pie .chart-context .chart-title,
+.d3-viz.d3-geo-mercator .chart-context .chart-title {
+    font-size: var(--viz-chart-title-font-size);
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend {
+    padding: 0.6em 0.75em;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend label {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+}
+
+.d3-viz.d3-column-chart .chart-title {
+    font-size: var(--viz-chart-title-font-size);
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.d3-viz.d3-pie .chart-area .pie-labels .pie-label-text {
+    font-size: 0.7rem !important;
+}
+.d3-viz.d3-pie .chart-legend {
+    font-size: 1rem;
+}
+
+.d3-viz.d3-table caption {
+    font-size: var(--viz-chart-title-font-size);
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.d3-viz.d3-table thead th {
+    font-size: 0.8rem;
+    padding: 0.4em 0.2em;
+}
+
+.d3-viz.d3-table tbody td {
+    font-size: 0.9rem;
+    padding: 0.4em 0.2em;
+}
+
+.d3-viz.d3-table tbody td[data-value="Undetermined"],
+.d3-viz.d3-table tbody td[data-value="Undetermined"]+td {
+    background-color: white;
+}
+
+.card-link-group ol li .link-card {
+    height: auto;
+    border-radius: 0;
+}
+
+.card-link-group ol li .link-card .card-background-filter {
+    border-radius: 0;
+}
+
+.card-link-group ol li .link-card.padding-h-3 {
+    padding: 1.75em;
+}
+
+.card-link-group ol li .link-card .card-content {
+    padding: 1.75em;
+}
+
+.card-link-group ol li:nth-child(1) .link-card {
+    background-color: var(--blue-700);
+}
+
+.card-link-group ol li:nth-child(2) .link-card .card-background-filter {
+    background-color: var(--blue-green-800);
+    opacity: 0.6;
+}
+
+.card-link-group ol li:nth-child(3) .link-card .card-background-filter {
+    background-color: var(--blue-800);
+    opacity: 0.6;
+}
+
+#genturisFooter .links-container {
+    background-color: var(--gray-800);
+    color: var(--gray-100);
+}
+
+#genturisFooter .links-container .footer-list-title {
+    color: white;
+}
+
+#genturisFooter .genturis-logo {
+    background-color: white;
+    padding: 0.4em;
+}
+
+#genturis-funding-logo {
+background-color: white;
+padding-bottom: 0.3em;
+}
+  
+#genturisPublicDashboard .dashboard-content,
+#genturisPublicDashboard .dashboard-content .dashboard-chart-layout {
+    gap: 1em;
+}
+
+  @media screen and (min-width: 1800px) {
+    #genturisPublicDashboard .dashboard-content {
+        max-width: 60vw;
+    }
+  }

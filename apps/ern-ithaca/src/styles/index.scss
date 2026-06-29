@@ -142,3 +142,38 @@
     }
   }
 }
+
+#publicDashboard {
+  .data-highlights {
+    .data-highlight {
+      padding: 0.8em 1em;
+      .data-label {
+        margin-bottom: 0.15em;
+        font-size: 0.75rem;
+      }
+
+      .data-value {
+        &::after {
+          font-size: 1.8rem;
+        }
+      }
+    }
+  }
+
+  .d3-table {
+    caption {
+      @include setChartTitle;
+    }
+
+    thead {
+      th {
+        font-size: 0.8rem;
+      }
+    }
+
+    td {
+      padding: 0.5em 0.2em;
+      font-size: 0.9em;
+    }
+  }
+}

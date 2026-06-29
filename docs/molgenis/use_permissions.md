@@ -17,6 +17,82 @@ In addition we have special roles to allow for specific permissions around aggre
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
 
+## Custom roles
+
+In addition to the standard schema-wide roles above, **Manager** and **Owner** users can create
+custom roles with fine-grained, per-table access control. A custom role can hold any combination of:
+
+| Privilege | What it allows |
+|-----------|----------------|
+| **select** | Read rows from the table |
+| **insert** | Insert new rows |
+| **update** | Update existing rows |
+| **delete** | Delete rows |
+
+Custom roles are independent of each other and of the standard roles. A user assigned a custom role
+does not automatically inherit Viewer, Editor, or any other standard role — they can only access the
+specific tables that have been explicitly granted to their role.
+
+Custom roles can be created, updated, and deleted through the [GraphQL API](dev_graphql.md#table-level-permissions-api).
+
+## Row-level security
+
+Custom roles support **row-level security (RLS)**, which restricts which rows a user can see within a
+table — not just whether they can access the table at all.
+
+When RLS is enabled for a role on a table:
+
+1. A `mg_roles` column (a string array) is added to the table.
+2. Each row is tagged with exactly one role name that owns it, e.g. `mg_roles: ["TeamA"]`.
+3. A user with only an RLS role can see, update, or delete rows where their role appears in `mg_roles`.
+4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
+   visible exclusively to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+
+> **Current limitation:** `mg_roles` is stored as an array for future extensibility, but at present
+> only **one role per row** is supported. Setting more than one value in `mg_roles` is not yet
+> supported and the behaviour is undefined.
+
+**Who bypasses row-level security:**
+
+RLS is bypassed in three cases:
+
+- **Viewer** role: bypass for SELECT only. Viewers see all rows regardless of `mg_roles`. A user
+  can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
+  (including rows with an empty `mg_roles`) but their write operations are still limited to rows
+  tagged with their RLS role.
+- **Editor**, **Manager**, or **Owner** role: bypass for all operations.
+- A non-RLS custom role granted on the same table: bypass for all operations on that table.
+  Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
+
+**Example:**
+
+| id | title | mg_roles | Who can see it |
+|----|-------|----------|----------------|
+| a1 | Team A only | `["TeamA"]` | Members of `TeamA`; schema Viewer/Editor/Manager/Owner |
+| b1 | Team B only | `["TeamB"]` | Members of `TeamB`; schema Viewer/Editor/Manager/Owner |
+| open | No role set | *(empty)* | Schema Viewer/Editor/Manager/Owner **only** |
+
+- A user with **only** the `TeamA` role sees `a1` but not `b1` or `open`.
+- A user with the `TeamA` role **and** the schema Viewer role sees all three rows (`a1`, `b1`, and
+  `open`), because the Viewer role grants a bypass for reads. Their writes are still restricted to
+  rows tagged `TeamA`.
+- A user with **only** a schema Viewer role (no RLS role) also sees all rows.
+
+RLS is automatically disabled on a table when the last role with row-level access is revoked. The
+`mg_roles` column and any data in it are kept; only the row filter is removed.
+
+## Permissions to change settings
+
+Settings can be stored at schema level and at table level (see [database settings](use_database_settings.md)):
+
+* **Schema settings** can be changed by users with the **manager** role (or higher).
+* **Table settings** can be changed by anyone with update permission on that table. This includes the
+  schema-wide **editor** role, but also a custom role that grants table-level **UPDATE** on that
+  specific table — i.e. a user does not need the schema-wide editor role to change a table's settings
+  if they have been granted update on that table directly.
+
+The **admin** user can change any setting.
+
 ## Users can get roles in a schema
 
 Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a

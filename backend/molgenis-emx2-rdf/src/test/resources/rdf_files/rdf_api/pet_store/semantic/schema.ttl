@@ -94,6 +94,9 @@
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>.
 
+<http://localhost:8080/petStoreNr1/api/rdf/User/username=plofke> a foaf:Person;
+  foaf:accountName "plofke".
+
 <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
   a sio:SIO_000396;
   rdfs:label "8hlbnm.jpg";

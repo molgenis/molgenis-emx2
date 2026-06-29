@@ -10,12 +10,20 @@ import CraniosynostosisCenterSurgical from "../views/craniosynostosis/your_cente
 
 // cleft lip and palate pages (id: `-clp-`)
 import CleftLipPalateYourCenter from "../views/cleft_lip_palate/your_center.vue";
+import CleftLipPalateLevel1 from "../views/cleft_lip_palate/level_1.vue";
+
+// Facial dysostosis
+import FacialDysostosisLevel1 from "../views/facial_dysostosis/level_1.vue";
+
+// Craniofacial microsomia
+import CraniofacialMicrosomiaLevel1 from "../views/craniofacial_microsomia/level_1.vue";
 
 // genetic hearing loss
 import GeneticHearingLossYourCenter from "../views/genetic_hearing_loss/your_center.vue";
 import GeneticHearingLossAllCenters from "../views/genetic_hearing_loss/all_centers.vue";
 
 import ErrorPage from "../views/view-404.vue";
+import UnderConstruction from "../views/UnderConstruction.vue";
 
 // E.g., {..., meta: {title: 'My Page'}}
 const project = "ERN CRANIO";
@@ -87,6 +95,72 @@ const router = createRouter({
           component: CleftLipPalateYourCenter,
           meta: {
             title: "Your Center | Cleft Lip and Palate",
+          },
+        },
+        {
+          name: "provider-clp-level-1",
+          path: "level-1",
+          component: CleftLipPalateLevel1,
+          meta: {
+            title: "Level 1 | Cleft Lip and Palate",
+          },
+        },
+        {
+          name: "provider-clp-level-2",
+          path: "level-2",
+          component: UnderConstruction, // TODO: update with level 2 page when available
+          meta: {
+            title: "Level 2 | Cleft Lip and Palate",
+          },
+        },
+      ],
+    },
+
+    // router-view for Facial Dysostosis (ie., -facial-dysostosis-)
+    {
+      name: "provider-facial-dysostosis",
+      path: "/facial-dysostosis",
+      redirect: { name: "provider-facial-dysostosis-level-1" },
+      children: [
+        {
+          name: "provider-facial-dysostosis-level-1",
+          path: "level-1",
+          component: FacialDysostosisLevel1,
+          meta: {
+            title: "Level 1 | Facial Dysostosis",
+          },
+        },
+        {
+          name: "provider-facial-dysostosis-level-2",
+          path: "level-2",
+          component: UnderConstruction, // TODO: update with level 2 page when available
+          meta: {
+            title: "Level 2 | Facial Dysostosis",
+          },
+        },
+      ],
+    },
+
+    // router-view for Craniofacial Microsomia (ie., -craniofacial-microsomia-)
+    {
+      name: "provider-craniofacial-microsomia",
+      path: "/craniofacial-microsomia",
+      redirect: { name: "provider-craniofacial-microsomia-level-1" },
+      children: [
+        {
+          name: "provider-craniofacial-microsomia-level-1",
+          path: "level-1",
+          component: CraniofacialMicrosomiaLevel1,
+          meta: {
+            title: "Level 1 | Craniofacial Microsomia",
+          },
+        },
+        {
+          name: "provider-craniofacial-microsomia-level-2",
+          path: "level-2",
+          component: UnderConstruction, // TODO: update with level 2 page when available
+          meta: {
+            title: "Level 2 | Craniofacial Microsomia",
           },
         },
       ],
