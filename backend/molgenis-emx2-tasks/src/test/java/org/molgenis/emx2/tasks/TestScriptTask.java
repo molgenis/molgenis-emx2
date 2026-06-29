@@ -134,4 +134,23 @@ print('unreachable')
     assertEquals(COMPLETED, csvTaskStatus);
     assertEquals(COMPLETED, zipTaskStatus);
   }
+
+  @Test
+  public void testScriptTaskStop() throws MalformedURLException {
+    TaskServiceInDatabase taskService =
+        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
+    Task bashTask =
+        new ScriptTask("bashTest")
+            .type(BASH)
+            .script(
+                """
+            echo "sleeping"
+            sleep 5
+            """);
+
+    taskService.submit(bashTask);
+    bashTask.stop();
+    assertEquals(ERROR, bashTask.getStatus());
+    assertTrue(bashTask.getDescription().startsWith("process has been stopped"));
+  }
 }
