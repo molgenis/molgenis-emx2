@@ -85,6 +85,9 @@ class Transform:
         """
         df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object')
         df_datasets.rename({'dataset type': 'table type'}, inplace=True)
+        df_datasets.drop(columns=['mapped to.source','mapped to.source dataset','mapped to.target',
+                                  'mapped to.target dataset','mapped from.source','mapped from.source dataset',
+                                  'mapped from.target','mapped from.target dataset'], inplace=True)
         df_datasets.to_csv(self.path + 'Tables.csv', index=False)
 
     def dataset_mappings(self):
@@ -100,12 +103,12 @@ class Transform:
         """
         df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
         df_variables.rename({'dataset': 'table'}, inplace=True)
-        df_variables.drop_duplicates(subset=['useExternalDefinition.resource','useExternalDefinition.dataset',
-                                             'useExternalDefinition.name','reused in resources.resource',
-                                             'reused in resources.variable.resource','reused in resources.variable.dataset',
-                                             'reused in resources.variable.name','mappings.source','mappings.source table',
-                                             'mappings.target','mappings.target table','mappings.target variable',
-                                             'mappings.repeats'], inplace=True)
+        df_variables.drop(columns=['useExternalDefinition.resource','useExternalDefinition.dataset',
+                                   'useExternalDefinition.name','reused in resources.resource',
+                                   'reused in resources.variable.resource','reused in resources.variable.dataset',
+                                   'reused in resources.variable.name','mappings.source','mappings.source table',
+                                   'mappings.target','mappings.target table','mappings.target variable',
+                                   'mappings.repeats'], inplace=True)
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_mappings(self):
@@ -128,5 +131,5 @@ class Transform:
         """ Transform Reused Variables
         """
         df_reused_variables = pd.read_csv(self.path + 'Reused variables.csv', dtype='object')
-        df_reused_variables.rename({'dataset': 'table'}, inplace=True)
+        df_reused_variables.rename({'variable.dataset': 'variable.table'}, inplace=True)
 
