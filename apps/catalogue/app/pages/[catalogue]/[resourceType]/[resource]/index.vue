@@ -126,12 +126,8 @@ const resourceQuery = `
       reasonSustained
       unitOfObservation
       recordTrigger
-      populationOncologyTopology ${moduleToString(ontologyFragment)}
-      populationOncologyMorphology ${moduleToString(ontologyFragment)}
-      inclusionCriteria ${moduleToString(ontologyFragment)}
-      otherInclusionCriteria
-      exclusionCriteria ${moduleToString(ontologyFragment)}
-      otherExclusionCriteria
+      inclusionCriteria
+      exclusionCriteria
       publications(orderby: {title:ASC}) {
         doi
         title
@@ -542,32 +538,12 @@ const population: IDefinitionListItem[] = [
       .join(", "),
   },
   {
-    label: "Population oncology topology",
-    type: "ONTOLOGY",
-    content: resource.value?.populationOncologyTopology,
-  },
-  {
-    label: "Population oncology morphology",
-    type: "ONTOLOGY",
-    content: resource.value?.populationOncologyMorphology,
-  },
-  {
     label: "Inclusion criteria",
-    type: "ONTOLOGY",
     content: resource.value?.inclusionCriteria,
   },
   {
-    label: "Other inclusion criteria",
-    content: resource.value?.otherInclusionCriteria,
-  },
-  {
     label: "Exclusion criteria",
-    type: "ONTOLOGY",
     content: resource.value?.exclusionCriteria,
-  },
-  {
-    label: "Other exclusion criteria",
-    content: resource.value?.otherExclusionCriteria,
   },
 ];
 

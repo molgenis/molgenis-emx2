@@ -373,17 +373,13 @@ export interface ICollections {
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
-  inclusionCriteria?: IOntologyNode[];
-  otherInclusionCriteria?: string;
-  exclusionCriteria?: IOntologyNode[];
-  otherExclusionCriteria?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
   populationExitOther?: string;
   populationDisease?: IOntologyNode[];
-  populationOncologyTopology?: IOntologyNode[];
-  populationOncologyMorphology?: IOntologyNode[];
   populationCoverage?: string;
   populationNotCovered?: string;
   counts?: IResourceCounts[];
@@ -818,58 +814,6 @@ export interface ICatalogueOntologies_FundingTypes extends IMgTableClass {
 }
 
 export interface ICatalogueOntologies_FundingTypes_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_ICDOMorphologies extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_ICDOMorphologies;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_ICDOMorphologies[];
-}
-
-export interface ICatalogueOntologies_ICDOMorphologies_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_ICDOTopologies extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_ICDOTopologies;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_ICDOTopologies[];
-}
-
-export interface ICatalogueOntologies_ICDOTopologies_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_InclusionExclusionCriteria
-  extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_InclusionExclusionCriteria;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_InclusionExclusionCriteria[];
-}
-
-export interface ICatalogueOntologies_InclusionExclusionCriteria_agg {
   count: number;
 }
 
@@ -1432,17 +1376,13 @@ export interface IResources extends IMgTableClass {
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
-  inclusionCriteria?: IOntologyNode[];
-  otherInclusionCriteria?: string;
-  exclusionCriteria?: IOntologyNode[];
-  otherExclusionCriteria?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   populationEntry?: IOntologyNode[];
   populationEntryOther?: string;
   populationExit?: IOntologyNode[];
   populationExitOther?: string;
   populationDisease?: IOntologyNode[];
-  populationOncologyTopology?: IOntologyNode[];
-  populationOncologyMorphology?: IOntologyNode[];
   populationCoverage?: string;
   populationNotCovered?: string;
   areasOfInformation?: IOntologyNode[];
@@ -1689,10 +1629,8 @@ export interface ISubpopulations extends IMgTableClass {
   comorbidity?: IOntologyNode[];
   countries?: IOntologyNode[];
   regions?: IOntologyNode[];
-  inclusionCriteria?: IOntologyNode[];
-  otherInclusionCriteria?: string;
-  exclusionCriteria?: IOntologyNode[];
-  otherExclusionCriteria?: string;
+  inclusionCriteria?: string;
+  exclusionCriteria?: string;
   contactPoint?: IContacts;
   publisher?: IOrganisations;
   creator?: IOrganisations[];

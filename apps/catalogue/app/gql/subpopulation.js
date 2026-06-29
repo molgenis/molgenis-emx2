@@ -41,16 +41,8 @@ export default gql`
         name
         order
       }
-      inclusionCriteria {
-        name
-        order
-      }
-      otherInclusionCriteria
-      exclusionCriteria {
-        name
-        order
-      }
-      otherExclusionCriteria
+      inclusionCriteria
+      exclusionCriteria
       comorbidity {
         name
         code
