@@ -59,46 +59,47 @@ class Transform:
         self.datasets()
 
     def collections(self):
-        """ Transform data in Collections: split into separate tables based on type
+        """ Transform Collections
         """
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object')
-
-        # split Collections table
         df_collections.rename({'datasets': 'tables'}, inplace=True)
 
         # write tables to file
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
     def catalogues(self):
-        """ Transform data in Catalogues: split into separate tables based on type
+        """ Transform Catalogues
         """
         df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object')
-
-        # split Collections table
         df_catalogues.rename({'datasets': 'tables'}, inplace=True)
-
-        # write tables to file
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
     def datasets(self):
-        """ Transform data in Datasets and rename table
+        """ Transform Datasets and rename
         """
         df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object')
-
-        # split Collections table
         df_datasets.rename({'dataset type': 'table type'}, inplace=True)
-
-        # write tables to file
         df_datasets.to_csv(self.path + 'Tables.csv', index=False)
 
     def dataset_mappings(self):
-        """ Transform data in Dataset mappings and rename table
+        """ Transform Dataset mappings and rename
         """
         df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object')
-
-        # split Collections table
         df_dataset_mappings.rename({'source dataset': 'source table',
                                     'target dataset': 'target table'}, inplace=True)
-
-        # write tables to file
         df_dataset_mappings.to_csv(self.path + 'Table mappings.csv', index=False)
+
+    def variables(self):
+        """ Transform Variables
+        """
+        df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
+        df_variables.rename({'dataset': 'table'}, inplace=True)
+        df_variables.to_csv(self.path + 'Variables.csv', index=False)
+
+    def variable_mappings(self):
+        """ Transform Variable mappings
+        """
+        df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
+        df_variable_mappings.rename({'source dataset': 'source table',
+                                    'target dataset': 'target table'}, inplace=True)
+        df_variable_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
