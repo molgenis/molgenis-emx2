@@ -1,7 +1,7 @@
 <template>
   <Dropdown label="Download" icon="download" icon-position="left">
-    <section class="p-4 w-52">
-      <h3>Download as:</h3>
+    <section class="p-4">
+      <h3 class="pb-2">Download as:</h3>
 
       <ul>
         <li>
