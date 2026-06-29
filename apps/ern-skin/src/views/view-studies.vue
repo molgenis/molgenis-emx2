@@ -1,12 +1,17 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Accordion, Page, PageHeader, PageSection } from "molgenis-viz";
+import Studies from "../components/Studies.vue";
+</script>
+
 <template>
   <Page id="page-documents">
-    <CustomPageHeader
+    <PageHeader
       class="erras-header"
       title="ERN-SKIN Registry"
       subtitle="STUDIES"
-      height="xlarge"
-      title-position-x="center"
-      title-position-y="center"
+      titlePositionX="center"
+      titlePositionY="center"
     />
     <PageSection
       id="section-documents"
@@ -42,13 +47,6 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Accordion, Page, PageSection } from "molgenis-viz";
-import CustomPageHeader from "../components/CustomPageHeader.vue";
-import Studies from "../components/Studies.vue";
-</script>
 
 <style lang="scss">
 #accordion-studies-nav {
