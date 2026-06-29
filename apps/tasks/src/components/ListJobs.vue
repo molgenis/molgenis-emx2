@@ -43,10 +43,7 @@ export default {
           window.location.reload();
         })
         .catch((error) => {
-          this.error = error;
-        })
-        .finally(() => {
-          this.loading = false;
+          console.error("Error cancelling job:", error);
         });
     },
   },

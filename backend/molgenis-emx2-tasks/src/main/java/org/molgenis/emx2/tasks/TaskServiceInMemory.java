@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public class TaskServiceInMemory implements TaskService {
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
   private final ExecutorService executorService;
-  private final Map<String, Task> tasks = new LinkedHashMap<>();
+  private final Map<String, Task> tasks = new ConcurrentHashMap<>();
   private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
 
   public TaskServiceInMemory() {

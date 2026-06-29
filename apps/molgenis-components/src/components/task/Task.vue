@@ -30,14 +30,15 @@ export default defineComponent({
       task: null as ITask | null,
       loading: true,
       error: false,
-      timeoutId: null as NodeJS.Timeout | null,
+      timeoutId: null as ReturnType<typeof setTimeout> | null,
     };
   },
   methods: {
     async startMonitorTask() {
       while (
         (!this.error && !this.task) ||
-        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
+        (this.task &&
+          !["COMPLETED", "ERROR", "CANCELLED"].includes(this.task.status))
       ) {
         const query = `{
           _tasks(id:"${this.taskId}")

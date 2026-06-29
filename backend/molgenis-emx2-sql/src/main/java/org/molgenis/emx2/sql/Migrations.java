@@ -197,7 +197,7 @@ public class Migrations {
 
           if (version < 33) {
             executeMigrationFile(
-                tdb, "migration32.sql", "add 'cancel' job status, if job table exsists");
+                tdb, "migration32.sql", "add 'cancel' job status, if job table exists");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

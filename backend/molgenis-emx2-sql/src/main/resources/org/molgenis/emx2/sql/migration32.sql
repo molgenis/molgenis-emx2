@@ -8,7 +8,7 @@ DO $$
         ) THEN
             INSERT INTO
                 "_SYSTEM_"."JobStatus" ("name", "JobStatus_TEXT_SEARCH_COLUMN")
-            VALUES ('CANCELLED', 'The job has been cancelled .')
+            VALUES ('CANCELLED', 'The job has been cancelled.')
             ON CONFLICT ("name") DO NOTHING;
         END IF;
     END $$;
