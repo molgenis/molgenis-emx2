@@ -136,6 +136,34 @@ print('unreachable')
   }
 
   @Test
+  public void testPythonExtraFiles_shouldFail() throws MalformedURLException, InterruptedException {
+    TaskServiceInDatabase taskService =
+        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
+
+    SqlDatabase database = new SqlDatabase(true);
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SYSTEM_SCHEMA);
+
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path =
+        new File(Objects.requireNonNull(classLoader.getResource("TestScriptTaskFail")).getFile())
+            .toPath();
+    ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
+    importDirectoryTask.run();
+
+    Task fileFailTask =
+        taskService.getTask(
+            taskService.submit(taskService.getScript("Filename fail test").parameters("")));
+    TaskStatus fileFailTaskStatus = fileFailTask.getStatus();
+    while (fileFailTaskStatus != COMPLETED && fileFailTaskStatus != ERROR) {
+      Thread.sleep(1000);
+      fileFailTaskStatus = fileFailTask.getStatus();
+    }
+    assertEquals(ERROR, fileFailTask.getStatus());
+    assertTrue(fileFailTask.getDescription().contains("Extra file name cannot be 'script.py'."));
+  }
+
+  @Test
   public void testScriptTaskStop() throws MalformedURLException {
     TaskServiceInDatabase taskService =
         new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
