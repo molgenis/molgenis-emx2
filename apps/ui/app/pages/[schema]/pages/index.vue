@@ -9,7 +9,6 @@ import BreadCrumbs from "../../../../../tailwind-components/app/components/Bread
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import ButtonDropdown from "../../../../../tailwind-components/app/components/button/Dropdown.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import NoResultsMessage from "../../../../../tailwind-components/app/components/text/NoResultsMessage.vue";
@@ -33,6 +32,7 @@ const crumbs: Crumb[] = [
 
 const formMetadata = ref();
 const showFormModal = ref<boolean>(false);
+const showPageDropdown = ref<boolean>(false);
 
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
@@ -58,6 +58,7 @@ const { data, refresh, error } = useAsyncData(
 );
 
 function onAddNewPageClick(type: string) {
+  showPageDropdown.value = false;
   if (type === "ConfigurablePage") {
     formMetadata.value = data.value?.configurablePageMetadata;
   } else {
@@ -68,6 +69,7 @@ function onAddNewPageClick(type: string) {
 
 async function onClose() {
   await refresh();
+  formMetadata.value = undefined;
 }
 
 function setNuxtLink(value: string, page: string): string {
@@ -89,18 +91,45 @@ function setNuxtLink(value: string, page: string): string {
     <div class="flex pb-7.5 justify-between">
       <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
       <div class="flex gap-2.5">
-        <ButtonDropdown label="Add new page">
+        <div class="relative">
           <Button
-            type="secondary"
-            class="w-full"
-            @click="onAddNewPageClick('ConfigurablePage')"
+            id="openAddNewPageDropdown"
+            type="outline"
+            icon="CaretDown"
+            iconPosition="right"
+            :aria-expanded="showPageDropdown"
+            aria-controls="addNewPageDropdown"
+            @click="showPageDropdown = !showPageDropdown"
           >
-            Simple page
+            Add new page
           </Button>
-          <Button type="secondary" @click="onAddNewPageClick('DeveloperPage')">
-            developer page
-          </Button>
-        </ButtonDropdown>
+          <div
+            id="addNewPageDropdown"
+            aria-labelledby="openAddNewPageDropdown"
+            class="absolute z-10 w-full shadow-md rounded-sm"
+            :class="{
+              block: showPageDropdown,
+              hidden: !showPageDropdown,
+            }"
+          >
+            <Button
+              id="addNewConfigurablePageBtn"
+              type="secondary"
+              class="w-full"
+              @click="onAddNewPageClick('ConfigurablePage')"
+            >
+              Simple page
+            </Button>
+            <Button
+              id="addNewDeveloperPageBtn"
+              type="secondary"
+              class="w-full"
+              @click="onAddNewPageClick('DeveloperPage')"
+            >
+              developer page
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
     <div
