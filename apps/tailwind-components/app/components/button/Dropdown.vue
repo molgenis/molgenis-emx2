@@ -38,4 +38,20 @@ withDefaults(
   </VDropdown>
 </template>
 
-<style></style>
+<style>
+div.v-popper__wrapper
+  > div.v-popper__arrow-container
+  > div.v-popper__arrow-outer {
+  display: none;
+}
+div.v-popper__wrapper
+  > div.v-popper__arrow-container
+  > div.v-popper__arrow-inner {
+  display: none;
+}
+div.v-popper__wrapper
+  > div.v-popper__arrow-container
+  > div.v-popper__arrow-container {
+  display: none;
+}
+</style>
