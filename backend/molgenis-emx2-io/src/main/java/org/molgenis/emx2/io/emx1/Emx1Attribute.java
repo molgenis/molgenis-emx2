@@ -274,13 +274,13 @@ public class Emx1Attribute {
       case REFBACK:
         return "refBack unsupported in emx1";
       case BOOL_ARRAY,
-          UUID_ARRAY,
-          STRING_ARRAY,
-          TEXT_ARRAY,
-          INT_ARRAY,
-          DATE_ARRAY,
-          DATETIME_ARRAY,
-          DECIMAL_ARRAY:
+      UUID_ARRAY,
+      STRING_ARRAY,
+      TEXT_ARRAY,
+      INT_ARRAY,
+      DATE_ARRAY,
+      DATETIME_ARRAY,
+      DECIMAL_ARRAY:
         return "array types unsupported in emx1: " + c.getColumnType();
       default:
         return "unknown type in emx1: " + c.getColumnType();
