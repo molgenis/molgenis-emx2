@@ -50,11 +50,3 @@ import Studies from "../components/Studies.vue";
     </PageSection>
   </Page>
 </template>
-
-<style lang="css">
-#accordion-studies-nav .accordion-heading {
-  background-color: #0084b4;
-  border-color: #0084b4;
-  color: #ffffff;
-}
-</style>

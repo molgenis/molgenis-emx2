@@ -152,6 +152,68 @@
   background-color: var(--erras-orange);
 }
 
+.navbar {
+  display: flex;
+  gap: 1em;
+  padding: 1em;
+  background-color: #0084b4;
+}
+
+.navbar .nav-item {
+  text-decoration: none;
+  color: white;
+}
+
+.navbar .nav-item:hover {
+  font-weight: bold;
+}
+
+.d3-viz.d3-pie .chart-context,
+.d3-viz.d3-geo-mercator .chart-context {
+  text-align: center;
+}
+
+.d3-viz.d3-pie .chart-context .chart-title,
+.d3-viz.d3-geo-mercator .chart-context .chart-title,
+.d3-viz.d3-column-chart .chart-title,
+.d3-viz.d3-table caption {
+  font-size: var(--viz-chart-title-font-size);
+  padding: 0;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend {
+  padding: 0.6em 0.8em;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend label {
+  margin-bottom: 0;
+}
+
+.d3-viz.d3-table thead th,
+.d3-viz.d3-table tbody td {
+  font-size: 0.85rem;
+  padding: 0.5em 0.4em;
+}
+
+#registryPatientsByAgeGroup .chart-area .chart-axes .tick text tspan {
+  font-size: 0.85em;
+}
+
+#registryPatientsBySexAtBirth .chart-area .pie-labels .pie-label-text {
+  font-size: 0.7rem !important;
+}
+
+.d3-pie > .chart-legend .legend-item .item-label {
+  font-size: 0.9rem;
+}
+
+#skinPublicDashboard .dashboard-content,
+#skinPublicDashboard .dashboard-content .dashboard-chart-layout {
+  gap: 1em;
+}
+
 #page-about-us .page-section {
   padding: 0;
 }
@@ -196,6 +258,30 @@
 #ernSkinStudies .page-header {
   padding: 2em 0;
   color: var(--erras-blue);
+}
+
+#accordion-studies-nav .accordion-heading {
+  background-color: #0084b4;
+  border-color: #0084b4;
+  color: #ffffff;
+}
+
+#accordion-accReq-nav .accordion-heading {
+  background-color: #00a453;
+  border-color: #00a453;
+  color: #ffffff;
+}
+
+#accordion-patient-nav .accordion-heading {
+  background-color: #f48b31;
+  border-color: #f48b31;
+  color: #ffffff;
+}
+
+#accordion-general-nav .accordion-heading {
+  background-color: #eb212e;
+  border-color: #eb212e;
+  color: #ffffff;
 }
 
 @media screen and (min-width: 812px) {

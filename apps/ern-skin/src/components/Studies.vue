@@ -5,23 +5,19 @@ import { request } from "graphql-request";
 
 // @ts-expect-error
 import { MessageBox } from "molgenis-viz";
+import type { IStudies } from "../../../metadata-utils/src/viz/ErnDashboard";
 
 const props = defineProps<{
   table: string;
   labelsColumn?: string;
 }>();
 
-interface DataProperties {
-  id?: string;
-  title: string;
-}
-
 interface DataResponse {
   data: Promise<Record<string, any>>;
 }
 
-const error = ref<Error | null>(null);
-const data = ref<DataProperties[]>();
+const error = ref<Error>();
+const data = ref<IStudies[]>();
 
 async function getStudies() {
   const query = gql`query {
@@ -32,15 +28,11 @@ async function getStudies() {
   const response: DataResponse = await request("../api/graphql", query);
   data.value = response[
     props.table as keyof DataResponse
-  ] as unknown as DataProperties[];
+  ] as unknown as IStudies[];
 }
 
 getStudies().catch((err) => {
-  if (!err.response.errors.length) {
-    error.value = err;
-  } else {
-    error.value = err.response.errors[0].message;
-  }
+  error.value = err.response?.errors[0].message || err;
 });
 </script>
 
@@ -79,10 +71,10 @@ getStudies().catch((err) => {
         class="study-element study-url"
         :href="
           '../tables/#/Studies?_filter=title&title=' +
-          study[labelsColumn as keyof DataProperties] +
+          study[labelsColumn as keyof IStudies] +
           '&_view=record&_limit=1'
         "
-        >{{ study[labelsColumn as keyof DataProperties] }}</a
+        >{{ study[labelsColumn as keyof IStudies] }}</a
       >
     </li>
   </ul>
