@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.Rdf;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,17 +147,6 @@ public class SemanticPrefixes {
         prefixedName -> {
           getNamespace(prefixedName.split(":")[0]);
           return prefixedName;
-        });
-  }
-
-  /** Maps a semantic to a list of {@link RdfPredicate}{@code s} that represent a sequence path. */
-  public List<RdfPredicate> mapAsRdfPredicate(final Semantic semantic) {
-    return map(
-        semantic,
-        Rdf::iri,
-        prefixedName -> {
-          getNamespace(prefixedName.split(":")[0]);
-          return () -> prefixedName;
         });
   }
 }

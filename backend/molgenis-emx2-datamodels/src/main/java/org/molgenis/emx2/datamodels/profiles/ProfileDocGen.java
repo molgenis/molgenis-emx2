@@ -85,11 +85,11 @@ public record ProfileDocGen(String outputFile) {
                       .formatted(
                           column.getName(),
                           column.getDescriptions(),
-                          (column.getSemantics().isEmpty()
+                          column.getSemantics().isEmpty()
                               ? "n/a"
                               : column.getSemantics().stream()
                                   .map(Semantic::toString)
-                                  .collect(Collectors.joining(", "))),
+                                  .collect(Collectors.joining(", ")),
                           column.getColumnType())
                   + LE);
         }

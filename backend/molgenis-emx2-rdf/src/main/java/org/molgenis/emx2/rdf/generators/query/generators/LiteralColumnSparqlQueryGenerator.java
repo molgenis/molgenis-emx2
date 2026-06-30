@@ -62,8 +62,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
   public List<GraphPattern> getPatterns() {
     if (column.getSemantics().isEmpty()) {
       return Collections.emptyList();
-    }
-    if (column.getSemantics().size() > 1) {
+    } else if (column.getSemantics().size() > 1) {
       return multiSemanticPattern();
     }
 
