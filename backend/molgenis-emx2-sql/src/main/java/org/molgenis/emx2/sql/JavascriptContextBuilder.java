@@ -9,29 +9,12 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-/**
- * Builds a context graph from a {@link Row} used in JavaScript evaluation context to execute column
- * expressions (computed values, default values, validation scripts, visibility rules).
- *
- * <p>Column values are keyed by {@link Column#getIdentifier()} (camelCase) so they are valid
- * JavaScript identifiers. References become nested maps; file columns are omitted. Database-level
- * JavaScript bindings (e.g. current user, session context) are merged in last.
- */
-public class ContextGraphBuilder {
+public class JavascriptContextBuilder {
 
-  private ContextGraphBuilder() {
+  private JavascriptContextBuilder() {
     // hide constructor
   }
 
-  /**
-   * Converts {@code row} to a {@code Map<identifier, value>} ready for use in Javascript
-   * interactions.
-   *
-   * @param columns Columns that should be included in the context, used to determine reference
-   *     structure and bindings
-   * @param row the row whose values are mapped
-   * @return a mutable map keyed by column identifier; reference columns are nested maps or lists
-   */
   public static Map<String, Object> fromRow(List<Column> columns, Row row) {
     Map<String, Object> map = new LinkedHashMap<>();
     for (Column c : columns) {

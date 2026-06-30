@@ -30,18 +30,18 @@ public class SqlRowProcessor {
   }
 
   public void validateAndCompute(Row row) throws MolgenisException {
-    Map<String, Object> jsGraph = ContextGraphBuilder.fromRow(columns, row);
+    Map<String, Object> graph = JavascriptContextBuilder.fromRow(columns, row);
 
     for (Column column : columnsToProcess) {
       if (column.isMgEditRoleColumn()) {
         PrefixEditRole.apply(column, row);
       } else if (column.hasDefaultValue() && !row.notNull(column.getName())) {
-        ResolveDefaultValue.apply(jsGraph, column, row);
+        ResolveDefaultValue.apply(graph, column, row);
       } else if (column.hasComputed()) {
-        ResolveComputedValue.apply(jsGraph, column, row);
-      } else if (isColumnVisible(column, jsGraph)) {
-        ValidateRequired.apply(jsGraph, column, row);
-        ValidateExpression.apply(jsGraph, column);
+        ResolveComputedValue.apply(graph, column, row);
+      } else if (isColumnVisible(column, graph)) {
+        ValidateRequired.apply(graph, column, row);
+        ValidateExpression.apply(graph, column);
       } else {
         row.clear(column);
       }
