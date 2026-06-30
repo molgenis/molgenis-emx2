@@ -10,8 +10,8 @@ import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
 /**
- * Builds a context graph from a {@link Row} used in JavaScript evaluation context to execute column expressions
- * (computed values, default values, validation scripts, visibility rules).
+ * Builds a context graph from a {@link Row} used in JavaScript evaluation context to execute column
+ * expressions (computed values, default values, validation scripts, visibility rules).
  *
  * <p>Column values are keyed by {@link Column#getIdentifier()} (camelCase) so they are valid
  * JavaScript identifiers. References become nested maps; file columns are omitted. Database-level
