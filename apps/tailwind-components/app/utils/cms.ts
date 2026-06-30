@@ -5,7 +5,7 @@ import type {
   IDependenciesJS,
 } from "../../types/cms";
 
-import cmsPagesQuery from "../gql/cmsPages";
+import { getContainersQuery } from "../gql/cmsPages";
 
 import type {
   IContainerMetadata,
@@ -34,7 +34,7 @@ export async function getPage(
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: cmsPagesQuery,
+      query: getContainersQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });

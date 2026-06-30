@@ -4,7 +4,7 @@ import org.apache.logging.log4j.util.Strings;
 
 public class EmailSettings {
 
-  private String host;
+  private final String host;
 
   private final String port;
   private final String starttlsEnable;
@@ -19,64 +19,64 @@ public class EmailSettings {
   private final String smtpAuthenticatorSenderPassword;
 
   private EmailSettings(EmailSettingsBuilder builder) {
-    this.host = builder.host;
-    this.port = builder.port;
+    host = builder.host;
+    port = builder.port;
 
-    this.starttlsEnable = builder.starttlsEnable;
-    this.sslProtocols = builder.sslProtocols;
+    starttlsEnable = builder.starttlsEnable;
+    sslProtocols = builder.sslProtocols;
 
-    this.socketFactoryPort = builder.socketFactoryPort;
-    this.socketFactoryClass = builder.socketFactoryClass;
-    this.socketFactoryFallback = builder.socketFactoryFallback;
-    this.debug = builder.debug;
+    socketFactoryPort = builder.socketFactoryPort;
+    socketFactoryClass = builder.socketFactoryClass;
+    socketFactoryFallback = builder.socketFactoryFallback;
+    debug = builder.debug;
 
-    this.auth = builder.auth;
-    this.senderEmail = builder.senderEmail;
-    this.smtpAuthenticatorSenderPassword = builder.smtpAuthenticatorSenderPassword;
+    auth = builder.auth;
+    senderEmail = builder.senderEmail;
+    smtpAuthenticatorSenderPassword = builder.smtpAuthenticatorSenderPassword;
   }
 
   public String getHost() {
-    return this.host;
+    return host;
   }
 
   public String getSenderEmail() {
-    return this.senderEmail;
+    return senderEmail;
   }
 
   public String getSmtpAuthenticatorSenderPassword() {
-    return this.smtpAuthenticatorSenderPassword;
+    return smtpAuthenticatorSenderPassword;
   }
 
   public String getPort() {
-    return this.port;
+    return port;
   }
 
   public String getStarttlsEnable() {
-    return this.starttlsEnable;
+    return starttlsEnable;
   }
 
   public String getSslProtocols() {
-    return this.sslProtocols;
+    return sslProtocols;
   }
 
   public String getSocketFactoryPort() {
-    return this.socketFactoryPort;
+    return socketFactoryPort;
   }
 
   public String getSocketFactoryClass() {
-    return this.socketFactoryClass;
+    return socketFactoryClass;
   }
 
   public String getSocketFactoryFallback() {
-    return this.socketFactoryFallback;
+    return socketFactoryFallback;
   }
 
   public String getDebug() {
-    return this.debug;
+    return debug;
   }
 
   public String getAuth() {
-    return this.auth;
+    return auth;
   }
 
   public static class EmailSettingsBuilder {

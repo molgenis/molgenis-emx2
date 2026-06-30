@@ -131,13 +131,13 @@ public class Generator {
       case BOOL_ARRAY -> "boolean[]";
       case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG -> "string";
       case EMAIL_ARRAY,
-              STRING_ARRAY,
-              TEXT_ARRAY,
-              DATE_ARRAY,
-              DATETIME_ARRAY,
-              UUID_ARRAY,
-              HYPERLINK_ARRAY,
-              LONG_ARRAY ->
+          STRING_ARRAY,
+          TEXT_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          UUID_ARRAY,
+          HYPERLINK_ARRAY,
+          LONG_ARRAY ->
           "string[]";
       case INT, DECIMAL, NON_NEGATIVE_INT -> "number";
       case INT_ARRAY, DECIMAL_ARRAY, NON_NEGATIVE_INT_ARRAY -> "number[]";

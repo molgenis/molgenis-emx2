@@ -267,7 +267,7 @@ When dealing with a design where a composite key indirectly refers to the same t
 one can use `refLink` to simplify the data processing. This way, complex duplicate mentioning of the same "final table"
 is unneeded and only the additional primary keys still need to be mentioned for the in-between tables.
 
-For example, imagine the following schema with 3 tables:
+For example, imagine `observations` about `samples` taken from `patients`:
 
 ```mermaid
 ---
@@ -275,38 +275,38 @@ config:
     markdownAutoWrap: false
 ---
 flowchart LR
-  t1["`**table 1**
-      p1: key=1 ref(table3)
-      p2: key=1 ref(table2) refLink(p1)
+  observations["`**observations**
+      patient: key=1 ref(patients)
+      sample: key=1 ref(samples) refLink(patient)
     `"]
-    
-  t2["`**table 2**
-      id1: key=1 ref(table3)
-      id2: key=1 string
-    `"]
-    
-  t3["`**table 3**
+
+  samples["`**samples**
+      patient: key=1 ref(patients)
       id: key=1 string
     `"]
-  
-  t1-->|p2|t2
-  t1-->|p1|t3
-  t2-->|id1|t3
-  
+
+  patients["`**patients**
+      id: key=1 string
+    `"]
+
+  observations-->|sample|samples
+  observations-->|patient|patients
+  samples-->|patient|patients
+
   classDef default text-align:left;
 ```
 
-Here, we have table 1 that has a composite key that refers to both table 2 and table 3. As table 2 also has a composite key with a reference to table 3, table 1 indirectly refers to table 3 twice. Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 are identical to `p1` from table 1. This way, only `id2` from table 2 needs to be specified during data processing. Note that table 2 requires a non-ref column for this to function properly.
+Here, `observations` has a composite key that refers to both `samples` and `patients`. Because `samples` also has a composite key with a reference to `patients`, `observations` indirectly refers to `patients` twice (once via `patient`, once via `sample`'s key). Therefore, `sample` in `observations` can set a `refLink(patient)` to indicate that the `patient` part of `samples` is identical to the `patient` already on `observations`. This way, only `id` from `samples` needs to be specified during data processing. Note that `samples` requires a non-ref column (here `id`) for this to function properly.
 
-For a data export, table 2 and table 3 stay identical no matter if a `refLink` is used. However, table 1 will be simplified by using a `refLink`, as explained in the table below:
+For a data export, `samples` and `patients` stay identical no matter if a `refLink` is used. However, `observations` will be simplified by using a `refLink`, as explained in the table below:
 
-| column | without refLink | with refLink | explanation                                                                  | 
-|--------|-----------------|--------------|------------------------------------------------------------------------------|
-| p1     | p1              | p1           | stays identical                                                              |
-| p2     | p2.id1          |              | refLink makes this unnecessary                                                |
-| p2     | p2.id2          | p2           | column name can be simplified as only 1 remaining column needs to be defined |
+| column  | without refLink  | with refLink | explanation                                                                  |
+|---------|------------------|--------------|------------------------------------------------------------------------------|
+| patient | patient          | patient      | stays identical                                                              |
+| sample  | sample.patient   |              | refLink makes this unnecessary                                                |
+| sample  | sample.id        | sample       | column name can be simplified as only 1 remaining column needs to be defined |
 
-?> Want to try out the example above? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip) and upload it to a database without a schema.
+?> Want to try out a `refLink` example? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip) and upload it to a database without a schema. The downloadable example uses generic `table1`/`table2`/`table3` names but has the same structure as the schema above.
 
 ## Ontologies
 
