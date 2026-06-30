@@ -60,7 +60,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   @Override
   public List<GraphPattern> getPatterns() {
-    if (column.getSemantics() == null) {
+    if (column.getSemantics().isEmpty()) {
       return Collections.emptyList();
     }
     if (column.getSemantics().size() > 1) {
