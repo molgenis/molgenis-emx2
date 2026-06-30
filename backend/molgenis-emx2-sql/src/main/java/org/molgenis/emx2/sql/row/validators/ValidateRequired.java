@@ -19,7 +19,7 @@ public class ValidateRequired {
 
   public static void apply(Map<String, Object> graphContext, Column column, Row row)
       throws MolgenisException {
-    if (!row.isDraft() && column.getComputed() == null && !AUTO_ID.equals(column.getColumnType())) {
+    if (!row.isDraft() && !column.hasComputed() && !column.isAutoId()) {
       if (column.isRequired() && hasEmptyFields(column, row)) {
         throw new MolgenisException("column '" + column.getName() + "' is required in " + row);
       } else if (column.isConditionallyRequired()) {
