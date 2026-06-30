@@ -74,6 +74,7 @@ public class ServeStaticFile {
       } else {
         // Running from IDE/CLI (classes folder)
         Path emx2Home = jarPath.getParent();
+
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("backend"));

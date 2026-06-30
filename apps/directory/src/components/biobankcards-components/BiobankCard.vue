@@ -20,14 +20,14 @@
 
     <CollectionsSection
       v-if="tabs['Collections'].active"
-      class="px-3 py-1"
+      class="px-3 py-1 overflow-auto"
       :biobank="biobank"
       :has-active-filters="filtersStore.hasActiveFilters"
     />
 
     <ServiceSection
       v-else-if="tabs['Services'].active"
-      class="px-3 py-1"
+      class="px-3 py-1 overflow-auto"
       :services="biobank.services"
       :selected-services="selectedServices"
       @update:addServices="handleAddServices"
@@ -36,7 +36,7 @@
 
     <OrganizationSection
       v-else-if="tabs['Organisation'].active"
-      class="px-3 py-1"
+      class="px-3 py-1 overflow-auto"
       :biobank="biobank"
     />
   </Card>

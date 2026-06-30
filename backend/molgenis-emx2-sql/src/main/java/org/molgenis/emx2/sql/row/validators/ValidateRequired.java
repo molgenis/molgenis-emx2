@@ -35,7 +35,7 @@ public class ValidateRequired {
       int countNotNullNotOverlapping = 0;
       int countNotNull = 0;
       for (Reference ref : refs) {
-        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+        if (!row.isNull(ref.getColumnName(), ref.getPrimitiveType())) {
           if (!ref.isOverlapping()) {
             countNotNullNotOverlapping++;
           }
@@ -46,13 +46,13 @@ public class ValidateRequired {
         throw new MolgenisException(
             String.format(
                 "Key (%s)=(%s) not present in table \"%s\"",
-                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream().map(Reference::getColumnName).collect(Collectors.joining(",")),
                 refs.stream()
                     .map(
                         ref ->
-                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                            row.isNull(ref.getColumnName(), ref.getPrimitiveType())
                                 ? "NULL"
-                                : row.getValueMap().get(ref.getName()).toString())
+                                : row.getValueMap().get(ref.getColumnName()).toString())
                     .collect(Collectors.joining(",")),
                 column.getRefTableName()));
       }
@@ -62,7 +62,7 @@ public class ValidateRequired {
   private static boolean hasEmptyFields(Column c, Row row) {
     if (c.isReference()) {
       for (Reference r : c.getReferences()) {
-        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+        if (row.isNull(r.getColumnName(), r.getPrimitiveType())) {
           return true;
         }
       }

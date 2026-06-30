@@ -554,9 +554,9 @@ public class TypeUtils {
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {
         if (list == null || list.isEmpty()) {
-          row.set(ref.getName(), null);
+          row.set(ref.getColumnName(), null);
         } else {
-          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
+          row.set(ref.getColumnName(), getRefValueFromList(ref.getPath(), list));
         }
       }
     }
@@ -590,11 +590,11 @@ public class TypeUtils {
   public static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
     for (Reference ref : column.getReferences()) {
       if (!ref.isOverlapping()) {
-        String name = ref.getName();
+        String name = ref.getColumnName();
         if (map == null) {
           row.set(name, null);
         } else {
-          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
+          row.set(ref.getColumnName(), getRefValueFromMap(ref.getPath(), map));
         }
       }
     }

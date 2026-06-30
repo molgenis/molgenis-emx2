@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -18,10 +19,13 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
 import org.molgenis.emx2.utils.RandomString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JWTgenerator {
   // 32 bytes / 256 bit, the minimum for HS256
   public static final int SHARED_SECRET_LENGTH = 32;
+  private static final Logger logger = LoggerFactory.getLogger(JWTgenerator.class);
 
   private static byte[] sharedSecret;
   private static MACSigner signer;
@@ -112,34 +116,59 @@ public class JWTgenerator {
 
   // parse token
   public static String getUserFromToken(Database database, String token) {
-    // On the consumer side, parse the JWS and verify its HMAC
-    try {
-      if (signer == null) {
-        init(database);
-      }
-      SignedJWT signedJWT = SignedJWT.parse(token);
-      Date experationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-      String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
-      String userName = signedJWT.getJWTClaimsSet().getSubject();
-      if (signedJWT.verify(verifier) && new Date().before(experationTime)) {
-        // verify user is known
-        User user = database.getUser(userName);
-        // if temp token we must verify has experationTime not too far in the future
-        if (user != null && "temporary".equals(tokenId)) {
-          Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
-          if (experationTime.before(Date.from(thirtyMinutes))) {
-            return user.getUsername();
-          }
-        }
-        // else if not temporary we must verify it is known
-        else if (user != null && user.hasToken(tokenId)) {
-          return user.getUsername();
-        }
-      }
-    } catch (Exception e) {
-      throw new MolgenisException("Cannot parse token");
+    if (signer == null) {
+      init(database);
     }
-    // else we throw exception
+
+    final SignedJWT signedJWT;
+    try {
+      signedJWT = SignedJWT.parse(token);
+    } catch (ParseException e) {
+      logger.warn("JWT parsing failed. tokenLength={}", token != null ? token.length() : 0, e);
+      throw new MolgenisException("Cannot parse token", e);
+    }
+
+    final JWTClaimsSet claimsSet;
+    try {
+      claimsSet = signedJWT.getJWTClaimsSet();
+    } catch (ParseException e) {
+      logger.warn("Failed to get JWT claims.", e);
+      throw new MolgenisException("Cannot parse token", e);
+    }
+
+    final Date expirationTime = claimsSet.getExpirationTime();
+    final String tokenId = claimsSet.getJWTID();
+    final String userName = claimsSet.getSubject();
+    if (expirationTime == null || tokenId == null || userName == null) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
+
+    final boolean isVerified;
+    try {
+      isVerified = signedJWT.verify(verifier);
+    } catch (JOSEException je) {
+      logger.warn("JWT verification failed. jwtId={}", tokenId, je);
+      throw new MolgenisException("Cannot verify token", je);
+    }
+
+    if (!isVerified || !new Date().before(expirationTime)) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
+
+    final User user = database.getUser(userName);
+    if (user == null) {
+      throw new MolgenisException("Invalid token or token expired");
+    }
+
+    if ("temporary".equals(tokenId)) {
+      Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
+      if (expirationTime.before(Date.from(thirtyMinutes))) {
+        return user.getUsername();
+      }
+    } else if (user.hasToken(tokenId)) {
+      return user.getUsername();
+    }
+
     throw new MolgenisException("Invalid token or token expired");
   }
 }

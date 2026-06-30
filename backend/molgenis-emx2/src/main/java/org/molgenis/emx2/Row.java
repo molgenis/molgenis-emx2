@@ -58,7 +58,7 @@ public class Row {
   public void clear(Column column) {
     if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
-        clear(ref.getName());
+        clear(ref.getColumnName());
       }
     } else {
       clear(column.getName());

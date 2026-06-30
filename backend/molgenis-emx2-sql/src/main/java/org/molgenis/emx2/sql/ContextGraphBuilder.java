@@ -53,9 +53,9 @@ public class ContextGraphBuilder {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           // must be a list
-          if (row.getValueMap().get(ref.getName()) != null) {
+          if (row.getValueMap().get(ref.getColumnName()) != null) {
             int i = 0;
-            for (Object value : (Object[]) row.get(ref.getName(), ref.getPrimitiveType())) {
+            for (Object value : (Object[]) row.get(ref.getColumnName(), ref.getPrimitiveType())) {
               if (i == result.size()) {
                 result.add(new LinkedHashMap<>());
               }
@@ -74,7 +74,7 @@ public class ContextGraphBuilder {
           List<String> path = new ArrayList();
           path.add(c.getIdentifier());
           path.addAll(ref.getPath());
-          putMap(result, ref.getPath(), row.get(ref.getName(), ref.getPrimitiveType()));
+          putMap(result, ref.getPath(), row.get(ref.getColumnName(), ref.getPrimitiveType()));
         }
       }
       return result;
