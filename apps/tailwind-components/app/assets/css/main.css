@@ -129,6 +129,7 @@
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
+    --background-color-dropdown: var(--color-white);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -208,6 +209,7 @@
     --text-code-output: var(--color-gray-800);
     --text-color-required: var(--color-gray-600);
     --text-content-required: "*";
+    --text-color-dropdown: var(--color-black);
 
     --border-color-theme: var(--color-gray-200);
     --border-color-button-primary: var(--color-blue-500);

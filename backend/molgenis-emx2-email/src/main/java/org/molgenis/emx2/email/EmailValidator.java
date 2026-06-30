@@ -65,7 +65,7 @@ public class EmailValidator {
   }
 
   private static List<String> flatten(List deepList) {
-    ArrayList<String> allowedList = new ArrayList<String>();
+    ArrayList<String> allowedList = new ArrayList<>();
 
     for (Object o : deepList) {
       if (o instanceof List<?>) {
