@@ -395,7 +395,7 @@ public class SqlTable implements Table {
                 !c.isRefback()
                     || (c.isReference()
                         && c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getName()))))
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))))
         .toList();
   }
 
@@ -409,7 +409,7 @@ public class SqlTable implements Table {
                     || c.getComputed() != null
                     || (c.isReference()
                         ? c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getName()))
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))
                         : columnsProvided.contains(c.getName())))
         .toList();
   }
@@ -560,7 +560,7 @@ public class SqlTable implements Table {
     for (Column key : pkeyFields) {
       if (key.isReference()) {
         for (Reference ref : key.getReferences()) {
-          result.add(ref.getJooqField().eq(row.get(ref.getName(), ref.getPrimitiveType())));
+          result.add(ref.getJooqField().eq(row.get(ref.getColumnName(), ref.getPrimitiveType())));
         }
       } else {
         result.add(key.getJooqField().eq(row.get(key)));
@@ -703,7 +703,9 @@ public class SqlTable implements Table {
         if (!ref.isOverlapping()) {
           columnCondition.add(
               ref.getJooqField()
-                  .eq(cast(r.get(ref.getName(), ref.getPrimitiveType()), ref.getJooqField())));
+                  .eq(
+                      cast(
+                          r.get(ref.getColumnName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
     } else if (key.isRefback()) {
