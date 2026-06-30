@@ -17,7 +17,7 @@ watch(
   () => session.value,
   () => {
     if (session.value) {
-      route.params._session = JSON.stringify(session.value);
+      route.params.email = session.value.email;
     }
   }
 );

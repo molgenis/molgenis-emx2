@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
-
+import { ref } from "vue";
 import {
   Accordion,
   Page,
@@ -10,16 +8,9 @@ import {
   FileList,
   // @ts-ignore
 } from "molgenis-viz";
+
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
-
-const route = useRoute();
-const user = computed<string>(() => {
-  if (route && route.params._session) {
-    const session = JSON.parse(route.params._session as string);
-    return session.email;
-  }
-});
 
 const selectedLanguage = ref("");
 const languageOptions = [
@@ -76,9 +67,9 @@ const languageOptions = [
     >
       <h2 id="section-documents-title"></h2>
       <nav class="navbar">
-        <router-link class="nav-item" :to="{ name: 'studies' }"
-          >Studies</router-link
-        >
+        <router-link class="nav-item" :to="{ name: 'studies' }">
+          Studies
+        </router-link>
       </nav>
       <Accordion
         id="accReq-nav"
@@ -116,7 +107,7 @@ const languageOptions = [
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <p v-if="user && user !== 'anonymous'">
+        <div v-if="$route.params.email !== 'anonymous'">
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"
@@ -145,7 +136,10 @@ const languageOptions = [
               </select>
             </div>
             <div v-if="selectedLanguage" class="mt-3">
-              <PrivateFiles :labelValue="selectedLanguage" />
+              <PrivateFiles
+                :user="($route.params.email as string)"
+                :labelValue="selectedLanguage"
+              />
             </div>
           </Accordion>
           <Accordion
@@ -153,7 +147,10 @@ const languageOptions = [
             title="Templates Uploads"
             :isOpenByDefault="false"
           >
-            <PrivateFiles labelValue="template" />
+            <PrivateFiles
+              :user="($route.params.email as string)"
+              labelValue="template"
+            />
           </Accordion>
           <Accordion
             id="mySubfolder-nav"
@@ -167,15 +164,15 @@ const languageOptions = [
               doiColumn="doi"
             />
           </Accordion>
-        </p>
-        <p v-else>
+        </div>
+        <div v-else>
           <strong>Publications</strong>
           <Publications
             table="Publications"
             labelsColumn="title"
             doiColumn="doi"
           />
-        </p>
+        </div>
       </Accordion>
     </PageSection>
   </Page>
