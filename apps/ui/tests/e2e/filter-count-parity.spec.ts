@@ -105,13 +105,11 @@ test.describe("filter count parity regression (type test schema)", () => {
       const sectionName = section.label;
       const sectionId = `filter-section-${section.columnId}`;
 
-      const sectionHeading = page
-        .locator("h3")
-        .filter({
-          hasText: new RegExp(
-            `^${sectionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`
-          ),
-        });
+      const sectionHeading = page.locator("h3").filter({
+        hasText: new RegExp(
+          `^${sectionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`
+        ),
+      });
       const exists = await sectionHeading.count().then((c) => c > 0);
       expect(exists, `section "${sectionName}" must be present`).toBe(true);
 
