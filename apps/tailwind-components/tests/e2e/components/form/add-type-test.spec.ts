@@ -212,7 +212,7 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .locator('[id="type test-Types-datetimeType-form-field"]')
     .getByLabel("Calendar icon")
     .click();
-  await page.getByText("11").click();
+  await page.locator('[data-test-id="dp-2026-06-11"]').getByText("11").click();
 
   // Date time array
   await page
