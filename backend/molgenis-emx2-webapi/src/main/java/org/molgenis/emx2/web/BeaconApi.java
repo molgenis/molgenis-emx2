@@ -6,6 +6,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -60,17 +61,17 @@ public class BeaconApi {
     ctx.attribute("specification", specification);
   }
 
-  private static Schema getRequestedSchema(Context ctx) {
+  private static Optional<Schema> getRequestedSchema(Context ctx) {
     Schema schema = getSchema(ctx);
     if (schema == null && ctx.pathParamMap().containsKey(SCHEMA)) {
       throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
     }
-    return schema;
+    return Optional.ofNullable(schema);
   }
 
   private static void getInfo(Context ctx) {
     ctx.contentType(Constants.ACCEPT_JSON);
-    Schema schema = getRequestedSchema(ctx);
+    Schema schema = getRequestedSchema(ctx).orElse(null);
 
     Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     ctx.json(new Info(database).getResponse(schema));
@@ -107,9 +108,9 @@ public class BeaconApi {
   private static void entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
 
-    Schema schema = getRequestedSchema(ctx);
-    if (schema != null) {
-      ctx.json(queryEntryType.query(schema));
+    Optional<Schema> schema = getRequestedSchema(ctx);
+    if (schema.isPresent()) {
+      ctx.json(queryEntryType.query(schema.get()));
     } else {
       Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
       ctx.json(queryEntryType.query(database));
