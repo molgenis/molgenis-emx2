@@ -13,7 +13,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 public class ResolveComputedValue {
 
   private ResolveComputedValue() {
-    throw new UnsupportedOperationException("Cannot instantiate utility class");
+    // hide constructor
   }
 
   public static void apply(Map<String, Object> contextGraph, Column column, Row row) {

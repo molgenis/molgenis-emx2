@@ -20,7 +20,7 @@ import org.molgenis.emx2.Row;
 public class ContextGraphBuilder {
 
   private ContextGraphBuilder() {
-    throw new IllegalStateException("Utility class");
+    // hide constructor
   }
 
   /**

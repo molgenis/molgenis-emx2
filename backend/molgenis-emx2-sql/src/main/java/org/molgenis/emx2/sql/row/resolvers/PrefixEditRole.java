@@ -7,7 +7,7 @@ import org.molgenis.emx2.Row;
 public class PrefixEditRole {
 
   private PrefixEditRole() {
-    throw new UnsupportedOperationException("Cannot instantiate utility class");
+    // hide constructor
   }
 
   public static void apply(Column column, Row row) {

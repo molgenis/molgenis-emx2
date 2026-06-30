@@ -8,7 +8,7 @@ import org.molgenis.emx2.sql.SqlTypeUtils;
 public class ValidateExpression {
 
   private ValidateExpression() {
-    throw new AssertionError("Can't instantiate utility class");
+    // hide constructor
   }
 
   public static void apply(Map<String, Object> context, Column column) {

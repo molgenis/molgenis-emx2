@@ -14,7 +14,7 @@ import org.molgenis.emx2.Row;
 public class ValidateRequired {
 
   private ValidateRequired() {
-    throw new AssertionError("Can't instantiate utility class");
+    // hide constructor
   }
 
   public static void apply(Map<String, Object> graphContext, Column column, Row row)
