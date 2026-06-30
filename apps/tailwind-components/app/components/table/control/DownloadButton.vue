@@ -1,12 +1,12 @@
 <template>
   <Dropdown label="Download" icon="download" icon-position="left">
-    <section class="p-4">
-      <h3 class="pb-2">Download as:</h3>
+    <div class="p-4">
+      <h3 class="pb-2 text-table-column-header">Download as:</h3>
 
       <ul>
         <li>
           <Button
-            type="inline"
+            type="secondary"
             size="tiny"
             :href="`/${schemaId}/api/csv/${tableId}`"
           >
@@ -15,7 +15,7 @@
         </li>
         <li>
           <Button
-            type="inline"
+            type="secondary"
             size="tiny"
             :href="`/${schemaId}/api/zip/${tableId}`"
           >
@@ -24,7 +24,7 @@
         </li>
         <li>
           <Button
-            type="inline"
+            type="secondary"
             size="tiny"
             :href="`/${schemaId}/api/excel/${tableId}`"
           >
@@ -33,7 +33,7 @@
         </li>
         <li>
           <Button
-            type="inline"
+            type="secondary"
             size="tiny"
             :href="`/${schemaId}/api/jsonld/${tableId}`"
             target="_blank"
@@ -43,7 +43,7 @@
         </li>
         <li>
           <Button
-            type="inline"
+            type="secondary"
             size="tiny"
             :href="`/${schemaId}/api/ttl/${tableId}`"
             target="_blank"
@@ -52,7 +52,7 @@
           </Button>
         </li>
       </ul>
-    </section>
+    </div>
   </Dropdown>
 </template>
 
