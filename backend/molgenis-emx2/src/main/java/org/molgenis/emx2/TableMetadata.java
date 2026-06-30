@@ -35,35 +35,24 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
   // table semantics, typically an ontology URI
-  private Semantic[] semantics = null;
+  private List<Semantic> semantics = Collections.emptyList();
   // profiles to which this table belongs
   private String[] profiles;
 
-  public Semantic[] getSemantics() {
-    if (semantics == null) return new Semantic[] {};
+  public List<Semantic> getSemantics() {
     return semantics;
   }
 
-  public String[] getSemanticsAsString() {
-    if (semantics == null) return null;
-    return Arrays.stream(semantics).map(Semantic::toString).toArray(String[]::new);
-  }
-
-  public TableMetadata setSemantics(Semantic[] semantics) {
-    if (semantics == null || semantics.length == 0) {
-      this.semantics = null;
-    } else {
-      this.semantics = semantics;
-    }
+  public TableMetadata setSemantics(List<Semantic> semantics) {
+    this.semantics = semantics == null || semantics.isEmpty() ? Collections.emptyList() : semantics;
     return this;
   }
 
   public TableMetadata setSemantics(String... semantics) {
-    if (semantics == null || semantics.length == 0) {
-      this.semantics = null;
-    } else {
-      this.semantics = Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
-    }
+    this.semantics =
+        semantics == null || semantics.length == 0
+            ? Collections.emptyList()
+            : Arrays.stream(semantics).map(Semantic::new).toList();
     return this;
   }
 

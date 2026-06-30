@@ -34,7 +34,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (column.getSemantics() == null) {
+      if (column.getSemantics().isEmpty()) {
         continue;
       }
 
@@ -53,7 +53,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics().length == 0) {
+    if (tableMetadata.getSemantics().isEmpty()) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -85,7 +85,7 @@ public class TableQueryGenerator implements QueryGenerator {
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
     RdfValue[] semantics =
-        Arrays.stream(tableMetadata.getSemantics())
+        tableMetadata.getSemantics().stream()
             .map(
                 semantic ->
                     (RdfValue)

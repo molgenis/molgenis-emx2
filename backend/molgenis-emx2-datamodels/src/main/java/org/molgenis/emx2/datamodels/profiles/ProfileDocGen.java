@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 
 public record ProfileDocGen(String outputFile) {
@@ -60,8 +61,10 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
-                        table.getSemantics().length != 0
-                            ? (String.join(", ", table.getSemanticsAsString()))
+                        !table.getSemantics().isEmpty()
+                            ? table.getSemantics().stream()
+                                .map(Semantic::toString)
+                                .collect(Collectors.joining(", "))
                             : "n/a",
                         table.getProfiles() != null
                             ? (String.join(", ", table.getProfiles()))
@@ -83,7 +86,9 @@ public record ProfileDocGen(String outputFile) {
                           column.getName(),
                           column.getDescriptions(),
                           (column.getSemantics() != null
-                              ? String.join(", ", column.getSemanticsAsString())
+                              ? column.getSemantics().stream()
+                                  .map(Semantic::toString)
+                                  .collect(Collectors.joining(", "))
                               : "n/a"),
                           column.getColumnType())
                   + LE);

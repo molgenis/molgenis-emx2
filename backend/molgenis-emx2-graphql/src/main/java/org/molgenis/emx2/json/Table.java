@@ -3,10 +3,7 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.*;
 
 public class Table {
   private String schemaId;
@@ -58,7 +55,8 @@ public class Table {
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
-    this.semantics = tableMetadata.getSemanticsAsString();
+    this.semantics =
+        tableMetadata.getSemantics().stream().map(Semantic::toString).toArray(String[]::new);
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))

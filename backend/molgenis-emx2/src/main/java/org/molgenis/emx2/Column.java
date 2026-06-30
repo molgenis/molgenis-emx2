@@ -41,7 +41,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private Semantic[] semantics = null; // absolute IRI or prefixed name
+  private List<Semantic> semantics = Collections.emptyList(); // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -94,31 +94,20 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public Semantic[] getSemantics() {
-    if (semantics == null) return new Semantic[] {};
+  public List<Semantic> getSemantics() {
     return semantics;
   }
 
-  public String[] getSemanticsAsString() {
-    if (semantics == null) return null;
-    return Arrays.stream(semantics).map(Semantic::toString).toArray(String[]::new);
-  }
-
-  public Column setSemantics(Semantic[] semantics) {
-    if (semantics == null || semantics.length == 0) {
-      this.semantics = null;
-    } else {
-      this.semantics = semantics;
-    }
+  public Column setSemantics(List<Semantic> semantics) {
+    this.semantics = semantics == null || semantics.isEmpty() ? Collections.emptyList() : semantics;
     return this;
   }
 
   public Column setSemantics(String... semantics) {
-    if (semantics == null || semantics.length == 0) {
-      this.semantics = null;
-    } else {
-      this.semantics = Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
-    }
+    this.semantics =
+        semantics == null || semantics.length == 0
+            ? Collections.emptyList()
+            : Arrays.stream(semantics).map(Semantic::new).toList();
     return this;
   }
 

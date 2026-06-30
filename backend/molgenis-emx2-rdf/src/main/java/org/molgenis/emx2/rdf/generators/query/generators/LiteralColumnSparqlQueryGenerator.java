@@ -63,7 +63,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     if (column.getSemantics() == null) {
       return Collections.emptyList();
     }
-    if (column.getSemantics().length > 1) {
+    if (column.getSemantics().size() > 1) {
       return multiSemanticPattern();
     }
 
@@ -71,7 +71,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
         column
             .getSchema()
             .getSemanticPrefixes()
-            .mapAsRdfPredicate(column.getSemantics()[0])
+            .mapAsRdfPredicate(column.getSemantics().getFirst())
             .getFirst();
     GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
@@ -82,8 +82,8 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<GraphPattern> semanticPatterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
 
-    for (int i = 0; i < column.getSemantics().length; i++) {
-      Semantic semantic = column.getSemantics()[i];
+    for (int i = 0; i < column.getSemantics().size(); i++) {
+      Semantic semantic = column.getSemantics().get(i);
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
       RdfPredicate predicate =
           column.getSchema().getSemanticPrefixes().mapAsRdfPredicate(semantic).getFirst();

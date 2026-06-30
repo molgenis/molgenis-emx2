@@ -262,8 +262,10 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      if (table.getSemantics().length != 0)
-        row.setStringArray(SEMANTICS, table.getSemanticsAsString());
+      if (!table.getSemantics().isEmpty())
+        row.setStringArray(
+            SEMANTICS,
+            table.getSemantics().stream().map(Semantic::toString).toArray(String[]::new));
       if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {

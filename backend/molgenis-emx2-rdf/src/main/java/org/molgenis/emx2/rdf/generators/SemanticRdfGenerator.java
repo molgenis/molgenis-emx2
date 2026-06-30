@@ -74,7 +74,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     }
 
     for (final Column column : table.getMetadata().getColumns()) {
-      if (column.getSemantics() != null) {
+      if (!column.getSemantics().isEmpty()) {
         for (final Value value : retrieveValues(rdfMapData, row, column)) {
           for (Semantic semantic : column.getSemantics()) {
             IRI predicate =
