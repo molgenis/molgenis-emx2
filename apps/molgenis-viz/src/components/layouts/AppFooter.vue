@@ -37,11 +37,7 @@
                   <span class="visually-hidden">
                     visit the molgenis website to learn more
                   </span>
-                  <img
-                    src="/img/molgenis-logo-blue-text.png"
-                    class="molgenis-logo"
-                    alt="molgenis open source data platform"
-                  />
+                  <MolgenisLogo />
                 </a>
               </li>
             </ul>
@@ -49,100 +45,45 @@
         </div>
       </div>
     </div>
-    <div class="citation-container" v-if="showProjectCitation">
-      <div class="footer-content">
-        <nav>
-          <ul class="footer-list list-horizontal">
-            <slot name="site-citation"></slot>
-          </ul>
-        </nav>
-      </div>
-    </div>
-    <div class="molgenis-meta" v-if="showMolgenisMeta">
-      <div class="footer-content">
-        <p>
-          This database was created using
-          <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
-          <span v-if="manifest.SpecificationVersion">
-            using version {{ manifest.SpecificationVersion }}
-          </span>
-        </p>
-      </div>
-    </div>
   </footer>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-
-const props = defineProps({
-  // Set the title of the first set of navigation links
-  firstColumnTitle: {
-    type: String,
-    default: "My Project",
-  },
-
-  // Set the title of the second set of navigation links
-  secondColumnTitle: {
-    type: String,
-    default: "For members",
-  },
-
-  // If True (default), the footer area for project citations
-  // will be shown
-  showProjectCitation: {
-    type: Boolean,
-    default: false,
-  },
-
-  // If True (default), metadata about your molgenis instance will
-  // be displayed.
-  showMolgenisMeta: {
-    type: Boolean,
-    default: true,
-  },
-});
-
-async function getManifest() {
-  const query = gql`
-    {
-      _manifest {
-        ImplementationVersion
-        SpecificationVersion
-      }
-    }
-  `;
-  const response = await request("/api/graphql", query);
-  return response._manifest;
-}
-
-let manifest = ref({});
-
-onMounted(() => {
-  if (props.showMolgenisMeta) {
-    manifest.value = getManifest();
+<script lang="ts" setup>
+import MolgenisLogo from "../display/MolgenisLogo.vue";
+const props = withDefaults(
+  defineProps<{
+    firstColumnTitle?: string;
+    secondColumnTitle?: string;
+    showProjectCitation?: boolean;
+  }>(),
+  {
+    firstColumnTitle: "My Project",
+    secondColumnTitle: "For members",
+    showProjectCitation: false,
   }
-});
+);
 </script>
 
 <style lang="scss">
 .app-footer {
   display: grid;
   grid-template-columns: 1fr;
+  margin-bottom: 1em;
 
   .footer-content {
     box-sizing: content-box;
     margin: 0 auto;
 
     @media (min-width: 917px) {
-      max-width: $max-width;
+      max-width: var(--max-width);
     }
   }
 
   .footer-list-title {
-    @include textTransform(bold);
+    text-transform: uppercase;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: 0.08em;
   }
 
   .footer-list {
@@ -182,7 +123,7 @@ onMounted(() => {
   }
 
   .links-container {
-    background-color: $gray-050;
+    background-color: var(--gray-050);
 
     .footer-content {
       display: grid;
@@ -201,7 +142,10 @@ onMounted(() => {
       .footer-links {
         .footer-list {
           a {
-            @include textTransform;
+            text-transform: uppercase;
+            font-size: 11pt;
+            font-weight: 400;
+            letter-spacing: 0.08em;
             text-decoration: none;
             padding-bottom: 2px;
             border-bottom: 2px solid transparent;
@@ -223,27 +167,6 @@ onMounted(() => {
         }
       }
     }
-  }
-
-  .citation-container {
-    width: 100%;
-    text-align: center;
-    .footer-list {
-      li {
-        a {
-          @include textTransform;
-          color: $gray-700;
-          font-size: 0.8rem;
-        }
-      }
-    }
-  }
-
-  .molgenis-meta {
-    padding: 1em;
-    text-align: center;
-    background-color: $gray-000;
-    font-size: 0.9rem;
   }
 }
 </style>

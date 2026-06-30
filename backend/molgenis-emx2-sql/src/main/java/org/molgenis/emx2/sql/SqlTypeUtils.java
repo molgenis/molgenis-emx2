@@ -71,7 +71,7 @@ public class SqlTypeUtils extends TypeUtils {
       } else {
         if (c.isReference()) {
           for (Reference ref : c.getReferences()) {
-            row.clear(ref.getName());
+            row.clear(ref.getColumnName());
           }
         } else {
           row.clear(c.getName());
@@ -117,7 +117,7 @@ public class SqlTypeUtils extends TypeUtils {
       int countNotNullNotOverlapping = 0;
       int countNotNull = 0;
       for (Reference ref : refs) {
-        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+        if (!row.isNull(ref.getColumnName(), ref.getPrimitiveType())) {
           if (!ref.isOverlapping()) {
             countNotNullNotOverlapping++;
           }
@@ -128,13 +128,13 @@ public class SqlTypeUtils extends TypeUtils {
         throw new MolgenisException(
             String.format(
                 "Key (%s)=(%s) not present in table \"%s\"",
-                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream().map(ref -> ref.getColumnName()).collect(Collectors.joining(",")),
                 refs.stream()
                     .map(
                         ref ->
-                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                            row.isNull(ref.getColumnName(), ref.getPrimitiveType())
                                 ? "NULL"
-                                : row.getValueMap().get(ref.getName()).toString())
+                                : row.getValueMap().get(ref.getColumnName()).toString())
                     .collect(Collectors.joining(",")),
                 c.getRefTableName()));
       }
@@ -144,7 +144,7 @@ public class SqlTypeUtils extends TypeUtils {
   private static boolean hasEmptyFields(Column c, Row row) {
     if (c.isReference()) {
       for (Reference r : c.getReferences()) {
-        if (row.isNull(r.getName(), r.getPrimitiveType())) {
+        if (row.isNull(r.getColumnName(), r.getPrimitiveType())) {
           return true;
         }
       }
@@ -310,9 +310,9 @@ public class SqlTypeUtils extends TypeUtils {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           // must be a list
-          if (row.getValueMap().get(ref.getName()) != null) {
+          if (row.getValueMap().get(ref.getColumnName()) != null) {
             int i = 0;
-            for (Object value : (Object[]) row.get(ref.getName(), ref.getPrimitiveType())) {
+            for (Object value : (Object[]) row.get(ref.getColumnName(), ref.getPrimitiveType())) {
               if (i == result.size()) {
                 result.add(new LinkedHashMap<>());
               }
@@ -331,7 +331,7 @@ public class SqlTypeUtils extends TypeUtils {
           List<String> path = new ArrayList();
           path.add(c.getIdentifier());
           path.addAll(ref.getPath());
-          putMap(result, ref.getPath(), row.get(ref.getName(), ref.getPrimitiveType()));
+          putMap(result, ref.getPath(), row.get(ref.getColumnName(), ref.getPrimitiveType()));
         }
       }
       return result;
