@@ -14,6 +14,17 @@ Loading a database with a beacon profile will make the Beacon API available, com
 - [Beacon VP (EJPRD) specification](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec) served
   at `<server>/<database>/api/beacon_vp`
 
+### Definitions
+
+Two terms recur throughout this documentation and the Beacon v2 framework:
+
+- **Entry type** — a *category* of data the Beacon serves, such as Individuals, Genomic Variants, Datasets,
+  Analyses, Cohorts and Runs. Each entry type maps to an EMX2 table, is associated with an ontology concept, and
+  backs one model endpoint (e.g. `/individuals`, `/g_variants`). The available entry types and their schemas are
+  described by the `/configuration` and `/entry_types` endpoints.
+- **Entry** — a *single record* of an entry type, i.e. one row returned from the corresponding table. For example,
+  `GET /individuals/Ind001` retrieves one entry of entry type Individuals.
+
 ### Setup
 
 #### Create a database
