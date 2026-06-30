@@ -1,14 +1,74 @@
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
+
+import {
+  Accordion,
+  Page,
+  PageHeader,
+  PageSection,
+  FileList,
+  // @ts-ignore
+} from "molgenis-viz";
+import PrivateFiles from "../components/PrivateFiles.vue";
+import Publications from "../components/Publications.vue";
+
+const route = useRoute();
+const user = computed<string>(() => {
+  if (route && route.params._session) {
+    const session = JSON.parse(route.params._session as string);
+    return session.email;
+  }
+});
+
+const selectedLanguage = ref("");
+const languageOptions = [
+  "Arabic",
+  "Bulgarian",
+  "Croatian",
+  "Czech",
+  "Danish",
+  "Dutch",
+  "English",
+  "Estonian",
+  "Finnish",
+  "French",
+  "German",
+  "Greek",
+  "Hebrew",
+  "Hungarian",
+  "Italian",
+  "Latvian",
+  "Lithuanian",
+  "Norwegian",
+  "Polish",
+  "Portuguese",
+  "Romanian",
+  "Slovak",
+  "Slovene",
+  "Spanish",
+  "Swedish",
+  "Turkish",
+];
+</script>
+
 <template>
   <Page id="page-documents">
-    <CustomPageHeader
+    <PageHeader
       class="erras-header"
-      title="ERN-Skin Registry"
-      subtitle="Additional Information"
       imageSrc="img/erras-header.jpg"
-      height="xlarge"
-      title-position-x="center"
-      title-position-y="center"
-    />
+      titlePositionX="center"
+      titlePositionY="center"
+    >
+      <div class="erras-header text-center p-4">
+        <h1 class="h5 m-0 text-uppercase font-weight-bold">
+          ERN-Skin Registry
+        </h1>
+        <h2 class="h1 m-0 font-weight-light">
+          Registry for Rare and Undiagnosed Skin Diseases
+        </h2>
+      </div>
+    </PageHeader>
     <PageSection
       id="section-documents"
       aria-labelledby="section-documents-title"
@@ -56,7 +116,7 @@
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <p v-if="user !== 'anonymous' && user">
+        <p v-if="user && user !== 'anonymous'">
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"
@@ -120,86 +180,6 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import {
-  Accordion,
-  Page,
-  PageSection,
-  FileList,
-  MessageBox,
-} from "molgenis-viz";
-import CustomPageHeader from "../components/CustomPageHeader.vue";
-import PrivateFiles from "../components/PrivateFiles.vue";
-import Publications from "../components/Publications.vue";
-import { ref } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-
-const error = ref<Error | null>(null);
-const loading = ref(true);
-const user = ref<string | null>(null);
-
-const selectedLanguage = ref("");
-const languageOptions = [
-  "Arabic",
-  "Bulgarian",
-  "Croatian",
-  "Czech",
-  "Danish",
-  "Dutch",
-  "English",
-  "Estonian",
-  "Finnish",
-  "French",
-  "German",
-  "Greek",
-  "Hebrew",
-  "Hungarian",
-  "Italian",
-  "Latvian",
-  "Lithuanian",
-  "Norwegian",
-  "Polish",
-  "Portuguese",
-  "Romanian",
-  "Slovak",
-  "Slovene",
-  "Spanish",
-  "Swedish",
-  "Turkish",
-];
-
-async function getSession() {
-  const query = gql`
-    query {
-      _session {
-        email
-      }
-    }
-  `;
-  const response = await request(
-    "/api/graphql",
-    query,
-    {},
-    { credentials: "include" }
-  );
-  user.value = response._session?.email || null;
-}
-
-getSession()
-  .catch((err: any) => {
-    if (err.response?.errors?.length) {
-      error.value = err.response.errors[0].message;
-    } else {
-      error.value = err;
-    }
-  })
-  .finally(() => {
-    loading.value = false;
-  });
-</script>
 
 <style lang="scss">
 .navbar {

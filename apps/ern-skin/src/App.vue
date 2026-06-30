@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
+
+import type { ISession } from "../../tailwind-components/types/types";
 
 // @ts-ignore
 import { Molgenis } from "molgenis-components";
 // @ts-ignore
 import { AppFooter } from "molgenis-viz";
 
-const session = ref(null);
+const route = useRoute();
+const session = ref<ISession>();
 const page = ref(null);
+
+watch(
+  () => session.value,
+  () => {
+    if (session.value) {
+      route.params._session = JSON.stringify(session.value);
+    }
+  }
+);
 </script>
 
 <template>
