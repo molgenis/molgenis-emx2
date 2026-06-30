@@ -429,7 +429,7 @@ class SqlTableMetadataExecutor {
   static void checkNoColumnWithSameNameExistsInSubclass(
       String columnName, TableMetadata tm, DSLContext jooq) {
     String recursiveQuerySql =
-        """
+"""
 WITH RECURSIVE inherited_columns AS (
 SELECT\s
   a.table_schema,
