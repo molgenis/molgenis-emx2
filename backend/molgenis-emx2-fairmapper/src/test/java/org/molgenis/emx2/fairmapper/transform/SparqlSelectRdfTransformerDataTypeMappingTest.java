@@ -5,6 +5,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
 
 import java.util.Arrays;
 import java.util.List;
@@ -158,9 +159,5 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         new SparqlSelectRdfTransformer(new TableQueryGenerator(), schema, List.of(TABLE));
     TableStore store = transformer.transform(repo);
     return store.readTable(TABLE).iterator().next();
-  }
-
-  private static String toSemantic(IRI iri) {
-    return "<%s>".formatted(iri.stringValue());
   }
 }
