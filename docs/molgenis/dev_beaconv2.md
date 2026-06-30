@@ -29,12 +29,13 @@ Two terms recur throughout this documentation and the Beacon v2 framework:
 
 #### Create a database
 
-The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon data template for your database. More
+The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon-compatible database template for your database like `PATIENT_REGISTRY`. More
 information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
 example [Analyses](<https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Variant interpretation analyses.csv>)
 and [Individuals](https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Individuals.csv).
-Using the 'PATIENT_REGISTRY' template including the example data will result in an instantly working Beacon v2 API.
+Using the `PATIENT_REGISTRY` database template including the example data will result in an instantly working Beacon v2
+API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
 
 After setup, the API is available at `<server>/<database>/api/beacon`.
@@ -43,7 +44,7 @@ API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
 #### Endpoint metadata
 
-All beacon-compliant templates include an **Endpoint table**. This table contains the organizational data for the
+All beacon-compliant database templates include an **Endpoint table**. This table contains the organizational data for the
 endpoints displayed in your beacon's informational endpoints. You can edit this data using
 the [Table Explorer](use_quickstart?id=_7-view-tables-data).
 
@@ -196,14 +197,14 @@ endpoint.
   query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
 - Gene query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?geneId=TERC)
 
-### Templates
+### Beacon JSLT templates
 
-The Template Editor allows administrators to customize the data structure for each entity type in accordance with the
+The Template Editor allows administrators to customize the data structure for each entry type in accordance with the
 Beacon specification.
 
-Use the Template Editor to define or edit the schema used for each entity type (e.g., individual, biosample,
-genomicVariant, cohort, etc.). This template governs how data should be formatted retrieved from the
-Beacon API.
+Use the Template Editor to define or edit the Beacon JSLT template used for each entry type (e.g., individual,
+biosample, genomicVariant, cohort, etc.). This template governs how data retrieved from the underlying table is
+formatted into the Beacon API response.
 This enables more flexible data handling and ensures your data conforms to the GA4GH Beacon standard while supporting
 your specific use cases.
 
