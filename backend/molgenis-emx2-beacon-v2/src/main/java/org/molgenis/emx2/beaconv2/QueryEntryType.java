@@ -53,9 +53,10 @@ public class QueryEntryType {
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    Table table = schema.getTable(entryType.getId());
+    String tableId = resolveTableId(schema.getName());
+    Table table = schema.getTable(tableId);
     if (table == null) {
-      throw new MolgenisException("Table " + entryType.getId() + " does not exist");
+      throw new MolgenisException("Table " + tableId + " does not exist");
     }
     if (hasPermissionForGranularity(schema, table.getMetadata())) {
       numTotalResults = queryTable(table, filterParser, resultSets);
@@ -77,9 +78,13 @@ public class QueryEntryType {
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
 
-    List<Table> entryTypeTables = database.getTablesFromAllSchemas(entryType.getId());
-    for (Table table : entryTypeTables) {
-      numTotalResults += queryTable(table, filterParser, resultSets);
+    for (String schemaName : database.getSchemaNames()) {
+      Schema entrySchema = database.getSchema(schemaName);
+      if (entrySchema == null) continue;
+      Table table = entrySchema.getTable(resolveTableId(schemaName));
+      if (table != null) {
+        numTotalResults += queryTable(table, filterParser, resultSets);
+      }
     }
     if (!granularity.equals(Granularity.BOOLEAN)) {
       response.put("numTotalResults", numTotalResults);
@@ -137,20 +142,9 @@ public class QueryEntryType {
     ArrayNode resultSets = response.withArray("resultSets");
 
     String template = null;
-    if (database != null && schema != null) {
-      database.becomeAdmin();
-      Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
-      Table templatesTable = systemSchema.getTable("Templates");
-      List<Row> templates = templatesTable.retrieveRows();
-      template =
-          templates.stream()
-              .filter(
-                  r ->
-                      r.getString("schema").equals(schema.getName())
-                          && r.getString("endpoint").equals("beacon_" + entryType.getName()))
-              .map(r -> r.get("template", String.class))
-              .findFirst()
-              .orElse(null);
+    if (schema != null) {
+      Row templateRow = getTemplateRow(schema.getName());
+      template = templateRow != null ? templateRow.get("template", String.class) : null;
     }
 
     Expression jslt;
@@ -168,6 +162,33 @@ public class QueryEntryType {
     }
 
     return jsltResponse;
+  }
+
+  private String resolveTableId(String schemaName) {
+    Row templateRow = getTemplateRow(schemaName);
+    String configuredTable = templateRow != null ? templateRow.getString("tableName") : null;
+    return configuredTable != null ? configuredTable : entryType.getId();
+  }
+
+  private Row getTemplateRow(String schemaName) {
+    if (database == null) {
+      return null;
+    }
+    String activeUser = database.getActiveUser();
+    try {
+      database.becomeAdmin();
+      Table templatesTable = database.getSchema(SYSTEM_SCHEMA).getTable("Templates");
+      String endpoint = "beacon_" + entryType.getName();
+      return templatesTable.retrieveRows().stream()
+          .filter(
+              r ->
+                  schemaName.equals(r.getString("schema"))
+                      && endpoint.equals(r.getString("endpoint")))
+          .findFirst()
+          .orElse(null);
+    } finally {
+      database.setActiveUser(activeUser);
+    }
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {
@@ -209,7 +230,7 @@ public class QueryEntryType {
     ExecutionResult result = graphQL.executeWithoutSession(graphQlQuery);
 
     JsonNode results = mapper.valueToTree(result.getData());
-    JsonNode entryTypeResult = results.get(entryType.getId());
+    JsonNode entryTypeResult = results.get(table.getIdentifier());
     if (entryTypeResult == null || entryTypeResult.isNull()) return null;
 
     return (ArrayNode) entryTypeResult;
