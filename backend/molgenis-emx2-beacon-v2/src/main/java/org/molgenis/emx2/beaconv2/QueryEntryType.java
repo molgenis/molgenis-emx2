@@ -31,8 +31,6 @@ public class QueryEntryType {
   private final IncludedResultsetResponses includeStrategy;
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  private Database database;
-  private Schema schema;
 
   public QueryEntryType(BeaconRequestBody request) {
     this.request = request;
@@ -43,17 +41,14 @@ public class QueryEntryType {
   }
 
   public JsonNode query(Schema schema) {
-    if (schema != null) {
-      this.database = schema.getDatabase();
-      this.schema = schema;
-    }
+    Database database = schema.getDatabase();
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    String tableId = resolveTableId(schema.getName());
+    String tableId = resolveTableId(database, schema.getName());
     Table table = schema.getTable(tableId);
     if (table == null) {
       throw new MolgenisException("Table " + tableId + " does not exist");
@@ -64,11 +59,10 @@ public class QueryEntryType {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
-    return getJsltResponse(response);
+    return getJsltResponse(database, schema, response);
   }
 
   public JsonNode query(Database database) throws JsltException {
-    this.database = database;
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -79,7 +73,7 @@ public class QueryEntryType {
     for (String schemaName : database.getSchemaNames()) {
       Schema entrySchema = database.getSchema(schemaName);
       if (entrySchema == null) continue;
-      Table table = entrySchema.getTable(resolveTableId(schemaName));
+      Table table = entrySchema.getTable(resolveTableId(database, schemaName));
       if (table != null) {
         numTotalResults += queryTable(table, filterParser, resultSets);
       }
@@ -88,7 +82,7 @@ public class QueryEntryType {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
-    return getJsltResponse(response);
+    return getJsltResponse(database, null, response);
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
@@ -136,12 +130,12 @@ public class QueryEntryType {
     return numTotalResults;
   }
 
-  private ObjectNode getJsltResponse(ObjectNode response) {
+  private ObjectNode getJsltResponse(Database database, Schema schema, ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
     String template = null;
     if (schema != null) {
-      Row templateRow = getTemplateRow(schema.getName());
+      Row templateRow = getTemplateRow(database, schema.getName());
       template = templateRow != null ? templateRow.get("template", String.class) : null;
     }
 
@@ -162,13 +156,13 @@ public class QueryEntryType {
     return jsltResponse;
   }
 
-  private String resolveTableId(String schemaName) {
-    Row templateRow = getTemplateRow(schemaName);
+  private String resolveTableId(Database database, String schemaName) {
+    Row templateRow = getTemplateRow(database, schemaName);
     String configuredTable = templateRow != null ? templateRow.getString("tableName") : null;
     return configuredTable != null ? configuredTable : entryType.getId();
   }
 
-  private Row getTemplateRow(String schemaName) {
+  private Row getTemplateRow(Database database, String schemaName) {
     if (database == null) {
       return null;
     }
