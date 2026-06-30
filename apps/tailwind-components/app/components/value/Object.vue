@@ -75,14 +75,19 @@ function handleRefCellClicked() {
 
 <template>
   <span class="inline-flex items-center gap-1">
-    <span v-if="hasTemplate">
-      {{ asTemplate }}
-    </span>
-    <span v-else-if="asNameString !== null">
-      {{ asNameString }}
-    </span>
-    <span v-else>
-      {{ asSpaceSeparatedString }}
+    <span
+      class="underline hover:cursor-pointer text-link"
+      @click="handleRefCellClicked"
+    >
+      <span v-if="hasTemplate">
+        {{ asTemplate }}
+      </span>
+      <span v-else-if="asNameString !== null">
+        {{ asNameString }}
+      </span>
+      <span v-else>
+        {{ asSpaceSeparatedString }}
+      </span>
     </span>
     <CustomTooltip
       v-if="data?.definition"
