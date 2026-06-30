@@ -61,11 +61,11 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
-                        !table.getSemantics().isEmpty()
-                            ? table.getSemantics().stream()
+                        table.getSemantics().isEmpty()
+                            ? "n/a"
+                            : table.getSemantics().stream()
                                 .map(Semantic::toString)
-                                .collect(Collectors.joining(", "))
-                            : "n/a",
+                                .collect(Collectors.joining(", ")),
                         table.getProfiles() != null
                             ? (String.join(", ", table.getProfiles()))
                             : "NO PROFILES FOR TABLE",
@@ -85,11 +85,11 @@ public record ProfileDocGen(String outputFile) {
                       .formatted(
                           column.getName(),
                           column.getDescriptions(),
-                          (column.getSemantics() != null
-                              ? column.getSemantics().stream()
+                          (column.getSemantics().isEmpty()
+                              ? "n/a"
+                              : column.getSemantics().stream()
                                   .map(Semantic::toString)
-                                  .collect(Collectors.joining(", "))
-                              : "n/a"),
+                                  .collect(Collectors.joining(", "))),
                           column.getColumnType())
                   + LE);
         }
