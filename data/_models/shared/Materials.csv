@@ -32,8 +32,8 @@ Samples lrGS,,sample type other,string,,,,,,,,,,,,obo:NCIT_C126072,"If the sampl
 Samples OGM,,sample type other,string,,,,,,,,,,,,obo:NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry, Patient registry staging, FAIR Genomes",
 Samples RNA,,sample type other,string,,,,,,,,,,,,obo:NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry, Patient registry staging, FAIR Genomes",false
 Samples srDNA,,sample type other,string,,,,,,,,,,,,obo:NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry, Patient registry staging, FAIR Genomes",
-Samples,,tissue type,ontology,,,,,CatalogueOntologies,Tissue type,,,,,,http://purl.uniprot.org/core/Tissue,"The tissue type of origin (e.g., lung or heart) for the sample","Patient registry, FAIR Genomes",
-Samples,,tissue type,ontology,,,,TRUE,CatalogueOntologies,Tissue type,,,,,,http://purl.uniprot.org/core/Tissue,"The tissue type of origin (e.g., lung or heart) for the sample","Patient registry staging",
+Samples,,tissue type,ontology,,,,,CatalogueOntologies,Tissue type,,,,,,<http://purl.uniprot.org/core/Tissue>,"The tissue type of origin (e.g., lung or heart) for the sample","Patient registry, FAIR Genomes",
+Samples,,tissue type,ontology,,,,TRUE,CatalogueOntologies,Tissue type,,,,,,<http://purl.uniprot.org/core/Tissue>,"The tissue type of origin (e.g., lung or heart) for the sample","Patient registry staging",
 Samples,,date of collection,date,,,,,,,,,,,,obo:NCIT_C82515,Date on which the sample was collected,"Patient registry, FAIR Genomes",
 Samples,,date of collection,date,,,,TRUE,,,,,,,,obo:NCIT_C82515,Date on which the sample was collected,"Patient registry staging",
 Samples,,collected at organisation,select,,,,,CatalogueOntologies,Organisations,,,,,,obo:OBIB_0000085,The geographic location where sample collection took place,"Patient registry, Patient registry staging, FAIR Genomes",
