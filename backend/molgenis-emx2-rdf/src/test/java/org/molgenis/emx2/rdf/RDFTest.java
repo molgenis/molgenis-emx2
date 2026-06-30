@@ -167,7 +167,7 @@ public class RDFTest {
             "Patients",
             column("name").setPkey(),
             column("diseases")
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
+                .setSemantics("<http://purl.obolibrary.org/obo/NCIT_C2991>")
                 .setType(ColumnType.ONTOLOGY_ARRAY)
                 .setRefTable("Diseases")));
 
@@ -240,7 +240,7 @@ public class RDFTest {
             "Patients",
             column("name").setPkey(),
             column("diseases")
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
+                .setSemantics("<http://purl.obolibrary.org/obo/NCIT_C2991>")
                 .setType(ColumnType.ONTOLOGY_ARRAY)
                 .setRefSchemaName(RDFTest.class.getSimpleName() + "_ontology")
                 .setRefTable("Diseases")));
@@ -383,25 +383,21 @@ public class RDFTest {
 
     semanticTest.create(
         table(
-            "valid",
+            "semanticTable",
             column("id").setType(ColumnType.STRING).setPkey(),
             column("title")
                 .setType(ColumnType.STRING)
-                .setSemantics("http://purl.org/dc/terms/title"),
+                .setSemantics("<http://purl.org/dc/terms/title>"),
             column("description").setType(ColumnType.STRING).setSemantics("dcterms:description"),
             column("nonDefinedPrefix")
                 .setType(ColumnType.STRING)
-                .setSemantics("nonDefinedPrefix:value")),
-        table(
-            "invalid",
-            column("id").setType(ColumnType.STRING).setPkey(),
-            column("theme").setType(ColumnType.STRING).setSemantics("theme")));
+                .setSemantics("nonDefinedPrefix:value")));
 
     semanticTest
-        .getTable("valid")
+        .getTable("semanticTable")
         .insert(
-            row("id", "1", "title", "test", "description", "test2", "nonDefinedPrefix", "test3"));
-    semanticTest.getTable("invalid").insert(row("id", "2", "theme", "test4"));
+            row("id", "1", "title", "test", "description", "test1"),
+            row("id", "2", "title", "test", "description", "test2", "nonDefinedPrefix", "test3"));
 
     semanticTest
         .getMetadata()
@@ -1627,18 +1623,21 @@ example,http://example.com/
   }
 
   @Test
-  void prefixedNames() throws IOException {
+  void prefixedNamesValidRow() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
 
-    InMemoryRDFHandler handler = parseTableRdf(semanticTest, "valid");
+    InMemoryRDFHandler handler = parseRowRdf(semanticTest, "SemanticTable", "id=1");
     Set<IRI> actualPredicates =
-        handler.resources.get(Values.iri(getApi(semanticTest) + "Valid/id=1")).keySet();
+        handler.resources.get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
+  }
 
-    assertThrows(MolgenisException.class, () -> parseTableRdf(semanticTest, "invalid"));
+  @Test
+  void prefixedNamesRowUsingUndefinedPrefix() throws IOException {
+    assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
   }
 
   /**
