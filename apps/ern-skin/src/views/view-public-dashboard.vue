@@ -49,20 +49,20 @@
               water: '#061428',
             }"
             :tooltipTemplate="
-              (row: IOrganisations) => {
+              (row: IDataProviders) => {
                 return `
               <p class='title'>
                 ${row.name}
               </p>
+              <p class='center-info'>
+                ${row.providerIdentifier}
+              </p>
               <p class='center-location'>
-              <span class='location-city'>${row.city}</span>
-              <span class='location-country'>${row.country}</span>
+                <span class='location-city'>${row.city}</span>
+                <span class='location-country'>${row.country}</span>
               </p>
               `;
             }
-            // <p class='center-info'>
-            //   ${row.providerInformation[0].providerIdentifier}
-            // </p>
             "
             :zoomLimits="[0.3, 10]"
             :enableLegendClicks="true"
@@ -92,7 +92,7 @@
             :yMax="ageGroupAxis?.limit"
             :yTickValues="ageGroupAxis?.ticks"
             :chartHeight="225"
-            :chartMargins="{ top: 25, right: 5, bottom: 40, left: 50 }"
+            :chartMargins="{ top: 25, right: 2, bottom: 40, left: 25 }"
             :columnPaddingInner="0.2"
           />
         </DashboardChart>
@@ -102,10 +102,10 @@
             title="Sex at birth"
             :chartData="sexAtBirthData"
             legendPosition="bottom"
-            :chartHeight="150"
+            :chartHeight="165"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :chartMargins="10"
+            :chartMargins="5"
           />
         </DashboardChart>
       </DashboardRow>
@@ -147,6 +147,11 @@ import {
 import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
 import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
+interface IDataProviders extends IOrganisations {
+  providerIdentifier: string;
+  hasSubmittedData: string;
+}
+
 const loading = ref<boolean>(true);
 const error = ref<string>();
 const highlightsChart = ref<IComponents>();
@@ -159,7 +164,7 @@ const patientsByGroupData = ref<IStatistics[]>();
 const sexAtBirthChart = ref<IComponents>();
 const sexAtBirthData = ref<IRecordStringNumber>();
 const organisationsChart = ref<IOrganisations[]>();
-const organisationsData = ref<IOrganisations[]>();
+const organisationsData = ref<IDataProviders[]>();
 
 async function loadData() {
   const highlightsResponse = await getComponentStats(
@@ -230,7 +235,7 @@ function prepareData() {
           ? "Submitted"
           : "Not Submitted",
         providerIdentifier: providerInformation?.providerIdentifier,
-      };
+      } as IDataProviders;
     }
   );
 }
@@ -267,12 +272,12 @@ loadData()
 
 .d3-viz.d3-table thead th,
 .d3-viz.d3-table tbody td {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   padding: 0.5em 0.4em;
 }
 
 #registryPatientsByAgeGroup .chart-area .chart-axes .tick text tspan {
-  font-size: 0.75em;
+  font-size: 0.85em;
 }
 
 #registryPatientsBySexAtBirth .chart-area .pie-labels .pie-label-text {
