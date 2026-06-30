@@ -16,13 +16,15 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.StopWatch;
 
-public class TestQuery {
-  static Database database;
-  static Schema schema;
+class TestQuery {
+
   static final String PERSON = "Person";
 
+  static Database database;
+  static Schema schema;
+
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
 
     // createColumn a schema to test with
@@ -65,23 +67,18 @@ public class TestQuery {
             .setInt("Father", 1)
             .setInt("Mother", 2);
 
-    Row mickey =
-        new Row().setInt("ID", 6).setString("First_Name", "Mickey").setString("Last_Name", "Mouse");
-    Row minie =
-        new Row().setInt("ID", 7).setString("First_Name", "Minie").setString("Last_Name", "Mouse");
-
     person.insert(donald, katrien, kwik, kwek, kwak);
   }
 
   @Test
-  public void testQuery0() {
+  void testQuery0() {
     StopWatch.start("testQuery1");
 
     Schema s = database.getSchema("TestQuery");
 
     StopWatch.print("got schema");
 
-    Query q = s.query("Person", s("First_Name"), s("Last_Name"), s("Father"));
+    Query q = s.query(PERSON, s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     System.out.println(q.retrieveJSON());
@@ -90,7 +87,7 @@ public class TestQuery {
   }
 
   @Test
-  public void testQuery1() {
+  void testQuery1() {
 
     StopWatch.start("testQuery1");
 
@@ -98,7 +95,7 @@ public class TestQuery {
 
     StopWatch.print("got schema");
 
-    Query q = s.getTable("Person").query();
+    Query q = s.getTable(PERSON).query();
     q.select(s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
@@ -114,7 +111,7 @@ public class TestQuery {
 
     StopWatch.print("query complete");
 
-    q = s.getTable("Person").query();
+    q = s.getTable(PERSON).query();
     q.select(s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
@@ -125,7 +122,7 @@ public class TestQuery {
   }
 
   @Test
-  public void newQueryTest() {
+  void newQueryTest() {
     List<Row> rows =
         schema
             .getTable(PERSON)
@@ -152,7 +149,7 @@ public class TestQuery {
 
   @Test
   void orderByRefColumnAsc() {
-    final String unorderd =
+    final String unordered =
         schema
             .getTable(PERSON)
             .select(s("ID"), s("First_Name"), s("Last_Name"))
@@ -161,7 +158,7 @@ public class TestQuery {
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-    final String orderdbyRefDefaultOrder =
+    final String orderedByRefDefaultOrder =
         schema
             .getTable(PERSON)
             .select(s("ID"), s("First_Name"), s("Last_Name"))
@@ -171,7 +168,7 @@ public class TestQuery {
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-    final String orderdbyRefAsc =
+    final String orderedByRefAsc =
         schema
             .getTable(PERSON)
             .select(s("ID"), s("First_Name"), s("Last_Name"))
@@ -181,7 +178,7 @@ public class TestQuery {
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-    final String orderdbyRefDesc =
+    final String orderedByRefDesc =
         schema
             .getTable(PERSON)
             .select(s("ID"), s("First_Name"), s("Last_Name"))
@@ -191,9 +188,9 @@ public class TestQuery {
             .map(r -> r.getString("First_Name"))
             .collect(Collectors.joining(","));
 
-    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", unorderd);
-    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefDefaultOrder);
-    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderdbyRefAsc);
-    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderdbyRefDesc);
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", unordered);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderedByRefDefaultOrder);
+    assertEquals("Kwik,Kwek,Kwak,Donald,Katrien", orderedByRefAsc);
+    assertEquals("Donald,Katrien,Kwik,Kwek,Kwak", orderedByRefDesc);
   }
 }

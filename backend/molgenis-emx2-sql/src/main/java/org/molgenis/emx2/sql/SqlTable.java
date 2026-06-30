@@ -13,7 +13,9 @@ import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
@@ -240,7 +242,11 @@ public class SqlTable implements Table {
       MutationType transactionType) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
+
+    // Rows pet table / subtable
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
+
+    // Columns per table
     final Map<String, Set<String>> columnsProvided = new LinkedHashMap<>();
 
     SqlSchema schema = (SqlSchema) db.getSchema(schemaName);
@@ -363,29 +369,87 @@ public class SqlTable implements Table {
       Map<String, List<Row>> subclassRows,
       String subclassName,
       Set<String> columnsProvided) {
-
-    // execute
+    int nrResults;
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
+
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
-      count.set(count.get() + table.updateBatch(table, rows, updateColumns));
-    } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
+      List<Column> tableColumns = table.getMetadata().getColumns();
+      List<Row> rows = applyValidationAndComputed(tableColumns, subclassRows.get(subclassName));
+      nrResults = table.updateBatch(table, rows, updateColumns);
+    } else if (SAVE.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
-      count.set(
-          count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
+      List<Row> rowsToInsert = subclassRows.get(subclassName);
+      addMissingRowColumnsFromDatabase(table, rowsToInsert, columnsProvided);
+      List<Row> rows = applyValidationAndComputed(insertColumns, rowsToInsert);
+      nrResults = table.insertBatch(table, rows, true, insertColumns).size();
+    } else if (INSERT.equals(transactionType)) {
+      List<Column> insertColumns = getInsertColumns(table, columnsProvided);
+      List<Row> rowsToInsert = subclassRows.get(subclassName);
+      List<Row> rows = applyValidationAndComputed(insertColumns, rowsToInsert);
+      nrResults = table.insertBatch(table, rows, false, insertColumns).size();
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
               + transactionType
               + " not allowed here");
     }
+
+    count.set(count.get() + nrResults);
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static void addMissingRowColumnsFromDatabase(
+      SqlTable table, List<Row> rows, Set<String> columnsProvided) {
+    if (table.getMetadata().getInheritName() != null) {
+      addMissingRowColumnsFromDatabase(table.getInheritedTable(), rows, columnsProvided);
+    }
+
+    List<Column> insertColumns = getInsertColumns(table, columnsProvided);
+
+    // Merge with existing rows
+    SelectWhereStep<Record> step = table.getJooq().selectFrom(table.getJooqTable());
+    for (Column column : table.getMetadata().getPrimaryKeyColumns()) {
+      if (column.isReference()) {
+        for (Reference reference : column.getReferences()) {
+          Stream<Object> columnValues =
+              rows.stream()
+                  .map(
+                      r -> r.get(reference.getJooqField().getName(), reference.getPrimitiveType()));
+          step.where(reference.getJooqField().in(columnValues.toArray()));
+        }
+      } else {
+        Stream<Object> columnValues = rows.stream().map(r -> r.get(column));
+        step.where(column.getJooqField().in(columnValues.toArray()));
+      }
+    }
+
+    Field[] pkFields = table.getMetadata().getPrimaryKeyFields().toArray(Field[]::new);
+    Map<org.jooq.Row, Record> existingByPk =
+        step.forUpdate().fetch().stream()
+            .collect(
+                Collectors.toMap(
+                    r -> row(Arrays.stream(pkFields).map(r::get).toArray()), Function.identity()));
+
+    for (Row row : rows) {
+      Object[] values =
+          Arrays.stream(pkFields)
+              .map(Field::getName)
+              .map(row.getValueMap()::get)
+              .toArray(Object[]::new);
+
+      Map<String, Object> databaseObject =
+          Optional.ofNullable(existingByPk.get(row(values)))
+              .map(Record::intoMap)
+              .orElse(new HashMap<>());
+
+      for (String column : insertColumns.stream().map(Column::getName).toList()) {
+        if (!row.containsName(column)) {
+          row.set(column, databaseObject.get(column));
+        }
+      }
+    }
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {

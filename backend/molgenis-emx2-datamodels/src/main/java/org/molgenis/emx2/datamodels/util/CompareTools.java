@@ -29,28 +29,42 @@ public class CompareTools {
     // hide constructor
   }
 
-  public static void assertEquals(Row row1, Row row2) {
-    Set<String> colNames1 = row1.getColumnNames();
-    Set<String> colNames2 = row2.getColumnNames();
+  public static void assertEquals(Row r1, Row r2) {
+    Set<String> colNames1 = r1.getColumnNames();
+    Set<String> colNames2 = r2.getColumnNames();
 
     if (!colNames1.equals(colNames2)) {
-      fail("List<Row> has different column names on row: " + row1 + "+\nversus\n" + row2);
+      fail("List<Row> has different column names on row: " + r1 + "+\nversus\n" + r2);
     }
 
-    Map<String, Object> values1 = row1.getValueMap();
+    Map<String, Object> values1 = r1.getValueMap();
     for (String colName : colNames1) {
+      if (r1.getValueMap().get(colName) == null) {
+        if (r2.getValueMap().get(colName) == null) {
+          continue;
+        } else {
+          fail(
+              "Rows have different values, one row contains column "
+                  + colName
+                  + ", while the other doesn't: row1 -> "
+                  + r1.getValueMap().get(colName)
+                  + "\nversus\n row2 -> "
+                  + r2.getValueMap().get(colName));
+        }
+      }
+
       ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
 
-      if (!row1.get(colName, columnType).equals(row2.get(colName, columnType))
+      if (!r1.get(colName, columnType).equals(r2.get(colName, columnType))
           && !Arrays.equals(
-              (Object[]) row1.get(colName, columnType), (Object[]) row2.get(colName, columnType))) {
+              (Object[]) r1.get(colName, columnType), (Object[]) r2.get(colName, columnType))) {
         fail(
             "List<Row> has different value for row, column "
                 + colName
                 + ": "
-                + TypeUtils.toString(row1.get(colName, columnType))
+                + TypeUtils.toString(r1.get(colName, columnType))
                 + "\nversus\n"
-                + TypeUtils.toString(row2.get(colName, columnType)));
+                + TypeUtils.toString(r2.get(colName, columnType)));
       }
     }
   }
