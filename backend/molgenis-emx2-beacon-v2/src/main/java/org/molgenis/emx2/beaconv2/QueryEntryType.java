@@ -58,9 +58,7 @@ public class QueryEntryType {
     if (table == null) {
       throw new MolgenisException("Table " + tableId + " does not exist");
     }
-    if (hasPermissionForGranularity(schema, table.getMetadata())) {
-      numTotalResults = queryTable(table, filterParser, resultSets);
-    }
+    numTotalResults = queryTable(table, filterParser, resultSets);
 
     if (!granularity.equals(Granularity.BOOLEAN)) {
       response.put("numTotalResults", numTotalResults);
