@@ -1,6 +1,5 @@
 package org.molgenis.emx2.sql.row.validators;
 
-import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.List;
