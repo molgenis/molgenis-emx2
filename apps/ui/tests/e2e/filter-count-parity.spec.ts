@@ -17,10 +17,16 @@ test.describe("filter count parity regression (type test schema)", () => {
         data: { query: "{ __typename }" },
       });
       if (probeResponse.status() !== 200) {
-        test.skip(true, "type test schema not loaded (set MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true)");
+        test.skip(
+          true,
+          "type test schema not loaded (set MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true)"
+        );
       }
     } catch {
-      test.skip(true, "type test schema not loaded (set MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true)");
+      test.skip(
+        true,
+        "type test schema not loaded (set MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true)"
+      );
     }
 
     const mg_filters = [
@@ -51,7 +57,9 @@ test.describe("filter count parity regression (type test schema)", () => {
       "intArrayType",
     ].join(",");
 
-    const url = `${route}type%20test/Types?mg_filters=${encodeURIComponent(mg_filters)}`;
+    const url = `${route}type%20test/Types?mg_filters=${encodeURIComponent(
+      mg_filters
+    )}`;
     await page.goto(url);
     await page.waitForLoadState("networkidle", { timeout: 15000 });
 
@@ -76,51 +84,91 @@ test.describe("filter count parity regression (type test schema)", () => {
       { columnId: "selectType", label: "select type" },
       { columnId: "radioType", label: "radio type" },
       { columnId: "ontologyLargeType", label: "ontology large type" },
-      { columnId: "ontologySmallArrayType", label: "ontology small array type" },
+      {
+        columnId: "ontologySmallArrayType",
+        label: "ontology small array type",
+      },
       { columnId: "ontologySmallTreeType", label: "ontology small tree type" },
-      { columnId: "showVisibleExpressionVariable", label: "If put to yes the test visible expression variable will be shown" },
+      {
+        columnId: "showVisibleExpressionVariable",
+        label:
+          "If put to yes the test visible expression variable will be shown",
+      },
     ];
 
-    const results: { [key: string]: { expected: number; actual: number; clickedLabel: string } } = {};
+    const results: {
+      [key: string]: { expected: number; actual: number; clickedLabel: string };
+    } = {};
     const clickedLabels: string[] = [];
 
     for (const section of sectionsToTest) {
       const sectionName = section.label;
       const sectionId = `filter-section-${section.columnId}`;
 
-      const sectionHeading = page.locator("h3").filter({ hasText: new RegExp(`^${sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) });
-      const exists = await sectionHeading.count().then(c => c > 0);
+      const sectionHeading = page
+        .locator("h3")
+        .filter({
+          hasText: new RegExp(
+            `^${sectionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`
+          ),
+        });
+      const exists = await sectionHeading.count().then((c) => c > 0);
       expect(exists, `section "${sectionName}" must be present`).toBe(true);
 
       await sectionHeading.first().scrollIntoViewIfNeeded();
-      const isVisible = await sectionHeading.first().isVisible().catch(() => false);
-      expect(isVisible, `section "${sectionName}" must be visible after scrolling`).toBe(true);
+      const isVisible = await sectionHeading
+        .first()
+        .isVisible()
+        .catch(() => false);
+      expect(
+        isVisible,
+        `section "${sectionName}" must be visible after scrolling`
+      ).toBe(true);
 
       const sectionToggle = page.locator(`div[aria-controls="${sectionId}"]`);
-      const toggleExists = await sectionToggle.count().then(c => c > 0);
-      expect(toggleExists, `toggle button for section "${sectionName}" must exist`).toBe(true);
+      const toggleExists = await sectionToggle.count().then((c) => c > 0);
+      expect(
+        toggleExists,
+        `toggle button for section "${sectionName}" must exist`
+      ).toBe(true);
 
-      const isExpanded = (await sectionToggle.first().getAttribute("aria-expanded")) === "true";
+      const isExpanded =
+        (await sectionToggle.first().getAttribute("aria-expanded")) === "true";
       if (!isExpanded) {
         await sectionToggle.first().click();
         await page.waitForTimeout(500);
       }
 
       const sectionContent = page.locator(`#${sectionId}`);
-      const contentExists = await sectionContent.count().then(c => c > 0);
-      expect(contentExists, `section content container for "${sectionName}" must exist`).toBe(true);
+      const contentExists = await sectionContent.count().then((c) => c > 0);
+      expect(
+        contentExists,
+        `section content container for "${sectionName}" must exist`
+      ).toBe(true);
 
-      const firstLabel = sectionContent.locator('label:has(input[type="checkbox"])').first();
+      const firstLabel = sectionContent
+        .locator('label:has(input[type="checkbox"])')
+        .first();
       const firstLabelVisible = await firstLabel.isVisible().catch(() => false);
-      expect(firstLabelVisible, `section "${sectionName}" must have at least one filter option`).toBe(true);
+      expect(
+        firstLabelVisible,
+        `section "${sectionName}" must have at least one filter option`
+      ).toBe(true);
 
       const labelText = await firstLabel.textContent();
       const countMatch = labelText?.match(/\((\d+)\)$/);
-      expect(countMatch, `section "${sectionName}" first option must have a count in format "(N)". Got: "${labelText}"`).toBeTruthy();
+      expect(
+        countMatch,
+        `section "${sectionName}" first option must have a count in format "(N)". Got: "${labelText}"`
+      ).toBeTruthy();
 
       const expectedCount = parseInt(countMatch![1], 10);
       const cleanedLabel = labelText?.trim() || "unknown";
-      results[sectionName] = { expected: expectedCount, actual: 0, clickedLabel: cleanedLabel };
+      results[sectionName] = {
+        expected: expectedCount,
+        actual: 0,
+        clickedLabel: cleanedLabel,
+      };
       clickedLabels.push(cleanedLabel);
 
       console.log(`[${section.columnId}] clicking: "${cleanedLabel}"`);
@@ -137,11 +185,19 @@ test.describe("filter count parity regression (type test schema)", () => {
         actualCount = 0;
       } else {
         const paginationText = page.getByText(/Showing 1 to \d+ of \d+/);
-        const paginationVisible = await paginationText.isVisible().catch(() => false);
-        expect(paginationVisible, `pagination text must be visible after selecting filter in "${sectionName}"`).toBe(true);
+        const paginationVisible = await paginationText
+          .isVisible()
+          .catch(() => false);
+        expect(
+          paginationVisible,
+          `pagination text must be visible after selecting filter in "${sectionName}"`
+        ).toBe(true);
         const text = await paginationText.textContent();
         const match = text?.match(/of (\d+)/i);
-        expect(match, `pagination text must contain "of N" format in "${sectionName}". Got: "${text}"`).toBeTruthy();
+        expect(
+          match,
+          `pagination text must contain "of N" format in "${sectionName}". Got: "${text}"`
+        ).toBeTruthy();
         actualCount = parseInt(match![1], 10);
       }
 
@@ -153,19 +209,30 @@ test.describe("filter count parity regression (type test schema)", () => {
 
       const clearBtn = page.getByRole("button", { name: /Clear all filters/i });
       const clearBtnVisible = await clearBtn.isVisible().catch(() => false);
-      expect(clearBtnVisible, `Clear all filters button must be visible after selection in "${sectionName}"`).toBe(true);
+      expect(
+        clearBtnVisible,
+        `Clear all filters button must be visible after selection in "${sectionName}"`
+      ).toBe(true);
 
       await clearBtn.click();
       await page.waitForLoadState("networkidle", { timeout: 15000 });
       await page.waitForTimeout(1000);
 
       const finalTotalText = page.getByText(/Showing 1 to \d+ of \d+/);
-      const finalTotalVisible = await finalTotalText.isVisible().catch(() => false);
-      expect(finalTotalVisible, `pagination text must be visible after clearing filters from "${sectionName}"`).toBe(true);
+      const finalTotalVisible = await finalTotalText
+        .isVisible()
+        .catch(() => false);
+      expect(
+        finalTotalVisible,
+        `pagination text must be visible after clearing filters from "${sectionName}"`
+      ).toBe(true);
 
       const text = await finalTotalText.textContent();
       const match = text?.match(/of (\d+)/i);
-      expect(match, `pagination text must contain "of N" format after clearing from "${sectionName}". Got: "${text}"`).toBeTruthy();
+      expect(
+        match,
+        `pagination text must contain "of N" format after clearing from "${sectionName}". Got: "${text}"`
+      ).toBeTruthy();
       const finalTotal = parseInt(match![1], 10);
       expect(finalTotal).toBe(
         baseTotal,
@@ -179,9 +246,13 @@ test.describe("filter count parity regression (type test schema)", () => {
     }
 
     const uniqueLabels = new Set(clickedLabels);
-    console.log(`\nUnique labels count: ${uniqueLabels.size} (expected: ${clickedLabels.length})`);
+    console.log(
+      `\nUnique labels count: ${uniqueLabels.size} (expected: ${clickedLabels.length})`
+    );
     if (uniqueLabels.size !== clickedLabels.length) {
-      console.warn("WARNING: Some sections clicked the same label - locator may still be broken");
+      console.warn(
+        "WARNING: Some sections clicked the same label - locator may still be broken"
+      );
     }
 
     console.log("\nResults:");
@@ -203,13 +274,17 @@ test.describe("filter count parity regression (type test schema)", () => {
     const filtersHeading = page.getByRole("heading", { level: 2 }).filter({
       hasText: "Filters",
     });
-    const filtersVisible = await filtersHeading.isVisible({ timeout: 5000 }).catch(() => false);
+    const filtersVisible = await filtersHeading
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
     if (!filtersVisible) {
       test.skip(true, "Filters not available");
     }
 
     const paginationText = page.getByText(/Showing 1 to \d+ of \d+/);
-    const paginationVisible = await paginationText.isVisible({ timeout: 10000 }).catch(() => false);
+    const paginationVisible = await paginationText
+      .isVisible({ timeout: 10000 })
+      .catch(() => false);
 
     expect(paginationVisible).toBe(
       true,
