@@ -67,12 +67,10 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
-    if (table.getMetadata().getSemantics() != null) {
-      for (Semantic semantic : table.getMetadata().getSemantics()) {
-        IRI object =
-            table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-        getWriter().processTriple(subject, RDF.TYPE, object);
-      }
+    for (Semantic semantic : table.getMetadata().getSemantics()) {
+      IRI object =
+          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+      getWriter().processTriple(subject, RDF.TYPE, object);
     }
 
     for (final Column column : table.getMetadata().getColumns()) {

@@ -40,6 +40,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String[] profiles;
 
   public Semantic[] getSemantics() {
+    if (semantics == null) return new Semantic[] {};
     return semantics;
   }
 

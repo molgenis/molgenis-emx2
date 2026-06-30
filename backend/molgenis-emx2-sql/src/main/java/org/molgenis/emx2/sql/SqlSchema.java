@@ -271,9 +271,7 @@ public class SqlSchema implements Schema {
         if (!mergeTable.getLabels().isEmpty()) {
           oldTable.setLabels(mergeTable.getLabels());
         }
-        if (mergeTable.getSemantics() != null) {
-          oldTable.setSemantics(mergeTable.getSemantics());
-        }
+        oldTable.setSemantics(mergeTable.getSemantics());
         // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getJooq(), oldTable);

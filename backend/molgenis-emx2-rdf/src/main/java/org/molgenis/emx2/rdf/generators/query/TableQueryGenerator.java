@@ -53,7 +53,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics() == null) {
+    if (tableMetadata.getSemantics().length == 0) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);

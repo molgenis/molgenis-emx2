@@ -95,6 +95,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Semantic[] getSemantics() {
+    if (semantics == null) return new Semantic[] {};
     return semantics;
   }
 

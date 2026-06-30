@@ -60,7 +60,7 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
-                        table.getSemantics() != null
+                        table.getSemantics().length != 0
                             ? (String.join(", ", table.getSemanticsAsString()))
                             : "n/a",
                         table.getProfiles() != null
