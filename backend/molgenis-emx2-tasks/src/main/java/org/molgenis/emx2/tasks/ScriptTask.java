@@ -326,9 +326,9 @@ public class ScriptTask extends Task {
       this.process.destroy();
       this.logger.warn("stopping script " + name);
       this.setStatus(TaskStatus.CANCELLED);
-      return;
+    } else {
+      this.logger.warn("script " + name + " is not running");
     }
-    this.setError("Script is not running, cannot stop");
   }
 
   @JsonIgnore
