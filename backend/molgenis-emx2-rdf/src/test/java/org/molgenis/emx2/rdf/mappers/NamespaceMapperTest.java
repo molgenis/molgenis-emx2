@@ -24,7 +24,7 @@ class NamespaceMapperTest {
     SchemaMetadata schema =
         createSchemaWithSemantics(
             "mySchema",
-            """
+"""
 rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
 """);
     NamespaceMapper mapper = new NamespaceMapper(BASE_URL, schema);
