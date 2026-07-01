@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 
 from . import graphql_queries as queries
-from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
+from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT, CHECKBOX, MULTISELECT
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -460,7 +460,9 @@ class Client:
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
         if parse_arrays:
             array_columns = [c.name for c in table_meta.columns
-                        if c.get('columnType').endswith('_ARRAY') and c.name in response_columns]
+                        if (c.get('columnType').endswith('_ARRAY') or 
+                            c.get('columnType') in (CHECKBOX, MULTISELECT)) 
+                            and c.name in response_columns]
             response_data[array_columns] = response_data[array_columns].map(csv_string_to_array)
         response_data = response_data.astype(dtypes)
 
