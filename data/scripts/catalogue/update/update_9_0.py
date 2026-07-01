@@ -68,8 +68,7 @@ class Transform:
         """ Transform Collections
         """
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object')
-        df_collections = df_collections.rename(columns = {'datasets': 'tables',
-                                                          'datasets.resource': 'tables.resource',
+        df_collections = df_collections.rename(columns = {'datasets.resource': 'tables.resource',
                                                           'datasets.name': 'tables.name',
                                                           'mappings to common data models.source dataset': 'mappings to common data models.source table',
                                                           'mappings to common data models.target dataset': 'mappings to common data models.target table'})
