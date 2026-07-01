@@ -106,8 +106,8 @@ class Transform:
         df_variables.drop(columns=['useExternalDefinition.resource','useExternalDefinition.dataset',
                                    'useExternalDefinition.name','reused in resources.resource',
                                    'reused in resources.variable.resource','reused in resources.variable.dataset',
-                                   'reused in resources.variable.name','mappings.source','mappings.source table',
-                                   'mappings.target','mappings.target table','mappings.target variable',
+                                   'reused in resources.variable.name','mappings.source','mappings.source dataset',
+                                   'mappings.target','mappings.target dataset','mappings.target variable',
                                    'mappings.repeats'], inplace=True)
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
