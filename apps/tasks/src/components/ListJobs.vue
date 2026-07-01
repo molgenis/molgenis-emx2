@@ -36,7 +36,6 @@ export default {
     cancelJob(row) {
       fetch(`/api/tasks/${row.id}/cancel`, {
         method: "POST",
-        body: this.parameters,
       })
         .then(() => {
           // reload page to update table
