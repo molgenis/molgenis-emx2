@@ -158,3 +158,13 @@ export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
 }
+
+export function renderParagraphUrls(string: string): string {
+  let paragraph = string;
+  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
+  paragraph = paragraph.replaceAll(
+    urlPattern,
+    '<a href="$2" class="underline decoration-solid">$1</a>'
+  );
+  return paragraph;
+}

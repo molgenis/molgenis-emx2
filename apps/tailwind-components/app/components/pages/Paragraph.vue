@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { IParagraphs } from "../../../types/cms";
+import { computed } from "vue";
 import EditButton from "./EditButton.vue";
+import { renderParagraphUrls } from "../../utils/cms";
+import type { IParagraphs } from "../../../types/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),
@@ -9,6 +11,12 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+
+const renderedText = computed<string | undefined>(() => {
+  if (props.text) {
+    return renderParagraphUrls(props.text);
+  }
+});
 
 const emit = defineEmits<{
   (e: "edit"): void;
@@ -33,12 +41,11 @@ const emit = defineEmits<{
       }"
     >
       <span class="sr-only">edit paragraph: </span>
-      <span class="group-hover:underline group-focus:underline">
-        {{ text }}
-      </span>
+      <span
+        class="group-hover:underline group-focus:underline"
+        v-html="renderedText"
+      />
     </EditButton>
-    <span v-else>
-      {{ text }}
-    </span>
+    <span v-else v-html="renderedText" />
   </p>
 </template>
