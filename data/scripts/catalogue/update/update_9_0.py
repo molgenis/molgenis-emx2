@@ -101,7 +101,7 @@ class Transform:
     def variables(self):
         """ Transform Variables
         """
-        df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object')
+        df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object', keep_default_na=False)
         df_variables.rename({'dataset': 'table'}, inplace=True)
         df_variables.drop(columns=['useExternalDefinition.resource','useExternalDefinition.dataset',
                                    'useExternalDefinition.name','reused in resources.resource',
@@ -114,7 +114,7 @@ class Transform:
     def variable_mappings(self):
         """ Transform Variable mappings
         """
-        df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
+        df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object', keep_default_na=False)
         df_variable_mappings.rename({'source dataset': 'source table',
                                     'source variables other tables.dataset': 'source variables other tables.table',
                                     'target dataset': 'target table'}, inplace=True)
@@ -123,13 +123,13 @@ class Transform:
     def variable_values(self):
         """ Transform Variable Values
         """
-        df_variable_values = pd.read_csv(self.path + 'Variable values.csv', dtype='object')
+        df_variable_values = pd.read_csv(self.path + 'Variable values.csv', dtype='object', keep_default_na=False)
         df_variable_values.rename({'dataset': 'table'}, inplace=True)
         df_variable_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def reused_variables(self):
         """ Transform Reused Variables
         """
-        df_reused_variables = pd.read_csv(self.path + 'Reused variables.csv', dtype='object')
+        df_reused_variables = pd.read_csv(self.path + 'Reused variables.csv', dtype='object', keep_default_na=False)
         df_reused_variables.rename({'variable.dataset': 'variable.table'}, inplace=True)
 
