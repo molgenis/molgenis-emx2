@@ -125,12 +125,15 @@ class Transform:
         """ Transform Variable Values
         """
         df_variable_values = pd.read_csv(self.path + 'Variable values.csv', dtype='object', keep_default_na=False)
-        df_variable_values = df_variable_values.rename({'dataset': 'table'})
+        df_variable_values = df_variable_values.rename(columns={'dataset': 'table'})
+        df_variable_values = df_variable_values.drop(columns=[('permitted values.resource','permitted values.table',
+                                                               'permitted values.variable','permitted values.value')])
         df_variable_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def reused_variables(self):
         """ Transform Reused Variables
         """
         df_reused_variables = pd.read_csv(self.path + 'Reused variables.csv', dtype='object', keep_default_na=False)
-        df_reused_variables.rename({'variable.dataset': 'variable.table'}, inplace=True)
+        df_reused_variables = df_reused_variables.rename(columns={'variable.dataset': 'variable.table'})
+        df_reused_variables.to_csv(self.path + 'Reused variables.csv', index=False)
 
