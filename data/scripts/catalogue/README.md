@@ -49,7 +49,6 @@ Use virtual env to get a consistent python environment.
 
 5. Define environment variables in .env, see .env_example
 
-6. Run script for update of servers after selecting the right update program at import,
-   e.g. 'from update.update_4_x import Transform'
+6. Run script for update of servers after selecting the right run.py, e.g.
 
-    'run.py'
+    'run_8.0.py'
