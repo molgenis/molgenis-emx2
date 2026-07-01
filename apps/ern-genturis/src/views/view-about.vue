@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+</script>
+
 <template>
   <Page id="page-about">
     <PageHeader
@@ -140,12 +145,7 @@
   </Page>
 </template>
 
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-</script>
-
-<style lang="scss">
+<style lang="css">
 #img-genturis-disease-groups {
   display: block;
   width: 90%;

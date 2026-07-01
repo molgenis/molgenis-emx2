@@ -25,15 +25,11 @@
         @update:columns="handleColumnsUpdate"
       />
 
-      <Button
-        v-if="data?.tableMetadata"
-        type="outline"
-        :href="`/${schemaId}/api/csv/${tableId}`"
-        icon="Download"
-        download
-      >
-        Download
-      </Button>
+      <DownloadButton
+        v-if="schemaId && tableId"
+        :schemaId="schemaId"
+        :tableId="tableId"
+      />
     </div>
   </div>
 
@@ -161,7 +157,7 @@
       </table>
       <div
         class="sticky left-0 flex justify-center items-center py-2.5"
-        v-if="!rows?.length"
+        v-if="status === 'success' && !rows?.length"
       >
         <TextNoResultsMessage
           class="w-full text-center"
@@ -264,6 +260,8 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
+import Dropdown from "../button/Dropdown.vue";
+import DownloadButton from "./control/DownloadButton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -304,7 +302,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const { data, refresh } = useAsyncData(
+const { data, refresh, status } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
     const tableMetadata = await fetchTableMetadata(

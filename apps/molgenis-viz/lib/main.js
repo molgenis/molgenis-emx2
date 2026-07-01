@@ -1,9 +1,11 @@
 // display components
 import Accordion from "../src/components/display/Accordion.vue";
 import ActionLink from "../src/components/display/ActionLink.vue";
+import Address from "../src/components/display/Address.vue";
 import FileList from "../src/components/display/FileList.vue";
 import InfoCard from "../src/components/display/InfoCard.vue";
 import LinkCard from "../src/components/display/LinkCard.vue";
+import LinkCardGroup from "../src/components/display/LinkCardGroup.vue";
 import LoadingScreen from "../src/components/display/LoadingScreen.vue";
 import MessageBox from "../src/components/display/MessageBox.vue";
 import MolgenisLogo from "../src/components/display/MolgenisLogo.vue";
@@ -16,6 +18,7 @@ import InputLabel from "../src/components/forms/InputLabel.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 
 // layout components
+import AppFooter from "../src/components/layouts/AppFooter.vue";
 import Dashboard from "../src/components/layouts/Dashboard.vue";
 import DashboardChart from "../src/components/layouts/DashboardChart.vue";
 import DashboardRow from "../src/components/layouts/DashboardRow.vue";
@@ -64,16 +67,19 @@ export {
   // display components
   Accordion,
   ActionLink,
+  Address,
   ButtonSearch,
   InfoCard,
   InputLabel,
   InputSearch,
   LinkCard,
+  LinkCardGroup,
   LoadingScreen,
   MessageBox,
   MolgenisLogo,
 
   // layouts
+  AppFooter,
   Dashboard,
   DashboardChart,
   DashboardRow,
