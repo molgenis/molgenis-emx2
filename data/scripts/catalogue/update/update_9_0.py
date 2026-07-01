@@ -68,7 +68,7 @@ class Transform:
         """ Transform Collections
         """
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object')
-        df_collections = df_collections.rename({'datasets': 'tables'})
+        df_collections = df_collections.rename(columns = {'datasets': 'tables'})
 
         # write tables to file
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
@@ -77,14 +77,14 @@ class Transform:
         """ Transform Catalogues
         """
         df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object')
-        df_catalogues = df_catalogues.rename({'datasets': 'tables'})
+        df_catalogues = df_catalogues.rename(columns = {'datasets': 'tables'})
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
     def datasets(self):
         """ Transform Datasets and rename
         """
         df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object', keep_default_na=False)
-        df_datasets = df_datasets.rename({'dataset type': 'table type'})
+        df_datasets = df_datasets.rename(columns = {'dataset type': 'table type'})
         df_datasets = df_datasets.drop(columns=['mapped to.source','mapped to.source dataset','mapped to.target',
                                                 'mapped to.target dataset','mapped from.source',
                                                 'mapped from.source dataset','mapped from.target',
@@ -95,15 +95,15 @@ class Transform:
         """ Transform Dataset mappings and rename
         """
         df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object', keep_default_na=False)
-        df_dataset_mappings = df_dataset_mappings.rename({'source dataset': 'source table',
-                                                          'target dataset': 'target table'})
+        df_dataset_mappings = df_dataset_mappings.rename(columns = {'source dataset': 'source table',
+                                                                    'target dataset': 'target table'})
         df_dataset_mappings.to_csv(self.path + 'Table mappings.csv', index=False)
 
     def variables(self):
         """ Transform Variables
         """
         df_variables = pd.read_csv(self.path + 'Variables.csv', dtype='object', keep_default_na=False)
-        df_variables = df_variables.rename({'dataset': 'table'})
+        df_variables = df_variables.rename(columns = {'dataset': 'table'})
         df_variables = df_variables.drop(columns=['useExternalDefinition.resource','useExternalDefinition.dataset',
                                                   'useExternalDefinition.name','reused in resources.resource',
                                                   'reused in resources.variable.resource','reused in resources.variable.dataset',
@@ -116,9 +116,9 @@ class Transform:
         """ Transform Variable mappings
         """
         df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object', keep_default_na=False)
-        df_variable_mappings = df_variable_mappings.rename({'source dataset': 'source table',
-                                                            'source variables other tables.dataset': 'source variables other tables.table',
-                                                            'target dataset': 'target table'})
+        df_variable_mappings = df_variable_mappings.rename(columns = {'source dataset': 'source table',
+                                                                      'source variables other tables.dataset': 'source variables other tables.table',
+                                                                      'target dataset': 'target table'})
         df_variable_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
     def variable_values(self):
