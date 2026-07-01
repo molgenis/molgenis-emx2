@@ -12,7 +12,6 @@ public class TaskServiceInMemory implements TaskService {
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
   private final ExecutorService executorService;
   private final Map<String, Task> tasks = new ConcurrentHashMap<>();
-  private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
 
   public TaskServiceInMemory() {
     executorService = Executors.newSingleThreadExecutor();
@@ -39,8 +38,7 @@ public class TaskServiceInMemory implements TaskService {
       task.run();
     } else {
       tasks.put(task.getId(), task);
-      Future<?> future = executorService.submit(task);
-      futures.put(task.getId(), future);
+      executorService.submit(task);
     }
     return task.getId();
   }
@@ -53,17 +51,12 @@ public class TaskServiceInMemory implements TaskService {
     if (task.getStatus() != RUNNING) {
       throw new MolgenisException("Cannot cancel task with status: " + task.getStatus());
     }
-    Future<?> future = futures.get(taskId);
-    if (future != null) {
-      future.cancel(true);
-      task.setStatus(TaskStatus.CANCELLED);
-      task.stop();
 
-      logger.info("Cancelled task " + taskId);
-      return task.getId();
-    } else {
-      throw new MolgenisException("No running future found for task with id '" + taskId + "'");
-    }
+    task.setStatus(TaskStatus.CANCELLED);
+    task.stop();
+
+    logger.info("Cancelled task " + taskId);
+    return task.getId();
   }
 
   @Override
