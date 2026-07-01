@@ -4,7 +4,7 @@
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
-from update.update_8_0 import Transform
+from update.update_9_0 import Transform
 import os
 import asyncio
 
