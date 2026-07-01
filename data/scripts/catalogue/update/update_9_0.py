@@ -109,7 +109,8 @@ class Transform:
                                                   'reused in resources.variable.resource','reused in resources.variable.dataset',
                                                   'reused in resources.variable.name','mappings.source','mappings.source dataset',
                                                   'mappings.target','mappings.target dataset','mappings.target variable',
-                                                  'mappings.repeats'])
+                                                  'mappings.repeats','permitted values.resource','permitted values.dataset',
+                                                  'permitted values.variable','permitted values.value'])
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_mappings(self):
@@ -126,8 +127,6 @@ class Transform:
         """
         df_variable_values = pd.read_csv(self.path + 'Variable values.csv', dtype='object', keep_default_na=False)
         df_variable_values = df_variable_values.rename(columns={'dataset': 'table'})
-        df_variable_values = df_variable_values.drop(columns=[('permitted values.resource','permitted values.table',
-                                                               'permitted values.variable','permitted values.value')])
         df_variable_values.to_csv(self.path + 'Variable values.csv', index=False)
 
     def reused_variables(self):
