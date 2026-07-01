@@ -69,8 +69,10 @@ class Transform:
         """
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object')
         df_collections = df_collections.rename(columns = {'datasets': 'tables'})
-
-        # write tables to file
+        df_collections = df_collections.drop(columns = ['mappings to common data models.source',
+                                                        'mappings to common data models.source dataset',
+                                                        'mappings to common data models.target',
+                                                        'mappings to common data models.target dataset'])
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
     def catalogues(self):
