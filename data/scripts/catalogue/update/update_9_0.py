@@ -83,7 +83,7 @@ class Transform:
     def datasets(self):
         """ Transform Datasets and rename
         """
-        df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object')
+        df_datasets = pd.read_csv(self.path + 'Datasets.csv', dtype='object', keep_default_na=False)
         df_datasets.rename({'dataset type': 'table type'}, inplace=True)
         df_datasets.drop(columns=['mapped to.source','mapped to.source dataset','mapped to.target',
                                   'mapped to.target dataset','mapped from.source','mapped from.source dataset',
@@ -93,7 +93,7 @@ class Transform:
     def dataset_mappings(self):
         """ Transform Dataset mappings and rename
         """
-        df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object')
+        df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object', keep_default_na=False)
         df_dataset_mappings.rename({'source dataset': 'source table',
                                     'target dataset': 'target table'}, inplace=True)
         df_dataset_mappings.to_csv(self.path + 'Table mappings.csv', index=False)
