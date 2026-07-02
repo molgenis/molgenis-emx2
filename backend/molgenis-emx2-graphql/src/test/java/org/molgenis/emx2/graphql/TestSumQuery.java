@@ -190,7 +190,7 @@ public class TestSumQuery {
             """);
     json = JsonUtil.getWriter().writeValueAsString(result.toSpecification().get("data"));
     assertEquals(
-        """
+"""
 {
   "Samples_groupBy" : [
     {

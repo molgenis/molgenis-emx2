@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 class InMemoryRDFHandlerTest {
   // See text behind "#" for inline explanations
   private final String rdfInput =
-      """
+"""
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -31,7 +31,7 @@ class InMemoryRDFHandlerTest {
 """;
 
   private final String rdfFixed =
-      """
+"""
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -54,25 +54,25 @@ class InMemoryRDFHandlerTest {
   // As there is no extra data is present for "a11ac033b28f42dd9760547d622e5eea", dynamic part of
   // the object will be replaced with "identicalFileIRI" instead.
   private final String rdfNoFileLabelInput =
-      """
+"""
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> .
 """;
 
   private final String rdfNoFileLabelFixed =
-      """
+"""
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/identicalFileIRI> .
 """;
 
   private final String rdfBNode =
-      """
+"""
 [] a <http://xmlns.com/foaf/0.1/Person> .
 [] a <http://xmlns.com/foaf/0.1/Organization> .
 """;
 
   private final String rdfBNodeFixed =
-      """
+"""
 _:0 a <http://xmlns.com/foaf/0.1/Person> .
 _:1 a <http://xmlns.com/foaf/0.1/Organization> .
 """;
