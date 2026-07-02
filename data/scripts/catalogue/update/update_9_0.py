@@ -56,18 +56,18 @@ class Transform:
             self.reused_variables()
         if any(item in ['NetworksStaging','DataCatalogueFlat'] for item in self.profile):
             self.catalogues()
-        if any(item in ['CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
+        if any(item in ['DataCatalogueFlat','CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
             self.collections()
-        self.datasets()
         self.datasets()
         self.variables()
         self.variable_mappings()
         self.variable_values()
+        self.reused_variables()
 
     def collections(self):
         """ Transform Collections
         """
-        df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object')
+        df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object', keep_default_na=False)
         df_collections = df_collections.rename(columns = {'datasets.resource': 'tables.resource',
                                                           'datasets.name': 'tables.name',
                                                           'mappings to common data models.source dataset': 'mappings to common data models.source table',
@@ -77,8 +77,9 @@ class Transform:
     def catalogues(self):
         """ Transform Catalogues
         """
-        df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object')
-        df_catalogues = df_catalogues.rename(columns = {'datasets': 'tables'})
+        df_catalogues = pd.read_csv(self.path + 'Catalogues.csv', dtype='object', keep_default_na=False)
+        df_catalogues = df_catalogues.rename(columns = {'datasets.resource': 'tables.resource',
+                                                        'datasets.name': 'tables.name'})
         df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
 
     def datasets(self):
@@ -117,7 +118,8 @@ class Transform:
         """
         df_variable_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object', keep_default_na=False)
         df_variable_mappings = df_variable_mappings.rename(columns = {'source dataset': 'source table',
-                                                                      'source variables other tables.dataset': 'source variables other tables.table',
+                                                                      'source variables other datasets.dataset': 'source variables other tables.table',
+                                                                      'source variables other datasets.name': 'source variables other tables.name',
                                                                       'target dataset': 'target table'})
         df_variable_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
