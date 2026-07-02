@@ -46,18 +46,13 @@ const languageOptions = [
 <template>
   <Page id="page-documents">
     <PageHeader
-      class="erras-header"
       imageSrc="img/erras-header.jpg"
       titlePositionX="center"
       titlePositionY="center"
     >
-      <div class="erras-header text-center p-4">
-        <h1 class="h5 m-0 text-uppercase font-weight-bold">
-          ERN-Skin Registry
-        </h1>
-        <h2 class="h1 m-0 font-weight-light">
-          Registry for Rare and Undiagnosed Skin Diseases
-        </h2>
+      <div class="erras-header p-3">
+        <h1>ERN-Skin Registry</h1>
+        <h2>Additional information</h2>
       </div>
     </PageHeader>
     <PageSection

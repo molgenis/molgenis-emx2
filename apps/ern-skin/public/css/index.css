@@ -24,6 +24,11 @@
   background-position: 0 15%;
   padding: 9em 0;
   position: relative;
+  height: 24em;
+}
+
+.app-page .page-header .background-image-filter {
+  opacity: 0.5;
 }
 
 .app-page .page-section blockquote {
@@ -33,10 +38,20 @@
 
 .erras-header {
   color: var(--erras-blue);
+  text-align: center;
 }
 
 .erras-header h1 {
+  font-size: 13pt;
   letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.erras-header h2 {
+  font-size: 32pt;
+  font-weight: 200;
+  margin: 0;
 }
 
 .project-diagrams {
@@ -275,6 +290,10 @@
   color: #ffffff;
 }
 
+#ernSkinStudies .page-header {
+  height: 8em;
+}
+
 @media screen and (min-width: 812px) {
   .quicklink-cards {
     flex-wrap: nowrap;
@@ -284,9 +303,5 @@
 @media screen and (min-width: 1500px) {
   .app-page .page-header {
     height: 34em;
-  }
-
-  #ernSkinStudies .page-header {
-    height: 4em;
   }
 }

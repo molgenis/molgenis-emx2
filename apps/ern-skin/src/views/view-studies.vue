@@ -13,11 +13,7 @@ import Studies from "../components/Studies.vue";
       titlePositionX="center"
       titlePositionY="center"
     />
-    <PageSection
-      id="section-documents"
-      aria-labelledby="section-documents-title"
-      :verticalPadding="1"
-    >
+    <PageSection id="section-documents" :verticalPadding="1">
       <p>
         The transparency portal, as defined by the CNIL, allows you to be
         informed of research projects that utilize information gathered within
