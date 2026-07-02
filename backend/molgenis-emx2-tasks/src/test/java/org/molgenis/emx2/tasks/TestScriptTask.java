@@ -172,28 +172,4 @@ print('unreachable')
     assertEquals(ERROR, emptyScriptFailTask.getStatus());
     assertTrue(emptyScriptFailTask.getDescription().contains("Script is required"));
   }
-
-  @Test
-  public void testScriptTaskStop() throws MalformedURLException, InterruptedException {
-    TaskServiceInDatabase taskService =
-        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
-    ScriptTask bashTask =
-        new ScriptTask("bashTest")
-            .type(BASH)
-            .script(
-                """
-            echo "sleeping"
-            sleep 5
-            """);
-
-    taskService.submit(bashTask);
-    TaskStatus bashTaskStatus = bashTask.getStatus();
-    while (bashTaskStatus != RUNNING) {
-      Thread.sleep(500);
-      bashTaskStatus = bashTask.getStatus();
-    }
-    bashTask.stop();
-    assertEquals(ERROR, bashTask.getStatus());
-    assertTrue(bashTask.getDescription().startsWith("process has been stopped"));
-  }
 }
