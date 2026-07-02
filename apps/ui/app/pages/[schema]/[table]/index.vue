@@ -18,6 +18,8 @@ import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getP
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
+import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,6 +27,10 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -115,7 +121,7 @@ const { isAdmin, session } = await useSession(schemaId);
 const enableFilters = true;
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0">
+  <Container :wide="true">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       <template #prefix>
         <BreadCrumbs
@@ -126,26 +132,24 @@ const enableFilters = true;
       </template>
     </PageHeader>
 
-    <div>
-      <TableEMX2
-        :schemaId="schemaId"
-        :tableId="tableId"
-        :enable-filters="enableFilters"
-        v-model:settings="tableSettings"
-        :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
-      >
-        <template #additional-row-actions="{ row }">
-          <Button
-            :id="useId()"
-            :icon-only="true"
-            type="inline"
-            icon="info"
-            size="small"
-            label="view row details"
-            @click="handleViewRowRequest(row)"
-          />
-        </template>
-      </TableEMX2>
-    </div>
-  </div>
+    <TableEMX2
+      :schemaId="schemaId"
+      :tableId="tableId"
+      :enable-filters="enableFilters"
+      v-model:settings="tableSettings"
+      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+    >
+      <template #additional-row-actions="{ row }">
+        <Button
+          :id="useId()"
+          :icon-only="true"
+          type="inline"
+          icon="info"
+          size="small"
+          label="view row details"
+          @click="handleViewRowRequest(row)"
+        />
+      </template>
+    </TableEMX2>
+  </Container>
 </template>
