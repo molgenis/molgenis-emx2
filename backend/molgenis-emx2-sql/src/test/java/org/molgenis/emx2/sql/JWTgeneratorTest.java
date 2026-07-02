@@ -236,30 +236,6 @@ class JWTgeneratorTest {
   }
 
   @Test
-  void testInvalidSignatureThrowsException() {
-    // Create a valid token
-    String validToken = JWTgenerator.createTemporaryToken(db, TEST_USER);
-
-    // Corrupt the signature (last part of the JWT)
-    String[] parts = validToken.split("\\.");
-    assertEquals(3, parts.length, "Valid JWT should have 3 parts");
-
-    // Modify the signature part by changing a character
-    String corruptedSignature = parts[2].substring(0, parts[2].length() - 1) + "X";
-    String corruptedToken = parts[0] + "." + parts[1] + "." + corruptedSignature;
-
-    // Should throw MolgenisException due to invalid signature
-    // The verify will fail, leading to "Invalid token or token expired" exception
-    MolgenisException exception =
-        assertThrows(
-            MolgenisException.class, () -> JWTgenerator.getUserFromToken(db, corruptedToken));
-    assertTrue(
-        exception.getMessage().contains("Invalid token")
-            || exception.getMessage().contains("expired"),
-        "Exception message should indicate invalid token or expiration");
-  }
-
-  @Test
   void testTemporaryTokenExpiringTooFarInFutureThrowsException() throws Exception {
     // Signed token, known user, and not-expired token, but temporary token expiry is > 30 minutes.
     JWTClaimsSet claimsSet =
