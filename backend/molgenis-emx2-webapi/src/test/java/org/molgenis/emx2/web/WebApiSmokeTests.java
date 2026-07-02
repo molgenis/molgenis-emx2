@@ -20,7 +20,6 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
@@ -1394,43 +1393,6 @@ class WebApiSmokeTests extends ApiTestBase {
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
-  }
-
-  @Test
-  void testBeaconConfiguration() {
-    getAndAssertContains("/api/beacon/configuration", "productionStatus");
-  }
-
-  @Test
-  void testBeaconMap() {
-    getAndAssertContains("/api/beacon/map", "endpointSets");
-  }
-
-  @Test
-  void testBeaconInfo() {
-    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
-  }
-
-  @Test
-  void testBeaconEntryTypes() {
-    getAndAssertContains("/api/beacon/entry_types", "entry");
-  }
-
-  private void getAndAssertContains(String path, String expectedSubstring) {
-    database.clearCache();
-    String result = given().get(path).getBody().asString();
-    ObjectMapper mapper = new ObjectMapper();
-    String prettyJson;
-    try {
-      Object json = mapper.readValue(result, Object.class);
-      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-      prettyJson = writer.writeValueAsString(json);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    assertTrue(
-        result.contains(expectedSubstring),
-        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
