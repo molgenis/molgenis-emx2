@@ -47,15 +47,15 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
-import BackgroundGradient from "../../../tailwind-components/app/components/BackgroundGradient.vue";
-import Header from "../../../tailwind-components/app/components/Header.vue";
-import Logo from "../../../tailwind-components/app/components/Logo.vue";
-import LogoMobile from "../../../tailwind-components/app/components/LogoMobile.vue";
-import Navigation from "../../../tailwind-components/app/components/Navigation.vue";
-import FooterComponent from "../../../tailwind-components/app/components/FooterComponent.vue";
-import FooterVersion from "../../../tailwind-components/app/components/FooterVersion.vue";
+import BackgroundGradient from "../components/BackgroundGradient.vue";
+import Header from "../components/Header.vue";
+import Logo from "../components/Logo.vue";
+import LogoMobile from "../components/LogoMobile.vue";
+import Navigation from "../components/Navigation.vue";
+import FooterComponent from "../components/FooterComponent.vue";
+import FooterVersion from "../components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
-import { useLayoutState } from "../../../ui/app/composables/useLayoutState.js";
+import { useLayoutState } from "../composables/useLayoutState.js";
 
 const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
   await useLayoutState();

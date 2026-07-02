@@ -1,7 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "#app/composables/router";
-import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { useLogo } from "../../../tailwind-components/app/composables/useLogo";
+import { useSession } from "../composables/useSession";
+import { useLogo } from "../composables/useLogo";
 import { useLayoutHead } from "./useLayoutHead";
 import { useLayoutMenu } from "./useLayoutMenu";
 

@@ -55,7 +55,7 @@ import Navigation from "../components/Navigation.vue";
 import FooterComponent from "../components/FooterComponent.vue";
 import FooterVersion from "../components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
-import { useLayoutState } from "../../../ui/app/composables/useLayoutState.js";
+import { useLayoutState } from "../composables/useLayoutState.js";
 
 const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
   await useLayoutState();

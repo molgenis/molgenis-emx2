@@ -81,17 +81,19 @@ function scrollToTop() {
             <NuxtLink class="hover:underline text-title" to="/Styles.other"
               >Theme styles</NuxtLink
             >
-            <h2 class="text-2xl text-title font-bold my-5">Sample pages</h2>
+            <h2 class="text-2xl text-title font-bold my-5">Layouts</h2>
             <div class="py-2">
-              <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
-                >Row edit</NuxtLink
+              <NuxtLink
+                class="hover:underline text-title"
+                to="/layouts/defaultLayout"
+                >Default</NuxtLink
               >
             </div>
             <div class="py-2">
               <NuxtLink
                 class="hover:underline text-title"
-                to="/samples/formModal"
-                >Edit modal</NuxtLink
+                to="/layouts/wideLayout"
+                >Wide</NuxtLink
               >
             </div>
 
