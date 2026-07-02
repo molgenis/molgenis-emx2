@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.tasks.ScriptType.BASH;
 import static org.molgenis.emx2.tasks.ScriptType.PYTHON;
-import static org.molgenis.emx2.tasks.TaskStatus.*;
+import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
+import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
 import java.io.File;
 import java.net.MalformedURLException;
