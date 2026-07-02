@@ -450,7 +450,7 @@ const tocItems = computed(() => {
       id: "DataDictionaries",
     });
   } else if (resource.value?.tables?.length) {
-    tableOffContents.push({ label: "Tables", id: "Datasets" });
+    tableOffContents.push({ label: "Tables", id: "Tables" });
   }
 
   if (subpopulationCount.value ?? 0 > 0) {
@@ -831,9 +831,9 @@ const showPopulation = computed(
         >
           <TableContent
             v-if="resource?.tables"
-            id="Datasets"
-            title="Datasets"
-            description="Datasets and their description"
+            id="Tables"
+            title="Tables"
+            description="Tables and their description"
             :wrapper-component="false"
             :headers="[
               { id: 'name', label: 'Name' },
