@@ -143,60 +143,6 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
   },
 ];
 
-export function getSectionTitleBySlug(slug: string): string | null {
-  return (
-    SECTION_OVERVIEW_CONFIG.find((config) => config.slug === slug)?.title ??
-    null
-  );
-}
-
-export type SectionOverview = {
-  slug: string;
-  title: string;
-  description: string;
-  items: { label: string; route: string }[];
-};
-
-export function getSectionOverview(
-  slug: string,
-  storyModulePaths: string[]
-): SectionOverview | null {
-  const config = SECTION_OVERVIEW_CONFIG.find((c) => c.slug === slug);
-  if (!config) return null;
-  const tree = buildDocsTree(storyModulePaths, "");
-  const overviewRoute = `/section/${slug}`;
-  const topSection = tree.find((sec) => sec.id === overviewRoute);
-  if (topSection) {
-    const items = topSection.headers.map((header) => ({
-      label: header.label,
-      route: header.id,
-    }));
-    return {
-      slug: config.slug,
-      title: config.title,
-      description: config.description,
-      items,
-    };
-  }
-  const componentsSection = tree.find((sec) => sec.label === "Components");
-  if (componentsSection) {
-    const group = componentsSection.headers.find((h) => h.id === overviewRoute);
-    if (group?.children) {
-      const items = group.children.map((child) => ({
-        label: child.label,
-        route: child.id,
-      }));
-      return {
-        slug: config.slug,
-        title: config.title,
-        description: config.description,
-        items,
-      };
-    }
-  }
-  return null;
-}
-
 export type SectionNav = {
   title: string;
   slug: string;

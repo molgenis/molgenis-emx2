@@ -5,8 +5,6 @@ import {
   buildDocsTree,
   buildDocsSidebar,
   getSectionNavForRoute,
-  getSectionOverview,
-  getSectionTitleBySlug,
 } from "../../../app/utils/docsNav";
 import type {
   LegendSection,
@@ -320,7 +318,9 @@ describe("buildDocsTree group memberships", () => {
   it("Skeleton is in Containers, NOT Feedback (moved from Feedback → Containers)", () => {
     const sections = buildDocsTree(allRealPaths, "");
     expect(groupChildIds(sections, "Containers")).toContain("/Skeleton.story");
-    expect(groupChildIds(sections, "Feedback")).not.toContain("/Skeleton.story");
+    expect(groupChildIds(sections, "Feedback")).not.toContain(
+      "/Skeleton.story"
+    );
   });
 
   it("Page layouts (new) contains Header, PageHeader, FooterComponent, pages/Banner (labeled 'Page banner')", () => {
@@ -730,196 +730,6 @@ describe("buildDocsTree search filter", () => {
   });
 });
 
-describe("getSectionOverview", () => {
-  it("returns title, description, items for foundations slug", () => {
-    const result = getSectionOverview("foundations", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("foundations");
-    expect(result?.title).toBe("Foundations");
-    expect(result!.description.length).toBeGreaterThan(0);
-    expect(
-      result?.items.some((item) => item.route === "/foundations/colors")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/ThemeSwitch.story")
-    ).toBe(true);
-  });
-
-  it("returns title, description, items for actions slug", () => {
-    const result = getSectionOverview("actions", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("actions");
-    expect(result?.title).toBe("Actions");
-    expect(result?.items.some((item) => item.label === "Button")).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/input/Switch.story")
-    ).toBe(true);
-  });
-
-  it("returns items for containers slug including Skeleton", () => {
-    const result = getSectionOverview("containers", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("containers");
-    expect(result?.title).toBe("Containers");
-    expect(
-      result?.items.some((item) => item.route === "/Accordion.story")
-    ).toBe(true);
-    expect(result?.items.some((item) => item.route === "/ShowMore.story")).toBe(
-      true
-    );
-    expect(
-      result?.items.some((item) => item.route === "/Skeleton.story")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/transition/SlideUp.story")
-    ).toBe(true);
-  });
-
-  it("returns items for filter slug", () => {
-    const result = getSectionOverview("filter", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("filter");
-    expect(result?.title).toBe("Filter");
-    expect(result!.description.length).toBeGreaterThan(0);
-    expect(
-      result?.items.some((item) => item.route === "/FilterSearch.story")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/filter/FilterSystem.story")
-    ).toBe(true);
-  });
-
-  it("returns items for page-layouts slug", () => {
-    const result = getSectionOverview("page-layouts", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("page-layouts");
-    expect(result?.title).toBe("Page layouts");
-    expect(result?.items.some((item) => item.route === "/Header.story")).toBe(
-      true
-    );
-    expect(
-      result?.items.some((item) => item.route === "/PageHeader.story")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/FooterComponent.story")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/pages/Banner.story")
-    ).toBe(true);
-  });
-
-  it("returns items for examples-prototypes slug", () => {
-    const result = getSectionOverview("examples-prototypes", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.slug).toBe("examples-prototypes");
-    expect(result?.title).toBe("Examples & prototypes");
-    expect(
-      result?.items.some((item) => item.route === "/samples/rowEdit")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/samples/formModal")
-    ).toBe(true);
-  });
-
-  it("returns items for components slug (the group overviews)", () => {
-    const result = getSectionOverview("components", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(result?.items.some((item) => item.label === "Actions")).toBe(true);
-    expect(result?.items.some((item) => item.label === "Filter")).toBe(true);
-    expect(result?.items.some((item) => item.label === "Containers")).toBe(
-      true
-    );
-    expect(result?.items.some((item) => item.label === "Page layouts")).toBe(
-      true
-    );
-  });
-
-  it("returns items for emx2 slug including Ref and Session", () => {
-    const result = getSectionOverview("emx2", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(
-      result?.items.some((item) => item.route === "/input/Ref.story")
-    ).toBe(true);
-    expect(result?.items.some((item) => item.route === "/Session.story")).toBe(
-      true
-    );
-    expect(
-      result?.items.some((item) => item.route === "/table/EMX2.story")
-    ).toBe(true);
-  });
-
-  it("returns items for visualisation slug", () => {
-    const result = getSectionOverview("visualisation", allRealPaths);
-    expect(result).not.toBeNull();
-    expect(
-      result?.items.some((item) => item.route === "/viz/ColumnChart.story")
-    ).toBe(true);
-    expect(
-      result?.items.some((item) => item.route === "/viz/PieChart.story")
-    ).toBe(true);
-  });
-
-  it("all known slugs return non-null results with non-empty items", () => {
-    const slugs = [
-      "foundations",
-      "components",
-      "actions",
-      "inputs",
-      "filter",
-      "feedback",
-      "overlays",
-      "navigation",
-      "display",
-      "containers",
-      "page-layouts",
-      "visualisation",
-      "emx2",
-      "examples-prototypes",
-    ];
-    for (const slug of slugs) {
-      const result = getSectionOverview(slug, allRealPaths);
-      expect(result, `${slug} should return a result`).not.toBeNull();
-      expect(result!.items.length, `${slug} should have items`).toBeGreaterThan(
-        0
-      );
-    }
-  });
-
-  it("returns null for removed slugs: layout, page-templates, prototypes, get-started, data-display", () => {
-    expect(getSectionOverview("layout", allRealPaths)).toBeNull();
-    expect(getSectionOverview("page-templates", allRealPaths)).toBeNull();
-    expect(getSectionOverview("prototypes", allRealPaths)).toBeNull();
-    expect(getSectionOverview("get-started", allRealPaths)).toBeNull();
-    expect(getSectionOverview("data-display", allRealPaths)).toBeNull();
-  });
-
-  it("returns null for unknown slug", () => {
-    expect(getSectionOverview("nonexistent", allRealPaths)).toBeNull();
-  });
-
-  it("navigation overview includes Legend", () => {
-    const result = getSectionOverview("navigation", allRealPaths);
-    expect(result?.items.some((item) => item.route === "/Legend.story")).toBe(
-      true
-    );
-  });
-
-  it("display overview includes text/Hyperlink", () => {
-    const result = getSectionOverview("display", allRealPaths);
-    expect(
-      result?.items.some((item) => item.route === "/text/Hyperlink.story")
-    ).toBe(true);
-  });
-
-  it("Icons in display overview is labeled 'Icon component'", () => {
-    const result = getSectionOverview("display", allRealPaths);
-    const iconsItem = result?.items.find(
-      (item) => item.route === "/Icons.story"
-    );
-    expect(iconsItem?.label).toBe("Icon component");
-  });
-});
-
 describe("getSectionNavForRoute", () => {
   it("returns EMX2 group info for a smart-input route (Ref)", () => {
     const result = getSectionNavForRoute("/input/Ref.story", allRealPaths);
@@ -1082,36 +892,5 @@ describe("buildDocsSidebar (backward compat, flat 2-level)", () => {
 
   it("invalid-regex search does not throw", () => {
     expect(() => buildDocsSidebar(allRealPaths, "", null, "(")).not.toThrow();
-  });
-});
-
-describe("getSectionTitleBySlug", () => {
-  it("returns human titles for new slugs", () => {
-    expect(getSectionTitleBySlug("containers")).toBe("Containers");
-    expect(getSectionTitleBySlug("filter")).toBe("Filter");
-    expect(getSectionTitleBySlug("page-layouts")).toBe("Page layouts");
-    expect(getSectionTitleBySlug("examples-prototypes")).toBe(
-      "Examples & prototypes"
-    );
-    expect(getSectionTitleBySlug("components")).toBe("Components");
-  });
-
-  it("still returns titles for unchanged slugs", () => {
-    expect(getSectionTitleBySlug("foundations")).toBe("Foundations");
-    expect(getSectionTitleBySlug("actions")).toBe("Actions");
-    expect(getSectionTitleBySlug("emx2")).toBe("EMX2");
-    expect(getSectionTitleBySlug("visualisation")).toBe("Visualisation");
-  });
-
-  it("returns null for removed slugs: layout, page-templates, prototypes", () => {
-    expect(getSectionTitleBySlug("layout")).toBeNull();
-    expect(getSectionTitleBySlug("page-templates")).toBeNull();
-    expect(getSectionTitleBySlug("prototypes")).toBeNull();
-  });
-
-  it("returns null for unknown slug", () => {
-    expect(getSectionTitleBySlug("unknown")).toBeNull();
-    expect(getSectionTitleBySlug("data-display")).toBeNull();
-    expect(getSectionTitleBySlug("get-started")).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import BackgroundGradient from "../components/BackgroundGradient.vue";
 import BaseIcon from "../components/BaseIcon.vue";
 import FormLegend from "../components/form/Legend.vue";
-import { buildDocsTree, getSectionTitleBySlug } from "../utils/docsNav";
+import { buildDocsTree } from "../utils/docsNav";
 
 const menuIsOpen = ref<boolean>(true);
 const navQuery = ref("");
@@ -26,10 +26,6 @@ function handleGoToSection(id: string) {
 }
 
 const storyName = computed(() => {
-  if (route.path.startsWith("/section/")) {
-    const slug = route.path.slice("/section/".length);
-    return getSectionTitleBySlug(slug) ?? "Section";
-  }
   const pathParts = route.path.split("/").filter(Boolean);
   const capitalizedParts = pathParts.map(
     (part) => part.charAt(0).toUpperCase() + part.slice(1)

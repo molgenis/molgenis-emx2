@@ -6,6 +6,7 @@
 .cache
 dist
 sourceCodeMap.json
+componentMetaMap.json
 
 # Node dependencies
 node_modules

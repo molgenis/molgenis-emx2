@@ -40,7 +40,6 @@ const pageRawSource = computed<string>(() => {
 const isNarrative = computed(() => {
   const path = route.path;
   return (
-    path.startsWith("/section/") ||
     path === "/patterns" ||
     path.startsWith("/patterns/") ||
     path.endsWith(".other")
