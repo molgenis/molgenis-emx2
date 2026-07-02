@@ -235,6 +235,7 @@ export default {
         "label-available": "var(--background-color-label-available)",
         "label-available-hover":
           "var(--background-color-label-available-hover)",
+        dropdown: "var(--background-color-dropdown)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -349,6 +350,7 @@ export default {
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
         "chart-text": "var(--chart-text)",
+        dropdown: "var(--text-color-dropdown)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",

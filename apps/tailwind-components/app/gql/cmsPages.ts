@@ -1,4 +1,4 @@
-export default `query getContainers($filter:ContainersFilter) {
+export const getContainersQuery = `query getContainers($filter:ContainersFilter) {
     Containers(filter:$filter) {
         
         # Containers
