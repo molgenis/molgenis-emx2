@@ -333,6 +333,32 @@ banner"). Examples & prototypes = sample flows (Row edit, Edit modal) + prototyp
   server (exit 144) during verification.
 - Commit: `c2f93cde1` (all-pages source) → this 3-level-nav commit.
 
+## 2026-07-02 — Merge master in: app-shell dropped for docs-nav; Filter group; new-story placement (owner)
+Synced `origin/master` into the branch (`git merge`, per convention not rebase).
+`.gitignore`/`package.json`/`tailwind.config.js` auto-merged; only `default.vue`
+conflicted and master's other-app commits merged clean (merge commit `3d17214b3`).
+- **App-shell DROPPED (default.vue conflict resolution).** Master (`e133688b2` era)
+  had replaced tailwind-components' layout with a full app-shell — `Header`,
+  `Navigation`, `FooterComponent`, `AccountMenu`, auth via `useLayoutState`/
+  `isSignedIn`. The merge KEEPS our 3-level docs-nav layout and drops master's
+  app-shell (kept master's additive `BackgroundGradient`). WHY: two incompatible
+  layouts can't coexist in one `default.vue`; the branch's whole purpose is the
+  docs-nav. OPEN (owner, unsettled): optionally reconcile by wrapping master's
+  Header/Footer/AccountMenu chrome AROUND the docs sidebar (common docs-site shape)
+  vs staying docs-nav-only. IMPLICATION: a future squash-PR to master would overwrite
+  master's app-shell — a team discussion, flagged.
+- **New master stories placed.** Master added `Well`, `Skeleton`, `filter/FilterSystem`
+  after divergence → they hit Ungrouped (5 test failures). Placed: `Well`→Display,
+  `Skeleton`→Feedback initially, `filter/*`→EMX2 initially. Fixture counts 72→75.
+- **Owner corrections (2026-07-02):** `Skeleton` → **Containers** (not Feedback);
+  **`filter` becomes its OWN group** ("Filter") — `FilterSearch` pulled out of Inputs,
+  `filter/FilterSystem` pulled out of EMX2. Components order now 11 groups: Actions ·
+  Inputs · **Filter** · Feedback · Overlays · Navigation · Display · Containers · Page
+  layouts · Visualisation · EMX2. Tests: 889 pass, exit 0.
+- Housekeeping: `componentMetaMap.json` re-flagged as a generated artifact that churns
+  every `pnpm dev` — should be **gitignored** (queued cleanup); the `Demo.vue`/
+  `demoSource.spec.ts` prettier churn committed as `6e55bdbf9`.
+
 ## 2026-06-24 — Dead / SaaS tools eliminated
 Pattern Lab (archived May 2026), Backlight (shut Jun 2025), Specify (shut Nov
 2024), Ladle (React-only). SaaS hubs (zeroheight / Supernova / Knapsack)
