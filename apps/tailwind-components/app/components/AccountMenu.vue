@@ -34,8 +34,8 @@
 
 <script setup lang="ts">
 import { navigateTo } from "#app/composables/router";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import HeaderButton from "../../../tailwind-components/app/components/HeaderButton.vue";
+import Button from "./Button.vue";
+import HeaderButton from "./HeaderButton.vue";
 
 defineProps<{
   hasCustomContent?: boolean;

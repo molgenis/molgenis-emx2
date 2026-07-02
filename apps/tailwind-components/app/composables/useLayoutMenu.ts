@@ -1,9 +1,6 @@
 import { computed, type Ref } from "vue";
-import { useMenu } from "../../../tailwind-components/app/composables/useMenu";
-import type {
-  ISession,
-  MenuItem,
-} from "../../../tailwind-components/types/types";
+import { useMenu } from "../composables/useMenu";
+import type { ISession, MenuItem } from "../../types/types";
 
 const DEFAULT_MAIN_MENU: MenuItem[] = [
   { label: "Databases", link: "/", isSpaLink: true },
