@@ -260,7 +260,6 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
-import Dropdown from "../button/Dropdown.vue";
 import DownloadButton from "./control/DownloadButton.vue";
 
 const props = withDefaults(

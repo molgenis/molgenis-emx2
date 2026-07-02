@@ -2,13 +2,12 @@ import { StorageSerializers, useSessionStorage } from "@vueuse/core";
 
 import metadataGql from "../../../tailwind-components/app/gql/metadata";
 import { type ISchemaMetaData } from "../../../metadata-utils/src/types";
-import { createError } from "#app";
+import { createError } from "nuxt/app";
 import { moduleToString } from "#imports";
 
 const query = moduleToString(metadataGql);
 
 export default async (schemaId: string): Promise<ISchemaMetaData> => {
-  // Use sessionStorage to cache data
   const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
     serializer: StorageSerializers.object,
   });
@@ -23,13 +22,10 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
       console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
       throw createError({
         ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+        message: `Could not fetch schema: ${schemaId}. Might you need to sign in or ask permission?`,
       });
     });
 
-    console.log(`Fetching metadata for schema ${schemaId}`);
-
-    // Update the cache
     cached.value = data._schema;
   }
 

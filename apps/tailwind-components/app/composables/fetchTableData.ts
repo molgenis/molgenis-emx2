@@ -1,5 +1,5 @@
-import { createError } from "#app";
-import { fetchMetadata } from "#imports";
+import { createError } from "nuxt/app";
+import fetchMetadata from "./fetchMetadata";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 
@@ -54,11 +54,11 @@ export default async (
       variables: { filter, orderby },
     },
   }).catch((error) => {
-    const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
+    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`;
     console.error(message, error);
     throw createError({
       ...error,
-      statusMessage: message,
+      message,
     });
   });
 
