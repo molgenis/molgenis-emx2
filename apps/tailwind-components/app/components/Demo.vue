@@ -47,7 +47,9 @@
         <p v-if="compileError || runtimeError" class="text-error text-sm mt-2">
           {{ compileError || runtimeError }}
         </p>
-        <p v-else-if="!demoSource">No source found for demo "{{ effectiveId }}".</p>
+        <p v-else-if="!demoSource">
+          No source found for demo "{{ effectiveId }}".
+        </p>
       </div>
     </div>
   </div>

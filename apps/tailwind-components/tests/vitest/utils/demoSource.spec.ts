@@ -132,7 +132,7 @@ describe("extractTemplateBody", () => {
     const source = `<template>\n  <Comp>\n    <template #default>\n      <template v-for="x in xs">\n        <span>{{ x }}</span>\n      </template>\n    </template>\n  </Comp>\n</template>`;
     const result = extractTemplateBody(source);
     expect(result).toContain("<Comp>");
-    expect(result).toContain('<template #default>');
+    expect(result).toContain("<template #default>");
     expect(result).toContain('<template v-for="x in xs">');
   });
 });
