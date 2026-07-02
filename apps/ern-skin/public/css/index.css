@@ -12,8 +12,7 @@
   --gray-050: #f6f6f6;
   --gray-000: #ffffff;
 
-  font-family: Helvetica, sans-serif;
-  font-size: 14pt;
+  font-size: 14pt !important;
 
   --max-width: 972px;
   --viz-chart-title-font-size: 1.1rem;
