@@ -7,6 +7,6 @@ Variable values,,value,,1,TRUE,,,,,,,"Variable value, e.g. '1'","DataCatalogueFl
 Variable values,,label,,,TRUE,,,,,,,"Variable label, e.g. 'Yes'","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variable values,,order,int,,,,,,,,,Order that the variable values should be displayed in,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variable values,,is missing,bool,,,,,,,,,"Whether this variable value indicates that data is missing, e.g. '-1' for 'NA'","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
-Variable values,,ontology term URI,,,,,,,,,,Reference to ontology term that defines this categorical value,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
+Variable values,,ontology term URI,hyperlink,,,,,,,,,Reference to ontology term that defines this categorical value,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variable values,,since version,,,,,,,,,,"When this variable value was introduced, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variable values,,until version,,,,,,,,,,"When this variable value was removed, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",

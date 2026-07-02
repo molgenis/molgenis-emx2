@@ -1,8 +1,13 @@
-import { useHead, useRuntimeConfig } from "#app";
+import { useHead, tryUseNuxtApp } from "#app";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 
 export function useLayoutHead(route: RouteLocationNormalizedLoaded) {
-  const config = useRuntimeConfig();
+  const nuxtApp = tryUseNuxtApp();
+  if (!nuxtApp) {
+    return;
+  }
+
+  const config = nuxtApp.$config;
   const faviconHref = config.public.emx2Theme
     ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
     : "/_nuxt-styles/img/molgenis.ico";
