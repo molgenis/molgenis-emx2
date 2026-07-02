@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.EnvironmentAccess;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.IOAccess;
 import org.molgenis.emx2.MolgenisException;
 
 public class JavaScriptUtils {
@@ -15,6 +17,17 @@ public class JavaScriptUtils {
       Engine.newBuilder()
           .allowExperimentalOptions(true)
           .option("engine.WarnInterpreterOnly", "false")
+          .build();
+
+  private static final HostAccess SAFE_HOST_ACCESS =
+      HostAccess.newBuilder()
+          .allowMapAccess(true)
+          .allowListAccess(true)
+          .allowArrayAccess(true)
+          .allowIterableAccess(true)
+          .allowIteratorAccess(true)
+          .allowBigIntegerNumberAccess(true)
+          .allowAccessAnnotatedBy(HostAccess.Export.class)
           .build();
 
   private JavaScriptUtils() {
@@ -38,7 +51,14 @@ public class JavaScriptUtils {
     try {
       final Context context =
           Context.newBuilder("js")
-              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
+              .allowHostAccess(SAFE_HOST_ACCESS)
+              .allowHostClassLookup(className -> false)
+              .allowHostClassLoading(false)
+              .allowCreateProcess(false)
+              .allowCreateThread(false)
+              .allowNativeAccess(false)
+              .allowIO(IOAccess.NONE)
+              .allowEnvironmentAccess(EnvironmentAccess.NONE)
               .engine(engine)
               .build();
       Value bindings = context.getBindings("js");
