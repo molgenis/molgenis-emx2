@@ -178,7 +178,7 @@ useHead({
                 content: variable?.description,
               },
               {
-                label: 'Dataset',
+                label: 'Table',
                 content: variable?.table?.name,
               },
             ]"
