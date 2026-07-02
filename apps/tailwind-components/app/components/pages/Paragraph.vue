@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import EditButton from "./EditButton.vue";
-import { renderParagraphUrls } from "../../utils/cms";
+import { renderTextUrls } from "../../utils/cms";
 import type { IParagraphs } from "../../../types/cms";
 
 const props = withDefaults(
@@ -14,7 +14,7 @@ const props = withDefaults(
 
 const renderedText = computed<string | undefined>(() => {
   if (props.text) {
-    return renderParagraphUrls(props.text);
+    return renderTextUrls(props.text);
   }
 });
 

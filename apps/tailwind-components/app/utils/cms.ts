@@ -159,7 +159,7 @@ export function pageCopyDate(): string {
   return date.replace("T", " ").split(".")[0] as string;
 }
 
-export function renderParagraphUrls(string: string): string {
+export function renderTextUrls(string: string): string {
   let paragraph = string;
   const urlPattern = /\[(.*?)\]\((.*?)\)/g;
   paragraph = paragraph.replaceAll(
