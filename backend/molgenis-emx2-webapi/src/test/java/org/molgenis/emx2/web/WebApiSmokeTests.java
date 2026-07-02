@@ -557,6 +557,47 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlGetRequestsCannotExecuteMutations() {
+    // queries via GET remain possible
+    String result =
+        given().queryParam("query", "{_session{email}}").when().get("/api/graphql").asString();
+    assertTrue(result.contains("anonymous"));
+
+    // mutations via GET are rejected (would enable CSRF via links/images)
+    given()
+        .queryParam("query", "mutation{signin(email:\"admin\",password:\"admin\"){message}}")
+        .when()
+        .get("/api/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+
+    // also on the schema endpoints
+    given()
+        .queryParam("query", "mutation{drop(tables:[\"Pet\"]){message}}")
+        .when()
+        .get("/pet store/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+    assertNotNull(schema.getTable("Pet"));
+
+    // same mutation via POST still works for signin
+    String postResult =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .asString();
+    assertTrue(postResult.contains("Signed in"));
+  }
+
+  @Test
   void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();

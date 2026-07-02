@@ -101,7 +101,11 @@ public class GraphqlApi {
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
     long start = System.currentTimeMillis();
 
-    ExecutionResult executionResult = graphqlApi.execute(query, variables, sessionManager);
+    // mutations via GET would enable CSRF via links/images, so GET is restricted to queries
+    ExecutionResult executionResult =
+        HandlerType.GET.equals(ctx.method())
+            ? graphqlApi.executeReadOnly(query, variables, sessionManager)
+            : graphqlApi.execute(query, variables, sessionManager);
     String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
 
     if (logger.isInfoEnabled())
