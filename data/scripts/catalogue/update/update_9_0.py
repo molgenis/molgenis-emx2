@@ -56,13 +56,18 @@ class Transform:
             self.reused_variables()
         if any(item in ['NetworksStaging','DataCatalogueFlat'] for item in self.profile):
             self.catalogues()
-        if any(item in ['DataCatalogueFlat','CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE', 'RWEStaging'] for item in self.profile):
+        if any(item in ['DataCatalogueFlat','CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE',
+                        'RWEStaging'] for item in self.profile):
             self.collections()
-        self.datasets()
-        self.variables()
-        self.variable_mappings()
-        self.variable_values()
-        self.reused_variables()
+        if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'RWEStaging',
+                        'NetworksStaging'] for item in self.profile):
+            self.datasets()
+            self.datasets()
+            self.variables()
+            self.variable_values()
+        if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging',
+                        'RWEStaging'] for item in self.profile):
+            self.variable_mappings()
 
     def collections(self):
         """ Transform Collections
