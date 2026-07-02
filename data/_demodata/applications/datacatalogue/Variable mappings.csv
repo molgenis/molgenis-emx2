@@ -5390,61 +5390,61 @@ temp4 <- dataset1
 
 
 table_final_dbp <- cbind(temp1[,1:74],temp2[,75:110],temp3[,111:144],temp4[,145:218])",,2,"0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215"
-testCohort3,test dataset for testCohort3,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,7,7
-testCohort3,test dataset for testCohort3,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
-testCohort3,test dataset for testCohort3,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
-testCohort3,test dataset for testCohort3,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
-testCohort3,test dataset for testCohort3,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
-testCohort3,test dataset for testCohort3,var4,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,4,4
-testCohort3,test dataset for testCohort3,var1,,,testNetwork1,cdm_1,testVarLang3Vir,partial,,test descrip,test syntax,,1,1
-testCohort3,test dataset for testCohort3,var2,,,testNetwork1,cdm_1,testVarVir,complete,,test descrip,test syntax,,2,2
-testCohort3,test dataset for testCohort3,var5,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,5,5
-testCohort3,test dataset for testCohort3,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
-testCohort3,test dataset for testCohort3,var8,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,8,8
-testCohort3,test dataset for testCohort3,var9,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,9,9
-testCohort3,test dataset for testCohort3,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
-testCohort3,test dataset for testCohort3,var11,,,testNetwork1,cdm_1,testVarNoRepeats,partial,,some description,some syntax,,,
-testCohort2,test dataset for testCohort2,var5,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,5,5
-testCohort2,test dataset for testCohort2,var6,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,6,6
-testCohort2,test dataset for testCohort2,var7,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,7,7
-testCohort2,test dataset for testCohort2,var8,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,8,8
-testCohort2,test dataset for testCohort2,var9,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,9,9
-testCohort2,test dataset for testCohort2,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
-testCohort2,test dataset for testCohort2,var11,,,testNetwork1,cdm_1,testVarNoRepeats,na,,some description,,,,
-testCohort2,test dataset for testCohort2,var0,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,0,0
-testCohort2,test dataset for testCohort2,var1,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,1,1
-testCohort2,test dataset for testCohort2,var2,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,2,2
-testCohort2,test dataset for testCohort2,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
-testCohort2,test dataset for testCohort2,var4,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,4,4
-testCohort2,test dataset for testCohort2,var2,,,LifeCycle,core,ga_lmp,complete,final,In original variable was reported in weeks and was recalculated for days,COMPUTE ga_lmp= C6600Q_F12v095 * 7 + 3.5.,,,
-testCohort1,test dataset for testCohort1,var1,,,testNetwork1,cdm_1,testVarLang,complete,,test descrip,test syntax,,1,1
-testCohort1,test dataset for testCohort1,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
-testCohort1,test dataset for testCohort1,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
-testCohort1,test dataset for testCohort1,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
-testCohort1,test dataset for testCohort1,var3,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,3,3
-testCohort1,test dataset for testCohort1,var4,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,4,4
-testCohort1,test dataset for testCohort1,var5,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,5,5
-testCohort1,test dataset for testCohort1,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
-testCohort1,test dataset for testCohort1,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,7,7
-testCohort1,test dataset for testCohort1,var8,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,8,8
-testCohort1,test dataset for testCohort1,var9,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,9,9
-testCohort1,test dataset for testCohort1,var10,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,10,10
-testCohort1,test dataset for testCohort1,var11,,,testNetwork1,cdm_1,testVarNoRepeats,complete,,some description,some syntax,,,
-testCohort4,test dataset for testCohort4,var1,,,testNetwork1,cdm_1,testVarLang,partial,,test descrip,test syntax,,1,1
-testCohort4,test dataset for testCohort4,var2,,,testNetwork1,cdm_1,testVarLang3Vir,complete,,test descrip,test syntax,,1,1
-testCohort4,test dataset for testCohort4,var3,,,testNetwork1,cdm_1,testVarVir,partial,,test descrip,test syntax,,2,2
-testCohort4,test dataset for testCohort4,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
-testCohort4,test dataset for testCohort4,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
-testCohort4,test dataset for testCohort4,var2,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,2,2
-testCohort4,test dataset for testCohort4,var3,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,3,3
-testCohort4,test dataset for testCohort4,var4,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,4,4
-testCohort4,test dataset for testCohort4,var5,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,5,5
-testCohort4,test dataset for testCohort4,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
-testCohort4,test dataset for testCohort4,var7,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,7,7
-testCohort4,test dataset for testCohort4,var8,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,8,8
-testCohort4,test dataset for testCohort4,var9,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,9,9
-testCohort4,test dataset for testCohort4,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
-testCohort4,test dataset for testCohort4,var11,,,testNetwork1,cdm_1,testVarNoRepeats,partial,,some description,some syntax,,,
+testCohort3,test table for testCohort3,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,7,7
+testCohort3,test table for testCohort3,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
+testCohort3,test table for testCohort3,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
+testCohort3,test table for testCohort3,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
+testCohort3,test table for testCohort3,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
+testCohort3,test table for testCohort3,var4,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,4,4
+testCohort3,test table for testCohort3,var1,,,testNetwork1,cdm_1,testVarLang3Vir,partial,,test descrip,test syntax,,1,1
+testCohort3,test table for testCohort3,var2,,,testNetwork1,cdm_1,testVarVir,complete,,test descrip,test syntax,,2,2
+testCohort3,test table for testCohort3,var5,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,5,5
+testCohort3,test table for testCohort3,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
+testCohort3,test table for testCohort3,var8,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,8,8
+testCohort3,test table for testCohort3,var9,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,9,9
+testCohort3,test table for testCohort3,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
+testCohort3,test table for testCohort3,var11,,,testNetwork1,cdm_1,testVarNoRepeats,partial,,some description,some syntax,,,
+testCohort2,test table for testCohort2,var5,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,5,5
+testCohort2,test table for testCohort2,var6,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,6,6
+testCohort2,test table for testCohort2,var7,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,7,7
+testCohort2,test table for testCohort2,var8,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,8,8
+testCohort2,test table for testCohort2,var9,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,9,9
+testCohort2,test table for testCohort2,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
+testCohort2,test table for testCohort2,var11,,,testNetwork1,cdm_1,testVarNoRepeats,na,,some description,,,,
+testCohort2,test table for testCohort2,var0,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,0,0
+testCohort2,test table for testCohort2,var1,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,1,1
+testCohort2,test table for testCohort2,var2,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,2,2
+testCohort2,test table for testCohort2,var3,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,3,3
+testCohort2,test table for testCohort2,var4,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,4,4
+testCohort2,test table for testCohort2,var2,,,LifeCycle,core,ga_lmp,complete,final,In original variable was reported in weeks and was recalculated for days,COMPUTE ga_lmp= C6600Q_F12v095 * 7 + 3.5.,,,
+testCohort1,test table for testCohort1,var1,,,testNetwork1,cdm_1,testVarLang,complete,,test descrip,test syntax,,1,1
+testCohort1,test table for testCohort1,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
+testCohort1,test table for testCohort1,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
+testCohort1,test table for testCohort1,var2,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,2,2
+testCohort1,test table for testCohort1,var3,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,3,3
+testCohort1,test table for testCohort1,var4,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,4,4
+testCohort1,test table for testCohort1,var5,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,5,5
+testCohort1,test table for testCohort1,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
+testCohort1,test table for testCohort1,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,7,7
+testCohort1,test table for testCohort1,var8,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,8,8
+testCohort1,test table for testCohort1,var9,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,9,9
+testCohort1,test table for testCohort1,var10,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,10,10
+testCohort1,test table for testCohort1,var11,,,testNetwork1,cdm_1,testVarNoRepeats,complete,,some description,some syntax,,,
+testCohort4,test table for testCohort4,var1,,,testNetwork1,cdm_1,testVarLang,partial,,test descrip,test syntax,,1,1
+testCohort4,test table for testCohort4,var2,,,testNetwork1,cdm_1,testVarLang3Vir,complete,,test descrip,test syntax,,1,1
+testCohort4,test table for testCohort4,var3,,,testNetwork1,cdm_1,testVarVir,partial,,test descrip,test syntax,,2,2
+testCohort4,test table for testCohort4,var0,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,0,0
+testCohort4,test table for testCohort4,var1,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,1,1
+testCohort4,test table for testCohort4,var2,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,2,2
+testCohort4,test table for testCohort4,var3,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,3,3
+testCohort4,test table for testCohort4,var4,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,4,4
+testCohort4,test table for testCohort4,var5,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,5,5
+testCohort4,test table for testCohort4,var6,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,6,6
+testCohort4,test table for testCohort4,var7,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,7,7
+testCohort4,test table for testCohort4,var8,,,testNetwork1,cdm_1,testVarRepeats_,complete,,some description,some syntax,,8,8
+testCohort4,test table for testCohort4,var9,,,testNetwork1,cdm_1,testVarRepeats_,partial,,some description,some syntax,,9,9
+testCohort4,test table for testCohort4,var10,,,testNetwork1,cdm_1,testVarRepeats_,na,,some description,,,10,10
+testCohort4,test table for testCohort4,var11,,,testNetwork1,cdm_1,testVarNoRepeats,partial,,some description,some syntax,,,
 SPF,SPF,codfarm,,,OOM,MEDICINES,medicinal_product_id,complete,,,,,,
 RMR,RMR,,,,OOM,SURVEY_OBSERVATIONS,so_source_column,complete,,As specified above,,,,
 SPA,SPA,codpres,,,OOM,PROCEDURES,procedure_code,complete,,,,,,
