@@ -1,4 +1,4 @@
-// Generated (on: 2026-03-07T10:26:03.316648) from Generator.java for schema: catalogue-demo
+// Generated (on: 2026-07-02T11:18:29.244578) from Generator.java for schema: catalogue-demo
 
 export interface IMgTableClass {
   mg_tableclass: string;
@@ -169,7 +169,7 @@ export interface ICatalogueOntologies_CatalogueTypes_agg {
   count: number;
 }
 
-export interface ICatalogues {
+export interface ICatalogues extends IMgTableClass {
   fdpEndpoint?: IEndpoint;
   ldpMembershipRelation?: string;
   hricore?: boolean;
@@ -207,10 +207,8 @@ export interface ICatalogues {
   tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: IDatasetMappings[];
+  mappingsToCommonDataModels?: ITableMappings[];
   commonDataModelsOther?: string;
-  eTLStandardVocabularies?: IOntologyNode[];
-  eTLStandardVocabulariesOther?: string;
   publications?: IPublications[];
   fundingSources?: IOntologyNode[];
   fundingScheme?: IOntologyNode[];
@@ -327,7 +325,7 @@ export interface ICollectionEvents_agg {
   count: number;
 }
 
-export interface ICollections {
+export interface ICollections extends IMgTableClass {
   hricore?: boolean;
   id: string;
   pid?: string;
@@ -461,7 +459,7 @@ export interface ICollections {
   qualityValidationMethods?: string;
   correctionMethods?: string;
   qualityValidationResults?: string;
-  mappingsToCommonDataModels?: IDatasetMappings[];
+  mappingsToCommonDataModels?: ITableMappings[];
   commonDataModelsOther?: string;
   eTLStandardVocabularies?: IOntologyNode[];
   eTLStandardVocabulariesOther?: string;
@@ -616,56 +614,6 @@ export interface ICatalogueOntologies_DataUseConditions_agg {
   count: number;
 }
 
-export interface IDatasetMappings extends IMgTableClass {
-  source: IResources;
-  sourceTable: ITables;
-  target: IResources;
-  targetDataset: ITables;
-  order?: number;
-  description?: string;
-  syntax?: string;
-}
-
-export interface IDatasetMappings_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_DatasetTypes extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_DatasetTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_DatasetTypes[];
-}
-
-export interface ICatalogueOntologies_DatasetTypes_agg {
-  count: number;
-}
-
-export interface ITables extends IMgTableClass {
-  resource: IResources;
-  name: string;
-  label?: string;
-  datasetType?: IOntologyNode[];
-  unitOfObservation?: IOntologyNode;
-  keywords?: IOntologyNode[];
-  description?: string;
-  numberOfRows?: number;
-  mappedTo?: IDatasetMappings[];
-  mappedFrom?: IDatasetMappings[];
-  sinceVersion?: string;
-  untilVersion?: string;
-}
-
-export interface ITables_agg {
-  count: number;
-}
-
 export interface ICatalogueOntologies_DatasourceTypes extends IMgTableClass {
   order?: number;
   name: string;
@@ -746,7 +694,7 @@ export interface IEndpoint extends IMgTableClass {
   keyword?: string[];
   theme?: string[];
   endPointDescription?: string[];
-  metadataCatalog: ICatalogues[];
+  metadataCatalog: IResources[];
   conformsToFdpSpec: string;
   eJP_RD_personalData?: string;
   eJP_RD_vpConnection?: string;
@@ -1054,7 +1002,7 @@ export interface ICatalogueOntologies_NetworkTypes_agg {
   count: number;
 }
 
-export interface INetworks {
+export interface INetworks extends IMgTableClass {
   hricore?: boolean;
   id: string;
   pid?: string;
@@ -1086,10 +1034,8 @@ export interface INetworks {
   tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: IDatasetMappings[];
+  mappingsToCommonDataModels?: ITableMappings[];
   commonDataModelsOther?: string;
-  eTLStandardVocabularies?: IOntologyNode[];
-  eTLStandardVocabulariesOther?: string;
   publications?: IPublications[];
   fundingSources?: IOntologyNode[];
   fundingScheme?: IOntologyNode[];
@@ -1364,7 +1310,6 @@ export interface ICatalogueOntologies_ResourceTypes_agg {
 }
 
 export interface IResources extends IMgTableClass {
-  rdfType?: string;
   hricore?: boolean;
   id: string;
   pid?: string;
@@ -1392,10 +1337,8 @@ export interface IResources extends IMgTableClass {
   tables?: ITables[];
   samplesets?: ISamplesets[];
   linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: IDatasetMappings[];
+  mappingsToCommonDataModels?: ITableMappings[];
   commonDataModelsOther?: string;
-  eTLStandardVocabularies?: IOntologyNode[];
-  eTLStandardVocabulariesOther?: string;
   publications?: IPublications[];
   fundingSources?: IOntologyNode[];
   fundingScheme?: IOntologyNode[];
@@ -1511,6 +1454,8 @@ export interface IResources extends IMgTableClass {
   qualityValidationMethods?: string;
   correctionMethods?: string;
   qualityValidationResults?: string;
+  eTLStandardVocabularies?: IOntologyNode[];
+  eTLStandardVocabulariesOther?: string;
   provenanceStatement?: string;
   theme?: IOntologyNode[];
   collectionStartPlanned?: string;
@@ -1708,6 +1653,56 @@ export interface ISubpopulations_agg {
   count: number;
 }
 
+export interface ITableMappings extends IMgTableClass {
+  source: IResources;
+  sourceTable: ITables;
+  target: IResources;
+  targetTable: ITables;
+  order?: number;
+  description?: string;
+  syntax?: string;
+}
+
+export interface ITableMappings_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_TableTypes extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_TableTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_TableTypes[];
+}
+
+export interface ICatalogueOntologies_TableTypes_agg {
+  count: number;
+}
+
+export interface ITables extends IMgTableClass {
+  resource: IResources;
+  name: string;
+  label?: string;
+  tableType?: IOntologyNode[];
+  unitOfObservation?: IOntologyNode;
+  keywords?: IOntologyNode[];
+  description?: string;
+  numberOfRows?: number;
+  mappedTo?: ITableMappings[];
+  mappedFrom?: ITableMappings[];
+  sinceVersion?: string;
+  untilVersion?: string;
+}
+
+export interface ITables_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_Themes extends IMgTableClass {
   order?: number;
   name: string;
@@ -1820,6 +1815,7 @@ export interface IVariables extends IMgTableClass {
   useExternalDefinition?: IVariables;
   label?: string;
   description?: string;
+  originalLanguageDescription?: string;
   collectionEvent?: ICollectionEvents[];
   format?: IOntologyNode;
   unit?: IOntologyNode;
