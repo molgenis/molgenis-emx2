@@ -70,7 +70,7 @@ const items = computed(() => {
 
   if (variable.value.table) {
     defaultItems.push({
-      label: "Dataset",
+      label: "Table",
       content:
         variable.value.table.resource.id + " - " + variable.value.table.name,
     });
