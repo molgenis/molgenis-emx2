@@ -79,10 +79,11 @@ export default defineComponent({
     this.startMonitorTask();
   },
   beforeUnmount() {
+    this.stopped = true;
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
+      this.timeoutId = null;
     }
-    this.task = null;
   },
 });
 </script>
