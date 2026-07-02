@@ -4,6 +4,9 @@ import type { ITableMetaData } from "../../../../metadata-utils/src";
 
 import PageComponent from "./PageComponent.vue";
 import TextParagraph from "./Paragraph.vue";
+import AddComponentPalette from "./AddComponentPalette.vue";
+import ComponentDropZone from "./ComponentDropZone.vue";
+import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -15,38 +18,69 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+const handleDragEvent = (value: any) => {
+  draggingInfo.value = value;
+};
+const draggingInfo = ref<{
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
+}>({ dragging: false, componentName: "", componentType: "" });
 </script>
 
 <template>
-  <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
-    <PageComponent
-      v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
-      :mg_tableclass="orderedBlock.block.mg_tableclass"
-      :component="orderedBlock.block"
-      :is-editable="isEditable"
+  <div>
+    <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
+      <ComponentDropZone
+        :draggingInfo="draggingInfo"
+        componentType="Block"
+        v-if="isEditable"
+      />
+      <PageComponent
+        v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
+        :mg_tableclass="orderedBlock.block.mg_tableclass"
+        :component="orderedBlock.block"
+        :is-editable="isEditable"
+        :metadata="metadata"
+      />
+      <PageComponent
+        v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
+        :mg_tableclass="orderedBlock.block.mg_tableclass"
+        :component="orderedBlock.block"
+      >
+        <ComponentDropZone
+          :draggingInfo="draggingInfo"
+          componentType="Component"
+          v-if="isEditable"
+        />
+        <template
+          v-for="orderedComponent in orderedBlock.block.componentOrder"
+          :key="orderedComponent.id"
+        >
+          <PageComponent
+            :mg_tableclass="orderedComponent.component.mg_tableclass"
+            :component="orderedComponent.component"
+            :is-editable="isEditable"
+            :metadata="metadata"
+          />
+          <ComponentDropZone
+            :draggingInfo="draggingInfo"
+            componentType="Component"
+            v-if="isEditable"
+          />
+        </template>
+      </PageComponent>
+      <TextParagraph
+        v-else
+        id="block-does-not-exist-message"
+        :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
+      />
+    </template>
+    <AddComponentPalette
+      v-if="isEditable"
+      @dragging="handleDragEvent"
+      :content="content"
       :metadata="metadata"
     />
-    <PageComponent
-      v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
-      :mg_tableclass="orderedBlock.block.mg_tableclass"
-      :component="orderedBlock.block"
-    >
-      <template
-        v-for="orderedComponent in orderedBlock.block.componentOrder"
-        :key="orderedComponent.id"
-      >
-        <PageComponent
-          :mg_tableclass="orderedComponent.component.mg_tableclass"
-          :component="orderedComponent.component"
-          :is-editable="isEditable"
-          :metadata="metadata"
-        />
-      </template>
-    </PageComponent>
-    <TextParagraph
-      v-else
-      id="block-does-not-exist-message"
-      :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
-    />
-  </template>
+  </div>
 </template>
