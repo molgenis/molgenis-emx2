@@ -313,6 +313,7 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
     members: [
       { storyName: "Banner" },
       { storyName: "Message" },
+      { storyName: "Skeleton" },
       { storyName: "Error", route: "/form/Error.story" },
       {
         storyName: "RequiredInfoSection",
@@ -348,6 +349,7 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
     title: "Display",
     members: [
       { storyName: "DisplayList" },
+      { storyName: "Well" },
       { dir: "display" },
       { dir: "value" },
       { dir: "text" },
@@ -393,6 +395,7 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
       { storyName: "RefSelect", route: "/input/RefSelect.story" },
       { storyName: "Ontology", route: "/input/Ontology.story" },
       { dir: "table" },
+      { dir: "filter" },
       { storyName: "Session" },
     ],
   },

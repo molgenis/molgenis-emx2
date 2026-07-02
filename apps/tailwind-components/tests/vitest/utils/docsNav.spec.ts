@@ -82,8 +82,8 @@ function resolveIsActive(item: {
 const allRealPaths = collectStoryPaths(PAGES_DIR, PAGES_DIR);
 
 describe("buildDocsTree top-level structure", () => {
-  it("covers all 72 real story files (exhaustive fixture check)", () => {
-    expect(allRealPaths).toHaveLength(72);
+  it("covers all 75 real story files (exhaustive fixture check)", () => {
+    expect(allRealPaths).toHaveLength(75);
   });
 
   it("returns exactly 3 top-level sections in order: Foundations, Components, Examples & prototypes", () => {
@@ -421,7 +421,7 @@ describe("buildDocsTree conservation", () => {
     }
   });
 
-  it("no Ungrouped group when all 72 real stories match a group", () => {
+  it("no Ungrouped group when all 75 real stories match a group", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const components = findSection(sections, "Components")!;
     const ungrouped = components.headers.find((h) => h.label === "Ungrouped");

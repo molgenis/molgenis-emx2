@@ -18,7 +18,8 @@
     "test-ci": "vitest run",
     "e2e": "playwright test",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
-    "typecheck": "nuxi typecheck"
+    "typecheck": "nuxi typecheck",
+    "typecheck:tests": "vue-tsc --noEmit -p tsconfig.vitest.json"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "11.0.3",
