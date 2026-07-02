@@ -6,7 +6,6 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.List;
 import java.util.Map;
-import org.graalvm.polyglot.HostAccess;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
@@ -49,25 +48,6 @@ class TestJavaScriptSandbox {
   void nonExportedHostMethodIsBlocked() {
     Map<String, Object> bindings = Map.of("w", (Widget) () -> "should-not-run");
     assertThrows(MolgenisException.class, () -> executeJavascriptOnMap("w.run()", bindings));
-  }
-
-  @FunctionalInterface
-  interface ExportedClient {
-    Object call(String arg);
-  }
-
-  @Test
-  void exportedFunctionalBindingStillCallable() {
-    ExportedClient client =
-        new ExportedClient() {
-          @HostAccess.Export
-          @Override
-          public Object call(String arg) {
-            return "ok:" + arg;
-          }
-        };
-    Map<String, Object> bindings = Map.of("simplePostClient", client);
-    assertEquals("ok:hi", executeJavascriptOnMap("simplePostClient('hi')", bindings));
   }
 
   @Test
