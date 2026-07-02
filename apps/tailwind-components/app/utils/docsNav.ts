@@ -82,6 +82,12 @@ const SECTION_OVERVIEW_CONFIG: SectionOverviewConfig[] = [
       "Basic, presentation-only form controls — text fields, checkboxes, date pickers, and selects with no backend coupling.",
   },
   {
+    slug: "filter",
+    title: "Filter",
+    description:
+      "Search and filter controls for narrowing dataset results — filter search bar and the full filter system panel.",
+  },
+  {
     slug: "feedback",
     title: "Feedback",
     description:
@@ -306,14 +312,17 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
   },
   {
     title: "Inputs",
-    members: [{ storyName: "FilterSearch" }, { dir: "input" }],
+    members: [{ dir: "input" }],
+  },
+  {
+    title: "Filter",
+    members: [{ storyName: "FilterSearch" }, { dir: "filter" }],
   },
   {
     title: "Feedback",
     members: [
       { storyName: "Banner" },
       { storyName: "Message" },
-      { storyName: "Skeleton" },
       { storyName: "Error", route: "/form/Error.story" },
       {
         storyName: "RequiredInfoSection",
@@ -366,6 +375,7 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
     members: [
       { storyName: "Accordion" },
       { storyName: "ShowMore" },
+      { storyName: "Skeleton" },
       { dir: "transition" },
     ],
   },
@@ -395,7 +405,6 @@ const COMPONENT_GROUPS_CONFIG: ComponentGroupConfig[] = [
       { storyName: "RefSelect", route: "/input/RefSelect.story" },
       { storyName: "Ontology", route: "/input/Ontology.story" },
       { dir: "table" },
-      { dir: "filter" },
       { storyName: "Session" },
     ],
   },

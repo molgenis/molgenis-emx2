@@ -136,20 +136,21 @@ describe("buildDocsTree top-level structure", () => {
 });
 
 describe("buildDocsTree Components section groups", () => {
-  it("Components has exactly 10 group headers in config order", () => {
+  it("Components has exactly 11 group headers in config order", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const groups = findSection(sections, "Components")!.headers;
-    expect(groups).toHaveLength(10);
+    expect(groups).toHaveLength(11);
     expect(groups[0]!.label).toBe("Actions");
     expect(groups[1]!.label).toBe("Inputs");
-    expect(groups[2]!.label).toBe("Feedback");
-    expect(groups[3]!.label).toBe("Overlays");
-    expect(groups[4]!.label).toBe("Navigation");
-    expect(groups[5]!.label).toBe("Display");
-    expect(groups[6]!.label).toBe("Containers");
-    expect(groups[7]!.label).toBe("Page layouts");
-    expect(groups[8]!.label).toBe("Visualisation");
-    expect(groups[9]!.label).toBe("EMX2");
+    expect(groups[2]!.label).toBe("Filter");
+    expect(groups[3]!.label).toBe("Feedback");
+    expect(groups[4]!.label).toBe("Overlays");
+    expect(groups[5]!.label).toBe("Navigation");
+    expect(groups[6]!.label).toBe("Display");
+    expect(groups[7]!.label).toBe("Containers");
+    expect(groups[8]!.label).toBe("Page layouts");
+    expect(groups[9]!.label).toBe("Visualisation");
+    expect(groups[10]!.label).toBe("EMX2");
   });
 
   it("group headers have overview route ids", () => {
@@ -224,7 +225,7 @@ describe("buildDocsTree group memberships", () => {
     );
   });
 
-  it("Inputs contains dumb inputs (String, Boolean, Array) but not Ref/RefBack/RefSelect/Ontology/Switch", () => {
+  it("Inputs contains dumb inputs (String, Boolean, Array) but not Ref/RefBack/RefSelect/Ontology/Switch/FilterSearch", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const ids = groupChildIds(sections, "Inputs");
     expect(ids).toContain("/input/String.story");
@@ -235,9 +236,31 @@ describe("buildDocsTree group memberships", () => {
     expect(ids).not.toContain("/input/RefSelect.story");
     expect(ids).not.toContain("/input/Ontology.story");
     expect(ids).not.toContain("/input/Switch.story");
+    expect(ids).not.toContain("/FilterSearch.story");
   });
 
-  it("Feedback contains Banner (root), Message, Error, RequiredInfoSection, Draft", () => {
+  it("Filter group contains FilterSearch and FilterSystem", () => {
+    const sections = buildDocsTree(allRealPaths, "");
+    const ids = groupChildIds(sections, "Filter");
+    expect(ids).toContain("/FilterSearch.story");
+    expect(ids).toContain("/filter/FilterSystem.story");
+  });
+
+  it("FilterSearch is in Filter NOT Inputs; FilterSystem is in Filter NOT EMX2", () => {
+    const sections = buildDocsTree(allRealPaths, "");
+    expect(groupChildIds(sections, "Filter")).toContain("/FilterSearch.story");
+    expect(groupChildIds(sections, "Inputs")).not.toContain(
+      "/FilterSearch.story"
+    );
+    expect(groupChildIds(sections, "Filter")).toContain(
+      "/filter/FilterSystem.story"
+    );
+    expect(groupChildIds(sections, "EMX2")).not.toContain(
+      "/filter/FilterSystem.story"
+    );
+  });
+
+  it("Feedback contains Banner (root), Message, Error, RequiredInfoSection, Draft — NOT Skeleton", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const ids = groupChildIds(sections, "Feedback");
     expect(ids).toContain("/Banner.story");
@@ -245,6 +268,7 @@ describe("buildDocsTree group memberships", () => {
     expect(ids).toContain("/form/Error.story");
     expect(ids).toContain("/form/RequiredInfoSection.story");
     expect(ids).toContain("/label/Draft.story");
+    expect(ids).not.toContain("/Skeleton.story");
   });
 
   it("Overlays contains Modal, SideModal, CustomTooltip", () => {
@@ -282,14 +306,21 @@ describe("buildDocsTree group memberships", () => {
     expect(ids).not.toContain("/Header.story");
   });
 
-  it("Containers (renamed from Layout) contains Accordion, ShowMore, SlideUp — NOT PageHeader or FooterComponent", () => {
+  it("Containers contains Accordion, ShowMore, Skeleton, SlideUp — NOT PageHeader, FooterComponent, or (old) Feedback Skeleton", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const ids = groupChildIds(sections, "Containers");
     expect(ids).toContain("/Accordion.story");
     expect(ids).toContain("/ShowMore.story");
+    expect(ids).toContain("/Skeleton.story");
     expect(ids).toContain("/transition/SlideUp.story");
     expect(ids).not.toContain("/PageHeader.story");
     expect(ids).not.toContain("/FooterComponent.story");
+  });
+
+  it("Skeleton is in Containers, NOT Feedback (moved from Feedback → Containers)", () => {
+    const sections = buildDocsTree(allRealPaths, "");
+    expect(groupChildIds(sections, "Containers")).toContain("/Skeleton.story");
+    expect(groupChildIds(sections, "Feedback")).not.toContain("/Skeleton.story");
   });
 
   it("Page layouts (new) contains Header, PageHeader, FooterComponent, pages/Banner (labeled 'Page banner')", () => {
@@ -346,7 +377,7 @@ describe("buildDocsTree group memberships", () => {
     expect(ids).toContain("/viz/PieChart.story");
   });
 
-  it("EMX2 contains Form, Field, AddModal, EditModal, Ref, RefBack, RefSelect, Ontology, table stories, Session", () => {
+  it("EMX2 contains Form, Field, AddModal, EditModal, Ref, RefBack, RefSelect, Ontology, table stories, Session — NOT FilterSystem", () => {
     const sections = buildDocsTree(allRealPaths, "");
     const ids = groupChildIds(sections, "EMX2");
     expect(ids).toContain("/Form.story");
@@ -360,6 +391,7 @@ describe("buildDocsTree group memberships", () => {
     expect(ids).toContain("/table/EMX2.story");
     expect(ids).toContain("/table/modal/Ref.story");
     expect(ids).toContain("/Session.story");
+    expect(ids).not.toContain("/filter/FilterSystem.story");
   });
 
   it("two-pass: EMX2 claims Ref/RefBack/RefSelect/Ontology before Inputs dir sweep", () => {
@@ -630,7 +662,7 @@ describe("buildDocsTree search filter", () => {
     const sections = buildDocsTree(allRealPaths, "", "");
     expect(sections).toHaveLength(3);
     const groups = findSection(sections, "Components")!.headers;
-    expect(groups).toHaveLength(10);
+    expect(groups).toHaveLength(11);
   });
 
   it("query 'ref' returns EMX2 with Ref/RefBack/RefSelect; Actions section absent", () => {
@@ -724,7 +756,7 @@ describe("getSectionOverview", () => {
     ).toBe(true);
   });
 
-  it("returns items for containers slug", () => {
+  it("returns items for containers slug including Skeleton", () => {
     const result = getSectionOverview("containers", allRealPaths);
     expect(result).not.toBeNull();
     expect(result?.slug).toBe("containers");
@@ -736,7 +768,24 @@ describe("getSectionOverview", () => {
       true
     );
     expect(
+      result?.items.some((item) => item.route === "/Skeleton.story")
+    ).toBe(true);
+    expect(
       result?.items.some((item) => item.route === "/transition/SlideUp.story")
+    ).toBe(true);
+  });
+
+  it("returns items for filter slug", () => {
+    const result = getSectionOverview("filter", allRealPaths);
+    expect(result).not.toBeNull();
+    expect(result?.slug).toBe("filter");
+    expect(result?.title).toBe("Filter");
+    expect(result!.description.length).toBeGreaterThan(0);
+    expect(
+      result?.items.some((item) => item.route === "/FilterSearch.story")
+    ).toBe(true);
+    expect(
+      result?.items.some((item) => item.route === "/filter/FilterSystem.story")
     ).toBe(true);
   });
 
@@ -776,6 +825,7 @@ describe("getSectionOverview", () => {
     const result = getSectionOverview("components", allRealPaths);
     expect(result).not.toBeNull();
     expect(result?.items.some((item) => item.label === "Actions")).toBe(true);
+    expect(result?.items.some((item) => item.label === "Filter")).toBe(true);
     expect(result?.items.some((item) => item.label === "Containers")).toBe(
       true
     );
@@ -815,6 +865,7 @@ describe("getSectionOverview", () => {
       "components",
       "actions",
       "inputs",
+      "filter",
       "feedback",
       "overlays",
       "navigation",
@@ -982,6 +1033,7 @@ describe("buildDocsSidebar (backward compat, flat 2-level)", () => {
     const labels = sidebar.map((s) => s.label);
     expect(labels).toContain("Foundations");
     expect(labels).toContain("Actions");
+    expect(labels).toContain("Filter");
     expect(labels).toContain("Containers");
     expect(labels).toContain("Page layouts");
     expect(labels).toContain("Examples & prototypes");
@@ -1036,6 +1088,7 @@ describe("buildDocsSidebar (backward compat, flat 2-level)", () => {
 describe("getSectionTitleBySlug", () => {
   it("returns human titles for new slugs", () => {
     expect(getSectionTitleBySlug("containers")).toBe("Containers");
+    expect(getSectionTitleBySlug("filter")).toBe("Filter");
     expect(getSectionTitleBySlug("page-layouts")).toBe("Page layouts");
     expect(getSectionTitleBySlug("examples-prototypes")).toBe(
       "Examples & prototypes"
