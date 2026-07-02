@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.tasks.ScriptType.BASH;
 import static org.molgenis.emx2.tasks.ScriptType.PYTHON;
-import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
-import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
+import static org.molgenis.emx2.tasks.TaskStatus.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -175,10 +174,10 @@ print('unreachable')
   }
 
   @Test
-  public void testScriptTaskStop() throws MalformedURLException {
+  public void testScriptTaskStop() throws MalformedURLException, InterruptedException {
     TaskServiceInDatabase taskService =
         new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
-    Task bashTask =
+    ScriptTask bashTask =
         new ScriptTask("bashTest")
             .type(BASH)
             .script(
@@ -188,6 +187,11 @@ print('unreachable')
             """);
 
     taskService.submit(bashTask);
+    TaskStatus bashTaskStatus = bashTask.getStatus();
+    while (bashTaskStatus != RUNNING) {
+      Thread.sleep(500);
+      bashTaskStatus = bashTask.getStatus();
+    }
     bashTask.stop();
     assertEquals(ERROR, bashTask.getStatus());
     assertTrue(bashTask.getDescription().startsWith("process has been stopped"));
