@@ -25,7 +25,11 @@ watch(
 
 <template>
   <Molgenis id="__top" v-model="session">
-    <router-view :session="session" :page="page" />
+    <router-view
+      :session="session"
+      :page="page"
+      :key="JSON.stringify($route.params)"
+    />
     <AppFooter
       id="ernSkinFooter"
       first-column-title="ERN-SKin"

@@ -102,13 +102,7 @@ const languageOptions = [
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <div
-          v-if="
-            $route.params.email &&
-            $route.params.email !== '' &&
-            $route.params.email !== 'anonymous'
-          "
-        >
+        <div v-if="$route.params.email && $route.params.email !== 'anonymous'">
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"
@@ -138,7 +132,7 @@ const languageOptions = [
             </div>
             <div v-if="selectedLanguage" class="mt-3">
               <PrivateFiles
-                :user="($route.params.email as string)"
+                :user="($route.params?.email as string)"
                 :labelValue="selectedLanguage"
               />
             </div>
@@ -149,7 +143,7 @@ const languageOptions = [
             :isOpenByDefault="false"
           >
             <PrivateFiles
-              :user="($route.params.email as string)"
+              :user="($route.params?.email as string)"
               labelValue="template"
             />
           </Accordion>
