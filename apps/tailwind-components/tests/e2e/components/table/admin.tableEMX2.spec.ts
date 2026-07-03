@@ -38,10 +38,13 @@ test("the row should be removed from the table after deletion", async ({
   await page
     .getByRole("searchbox", { name: "Search Category" })
     .fill("deltest");
-  await page.getByText("deltest", { exact: true }).click();
+  await page.getByText("deltest", { exact: true }).nth(0).click();
   // header is in row 0, so row with deltest is row 1
   await page.getByRole("row").nth(1).hover();
-  await page.getByRole("button", { name: 'delete{"name":"deltest"}' }).click();
+  await page
+    .getByRole("button", { name: 'delete{"name":"deltest"}' })
+    .nth(0)
+    .click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await page.waitForTimeout(500);
   await expect(
