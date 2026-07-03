@@ -10,7 +10,7 @@ import MolgenisLogo from "../../assets/molgenis-logo-blue-small.svg";
   />
 </template>
 
-<style lang="scss">
+<style lang="css">
 .molgenis-logo {
   width: 124px;
 }

@@ -176,8 +176,10 @@ export default function useForm(
         isVisible: computed(() =>
           columns.some((col) => visibilityMap[col.id]?.value === true)
         ),
-        isActive: computed(() =>
-          section.headers.some((header) => unref(header.isActive))
+        isActive: computed(
+          () =>
+            section.headers.some((header) => unref(header.isActive)) ||
+            visibleColumnSectionsIds.value.has(column.id)
         ),
         errorCount: computed(() => {
           return columns.reduce((acc, col) => {
@@ -509,6 +511,17 @@ export default function useForm(
             formValues.value[column.id] !== undefined
         )
     );
+  });
+
+  const visibleColumnSectionsIds = computed(() => {
+    return metadata.value?.columns
+      .filter((column) => visibleColumnIds.value.has(column.id))
+      .reduce((acc, column) => {
+        if (column.section) {
+          acc.add(column.section);
+        }
+        return acc;
+      }, new Set<string>());
   });
 
   // reactive intersection of visible columns and error columns

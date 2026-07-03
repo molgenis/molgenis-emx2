@@ -86,3 +86,4 @@ apps/tailwind-components/playwright/.auth/user.json
 .claude
 .playwright-cli
 apps/**/.nuxtrc
+.plan/

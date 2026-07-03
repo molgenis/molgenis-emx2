@@ -5,7 +5,7 @@ import type {
   IDependenciesJS,
 } from "../../types/cms";
 
-import cmsPagesQuery from "../gql/cmsPages";
+import { getContainersQuery } from "../gql/cmsPages";
 
 import type {
   IContainerMetadata,
@@ -34,7 +34,7 @@ export async function getPage(
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: cmsPagesQuery,
+      query: getContainersQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
@@ -157,4 +157,14 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export function renderTextUrls(string: string): string {
+  let paragraph = string;
+  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
+  paragraph = paragraph.replaceAll(
+    urlPattern,
+    '<a href="$2" class="underline decoration-solid">$1</a>'
+  );
+  return paragraph;
 }
