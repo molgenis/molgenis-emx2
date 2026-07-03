@@ -1381,8 +1381,9 @@ public class RDFTest {
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesMissingIri");
-      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> schema.getMetadata().update());
+      assertThrows(
+          MolgenisException.class,
+          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
     } finally {
       database.dropSchemaIfExists("PrefixesMissingIri");
     }

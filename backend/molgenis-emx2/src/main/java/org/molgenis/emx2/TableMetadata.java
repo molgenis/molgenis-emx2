@@ -43,7 +43,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
    * @return {@code false} if null or empty list, otherwise {@code true}.
    */
   public boolean hasSemantics() {
-    return !(semantics == null || semantics.length == 0);
+    return semantics != null && semantics.length > 0;
   }
 
   public Semantic[] getSemantics() {
