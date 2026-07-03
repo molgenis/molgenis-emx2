@@ -3,26 +3,17 @@ package org.molgenis.emx2.rdf.generators;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
-import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
+import static org.molgenis.emx2.rdf.RdfUtils.*;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
@@ -95,8 +86,17 @@ public abstract class RdfGenerator {
     return false;
   }
 
-  protected void generatePrefixes(Collection<Namespace> namespaces) {
-    namespaces.forEach(getWriter()::processNamespace);
+  protected void generatePrefixes(Schema schema) {
+    getWriter().processNamespace(getSchemaNamespace(getBaseURL(), schema.getMetadata()));
+    schema
+        .getMetadata()
+        .getSemanticPrefixes()
+        .getAllNamespaces()
+        .forEach(getWriter()::processNamespace);
+  }
+
+  protected void generatePrefixes(Collection<Schema> schemas) {
+    schemas.stream().sorted(Comparator.comparing(Schema::getName)).forEach(this::generatePrefixes);
   }
 
   protected void generateCustomRdf(Schema schema) {

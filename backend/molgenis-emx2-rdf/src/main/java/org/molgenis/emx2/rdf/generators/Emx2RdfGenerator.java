@@ -6,7 +6,6 @@ import static org.molgenis.emx2.rdf.IriGenerator.columnIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
-import static org.molgenis.emx2.rdf.RdfUtils.getNamespaces;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     List<Table> tables = schema.getTablesSorted();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
-    generatePrefixes(schema.getMetadata().getSemanticPrefixes().getAllNamespaces());
+    generatePrefixes(schema);
     generateCustomRdf(schema);
     describeRoot();
     describeSchema(schema);
@@ -54,7 +53,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
-    generatePrefixes(getNamespaces(getBaseURL(), table.getSchema()));
+    generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
     describeColumns(table, null);
@@ -63,7 +62,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table, Column column) {
-    generatePrefixes(table.getSchema().getMetadata().getSemanticPrefixes().getAllNamespaces());
+    generatePrefixes(table.getSchema());
     describeTable(table);
     describeColumns(table, column.getName());
   }

@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.TestResourceLoader.getFile;
@@ -14,7 +15,6 @@ import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
 import static org.molgenis.emx2.rdf.RdfParser.parseFile;
 import static org.molgenis.emx2.rdf.RdfParser.parseString;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
-import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -402,6 +402,7 @@ public class RDFTest {
     semanticTest
         .getMetadata()
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
+    semanticTest.getMetadata().update();
   }
 
   private static String getApi(Schema schema, boolean trailingSlash) {
@@ -1366,6 +1367,7 @@ public class RDFTest {
 
       // Change setting
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      schema.getMetadata().update();
 
       // Test behaviour after changing setting.
       InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
@@ -1377,27 +1379,14 @@ public class RDFTest {
 
   @Test
   void testMissingIriSemanticPrefixesSetting() throws IOException {
-    final String customPrefixes = "example,example";
+    final String customPrefixes = "examplePrefix,exampleName";
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesMissingIri");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      assertThrows(MolgenisException.class, () -> schema.getMetadata().update());
     } finally {
       database.dropSchemaIfExists("PrefixesMissingIri");
-    }
-  }
-
-  @Test
-  void testIllegalPrefixSemanticPrefixesSetting() throws IOException {
-    final String customPrefixes = "urn,http://example.com";
-
-    try {
-      Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
-      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
-    } finally {
-      database.dropSchemaIfExists("PrefixesIllegalPrefix");
     }
   }
 
@@ -1415,6 +1404,7 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("PrefixesEmpty");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      schema.getMetadata().update();
       InMemoryRDFHandler handler = parseSchemaRdf(schema);
       assertEquals(expectedNamespaces, handler.namespaces);
     } finally {
@@ -1501,6 +1491,7 @@ dcterms2,http://purl.org/dc/terms/
                 new SimpleNamespace(
                     "PrefixSettingNameIri2", BASE_URL + "/PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://purl.org/dc/terms/"));
+            add(new SimpleNamespace("name1", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
 
@@ -1661,8 +1652,10 @@ example,http://example.com/
       Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
       Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
       schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
+      schema1.getMetadata().update();
       if (customPrefixes2 != null) {
         schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
+        schema2.getMetadata().update();
       }
 
       InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));

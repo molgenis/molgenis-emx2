@@ -39,7 +39,11 @@ public class SemanticPrefixes {
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
 
-  private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) throws IOException {
+  private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) {
+    if (!schema.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES)) {
+      return null;
+    }
+
     Set<Namespace> namespaces = new HashSet<>();
     try (MappingIterator<Map<String, String>> iterator =
         new CsvMapper()
@@ -61,17 +65,38 @@ public class SemanticPrefixes {
             }
             namespaces.add(namespace);
           });
+    } catch (IOException e) {
+      logger.error("Failed to retrieve custom prefixes, falling back to default", e);
+      return null;
     }
     return namespaces;
   }
 
   private final Map<String, Namespace> namespaces;
 
-  public SemanticPrefixes(Namespace... namespaces) {
+  /**
+   * @param namespaces If {@code null}, will use the {@link
+   *     SemanticPrefixes#DEFAULT_NAMESPACES_MAP}. If a {@link Collection} is given (either empty or
+   *     with items), uses that instead.
+   */
+  public SemanticPrefixes(Collection<Namespace> namespaces) {
+    if (namespaces == null) {
+      this.namespaces = DEFAULT_NAMESPACES_MAP;
+      return;
+    }
+
     this.namespaces =
-        Arrays.stream(namespaces)
+        namespaces.stream()
             .map(namespace -> Map.entry(namespace.getPrefix(), namespace))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (namespace1, namespace2) -> {
+                      throw new MolgenisException(
+                          "Prefix already exists: " + namespace1.getPrefix());
+                    },
+                    HashMap::new));
   }
 
   public SemanticPrefixes(Schema schema) {
@@ -79,19 +104,7 @@ public class SemanticPrefixes {
   }
 
   public SemanticPrefixes(SchemaMetadata schemaMetadata) {
-    Map<String, Namespace> namespaces;
-    if (!schemaMetadata.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES)) {
-      namespaces = DEFAULT_NAMESPACES_MAP;
-    } else {
-      try {
-        Set<Namespace> namespaceSet = getCustomPrefixes(schemaMetadata);
-        namespaces = namespaceSet.stream().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
-      } catch (IOException e) {
-        logger.error("Failed to retrieve custom prefixes, falling back to default", e);
-        namespaces = DEFAULT_NAMESPACES_MAP;
-      }
-    }
-    this.namespaces = namespaces;
+    this(getCustomPrefixes(schemaMetadata));
   }
 
   public Set<Namespace> getAllNamespaces() {
@@ -148,5 +161,17 @@ public class SemanticPrefixes {
           getNamespace(prefixedName.split(":")[0]);
           return prefixedName;
         });
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    SemanticPrefixes that = (SemanticPrefixes) o;
+    return Objects.equals(namespaces, that.namespaces);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(namespaces);
   }
 }

@@ -146,6 +146,15 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return semanticPrefixes;
   }
 
+  /**
+   * In case the advanced setting {@link Constants#SETTING_SEMANTIC_PREFIXES} is changed after
+   * loading, the {@link SemanticPrefixes} need to be re-initialized.
+   */
+  public void update() {
+    SemanticPrefixes newSemanticPrefixes = new SemanticPrefixes(this);
+    if (!semanticPrefixes.equals(newSemanticPrefixes)) semanticPrefixes = newSemanticPrefixes;
+  }
+
   public List<TableMetadata> getTablesIncludingExternal() {
     Map<String, TableMetadata> tables = new LinkedHashMap<>();
     for (String tableName : getTableNames()) {

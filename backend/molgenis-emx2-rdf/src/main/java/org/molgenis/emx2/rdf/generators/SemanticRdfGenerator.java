@@ -27,7 +27,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     List<Table> tables = schema.getTablesSorted();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
-    generatePrefixes(schema.getMetadata().getSemanticPrefixes().getAllNamespaces());
+    generatePrefixes(schema);
     generateCustomRdf(schema);
     describeRoot();
     tables.forEach(i -> processRows(rdfMapData, i, null));

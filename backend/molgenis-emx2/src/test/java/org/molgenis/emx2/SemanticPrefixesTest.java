@@ -11,13 +11,15 @@ import org.junit.jupiter.api.Test;
 class SemanticPrefixesTest {
   SemanticPrefixes prefixes =
       new SemanticPrefixes(
-          Values.namespace("dcterms", "http://purl.org/dc/terms/"),
-          Values.namespace("time", "http://www.w3.org/2006/time#"));
+          List.of(
+              Values.namespace("dcterms", "http://purl.org/dc/terms/"),
+              Values.namespace("time", "http://www.w3.org/2006/time#")));
 
   SemanticPrefixes prefixesWithEmpty =
       new SemanticPrefixes(
-          Values.namespace("dcterms", "http://purl.org/dc/terms/"),
-          Values.namespace("", "http://www.w3.org/2006/time#"));
+          List.of(
+              Values.namespace("dcterms", "http://purl.org/dc/terms/"),
+              Values.namespace("", "http://www.w3.org/2006/time#")));
 
   @Test
   void testMapping() {
@@ -92,5 +94,16 @@ rdfs,http://www.w3.org/2000/01/rdf-schema#
             Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
             Values.namespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#")),
         prefixes.getAllNamespaces());
+  }
+
+  @Test
+  void testInvalidCustomSemanticPrefixes() {
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            new SemanticPrefixes(
+                List.of(
+                    Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
+                    Values.namespace("myPrefix", "http://www.w3.org/2006/time#"))));
   }
 }

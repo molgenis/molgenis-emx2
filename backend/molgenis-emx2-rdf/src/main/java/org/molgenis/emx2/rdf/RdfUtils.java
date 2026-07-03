@@ -5,7 +5,6 @@ import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
@@ -28,12 +27,6 @@ public abstract class RdfUtils {
   // Advanced setting containing valid Turtle-formatted RDF.
   public static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
-  // Advanced setting containing comma-separated "namespace prefix,namespace URL" pairs (per row)
-  public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
-
-  // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
-  public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
-
   /**
    * Get the namespace for a schema. A namespace URL does have a trailing slash (as it is used for
    * defining relative paths).
@@ -52,26 +45,6 @@ public abstract class RdfUtils {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
-  public static Set<Namespace> getNamespaces(final String baseURL, Schema schema) {
-    Set<Namespace> namespaces = new HashSet<>() {};
-    namespaces.add(getSchemaNamespace(baseURL, schema.getMetadata()));
-    namespaces.addAll(schema.getMetadata().getSemanticPrefixes().getAllNamespaces());
-    return namespaces;
-  }
-
-  public static Set<Namespace> getMultiSchemaNamespaces(
-      final String baseURL, Collection<Schema> schemas) {
-    Set<Namespace> namespaces = new HashSet<>() {};
-    List<Schema> sortedSchemas =
-        schemas.stream().sorted(Comparator.comparing(Schema::getName)).toList();
-    for (Schema schema : sortedSchemas) {
-      SchemaMetadata metadata = schema.getMetadata();
-      namespaces.add(getSchemaNamespace(baseURL, metadata));
-      namespaces.addAll(metadata.getSemanticPrefixes().getAllNamespaces());
-    }
-    return namespaces;
-  }
-
   public static Model getCustomRdf(Schema schema) {
     if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
       try {
@@ -87,21 +60,6 @@ public abstract class RdfUtils {
       }
     }
     return null;
-  }
-
-  /**
-   * @param semantic a prefixed name as defined <a
-   *     href="https://www.w3.org/TR/turtle/#prefixed-name">here</a>
-   */
-  public static boolean hasIllegalPrefix(String semantic) {
-    return ILLEGAL_PREFIX.matcher(semantic).find();
-  }
-
-  /**
-   * @param prefix the prefix WITHOUT ':' or anything after that
-   */
-  public static boolean isIllegalPrefix(String prefix) {
-    return hasIllegalPrefix(prefix + ':');
   }
 
   /** Ensure that the base URL has no trailing "/". */

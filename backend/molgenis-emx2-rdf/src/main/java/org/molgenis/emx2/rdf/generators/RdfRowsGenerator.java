@@ -21,7 +21,7 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
-    generatePrefixes(table.getSchema().getMetadata().getSemanticPrefixes().getAllNamespaces());
+    generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     tables.forEach(i -> processRows(rdfMapData, i, primaryKey));
   }
