@@ -28,8 +28,8 @@ const handleDragEvent = (event: DragEvent) => {
     :handle="handle"
   >
     <div
-      class="flex flex-col gap-2 p-2 bg-white border rounded shadow-lg transition-shadow duration-200"
-      :class="{ 'shadow-xl': isDragging }"
+      class="flex flex-col gap-2 p-2 bg-white border rounded shadow-dashboard-palette transition-shadow duration-200"
+      :class="{ 'shadow-dashboard-palette-hover': isDragging }"
     >
       <div
         class="cursor-grab select-none border-b pb-1"
@@ -38,13 +38,15 @@ const handleDragEvent = (event: DragEvent) => {
       >
         <strong>Component palette</strong>
       </div>
-      <DraggableComponent componentName="Header" @dragging="handleDragEvent" />
-      <DraggableComponent componentName="Image" @dragging="handleDragEvent" />
+      <DraggableComponent icon="view-table" componentName="Header" @dragging="handleDragEvent" />
+      <DraggableComponent icon="globe" componentName="Image" @dragging="handleDragEvent" />
       <DraggableComponent
+        icon="format-align-left"
         componentName="Paragraph"
         @dragging="handleDragEvent"
       />
       <DraggableComponent
+        icon="view-normal"
         componentName="Section"
         componentType="Block"
         @dragging="handleDragEvent"

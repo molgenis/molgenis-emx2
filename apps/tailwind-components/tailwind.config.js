@@ -93,6 +93,8 @@ module.exports = {
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
+        "dashboard-palette": "var(--box-shadow-dashboard-palette)",
+        "dashboard-palette-hover": "var(--box-shadow-dashboard-palette-hover)",
       }),
       spacing: {
         "3px": "3px",
@@ -236,6 +238,8 @@ module.exports = {
         "label-available-hover":
           "var(--background-color-label-available-hover)",
         dropdown: "var(--background-color-dropdown)",
+        "dashboard-dropzone": "rgb(from var(--background-color-button-primary) r g b / 30%)",
+
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",

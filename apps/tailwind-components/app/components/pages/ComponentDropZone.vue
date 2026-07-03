@@ -43,9 +43,9 @@ const distance = computed(() => {
 <template>
   <div
     ref="dropzone"
-    class="overflow-hidden flex items-center justify-center bg-button-primary border border-dashed rounded-lg p-1 text-center"
+    class="overflow-hidden flex items-center justify-center bg-dashboard-dropzone border border-button-primary border-dashed rounded-lg p-1 text-center"
     :style="{ height: distance * 0.25 + 'px', opacity: distance / maxDistance }"
   >
-    <p class="text-white">Add new component here</p>
+    <p class="text-title-contrast">Add new component here</p>
   </div>
 </template>
