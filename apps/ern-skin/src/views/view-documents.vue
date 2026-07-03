@@ -52,7 +52,7 @@ const languageOptions = [
     >
       <div class="erras-header p-3">
         <h1>ERN-Skin Registry</h1>
-        <h2>Additional information</h2>
+        <h2>Additional Information</h2>
       </div>
     </PageHeader>
     <PageSection
@@ -102,7 +102,7 @@ const languageOptions = [
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <div v-if="$route.params.email !== 'anonymous'">
+        <div v-if="$route.params.email && $route.params.email !== '' && $route.params.email !== 'anonymous'">
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"

@@ -21,7 +21,7 @@ const filterArgument = computed(() => {
 
 <template>
   <FileList
-    v-if="user !== 'anonymous'"
+    v-if="user && user !== 'anonymous'"
     table="Files"
     :filter="filterArgument"
     labelsColumn="name"
