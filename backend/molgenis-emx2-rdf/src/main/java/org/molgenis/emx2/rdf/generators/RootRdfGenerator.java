@@ -1,6 +1,7 @@
 package org.molgenis.emx2.rdf.generators;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -22,18 +23,21 @@ public class RootRdfGenerator extends RdfGenerator {
   }
 
   public void generate(Collection<Schema> schemas) {
+    List<Schema> sortedSchemas =
+        schemas.stream().sorted(Comparator.comparing(Schema::getName)).toList();
+
     List<Table> tables =
-        schemas.stream()
+        sortedSchemas.stream()
             .map(Schema::getTablesSorted)
             .flatMap(Collection::stream)
             .filter(i -> i.getMetadata().getTableType() == TableType.DATA)
             .toList();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
-    generatePrefixes(schemas);
-    schemas.forEach(this::generateCustomRdf);
+    generatePrefixes(sortedSchemas);
+    sortedSchemas.forEach(this::generateCustomRdf);
     describeRoot();
-    schemas.forEach(emx2RdfGenerator::describeSchema);
+    sortedSchemas.forEach(emx2RdfGenerator::describeSchema);
     tables.forEach(emx2RdfGenerator::describeTable);
     tables.forEach(i -> emx2RdfGenerator.describeColumns(i, null));
     tables.forEach(i -> emx2RdfGenerator.processRows(rdfMapData, i, null));

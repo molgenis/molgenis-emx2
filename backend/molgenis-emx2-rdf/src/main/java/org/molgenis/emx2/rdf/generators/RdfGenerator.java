@@ -96,7 +96,48 @@ public abstract class RdfGenerator {
   }
 
   protected void generatePrefixes(Collection<Schema> schemas) {
-    schemas.stream().sorted(Comparator.comparing(Schema::getName)).forEach(this::generatePrefixes);
+    Set<String> processedPrefixes = new HashSet<>();
+    Set<String> processedNames = new HashSet<>();
+
+    // if any Schema uses default namespaces, ensure these take priority!
+    schemas.stream()
+        .filter(schema -> schema.getMetadata().getSemanticPrefixes().isDefaultNamespaces())
+        .findFirst()
+        .ifPresent(
+            schema ->
+                schema
+                    .getMetadata()
+                    .getSemanticPrefixes()
+                    .getAllNamespaces()
+                    .forEach(
+                        namespace -> {
+                          processedPrefixes.add(namespace.getPrefix());
+                          processedNames.add(namespace.getName());
+                          getWriter().processNamespace(namespace);
+                        }));
+
+    // Add namespaces specific for each schema.
+    schemas.stream()
+        .map(schema -> getSchemaNamespace(getBaseURL(), schema.getMetadata()))
+        .forEach(
+            namespace -> {
+              processedPrefixes.add(namespace.getPrefix());
+              processedNames.add(namespace.getName());
+              getWriter().processNamespace(namespace);
+            });
+
+    // Add custom namespaces.
+    schemas.stream()
+        .flatMap(schema -> schema.getMetadata().getSemanticPrefixes().getAllNamespaces().stream())
+        .forEach(
+            namespaces -> {
+              if (!processedPrefixes.contains(namespaces.getPrefix())
+                  && !processedNames.contains(namespaces.getName())) {
+                processedPrefixes.add(namespaces.getPrefix());
+                processedNames.add(namespaces.getName());
+                getWriter().processNamespace(namespaces);
+              }
+            });
   }
 
   protected void generateCustomRdf(Schema schema) {

@@ -1489,7 +1489,6 @@ dcterms2,http://purl.org/dc/terms/
                 new SimpleNamespace(
                     "PrefixSettingNameIri2", BASE_URL + "/PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://purl.org/dc/terms/"));
-            add(new SimpleNamespace("name1", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
 
@@ -1506,28 +1505,36 @@ name,http://www.w3.org/2000/01/rdf-schema#
     validateNamespaces("PrefixSettingNameIri", expectedNamespace, customPrefixes1, customPrefixes2);
   }
 
+  /**
+   * While for custom prefixes the schemas are processed on alphabetical order which defines which
+   * duplicates will be used, the default namespaces take priority over any custom prefixes if
+   * duplicates are present.
+   */
   @Test
-  void testSingleCustomPrefixesSetting() throws IOException {
+  void testDefaultPrefixPriority() throws IOException {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly1", BASE_URL + "/PrefixSettingPartly1/api/rdf/"));
+                    "PrefixSettingDefaultPriority1",
+                    BASE_URL + "/PrefixSettingDefaultPriority1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly2", BASE_URL + "/PrefixSettingPartly2/api/rdf/"));
-            add(new SimpleNamespace("example", "http://example.com/"));
+                    "PrefixSettingDefaultPriority2",
+                    BASE_URL + "/PrefixSettingDefaultPriority2/api/rdf/"));
+            add(new SimpleNamespace("example", "http://example.com/example/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
 
     final String customPrefixes1 =
-"""
-example,http://example.com/
-    """;
+        """
+      example,http://example.com/example/
+      dcat,http://example.com/dcat/
+      """;
 
-    validateNamespaces("PrefixSettingPartly", expectedNamespaces, customPrefixes1, null);
+    validateNamespaces("PrefixSettingDefaultPriority", expectedNamespaces, customPrefixes1, null);
   }
 
   @Test

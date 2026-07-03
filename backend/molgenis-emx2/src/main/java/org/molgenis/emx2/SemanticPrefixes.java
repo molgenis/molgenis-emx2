@@ -73,6 +73,11 @@ public class SemanticPrefixes {
   }
 
   private final Map<String, Namespace> namespaces;
+  private final boolean defaultNamespaces;
+
+  public boolean isDefaultNamespaces() {
+    return defaultNamespaces;
+  }
 
   /**
    * @param namespaces If {@code null}, will use the {@link
@@ -81,10 +86,12 @@ public class SemanticPrefixes {
    */
   public SemanticPrefixes(Collection<Namespace> namespaces) {
     if (namespaces == null) {
+      defaultNamespaces = true;
       this.namespaces = DEFAULT_NAMESPACES_MAP;
       return;
     }
 
+    defaultNamespaces = false;
     this.namespaces =
         namespaces.stream()
             .map(namespace -> Map.entry(namespace.getPrefix(), namespace))
