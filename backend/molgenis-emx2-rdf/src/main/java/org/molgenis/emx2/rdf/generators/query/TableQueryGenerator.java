@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import static java.util.Arrays.stream;
+
 import java.util.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
@@ -34,7 +36,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (column.getSemantics().isEmpty()) {
+      if (!column.hasSemantics()) {
         continue;
       }
 
@@ -53,7 +55,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (tableMetadata.getSemantics().isEmpty()) {
+    if (!tableMetadata.hasSemantics()) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -85,7 +87,7 @@ public class TableQueryGenerator implements QueryGenerator {
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
     RdfValue[] semantics =
-        tableMetadata.getSemantics().stream()
+        stream(tableMetadata.getSemantics())
             .map(
                 semantic ->
                     (RdfValue)

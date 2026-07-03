@@ -41,7 +41,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private List<Semantic> semantics = Collections.emptyList(); // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -94,20 +94,27 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public List<Semantic> getSemantics() {
+  /**
+   * @return {@code false} if null or empty list, otherwise {@code true}.
+   */
+  public boolean hasSemantics() {
+    return !(semantics == null || semantics.length == 0);
+  }
+
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public Column setSemantics(List<Semantic> semantics) {
-    this.semantics = semantics == null || semantics.isEmpty() ? Collections.emptyList() : semantics;
+  public Column setSemantics(Semantic[] semantics) {
+    this.semantics = semantics;
     return this;
   }
 
   public Column setSemantics(String... semantics) {
     this.semantics =
-        semantics == null || semantics.length == 0
-            ? Collections.emptyList()
-            : Arrays.stream(semantics).map(Semantic::new).toList();
+        semantics == null
+            ? null
+            : Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
     return this;
   }
 

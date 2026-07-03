@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static java.util.Arrays.stream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +58,9 @@ public class Table {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics =
-        tableMetadata.getSemantics().stream().map(Semantic::toString).toArray(String[]::new);
+        tableMetadata.getSemantics() == null
+            ? null
+            : stream(tableMetadata.getSemantics()).map(Semantic::toString).toArray(String[]::new);
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))

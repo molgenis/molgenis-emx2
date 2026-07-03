@@ -102,10 +102,17 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
 
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
-    for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
-      IRI object =
-          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(tableSemantic).getFirst();
-      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
+    if (table.getMetadata().hasSemantics()) {
+      for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
+        IRI object =
+            table
+                .getSchema()
+                .getMetadata()
+                .getSemanticPrefixes()
+                .mapAsIri(tableSemantic)
+                .getFirst();
+        getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
+      }
     }
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
@@ -157,9 +164,11 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(column.getName()));
     getWriter().processTriple(subject, RDFS.DOMAIN, tableIRI(getBaseURL(), column.getTable()));
-    for (Semantic columnSemantic : column.getSemantics()) {
-      IRI object = column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
-      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
+    if (column.hasSemantics()) {
+      for (Semantic columnSemantic : column.getSemantics()) {
+        IRI object = column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic).getFirst();
+        getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
+      }
     }
     if (column.getDescriptions() != null) {
       for (Map.Entry<String, String> entry : column.getDescriptions().entrySet()) {
@@ -222,10 +231,12 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
     getWriter().processTriple(subject, RDF.TYPE, tableIRI);
     getWriter().processTriple(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
-    for (Semantic semantic : table.getMetadata().getSemantics()) {
-      IRI object =
-          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-      getWriter().processTriple(subject, RDF.TYPE, object);
+    if (table.getMetadata().hasSemantics()) {
+      for (Semantic semantic : table.getMetadata().getSemantics()) {
+        IRI object =
+            table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+        getWriter().processTriple(subject, RDF.TYPE, object);
+      }
     }
     getWriter()
         .processTriple(subject, DCAT.ENDPOINT_URL, schemaIRI(getBaseURL(), table.getSchema()));
@@ -249,10 +260,12 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       }
 
       for (final Value value : retrieveValues(rdfMapData, row, column)) {
-        for (Semantic semantic : column.getSemantics()) {
-          IRI predicate =
-              table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-          getWriter().processTriple(subject, predicate, value);
+        if (column.hasSemantics()) {
+          for (Semantic semantic : column.getSemantics()) {
+            IRI predicate =
+                table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+            getWriter().processTriple(subject, predicate, value);
+          }
         }
 
         switch (column.getColumnType()) {

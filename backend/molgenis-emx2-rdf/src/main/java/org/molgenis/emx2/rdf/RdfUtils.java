@@ -69,13 +69,4 @@ public abstract class RdfUtils {
         ? baseUrlTrim.substring(0, baseUrlTrim.length() - 1)
         : baseUrlTrim;
   }
-
-  /**
-   * Check if IRI is valid similar to RDF4J's SimpleIRI
-   *
-   * @see org.eclipse.rdf4j.model.impl.SimpleIRI
-   */
-  public static boolean isIllegalIri(String iri) {
-    return (iri.indexOf(':') < 0);
-  }
 }

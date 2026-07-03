@@ -1,5 +1,7 @@
 package org.molgenis.emx2.datamodels.profiles;
 
+import static java.util.Arrays.stream;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
@@ -61,9 +63,9 @@ public record ProfileDocGen(String outputFile) {
                     .formatted(
                         table.getTableName(),
                         table.getDescription(),
-                        table.getSemantics().isEmpty()
+                        table.getSemantics() == null
                             ? "n/a"
-                            : table.getSemantics().stream()
+                            : stream(table.getSemantics())
                                 .map(Semantic::toString)
                                 .collect(Collectors.joining(", ")),
                         table.getProfiles() != null
@@ -85,9 +87,9 @@ public record ProfileDocGen(String outputFile) {
                       .formatted(
                           column.getName(),
                           column.getDescriptions(),
-                          column.getSemantics().isEmpty()
+                          column.getSemantics() == null
                               ? "n/a"
-                              : column.getSemantics().stream()
+                              : stream(column.getSemantics())
                                   .map(Semantic::toString)
                                   .collect(Collectors.joining(", ")),
                           column.getColumnType())
