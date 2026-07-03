@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
+import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
@@ -184,7 +185,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
               });
       getDatabase().getListener().schemaChanged(getName());
-      update();
+      if(settings.containsKey(SETTING_SEMANTIC_PREFIXES)) update();
       return this;
     } else {
       throw new MolgenisException(
