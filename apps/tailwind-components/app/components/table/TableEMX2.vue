@@ -646,16 +646,6 @@ function toggleRowSelection(row: TableRow) {
   }
 }
 
-async function toggleAllRows() {
-  if (allRowsSelected.value) {
-    selectedRows.value.clear();
-  } else {
-    rows.value.forEach((row) => {
-      selectedRows.value.set(row._rowIdString, row._rowId);
-    });
-  }
-}
-
 function handleRowAction(payload: { action: string }) {
   if ("action" in payload) {
     const action = payload.action;
