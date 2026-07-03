@@ -188,20 +188,15 @@ test("it should be able to fill out all input types", async ({ page }) => {
   // Date
   await page
     .locator('[id="dp-input-type test-Types-dateType-form-field-input"]')
-    .click();
-  await page.locator('[data-test-id="dp-2026-06-01"]').getByText("1").click();
+    .fill("1980-10-09");
 
   // Date array
   await page
     .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_0"]')
-    .click();
-  await page.locator('[data-test-id="dp-2026-06-02"]').getByText("2").click();
+    .fill("1980-10-09");
   await page
     .locator('[id="type test-Types-dateArrayType-form-field"]')
     .getByRole("button", { name: "Add an additional item" })
-    .click();
-  await page
-    .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_1"]')
     .click();
   await page
     .locator('[id="dp-input-type test-Types-dateArrayType-form-field-input_1"]')
@@ -209,18 +204,15 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Date time
   await page
-    .locator('[id="type test-Types-datetimeType-form-field"]')
-    .getByLabel("Calendar icon")
-    .click();
-  await page.getByText("11").click();
+    .locator('[id="dp-input-type test-Types-datetimeType-form-field-input"]')
+    .fill("2026-07-16 15:37:00");
 
   // Date time array
   await page
     .locator(
       '[id="dp-input-type test-Types-datetimeArrayType-form-field-input_0"]'
     )
-    .click();
-  await page.locator('[data-test-id="dp-2026-06-11"]').getByText("11").click();
+    .fill("2026-07-16 15:37:00");
   await page
     .locator('[id="type test-Types-datetimeArrayType-form-field"]')
     .getByRole("button", { name: "Add an additional item" })
@@ -229,8 +221,7 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .locator(
       '[id="dp-input-type test-Types-datetimeArrayType-form-field-input_1"]'
     )
-    .click();
-  await page.locator('[data-test-id="dp-2026-06-07"]').getByText("7").click();
+    .fill("2026-07-16 15:37:00");
 
   // Period
   await page.getByRole("textbox", { name: "period type" }).fill("P23Y12M12D");
