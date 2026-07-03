@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import gql from "graphql-tag";
+import { request } from "graphql-request";
+
 import { ref } from "vue";
 import {
   Accordion,
@@ -9,8 +12,17 @@ import {
   // @ts-ignore
 } from "molgenis-viz";
 
+import type { ISession } from "../../../tailwind-components/types/types";
+interface ISessionResponse {
+  _session: ISession;
+}
+
 import PrivateFiles from "../components/PrivateFiles.vue";
 import Publications from "../components/Publications.vue";
+
+const error = ref<Error | null>(null);
+const loading = ref(true);
+const user = ref<string | null>(null);
 
 const selectedLanguage = ref("");
 const languageOptions = [
@@ -41,6 +53,35 @@ const languageOptions = [
   "Swedish",
   "Turkish",
 ];
+
+async function getSession() {
+  const query = gql`
+    query {
+      _session {
+        email
+      }
+    }
+  `;
+  const response: ISessionResponse = await request(
+    "/api/graphql",
+    query,
+    {},
+    { credentials: "include" }
+  );
+  user.value = response._session?.email || null;
+}
+
+getSession()
+  .catch((err: any) => {
+    if (err.response?.errors?.length) {
+      error.value = err.response.errors[0].message;
+    } else {
+      error.value = err;
+    }
+  })
+  .finally(() => {
+    loading.value = false;
+  });
 </script>
 
 <template>
@@ -102,7 +143,7 @@ const languageOptions = [
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <div v-if="$route.params.email && $route.params.email !== 'anonymous'">
+        <div v-if="user && user !== 'anonymous'">
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"
@@ -131,10 +172,7 @@ const languageOptions = [
               </select>
             </div>
             <div v-if="selectedLanguage" class="mt-3">
-              <PrivateFiles
-                :user="($route.params?.email as string)"
-                :labelValue="selectedLanguage"
-              />
+              <PrivateFiles :labelValue="selectedLanguage" />
             </div>
           </Accordion>
           <Accordion
@@ -142,10 +180,7 @@ const languageOptions = [
             title="Templates Uploads"
             :isOpenByDefault="false"
           >
-            <PrivateFiles
-              :user="($route.params?.email as string)"
-              labelValue="template"
-            />
+            <PrivateFiles labelValue="template" />
           </Accordion>
           <Accordion
             id="mySubfolder-nav"
