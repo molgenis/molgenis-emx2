@@ -118,11 +118,11 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+const enableFilters = true;
 </script>
 <template>
   <Container :wide="true">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"
@@ -135,6 +135,7 @@ const { isAdmin, session } = await useSession(schemaId);
     <TableEMX2
       :schemaId="schemaId"
       :tableId="tableId"
+      :enable-filters="enableFilters"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
     >

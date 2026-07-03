@@ -51,6 +51,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         :schema-id="schemaId"
         :table-id="tableId ?? ''"
         :is-editable="isEditable"
+        :enable-filters="true"
       />
     </div>
   </div>
