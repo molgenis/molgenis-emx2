@@ -402,7 +402,6 @@ public class RDFTest {
     semanticTest
         .getMetadata()
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
-    semanticTest.getMetadata().update();
   }
 
   private static String getApi(Schema schema, boolean trailingSlash) {
@@ -1367,7 +1366,6 @@ public class RDFTest {
 
       // Change setting
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      schema.getMetadata().update();
 
       // Test behaviour after changing setting.
       InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
@@ -1404,7 +1402,6 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("PrefixesEmpty");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      schema.getMetadata().update();
       InMemoryRDFHandler handler = parseSchemaRdf(schema);
       assertEquals(expectedNamespaces, handler.namespaces);
     } finally {
@@ -1652,10 +1649,8 @@ example,http://example.com/
       Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
       Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
       schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
-      schema1.getMetadata().update();
       if (customPrefixes2 != null) {
         schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
-        schema2.getMetadata().update();
       }
 
       InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));

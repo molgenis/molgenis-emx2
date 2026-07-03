@@ -149,8 +149,11 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   /**
    * In case the advanced setting {@link Constants#SETTING_SEMANTIC_PREFIXES} is changed after
    * loading, the {@link SemanticPrefixes} need to be re-initialized.
+   *
+   * <p>Ensure this method is called at the end of {@link #setSettings(Map)} in implementations of
+   * this class!
    */
-  public void update() {
+  protected void update() {
     SemanticPrefixes newSemanticPrefixes = new SemanticPrefixes(this);
     if (!semanticPrefixes.equals(newSemanticPrefixes)) semanticPrefixes = newSemanticPrefixes;
   }
