@@ -102,7 +102,13 @@ const languageOptions = [
         title="General Documents"
         :isOpenByDefault="false"
       >
-        <div v-if="$route.params.email && $route.params.email !== '' && $route.params.email !== 'anonymous'">
+        <div
+          v-if="
+            $route.params.email &&
+            $route.params.email !== '' &&
+            $route.params.email !== 'anonymous'
+          "
+        >
           <Accordion
             id="mySubfolder-nav"
             title="Matrix Informed Consents"
