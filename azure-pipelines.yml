@@ -28,6 +28,9 @@ steps:
     sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 python3.10-venv -y
   displayName: postgresql client python3
 - script: |
+    curl -LsSf https://astral.sh/uv/0.11.25/install.sh | sh && PATH="/home/molgenis/.local/bin:$PATH" && uv --version
+  displayName: uv
+- script: |
     psql -h localhost -p 5432 -U postgres < .circleci/initdb.sql
   displayName: initialize database
   env:
