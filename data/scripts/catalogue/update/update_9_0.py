@@ -62,12 +62,12 @@ class Transform:
         if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'RWEStaging',
                         'NetworksStaging'] for item in self.profile):
             self.datasets()
-            self.dataset_mappings()
             self.variables()
             self.variable_values()
         if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging',
                         'RWEStaging'] for item in self.profile):
             self.variable_mappings()
+            self.dataset_mappings()
 
     def collections(self):
         """ Transform Collections
