@@ -1,3 +1,3 @@
-﻿source,source dataset,target,target dataset
+﻿source,source table,target,target table
 testDatabank,table1,OOM,MEDICAL_OBSERVATIONS
 testDatabank,table1,OOM,VISIT_OCCURRENCE
