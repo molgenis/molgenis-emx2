@@ -1,37 +1,28 @@
-import { StorageSerializers, useSessionStorage } from "@vueuse/core";
-
 import metadataGql from "../../../tailwind-components/app/gql/metadata";
 import { type ISchemaMetaData } from "../../../metadata-utils/src/types";
 import { createError } from "#app";
 import { moduleToString } from "#imports";
 
 const query = moduleToString(metadataGql);
+const cache = new Map<string, ISchemaMetaData>();
 
 export default async (schemaId: string): Promise<ISchemaMetaData> => {
-  // Use sessionStorage to cache data
-  const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
-    serializer: StorageSerializers.object,
+  const cached = cache.get(schemaId);
+  if (cached) return cached;
+
+  const { data } = await $fetch(`/${schemaId}/graphql`, {
+    method: "POST",
+    body: {
+      query,
+    },
+  }).catch((error) => {
+    console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
+    throw createError({
+      ...error,
+      statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+    });
   });
 
-  if (!cached.value) {
-    const { data } = await $fetch(`/${schemaId}/graphql`, {
-      method: "POST",
-      body: {
-        query,
-      },
-    }).catch((error) => {
-      console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
-      throw createError({
-        ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
-      });
-    });
-
-    console.log(`Fetching metadata for schema ${schemaId}`);
-
-    // Update the cache
-    cached.value = data._schema;
-  }
-
-  return cached.value;
+  cache.set(schemaId, data._schema);
+  return data._schema;
 };
