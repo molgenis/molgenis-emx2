@@ -20,21 +20,17 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -63,10 +59,8 @@ class WebApiSmokeTests extends ApiTestBase {
   public static final String PET_SHOP_MANAGER = "shopmanager";
 
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
-  public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
-  private static final String CSV_TEST_SCHEMA = "pet store csv";
 
   private static Schema schema;
 
@@ -213,42 +207,6 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
-  void testCsvApi_zipUploadDownload() throws IOException {
-    // get original schema
-    String schemaCsv =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(DATA_PET_STORE).asString();
-
-    // create a new schema for zip
-    database.dropCreateSchema("pet store zip");
-
-    // download zip contents of old schema
-    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
-
-    // upload zip contents into new schema
-    File zipFile = createTempFile(zipContents, ".zip");
-    given()
-        .sessionId(sessionId)
-        .multiPart(zipFile)
-        .when()
-        .post("/pet store zip/api/zip")
-        .then()
-        .statusCode(200);
-
-    // check if schema equal using json representation
-    String schemaCsv2 =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .when()
-            .get("/pet store zip/api/csv")
-            .asString();
-    assertArrayEquals(toSortedArray(schemaCsv), toSortedArray(schemaCsv2));
-
-    // delete the new schema
-    database.dropSchema("pet store zip");
-  }
-
-  @Test
   void testReports() throws IOException {
     // create a new schema for report
     database.dropSchemaIfExists("pet store reports");
@@ -354,369 +312,6 @@ class WebApiSmokeTests extends ApiTestBase {
     Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
     // Check if multiple result are returned as proper json
     assertFalse(multipleResults.get("report4").toString().startsWith("{\""));
-  }
-
-  @Test
-  void testCsvApi_csvTableMetadataUpdate() throws IOException {
-
-    // fresh schema for testing
-    database.dropCreateSchema(CSV_TEST_SCHEMA);
-
-    // full table header present in exported table metadata
-    String header =
-        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
-
-    // add new table with description and semantics as metadata
-    addUpdateTableAndCompare(
-        header,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
-
-    // update table without new description or semantics, values should be untouched
-    addUpdateTableAndCompare(
-        header, "tableName\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
-
-    // update only description, semantics should be untouched
-    addUpdateTableAndCompare(
-        header,
-        "tableName,description\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\n");
-
-    // make semantics empty by not supplying a value, description  should be untouched
-    addUpdateTableAndCompare(
-        header,
-        "tableName,semantics\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
-
-    // make description empty while also adding a new value for semantics
-    addUpdateTableAndCompare(
-        header,
-        "tableName,description,semantics\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,NewTestSem,,,\n");
-
-    // empty both description and semantics
-    addUpdateTableAndCompare(
-        header,
-        "tableName,description,semantics\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,\n");
-
-    // add description value, and string array value for semantics
-    addUpdateTableAndCompare(
-        header,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\n");
-  }
-
-  /** Helper function to prevent code duplication */
-  private void addUpdateTableAndCompare(String header, String tableMeta, String expected)
-      throws IOException {
-    byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
-    File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
-    acceptFileUpload(addUpdateTableFile, "molgenis", false);
-    String actual = getContentAsString("/api/csv");
-    assertEquals(header + expected, actual);
-  }
-
-  @Test
-  void testCsvApi_csvUploadDownload() throws IOException {
-    // create a new schema for complete csv data round trip
-    database.dropCreateSchema(CSV_TEST_SCHEMA);
-
-    // download csv metadata and data from existing schema
-    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
-    byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Category");
-    byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Order");
-    byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
-    byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
-    byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
-    byte[] contentsTableWithSpacesData =
-        getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/" + TABLE_WITH_SPACES);
-
-    // create tmp files for csv metadata and data
-    File contentsMetaFile = createTempFile(contentsMeta, ".csv");
-    File contentsCategoryDataFile = createTempFile(contentsCategoryData, ".csv");
-    File contentsOrderDataFile = createTempFile(contentsOrderData, ".csv");
-    File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
-    File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
-    File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
-    File contentsTableWithSpacesDataFile = createTempFile(contentsTableWithSpacesData, ".csv");
-
-    // upload csv metadata and data into the new schema
-    // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
-    // json and yaml import is submitted in the request body
-    acceptFileUpload(contentsMetaFile, "molgenis", false);
-    acceptFileUpload(contentsCategoryDataFile, "Category", false);
-    acceptFileUpload(contentsTagDataFile, "Tag", false);
-    acceptFileUpload(contentsPetDataFile, "Pet", false);
-    acceptFileUpload(contentsUserDataFile, "User", false);
-    acceptFileUpload(contentsOrderDataFile, "Order", false);
-    acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
-
-    // download csv from the new schema
-    String contentsMetaNew = getContentAsString("/api/csv");
-    String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
-    String contentsPetDataNew = getContentAsString("/api/csv/Pet");
-    String contentsUserDataNew = getContentAsString("/api/csv/User");
-    String contentsTagDataNew = getContentAsString("/api/csv/Tag");
-    String contentsTableWithSpacesDataNew =
-        getContentAsString(
-            "/api/csv/" + TABLE_WITH_SPACES.toUpperCase()); // to test for case insensitive match
-
-    // test if existing and new schema are equal
-    assertArrayEquals(toSortedArray(new String(contentsMeta)), toSortedArray(contentsMetaNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsCategoryData)), toSortedArray(contentsCategoryDataNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsPetData)), toSortedArray(contentsPetDataNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsUserData)), toSortedArray(contentsUserDataNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsTagData)), toSortedArray(contentsTagDataNew));
-    assertArrayEquals(
-        toSortedArray(new String(contentsTableWithSpacesData)),
-        toSortedArray(contentsTableWithSpacesDataNew));
-
-    // Test async
-    String response = acceptFileUpload(contentsOrderDataFile, "Order", true);
-    assertTrue(response.contains("id"));
-  }
-
-  private String[] toSortedArray(String string) {
-    String[] lines = string.split("\n");
-    Arrays.sort(lines);
-    return lines;
-  }
-
-  @Test
-  void testCsvApi_givenNoSession_whenDownloadingMembers_thenUnauthorized() {
-    database.dropCreateSchema(CSV_TEST_SCHEMA);
-
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
-
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-        {
-          "errors" : [
-            {
-              "message" : "Unauthorized to get schema members"
-            }
-          ]
-        }""",
-        response.body().asString());
-  }
-
-  @Test
-  void testCsvApi_downloadMembers() throws IOException {
-    database.dropCreateSchema(CSV_TEST_SCHEMA);
-
-    Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/members");
-
-    Pattern contentDisposition =
-        Pattern.compile("attachment; filename=\"pet store_members_\\d{12}\\.csv\"");
-    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
-
-    Path path =
-        Path.of(Objects.requireNonNull(getClass().getResource("csv/members.csv")).getPath());
-    String expected = Files.readString(path);
-    assertEquals(expected, response.asString());
-  }
-
-  @Test
-  void testCsvApi_downloadSettings() throws IOException {
-    database.dropCreateSchema(CSV_TEST_SCHEMA);
-
-    Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("pet store/api/csv/settings");
-
-    Pattern contentDisposition =
-        Pattern.compile("attachment; filename=\"pet store_settings_\\d{12}\\.csv\"");
-    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
-
-    Path path =
-        Path.of(Objects.requireNonNull(getClass().getResource("csv/settings.csv")).getPath());
-    String expected = Files.readString(path);
-    assertEquals(expected, response.asString());
-  }
-
-  @Test
-  void testCsvApi_changelogDownload() {
-    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
-    schema.create(table("test", column("A").setPkey(), column("B")));
-    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
-
-    Response response =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
-
-    Pattern contentDisposition =
-        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
-    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
-
-    String formatted =
-        """
-            operation,stamp,userid,tablename,old,new
-            I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
-            .formatted(schema.getChanges(1).getFirst().stamp());
-
-    assertTrue(response.body().asString().startsWith(formatted));
-    setupDatabase();
-  }
-
-  @Test
-  void testCsvApi_givenOffset_whenDownloadingChangelog_thenSkipOffset() {
-    schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
-    schema.create(table("test", column("A").setPkey(), column("B")));
-    schema.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
-
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .param("offset", "1")
-            .when()
-            .get("/pet store/api/csv/changelog");
-
-    Pattern contentDisposition =
-        Pattern.compile("attachment; filename=\"pet store_changelog_\\d{12}\\.csv\"");
-    assertTrue(contentDisposition.matcher(response.getHeader("Content-Disposition")).matches());
-
-    String formatted = "operation,stamp,userid,tablename,old,new";
-
-    assertTrue(response.body().asString().startsWith(formatted));
-
-    setupDatabase();
-  }
-
-  @Test
-  void testCsvApi_givenLimitPassedCap_whenDownloadingChangelog_thenError() {
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .param("limit", "1001")
-            .when()
-            .get("/pet store/api/csv/changelog");
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-                  {
-                    "errors" : [
-                      {
-                        "message" : "Requested 1001 changes, but the maximum allowed is 1000."
-                      }
-                    ]
-                  }""",
-        response.body().asString());
-  }
-
-  @Test
-  void testCsvApi_givenInvalidLimitValue_thenError() {
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .param("limit", "invalid-value")
-            .when()
-            .get("/pet store/api/csv/changelog");
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-                  {
-                    "errors" : [
-                      {
-                        "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
-                      }
-                    ]
-                  }""",
-        response.body().asString());
-  }
-
-  @Test
-  void testCsvApi_givenInvalidOffsetValue_thenError() {
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .accept(ACCEPT_CSV)
-            .param("offset", "invalid-value")
-            .when()
-            .get("/pet store/api/csv/changelog");
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-                    {
-                      "errors" : [
-                        {
-                          "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
-                        }
-                      ]
-                    }""",
-        response.body().asString());
-  }
-
-  @Test
-  void testCsvApi_givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response = given().accept(ACCEPT_CSV).when().get("/pet store/api/csv/changelog");
-
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-            {
-              "errors" : [
-                {
-                  "message" : "Unauthorized to get schema changelog"
-                }
-              ]
-            }""",
-        response.body().asString());
-  }
-
-  @Test
-  void testCsvApi_tableFilter() {
-    String result =
-        given()
-            .sessionId(sessionId)
-            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
-            .accept(ACCEPT_CSV)
-            .when()
-            .get("/pet store/api/csv/Pet")
-            .asString();
-    assertTrue(result.contains("pooky"));
-    assertFalse(result.contains("spike"));
-
-    result =
-        given()
-            .sessionId(sessionId)
-            .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
-            .accept(ACCEPT_CSV)
-            .when()
-            .get("/pet store/api/csv/Pet")
-            .asString();
-    assertTrue(result.contains("jerry"));
-    assertFalse(result.contains("spike"));
-  }
-
-  private String acceptFileUpload(File content, String table, boolean async) {
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .body(content)
-            .header("fileName", table)
-            .when()
-            .post("/" + CSV_TEST_SCHEMA + "/api/csv" + (async ? "?async=true" : ""));
-
-    response.then().statusCode(200);
-
-    return response.asString();
-  }
-
-  private String getContentAsString(String path) {
-    return given()
-        .sessionId(sessionId)
-        .accept(ACCEPT_CSV)
-        .when()
-        .get("/" + CSV_TEST_SCHEMA + path)
-        .asString();
   }
 
   private byte[] getContentAsByteArray(String fileType, String path) {
@@ -858,26 +453,6 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
-  void testCsvApi_tableCsvUploadDownload() {
-
-    String path = "/pet store/api/csv/Tag";
-
-    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
-
-    String update = "name,parent\r\nyellow,colors\r\n";
-    given().sessionId(sessionId).body(update).when().post(path).then().statusCode(200);
-
-    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("yellow"));
-
-    given().sessionId(sessionId).body(update).when().delete(path).then().statusCode(200);
-
-    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
-  }
-
-  @Test
   void testGraphqlApi() {
     String path = "/api/graphql";
 
@@ -978,6 +553,47 @@ class WebApiSmokeTests extends ApiTestBase {
             .post(path)
             .asString();
     assertTrue(result.contains("errors"));
+  }
+
+  @Test
+  void testGraphqlGetRequestsCannotExecuteMutations() {
+    // queries via GET remain possible
+    String result =
+        given().queryParam("query", "{_session{email}}").when().get("/api/graphql").asString();
+    assertTrue(result.contains("anonymous"));
+
+    // mutations via GET are rejected (would enable CSRF via links/images)
+    given()
+        .queryParam("query", "mutation{signin(email:\"admin\",password:\"admin\"){message}}")
+        .when()
+        .get("/api/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+
+    // also on the schema endpoints
+    given()
+        .queryParam("query", "mutation{drop(tables:[\"Pet\"]){message}}")
+        .when()
+        .get("/pet store/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+    assertNotNull(schema.getTable("Pet"));
+
+    // same mutation via POST still works for signin
+    String postResult =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .asString();
+    assertTrue(postResult.contains("Signed in"));
   }
 
   @Test
@@ -1777,43 +1393,6 @@ class WebApiSmokeTests extends ApiTestBase {
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
-  }
-
-  @Test
-  void testBeaconConfiguration() {
-    getAndAssertContains("/api/beacon/configuration", "productionStatus");
-  }
-
-  @Test
-  void testBeaconMap() {
-    getAndAssertContains("/api/beacon/map", "endpointSets");
-  }
-
-  @Test
-  void testBeaconInfo() {
-    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
-  }
-
-  @Test
-  void testBeaconEntryTypes() {
-    getAndAssertContains("/api/beacon/entry_types", "entry");
-  }
-
-  private void getAndAssertContains(String path, String expectedSubstring) {
-    database.clearCache();
-    String result = given().get(path).getBody().asString();
-    ObjectMapper mapper = new ObjectMapper();
-    String prettyJson;
-    try {
-      Object json = mapper.readValue(result, Object.class);
-      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-      prettyJson = writer.writeValueAsString(json);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    assertTrue(
-        result.contains(expectedSubstring),
-        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test

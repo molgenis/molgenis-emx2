@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
 
 test("Can hide and show columns", async ({ page }) => {
@@ -23,23 +23,30 @@ test("Can hide and show columns", async ({ page }) => {
 test("Can change order of columns", async ({ page }) => {
   await page.goto(`${route}pet%20store/Pet`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Pet");
-  await expect(
-    page
-      .locator("table.table-fixed tr")
-      .first()
-      .getByRole("columnheader")
-      .nth(1)
-  ).toHaveText("name");
+
+  await expect(page.getByRole("columnheader")).toHaveText([
+    "Draft",
+    "name",
+    "category",
+    "photoUrls",
+    "status",
+    "tags",
+    "weight",
+    "orders",
+  ]);
   await page.getByRole("button", { name: "Columns" }).click();
   await page
     .locator('label:has-text("name")')
     .dragTo(page.locator('label:has-text("tags")'));
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(
-    page
-      .locator("table.table-fixed tr")
-      .first()
-      .getByRole("columnheader")
-      .nth(1)
-  ).toHaveText("category");
+  await expect(page.getByRole("columnheader")).toHaveText([
+    "Draft",
+    "category",
+    "photoUrls",
+    "status",
+    "tags",
+    "name",
+    "weight",
+    "orders",
+  ]);
 });

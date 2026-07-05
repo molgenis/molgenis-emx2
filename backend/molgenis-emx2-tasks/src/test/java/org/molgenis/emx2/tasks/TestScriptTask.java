@@ -33,7 +33,7 @@ public class TestScriptTask {
             .parameters("\"netherlands & world\"")
             .extraFile(new Row())
             .script(
-                """
+"""
 import time
 import sys
 # you can get parameters via sys.argv[1]
@@ -59,7 +59,7 @@ print('Complete')
         new ScriptTask("error")
             .type(PYTHON)
             .script(
-                """
+"""
 import sys
 print('Error message', file=sys.stderr)
 """);
@@ -73,7 +73,7 @@ print('Error message', file=sys.stderr)
         new ScriptTask("bashTest")
             .type(BASH)
             .script(
-                """
+"""
 echo "hello world"
 ls -la
 echo "bey"
@@ -88,7 +88,7 @@ echo "bey"
         new ScriptTask("error")
             .type(PYTHON)
             .script(
-                """
+"""
 import sys
 failureVariable = fail
 print('unreachable')
@@ -115,13 +115,17 @@ print('unreachable')
     ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
     importDirectoryTask.run();
 
-    Task csvTask = taskService.getTask(taskService.submitTaskFromName("CSV attachment test", ""));
+    Task csvTask =
+        taskService.getTask(
+            taskService.submit(taskService.getScript("CSV attachment test").parameters("")));
     TaskStatus csvTaskStatus = csvTask.getStatus();
     while (csvTaskStatus != COMPLETED && csvTaskStatus != ERROR) {
       Thread.sleep(1000);
       csvTaskStatus = csvTask.getStatus();
     }
-    Task zipTask = taskService.getTask(taskService.submitTaskFromName("ZIP attachment test", ""));
+    Task zipTask =
+        taskService.getTask(
+            taskService.submit(taskService.getScript("ZIP attachment test").parameters("")));
     TaskStatus zipTaskStatus = zipTask.getStatus();
     while (zipTaskStatus != COMPLETED && zipTaskStatus != ERROR) {
       Thread.sleep(1000);
@@ -148,7 +152,8 @@ print('unreachable')
     importDirectoryTask.run();
 
     Task venvTask =
-        taskService.getTask(taskService.submitTaskFromName("Invalid filename test", ""));
+        taskService.getTask(
+            taskService.submit(taskService.getScript("Invalid filename test").parameters("")));
     TaskStatus venvTaskStatus = venvTask.getStatus();
     while (venvTaskStatus != COMPLETED && venvTaskStatus != ERROR) {
       Thread.sleep(1000);

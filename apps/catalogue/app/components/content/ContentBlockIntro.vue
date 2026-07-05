@@ -117,7 +117,7 @@ const submitForm = async () => {
     : `Contact request for ${fields.senderName.fieldValue}`;
 
   try {
-    isSendSuccess = await sendContactForm({
+    isSendSuccess = !!(await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
       subject,
       body: `
@@ -126,8 +126,9 @@ const submitForm = async () => {
       \nOrganization: ${fields.organization.fieldValue}
       \nTopic: ${fields.topic.fieldValue}
       \nMessage: ${fields.senderMessage.fieldValue}
+      \nMessage originated from: ${window?.location?.origin || "Unknown origin"}
     `,
-    });
+    }));
   } catch (error) {
     console.log(error);
   }
@@ -223,6 +224,7 @@ const submitForm = async () => {
           />
         </template>
       </SideModal>
+
       <Button
         v-if="contact"
         @click="showContactInformation = true"
@@ -233,6 +235,7 @@ const submitForm = async () => {
         type="secondary"
         size="medium"
       />
+      <slot />
     </div>
 
     <NotificationModal

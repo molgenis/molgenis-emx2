@@ -18,6 +18,8 @@ import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getP
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
+import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,6 +27,10 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -58,6 +64,9 @@ const tableSettings = ref<ITableSettings>({
     direction: orderbyDirection.value,
   },
   search: search.value || "",
+  orderedColumnsIds: route.query.columns
+    ? (route.query.columns as string).split(",")
+    : [],
 });
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
@@ -74,6 +83,9 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    columns: tableSettings.value.orderedColumnsIds.length
+      ? tableSettings.value.orderedColumnsIds.join(",")
+      : undefined,
     pagesize:
       tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
         ? undefined
@@ -106,11 +118,11 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+const enableFilters = true;
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0">
+  <Container :wide="true">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"
@@ -123,6 +135,7 @@ const { isAdmin, session } = await useSession(schemaId);
     <TableEMX2
       :schemaId="schemaId"
       :tableId="tableId"
+      :enable-filters="enableFilters"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
     >
@@ -138,5 +151,5 @@ const { isAdmin, session } = await useSession(schemaId);
         />
       </template>
     </TableEMX2>
-  </div>
+  </Container>
 </template>

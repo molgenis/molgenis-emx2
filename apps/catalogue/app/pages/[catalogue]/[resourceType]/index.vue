@@ -9,6 +9,7 @@ import {
 } from "#app";
 import type {
   IFilter,
+  IFilterCondition,
   IMgError,
   activeTabType,
 } from "../../../../interfaces/types";
@@ -170,7 +171,25 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
       columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => ({
+        ...filterBuilder,
+        _and: [
+          ...(Array.isArray(filterBuilder._and) ? filterBuilder._and : []),
+          {
+            _or: [
+              { areasOfInformation: { equals: conditions } },
+              {
+                collectionEvents: {
+                  areasOfInformation: { equals: conditions },
+                },
+              },
+            ],
+          },
+        ],
+      }),
     },
     conditions: [],
   },
@@ -219,6 +238,7 @@ const query = computed(() => {
   query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
+      pid
       name
       acronym
       description
@@ -235,7 +255,7 @@ const query = computed(() => {
       networkType {
           name
       }
-      datasets {
+      tables {
         name
         label
       }

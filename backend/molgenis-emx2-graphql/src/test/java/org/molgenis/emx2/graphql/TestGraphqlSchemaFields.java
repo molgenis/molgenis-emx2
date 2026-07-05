@@ -114,6 +114,34 @@ class TestGraphqlSchemaFields {
   }
 
   @Test
+  void testAggFilterNotMutatedByMatchIncludingChildren() throws IOException {
+    String query =
+        """
+        query PetQuery($filter: PetFilter) {
+          Pet(filter: $filter) { name }
+          Pet_agg(filter: $filter) { count }
+        }
+        """;
+    Map<String, Object> tagsFilter = new LinkedHashMap<>();
+    tagsFilter.put("_match_any_including_children", List.of("colors"));
+    Map<String, Object> filter = new LinkedHashMap<>();
+    filter.put("tags", tagsFilter);
+
+    String json =
+        convertExecutionResultToJson(
+            graphqlExecutor.executeWithoutSession(query, Map.of("filter", filter)));
+    JsonNode data = new ObjectMapper().readTree(json).get("data");
+
+    int rowCount = data.get("Pet").size();
+    int aggCount = data.get("Pet_agg").get("count").intValue();
+    assertTrue(rowCount > 0, "Expected at least one pet with a color tag");
+    assertEquals(
+        rowCount,
+        aggCount,
+        "Pet_agg count must equal the number of Pet rows returned when using shared $filter with _match_any_including_children");
+  }
+
+  @Test
   void testNullAndNotNull() throws IOException {
     // ref
     String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();

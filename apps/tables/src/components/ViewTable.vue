@@ -16,6 +16,8 @@
       :canUpdate="canUpdate"
       :canDelete="canDelete"
       :canManage="canManage"
+      :isRowLevel="isRowLevel"
+      :userRoles="userRoles"
       :locale="session?.locale"
       :tablePermissions="session?.tablePermissions"
     />
@@ -62,6 +64,12 @@ export default {
       const isAdmin = this.session?.email === "admin";
       const isManager = this.session?.roles?.includes("Manager");
       return isManager || isAdmin;
+    },
+    isRowLevel() {
+      return this.tablePermission?.isRowLevel || false;
+    },
+    userRoles() {
+      return this.session?.roles || [];
     },
     activeTable() {
       if (this.schema) {

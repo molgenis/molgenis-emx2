@@ -1,0 +1,316 @@
+.app-page,
+.app-footer {
+  --erras-blue: #365cb7;
+  --erras-green: #169742;
+  --erras-orange: #f07726;
+  --erras-red: #fc0006;
+  --erras-blue-alt: hsl(222, 54%, 98%);
+  --erras-green-alt: hsl(140, 75%, 98%);
+  --erras-orange-alt: hsl(24, 87%, 98%);
+  --erras-red-alt: hsl(359, 100%, 98%);
+  --gray-600: #5c5c5c;
+  --gray-050: #f6f6f6;
+  --gray-000: #ffffff;
+
+  font-size: 14pt !important;
+
+  --max-width: 972px;
+  --viz-chart-title-font-size: 1.1rem;
+}
+
+.app-page .page-header.header-image-background {
+  background-position: 0 0;
+  padding: 9em 0;
+  position: relative;
+  height: 26em;
+}
+
+.app-page .page-header .background-image-filter {
+  opacity: 0;
+}
+
+.app-page .page-section blockquote {
+  font-size: 0.8em;
+  margin-left: 40px;
+}
+
+.erras-header {
+  color: var(--erras-blue);
+  text-align: center;
+  margin-top: 0.2em;
+  margin-bottom: 1.25em;
+}
+
+.erras-header h1,
+.erras-header h2 {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.erras-header h1 {
+  font-size: 13pt;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.erras-header h2 {
+  font-size: 32pt;
+  font-weight: 200;
+}
+
+.project-diagrams {
+  display: block;
+  max-height: 425px;
+  margin: 1em auto;
+}
+
+.ern-logo {
+  display: block;
+  width: 350px;
+  margin: 1em auto;
+}
+
+.eu-logos {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  background-color: $gray-000;
+}
+
+.eu-logos .logo {
+  margin: 0;
+  padding: 0;
+}
+
+.eu-logos .logo.ern-logo {
+  width: 200px;
+}
+
+.eu-logos .logo.funding-logo {
+  width: 125px;
+}
+
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+}
+
+.quicklink-cards .link-card {
+  flex-grow: 1;
+  padding: 1em;
+  background-color: var(--gray-000);
+  color: currentColor;
+  border-radius: 12pt;
+  text-align: center;
+}
+
+.quicklink-cards .link-card .card-content svg {
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 1.5em;
+  height: 26pt;
+  width: 26pt;
+}
+
+.quicklink-cards .link-card .card-content h3 {
+  font-size: 1.1rem;
+}
+
+.quicklink-cards .link-card .card-content p {
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 1.1rem;
+}
+
+.quicklink-cards .link-card .card-content a {
+  display: block;
+  width: 100%;
+  padding: 0.6em 0;
+  background-color: none;
+  text-align: center;
+  border-radius: 12pt;
+  margin-top: 1em;
+  font-size: 0.85rem;
+}
+
+.quicklink-cards .link-card:nth-child(1) .card-content svg path {
+  stroke: var(--erras-blue);
+}
+
+.quicklink-cards .link-card:nth-child(1) .card-content a {
+  background-color: var(--erras-blue);
+}
+
+.quicklink-cards .link-card:nth-child(2) .card-content svg path {
+  stroke: var(--erras-green);
+}
+
+.quicklink-cards .link-card:nth-child(2) .card-content a {
+  background-color: var(--erras-green);
+}
+
+.quicklink-cards .link-card:nth-child(3) .card-content svg path {
+  stroke: var(--erras-orange);
+}
+
+.quicklink-cards .link-card:nth-child(3) .card-content a {
+  background-color: var(--erras-orange);
+}
+
+.navbar {
+  display: flex;
+  gap: 1em;
+  padding: 1em;
+  background-color: #0084b4;
+}
+
+.navbar .nav-item {
+  text-decoration: none;
+  color: white;
+}
+
+.navbar .nav-item:hover {
+  font-weight: bold;
+}
+
+.d3-viz.d3-pie .chart-context,
+.d3-viz.d3-geo-mercator .chart-context {
+  text-align: center;
+}
+
+.d3-viz.d3-pie .chart-context .chart-title,
+.d3-viz.d3-geo-mercator .chart-context .chart-title,
+.d3-viz.d3-column-chart .chart-title,
+.d3-viz.d3-table caption {
+  font-size: var(--viz-chart-title-font-size);
+  padding: 0;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend {
+  padding: 0.6em 0.8em;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend label {
+  margin-bottom: 0;
+}
+
+.d3-viz.d3-table thead th,
+.d3-viz.d3-table tbody td {
+  font-size: 0.85rem;
+  padding: 0.5em 0.4em;
+}
+
+#registryPatientsByAgeGroup .chart-area .chart-axes .tick text tspan {
+  font-size: 0.85em;
+}
+
+#registryPatientsBySexAtBirth .chart-area .pie-labels .pie-label-text {
+  font-size: 0.7rem !important;
+}
+
+.d3-pie > .chart-legend .legend-item .item-label {
+  font-size: 0.9rem;
+}
+
+#skinPublicDashboard .dashboard-content,
+#skinPublicDashboard .dashboard-content .dashboard-chart-layout {
+  gap: 1em;
+}
+
+#page-about-us .page-header .background-image-filter {
+  opacity: 0.5;
+}
+
+#page-about-us .page-section {
+  padding: 0;
+}
+
+#page-about-us .page-section h2 {
+  display: block;
+  text-align: left;
+  line-height: 1;
+  padding: 12px 0;
+  padding-left: 12px;
+  background-color: #0e71a6;
+  color: var(--gray-050);
+}
+
+#page-about-us .page-section h3 {
+  color: #0e71a6;
+  text-align: left;
+  margin-top: 1.25em;
+}
+
+#page-about-us .page-section h3 + p {
+  margin-top: 0.5em;
+}
+
+#page-about-us .page-section .ul.list-item-check {
+  list-style: none;
+}
+
+#page-about-us .page-section .ul.list-item-check li {
+  display: flex;
+}
+
+#page-about-us .page-section .ul.list-item-check li:before {
+  content: "\2713";
+  margin-right: 6px;
+}
+
+#page-about-us .page-section p:last-child {
+  margin-bottom: 0;
+}
+
+#ernSkinStudies .page-header {
+  padding: 2em 0;
+  color: var(--erras-blue);
+}
+
+#accordion-studies-nav .accordion-heading {
+  background-color: #0084b4;
+  border-color: #0084b4;
+  color: #ffffff;
+}
+
+#accordion-accReq-nav .accordion-heading {
+  background-color: #00a453;
+  border-color: #00a453;
+  color: #ffffff;
+}
+
+#accordion-patient-nav .accordion-heading {
+  background-color: #f48b31;
+  border-color: #f48b31;
+  color: #ffffff;
+}
+
+#accordion-general-nav .accordion-heading {
+  background-color: #eb212e;
+  border-color: #eb212e;
+  color: #ffffff;
+}
+
+#ernSkinStudies .page-header {
+  height: 8em;
+}
+
+@media screen and (min-width: 812px) {
+  .quicklink-cards {
+    flex-wrap: nowrap;
+  }
+}
+
+@media screen and (min-width: 1500px) {
+  .app-page .page-header {
+    height: 34em;
+  }
+}

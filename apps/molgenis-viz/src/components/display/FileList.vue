@@ -1,9 +1,14 @@
 <template>
-  <MessageBox type="error" v-if="error" class="file-list-error">
+  <LoadingScreen v-if="loading" style="height: 150px" />
+  <MessageBox type="error" v-if="!loading && error" class="file-list-error">
     <p><strong>Unable to retrieve files:</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
-  <MessageBox type="error" v-else-if="!data" class="file-list-error">
+  <MessageBox
+    type="error"
+    v-else-if="!loading && !data"
+    class="file-list-error"
+  >
     <div class="p-2">
       <p>
         No files are available for download. To import files, follow the steps
@@ -34,7 +39,7 @@
       <p>Repeat the process for each file.</p>
     </div>
   </MessageBox>
-  <ul class="file-list" v-else>
+  <ul class="file-list" v-else-if="!loading && !error && data">
     <li class="file" v-for="file in data">
       <p class="file-element file-name">
         <span v-if="labelsColumn && Object.hasOwn(file, labelsColumn)">
@@ -70,10 +75,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import MessageBox from "./MessageBox.vue";
+import LoadingScreen from "./LoadingScreen.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
@@ -104,6 +110,7 @@ interface FilesResponse {
 }
 
 const error = ref<Error | null>(null);
+const loading = ref(true);
 const data = ref<FilesData[]>();
 
 async function getFiles() {
@@ -128,14 +135,32 @@ async function getFiles() {
 }
 
 onMounted(() => {
-  getFiles().catch((err) => {
-    if (err?.response?.errors?.length > 0 && err.response.errors[0].message) {
-      error.value = err.response.errors[0].message;
-    } else {
-      error.value = err?.message || "An unexpected error occurred.";
-    }
-  });
+  getFiles()
+    .catch((err) => {
+      if (err?.response?.errors?.length > 0 && err.response.errors[0].message) {
+        error.value = err.response.errors[0].message;
+      } else {
+        error.value = err?.message || "An unexpected error occurred.";
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 });
+
+watch(
+  () => props.filter,
+  async (newFilter, oldFilter) => {
+    if (newFilter !== oldFilter) {
+      loading.value = true;
+      getFiles()
+        .catch((err) => {
+          error.value = err.response?.errors[0].message || err;
+        })
+        .finally(() => (loading.value = false));
+    }
+  }
+);
 </script>
 
 <style lang="scss">

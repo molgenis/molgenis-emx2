@@ -1,16 +1,10 @@
 import { assertMenu } from "../utils/typeUtils";
 import type { Menu } from "../../types/types";
 import { useSchemaSettings } from "./useSchemaSettings";
-import { computed, ref, useRoute, watch } from "#imports";
+import { useRoute } from "#app";
+import { computed, ref, watch } from "vue";
 
 const MENU_SETTING_KEY = "tw-menu";
-
-const route = useRoute();
-const schema = computed(() =>
-  Array.isArray(route.params.schema)
-    ? route.params.schema[0]
-    : route.params.schema
-);
 
 function parseMenuItems(menuJson: string): Menu {
   try {
@@ -23,13 +17,12 @@ function parseMenuItems(menuJson: string): Menu {
   }
 }
 
-async function fetchMenu() {
-  if (schema.value) {
+async function fetchMenu(schema: string | undefined) {
+  if (schema) {
     // Fetch menu settings for the current schema
     const schemaSettings = await useSchemaSettings(new Set([MENU_SETTING_KEY]));
-    return schemaSettings?.[MENU_SETTING_KEY]
-      ? parseMenuItems(schemaSettings[MENU_SETTING_KEY])
-      : [];
+    const menuSetting = schemaSettings?.value?.[MENU_SETTING_KEY];
+    return typeof menuSetting === "string" ? parseMenuItems(menuSetting) : [];
   } else {
     // Fetch system menu
     return [];
@@ -37,20 +30,24 @@ async function fetchMenu() {
 }
 
 export const useMenu = async () => {
+  const route = useRoute();
   const menu = ref<Menu>([]);
 
   watch(
     () => route.params.schema,
     async (newSchema) => {
       if (newSchema) {
-        const newMenu = await fetchMenu();
+        const resolvedSchema = Array.isArray(newSchema)
+          ? newSchema[0]
+          : newSchema;
+        const newMenu = await fetchMenu(resolvedSchema);
         menu.value = newMenu;
       } else {
         menu.value = [];
       }
-    }
+    },
+    { immediate: true }
   );
 
-  menu.value = await fetchMenu();
   return menu;
 };
