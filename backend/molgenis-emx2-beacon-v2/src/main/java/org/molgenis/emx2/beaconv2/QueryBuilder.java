@@ -158,9 +158,10 @@ public class QueryBuilder {
         if (column.isOntology()) {
           columnSb.append(column.getIdentifier()).append("{");
           for (Column subCol : column.getRefTable().getColumnsWithoutHeadings()) {
-            if (!EXCLUDED_COLUMNS.contains(subCol.getName())) {
-              columnSb.append(subCol.getIdentifier()).append(",");
+            if (EXCLUDED_COLUMNS.contains(subCol.getName()) || subCol.isReference()) {
+              continue;
             }
+            columnSb.append(subCol.getIdentifier()).append(",");
           }
           columnSb.append("},");
           continue;
