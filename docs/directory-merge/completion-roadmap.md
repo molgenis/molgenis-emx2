@@ -2,6 +2,27 @@
 
 The proof-of-concept (model change + whole-dump migration + a loading demo) is done and validated. **None of the items below are model-validation gaps — the model is proven.** They are the reference-data, curation, and execution work to take this from PoC to production.
 
+## Migration strategy — load-then-curate (2-step)
+
+Curation can be sequenced two ways: **curate-then-load** (resolve the flagged cases outside the catalogue, load a clean result) or **load-then-curate** (load everything with deterministic defaults, then curators refine in-catalogue). The PoC proves the second is viable — the full auto-migrated output loads clean (31,877 rows, ~79 s, 0 structural errors) with a deterministic default applied to every flagged case. Load-then-curate fits R9 (stewards edit their own records), R5/R6 (curate per `source`, distributed — no central bottleneck), and unblocks Directory retirement (R8): Step 1 lands, curation continues in parallel.
+
+**Step 1 — automatic bulk migration + load.** Every rule below is deterministic — it always yields a loadable record (a default, never a failure) and tags a *review reason* where the default is a judgment call:
+
+| Decision | Automatic rule (default) | Flags for curation |
+|---|---|---|
+| Biobank shape | 0-coll → `Organisations` identity; 2+-coll → biobank-org holding N `Collections`; 1:1 → collapse to a `Collections` held by its legal entity if attribute-poor, else mint a biobank-org (has quality/services) | every 1:1 "is-it-a-real-org?" (475) |
+| `juridical_person` | mint one legal-entity `Organisations` per normalized-exact distinct value; link via `part of` | fuzzy near-dup clusters — minted separately, flagged as candidate-merges (31); never auto-merged |
+| `parent_collection` | classify by varying dimension: 1 dim (or several facts-dims) → `Collection facts` (default); `type` varies → promoted `Collections` + `Linkages`; temporal → `Collection events`; site → `Subpopulations` | type-varies (25), single-child (46), no-vary (15), other multi-dim (28) |
+| `held by` | custody signal: old "Data holder" role → `biobank` → publisher → lead-org | — (deterministic) |
+| Ontology values | crosswalk code → catalogue term; unmappable → safe default (type → `Biobank`) or null the dimension | each unmapped code (feeds item 1) |
+| `Resources.name` collision | append an id-suffix | names a curator may want to merge/rename (832) |
+| `source` / ids | `source` = national node; global id = `source:localid`, never rewritten | — (deterministic) |
+| Persons / Studies / Networks / QualityInfo / Services | deterministic structural map | — (mostly deterministic) |
+
+**Step 2 — incremental in-catalogue curation.** Curators query the review-reason tag within their own `source` and accept-or-adjust each default via the catalogue's data-entry UI (confirm a 1:1 collapse vs promote to a real org, re-classify a sub-collection, merge fuzzy legal entities).
+
+**Enablers this adds:** a review-flag surfaced in the UI (`mg_draft` or a dedicated `curation status`, plus a per-`source` saved filter "flagged records") and — for the fuzzy-dedup tail only — an in-catalogue **merge tool** (post-load merging must re-point `part of`/`held by`/`publisher` refs), or run entity-dedup pre-load and everything else load-then-curate (hybrid).
+
 ## 1. Ontology extension & crosswalks (the main data task)
 
 The catalogue's fixed `CatalogueOntologies` are intentionally small (~5 sample types, ~9 resource types) and don't yet cover BBMRI vocabulary. The *model has the columns*; the *reference ontologies* need extending + a code→term crosswalk:
