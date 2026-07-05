@@ -1,12 +1,12 @@
 import gql from "graphql-tag";
 export default gql`
-  query Datasets(
+  query Tables(
     $id: String
     $limit: Int
     $offset: Int
-    $orderby: [Datasetsorderby]
+    $orderby: [Tablesorderby]
   ) {
-    Datasets(
+    Tables(
       filter: { resource: { id: { equals: [$id] } } }
       limit: $limit
       offset: $offset
@@ -15,7 +15,7 @@ export default gql`
       name
       description
     }
-    Datasets_agg(filter: { resource: { id: { equals: [$id] } } }) {
+    Tables_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
   }

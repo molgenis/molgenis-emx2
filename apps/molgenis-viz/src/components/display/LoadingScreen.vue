@@ -42,7 +42,7 @@ export default {
   align-items: center;
   width: 100%;
   height: 100vh;
-  background-color: $blue-green-200;
+  background-color: $gray-050;
   color: $gray-900;
   opacity: 0.8;
 

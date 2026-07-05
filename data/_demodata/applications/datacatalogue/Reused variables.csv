@@ -1,4 +1,4 @@
-resource,variable.resource,variable.dataset,variable.name,mg_draft
+resource,variable.resource,variable.table,variable.name,mg_draft
 LongITools,LifeCycle,core,alc_t,
 LongITools,LifeCycle,core,an_m_,
 LongITools,LifeCycle,core,green_dist_t,
