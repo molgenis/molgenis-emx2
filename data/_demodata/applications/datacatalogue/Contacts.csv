@@ -128,3 +128,13 @@ testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,tu
 TestDataSourceID,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 TestDatabank1,Project manager,,Rob,Boss,Rob Boss,,,prof. dr.,,rob.boss@email.org,,,,,,false
 TestDatabank2,Project manager,,Test,Data,Test Data,,,,,testdata@data.nl,,,,,,false
+bbmri-eric:ID:EXT_QBB:collection:covid19,,,Nahla,Afifi,Prof. Nahla Afifi,,,,,nafifi@qf.org.qa,,,,,,
+bbmri-eric:ID:EXT_76823:collection:MainCollection,,,Carmen,Aguado,Carmen Aguado,,,,,info-biobank@ciberer.es,,,,,,
+bbmri-eric:ID:EXT_BB-iMM:collection:covid19,,,Sérgio,Dias,Prof. Sérgio Dias,,,,,biobanco-imm@medicina.ulisboa.pt,,,,,,
+bbmri-eric:ID:EXT_BB-iMM:collection:COVID19PROSPECTIVE,,,Cláudia,Faria,Prof. Cláudia Faria,,,,,biobanco-imm@medicina.ulisboa.pt,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:NeurologicalDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:HematologicalDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:MetabolicDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_GBR-1-198:collection:1,,,Dan,Cox,Dan Cox,,,,,dan.cox@newcastle.ac.uk,,,,,,
+directory_network_bbmri-eric:networkID:EU_BBMRI-ERIC:networks:BBMRI-Cohorts,,,Jens,Habermann,Jens Habermann,,,,,contact@bbmri-eric.eu,,,,,,
