@@ -725,4 +725,3 @@ describe("buildDocsTree search filter", () => {
     expect(Array.isArray(result)).toBe(true);
   });
 });
-

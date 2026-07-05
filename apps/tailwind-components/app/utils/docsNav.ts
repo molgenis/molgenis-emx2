@@ -554,4 +554,3 @@ export function buildDocsTree(
   const tree = [foundationsSection, componentsSection, examplesSection];
   return query.trim() === "" ? tree : filterTreeWithQuery(tree, query);
 }
-
