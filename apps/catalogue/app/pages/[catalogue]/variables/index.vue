@@ -234,7 +234,7 @@ const query = computed(() => {
       resource {
         id
       }
-      dataset {
+      table {
         name
         resource {
           id

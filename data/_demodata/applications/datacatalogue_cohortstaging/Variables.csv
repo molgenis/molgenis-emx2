@@ -1,4 +1,4 @@
-resource,dataset,name,label,collection event.resource,collection event,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes,is_repeated,is repeat of.dataset,is repeat of.name
+resource,table,name,label,collection event.resource,collection event,since version,until version,format,unit,references.dataset,references.name,mandatory,description,order,example values,keywords,vocabularies,notes,is_repeated,is repeat of.table,is repeat of.name
 testCohort,metadata,c_id,Child's identifier,testCohort,baseline,1.0,,string,,,,,,,,Child id,,,False,,
 testCohort,metadata,m_id,Mother's identifier,testCohort,baseline,1.0,,string,,,,,,,,Mother id,,,False,,
 testCohort,metadata,p_id,Partner's identifier,testCohort,baseline,1.0,,string,,,,,,,,,,,False,,
@@ -12,7 +12,6 @@ testCohort,mother,gest_diabetes,Mother gestational diabetes,testCohort,third tri
 testCohort,mother,blood_glucose,Fasting blood glucose,testCohort,third trimester,,,continuous,mmol/litre,,,,Mother's fasting blood glucose in third trimester,,"4.7,7.8,4.5",Maternal diabetes,,,False,,
 testCohort,mother,family_disease,disease,testCohort,baseline mother,1.0,,categorical,,,,,Family disease on mother's side,,,,ICD10,,False,,
 testCohort,mother,m_id,Mother's identifier,testCohort,baseline,,,string,,,,,,,,Mother id,,,False,,
-testCohort,testDataset,var1,,,,,,,,,,,,,,,,,False,,
 testCohort,growth,bm_1,,testCohort,1 months,1.0,,,,,,,,,,,,,,growth,bm_0
 testCohort,growth,bm_2,,testCohort,2 months,1.0,,,,,,,,,,,,,,growth,bm_0
 testCohort,growth,bm_3,,testCohort,3 months,1.0,,,,,,,,,,,,,,growth,bm_0

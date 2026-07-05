@@ -20,7 +20,6 @@ import {
   toRefColumn,
   toRefColumnValue,
 } from "../../../app/utils/typeUtils";
-
 describe("getInitialFormValues", () => {
   it("should return initial form values based on metadata", () => {
     const metadata = {

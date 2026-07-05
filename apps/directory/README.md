@@ -16,15 +16,6 @@ For the most recent (default) version you can set to following settings:
 "negotiatorUrl": "https://url.to.negotiator.org",
 ```
 
-For using the legacy Podium api, which requires authentication, use:
-
-```
-"negotiatorType": "v1",
-"negotiatorUrl": "https://url.to.podium.negotiator.org",
-"negotiatorUsername": "user name",
-"negotiatorPassword": "password",
-```
-
 # Using Matomo to track user behaviour
 
 If you want to use Matomo to track how users use the app, you can in the settings add the following:
