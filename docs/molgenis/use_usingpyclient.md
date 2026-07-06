@@ -125,7 +125,8 @@ def get(self,
         columns: list[str] = None,
         query_filter: str = None, 
         schema: str = None, 
-        as_df: bool = False) -> list | pandas.DataFrame:
+        as_df: bool = False,
+        parse_arrays: bool = False) -> list | pandas.DataFrame:
     ...
 ```
 Retrieves data from a table on a schema using the CSV API and returns the result either as a list of dictionaries or as a pandas DataFrame.
@@ -149,6 +150,7 @@ Throws the `NoSuchColumnException` if the `columns` argument or query filter con
 | `schema`       | str  | the name of a schema                                                           | False    | None    |
 | `query_filter` | str  | a string to filter the results on                                              | False    | None    |
 | `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
+| `parse_arrays` | bool | if true: convert array-type columns to lists                                   | False    | False   |
 
 ##### examples
 

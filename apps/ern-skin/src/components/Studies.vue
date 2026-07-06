@@ -1,3 +1,41 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
+
+// @ts-expect-error
+import { MessageBox } from "molgenis-viz";
+import type { IStudies } from "../../../metadata-utils/src/viz/ErnDashboard";
+
+const props = defineProps<{
+  table: string;
+  labelsColumn?: string;
+}>();
+
+interface DataResponse {
+  data: Promise<Record<string, any>>;
+}
+
+const error = ref<Error>();
+const data = ref<IStudies[]>();
+
+async function getStudies() {
+  const query = gql`query {
+    ${props.table} {
+      ${props.labelsColumn || ""}
+    }
+  }`;
+  const response: DataResponse = await request("../api/graphql", query);
+  data.value = response[
+    props.table as keyof DataResponse
+  ] as unknown as IStudies[];
+}
+
+getStudies().catch((err) => {
+  error.value = err.response?.errors[0].message || err;
+});
+</script>
+
 <template>
   <MessageBox type="error" v-if="error" class="study-list-error">
     <p><strong>Unable to retrieve studies</strong></p>
@@ -12,9 +50,8 @@
       <ol>
         <li>Navigate to the <a href="../tables/#/Studies">Studies table</a></li>
         <li>
-          Create a new record by clicking the add new record button (<PlusIcon
-            class="heroicons"
-          />) located in the top left corner of the table.
+          Create a new record by clicking the add new record button located in
+          the top left corner of the table.
         </li>
         <li>
           In the form that appears, enter as much information about the study as
@@ -34,114 +71,11 @@
         class="study-element study-url"
         :href="
           '../tables/#/Studies?_filter=title&title=' +
-          study[labelsColumn] +
+          study[labelsColumn as keyof IStudies] +
           '&_view=record&_limit=1'
         "
-        >{{ study[labelsColumn] }}</a
+        >{{ study[labelsColumn as keyof IStudies] }}</a
       >
     </li>
   </ul>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-// @ts-expect-error
-import { MessageBox } from "molgenis-viz";
-import { PlusIcon } from "@heroicons/vue/24/outline";
-
-const props = defineProps<{
-  table: string;
-  labelsColumn?: string;
-}>();
-
-interface StudyProperties {
-  id: string;
-  title: string;
-}
-
-const error = ref<Error | null>(null);
-const data = ref<StudyProperties[]>([]);
-
-async function getStudies() {
-  const query = gql`query {
-    ${props.table} {
-      ${props.labelsColumn || ""}
-    }
-  }`;
-  const response = await request("../api/graphql", query);
-  data.value = response[props.table];
-}
-
-getStudies().catch((err) => {
-  if (!err.response.errors.length) {
-    error.value = err;
-  } else {
-    error.value = err.response.errors[0].message;
-  }
-});
-</script>
-
-<style lang="scss">
-.study-list-error {
-  .heroicons {
-    @include setIconSize(24px);
-  }
-}
-
-.study-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  $border-radius: 8pt;
-
-  .heroicons {
-    @include setIconSize(24px);
-    path {
-      stroke-width: 2;
-    }
-  }
-
-  .study {
-    display: grid;
-    grid-template-columns: 1fr repeat(2, 0.5fr) 0.2fr;
-    justify-content: center;
-    align-items: stretch;
-    box-shadow: $box-shadow;
-    box-sizing: border-box;
-    margin-bottom: 2em;
-    padding: 0;
-    margin: 0;
-    margin-bottom: 2em;
-    border-radius: $border-radius;
-
-    .study-element {
-      padding: 0.75em 1.2em;
-      margin: 0;
-      background-color: $red-050;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .study-name {
-      justify-content: flex-start;
-      border-radius: $border-radius 0 0 $border-radius;
-    }
-
-    .study-url {
-      justify-content: flex-start;
-      background-color: $blue-800;
-      color: $gray-050;
-      border-radius: 0 $border-radius $border-radius 0;
-
-      &:hover,
-      &:focus {
-        background-color: $yellow-400;
-        color: $blue-800;
-      }
-    }
-  }
-}
-</style>

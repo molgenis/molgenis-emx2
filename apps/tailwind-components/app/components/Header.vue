@@ -10,12 +10,21 @@ const config = useRuntimeConfig();
 const showThemeSwitch =
   config.public?.emx2Theme === "" ||
   !["light", "dark"].includes(config.public?.emx2Theme as string);
+
+const props = withDefaults(
+  defineProps<{
+    wide?: boolean;
+  }>(),
+  {
+    wide: false,
+  }
+);
 </script>
 <template>
   <header
     class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
   >
-    <Container>
+    <Container :wide="props.wide">
       <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
 

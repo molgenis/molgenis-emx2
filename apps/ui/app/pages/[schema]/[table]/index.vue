@@ -19,6 +19,8 @@ import { keySlug } from "../../../../../tailwind-components/app/utils/navigation
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
 import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
+import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -26,6 +28,10 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -134,11 +140,11 @@ onMounted(scrollSelectedIntoView);
 watch(() => tableId, scrollSelectedIntoView);
 
 const { isAdmin, session } = await useSession(schemaId);
+const enableFilters = true;
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0">
-    <PageHeader :title="tableId" align="left">
-      {{ tableMetadata }}
+  <Container :wide="true">
+    <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       <template #prefix>
         <BreadCrumbs
           :align="'left'"
@@ -176,6 +182,7 @@ const { isAdmin, session } = await useSession(schemaId);
     <TableEMX2
       :schemaId="schemaId"
       :tableId="tableId"
+      :enable-filters="enableFilters"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
     >
@@ -191,5 +198,5 @@ const { isAdmin, session } = await useSession(schemaId);
         />
       </template>
     </TableEMX2>
-  </div>
+  </Container>
 </template>
