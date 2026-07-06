@@ -1,6 +1,10 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
 import java.io.File;
@@ -8,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
@@ -16,6 +21,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -27,6 +33,12 @@ public class CatalogueModelMigrationTest {
   private static final String SCHEMA = "CatalogueModelMigrationTest";
   private static final String ROUND_TRIP_SCHEMA = "CatalogueModelMigrationRoundTrip";
   private static final int EXPECTED_TABLE_COUNT = 30;
+
+  private static final String ORGANISATIONS = "Organisations";
+  private static final String COLLECTIONS = "Collections";
+  private static final String COLLECTION_FACTS = "Collection facts";
+  private static final String ID = "id";
+  private static final String HELD_BY = "held by";
 
   private Database database;
   private Schema schema;
@@ -80,6 +92,74 @@ public class CatalogueModelMigrationTest {
   void adheresToDcatAndHealthRiShacl() throws IOException {
     adheresToShacl(schema, "ejp-rd-vp");
     adheresToShacl(schema, "hri-v2.0.2");
+  }
+
+  @Test
+  void demoDataLoadedWithExpectedCounts() {
+    // Exact row counts of the migration-affected tables, guarding against silent data loss.
+    // Each count is the real loaded number and must be > 0: the round-trip test cannot catch
+    // an emptied table because 0 == 0 stays "stable" after export/import.
+    assertEquals(76, schema.getTable(ORGANISATIONS).retrieveRows().size());
+    assertEquals(188, schema.getTable("Organisation roles").retrieveRows().size());
+    assertEquals(106, schema.getTable(COLLECTIONS).retrieveRows().size());
+    assertEquals(20, schema.getTable(COLLECTION_FACTS).retrieveRows().size());
+    assertEquals(139, schema.getTable("Contacts").retrieveRows().size());
+    assertEquals(5, schema.getTable("Quality info").retrieveRows().size());
+    assertEquals(1, schema.getTable("Services").retrieveRows().size());
+    assertEquals(15, schema.getTable("Networks").retrieveRows().size());
+  }
+
+  @Test
+  void migratedRowsCarryNewColumns() {
+    // Collections.held by (custody, ref_array -> Organisations, R3): a stable collection
+    // carries a non-empty held by that resolves to a real Organisations id.
+    List<Row> collectionRows =
+        schema.getTable(COLLECTIONS).where(f(ID, EQUALS, "RAINE")).retrieveRows();
+    assertEquals(1, collectionRows.size());
+    String[] heldBy = collectionRows.get(0).getStringArray(HELD_BY);
+    assertNotNull(heldBy);
+    assertTrue(heldBy.length > 0, "RAINE collection must have a held by organisation");
+    assertEquals("UWA", heldBy[0]);
+    assertEquals(
+        1,
+        schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, heldBy[0])).retrieveRows().size(),
+        "held by must resolve to a real Organisations id");
+
+    // Organisations identity from the Phase-3 directory slice carries its new 'part of' column:
+    // Qatar Biobank is part of a legal entity that itself exists as an Organisations record.
+    List<Row> orgRows =
+        schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, "bbmri-eric:ID:EXT_QBB")).retrieveRows();
+    assertEquals(1, orgRows.size());
+    String partOf = orgRows.get(0).getString("part of");
+    assertEquals("directory_le_0014", partOf, "Qatar Biobank must reference its legal entity");
+    assertEquals(
+        1,
+        schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, partOf)).retrieveRows().size(),
+        "part of must resolve to a real legal-entity Organisations id");
+
+    // Collection facts (new table): a row carries a dimension (sex) plus a measure (donor count).
+    List<Row> factRows =
+        schema
+            .getTable(COLLECTION_FACTS)
+            .where(f(ID, EQUALS, "directory_factID_EXT_GBR-1-198_1"))
+            .retrieveRows();
+    assertEquals(1, factRows.size());
+    assertEquals("Male", factRows.get(0).getString("sex"));
+    Integer donors = factRows.get(0).getInteger("number of donors");
+    assertNotNull(donors, "collection fact must carry a donor count measure");
+    assertEquals(43, donors);
+
+    // R3 custody invariant asserted against the real data: every Collection has >= 1 held by.
+    long collectionsWithoutHeldBy =
+        schema.getTable(COLLECTIONS).retrieveRows().stream()
+            .filter(
+                row -> {
+                  String[] custody = row.getStringArray(HELD_BY);
+                  return custody == null || custody.length == 0;
+                })
+            .count();
+    assertEquals(
+        0, collectionsWithoutHeldBy, "every Collection must have at least one held by (R3)");
   }
 
   private static void deleteRecursively(Path directory) throws IOException {
