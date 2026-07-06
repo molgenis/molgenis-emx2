@@ -12,7 +12,7 @@ Curation can be sequenced two ways: **curate-then-load** (resolve the flagged ca
 |---|---|---|
 | Biobank shape | 0-coll → `Organisations` identity; 2+-coll → biobank-org holding N `Collections`; 1:1 → collapse to a `Collections` held by its legal entity if attribute-poor, else mint a biobank-org (has quality/services) | every 1:1 "is-it-a-real-org?" (475) |
 | `juridical_person` | mint one legal-entity `Organisations` per normalized-exact distinct value; link via `part of` | fuzzy near-dup clusters — minted separately, flagged as candidate-merges (31); never auto-merged |
-| `parent_collection` | classify by varying dimension: 1 dim (or several facts-dims) → `Collection facts` (default); `type` varies → promoted `Collections` + `Linkages`; temporal → `Collection events`; site → `Subpopulations` | type-varies (25), single-child (46), no-vary (15), other multi-dim (28) |
+| `parent_collection` (1,319 sub-collections / 206 parents) | classify by varying dimension: facts-dims → `Collection facts` (default, **934 / 71%**); `type` varies → promoted `Collections` + `Linkages`; temporal → `Collection events`; site → `Subpopulations` | 385 (29%) reviewed: `collection_event` 38 / `subpopulation` 0 / `promoted_collection` 35 / `unclear_mixture` 312 |
 | `held by` | custody signal: old "Data holder" role → `biobank` → publisher → lead-org | — (deterministic) |
 | Ontology values | crosswalk code → catalogue term; unmappable → safe default (type → `Biobank`) or null the dimension | each unmapped code (feeds item 1) |
 | `Resources.name` collision | append an id-suffix | names a curator may want to merge/rename (832) |
@@ -60,8 +60,13 @@ The human-in-the-loop work the PoC surfaced:
 
 ## 4. Migration-rule refinements
 
+The per-sub-collection analysis (1,319 sub-collections across 206 parents) classifies **934 (71%) → `Collection facts`** automatically; **385 (29%)** need review — `collection_event` 38, `subpopulation` 0, `promoted_collection` 35, `unclear_mixture` 312. The refinements below lift the auto-rate and tame the review queue:
+
+- **Robust `type`-detection (supersedes the old facts-anatomy tie-breaker — now addressed).** The promote-on-`type`-varies rule must handle BBMRI's **multi-valued `type` sets**: set-ordering, the `IMAGE` modality token, rare (<10%) outliers, and nested-subset diffs. Naive dimension-counting wrongly promoted the two mega-parents **FFPEslides (262 children)** and **CryoCollection (161)** — which are actually **facts** (disease / anatomy dimensions). Fixing this is what lifts the auto-rate.
+- **`subpopulation` is unused (new finding).** The Directory does **not** encode site/centre arms as sub-collections — country/location almost never vary, and apparent site name-matches were anatomy/diagnosis/biobank-name false positives. So the `Subpopulations` target the design anticipated for sub-collections **isn't exercised by directory data** (Subpopulations remain in the model for other uses).
+- **Never auto-trust temporal detection (low-confidence heuristic).** `data_categories`→temporal detection conflates omics modality and case/control with true timepoints — flag, don't auto-classify. The genuinely hard cases are the **~83 facts×wave mixtures** (timepoint AND facts-dims both vary → want `Collection events` + per-event facts).
+- **`unclear_mixture` (312) review queue** breaks down as: ~38 duplicates + ~111 name-only slices (distinction only in the free-text name, no structured column) + ~83 facts×wave + ~34 near-facts (a spurious `data_categories` diff — a curator would likely restore to facts) + ~46 single-child parents (flatten into parent).
 - Wire `Studies.also_known` (only **34 / 166** alt-ids resolved — ECRIN-MDR ids live on studies).
-- Add a facts-anatomy tie-breaker so the `type`-varies rule stops over-promoting large body-part families.
 - Clean junk `juridical_person` placeholders ("No information", contact-id strings).
 
 ## 5. Model decision — global-unique `Resources.name` vs duplicate BBMRI names
