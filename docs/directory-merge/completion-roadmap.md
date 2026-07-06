@@ -77,9 +77,11 @@ The model keys `Resources.name` globally unique (`Resources_KEY3`; Organisations
 
 The full-scale in-database load is **done and passed**: the entire migrated output (**31,877 rows / 9 tables; 4746 collections, 19,924 facts**) loaded into a fresh catalogue schema in **~79 s with 0 structural errors**, survived a full export→import round-trip (~92 s, counts stable), and spot-checks resolve. What remains under this item: a **semantic** spot-check at scale + the production run on the real ontologies.
 
-## 7. Cross-catalogue dedup
+## 7. Existing-catalogue production migration + cross-catalogue dedup
 
-When merging with the live catalogue, dedup the existing **~871** per-resource org rows → **~319** identities against the minted directory orgs.
+**Existing-catalogue production migration — a Python transform-script (not SQL).** Phase 1 hand-migrated only the small *demo* fixture; the **live** catalogue has no migration tool yet. The real reshape is 871 per-resource `Organisations` rows → ~319 **deduped** identities + 871 `Organisation roles`, `held by` derivation, and ref repointing. Build a `catalogue migrate.py` over the existing-catalogue export, **sharing the identity-dedup logic with the directory `migrate.py`** (analysis §3: 871 → 319 — one dedup implementation for both directory orgs and existing-catalogue orgs). Approach: **Python (export → transform → import), NOT raw SQL** — EMX2 manages schema + data through its metadata layer (raw SQL renaming tables / reshaping rows desyncs that metadata and fights the framework); the change is a **data-reshape** rather than in-place UPDATEs (the fuzzy 871 → 319 dedup is natural in pandas, awkward in SQL); and a script reuses the EMX2 import's FK + ontology validation.
+
+**Cross-catalogue dedup.** When merging with the live catalogue, dedup the existing **~871** per-resource org rows → **~319** identities against the minted directory orgs.
 
 ## 8. Federation & provenance model (future — pairs with diamond/multiple-inheritance)
 
