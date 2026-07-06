@@ -83,10 +83,10 @@ When merging with the live catalogue, dedup the existing **~871** per-resource o
 
 ## 8. Federation & provenance model (future — pairs with diamond/multiple-inheritance)
 
-The PoC keeps provenance minimal (node = an `Organisations` identity used as `source`); the full federation model is future work:
+The single-hop provenance fields are **in this PR**; the *multi-hop* federation model stays future work (pairs with diamond/multiple-inheritance):
 
-- **`source` vs `imported from` (R6 gap).** `source` = the record's *original* owner (e.g. an institute like UMCG running its own catalogue) — **single-valued, never rewritten** as higher levels aggregate; this is what lets a central catalogue link back to the original source (R5). `imported from` = the *immediate* upstream a catalogue imported the record from (e.g. BBMRI.nl at the Directory level) — a **separate** field, **not yet in the model** (R6 anticipates it). Together they give origin + path without a per-record multi-hop chain.
-- **The institute → national-node → central chain** is a **hierarchy among the sources** (each source has an aggregator/parent), NOT a per-record chain.
+- **`source` + `imported from` — the single-field pair (DONE, in this PR — C8).** `source` = the record's *original* owner — **single-valued, never rewritten** as higher levels aggregate; this is what lets a central catalogue link back to the original source (R5). **`imported from`** = the *immediate* upstream this catalogue imported the record from (R6). Both are `ref → Organisations` on `Resources`; for migrated records `source` = the national node and `imported from` = the **BBMRI-ERIC Directory**. Together they give origin + immediate path (one hop each) — **no longer a gap**.
+- **Multi-hop source *chain* (future).** The full `source:localid` **hierarchy among sources** — each source has an aggregator/parent (institute → national node → central) — is future work; it is a self-hierarchy *among the sources*, NOT a per-record multi-hop chain.
 - **A national node is multi-facet:** an `Organisations` (owner/steward = `source`, and the coordinating/host body) **and** a `Networks` (a grouping that lists all its collections **and organisations**, for browsing). Diamond inheritance unifies these; until then it is two linked rows (the `Networks.publisher` = the `Organisations`). The PoC keeps it simple — node = `Organisations` used as `source`, and you still get "everything in node X" by querying `source = X`.
 - **Custody vs stewardship** (both already in the model): who *holds/manages the data* (the institute) = `held by`; who *stewards the record in the federation* (the node) = `source`.
 
