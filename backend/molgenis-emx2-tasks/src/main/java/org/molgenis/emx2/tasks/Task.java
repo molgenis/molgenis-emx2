@@ -199,7 +199,10 @@ public class Task implements Runnable, Iterable<Task> {
     Objects.requireNonNull(status, "status can not be null");
     if (RUNNING.equals(status)) {
       this.startTimeMilliseconds = System.currentTimeMillis();
-    } else if (ERROR.equals(status) || COMPLETED.equals(status) || SKIPPED.equals(status)) {
+    } else if (ERROR.equals(status)
+        || COMPLETED.equals(status)
+        || SKIPPED.equals(status)
+        || CANCELLED.equals(status)) {
       if (startTimeMilliseconds == 0) {
         this.startTimeMilliseconds = System.currentTimeMillis();
       }
