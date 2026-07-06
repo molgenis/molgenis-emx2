@@ -11,6 +11,7 @@ import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -138,19 +139,7 @@ public class QueryEntryType {
 
     String template = null;
     if (database != null && schema != null) {
-      database.becomeAdmin();
-      Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
-      Table templatesTable = systemSchema.getTable("Templates");
-      List<Row> templates = templatesTable.retrieveRows();
-      template =
-          templates.stream()
-              .filter(
-                  r ->
-                      r.getString("schema").equals(schema.getName())
-                          && r.getString("endpoint").equals("beacon_" + entryType.getName()))
-              .map(r -> r.get("template", String.class))
-              .findFirst()
-              .orElse(null);
+      template = readSchemaTemplate();
     }
 
     Expression jslt;
@@ -168,6 +157,30 @@ public class QueryEntryType {
     }
 
     return jsltResponse;
+  }
+
+  private String readSchemaTemplate() {
+    AtomicReference<String> template = new AtomicReference<>();
+    database.tx(
+        tx -> {
+          String activeUser = tx.getActiveUser();
+          try {
+            tx.becomeAdmin();
+            Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
+            template.set(
+                templatesTable.retrieveRows().stream()
+                    .filter(
+                        r ->
+                            r.getString("schema").equals(schema.getName())
+                                && r.getString("endpoint").equals("beacon_" + entryType.getName()))
+                    .map(r -> r.get("template", String.class))
+                    .findFirst()
+                    .orElse(null));
+          } finally {
+            tx.setActiveUser(activeUser);
+          }
+        });
+    return template.get();
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {

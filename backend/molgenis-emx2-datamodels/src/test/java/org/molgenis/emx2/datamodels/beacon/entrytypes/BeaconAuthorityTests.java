@@ -61,6 +61,19 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
+  public void queryRestoresSharedDatabase() {
+    database.setActiveUser(VIEWER_TEST_USER);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
+    assertFalse(database.isAdmin());
+
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    QueryEntryType queryEntryType = new QueryEntryType(new BeaconRequestBody(request));
+    queryEntryType.query(patientRegistry);
+
+    assertEquals(VIEWER_TEST_USER, database.getActiveUser());
+  }
+
+  @Test
   public void testRecordQueryAsAggregateUser_noRecords() {
     database.setActiveUser(AGGREGATOR_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
