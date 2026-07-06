@@ -20,8 +20,7 @@ public class JavaScriptBindings {
     return arguments -> {
       String query = arguments.length > 0 ? arguments[0].asString() : null;
       Map<String, Object> variables = arguments.length > 1 ? asMap(arguments[1]) : new HashMap<>();
-      String schemaId =
-          arguments.length > 2 && !arguments[2].isNull() ? arguments[2].asString() : null;
+      String schemaId = arguments.length > 2 ? arguments[2].asString() : null;
       GraphqlExecutor graphQL =
           ApplicationCachePerUser.getInstance().getSchemaGraphqlForUser(schemaId, username);
       return graphQL.executeWithoutSession(query, variables).getData();
