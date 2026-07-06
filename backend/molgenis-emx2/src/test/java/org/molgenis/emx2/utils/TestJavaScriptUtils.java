@@ -1,6 +1,8 @@
 package org.molgenis.emx2.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.time.LocalDate;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 
 @Tag("slow")
 class TestJavaScriptUtils {
@@ -56,5 +59,13 @@ class TestJavaScriptUtils {
   void testComputedReturningListAsListClass() {
     Object result = executeJavascriptOnMap("['a', 'b'].concat(['c'])", Map.of(), List.class);
     assertEquals(List.of("a", "b", "c"), result);
+  }
+
+  @Test
+  void testCyclicResultGivesCleanErrorInsteadOfStackOverflow() {
+    String expression = "const a = {}; a.self = a; a";
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> executeJavascriptOnMap(expression, Map.of()));
+    assertTrue(e.getMessage().contains("nesting depth"), e.getMessage());
   }
 }

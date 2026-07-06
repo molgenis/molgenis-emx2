@@ -84,19 +84,29 @@ public class JavaScriptUtils {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  private static final int MAX_RESULT_DEPTH = 64;
+
   private static Object detachFromContext(Object value) {
+    return detachFromContext(value, 0);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Object detachFromContext(Object value, int depth) {
+    if (depth >= MAX_RESULT_DEPTH) {
+      throw new MolgenisException(
+          "result exceeds maximum nesting depth of " + MAX_RESULT_DEPTH + " (cyclic result?)");
+    }
     if (value instanceof Map) {
       Map<Object, Object> copy = new LinkedHashMap<>();
       for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
-        copy.put(entry.getKey(), detachFromContext(entry.getValue()));
+        copy.put(entry.getKey(), detachFromContext(entry.getValue(), depth + 1));
       }
       return copy;
     }
     if (value instanceof List) {
       List<Object> copy = new ArrayList<>();
       for (Object item : (List<Object>) value) {
-        copy.add(detachFromContext(item));
+        copy.add(detachFromContext(item, depth + 1));
       }
       return copy;
     }
