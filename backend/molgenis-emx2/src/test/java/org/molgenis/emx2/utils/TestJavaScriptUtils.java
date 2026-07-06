@@ -68,4 +68,12 @@ class TestJavaScriptUtils {
         assertThrows(MolgenisException.class, () -> executeJavascriptOnMap(expression, Map.of()));
     assertTrue(e.getMessage().contains("nesting depth"), e.getMessage());
   }
+
+  @Test
+  void testEs6MapWithObjectKeysIsDetached() {
+    Object result = executeJavascriptOnMap("new Map([[{id: 1}, 'v']])", Map.of());
+    Map.Entry<?, ?> entry = ((Map<?, ?>) result).entrySet().iterator().next();
+    assertEquals(1, ((Map<?, ?>) entry.getKey()).get("id"));
+    assertEquals("v", entry.getValue());
+  }
 }

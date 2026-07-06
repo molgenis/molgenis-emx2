@@ -99,7 +99,9 @@ public class JavaScriptUtils {
     if (value instanceof Map) {
       Map<Object, Object> copy = new LinkedHashMap<>();
       for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
-        copy.put(entry.getKey(), detachFromContext(entry.getValue(), depth + 1));
+        copy.put(
+            detachFromContext(entry.getKey(), depth + 1),
+            detachFromContext(entry.getValue(), depth + 1));
       }
       return copy;
     }
